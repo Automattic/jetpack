@@ -7,16 +7,10 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
-
 /**
  * Initialized the VideoPress package
  */
 class Initializer {
-
-	const JETPACK_VIDEOPRESS_PKG_NAMESPACE = 'jetpack-videopress-pkg';
 
 	/**
 	 * Initialization optinos
@@ -87,41 +81,6 @@ class Initializer {
 	}
 
 	/**
-	 * Initializes the Admin UI of VideoPress
-	 *
-	 * This method is called by Config::ensure
-	 *
-	 * @return void
-	 */
-	public static function init_admin_ui() {
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
-			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
-			'manage_options',
-			'jetpack-videopress',
-			array( __CLASS__, 'plugin_settings_page' ),
-			99
-		);
-		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-	}
-
-	/**
-	 * Initialize the admin resources.
-	 */
-	public static function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
-	}
-
-	/**
-	 * Main plugin settings page.
-	 */
-	public static function plugin_settings_page() {
-		?>
-			<div id="jetpack-videopress-root"></div>
-		<?php
-	}
-
-	/**
 	 * Initialize VideoPress features that should be initialized whenever VideoPress is present, even if the module is not active
 	 *
 	 * @return void
@@ -149,7 +108,7 @@ class Initializer {
 		Jwt_Token_Bridge::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
-			self::init_admin_ui();
+			Admin_UI::init();
 		}
 	}
 
@@ -185,48 +144,6 @@ class Initializer {
 			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}
 		return $cache;
-	}
-
-	/**
-	 * Enqueue plugin admin scripts and styles.
-	 */
-	public static function enqueue_admin_scripts() {
-		Assets::register_script(
-			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
-			'../build/admin/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
-		);
-		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
-
-		// Initial JS state including JP Connection data.
-		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
-	}
-
-	/**
-	 * Render the initial state into a JavaScript variable.
-	 *
-	 * @return string
-	 */
-	public static function render_initial_state() {
-		return 'var jetpackVideoPressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::initial_state() ) ) . '"));';
-	}
-
-	/**
-	 * Get the initial state data for hydrating the React UI.
-	 *
-	 * @return array
-	 */
-	public static function initial_state() {
-		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-		);
 	}
 
 	/**
