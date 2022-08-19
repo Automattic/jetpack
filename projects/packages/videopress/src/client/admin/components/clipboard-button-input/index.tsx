@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button } from '@automattic/jetpack-components';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -22,6 +23,8 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value } ) =
 		event.currentTarget.select();
 	};
 
+	const ref = useCopyToClipboard( inputValue );
+
 	return (
 		<div className={ styles.wrapper }>
 			<input
@@ -30,9 +33,11 @@ const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value } ) =
 				defaultValue={ inputValue }
 				readOnly
 			/>
-			<Button weight="regular" variant="secondary" size="small">
-				{ __( 'Copy', 'jetpack-videopress-pkg' ) }
-			</Button>
+			<span className={ styles[ 'button-wrapper' ] } ref={ ref }>
+				<Button weight="regular" variant="secondary" size="small">
+					{ __( 'Copy', 'jetpack-videopress-pkg' ) }
+				</Button>
+			</span>
 		</div>
 	);
 };

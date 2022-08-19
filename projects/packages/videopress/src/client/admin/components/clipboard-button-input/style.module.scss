@@ -16,24 +16,7 @@
 		cursor: default;
 	}
 
-	&.small {
-		height: 200px;
-
-		.button {
-			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
-		}
+	.button-wrapper {
+		display: inline-flex;
 	}
-}
-
-.thumbnail {
-	display: flex;
-	border-radius: var( --jp-border-radius );
-}
-
-.details {
-	color: var( --jp-black-80 );
-	padding: calc( var( --spacing-base ) * 3 ); // 24px;
-	display: flex;
-	flex-direction: column;
-	gap: calc( var( --spacing-base ) * 2 );;
 }
