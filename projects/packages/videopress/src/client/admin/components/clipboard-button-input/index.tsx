@@ -12,10 +12,6 @@ import styles from './style.module.scss';
 import { ClipboardButtonInput } from './types';
 import type React from 'react';
 
-const noop = () => {
-	/* noop */
-};
-
 /**
  * Video Details Card component
  *
@@ -25,7 +21,7 @@ const noop = () => {
 const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( {
 	text,
 	value,
-	onCopy = noop,
+	onCopy,
 	isCopiedTimeout = 3000,
 } ) => {
 	const onClickInputHandler = ( event: React.MouseEvent< HTMLInputElement > ) => {
