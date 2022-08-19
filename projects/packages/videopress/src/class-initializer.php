@@ -213,7 +213,7 @@ class Initializer {
 	 * @return string
 	 */
 	public static function render_initial_state() {
-		return 'var jetpackVideopressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::initial_state() ) ) . '"));';
+		return 'var jetpackVideoPressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::initial_state() ) ) . '"));';
 	}
 
 	/**
