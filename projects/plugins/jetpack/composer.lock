@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "62f23563f988c7656934e4dbab390431",
+    "content-hash": "ec5e424bd04b2293241da07b219524b8",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1638,7 +1638,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "dce2ca66e301a94854e5eabb3e5b5fd57a512650"
+                "reference": "80452a5f3fdd3e20ee9a4d36849734f45812356a"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1662,7 +1662,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1832,7 +1832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "4350425d1e84d902ff012616a84195dbfb2f8f40"
+                "reference": "12f9163b993947ccc77df6367455e3ab7c425b3f"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1851,7 +1851,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -1874,10 +1874,14 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
