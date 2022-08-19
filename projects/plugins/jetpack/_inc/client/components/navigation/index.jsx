@@ -53,13 +53,22 @@ export class Navigation extends React.Component {
 	};
 
 	trackRecommendationsClick = () => {
-		analytics.tracks.recordJetpackClick( {
+		const isBubbleVisible = this.props.newRecommendationsCount > 0;
+
+		let recommendationsTrackData = {
 			target: 'nav_item',
 			path: 'recommendations',
-			is_new_recommendations_bubble_visible: this.props.newRecommendationsCount > 0,
-			new_recommendations:
-				this.props.newRecommendationsCount > 0 ? this.props.newRecommendations : 'none',
-		} );
+			is_new_recommendations_bubble_visible: isBubbleVisible,
+		};
+
+		if ( isBubbleVisible ) {
+			recommendationsTrackData = {
+				...recommendationsTrackData,
+				new_recommendations: this.props.newRecommendations ?? 'none',
+			};
+		}
+
+		analytics.tracks.recordJetpackClick( recommendationsTrackData );
 	};
 
 	trackMyJetpackClick = () => {
