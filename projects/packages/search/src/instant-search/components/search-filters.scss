@@ -31,9 +31,7 @@
 	top: 0;
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color !important;
-		outline-offset: inherit;
+		@include apply-overlay-focus-styling();
 	}
 }
 
@@ -71,8 +69,8 @@
 			display: none !important; // always hide custom selected checkbox styling.
 		}
 		&:focus {
-			outline: 1px auto Highlight;
-			outline: 1px auto -webkit-focus-ring-color !important;
+			@include apply-overlay-focus-styling();
+			outline-offset: 2px;
 		}
 	}
 

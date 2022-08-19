@@ -62,9 +62,7 @@
 	padding: 0 2px 0 2px;
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color !important;
-		outline-offset: inherit;
+		@include apply-overlay-focus-styling();
 	}
 
 	&.is-selected {

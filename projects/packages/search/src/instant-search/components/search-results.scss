@@ -42,12 +42,10 @@ $modal-max-width-lg: 95%;
 		clip: rect( 1px, 1px, 1px, 1px );
 
 		&:focus {
+			@include apply-overlay-focus-styling();
 			clip: auto !important;
 			clip-path: none;
 			width: auto;
-			outline: 1px auto Highlight;
-			outline: 1px auto -webkit-focus-ring-color !important;
-			outline-offset: inherit;
 		}
 	}
 }
@@ -255,9 +253,7 @@ button.jetpack-instant-search__overlay-close {
 	background-color: transparent !important;
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color !important; /* this won't work without !important */
-		outline-offset: inherit;
+		@include apply-overlay-focus-styling();
 	}
 
 	svg.gridicon {
