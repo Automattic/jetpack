@@ -1,16 +1,18 @@
 .wrapper {
 	display: flex;
 	flex-direction: row;
-	height: calc( var( --spacing-base ) * 4 ); // 32px;
-	border: 1px solid var( --jp-gray-30 );	
-	border-radius: var( --jp-border-radius );
-	padding: calc( var( --spacing-base ) / 4 );
+	height: 36px;
+	border: 1px solid var( --jp-gray-40 );	
+	border-radius: calc( var( --jp-border-radius ) / 2 );
+	padding: calc( var( --spacing-base ) * 0.5 );
+	padding-left: calc( var( --spacing-base ) * 1.5 );
+
 
 	> input {
 		width: 100%;
 		border: 0;
 		font-size: var( --font-body-small );
-		color: var( --jp-black-10 );
+		color: var( --jp-gray-80 );
 		outline: none;
 		text-overflow: ellipsis;
 		cursor: default;
