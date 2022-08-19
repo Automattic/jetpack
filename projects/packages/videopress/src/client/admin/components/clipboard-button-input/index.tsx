@@ -17,9 +17,19 @@ import type React from 'react';
  * @returns {React.ReactNode} - VideoDetailsCard react component.
  */
 const VideoDetailsCard: React.FC< ClipboardButtonInput > = ( { text, value } ) => {
+	const inputValue = value || text;
+	const onClickInputHandler = ( event: React.MouseEvent< HTMLInputElement > ) => {
+		event.currentTarget.select();
+	};
+
 	return (
 		<div className={ styles.wrapper }>
-			<input value={ text || value } />
+			<input
+				value={ inputValue }
+				onClick={ onClickInputHandler }
+				defaultValue={ inputValue }
+				readOnly
+			/>
 			<Button weight="regular" variant="secondary" size="small">
 				{ __( 'Copy', 'jetpack-videopress-pkg' ) }
 			</Button>
