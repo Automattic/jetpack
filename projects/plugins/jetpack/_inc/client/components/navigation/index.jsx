@@ -15,6 +15,7 @@ import {
 	getSiteRawUrl,
 	showRecommendations,
 	showMyJetpack,
+	getNewRecommendations,
 	getNewRecommendationsCount,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
@@ -28,6 +29,15 @@ export class Navigation extends React.Component {
 			target: 'nav_item',
 			path: target,
 		} );
+	};
+
+	trackNewRecommendations = () => {
+		if ( this.props.newRecommendationsCount > 0 ) {
+			analytics.tracks.recordEvent( 'jetpack_recommendations_new_recommendation_bubble_visible', {
+				route: this.props.routeName,
+				new_recommendations: this.props.newRecommendations,
+			} );
+		}
 	};
 
 	trackDashboardClick = () => {
@@ -49,6 +59,16 @@ export class Navigation extends React.Component {
 	trackMyJetpackClick = () => {
 		this.trackNavClick( 'my-jetpack' );
 	};
+
+	componentDidMount() {
+		this.trackNewRecommendations();
+	}
+
+	componentDidUpdate( prevProps ) {
+		if ( prevProps.newRecommendationsCount !== this.props.newRecommendationsCount ) {
+			this.trackNewRecommendations();
+		}
+	}
 
 	render() {
 		let navTabs;
@@ -164,6 +184,7 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
+		newRecommendations: getNewRecommendations( state ),
 		newRecommendationsCount: getNewRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
