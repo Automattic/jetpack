@@ -43,12 +43,7 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 
 	return (
 		<div className={ styles.wrapper }>
-			<input
-				value={ text || value }
-				onClick={ onClickInputHandler }
-				defaultValue={ text || value }
-				readOnly
-			/>
+			<input type="text" value={ text || value } onClick={ onClickInputHandler } readOnly />
 			<span className={ styles[ 'button-wrapper' ] } ref={ ref }>
 				<Button weight="regular" variant="secondary" size="small">
 					{ hasCopied
