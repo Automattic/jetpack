@@ -7,6 +7,8 @@
 
 /**
  * Adds an admin notice if the PHP version needs to be updated.
+ *
+ * This notice is currently not hooked! See p7DVsv-fbI-p2 for more information.
  */
 function wpcomsh_minimum_php_version_notice() {
 	$minimum_php_version = '8.0.0';
@@ -51,4 +53,4 @@ function wpcomsh_minimum_php_version_notice() {
 		wp_kses_post( $message )
 	);
 }
-add_action( 'admin_notices', 'wpcomsh_minimum_php_version_notice' );
+// add_action( 'admin_notices', 'wpcomsh_minimum_php_version_notice' );
