@@ -41,8 +41,8 @@ const ProductSpotlightComponent = props => {
 						<h3 className="jp-recommendations-discount-card__heading">{ productCardTitle }</h3>
 						{ productCardList && (
 							<ul className="jp-recommendations-discount-card__feature-list">
-								{ productCardList.map( ( listItem, id ) => {
-									return <li key={ `feature-${ id }` }>{ listItem }</li>;
+								{ productCardList.map( ( listItem, index ) => {
+									return <li key={ `feature-${ index }` }>{ listItem }</li>;
 								} ) }
 							</ul>
 						) }
