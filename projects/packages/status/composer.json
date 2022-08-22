@@ -4,7 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-constants": "^1.6"
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-plans": "0.2.x-dev"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",

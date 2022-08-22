@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96a80b1b8f6f6b702b0b4cc0fdad6cbc",
+    "content-hash": "758249f1202cad638ed38635e051aa3c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1718,10 +1718,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "1c747edbd6e497fd58eb51ddab48d836b61a5298"
+                "reference": "8ae93ae68b4488e5247d7edc93483d5b58d9612e"
             },
             "require": {
-                "automattic/jetpack-constants": "^1.6"
+                "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-plans": "0.2.x-dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -1900,9 +1901,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "76a37f2b5b89b3702a05cf7c31746107d606c313"
+                "reference": "0a3b548c2812091a19e307d1ea92a73d7b50bdf7"
             },
             "require": {
+                "automattic/jetpack-plans": "0.2.x-dev",
                 "wikimedia/aho-corasick": "^1.0"
             },
             "require-dev": {
@@ -5185,6 +5187,7 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-partner": 20,
+        "automattic/jetpack-plans": 20,
         "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,

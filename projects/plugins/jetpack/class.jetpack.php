@@ -752,7 +752,7 @@ class Jetpack {
 		);
 
 		// Update the site's Jetpack plan and products from API on heartbeats.
-		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
+		add_action( 'jetpack_heartbeat', array( 'Current_Plan', 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.

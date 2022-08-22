@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Current_Plan;
 use WP_Error;
 use WP_REST_Server;
 
@@ -32,7 +33,7 @@ class Waf_Endpoints {
 	 */
 	private static function has_rules_access() {
 		// any site with Jetpack Scan can download new WAF rules
-		return \Jetpack_Plan::supports( 'scan' );
+		return Current_Plan::supports( 'scan' );
 	}
 
 	/**
