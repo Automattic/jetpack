@@ -108,6 +108,7 @@ class Dashboard {
 			);
 		} else {
 			$page_suffix = add_submenu_page(
+				// The page is added without a submenu item.
 				null,
 				__( 'Search Settings', 'jetpack-search-pkg' ),
 				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
