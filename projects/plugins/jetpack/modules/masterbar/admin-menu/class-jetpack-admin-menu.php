@@ -157,7 +157,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		$post_type_list = get_post_types(
 			array(
-				'show_in_rest' => true,
 				'show_in_menu' => true,
 				'_builtin'     => false,
 			)
