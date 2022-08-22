@@ -26,9 +26,13 @@
 	position: absolute;
 	margin: 0;
 	line-height: 1.3;
-	padding: 0;
+	padding: 0 4px;
 	right: 0;
 	top: 0;
+
+	&:focus {
+		@include apply-overlay-focus-styling();
+	}
 }
 
 .jetpack-instant-search__search-filter-sub-heading {
@@ -63,6 +67,10 @@
 		&::after,
 		&::before {
 			display: none !important; // always hide custom selected checkbox styling.
+		}
+		&:focus {
+			@include apply-overlay-focus-styling();
+			outline-offset: 2px;
 		}
 	}
 

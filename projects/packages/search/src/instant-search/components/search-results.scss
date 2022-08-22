@@ -36,11 +36,13 @@ $modal-max-width-lg: 95%;
 		font-weight: 400;
 		margin-right: 4px;
 		margin-bottom: 4px;
+		padding: 4px 6px;
 		width: 1px;
 		overflow: hidden;
 		clip: rect( 1px, 1px, 1px, 1px );
 
 		&:focus {
+			@include apply-overlay-focus-styling();
 			clip: auto !important;
 			clip-path: none;
 			width: auto;
@@ -251,8 +253,7 @@ button.jetpack-instant-search__overlay-close {
 	background-color: transparent !important;
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color !important; /* this won't work without !important */
+		@include apply-overlay-focus-styling();
 	}
 
 	svg.gridicon {
@@ -276,7 +277,7 @@ button.jetpack-instant-search__overlay-close {
 }
 
 // Only show animation to users who have not chosen reduced motion
-@media (prefers-reduced-motion: no-preference) {
+@media ( prefers-reduced-motion: no-preference ) {
 	.jetpack-instant-search__search-results-filter-button {
 		transition: background-color 0.25s ease-in-out;
 	}
