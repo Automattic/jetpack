@@ -281,7 +281,7 @@ Blocks can be registered but not available:
 
 When updating block markup or attributes, you will want to avoid block validation errors showing to all current users of the previous version of the block.
 
-In Jetpack the scenario that has been used historically is to create a deprecation. This [developer.wordpress.org](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-deprecation/) guide explains block deprecation in more detail. An example of block deprecation can be seen with the [Tiled Gallery block here](https://github.com/Automattic/jetpack/tree/7d97ced29dbbf6bd5c7a5d85bb5d752d9245f1c7/projects/plugins/jetpack/extensions/blocks/tiled-gallery) (see`index.js` in both the `deprecated` folder and the root `tiled-gallery` folder to see the `default` import and export in use).
+In Jetpack the scenario that has been used historically is to create a deprecation. [This developer.wordpress.org guide](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-deprecation/) explains block deprecation in more detail. An example of block deprecation within Jetpack can be seen from [this `deprecated` directory within the Tiled Gallery block](https://github.com/Automattic/jetpack/tree/7d97ced29dbbf6bd5c7a5d85bb5d752d9245f1c7/projects/plugins/jetpack/extensions/blocks/tiled-gallery) (see`index.js` in both the `deprecated` folder and the root `tiled-gallery` folder to see the `default` import and export in use).
 
 ## Good to know when developing Gutenberg extensions
 
