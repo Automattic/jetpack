@@ -282,31 +282,31 @@ async function addOrUpdateInteractionCountLabel(
 
 	// Check if the issue already has this label.
 	const labels = await getLabels( octokit, ownerLogin, repo, number );
-	const existingInteractionCountLabel = labels.find( label =>
+	const existingInteractionCountLabels = labels.filter( label =>
 		label.startsWith( '[Interaction #]' )
 	);
 
-	// Our issue already has a label. Is is the right one?
-	if ( existingInteractionCountLabel ) {
-		// if that's not the one we want to add, remove it.
-		if ( existingInteractionCountLabel !== interactionCountLabel ) {
-			debug(
-				`gather-support-references: Issue #${ number } already has a label, "${ existingInteractionCountLabel }". We want to add the "${ interactionCountLabel }" label. Removing the "${ existingInteractionCountLabel }" label.`
-			);
-
-			await octokit.rest.issues.removeLabel( {
-				owner: ownerLogin,
-				repo,
-				issue_number: +number,
-				name: existingInteractionCountLabel,
-			} );
-		} else {
-			// Bail now. We have a label already, and it's the right one.
-			return;
-		}
+	// Our issue already has at least one interaction count label. Is is the right one?
+	if ( existingInteractionCountLabels.length > 0 ) {
+		await Promise.all(
+			existingInteractionCountLabels.map( async existingInteractionCountLabel => {
+				// if that's not the one we want to add, remove it.
+				if ( existingInteractionCountLabel !== interactionCountLabel ) {
+					debug(
+						`gather-support-references: Issue #${ number } already has a label, "${ existingInteractionCountLabel }". We want to add the "${ interactionCountLabel }" label. Removing the "${ existingInteractionCountLabel }" label.`
+					);
+					await octokit.rest.issues.removeLabel( {
+						owner: ownerLogin,
+						repo,
+						issue_number: +number,
+						name: existingInteractionCountLabel,
+					} );
+				}
+			} )
+		);
 	}
 
-	// If our issue doesn't have the label we want to add, add it.
+	// Add the label to our issue.
 	debug( `gather-support-references: Adding the "${ interactionCountLabel }" label.` );
 	await octokit.rest.issues.addLabels( {
 		owner: ownerLogin,
