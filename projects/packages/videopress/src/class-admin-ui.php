@@ -36,9 +36,13 @@ class Admin_UI {
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
-		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_template' ) );
+		add_action( 'admin_footer-upload.php', array( __CLASS__, 'attachment_details_two_column_template' ) );
+		add_action( 'admin_footer-post.php', array( __CLASS__, 'attachment_details_template' ) );
 
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
+
+		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+
 	}
 
 	/**
@@ -55,6 +59,19 @@ class Admin_UI {
 		?>
 			<div id="jetpack-videopress-root"></div>
 		<?php
+	}
+
+	/**
+	 * Remove extra fields from Attachment details modal
+	 *
+	 * @return void
+	 */
+	public static function remove_jetpack_hooks() {
+		if ( class_exists( '\VideoPress_Edit_Attachment' ) ) {
+			$edit_attachment = \VideoPress_Edit_Attachment::init();
+			remove_filter( 'attachment_fields_to_edit', array( $edit_attachment, 'fields_to_edit' ) );
+			remove_filter( 'attachment_fields_to_save', array( $edit_attachment, 'save_fields' ) );
+		}
 	}
 
 	/**
@@ -133,244 +150,133 @@ class Admin_UI {
 		return esc_url_raw( $url );
 	}
 
+	// phpcs:disable WordPress.Security.EscapeOutput.UnsafePrintingFunction
+	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped"
+
 	/**
 	 * Overwrites the backbone template for the attachment details modal
 	 *
 	 * This template is originally added in WP core in wp-includes/media-templates.php
 	 *
-	 * All modifications to the original template are wrapped around PHP comments saying "VIDEOPRESS CUSTOMIZATION"
+	 * We override the initialize method of the TwoColumn view class (located at core's js/media/view/attachment/detail-two-column.js)
+	 * and use the custom template only for VideoPress videos.
 	 *
 	 * @return void
 	 */
-	public static function attachment_details_template() {
-		// phpcs:disable WordPress.Security.EscapeOutput.UnsafePrintingFunction
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-
-		$alt_text_description = sprintf(
-			/* translators: 1: Link to tutorial, 2: Additional link attributes, 3: Accessibility text. */
-			__( '<a href="%1$s" %2$s>Learn how to describe the purpose of the image%3$s</a>. Leave empty if the image is purely decorative.', 'jetpack-videopress-pkg' ),
-			esc_url( 'https://www.w3.org/WAI/tutorials/images/decision-tree' ),
-			'target="_blank" rel="noopener"',
-			sprintf(
-				'<span class="screen-reader-text"> %s</span>',
-				/* translators: Accessibility text. */
-				__( '(opens in a new tab)', 'jetpack-videopress-pkg' )
-			)
-		);
+	public static function attachment_details_two_column_template() {
 
 		?>
 		<script type="text/html" id="tmpl-attachment-details-two-column-videopress">
 			<div class="attachment-media-view {{ data.orientation }}">
 				<h2 class="screen-reader-text"><?php _e( 'Attachment Preview', 'jetpack-videopress-pkg' ); ?></h2>
 				<div class="thumbnail thumbnail-{{ data.type }}">
-					<# if ( data.uploading ) { #>
-						<div class="media-progress-bar"><div></div></div>
-					<# } else if ( data.sizes && data.sizes.large ) { #>
-						<img class="details-image" src="{{ data.sizes.large.url }}" draggable="false" alt="" />
-					<# } else if ( data.sizes && data.sizes.full ) { #>
-						<img class="details-image" src="{{ data.sizes.full.url }}" draggable="false" alt="" />
-					<# } else if ( -1 === jQuery.inArray( data.type, [ 'audio', 'video' ] ) ) { #>
-						<img class="details-image icon" src="{{ data.icon }}" draggable="false" alt="" />
-					<# } #>
-
-					<# if ( 'audio' === data.type ) { #>
-					<div class="wp-media-wrapper wp-audio">
-						<audio style="visibility: hidden" controls class="wp-audio-shortcode" width="100%" preload="none">
-							<source type="{{ data.mime }}" src="{{ data.url }}" />
-						</audio>
-					</div>
-					<# } else if ( 'video' === data.type ) {
-						var w_rule = '';
-						if ( data.width ) {
-							w_rule = 'width: ' + data.width + 'px;';
-						} else if ( wp.media.view.settings.contentWidth ) {
-							w_rule = 'width: ' + wp.media.view.settings.contentWidth + 'px;';
-						}
-					#>
-					<div style="{{ w_rule }}" class="wp-media-wrapper wp-video">
-						<video controls="controls" class="wp-video-shortcode" preload="metadata"
-							<# if ( data.width ) { #>width="{{ data.width }}"<# } #>
-							<# if ( data.height ) { #>height="{{ data.height }}"<# } #>
-							<# if ( data.image && data.image.src !== data.icon ) { #>poster="{{ data.image.src }}"<# } #>>
-							<source type="{{ data.mime }}" src="{{ data.url }}" />
-						</video>
-					</div>
-					<# } #>
-					<div class="attachment-actions">
-						<# if ( 'image' === data.type && ! data.uploading && data.sizes && data.can.save ) { #>
-						<button type="button" class="button edit-attachment"><?php _e( 'Edit Image', 'jetpack-videopress-pkg' ); ?></button>
-						<# } else if ( 'pdf' === data.subtype && data.sizes ) { #>
-						<p><?php _e( 'Document Preview', 'jetpack-videopress-pkg' ); ?></p>
-						<# } #>
-					</div>
 				</div>
 			</div>
 			<div class="attachment-info">
-			<?php // VIDEOPRESS CUSTOMIZATION START ?>
-			<# if ( 'video' === data.type && 'videopress' === data.subtype ) { #>
-				<h2>VideoPress</h2>
-				<div class="filename"><strong><?php _e( 'File name:', 'jetpack-videopress-pkg' ); ?></strong> {{ data.filename }}</div>
-				<p>To do: Add read-only data about the video here.</p>
-				<p><a href="{{ data.editLink }}">Edit video details</a></p>
-			<# } else { #>
-			<?php // VIDEOPRESS CUSTOMIZATION END ?>
-					<span class="settings-save-status" role="status">
-							<span class="spinner"></span>
-							<span class="saved"><?php esc_html_e( 'Saved.', 'jetpack-videopress-pkg' ); ?></span>
-					</span>
-					<div class="details">
-						<h2 class="screen-reader-text"><?php _e( 'Details', 'jetpack-videopress-pkg' ); ?></h2>
-						<div class="uploaded"><strong><?php _e( 'Uploaded on:', 'jetpack-videopress-pkg' ); ?></strong> {{ data.dateFormatted }}</div>
-						<div class="uploaded-by">
-							<strong><?php _e( 'Uploaded by:', 'jetpack-videopress-pkg' ); ?></strong>
-								<# if ( data.authorLink ) { #>
-									<a href="{{ data.authorLink }}">{{ data.authorName }}</a>
-								<# } else { #>
-									{{ data.authorName }}
-								<# } #>
-						</div>
-						<# if ( data.uploadedToTitle ) { #>
-							<div class="uploaded-to">
-								<strong><?php _e( 'Uploaded to:', 'jetpack-videopress-pkg' ); ?></strong>
-								<# if ( data.uploadedToLink ) { #>
-									<a href="{{ data.uploadedToLink }}">{{ data.uploadedToTitle }}</a>
-								<# } else { #>
-									{{ data.uploadedToTitle }}
-								<# } #>
-							</div>
-						<# } #>
-						<div class="filename"><strong><?php _e( 'File name:', 'jetpack-videopress-pkg' ); ?></strong> {{ data.filename }}</div>
-						<div class="file-type"><strong><?php _e( 'File type:', 'jetpack-videopress-pkg' ); ?></strong> {{ data.mime }}</div>
-						<div class="file-size"><strong><?php _e( 'File size:', 'jetpack-videopress-pkg' ); ?></strong> {{ data.filesizeHumanReadable }}</div>
-						<# if ( 'image' === data.type && ! data.uploading ) { #>
-							<# if ( data.width && data.height ) { #>
-								<div class="dimensions"><strong><?php _e( 'Dimensions:', 'jetpack-videopress-pkg' ); ?></strong>
-									<?php
-									/* translators: 1: A number of pixels wide, 2: A number of pixels tall. */
-									printf( __( '%1$s by %2$s pixels', 'jetpack-videopress-pkg' ), '{{ data.width }}', '{{ data.height }}' );
-									?>
-								</div>
-							<# } #>
-
-							<# if ( data.originalImageURL && data.originalImageName ) { #>
-								<?php _e( 'Original image:', 'jetpack-videopress-pkg' ); ?>
-								<a href="{{ data.originalImageURL }}">{{data.originalImageName}}</a>
-							<# } #>
-						<# } #>
-
-						<# if ( data.fileLength && data.fileLengthHumanReadable ) { #>
-							<div class="file-length"><strong><?php _e( 'Length:', 'jetpack-videopress-pkg' ); ?></strong>
-								<span aria-hidden="true">{{ data.fileLength }}</span>
-								<span class="screen-reader-text">{{ data.fileLengthHumanReadable }}</span>
-							</div>
-						<# } #>
-
-						<# if ( 'audio' === data.type && data.meta.bitrate ) { #>
-							<div class="bitrate">
-								<strong><?php _e( 'Bitrate:', 'jetpack-videopress-pkg' ); ?></strong> {{ Math.round( data.meta.bitrate / 1000 ) }}kb/s
-								<# if ( data.meta.bitrate_mode ) { #>
-								{{ ' ' + data.meta.bitrate_mode.toUpperCase() }}
-								<# } #>
-							</div>
-						<# } #>
-
-						<# if ( data.mediaStates ) { #>
-							<div class="media-states"><strong><?php _e( 'Used as:', 'jetpack-videopress-pkg' ); ?></strong> {{ data.mediaStates }}</div>
-						<# } #>
-
-						<div class="compat-meta">
-							<# if ( data.compat && data.compat.meta ) { #>
-								{{{ data.compat.meta }}}
-							<# } #>
-						</div>
-					</div>
-
-					<div class="settings">
-						<# var maybeReadOnly = data.can.save || data.allowLocalEdits ? '' : 'readonly'; #>
-						<# if ( 'image' === data.type ) { #>
-							<span class="setting has-description" data-setting="alt">
-								<label for="attachment-details-two-column-alt-text" class="name"><?php _e( 'Alternative Text', 'jetpack-videopress-pkg' ); ?></label>
-								<input type="text" id="attachment-details-two-column-alt-text" value="{{ data.alt }}" aria-describedby="alt-text-description" {{ maybeReadOnly }} />
-							</span>
-							<p class="description" id="alt-text-description"><?php echo $alt_text_description; ?></p>
-						<# } #>
-						<?php if ( post_type_supports( 'attachment', 'title' ) ) : ?>
-						<span class="setting" data-setting="title">
-							<label for="attachment-details-two-column-title" class="name"><?php _e( 'Title', 'jetpack-videopress-pkg' ); ?></label>
-							<input type="text" id="attachment-details-two-column-title" value="{{ data.title }}" {{ maybeReadOnly }} />
-						</span>
-						<?php endif; ?>
-						<# if ( 'audio' === data.type ) { #>
-						<?php
-						foreach ( array(
-							'artist' => __( 'Artist', 'jetpack-videopress-pkg' ),
-							'album'  => __( 'Album', 'jetpack-videopress-pkg' ),
-						) as $key => $label ) :
-							?>
-						<span class="setting" data-setting="<?php echo esc_attr( $key ); ?>">
-							<label for="attachment-details-two-column-<?php echo esc_attr( $key ); ?>" class="name"><?php echo $label; ?></label>
-							<input type="text" id="attachment-details-two-column-<?php echo esc_attr( $key ); ?>" value="{{ data.<?php echo $key; ?> || data.meta.<?php echo $key; ?> || '' }}" />
-						</span>
-						<?php endforeach; ?>
-						<# } #>
-						<span class="setting" data-setting="caption">
-							<label for="attachment-details-two-column-caption" class="name"><?php _e( 'Caption', 'jetpack-videopress-pkg' ); ?></label>
-							<textarea id="attachment-details-two-column-caption" {{ maybeReadOnly }}>{{ data.caption }}</textarea>
-						</span>
-						<span class="setting" data-setting="description">
-							<label for="attachment-details-two-column-description" class="name"><?php _e( 'Description', 'jetpack-videopress-pkg' ); ?></label>
-							<textarea id="attachment-details-two-column-description" {{ maybeReadOnly }}>{{ data.description }}</textarea>
-						</span>
-						<span class="setting" data-setting="url">
-							<label for="attachment-details-two-column-copy-link" class="name"><?php _e( 'File URL:', 'jetpack-videopress-pkg' ); ?></label>
-							<input type="text" class="attachment-details-copy-link" id="attachment-details-two-column-copy-link" value="{{ data.url }}" readonly />
-							<span class="copy-to-clipboard-container">
-								<button type="button" class="button button-small copy-attachment-url" data-clipboard-target="#attachment-details-two-column-copy-link"><?php _e( 'Copy URL to clipboard', 'jetpack-videopress-pkg' ); ?></button>
-								<span class="success hidden" aria-hidden="true"><?php _e( 'Copied!', 'jetpack-videopress-pkg' ); ?></span>
-							</span>
-						</span>
-						<div class="attachment-compat"></div>
-					</div>
-
-					<div class="actions">
-						<# if ( data.link ) { #>
-							<a class="view-attachment" href="{{ data.link }}"><?php _e( 'View attachment page', 'jetpack-videopress-pkg' ); ?></a>
-						<# } #>
-						<# if ( data.can.save ) { #>
-							<# if ( data.link ) { #>
-								<span class="links-separator">|</span>
-							<# } #>
-							<a href="{{ data.editLink }}"><?php _e( 'Edit more details', 'jetpack-videopress-pkg' ); ?></a>
-						<# } #>
-						<# if ( ! data.uploading && data.can.remove ) { #>
-							<# if ( data.link || data.can.save ) { #>
-								<span class="links-separator">|</span>
-							<# } #>
-							<?php if ( MEDIA_TRASH ) : ?>
-								<# if ( 'trash' === data.status ) { #>
-									<button type="button" class="button-link untrash-attachment"><?php _e( 'Restore from Trash', 'jetpack-videopress-pkg' ); ?></button>
-								<# } else { #>
-									<button type="button" class="button-link trash-attachment"><?php _e( 'Move to Trash', 'jetpack-videopress-pkg' ); ?></button>
-								<# } #>
-							<?php else : ?>
-								<button type="button" class="button-link delete-attachment"><?php _e( 'Delete permanently', 'jetpack-videopress-pkg' ); ?></button>
-							<?php endif; ?>
-						<# } #>
-					</div>
-				<?php // VIDEOPRESS CUSTOMIZATION START ?>
-				<# } #>
-				<?php // VIDEOPRESS CUSTOMIZATION END ?>
+				<h2><?php _e( 'Video Details', 'jetpack-videopress-pkg' ); ?></h2>
+				<?php self::attachment_info_template_part(); ?>
 			</div>
 		</script>
 		<script>
 			jQuery(document).ready( function($) {
 				if( typeof wp.media.view.Attachment.Details != 'undefined' ){
-					wp.media.view.Attachment.Details.TwoColumn.prototype.template = wp.template( 'attachment-details-two-column-videopress' );
+					wp.media.view.Attachment.Details.TwoColumn.prototype.initialize = function() {
+						if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
+							this.template = wp.template( 'attachment-details-two-column-videopress' );
+						} else {
+							this.template = wp.template( 'attachment-details-two-column' );
+						}
+						// From this point on, we are just copying the function from core.
+						this.controller.on( 'content:activate:edit-details', _.bind( this.editAttachment, this ) );
+						wp.media.view.Attachment.Details.prototype.initialize.apply( this, arguments );
+					}
 				}
 			});
 		</script>
 		<?php
-		// phpcs:enable WordPress.Security.EscapeOutput.UnsafePrintingFunction
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+
 	}
+
+	/**
+	 * Overwrites the backbone template for the attachment details modal
+	 *
+	 * This template is originally added in WP core in wp-includes/media-templates.php
+	 *
+	 * We override the initialize method of the TwoColumn view class (located at core's js/media/view/attachment/detail-two-column.js)
+	 * and use the custom template only for VideoPress videos.
+	 *
+	 * @return void
+	 */
+	public static function attachment_details_template() {
+		?>
+		<script type="text/html" id="tmpl-attachment-details-videopress">
+			<h2>
+				<?php _e( 'Video Details', 'jetpack-videopress-pkg' ); ?>
+				<span class="settings-save-status" role="status">
+					<span class="spinner"></span>
+					<span class="saved"><?php esc_html_e( 'Saved.', 'jetpack-videopress-pkg' ); ?></span>
+				</span>
+			</h2>
+			<div class="attachment-info">
+				<div class="wp-media-wrapper wp-video">
+					<video controls="controls" class="wp-video-shortcode" preload="metadata"
+						<# if ( data.width ) { #>width="{{ data.width }}"<# } #>
+						<# if ( data.height ) { #>height="{{ data.height }}"<# } #>
+						<# if ( data.image && data.image.src !== data.icon ) { #>poster="{{ data.image.src }}"<# } #>>
+						<source type="{{ data.mime }}" src="{{ data.url }}" />
+					</video>
+				</div>
+				<?php self::attachment_info_template_part(); ?>
+			</div>
+		</script>
+		<script>
+			jQuery(document).ready( function($) {
+				if( typeof wp.media.view.Attachment.Details != 'undefined' ){
+					wp.media.view.Attachment.Details.prototype.initialize = function() {
+						if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
+							this.template = wp.template( 'attachment-details-videopress' );
+						} else {
+							this.template = wp.template( 'attachment-details' );
+						}
+						// From this point on, we are just copying the function from core.
+						this.options = _.defaults( this.options, {
+							rerenderOnModelChange: false
+						});
+
+						// Call 'initialize' directly on the parent class.
+						wp.media.view.Attachment.prototype.initialize.apply( this, arguments );
+
+						this.copyAttachmentDetailsURLClipboard();
+					}
+				}
+			});
+		</script>
+		<?php
+
+	}
+
+	/**
+	 * Echoes the piece of the custom template that is shared between the two templates above
+	 *
+	 * @return void
+	 */
+	protected static function attachment_info_template_part() {
+		?>
+		<span class="setting" data-setting="filename">
+			<label for="attachment-details-filename" class="name"><?php _e( 'File name', 'jetpack-videopress-pkg' ); ?></label>
+			<input type="text" id="attachment-details-filename" value="{{ data.filename }}" readonly />
+		</span>
+		<span class="setting" data-setting="fileurl">
+			<label for="attachment-details-copy-link" class="name"><?php _e( 'File URL:', 'jetpack-videopress-pkg' ); ?></label>
+			<input type="text" class="attachment-details-copy-link" id="attachment-details-copy-link" value="{{ data.url }}" readonly />
+			<div class="copy-to-clipboard-container">
+				<button type="button" class="button button-small copy-attachment-url" data-clipboard-target="#attachment-details-copy-link"><?php _e( 'Copy URL to clipboard', 'jetpack-videopress-pkg' ); ?></button>
+				<span class="success hidden" aria-hidden="true"><?php _e( 'Copied!', 'jetpack-videopress-pkg' ); ?></span>
+			</div>
+		</span>
+		<p><a href="{{ data.editLink }}" class="button button-medium" target="_blank"><?php _e( 'Edit video details', 'jetpack-videopress-pkg' ); ?></a></p>
+		<?php
+	}
+	// phpcs:enable WordPress.Security.EscapeOutput.UnsafePrintingFunction
+	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped"
 }
