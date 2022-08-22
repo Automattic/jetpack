@@ -82,11 +82,11 @@ Before you get started, we recommend that you set up a public SSH key setup with
 
 Fork this repository to your own GitHub account and clone it to your local machine, as explained [in this guide](https://guides.github.com/activities/forking/). **If you are an Automattician, you can clone the repository directly.**
 
-Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). 
-
 If you use [our Docker setup](../tools/docker/README.md), you can now move on to the next step. 
 
 If you are not using a Docker setup, you'll first need to create symlinks from the plugin directory in your local installation of WordPress to each of the plugins' directories in the monorepo (under `projects/plugins/`).
+
+Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). 
 
 ### Install development tools
 

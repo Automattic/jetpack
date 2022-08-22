@@ -26,21 +26,21 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 - nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
 
 The Jetpack Monorepo requires the following to be installed on your machine:
-
 - Start by cloning the GitHub repo using one of these two methods:
  	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
 	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
-- Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). If you are not cloning into a Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
-- Bash (will need to be updated from default Mac version): `brew install bash`
-- jq (JSON processor used in scripts): `brew install jq` 
-- cd into the Jetpack directory that was created when cloning the repo: `cd jetpack`
-- Node.js (used for build process and our CLI): `nvm install && nvm use`
-- PNPM (a Node.js package manager): `npm install -g pnpm`
-- PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
-- Composer (our PHP package manager): `brew install composer`
-- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
-	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
+     - Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). If you are not cloning into a Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
+- The next steps cover what software needs installing:
+     - Bash (will need to be updated from default Mac version): `brew install bash`
+     - jq (JSON processor used in scripts): `brew install jq` 
+- To install the following software, cd into the Jetpack directory that was created when cloning the repo: `cd jetpack`:
+     - Node.js (used for build process and our CLI): `nvm install && nvm use`
+     - PNPM (a Node.js package manager): `npm install -g pnpm`
+     - PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
+     - Composer (our PHP package manager): `brew install composer`
+    - Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
+        - [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
 ## Running Jetpack locally
 
