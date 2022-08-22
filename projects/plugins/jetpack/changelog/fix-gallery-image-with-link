@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified.
