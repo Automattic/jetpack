@@ -99,6 +99,7 @@ const recommendationsRoutes = [
 	'/recommendations/security-plan',
 	'/recommendations/anti-spam',
 	'/recommendations/videopress',
+	'/recommendations/boost',
 	'/recommendations/summary',
 ];
 
@@ -496,6 +497,7 @@ class Main extends React.Component {
 			case '/recommendations/security-plan':
 			case '/recommendations/anti-spam':
 			case '/recommendations/videopress':
+			case '/recommendations/boost':
 			case '/recommendations/summary':
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;

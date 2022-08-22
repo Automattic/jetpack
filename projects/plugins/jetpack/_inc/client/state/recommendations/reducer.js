@@ -264,6 +264,7 @@ const stepToNextStep = {
 	'security-plan': 'summary',
 	'anti-spam': 'summary',
 	videopress: 'summary',
+	boost: 'summary',
 	summary: 'summary',
 };
 
@@ -280,6 +281,7 @@ export const stepToRoute = {
 	'security-plan': '#/recommendations/security-plan',
 	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
+	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
 };
 
@@ -293,6 +295,8 @@ export const isStepViewed = ( state, featureSlug ) => {
 
 export const isFeatureActive = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost':
+			return !! isPluginActive( state, 'jetpack-boost/jetpack-boost.php' );
 		case 'creative-mail':
 			return !! isPluginActive(
 				state,
@@ -390,6 +394,8 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'boost':
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -474,6 +480,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 			return true === getDataByKey( state, 'site-type-store' );
 		case 'monitor':
 			return hasConnectedOwner( state );
+		case 'boost':
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'publicize':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'security-plan':
@@ -495,6 +503,7 @@ export const getSummaryFeatureSlugs = state => {
 		'site-accelerator',
 		'publicize',
 		'videopress',
+		'boost',
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>

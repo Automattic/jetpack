@@ -22,14 +22,14 @@
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@babel/core": "7.18.6",
+		"@babel/core": "7.18.13",
 		"@babel/preset-react": "7.18.6",
 		"@testing-library/dom": "8.16.0",
 		"@testing-library/react": "12.1.5",
 		"@testing-library/react-hooks": "8.0.1",
 		"@testing-library/user-event": "14.2.1",
-		"@wordpress/base-styles": "4.6.0",
-		"@wordpress/data": "6.12.0",
+		"@wordpress/base-styles": "4.7.0",
+		"@wordpress/data": "6.15.0",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
 		"jest-extended": "2.0.0",
@@ -44,7 +44,7 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.18",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
-		"@wordpress/i18n": "4.12.0",
+		"@wordpress/i18n": "4.15.0",
 		"classnames": "2.3.1",
 		"prop-types": "15.7.2"
 	},
