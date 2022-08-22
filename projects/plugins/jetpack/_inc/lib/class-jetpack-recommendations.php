@@ -21,12 +21,12 @@ use Automattic\Jetpack\Status\Host;
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
-	const PUBLICIZE_RECOMMENDATION     = 'publicize';
-	const PROTECT_RECOMMENDATION = 'protect';
-	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
-	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
-	const BACKUP_PLAN_RECOMMENDATION   = 'backup-plan';
-	const BOOST_RECOMMENDATION         = 'boost';
+	const PUBLICIZE_RECOMMENDATION   = 'publicize';
+	const PROTECT_RECOMMENDATION     = 'protect';
+	const ANTI_SPAM_RECOMMENDATION   = 'anti-spam';
+	const VIDEOPRESS_RECOMMENDATION  = 'videopress';
+	const BACKUP_PLAN_RECOMMENDATION = 'backup-plan';
+	const BOOST_RECOMMENDATION       = 'boost';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
