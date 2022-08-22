@@ -1,9 +1,14 @@
 import { Text, Button } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Icon, image, trash } from '@wordpress/icons';
 import { useState } from 'react';
 import privacy from './privacy-icon';
 import styles from './style.module.scss';
+
+// Hiding it based on Design request:
+// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
+const HIDE_QUICK_ACTIONS = true;
 
 const PopoverWithAnchor = ( { anchorRef, children = null } ) => {
 	if ( ! anchorRef ) {
@@ -57,12 +62,20 @@ const VideoRow = () => {
 			<div className={ styles[ 'meta-wrapper' ] }>
 				{ showActions ? (
 					<div className={ styles.actions }>
-						<Button size="small">Edit video details</Button>
-						<ActionItem icon={ image }>Update thumbnail</ActionItem>
-						<ActionItem icon={ privacy }>Update privacy</ActionItem>
-						<ActionItem icon={ trash } className={ styles.trash }>
-							Delete video
-						</ActionItem>
+						<Button size="small">{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Button>
+						{ ! HIDE_QUICK_ACTIONS && (
+							<>
+								<ActionItem icon={ image }>
+									{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+								</ActionItem>
+								<ActionItem icon={ privacy }>
+									{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+								</ActionItem>
+								<ActionItem icon={ trash } className={ styles.trash }>
+									{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+								</ActionItem>
+							</>
+						) }
 					</div>
 				) : (
 					<div className={ styles.stats }>
