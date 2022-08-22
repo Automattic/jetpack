@@ -48,17 +48,19 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.18",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
+		"@storybook/addon-actions": "6.5.9",
+		"@wordpress/compose": "5.10.0",
 		"@wordpress/components": "19.17.0",
 		"@wordpress/data": "6.15.0",
 		"@wordpress/element": "4.13.0",
 		"@wordpress/date": "4.15.0",
 		"@wordpress/i18n": "4.15.0",
-		"react": "17.0.2",
-		"react-dom": "17.0.2",
 		"@wordpress/icons": "9.6.0",
 		"classnames": "2.3.1",
 		"debug": "4.3.4",
 		"filesize": "8.0.6",
+		"react": "17.0.2",
+		"react-dom": "17.0.2",
 		"tus-js-client": "2.3.0"
 	}
 }
