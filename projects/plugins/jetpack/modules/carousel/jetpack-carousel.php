@@ -291,6 +291,34 @@ class Jetpack_Carousel {
 	}
 
 	/**
+	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
+	 *
+	 * @since 6.8.0
+	 * @deprecated $$next-release$$ We now hook into the 'block_render_{block_name}' hook to add markup.
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string $content Post content.
+	 */
+	public function check_content_for_blocks( $content ) {
+		_deprecated_function( __METHOD__, 'jetpack-11.3.0' );
+
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
+			return $content;
+		}
+
+		if ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) ) {
+			$this->enqueue_assets();
+			$content = $this->add_data_to_container( $content );
+		}
+
+		return $content;
+	}
+
+	/**
 	 * Enrich the gallery block content using the render_block_{$this->name} filter.
 	 * This function is triggered after block render to make sure we track galleries within
 	 * reusable blocks.
