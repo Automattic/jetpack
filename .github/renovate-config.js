@@ -160,7 +160,7 @@ module.exports = {
 				'@testing-library/preact',
 			],
 			reviewers: [ 'team:jetpack-search' ],
-			labels: [ 'Search', 'Instant Search' ],
+			addLabels: [ 'Search', 'Instant Search' ],
 		},
 	],
 	lockFileMaintenance: {
