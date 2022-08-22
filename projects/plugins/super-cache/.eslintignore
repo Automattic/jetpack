@@ -1,0 +1,6 @@
+# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to pull it in.
+
+# @todo: Files below ignored as part of Automattic/jetpack/pull/25449
+# They can be removed here as lint errors are addressed.
+/inc/delete-cache-button.js
+/inc/preload-notification.js

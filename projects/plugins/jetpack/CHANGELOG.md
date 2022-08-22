@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3-a.7 - 2022-08-17
+### Bug fixes
+- VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors. [#25660]
+
+## 11.3-a.5 - 2022-08-16
+### Enhancements
+- Payments block: add a new `useWidth` hook to control the width settings of a block. [#25394]
+- Google Analytics: add support for the DNT sent by the browser. [#25423]
+- Dashboard: add new card to highlight options available to WordPress agencies. [#25041]
+
+### Improved compatibility
+- VideoPress: minify videopress-token-bridge. [#25354]
+- Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser. [#25448]
+
+### Bug fixes
+- Carousel: resolve a PHP warning when non-attachments are processed. [#25400]
+- Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license. [#25395]
+- Calendly block: update the embed options link. [#25442]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- P2: Hide Jetpack menu for all p2 spaces/hubs. [#25405]
+- VideoPress: migrate code from the plugin to the package. [#25412]
+- VideoPress: move dependencies to the package. [#25398]
+- Updated package dependencies. [#25433]
+
 ## 11.3-a.3 - 2022-08-09
 ### Enhancements
 - Payments block: use Block API v2 to simplify the overall markup. [#25384]

@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
+use Jetpack_Options;
 
 /**
  * Provides methods methods for fetching the site's plan and products from WordPress.com.
@@ -210,9 +211,8 @@ class Current_Plan {
 	 */
 	public static function refresh_from_wpcom() {
 		// Make the API request.
-		$request  = sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) );
-		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ) . '?force=wpcom', '1.1' );
 		return self::update_from_sites_response( $response );
 	}
 
@@ -250,8 +250,8 @@ class Current_Plan {
 
 		// get available features if Jetpack is active.
 		if ( class_exists( 'Jetpack' ) ) {
-			foreach ( Jetpack::get_available_modules() as $module_slug ) {
-				$module = Jetpack::get_module( $module_slug );
+			foreach ( \Jetpack::get_available_modules() as $module_slug ) {
+				$module = \Jetpack::get_module( $module_slug );
 				if ( ! isset( $module ) || ! is_array( $module ) ) {
 					continue;
 				}
@@ -324,10 +324,15 @@ class Current_Plan {
 	 * @static
 	 *
 	 * @param string $feature The module or feature to check.
+	 * @param bool   $refresh_from_wpcom Refresh the local plan cache from wpcom.
 	 *
 	 * @return bool True if plan supports feature, false if not
 	 */
-	public static function supports( $feature ) {
+	public static function supports( $feature, $refresh_from_wpcom = false ) {
+		if ( $refresh_from_wpcom ) {
+			self::refresh_from_wpcom();
+		}
+
 		// Hijack the feature eligibility check on WordPress.com sites since they are gated differently.
 		$should_wpcom_gate_feature = (
 			function_exists( 'wpcom_site_has_feature' ) &&

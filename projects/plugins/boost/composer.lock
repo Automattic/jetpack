@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48ca407180a516364f55a99e792b20db",
+    "content-hash": "8912315214e84f72ec87b02e6f7fd597",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -324,7 +324,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "8a9bab4e931dda19cbc24c8e14e774c366197b52"
+                "reference": "792f880df7c67c9ec497af1918dbd4b7319fc9e1"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -352,7 +352,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.42.x-dev"
+                    "dev-trunk": "1.43.x-dev"
                 }
             },
             "autoload": {
@@ -553,10 +553,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "f9aa3a965f3dfe304c49cda710afa654b237d2ac"
+                "reference": "7509f508c7148df1b5807c2e201c5a252f2c94ee"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.42"
+                "automattic/jetpack-connection": "^1.43"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -608,15 +608,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "27d8d6508913a129ca3c9e80569147d776a65aaf"
+                "reference": "c5a38b137c33bdb49415d4213cbf1e807b5d73c9"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.42",
+                "automattic/jetpack-connection": "^1.43",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-licensing": "^1.7",
-                "automattic/jetpack-plugins-installer": "^0.1",
+                "automattic/jetpack-plugins-installer": "^0.2",
                 "automattic/jetpack-redirect": "^1.7"
             },
             "require-dev": {
@@ -691,7 +691,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "b14c9e3bfbe88df233872f9b302e7b7796e1306a"
+                "reference": "15b99481e685050e153fa59f5cf5a9dff6f3216e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4"
@@ -703,7 +703,7 @@
             "type": "jetpack-library",
             "extra": {
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-plugins-installer",
                 "changelogger": {
