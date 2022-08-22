@@ -118,3 +118,10 @@ $customberg-container-selector: '.jp-search-configure-app-wrapper' !default;
 @mixin inherit-parent-font-size-important() {
 	font-size: inherit !important;
 }
+
+// The !important is necessary to get the system highlight color on macOS.
+@mixin apply-overlay-focus-styling() {
+	outline: 1px auto Highlight;
+	outline: 1px auto -webkit-focus-ring-color !important;
+	outline-offset: inherit;
+}
