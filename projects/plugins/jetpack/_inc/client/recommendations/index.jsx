@@ -79,6 +79,10 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
+		// Any old recommendations no longer in use should redirect to /summary
+		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
+			redirectPath = '/summary';
+			break;
 		default:
 			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
