@@ -96,6 +96,7 @@ class Dashboard {
 		// Jetpack of version <= 10.5 would register `jetpack-search` submenu with its built-in search module.
 		$this->remove_search_submenu_if_exists();
 
+		// We are considering another approach.
 		$page_suffix = '';
 		if ( $this->should_add_search_submenu() ) {
 			$page_suffix = Admin_Menu::add_menu(
