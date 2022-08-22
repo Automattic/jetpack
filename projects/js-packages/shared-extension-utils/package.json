@@ -22,7 +22,7 @@
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
-		"@babel/core": "7.18.6",
+		"@babel/core": "7.18.13",
 		"@babel/preset-react": "7.18.6",
 		"react": "17.0.2"
 	},

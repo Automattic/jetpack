@@ -13,6 +13,7 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	ANTI_SPAM: 'anti-spam',
 	VIDEOPRESS: 'videopress',
 	BACKUP_PLAN: 'backup-plan',
+	BOOST: 'boost',
 	SUMMARY: 'summary',
 };
 
