@@ -277,6 +277,12 @@ Blocks can be registered but not available:
 - Registered: The block appears in the block inserter
 - Available: The block is included in the user's current plan and renders in the front end of the site
 
+## Block upgrade and deprecation paths
+
+When updating block markup or attributes, you will want to avoid block validation errors showing to all current users of the previous version of the block.
+
+In Jetpack the scenario that has been used historically is to create a deprecation. This [developer.wordpress.org](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-deprecation/) guide explains block deprecation in more detail. An example of block deprecation can be seen with the [Tiled Gallery block here](https://github.com/Automattic/jetpack/tree/7d97ced29dbbf6bd5c7a5d85bb5d752d9245f1c7/projects/plugins/jetpack/extensions/blocks/tiled-gallery) (see`index.js` in both the `deprecated` folder and the root `tiled-gallery` folder to see the `default` import and export in use).
+
 ## Good to know when developing Gutenberg extensions
 
 ### The Build
