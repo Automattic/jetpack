@@ -26,6 +26,7 @@ class Jetpack_Recommendations {
 	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
 	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
 	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
+	const BOOST_RECOMMENDATION         = 'boost';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
@@ -33,6 +34,7 @@ class Jetpack_Recommendations {
 		self::SECURITY_PLAN_RECOMMENDATION,
 		self::ANTI_SPAM_RECOMMENDATION,
 		self::VIDEOPRESS_RECOMMENDATION,
+		self::BOOST_RECOMMENDATION,
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
@@ -159,8 +161,8 @@ class Jetpack_Recommendations {
 	}
 
 	/**
-	 * Hook for transition_post_status that checks for the publishing of a new post.
-	 * Used to enable the publicize recommendation.
+	 * Hook for transition_post_status that checks for the publishing of a new post or page.
+	 * Used to enable the publicize and boost recommendations.
 	 *
 	 * @param string  $new_status new status of post.
 	 * @param string  $old_status old status of post.
@@ -171,6 +173,18 @@ class Jetpack_Recommendations {
 		if ( 'post' === $post->post_type && 'publish' === $new_status && 'publish' !== $old_status && ! Jetpack::is_module_active( 'publicize' ) ) {
 			// Set the publicize recommendation to have met criteria to be shown.
 			self::enable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
+			return;
+		}
+		// A new page has been published
+		// Check to see if the boost plugin is active
+		if (
+			'page' === $post->post_type &&
+			'publish' === $new_status &&
+			'publish' !== $old_status &&
+			! Plugins_Installer::is_plugin_active( 'boost/jetpack-boost.php' ) &&
+			! Plugins_Installer::is_plugin_active( 'jetpack-boost/jetpack-boost.php' )
+		) {
+			self::enable_conditional_recommendation( self::BOOST_RECOMMENDATION );
 		}
 	}
 

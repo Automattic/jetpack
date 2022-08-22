@@ -12,6 +12,13 @@ import { fetchPluginsData } from 'state/site/plugins';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Jetpack Boost', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
+				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-boost',
+			};
 		case 'creative-mail':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -89,6 +96,14 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 
 export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost':
+			return {
+				activateFeature: () => {
+					restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+						dispatch( fetchPluginsData() );
+					} );
+				},
+			};
 		case 'creative-mail':
 			return {
 				activateFeature: () => {
@@ -151,6 +166,21 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 
 export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
+		case 'boost':
+			return {
+				question: __( 'Get more views for your new page.', 'jetpack' ),
+				description: __(
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Optimize CSS loading', 'jetpack' ),
+					__( 'Defer non-essential Javascript', 'jetpack' ),
+					__( 'Lazy image loading and site performance scores', 'jetpack' ),
+				],
+				descriptionLink: 'https://jetpack.com/boost/',
+				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
+			};
 		case 'creative-mail':
 			return {
 				progressValue: '83',
