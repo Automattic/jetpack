@@ -8,14 +8,25 @@ export default {
 	parameters: {
 		layout: 'centered',
 	},
+	decorators: [
+		Story => (
+			<div className={ styles[ 'storybook-wrapper' ] }>
+				<Story />
+			</div>
+		),
+	],
 } as ComponentMeta< typeof VideoRow >;
 
-const Template: ComponentStory< typeof VideoRow > = () => {
-	return (
-		<div className={ styles[ 'storybook-wrapper' ] }>
-			<VideoRow />
-		</div>
-	);
+const Template: ComponentStory< typeof VideoRow > = args => {
+	return <VideoRow { ...args } />;
 };
 
 export const _default = Template.bind( {} );
+_default.args = {
+	posterImage:
+		'https://videos.files.wordpress.com/PnQvSqdF/videopress-upload-demo-7_mp4_hd_1080p.original.jpg',
+	videoTitle: 'videopress-upload-demo-7-mp4',
+	duration: 158633,
+	plays: 200,
+	uploadDate: '2022-08-15T21:16:59+0000',
+};

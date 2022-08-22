@@ -1,5 +1,6 @@
 import { Text, Button } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon, image, trash } from '@wordpress/icons';
 import { useState } from 'react';
@@ -9,6 +10,12 @@ import styles from './style.module.scss';
 // Hiding it based on Design request:
 // https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
 const HIDE_QUICK_ACTIONS = true;
+
+const millisecondsToMinutesAndSeconds = milliseconds => {
+	const minutes = Math.floor( milliseconds / 60000 );
+	const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
+	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+};
 
 const PopoverWithAnchor = ( { anchorRef, children = null } ) => {
 	if ( ! anchorRef ) {
@@ -42,7 +49,19 @@ const ActionItem = ( { icon, children, className = '' } ) => {
 	);
 };
 
-const VideoRow = () => {
+const VideoRow = ( {
+	videoTitle,
+	posterImage,
+	duration,
+	uploadDate,
+	plays = null,
+}: {
+	videoTitle: string;
+	posterImage: string;
+	duration: number;
+	uploadDate: string;
+	plays: number;
+} ) => {
 	const [ showActions, setShowActions ] = useState( false );
 
 	return (
@@ -52,12 +71,8 @@ const VideoRow = () => {
 			onMouseLeave={ () => setShowActions( false ) }
 		>
 			<div className={ styles[ 'info-wrapper' ] }>
-				<img
-					className={ styles.poster }
-					alt="Video Poster"
-					src="https://videos.files.wordpress.com/PnQvSqdF/videopress-upload-demo-7_mp4_hd_1080p.original.jpg"
-				/>
-				<Text variant="title-small">videopress-upload-demo-7-mp4</Text>
+				<img className={ styles.poster } alt="Video Poster" src={ posterImage } />
+				<Text variant="title-small">{ videoTitle }</Text>
 			</div>
 			<div className={ styles[ 'meta-wrapper' ] }>
 				{ showActions ? (
@@ -80,9 +95,9 @@ const VideoRow = () => {
 				) : (
 					<div className={ styles.stats }>
 						<div className={ styles.privacy }>No</div>
-						<div className={ styles.duration }>34:25</div>
-						<div className={ styles.play }>972</div>
-						<div className={ styles.upload }>May 17, 2022</div>
+						<div className={ styles.duration }>{ millisecondsToMinutesAndSeconds( duration ) }</div>
+						{ Number.isFinite( plays ) && <div className={ styles.plays }>{ plays }</div> }
+						<div className={ styles.upload }>{ dateI18n( 'F j, Y', uploadDate, null ) }</div>
 					</div>
 				) }
 			</div>
