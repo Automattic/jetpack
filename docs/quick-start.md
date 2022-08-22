@@ -25,7 +25,7 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 - Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
 
-The Jetpack Monorepo requires the following to be installed on your machine:
+The Jetpack Monorepo requires various software to be installed on your machine.
 - Start by cloning the GitHub repo using one of these two methods:
  	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
