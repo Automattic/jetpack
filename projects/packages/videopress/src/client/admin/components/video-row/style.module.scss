@@ -5,6 +5,7 @@
 	padding: calc( var(--spacing-base) * 3 );
 	background-color: var(--jp-white);
 	cursor: pointer;
+	gap: calc( var(--spacing-base) * 2 );
 
 	&:hover {
 		background-color: var(--jp-gray-0);
@@ -25,7 +26,7 @@
 }
 
 .meta-wrapper {
-	width: 30%;
+	width: fit-content;
 }
 
 .stats {
@@ -37,7 +38,8 @@
 	}
 
 	& > .upload {
-		flex: 2;
+		width: fit-content;
+		white-space: nowrap;
 	}
 }
 
