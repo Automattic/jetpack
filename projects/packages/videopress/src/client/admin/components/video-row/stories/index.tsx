@@ -1,4 +1,5 @@
 import VideoRow from '..';
+import styles from '../style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
@@ -11,7 +12,7 @@ export default {
 
 const Template: ComponentStory< typeof VideoRow > = () => {
 	return (
-		<div style={ { width: 1000 } }>
+		<div className={ styles[ 'storybook-wrapper' ] }>
 			<VideoRow />
 		</div>
 	);
