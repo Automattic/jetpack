@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-connection": "^1.42",
+		"automattic/jetpack-connection": "^1.43",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-identity-crisis": "^0.8"
