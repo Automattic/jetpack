@@ -58,6 +58,21 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Get the link to the CPT screen. If SSO is enabled, the link will inside calypso,
+	 * otherwise it will be a link to wp-admin.
+	 *
+	 * @param string $post_type The ID of the post type.
+	 * @return string The link to Calypso if SSO is enabled or to WP Admin if SSO is disabled.
+	 */
+	public function get_cpt_menu_link( $post_type ) {
+		if ( \Jetpack::is_module_active( 'sso' ) ) {
+			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		} else {
+			return 'edit.php?post_type=' . $post_type;
+		}
+	}
+
+	/**
 	 * Adds Posts menu.
 	 */
 	public function add_posts_menu() {
@@ -83,15 +98,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	/**
 	 * Adds a custom post type menu.
 	 *
-	 * @param string $post_type Custom post type.
+	 * @param string   $post_type Custom post type.
+	 * @param int|null $position Optional. Position where to display the menu item. Default null.
 	 */
-	public function add_custom_post_type_menu( $post_type ) {
+	public function add_custom_post_type_menu( $post_type, $position = null ) {
 		$ptype_obj = get_post_type_object( $post_type );
 		if ( empty( $ptype_obj ) ) {
 			return;
 		}
 
-		$menu_slug = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		$menu_slug = $this->get_cpt_menu_link( $post_type );
 
 		// Menu icon.
 		$menu_icon = 'dashicons-admin-post';
@@ -104,7 +120,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			}
 		}
 
-		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon );
+		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon, $position );
 	}
 
 	/**
@@ -139,24 +155,17 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_cpt_menus() {
 
-		$post_types_objects = get_post_types(
+		$post_type_list = get_post_types(
 			array(
 				'show_in_rest' => true,
 				'show_in_menu' => true,
 				'_builtin'     => false,
-			),
-			'objects'
+			)
 		);
 
-		// for each post type, add a menu item.
-		foreach ( $post_types_objects as $post_type ) {
-			$slug       = 'https://wordpress.com/types/' . $post_type->name . '/' . $this->domain;
-			$name       = $post_type->labels->menu_name;
-			$capability = $post_type->cap->edit_posts;
-			$icon       = $post_type->menu_icon ? $post_type->menu_icon : 'dashicons-admin-post';
-			$position   = 46; // After Feedback.
-
-			add_menu_page( esc_attr( $name ), $name, $capability, $slug, null, $icon, $position );
+		foreach ( $post_type_list as $post_type ) {
+			$position = 46; // After Feedback.
+			$this->add_custom_post_type_menu( $post_type, $position );
 		}
 	}
 
