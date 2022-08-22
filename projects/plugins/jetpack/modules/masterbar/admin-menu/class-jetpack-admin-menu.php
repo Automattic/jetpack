@@ -30,7 +30,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Reset menus so there are no third-party plugin items, only CPTs.
+		// Reset menus so there are no third-party plugin items.
 		$menu    = array();// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
