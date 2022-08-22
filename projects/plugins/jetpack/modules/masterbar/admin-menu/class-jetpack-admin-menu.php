@@ -38,8 +38,13 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * @return array The CPT menu item with the replaced URL.
 	 */
 	private function replace_admin_link_to_calypso( $menu_item ) {
-		$post_type    = str_replace( 'edit.php?post_type=', '', $menu_item[2] );
-		$menu_item[2] = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		$url = $menu_item[2];
+		if ( strpos( $url, 'edit.php?post_type=' ) === 0 ) {
+			$query_args = array();
+			parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+			$post_type    = $query_args['post_type'];
+			$menu_item[2] = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		}
 		return $menu_item;
 	}
 
