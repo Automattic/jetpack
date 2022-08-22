@@ -17,13 +17,13 @@ const runAttempt = '1';
 describe( 'Notification text', () => {
 	test.each`
 		eventName           | isFailure  | expected
-		${ 'push' }         | ${ false } | ${ { text: `Tests passed on ${ refType } *${ refName }*` } }
-		${ 'push' }         | ${ true }  | ${ { text: `Tests failed on ${ refType } *${ refName }*` } }
-		${ 'schedule' }     | ${ false } | ${ { text: `Tests passed for scheduled run on ${ refType } *${ refName }*` } }
-		${ 'schedule' }     | ${ true }  | ${ { text: `Tests failed for scheduled run on ${ refType } *${ refName }*` } }
-		${ 'pull_request' } | ${ false } | ${ { text: `Tests passed for pull request *#${ prNumber }*` } }
-		${ 'pull_request' } | ${ true }  | ${ { text: `Tests failed for pull request *#${ prNumber }*` } }
-		${ 'unsupported' }  | ${ true }  | ${ { text: `Tests failed for ${ sha }` } }
+		${ 'push' }         | ${ false } | ${ { text: `:white_check_mark: Tests passed on ${ refType } *${ refName }*` } }
+		${ 'push' }         | ${ true }  | ${ { text: `:x: Tests failed on ${ refType } *${ refName }*` } }
+		${ 'schedule' }     | ${ false } | ${ { text: `:white_check_mark: Tests passed for scheduled run on ${ refType } *${ refName }*` } }
+		${ 'schedule' }     | ${ true }  | ${ { text: `:x: Tests failed for scheduled run on ${ refType } *${ refName }*` } }
+		${ 'pull_request' } | ${ false } | ${ { text: `:white_check_mark: Tests passed for pull request *#${ prNumber }*` } }
+		${ 'pull_request' } | ${ true }  | ${ { text: `:x: Tests failed for pull request *#${ prNumber }*` } }
+		${ 'unsupported' }  | ${ true }  | ${ { text: `:x: Tests failed for ${ sha }` } }
 	`(
 		`Message text is correct for $event event and workflow failed=$isFailure`,
 		async ( { eventName, isFailure, expected } ) => {
