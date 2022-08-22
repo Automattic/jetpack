@@ -218,7 +218,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		} ),
 	} );
 
-	const [ isUploadingFile, setIsUploadingFile ] = useState( true );
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! attributes?.guid );
 
 	// Handling all the upload/select file step
 	// This is the first action for the user
