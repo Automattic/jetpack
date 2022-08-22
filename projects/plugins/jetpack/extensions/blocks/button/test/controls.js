@@ -62,10 +62,10 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
 			expect(
-				within( backgroundSection ).queryByRole( 'radio', { name: 'Solid' } )
+				within( backgroundSection ).queryByRole( 'tab', { name: 'Solid' } )
 			).not.toBeInTheDocument();
 			expect(
-				within( backgroundSection ).queryByRole( 'radio', { name: 'Gradient' } )
+				within( backgroundSection ).queryByRole( 'tab', { name: 'Gradient' } )
 			).not.toBeInTheDocument();
 		} );
 
@@ -118,10 +118,10 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
 			expect(
-				within( backgroundSection ).getByRole( 'radio', { name: 'Solid' } )
+				within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } )
 			).toBeInTheDocument();
 			expect(
-				within( backgroundSection ).getByRole( 'radio', { name: 'Gradient' } )
+				within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } )
 			).toBeInTheDocument();
 		} );
 
@@ -146,7 +146,7 @@ describe( 'Inspector settings', () => {
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
-			await user.click( within( backgroundSection ).getByRole( 'radio', { name: 'Solid' } ) );
+			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } ) );
 			await user.click(
 				within( backgroundSection ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
 			);
@@ -162,7 +162,7 @@ describe( 'Inspector settings', () => {
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
-			await user.click( within( backgroundSection ).getByRole( 'radio', { name: 'Gradient' } ) );
+			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } ) );
 			await user.click(
 				within( backgroundSection ).getAllByRole( 'button', { name: /^Gradient: / } )[ 0 ]
 			);
