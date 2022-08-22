@@ -31,7 +31,7 @@ The Jetpack Monorepo requires various software to be installed on your machine.
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
 	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
      - Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). If you are not cloning into a Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
-- The next steps cover what software needs installing:
+- This software needs to be installed or updated system-wide:
      - Bash (will need to be updated from default Mac version): `brew install bash`
      - jq (JSON processor used in scripts): `brew install jq` 
 - To install the following software, cd into the Jetpack directory that was created when cloning the repo: `cd jetpack`:
