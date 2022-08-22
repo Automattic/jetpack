@@ -44,13 +44,11 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 	return (
 		<div className={ styles.wrapper }>
 			<input type="text" value={ text || value } onClick={ onClickInputHandler } readOnly />
-			<span className={ styles[ 'button-wrapper' ] } ref={ ref }>
-				<Button weight="regular" variant="secondary" size="small">
-					{ hasCopied
-						? __( 'Copied', 'jetpack-videopress-pkg' )
-						: __( 'Copy', 'jetpack-videopress-pkg' ) }
-				</Button>
-			</span>
+			<Button weight="regular" variant="secondary" size="small" ref={ ref }>
+				{ hasCopied
+					? __( 'Copied', 'jetpack-videopress-pkg' )
+					: __( 'Copy', 'jetpack-videopress-pkg' ) }
+			</Button>
 		</div>
 	);
 };
