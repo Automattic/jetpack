@@ -16,8 +16,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.18",
-		"@babel/core": "7.18.6",
-		"@babel/preset-env": "7.18.6",
+		"@babel/core": "7.18.10",
+		"@babel/preset-env": "7.18.10",
 		"@babel/preset-react": "7.18.6",
 		"@rollup/plugin-babel": "5.3.1",
 		"@rollup/plugin-commonjs": "19.0.2",
