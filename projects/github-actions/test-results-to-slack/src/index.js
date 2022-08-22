@@ -39,11 +39,7 @@ const { getMessage, sendMessage } = require( './slack' );
 	const { text, id, mainMsgBlocks, detailsMsgBlocks } = await getNotificationData( isFailure );
 	const existingMessage = await getMessage( client, channel, id );
 	let mainMessageTS = existingMessage ? existingMessage.ts : undefined;
-
-	let icon_emoji = getInput( 'slack_icon_emoji' );
-	if ( ! icon_emoji ) {
-		icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
-	}
+	const icon_emoji = getInput( 'slack_icon_emoji' );
 
 	if ( existingMessage ) {
 		debug( 'Main message found' );
@@ -54,7 +50,6 @@ const { getMessage, sendMessage } = require( './slack' );
 			blocks: mainMsgBlocks,
 			channel,
 			username,
-			icon_emoji,
 			ts: mainMessageTS,
 		} );
 
