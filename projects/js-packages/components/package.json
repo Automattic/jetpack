@@ -18,7 +18,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@babel/core": "7.18.10",
+		"@babel/core": "7.18.13",
 		"@babel/preset-react": "7.18.6",
 		"@jest/globals": "28.1.0",
 		"@storybook/addon-actions": "6.5.10",
