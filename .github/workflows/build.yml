@@ -57,7 +57,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const checkTestReminderComment = require('.github/actions/build/check-test-reminder-comment.js')
+            const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
             const commentId = await checkTestReminderComment( github, context, core );
             return commentId;
 
