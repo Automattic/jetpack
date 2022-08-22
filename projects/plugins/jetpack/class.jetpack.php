@@ -829,6 +829,7 @@ class Jetpack {
 				'jitm',
 				'sync',
 				'waf',
+				'videopress',
 			)
 			as $feature
 		) {

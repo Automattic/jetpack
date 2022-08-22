@@ -14,6 +14,7 @@ import SocialLogo from 'social-logos';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
+	isConnectionOwner,
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
@@ -269,9 +270,11 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ ! isUserLicenseActivationScreen && ! this.props.isAtomicSite && (
-					<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
-				) }
+				{ ! isUserLicenseActivationScreen &&
+					! this.props.isAtomicSite &&
+					this.props.isConnectionOwner && (
+						<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
+					) }
 			</div>
 		);
 	}
@@ -285,6 +288,7 @@ export default connect(
 			userCanConnectSite: userCanConnectSite( state ),
 			userCanConnectAccount: userCanConnectAccount( state ),
 			userIsSubscriber: userIsSubscriber( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
 			isAtomicSite: isAtomicSite( state ),

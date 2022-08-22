@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-starter-e2e-tests",
+	"name": "jetpack-videopress-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "High quality, ad-free video.",
@@ -31,8 +31,8 @@
 		"slack": "NODE_CONFIG_DIR='./config' slack"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.22.2",
-		"allure-playwright": "2.0.0-beta.17",
+		"@playwright/test": "1.25.0",
+		"allure-playwright": "2.0.0-beta.19",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "*"
 	},

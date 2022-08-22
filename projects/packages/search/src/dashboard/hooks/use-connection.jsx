@@ -20,5 +20,8 @@ export default function useConnection() {
 			connectionStatus.isRegistered ) ||
 		isWpcom;
 
-	return { connectionStatus, isFullyConnected };
+	const isSiteConnected =
+		( Object.keys( connectionStatus ).length && connectionStatus.isRegistered ) || isWpcom;
+
+	return { connectionStatus, isFullyConnected, isSiteConnected };
 }

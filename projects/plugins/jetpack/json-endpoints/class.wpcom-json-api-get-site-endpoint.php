@@ -190,6 +190,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected static $jetpack_response_field_additions = array(
 		'subscribers_count',
 		'site_migration',
+		'site_owner',
 	);
 
 	/**

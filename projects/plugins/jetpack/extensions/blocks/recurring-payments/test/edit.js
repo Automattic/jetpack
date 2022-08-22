@@ -6,7 +6,7 @@ import Edit from '../edit';
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
-	InnerBlocks: () => <button>Mocked button</button>,
+	useBlockProps: jest.fn(),
 } ) );
 
 // Mock the @wordpress/edit-post, used internally to resolve the fallback URL.

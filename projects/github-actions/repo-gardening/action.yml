@@ -32,6 +32,10 @@ inputs:
     description: "Slack channel ID where general notifications should be sent"
     required: false
     default: ""
+  slack_quality_channel:
+    description: "Slack channel ID where issues needing extra triage / escalation will be sent"
+    required: false
+    default: ""
   tasks:
     description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
     required: false

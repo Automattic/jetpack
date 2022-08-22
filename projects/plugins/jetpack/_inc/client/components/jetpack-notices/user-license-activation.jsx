@@ -53,7 +53,7 @@ const UserLicenseActivationNotice = props => {
 	const USER_LICENSE_ACTIVATION_ROUTE = `${ siteAdminUrl }admin.php?page=jetpack#/license/activation`;
 
 	const userHasDetachedLicenses = !! detachedLicensesCount;
-	const userHasNewDetachedLicenses = detachedLicensesCount >= ( lastDetachedCount || 0 );
+	const userHasNewDetachedLicenses = detachedLicensesCount > ( lastDetachedCount || 0 );
 
 	const now = new Date();
 	const lastDismissedTime = new Date( lastDismissedDateTime ? lastDismissedDateTime : new Date() );

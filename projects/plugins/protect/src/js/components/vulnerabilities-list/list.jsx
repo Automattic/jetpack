@@ -3,9 +3,21 @@ import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Accordion, { AccordionItem } from '../accordion';
+import styles from './styles.module.scss';
 
-const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) => {
+const VulAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
 	const { recordEvent } = useAnalyticsTracks();
+
+	const learnMoreButton = (
+		<Button
+			variant="link"
+			isExternalLink={ true }
+			weight="regular"
+			href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
+		>
+			{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
+		</Button>
+	);
 
 	return (
 		<AccordionItem
@@ -20,8 +32,17 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) =
 				recordEvent( `jetpack_protect_${ type }_vulnerability_open` );
 			}, [ recordEvent, type ] ) }
 		>
+			{ description && (
+				<div className={ styles[ 'threat-section' ] }>
+					<Text variant="title-small" mb={ 2 }>
+						{ __( 'What is the problem?', 'jetpack-protect' ) }
+					</Text>
+					<Text mb={ 2 }>{ description }</Text>
+					{ learnMoreButton }
+				</div>
+			) }
 			{ fixedIn && (
-				<>
+				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
 						{ __( 'How to fix it?', 'jetpack-protect' ) }
 					</Text>
@@ -31,16 +52,9 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) =
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
-				</>
+				</div>
 			) }
-			<Button
-				variant="link"
-				isExternalLink={ true }
-				weight="regular"
-				href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
-			>
-				{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
-			</Button>
+			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 		</AccordionItem>
 	);
 };
@@ -48,13 +62,14 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn, type } ) =
 const List = ( { list } ) => {
 	return (
 		<Accordion>
-			{ list.map( ( { id, name, title, version, fixedIn, icon, type } ) => (
+			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type } ) => (
 				<VulAccordionItem
 					key={ id }
 					id={ id }
 					name={ name }
 					version={ version }
 					title={ title }
+					description={ description }
 					icon={ icon }
 					fixedIn={ fixedIn }
 					type={ type }

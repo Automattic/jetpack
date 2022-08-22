@@ -62,7 +62,6 @@ class Admin {
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 		add_action( 'admin_notices', array( $this, 'show_notices' ) );
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_js_constants' ) );
 
 		$this->handle_get_parameters();
 
@@ -253,18 +252,4 @@ class Admin {
 		\update_option( self::DISMISSED_NOTICE_OPTION, $dismissed_notices, false );
 	}
 
-	/**
-	 * Add Admin related constants to be passed to JavaScript.
-	 *
-	 * @param array $constants Constants to be passed to JavaScript.
-	 *
-	 * @return array
-	 */
-	public function add_js_constants( $constants ) {
-		// Information about the current status of Critical CSS / generation.
-		$constants['showRatingPromptNonce'] = wp_create_nonce( Config::SET_SHOW_RATING_PROMPT_NONCE );
-		$constants['showScorePromptNonce']  = wp_create_nonce( Config::SET_SHOW_SCORE_PROMPT_NONCE );
-
-		return $constants;
-	}
 }

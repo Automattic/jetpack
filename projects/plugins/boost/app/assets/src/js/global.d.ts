@@ -34,6 +34,7 @@ declare global {
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
+		dismissedScorePrompts: string[];
 		site: {
 			domain: string;
 			url: string;

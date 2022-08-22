@@ -12,6 +12,16 @@ async function refresh(): Promise< void > {
 	} );
 }
 
+// eslint-disable-next-line camelcase
+const dismissedPopOutStore = writable( Jetpack_Boost.dismissedScorePrompts );
+
+export const dismissedPopOuts = {
+	subscribe: dismissedPopOutStore.subscribe,
+	dismiss: ( name: string ) => {
+		dismissedPopOutStore.update( dismissals => [ ...dismissals, name ] );
+	},
+};
+
 export default {
 	subscribe,
 	refresh,

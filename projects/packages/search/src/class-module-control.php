@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status;
 use WP_Error;
 
 /**
@@ -22,6 +24,13 @@ class Module_Control {
 	protected $plan;
 
 	/**
+	 * Connection_Manager object
+	 *
+	 * @var Automattic\Jetpack\Connection\Manager
+	 */
+	protected $connection_manager;
+
+	/**
 	 * We use the same options as Jetpack the plugin to flag whether Search is active.
 	 */
 	const JETPACK_ACTIVE_MODULES_OPTION_KEY       = 'active_modules';
@@ -31,10 +40,12 @@ class Module_Control {
 	/**
 	 * Contructor
 	 *
-	 * @param Plan|null $plan - Plan object.
+	 * @param Plan|null                                  $plan - Plan object.
+	 * @param Automattic\Jetpack\Connection\Manager|null $connection_manager - Connection_Manager object.
 	 */
-	public function __construct( $plan = null ) {
-		$this->plan = $plan === null ? new Plan() : $plan;
+	public function __construct( $plan = null, $connection_manager = null ) {
+		$this->plan               = $plan === null ? new Plan() : $plan;
+		$this->connection_manager = $connection_manager === null ? new Connection_Manager( Package::SLUG ) : $connection_manager;
 		if ( ! did_action( 'jetpack_search_module_control_initialized' ) ) {
 			add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'search_filter_available_modules' ), 10, 1 );
 			if ( Helper::is_wpcom() ) {
@@ -69,11 +80,21 @@ class Module_Control {
 	 * Activiate Search module
 	 */
 	public function activate() {
+		if ( ( new Status() )->is_offline_mode() ) {
+			return new WP_Error( 'site_offline', __( 'Jetpack Search can not be used in offline mode.', 'jetpack-search-pkg' ) );
+		}
+		if ( ! $this->connection_manager->is_connected() ) {
+			return new WP_Error( 'connection_required', __( 'Connect your site to use Jetpack Search.', 'jetpack-search-pkg' ) );
+		}
 		if ( ! $this->plan->supports_search() ) {
 			return new WP_Error( 'not_supported', __( 'Your plan does not support Jetpack Search.', 'jetpack-search-pkg' ) );
 		}
 
-		return ( new Modules() )->activate( self::JETPACK_SEARCH_MODULE_SLUG, false, false );
+		$success = ( new Modules() )->activate( self::JETPACK_SEARCH_MODULE_SLUG, false, false );
+		if ( false === $success ) {
+			return new WP_Error( 'not_updated', __( 'Setting not updated.', 'jetpack-search-pkg' ) );
+		}
+		return $success;
 	}
 
 	/**

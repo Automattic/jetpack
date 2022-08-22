@@ -728,6 +728,17 @@ class Jetpack_Carousel {
 		);
 
 		foreach ( $attachments as $attachment ) {
+			/*
+			 * If the item from get_posts isn't an attachment, skip. This can occur when copy-pasta from another WP site.
+			 * For example, if one copies "<img class="wp-image-7 size-full" src="https://twentysixteendemo.files.wordpress.com/2015/11/post.png" alt="post" width="1000" height="563" />"
+			 * then, we're going to look up post 7 below, which making sure it is an attachment.
+			 *
+			 * This is meant as a relatively quick fix, as a better fix is likely to update the get_posts call above to only
+			 * include attachments.
+			 */
+			if ( ! isset( $attachment->ID ) || ! wp_attachment_is_image( $attachment->ID ) ) {
+				continue;
+			}
 			$image_elements = $selected_images[ $attachment->ID ];
 
 			$attributes      = $this->add_data_to_images( array(), $attachment );

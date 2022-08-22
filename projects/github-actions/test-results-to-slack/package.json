@@ -1,0 +1,35 @@
+{
+	"name": "test-results-to-slack",
+	"version": "0.1.0-alpha",
+	"description": "GitHub Action to send Slack notifications with test results",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"automattic",
+		"jetpack",
+		"github",
+		"action",
+		"tests"
+	],
+	"main": "src/index.js",
+	"dependencies": {
+		"@actions/core": "1.9.1",
+		"@actions/github": "5.0.1",
+		"@slack/web-api": "6.7.1"
+	},
+	"devDependencies": {
+		"@vercel/ncc": "0.28.5",
+		"jest": "28.1.3",
+		"nock": "13.2.9"
+	},
+	"scripts": {
+		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
+		"test-coverage": "jest --config=tests/jest.config.js --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+	},
+	"engines": {
+		"node": "^16.13.2",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

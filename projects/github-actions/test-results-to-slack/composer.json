@@ -1,0 +1,34 @@
+{
+	"name": "automattic/test-results-to-slack",
+	"description": "GitHub Action to send Slack notifications with test results",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "3.2.x-dev"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"test-js": "pnpm run test"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"autotagger": {
+			"major": true
+		},
+		"mirror-repo": "Automattic/action-test-results-to-slack",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/action-test-results-to-slack/compare/v${old}...v${new}"
+		}
+	}
+}
