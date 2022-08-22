@@ -35,7 +35,7 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.5.0",
+		"pnpm": "^7.9.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -10,18 +10,22 @@ const usePrevious = value => {
 	return ref.current;
 };
 
-export default function useWidth( { attributes, setAttributes } ) {
+export default function useWidth( { attributes, disableEffects = false, setAttributes } ) {
 	const { align, width } = attributes;
 
 	const previousAlign = usePrevious( align );
 
 	// Reset width if switching to left or right (floated) alignment for first time.
 	useEffect( () => {
+		if ( disableEffects ) {
+			return;
+		}
+
 		const alignmentChanged = previousAlign !== align;
 		const isAlignedLeftRight = align === 'left' || align === 'right';
 
 		if ( alignmentChanged && isAlignedLeftRight && width?.includes( '%' ) ) {
 			setAttributes( { width: undefined } );
 		}
-	}, [ align, previousAlign, setAttributes, width ] );
+	}, [ align, disableEffects, previousAlign, setAttributes, width ] );
 }

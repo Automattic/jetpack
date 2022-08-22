@@ -289,7 +289,17 @@ class Config {
 	 */
 	protected function enable_videopress() {
 		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
 
+	/**
+	 * Handles VideoPress options
+	 */
+	protected function ensure_options_videopress() {
+		$options = $this->get_feature_options( 'videopress' );
+		if ( ! empty( $options ) ) {
+			VideoPress_Pkg_Initializer::update_init_options( $options );
+		}
 		return true;
 	}
 

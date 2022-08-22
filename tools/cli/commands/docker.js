@@ -42,7 +42,7 @@ const getProjectName = argv => {
 		project = argv.name ? argv.name : 'e2e';
 	}
 
-	return project;
+	return 'jetpack_' + project;
 };
 
 /**
@@ -57,7 +57,7 @@ const buildEnv = argv => {
 		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
 	}
 
-	envOpts.COMPOSE_PROJECT_NAME = 'jetpack_' + getProjectName( argv );
+	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
 	return envOpts;
 };
 
@@ -537,12 +537,10 @@ export function dockerDefine( yargs ) {
 								'rm',
 								[
 									'-rf',
-									`${ dockerFolder }/wordpress/*`,
-									`${ dockerFolder }/wordpress/.htaccess`,
+									`${ dockerFolder }/wordpress/`,
 									`${ dockerFolder }/wordpress-develop/*`,
 									`${ dockerFolder }/logs/${ project }/`,
-									`${ dockerFolder }/logs/${ project }_mysql/`,
-									`${ dockerFolder }/data/${ project }_mysql/*`,
+									`${ dockerFolder }/data/${ project }_mysql/`,
 								],
 								{ shell: true }
 							)
