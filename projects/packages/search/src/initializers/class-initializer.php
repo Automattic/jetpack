@@ -90,6 +90,7 @@ class Initializer {
 			require_once Package::get_installed_path() . 'compatibility/jetpack.php';
 		}
 		require_once Package::get_installed_path() . 'compatibility/search-0.15.2.php';
+		require_once Package::get_installed_path() . 'compatibility/search-0.17.0.php';
 	}
 
 	/**

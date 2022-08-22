@@ -1,16 +1,21 @@
-const { setFailed, getInput } = require( '@actions/core' );
-const { context, getOctokit } = require( '@actions/github' );
-const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
+const { setFailed, getInput, startGroup, endGroup } = require( '@actions/core' );
+const { WebClient } = require( '@slack/web-api' );
+const debug = require( './debug' );
+const { isWorkflowFailed, getNotificationData } = require( './github' );
+const { getMessage, sendMessage } = require( './slack' );
 
 ( async function main() {
+	startGroup( 'Send results to Slack' );
+
+	//region validate input
 	const ghToken = getInput( 'github_token' );
 	if ( ! ghToken ) {
-		setFailed( 'main: Input `github_token` is required' );
+		setFailed( 'Input `github_token` is required' );
 		return;
 	}
 
-	const token = getInput( 'slack_token' );
-	if ( ! token ) {
+	const slackToken = getInput( 'slack_token' );
+	if ( ! slackToken ) {
 		setFailed( 'Input `slack_token` is required' );
 		return;
 	}
@@ -26,83 +31,68 @@ const { WebClient, retryPolicies, LogLevel } = require( '@slack/web-api' );
 		setFailed( 'Input `slack_username` is required' );
 		return;
 	}
+	//endregion
 
-	let icon_emoji = getInput( 'slack_icon_emoji' );
-	if ( ! icon_emoji ) {
-		setFailed( 'Input `slack_icon_emoji` is required' );
-		return;
-	}
+	const client = new WebClient( slackToken );
 
 	const isFailure = await isWorkflowFailed( ghToken );
+	const { text, id, mainMsgBlocks, detailsMsgBlocks } = await getNotificationData( isFailure );
+	const existingMessage = await getMessage( client, channel, id );
+	let mainMessageTS = existingMessage ? existingMessage.ts : undefined;
+	const icon_emoji = getInput( 'slack_icon_emoji' );
 
-	const status = isFailure ? 'failed' : 'passed';
-	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
-	let event = context.sha;
+	if ( existingMessage ) {
+		debug( 'Main message found' );
+		debug( 'Updating the main message' );
+		// Update the existing message
+		await sendMessage( client, true, {
+			text: `${ text }\n${ id }`,
+			blocks: mainMsgBlocks,
+			channel,
+			username,
+			ts: mainMessageTS,
+		} );
 
-	if ( context.eventName === 'pull_request' ) {
-		const { pull_request } = context.payload;
-		event = `PR <${ pull_request.html_url }|${ pull_request.number }: ${ pull_request.title }>`;
+		if ( isFailure ) {
+			debug( 'Sending new reply to main message with failure details' );
+			// Send a reply to the main message with the current failure result
+			await sendMessage( client, false, {
+				text,
+				blocks: detailsMsgBlocks,
+				channel,
+				username,
+				icon_emoji,
+				thread_ts: mainMessageTS,
+			} );
+		}
+	} else {
+		debug( 'Main message not found' );
+		if ( isFailure ) {
+			debug( 'Sending new main message' );
+			// Send a new main message
+			const response = await sendMessage( client, false, {
+				text: `${ text }\n${ id }`,
+				blocks: mainMsgBlocks,
+				channel,
+				username,
+				icon_emoji,
+			} );
+			mainMessageTS = response.ts;
+
+			debug( 'Sending new reply to main message with failure details' );
+			// Send a reply to the main message with the current failure result
+			await sendMessage( client, false, {
+				text,
+				blocks: detailsMsgBlocks,
+				channel,
+				username,
+				icon_emoji,
+				thread_ts: mainMessageTS,
+			} );
+		} else {
+			debug( 'No previous failure found, no notification needed for success' );
+		}
 	}
-	if ( context.eventName === 'push' ) {
-		event = `commit <${ context.payload.head_commit.url }|${
-			context.sha
-		}> on branch *${ context.ref.substring( 11 ) }*`;
-	}
 
-	const text = `Tests ${ status } for ${ event }`;
-
-	await sendSlackMessage( token, text, [], channel, username, icon_emoji );
+	endGroup();
 } )();
-
-/**
- * Decides if the current workflow failed
- *
- * @param {string} token - GitHub token
- */
-async function isWorkflowFailed( token ) {
-	// eslint-disable-next-line new-cap
-	const octokit = new getOctokit( token );
-
-	// Get the list of jobs for the current workflow run
-	const response = await octokit.rest.actions.listJobsForWorkflowRun( {
-		owner: context.payload.repository.owner.login,
-		repo: context.payload.repository.name,
-		run_id: context.runId,
-	} );
-
-	// Get unique list of conclusions of completed jobs
-	const conclusions = [
-		...new Set(
-			response.data.jobs.filter( job => job.status === 'completed' ).map( job => job.conclusion )
-		),
-	];
-
-	// Decide if any we'll treat this run as failed
-	return !! conclusions.some( conclusion => conclusion !== 'success' );
-}
-
-/**
- * Sends a Slack message
- *
- * @param {string} token - slack token
- * @param {string} text - message text
- * @param {string} blocks - message blocks
- * @param {string} channel - slack channel
- * @param {string} username - slack bot username
- * @param {string} icon_emoji - icon emoji
- */
-async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
-	const client = new WebClient( token, {
-		retryConfig: retryPolicies.rapidRetryPolicy,
-		logLevel: LogLevel.ERROR,
-	} );
-
-	await client.chat.postMessage( {
-		text,
-		channel,
-		username,
-		icon_emoji,
-		unfurl_links: false,
-		unfurl_media: false,
-	} );
-}

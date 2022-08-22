@@ -25,5 +25,4 @@ require_once __DIR__ . '/videopress/class-videopress-attachment-metadata.php';
 if ( is_admin() ) {
 	include_once __DIR__ . '/videopress/editor-media-view.php';
 	include_once __DIR__ . '/videopress/class.videopress-edit-attachment.php';
-	include_once __DIR__ . '/videopress/class.videopress-ajax.php';
 }

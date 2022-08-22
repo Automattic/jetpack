@@ -2,13 +2,6 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ButtonControls from '../controls';
 
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../button-width-panel', () => ( {
-	__esModule: true,
-	default: () => <div>Mocked Width Settings</div>,
-} ) );
-
 const defaultAttributes = {
 	align: undefined,
 	width: undefined,
@@ -25,6 +18,7 @@ const defaultProps = {
 		class: undefined,
 		color: undefined,
 	},
+	context: {},
 	fallbackBackgroundColor: 'rgba(0, 0, 0, 0)',
 	fallbackTextColor: undefined,
 	setAttributes: setAttributes,
@@ -37,6 +31,7 @@ const defaultProps = {
 	gradientValue: undefined,
 	setGradient: setGradient,
 	isGradientAvailable: false,
+	WidthSettings: () => null,
 };
 
 beforeEach( () => {
@@ -67,10 +62,10 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
 			expect(
-				within( backgroundSection ).queryByRole( 'radio', { name: 'Solid' } )
+				within( backgroundSection ).queryByRole( 'tab', { name: 'Solid' } )
 			).not.toBeInTheDocument();
 			expect(
-				within( backgroundSection ).queryByRole( 'radio', { name: 'Gradient' } )
+				within( backgroundSection ).queryByRole( 'tab', { name: 'Gradient' } )
 			).not.toBeInTheDocument();
 		} );
 
@@ -123,10 +118,10 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
 			expect(
-				within( backgroundSection ).getByRole( 'radio', { name: 'Solid' } )
+				within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } )
 			).toBeInTheDocument();
 			expect(
-				within( backgroundSection ).getByRole( 'radio', { name: 'Gradient' } )
+				within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } )
 			).toBeInTheDocument();
 		} );
 
@@ -151,7 +146,7 @@ describe( 'Inspector settings', () => {
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
-			await user.click( within( backgroundSection ).getByRole( 'radio', { name: 'Solid' } ) );
+			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } ) );
 			await user.click(
 				within( backgroundSection ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
 			);
@@ -167,7 +162,7 @@ describe( 'Inspector settings', () => {
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
 			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
-			await user.click( within( backgroundSection ).getByRole( 'radio', { name: 'Gradient' } ) );
+			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } ) );
 			await user.click(
 				within( backgroundSection ).getAllByRole( 'button', { name: /^Gradient: / } )[ 0 ]
 			);

@@ -55,7 +55,7 @@ const renderCard = props => (
 		overrideContent={ props.overrideContent }
 	>
 		{ isArray( props.content ) ? (
-			props.content
+			props.content.map( ( el, i ) => <React.Fragment key={ i }>{ el }</React.Fragment> )
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>
 		) }

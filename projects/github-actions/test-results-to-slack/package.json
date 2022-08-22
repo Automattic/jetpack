@@ -14,7 +14,7 @@
 	],
 	"main": "src/index.js",
 	"dependencies": {
-		"@actions/core": "1.6.0",
+		"@actions/core": "1.9.1",
 		"@actions/github": "5.0.1",
 		"@slack/web-api": "6.7.1"
 	},
@@ -24,7 +24,9 @@
 		"nock": "13.2.9"
 	},
 	"scripts": {
-		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
+		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
+		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
+		"test-coverage": "jest --config=tests/jest.config.js --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"engines": {
 		"node": "^16.13.2",

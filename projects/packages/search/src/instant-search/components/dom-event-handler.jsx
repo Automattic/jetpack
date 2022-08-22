@@ -3,6 +3,7 @@
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 import { Component } from 'react';
+import { getPrefersReducedMotion } from '../lib/a11y';
 
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
@@ -16,6 +17,7 @@ export default class DomEventHandler extends Component {
 			isComposing: false,
 			// `bodyScrollTop` remembers the body scroll position.
 			bodyScrollTop: 0,
+			prefersReducedMotion: getPrefersReducedMotion(),
 			previousStyle: null,
 			previousBodyStyleAttribute: '',
 		};
@@ -133,18 +135,17 @@ export default class DomEventHandler extends Component {
 			return;
 		}
 
-		if ( this.props.overlayOptions.overlayTrigger === 'submit' ) {
+		if (
+			this.props.overlayOptions.overlayTrigger === 'submit' ||
+			this.state.prefersReducedMotion
+		) {
 			return;
 		}
 
 		this.props.setSearchQuery( event.target.value );
 
-		if ( this.props.overlayOptions.overlayTrigger === 'immediate' ) {
+		if ( [ 'immediate', 'results' ].includes( this.props.overlayOptions.overlayTrigger ) ) {
 			this.props.showResults();
-		}
-
-		if ( this.props.overlayOptions.overlayTrigger === 'results' ) {
-			this.props.response?.results && this.props.showResults();
 		}
 	}, 200 );
 

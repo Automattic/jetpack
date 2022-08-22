@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
 import React, { Fragment, useState, useEffect, useRef } from 'react';
+import { OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME } from '../lib/constants';
 import Gridicon from './gridicon';
 import './search-box.scss';
 
@@ -35,7 +36,7 @@ const SearchBox = props => {
 					<input
 						autoComplete="off"
 						id={ inputId }
-						className="search-field jetpack-instant-search__box-input"
+						className={ 'search-field ' + OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME }
 						inputMode="search"
 						// IE11 will immediately fire an onChange event when the placeholder contains a unicode character.
 						// Ensure that the search application is visible before invoking the onChange callback to guard against this.

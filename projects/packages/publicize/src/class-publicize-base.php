@@ -1463,6 +1463,26 @@ abstract class Publicize_Base {
 		$rest_controller = new REST_Controller();
 		return $rest_controller->make_proper_response( $response );
 	}
+
+	/**
+	 * Call the WPCOM REST API to calculate the scheduled shares.
+	 *
+	 * @param string $blog_id The blog_id.
+	 */
+	public function calculate_scheduled_shares( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social/count-scheduled-shares', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
+	}
 }
 
 /**

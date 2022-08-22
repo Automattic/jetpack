@@ -235,6 +235,10 @@ class Helper {
 				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 
+			case 'author':
+				$name = _x( 'Authors', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
 			case 'date_histogram':
 				$modified_fields = array(
 					'post_modified',

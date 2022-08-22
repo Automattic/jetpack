@@ -19,9 +19,9 @@
 		"clean": "rm -rf output",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
-		"env:up": "e2e-env start --activate-plugins boost",
+		"env:up": "e2e-env start --activate-plugins starter-plugin",
 		"env:down": "e2e-env stop",
-		"env:reset": "e2e-env reset --activate-plugins boost",
+		"env:reset": "e2e-env reset --activate-plugins starter-plugin",
 		"tunnel:up": "tunnel up",
 		"tunnel:reset": "tunnel reset",
 		"tunnel:down": "tunnel down",
@@ -31,8 +31,8 @@
 		"slack": "NODE_CONFIG_DIR='./config' slack"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.22.2",
-		"allure-playwright": "2.0.0-beta.17",
+		"@playwright/test": "1.25.0",
+		"allure-playwright": "2.0.0-beta.19",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "*"
 	},

@@ -144,14 +144,14 @@ describe( 'CalendlyInspectorControls', () => {
 		const user = userEvent.setup();
 		await renderExpandedSettings( user, defaultProps );
 
-		const colorHelpUrl =
-			'https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-';
+		const customizationHelpUrl =
+			'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block';
 		const noticeClass = `${ defaultProps.defaultClassName }-color-notice`;
-		const linkText = 'Follow these instructions to change the colors in this block.';
+		const linkText = 'Explore more customization options.';
 		const link = screen.getByText( linkText );
 
 		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', colorHelpUrl );
+		expect( link ).toHaveAttribute( 'href', customizationHelpUrl );
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( link.closest( '.components-notice' ) ).toHaveClass( noticeClass );
 	} );
