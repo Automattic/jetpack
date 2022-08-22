@@ -19,5 +19,5 @@ export type ClipboardButtonInputProps = {
 	/**
 	 * Timer in miliseconds to reset the copy button to its initial state.
 	 */
-	isCopiedTimeout?: number;
+	resetTime?: number;
 };

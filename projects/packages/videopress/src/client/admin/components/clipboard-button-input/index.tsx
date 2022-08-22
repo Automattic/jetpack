@@ -22,7 +22,7 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 	text,
 	value,
 	onCopy,
-	isCopiedTimeout = 3000,
+	resetTime = 3000,
 } ) => {
 	const onClickInputHandler = ( event: React.MouseEvent< HTMLInputElement > ) => {
 		event.currentTarget.select();
@@ -35,7 +35,7 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 		const timer = setTimeout( () => {
 			setHasCopied( false );
 			clearTimeout( timer );
-		}, isCopiedTimeout );
+		}, resetTime );
 
 		setHasCopied( true );
 		onCopy?.();
