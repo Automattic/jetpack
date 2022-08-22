@@ -15,40 +15,6 @@ require_once __DIR__ . '/class-admin-menu.php';
 class Jetpack_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * Returns an array with the CPT menu items different form post and page types.
-	 *
-	 * @param array $menu The menu array to filter from.
-	 * @return array The filtered menu array.
-	 */
-	private function filter_cpt_menu_items( $menu ) {
-		$exclude_slugs = array( 'menu-posts', 'menu-pages' );
-		return array_filter(
-			$menu,
-			function ( $item ) use ( $exclude_slugs ) {
-				$is_edit_post_type = strpos( $item[2], 'edit.php?post_type=' ) === 0;
-				return $is_edit_post_type && ! in_array( $item[5], $exclude_slugs, true );
-			}
-		);
-	}
-
-	/**
-	 * Replaces the wp-admin CPT URLs with the WPcom calypso url.
-	 *
-	 * @param array $menu_item The CPT menu item to replace.
-	 * @return array The CPT menu item with the replaced URL.
-	 */
-	private function replace_admin_link_to_calypso( $menu_item ) {
-		$url = $menu_item[2];
-		if ( strpos( $url, 'edit.php?post_type=' ) === 0 ) {
-			$query_args = array();
-			parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
-			$post_type    = $query_args['post_type'];
-			$menu_item[2] = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
-		}
-		return $menu_item;
-	}
-
-	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
 	 * Performs the check against the current locale set on the WordPress.com's account settings.
@@ -64,15 +30,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		$cpt_items = $this->filter_cpt_menu_items( $menu );
-
 		// Reset menus so there are no third-party plugin items, only CPTs.
-		$menu    = array_map( array( $this, 'replace_admin_link_to_calypso' ), $cpt_items ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$menu    = array();// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		parent::reregister_menu_items();
 
 		$this->add_feedback_menu();
+		$this->add_cpt_menus();
 		$this->add_wp_admin_menu();
 
 		ksort( $GLOBALS['menu'] );
@@ -167,6 +132,32 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$position   = 45; // Before Jetpack.
 
 		add_menu_page( esc_attr( $name ), $name, $capability, $slug, null, $icon, $position );
+	}
+
+	/**
+	 * Adds CPT menu items
+	 */
+	public function add_cpt_menus() {
+
+		$post_types_objects = get_post_types(
+			array(
+				'show_in_rest' => true,
+				'show_in_menu' => true,
+				'_builtin'     => false,
+			),
+			'objects'
+		);
+
+		// for each post type, add a menu item.
+		foreach ( $post_types_objects as $post_type ) {
+			$slug       = 'https://wordpress.com/types/' . $post_type->name . '/' . $this->domain;
+			$name       = $post_type->labels->menu_name;
+			$capability = $post_type->cap->edit_posts;
+			$icon       = $post_type->menu_icon ? $post_type->menu_icon : 'dashicons-admin-post';
+			$position   = 46; // After Feedback.
+
+			add_menu_page( esc_attr( $name ), $name, $capability, $slug, null, $icon, $position );
+		}
 	}
 
 	/**
