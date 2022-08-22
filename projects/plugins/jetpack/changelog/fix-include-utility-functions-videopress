@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Remove inclusion modules/videopress/utility-functions.php from Jetpack shortcodes module

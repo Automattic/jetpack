@@ -242,20 +242,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.3-a.5 - 2022-08-16
-#### Enhancements
-- Payments block: add a new `useWidth` hook to control the width settings of a block.
-- Google Analytics: add support for the DNT sent by the browser.
-- Dashboard: add new card to highlight options available to WordPress agencies.
-
-#### Improved compatibility
-- VideoPress: minify videopress-token-bridge.
-- Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser.
-
+### 11.3-a.7 - 2022-08-17
 #### Bug fixes
-- Carousel: resolve a PHP warning when non-attachments are processed.
-- Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license.
-- Calendly block: update the embed options link.
+- VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors.
 
 --------
 
