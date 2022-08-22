@@ -243,7 +243,10 @@ class Jetpack_Recommendations {
 	 * @return void
 	 */
 	public static function plugin_auto_update_settings_changed( $option_name, $new_auto_update_plugins, $old_auto_update_plugins ) {
-		if ( self::is_conditional_recommendation_enabled( self::BACKUP_PLAN_RECOMMENDATION ) ) {
+		if (
+			is_multisite() ||
+			self::is_conditional_recommendation_enabled( self::BACKUP_PLAN_RECOMMENDATION )
+		) {
 			return;
 		}
 
