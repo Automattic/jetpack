@@ -108,6 +108,9 @@ $GLOBALS['csstidy']['unit_values'] = array(
 	'margin-right',
 	'margin-bottom',
 	'margin-left',
+	'margin-block',
+	'margin-block-start',
+	'margin-block-end',
 	'max-height',
 	'max-width',
 	'min-height',
@@ -330,6 +333,7 @@ $GLOBALS['csstidy']['shorthands']['border-color']       = array( 'border-top-col
 $GLOBALS['csstidy']['shorthands']['border-style']       = array( 'border-top-style', 'border-right-style', 'border-bottom-style', 'border-left-style' );
 $GLOBALS['csstidy']['shorthands']['border-width']       = array( 'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width' );
 $GLOBALS['csstidy']['shorthands']['margin']             = array( 'margin-top', 'margin-right', 'margin-bottom', 'margin-left' );
+$GLOBALS['csstidy']['shorthands']['margin-block']       = array( 'margin-block-start', 'margin-block-end' );
 $GLOBALS['csstidy']['shorthands']['padding']            = array( 'padding-top', 'padding-right', 'padding-bottom', 'padding-left' );
 $GLOBALS['csstidy']['shorthands']['-moz-border-radius'] = 0;
 
@@ -529,6 +533,16 @@ $GLOBALS['csstidy']['all_properties']['margin-bottom']               = 'CSS1.0,C
 $GLOBALS['csstidy']['all_properties']['margin-left']                 = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['margin-right']                = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['margin-top']                  = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
+
+/*
+ * Part of the W3C Working Draft:
+ * https://www.w3.org/TR/css-logical-1/#margin-properties
+ */
+$GLOBALS['csstidy']['all_properties']['margin-block']                = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
+$GLOBALS['csstidy']['all_properties']['margin-block-start']          = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
+$GLOBALS['csstidy']['all_properties']['margin-block-end']            = 'CSS1.0,CSS2.0,CSS2.1,CSS3.0';
+/* */
+
 $GLOBALS['csstidy']['all_properties']['marker-offset']               = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['marks']                       = 'CSS2.0,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['marquee-direction']           = 'CSS3.0';
