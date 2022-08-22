@@ -1,9 +1,11 @@
 import { _x } from '@wordpress/i18n';
 import {
 	isJetpackPlanWithAntiSpam,
+	isJetpackPlanWithBackup,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import { combineReducers } from 'redux';
@@ -40,6 +42,7 @@ import {
 	siteHasFeature,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
+	hasActiveBackupPurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 
@@ -264,6 +267,7 @@ const stepToNextStep = {
 	'security-plan': 'summary',
 	'anti-spam': 'summary',
 	videopress: 'summary',
+	'backup-plan': 'summary',
 	boost: 'summary',
 	summary: 'summary',
 };
@@ -281,6 +285,7 @@ export const stepToRoute = {
 	'security-plan': '#/recommendations/security-plan',
 	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
+	'backup-plan': '#/recommendations/backup-plan',
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
 };
@@ -343,6 +348,14 @@ export const getProductSlugForStep = ( state, step ) => {
 				return PLAN_JETPACK_SECURITY_T1_YEARLY;
 			}
 			break;
+		case 'backup-plan':
+			if (
+				! hasActiveBackupPurchase( state ) &&
+				! isJetpackPlanWithBackup( getSitePlan( state ) )
+			) {
+				return PLAN_JETPACK_BACKUP_T1_YEARLY;
+			}
+			break;
 		case 'anti-spam':
 			if (
 				! isPluginActive( state, 'akismet/akismet.php' ) &&
@@ -391,6 +404,7 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'security-plan':
 		case 'anti-spam':
+		case 'backup-plan':
 			return isConditionalRecommendationEnabled( state, step );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
@@ -486,6 +500,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'security-plan':
 		case 'anti-spam':
+		case 'backup-plan':
 			return isConditionalRecommendationEnabled( state, slug );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
@@ -528,7 +543,7 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSummaryResourceSlugs = state => {
-	const resourceSlugs = [ 'security-plan', 'anti-spam' ];
+	const resourceSlugs = [ 'security-plan', 'anti-spam', 'backup-plan' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
