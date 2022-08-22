@@ -21,9 +21,8 @@ use Automattic\Jetpack\Status\Host;
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
-
 	const PUBLICIZE_RECOMMENDATION     = 'publicize';
-	const SECURITY_PLAN_RECOMMENDATION = 'protect';
+	const PROTECT_RECOMMENDATION = 'protect';
 	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
 	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
 	const BACKUP_PLAN_RECOMMENDATION   = 'backup-plan';
@@ -32,7 +31,7 @@ class Jetpack_Recommendations {
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
-		self::SECURITY_PLAN_RECOMMENDATION,
+		self::PROTECT_RECOMMENDATION,
 		self::ANTI_SPAM_RECOMMENDATION,
 		self::VIDEOPRESS_RECOMMENDATION,
 		self::BACKUP_PLAN_RECOMMENDATION,
@@ -229,7 +228,7 @@ class Jetpack_Recommendations {
 			$has_scan           = $plan_supports_scan || $has_scan_product;
 
 			if ( ! $has_scan || ! $has_backup || ! $has_anti_spam ) {
-				self::enable_conditional_recommendation( self::SECURITY_PLAN_RECOMMENDATION );
+				self::enable_conditional_recommendation( self::PROTECT_RECOMMENDATION );
 			}
 		}
 	}

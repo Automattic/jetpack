@@ -61,7 +61,7 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
 			break;
-		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
+		case RECOMMENDATION_WIZARD_STEP.PROTECT:
 			redirectPath = '/protect';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.ANTI_SPAM:
