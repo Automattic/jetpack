@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
 import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
@@ -12,6 +13,13 @@ import { fetchPluginsData } from 'state/site/plugins';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Jetpack Boost', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
+				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-boost',
+			};
 		case 'creative-mail':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -70,6 +78,12 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 
 export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 	switch ( resourceSlug ) {
+		case 'backup-plan':
+			return {
+				displayName: __( 'Site Backups', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
+			};
 		case 'security-plan':
 			return {
 				displayName: __( 'Site Security', 'jetpack' ),
@@ -89,6 +103,14 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 
 export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost':
+			return {
+				activateFeature: () => {
+					restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+						dispatch( fetchPluginsData() );
+					} );
+				},
+			};
 		case 'creative-mail':
 			return {
 				activateFeature: () => {
@@ -151,6 +173,31 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 
 export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
+		case 'backup-plan':
+			return {
+				question: __( 'Be prepared for auto-updates.', 'jetpack' ),
+				description: __(
+					'We noticed that you’ve recently enabled auto-updates for one of your plugins. Nice work, keeping plugins updated is vital for a healthy site!<br/><br/>Sometimes auto-updating plugins can cause unexpected changes on your site. Finding an older version of the plugin or learning how to install it to revert the changes can be challenging.<br/><br/>Here at Jetpack, we recommend regular backups of your site so you can go back in time with the click of a button.',
+					'jetpack'
+				),
+				ctaText: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
+			};
+		case 'boost':
+			return {
+				question: __( 'Get more views for your new page.', 'jetpack' ),
+				description: __(
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Optimize CSS loading', 'jetpack' ),
+					__( 'Defer non-essential Javascript', 'jetpack' ),
+					__( 'Lazy image loading and site performance scores', 'jetpack' ),
+				],
+				descriptionLink: 'https://jetpack.com/boost/',
+				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
+			};
 		case 'creative-mail':
 			return {
 				progressValue: '83',
@@ -316,6 +363,18 @@ export const getProductCardData = ( state, productSlug ) => {
 				productCardCtaText: __( 'Get VideoPress', 'jetpack' ),
 				productCardList: products.videopress ? products.videopress.features : [],
 				productCardIcon: '/recommendations/video-icon.svg',
+			};
+		case PLAN_JETPACK_BACKUP_T1_YEARLY:
+			return {
+				productCardTitle: __( 'Go back in time with one click', 'jetpack' ),
+				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: productSlug,
+				} ),
+				productCardCtaText: __( 'Get Jetpack Backup', 'jetpack' ),
+				productCardList: products.backup ? products.backup.features : [],
+				productCardIcon: '/recommendations/cloud-icon.svg',
+				productCardDisclaimer: products.backup ? products.backup.disclaimer : '',
 			};
 		default:
 			throw `Unknown product slug for getProductCardData: ${ productSlug }`;
