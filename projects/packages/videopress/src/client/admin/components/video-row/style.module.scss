@@ -4,11 +4,16 @@
 	justify-content: space-between;
 	padding: calc( var(--spacing-base) * 3 );
 	background-color: var(--jp-white);
-	cursor: pointer;
 	gap: calc( var(--spacing-base) * 2 );
+	border: none;
+	width: 100%;
 
-	&:hover {
+	&:hover, &.pressed {
 		background-color: var(--jp-gray-0);
+	}
+
+	&:focus {
+		outline: 1px solid black;
 	}
 }
 

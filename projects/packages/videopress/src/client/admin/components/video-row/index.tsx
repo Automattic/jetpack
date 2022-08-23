@@ -1,8 +1,9 @@
 import { Text, Button } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, image, trash } from '@wordpress/icons';
+import classNames from 'classnames';
 import { useState } from 'react';
 import privacy from './privacy-icon';
 import styles from './style.module.scss';
@@ -31,7 +32,6 @@ const PopoverWithAnchor = ( { anchorRef, children = null } ) => {
 	);
 };
 
-/* eslint-disable jsx-a11y/mouse-events-have-key-events */
 const ActionItem = ( { icon, children, className = '' } ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
@@ -41,6 +41,8 @@ const ActionItem = ( { icon, children, className = '' } ) => {
 			ref={ setAnchorRef }
 			onMouseOver={ () => setShowPopover( true ) }
 			onMouseLeave={ () => setShowPopover( false ) }
+			onFocus={ () => setShowPopover( true ) }
+			onBlur={ () => setShowPopover( false ) }
 			className={ className }
 		>
 			<Icon icon={ icon } />
@@ -56,6 +58,7 @@ const VideoRow = ( {
 	uploadDate,
 	plays = null,
 	isPrivate = false,
+	onClickEdit,
 }: {
 	videoTitle: string;
 	posterImage: string;
@@ -63,23 +66,70 @@ const VideoRow = ( {
 	uploadDate: string;
 	plays: number;
 	isPrivate: boolean;
+	onClickEdit?: () => void;
 } ) => {
 	const [ showActions, setShowActions ] = useState( false );
+	const [ keyPressed, setKeyDown ] = useState( false );
+
+	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
+	const durationInMinutesAndSeconds = millisecondsToMinutesAndSeconds( duration );
+	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
+	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
+
+	const wrapperAriaLabel = sprintf(
+		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */
+		__(
+			'Video: %1$s, Duration: %2$s, Upload Date: %3$s. Click to edit details.',
+			'jetpack-videopress-pkg'
+		),
+		videoTitle,
+		durationInMinutesAndSeconds,
+		uploadDateFormatted
+	);
+
+	const handleKeyDown = e => {
+		if ( isSpaceOrEnter( e?.code ) ) {
+			setKeyDown( true );
+		}
+	};
+
+	const handleKeyUp = e => {
+		if ( isSpaceOrEnter( e?.code ) ) {
+			setKeyDown( false );
+			onClickEdit?.();
+		}
+	};
+
+	const handleOverOrFocus = () => {
+		setShowActions( true );
+	};
+
+	const handleLeave = () => {
+		setShowActions( false );
+	};
 
 	return (
 		<div
-			className={ styles[ 'video-row' ] }
-			onMouseOver={ () => setShowActions( true ) }
-			onMouseLeave={ () => setShowActions( false ) }
+			className={ classNames( styles[ 'video-row' ], { [ styles.pressed ]: keyPressed } ) }
+			onMouseOver={ handleOverOrFocus }
+			onMouseLeave={ handleLeave }
+			onFocus={ handleOverOrFocus }
+			onKeyDown={ handleKeyDown }
+			onKeyUp={ handleKeyUp }
+			aria-label={ wrapperAriaLabel }
+			role="button"
+			tabIndex={ 0 }
 		>
 			<div className={ styles[ 'info-wrapper' ] }>
-				<img className={ styles.poster } alt="Video Poster" src={ posterImage } />
+				<img className={ styles.poster } alt="" src={ posterImage } />
 				<Text variant="title-small">{ videoTitle }</Text>
 			</div>
 			<div className={ styles[ 'meta-wrapper' ] }>
 				{ showActions ? (
 					<div className={ styles.actions }>
-						<Button size="small">{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Button>
+						<Button size="small" onClick={ onClickEdit }>
+							{ editVideoLabel }
+						</Button>
 						{ ! HIDE_QUICK_ACTIONS && (
 							<>
 								<ActionItem icon={ image }>
@@ -97,13 +147,13 @@ const VideoRow = ( {
 				) : (
 					<div className={ styles.stats }>
 						{ isPrivate && (
-							<div className={ styles.privacy }>
+							<div className={ styles.privacy } aria-disabled>
 								<Icon icon={ privacy } />
 							</div>
 						) }
-						<div className={ styles.duration }>{ millisecondsToMinutesAndSeconds( duration ) }</div>
+						<div className={ styles.duration }>{ durationInMinutesAndSeconds }</div>
 						{ Number.isFinite( plays ) && <div className={ styles.plays }>{ plays }</div> }
-						<div className={ styles.upload }>{ dateI18n( 'F j, Y', uploadDate, null ) }</div>
+						<div className={ styles.upload }>{ uploadDateFormatted }</div>
 					</div>
 				) }
 			</div>
