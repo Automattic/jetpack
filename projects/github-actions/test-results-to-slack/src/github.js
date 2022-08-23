@@ -1,3 +1,4 @@
+const { getInput } = require( '@actions/core' );
 const github = require( '@actions/github' );
 const extras = require( './extra-context' );
 
@@ -48,7 +49,6 @@ async function getNotificationData( isFailure ) {
 	let msgId;
 	const contextElements = [];
 	const buttons = [];
-	const style = isFailure ? 'danger' : 'primary';
 
 	if ( eventName === 'pull_request' ) {
 		const { html_url, number, title } = payload.pull_request;
@@ -80,8 +80,7 @@ async function getNotificationData( isFailure ) {
 					type: 'plain_text',
 					text: `Last run`,
 				},
-				url: getRunUrl(),
-				style,
+				url: getRunUrl( false ),
 			},
 			{
 				type: 'button',
@@ -90,14 +89,13 @@ async function getNotificationData( isFailure ) {
 					text: `PR #${ number }`,
 				},
 				url: html_url,
-				style,
 			}
 		);
 	}
 
 	if ( eventName === 'push' ) {
 		const { url, id, message } = payload.head_commit;
-		target = `on ${ refType } *${ refName }*`;
+		target = `on ${ refType } _*${ refName }*_`;
 		msgId = `commit-${ id }`;
 
 		contextElements.push(
@@ -125,8 +123,7 @@ async function getNotificationData( isFailure ) {
 					type: 'plain_text',
 					text: `Last run`,
 				},
-				url: getRunUrl(),
-				style,
+				url: getRunUrl( false ),
 			},
 			{
 				type: 'button',
@@ -135,13 +132,12 @@ async function getNotificationData( isFailure ) {
 					text: `Commit ${ id.substring( 0, 8 ) }`,
 				},
 				url,
-				style,
 			}
 		);
 	}
 
 	if ( eventName === 'schedule' ) {
-		target = `for scheduled run on ${ refType } *${ refName }*`;
+		target = `for scheduled run on ${ refType } _*${ refName }*_`;
 		// we return a timestamp because we don't ever want to group messages with schedule event
 		// this way, we'll never be able to compute this same id later and cannot find this message
 		msgId = `sched-${ Date.now() }`;
@@ -167,8 +163,7 @@ async function getNotificationData( isFailure ) {
 					type: 'plain_text',
 					text: `Last run`,
 				},
-				url: getRunUrl(),
-				style,
+				url: getRunUrl( false ),
 			},
 			{
 				type: 'button',
@@ -177,12 +172,16 @@ async function getNotificationData( isFailure ) {
 					text: `Commit ${ sha.substring( 0, 8 ) }`,
 				},
 				url: commitUrl,
-				style,
 			}
 		);
 	}
 
-	const text = `Tests ${ isFailure ? 'failed' : 'passed' } ${ target }`;
+	const statusIcon = `${ isFailure ? ':x:' : ':white_check_mark:' }`;
+	const statusText = `${ isFailure ? 'failed' : 'passed' }`;
+	const suite = getInput( 'suite_name' );
+	const suiteText = suite ? `_*${ suite }*_ tests` : 'Tests';
+	const text = `${ statusIcon }	${ suiteText } ${ statusText } ${ target }`;
+
 	const mainMsgBlocks = [
 		{
 			type: 'section',
@@ -219,12 +218,15 @@ async function getNotificationData( isFailure ) {
 /**
  * Creates and returns a run url
  *
+ * @param {boolean} withAttempt - whether to include the run attempt in the url
  * @returns {string} the run url
  */
-function getRunUrl() {
+function getRunUrl( withAttempt = true ) {
 	const { serverUrl, runId } = github.context;
 	const { repository, runAttempt } = extras;
-	return `${ serverUrl }/${ repository }/actions/runs/${ runId }/attempts/${ runAttempt }`;
+	return `${ serverUrl }/${ repository }/actions/runs/${ runId }/${
+		withAttempt ? `attempts/${ runAttempt }` : ''
+	}`;
 }
 
 module.exports = { isWorkflowFailed, getNotificationData };

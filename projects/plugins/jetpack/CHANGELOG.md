@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3-a.9 - 2022-08-23
+### Enhancements
+- Payments block: add new container block to support using multiple inline Payment Button blocks. [#25297]
+- VideoPress block (beta): add support to pause/resume video upload. [#25392]
+
+### Improved compatibility
+- Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour. [#25709]
+
+### Bug fixes
+- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified. [#25410]
+- Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly. [#25441]
+- Dashboard Widget: do not show the stats configuration links when the feature is inactive. [#25653]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: add Pocket Casts as oEmbed provider. [#25696]
+- Doc update: add information about block deprecation. [#25735]
+- E2E tests: bump dependencies. [#25725]
+- JITMs added to My Jetpack [#22452]
+- Licenses: fix issue in the license activation notice banner that appears even after being dismissed. [#25269]
+- Recommendations: add a new recommendation for backups. [#25446]
+- Recommendations: add a recommendation for Jetpack Boost. [#25431]
+- SAL: bring Jetpack files in sync with WordPress.com files. [#25639]
+- Admin: sync class-wpcom-admin-menu file. [#25726]
+- Updated package dependencies. [#25338]
+- VideoPress: ensure that the player's resources are only loaded when necessary, when a video was added to the page. [#24985]
+- VideoPress: fix VideoPress pkg version. [#25683]
+
 ## 11.3-a.7 - 2022-08-17
 ### Bug fixes
 - VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors. [#25660]
