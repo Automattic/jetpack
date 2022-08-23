@@ -111,6 +111,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 	const buttonText = __( 'Upgrade now', 'jetpack' );
 
 	/*
+	/*
 	 * Render an info message when the feature is not available
 	 * and when it shouldn't show upgrade notices.
 	 * (pure Jetpack sites, for instance).

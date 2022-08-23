@@ -20,7 +20,6 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { SharePostRow } from '../../components/share-post';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import UpsellNotice from '../upsell';
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
@@ -31,7 +30,6 @@ const PublicizePanel = ( { prePublish } ) => {
 		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
 		togglePublicizeFeature,
 		isPublicizeDisabledBySitePlan,
-		hideRePublicizeFeature,
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
@@ -62,11 +60,9 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
-			<UpsellNotice isPostPublished={ isPostPublished } />
-
-			{ ! hideRePublicizeFeature && (
+			{
 				<Fragment>
-					{ isRePublicizeFeatureEnabled && ! isPostPublished && (
+					{ ! isPostPublished && (
 						<PanelRowWithDisabled>
 							<ToggleControl
 								className="jetpack-publicize-toggle"
@@ -90,13 +86,13 @@ const PublicizePanel = ( { prePublish } ) => {
 					<PublicizeForm
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
-						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
+						isPublicizeDisabledBySitePlan={ false }
 					/>
 					{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 
 					<SharePostRow />
 				</Fragment>
-			) }
+			}
 		</PanelWrapper>
 	);
 };
