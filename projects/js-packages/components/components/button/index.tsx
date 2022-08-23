@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { Button as WPButton, Spinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import classNames from 'classnames';
-import React from 'react';
+import React, { forwardRef } from 'react';
+/**
+ * Internal dependencies
+ */
 import styles from './style.module.scss';
 import type { ButtonProps } from './types';
 
@@ -11,22 +17,24 @@ import type { ButtonProps } from './types';
  * @param {ButtonProps} props - Component Props
  * @returns {React.ReactNode} Rendered button
  */
-export const Button: React.FC< ButtonProps > = ( {
-	children,
-	variant = 'primary',
-	size = 'normal',
-	weight = 'bold',
-	icon,
-	iconSize,
-	disabled,
-	isDestructive,
-	isLoading,
-	isExternalLink,
-	className: propsClassName,
-	text,
-	fullWidth,
-	...componentProps
-} ) => {
+const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
+	const {
+		children,
+		variant = 'primary',
+		size = 'normal',
+		weight = 'bold',
+		icon,
+		iconSize,
+		disabled,
+		isDestructive,
+		isLoading,
+		isExternalLink,
+		className: propsClassName,
+		text,
+		fullWidth,
+		...componentProps
+	} = props;
+
 	const className = classNames( styles.button, propsClassName, {
 		[ styles.normal ]: size === 'normal',
 		[ styles.small ]: size === 'small',
@@ -35,6 +43,8 @@ export const Button: React.FC< ButtonProps > = ( {
 		[ styles.regular ]: weight === 'regular',
 		[ styles[ 'full-width' ] ]: fullWidth,
 	} );
+
+	componentProps.ref = ref;
 
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
@@ -59,6 +69,6 @@ export const Button: React.FC< ButtonProps > = ( {
 			{ externalIcon }
 		</WPButton>
 	);
-};
+} );
 
 export default Button;
