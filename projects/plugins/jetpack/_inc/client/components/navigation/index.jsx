@@ -38,7 +38,6 @@ export class Navigation extends React.Component {
 		) {
 			analytics.tracks.recordEvent( 'jetpack_recommendations_new_recommendation_bubble_visible', {
 				path: this.props.location.pathname,
-				new_recommendations_count: this.props.newRecommendationsCount,
 			} );
 		}
 	};
