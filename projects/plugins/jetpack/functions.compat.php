@@ -86,11 +86,14 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 	/**
 	 * Check whether a string starts with a specific substring.
 	 *
-	 * @param var    $haystack String we are filtering.
+	 * @param string $haystack String we are filtering.
 	 * @param string $needle The substring we are looking for.
 	 * @return bool
 	 */
 	function wp_startswith( $haystack, $needle ) {
+		if ( ! $haystack || ! is_string( $haystack ) ) {
+			return false;
+		}
 		return 0 === strpos( $haystack, $needle );
 	}
 endif;
