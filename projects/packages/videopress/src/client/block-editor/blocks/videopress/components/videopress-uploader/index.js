@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
+import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
@@ -91,6 +93,8 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 *  - the second item is total
 	 */
 	const [ uploadingProgress, setUploadingProgressState ] = useState( [] );
+
+	const [ isLoading, setIsLoading ] = useState( false );
 
 	// Define a memoized function to register the upload progress.
 	const setUploadingProgress = useCallback( function ( ...args ) {
@@ -194,6 +198,34 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 		tusUploader.current = videoPressUploader( file );
 	};
 
+	const startUploadFromLibrary = attachmentId => {
+		const path = `videopress/v1/upload/${ attachmentId }`;
+		apiFetch( { path, method: 'POST' } ).then( result => {
+			if ( 'uploading' === result.status ) {
+				setUploadingProgress( result.bytes_uploaded, result.file_size );
+				startUploadFromLibrary( attachmentId );
+				return;
+			} else if ( 'complete' === result.status ) {
+				const guid = result.uploaded_details.guid;
+				const videoUrl = `https://videopress.com/v/${ guid }`;
+				if ( getGuidFromVideoUrl( videoUrl ) ) {
+					return onSelectURL( videoUrl );
+				}
+			} else if ( 'error' === result.status ) {
+				setUploadErrorDataState( {
+					data: { message: result.error },
+				} );
+				return;
+			} else {
+				setUploadErrorDataState( {
+					// Should never happen.
+					data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
+				} );
+				return;
+			}
+		} );
+	};
+
 	const pauseOrResumeUpload = () => {
 		const uploader = tusUploader?.current;
 
@@ -211,14 +243,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
-		const isFileUploading = null !== media && media instanceof FileList;
-
-		// Handle upload by selecting a File
-		if ( isFileUploading ) {
-			const file = media[ 0 ];
-			startUpload( file );
-			return;
-		}
+		const fileUrl = media?.url;
 
 		// Handle selection of Media Library VideoPress attachment
 		if ( media.videopress_guid ) {
@@ -227,16 +252,60 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			if ( getGuidFromVideoUrl( videoUrl ) ) {
 				return onSelectURL( videoUrl );
 			}
-		}
+		} else if ( media.id ) {
+			setIsLoading( true );
+			const path = `videopress/v1/upload/${ media.id }`;
+			apiFetch( { path, method: 'GET' } )
+				.then( result => {
+					setIsLoading( false );
+					if ( 'new' === result.status || 'resume' === result.status ) {
+						setFile( {
+							size: result.file_size,
+							name: result.file_name,
+						} );
+						setUploadingProgress( result.bytes_uploaded, result.file_size );
+						startUploadFromLibrary( media.id );
+					} else if ( 'uploaded' === result.status ) {
+						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
+						return onSelectURL( videoUrl );
+					} else {
+						setUploadErrorDataState( {
+							data: {
+								message: __( 'Error selecting video. Please try again.', 'jetpack-videopress-pkg' ),
+							},
+						} );
+						return;
+					}
+				} )
+				.catch( error => {
+					setUploadErrorDataState( {
+						data: { message: error.message },
+					} );
+					setIsLoading( false );
+					return;
+				} );
+		} else if ( fileUrl ) {
+			if ( ! isBlobURL( fileUrl ) ) {
+				setUploadErrorDataState( {
+					data: { message: __( 'Please select a VideoPress video', 'jetpack-videopress-pkg' ) },
+				} );
+				return;
+			}
 
-		setUploadErrorDataState( {
-			data: {
-				message: __(
-					'Please select a VideoPress video from Library or upload a new one',
-					'jetpack-videopress-pkg'
-				),
-			},
-		} );
+			const file = getBlobByURL( fileUrl );
+			const isResumableUploading = null !== file && file instanceof File;
+
+			if ( ! isResumableUploading ) {
+				return;
+			}
+
+			startUpload( file );
+		} else {
+			// Should never happen.
+			setUploadErrorDataState( {
+				data: { message: __( 'Error selecting the video', 'jetpack-videopress-pkg' ) },
+			} );
+		}
 	}
 
 	const getErrorMessage = () => {
@@ -270,6 +339,10 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		return errorMessage;
 	};
+
+	if ( isLoading ) {
+		return <span>Loading...</span>;
+	}
 
 	// Showing error if upload fails
 	if ( uploadErrorData ) {
