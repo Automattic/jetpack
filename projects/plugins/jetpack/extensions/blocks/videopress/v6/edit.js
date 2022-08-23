@@ -29,6 +29,8 @@ export const PlaceholderWrapper = withNotices( function ( {
 	errorMessage,
 	noticeUI,
 	noticeOperations,
+	instructions = description,
+	disableInstructions,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -43,7 +45,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 		<Placeholder
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			label={ title }
-			instructions={ description }
+			instructions={ disableInstructions ? null : instructions }
 			className="videopress-uploader is-videopress-placeholder"
 			notices={ noticeUI }
 		>
@@ -216,8 +218,23 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		} ),
 	} );
 
-	if ( ! isRequestingEmbedPreview && ! videoPressUrl ) {
-		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! attributes?.guid );
+
+	// Handling all the upload/select file step
+	// This is the first action for the user
+
+	if ( isUploadingFile ) {
+		const handleDoneUpload = () => {
+			setIsUploadingFile( false );
+		};
+
+		return (
+			<VideoPressUploader
+				setAttributes={ setAttributes }
+				attributes={ attributes }
+				handleDoneUpload={ handleDoneUpload }
+			/>
+		);
 	}
 
 	// Generating video preview.
