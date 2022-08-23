@@ -294,14 +294,14 @@ class Jetpack_Carousel {
 	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
 	 *
 	 * @since 6.8.0
-	 * @deprecated $$next-release$$ We now hook into the 'block_render_{block_name}' hook to add markup.
+	 * @deprecated since $$next-version$$ We now hook into the 'block_render_{block_name}' hook to add markup.
 	 *
 	 * @param string $content Post content.
 	 *
 	 * @return string $content Post content.
 	 */
 	public function check_content_for_blocks( $content ) {
-		_deprecated_function( __METHOD__, 'jetpack-11.3.0' );
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
@@ -329,7 +329,7 @@ class Jetpack_Carousel {
 	 * @param array  $block         The parsed block details for the block.
 	 * @return string The fully-processed HTML for the carousel or gallery block.
 	 *
-	 * @since $$next-release$$
+	 * @since $$next-version$$
 	 */
 	public function filter_gallery_block_render( $block_content, $block ) {
 		global $post;
