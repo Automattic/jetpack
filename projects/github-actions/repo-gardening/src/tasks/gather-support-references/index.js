@@ -306,6 +306,14 @@ async function addOrUpdateInteractionCountLabel(
 		);
 	}
 
+	// Check if the issue has the label we want to add. If so, bail, no need to add it.
+	if ( existingInteractionCountLabels.includes( interactionCountLabel ) ) {
+		debug(
+			`gather-support-references: Issue #${ number } already has the "${ interactionCountLabel }" label. No need to add it.`
+		);
+		return;
+	}
+
 	// Add the label to our issue.
 	debug( `gather-support-references: Adding the "${ interactionCountLabel }" label.` );
 	await octokit.rest.issues.addLabels( {
