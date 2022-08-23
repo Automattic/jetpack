@@ -22,6 +22,6 @@ add_filter(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_availability_for_plan( 'republicize' );
+		\Jetpack_Gutenberg::set_extension_available( 'republicize' );
 	}
 );
