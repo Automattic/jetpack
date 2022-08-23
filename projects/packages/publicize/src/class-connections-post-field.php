@@ -82,13 +82,13 @@ class Connections_Post_Field {
 			'type'       => 'object',
 			'properties' => array(
 				'id'              => array(
-					'description' => __( 'Unique identifier for the Jetpack Social Connection', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Jetpack Social Service', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,

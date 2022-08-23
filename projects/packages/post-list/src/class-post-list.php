@@ -171,7 +171,7 @@ class Post_List {
 		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Publicize', 'jetpack-post-list' ), $title );
+		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Jetpack Social', 'jetpack-post-list' ), $title );
 		$post_actions['share'] = sprintf( '<a href="%s" aria-label="%s">%s</a>', esc_url( $url ), esc_attr( $label ), esc_html( $text ) );
 		return $post_actions;
 	}

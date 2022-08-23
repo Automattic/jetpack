@@ -518,7 +518,7 @@ jQuery( function($) {
 						<span class="notice-warning publicize__notice-warning">
 							<?php
 								printf(
-									/* translators: %s is the name of a Publicize service like "LinkedIn" */
+									/* translators: %s is the name of a Jetpack Social service like "LinkedIn" */
 									esc_html__(
 										'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
 										'jetpack-publicize-pkg'

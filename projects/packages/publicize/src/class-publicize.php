@@ -292,7 +292,7 @@ class Publicize extends Publicize_Base {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( $service ) {
-			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
+			/* translators: %s is the name of the Jetpack Social service (e.g. Facebook, Twitter) */
 			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack-publicize-pkg' ), self::get_service_label( $service ) );
 		} else {
 			if ( $publicize_error ) {
