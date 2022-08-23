@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Components: Support forwardRef at Text
