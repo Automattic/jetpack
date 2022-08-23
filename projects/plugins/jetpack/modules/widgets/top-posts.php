@@ -802,8 +802,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
  */
 function jetpack_do_top_posts_widget( $instance ) {
 	// Post Types can't be entered as an array in the shortcode parameters.
-	if ( isset( $instance['types'] ) && is_array( $instance['types'] ) ) {
-		$instance['types'] = implode( ',', $instance['types'] );
+	if ( isset( $instance['types'] ) && is_string( $instance['types'] ) ) {
+		$instance['types'] = explode( ',', $instance['types'] );
 	}
 
 	$instance = shortcode_atts(
