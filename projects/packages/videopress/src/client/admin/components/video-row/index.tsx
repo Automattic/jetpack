@@ -2,23 +2,25 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Popover } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, image, trash } from '@wordpress/icons';
+import { Icon, image, trash, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
 import privacy from './privacy-icon';
 import styles from './style.module.scss';
 
-// Hiding it based on Design request:
-// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
-const HIDE_QUICK_ACTIONS = false;
-
-const millisecondsToMinutesAndSeconds = milliseconds => {
+const millisecondsToMinutesAndSeconds = ( milliseconds: number ) => {
 	const minutes = Math.floor( milliseconds / 60000 );
 	const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
 	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
 };
 
-const PopoverWithAnchor = ( { anchorRef, children = null } ) => {
+const PopoverWithAnchor = ( {
+	anchorRef,
+	children = null,
+}: {
+	anchorRef: HTMLElement | null;
+	children: React.ReactNode;
+} ) => {
 	if ( ! anchorRef ) {
 		return null;
 	}
@@ -32,7 +34,15 @@ const PopoverWithAnchor = ( { anchorRef, children = null } ) => {
 	);
 };
 
-const ActionItem = ( { icon, children, className = '' } ) => {
+const ActionItem = ( {
+	icon,
+	children,
+	className = '',
+}: {
+	icon: JSX.Element;
+	children: React.ReactNode;
+	className?: string;
+} ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
@@ -47,6 +57,73 @@ const ActionItem = ( { icon, children, className = '' } ) => {
 		>
 			<Icon icon={ icon } />
 			{ showPopover && <PopoverWithAnchor anchorRef={ anchorRef }>{ children }</PopoverWithAnchor> }
+		</div>
+	);
+};
+
+const QuickActions = ( { button }: { button: React.ReactNode } ) => {
+	// Hiding it based on Design request:
+	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
+	const HIDE_QUICK_ACTIONS = false;
+
+	if ( HIDE_QUICK_ACTIONS ) {
+		return null;
+	}
+
+	return (
+		<div className={ styles.actions }>
+			{ button }
+			<ActionItem icon={ image }>{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }</ActionItem>
+			<ActionItem icon={ privacy }>{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }</ActionItem>
+			<ActionItem icon={ trash } className={ styles.trash }>
+				{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+			</ActionItem>
+		</div>
+	);
+};
+
+const Stats = ( {
+	duration,
+	uploadDate,
+	plays,
+	isPrivate,
+}: {
+	duration: string;
+	uploadDate: string;
+	plays: number;
+	isPrivate: boolean;
+} ) => {
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
+	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
+	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
+
+	return (
+		<div className={ classNames( styles.stats, { [ styles.small ]: isSmall } ) }>
+			<div className={ styles.privacy } aria-disabled={ isSmall ? 'false' : 'true' }>
+				{ isPrivate && ! isSmall && <Icon icon={ privacy } /> }
+				{ isSmall && (
+					<>
+						<span>{ privacyLabel }</span>
+						<span>
+							{ isPrivate
+								? __( 'Private', 'jetpack-videopress-pkg' )
+								: __( 'Public', 'jetpack-videopress-pkg' ) }
+						</span>
+					</>
+				) }
+			</div>
+			<div className={ styles.duration }>
+				<span>{ isSmall && durationLabel }</span>
+				<span>{ duration }</span>
+			</div>
+			{ Number.isFinite( plays ) && (
+				<div className={ styles.plays }>
+					<span>{ isSmall && playsLabel }</span>
+					<span>{ plays }</span>
+				</div>
+			) }
+			{ ! isSmall && <div className={ styles.upload }>{ uploadDate }</div> }
 		</div>
 	);
 };
@@ -69,16 +146,20 @@ const VideoRow = ( {
 	onClickEdit?: () => void;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const [ showActions, setShowActions ] = useState( true );
+	const [ showActions, setShowActions ] = useState( false );
 	const [ keyPressed, setKeyDown ] = useState( false );
+	const [ expanded, setExpanded ] = useState( false );
 	const textRef = useRef( null );
 
-	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
 	const durationInMinutesAndSeconds = millisecondsToMinutesAndSeconds( duration );
 	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
+	const showTitleLabel = ! isSmall && isEllipsisActive;
+	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
+	const showBottomButton = isSmall && expanded;
 
+	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
 	const wrapperAriaLabel = sprintf(
 		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */
 		__(
@@ -90,6 +171,16 @@ const VideoRow = ( {
 		uploadDateFormatted
 	);
 
+	const editDetailsButton = (
+		<Button size="small" onClick={ onClickEdit } fullWidth={ isSmall }>
+			{ editVideoLabel }
+		</Button>
+	);
+
+	const toggleExpand = () => {
+		setExpanded( current => ! current );
+	};
+
 	const handleKeyDown = e => {
 		if ( isSpaceOrEnter( e?.code ) ) {
 			setKeyDown( true );
@@ -99,11 +190,10 @@ const VideoRow = ( {
 	const handleKeyUp = e => {
 		if ( isSpaceOrEnter( e?.code ) ) {
 			setKeyDown( false );
-			onClickEdit?.();
 		}
 	};
 
-	const handleOverOrFocus = () => {
+	const handleOver = () => {
 		setShowActions( true );
 	};
 
@@ -111,64 +201,60 @@ const VideoRow = ( {
 		setShowActions( false );
 	};
 
+	const handleClick = () => {
+		toggleExpand();
+	};
+
+	const wrapperActions = {
+		onKeyDown: isSmall ? null : handleKeyDown,
+		onKeyUp: isSmall ? null : handleKeyUp,
+		onMouseOver: isSmall ? null : handleOver,
+		onMouseLeave: isSmall ? null : handleLeave,
+		'aria-label': wrapperAriaLabel,
+	};
+
+	// If small screen, expand on click at info wrapper
+	const infoWrapperActions = { onClick: isSmall ? handleClick : null };
+
 	return (
 		<div
+			{ ...wrapperActions }
 			className={ classNames( styles[ 'video-row' ], {
 				[ styles.pressed ]: keyPressed,
 				[ styles.small ]: isSmall,
 			} ) }
-			onMouseOver={ handleOverOrFocus }
-			onMouseLeave={ handleLeave }
-			onFocus={ handleOverOrFocus }
-			onKeyDown={ handleKeyDown }
-			onKeyUp={ handleKeyUp }
-			aria-label={ wrapperAriaLabel }
 			role="button"
 			tabIndex={ 0 }
 		>
-			<div className={ styles[ 'info-wrapper' ] }>
+			<div
+				className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
+				{ ...infoWrapperActions }
+			>
 				<img className={ styles.poster } alt="" src={ posterImage } />
-				<Text variant="title-small" className={ styles.title } ref={ textRef }>
-					{ ! isSmall && isEllipsisActive && (
+				<div className={ styles[ 'title-wrapper' ] }>
+					{ showTitleLabel && (
 						<Text variant="body-extra-small" className={ styles.label } component="span">
 							{ videoTitle }
 						</Text>
 					) }
-					{ videoTitle }
-				</Text>
+					<Text variant="title-small" className={ styles.title } ref={ textRef }>
+						{ videoTitle }
+					</Text>
+					{ isSmall && <Text variant="body-small">{ uploadDateFormatted }</Text> }
+				</div>
+				{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 			</div>
-			<div className={ styles[ 'meta-wrapper' ] }>
-				{ showActions ? (
-					<div className={ styles.actions }>
-						<Button size="small" onClick={ onClickEdit }>
-							{ editVideoLabel }
-						</Button>
-						{ ! HIDE_QUICK_ACTIONS && (
-							<>
-								<ActionItem icon={ image }>
-									{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
-								</ActionItem>
-								<ActionItem icon={ privacy }>
-									{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
-								</ActionItem>
-								<ActionItem icon={ trash } className={ styles.trash }>
-									{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-								</ActionItem>
-							</>
-						) }
-					</div>
-				) : (
-					<div className={ styles.stats }>
-						{ isPrivate && (
-							<div className={ styles.privacy } aria-disabled>
-								<Icon icon={ privacy } />
-							</div>
-						) }
-						<div className={ styles.duration }>{ durationInMinutesAndSeconds }</div>
-						{ Number.isFinite( plays ) && <div className={ styles.plays }>{ plays }</div> }
-						<div className={ styles.upload }>{ uploadDateFormatted }</div>
-					</div>
+			<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
+				{ showActions && <QuickActions button={ editDetailsButton } /> }
+				{ showStats && (
+					<Stats
+						duration={ durationInMinutesAndSeconds }
+						uploadDate={ uploadDateFormatted }
+						plays={ plays }
+						isPrivate={ isPrivate }
+					/>
 				) }
+				{ showBottomButton && editDetailsButton }
 			</div>
 		</div>
 	);
