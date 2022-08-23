@@ -1,0 +1,4 @@
+Significance: major
+Type: compat
+
+Update uninstall process to account for the addition of a dedicated helper script package
