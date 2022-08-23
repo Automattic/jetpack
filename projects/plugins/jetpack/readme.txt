@@ -242,9 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.3-a.7 - 2022-08-17
+### 11.3-a.9 - 2022-08-23
+#### Enhancements
+- Payments block: add new container block to support using multiple inline Payment Button blocks.
+- VideoPress: add support to pause/resume video upload.
+
+#### Improved compatibility
+- Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour.
+
 #### Bug fixes
-- VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors.
+- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified.
+- Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly.
+- Dashboard Widget: do not show the Stats configuration links when the feature is inactive.
 
 --------
 
