@@ -2,6 +2,42 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3-a.9 - 2022-08-23
+### Enhancements
+- Add a new recommendation for backups [#25446]
+- Add a recommendation for Jetpack Boost [#25431]
+- Added new Payment Buttons block in order to support adding multiple Payment Button blocks inline [#25297]
+- Add Pocket Casts as oEmbed provider. [#25696]
+- JITMs added to My Jetpack [#22452]
+- Podcast Blocks: Reduce the RSS feed cache timeout for podcasts to 1 hour [#25709]
+- VPBlock: Add support to pause/resume upload [#25392]
+
+### Bug fixes
+- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified. [#25410]
+- Dashboard Widget: do not show the Stats configuration links when the feature is inactive [#25653]
+- Fix issue in the license activation notice banner that appears even after being dismissed. [#25269]
+- Jetpack: fix VideoPress pkg version [#25683]
+- Move the logic for adding Jetpack carousel data to a block render filter so we can handle reusable blocks correctly [#25441]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Doc update: add information about block deprecation. [#25735]
+- E2E tests: bump dependencies [#25725]
+- Init 11.3-a.6 [#25650]
+- SAL: Bring Jetpack files in sync with WordPress.com files. [#25639]
+- sync class-wpcom-admin-menu file [#25726]
+- Updated package dependencies. [#25338]
+- Updated package dependencies. [#25339]
+- Updated package dependencies. [#25377]
+- Updated package dependencies. [#25387]
+- Updated package dependencies. [#25406]
+- Updated package dependencies. [#25409]
+- Updated package dependencies. [#25422]
+- Updated package dependencies. [#25628]
+- Updated package dependencies. [#25665]
+- Updated package dependencies. [#25762]
+- Updated package dependencies. [#25769]
+- VideoPress: ensure that the player's resources are only loaded when necessary, when a video was added to the page. [#24985]
+
 ## 11.3-a.7 - 2022-08-17
 ### Bug fixes
 - VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors. [#25660]
