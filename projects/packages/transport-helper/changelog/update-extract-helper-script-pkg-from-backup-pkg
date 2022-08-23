@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Move helper-script code to dedicated package
