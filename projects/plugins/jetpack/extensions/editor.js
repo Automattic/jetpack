@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import analytics from '../_inc/client/lib/analytics';
+import './extended-blocks';
 import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';
