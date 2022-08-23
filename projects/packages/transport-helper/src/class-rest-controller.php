@@ -3,10 +3,10 @@
  * The Jetpack Helper Script Rest Controller class.
  * Registers the REST routes.
  *
- * @package automattic/jetpack-helper-script
+ * @package automattic/jetpack-transport-helper
  */
 
-namespace Automattic\Jetpack\Helper_Script;
+namespace Automattic\Jetpack\Transport_Helper;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
@@ -34,7 +34,7 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::jetpack_helper_script_permissions_callback',
 				'args'                => array(
 					'helper' => array(
-						'description' => __( 'base64 encoded Jetpack Helper Script body.', 'jetpack-helper-script-pkg' ),
+						'description' => __( 'base64 encoded Jetpack Helper Script body.', 'jetpack-transport-helper' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -52,7 +52,7 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::jetpack_helper_script_permissions_callback',
 				'args'                => array(
 					'path' => array(
-						'description' => __( 'Path to Jetpack Helper Script', 'jetpack-helper-script-pkg' ),
+						'description' => __( 'Path to Jetpack Helper Script', 'jetpack-transport-helper' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
@@ -77,7 +77,7 @@ class REST_Controller {
 
 		$error_msg = esc_html__(
 			'You are not allowed to perform this action.',
-			'jetpack-helper-script-pkg'
+			'jetpack-transport-helper'
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
@@ -103,7 +103,7 @@ class REST_Controller {
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$helper_script = base64_decode( $helper_script );
 		if ( ! $helper_script ) {
-			return new WP_Error( 'invalid_args', __( 'Jetpack Helper Script body must be base64 encoded', 'jetpack-helper-script-pkg' ), 400 );
+			return new WP_Error( 'invalid_args', __( 'Jetpack Helper Script body must be base64 encoded', 'jetpack-transport-helper' ), 400 );
 		}
 
 		$installation_info = Helper_Script_Manager::install_helper_script( $helper_script );
