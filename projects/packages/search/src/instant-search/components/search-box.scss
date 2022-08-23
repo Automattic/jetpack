@@ -94,8 +94,9 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color;
+		outline: solid thin Highlight;
+		outline: solid thin -webkit-focus-ring-color;
+		border-radius: 5px;
 	}
 
 	&::-webkit-search-results-button,
