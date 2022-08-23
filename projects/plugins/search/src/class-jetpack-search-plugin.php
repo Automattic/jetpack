@@ -27,6 +27,25 @@ class Jetpack_Search_Plugin {
 		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
+		add_filter( 'plugin_action_links_' . JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH, array( self::class, 'plugin_page_add_links' ) );
+	}
+
+	/**
+	 * Add settings and My Jetpack links to plugin actions
+	 *
+	 * @param array $links the array of links.
+	 */
+	public static function plugin_page_add_links( $links ) {
+		$settings_link = '<a href="' . admin_url( 'admin.php?page=jetpack-search' ) . '">' . esc_html__( 'Settings', 'jetpack-search' ) . '</a>';
+		array_unshift( $links, $settings_link );
+
+		// Add the My Jetpack link only if Jetpack is connected
+		if ( ( new Connection_Manager() )->is_connected() ) {
+			$my_jetpack_link = '<a href="' . admin_url( 'admin.php?page=my-jetpack' ) . '">' . esc_html__( 'My Jetpack', 'jetpack-search' ) . '</a>';
+			array_unshift( $links, $my_jetpack_link );
+		}
+
+		return $links;
 	}
 
 	/**
