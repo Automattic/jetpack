@@ -15,7 +15,6 @@ import {
 	getSiteRawUrl,
 	showRecommendations,
 	showMyJetpack,
-	getNewRecommendations,
 	getNewRecommendationsCount,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
@@ -39,7 +38,7 @@ export class Navigation extends React.Component {
 		) {
 			analytics.tracks.recordEvent( 'jetpack_recommendations_new_recommendation_bubble_visible', {
 				path: this.props.location.pathname,
-				new_recommendations: this.props.newRecommendations,
+				new_recommendations_count: this.props.newRecommendationsCount,
 			} );
 		}
 	};
@@ -59,20 +58,12 @@ export class Navigation extends React.Component {
 	trackRecommendationsClick = () => {
 		const isBubbleVisible = this.props.newRecommendationsCount > 0;
 
-		let recommendationsTrackData = {
+		// Track when the recommendations tab is clicked and note whether or not the "new recommendations" bubble is visible.
+		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: 'recommendations',
 			is_new_recommendations_bubble_visible: isBubbleVisible,
-		};
-
-		if ( isBubbleVisible ) {
-			recommendationsTrackData = {
-				...recommendationsTrackData,
-				new_recommendations: this.props.newRecommendations ?? 'unknown',
-			};
-		}
-
-		analytics.tracks.recordJetpackClick( recommendationsTrackData );
+		} );
 	};
 
 	trackMyJetpackClick = () => {
@@ -203,7 +194,6 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
-		newRecommendations: getNewRecommendations( state ),
 		newRecommendationsCount: getNewRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
