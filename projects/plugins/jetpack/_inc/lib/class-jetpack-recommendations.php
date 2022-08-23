@@ -222,8 +222,8 @@ class Jetpack_Recommendations {
 			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
 			$has_scan           = $plan_supports_scan || $has_scan_product;
 
-			// Check for a plan or product that enables protect.
-			$has_protect = Plugins_Installer::is_plugin_active( 'protect/jetpack-protect.php' ) || Plugins_Installer::is_plugin_active( 'jetpack-protect/jetpack-protect.php' );
+			// Check if Jetpack Protect plugin is already active.
+			$has_protect = Plugins_Installer::is_plugin_active( 'jetpack-protect/jetpack-protect.php' );
 
 			if ( ! $has_scan && ! $has_protect ) {
 				self::enable_conditional_recommendation( self::PROTECT_RECOMMENDATION );
