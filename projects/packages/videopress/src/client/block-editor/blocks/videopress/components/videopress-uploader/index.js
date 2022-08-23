@@ -293,7 +293,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			}
 
 			const file = getBlobByURL( fileUrl );
-			const isResumableUploading = null !== file && file instanceof File;
+			const isResumableUploading = file instanceof File;
 
 			if ( ! isResumableUploading ) {
 				return;
