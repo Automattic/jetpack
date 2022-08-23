@@ -5,8 +5,8 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Transport_Helper\Helper_Script_Manager;
 
 /**
  * Uninstall script for Jetpack.
@@ -45,7 +45,7 @@ function jetpack_uninstall() {
 	// Jetpack Sync.
 	Sender::get_instance()->uninstall();
 
-	// Jetpack Backup: Cleanup any leftover Helper Scripts.
+	// Cleanup any leftover Helper Scripts.
 	Helper_Script_Manager::delete_all_helper_scripts();
 }
 
