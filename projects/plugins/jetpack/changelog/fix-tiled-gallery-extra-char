@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Remove extra char from replacement pattern in jetpack carousel gallery block filter hook
