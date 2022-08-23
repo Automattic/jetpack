@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import {
 	getPlanClass,
+	isJetpackBackup,
 	isJetpackProduct,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
@@ -423,6 +424,28 @@ export function getActiveAntiSpamPurchase( state ) {
  */
 export function hasActiveAntiSpamPurchase( state ) {
 	return !! getActiveAntiSpamPurchase( state );
+}
+
+/**
+ * Searches active products for an active Backup product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active backup product if one was found, undefined otherwise.
+ */
+export function getActiveBackupPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackBackup( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active backup product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active backup product purchase, false otherwise.
+ */
+export function hasActiveBackupPurchase( state ) {
+	return !! getActiveBackupPurchase( state );
 }
 
 /**
