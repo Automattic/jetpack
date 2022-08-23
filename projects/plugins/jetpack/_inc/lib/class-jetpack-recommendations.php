@@ -205,6 +205,7 @@ class Jetpack_Recommendations {
 			'creative-mail.php',
 			'jetpack-backup.php',
 			'jetpack-boost.php',
+			'jetpack-protect.php',
 			'crowdsignal.php',
 			'vaultpress.php',
 			'woocommerce.php',
