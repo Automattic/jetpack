@@ -91,8 +91,15 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 	 * @return bool
 	 */
 	function wp_startswith( $haystack, $needle ) {
-		if ( ! $haystack || ! is_string( $haystack ) ) {
+		if ( ! $haystack || ! $needle ) {
 			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_starts_with' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_starts_with( $haystack, $needle );
 		}
 		return 0 === strpos( $haystack, $needle );
 	}
