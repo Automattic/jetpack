@@ -200,30 +200,37 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 	const startUploadFromLibrary = attachmentId => {
 		const path = `videopress/v1/upload/${ attachmentId }`;
-		apiFetch( { path, method: 'POST' } ).then( result => {
-			if ( 'uploading' === result.status ) {
-				setUploadingProgress( result.bytes_uploaded, result.file_size );
-				startUploadFromLibrary( attachmentId );
-				return;
-			} else if ( 'complete' === result.status ) {
-				const guid = result.uploaded_details.guid;
-				const videoUrl = `https://videopress.com/v/${ guid }`;
-				if ( getGuidFromVideoUrl( videoUrl ) ) {
-					return onSelectURL( videoUrl );
+		apiFetch( { path, method: 'POST' } )
+			.then( result => {
+				if ( 'uploading' === result.status ) {
+					setUploadingProgress( result.bytes_uploaded, result.file_size );
+					startUploadFromLibrary( attachmentId );
+					return;
+				} else if ( 'complete' === result.status ) {
+					const guid = result.uploaded_details.guid;
+					const videoUrl = `https://videopress.com/v/${ guid }`;
+					if ( getGuidFromVideoUrl( videoUrl ) ) {
+						return onSelectURL( videoUrl );
+					}
+				} else if ( 'error' === result.status ) {
+					setUploadErrorDataState( {
+						data: { message: result.error },
+					} );
+					return;
+				} else {
+					setUploadErrorDataState( {
+						// Should never happen.
+						data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
+					} );
+					return;
 				}
-			} else if ( 'error' === result.status ) {
+			} )
+			.catch( error => {
 				setUploadErrorDataState( {
-					data: { message: result.error },
+					data: { message: error.message },
 				} );
 				return;
-			} else {
-				setUploadErrorDataState( {
-					// Should never happen.
-					data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
-				} );
-				return;
-			}
-		} );
+			} );
 	};
 
 	const pauseOrResumeUpload = () => {
