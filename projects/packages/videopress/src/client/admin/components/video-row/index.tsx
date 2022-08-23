@@ -55,12 +55,14 @@ const VideoRow = ( {
 	duration,
 	uploadDate,
 	plays = null,
+	isPrivate = false,
 }: {
 	videoTitle: string;
 	posterImage: string;
 	duration: number;
 	uploadDate: string;
 	plays: number;
+	isPrivate: boolean;
 } ) => {
 	const [ showActions, setShowActions ] = useState( false );
 
@@ -94,7 +96,11 @@ const VideoRow = ( {
 					</div>
 				) : (
 					<div className={ styles.stats }>
-						<div className={ styles.privacy }>No</div>
+						{ isPrivate && (
+							<div className={ styles.privacy }>
+								<Icon icon={ privacy } />
+							</div>
+						) }
 						<div className={ styles.duration }>{ millisecondsToMinutesAndSeconds( duration ) }</div>
 						{ Number.isFinite( plays ) && <div className={ styles.plays }>{ plays }</div> }
 						<div className={ styles.upload }>{ dateI18n( 'F j, Y', uploadDate, null ) }</div>
