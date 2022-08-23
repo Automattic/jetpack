@@ -82,13 +82,13 @@ class Connections_Post_Field {
 			'type'       => 'object',
 			'properties' => array(
 				'id'              => array(
-					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Unique identifier for the Jetpack Social Connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Alphanumeric identifier for the Jetpack Social Service', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -111,7 +111,7 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 				),
 				'done'            => array(
-					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Whether Jetpack Social has already finished sharing for this post', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
@@ -139,7 +139,7 @@ class Connections_Post_Field {
 		if ( ! $publicize ) {
 			return new \WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack-publicize-pkg' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -150,7 +150,7 @@ class Connections_Post_Field {
 
 		return new \WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack-publicize-pkg' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data for this post.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

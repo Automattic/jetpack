@@ -1007,7 +1007,7 @@ abstract class Publicize_Base {
 	public function register_post_meta() {
 		$message_args = array(
 			'type'          => 'string',
-			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack-publicize-pkg' ),
+			'description'   => __( 'The message to use instead of the title when sharing to Jetpack Social Services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => '',
 			'show_in_rest'  => array(
