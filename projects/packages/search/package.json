@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.20.0-alpha",
+	"version": "0.20.0",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -88,7 +88,7 @@
 		"core-js": "3.23.5",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
-		"postcss": "8.4.14",
+		"postcss": "8.4.16",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
 		"prettier": "npm:wp-prettier@2.0.5",

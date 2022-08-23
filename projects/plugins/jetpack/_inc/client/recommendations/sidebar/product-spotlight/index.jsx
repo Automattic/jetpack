@@ -16,6 +16,7 @@ const ProductSpotlightComponent = props => {
 		productCardCtaText,
 		productCardList,
 		productCardIcon,
+		productCardDisclaimer,
 		stepSlug,
 	} = props;
 
@@ -44,6 +45,14 @@ const ProductSpotlightComponent = props => {
 									return <li>{ listItem }</li>;
 								} ) }
 							</ul>
+						) }
+						{ productCardDisclaimer && (
+							<p className="jp-recommendations-discount-card__disclaimer">
+								{ productCardDisclaimer.text }{ ' ' }
+								<ExternalLink href={ productCardDisclaimer.url }>
+									{ productCardDisclaimer.link_text }
+								</ExternalLink>
+							</p>
 						) }
 						<ExternalLink
 							type="button"
