@@ -79,12 +79,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
-		// Any old recommendations no longer in use should redirect to /summary
-		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
+		default:
 			redirectPath = '/summary';
 			break;
-		default:
-			throw `Unknown step ${ step } in RecommendationsComponent`;
 	}
 
 	// Check to see if a step slug is "new" - has not been viewed yet.
