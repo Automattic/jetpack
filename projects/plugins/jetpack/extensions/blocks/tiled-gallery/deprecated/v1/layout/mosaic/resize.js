@@ -34,7 +34,6 @@ export function getGalleryRows( gallery ) {
 }
 
 function getRowCols( row ) {
-	// Test comment
 	return Array.from( row.querySelectorAll( '.tiled-gallery__col' ) );
 }
 
