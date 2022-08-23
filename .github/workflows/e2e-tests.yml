@@ -124,7 +124,7 @@ jobs:
         pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Send Slack notification
-      if: ${{ ! cancelled() }}
+      if: ${{ failure() && ! cancelled() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
         SUITE: ${{ matrix.project }}
@@ -170,7 +170,7 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ ! cancelled() }}
+    if: ${{ ! cancelled() }} # need to run on failure and also on success, so it can send notifications when tests passed on re-runs
     needs: [e2e-tests]
 
     steps:

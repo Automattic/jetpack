@@ -1,11 +1,16 @@
-const { setFailed, getInput } = require( '@actions/core' );
+const { setFailed, getInput, startGroup, endGroup } = require( '@actions/core' );
 const { WebClient } = require( '@slack/web-api' );
-const { isWorkflowFailed, getNotificationText } = require( './utils' );
+const debug = require( './debug' );
+const { isWorkflowFailed, getNotificationData } = require( './github' );
+const { getMessage, sendMessage } = require( './slack' );
 
 ( async function main() {
+	startGroup( 'Send results to Slack' );
+
+	//region validate input
 	const ghToken = getInput( 'github_token' );
 	if ( ! ghToken ) {
-		setFailed( 'main: Input `github_token` is required' );
+		setFailed( 'Input `github_token` is required' );
 		return;
 	}
 
@@ -26,38 +31,68 @@ const { isWorkflowFailed, getNotificationText } = require( './utils' );
 		setFailed( 'Input `slack_username` is required' );
 		return;
 	}
+	//endregion
 
-	let icon_emoji = getInput( 'slack_icon_emoji' );
-	if ( ! icon_emoji ) {
-		setFailed( 'Input `slack_icon_emoji` is required' );
-		return;
-	}
+	const client = new WebClient( slackToken );
+
 	const isFailure = await isWorkflowFailed( ghToken );
-	icon_emoji = isFailure ? ':red_circle:' : ':green_circle:';
+	const { text, id, mainMsgBlocks, detailsMsgBlocks } = await getNotificationData( isFailure );
+	const existingMessage = await getMessage( client, channel, id );
+	let mainMessageTS = existingMessage ? existingMessage.ts : undefined;
+	const icon_emoji = getInput( 'slack_icon_emoji' );
 
-	const text = await getNotificationText( isFailure );
+	if ( existingMessage ) {
+		debug( 'Main message found' );
+		debug( 'Updating the main message' );
+		// Update the existing message
+		await sendMessage( client, true, {
+			text: `${ text }\n${ id }`,
+			blocks: mainMsgBlocks,
+			channel,
+			username,
+			ts: mainMessageTS,
+		} );
 
-	await sendSlackMessage( slackToken, text, [], channel, username, icon_emoji );
+		if ( isFailure ) {
+			debug( 'Sending new reply to main message with failure details' );
+			// Send a reply to the main message with the current failure result
+			await sendMessage( client, false, {
+				text,
+				blocks: detailsMsgBlocks,
+				channel,
+				username,
+				icon_emoji,
+				thread_ts: mainMessageTS,
+			} );
+		}
+	} else {
+		debug( 'Main message not found' );
+		if ( isFailure ) {
+			debug( 'Sending new main message' );
+			// Send a new main message
+			const response = await sendMessage( client, false, {
+				text: `${ text }\n${ id }`,
+				blocks: mainMsgBlocks,
+				channel,
+				username,
+				icon_emoji,
+			} );
+			mainMessageTS = response.ts;
+
+			debug( 'Sending new reply to main message with failure details' );
+			// Send a reply to the main message with the current failure result
+			await sendMessage( client, false, {
+				text,
+				blocks: detailsMsgBlocks,
+				channel,
+				username,
+				icon_emoji,
+				thread_ts: mainMessageTS,
+			} );
+		} else {
+			debug( 'No previous failure found, no notification needed for success' );
+		}
+	}
+
+	endGroup();
 } )();
-
-/**
- * Sends a Slack message
- *
- * @param {string} token - slack token
- * @param {string} text - message text
- * @param {string} blocks - message blocks
- * @param {string} channel - slack channel
- * @param {string} username - slack bot username
- * @param {string} icon_emoji - icon emoji
- */
-async function sendSlackMessage( token, text, blocks, channel, username, icon_emoji ) {
-	const client = new WebClient( token );
-	await client.chat.postMessage( {
-		text,
-		channel,
-		username,
-		icon_emoji,
-		unfurl_links: false,
-		unfurl_media: false,
-	} );
-}

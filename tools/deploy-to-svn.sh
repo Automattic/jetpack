@@ -190,3 +190,5 @@ if [[ "$SVNTAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
 else
 	debug "As $TAG appears to be a prerelease version, skipping update of stable tag in readme.txt in SVN tags/$SVNTAG"
 fi
+
+info "Reminder that SVN trunk is at $DIR/trunk"

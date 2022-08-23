@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Tweaked the supports method of the plans package to refresh the plan data.

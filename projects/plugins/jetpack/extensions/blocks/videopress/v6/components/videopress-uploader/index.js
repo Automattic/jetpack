@@ -4,81 +4,33 @@
 import apiFetch from '@wordpress/api-fetch';
 import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Button, withNotices, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
-import { escapeHTML } from '@wordpress/escape-html';
-import { __, sprintf } from '@wordpress/i18n';
-import filesize from 'filesize';
+import { withNotices } from '@wordpress/components';
+import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { useRef } from 'react';
-import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
 import { useResumableUploader } from '../../hooks/use-uploader.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
+import UploadError from './uploader-error.js';
+import UploadProgress from './uploader-progress.js';
+
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
-const UploadProgress = ( { progress, file, paused, onPauseOrResume } ) => {
-	const roundedProgress = Math.round( progress );
-	const cssWidth = { width: `${ roundedProgress }%` };
-
-	const resumeText = __( 'Resume', 'jetpack' );
-	const pauseText = __( 'Pause', 'jetpack' );
-	const fileSizeLabel = filesize( file?.size );
-	const escapedFileName = escapeHTML( file?.name );
-	const fileNameLabel = createInterpolateElement(
-		sprintf(
-			/* translators: Placeholder is a video file name. */
-			__( 'Uploading <strong>%s</strong>', 'jetpack' ),
-			escapedFileName
-		),
-		{ strong: <strong /> }
-	);
-
-	return (
-		<PlaceholderWrapper>
-			<div className="videopress-uploader-progress">
-				<div className="videopress-uploader-progress__file-info">
-					<div className="videopress-uploader-progress__file-name">{ fileNameLabel }</div>
-					&nbsp;&#8212;&nbsp;
-					<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
-				</div>
-				<div className="videopress-uploader-progress__progress">
-					<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
-				</div>
-				<div className="videopress-uploader-progress__actions">
-					<div className="videopress-upload__percent-complete">{ `${ roundedProgress }%` }</div>
-					{ roundedProgress < 100 && (
-						<Button variant="link" onClick={ onPauseOrResume }>
-							{ paused ? resumeText : pauseText }
-						</Button>
-					) }
-				</div>
-			</div>
-		</PlaceholderWrapper>
-	);
-};
-
-const UploadError = ( { message, onRetry, onCancel } ) => {
-	return (
-		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
-			<div className="videopress-uploader__error-actions">
-				<Button variant="primary" onClick={ onRetry }>
-					{ __( 'Try again', 'jetpack' ) }
-				</Button>
-				<Button variant="secondary" onClick={ onCancel }>
-					{ __( 'Cancel', 'jetpack' ) }
-				</Button>
-			</div>
-		</PlaceholderWrapper>
-	);
-};
-
-const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperations } ) => {
+const VideoPressUploader = ( {
+	attributes,
+	setAttributes,
+	noticeUI,
+	noticeOperations,
+	handleDoneUpload,
+} ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
+	const [ uploadCompleted, setUploadCompleted ] = useState( false );
+	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const tusUploader = useRef( null );
 
 	/*
@@ -122,23 +74,18 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	}, [] );
 
 	/*
-	 * It's considered the file is uploading
-	 * when the progress value is lower than the total.
+	 * Handle upload success
 	 */
-	const isUploadingFile = !! (
-		uploadingProgress?.length && uploadingProgress[ 0 ] < uploadingProgress[ 1 ]
-	);
-
-	// File has been upload when the progress value is equal to the total.
-	const fileHasBeenUploaded = !! (
-		uploadingProgress?.length && uploadingProgress[ 0 ] === uploadingProgress[ 1 ]
-	);
+	const handleUploadSuccess = attr => {
+		setAttributes( attr );
+		setUploadCompleted( true );
+	};
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	const [ videoPressUploader ] = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
-		onSuccess: setAttributes,
+		onSuccess: handleUploadSuccess,
 	} );
 
 	// Returns true if the object represents a valid host for a VideoPress video.
@@ -181,6 +128,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		// Update guid based on the URL.
 		setAttributes( { guid: videoGuid, src: videoUrl } );
+		handleDoneUpload();
 	}
 
 	const startUpload = file => {
@@ -191,6 +139,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 
 		setFile( file );
 		setUploadingProgress( 0, file.size );
+		setIsUploadingInProgress( true );
 
 		// Upload file to VideoPress infrastructure.
 		tusUploader.current = videoPressUploader( file );
@@ -346,20 +295,25 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			setFile( null );
 			setUploadingProgress( [] );
 			setUploadErrorData( null );
+			setIsUploadingInProgress( false );
 		};
 
-		return <UploadError onRetry={ onRetry } onCancel={ onCancel } message={ getErrorMessage() } />;
+		return <UploadError onRetry={ onRetry } onCancel={ onCancel } errorData={ uploadErrorData } />;
 	}
 
 	// Uploading file to backend
-	if ( isUploadingFile || fileHasBeenUploaded ) {
+	if ( isUploadingInProgress ) {
 		const progress = ( uploadingProgress[ 0 ] / uploadingProgress[ 1 ] ) * 100;
 		return (
 			<UploadProgress
+				attributes={ attributes }
+				setAttributes={ setAttributes }
 				file={ uploadFile }
 				progress={ progress }
 				paused={ uploadPaused }
+				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
+				onDone={ handleDoneUpload }
 			/>
 		);
 	}

@@ -22,8 +22,6 @@ $overlay-horizontal-padding-lg: 3em;
 	overflow-x: hidden;
 	overflow-y: auto;
 
-	transition: opacity 0.1s ease-in;
-
 	z-index: 9999999999999;
 
 	// Override font for Argent theme.
@@ -68,3 +66,9 @@ $overlay-horizontal-padding-lg: 3em;
     }
 }
 
+// Only show animation to users who have not chosen reduced motion
+@media (prefers-reduced-motion: no-preference) {
+	.jetpack-instant-search__overlay {
+		transition: opacity 0.1s ease-in;
+	}
+}
