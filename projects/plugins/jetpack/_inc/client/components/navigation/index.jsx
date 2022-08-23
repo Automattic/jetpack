@@ -33,9 +33,12 @@ export class Navigation extends React.Component {
 
 	trackNewRecommendations = () => {
 		// Only track this event if the new recommendations bubble is visible and the user is not on the 'Recommendations' tab already
-		if ( this.props.newRecommendationsCount > 0 && this.props.routeName !== 'Recommendations' ) {
+		if (
+			this.props.newRecommendationsCount > 0 &&
+			! this.props.location.pathname.startsWith( '/recommendations' )
+		) {
 			analytics.tracks.recordEvent( 'jetpack_recommendations_new_recommendation_bubble_visible', {
-				route: this.props.routeName,
+				path: this.props.location.pathname,
 				new_recommendations: this.props.newRecommendations,
 			} );
 		}
