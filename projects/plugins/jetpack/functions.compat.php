@@ -109,11 +109,22 @@ if ( ! function_exists( 'wp_endswith' ) ) :
 	/**
 	 * Check whether a string ends with a specific substring.
 	 *
-	 * @param var    $haystack String we are filtering.
+	 * @param string $haystack String we are filtering.
 	 * @param string $needle The substring we are looking for.
 	 * @return bool
 	 */
 	function wp_endswith( $haystack, $needle ) {
+		if ( ! $haystack || ! $needle ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_ends_with' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_ends_with( $haystack, $needle );
+
+		}
 		return $needle === substr( $haystack, -strlen( $needle ) );
 	}
 endif;
@@ -123,10 +134,21 @@ if ( ! function_exists( 'wp_in' ) ) :
 	 * Checks whether a string contains a specific substring.
 	 *
 	 * @param string $needle The substring we are looking for.
-	 * @param var    $haystack String we are filtering.
+	 * @param string $haystack String we are filtering.
 	 * @return bool
 	 */
 	function wp_in( $needle, $haystack ) {
+		if ( ! $haystack || ! $needle ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_contains' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_contains( $haystack, $needle );
+		}
+
 		return false !== strpos( $haystack, $needle );
 	}
 endif;
