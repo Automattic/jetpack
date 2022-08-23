@@ -73,12 +73,6 @@ export class Navigation extends React.Component {
 		this.trackNewRecommendations();
 	}
 
-	componentDidUpdate( prevProps ) {
-		if ( prevProps.newRecommendationsCount !== this.props.newRecommendationsCount ) {
-			this.trackNewRecommendations();
-		}
-	}
-
 	render() {
 		let navTabs;
 
