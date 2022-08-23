@@ -91,7 +91,7 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 	 * @return bool
 	 */
 	function wp_startswith( $haystack, $needle ) {
-		if ( ! $haystack || ! $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
 			return false;
 		}
 
@@ -114,7 +114,7 @@ if ( ! function_exists( 'wp_endswith' ) ) :
 	 * @return bool
 	 */
 	function wp_endswith( $haystack, $needle ) {
-		if ( ! $haystack || ! $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
 			return false;
 		}
 
@@ -138,7 +138,7 @@ if ( ! function_exists( 'wp_in' ) ) :
 	 * @return bool
 	 */
 	function wp_in( $needle, $haystack ) {
-		if ( ! $haystack || ! $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
 			return false;
 		}
 

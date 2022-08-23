@@ -24,6 +24,7 @@ class WP_Test_Jetpack_Compat_Functions extends WP_UnitTestCase {
 			array( 'Random String', 'random', false ), // case-sensitive.
 			array( 'Random String', 'string', false ), // Nope.
 			array( null, 'string', false ),
+			array( array( 'random' ), 'string', false ),
 		);
 	}
 
@@ -41,6 +42,7 @@ class WP_Test_Jetpack_Compat_Functions extends WP_UnitTestCase {
 			array( 'Random String', 'string', false ), // case-sensitive.
 			array( 'Random String', 'Random', false ), // Nope.
 			array( null, 'string', false ),
+			array( array( 'random' ), 'string', false ),
 		);
 	}
 
@@ -59,6 +61,7 @@ class WP_Test_Jetpack_Compat_Functions extends WP_UnitTestCase {
 			array( 'Random String', 'str', false ), // case-sensitive.
 			array( 'Random String', 'Bananas', false ), // Nope.
 			array( null, 'string', false ),
+			array( array( 'random' ), 'string', false ),
 		);
 	}
 }
