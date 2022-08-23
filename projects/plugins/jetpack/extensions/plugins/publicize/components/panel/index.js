@@ -13,7 +13,7 @@ import {
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
 } from '@automattic/jetpack-publicize-components';
-import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
@@ -46,6 +46,9 @@ const PublicizePanel = ( { prePublish } ) => {
 		[ hasEnabledConnections, refresh ]
 	);
 
+	// Disable the panel when no proper site plan is available.
+	const PanelRowWithDisabled = isPublicizeDisabledBySitePlan ? Disabled : PanelRow;
+
 	// Panel wrapper.
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
 	const wrapperProps = prePublish
@@ -60,7 +63,7 @@ const PublicizePanel = ( { prePublish } ) => {
 			{
 				<Fragment>
 					{ ! isPostPublished && (
-						<PanelRow>
+						<PanelRowWithDisabled>
 							<ToggleControl
 								className="jetpack-publicize-toggle"
 								label={
@@ -76,7 +79,7 @@ const PublicizePanel = ( { prePublish } ) => {
 								checked={ isPublicizeEnabled }
 								disabled={ ! hasConnections }
 							/>
-						</PanelRow>
+						</PanelRowWithDisabled>
 					) }
 
 					<PublicizeConnectionVerify />
