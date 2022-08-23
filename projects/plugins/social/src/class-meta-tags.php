@@ -270,9 +270,12 @@ class Meta_Tags {
 				$excerpt                = explode( '<!--more-->', $data->post_content )[0];
 				$tags['og:description'] = $this->get_description( $excerpt );
 			}
+
 			// Shorten the description if it's too long.
-			$description_length     = 197;
-			$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '…' : $tags['og:description'];
+			$description_length = 197;
+			if ( ! empty( $tags['og:description'] ) ) {
+				$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '…' : $tags['og:description'];
+			}
 		}
 
 		$image = $this->get_featured_image();
