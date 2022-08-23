@@ -245,7 +245,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 ### 11.3-a.9 - 2022-08-23
 #### Enhancements
 - Payments block: add new container block to support using multiple inline Payment Button blocks.
-- VideoPress Block (beta): add support to pause/resume video upload.
+- VideoPress block (beta): add support to pause/resume video upload.
 
 #### Improved compatibility
 - Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour.
