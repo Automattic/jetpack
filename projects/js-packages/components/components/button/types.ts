@@ -13,6 +13,7 @@ type JetpackButtonBaseProps = {
 	variant?: 'primary' | 'secondary' | 'link';
 	weight?: 'bold' | 'regular';
 	fullWidth?: boolean;
+	ref: React.ForwardedRef< unknown >;
 };
 
 type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' >;

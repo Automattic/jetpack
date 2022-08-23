@@ -23,14 +23,14 @@ if [[ ! -f composer.json ]]; then
 	exit 1
 fi
 
-SLUG="$(jq -r '.extra.autorelease.slug // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
+SLUG="$(jq -r '.extra.autorelease.slug? // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
 if [[ -z "$SLUG" ]]; then
 	echo '::error::Failed to get slug from composer.json.'
 	exit 1
 fi
 echo "Using slug $SLUG"
 
-TITLEFMT="$(jq -r '.extra.autorelease.titlefmt // "%s"' composer.json)"
+TITLEFMT="$(jq -r '.extra.autorelease.titlefmt? // "%s"' composer.json)"
 if [[ "$TITLEFMT" != *"%s"* ]]; then
 	echo '::error::Missing or invalid `.extra.autorelease.titlefmt`'
 	exit 1
