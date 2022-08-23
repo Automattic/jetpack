@@ -1,29 +1,29 @@
 {
-  "private": true,
-  "name": "@automattic/jetpack-transport-helper",
-  "version": "0.1.0-alpha",
-  "description": "Package to help transport server communication",
-  "homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/transport-helper/#readme",
-  "bugs": {
-    "url": "https://github.com/Automattic/jetpack/labels/[Package] Transport Helper"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Automattic/jetpack.git",
-    "directory": "projects/packages/transport-helper"
-  },
-  "license": "GPL-2.0-or-later",
-  "author": "Automattic",
-  "scripts": {
-    "build": "echo 'Not implemented.'",
-    "build-js": "echo 'Not implemented.'",
-    "build-production": "echo 'Not implemented.'",
-    "build-production-js": "echo 'Not implemented.'",
-    "clean": "true"
-  },
-  "devDependencies": {},
-  "engines": {
-    "node": "^16.13.2",
-    "yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-  }
+	"private": true,
+	"name": "@automattic/jetpack-transport-helper",
+	"version": "0.1.0-alpha",
+	"description": "Package to help transport server communication",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/transport-helper/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Transport Helper"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/transport-helper"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {},
+	"engines": {
+		"node": "^16.13.2",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
 }

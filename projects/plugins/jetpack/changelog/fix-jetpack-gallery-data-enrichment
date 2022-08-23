@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Move the logic for adding Jetpack carousel data to a block render filter so we can handle reusable blocks correctly

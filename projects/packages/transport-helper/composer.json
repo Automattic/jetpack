@@ -1,53 +1,53 @@
 {
-  "name": "automattic/jetpack-transport-helper",
-  "description": "Package to help transport server communication",
-  "type": "jetpack-library",
-  "license": "GPL-2.0-or-later",
-  "require": {},
-  "require-dev": {
-    "yoast/phpunit-polyfills": "1.0.3",
-    "automattic/jetpack-changelogger": "^3.2",
-    "automattic/wordbless": "dev-master"
-  },
-  "autoload": {
-    "classmap": [
-      "src/"
-    ]
-  },
-  "scripts": {
-    "phpunit": [
-      "./vendor/phpunit/phpunit/phpunit --colors=always"
-    ],
-    "test-coverage": [
-      "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-    ],
-    "test-php": [
-      "@composer phpunit"
-    ],
-    "build-production": "echo 'Add your build step to composer.json, please!'",
-    "build-development": "echo 'Add your build step to composer.json, please!'",
-    "post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../../packages/*",
-      "options": {
-        "monorepo": true
-      }
-    }
-  ],
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "extra": {
-    "mirror-repo": "Automattic/jetpack-transport-helper",
-    "changelogger": {
-      "link-template": "https://github.com/Automattic/jetpack-transport-helper/compare/v${old}...v${new}"
-    },
-    "autotagger": true,
-    "branch-alias": {
-      "dev-trunk": "0.1.x-dev"
-    },
-    "textdomain": "jetpack-transport-helper"
-  }
+	"name": "automattic/jetpack-transport-helper",
+	"description": "Package to help transport server communication",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/wordbless": "dev-master"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-transport-helper",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-transport-helper/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-transport-helper"
+	}
 }
