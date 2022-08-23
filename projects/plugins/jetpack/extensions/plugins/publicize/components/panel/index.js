@@ -55,7 +55,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		? {}
 		: {
 				title: __( 'Share this post', 'jetpack' ),
-				className: isPublicizeDisabledBySitePlan ? 'jetpack-publicize-disabled' : '',
+				className: '',
 		  };
 
 	return (
