@@ -36,6 +36,12 @@ The JITMs can also be enabled by using the JITM package directly:
 Automattic\Jetpack\JITMS\JITM::configure();
 ```
 
+#### Where the JITM will be displayed
+
+JITMs can be shown on any admin page that has the `<div id="jp-admin-notices" />` element within the dom, as it's where the messages are injected.
+You may need to add or adjust this element to fit in your plugin.
+
+
 ### Adding Pre-Connection JITMs
 
 Plugins can add pre-connection JITMs uisng the `jetpack_pre_connection_jitms` filter. Each JITM message must be an array and must contain the following keys:
