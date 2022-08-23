@@ -13,7 +13,16 @@ function labelBlocksTitle( settings, name ) {
 	}
 
 	const betaExtensions = extensionList.beta || [];
-	if ( ! betaExtensions || ! betaExtensions.includes( name ) ) {
+	/*
+	 * Some extensions are defined without the jetpack/ prefix,
+	 * so we need to check for both :-/
+	 */
+	const cleanName = name.replace( /jetpack\//, '' );
+
+	if (
+		! betaExtensions ||
+		( ! betaExtensions.includes( name ) && ! betaExtensions.includes( cleanName ) )
+	) {
 		return settings;
 	}
 
