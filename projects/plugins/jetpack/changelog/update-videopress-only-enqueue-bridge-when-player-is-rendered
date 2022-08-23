@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-VideoPress: ensure that the player's resources are only loaded when necessary, when a video was added to the page.
