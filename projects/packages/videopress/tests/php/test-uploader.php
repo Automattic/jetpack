@@ -189,7 +189,7 @@ class Test_Uploader extends BaseTestCase {
 		$u = new Uploader( $this->valid_attachment_id );
 		$this->expectException( __NAMESPACE__ . '\Upload_Exception' );
 		add_filter( 'pre_http_request', array( $this, 'return_wp_error' ) );
-		$response = $u->get_upload_token();
+		$u->get_upload_token();
 		remove_filter( 'pre_http_request', array( $this, 'return_wp_error' ) );
 	}
 }
