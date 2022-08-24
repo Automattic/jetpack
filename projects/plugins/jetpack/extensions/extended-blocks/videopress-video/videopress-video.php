@@ -18,7 +18,10 @@ add_action(
 			return;
 		}
 
-		VideoPress_Pkg_Initializer::register_videopress_block();
+		if ( ! method_exists( 'VideoPress_Pkg_Initializer', 'register_videopress_block' ) ) {
+			return;
+		}
 
+		VideoPress_Pkg_Initializer::register_videopress_block();
 	}
 );
