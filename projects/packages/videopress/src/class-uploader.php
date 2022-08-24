@@ -300,6 +300,7 @@ class Uploader {
 				'bytes_uploaded' => -1,
 				'file_size'      => $this->get_file_size(),
 				'file_name'      => $this->get_file_name(),
+				'message'        => $e->getMessage(),
 			);
 		}
 	}

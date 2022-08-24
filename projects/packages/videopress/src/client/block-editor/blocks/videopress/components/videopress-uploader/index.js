@@ -2,7 +2,6 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { getBlobByURL, isBlobURL } from '@wordpress/blob';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Button, withNotices, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
@@ -250,7 +249,14 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
-		const fileUrl = media?.url;
+		const isFileUploading = null !== media && media instanceof FileList;
+
+		// Handle upload by selecting a File
+		if ( isFileUploading ) {
+			const file = media[ 0 ];
+			startUpload( file );
+			return;
+		}
 
 		// Handle selection of Media Library VideoPress attachment
 		if ( media.videopress_guid ) {
@@ -259,6 +265,7 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 			if ( getGuidFromVideoUrl( videoUrl ) ) {
 				return onSelectURL( videoUrl );
 			}
+			// Handle selection of other videos from the Media Library
 		} else if ( media.id ) {
 			setIsLoading( true );
 			const path = `videopress/v1/upload/${ media.id }`;
@@ -278,7 +285,9 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 					} else {
 						setUploadErrorDataState( {
 							data: {
-								message: __( 'Error selecting video. Please try again.', 'jetpack-videopress-pkg' ),
+								message: result.message
+									? result.message
+									: __( 'Error selecting video. Please try again.', 'jetpack-videopress-pkg' ),
 							},
 						} );
 						return;
@@ -291,22 +300,6 @@ const VideoPressUploader = ( { attributes, setAttributes, noticeUI, noticeOperat
 					setIsLoading( false );
 					return;
 				} );
-		} else if ( fileUrl ) {
-			if ( ! isBlobURL( fileUrl ) ) {
-				setUploadErrorDataState( {
-					data: { message: __( 'Please select a VideoPress video', 'jetpack-videopress-pkg' ) },
-				} );
-				return;
-			}
-
-			const file = getBlobByURL( fileUrl );
-			const isResumableUploading = file instanceof File;
-
-			if ( ! isResumableUploading ) {
-				return;
-			}
-
-			startUpload( file );
 		} else {
 			// Should never happen.
 			setUploadErrorDataState( {
