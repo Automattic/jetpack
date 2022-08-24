@@ -726,7 +726,7 @@ class Error_Handler {
 					'method'    => $method,
 					'url'       => $url,
 				),
-				'error_type'        => in_array( $error_type, array( 'xmlrpc', 'rest' ) ) ? $error_type : '',
+				'error_type'        => in_array( $error_type, array( 'xmlrpc', 'rest' ), true ) ? $error_type : '',
 			)
 		);
 
