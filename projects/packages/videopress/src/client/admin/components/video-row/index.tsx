@@ -64,7 +64,7 @@ const ActionItem = ( {
 const QuickActions = ( { button }: { button: React.ReactNode } ) => {
 	// Hiding it based on Design request:
 	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
-	const HIDE_QUICK_ACTIONS = false;
+	const HIDE_QUICK_ACTIONS = true;
 
 	if ( HIDE_QUICK_ACTIONS ) {
 		return null;
