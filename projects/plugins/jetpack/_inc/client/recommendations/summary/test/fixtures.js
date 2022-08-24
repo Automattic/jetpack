@@ -142,6 +142,7 @@ export function buildInitialState( {
 				upsell: upsellFixture( { hideUpsell } ),
 				requests: {},
 				data: {},
+				installing: {},
 			},
 			rewind: rewindFixture( rewindStatus ),
 			settings: {
