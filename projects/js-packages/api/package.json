@@ -5,7 +5,7 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.16.0",
+		"@wordpress/url": "3.17.0",
 		"@automattic/jetpack-config": "workspace:* || ^0.1"
 	},
 	"devDependencies": {
