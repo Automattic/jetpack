@@ -2092,7 +2092,7 @@ packages:
   /@automattic/components/2.0.1_j2rxkhdiw4kdeeq6fd2zwl6utq:
     resolution: {integrity: sha512-xvIfbLcX869Cx4ccDUC5hb9MqTvZDNC5ho2yI0g1aveUfVGn7FqPxNiHwCEfW2fi5f85T63CZ727Q+ECawDoKQ==}
     peerDependencies:
-      '@wordpress/data': ^6.1.5
+      '@wordpress/data': ^6.1.5 || ^7.0.0
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
