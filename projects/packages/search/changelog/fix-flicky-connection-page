@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
-Search: show connection page is user is not connected
+Search: revert "Search should not require user connection"
