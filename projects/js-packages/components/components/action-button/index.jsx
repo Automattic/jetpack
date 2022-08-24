@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
  */
 import Button from '../button';
 import styles from './style.module.scss';
-import type React from 'react';
 
 /**
  * The Jetpack Action button.
