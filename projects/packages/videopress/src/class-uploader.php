@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use VideoPressUploader\File_Exception;
 use VideoPressUploader\Tus_Client;
@@ -136,6 +137,9 @@ class Uploader {
 	 * @return string
 	 */
 	public function get_upload_token() {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			throw new Upload_Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
+		}
 		$blog_id  = Jetpack_Options::get_option( 'id' );
 		$endpoint = "sites/{$blog_id}/media/videopress-upload-jwt";
 		$args     = array( 'method' => 'POST' );
@@ -296,6 +300,7 @@ class Uploader {
 				'bytes_uploaded' => -1,
 				'file_size'      => $this->get_file_size(),
 				'file_name'      => $this->get_file_name(),
+				'message'        => $e->getMessage(),
 			);
 		}
 	}
