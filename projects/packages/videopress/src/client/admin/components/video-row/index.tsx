@@ -150,6 +150,7 @@ const Stats = ( {
 };
 
 const VideoRow = ( {
+	checked = false,
 	videoTitle,
 	posterImage,
 	duration,
@@ -157,7 +158,9 @@ const VideoRow = ( {
 	plays = null,
 	isPrivate = false,
 	onClickEdit,
+	onSelect,
 }: {
+	checked: boolean;
 	videoTitle: string;
 	posterImage: string;
 	duration: number;
@@ -165,20 +168,24 @@ const VideoRow = ( {
 	plays: number;
 	isPrivate: boolean;
 	onClickEdit?: () => void;
+	onSelect?: ( check: boolean ) => void;
 } ) => {
+	const textRef = useRef( null );
+	const checkboxRef = useRef( null );
+
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const [ showActions, setShowActions ] = useState( true );
+	const [ showActions, setShowActions ] = useState( false );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
-	const textRef = useRef( null );
 
 	const durationInMinutesAndSeconds = millisecondsToMinutesAndSeconds( duration );
 	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
-	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
-	const showBottomButton = isSmall && expanded;
+	const showBottom = ! isSmall || ( isSmall && expanded );
+
+	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
 	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
 	const wrapperAriaLabel = sprintf(
@@ -192,14 +199,25 @@ const VideoRow = ( {
 		uploadDateFormatted
 	);
 
+	const handleEditClick = e => {
+		onClickEdit?.();
+		e.stopPropagation();
+	};
+
 	const editDetailsButton = (
-		<Button size="small" onClick={ onClickEdit } fullWidth={ isSmall }>
+		<Button size="small" onClick={ handleEditClick } fullWidth={ isSmall }>
 			{ editVideoLabel }
 		</Button>
 	);
 
 	const toggleExpand = () => {
 		setExpanded( current => ! current );
+	};
+
+	const handleClick = e => {
+		if ( e.target !== checkboxRef.current ) {
+			checkboxRef?.current?.click();
+		}
 	};
 
 	const handleKeyDown = e => {
@@ -211,6 +229,7 @@ const VideoRow = ( {
 	const handleKeyUp = e => {
 		if ( isSpaceOrEnter( e?.code ) ) {
 			setKeyDown( false );
+			handleClick( e );
 		}
 	};
 
@@ -222,50 +241,72 @@ const VideoRow = ( {
 		setShowActions( false );
 	};
 
+	const handleCheckboxChange = e => {
+		onSelect?.( e.target.checked );
+	};
+
 	return (
 		<div
+			role="button"
+			tabIndex={ 0 }
 			onKeyDown={ isSmall ? null : handleKeyDown }
 			onKeyUp={ isSmall ? null : handleKeyUp }
 			onMouseOver={ isSmall ? null : handleOver }
 			onMouseLeave={ isSmall ? null : handleLeave }
+			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
 			className={ classNames( styles[ 'video-row' ], {
 				[ styles.pressed ]: keyPressed,
-				[ styles.small ]: isSmall,
 			} ) }
-			role="button"
-			tabIndex={ 0 }
 		>
+			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
+				<input
+					ref={ checkboxRef }
+					type="checkbox"
+					checked={ checked }
+					tabIndex={ -1 }
+					className={ styles.checkbox }
+					onChange={ handleCheckboxChange }
+				/>
+			</div>
 			<div
-				className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-				onClick={ isSmall ? toggleExpand : null }
-				role="presentation"
+				className={ classNames( styles[ 'video-data-wrapper' ], {
+					[ styles.small ]: isSmall,
+				} ) }
 			>
-				<img className={ styles.poster } alt="" src={ posterImage } />
-				<div className={ styles[ 'title-wrapper' ] }>
-					{ showTitleLabel && (
-						<Text variant="body-extra-small" className={ styles.label } component="span">
+				<div
+					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
+					onClick={ isSmall ? toggleExpand : null }
+					role="presentation"
+				>
+					<img className={ styles.poster } alt="" src={ posterImage } />
+					<div className={ styles[ 'title-wrapper' ] }>
+						{ showTitleLabel && (
+							<Text variant="body-extra-small" className={ styles.label } component="span">
+								{ videoTitle }
+							</Text>
+						) }
+						<Text variant="title-small" className={ styles.title } ref={ textRef }>
 							{ videoTitle }
 						</Text>
-					) }
-					<Text variant="title-small" className={ styles.title } ref={ textRef }>
-						{ videoTitle }
-					</Text>
-					{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
+						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
+					</div>
+					{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
-				{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
-			</div>
-			<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-				{ showActions && <QuickActions button={ editDetailsButton } /> }
-				{ showStats && (
-					<Stats
-						duration={ durationInMinutesAndSeconds }
-						uploadDate={ uploadDateFormatted }
-						plays={ plays }
-						isPrivate={ isPrivate }
-					/>
+				{ showBottom && (
+					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
+						{ showActions && <QuickActions button={ editDetailsButton } /> }
+						{ showStats && (
+							<Stats
+								duration={ durationInMinutesAndSeconds }
+								uploadDate={ uploadDateFormatted }
+								plays={ plays }
+								isPrivate={ isPrivate }
+							/>
+						) }
+						{ isSmall && editDetailsButton }
+					</div>
 				) }
-				{ showBottomButton && editDetailsButton }
 			</div>
 		</div>
 	);

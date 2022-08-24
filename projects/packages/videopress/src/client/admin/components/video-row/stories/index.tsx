@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import VideoRow from '..';
 import styles from '../style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
@@ -18,7 +19,9 @@ export default {
 } as ComponentMeta< typeof VideoRow >;
 
 const Template: ComponentStory< typeof VideoRow > = args => {
-	return <VideoRow { ...args } />;
+	const [ checked, setChecked ] = useState( false );
+	const onSelect = current => setChecked( current );
+	return <VideoRow { ...args } checked={ checked } onSelect={ onSelect } />;
 };
 
 export const _default = Template.bind( {} );

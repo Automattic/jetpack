@@ -1,14 +1,14 @@
 // MAIN CONTAINER
 
 .video-row {
+	--content-height: 50px;
+
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	padding: calc( var(--spacing-base) * 2 ) var(--spacing-base); // 16px | 8px
 	background-color: var(--jp-white);
 	gap: calc( var(--spacing-base) * 2 ); // 16px
-	border: none;
-	width: 100%;
+	cursor: pointer;
 
 	&:hover, &.pressed {
 		background-color: var(--jp-gray-0);
@@ -17,10 +17,57 @@
 	&:focus {
 		outline: 1px solid black;
 	}
+}
+
+// CHECKBOX
+
+.checkbox-wrapper-small {
+	height: var(--content-height);
+	align-self: flex-start;
+	display: flex;
+	align-items: center;
+}
+
+.checkbox {
+	all: unset;
+	border: 1px solid black;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	border-radius: 2px;
+
+	// This is going out of normal, since it helps to center the checkmark
+	// Since it takes 18px from children + 2px from padding.
+	// Which makes it with 20px
+	padding: 2px;
+
+	&::before {
+		content: "";
+		width: 18px;
+		height: 18px;
+	}
+
+	&:checked::before {
+		background: var(--jp-black);
+	}
+}
+
+// DATA CONTAINER
+
+.video-data-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: calc( var(--spacing-base) * 2 ); // 16px
+	border: none;
+	width: 100%;
 
 	&.small {
 		flex-direction: column;
 		align-items: normal;
+		min-width: 0;
 	}
 }
 
@@ -33,6 +80,7 @@
 	gap: calc( var(--spacing-base) * 3 ); // 24px
 	min-width: 0;
 	position: relative;
+	max-height: var(--content-height);
 
 	&.small {
 		cursor: pointer;
