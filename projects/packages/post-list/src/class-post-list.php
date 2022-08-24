@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.3.2-alpha';
+	const PACKAGE_VERSION = '0.4.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
