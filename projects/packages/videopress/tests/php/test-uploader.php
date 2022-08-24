@@ -180,4 +180,16 @@ class Test_Uploader extends BaseTestCase {
 		remove_filter( 'pre_http_request', $callback );
 		$this->assertSame( $expected, $response );
 	}
+
+	/**
+	 * Tests the get_upload_token method
+	 */
+	public function test_get_upload_token_disconnected() {
+		\Jetpack_Options::delete_option( 'id' );
+		$u = new Uploader( $this->valid_attachment_id );
+		$this->expectException( __NAMESPACE__ . '\Upload_Exception' );
+		add_filter( 'pre_http_request', array( $this, 'return_wp_error' ) );
+		$response = $u->get_upload_token();
+		remove_filter( 'pre_http_request', array( $this, 'return_wp_error' ) );
+	}
 }
