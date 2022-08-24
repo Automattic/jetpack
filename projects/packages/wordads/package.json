@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.2.12",
+	"version": "0.2.13-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
