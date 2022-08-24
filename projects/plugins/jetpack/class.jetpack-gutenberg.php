@@ -338,16 +338,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Check if the given extension is available.
-	 *
-	 * @param string $extension The extension to check.
-	 * @return bool             True if the extension is beta. Otherwise, false.
-	 */
-	public static function is_extension_available( $extension ) {
-		return in_array( $extension, self::get_available_extensions(), true );
-	}
-
-	/**
 	 * Returns a diff from a combined list of allowed extensions and extensions determined to be excluded
 	 *
 	 * @param  array $allowed_extensions An array of allowed extensions.

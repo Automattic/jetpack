@@ -12,11 +12,11 @@ use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 add_action(
 	'init',
 	function () {
-		$is_extension_available = \Jetpack_Gutenberg::is_extension_available( 'jetpack/videopress' );
+		$is_extension_available = in_array( 'jetpack/videopress', \Jetpack_Gutenberg::get_available_extensions(), true );
 		if ( ! $is_extension_available ) {
 			return;
 		}
-
 		VideoPress_Pkg_Initializer::register_videopress_block();
+
 	}
 );
