@@ -5,15 +5,14 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
-import classNames from 'classnames';
+import { render, useState, useEffect, useMemo, useContext } from '@wordpress/element';
 import { PaidBlockContext, PaidBlockProvider } from './components';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
-		const { name, className, clientId, isSelected, attributes, setAttributes } = props || {};
+		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
 		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
 
 		const requiredPlan = getRequiredPlan( name );
@@ -82,10 +81,38 @@ export default createHigherOrderComponent(
 			}
 		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
 
-		// Set banner CSS classes depending on its visibility.
-		const listBlockCSSClass = classNames( className, {
-			'is-upgradable': isBannerVisible,
-		} );
+		useEffect( () => {
+			const block = document.querySelector( `[data-block="${ clientId }"]` );
+
+			let upgradeBannerContainer = block.querySelector( '.jetpack-block-upgrade-banner-container' );
+			if ( ! upgradeBannerContainer ) {
+				upgradeBannerContainer = document.createElement( 'div' );
+				upgradeBannerContainer.classList.add( 'jetpack-block-upgrade-banner-container' );
+				block.prepend( upgradeBannerContainer );
+			}
+
+			render(
+				<UpgradePlanBanner
+					className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+					title={ null }
+					align={ attributes?.align }
+					visible={ isBannerVisible }
+					description={ usableBlocksProps?.description }
+					requiredPlan={ requiredPlan }
+					context={ bannerContext }
+					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+				/>,
+				upgradeBannerContainer
+			);
+		}, [
+			attributes?.align,
+			clientId,
+			isBannerVisible,
+			name,
+			requiredPlan,
+			trackEventData,
+			usableBlocksProps?.description,
+		] );
 
 		return (
 			<PaidBlockProvider
@@ -93,20 +120,9 @@ export default createHigherOrderComponent(
 				onChildBannerVisibilityChange={ setIsChildBannerVisible }
 				hasParentBanner
 			>
-				<UpgradePlanBanner
-					className={ `is-${ props.name.replace( /\//, '-' ) }-paid-block` }
-					title={ null }
-					align={ props?.attributes?.align }
-					visible={ isBannerVisible }
-					description={ usableBlocksProps?.description }
-					requiredPlan={ requiredPlan }
-					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-				/>
-
-				<BlockListBlock { ...props } className={ listBlockCSSClass } />
+				<BlockListBlock { ...props } />
 			</PaidBlockProvider>
 		);
 	},
-	'withUpgradeBanner'
+	'withPaidBlockProvider'
 );
