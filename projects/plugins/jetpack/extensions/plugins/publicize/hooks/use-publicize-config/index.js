@@ -1,7 +1,4 @@
-import {
-	getJetpackExtensionAvailability,
-	isUpgradable,
-} from '@automattic/jetpack-shared-extension-utils';
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
@@ -34,30 +31,13 @@ export default function usePublicizeConfig() {
 		?.republicize_enabled;
 
 	/*
-	 * isRePublicizeUpgradableViaUpsell:
-	 * True when the republicize feature is upgradable according to the store product (republicize),
-	 * but also whether the upgrade nudge is enable
-	 * in the site context/platform (Simple, Atomic, Jetpack, etc...).
-	 */
-	const isRePublicizeUpgradableViaUpsell = isUpgradable( republicizeFeatureName );
-
-	/*
 	 * isPublicizeEnabled:
 	 * Althought the feature is enabled by the post meta,
 	 * it also depends on whether the product feature.
 	 * Also, it's tied to the post status (draft, published, etc.).
 	 */
 	const isPublicizeEnabled =
-		( isPostPublished && ! ( isRePublicizeUpgradableViaUpsell && isRePublicizeFeatureEnabled ) ) ||
-		isPublicizeEnabledMeta;
-
-	/*
-	 * isPublicizeDisabledBySitePlan:
-	 * Depending on the site plan and type, the republicize feature
-	 * would get dissabled.
-	 */
-	const isPublicizeDisabledBySitePlan =
-		isRePublicizeFeatureEnabled && isPostPublished && isRePublicizeUpgradableViaUpsell;
+		( isPostPublished && ! isRePublicizeFeatureEnabled ) || isPublicizeEnabledMeta;
 
 	/*
 	 * hideRePublicizeFeature:
@@ -68,19 +48,14 @@ export default function usePublicizeConfig() {
 	 * it needs to hide part of the Publicize feature.
 	 */
 	const hideRePublicizeFeature =
-		isPostPublished &&
-		! isRePublicizeFeatureAvailable &&
-		! isRePublicizeUpgradableViaUpsell &&
-		isRePublicizeFeatureEnabled;
+		isPostPublished && ! isRePublicizeFeatureAvailable && isRePublicizeFeatureEnabled;
 
 	return {
 		isPublicizeEnabledMeta,
 		isRePublicizeFeatureEnabled,
 		isPublicizeEnabled,
 		togglePublicizeFeature,
-		isPublicizeDisabledBySitePlan,
 		isRePublicizeFeatureAvailable,
-		isRePublicizeUpgradableViaUpsell,
 		hideRePublicizeFeature,
 	};
 }
