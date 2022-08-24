@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Created XML-RPC errors now contain the error type value.
