@@ -201,24 +201,13 @@ const VideoRow = ( {
 		setShowActions( false );
 	};
 
-	const handleClick = () => {
-		toggleExpand();
-	};
-
-	const wrapperActions = {
-		onKeyDown: isSmall ? null : handleKeyDown,
-		onKeyUp: isSmall ? null : handleKeyUp,
-		onMouseOver: isSmall ? null : handleOver,
-		onMouseLeave: isSmall ? null : handleLeave,
-		'aria-label': wrapperAriaLabel,
-	};
-
-	// If small screen, expand on click at info wrapper
-	const infoWrapperActions = { onClick: isSmall ? handleClick : null };
-
 	return (
 		<div
-			{ ...wrapperActions }
+			onKeyDown={ isSmall ? null : handleKeyDown }
+			onKeyUp={ isSmall ? null : handleKeyUp }
+			onMouseOver={ isSmall ? null : handleOver }
+			onMouseLeave={ isSmall ? null : handleLeave }
+			aria-label={ wrapperAriaLabel }
 			className={ classNames( styles[ 'video-row' ], {
 				[ styles.pressed ]: keyPressed,
 				[ styles.small ]: isSmall,
@@ -228,7 +217,8 @@ const VideoRow = ( {
 		>
 			<div
 				className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-				{ ...infoWrapperActions }
+				onClick={ isSmall ? toggleExpand : null }
+				role="presentation"
 			>
 				<img className={ styles.poster } alt="" src={ posterImage } />
 				<div className={ styles[ 'title-wrapper' ] }>
