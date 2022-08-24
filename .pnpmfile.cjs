@@ -92,18 +92,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.trim = '^0.0.3';
 	}
 
-	// @octokit/plugin-paginate-rest included a breaking peer dependency change in v2.21.2.
-	// https://github.com/actions/toolkit/issues/1131
-	if (
-		pkg.name === '@actions/github' &&
-		pkg.dependencies[ '@octokit/plugin-paginate-rest' ]?.startsWith( '^2.' ) &&
-		pkg.dependencies[ '@octokit/core' ]?.startsWith( '^3.' )
-	) {
-		// This should be safe, as both major updates were just dropping node <12 support.
-		pkg.dependencies[ '@octokit/plugin-paginate-rest' ] = '^3';
-		pkg.dependencies[ '@octokit/core' ] = '^4';
-	}
-
 	// Avoid annoying flip-flopping of sub-dep peer deps.
 	// https://github.com/localtunnel/localtunnel/issues/481
 	if ( pkg.name === 'localtunnel' ) {
