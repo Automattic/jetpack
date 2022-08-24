@@ -58,14 +58,17 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Get the link to the CPT screen. If SSO is enabled, the link will inside calypso,
-	 * otherwise it will be a link to wp-admin.
+	 * Get the Calypso or wp-admin link to CPT page.
 	 *
-	 * @param string $post_type The ID of the post type.
-	 * @return string The link to Calypso if SSO is enabled or to WP Admin if SSO is disabled.
+	 * @param object $ptype_obj The post type object.
+	 * @return string The link to Calypso if SSO is enabled and the post_type
+	 * supports rest or to WP Admin if SSO is disabled.
 	 */
-	public function get_cpt_menu_link( $post_type ) {
-		if ( \Jetpack::is_module_active( 'sso' ) ) {
+	public function get_cpt_menu_link( $ptype_obj ) {
+
+		$post_type = $ptype_obj->name;
+
+		if ( \Jetpack::is_module_active( 'sso' ) && $ptype_obj->show_in_rest ) {
 			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
 		} else {
 			return 'edit.php?post_type=' . $post_type;
@@ -107,7 +110,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		$menu_slug = $this->get_cpt_menu_link( $post_type );
+		$menu_slug = $this->get_cpt_menu_link( $ptype_obj );
 
 		// Menu icon.
 		$menu_icon = 'dashicons-admin-post';
