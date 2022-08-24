@@ -197,18 +197,18 @@ class Error_Handler {
 	/**
 	 * Keep track of a connection error that was encountered
 	 *
-	 * @since 1.14.2
-	 *
 	 * @param \WP_Error $error  The error object.
 	 * @param boolean   $force  Force the report, even if should_report_error is false.
-	 * @param boolean   $verify_locally Set to 'true' to verify the error locally and skip the WP.com verification.
+	 * @param boolean   $skip_wpcom_verification Set to 'true' to verify the error locally and skip the WP.com verification.
+	 *
 	 * @return void
+	 * @since 1.14.2
 	 */
-	public function report_error( \WP_Error $error, $force = false, $verify_locally = false ) {
+	public function report_error( \WP_Error $error, $force = false, $skip_wpcom_verification = false ) {
 		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
 			$stored_error = $this->store_error( $error );
 			if ( $stored_error ) {
-				$verify_locally ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
+				$skip_wpcom_verification ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
 			}
 		}
 	}
