@@ -66,18 +66,22 @@ const QuickActions = ( { button }: { button: React.ReactNode } ) => {
 	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
 	const HIDE_QUICK_ACTIONS = true;
 
-	if ( HIDE_QUICK_ACTIONS ) {
-		return null;
-	}
-
 	return (
 		<div className={ styles.actions }>
 			{ button }
-			<ActionItem icon={ image }>{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }</ActionItem>
-			<ActionItem icon={ privacy }>{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }</ActionItem>
-			<ActionItem icon={ trash } className={ styles.trash }>
-				{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-			</ActionItem>
+			{ HIDE_QUICK_ACTIONS ? null : (
+				<>
+					<ActionItem icon={ image }>
+						{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+					</ActionItem>
+					<ActionItem icon={ privacy }>
+						{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+					</ActionItem>
+					<ActionItem icon={ trash } className={ styles.trash }>
+						{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+					</ActionItem>
+				</>
+			) }
 		</div>
 	);
 };
