@@ -40,19 +40,3 @@
 	fill: var( --jp-green-50 );
 	flex-shrink: 0;
 }
-
-// Spinner customization
-svg.loader {
-	height: 24px;
-	width: 24px;
-	margin: 4px;
-	color: var( --jp-green-50 );
-
-	circle {
-		stroke: transparent;
-	}
-
-	path {
-		stroke-width: 3px;
-	}
-}
