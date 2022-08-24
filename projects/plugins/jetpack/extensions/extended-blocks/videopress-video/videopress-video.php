@@ -13,9 +13,11 @@ add_action(
 	'init',
 	function () {
 		$is_extension_available = in_array( 'videopress/video', \Jetpack_Gutenberg::get_available_extensions(), true );
-		if ( ! $is_extension_available ) {
+		$is_proxied             = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
+		if ( ! $is_extension_available && ! $is_proxied ) {
 			return;
 		}
+
 		VideoPress_Pkg_Initializer::register_videopress_block();
 
 	}
