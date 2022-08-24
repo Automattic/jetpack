@@ -338,6 +338,10 @@ class Search_Widget extends \WP_Widget {
 			}
 		}
 
+		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
+			return;
+		}
+
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
