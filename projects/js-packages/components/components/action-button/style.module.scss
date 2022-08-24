@@ -6,5 +6,6 @@
 }
 
 .button {
-	width: calc( var( --spacing-base ) * 33 );
+	min-width: 264px;
+	height: 40px;
 }
