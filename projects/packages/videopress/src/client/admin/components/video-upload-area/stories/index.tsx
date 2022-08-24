@@ -34,8 +34,3 @@ const Template: ComponentStory< typeof VideoUploadArea > = args => {
 };
 
 export const _default = Template.bind( {} );
-
-export const Loading = Template.bind( {} );
-Loading.args = {
-	isLoading: true,
-};
