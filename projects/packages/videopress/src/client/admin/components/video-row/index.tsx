@@ -100,9 +100,8 @@ const Stats = ( {
 
 	return (
 		<div className={ classNames( styles.stats, { [ styles.small ]: isSmall } ) }>
-			<div className={ styles.privacy } aria-disabled={ isSmall ? 'false' : 'true' }>
-				{ isPrivate && ! isSmall && <Icon icon={ privacy } /> }
-				{ isSmall && (
+			<Text aria-disabled={ isSmall ? 'false' : 'true' } component="div">
+				{ isSmall ? (
 					<>
 						<span>{ privacyLabel }</span>
 						<span>
@@ -111,19 +110,37 @@ const Stats = ( {
 								: __( 'Public', 'jetpack-videopress-pkg' ) }
 						</span>
 					</>
+				) : (
+					<>{ isPrivate && <Icon icon={ privacy } /> }</>
 				) }
-			</div>
-			<div className={ styles.duration }>
-				<span>{ isSmall && durationLabel }</span>
-				<span>{ duration }</span>
-			</div>
+			</Text>
+			<Text component="div">
+				{ isSmall ? (
+					<>
+						<span>{ durationLabel }</span>
+						<span>{ duration }</span>
+					</>
+				) : (
+					duration
+				) }
+			</Text>
 			{ Number.isFinite( plays ) && (
-				<div className={ styles.plays }>
-					<span>{ isSmall && playsLabel }</span>
-					<span>{ plays }</span>
-				</div>
+				<Text component="div">
+					{ isSmall ? (
+						<>
+							<span>{ playsLabel }</span>
+							<span>{ plays }</span>
+						</>
+					) : (
+						plays
+					) }
+				</Text>
 			) }
-			{ ! isSmall && <div className={ styles.upload }>{ uploadDate }</div> }
+			{ ! isSmall && (
+				<Text className={ styles.upload } component="div">
+					{ uploadDate }
+				</Text>
+			) }
 		</div>
 	);
 };
@@ -230,7 +247,7 @@ const VideoRow = ( {
 					<Text variant="title-small" className={ styles.title } ref={ textRef }>
 						{ videoTitle }
 					</Text>
-					{ isSmall && <Text variant="body-small">{ uploadDateFormatted }</Text> }
+					{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
 				</div>
 				{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 			</div>
