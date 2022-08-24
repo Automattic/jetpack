@@ -1093,6 +1093,9 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/transport-helper:
+    specifiers: {}
+
   projects/packages/videopress:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
