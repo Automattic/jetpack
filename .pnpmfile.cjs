@@ -165,6 +165,15 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
 	}
 
+	// Outdated peer dependency. Major version bump was apparently the addition of TypeScript types.
+	// No upstream bug link yet.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.peerDependencies[ '@wordpress/data' ] === '^6.1.5'
+	) {
+		pkg.peerDependencies[ '@wordpress/data' ] = '^6.1.5 || ^7.0.0';
+	}
+
 	return pkg;
 }
 
