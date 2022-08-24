@@ -9,7 +9,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
-import { Fragment, createInterpolateElement } from '@wordpress/element';
+import { Fragment, createInterpolateElement, useEffect } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
@@ -26,6 +26,7 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isRePublicizeFeatureEnabled   - True if the RePublicize feature is available.
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
+ * @param {string} props.connectionsAdminUrl               - URL to the Admin connections page
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -33,12 +34,14 @@ export default function PublicizeForm( {
 	isRePublicizeFeatureEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
+	connectionsAdminUrl,
 } ) {
 	const {
 		connections,
 		toggleById,
 		hasConnections,
 		enabledConnections,
+		refresh,
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
@@ -46,8 +49,14 @@ export default function PublicizeForm( {
 		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
+	const hasBrokenConnection = connections.some( connection => ! connection.is_healthy );
+
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
+
+	useEffect( () => {
+		refresh();
+	}, [ refresh ] );
 
 	return (
 		<Wrapper>
@@ -78,16 +87,35 @@ export default function PublicizeForm( {
 							</Notice>
 						</PanelRow>
 					) }
+					{ hasBrokenConnection && (
+						<Notice type={ 'error' }>
+							{ createInterpolateElement(
+								'Some of your social connections are broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
+								{
+									fixLink: <ExternalLink href={ connectionsAdminUrl } />,
+								}
+							) }
+						</Notice>
+					) }
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
 							{ connections.map(
-								( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
+								( {
+									display_name,
+									enabled,
+									id,
+									service_name,
+									toggleable,
+									profile_picture,
+									is_healthy,
+								} ) => (
 									<PublicizeConnection
 										disabled={
 											( isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable ) ||
-											( ! enabled && toggleable && outOfConnections )
+											( ! enabled && toggleable && outOfConnections ) ||
+											! is_healthy
 										}
-										enabled={ enabled && ! isPublicizeDisabledBySitePlan }
+										enabled={ enabled && ! isPublicizeDisabledBySitePlan && is_healthy }
 										key={ id }
 										id={ id }
 										label={ display_name }

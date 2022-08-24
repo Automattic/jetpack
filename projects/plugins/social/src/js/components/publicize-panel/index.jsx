@@ -29,12 +29,18 @@ const PublicizePanel = ( { prePublish } ) => {
 	);
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 
-	const { isShareLimitEnabled, numberOfSharesRemaining, hasPaidPlan } = useSelect( select => {
+	const {
+		isShareLimitEnabled,
+		numberOfSharesRemaining,
+		hasPaidPlan,
+		connectionsAdminUrl,
+	} = useSelect( select => {
 		const socialStore = select( STORE_ID );
 		return {
 			isShareLimitEnabled: socialStore.isShareLimitEnabled(),
 			numberOfSharesRemaining: socialStore.numberOfSharesRemaining(),
 			hasPaidPlan: socialStore.hasPaidPlan(),
+			connectionsAdminUrl: socialStore.getConnectionsAdminUrl(),
 		};
 	} );
 
@@ -87,6 +93,7 @@ const PublicizePanel = ( { prePublish } ) => {
 					numberOfSharesRemaining={
 						isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 					}
+					connectionsAdminUrl={ connectionsAdminUrl }
 				/>
 			</Fragment>
 		</PanelWrapper>
