@@ -17,7 +17,6 @@ module.exports = {
 			},
 		],
 	},
-	transformIgnorePatterns: [ '/node_modules/(?!(.pnpm|is-plain-obj)/)' ],
 	testMatch: [
 		// Note: Keep the patterns here in sync with tools/js-tools/eslintrc/base.js.
 		'<rootDir>/**/__tests__/**/*.[jt]s?(x)',

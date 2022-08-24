@@ -165,6 +165,15 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
 	}
 
+	// Outdated peer dependency. Major version bump was apparently the addition of TypeScript types.
+	// No upstream bug link yet.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.peerDependencies[ '@wordpress/data' ] === '^6.1.5'
+	) {
+		pkg.peerDependencies[ '@wordpress/data' ] = '^6.1.5 || ^7.0.0';
+	}
+
 	return pkg;
 }
 
@@ -192,6 +201,11 @@ function readPackage( pkg, context ) {
  * @returns {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
+	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
+	if ( Object.keys( lockfile.importers ).length === 1 ) {
+		return lockfile;
+	}
+
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
