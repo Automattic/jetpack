@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack: fix duplicated automattic/jetpack-plugins-installer dependency
