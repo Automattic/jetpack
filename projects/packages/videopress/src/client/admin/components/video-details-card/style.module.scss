@@ -24,7 +24,6 @@
 .thumbnail {
 	position: relative;
 	> img {
-		display: flex;
 		border-radius: var( --jp-border-radius );
 		width: 100%;
 	}
