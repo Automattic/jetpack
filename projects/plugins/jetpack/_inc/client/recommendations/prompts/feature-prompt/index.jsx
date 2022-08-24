@@ -12,6 +12,8 @@ import {
 	addSkippedRecommendation as addSkippedRecommendationAction,
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	startFeatureInstall as startFeatureInstallAction,
+	endFeatureInstall as endFeatureInstallAction,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -36,6 +38,8 @@ const FeaturePromptComponent = props => {
 		addSelectedRecommendation,
 		addSkippedRecommendation,
 		addViewedRecommendation,
+		startFeatureInstall,
+		endFeatureInstall,
 		ctaText,
 		description,
 		descriptionLink,
@@ -92,8 +96,17 @@ const FeaturePromptComponent = props => {
 			feature: stepSlug,
 		} );
 		addSelectedRecommendation( stepSlug );
-		activateFeature();
-	}, [ activateFeature, addSelectedRecommendation, stepSlug ] );
+		startFeatureInstall( stepSlug );
+		activateFeature().finally( () => {
+			endFeatureInstall( stepSlug );
+		} );
+	}, [
+		activateFeature,
+		addSelectedRecommendation,
+		stepSlug,
+		startFeatureInstall,
+		endFeatureInstall,
+	] );
 
 	const onConfigureClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_configure_click', {
@@ -227,6 +240,8 @@ const FeaturePrompt = connect(
 		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		startFeatureInstall: step => dispatch( startFeatureInstallAction( step ) ),
+		endFeatureInstall: step => dispatch( endFeatureInstallAction( step ) ),
 		...mapDispatchToProps( dispatch, ownProps.stepSlug ),
 	} )
 )( FeaturePromptComponent );
