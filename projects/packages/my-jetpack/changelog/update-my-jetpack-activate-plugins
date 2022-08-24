@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Activate plugins in normal mode to trigger plugin_activated hooks
