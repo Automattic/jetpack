@@ -8,51 +8,14 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
-use Brain\Monkey;
-use Brain\Monkey\Functions;
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Initializer test suite.
  */
-class InitializerTest extends TestCase {
+class Test_Uploader extends BaseTestCase {
 
-	/**
-	 * Test setup.
-	 *
-	 * @before
-	 */
-	public function set_up() {
-		parent::setUp();
-		Monkey\setUp();
-		$plugin_dir = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/';
-
-		Functions\stubs(
-			array(
-				'wp_parse_url'       => 'parse_url',
-				'plugins_url'        => function ( $path, $plugin_path ) use ( $plugin_dir ) {
-					$plugin_path = dirname( $plugin_path );
-					$this->stringStartsWith( $plugin_dir, $plugin_path );
-					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . '/' . $path;
-				},
-				'wp_localize_script' => function () {},
-				'admin_url'          => function () {},
-				'wp_enqueue_script'  => function () {},
-			)
-		);
-	}
-
-	/**
-	 * Run after every test.
-	 *
-	 * @after
-	 */
-	public function tear_down() {
-		Monkey\tearDown();
-		parent::tearDown();
-	}
-
-	/** Data provider for valid VideoPress oembed url tests */
+		/** Data provider for valid VideoPress oembed url tests */
 	public function provideUrlPresentData() {
 		return array(
 			array(

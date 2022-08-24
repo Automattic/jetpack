@@ -160,10 +160,10 @@ class Search extends Hybrid_Product {
 
 		$response = wp_remote_get(
 			sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
-			array( 'timeout' => 2 )
+			array( 'timeout' => 5 )
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'search_pricing_fetch_failed' );
 		}
 
@@ -191,12 +191,12 @@ class Search extends Hybrid_Product {
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'2',
-			array( 'timeout' => 2 ),
+			array( 'timeout' => 5 ),
 			null,
 			'wpcom'
 		);
 
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'search_state_fetch_failed' );
 		}
 

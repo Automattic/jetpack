@@ -39,6 +39,8 @@ const FeaturePromptComponent = props => {
 		ctaText,
 		description,
 		descriptionLink,
+		descriptionList,
+		descriptionSecondary,
 		illustration,
 		nextRoute,
 		progressValue,
@@ -132,9 +134,26 @@ const FeaturePromptComponent = props => {
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
+				br: <br />,
 				strong: <strong />,
 				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
+			content={
+				descriptionList || descriptionSecondary ? (
+					<React.Fragment>
+						{ descriptionList && (
+							<ul className="jp-recommendations-question__description-list">
+								{ descriptionList.map( ( item, index ) => (
+									<li key={ index }>{ item }</li>
+								) ) }
+							</ul>
+						) }
+						{ descriptionSecondary && (
+							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
+						) }
+					</React.Fragment>
+				) : null
+			}
 			answer={
 				<div className="jp-recommendations-question__install-section">
 					{ featureActive ? (
