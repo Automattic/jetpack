@@ -16,13 +16,10 @@ export function isSquareishLayout( layout ) {
  * @param {number} img.height - Image height
  * @param {string} img.url -    Image URL
  * @param {number} img.width -  Image width
- *
  * @param {Object} galleryAtts - Gallery attributes relevant for image optimization.
  * @param {string} galleryAtts.layoutStyle - Gallery layout. 'rectangular', 'circle', etc.
  * @param {number} galleryAtts.columns -     Gallery columns. Not applicable for all layouts.
- *
- * @returns {Object} Returns an object. If possible, the object will include `src` and `srcSet`
- *                  properties {string} for use on an image.
+ * @returns {Object} Returns an object. If possible, the object will include `src` and `srcSet` properties {string} for use on an image.
  */
 export function photonizedImgProps( img, galleryAtts = {} ) {
 	if ( ! img.height || ! img.width ) {
@@ -124,16 +121,15 @@ function isWpcomFilesUrl( url ) {
 /**
  * Apply photon arguments to *.files.wordpress.com images
  *
- * This function largely duplicates the functionlity of the photon.js lib.
+ * This function largely duplicates the functionality of the photon.js lib.
  * This is necessary because we want to serve images from *.files.wordpress.com so that private
  * WordPress.com sites can use this block which depends on a Photon-like image service.
  *
  * If we pass all images through Photon servers, some images are unreachable. *.files.wordpress.com
  * is already photon-like so we can pass it the same parameters for image resizing.
  *
- * @param  {string} url -  Image url
+ * @param  {string} url  - Image url
  * @param  {Object} opts - Options to pass to photon
- *
  * @returns {string}      Url string with options applied
  */
 function photonWpcomImage( url, opts = {} ) {
