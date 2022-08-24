@@ -55,23 +55,23 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			'type'       => 'object',
 			'properties' => $this->get_connection_schema_properties() + array(
 				'test_success' => array(
-					'description' => __( 'Did the Publicize Connection test pass?', 'jetpack' ),
+					'description' => __( 'Did the Jetpack Social connection test pass?', 'jetpack' ),
 					'type'        => 'boolean',
 				),
 				'test_message' => array(
-					'description' => __( 'Publicize Connection success or error message', 'jetpack' ),
+					'description' => __( 'Jetpack Social connection success or error message', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'can_refresh'  => array(
-					'description' => __( 'Can the current user refresh the Publicize Connection?', 'jetpack' ),
+					'description' => __( 'Can the current user refresh the Jetpack Social connection?', 'jetpack' ),
 					'type'        => 'boolean',
 				),
 				'refresh_text' => array(
-					'description' => __( 'Message instructing the user to refresh their Connection to the Publicize Service', 'jetpack' ),
+					'description' => __( 'Message instructing the user to refresh their Connection to the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'refresh_url'  => array(
-					'description' => __( 'URL for refreshing the Connection to the Publicize Service', 'jetpack' ),
+					'description' => __( 'URL for refreshing the Connection to the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
