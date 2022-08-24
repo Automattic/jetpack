@@ -62,6 +62,8 @@
 
 	// Only Secondary
 	&:global(.is-secondary) {
+		background: var(--jp-white);
+
 		// Hover & Active
 		&:active:not(:disabled),
 		&:hover:not(:disabled) {
