@@ -201,6 +201,11 @@ function readPackage( pkg, context ) {
  * @returns {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
+	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
+	if ( Object.keys( lockfile.importers ).length === 1 ) {
+		return lockfile;
+	}
+
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935
