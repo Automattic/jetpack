@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3-a.11 - 2022-08-23
+### Bug fixes
+- Carousel: remove errant '<' character being displayed. [#25795]
+
 ## 11.3-a.9 - 2022-08-23
 ### Enhancements
 - Payments block: add new container block to support using multiple inline Payment Button blocks. [#25297]
