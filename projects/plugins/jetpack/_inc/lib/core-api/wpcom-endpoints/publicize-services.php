@@ -68,15 +68,15 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 			'type'       => 'object',
 			'properties' => array(
 				'name'  => array(
-					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+					'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'label' => array(
-					'description' => __( 'Human readable label for the Publicize Service', 'jetpack' ),
+					'description' => __( 'Human readable label for the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'url'   => array(
-					'description' => __( 'The URL used to connect to the Publicize Service', 'jetpack' ),
+					'description' => __( 'The URL used to connect to the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
@@ -157,7 +157,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		if ( ! $publicize ) {
 			return new WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -168,7 +168,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data on this site.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
