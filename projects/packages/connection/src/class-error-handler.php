@@ -307,21 +307,22 @@ class Error_Handler {
 			return false;
 		}
 
-		$data = $data['signature_details'];
+		$signature_details = $data['signature_details'];
 
-		if ( ! isset( $data['token'] ) || empty( $data['token'] ) ) {
+		if ( ! isset( $signature_details['token'] ) || empty( $signature_details['token'] ) ) {
 			return false;
 		}
 
-		$user_id = $this->get_user_id_from_token( $data['token'] );
+		$user_id = $this->get_user_id_from_token( $signature_details['token'] );
 
 		$error_array = array(
 			'error_code'    => $error->get_error_code(),
 			'user_id'       => $user_id,
 			'error_message' => $error->get_error_message(),
-			'error_data'    => $data,
+			'error_data'    => $signature_details,
 			'timestamp'     => time(),
 			'nonce'         => wp_generate_password( 10, false ),
+			'error_type'    => empty( $data['error_type'] ) ? '' : $data['error_type'],
 		);
 
 		return $error_array;
@@ -694,10 +695,11 @@ class Error_Handler {
 	 * @param array           $auth_data Auth data, allowed keys: `token`, `timestamp`, `nonce`, `body-hash`.
 	 * @param string          $url Request URL.
 	 * @param string          $method Request method.
+	 * @param string          $error_type The source of an error: 'xmlrpc' or 'rest'.
 	 *
 	 * @return void
 	 */
-	public function check_api_response_for_errors( $http_response, $auth_data, $url, $method ) {
+	public function check_api_response_for_errors( $http_response, $auth_data, $url, $method, $error_type ) {
 		if ( 200 === wp_remote_retrieve_response_code( $http_response ) || ! is_array( $auth_data ) || ! $url || ! $method ) {
 			return;
 		}
@@ -724,6 +726,7 @@ class Error_Handler {
 					'method'    => $method,
 					'url'       => $url,
 				),
+				'error_type'        => in_array( $error_type, array( 'xmlrpc', 'rest' ) ) ? $error_type : '',
 			)
 		);
 

@@ -29,9 +29,11 @@ class Error_Handler_Test extends BaseTestCase {
 	 *
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
+	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
+	 *
 	 * @return \WP_Error
 	 */
-	public function get_sample_error( $error_code, $user_id ) {
+	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
 
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
@@ -46,7 +48,7 @@ class Error_Handler_Test extends BaseTestCase {
 		return new \WP_Error(
 			$error_code,
 			'An error was triggered',
-			compact( 'signature_details' )
+			compact( 'signature_details', 'error_type' )
 		);
 
 	}
@@ -58,7 +60,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$error = $this->get_sample_error( 'invalid_token', 1 );
+		$error = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
 
 		$this->error_handler->report_error( $error );
 
@@ -79,7 +81,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'error_data', $stored_errors['invalid_token']['1'] );
 		$this->arrayHasKey( 'timestamp', $stored_errors['invalid_token']['1'] );
 		$this->arrayHasKey( 'nonce', $stored_errors['invalid_token']['1'] );
-
+		$this->arrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
 	}
 
 	/**
@@ -89,8 +92,8 @@ class Error_Handler_Test extends BaseTestCase {
 
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
 
-		$error  = $this->get_sample_error( 'invalid_token', 1 );
-		$error2 = $this->get_sample_error( 'unknown_user', 1 );
+		$error  = $this->get_sample_error( 'invalid_token', 1, 'xmlrpc' );
+		$error2 = $this->get_sample_error( 'unknown_user', 1, 'rest' );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
@@ -106,6 +109,9 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->arrayHasKey( '1', $stored_errors['unknown_user'] );
 
+		$this->arrayHasKey( 'error_type', $stored_errors['invalid_token']['1'] );
+		$this->assertEquals( 'xmlrpc', $stored_errors['invalid_token']['1']['error_type'] );
+
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'error_code', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'user_id', $stored_errors['unknown_user']['1'] );
@@ -113,7 +119,8 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'error_data', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'timestamp', $stored_errors['unknown_user']['1'] );
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['1'] );
-
+		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['1'] );
+		$this->assertEquals( 'rest', $stored_errors['unknown_user']['1']['error_type'] );
 	}
 
 	/**
@@ -125,7 +132,7 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$error  = $this->get_sample_error( 'invalid_token', 1 );
 		$error2 = $this->get_sample_error( 'unknown_user', 1 );
-		$error3 = $this->get_sample_error( 'unknown_user', 2 );
+		$error3 = $this->get_sample_error( 'unknown_user', 2, 'xmlrpc' );
 
 		$this->error_handler->report_error( $error );
 		$this->error_handler->report_error( $error2 );
@@ -149,7 +156,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->arrayHasKey( 'error_data', $stored_errors['unknown_user']['2'] );
 		$this->arrayHasKey( 'timestamp', $stored_errors['unknown_user']['2'] );
 		$this->arrayHasKey( 'nonce', $stored_errors['unknown_user']['2'] );
-
+		$this->arrayHasKey( 'error_type', $stored_errors['unknown_user']['2'] );
 	}
 
 	/**
@@ -290,7 +297,7 @@ class Error_Handler_Test extends BaseTestCase {
 		$encrypted = $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] );
 
 		$this->assertIsString( $encrypted );
-		$this->assertEquals( 472, strlen( $encrypted ) );
+		$this->assertEquals( 500, strlen( $encrypted ) );
 
 	}
 
@@ -341,7 +348,8 @@ class Error_Handler_Test extends BaseTestCase {
 			),
 			array( 'token' => 'broken:1:0' ),
 			'https://localhost/',
-			'POST'
+			'POST',
+			'rest'
 		);
 
 		$stored_errors   = $this->error_handler->get_stored_errors();
@@ -352,11 +360,14 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertCount( 1, $stored_errors['unknown_token'] );
 		$this->arrayHasKey( '1', $stored_errors['unknown_token'] );
 		$this->arrayHasKey( 'error_code', $stored_errors['unknown_token']['0'] );
+		$this->arrayHasKey( 'error_type', $stored_errors['unknown_token']['0'] );
+		$this->assertEquals( 'rest', $stored_errors['unknown_token']['0']['error_type'] );
 
 		$this->assertCount( 1, $verified_errors );
 		$this->arrayHasKey( 'unknown_token', $verified_errors );
 		$this->assertCount( 1, $verified_errors['unknown_token'] );
 		$this->arrayHasKey( '1', $verified_errors['unknown_token'] );
 		$this->arrayHasKey( 'error_code', $verified_errors['unknown_token']['0'] );
+		$this->assertEquals( 'rest', $verified_errors['unknown_token']['0']['error_type'] );
 	}
 }

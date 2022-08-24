@@ -248,9 +248,11 @@ class Broken_Token_XmlRpc {
 	 *
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
+	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
+	 *
 	 * @return \WP_Error
 	 */
-	public function get_sample_error( $error_code, $user_id ) {
+	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
 
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
@@ -265,7 +267,7 @@ class Broken_Token_XmlRpc {
 		return new \WP_Error(
 			$error_code,
 			'An error was triggered',
-			compact( 'signature_details' )
+			compact( 'signature_details', 'error_type' )
 		);
 
 	}

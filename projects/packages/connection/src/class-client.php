@@ -45,7 +45,8 @@ class Client {
 			$response,
 			$result['auth'],
 			empty( $args['url'] ) ? '' : $args['url'],
-			empty( $args['method'] ) ? 'POST' : $args['method']
+			empty( $args['method'] ) ? 'POST' : $args['method'],
+			'rest'
 		);
 
 		/**
