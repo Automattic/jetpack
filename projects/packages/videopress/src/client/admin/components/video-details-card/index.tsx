@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { useBreakpointMatch, Text, Button } from '@automattic/jetpack-components';
+import { Text, Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { edit, cloud, image, media } from '@wordpress/icons';
-import classnames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -22,7 +21,6 @@ import type React from 'react';
  * @returns {React.ReactNode} - VideoDetailsCard react component.
  */
 const VideoDetailsCard: React.FC< VideoDetailsCardProps > = ( {
-	className,
 	thumbnail,
 	filename,
 	src,
@@ -32,15 +30,10 @@ const VideoDetailsCard: React.FC< VideoDetailsCardProps > = ( {
 	onSelectFromVideo,
 	onUploadImage,
 } ) => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const formattedUploadDate = gmdateI18n( 'F j, Y', uploadDate );
 
 	return (
-		<div
-			className={ classnames( styles.wrapper, className, {
-				[ styles.small ]: isSm,
-			} ) }
-		>
+		<div className={ styles.wrapper }>
 			<div className={ styles.thumbnail }>
 				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 				<Dropdown
