@@ -1309,7 +1309,7 @@ class Classic_Search {
 	/**
 	 * Given an individual author aggregation, add it to the query builder object for use in Elasticsearch.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.20.0
 	 *
 	 * @param array                                        $aggregation The aggregation to add to the query builder.
 	 * @param string                                       $label       The 'label' (unique id) for this aggregation.

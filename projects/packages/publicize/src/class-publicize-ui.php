@@ -115,14 +115,14 @@ class Publicize_UI {
 	 */
 	public function admin_page() {
 		?>
-		<h2 id="publicize"><?php esc_html_e( 'Publicize', 'jetpack-publicize-pkg' ); ?></h2>
+		<h2 id="publicize"><?php esc_html_e( 'Jetpack Social', 'jetpack-publicize-pkg' ); ?></h2>
 		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack-publicize-pkg' ); ?></p>
 		<h4>
 			<?php
 			printf(
 				wp_kses(
 					/* translators: %s is the link to the Publicize page in Calypso */
-					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack-publicize-pkg' ),
+					__( "We've made some updates to Jetpack Social. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your Jetpack Social connections or use the button below.", 'jetpack-publicize-pkg' ),
 					array(
 						'a' => array(
 							'href'               => array(),
@@ -136,7 +136,7 @@ class Publicize_UI {
 			?>
 		</h4>
 
-		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack-publicize-pkg' ); ?></a>
+		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Jetpack Social Settings', 'jetpack-publicize-pkg' ); ?></a>
 		<?php
 	}
 
@@ -330,7 +330,7 @@ jQuery( function($) {
 						.addClass( 'below-h2' )
 						.addClass( 'error' )
 						.addClass( 'publicize-token-refresh-message' )
-						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:', 'jetpack-publicize-pkg' ) ); ?></p>" );
+						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure Jetpack Social can share your posts:', 'jetpack-publicize-pkg' ) ); ?></p>" );
 					somethingShownAlready = true;
 				}
 
@@ -506,7 +506,7 @@ jQuery( function($) {
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<span id="publicize-title">
 			<?php
-			esc_html_e( 'Publicize:', 'jetpack-publicize-pkg' );
+			esc_html_e( 'Jetpack Social:', 'jetpack-publicize-pkg' );
 
 			if ( ! empty( $connections_data ) ) :
 				$publicize_form = $this->get_metabox_form_connected( $connections_data );
@@ -518,7 +518,7 @@ jQuery( function($) {
 						<span class="notice-warning publicize__notice-warning">
 							<?php
 								printf(
-									/* translators: %s is the name of a Publicize service like "LinkedIn" */
+									/* translators: %s is the name of a Jetpack Social service like "LinkedIn" */
 									esc_html__(
 										'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
 										'jetpack-publicize-pkg'
@@ -555,7 +555,7 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />				
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 					<?php
 			else :
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
