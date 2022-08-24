@@ -57,7 +57,7 @@ The action relies on the following parameters.
 - (Required) `slack_token` is the Auth token of a bot that is installed on your Slack workspace. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository). See the [instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace) on how to create a bot.
 - (Required) `slack_channel` is the Slack channel ID where the messages will be sent to.
 - (Optional) `slack_username` is the Slack username the bot will use to send messages. Defaults to "GitHub Reporter".
-- (Optional) `slack_icon_emoji` is the icon emoji to use for messages. If not set it will default to different icons depending on status.
+- (Optional) `slack_icon_emoji` is the icon emoji to use for messages. If not set it will use your app's default icon.
 
 ## License
 

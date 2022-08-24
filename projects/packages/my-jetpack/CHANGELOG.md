@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2022-08-23
+### Added
+- My Jetpack: Add container for JITMs [#22452]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25422, #25628, #25762, #25764]
+
 ## [2.0.0] - 2022-08-09
 ### Added
 - Make product cards compatible with disclaimers and add disclaimer for backup card [#25265]
@@ -559,6 +566,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.3...2.0.0
 [1.8.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.2...1.8.3
 [1.8.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.1...1.8.2
