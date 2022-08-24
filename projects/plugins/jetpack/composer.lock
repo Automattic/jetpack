@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96a80b1b8f6f6b702b0b4cc0fdad6cbc",
+    "content-hash": "7e1811841c453fe76ac1256ca79ee91e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1472,12 +1472,70 @@
             }
         },
         {
+            "name": "automattic/jetpack-post-list",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/post-list",
+                "reference": "be8bf0ec32947ed491a71f2735f7e0ea9909a740"
+            },
+            "require": {
+                "automattic/jetpack-assets": "^1.17"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.2",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-post-list",
+                "textdomain": "jetpack-post-list",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-post-list.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.4.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Enhance the classic view of the Admin section of your WordPress site",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-publicize",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "bba39a8ee0320818fe698f7366f420209ff01432"
+                "reference": "699eea601bda70cae03ee459e2a886473e20b308"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -1498,7 +1556,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 }
             },
             "autoload": {
@@ -1833,7 +1891,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "c51d7be56302465b2a37110ad9e560431e200c3a"
+                "reference": "1ded544062685b62c0fcb5c54926a6ff1ff5a288"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1843,6 +1901,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
+                "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -1885,6 +1944,9 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
@@ -4898,6 +4960,7 @@
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-post-list": 20,
         "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,

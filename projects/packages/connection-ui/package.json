@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-connection-manager-ui",
-	"version": "2.4.14-alpha",
+	"version": "2.4.14",
 	"description": "Jetpack Connection Manager UI",
 	"main": "_inc/admin.jsx",
 	"repository": {
