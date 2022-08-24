@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard Widget: do not show the Stats configuration links when the feature is inactive

@@ -301,7 +301,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			$redirect_fragment = self::get_redirect_fragment();
 			printf(
-				'<div id="%1$s" class="jetpack-sub-notification" style="border: 1px solid%2$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%3$s</div>',
+				'<div id="%1$s" class="jetpack-sub-notification">%3$s</div>',
 				esc_attr( $redirect_fragment ),
 				esc_attr( $border_color ),
 				wp_kses_post( $message )
