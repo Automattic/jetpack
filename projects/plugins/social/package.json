@@ -29,7 +29,7 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.18",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
-		"@automattic/jetpack-publicize-components": "workspace:* || ^0.3",
+		"@automattic/jetpack-publicize-components": "workspace:* || ^0.4",
 		"@wordpress/data": "6.15.0",
 		"@wordpress/date": "4.15.0",
 		"@wordpress/element": "4.13.0",

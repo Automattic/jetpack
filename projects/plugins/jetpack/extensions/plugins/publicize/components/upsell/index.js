@@ -105,8 +105,8 @@ export default function UpsellNotice( { isPostPublished } ) {
 
 	// Doc page URL.
 	const docPageUrl = isPureJetpackSite
-		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
-		: 'https://wordpress.com/support/publicize/#share-your-content-again';
+		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
+		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
 
 	const buttonText = __( 'Upgrade now', 'jetpack' );
 
