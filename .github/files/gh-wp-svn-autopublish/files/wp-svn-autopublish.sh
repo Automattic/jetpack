@@ -96,12 +96,12 @@ fi
 
 if [[ -n "$CI" ]]; then
 	echo "::group::Creating tag"
-	svn cp "^/$WPSLUG/trunk" "^/$WPSLUG/tags/$TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD"
+	svn cp "^/$WPSLUG/trunk" "^/$WPSLUG/tags/$TAG" --no-auth-cache --non-interactive  --username "$WPSVN_USERNAME" --password "$WPSVN_PASSWORD" -m "Tagging version $TAG"
 	echo '::endgroup::'
 else
 	echo "----"
 	echo "Not running in CI, skipping commit"
-	echo "  svn cp \"^/$WPSLUG/trunk\" \"^/$WPSLUG/tags/$TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\""
+	echo "  svn cp \"^/$WPSLUG/trunk\" \"^/$WPSLUG/tags/$TAG\" --no-auth-cache --non-interactive  --username \"\$WPSVN_USERNAME\" --password \"\$WPSVN_PASSWORD\" -m \"Tagging version $TAG\""
 	echo "----"
 fi
 

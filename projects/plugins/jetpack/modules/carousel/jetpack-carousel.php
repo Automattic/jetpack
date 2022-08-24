@@ -383,7 +383,7 @@ class Jetpack_Carousel {
 		// Add extra attributes to first HTML element (which may have leading whitespace)
 		return preg_replace(
 			'/^(\s*<(div|ul|figure))/',
-			'<$1 ' . $extra_attributes . ' ',
+			'$1 ' . $extra_attributes . ' ',
 			$block_content,
 			1
 		);
