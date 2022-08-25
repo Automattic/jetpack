@@ -83,7 +83,7 @@ export function SharePostButton() {
 export function SharePostRow() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	// Let us not render the button when the post is not published.
+	// Do not render the button when the post is not published.
 	if ( ! isPostPublished ) {
 		return null;
 	}
