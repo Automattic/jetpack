@@ -55,9 +55,8 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on @babel/runtime
 	// https://github.com/WordPress/gutenberg/issues/41343
-	// https://github.com/Automattic/wp-calypso/pull/64464
 	if (
-		( pkg.name === '@wordpress/reusable-blocks' || pkg.name === '@automattic/social-previews' ) &&
+		pkg.name === '@wordpress/reusable-blocks' &&
 		! pkg.dependencies?.[ '@babel/runtime' ] &&
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
