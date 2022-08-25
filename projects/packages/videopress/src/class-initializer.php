@@ -236,6 +236,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_videopress_block() {
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/videopress' ) ) {
+			return;
+		}
+
 		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
 	}
 }
