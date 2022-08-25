@@ -24,6 +24,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/modules/widget-visibility/widget-conditions/',
 	'projects/plugins/jetpack/modules/widget-visibility/editor/',
 	'projects/plugins/jetpack/modules/widgets/',
+	'projects/plugins/jetpack/readme.txt',
 	'projects/plugins/jetpack/src/',
 ];
 
