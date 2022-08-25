@@ -58,6 +58,65 @@ The action relies on the following parameters.
 - (Required) `slack_channel` is the Slack channel ID where the messages will be sent to.
 - (Optional) `slack_username` is the Slack username the bot will use to send messages. Defaults to "GitHub Reporter".
 - (Optional) `slack_icon_emoji` is the icon emoji to use for messages. If not set it will use your app's default icon.
+- (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
+- (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
+
+### Rules
+
+You can configure different rules, to send notifications in multiple channels.
+
+There are two types of rules: refs rules, used to send notifications for specific branches or tags and suite rules, used to send notifications for specific test suites..
+
+#### Refs rules
+
+You can create as many rules as you want. For each rule, you need to define the ref type and ref name to match, and a list of channels to send the notification in case of match. Optionally you can also define whether to exclude the default channel. By default, the default channel is not excluded and a notification will also be sent there.
+
+Example:
+
+```json
+{
+  "refs": [
+	{
+	  "type": "branch",
+	  "name": "trunk",
+	  "channels": [
+		"CHANNEL_ID_1"
+	  ],
+	  "excludeDefaultChannel": true
+	},
+	{
+	  "type": "branch",
+	  "name": "dev",
+	  "channels": [
+		"CHANNEL_ID_2"
+	  ]
+	}
+  ]
+}
+```
+
+In the example, for runs on branch trunk, a notification will be sent to `CHANNEL_ID_1`. For runs on branch dev, a notification will be sent to `CHANNEL_ID_2` and to the default channel.
+
+#### Suites rules
+
+You can create as many suites rules as you want. For each rule, you need to define the suite name to match, and a list of channels to send the notification in case of a match. Optionally you and also define whether to exclude the default channel. By default, the default channel is not excluded.
+
+Example:
+
+```json
+{
+  "suites": [
+	{
+	  "name": "Smoke tests",
+	  "channels": [
+		"CHANNEL_ID_1"
+	  ]
+	}
+  ]
+}
+```
+
+In the example, for runs with `suite_name` set to "Smoke tests", a notification will be sent to `CHANNEL_ID_1`.
 
 ## License
 
