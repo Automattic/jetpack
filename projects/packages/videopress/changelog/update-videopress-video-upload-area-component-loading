@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+VideoPress: Removed isLoading prop from VideoUploadArea component

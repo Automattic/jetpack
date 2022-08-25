@@ -234,7 +234,10 @@ function videopress_override_media_templates() {
 				escape: function () {
 					BaseMediaModal.prototype.escape.apply( this );
 					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
-					playerIframe.parentElement.removeChild( playerIframe );
+					if ( playerIframe && playerIframe.parentElement ) {
+						playerIframe.parentElement.removeChild( playerIframe );
+					}
+
 				}
 			} );
 		})( wp.media );

@@ -20,6 +20,7 @@ const defaultProps = {
 		color: '#000000',
 	},
 	className: 'className',
+	context: {},
 	fallbackBackgroundColor: 'rgba(0, 0, 0, 0)',
 	fallbackTextColor: 'rgba(0, 0, 0, 0)',
 	setAttributes: jest.fn(),
