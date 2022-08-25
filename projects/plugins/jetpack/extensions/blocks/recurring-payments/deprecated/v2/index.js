@@ -27,7 +27,7 @@ export default {
 	save: ( { attributes: { width } } ) => {
 		const style = { width };
 		if ( width?.includes( '%' ) ) {
-			style.width = ` calc( ${ width } - var( --jetpack-payment-buttons-gap, 0 ) * ${
+			style.width = `calc( ${ width } - var( --jetpack-payment-buttons-gap, 0 ) * ${
 				( 100 - width.replace( '%', '' ) ) / 100
 			} )`;
 		}
