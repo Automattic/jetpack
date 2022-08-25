@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { useBreakpointMatch, Text } from '@automattic/jetpack-components';
+import { Text, Button } from '@automattic/jetpack-components';
+import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import { edit, cloud, image, media } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -20,26 +21,67 @@ import type React from 'react';
  * @returns {React.ReactNode} - VideoDetailsCard react component.
  */
 const VideoDetailsCard: React.FC< VideoDetailsCardProps > = ( {
-	className,
 	thumbnail,
 	filename,
 	src,
 	uploadDate,
+
+	onUseDefaultThumbnail,
+	onSelectFromVideo,
+	onUploadImage,
 } ) => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const formattedUploadDate = gmdateI18n( 'F j, Y', uploadDate );
 
 	return (
-		<div
-			className={ classnames( styles.wrapper, className, {
-				[ styles.small ]: isSm,
-			} ) }
-		>
-			<img
-				className={ styles.thumbnail }
-				src={ thumbnail }
-				alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) }
-			/>
+		<div className={ styles.wrapper }>
+			<div className={ styles.thumbnail }>
+				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+				<Dropdown
+					className="my-container-class-name"
+					contentClassName="my-popover-content-classname"
+					position="bottom left"
+					renderToggle={ ( { isOpen, onToggle } ) => (
+						<Button
+							variant="secondary"
+							className={ styles[ 'thumbnail__edit-button' ] }
+							icon={ edit }
+							onClick={ onToggle }
+							aria-expanded={ isOpen }
+						/>
+					) }
+					renderContent={ () => (
+						<>
+							<Button
+								weight="regular"
+								fullWidth
+								variant="tertiary"
+								icon={ image }
+								onClick={ onUseDefaultThumbnail }
+							>
+								{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
+							</Button>
+							<Button
+								weight="regular"
+								fullWidth
+								variant="tertiary"
+								icon={ media }
+								onClick={ onSelectFromVideo }
+							>
+								{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
+							</Button>
+							<Button
+								weight="regular"
+								fullWidth
+								variant="tertiary"
+								icon={ cloud }
+								onClick={ onUploadImage }
+							>
+								{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</>
+					) }
+				/>
+			</div>
 
 			<div className={ styles.details }>
 				<div className={ styles[ 'detail-row' ] }>
