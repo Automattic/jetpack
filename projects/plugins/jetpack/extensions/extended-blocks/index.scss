@@ -1,0 +1,28 @@
+.is-beta-extension {
+	position: relative;
+
+	&::before {
+		content: 'BETA Extension';
+		position: absolute;
+		top: 3px;
+		right: 3px;
+		height: 24px;
+		line-height: 24px;
+		font-size: 11px;
+		padding: 0 5px;
+		background-color: #f0b849;
+		color: white;
+		border-radius: 4px;
+		font-weight: 600;
+		z-index: 10000;
+	}
+
+	&:focus,
+	&:hover {
+		box-shadow: 0 0 10px solid #f0b849;
+
+		&::before {
+			display: none;
+		}
+	}
+}
