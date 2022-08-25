@@ -36,8 +36,7 @@ export default function usePublicizeConfig() {
 	 * it also depends on whether the product feature.
 	 * Also, it's tied to the post status (draft, published, etc.).
 	 */
-	const isPublicizeEnabled =
-		( isPostPublished && ! isRePublicizeFeatureEnabled ) || isPublicizeEnabledMeta;
+	const isPublicizeEnabled = isPostPublished || isPublicizeEnabledMeta;
 
 	return {
 		isPublicizeEnabledMeta,

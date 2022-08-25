@@ -26,11 +26,9 @@ const PublicizePanel = ( { prePublish } ) => {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const {
-		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
+		isPublicizeEnabled, // <- usually handled by the UI
 		togglePublicizeFeature,
 	} = usePublicizeConfig();
-
-	const isPublicizeEnabled = isPublicizeEnabledFromConfig;
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
