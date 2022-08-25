@@ -18,7 +18,7 @@ add_action(
 			return;
 		}
 
-		if ( ! method_exists( 'VideoPress_Pkg_Initializer', 'register_videopress_block' ) ) {
+		if ( ! method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_block' ) ) {
 			return;
 		}
 
