@@ -26,7 +26,6 @@ const PublicizePanel = ( { prePublish } ) => {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const {
-		isRePublicizeFeatureEnabled,
 		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
 		togglePublicizeFeature,
 	} = usePublicizeConfig();
@@ -79,7 +78,7 @@ const PublicizePanel = ( { prePublish } ) => {
 				<PublicizeConnectionVerify />
 				<PublicizeForm
 					isPublicizeEnabled={ isPublicizeEnabled }
-					isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
+					isRePublicizeFeatureEnabled={ true }
 					isPublicizeDisabledBySitePlan={ false }
 				/>
 				{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
