@@ -58,7 +58,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.6",
 		"@automattic/popup-monitor": "1.0.1",
 		"@automattic/request-external-access": "1.0.0",
-		"@automattic/social-previews": "1.1.4",
+		"@automattic/social-previews": "1.1.5",
 		"@automattic/viewport": "1.0.0",
 		"@wordpress/base-styles": "4.7.0",
 		"@wordpress/block-editor": "9.8.0",
