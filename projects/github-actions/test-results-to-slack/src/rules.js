@@ -1,4 +1,5 @@
 const { getInput } = require( '@actions/core' );
+const debug = require( './debug' );
 const extras = require( './extra-context' );
 
 /**
@@ -10,6 +11,7 @@ function getChannels() {
 	const channels = [];
 	const defaultChannel = getInput( 'slack_channel' );
 	const rulesConfigurationPath = getInput( 'rules_configuration_path' );
+	const suiteName = getInput( 'suite_name' );
 
 	// If no rules are configured we only use the default channel
 	if ( ! rulesConfigurationPath ) {
@@ -25,32 +27,35 @@ function getChannels() {
 			for ( const rule of refs ) {
 				if ( rule.type === refType && rule.name === refName ) {
 					channels.push( ...rule.channels );
+				}
 
-					if ( ! rule.excludeDefaultChannel ) {
-						channels.push( defaultChannel );
-					}
+				if ( ! rule.excludeDefaultChannel ) {
+					channels.push( defaultChannel );
 				}
 			}
 		}
 
 		if ( suites ) {
 			for ( const rule of suites ) {
-				if ( rule.name === refName ) {
+				if ( rule.name === suiteName ) {
 					channels.push( ...rule.channels );
+				}
 
-					if ( ! rule.excludeDefaultChannel ) {
-						channels.push( defaultChannel );
-					}
+				if ( ! rule.excludeDefaultChannel ) {
+					channels.push( defaultChannel );
 				}
 			}
 		}
 
 		if ( ! refs && ! suites ) {
+			debug( 'No valid rules found' );
 			channels.push( defaultChannel );
 		}
 	}
 
-	return channels;
+	const uniqueChannels = [ ...new Set( channels ) ];
+	debug( `Found ${ uniqueChannels.length } channels` );
+	return uniqueChannels;
 }
 
 module.exports = { getChannels };
