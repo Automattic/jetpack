@@ -15,6 +15,7 @@ function getChannels() {
 
 	// If no rules are configured we only use the default channel
 	if ( ! rulesConfigurationPath ) {
+		debug( 'No rules configuration found, returning only the default channel' );
 		channels.push( defaultChannel );
 	}
 
@@ -48,7 +49,7 @@ function getChannels() {
 		}
 
 		if ( ! refs && ! suites ) {
-			debug( 'No valid rules found' );
+			debug( 'No valid rules found, returning only the default channel' );
 			channels.push( defaultChannel );
 		}
 	}
