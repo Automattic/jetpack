@@ -69,13 +69,13 @@ input.jetpack-instant-search__box-input.search-field {
 	width: 60px;
 	word-wrap: normal;
 
-	&:hover {
+	&:hover,
+	&:focus {
 		color: $color-text-light;
 	}
 
 	&:focus {
 		@include apply-overlay-focus-styling();
-		color: $color-text-light;
 	}
 }
 
@@ -96,6 +96,7 @@ input.jetpack-instant-search__box-input.search-field {
 	&:focus {
 		outline: solid thin $color-layout-borders;
 		border-radius: 5px;
+		outline-offset: inherit;
 	}
 
 	&::-webkit-search-results-button,
