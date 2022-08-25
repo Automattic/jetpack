@@ -55,8 +55,10 @@ function writeRules( rules ) {
 	}
 
 	if ( rules ) {
-		const rand = Math.floor( Math.random() * 1000000 );
-		const rulePath = path.join( rulesPath, `rules-${ rand }.json` );
+		const rulePath = path.join(
+			rulesPath,
+			`rules-${ Math.random().toString( 16 ).substr( 2, 8 ) }.json`
+		);
 		fs.writeFileSync( rulePath, JSON.stringify( rules ) );
 		return path.resolve( rulePath );
 	}
