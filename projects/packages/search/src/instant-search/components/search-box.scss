@@ -69,13 +69,13 @@ input.jetpack-instant-search__box-input.search-field {
 	width: 60px;
 	word-wrap: normal;
 
-	&:hover,
-	&:focus {
+	&:hover {
 		color: $color-text-light;
 	}
 
 	&:focus {
 		@include apply-overlay-focus-styling();
+		color: $color-text-light;
 	}
 }
 
