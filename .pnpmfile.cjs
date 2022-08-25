@@ -144,15 +144,6 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// Missing peer dependency.
-	// https://github.com/Automattic/wp-calypso/pull/64238 - Fixed, awaiting release.
-	if (
-		pkg.name === 'eslint-plugin-wpcalypso' &&
-		! pkg.peerDependencies?.[ 'eslint-plugin-react' ]
-	) {
-		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
-	}
-
 	// Outdated peer dependency. Major version bump was apparently the addition of TypeScript types.
 	// No upstream bug link yet.
 	if (
