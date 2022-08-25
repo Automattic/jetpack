@@ -55,6 +55,30 @@ define( 'WPCOMSH_CLI_PLUGIN_REACTIVATION_MAX_AGE', 14 * DAY_IN_SECONDS );
 define( 'WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB', 'wpcomsh_cli_cleanup_deactivated_user_plugin_record' );
 
 /**
+ * Don't allow `wp core multisite-install` or `wp core multisite-convert` to be run.
+ */
+WP_CLI::add_hook(
+	'before_run_command',
+	function() {
+		$runner            = WP_CLI::get_runner();
+		$disabled_commands = array(
+			array( 'core', 'multisite-install' ),
+			array( 'core', 'multisite-convert' ),
+		);
+		foreach ( $disabled_commands as $disabled_command ) {
+			if ( array_slice( $runner->arguments, 0, count( $disabled_command ) ) === $disabled_command ) {
+				WP_CLI::error(
+					sprintf(
+						'The \'%s\' command is disabled on this platform.',
+						implode( ' ', $disabled_command )
+					)
+				);
+			}
+		}
+	}
+);
+
+/**
  * Ask the user to confirm a yes/no question.
  *
  * @param  string $question The yes/no question to ask the user.
