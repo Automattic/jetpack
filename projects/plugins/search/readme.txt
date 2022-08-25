@@ -111,34 +111,18 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.2.0 - 2022-08-26
+### 1.2.0-beta - 2022-08-25
 #### Added
-- Instant Search: Add author filtering support.
-- Instant Search: Adds descriptions to post type icons for accessibility purposes.
-- Dashboard: add info link to docs.
-- Search: added proper error messages for search module control.
-- Instant Search: always use submit overlay trigger if user prefers reduced motion.
-- Instant Search: only show animation to users who have not chosen reduced motion.
-- Instant Search: user friendly error messaging.
-
-
-#### Fixed
-- Instant Search: Improve accessibility of seach options controls.
-- Instant Search: ensure overlay trigger is consistent for new installs.
-- Dashboard: updated Instant Search description to match changes in default overlay trigger.
-- Instant Search: Constrain tab loop to overlay when visible.
-- Instant Search: Make "Clear filters" button accessible.
-- Instant Search: fix button styling in Twenty Twenty One theme.
-- Instant Search: fix the display order on mobile to match the tab order.
-- Instant Search: use classname rather than ID for styling sort select.
-- Instant Search: Add focus styles for easier keyboard navigation.
-- Instant Search: Remove redundant links from search results.
+- Adds links to Search plugin line on plugins page
+- My Jetpack includes JITMs
+- Search: start v1.2.0-alpha release
 
 #### Changed
-- Instant Search: Updates dark mode active link color for increased contrast.
-
-#### Removed
-- Instant Search: remove 'results' overlay trigger.
+- Activation: only redirect when activating from the Plugins page in the browser
+- E2E tests: bump dependencies
+- Search: always show Search submenu when Search plugin is installed
+- Search: changed default overlay trigger to form submission
+- Updated package dependencies.
 
 == Testimonials ==
 
