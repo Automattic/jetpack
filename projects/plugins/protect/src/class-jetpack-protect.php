@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
@@ -106,6 +107,9 @@ class Jetpack_Protect {
 
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+
+		// Sets up JITMS.
+		JITM::configure();
 	}
 
 	/**

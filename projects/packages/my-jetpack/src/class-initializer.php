@@ -84,6 +84,17 @@ class Initializer {
 	 * @return boolean
 	 */
 	public static function is_licensing_ui_enabled() {
+		// Default changed to true in 1.5.0.
+		$is_enabled = true;
+
+		/*
+		 * Bail if My Jetpack is not enabled,
+		 * and thus the licensing UI shouldn't be enabled either.
+		 */
+		if ( ! self::should_initialize() ) {
+			$is_enabled = false;
+		}
+
 		/**
 		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
 		 *
@@ -94,7 +105,7 @@ class Initializer {
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
-			true
+			$is_enabled
 		);
 	}
 
