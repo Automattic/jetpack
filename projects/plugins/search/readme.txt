@@ -111,26 +111,34 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.1.0 - 2022-08-02
+### 1.2.0 - 2022-08-26
 #### Added
-- Dashboard: new Record Meter feature to show the breakdown of records in your search index.
+- Instant Search: Add author filtering support.
+- Instant Search: Adds descriptions to post type icons for accessibility purposes.
+- Dashboard: add info link to docs.
+- Search: added proper error messages for search module control.
+- Instant Search: always use submit overlay trigger if user prefers reduced motion.
+- Instant Search: only show animation to users who have not chosen reduced motion.
+- Instant Search: user friendly error messaging.
+
 
 #### Fixed
-- Customization: fix fill color for gridicons in dark mode.
-- Customization: hide unsupported taxonomies from Search widget.
-- Customization: re-enable auto-collapsing sidebar in Customberg.
-- Dashboard: fix currency code in upsell page.
-- Dashboard: fix pricing issue before site is connected to Jetpack.
-- Dashboard: minor CSS changes for Hello Dolly compatibility.
-- Instant Search: avoid search query on component mount.
-- Instant Search: consistent design for focus states in Search overlay.
-- Instant Search: don't open modal if only sort parameter is set.
-- Instant Search: fix header letter spacing in modal.
-- Instant Search: fix irrelevant widgets added to sidebar during auto config.
-- Instant Search: fix keyboard handling on search options.
-- Instant Search: prevent hidden submit button appearing on focus.
-- Instant Search: restore support for filtering by multiple post types with post_type=.
-- Search: redirect to the Search Dashboard on activation only when Jetpack plugin does not exist.
+- Instant Search: Improve accessibility of seach options controls.
+- Instant Search: ensure overlay trigger is consistent for new installs.
+- Dashboard: updated Instant Search description to match changes in default overlay trigger.
+- Instant Search: Constrain tab loop to overlay when visible.
+- Instant Search: Make "Clear filters" button accessible.
+- Instant Search: fix button styling in Twenty Twenty One theme.
+- Instant Search: fix the display order on mobile to match the tab order.
+- Instant Search: use classname rather than ID for styling sort select.
+- Instant Search: Add focus styles for easier keyboard navigation.
+- Instant Search: Remove redundant links from search results.
+
+#### Changed
+- Instant Search: Updates dark mode active link color for increased contrast.
+
+#### Removed
+- Instant Search: remove 'results' overlay trigger.
 
 == Testimonials ==
 
