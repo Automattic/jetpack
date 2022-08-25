@@ -229,9 +229,9 @@ class Error_Handler {
 		}
 
 		/**
-		 * Whether to bypass the gate for XML-RPC error handling
+		 * Whether to bypass the gate for the error handling
 		 *
-		 * By default, we only process XML-RPC errors once an hour for each error code.
+		 * By default, we only process errors once an hour for each error code.
 		 * This is done to avoid overflows. If you need to disable this gate, you can set this variable to true.
 		 *
 		 * This filter is useful for unit testing
@@ -388,7 +388,7 @@ class Error_Handler {
 	 *
 	 * @since 1.14.2
 	 *
-	 * @param string $token the token used to make the xml-rpc request.
+	 * @param string $token the token used to make the request.
 	 * @return string $the user id or `invalid` if user id not present.
 	 */
 	public function get_user_id_from_token( $token ) {
@@ -634,7 +634,7 @@ class Error_Handler {
 		}
 
 		/**
-		 * Filters the message to be displayed in the admin notices area when there's a xmlrpc error.
+		 * Filters the message to be displayed in the admin notices area when there's a connection error.
 		 *
 		 * By default  we don't display any errors.
 		 *
@@ -679,7 +679,7 @@ class Error_Handler {
 	 */
 	public function jetpack_react_dashboard_error( $errors ) {
 		$errors[] = array(
-			'code'    => 'xmlrpc_error',
+			'code'    => 'connection_error',
 			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
 			'action'  => 'reconnect',
 			'data'    => array( 'api_error_code' => $this->error_code ),

@@ -1,6 +1,6 @@
 <?php // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
 /**
- * XMLRPC Brokeness.
+ * View and trigger connection errors.
  *
  * @package automattic/jetpack-debug-helper.
  */
@@ -8,12 +8,12 @@
 use Automattic\Jetpack\Connection\Error_Handler;
 
 /**
- * Class Broken_Token_XmlRpc
+ * Class Broken_Token_Connection_Errors
  */
-class Broken_Token_XmlRpc {
+class Broken_Token_Connection_Errors {
 
 	/**
-	 * Broken_Token_XmlRpc constructor.
+	 * Initialize the hooks and load initial data into the object.
 	 */
 	public function __construct() {
 
@@ -21,8 +21,8 @@ class Broken_Token_XmlRpc {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		add_action( 'admin_post_clear_all_xmlrpc_errors', array( $this, 'admin_post_clear_all_xmlrpc_errors' ) );
-		add_action( 'admin_post_clear_all_verified_xmlrpc_errors', array( $this, 'admin_post_clear_all_verified_xmlrpc_errors' ) );
+		add_action( 'admin_post_clear_all_connection_errors', array( $this, 'admin_post_clear_all_connection_errors' ) );
+		add_action( 'admin_post_clear_all_verified_connection_errors', array( $this, 'admin_post_clear_all_verified_connection_errors' ) );
 		add_action( 'admin_post_refresh_verified_errors_list', array( $this, 'admin_post_refresh_verified_errors_list' ) );
 		add_action( 'admin_post_create_error', array( $this, 'admin_post_create_error' ) );
 		add_action( 'admin_post_clear_all_errors', array( $this, 'admin_post_clear_all_errors' ) );
@@ -39,11 +39,11 @@ class Broken_Token_XmlRpc {
 	 * @param string $hook Called hook.
 	 */
 	public function enqueue_scripts( $hook ) {
-		if ( 'jetpack-debug_page_broken-token-xmlrpc-errors' === $hook ) {
-			wp_enqueue_script( 'broken_token_xmlrpc_errors', plugin_dir_url( __FILE__ ) . 'js/xmlrpc-errors.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION, true );
+		if ( 'jetpack-debug_page_broken-token-connection-errors' === $hook ) {
+			wp_enqueue_script( 'broken_token_connection_errors', plugin_dir_url( __FILE__ ) . 'js/connection-errors.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION, true );
 			wp_localize_script(
-				'broken_token_xmlrpc_errors',
-				'jetpack_broken_token_xmlrpc_errors',
+				'broken_token_connection_errors',
+				'jetpack_broken_token_connection_errors',
 				array(
 					'verify_error_url'              => get_rest_url() . 'jetpack/v4/verify_xmlrpc_error',
 					'admin_post_url'                => admin_url( 'admin-post.php' ),
@@ -59,10 +59,10 @@ class Broken_Token_XmlRpc {
 	public function register_submenu_page() {
 		add_submenu_page(
 			'jetpack-debug-tools',
-			'XML-RPC Errors',
-			'XML-RPC Errors',
+			'Connection Errors',
+			'Connection Errors',
 			'manage_options',
-			'broken-token-xmlrpc-errors',
+			'broken-token-connection-errors',
 			array( $this, 'render_ui' ),
 			99
 		);
@@ -73,17 +73,17 @@ class Broken_Token_XmlRpc {
 	 */
 	public function render_ui() {
 		?>
-			<h1>XML-RPC errors</h1>
+			<h1>Connection errors</h1>
 			<p>
-				This page helps you to trigger XML-RPC requests with invalid signatures.
+				This page helps you to trigger connection errors with invalid signatures.
 			</p>
 			<?php if ( $this->dev_debug_on ) : ?>
 				<div class="notice notice-success">
-					<p>JETPACK_DEV_DEBUG constant is ON. This means every xml-rpc error will be reported. You're good to test.</p>
+					<p>JETPACK_DEV_DEBUG constant is ON. This means every error will be reported. You're good to test.</p>
 				</div>
 			<?php else : ?>
 				<div class="notice notice-warning">
-					<p>JETPACK_DEV_DEBUG constant is OFF. This means xml-rpc error will only be reported once evey hour. Set it to true so you can test it.</p>
+					<p>JETPACK_DEV_DEBUG constant is OFF. This means an error will only be reported once evey hour. Set it to true so you can test it.</p>
 				</div>
 			<?php endif; ?>
 
@@ -116,12 +116,12 @@ class Broken_Token_XmlRpc {
 				</form>
 			</p>
 
-			<div id="current_xmlrpc_errors">
+			<div id="current_connection_errors">
 
 
 				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
-					<input type="hidden" name="action" value="clear_all_xmlrpc_errors">
-					<?php wp_nonce_field( 'clear-xmlrpc-errors' ); ?>
+					<input type="hidden" name="action" value="clear_all_connection_errors">
+					<?php wp_nonce_field( 'clear-connection-errors' ); ?>
 					<h2>
 						Current Unverified Errors
 						<input type="submit" value="Clear all unverified errors" class="button button-primary">
@@ -133,13 +133,13 @@ class Broken_Token_XmlRpc {
 				<p>
 					After an error is detected, we send a request to WP.COM and ask it to reach back to us with a nonce to confirm the error is legit. They do this by sending a request to the verify error API endpoint. You can simulate this request clicking on the "Verify error" buttons below.
 				</p>
-				<div id="stored-xmlrpc-error">
+				<div id="stored-connection-error">
 					<?php $this->print_current_errors(); ?>
 				</div>
-				<div id="verified-xmlrpc-error">
+				<div id="verified-connection-error">
 					<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
-						<input type="hidden" name="action" value="clear_all_verified_xmlrpc_errors">
-						<?php wp_nonce_field( 'clear-verified-xmlrpc-errors' ); ?>
+						<input type="hidden" name="action" value="clear_all_verified_connection_errors">
+						<?php wp_nonce_field( 'clear-verified-connection-errors' ); ?>
 						<h2>
 							Current Verified Errors
 							<input type="submit" value="Clear all verified errors" class="button button-primary">
@@ -197,7 +197,7 @@ class Broken_Token_XmlRpc {
 	}
 
 	/**
-	 * Clear all XMLRPC Errors.
+	 * Clear all connection errors.
 	 */
 	public function admin_post_clear_all_errors() {
 		check_admin_referer( 'clear-all-errors' );
@@ -206,19 +206,19 @@ class Broken_Token_XmlRpc {
 	}
 
 	/**
-	 * Clear all unverified XMLRPC Errors.
+	 * Clear all unverified connection errors.
 	 */
-	public function admin_post_clear_all_xmlrpc_errors() {
-		check_admin_referer( 'clear-xmlrpc-errors' );
+	public function admin_post_clear_all_connection_errors() {
+		check_admin_referer( 'clear-connection-errors' );
 		$this->error_manager->delete_stored_errors();
 		$this->admin_post_redirect_referrer();
 	}
 
 	/**
-	 * Clear all verified XMLRPC Errors.
+	 * Clear all verified connection errors.
 	 */
-	public function admin_post_clear_all_verified_xmlrpc_errors() {
-		check_admin_referer( 'clear-verified-xmlrpc-errors' );
+	public function admin_post_clear_all_verified_connection_errors() {
+		check_admin_referer( 'clear-verified-connection-errors' );
 		$this->error_manager->delete_verified_errors();
 		$this->admin_post_redirect_referrer();
 	}
