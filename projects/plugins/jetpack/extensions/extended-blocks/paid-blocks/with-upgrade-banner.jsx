@@ -13,7 +13,7 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
 		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
+		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 
 		const requiredPlan = getRequiredPlan( name );
 
@@ -26,7 +26,6 @@ export default createHigherOrderComponent(
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
-		const [ isChildBannerVisible, setIsChildBannerVisible ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
@@ -34,9 +33,8 @@ export default createHigherOrderComponent(
 			[]
 		);
 
-		// Banner should be not be displayed if one of its children is already displaying a banner.
-		const isBannerVisible =
-			( isSelected || hasChildrenSelected ) && isVisible && ! isChildBannerVisible;
+		// Banner should be not be displayed if one of its parents is already displaying a banner.
+		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible && ! hasParentBanner;
 
 		const trackEventData = useMemo(
 			() => ( {
@@ -72,23 +70,14 @@ export default createHigherOrderComponent(
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
 
-		// Set isChildBannerVisible for parent block.
 		useEffect( () => {
-			// onChildBannerVisibilityChange sets isChildBannerVisible for our parent paid block.
-			// It is undefined if this block has no parent paid block.
-			if ( onChildBannerVisibilityChange ) {
-				onChildBannerVisibilityChange( isBannerVisible || isChildBannerVisible );
-			}
-		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
-
-		useEffect( () => {
-			const block = document.querySelector( `[data-block="${ clientId }"]` );
-
-			let upgradeBannerContainer = block.querySelector( '.jetpack-block-upgrade-banner-container' );
+			let upgradeBannerContainer = document.querySelector(
+				`[data-block="${ clientId }"] > .jetpack-block-upgrade-banner-container`
+			);
 			if ( ! upgradeBannerContainer ) {
 				upgradeBannerContainer = document.createElement( 'div' );
 				upgradeBannerContainer.classList.add( 'jetpack-block-upgrade-banner-container' );
-				block.prepend( upgradeBannerContainer );
+				document.querySelector( `[data-block="${ clientId }"]` ).prepend( upgradeBannerContainer );
 			}
 
 			render(
@@ -115,11 +104,7 @@ export default createHigherOrderComponent(
 		] );
 
 		return (
-			<PaidBlockProvider
-				onBannerVisibilityChange={ setIsVisible }
-				onChildBannerVisibilityChange={ setIsChildBannerVisible }
-				hasParentBanner
-			>
+			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible } hasParentBanner>
 				<BlockListBlock { ...props } />
 			</PaidBlockProvider>
 		);
