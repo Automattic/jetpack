@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-VideoPress: apply changes according on the `videopress/video` name convention for the video block
+VideoPress: update to the lastest changes of the VideoPress pkg API

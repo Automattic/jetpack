@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-VideoPress: apply changes according on the `videopress/video` name convention for the video
+Jetpack: update to the lastest changes of the VideoPress pkg API
