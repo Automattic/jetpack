@@ -22,7 +22,7 @@ function requestToExternal( request ) {
 }
 
 module.exports = {
-	entry: { 'action-bar': path.join( __dirname, './src/action-bar.jsx' ) },
+	entry: { 'action-bar': path.join( __dirname, './src/loader.js' ) },
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
@@ -33,7 +33,7 @@ module.exports = {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
 			// Unused keys are prefixed with underscores, as per eslint recommendation.
-			name: ( _module, _chunks, key ) => `jp-search.${ key }`,
+			name: ( _module, _chunks, key ) => `action-bar.${ key }`,
 		},
 	},
 	resolve: {
