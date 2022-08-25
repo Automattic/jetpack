@@ -1,3 +1,4 @@
+const crypto = require( 'crypto' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const { mockContextExtras, setInputData } = require( './test-utils' );
@@ -55,10 +56,7 @@ function writeRules( rules ) {
 	}
 
 	if ( rules ) {
-		const rulePath = path.join(
-			rulesPath,
-			`rules-${ Math.random().toString( 16 ).substr( 2, 8 ) }.json`
-		);
+		const rulePath = path.join( rulesPath, `rules-${ crypto.randomUUID() }.json` );
 		fs.writeFileSync( rulePath, JSON.stringify( rules ) );
 		return path.resolve( rulePath );
 	}
