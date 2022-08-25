@@ -38,12 +38,15 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/wp-super-cache",
+		"autorelease": true,
+		"autotagger": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}",
 			"versioning": "wordpress"
 		},
+		"mirror-repo": "Automattic/wp-super-cache",
 		"release-branch-prefix": "super-cache",
-		"wp-plugin-slug": "wp-super-cache"
+		"wp-plugin-slug": "wp-super-cache",
+		"wp-svn-autopublish": true
 	}
 }
