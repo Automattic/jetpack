@@ -4,16 +4,16 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-connection": "1.43.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "2.0.x-dev",
-		"automattic/jetpack-search": "0.21.x-dev",
+		"automattic/jetpack-autoloader": "^2.11",
+		"automattic/jetpack-composer-plugin": "^1.1",
+		"automattic/jetpack-config": "^1.9",
+		"automattic/jetpack-connection": "^1.43",
+		"automattic/jetpack-identity-crisis": "^0.8.21",
+		"automattic/jetpack-my-jetpack": "^2.0",
+		"automattic/jetpack-plugins-installer": "^0.2.0",
+		"automattic/jetpack-search": "^0.21.0",
 		"automattic/jetpack-status": "^1.14",
-		"automattic/jetpack-sync": "1.38.x-dev",
-		"automattic/jetpack-plugins-installer": "0.2.x-dev"
+		"automattic/jetpack-sync": "^1.38"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.2",
@@ -37,15 +37,7 @@
 		"build-production": "pnpm run build-production",
 		"build-development": "pnpm run build"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
