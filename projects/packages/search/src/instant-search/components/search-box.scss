@@ -94,9 +94,12 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
-		outline: solid thin $color-layout-borders;
+		outline: dotted thin $color-dark-layout-borders;
 		border-radius: 5px;
 		outline-offset: inherit;
+		margin-left: -50px;
+		padding-left: 60px;
+		margin-right: 5px;
 	}
 
 	&::-webkit-search-results-button,
