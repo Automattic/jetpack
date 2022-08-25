@@ -7,6 +7,9 @@
  * Keep this list in alphabetical order.
  */
 const deFusionedFiles = [
+	'projects/plugins/jetpack/_inc/crowdsignal-shortcode.js',
+	'projects/plugins/jetpack/_inc/crowdsignal-survey.js',
+	'projects/plugins/jetpack/_inc/polldaddy-shortcode.js',
 	'projects/plugins/jetpack/_inc/genericons.php',
 	'projects/plugins/jetpack/_inc/genericons/',
 	'projects/plugins/jetpack/class.jetpack-post-images.php',
