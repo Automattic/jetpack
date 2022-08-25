@@ -106,8 +106,8 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'boost':
 			return {
 				activateFeature: () => {
-					restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+					return restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};
@@ -117,7 +117,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					return restApi
 						.installPlugin( 'creative-mail-by-constant-contact', 'recommendations' )
 						.then( () => {
-							dispatch( fetchPluginsData() );
+							return dispatch( fetchPluginsData() );
 						} );
 				},
 			};
@@ -162,7 +162,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return restApi.installPlugin( 'woocommerce', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};

@@ -8,6 +8,7 @@ import {
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
@@ -30,6 +31,8 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
+	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
+	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
 } from 'state/action-types';
 import { hasConnectedOwner } from 'state/connection';
 import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
@@ -202,6 +205,27 @@ const siteDiscount = ( state = {}, action ) => {
 	}
 };
 
+const installing = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START:
+			return Object.values( RECOMMENDATION_WIZARD_STEP ).includes( action.feature )
+				? {
+						...state,
+						[ action.feature ]: true,
+				  }
+				: state;
+		case JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END:
+			return Object.values( RECOMMENDATION_WIZARD_STEP ).includes( action.feature )
+				? {
+						...state,
+						[ action.feature ]: false,
+				  }
+				: state;
+		default:
+			return state;
+	}
+};
+
 const getConditionalRecommendations = state => {
 	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
 };
@@ -214,6 +238,7 @@ export const reducer = combineReducers( {
 	productSuggestions,
 	conditional,
 	siteDiscount,
+	installing,
 } );
 
 export const isFetchingRecommendationsData = state => {
@@ -296,6 +321,11 @@ export const isStepViewed = ( state, featureSlug ) => {
 		recommendationsData.viewedRecommendations &&
 		recommendationsData.viewedRecommendations.includes( featureSlug )
 	);
+};
+
+export const isInstallingRecommendedFeature = ( state, featureSlug ) => {
+	const featuresInstalling = get( state.jetpack, [ 'recommendations', 'installing' ] );
+	return featuresInstalling[ featureSlug ] ?? false;
 };
 
 export const isFeatureActive = ( state, featureSlug ) => {
@@ -529,7 +559,7 @@ export const getSummaryFeatureSlugs = state => {
 	const skipped = [];
 
 	for ( const slug of featureSlugsEligibleToShow ) {
-		if ( isFeatureActive( state, slug ) ) {
+		if ( isFeatureActive( state, slug ) || isInstallingRecommendedFeature( state, slug ) ) {
 			selected.push( slug );
 		} else {
 			skipped.push( slug );

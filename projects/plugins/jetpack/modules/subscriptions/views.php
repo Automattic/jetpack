@@ -918,6 +918,7 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] ) {
 		$submit_button_styles .= 'margin-top: ' . $button_spacing . 'px; ';
 	} else {
+		$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
 		$submit_button_styles .= 'margin-left: ' . $button_spacing . 'px; ';
 	}
 

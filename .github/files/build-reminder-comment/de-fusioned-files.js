@@ -12,6 +12,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/class.jetpack-post-images.php',
 	'projects/plugins/jetpack/class.jetpack-twitter-cards.php',
 	'projects/plugins/jetpack/modules/cloudflare-analytics/',
+	'projects/plugins/jetpack/modules/google-analytics/',
 	'projects/plugins/jetpack/modules/memberships/',
 	'projects/plugins/jetpack/modules/seo-tools/',
 	'projects/plugins/jetpack/modules/theme-tools/compat/',
@@ -23,6 +24,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/modules/widget-visibility/widget-conditions/',
 	'projects/plugins/jetpack/modules/widget-visibility/editor/',
 	'projects/plugins/jetpack/modules/widgets/',
+	'projects/plugins/jetpack/readme.txt',
 	'projects/plugins/jetpack/src/',
 ];
 
