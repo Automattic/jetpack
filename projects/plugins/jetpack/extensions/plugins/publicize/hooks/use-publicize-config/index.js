@@ -1,9 +1,14 @@
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
+const republicizeFeatureName = 'republicize';
+
 export default function usePublicizeConfig() {
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
-
+	const { available: isRePublicizeFeatureAvailable } = getJetpackExtensionAvailability(
+		republicizeFeatureName
+	);
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
@@ -29,5 +34,6 @@ export default function usePublicizeConfig() {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
 		togglePublicizeFeature,
+		isRePublicizeFeatureAvailable,
 	};
 }

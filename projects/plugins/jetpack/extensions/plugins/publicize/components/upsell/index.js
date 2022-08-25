@@ -140,7 +140,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 			<div className="jetpack-publicize__upsell-description">
 				{ sprintf(
 					/* translators: placeholder is the product name of the plan. */
-					__( 'To re-share a post, you need to upgrade to the super %s plan', 'jetpack' ),
+					__( 'To re-share a post, you need to upgrade to the %s plan', 'jetpack' ),
 					planName
 				) }
 			</div>
