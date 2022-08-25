@@ -1,6 +1,9 @@
 import { render } from 'preact';
-import './action-bar.scss';
+// This must be loaded otherwise the production build fails with a cryptic error message.
+// eslint-disable-next-line no-unused-vars
+import * as Redux from 'react-redux';
 import { CommentIcon, EllipsisIcon, FollowIcon, StarIcon } from './icons';
+import './action-bar.scss';
 
 const ActionBar = () => {
 	return (
