@@ -181,6 +181,15 @@ class Uploader {
 	}
 
 	/**
+	 * Sets the current attachment as not being uploaded before. Deletes the reference to the videopress attachment
+	 *
+	 * @return void
+	 */
+	protected function unmark_as_uploaded() {
+		delete_post_meta( $this->attachment_id, self::UPLOADED_KEY );
+	}
+
+	/**
 	 * Checks whether this attachment was uploaded before
 	 *
 	 * @return boolean
@@ -266,12 +275,19 @@ class Uploader {
 	public function check_status() {
 
 		if ( $this->is_uploaded() ) {
-			return array(
-				'status'              => 'uploaded',
-				'upload_key'          => $this->get_key(),
-				'uploaded_post_id'    => $this->get_uploaded_attachment_id(),
-				'uploaded_video_guid' => get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true ),
-			);
+			$uploaded_attachment_id = $this->get_uploaded_attachment_id();
+			$uploaded_video_guid    = get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true );
+			if ( $uploaded_video_guid ) {
+				return array(
+					'status'              => 'uploaded',
+					'upload_key'          => $this->get_key(),
+					'uploaded_post_id'    => $this->get_uploaded_attachment_id(),
+					'uploaded_video_guid' => get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true ),
+				);
+			} else {
+				// VideoPress attachment is gone, allow user to upload it again.
+				$this->unmark_as_uploaded();
+			}
 		}
 
 		try {
