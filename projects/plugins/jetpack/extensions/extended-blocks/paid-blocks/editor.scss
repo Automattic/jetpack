@@ -6,8 +6,6 @@ $icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
-	$banner-height: 48px;
-
 	.jetpack-upgrade-plan-banner__wrapper {
 		display: flex;
 		justify-content: space-between;
@@ -23,8 +21,8 @@ $icon-background-color: #fff;
 		.banner-description {
 			color: $studio-white;
 			margin-right: 10px;
-			margin-top: 5px;
-			margin-bottom: 5px;
+			margin-top: 10px;
+			margin-bottom: 10px;
 		}
 
 		.jetpack-upgrade-plan-banner__title,
@@ -59,7 +57,7 @@ $icon-background-color: #fff;
 	// Banner in the editor-canvas context.
 	&.block-editor-block-list__block {
 		margin-top: 0;
-		margin-bottom: 20px;
+		margin-bottom: 12px;
 	}
 
 	&.wp-block[data-align=right],
@@ -73,13 +71,6 @@ $icon-background-color: #fff;
 
 .jetpack-upgrade-plan__hidden {
 	display: none;
-}
-
-.block-editor-block-inspector {
-	.jetpack-upgrade-plan-banner {
-		border-radius: 0;
-		margin: 0 20px 20px;
-	}
 }
 
 // Paid Icons: Hide by default.
