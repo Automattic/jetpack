@@ -265,7 +265,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $number_of_connections > 0 ) {
 				$benefits[] = array(
 					'name'        => 'publicize',
-					'title'       => esc_html__( 'Publicize', 'jetpack' ),
+					'title'       => esc_html__( 'Jetpack Social', 'jetpack' ),
 					'description' => esc_html__( 'Live social media site connections, powered by Jetpack', 'jetpack' ),
 					'value'       => absint( $number_of_connections ),
 				);

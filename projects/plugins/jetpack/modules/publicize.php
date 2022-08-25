@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Publicize
- * Module Description: Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.
+ * Module Name: Jetpack Social
+ * Module Description: Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0

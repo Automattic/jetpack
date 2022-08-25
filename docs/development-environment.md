@@ -309,7 +309,7 @@ To execute them in your local environment, you can use the following commands.
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
-- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root. 
+- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root.
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
 
 ## Linting
@@ -390,7 +390,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 	`add_filter( 'jetpack_offline_mode', '__return_true' );`
 
-	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
+	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Jetpack Social, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
 
 * ### JETPACK__SANDBOX_DOMAIN
 

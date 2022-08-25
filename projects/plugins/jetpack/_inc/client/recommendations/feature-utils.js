@@ -117,7 +117,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					return restApi
 						.installPlugin( 'creative-mail-by-constant-contact', 'recommendations' )
 						.then( () => {
-							dispatch( fetchPluginsData() );
+							return dispatch( fetchPluginsData() );
 						} );
 				},
 			};
@@ -162,7 +162,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return restApi.installPlugin( 'woocommerce', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};
