@@ -1,0 +1,3 @@
+Significance: patch
+Type: enhancement
+Comment: Minor update for WP.com sites that hides the upgrade banner of paid blocks if they are nested inside another paid block

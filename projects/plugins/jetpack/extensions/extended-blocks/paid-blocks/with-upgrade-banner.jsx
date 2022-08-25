@@ -14,7 +14,7 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
 		const { name, className, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
+		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 
 		const requiredPlan = getRequiredPlan( name );
 
@@ -27,7 +27,6 @@ export default createHigherOrderComponent(
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
-		const [ isChildBannerVisible, setIsChildBannerVisible ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
@@ -35,9 +34,8 @@ export default createHigherOrderComponent(
 			[]
 		);
 
-		// Banner should be not be displayed if one of its children is already displaying a banner.
-		const isBannerVisible =
-			( isSelected || hasChildrenSelected ) && isVisible && ! isChildBannerVisible;
+		// Banner should be not be displayed if one of its parents is already displaying a banner.
+		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible && ! hasParentBanner;
 
 		const trackEventData = useMemo(
 			() => ( {
@@ -73,26 +71,13 @@ export default createHigherOrderComponent(
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
 
-		// Set isChildBannerVisible for parent block.
-		useEffect( () => {
-			// onChildBannerVisibilityChange sets isChildBannerVisible for our parent paid block.
-			// It is undefined if this block has no parent paid block.
-			if ( onChildBannerVisibilityChange ) {
-				onChildBannerVisibilityChange( isBannerVisible || isChildBannerVisible );
-			}
-		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
-
 		// Set banner CSS classes depending on its visibility.
 		const listBlockCSSClass = classNames( className, {
 			'is-upgradable': isBannerVisible,
 		} );
 
 		return (
-			<PaidBlockProvider
-				onBannerVisibilityChange={ setIsVisible }
-				onChildBannerVisibilityChange={ setIsChildBannerVisible }
-				hasParentBanner
-			>
+			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible } hasParentBanner>
 				<UpgradePlanBanner
 					className={ `is-${ props.name.replace( /\//, '-' ) }-paid-block` }
 					title={ null }
