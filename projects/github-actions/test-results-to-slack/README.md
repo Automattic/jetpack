@@ -37,7 +37,8 @@ jobs:
   slack-notification:
     name: 'Send Slack notification'
     runs-on: ubuntu-latest
-
+    needs: run-tests
+  
     steps:
       - name: 'Send Slack notification'
         uses: automattic/action-test-results-to-slack@v1
@@ -65,11 +66,11 @@ The action relies on the following parameters.
 
 You can configure different rules, to send notifications in multiple channels.
 
-There are two types of rules: refs rules, used to send notifications for specific branches or tags and suite rules, used to send notifications for specific test suites..
+There are two types of rules: refs rules, used to send notifications for specific branches or tags and suite rules, used to send notifications for specific test suites.
 
 #### Refs rules
 
-You can create as many rules as you want. For each rule, you need to define the ref type and ref name to match, and a list of channels to send the notification in case of match. Optionally you can also define whether to exclude the default channel. By default, the default channel is not excluded and a notification will also be sent there.
+You can create as many rules as you want. For each rule, you need to define the ref type and ref name to match, and a list of channels to send the notification in case of a match. Optionally you can also define whether to exclude the default channel. By default, the default channel is not excluded and a notification will also be sent there.
 
 Example:
 
@@ -116,7 +117,7 @@ Example:
 }
 ```
 
-In the example, for runs with `suite_name` set to "Smoke tests", a notification will be sent to `CHANNEL_ID_1`.
+In the example, for runs with `suite_name` set to "Smoke tests", a notification will be sent to `CHANNEL_ID_1` and to the default channel.
 
 ## License
 
