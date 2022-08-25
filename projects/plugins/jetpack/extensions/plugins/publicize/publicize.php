@@ -17,11 +17,3 @@ add_filter(
 		);
 	}
 );
-
-// Set the republicize availability, depending on the site plan.
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		\Jetpack_Gutenberg::set_extension_available( 'republicize' );
-	}
-);
