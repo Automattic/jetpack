@@ -16,13 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - E2E tests: bump dependencies [#25725]
 - Search: always show Search submenu when Search plugin is installed [#25774]
 - Search: changed default overlay trigger to form submission [#25093]
-- Updated package dependencies. [#24477]
-- Updated package dependencies. [#25265]
-- Updated package dependencies. [#25406]
-- Updated package dependencies. [#25409]
-- Updated package dependencies. [#25433]
-- Updated package dependencies. [#25665]
-- Updated package dependencies. [#25802]
+- Updated package dependencies.
 
 ## [1.1.0] - 2022-08-02
 ### Added
