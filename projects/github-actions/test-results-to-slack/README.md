@@ -48,6 +48,8 @@ jobs:
           slack_channel: "your Slack channel"
           slack_username: 'Slack username'
           slack_icon_emoji: 'Slack icon emoji'
+          suite_name: 'Your test suite name'
+          rules_configuration_path: 'path/to/rules/configuration/file'
 ```
 
 ### Inputs
