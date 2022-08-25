@@ -7,7 +7,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import extensionList from '../index.json';
 
-function labelBlocksTitle( settings, name ) {
+function isBetaExtension( name ) {
 	if ( ! extensionList ) {
 		return;
 	}
@@ -19,10 +19,11 @@ function labelBlocksTitle( settings, name ) {
 	 */
 	const cleanName = name.replace( /jetpack\//, '' );
 
-	if (
-		! betaExtensions ||
-		( ! betaExtensions.includes( name ) && ! betaExtensions.includes( cleanName ) )
-	) {
+	return betaExtensions.includes( name ) || betaExtensions.includes( cleanName );
+}
+
+function labelBlocksTitle( settings, name ) {
+	if ( ! isBetaExtension( name ) ) {
 		return settings;
 	}
 
