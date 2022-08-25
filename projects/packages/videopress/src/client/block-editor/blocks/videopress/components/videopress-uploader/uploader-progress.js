@@ -140,6 +140,7 @@ const UploaderProgress = ( {
 	completed,
 	onPauseOrResume,
 	onDone,
+	supportPauseOrResume,
 } ) => {
 	const [
 		handleVideoFrameSelected,
@@ -155,7 +156,9 @@ const UploaderProgress = ( {
 	const cssWidth = { width: `${ roundedProgress }%` };
 	const resumeText = __( 'Resume', 'jetpack-videopress-pkg' );
 	const pauseText = __( 'Pause', 'jetpack-videopress-pkg' );
-	const fileSizeLabel = filesize( file?.size );
+
+	// Support File from library or File instance
+	const fileSizeLabel = file?.filesizeHumanReadable ?? filesize( file?.size );
 
 	return (
 		<PlaceholderWrapper disableInstructions>
@@ -200,13 +203,15 @@ const UploaderProgress = ( {
 									</div>
 									<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
 								</div>
-								<div className="videopress-uploader-progress__actions">
-									{ roundedProgress < 100 && (
-										<Button variant="link" onClick={ onPauseOrResume }>
-											{ paused ? resumeText : pauseText }
-										</Button>
-									) }
-								</div>
+								{ supportPauseOrResume && (
+									<div className="videopress-uploader-progress__actions">
+										{ roundedProgress < 100 && (
+											<Button variant="link" onClick={ onPauseOrResume }>
+												{ paused ? resumeText : pauseText }
+											</Button>
+										) }
+									</div>
+								) }
 							</>
 						) : (
 							<>

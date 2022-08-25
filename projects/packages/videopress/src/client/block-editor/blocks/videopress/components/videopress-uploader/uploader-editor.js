@@ -34,7 +34,9 @@ const Poster = ( { file, videoPosterImageData, onVideoFrameSelected } ) => {
 	const hasPosterImage = Boolean( videoPosterImageData?.url );
 
 	useEffect( () => {
-		videoPlayer.current.src = URL.createObjectURL( file );
+		// Support File from library or File instance
+		const src = file?.url ?? URL.createObjectURL( file );
+		videoPlayer.current.src = src;
 	}, [ file ] );
 
 	const onDurationChange = event => {

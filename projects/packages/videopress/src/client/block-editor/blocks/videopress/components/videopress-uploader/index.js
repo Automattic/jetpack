@@ -149,33 +149,28 @@ const VideoPressUploader = ( {
 		apiFetch( { path, method: 'POST' } )
 			.then( result => {
 				if ( 'uploading' === result.status ) {
-					setUploadingProgress( result.bytes_uploaded, result.file_size );
 					startUploadFromLibrary( attachmentId );
-					return;
 				} else if ( 'complete' === result.status ) {
-					const guid = result.uploaded_details.guid;
-					const videoUrl = `https://videopress.com/v/${ guid }`;
-					if ( getGuidFromVideoUrl( videoUrl ) ) {
-						return onSelectURL( videoUrl );
-					}
+					handleUploadSuccess( {
+						guid: result.uploaded_details.guid,
+						id: result.uploaded_details.media_id,
+						src: result.uploaded_details.src,
+					} );
 				} else if ( 'error' === result.status ) {
 					setUploadErrorDataState( {
 						data: { message: result.error },
 					} );
-					return;
 				} else {
 					setUploadErrorDataState( {
 						// Should never happen.
 						data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
 					} );
-					return;
 				}
 			} )
 			.catch( error => {
 				setUploadErrorDataState( {
 					data: { message: error.message },
 				} );
-				return;
 			} );
 	};
 
@@ -209,24 +204,25 @@ const VideoPressUploader = ( {
 		if ( media.videopress_guid ) {
 			const videoGuid = media.videopress_guid[ 0 ];
 			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
-			if ( getGuidFromVideoUrl( videoUrl ) ) {
-				return onSelectURL( videoUrl );
-			}
-		} else if ( media.id ) {
+			onSelectURL( videoUrl );
+			return;
+		}
+
+		// Handle selection of Media Library regular attachment
+		if ( media.id ) {
 			const path = `videopress/v1/upload/${ media.id }`;
 
 			apiFetch( { path, method: 'GET' } )
 				.then( result => {
 					if ( 'new' === result.status || 'resume' === result.status ) {
-						setFile( {
-							size: result.file_size,
-							name: result.file_name,
-						} );
-						setUploadingProgress( result.bytes_uploaded, result.file_size );
+						setFile( media );
+						// We set it to 100% since the first step (uploading from computer) is already made.
+						setUploadingProgress( result.file_size, result.file_size );
+						setIsUploadingInProgress( true );
 						startUploadFromLibrary( media.id );
 					} else if ( 'uploaded' === result.status ) {
 						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
-						return onSelectURL( videoUrl );
+						onSelectURL( videoUrl );
 					} else {
 						setUploadErrorDataState( {
 							data: {
@@ -235,21 +231,21 @@ const VideoPressUploader = ( {
 									: __( 'Error selecting video. Please try again.', 'jetpack-videopress-pkg' ),
 							},
 						} );
-						return;
 					}
 				} )
 				.catch( error => {
 					setUploadErrorDataState( {
 						data: { message: error.message },
 					} );
-					return;
 				} );
+
+			return;
 		}
 
 		setUploadErrorDataState( {
 			data: {
 				message: __(
-					'Please select a VideoPress video from Library or upload a new one',
+					'Please select a video from Library or upload a new one',
 					'jetpack-videopress-pkg'
 				),
 			},
@@ -285,6 +281,7 @@ const VideoPressUploader = ( {
 				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
 				onDone={ handleDoneUpload }
+				supportPauseOrResume={ Boolean( tusUploader?.current ) }
 			/>
 		);
 	}
