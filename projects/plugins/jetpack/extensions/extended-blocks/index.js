@@ -30,6 +30,7 @@ function labelBlocksTitle( settings, name ) {
 	return {
 		...settings,
 		title: `${ settings.title } (beta)`,
+		kewords: [ ...settings.keywords, 'beta' ],
 	};
 }
 
