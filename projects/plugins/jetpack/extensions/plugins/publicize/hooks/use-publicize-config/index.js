@@ -39,23 +39,11 @@ export default function usePublicizeConfig() {
 	const isPublicizeEnabled =
 		( isPostPublished && ! isRePublicizeFeatureEnabled ) || isPublicizeEnabledMeta;
 
-	/*
-	 * hideRePublicizeFeature:
-	 * When the site doesn't have the feature available
-	 * because of the lack of site plan and/or product,
-	 * when it is not upgradable via an upsell,
-	 * and when the post is already published,
-	 * it needs to hide part of the Publicize feature.
-	 */
-	const hideRePublicizeFeature =
-		isPostPublished && ! isRePublicizeFeatureAvailable && isRePublicizeFeatureEnabled;
-
 	return {
 		isPublicizeEnabledMeta,
 		isRePublicizeFeatureEnabled,
 		isPublicizeEnabled,
 		togglePublicizeFeature,
 		isRePublicizeFeatureAvailable,
-		hideRePublicizeFeature,
 	};
 }
