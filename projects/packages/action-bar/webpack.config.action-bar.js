@@ -43,7 +43,6 @@ module.exports = {
 			react: require.resolve( 'preact/compat' ),
 			'react-dom/test-utils': require.resolve( 'preact/test-utils' ),
 			'react-dom': require.resolve( 'preact/compat' ), // Must be below test-utils
-			fs: false,
 		},
 	},
 	node: false,

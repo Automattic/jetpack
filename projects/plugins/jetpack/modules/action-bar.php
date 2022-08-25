@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Action Bar
+ * Module Name: (Experimental) Action Bar
  * Module Description: An easy to use way for visits to follow, like, and comment on your site.
  * Sort Order: 40
  * Recommendation Order: 18

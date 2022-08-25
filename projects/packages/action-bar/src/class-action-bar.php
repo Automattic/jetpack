@@ -21,21 +21,36 @@ class Action_Bar {
 
 		Assets::register_script(
 			'jetpack-action-bar',
-			'build/action-bar.js',
-			dirname( __DIR__ ) . DIRECTORY_SEPARATOR . 'src', // A full path to a file or a directory inside a plugin.
+			'../build/action-bar.js',
+			__FILE__, // A full path to a file or a directory inside a plugin.
 			array(
 				'dependencies' => array( 'wp-i18n' ),
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-action-bar',
+				'enqueue'      => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-action-bar' );
+
+		$action_bar_data = 'window.WpcomActionBar = ' . wp_json_encode(
+			array(
+				'siteId'    => '123',
+				'siteURL'   => 'example.blog',
+				'siteTitle' => 'Site title',
+				'nonce'     => 'nonce',
+			)
+		);
+
+		wp_add_inline_script( 'jetpack-action-bar', $action_bar_data, 'before' );
 	}
 
 	/**
 	 * Render app container html.
 	 */
 	public function print_html() {
+		if ( is_admin() || ! is_single() ) {
+			return;
+		}
+
 		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
 	}
 
