@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Licensing: do not enable the Licensing UI if My Jetpack cannot be enabled.

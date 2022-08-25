@@ -547,7 +547,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
@@ -690,7 +690,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>

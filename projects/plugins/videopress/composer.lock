@@ -1250,7 +1250,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "c51d7be56302465b2a37110ad9e560431e200c3a"
+                "reference": "1ded544062685b62c0fcb5c54926a6ff1ff5a288"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1260,6 +1260,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
+                "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -1302,6 +1303,9 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [

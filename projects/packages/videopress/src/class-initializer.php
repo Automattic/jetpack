@@ -106,6 +106,7 @@ class Initializer {
 	private static function active_initialization() {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
+		Uploader_Rest_Endpoints::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
 			Admin_UI::init();
