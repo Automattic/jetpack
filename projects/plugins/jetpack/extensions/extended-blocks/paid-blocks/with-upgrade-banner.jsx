@@ -11,14 +11,14 @@ import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
-	BlockListBlock => props => {
+	BlockEdit => props => {
 		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
 		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
 
 		const requiredPlan = getRequiredPlan( name );
 
 		if ( ! requiredPlan ) {
-			return <BlockListBlock { ...props } />;
+			return <BlockEdit { ...props } />;
 		}
 
 		const isDualMode = isStillUsableWithFreePlan( name );
@@ -105,9 +105,9 @@ export default createHigherOrderComponent(
 
 		return (
 			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible } hasParentBanner>
-				<BlockListBlock { ...props } />
+				<BlockEdit { ...props } />
 			</PaidBlockProvider>
 		);
 	},
-	'withPaidBlockProvider'
+	'withUpgradeBanner'
 );
