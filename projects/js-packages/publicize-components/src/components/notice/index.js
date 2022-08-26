@@ -10,7 +10,7 @@ const Notice = ( { children, type = 'default' } ) => {
 
 Notice.propTypes = {
 	children: PropTypes.node.isRequired,
-	type: PropTypes.oneOf( [ 'default', 'warning' ] ),
+	type: PropTypes.oneOf( [ 'default', 'warning', 'error' ] ),
 };
 
 export default Notice;
