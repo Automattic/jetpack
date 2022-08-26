@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/i18n-loader-webpack-plugin",
-	"version": "2.0.17-alpha",
+	"version": "2.0.17",
 	"description": "A Webpack plugin to load WordPress i18n when Webpack lazy-loads a bundle.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-loader-webpack-plugin/#readme",
 	"bugs": {
