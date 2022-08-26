@@ -52,37 +52,35 @@ const PublicizePanel = ( { prePublish } ) => {
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
-			<Fragment>
-				{ ! isPostPublished && (
-					<PanelRow>
-						<ToggleControl
-							className="jetpack-publicize-toggle"
-							label={
-								isPublicizeEnabled
-									? __( 'Share when publishing', 'jetpack' )
-									: __(
-											'Sharing is disabled',
-											'jetpack',
-											/* dummy arg to avoid bad minification */ 0
-									  )
-							}
-							onChange={ togglePublicizeFeature }
-							checked={ isPublicizeEnabled }
-							disabled={ ! hasConnections }
-						/>
-					</PanelRow>
-				) }
+			{ ! isPostPublished && (
+				<PanelRow>
+					<ToggleControl
+						className="jetpack-publicize-toggle"
+						label={
+							isPublicizeEnabled
+								? __( 'Share when publishing', 'jetpack' )
+								: __(
+										'Sharing is disabled',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  )
+						}
+						onChange={ togglePublicizeFeature }
+						checked={ isPublicizeEnabled }
+						disabled={ ! hasConnections }
+					/>
+				</PanelRow>
+			) }
 
-				<PublicizeConnectionVerify />
-				<PublicizeForm
-					isPublicizeEnabled={ isPublicizeEnabled }
-					isRePublicizeFeatureEnabled={ true }
-					isPublicizeDisabledBySitePlan={ false }
-				/>
-				{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
+			<PublicizeConnectionVerify />
+			<PublicizeForm
+				isPublicizeEnabled={ isPublicizeEnabled }
+				isRePublicizeFeatureEnabled={ true }
+				isPublicizeDisabledBySitePlan={ false }
+			/>
+			{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 
-				<SharePostRow />
-			</Fragment>
+			<SharePostRow />
 		</PanelWrapper>
 	);
 };
