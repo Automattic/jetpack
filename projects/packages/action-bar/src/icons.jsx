@@ -46,16 +46,16 @@ export const FollowIcon = () => (
 		<path
 			d="M12 8V16"
 			stroke="#646970"
-			stroke-width="1.5"
-			stroke-linecap="square"
-			stroke-linejoin="round"
+			strokeWidth="1.5"
+			strokeLinecap="square"
+			strokeLinejoin="round"
 		/>
 		<path
 			d="M8 12H16"
 			stroke="#646970"
-			stroke-width="1.5"
-			stroke-linecap="square"
-			stroke-linejoin="round"
+			strokeWidth="1.5"
+			strokeLinecap="square"
+			strokeLinejoin="round"
 		/>
 		<rect
 			x="3"
@@ -64,8 +64,8 @@ export const FollowIcon = () => (
 			height="18"
 			rx="2"
 			stroke="#646970"
-			stroke-width="1.5"
-			stroke-linejoin="bevel"
+			strokeWidth="1.5"
+			strokeLinejoin="bevel"
 		/>
 	</svg>
 );
@@ -83,8 +83,8 @@ export const StarIcon = () => (
 		<path
 			d="M12 3L14.9355 9.40221H21.5L16 14.489L17.871 21L12 17.625L6.129 21L8 14.489L2.5 9.40221H5.78225H9.0645L12 3Z"
 			stroke="#646970"
-			stroke-width="1.5"
-			stroke-linecap="round"
+			strokeWidth="1.5"
+			strokeLinecap="round"
 		/>
 	</svg>
 );

@@ -700,17 +700,21 @@ importers:
       '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.6.0
+      '@wordpress/element': 4.10.0
       '@wordpress/i18n': 4.12.0
       core-js: 3.23.5
-      preact: 10.5.15
+      react: 17.0.2
+      react-dom: 17.0.2
       sass: 1.54.4
       sass-loader: 12.4.0
       webpack: 5.72.1
       webpack-cli: 4.9.1
       wp-prettier: npm:wp-prettier@2.0.5
     dependencies:
+      '@wordpress/element': 4.10.0
       '@wordpress/i18n': 4.12.0
-      preact: 10.5.15
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.18.6
@@ -9126,7 +9130,7 @@ packages:
   /axios/0.26.1:
     resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
     dependencies:
-      follow-redirects: 1.15.1_debug@4.3.4
+      follow-redirects: 1.15.1
     transitivePeerDependencies:
       - debug
 
@@ -12473,6 +12477,15 @@ packages:
       tabbable: 5.3.3
     dev: false
 
+  /follow-redirects/1.15.1:
+    resolution: {integrity: sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+
   /follow-redirects/1.15.1_debug@4.3.4:
     resolution: {integrity: sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==}
     engines: {node: '>=4.0'}
@@ -12483,6 +12496,7 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
+    dev: true
 
   /for-in/1.0.2:
     resolution: {integrity: sha512-7EwmXrOjyL+ChxMhmG5lnW9MPt1aIeZEwKhQzoBUdTV0N3zuwWDZYVJatDvZ2OyzPUvdIAZDsCetk3coyMfcnQ==}
