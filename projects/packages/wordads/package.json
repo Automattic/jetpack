@@ -81,7 +81,7 @@
 		"jest-environment-jsdom": "28.1.0",
 		"postcss": "8.4.16",
 		"postcss-loader": "6.2.0",
-		"prettier": "npm:wp-prettier@2.0.5",
+		"prettier": "npm:wp-prettier@2.6.2",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
 		"size-limit": "6.0.4",
