@@ -2,6 +2,7 @@
 
 .is-beta-extension {
 	position: relative;
+	box-shadow: 0 0 3px var( --jp-green-30 );
 
 	&::before {
 		content: 'BETA';
