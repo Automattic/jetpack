@@ -22,9 +22,5 @@
 	&:focus,
 	&:hover {
 		box-shadow: 0 0 10px solid var( --jp-green-30 );
-
-		&::before {
-			display: none;
-		}
 	}
 }
