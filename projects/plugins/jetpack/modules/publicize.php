@@ -79,8 +79,8 @@ class Jetpack_Publicize {
 			);
 		} else {
 			global $publicize;
-			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
-			require_once __DIR__ . '/publicize/publicize-wpcom.php';
+			require_once WP_CONTENT_DIR . '/mu-plugins/keyring/keyring.php';
+			require_once WP_CONTENT_DIR . '/admin-plugins/publicize/publicize-wpcom.php';
 			$publicize    = new Publicize();
 			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 		}
