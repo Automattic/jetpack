@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.21] - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
 ## [0.8.20] - 2022-08-23
 ### Changed
 - Updated package dependencies. [#25338, #25339, #25628, #25762]
@@ -256,6 +260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.8.21]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.20...v0.8.21
 [0.8.20]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.19...v0.8.20
 [0.8.19]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.18...v0.8.19
 [0.8.18]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.17...v0.8.18

@@ -97,11 +97,12 @@ async function getNotificationData( isFailure ) {
 		const { url, id, message } = payload.head_commit;
 		target = `on ${ refType } _*${ refName }*_`;
 		msgId = `commit-${ id }`;
+		const truncatedMessage = message.length > 50 ? message.substring( 0, 48 ) + '...' : message;
 
 		contextElements.push(
 			{
 				type: 'plain_text',
-				text: `Commit: ${ id.substring( 0, 8 ) } ${ message }`,
+				text: `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }`,
 				emoji: false,
 			},
 			{
