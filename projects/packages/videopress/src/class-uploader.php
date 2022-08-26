@@ -276,13 +276,13 @@ class Uploader {
 
 		if ( $this->is_uploaded() ) {
 			$uploaded_attachment_id = $this->get_uploaded_attachment_id();
-			$uploaded_video_guid    = get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true );
+			$uploaded_video_guid    = get_post_meta( $uploaded_attachment_id, 'videopress_guid', true );
 			if ( $uploaded_video_guid ) {
 				return array(
 					'status'              => 'uploaded',
 					'upload_key'          => $this->get_key(),
-					'uploaded_post_id'    => $this->get_uploaded_attachment_id(),
-					'uploaded_video_guid' => get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true ),
+					'uploaded_post_id'    => $uploaded_attachment_id,
+					'uploaded_video_guid' => $uploaded_video_guid,
 				);
 			} else {
 				// VideoPress attachment is gone, allow user to upload it again.
