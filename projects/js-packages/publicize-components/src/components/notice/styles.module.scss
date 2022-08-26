@@ -1,15 +1,28 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .notice {
-	color: #757575;
 	margin-bottom: 16px;
 }
 
-.notice--warning {
+.notice--default {
+	color: $gray-700;
+}
+
+.notice--warning,
+.notice--error {
 	padding: 8px 16px;
-	color: #4f3500;
-	background-color: #f5f1e1;
-	border-left: 2px solid #f0c930;
 
 	a {
 		color: inherit;
 	}
+}
+
+.notice--warning {
+	background-color: lighten( $alert-yellow, 35% );
+	border-left: 2px solid $alert-yellow;
+}
+
+.notice--error {
+	background-color: lighten( $alert-red, 35% );
+	border-left: 2px solid $alert-red;
 }
