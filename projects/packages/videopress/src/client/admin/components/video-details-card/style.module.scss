@@ -15,6 +15,7 @@
 
 	.thumbnail button.thumbnail__edit-button {
 		padding: var( --spacing-base );
+
 		> svg {
 			margin: 0;
 		}
@@ -27,12 +28,12 @@
 		border-radius: var( --jp-border-radius );
 		width: 100%;
 	}
+}
 
-	button.thumbnail__edit-button {
-		position: absolute;
-		top: var( --spacing-base );
-		right: var( --spacing-base );
-	}
+.video-details-card__edit-button-container {
+	position: absolute;
+	top: var( --spacing-base );
+	right: var( --spacing-base );
 }
 
 .details {
