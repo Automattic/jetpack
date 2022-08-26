@@ -38,7 +38,7 @@ function labelBlocksTitle( settings, name ) {
 	};
 }
 
-addFilter( 'blocks.registerBlockType', 'jetpack/label-blocks-title', labelBlocksTitle );
+addFilter( 'blocks.registerBlockType', 'jetpack/label-beta-blocks-title', labelBlocksTitle );
 
 const withBetaClassName = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -51,4 +51,4 @@ const withBetaClassName = createHigherOrderComponent( BlockListBlock => {
 	};
 }, 'withBetaClassName' );
 
-addFilter( 'editor.BlockListBlock', 'my-plugin/with-client-id-class-name', withBetaClassName );
+addFilter( 'editor.BlockListBlock', 'jetpack/label-beta-extensions', withBetaClassName );
