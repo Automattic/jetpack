@@ -630,11 +630,20 @@ class Search_Widget extends \WP_Widget {
 		$new_instance = $this->maybe_reformat_widget( $new_instance );
 		$instance     = array();
 
-		$instance['title']              = sanitize_text_field( $new_instance['title'] );
-		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
-		$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
-		$instance['sort']               = empty( $new_instance['sort'] ) ? self::DEFAULT_SORT : $new_instance['sort'];
-		$instance['post_types']         = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
+		$instance['title'] = sanitize_text_field( $new_instance['title'] );
+
+		// Keep `search_box_enabled` and `user_sort_enabled` settings when updating widget on Instant Search
+		// Set `search_box_enabled` and `user_sort_enabled` default to '1' when createing a NEW widget
+		if ( Options::is_instant_enabled() ) {
+			$instance['search_box_enabled'] = empty( $old_instance ) ? '1' : $old_instance['search_box_enabled'];
+			$instance['user_sort_enabled']  = empty( $old_instance ) ? '1' : $old_instance['user_sort_enabled'];
+		} else {
+			$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
+			$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
+		}
+
+		$instance['sort']       = empty( $new_instance['sort'] ) ? self::DEFAULT_SORT : $new_instance['sort'];
+		$instance['post_types'] = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
 			? array()
 			: array_map( 'sanitize_key', $new_instance['post_types'] );
 
