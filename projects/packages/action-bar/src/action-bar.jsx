@@ -1,7 +1,8 @@
-import { render } from 'preact';
+import { Button } from '@wordpress/components';
+import { render } from 'react-dom';
 // This must be loaded otherwise the production build fails with a cryptic error message.
 // eslint-disable-next-line no-unused-vars
-import * as Redux from 'react-redux';
+// import * as Redux from 'react-redux';
 import { CommentIcon, EllipsisIcon, FollowIcon, StarIcon } from './icons';
 import './action-bar.scss';
 
@@ -9,24 +10,24 @@ const ActionBar = () => {
 	return (
 		<ul className="jetpack-action-bar__action-list">
 			<li>
-				<button class="jetpack-action-bar__action-button">
+				<Button className="jetpack-action-bar__action-button">
 					<EllipsisIcon />
-				</button>
+				</Button>
 			</li>
 			<li>
-				<button class="jetpack-action-bar__action-button">
+				<Button className="jetpack-action-bar__action-button">
 					<CommentIcon />
-				</button>
+				</Button>
 			</li>
 			<li>
-				<button class="jetpack-action-bar__action-button">
+				<Button className="jetpack-action-bar__action-button">
 					<StarIcon />
-				</button>
+				</Button>
 			</li>
 			<li>
-				<button class="jetpack-action-bar__action-button">
+				<Button className="jetpack-action-bar__action-button">
 					<FollowIcon />
-				</button>
+				</Button>
 			</li>
 		</ul>
 	);
