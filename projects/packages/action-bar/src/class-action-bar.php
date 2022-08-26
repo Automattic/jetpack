@@ -24,12 +24,22 @@ class Action_Bar {
 			'build/action-bar.js',
 			dirname( __DIR__ ) . DIRECTORY_SEPARATOR . 'src', // A full path to a file or a directory inside a plugin.
 			array(
-				'dependencies' => array( 'wp-i18n' ),
+				'dependencies' => array(),
 				'in_footer'    => true,
-				'textdomain'   => 'jetpack-action-bar',
+				'enqueue'      => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-action-bar' );
+
+		wp_localize_script(
+			'jetpack-action-bar',
+			'jetpackActionBar',
+			array(
+				'commentTitle' => esc_html__( 'Leave a comment', 'jetpack-action-bar' ),
+				'more'         => esc_html__( 'More options', 'jetpack-action-bar' ),
+				'follow'       => esc_html__( 'Follow site', 'jetpack-action-bar' ),
+				'like'         => esc_html__( 'Like this post', 'jetpack-action-bar' ),
+			)
+		);
 	}
 
 	/**
