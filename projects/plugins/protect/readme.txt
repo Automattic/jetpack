@@ -4,7 +4,7 @@ Tags: jetpack, protect, security, malware, scan
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,7 +109,17 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.2 - 2022-07-27
+### 1.0.3 - 2022-08-26
+#### Added
+- Added a default 'See all results' label to the mobile navigation button.
+- Added a spinner to the in progress scan page in admin
+- Added JITM functionality
+- Added threat descriptions.
+- My Jetpack includes JITMs
+
+#### Changed
+- Add condition to check plugin activation context before redirecting
+
 #### Fixed
-- Admin toolbar: ensure the toolbar icon is properly displayed, even when the Jetpack plugin is enabled and connected.
-- General: avoid PHP notices when fetching reports about your site.
+- Fixed alignment of long navigation item labels on mobile screen sizes.
+
