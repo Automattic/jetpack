@@ -29,6 +29,8 @@ export const PlaceholderWrapper = withNotices( function ( {
 	errorMessage,
 	noticeUI,
 	noticeOperations,
+	instructions = description,
+	disableInstructions,
 } ) {
 	useEffect( () => {
 		if ( ! errorMessage ) {
@@ -43,8 +45,7 @@ export const PlaceholderWrapper = withNotices( function ( {
 		<Placeholder
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			label={ title }
-			instructions={ description }
-			className="videopress-uploader is-videopress-placeholder"
+			instructions={ disableInstructions ? null : instructions }
 			notices={ noticeUI }
 		>
 			{ children }
@@ -225,15 +226,29 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		isRequestingEmbedPreview,
 	] );
 
-	const blockProps = useBlockProps( {
-		className: classNames( 'wp-block-jetpack-videopress', {
-			[ `align${ align }` ]: align,
-			'is-updating-preview': ! previewHtml,
-		} ),
+	const { className: blockMainClassName, ...blockProps } = useBlockProps( {
+		className: 'wp-block-jetpack-videopress',
 	} );
 
-	if ( ! isRequestingEmbedPreview && ! videoPressUrl ) {
-		return <VideoPressUploader setAttributes={ setAttributes } attributes={ attributes } />;
+	// Handling all the upload/select file step
+	// This is the first action for the user
+
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! attributes?.guid );
+
+	if ( isUploadingFile ) {
+		const handleDoneUpload = () => {
+			setIsUploadingFile( false );
+		};
+
+		return (
+			<div { ...blockProps } className={ blockMainClassName }>
+				<VideoPressUploader
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+					handleDoneUpload={ handleDoneUpload }
+				/>
+			</div>
+		);
 	}
 
 	// Generating video preview.
@@ -243,44 +258,54 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
 		return (
-			<PlaceholderWrapper>
-				<Spinner />
-				{ __( 'Generating preview…', 'jetpack-videopress-pkg' ) }
-				<strong> { generatingPreviewCounter }</strong>
-			</PlaceholderWrapper>
+			<div { ...blockProps } className={ blockMainClassName }>
+				<PlaceholderWrapper>
+					<Spinner />
+					{ __( 'Generating preview…', 'jetpack-videopress-pkg' ) }
+					<strong> { generatingPreviewCounter }</strong>
+				</PlaceholderWrapper>
+			</div>
 		);
 	}
 
 	// 5 - Generating video preview failed.
 	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
 		return (
-			<PlaceholderWrapper
-				errorMessage={ __(
-					'Impossible to get a video preview after ten attempts.',
-					'jetpack-videopress-pkg'
-				) }
-				onNoticeRemove={ invalidateResolution }
-			>
-				<div className="videopress-uploader__error-actions">
-					<Button variant="primary" onClick={ invalidateResolution }>
-						{ __( 'Try again', 'jetpack-videopress-pkg' ) }
-					</Button>
-					<Button
-						variant="secondary"
-						onClick={ () => {
-							setAttributes( { src: undefined, id: undefined, guid: undefined } );
-						} }
-					>
-						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
-					</Button>
-				</div>
-			</PlaceholderWrapper>
+			<div { ...blockProps } className={ blockMainClassName }>
+				<PlaceholderWrapper
+					errorMessage={ __(
+						'Impossible to get a video preview after ten attempts.',
+						'jetpack-videopress-pkg'
+					) }
+					onNoticeRemove={ invalidateResolution }
+				>
+					<div className="videopress-uploader__error-actions">
+						<Button variant="primary" onClick={ invalidateResolution }>
+							{ __( 'Try again', 'jetpack-videopress-pkg' ) }
+						</Button>
+						<Button
+							variant="secondary"
+							onClick={ () => {
+								setAttributes( { src: undefined, id: undefined, guid: undefined } );
+							} }
+						>
+							{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</div>
+				</PlaceholderWrapper>
+			</div>
 		);
 	}
 
 	// X - Show VideoPress player. @todo: finish
 	return (
-		<div { ...blockProps }>
+		<div
+			{ ...blockProps }
+			className={ classNames( blockMainClassName, {
+				[ `align${ align }` ]: align,
+				'is-updating-preview': ! previewHtml,
+			} ) }
+		>
 			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
 			<PosterImageBlockControl
 				attributes={ attributes }
