@@ -242,16 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.3-a.3 - 2022-08-09
+### 11.3-a.9 - 2022-08-23
 #### Enhancements
-- Payments block: use Block API v2 to simplify the overall markup.
-- Payments block: ensure the plan name field will update according to the other options selected, unless it's already been modified.
+- Payments block: add new container block to support using multiple inline Payment Button blocks.
+- VideoPress block (beta): add support to pause/resume video upload.
 
 #### Improved compatibility
-- Backup: add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page.
+- Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour.
 
 #### Bug fixes
-- WordPress.com REST API: add missing site owner id to single site REST API response.
+- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified.
+- Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly.
+- Dashboard Widget: do not show the stats configuration links when the feature is inactive.
 
 --------
 

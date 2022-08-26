@@ -5,14 +5,15 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
+		"automattic/jetpack-connection": "^1.43",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
-		"automattic/jetpack-sync": "1.37.x-dev",
-		"automattic/jetpack-videopress": "0.1.x-dev"
+		"automattic/jetpack-sync": "1.38.x-dev",
+		"automattic/jetpack-plugins-installer": "0.2.x-dev",
+		"automattic/jetpack-videopress": "0.2.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
@@ -24,28 +25,7 @@
 			"src/"
 		]
 	},
-	"scripts": {
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"pnpm run build-production-concurrently"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
-	},
+	"scripts": {},
 	"repositories": [
 		{
 			"type": "path",
@@ -69,6 +49,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ0_1_1_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ0_2_0_alpha"
 	}
 }

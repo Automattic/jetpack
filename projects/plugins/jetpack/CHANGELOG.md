@@ -2,6 +2,62 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3-a.11 - 2022-08-23
+### Bug fixes
+- Carousel: remove errant '<' character being displayed. [#25795]
+
+## 11.3-a.9 - 2022-08-23
+### Enhancements
+- Payments block: add new container block to support using multiple inline Payment Button blocks. [#25297]
+- VideoPress block (beta): add support to pause/resume video upload. [#25392]
+
+### Improved compatibility
+- Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour. [#25709]
+
+### Bug fixes
+- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified. [#25410]
+- Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly. [#25441]
+- Dashboard Widget: do not show the stats configuration links when the feature is inactive. [#25653]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: add Pocket Casts as oEmbed provider. [#25696]
+- Doc update: add information about block deprecation. [#25735]
+- E2E tests: bump dependencies. [#25725]
+- JITMs added to My Jetpack [#22452]
+- Licenses: fix issue in the license activation notice banner that appears even after being dismissed. [#25269]
+- Recommendations: add a new recommendation for backups. [#25446]
+- Recommendations: add a recommendation for Jetpack Boost. [#25431]
+- SAL: bring Jetpack files in sync with WordPress.com files. [#25639]
+- Admin: sync class-wpcom-admin-menu file. [#25726]
+- Updated package dependencies. [#25338]
+- VideoPress: ensure that the player's resources are only loaded when necessary, when a video was added to the page. [#24985]
+- VideoPress: fix VideoPress pkg version. [#25683]
+
+## 11.3-a.7 - 2022-08-17
+### Bug fixes
+- VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors. [#25660]
+
+## 11.3-a.5 - 2022-08-16
+### Enhancements
+- Payments block: add a new `useWidth` hook to control the width settings of a block. [#25394]
+- Google Analytics: add support for the DNT sent by the browser. [#25423]
+- Dashboard: add new card to highlight options available to WordPress agencies. [#25041]
+
+### Improved compatibility
+- VideoPress: minify videopress-token-bridge. [#25354]
+- Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser. [#25448]
+
+### Bug fixes
+- Carousel: resolve a PHP warning when non-attachments are processed. [#25400]
+- Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license. [#25395]
+- Calendly block: update the embed options link. [#25442]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- P2: Hide Jetpack menu for all p2 spaces/hubs. [#25405]
+- VideoPress: migrate code from the plugin to the package. [#25412]
+- VideoPress: move dependencies to the package. [#25398]
+- Updated package dependencies. [#25433]
+
 ## 11.3-a.3 - 2022-08-09
 ### Enhancements
 - Payments block: use Block API v2 to simplify the overall markup. [#25384]

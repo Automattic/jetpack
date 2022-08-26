@@ -17,6 +17,7 @@ body:
         - Protect
         - Search
         - Social
+        - Super Cache
         - VaultPress
         - None / Other
       multiple: true

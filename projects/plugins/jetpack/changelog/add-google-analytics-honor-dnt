@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Added support for the Google Analytics feature to honor the DNT sent by the browser. It is enabled by filtering `jetpack_honor_dnt_header_for_wga` to true.
