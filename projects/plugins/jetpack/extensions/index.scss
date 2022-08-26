@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/style';
+
 .is-beta-extension {
 	position: relative;
 
@@ -10,7 +12,7 @@
 		line-height: 24px;
 		font-size: 11px;
 		padding: 0 5px;
-		background-color: #f0b849;
+		background-color: var( --jp-green-30 );
 		color: white;
 		border-radius: 4px;
 		font-weight: 600;
@@ -19,7 +21,7 @@
 
 	&:focus,
 	&:hover {
-		box-shadow: 0 0 10px solid #f0b849;
+		box-shadow: 0 0 10px solid var( --jp-green-30 );
 
 		&::before {
 			display: none;
