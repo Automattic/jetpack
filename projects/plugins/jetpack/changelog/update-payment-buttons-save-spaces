@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Remove spaces from saved style attribute of the Payment buttons block since they are trimmered on post save and can cause an invalidation issue
+
+
