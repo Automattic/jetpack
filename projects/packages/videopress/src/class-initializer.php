@@ -153,7 +153,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_videopress_block() {
-		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/videopress/block.json';
+		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/video/block.json';
 		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
 		if ( ! $videopress_video_metadata_file_exists ) {
 			return;
@@ -170,6 +170,6 @@ class Initializer {
 			return;
 		}
 
-		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+		register_block_type( $videopress_video_metadata_file );
 	}
 }
