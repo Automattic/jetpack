@@ -108,6 +108,10 @@ function wpsc_admin_bar_delete_cache() {
 	$req_path = isset( $_POST['path'] ) ? sanitize_text_field( stripslashes( $_POST['path'] ) ) : '';
 	$valid_nonce = ( $req_path && isset( $_POST['nonce'] ) ) ? wp_verify_nonce( $_POST['nonce'], 'delete-cache-' . $_POST['path'] . '_' . $_POST['admin'] ) : false;
 
+	if ($valid_nonce) {
+		do_action('after_wpsc_delete_cache_directory', $req_path, $referer);
+	}
+
 	if ( $valid_nonce && $referer && $req_path && ( false !== stripos( $referer, $req_path ) || 0 === stripos( $referer, wp_login_url() ) ) ) {
 		if ( $_POST['admin'] ) {
 			wp_safe_redirect( $referer );
