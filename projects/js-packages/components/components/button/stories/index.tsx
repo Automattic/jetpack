@@ -72,7 +72,7 @@ export default {
 		variant: {
 			control: {
 				type: 'select',
-				options: [ 'primary', 'secondary', 'link' ],
+				options: [ 'primary', 'secondary', 'tertiary', 'link' ],
 			},
 		},
 		size: {
