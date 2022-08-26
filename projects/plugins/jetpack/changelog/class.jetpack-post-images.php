@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Post Images: Ensure $post is a WP_Post instance.
+Post Images: avoid PHP notices when fetching images from posts with missing metadata.
