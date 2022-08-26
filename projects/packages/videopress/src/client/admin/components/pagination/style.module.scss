@@ -1,0 +1,12 @@
+.wrapper {
+	display: flex;
+	align-items: center;
+
+	.navigation span {
+		display: flex;
+	}
+
+	.button:not(.selected):disabled {
+		background-color: unset;
+	}
+}
