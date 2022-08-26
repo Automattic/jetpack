@@ -1,4 +1,3 @@
 Significance: patch
 Type: bugfix
-
-Minor WP.com only change to fix the position of the paid blocks upgrade banners when there is not enough width
+Comment: Minor WP.com-only enhancement that improves how the upgrade banner for paid blocks is rendered.
