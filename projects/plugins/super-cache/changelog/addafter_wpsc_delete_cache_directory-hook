@@ -1,1 +1,4 @@
-Added new "after_wpsc_delete_cache_directory" hook
+Significance: patch
+Type: added
+
+Cache deletion: add new hook to trigger actions after a successful cache deletion from the admin bar.
