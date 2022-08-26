@@ -104,7 +104,9 @@ class WPCOM_Features {
 	private const AKISMET_ENTERPRISE_2M_YEARLY                = 'ak_ep2m_yearly'; // 2308
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
-	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_monthly'; // 2500
+	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
+	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic'; // 2503
+	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -691,6 +693,8 @@ class WPCOM_Features {
 		 */
 		self::SOCIAL_SHARES_1000            => array(
 			self::JETPACK_SOCIAL_BASIC_MONTHLY,
+			self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY,
+			self::JETPACK_SOCIAL_BASIC,
 		),
 
 		self::SPACE                         => array(
