@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixing initialization and error handling
