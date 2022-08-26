@@ -106,8 +106,8 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'boost':
 			return {
 				activateFeature: () => {
-					restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+					return restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};
