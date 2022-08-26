@@ -103,6 +103,12 @@ addFilter( 'blocks.registerBlockType', 'jetpack/label-beta-blocks-title', setBet
 
 const withBetaClassName = createHigherOrderComponent( BlockListBlock => {
 	return props => {
+		// Do not add the label for children blocks
+		if ( props?.clientRootId ) {
+			return <BlockListBlock { ...props } />;
+		}
+
+		// Only add the label for beta blocks
 		const { name } = props;
 		if ( ! isBetaExtension( name ) ) {
 			return <BlockListBlock { ...props } />;
