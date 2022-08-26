@@ -12,7 +12,7 @@ export default function GalleryImageSave( props ) {
 
 	switch ( linkTo ) {
 		case 'media':
-			href = origUrl;
+			href = url;
 			break;
 		case 'attachment':
 			href = link;
