@@ -6,8 +6,9 @@
  * sharing message.
  */
 
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
-import { PanelRow, Disabled } from '@wordpress/components';
+import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -68,7 +69,9 @@ export default function PublicizeForm( {
 									),
 									{
 										upgradeLink: (
-											<a href={ 'https://example.com' } rel="noopener noreferrer" target="_blank" />
+											<ExternalLink
+												href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor' ) }
+											/>
 										),
 									}
 								) }
