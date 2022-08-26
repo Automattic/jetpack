@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Call ensure_options_$feature methods before the initialization
