@@ -14,6 +14,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/modules/cloudflare-analytics/',
 	'projects/plugins/jetpack/modules/google-analytics/',
 	'projects/plugins/jetpack/modules/memberships/',
+	'projects/plugins/jetpack/modules/publicize.php',
 	'projects/plugins/jetpack/modules/seo-tools/',
 	'projects/plugins/jetpack/modules/theme-tools/compat/',
 	'projects/plugins/jetpack/modules/theme-tools/site-logo.php',
