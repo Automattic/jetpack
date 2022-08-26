@@ -53,7 +53,7 @@ export default function PublicizeForm( {
 		<Wrapper>
 			{ hasConnections && (
 				<>
-					{ numberOfSharesRemaining !== null && (
+					{ ! isDisabled() && numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
 								{ createInterpolateElement(
