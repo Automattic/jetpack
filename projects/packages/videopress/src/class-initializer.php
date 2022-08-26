@@ -152,7 +152,7 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_videopress_block() {
+	public static function register_videopress_video_block() {
 		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/video/block.json';
 		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
 		if ( ! $videopress_video_metadata_file_exists ) {
