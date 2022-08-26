@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes a js error when closing a non-VideoPress video modal in the Media Library.

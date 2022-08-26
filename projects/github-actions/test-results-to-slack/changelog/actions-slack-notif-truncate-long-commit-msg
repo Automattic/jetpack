@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-E2E tests: bump dependencies
+Truncate long commit messages
