@@ -341,6 +341,7 @@ class Test_Connections_Post_Field  extends TestCase {
 	 * Test that connections are skipped when the publicize_checkbox_default filter is used.
 	 */
 	public function test_default_checkbox_filter() {
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$filter_func = function ( $default ) {
 			return false;
 		};
