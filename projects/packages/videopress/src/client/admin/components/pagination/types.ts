@@ -20,6 +20,11 @@ export type PaginationProps = {
 	total: number;
 
 	/**
+	 * The minimum number of columns to display pages and ellipses.
+	 */
+	minColumns?: number;
+
+	/**
 	 * Whether or not the component is on disabled state.
 	 */
 	disabled?: boolean;
