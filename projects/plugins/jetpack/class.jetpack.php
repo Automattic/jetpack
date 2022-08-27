@@ -687,6 +687,8 @@ class Jetpack {
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ), 20 );
 
+		add_action( 'admin_init', array( '\Automattic\Jetpack\Post_List\Post_List', 'configure' ) );
+
 		// Filter the dashboard meta box order to swap the new one in in place of the old one.
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( $this, 'get_user_option_meta_box_order_dashboard' ) );
 
