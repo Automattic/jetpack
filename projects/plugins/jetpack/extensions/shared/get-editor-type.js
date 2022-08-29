@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { select } from '@wordpress/data';
 
 export const SITE_EDITOR = 'site';

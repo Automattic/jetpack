@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { NEW_NOTICE, REMOVE_NOTICE } from '../action-types';
 
 export function globalNotices( state = [], action ) {

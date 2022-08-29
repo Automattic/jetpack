@@ -1,22 +1,8 @@
-/**
- * External dependencies
- */
+import { FormToggle } from '@wordpress/components';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-
-/**
- * WordPress dependencies
- */
-import { FormToggle } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import ConnectionIcon from '../connection-icon';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const ConnectionToggle = props => {

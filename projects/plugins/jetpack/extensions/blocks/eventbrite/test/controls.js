@@ -1,17 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import { ToolbarControls } from '../controls';
 
 describe( 'Eventbrite block controls', () => {
@@ -23,7 +11,6 @@ describe( 'Eventbrite block controls', () => {
 	beforeEach( () => {
 		setEditingUrl.mockClear();
 	} );
-
 
 	test( 'renders okay', () => {
 		render( <ToolbarControls { ...defaultProps } /> );
@@ -37,6 +24,5 @@ describe( 'Eventbrite block controls', () => {
 		await user.click( screen.getByRole( 'button' ) );
 
 		expect( setEditingUrl ).toHaveBeenCalledWith( true );
-
 	} );
 } );

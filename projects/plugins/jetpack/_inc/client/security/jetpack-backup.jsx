@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { get } from 'lodash';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
 import Banner from 'components/banner';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FEATURE_SITE_BACKUPS_JETPACK } from 'lib/plans/constants';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 
 export class JetpackBackup extends Component {
 	static propTypes = {

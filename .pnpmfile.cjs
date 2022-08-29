@@ -11,21 +11,12 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Why do they not publish new versions from their monorepo?
-	if ( pkg.name === '@automattic/social-previews' ) {
-		// 1.1.1 published 2021-04-08
-		if ( pkg.dependencies[ '@wordpress/components' ] === '^12.0.8' ) {
-			// Update to avoid a dep on @emotion/native that wants react-native.
-			// This dep update is in their monorepo as of 2022-03-10 with no code changes.
-			pkg.dependencies[ '@wordpress/components' ] = '^19.2.0';
-		}
-	}
+	// Way too many dependencies, some of them vulnerable, that we don't need for the one piece of this (dist/esm/progress-bar) that we actually use.
+	// p1655760691502999-slack-CBG1CP4EN
 	if ( pkg.name === '@automattic/components' ) {
-		// 1.0.0-alpha.3 published 2020-11-11. Not that we want alpha.4, they added an i18n-calypso dep (ugh).
-		if ( ! pkg.dependencies[ '@wordpress/base-styles' ] ) {
-			// Depends on this but doesn't specify it.
-			pkg.dependencies[ '@wordpress/base-styles' ] = '^4.0.4';
-		}
+		delete pkg.dependencies[ '@automattic/data-stores' ];
+		delete pkg.dependencies[ 'i18n-calypso' ];
+		delete pkg.dependencies[ 'wpcom-proxy-request' ];
 	}
 
 	// Depends on punycode but doesn't declare it.
@@ -35,6 +26,7 @@ function fixDeps( pkg ) {
 	}
 
 	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
+	// I hear v7 is supposed to fix that <https://github.com/storybookjs/storybook/issues/18261#issuecomment-1132031458>.
 	if ( pkg.name.startsWith( '@storybook/' ) ) {
 		if ( pkg.dependencies[ '@storybook/builder-webpack4' ] ) {
 			pkg.dependencies[ '@storybook/builder-webpack4' ] = 'npm:@storybook/builder-webpack5@^6';
@@ -50,32 +42,29 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dep.
-	// https://github.com/SamVerschueren/stream-to-observable/pull/9
+	// Missing dep or peer dep on @wordpress/element.
+	// https://github.com/WordPress/gutenberg/issues/41341
+	// https://github.com/WordPress/gutenberg/issues/41346
 	if (
-		pkg.name === '@samverschueren/stream-to-observable' &&
-		pkg.dependencies[ 'any-observable' ] === '^0.3.0'
+		( pkg.name === '@wordpress/preferences' || pkg.name === '@wordpress/viewport' ) &&
+		! pkg.dependencies?.[ '@wordpress/element' ] &&
+		! pkg.peerDependencies?.[ '@wordpress/element' ]
 	) {
-		pkg.dependencies[ 'any-observable' ] = '^0.5.1';
+		pkg.peerDependencies[ '@wordpress/element' ] = '*';
 	}
 
-	// Project is supposedly not dead, but still isn't being updated.
-	// For our purposes at least it seems to work fine with jest-environment-jsdom 28.
-	// https://github.com/enzymejs/enzyme-matchers/issues/353
-	if ( pkg.name === 'jest-environment-enzyme' ) {
-		pkg.dependencies[ 'jest-environment-jsdom' ] = '^28';
-	}
-
-	// Need to match the version of jest used everywhere else.
+	// Missing dep or peer dep on @babel/runtime
+	// https://github.com/WordPress/gutenberg/issues/41343
 	if (
-		pkg.name === '@wordpress/jest-preset-default' &&
-		pkg.dependencies[ 'babel-jest' ] &&
-		pkg.dependencies[ 'babel-jest' ].startsWith( '^27' )
+		pkg.name === '@wordpress/reusable-blocks' &&
+		! pkg.dependencies?.[ '@babel/runtime' ] &&
+		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
-		pkg.dependencies[ 'babel-jest' ] = '^28';
+		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
+	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( 'eslint-plugin-' ) || dep.endsWith( '/eslint-plugin' ) ) {
@@ -85,15 +74,8 @@ function fixDeps( pkg ) {
 		}
 	}
 
-	// Unpin browserslist here.
-	if (
-		pkg.name === 'react-dev-utils' &&
-		pkg.dependencies.browserslist.match( /^\d+\.\d+\.\d+$/ )
-	) {
-		pkg.dependencies.browserslist = '^' + pkg.dependencies.browserslist;
-	}
-
 	// Override @types/react* dependencies in order to use their specific versions
+	// @todo This is probably not safe: https://github.com/Automattic/jetpack/pull/24294#discussion_r881708463
 	for ( const dep of [ '@types/react', '@types/react-dom', '@types/react-test-renderer' ] ) {
 		if ( pkg.dependencies?.[ dep ] ) {
 			pkg.dependencies[ dep ] = '17.x';
@@ -101,8 +83,30 @@ function fixDeps( pkg ) {
 	}
 
 	// Regular expression DOS.
+	// Dep is via storybook, fix in v7: https://github.com/storybookjs/storybook/issues/14603#issuecomment-1105006210
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
+	}
+
+	// Avoid annoying flip-flopping of sub-dep peer deps.
+	// https://github.com/localtunnel/localtunnel/issues/481
+	if ( pkg.name === 'localtunnel' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
+				pkg.dependencies[ dep ] = '^' + ver;
+			}
+		}
+	}
+
+	// Convert @testing-library/react's dep on @testing-library/dom to a peer.
+	// https://github.com/testing-library/react-testing-library/issues/906#issuecomment-1180767493
+	if (
+		( pkg.name === '@testing-library/react' || pkg.name === '@testing-library/preact' ) &&
+		pkg.dependencies[ '@testing-library/dom' ]
+	) {
+		pkg.peerDependencies ||= {};
+		pkg.peerDependencies[ '@testing-library/dom' ] = pkg.dependencies[ '@testing-library/dom' ];
+		delete pkg.dependencies[ '@testing-library/dom' ];
 	}
 
 	return pkg;
@@ -117,56 +121,32 @@ function fixDeps( pkg ) {
  * @returns {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
-	// React 17 is entirely compatible with React 16, but a lot of junk hasn't updated deps yet.
-	for ( const p of [ 'react', 'react-dom' ] ) {
-		if (
-			pkg.peerDependencies?.[ p ] &&
-			pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
-			! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
-		) {
-			pkg.peerDependencies[ p ] += ' || ^17';
+	// React 17 is entirely compatible with React 16, but of course abandoned packages exist...
+	const react16Pkgs = new Set( [
+		'react-dates', // @wordpress/components <https://github.com/WordPress/gutenberg/issues/21820?>
+		'airbnb-prop-types', // @wordpress/components → react-dates
+		'react-with-direction', // @wordpress/components → react-dates → react-with-styles
+		'react-autosize-textarea', // @wordpress/block-editor <https://github.com/WordPress/gutenberg/issues/39619>
+	] );
+	if ( react16Pkgs.has( pkg.name ) ) {
+		for ( const p of [ 'react', 'react-dom' ] ) {
+			if (
+				pkg.peerDependencies?.[ p ] &&
+				pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^16|16\.x)/ ) &&
+				! pkg.peerDependencies[ p ].match( /(?:^|\|\|\s*)(?:\^17|17\.x)/ )
+			) {
+				pkg.peerDependencies[ p ] += ' || ^17';
+			}
 		}
 	}
 
-	// Peer-depends on js-git but doesn't declare it.
-	// https://github.com/creationix/git-node-fs/pull/8
-	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
-	if ( pkg.name === 'git-node-fs' && ! pkg.peerDependencies?.[ 'js-git' ] ) {
-		pkg.peerDependencies[ 'js-git' ] = '*';
-	}
-
-	// Undeclared peer dependencies.
-	// Note pnpm 6.32.12 and 7.0.1 include this override upstream.
-	if ( pkg.name === 'eslint-module-utils' ) {
-		pkg.peerDependenciesMeta ||= {};
-		for ( const dep of [
-			'@typescript-eslint/parser',
-			'eslint-import-resolver-node',
-			'eslint-import-resolver-typescript',
-			'eslint-import-resolver-webpack',
-		] ) {
-			pkg.peerDependencies[ dep ] = '*';
-			pkg.peerDependenciesMeta[ dep ] = { optional: true };
-		}
-	}
+	// Outdated peer dependency. Major version bump was apparently the addition of TypeScript types.
+	// No upstream bug link yet.
 	if (
-		pkg.name === 'eslint-plugin-import' &&
-		! pkg.peerDependencies?.[ '@typescript-eslint/parser' ]
+		pkg.name === '@automattic/components' &&
+		pkg.peerDependencies[ '@wordpress/data' ] === '^6.1.5'
 	) {
-		pkg.peerDependenciesMeta ||= {};
-		pkg.peerDependencies[ '@typescript-eslint/parser' ] = '*';
-		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
-	}
-
-	// Outdated. Looks like they're going to drop the eslint-config-wpcalypso package entirely with
-	// eslint-plugin-wpcalypso 5.1.0, but they haven't released that yet.
-	if ( pkg.name === 'eslint-config-wpcalypso' ) {
-		pkg.peerDependencies.eslint = '^8';
-		pkg.peerDependencies[ 'eslint-plugin-inclusive-language' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-react-hooks' ] = '*';
-		pkg.peerDependencies[ 'eslint-plugin-wpcalypso' ] = '*';
+		pkg.peerDependencies[ '@wordpress/data' ] = '^6.1.5 || ^7.0.0';
 	}
 
 	return pkg;
@@ -188,8 +168,34 @@ function readPackage( pkg, context ) {
 	return pkg;
 }
 
+/**
+ * Pnpm lockfile hook.
+ *
+ * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
+ * @param {object} lockfile - Lockfile data.
+ * @returns {object} Modified lockfile.
+ */
+function afterAllResolved( lockfile ) {
+	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
+	if ( Object.keys( lockfile.importers ).length === 1 ) {
+		return lockfile;
+	}
+
+	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
+		// https://github.com/pnpm/pnpm/issues/3935
+		if ( k.startsWith( '/webpack/' ) && ! v.dependencies[ 'webpack-cli' ] ) {
+			throw new Error(
+				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
+			);
+		}
+	}
+	return lockfile;
+}
+
 module.exports = {
 	hooks: {
 		readPackage,
+		afterAllResolved,
 	},
 };

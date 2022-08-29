@@ -1,19 +1,12 @@
-/**
- * WordPress dependencies
- */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Tabs from './tabs';
-import LoadingError from './loading-error';
-import fetchDefaultProducts from './fetch-default-products';
-import fetchStatus from './fetch-status';
 import getConnectUrl from '../../shared/get-connect-url';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
+import fetchDefaultProducts from './fetch-default-products';
+import fetchStatus from './fetch-status';
+import LoadingError from './loading-error';
+import Tabs from './tabs';
 
 const Edit = props => {
 	const { attributes, className, setAttributes } = props;

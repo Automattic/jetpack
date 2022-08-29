@@ -1,9 +1,3 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
 import {
 	AdminPage,
 	Container,
@@ -11,14 +5,14 @@ import {
 	PricingCard,
 	AdminSectionHero,
 } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import Loading from 'components/loading';
+import SearchPromotionBlock from 'components/search-promotion';
+import useConnection from 'hooks/use-connection';
+import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import getProductCheckoutUrl from 'utils/get-product-checkout-url';
-import SearchPromotionBlock from 'components/search-promotion';
-import Loading from 'components/loading';
 
 import './upsell-page.scss';
 
@@ -31,6 +25,7 @@ import './upsell-page.scss';
  */
 export default function UpsellPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
+	const { isFullyConnected } = useConnection();
 
 	const isPageLoading = useSelect(
 		select =>
@@ -50,8 +45,9 @@ export default function UpsellPage( { isLoading = false } ) {
 		window.location.href = getProductCheckoutUrl( {
 			siteSuffix: domain,
 			redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+			isUserConnected: isFullyConnected,
 		} );
-	}, [ domain, adminUrl ] );
+	}, [ domain, adminUrl, isFullyConnected ] );
 
 	const basicInfoText = __( '14 day money back guarantee.', 'jetpack-search-pkg' );
 	const onSaleInfoText = __(
@@ -86,7 +82,7 @@ export default function UpsellPage( { isLoading = false } ) {
 										onCtaClick={ sendToCart }
 										priceAfter={ priceAfter }
 										priceBefore={ priceBefore }
-										pricingCurrencyCode={ priceCurrencyCode }
+										currencyCode={ priceCurrencyCode }
 										title={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 									/>
 								</Col>

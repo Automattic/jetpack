@@ -1,13 +1,10 @@
-/**
- * WordPress dependencies
- */
-import { ESCAPE, SPACE } from '@wordpress/keycodes';
 import {
 	useFocusReturn,
 	useConstrainedTabbing,
 	useFocusOnMount,
 	useMergeRefs,
 } from '@wordpress/compose';
+import { ESCAPE, SPACE } from '@wordpress/keycodes';
 
 export default function ModalFrame( {
 	overlayClassName,

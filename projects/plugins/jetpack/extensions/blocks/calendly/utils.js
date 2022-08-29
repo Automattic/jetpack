@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 export const REGEX = /(^|\/\/)(calendly\.com[^"']*)/i;
 
 export const getURLFromEmbedCode = embedCode => {

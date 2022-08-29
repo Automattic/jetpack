@@ -2,22 +2,16 @@
  * Publicize options specific to Twitter.
  */
 
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { NoticeList, RadioControl, PanelRow } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 // Because the wp-annotations script isn't loaded by default in the block editor, importing
 // it here tells webpack to add it as a dependency to be loaded before Jetpack blocks.
 import '@wordpress/annotations';
 
-/**
- * Internal dependencies
- */
 import './editor.scss';
 
 export const PublicizeTwitterOptions = ( {

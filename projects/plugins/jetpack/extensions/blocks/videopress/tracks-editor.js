@@ -1,8 +1,5 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import { __, sprintf } from '@wordpress/i18n';
+import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	NavigableMenu,
 	MenuItem,
@@ -18,10 +15,10 @@ import {
 	SelectControl,
 	Spinner,
 } from '@wordpress/components';
-import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
-import { upload } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { upload } from '@wordpress/icons';
 
 const DEFAULT_KIND = 'subtitles';
 

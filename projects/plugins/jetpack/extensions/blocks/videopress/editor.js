@@ -1,36 +1,29 @@
-/**
- * External dependencies
- */
-import { Button } from '@wordpress/components';
-import { createBlobURL } from '@wordpress/blob';
-import { createBlock } from '@wordpress/blocks';
-import { mediaUpload } from '@wordpress/editor';
-import { useBlockEditContext } from '@wordpress/block-editor';
-import { useContext } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
 import {
 	isAtomicSite,
 	isSimpleSite,
 	getJetpackExtensionAvailability,
 	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
+import { createBlobURL } from '@wordpress/blob';
+import { useBlockEditContext } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
+import { Button } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { mediaUpload } from '@wordpress/editor';
+import { useContext } from '@wordpress/element';
+import { addFilter } from '@wordpress/hooks';
+import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import withVideoPressEdit from './edit';
-import withVideoPressSave from './save';
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
-import './editor.scss';
-
+import withVideoPressEdit from './edit';
+import withVideoPressSave from './save';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
+
+import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {

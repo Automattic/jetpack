@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { H3, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
 import useProtectData from '../../hooks/use-protect-data';
+import styles from './styles.module.scss';
 
 const ProtectCheck = () => (
 	<svg width="80" height="96" viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">

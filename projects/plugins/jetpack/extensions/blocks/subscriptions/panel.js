@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
-import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
-import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { numberFormat } from '@automattic/jetpack-components';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
-import { getSubscriberCount } from './api';
+import { useSelect } from '@wordpress/data';
+import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
+import { getSubscriberCount } from './api';
 import './panel.scss';
 
 export default function SubscribePanels() {
@@ -55,7 +49,7 @@ export default function SubscribePanels() {
 								subscriberCount,
 								'jetpack'
 							),
-							subscriberCount
+							numberFormat( subscriberCount )
 						),
 						{ span: <span className="jetpack-subscribe-reader-count" /> }
 					) }
@@ -72,7 +66,7 @@ export default function SubscribePanels() {
 								subscriberCount,
 								'jetpack'
 							),
-							subscriberCount
+							numberFormat( subscriberCount )
 						),
 						{ span: <span className="jetpack-subscribe-reader-count" /> }
 					) }

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2022-07-06
+### Added
+- Automatically add a Priority label based off the contents of an issue. [#24841]
+
+### Changed
+- Detect Renovate PRs created by self-hosted renovate. [#23307]
+- Fusion comment bot: update wording to avoid confusion. [#23666]
+- Renaming `master` references to `trunk`. [#24712, #24661]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Triage: update priority logic to follow issue priority matrix. [#24913]
+- Updated package dependencies. [#24045, #24573]
+- Use the node16 runner instead of the deprecated node12 runner. [#23389]
+- WordPress.com Commit reminder: clarify wording of the message to help contributors. [#24860]
+
+### Fixed
+- Milestone management: avoid throwing an error when a valid milestone cannot be found. Abort task instead. [#22937]
+- Only hit the milestones endpoint once per run. [#23126]
+- Triage: only add priority label when one does not exist yet. [#24910]
+- When a file is renamed, treat both the old and new names as modified. [#23354]
+
 ## [2.0.2] - 2022-02-09
 ### Changed
 - Core: update description and metadata before to publish to marketplace.
@@ -83,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[3.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v1.4.0...v2.0.0

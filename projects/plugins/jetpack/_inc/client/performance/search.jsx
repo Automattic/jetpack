@@ -1,26 +1,19 @@
-/**
- * External dependencies
- */
-import React, { Fragment, useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
 import { FormFieldset } from 'components/forms';
-import { isOfflineMode } from 'state/connection';
-import { hasActiveSiteFeature, isFetchingSitePurchases } from 'state/site';
-import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
+import React, { Fragment, useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { isOfflineMode } from 'state/connection';
 import { currentThemeSupports } from 'state/initial-state';
+import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
+import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -149,8 +142,8 @@ export default connect( state => {
 	return {
 		isLoading: isFetchingSitePurchases( state ),
 		inOfflineMode: isOfflineMode( state ),
-		hasClassicSearch: hasActiveSiteFeature( state, 'search' ),
-		hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
+		hasClassicSearch: siteHasFeature( state, 'search' ),
+		hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 		failedToEnableSearch:
 			! isSettingActivated( state, 'search' ) &&
 			! isUpdatingSetting( state, 'search' ) &&

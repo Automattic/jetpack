@@ -1,12 +1,7 @@
-/**
- * External dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { createReduxStore, register } from '@wordpress/data';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createReduxStore, register } from '@wordpress/data';
-/**
- * Internal dependencies
- */
 import AdminPage from './components/admin-page';
 import { STORE_ID, storeConfig } from './store';
 
@@ -23,7 +18,12 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <AdminPage />, container );
+	ReactDOM.render(
+		<ThemeProvider>
+			<AdminPage />
+		</ThemeProvider>,
+		container
+	);
 }
 
 render();

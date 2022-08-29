@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
-
-/**
- * Internal dependencies
- */
 import TweetDivider from './tweet-divider';
 import './editor.scss';
 

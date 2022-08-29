@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Path, SVG } from '@wordpress/components';
+import React from 'react';
 
 type HEXColorType = `#${ string }`;
 

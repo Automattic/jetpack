@@ -1,15 +1,9 @@
-/**
- * External dependencies
- */
-import { flatMap, throttle } from 'lodash';
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { serialize } from '@wordpress/blocks';
 import { select, dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
+import { flatMap, throttle } from 'lodash';
 import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 
 /**
@@ -19,7 +13,9 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
  */
 export async function refreshConnectionTestResults() {
 	try {
-		const results = await apiFetch( { path: '/wpcom/v2/publicize/connection-test-results' } );
+		const connectionRefreshPath =
+			getJetpackData()?.connectionRefreshPath ?? '/wpcom/v2/publicize/connection-test-results';
+		const results = await apiFetch( { path: connectionRefreshPath } );
 
 		// Combine current connections with new connections.
 		const prevConnections = select( 'jetpack/publicize' ).getConnections();

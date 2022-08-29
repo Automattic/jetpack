@@ -1,23 +1,12 @@
-/**
- * External dependencies
- */
-import { debounce } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { Dropdown, Button, RangeControl } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import NumberControl from '../../../shared/components/number-control';
+import { __, _x } from '@wordpress/i18n';
+import { debounce } from 'lodash';
 import {
 	convertSecondsToTimeCode,
 	convertTimeCodeToSeconds,
 } from '../../../shared/components/media-player-control/utils';
+import NumberControl from '../../../shared/components/number-control';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );

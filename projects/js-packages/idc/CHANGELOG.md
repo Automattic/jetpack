@@ -2,6 +2,43 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.20 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.10.19 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762]
+
+## 0.10.18 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
+## 0.10.17 - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## 0.10.16 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.10.15 - 2022-06-21
+
+- Removed unused testing infrastructure. [#24789]
+
+## 0.10.14 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.10.13 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.10.12 - 2022-05-30
+### Changed
+- Updated package dependencies
+
 ## 0.10.11 - 2022-05-18
 ### Changed
 - Updated package dependencies. [#23795]

@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
 import {
 	getTweetStorm,
 	getTweetsForBlock,
@@ -95,7 +92,7 @@ describe( 'getTweetStorm', () => {
 
 		const tweets = getTweetstormHelper( state );
 
-		expect( tweets.length ).toEqual( expected.length );
+		expect( tweets ).toHaveLength( expected.length );
 
 		expect( tweets[ 0 ] ).toMatchObject( expected[ 0 ] );
 		expect( tweets[ 1 ] ).toMatchObject( expected[ 1 ] );
@@ -179,7 +176,7 @@ describe( 'getTwitterCardForURLs', () => {
 		const state = {
 			twitterCards: {},
 		};
-		expect( getTwitterCardForURLs( state, [ 'foo' ] ) ).toEqual( undefined );
+		expect( getTwitterCardForURLs( state, [ 'foo' ] ) ).toBeUndefined();
 	} );
 
 	it( 'returns undefined when no URLs are passed', () => {
@@ -188,9 +185,9 @@ describe( 'getTwitterCardForURLs', () => {
 				foo: { title: 'bar' },
 			},
 		};
-		expect( getTwitterCardForURLs( state ) ).toEqual( undefined );
-		expect( getTwitterCardForURLs( state, undefined ) ).toEqual( undefined );
-		expect( getTwitterCardForURLs( state, [] ) ).toEqual( undefined );
+		expect( getTwitterCardForURLs( state ) ).toBeUndefined();
+		expect( getTwitterCardForURLs( state, undefined ) ).toBeUndefined();
+		expect( getTwitterCardForURLs( state, [] ) ).toBeUndefined();
 	} );
 
 	it( 'returns undefined when a matching URL is an error', () => {
@@ -199,7 +196,7 @@ describe( 'getTwitterCardForURLs', () => {
 				foo: { error: 'loading' },
 			},
 		};
-		expect( getTwitterCardForURLs( state, [ 'foo' ] ) ).toEqual( undefined );
+		expect( getTwitterCardForURLs( state, [ 'foo' ] ) ).toBeUndefined();
 	} );
 
 	it( 'returns the matching card when the URL is found', () => {
@@ -222,7 +219,7 @@ describe( 'twitterCardIsCached', () => {
 		const state = {
 			twitterCards: {},
 		};
-		expect( twitterCardIsCached( state, 'foo' ) ).toEqual( false );
+		expect( twitterCardIsCached( state, 'foo' ) ).toBe( false );
 	} );
 
 	it( 'returns false when the URL is not found', () => {
@@ -231,7 +228,7 @@ describe( 'twitterCardIsCached', () => {
 				foo: { title: 'bar' },
 			},
 		};
-		expect( twitterCardIsCached( state, 'bar' ) ).toEqual( false );
+		expect( twitterCardIsCached( state, 'bar' ) ).toBe( false );
 	} );
 
 	it( 'returns true when the URL matches a card with an error', () => {
@@ -240,7 +237,7 @@ describe( 'twitterCardIsCached', () => {
 				foo: { error: 'loading' },
 			},
 		};
-		expect( twitterCardIsCached( state, 'foo' ) ).toEqual( true );
+		expect( twitterCardIsCached( state, 'foo' ) ).toBe( true );
 	} );
 
 	it( 'returns true when the URL matches a card that is not an error', () => {
@@ -249,7 +246,7 @@ describe( 'twitterCardIsCached', () => {
 				foo: { title: 'bar' },
 			},
 		};
-		expect( twitterCardIsCached( state, 'foo' ) ).toEqual( true );
+		expect( twitterCardIsCached( state, 'foo' ) ).toBe( true );
 	} );
 } );
 

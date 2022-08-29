@@ -76,6 +76,10 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @action admin_init
 	 */
 	public function action_admin_init() {
+		if ( ! Jetpack_Plan::supports( 'google-analytics' ) ) {
+			return;
+		}
+
 		add_settings_field( $this->option_name_google_analytics, '<span id="infinite-scroll-google-analytics">' . __( 'Use Google Analytics with Infinite Scroll', 'jetpack' ) . '</span>', array( $this, 'setting_google_analytics' ), 'reading' );
 		register_setting( 'reading', $this->option_name_google_analytics, array( $this, 'sanitize_boolean_value' ) );
 	}
@@ -166,8 +170,8 @@ class Jetpack_Infinite_Scroll_Extras {
 			$settings['stats'] .= '-jetpack';
 		}
 
-		// Check if Google Analytics tracking is requested
-		$settings['google_analytics'] = (bool) Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
+		// Check if Google Analytics tracking is requested.
+		$settings['google_analytics'] = Jetpack_Plan::supports( 'google-analytics' ) && Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}

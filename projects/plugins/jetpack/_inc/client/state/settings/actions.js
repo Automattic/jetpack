@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import { get, some } from 'lodash';
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import { get, some } from 'lodash';
 import {
 	JETPACK_SETTINGS_FETCH,
 	JETPACK_SETTINGS_FETCH_RECEIVE,
@@ -22,7 +16,6 @@ import {
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
 import { maybeHideNavMenuItem, maybeReloadAfterAction } from 'state/modules';
-import restApi from '@automattic/jetpack-api';
 
 export const setUnsavedSettingsFlag = () => {
 	return {
@@ -117,7 +110,12 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		dispatch( removeNotice( 'module-setting-update' ) );
 		dispatch( removeNotice( 'module-setting-update-success' ) );
 
-		const suppressNoticeFor = [ 'dismiss_dash_app_card', 'dismiss_empty_stats_card' ];
+		const suppressNoticeFor = [
+			'dismiss_dash_app_card',
+			'dismiss_empty_stats_card',
+			'dismiss_dash_backup_getting_started',
+			'dismiss_dash_agencies_learn_more',
+		];
 		if (
 			'object' === typeof newOptionValues &&
 			! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )

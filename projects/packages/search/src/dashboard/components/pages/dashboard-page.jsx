@@ -1,25 +1,13 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * WordPress dependencies
- */
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import ModuleControl from 'components/module-control';
-import MockedSearch from 'components/mocked-search';
-import { STORE_ID } from 'store';
 import NoticesList from 'components/global-notices';
-import RecordMeter from 'components/record-meter';
 import Loading from 'components/loading';
-
+import MockedSearch from 'components/mocked-search';
+import ModuleControl from 'components/module-control';
+import RecordMeter from 'components/record-meter';
+import React from 'react';
+import { STORE_ID } from 'store';
 import './dashboard-page.scss';
 
 /**
@@ -77,7 +65,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
 	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
 	const lastIndexedDate = useSelect( select => select( STORE_ID ).getLastIndexedDate() );
-
+	const postTypes = useSelect( select => select( STORE_ID ).getPostTypes() );
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
@@ -159,10 +147,6 @@ export default function DashboardPage( { isLoading = false } ) {
 		);
 	};
 
-	const isRecordMeterEnabled = useSelect( select =>
-		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
-	);
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -170,14 +154,13 @@ export default function DashboardPage( { isLoading = false } ) {
 				<div className="jp-search-dashboard-page">
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ isRecordMeterEnabled && (
-						<RecordMeter
-							postCount={ postCount }
-							postTypeBreakdown={ postTypeBreakdown }
-							tierMaximumRecords={ tierMaximumRecords }
-							lastIndexedDate={ lastIndexedDate }
-						/>
-					) }
+					<RecordMeter
+						postCount={ postCount }
+						postTypeBreakdown={ postTypeBreakdown }
+						tierMaximumRecords={ tierMaximumRecords }
+						lastIndexedDate={ lastIndexedDate }
+						postTypes={ postTypes }
+					/>
 					{ renderModuleControl() }
 					{ renderFooter() }
 					<NoticesList

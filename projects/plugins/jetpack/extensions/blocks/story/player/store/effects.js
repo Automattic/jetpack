@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import { setBuffering, setCurrentSlideEnded, setCurrentSlideProgress, setEnded } from './actions';
 import {
 	getCurrentSlideIndex,

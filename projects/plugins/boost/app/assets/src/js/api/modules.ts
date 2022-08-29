@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import api from './api';
 
 export async function setModuleState( name: string, status: boolean ): Promise< boolean > {

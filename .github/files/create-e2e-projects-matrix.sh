@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-PROJECTS=('{"project":"Jetpack","path":"projects/plugins/jetpack/tests/e2e","testArgs":["--grep-invert", "plugin-update"],"slackArgs":[]}' '{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update"],"slackArgs":[]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[],"slackArgs":[]}' '{"project":"Search","path":"projects/plugins/search/tests/e2e","testArgs":[],"slackArgs":[]}')
+PROJECTS=('{"project":"Jetpack connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/connection","--retries=2"],"slackArgs":[]}' '{"project":"Jetpack pre-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/pre-connection","--retries=2"],"slackArgs":[]}' '{"project":"Jetpack post-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/post-connection","--retries=2"],"slackArgs":[]}' '{"project":"Jetpack sync","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/sync","--retries=2"],"slackArgs":[]}' '{"project":"Jetpack blocks","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/blocks","--retries=2"],"slackArgs":[]}' '{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update","--retries=2"],"slackArgs":[]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[],"slackArgs":[]}' '{"project":"Search","path":"projects/plugins/search/tests/e2e","testArgs":[],"slackArgs":[]}' '{"project":"VideoPress","path":"projects/plugins/videopress/tests/e2e","testArgs":[],"slackArgs":[]}')
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
@@ -30,13 +30,13 @@ if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "push" ]
 else
 	# gutenberg scheduled run
 	if [ "$CRON" == "0 */12 * * *" ]; then
-		PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks"],"slackArgs":["--report", "gutenberg"]}')
+		PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks","--retries=2"],"slackArgs":["--report", "gutenberg"]}')
 		RUN_NAME='gutenberg'
 	fi
 
 	# atomic scheduled run
 	if [ "$CRON" == "30 */4 * * *" ]; then
-		PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads"],"slackArgs":["--report", "atomic"]}')
+		PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads", "--retries=2"],"slackArgs":["--report", "atomic"]}')
 		RUN_NAME='atomic'
 	fi
 fi

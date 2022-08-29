@@ -94,6 +94,7 @@ class Sharing_Service {
 		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
 			'print'            => 'Share_Print',
+			'email'            => 'Share_Email',
 			'facebook'         => 'Share_Facebook',
 			'linkedin'         => 'Share_LinkedIn',
 			'reddit'           => 'Share_Reddit',
@@ -105,21 +106,6 @@ class Sharing_Service {
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
 		);
-
-		/**
-		 * Filters if Email Sharing is enabled.
-		 *
-		 * E-Mail sharing is often problematic due to spam concerns, so this filter enables it to be quickly and simply toggled.
-		 *
-		 * @module sharedaddy
-		 *
-		 * @since 5.1.0
-		 *
-		 * @param bool $email Is e-mail sharing enabled? Default false if Akismet is not active or true if Akismet is active.
-		 */
-		if ( apply_filters( 'sharing_services_email', Jetpack::is_akismet_active() ) ) {
-			$services['email'] = 'Share_Email';
-		}
 
 		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {
 			$services['press-this'] = 'Share_PressThis';
@@ -956,8 +942,20 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// Prevent from rendering sharing buttons in block which is fetched from REST endpoint by editor
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST &&
+		isset( $_GET['context'] ) && 'edit' === $_GET['context'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return $text;
+	}
+
 	// Don't output flair on excerpts.
 	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
+		return $text;
+	}
+
+	// Ensure we don't display sharing buttons on post excerpts that are hooked inside the post content
+	if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
+		in_array( 'the_content', (array) $wp_current_filter, true ) ) {
 		return $text;
 	}
 

@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { __, sprintf } from '@wordpress/i18n';
-import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
-import { PromptLayout } from '../prompt-layout';
-import { CheckboxAnswer } from '../checkbox-answer';
-import { DEFAULT_ILLUSTRATION } from '../../constants';
-import DiscountCard from '../../sidebar/discount-card';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import React, { useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	getDataByKey,
@@ -23,10 +12,11 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 	isProductSuggestionsAvailable,
 } from 'state/recommendations';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
+import DiscountCard from '../../sidebar/discount-card';
+import { CheckboxAnswer } from '../checkbox-answer';
+import { PromptLayout } from '../prompt-layout';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 const SiteTypeQuestionComponent = props => {
 	const {

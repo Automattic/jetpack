@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useEffect } from 'react';
-import { useSelect, withSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import restApi from '@automattic/jetpack-api';
 import {
 	ConnectionStatusCard,
 	ConnectScreenRequiredPlan,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
-
-/**
- * Internal dependencies
- */
+import { useSelect, withSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import React, { useEffect } from 'react';
 import { STORE_ID } from '../../store';
 import Header from '../header';
 import './style.scss';

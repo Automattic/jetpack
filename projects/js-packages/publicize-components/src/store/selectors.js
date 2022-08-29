@@ -1,18 +1,8 @@
-/**
- * External dependencies
- */
+import { select } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { get, isEqual } from 'lodash';
 import createSelector from 'rememo';
-
-/**
- * WordPress dependencies
- */
-import { select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
-import { store as editorStore } from '@wordpress/editor';
-/**
- * Internal dependencies
- */
 import { SUPPORTED_BLOCKS, SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 
 // Links and media attached to tweets take up 24 characters each.

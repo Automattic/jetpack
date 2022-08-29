@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { refreshTweets, setTweets, setTwitterCards } from '../actions';
 
 describe( 'refreshTweets', () => {

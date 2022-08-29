@@ -15,13 +15,14 @@ class Publicize_Setup {
 	 * To configure the publicize package, when called via the Config package.
 	 */
 	public static function configure() {
-		add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded' ) );
+		add_action( 'jetpack_feature_publicize_enabled', array( __CLASS__, 'on_jetpack_feature_publicize_enabled' ) );
 	}
 
 	/**
 	 * To configure the publicize package, when called via the Config package.
 	 */
-	public static function on_plugins_loaded() {
+	public static function on_jetpack_feature_publicize_enabled() {
+
 		global $publicize_ui;
 		if ( ! isset( $publicize_ui ) ) {
 			$publicize_ui = new Publicize_UI();

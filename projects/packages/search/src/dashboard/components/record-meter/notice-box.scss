@@ -1,0 +1,80 @@
+//
+// Variables
+//
+@import '~@automattic/color-studio/dist/color-variables';
+
+.jp-search-notice-box {
+	background-color: white;
+	color: black;
+	border: $studio-gray-5 0.5px solid;
+	border-radius: 5px;
+	padding: 20px 22px 16px 22px;
+}
+
+.jp-search-notice-box .dops-notice__content {
+	padding: 0 16px;
+}
+
+.jp-search-notice-box .dops-notice__body {
+	display: block;
+	padding-bottom: 4px;
+	padding-top: 16px;
+}
+
+.jp-search-record-meter .jp-search-notice-box > span.dops-notice__icon-wrapper {
+	background-color: rgba( 255, 255, 255, 0 );
+	padding: 0;
+}
+
+.jp-search-notice-box .dops-notice__text,
+.jp-search-notice-box .dops-notice__text .dops-notice__header {
+	margin: 0;
+	display: block;
+	font-size: 1em;
+}
+
+.jp-search-notice-box__important {
+	border: $studio-red-50 0.5px solid;
+}
+
+.jp-search-notice-box__important .dops-notice__content .dops-notice__header {
+	font-weight: bold;
+}
+
+.jp-search-notice-box .dops-notice__action {
+	color: black;
+	display: block;
+	font-weight: bold;
+	padding: 0 0 6px 0;
+}
+
+// Need to specify 'a.' to override component styles
+.jp-search-notice-box a.dops-notice__action {
+	&:link,
+	&:visited,
+	&:hover,
+	&:active {
+		color: black;
+		text-decoration: underline;
+	}
+}
+
+.jp-search-notice-box .dops-notice__icon-wrapper {
+	color: #000;
+	flex-grow: 0;
+	justify-content: left;
+	padding: 0;
+	width: 24px;
+}
+
+.jp-search-notice-box__important .dops-notice__action,
+.jp-search-notice-box__important .dops-notice__icon-wrapper,
+.jp-search-notice-box__important,
+.jp-search-notice-box__important .dops-notice__action,
+.jp-search-notice-box__important .dops-notice__header {
+	color: $studio-red-50;
+}
+
+.jp-search-notice-box > .dops-notice__icon-wrapper > svg {
+	margin: 0;
+}

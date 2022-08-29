@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Post_List;
  */
 class Post_List {
 
-	const PACKAGE_VERSION = '0.3.1-alpha';
+	const PACKAGE_VERSION = '0.4.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -171,7 +171,7 @@ class Post_List {
 		$text  = _x( 'Share', 'Share the post on social networks', 'jetpack-post-list' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Publicize', 'jetpack-post-list' ), $title );
+		$label                 = sprintf( __( 'Share &#8220;%s&#8221; via Jetpack Social', 'jetpack-post-list' ), $title );
 		$post_actions['share'] = sprintf( '<a href="%s" aria-label="%s">%s</a>', esc_url( $url ), esc_attr( $label ), esc_html( $text ) );
 		return $post_actions;
 	}

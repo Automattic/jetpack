@@ -1,57 +1,55 @@
-/**
- * External dependencies
- */
+import {
+	AdminPage,
+	AdminSection,
+	AdminSectionHero,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
-import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
+import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
-import ModuleToggle from './../module-toggle';
-import Connections from './../connections';
+import Header from './../header';
+import InfoSection from './../info-section';
+import Logo from './../logo';
+import ToggleSection from './../toggle-section';
+import './styles.module.scss';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
-	const { jetpackSocialConnectionsAdminUrl } = window.jetpackSocialInitialState;
-	const { isUserConnected, isRegistered } = connectionStatus;
+	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	return (
-		<AdminPage moduleName={ __( 'Jetpack Social', 'jetpack-social' ) }>
-			<AdminSectionHero>
+	if ( showConnectionCard ) {
+		return (
+			<AdminPage
+				moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) }
+				showHeader={ false }
+				showBackground={ false }
+			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						{ showConnectionCard ? (
-							<ConnectionScreen />
-						) : (
-							<div>
-								<div className={ styles.manageConnectionsHeader }>
-									<Button
-										href={ jetpackSocialConnectionsAdminUrl }
-										variant="primary"
-										target="_blank"
-									>
-										Manage your connections
-									</Button>
-								</div>
-								<div className={ styles.publicizeConnectionsList }>
-									<ModuleToggle />
-									<Connections />
-								</div>
-							</div>
-						) }
+					<Col>
+						<ConnectionScreen />
 					</Col>
 				</Container>
+			</AdminPage>
+		);
+	}
+
+	return (
+		<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
+			<AdminSectionHero>
+				<Header />
 			</AdminSectionHero>
+			<AdminSection>
+				<ToggleSection />
+			</AdminSection>
+			<AdminSectionHero>
+				<InfoSection />
+			</AdminSectionHero>
+			<AdminSection>
+				<SupportSection />
+			</AdminSection>
 		</AdminPage>
 	);
 };

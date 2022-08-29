@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
+import classnames from 'classnames';
 import React, { useCallback } from 'react';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../store';
+import styles from './styles.module.scss';
 
-const ModuleToggle = () => {
+const ModuleToggle = ( { className } ) => {
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const { isModuleEnabled, isUpdating } = useSelect( select => {
 		const store = select( STORE_ID );
@@ -28,18 +22,11 @@ const ModuleToggle = () => {
 		updateOptions( newOption );
 	}, [ isModuleEnabled, updateOptions ] );
 
-	const label = isModuleEnabled
-		? __( 'Jetpack Social is active', 'jetpack-social' )
-		: __(
-				'Jetpack Social is inactive',
-				'jetpack-social',
-				/* dummy arg to avoid bad minification */ 0
-		  );
+	const toggleClassName = classnames( className, styles.toggle );
 
 	return (
 		<ToggleControl
-			label={ __( 'Activate Jetpack Social', 'jetpack-social' ) }
-			help={ isUpdating ? __( 'Updating…', 'jetpack-social' ) : label }
+			className={ toggleClassName }
 			disabled={ isUpdating }
 			checked={ isModuleEnabled }
 			onChange={ toggleModule }

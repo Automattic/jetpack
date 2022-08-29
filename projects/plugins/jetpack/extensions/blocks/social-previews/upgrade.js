@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
+import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
 import analytics from '../../../_inc/client/lib/analytics';
-import upgradeImageUrl from './upgrade-illustration.svg';
 import useUpgradeFlow from '../../shared/use-upgrade-flow';
+import upgradeImageUrl from './upgrade-illustration.svg';
 import { name as block } from './index';
 
 export default function SocialPreviewsUpgrade() {

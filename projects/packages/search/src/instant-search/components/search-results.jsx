@@ -1,12 +1,9 @@
-/**
- * External dependencies
- */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import React, { Component, Fragment } from 'react';
-
-/**
- * Internal dependencies
- */
+import { getConstrastingColor } from '../lib/colors';
+import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
+import { getErrorMessage } from '../lib/errors';
+import { getAvailableStaticFilters } from '../lib/filters';
 import Gridicon from './gridicon';
 import Notice from './notice';
 import ScrollButton from './scroll-button';
@@ -14,13 +11,7 @@ import SearchControls from './search-controls';
 import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './sidebar';
-import { getConstrastingColor } from '../lib/colors';
-import { getAvailableStaticFilters } from '../lib/filters';
-import { MULTISITE_NO_GROUP_VALUE } from '../lib/constants';
 
-/**
- * Style dependencies
- */
 import './search-results.scss';
 
 class SearchResults extends Component {
@@ -147,20 +138,10 @@ class SearchResults extends Component {
 					</p>
 				) }
 				{ this.props.hasError && (
-					<Notice type="warning">
-						{ __(
-							"It looks like you're offline. Please reconnect for results.",
-							'jetpack-search-pkg'
-						) }
-					</Notice>
+					<Notice type="warning">{ getErrorMessage( this.props.response.error ) }</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
-					<Notice type="warning">
-						{ __(
-							"It looks like you're offline. Please reconnect to load the latest results.",
-							'jetpack-search-pkg'
-						) }
-					</Notice>
+					<Notice type="warning">{ getErrorMessage( { message: 'offline' } ) }</Notice>
 				) }
 				{ hasResults && ! this.props.hasError && (
 					<ol
@@ -298,6 +279,9 @@ class SearchResults extends Component {
 						{ this.renderSecondarySection() }
 					</div>
 				</div>
+				<button id={ OVERLAY_FOCUS_ANCHOR_ID } onClick={ this.closeOverlay }>
+					Close Search
+				</button>
 			</div>
 		);
 	}

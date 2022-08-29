@@ -1,23 +1,16 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { assign, debounce, get } from 'lodash';
 import { Button, Dashicon, TextareaControl, TextControl } from '@wordpress/components';
 import { Children, Component, createRef, Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import MapMarker from './map-marker/';
-import InfoWindow from './info-window/';
-import { mapboxMapFormatter } from './mapbox-map-formatter/';
+import { __ } from '@wordpress/i18n';
+import { assign, debounce, get } from 'lodash';
 import {
 	getLoadContext,
 	loadBlockEditorAssets,
 	waitForObject,
 } from '../../shared/block-editor-asset-loader';
 import editorAssets from './block-editor-assets.json';
+import InfoWindow from './info-window/';
+import MapMarker from './map-marker/';
+import { mapboxMapFormatter } from './mapbox-map-formatter/';
 export class Map extends Component {
 	// Lifecycle
 	constructor() {

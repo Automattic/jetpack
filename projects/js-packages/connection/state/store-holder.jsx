@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { createReduxStore, register } from '@wordpress/data';
 
 class storeHolder {

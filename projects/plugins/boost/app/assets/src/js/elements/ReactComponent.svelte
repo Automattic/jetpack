@@ -1,7 +1,7 @@
 <script lang="ts">
 	/* eslint-disable import/no-unresolved */
-	import ReactDOM from 'react-dom';
 	import React from 'react';
+	import ReactDOM from 'react-dom';
 	import { afterUpdate, onDestroy } from 'svelte';
 	let container: HTMLDivElement;
 	afterUpdate( () => {

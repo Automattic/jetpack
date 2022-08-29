@@ -1,17 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
+import userEvent from '@testing-library/user-event';
 import GoogleCalendarInspectorControls from '../controls';
 
 describe( 'GoogleCalendarInspectorControls', () => {
@@ -20,7 +8,8 @@ describe( 'GoogleCalendarInspectorControls', () => {
 
 	const defaultProps = {
 		className: 'calendar-embed-form',
-		embedValue: 'https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&ctz=Australia%2FBrisbane',
+		embedValue:
+			'https://calendar.google.com/calendar/embed?src=c_rr8cguo95gga9im2vs4tqi939g%40group.calendar.google.com&ctz=Australia%2FBrisbane',
 		onChange,
 		onSubmit,
 	};
@@ -46,9 +35,12 @@ describe( 'GoogleCalendarInspectorControls', () => {
 		const button = await screen.findByText( 'Embed' );
 
 		expect( button ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( button.closest( 'form' ) ).toHaveClass( defaultProps.className );
 		expect( screen.getByLabelText( 'Google Calendar URL or iframe' ) ).toBeInTheDocument();
-		expect( screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' ) ).toBeInTheDocument();
+		expect(
+			screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' )
+		).toBeInTheDocument();
 		expect( screen.getByText( defaultProps.embedValue ) ).toBeInTheDocument();
 	} );
 

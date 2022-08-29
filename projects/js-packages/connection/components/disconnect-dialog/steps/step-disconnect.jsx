@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React, { useCallback } from 'react';
-
-/**
- * Internal Dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**

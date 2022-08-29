@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
+import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
 import ActivationScreenControls from '../index';
 
 describe( 'ActivationScreenControls', () => {
@@ -15,18 +7,15 @@ describe( 'ActivationScreenControls', () => {
 		const testProps = {
 			activateLicense: () => null,
 			disabled: false,
+			isActivating: false,
 			license: 'test',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
 		};
 
-		const wrapper = shallow( <ActivationScreenControls { ...testProps } /> );
-
 		it( 'correct license is shown', () => {
-			const licenseField = wrapper.find( '.jp-license-activation-screen-controls--license-field' );
-
-			expect( licenseField ).to.have.lengthOf( 1 );
-			expect( licenseField.prop( 'value' ) ).to.equal( testProps.license );
+			render( <ActivationScreenControls { ...testProps } /> );
+			expect( screen.getByLabelText( 'License key' ) ).toHaveValue( testProps.license );
 		} );
 	} );
 
@@ -34,28 +23,30 @@ describe( 'ActivationScreenControls', () => {
 		const testProps = {
 			activateLicense: () => null,
 			disabled: true,
+			isActivating: false,
 			license: 'test',
 			licenseError: 'Invalid license.',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
 		};
 
-		const wrapper = shallow( <ActivationScreenControls { ...testProps } /> );
-
 		it( 'license field has error styling', () => {
-			const licenseFieldwithError = wrapper.find(
-				'.jp-license-activation-screen-controls--license-field-with-error'
-			);
-			expect( licenseFieldwithError ).to.have.lengthOf( 1 );
+			render( <ActivationScreenControls { ...testProps } /> );
+			const input = screen.getByLabelText( 'License key' );
+			expect(
+				// eslint-disable-next-line testing-library/no-node-access
+				input.closest( '.jp-license-activation-screen-controls--license-field-with-error' )
+			).toBeInTheDocument();
 		} );
 
 		it( 'license error is shown', () => {
-			const licenseErrorDisplay = wrapper.find(
-				'.jp-license-activation-screen-controls--license-field-error'
-			);
-
-			expect( licenseErrorDisplay ).to.have.lengthOf( 1 );
-			expect( licenseErrorDisplay.text() ).to.equal( '<Icon />' + testProps.licenseError );
+			render( <ActivationScreenControls { ...testProps } /> );
+			const node = screen.getByText( 'Invalid license.' );
+			expect( node ).toBeInTheDocument();
+			expect(
+				// eslint-disable-next-line testing-library/no-node-access
+				node.closest( '.jp-license-activation-screen-controls--license-field-error' )
+			).toBeInTheDocument();
 		} );
 	} );
 } );

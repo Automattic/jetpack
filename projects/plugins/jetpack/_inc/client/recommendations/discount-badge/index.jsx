@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const DiscountBadge = ( { className, discount, suffix } ) => {

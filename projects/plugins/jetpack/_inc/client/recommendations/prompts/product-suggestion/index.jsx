@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import {
 	addSelectedRecommendation as addSelectedRecommendationAction,
 	getUpsell,

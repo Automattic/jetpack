@@ -1,12 +1,5 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import RightArrow from '../../../svg/right-arrow.svg';
 	import routerHistory from '../../../utils/router-history';
 

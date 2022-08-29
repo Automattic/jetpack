@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { omit } from 'lodash';
-import { __ } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import { omit } from 'lodash';
 import defaultAttributes from './attributes';
 
 const deprecatedAttributes = [

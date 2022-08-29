@@ -1,18 +1,13 @@
-/**
- * External dependencies
- */
-import React, { useState, useRef, useCallback } from 'react';
-import { Popover } from '@wordpress/components';
-import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { Text } from '@automattic/jetpack-components';
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
-import NavigationItem from './item';
-import NavigationGroup from './group';
-import useMenuNavigation, { NavigationContext } from './use-menu-navigation';
+import { Popover } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
+import React, { useState, useRef, useCallback } from 'react';
+import NavigationGroup from './group';
+import NavigationItem from './item';
+import styles from './styles.module.scss';
+import useMenuNavigation, { NavigationContext } from './use-menu-navigation';
 
 const NavigationList = ( { children } ) => (
 	<ul className={ styles.navigation } role="menu">
@@ -23,7 +18,9 @@ const NavigationList = ( { children } ) => (
 const NavigationDropdown = ( { children, data } ) => {
 	const ref = useRef();
 	const [ listOpen, setListOpen ] = useState( false );
-	const item = data?.items?.find( navItem => navItem?.id === data?.selectedItem ) ?? {};
+	const item = data?.items?.find( navItem => navItem?.id === data?.selectedItem ) ?? {
+		label: __( 'See all results', 'jetpack-protect' ),
+	};
 	const { label, icon } = item;
 
 	const handleOpen = useCallback( () => {

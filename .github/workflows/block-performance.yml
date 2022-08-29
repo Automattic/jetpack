@@ -62,6 +62,13 @@ jobs:
         run: |
           node ./bin/performance.js
 
+      - name: Send Slack notification
+        if: ${{ failure() }}
+        working-directory: tools/e2e-commons
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: pnpm run slack status "failed" --report "Blocks performance"
+
       - name: Environment tear-down
         if: ${{ always() }}
         working-directory: tools/e2e-commons
@@ -87,7 +94,7 @@ jobs:
 
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports

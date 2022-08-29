@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import Button from 'components/button';
+import Card from 'components/card';
+import Modal from 'components/modal';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import Button from 'components/button';
-import Card from 'components/card';
 import { isSiteConnected, isReconnectingSite, reconnectSite } from 'state/connection';
-import Modal from 'components/modal';
 
 import './style.scss';
 

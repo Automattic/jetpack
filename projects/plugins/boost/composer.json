@@ -3,7 +3,7 @@
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"version": "1.4.3-alpha",
+	"version": "1.5.2-alpha",
 	"authors": [
 		{
 			"name": "Automattic, Inc.",
@@ -19,14 +19,14 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-connection": "1.40.x-dev",
-		"automattic/jetpack-my-jetpack": "1.4.x-dev",
+		"automattic/jetpack-connection": "1.43.x-dev",
+		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-lazy-images": "2.1.x-dev",
 		"tedivm/jshrink": "1.4.0"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "0.3.1",
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.3"
@@ -68,7 +68,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ1_4_3_alpha",
+		"autoloader-suffix": "b1e77e6231d50e7663f84529b6a3dfda_jetpack_boostⓥ1_5_2_alpha",
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,

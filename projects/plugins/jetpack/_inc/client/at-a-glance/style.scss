@@ -179,7 +179,6 @@
 }
 
 .jp-at-a-glance__stats-ctas {
-
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -246,8 +245,7 @@
 
 .jp-at-a-glance__stats-view-link:focus {
 	outline: 0;
-	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba(30, 140, 190, 0.8);
-
+	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba( 30, 140, 190, 0.8 );
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
@@ -462,4 +460,10 @@
 
 .jp-dash-item__videopress-storage {
 	margin-top: 1em;
+}
+
+.jp-dash-item__action-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 26px;
 }

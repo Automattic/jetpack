@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
 	SET_CONNECTION_STATUS,
 	SET_CONNECTION_STATUS_IS_FETCHING,

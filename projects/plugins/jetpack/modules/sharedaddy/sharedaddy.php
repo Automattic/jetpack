@@ -15,6 +15,8 @@ require_once plugin_dir_path( __FILE__ ) . 'sharing.php';
  * @param array $data Array of information about the shared message.
  *
  * @return void
+ *
+ * @deprecated 11.0
  */
 function sharing_email_send_post( $data ) {
 
@@ -84,6 +86,8 @@ function sharing_email_send_post( $data ) {
  * @param array $data Array of information about the shared message.
  *
  * @return array $data
+ *
+ * @deprecated 11.0
  */
 function sharing_email_check_for_spam_via_akismet( $data ) {
 
@@ -137,6 +141,8 @@ function sharing_email_check_for_spam_via_akismet( $data ) {
  * @param array $data Array of information about the shared message.
  *
  * @return string $content
+ *
+ * @deprecated 11.0
  */
 function sharing_email_send_post_content( $data ) {
 	$content = sprintf(
@@ -222,7 +228,6 @@ function sharing_meta_box_content( $post ) {
 			<?php esc_html_e( 'Show sharing buttons.', 'jetpack' ); ?>
 		</label>
 		<input type="hidden" name="sharing_status_hidden" value="1" />
-		<?php wp_nonce_field( 'sharing-meta-box' ); ?>
 	</p>
 
 	<?php
@@ -369,6 +374,8 @@ function sharing_global_resources_save() {
  * Supports legacy RECAPTCHA_PUBLIC_KEY or RECAPTCHA_SITE_KEY.
  *
  * @return string
+ *
+ * @deprecated 11.0
  */
 function sharing_recaptcha_site_key() {
 	if ( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined( 'RECAPTCHA_SITE_KEY' ) ) {
@@ -388,6 +395,8 @@ function sharing_recaptcha_site_key() {
  * Supports legacy RECAPTCHA_PRIVATE_KEY or RECAPTCHA_SECRET_KEY.
  *
  * @return string
+ *
+ * @deprecated 11.0
  */
 function sharing_recaptcha_secret_key() {
 	if ( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined( 'RECAPTCHA_SECRET_KEY' ) ) {
@@ -406,6 +415,8 @@ function sharing_recaptcha_secret_key() {
  * Contents of a reCAPTCHA box.
  *
  * @return void
+ *
+ * @deprecated 11.0
  */
 function sharing_email_dialog() {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
@@ -424,6 +435,8 @@ function sharing_email_dialog() {
  * @param bool   $true Should we check if the message isn't spam.
  * @param object $post Post information.
  * @param array  $data Information about the shared message.
+ *
+ * @deprecated 11.0
  */
 function sharing_email_check( $true, $post, $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
@@ -444,14 +457,7 @@ add_action( 'init', 'sharing_init' );
 add_action( 'add_meta_boxes', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'edit_attachment', 'sharing_meta_box_save' );
-add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
-add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
 add_action( 'plugin_action_links_' . basename( __DIR__ ) . '/' . basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
-
-if ( sharing_recaptcha_site_key() && sharing_recaptcha_secret_key() ) {
-	add_action( 'sharing_email_dialog', 'sharing_email_dialog' );
-	add_filter( 'sharing_email_check', 'sharing_email_check', 10, 3 );
-}

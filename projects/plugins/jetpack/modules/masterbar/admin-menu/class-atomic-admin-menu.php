@@ -67,7 +67,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		$this->add_my_home_menu();
 		$this->add_inbox_menu();
-		$this->hide_search_menu_for_calypso();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -154,7 +153,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -419,16 +418,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$jitm->dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
 		}
 		wp_die();
-	}
-
-	/**
-	 * Hide Calypso Search menu for Atomic sites.
-	 *
-	 * For simple sites, where search dashboard doesn't exist, we use the Calypso page / menu item.
-	 * For Atomic sites, the admin-menu is originated from the sites and forwarded by WPCOM `public-api`.
-	 * We have search dashboard for Atomic/JP sites, so we need to hide the duplicated menu item.
-	 */
-	public function hide_search_menu_for_calypso() {
-		$this->hide_submenu_page( 'jetpack', 'https://wordpress.com/jetpack-search/' . $this->domain );
 	}
 }

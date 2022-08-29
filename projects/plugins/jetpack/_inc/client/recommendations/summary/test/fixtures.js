@@ -1,3 +1,9 @@
+/**
+ * Build the Rewind fixture object.
+ *
+ * @param {object} rewindStatus - – rewind status of the site
+ * @returns {object} Status.
+ */
 function rewindFixture( rewindStatus ) {
 	return {
 		data: {
@@ -6,6 +12,13 @@ function rewindFixture( rewindStatus ) {
 	};
 }
 
+/**
+ * Build the site data fixture object.
+ *
+ * @param {object} options - Options
+ * @param {string} options.productSlug - – product slug of the site's plan
+ * @returns {object} Fixture.
+ */
 function siteDataFixture( { productSlug } ) {
 	return {
 		requests: {
@@ -19,36 +32,52 @@ function siteDataFixture( { productSlug } ) {
 	};
 }
 
+/**
+ * Build the intro offers fixture object.
+ *
+ * @returns {object} Fixture.
+ */
 function introOffersFixture() {
 	return {
 		requests: {
-			isFetching: false
+			isFetching: false,
 		},
-		data: [ {
-			product_id:2016,
-			product_slug: "jetpack_security_t1_yearly",
-			currency_code: "USD",
-			formatted_price: "US$107.40",
-			original_price: 299.4,
-			raw_price: 107.4,
-			discount_percentage: 64,
-			ineligible_reason: null,
-		}, {
-			product_id: 2112,
-			product_slug: "jetpack_backup_t1_yearly",
-			currency_code: "USD",
-			formatted_price: "US$47.40",
-			original_price:119.4,
-			raw_price: 47.4,
-			discount_percentage: 60,
-			ineligible_reason: null,
-		}]
-	}
+		data: [
+			{
+				product_id: 2016,
+				product_slug: 'jetpack_security_t1_yearly',
+				currency_code: 'USD',
+				formatted_price: 'US$107.40',
+				original_price: 299.4,
+				raw_price: 107.4,
+				discount_percentage: 64,
+				ineligible_reason: null,
+			},
+			{
+				product_id: 2112,
+				product_slug: 'jetpack_backup_t1_yearly',
+				currency_code: 'USD',
+				formatted_price: 'US$47.40',
+				original_price: 119.4,
+				raw_price: 47.4,
+				discount_percentage: 60,
+				ineligible_reason: null,
+			},
+		],
+	};
 }
 
+/**
+ * Build the upsell fixture object.
+ *
+ * @param {object} options - Options.
+ * @param {boolean} options.hideUpsell - Whether to hide the upsell.
+ * @returns {object} Fixture.
+ */
 function upsellFixture( { hideUpsell } ) {
 	return {
 		product_id: 2101,
+		product_slug: 'jetpack_backup_t1_monthly',
 		billing_timeframe: 'billed monthly',
 		cost_timeframe: 'per month',
 		cta_text: 'Learn more',
@@ -70,10 +99,11 @@ function upsellFixture( { hideUpsell } ) {
 /**
  * Build an object that can be use as a Redux store initial state.
  *
- * @param {object} options
- * @param {boolean} options.hideUpsell – whether to show the upsell product card
- * @param {string} options.productSlug – product slug of the site's plan
- * @param {object} options.rewindStatus – rewind status of the site
+ * @param {object} options - Options.
+ * @param {boolean} options.hideUpsell - – whether to show the upsell product card
+ * @param {string} options.productSlug - – product slug of the site's plan
+ * @param {object} options.rewindStatus - – rewind status of the site
+ * @param {object} options.enabledRecommendations - Enabled recommendations.
  * @returns {object} – initial Redux state
  */
 export function buildInitialState( {
@@ -112,13 +142,14 @@ export function buildInitialState( {
 				upsell: upsellFixture( { hideUpsell } ),
 				requests: {},
 				data: {},
+				installing: {},
 			},
 			rewind: rewindFixture( rewindStatus ),
 			settings: {
 				items: enabledRecommendations,
 			},
 			siteData: siteDataFixture( { productSlug } ),
-			introOffers: introOffersFixture()
+			introOffers: introOffersFixture(),
 		},
 	};
 }

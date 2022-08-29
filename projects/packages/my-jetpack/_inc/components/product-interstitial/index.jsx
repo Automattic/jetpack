@@ -1,28 +1,21 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import ProductDetailCard from '../product-detail-card';
-import styles from './style.module.scss';
+import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import boostImage from './boost.png';
-import searchImage from './search.png';
-import videoPressImage from './videopress.png';
-import extrasImage from './extras.png';
-import crmImage from './crm.png';
-import { useProduct } from '../../hooks/use-product';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import { useProduct } from '../../hooks/use-product';
 import { STORE_ID } from '../../state/store';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import GoBackLink from '../go-back-link';
+import ProductDetailCard from '../product-detail-card';
+import boostImage from './boost.png';
+import crmImage from './crm.png';
+import extrasImage from './extras.png';
+import searchImage from './search.png';
+import styles from './style.module.scss';
+import videoPressImage from './videopress.png';
 
 /**
  * Product Interstitial component.
@@ -196,6 +189,15 @@ export function ExtrasInterstitial() {
  */
 export function ScanInterstitial() {
 	return <ProductInterstitial slug="scan" installsPlugin={ true } bundle="security" />;
+}
+
+/**
+ * SocialInterstitial component
+ *
+ * @returns {object} SocialInterstitial react component.
+ */
+export function SocialInterstitial() {
+	return <ProductInterstitial slug="social" installsPlugin={ true } />;
 }
 
 /**

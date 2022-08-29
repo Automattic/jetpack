@@ -1,20 +1,9 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-/**
- * External dependencies
- */
-import GridiconFullscreen from 'gridicons/dist/fullscreen';
-
-/**
- * WordPress dependencies
- */
 import { useCallback } from '@wordpress/element';
 import { __, isRTL } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import GridiconFullscreen from 'gridicons/dist/fullscreen';
 import { DecoratedButton } from './button';
 import { NavigateBeforeIcon, NavigateNextIcon } from './icons';
 

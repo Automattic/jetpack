@@ -12,8 +12,8 @@
 	}
 
 	// Disabled state:
-	&.is-disabled,
-	.components-disabled & {
+	&.is-disabled {
+		width: 100%;
 		opacity: 0.5;
 	}
 }

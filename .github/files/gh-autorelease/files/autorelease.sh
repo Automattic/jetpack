@@ -9,11 +9,12 @@ set -eo pipefail
 : "${GITHUB_REPOSITORY:?Build argument needs to be set and non-empty.}"
 
 ## Determine tag
-if ! [[ "$GITHUB_REF" =~ ^refs/tags/v[0-9]+(\.[0-9]+)+$ ]]; then
-	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\`, got \`$GITHUB_REF\`"
+if [[ ! "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+$ ]]; then
+	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\`, got \`$GITHUB_REF\`"
 	exit 1
 fi
-TAG="${GITHUB_REF#refs/tags/v}"
+TAG="${GITHUB_REF#refs/tags/}"
+TAG="${TAG#v}"
 echo "Creating release for $TAG"
 
 ## Determine slug and title format.
@@ -22,14 +23,14 @@ if [[ ! -f composer.json ]]; then
 	exit 1
 fi
 
-SLUG="$(jq -r '.extra.autorelease.slug // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
+SLUG="$(jq -r '.extra.autorelease.slug? // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
 if [[ -z "$SLUG" ]]; then
 	echo '::error::Failed to get slug from composer.json.'
 	exit 1
 fi
 echo "Using slug $SLUG"
 
-TITLEFMT="$(jq -r '.extra.autorelease.titlefmt // "%s"' composer.json)"
+TITLEFMT="$(jq -r '.extra.autorelease.titlefmt? // "%s"' composer.json)"
 if [[ "$TITLEFMT" != *"%s"* ]]; then
 	echo '::error::Missing or invalid `.extra.autorelease.titlefmt`'
 	exit 1

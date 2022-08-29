@@ -42,7 +42,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 		remove_filter( 'option_widget_jetpack-search-filters', array( $this, 'jp_search_widgets' ) );
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
-		$this->assertEquals( 'jetpack-search-filters-13', $sidebars_widgets['jetpack-instant-search-sidebar'][0] );
+		$this->assertEquals( 'jetpack-search-filters-13', $sidebars_widgets[ Instant_Search::INSTANT_SEARCH_SIDEBAR ][0] );
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Test_Instant_Search_Auto_Config_JP_Search_Widget extends TestCase {
 		 * Value for sidebars_widgets - theme_sidebar_configured
 		 */
 	public function sidebars_widgets_overlay_sidebar_configured() {
-		return array( 'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-12' ) );
+		return array( Instant_Search::INSTANT_SEARCH_SIDEBAR => array( 'jetpack-search-filters-12' ) );
 	}
 
 	/**

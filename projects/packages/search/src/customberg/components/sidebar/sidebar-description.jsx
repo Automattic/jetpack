@@ -1,14 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { BlockIcon } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import { svg as jetpackColophonSvg } from 'instant-search/components/jetpack-colophon';
 
 /**

@@ -29,9 +29,10 @@ class Products {
 			'extras'     => Products\Extras::class,
 			'scan'       => Products\Scan::class,
 			'search'     => Products\Search::class,
-			'videopress' => Products\Videopress::class,
+			'social'     => Products\Social::class,
 			'security'   => Products\Security::class,
 			'protect'    => Products\Protect::class,
+			'videopress' => Products\Videopress::class,
 		);
 
 		/**

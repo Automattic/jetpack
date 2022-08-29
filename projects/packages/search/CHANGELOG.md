@@ -5,6 +5,170 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2022-08-25
+### Changed
+- Search: revert "Search should not require user connection" [#25802]
+- Updated package dependencies. [#25814]
+
+## [0.20.0] - 2022-08-23
+### Added
+- Add author filtering support [#25409]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25628, #25762, #25769]
+
+### Fixed
+- Instant Search: Add focus styles for easier keyboard navigation. (a11y) [#25671]
+- Instant Search: Remove redundant links from search results. (a11y) [#25699]
+
+## [0.19.0] - 2022-08-16
+### Added
+- Instant Search: always use submit overlay trigger if user prefers reduced motion. [#25413]
+- Instant Search: only show animation to users who have not chosen reduced motion. [#25630]
+- Instant Search: user friendly error messaging. [#25433]
+
+### Fixed
+- Instant Search: fix button styling in Twenty Twenty One theme. [#25631]
+- Instant Search: fix the display order on mobile to match the tab order. [#25415]
+- Instant Search: use classname rather than ID for styling sort select. [#25632]
+
+## [0.18.0] - 2022-08-09
+### Added
+- Search: added proper error messages for search module control [#24476]
+
+### Changed
+- Instant Search: Updates dark mode active link color for increased contrast [#25343]
+- Search: changed to only require site level connection [#24477]
+- Updated package dependencies. [#24477, #25265]
+
+### Removed
+- Search: remove 'results' overlay trigger [#25393]
+
+### Fixed
+- Dashboard: updated Instant Search description to match changes in default overlay trigger [#25303]
+- Instant Search: Constrain tab loop to overlay when visible. [#25288]
+- Instant Search: Make "Clear filters" button accessible. [#25342]
+
+## [0.17.1] - 2022-08-03
+### Added
+- Instant Search: Adds descriptions to post type icons for accessibility purposes [#25323]
+- Record Meter: add info link to docs [#25002]
+
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+### Fixed
+- Instant Search: Improve accessibility of seach options controls.
+- Search: ensure overlay trigger is consistent for new installs [#25093]
+
+## [0.17.0] - 2022-07-29
+### Added
+- Record Meter: make feature available to all users
+- Search: re-add 'Media' to 'Excluded Post Types'
+
+## [0.16.2] - 2022-07-26
+### Added
+- Dashboard: added support WPCOM simple sites [#25094]
+
+### Changed
+- Instant search: updates overlay focus elements for design consistency [#25260]
+- Updated package dependencies. [#25144]
+- Updated package dependencies. [#25147]
+- Updated package dependencies. [#25158]
+
+### Fixed
+- Instant Search: Fix keyboard handling of sort options. [#25163]
+- Instant Search: prevent hidden submit button appearing on focus [#25136]
+- Search Dashboard: Fixed layout issues when Hello Dolly plugin is active. [#25139]
+
+## [0.16.1] - 2022-07-19
+### Changed
+- Updated package dependencies. [#25086]
+
+### Fixed
+- Customberg: re-add collapsing wp-admin sidebar to prevent menu overlap issue [#25060]
+- Fixed the currency code missing issue for the upsell page [#25068]
+
+## [0.16.0] - 2022-07-12
+### Added
+- Hide unsupported taxonomies from widget settings [#24823]
+
+### Changed
+- Updated package dependencies. [#25055]
+
+### Fixed
+- Fix irrelevant widgets in overlay sidebar [#24824]
+- Hide 'Media' from 'Excluded Post Types' because we don't index them [#24822]
+- Record Meter: rely less on last_indexed_date from API [#24967]
+- Use consistent number formatting in Record Meter [#25003]
+
+## [0.15.4] - 2022-07-06
+### Added
+- Record Meter: adds labels to custom post type breakdown [#24876]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+### Removed
+- Record Meter: Remove dismissable functionality and design from notice boxes [#24922]
+
+### Fixed
+- Reset letter spacing for header tags [#24954]
+- Restores support for multiple post types in the Jetpack Search Widget. [#24868]
+
+## [0.15.3] - 2022-06-28
+### Changed
+- Record meter: format the numbers used in notice. [#24810]
+- Record Meter: updated notice box content when site is not indexed [#24785]
+- Search: use centralized search pricing API [#24795]
+- Updated package dependencies. [#24826]
+
+### Fixed
+- Added My Jetpack package as dependency [#24826]
+
+## [0.15.2] - 2022-06-21
+### Changed
+- Record Meter: Separated component styles [#24732]
+- Renaming master to trunk. [#24661]
+
+## [0.15.1] - 2022-06-14
+### Changed
+- Search record meter: pass sorted records to RecordMeterBar component [#24731]
+- Updated package dependencies. [#24529]
+
+## [0.15.0] - 2022-06-08
+### Changed
+- Record Meter: switches from using chartJS to the Jetpack RecordMeterBar component [#24322]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Search record meter: changed the notice box to include a header text [#24346]
+- Search widget: use 'Search (Jetpack)' as wdiget name and remove `jetpack_widget_name` [#24577]
+- Updated package dependencies. [#24510]
+
+### Removed
+- Search: don't open modal if only sort parameter is set [#24576]
+- Search: Removed unused chart.js library [#24658]
+
+### Fixed
+- Search: avoid query on component mount when the overlay might not be visible [#24609]
+- Search: fix gridicon color in dark mode on Customberg [#24668]
+
+## [0.14.2] - 2022-05-30
+### Changed
+- Updated package dependencies
+- Updated package dependencies.
+- Use the Checkout workflow to establish the connection and make the purchase
+
+### Fixed
+- Avoid filter from being added multiple times
+
+## [0.14.1] - 2022-05-24
+### Added
+- Allow plugins to filter the list of available modules. Only activate and consider active modules that are available [#24454]
+
+### Changed
+- Search: Use Modules methods for activating and deactivating the Search module. [#24385]
+- Updated package dependencies. [#24449]
+
 ## [0.14.0] - 2022-05-19
 ### Removed
 - Search: Disable auto-collapsing the wp-admin sidebar within Customberg [#24399]
@@ -288,6 +452,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.21.0]: https://github.com/Automattic/jetpack-search/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/jetpack-search/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-search/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-search/compare/v0.17.1...v0.18.0
+[0.17.1]: https://github.com/Automattic/jetpack-search/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-search/compare/v0.16.2...v0.17.0
+[0.16.2]: https://github.com/Automattic/jetpack-search/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/jetpack-search/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/jetpack-search/compare/v0.15.4...v0.16.0
+[0.15.4]: https://github.com/Automattic/jetpack-search/compare/v0.15.3...v0.15.4
+[0.15.3]: https://github.com/Automattic/jetpack-search/compare/v0.15.2...v0.15.3
+[0.15.2]: https://github.com/Automattic/jetpack-search/compare/v0.15.1...v0.15.2
+[0.15.1]: https://github.com/Automattic/jetpack-search/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-search/compare/v0.14.2...v0.15.0
+[0.14.2]: https://github.com/Automattic/jetpack-search/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-search/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-search/compare/v0.13.4...v0.14.0
 [0.13.4]: https://github.com/Automattic/jetpack-search/compare/v0.13.3...v0.13.4
 [0.13.3]: https://github.com/Automattic/jetpack-search/compare/v0.13.2...v0.13.3

@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
-import { BaseControl, PanelBody, SelectControl } from '@wordpress/components';
 import { InspectorAdvancedControls, InspectorControls } from '@wordpress/block-editor';
+import { BaseControl, PanelBody, SelectControl } from '@wordpress/components';
 import { withInstanceId } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { __, sprintf } from '@wordpress/i18n';
+import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
-import JetpackFieldCss from './jetpack-field-css';
 
 const JetpackFieldConsent = ( {
 	id,

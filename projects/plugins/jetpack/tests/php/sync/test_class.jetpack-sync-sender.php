@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Dedicated_Sender;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
@@ -27,6 +28,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	public function set_up() {
 		parent::set_up();
 
+		// Setting the Dedicated Sync check transient here to avoid making a test
+		// request every time dedicated Sync setting is updated.
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING );
+
 		$this->dedicated_sync_request_spawned = false;
 	}
 
@@ -38,10 +43,13 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// Restore default setting.
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 0 ) );
+
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
+
 		// Reset queue.
 		$this->sender->get_sync_queue()->reset();
 
-		unset( $_SERVER['REQUEST_METHOD'] );
+		$_SERVER['REQUEST_URI'] = '';
 	}
 
 	public function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
@@ -364,7 +372,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
-		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 8 );
 	}
 
 	public function test_default_value_for_max_execution_time() {
@@ -668,8 +676,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -690,8 +697,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->get_sync_queue()->lock( 0 );
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -715,8 +721,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->factory->post->create();
 		// Current "request" is dedicated Sync request.
-		$_SERVER['REQUEST_METHOD']               = 'POST';
-		$_POST['jetpack_dedicated_sync_request'] = 1;
+		$_SERVER['REQUEST_URI'] = rest_url( 'jetpack/v4/sync/spawn-sync' );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
 		$result = $this->sender->do_dedicated_sync_and_exit();
@@ -771,11 +776,14 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	 * @return array
 	 */
 	public function pre_http_sync_request_spawned( $preempt, $args, $url ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->dedicated_sync_request_spawned = 'POST' === $args['method'] &&
-			isset( $args['body']['jetpack_dedicated_sync_request'] );
+		$this->dedicated_sync_request_spawned = strpos( $url, 'spawn-sync' ) > 0;
 
 		return array(
-			'success' => true,
+			'response'    => array(
+				'code' => 200,
+			),
+			'status_code' => 200,
+			'body'        => Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING,
 		);
 	}
 }

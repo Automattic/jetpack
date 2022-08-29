@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
 import { get } from 'lodash';
+import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
 const pluginSlug = 'creative-mail-by-constant-contact';

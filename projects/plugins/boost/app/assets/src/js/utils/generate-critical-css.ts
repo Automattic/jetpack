@@ -1,28 +1,21 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import {
 	requestGeneration,
 	sendGenerationResult,
 	storeGenerateError,
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
+import { modules, isEnabled } from '../stores/modules';
+import { recordBoostEvent } from './analytics';
+import { castToNumber } from './cast-to-number';
+import { logPreCriticalCSSGeneration } from './console';
+import { isSameOrigin } from './is-same-origin';
+import { loadCriticalCssLibrary } from './load-critical-css-library';
+import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
+import { removeShownAdminNotices } from './remove-admin-notices';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
-import { modules, isEnabled } from '../stores/modules';
-import { loadCriticalCssLibrary } from './load-critical-css-library';
-import { removeShownAdminNotices } from './remove-admin-notices';
-import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
-import { castToNumber } from './cast-to-number';
-import { recordBoostEvent } from './analytics';
-import { isSameOrigin } from './is-same-origin';
-import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
-import { logPreCriticalCSSGeneration } from './console';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -263,7 +256,7 @@ async function generateForKeys(
 					if ( error.type === 'HttpError' ) {
 						eventProps.error_meta = castToNumber( error.meta.code );
 					}
-					recordBoostEvent( 'critical_css_url_error', 'click', eventProps );
+					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
 				await sendGenerationResult( providerKey, 'error', {
@@ -281,7 +274,7 @@ async function generateForKeys(
 					error_message: err.message,
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
-				recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+				recordBoostEvent( 'critical_css_failure', eventProps );
 
 				return;
 			}
@@ -295,7 +288,7 @@ async function generateForKeys(
 			error_message: 'Critical CSS Generation failed for all the provider keys.',
 			error_type: 'allProvidersError',
 		};
-		recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+		recordBoostEvent( 'critical_css_failure', eventProps );
 	} else {
 		const eventProps = {
 			time: Date.now() - startTime,
@@ -305,7 +298,7 @@ async function generateForKeys(
 			max_size: maxSize,
 			provider_keys: Object.keys( providerKeys ).join( ',' ),
 		};
-		recordBoostEvent( 'critical_css_success', 'click', eventProps );
+		recordBoostEvent( 'critical_css_success', eventProps );
 	}
 
 	updateGenerateStatus( { status: 'success', progress: 0 } );

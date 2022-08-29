@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { getUserLocale } from '../../lib/locale';
 
 /**

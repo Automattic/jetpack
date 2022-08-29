@@ -948,6 +948,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'dismiss_dash_app_card':
 				case 'dismiss_empty_stats_card':
+				case 'dismiss_dash_backup_getting_started':
+				case 'dismiss_dash_agencies_learn_more':
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support bools or strings saved by update_option.
 						? update_option( $option, (bool) $value )
@@ -1447,7 +1449,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	public function get_akismet_data() {
 		$akismet_status = $this->akismet_is_active_and_registered();
 		if ( ! is_wp_error( $akismet_status ) ) {
-			return number_format_i18n( get_option( 'akismet_spam_count', 0 ) );
+			return (int) get_option( 'akismet_spam_count', 0 );
 		} else {
 			return $akismet_status->get_error_code();
 		}

@@ -303,7 +303,18 @@ class Jetpack_PostImages {
 				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
-			$url    = $img_src[0];
+			// Let's try to use the postmeta if we can, since it seems to be
+			// more reliable
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$featured_image = get_post_meta( $post->ID, '_jetpack_featured_image' );
+				if ( $featured_image ) {
+					$url = $featured_image[0];
+				} else {
+					$url = $img_src[0];
+				}
+			} else {
+				$url = $img_src[0];
+			}
 			$images = array(
 				array( // Other methods below all return an array of arrays.
 					'type'       => 'image',

@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
 const path = require( 'path' );
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
+const glob = require( 'glob' );
+const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -97,7 +94,7 @@ const supportedModules = [
 const moduleSources = [
 	...glob.sync( '_inc/*.js' ),
 	...glob.sync( `modules/@(${ supportedModules.join( '|' ) })/**/*.js` ),
-].filter( name => ! name.endsWith( '.min.js' ) && ! /\/test-[^/]\.js$/.test( name ) );
+].filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 );
 
 // Library definitions for certain modules.
 const libraryDefs = {

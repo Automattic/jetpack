@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
 	JETPACK_SETTINGS_FETCH,
@@ -202,4 +195,24 @@ export function appsCardDismissed( state ) {
  */
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
+}
+
+/**
+ * Returns true if Backup Getting Started card has been dismissed.
+ *
+ * @param  {Object} state - Global state tree
+ * @returns {boolean} Whether the card has been dismissed
+ */
+export function backupGettingStartedDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_dash_backup_getting_started', false );
+}
+
+/**
+ * Returns true if Agencies Learn More card has been dismissed.
+ *
+ * @param {Object} state - Global state tree
+ * @returns {boolean} Whether the card has been dismissed
+ */
+export function agenciesLearnMoreDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_dash_agencies_learn_more', false );
 }

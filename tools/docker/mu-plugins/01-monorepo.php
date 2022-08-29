@@ -39,7 +39,14 @@ class Monorepo {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->monorepo = '/usr/local/src/jetpack-monorepo/';
+		/**
+		 * Filter the monorepo path for development environments.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $path Monorepo file path.
+		 */
+		$this->monorepo = apply_filters( 'jetpack_monorepo_path', '/usr/local/src/jetpack-monorepo/' );
 		$this->plugins  = $this->monorepo . 'projects/plugins/';
 		$this->packages = $this->monorepo . 'projects/packages/';
 	}

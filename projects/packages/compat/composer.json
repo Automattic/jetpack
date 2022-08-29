@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"files": [
@@ -34,7 +34,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.7.x-dev"
+			"dev-trunk": "1.7.x-dev"
 		}
 	}
 }

@@ -1,48 +1,56 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.14.0-alpha",
+	"version": "0.18.1",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
-		"@wordpress/browserslist-config": "4.1.2",
-		"@wordpress/components": "19.10.0",
-		"@wordpress/compose": "5.5.0",
-		"@wordpress/date": "4.8.0",
-		"@wordpress/i18n": "4.8.0",
-		"@wordpress/icons": "8.4.0",
+		"@wordpress/browserslist-config": "5.0.0",
+		"@wordpress/components": "20.0.0",
+		"@wordpress/compose": "5.14.0",
+		"@wordpress/date": "4.16.0",
+		"@wordpress/i18n": "4.16.0",
+		"@wordpress/icons": "9.7.0",
 		"classnames": "2.3.1",
-		"lodash": "4.17.21",
 		"prop-types": "^15.7.2",
 		"qrcode.react": "2.0.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@babel/core": "7.17.10",
-		"@babel/preset-react": "7.16.7",
-		"@storybook/addon-actions": "6.4.22",
+		"@babel/core": "7.18.13",
+		"@babel/preset-react": "7.18.6",
+		"@jest/globals": "28.1.0",
+		"@storybook/addon-actions": "6.5.10",
+		"@storybook/react": "6.5.10",
+		"@testing-library/dom": "8.16.0",
 		"@testing-library/react": "12.1.5",
-		"@types/chai": "4.3.0",
 		"@types/jest": "27.4.1",
-		"@types/react": "17.0.44",
-		"@types/react-dom": "17.0.15",
-		"@types/react-test-renderer": "17.0.1",
+		"@types/qrcode.react": "1.0.2",
+		"@types/react": "17.0.47",
+		"@types/react-dom": "17.0.17",
+		"@types/react-test-renderer": "17.0.2",
+		"@types/testing-library__jest-dom": "5.14.1",
 		"@types/wordpress__components": "19.10.0",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0",
+		"jest": "28.1.0",
+		"jest-environment-jsdom": "28.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2",
-		"sass": "1.43.3",
+		"require-from-string": "2.0.2",
 		"storybook-addon-mock": "2.0.2",
-		"typescript": "4.6.4"
+		"typescript": "4.7.4",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2"
 	},
 	"type": "module",
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"exports": {
 		".": "./index.ts"
 	},
@@ -51,11 +59,13 @@
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.[jt]sx'"
+		"build": "pnpm run compile-ts",
+		"compile-ts": "tsc --pretty",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

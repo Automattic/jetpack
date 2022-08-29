@@ -1,4 +1,37 @@
-.alert-icon-wrapper {
-	margin-top: -4px;
-	margin-left: -40px; // the icon has a drop shadow that is 40px wide
+// seventy-five layout
+// Handle large lg size from here,
+// adding a gap on one column
+// in between main and secondary sections.
+@media ( min-width: 960px ) {
+	.main {
+		grid-column: 1 / span 6;
+	}
+
+	.secondary {
+		grid-column: 8 / span 5;
+	}
+}
+
+// Alert section
+.main-content {
+	padding: calc( var( --spacing-base ) * 7 ) 0;
+}
+
+.illustration {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	img {
+		// let's fit images
+		object-fit: cover;
+		width: 100%;
+	}
+}
+
+// Viewport breakpoints.
+.is-viewport-small {
+	// Add spacing between main and secondary in "sm" viewport size
+	.main {
+		margin-bottom: calc( var( --spacing-base ) * 3 );
+	}
 }

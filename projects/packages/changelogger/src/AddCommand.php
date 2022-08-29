@@ -136,11 +136,13 @@ EOF
 	 * @return string
 	 */
 	protected function getDefaultFilename( OutputInterface $output ) {
+		static $non_feature_branches = array( 'current', 'default', 'develop', 'latest', 'main', 'master', 'next', 'production', 'support', 'tip', 'trunk' );
+
 		try {
 			$process = Utils::runCommand( array( 'git', 'rev-parse', '--abbrev-ref', 'HEAD' ), $output, $this->getHelper( 'debug_formatter' ) );
 			if ( $process->isSuccessful() ) {
 				$ret = trim( $process->getOutput() );
-				if ( ! in_array( $ret, array( '', 'master', 'main', 'trunk' ), true ) ) {
+				if ( ! in_array( $ret, $non_feature_branches, true ) ) {
 					return strtr( $ret, array_fill_keys( array_keys( self::$badChars ), '-' ) );
 				}
 			}
@@ -179,7 +181,7 @@ EOF
 				$filename = $this->getDefaultFilename( $output );
 			}
 			if ( $isInteractive ) {
-				$question = new Question( "Name your change file <info>[default: $filename]</> > ", $filename );
+				$question = new Question( "Name your changelog file <info>[default: $filename]</> > ", $filename );
 				$question->setValidator( array( $this, 'validateFilename' ) );
 				$filename = $this->getHelper( 'question' )->ask( $input, $output, $question );
 				if ( null === $filename ) { // non-interactive.

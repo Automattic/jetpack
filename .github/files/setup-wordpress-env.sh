@@ -53,7 +53,7 @@ echo "::endgroup::"
 export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
-PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-master"] // "dev-master" ) )' projects/packages/*/composer.json)"
+PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"

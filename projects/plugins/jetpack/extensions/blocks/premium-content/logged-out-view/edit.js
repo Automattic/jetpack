@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Context from '../_inc/context';
 import { usePremiumContentAllowedBlocks } from '../_inc/premium';
 

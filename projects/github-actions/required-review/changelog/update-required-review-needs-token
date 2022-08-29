@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-The `token` parameter was effectively required, as the default `GITHUB_TOKEN` lacks the ability to read team membership. The parameter is now explicitly required.

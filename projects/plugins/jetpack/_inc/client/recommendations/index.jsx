@@ -1,38 +1,31 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { FeaturePrompt } from './prompts/feature-prompt';
-import { ProductSuggestions } from './prompts/product-suggestions';
-import { ProductPurchased } from './product-purchased';
-import { SiteTypeQuestion } from './prompts/site-type';
-import { Summary } from './summary';
-import QueryRecommendationsData from 'components/data/query-recommendations-data';
+import { __ } from '@wordpress/i18n';
 import QueryIntroOffers from 'components/data/query-intro-offers';
+import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
+import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryRecommendationsProductSuggestions from 'components/data/query-recommendations-product-suggestions';
 import QueryRecommendationsUpsell from 'components/data/query-recommendations-upsell';
-import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
+import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
+import React from 'react';
+import { connect } from 'react-redux';
+import { Redirect, Route, Switch } from 'react-router-dom';
+import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,
 	isRecommendationsDataLoaded,
 	isRecommendationsConditionalLoaded,
 } from 'state/recommendations';
-import { getNewRecommendations } from 'state/initial-state';
-import QuerySiteDiscount from 'components/data/query-site-discount';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
+import { ProductPurchased } from './product-purchased';
+import { FeaturePrompt } from './prompts/feature-prompt';
+import { ProductSuggestions } from './prompts/product-suggestions';
 import { ResourcePrompt } from './prompts/resource-prompt';
+import { SiteTypeQuestion } from './prompts/site-type';
+import { Summary } from './summary';
 
 const RecommendationsComponent = props => {
 	const { isLoading, step, newRecommendations } = props;
@@ -77,6 +70,12 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS:
 			redirectPath = '/videopress';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.BACKUP_PLAN:
+			redirectPath = '/backup-plan';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.BOOST:
+			redirectPath = '/boost';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
@@ -91,6 +90,7 @@ const RecommendationsComponent = props => {
 
 	return (
 		<>
+			<h1 className="screen-reader-text">{ __( 'Jetpack Recommendations', 'jetpack' ) }</h1>
 			<QueryRecommendationsData />
 			<QueryRecommendationsProductSuggestions />
 			<QueryRecommendationsUpsell />
@@ -142,6 +142,12 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/videopress">
 						<FeaturePrompt stepSlug="videopress" isNew={ isNew( 'videopress' ) } />
+					</Route>
+					<Route path="/recommendations/backup-plan">
+						<ResourcePrompt stepSlug="backup-plan" isNew={ isNew( 'backup-plan' ) } />
+					</Route>
+					<Route path="/recommendations/boost">
+						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
 					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />

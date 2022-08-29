@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { useSelect } from '@wordpress/data';
 import { Container, Col, AdminSectionHero, getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
+import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
 import './connection-page.scss';
@@ -32,6 +25,11 @@ export default function ConnectionPage( { isLoading = false } ) {
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter(), [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
+	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
+	const checkSiteHasSearchProduct = useCallback(
+		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
+		[ fetchSearchPlanInfo ]
+	);
 
 	const isPageLoading = useSelect(
 		select =>
@@ -56,6 +54,8 @@ export default function ConnectionPage( { isLoading = false } ) {
 				registrationNonce={ registrationNonce }
 				from="jetpack-search"
 				redirectUri="admin.php?page=jetpack-search"
+				wpcomProductSlug="jetpack_search"
+				siteProductAvailabilityHandler={ checkSiteHasSearchProduct }
 			>
 				<SearchPromotionBlock />
 			</ConnectScreenRequiredPlan>
@@ -76,7 +76,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 					{ __(
 						'Pricing will automatically adjust based on the number of records in your search index.',
 						'jetpack-search-pkg'
-					) }
+					) }{ ' ' }
 					<a
 						href={ getRedirectUrl( 'search-product-pricing' ) }
 						className="jp-search-dashboard-connection-footer__link"

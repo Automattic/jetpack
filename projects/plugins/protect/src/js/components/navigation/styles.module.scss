@@ -12,6 +12,7 @@
 	align-items: center;
 	justify-content: space-between;
 	margin: 0;
+	text-align: left;
 
 	// Clickable State
 	&.clickable {
@@ -50,6 +51,15 @@
 	&-label {
 		display: flex;
 		align-items: center;
+		padding-right: var(--spacing-base); // 8px
+		overflow-x: hidden;
+	}
+
+	// .navigation-item-label-content
+	&-label-text {
+		display: block;
+		overflow-x: hidden;
+		text-overflow: ellipsis;
 	}
 
 	// .navigation-item-icon

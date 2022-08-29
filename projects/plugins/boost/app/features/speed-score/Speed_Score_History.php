@@ -144,6 +144,6 @@ class Speed_Score_History {
 	public function push( $entry ) {
 		$this->entries[] = $entry;
 		$this->entries   = array_slice( $this->entries, - static::LIMIT );
-		update_option( $this->get_option_name(), $this->entries );
+		update_option( $this->get_option_name(), $this->entries, false );
 	}
 }

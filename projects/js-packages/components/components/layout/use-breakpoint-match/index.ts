@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { useMediaQuery } from '@wordpress/compose';
 import breakpointsValues from '../breakpoints.module.scss';
 

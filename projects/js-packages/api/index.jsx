@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-import { assign } from 'lodash';
-import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -45,7 +41,7 @@ function JetpackRestApiClient( root, nonce ) {
 		postParams = {
 			method: 'post',
 			credentials: 'same-origin',
-			headers: assign( {}, headers, {
+			headers: Object.assign( {}, headers, {
 				'Content-type': 'application/json',
 			} ),
 		},
@@ -66,7 +62,7 @@ function JetpackRestApiClient( root, nonce ) {
 			postParams = {
 				method: 'post',
 				credentials: 'same-origin',
-				headers: assign( {}, headers, {
+				headers: Object.assign( {}, headers, {
 					'Content-type': 'application/json',
 				} ),
 			};
@@ -557,7 +553,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @returns {Promise<Response>} - the http response promise
 	 */
 	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
+		return fetch( route, Object.assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
 	/**
@@ -592,7 +588,7 @@ function JetpackRestApiClient( root, nonce ) {
 		return responseOk ? statsData : {};
 	}
 
-	assign( this, methods );
+	Object.assign( this, methods );
 }
 
 const restApi = new JetpackRestApiClient();

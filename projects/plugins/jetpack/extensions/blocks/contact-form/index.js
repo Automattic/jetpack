@@ -1,35 +1,27 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
-import edit from './edit';
-import defaultAttributes from './attributes';
-import variations from './variations';
-import deprecated from './deprecated';
-import transforms from './transforms';
-import JetpackField from './components/jetpack-field';
-import JetpackFieldTextarea from './components/jetpack-field-textarea';
-import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
-import JetpackFieldMultiple from './components/jetpack-field-multiple';
-import renderMaterialIcon from '../../shared/render-material-icon';
 import { getIconColor } from '../../shared/block-icons';
+import renderMaterialIcon from '../../shared/render-material-icon';
+import defaultAttributes from './attributes';
+import JetpackField from './components/jetpack-field';
+import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
+import JetpackFieldConsent from './components/jetpack-field-consent';
+import JetpackFieldMultiple from './components/jetpack-field-multiple';
+import JetpackFieldTextarea from './components/jetpack-field-textarea';
+import deprecated from './deprecated';
+import edit from './edit';
+import transforms from './transforms';
+import variations from './variations';
 
 export const name = 'contact-form';
 
 const icon = renderMaterialIcon(
 	<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
 );
-
-import JetpackFieldConsent from './components/jetpack-field-consent';
 
 export const settings = {
 	title: __( 'Form', 'jetpack' ),

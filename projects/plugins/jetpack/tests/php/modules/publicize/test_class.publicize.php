@@ -47,6 +47,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		global $publicize_ui;
+		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
@@ -96,6 +99,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
+
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();

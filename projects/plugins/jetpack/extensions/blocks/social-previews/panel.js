@@ -4,16 +4,9 @@
  * Shows available services and allows opening up the preview modal.
  */
 
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { AVAILABLE_SERVICES } from './constants';
 
 const SocialPreviewsPanel = function SocialPreviewsPanel( { openModal, showUpgradeNudge } ) {

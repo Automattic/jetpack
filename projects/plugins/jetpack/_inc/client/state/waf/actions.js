@@ -1,12 +1,9 @@
-/**
- * Internal dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import {
 	WAF_SETTINGS_FETCH,
 	WAF_SETTINGS_FETCH_RECEIVE,
 	WAF_SETTINGS_FETCH_FAIL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchWafSettings = () => {
 	return dispatch => {

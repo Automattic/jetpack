@@ -1,17 +1,10 @@
-/**
- * External Dependencies
- */
-import React from 'react';
-
-/**
- * Internal Dependencies
- */
-import { DisconnectCard } from '@automattic/jetpack-connection';
-import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { DisconnectCard } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React from 'react';
 import './style.scss';
 
 /**
@@ -85,7 +78,7 @@ const JetpackBenefits = props => {
 								{
 									ExternalLink: (
 										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-features-security' ) }
+											href={ getRedirectUrl( 'jetpack-features-brute-force' ) }
 											rel="noopener noreferrer"
 											target="_blank"
 										></ExternalLink>

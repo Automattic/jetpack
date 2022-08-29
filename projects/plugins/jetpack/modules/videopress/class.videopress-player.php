@@ -1,4 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
+
 /**
  * VideoPress playback module markup generator.
  *
@@ -224,11 +226,11 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Rating agencies and industry associations require a potential viewer verify his or her age before a video or its poster frame are displayed.
+	 * Rating agencies and industry associations require a potential viewer verify their age before a video or its poster frame are displayed.
 	 * Content rated for audiences 17 years of age or older requires such verification across multiple rating agencies and industry associations
 	 *
 	 * @since 1.3
-	 * @return bool true if video requires the viewer verify he or she is 17 years of age or older
+	 * @return bool true if video requires the viewer verify they are 17 years of age or older
 	 */
 	private function age_gate_required() {
 		if ( isset( $this->video->age_rating ) && $this->video->age_rating >= 17 ) {
@@ -339,7 +341,10 @@ class VideoPress_Player {
 			$html .= ' lang="' . esc_attr( $this->video->language ) . '"';
 		}
 		$html .= '>';
-		if ( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false ) {
+		if (
+			( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false )
+			&& isset( $this->video->videos->mp4 )
+		) {
 			$mp4 = $this->video->videos->mp4->url;
 			if ( ! empty( $mp4 ) ) {
 				$html .= '<source src="' . esc_url( $mp4 ) . '" type="video/mp4; codecs=&quot;' . esc_attr( $this->video->videos->mp4->codecs ) . '&quot;" />';
@@ -609,6 +614,8 @@ class VideoPress_Player {
 	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;
 
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+
 		// Must not use iframes for IE11 due to a fullscreen bug
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'Trident/7.0; rv:11.0' ) ) {
 			$iframe_embed = false;
@@ -658,11 +665,12 @@ class VideoPress_Player {
 				case 'controls':
 				case 'playsinline':
 				case 'useAverageColor':
-					if ( in_array( $value, array( 1, 'true' ), true ) ) {
+					if ( in_array( $value, array( true, 1, 'true' ), true ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false' ), true ) ) {
+					} elseif ( in_array( $value, array( false, 0, 'false' ), true ) ) {
 						$videopress_options[ $option ] = false;
 					}
+					// phpcs:enable
 					break;
 				case 'defaultlangcode':
 					$option = 'defaultLangCode';
@@ -691,12 +699,12 @@ class VideoPress_Player {
 				. "' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
-				. "' frameborder='0' allowfullscreen></iframe>"
+				. "' frameborder='0' allowfullscreen allow='clipboard-write'></iframe>"
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options );
-			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress.js';
+			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
 			return "<div id='{$video_container_id}'></div>
 				<script src='{$js_url}'></script>

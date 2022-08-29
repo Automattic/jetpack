@@ -1,0 +1,54 @@
+{
+	"name": "automattic/jetpack-videopress-plugin",
+	"description": "High quality, ad-free video.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "1.17.x-dev",
+		"automattic/jetpack-autoloader": "2.11.x-dev",
+		"automattic/jetpack-composer-plugin": "1.1.x-dev",
+		"automattic/jetpack-config": "1.9.x-dev",
+		"automattic/jetpack-connection": "^1.43",
+		"automattic/jetpack-identity-crisis": "0.8.x-dev",
+		"automattic/jetpack-my-jetpack": "2.0.x-dev",
+		"automattic/jetpack-sync": "1.38.x-dev",
+		"automattic/jetpack-plugins-installer": "0.2.x-dev",
+		"automattic/jetpack-videopress": "0.2.x-dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/wordbless": "0.3.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-videopress-plugin",
+		"release-branch-prefix": "videopress",
+		"beta-plugin-slug": "jetpack-videopress",
+		"wp-plugin-slug": "jetpack-videopress"
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ0_2_0_alpha"
+	}
+}

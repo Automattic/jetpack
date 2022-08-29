@@ -5,7 +5,7 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [master]
+    branches: [ trunk ]
     paths-ignore:
     - '**.md'
   schedule:
@@ -81,7 +81,7 @@ jobs:
       working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        COMPOSER_ROOT_VERSION: "dev-master"
+        COMPOSER_ROOT_VERSION: "dev-trunk"
         RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
         PROJECT_NAME:  ${{ matrix.project }}
       run: |
@@ -121,10 +121,10 @@ jobs:
         JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run test:run -- "${TEST_ARGS[@]}"
+        pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Send Slack notification
-      if: ${{ ! cancelled() }}
+      if: ${{ failure() && ! cancelled() }}
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
         SUITE: ${{ matrix.project }}
@@ -132,7 +132,7 @@ jobs:
       working-directory: ${{ matrix.path }}
       run: |
         mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run slack -- suite "$SUITE" "${ARGS[@]}"
+        pnpm run slack suite "$SUITE" "${ARGS[@]}"
 
     - name: Test environment tear-down
       if: ${{ always() }}
@@ -166,5 +166,35 @@ jobs:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           event_type: e2e
           report_name: ${{needs.create-test-matrix.outputs.runName}}
+
+  slack-notification:
+    name: "Slack notification"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }} # need to run on failure and also on success, so it can send notifications when tests passed on re-runs
+    needs: [create-test-matrix, e2e-tests]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Build action
+        env:
+          COMPOSER_ROOT_VERSION: dev-trunk
+        run: |
+          pnpm install
+          composer install
+          composer build-development
+        working-directory: ./projects/github-actions/test-results-to-slack
+
+      - name: "Send notification"
+        uses: ./projects/github-actions/test-results-to-slack
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
+          slack_icon_emoji: ":jetpack:"
+          suite_name: ${{needs.create-test-matrix.outputs.runName}}
 
 

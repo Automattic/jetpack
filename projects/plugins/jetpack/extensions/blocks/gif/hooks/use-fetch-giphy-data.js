@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { useEffect, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 
 const useFetchGiphyData = ( initialValue = [] ) => {
 	const [ isFetching, setIsFetching ] = useState( false );

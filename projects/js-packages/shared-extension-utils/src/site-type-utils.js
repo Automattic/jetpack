@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import getJetpackData from './get-jetpack-data';
 
 /**

@@ -16,10 +16,10 @@
 		"cli-link": "jetpack cli link",
 		"cli-setup": "pnpm install && jetpack cli link",
 		"cli-unlink": "jetpack cli unlink",
-		"lint": "pnpm run lint-file -- .",
+		"lint": "pnpm run lint-file .",
 		"lint-changed": "eslint-changed --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte --git",
 		"lint-file": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte",
-		"lint-required": "ESLINT_IGNORE_REQUIRED=1 pnpm run lint -- --max-warnings=0",
+		"lint-required": "ESLINT_IGNORE_REQUIRED=1 pnpm run lint --max-warnings=0",
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
@@ -28,14 +28,14 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "8.15.0",
+		"eslint": "8.22.0",
 		"husky": "7.0.4",
 		"jetpack-cli": "workspace:1.0.0",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
+		"pnpm": "^7.9.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

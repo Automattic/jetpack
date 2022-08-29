@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import React, { useMemo } from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React, { useMemo, forwardRef } from 'react';
+import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';
 import styles from './style.module.scss';
 import type { H3Props, TextProps, TitleProps } from './types';
-import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';
 
 /**
  * Text component.
@@ -17,36 +10,34 @@ import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';
  * @param {TextProps} props - Component props.
  * @returns {React.ReactElement} - JSX.Element
  */
-const Text: React.FC< TextProps > = ( {
-	variant = 'body',
-	children,
-	component,
-	className,
-	...componentProps
-} ) => {
-	const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
+const Text = forwardRef< HTMLElement, TextProps >(
+	( { variant = 'body', children, component, className, ...componentProps }, ref ) => {
+		const Component = component || VARIANTS_MAPPING[ variant ] || 'span';
 
-	// Build Styles module CSS classnames.
-	const boxModelClasses = useMemo( () => {
-		return BOX_MODEL_VALUES.reduce( ( acc, value ) => {
-			if ( typeof componentProps[ value ] !== 'undefined' ) {
-				acc += styles[ `${ value }-${ componentProps[ value ] }` ] + ' ';
-				// pick spacing prop. Do not pass down to Component.
-				delete componentProps[ value ];
-			}
-			return acc;
-		}, '' );
-	}, [ componentProps ] );
+		// Build Styles module CSS classnames.
+		const boxModelClasses = useMemo( () => {
+			return BOX_MODEL_VALUES.reduce( ( acc, value ) => {
+				if ( typeof componentProps[ value ] !== 'undefined' ) {
+					acc += styles[ `${ value }-${ componentProps[ value ] }` ] + ' ';
+					// pick spacing prop. Do not pass down to Component.
+					delete componentProps[ value ];
+				}
+				return acc;
+			}, '' );
+		}, [ componentProps ] );
 
-	return (
-		<Component
-			className={ classNames( styles.reset, styles[ variant ], className, boxModelClasses ) }
-			{ ...componentProps }
-		>
-			{ children }
-		</Component>
-	);
-};
+		componentProps.ref = ref;
+
+		return (
+			<Component
+				className={ classNames( styles.reset, styles[ variant ], className, boxModelClasses ) }
+				{ ...componentProps }
+			>
+				{ children }
+			</Component>
+		);
+	}
+);
 
 export default Text;
 

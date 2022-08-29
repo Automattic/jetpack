@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { __ } from '@wordpress/i18n';
 import { BlockControls, PlainText } from '@wordpress/block-editor';
-import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import MarkdownRenderer from './renderer';
 
 /**

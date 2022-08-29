@@ -2,7 +2,6 @@ const assert = require( 'assert' );
 const core = require( '@actions/core' );
 const { SError } = require( 'error' );
 const picomatch = require( 'picomatch' );
-
 const fetchTeamMembers = require( './team-members.js' );
 
 class RequirementError extends SError {}

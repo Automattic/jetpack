@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { Title } from '../index';
 import styles from './style.module.scss';
 import type { TitleProps } from '../types';

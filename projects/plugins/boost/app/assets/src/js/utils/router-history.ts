@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { createHistory, HistorySource } from 'svelte-navigator';
-
-/**
- * Internal dependencies
- */
 import createHashSource from './create-hash-source';
 
 /*

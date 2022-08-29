@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { useState } from 'react';
 import { plugins as pluginsIcon, wordpress, color } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import { useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
 const flatData = ( data, icon ) => {

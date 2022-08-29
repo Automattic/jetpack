@@ -1,13 +1,15 @@
-/**
- * External dependencies
- */
 import { _x } from '@wordpress/i18n';
+import {
+	isJetpackPlanWithAntiSpam,
+	isJetpackPlanWithBackup,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_VIDEOPRESS,
+	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_BACKUP_T1_YEARLY,
+} from 'lib/plans/constants';
+import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
 import { combineReducers } from 'redux';
-import { assign, difference, get, includes, isArray, isEmpty, mergeWith, union } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SKIPPED_RECOMMENDATION,
@@ -29,30 +31,23 @@ import {
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE,
 	JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL,
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
+	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
+	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
 } from 'state/action-types';
-import {
-	getPlanClass,
-	isVideoPressLegacySecurityPlan,
-	isJetpackPlanWithAntiSpam,
-	PLAN_JETPACK_SECURITY_T1_YEARLY,
-	PLAN_JETPACK_VIDEOPRESS,
-	PLAN_JETPACK_ANTI_SPAM,
-} from 'lib/plans/constants';
+import { hasConnectedOwner } from 'state/connection';
+import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
 	getSitePlan,
-	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
-	hasActiveSiteFeature,
+	siteHasFeature,
 	hasActiveAntiSpamPurchase,
-	hasActiveVideoPressPurchase,
 	hasSecurityComparableLegacyPlan,
+	hasActiveBackupPurchase,
 } from 'state/site';
-import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
-import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -210,6 +205,27 @@ const siteDiscount = ( state = {}, action ) => {
 	}
 };
 
+const installing = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START:
+			return Object.values( RECOMMENDATION_WIZARD_STEP ).includes( action.feature )
+				? {
+						...state,
+						[ action.feature ]: true,
+				  }
+				: state;
+		case JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END:
+			return Object.values( RECOMMENDATION_WIZARD_STEP ).includes( action.feature )
+				? {
+						...state,
+						[ action.feature ]: false,
+				  }
+				: state;
+		default:
+			return state;
+	}
+};
+
 const getConditionalRecommendations = state => {
 	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
 };
@@ -222,6 +238,7 @@ export const reducer = combineReducers( {
 	productSuggestions,
 	conditional,
 	siteDiscount,
+	installing,
 } );
 
 export const isFetchingRecommendationsData = state => {
@@ -275,6 +292,8 @@ const stepToNextStep = {
 	'security-plan': 'summary',
 	'anti-spam': 'summary',
 	videopress: 'summary',
+	'backup-plan': 'summary',
+	boost: 'summary',
 	summary: 'summary',
 };
 
@@ -291,6 +310,8 @@ export const stepToRoute = {
 	'security-plan': '#/recommendations/security-plan',
 	'anti-spam': '#/recommendations/anti-spam',
 	videopress: '#/recommendations/videopress',
+	'backup-plan': '#/recommendations/backup-plan',
+	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
 };
 
@@ -302,8 +323,15 @@ export const isStepViewed = ( state, featureSlug ) => {
 	);
 };
 
+export const isInstallingRecommendedFeature = ( state, featureSlug ) => {
+	const featuresInstalling = get( state.jetpack, [ 'recommendations', 'installing' ] );
+	return featuresInstalling[ featureSlug ] ?? false;
+};
+
 export const isFeatureActive = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
+		case 'boost':
+			return !! isPluginActive( state, 'jetpack-boost/jetpack-boost.php' );
 		case 'creative-mail':
 			return !! isPluginActive(
 				state,
@@ -343,13 +371,19 @@ export const isProductSuggestionsAvailable = state => {
 };
 
 export const getProductSlugForStep = ( state, step ) => {
-	const planClass = getPlanClass( getSitePlan( state ).product_slug );
-
 	switch ( step ) {
 		case 'publicize':
 		case 'security-plan':
 			if ( ! hasActiveSecurityPurchase( state ) && ! hasSecurityComparableLegacyPlan( state ) ) {
 				return PLAN_JETPACK_SECURITY_T1_YEARLY;
+			}
+			break;
+		case 'backup-plan':
+			if (
+				! hasActiveBackupPurchase( state ) &&
+				! isJetpackPlanWithBackup( getSitePlan( state ) )
+			) {
+				return PLAN_JETPACK_BACKUP_T1_YEARLY;
 			}
 			break;
 		case 'anti-spam':
@@ -363,9 +397,8 @@ export const getProductSlugForStep = ( state, step ) => {
 			break;
 		case 'videopress':
 			if (
-				! includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) &&
-				! getSitePurchases( state ).find( isVideoPressLegacySecurityPlan ) &&
-				! hasActiveVideoPressPurchase( state )
+				! siteHasFeature( state, 'videopress-1tb-storage' ) &&
+				! siteHasFeature( state, 'videopress-unlimited-storage' )
 			) {
 				return PLAN_JETPACK_VIDEOPRESS;
 			}
@@ -401,8 +434,11 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'security-plan':
 		case 'anti-spam':
+		case 'backup-plan':
 			return isConditionalRecommendationEnabled( state, step );
 		case 'videopress':
+			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
@@ -488,10 +524,13 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 			return true === getDataByKey( state, 'site-type-store' );
 		case 'monitor':
 			return hasConnectedOwner( state );
+		case 'boost':
+			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'publicize':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
 		case 'security-plan':
 		case 'anti-spam':
+		case 'backup-plan':
 			return isConditionalRecommendationEnabled( state, slug );
 		case 'videopress':
 			return isConditionalRecommendationEnabled( state, slug ) || isFeatureActive( state, slug );
@@ -509,6 +548,7 @@ export const getSummaryFeatureSlugs = state => {
 		'site-accelerator',
 		'publicize',
 		'videopress',
+		'boost',
 	];
 
 	const featureSlugsEligibleToShow = featureSlugsInPreferenceOrder.filter( slug =>
@@ -519,7 +559,7 @@ export const getSummaryFeatureSlugs = state => {
 	const skipped = [];
 
 	for ( const slug of featureSlugsEligibleToShow ) {
-		if ( isFeatureActive( state, slug ) ) {
+		if ( isFeatureActive( state, slug ) || isInstallingRecommendedFeature( state, slug ) ) {
 			selected.push( slug );
 		} else {
 			skipped.push( slug );
@@ -533,7 +573,7 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSummaryResourceSlugs = state => {
-	const resourceSlugs = [ 'security-plan', 'anti-spam' ];
+	const resourceSlugs = [ 'security-plan', 'anti-spam', 'backup-plan' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
@@ -552,7 +592,7 @@ export const getSidebarCardSlug = state => {
 		return 'upsell';
 	}
 
-	if ( 'awaiting_credentials' === rewindState && ! hasActiveSiteFeature( state, 'scan' ) ) {
+	if ( 'awaiting_credentials' === rewindState && ! siteHasFeature( state, 'scan' ) ) {
 		return 'one-click-restores';
 	}
 

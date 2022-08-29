@@ -1,9 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-/**
- * Internal dependencies
- */
 import { generateDateRangeFilter, setDocumentCountsToZero } from '../api';
 
 describe( 'generateDateRangeFilter', () => {

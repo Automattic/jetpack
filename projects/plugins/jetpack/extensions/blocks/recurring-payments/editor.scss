@@ -115,4 +115,9 @@
 	.wp-block-jetpack-membership-button_notification {
 		display: block;
 	}
+
+	.wp-block[data-type='jetpack/button'] {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
 }

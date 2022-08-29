@@ -1,14 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
-import ProductOffer from '../../product-offer';
 import Dialog from '..';
+import ProductOffer from '../../product-offer';
 import BoostImage from './boost.png';
 
 export default {
@@ -57,7 +50,6 @@ JetpackBoost.args = {
 				isFree: true,
 			} }
 			className={ '' }
-			icon={ '' }
 			isCard={ false }
 			supportedProducts={ [] }
 			hasRequiredPlan={ false }
@@ -92,7 +84,6 @@ JetpackBackup.args = {
 			} }
 			isCard={ true }
 			className={ '' }
-			icon={ '' }
 			supportedProducts={ [] }
 			hasRequiredPlan={ false }
 			addProductUrl={ '' }
@@ -100,7 +91,6 @@ JetpackBackup.args = {
 	),
 	secondary: (
 		<ProductOffer
-			slug="security"
 			name="Security"
 			title="Security"
 			description="Comprehensive site security, including Backup, Scan, and Anti-spam."
@@ -120,7 +110,6 @@ JetpackBackup.args = {
 			hasRequiredPlan={ false }
 			isLoading={ false }
 			className={ '' }
-			icon={ '' }
 			isCard={ false }
 			addProductUrl={ '' }
 		/>

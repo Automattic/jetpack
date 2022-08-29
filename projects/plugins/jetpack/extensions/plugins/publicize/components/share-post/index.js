@@ -1,19 +1,12 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
+import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
-import { store as noticesStore } from '@wordpress/notices';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import useSharePost from '../../hooks/use-share-post';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import useSharePost from '../../hooks/use-share-post';
 
 function cleanNotice() {
 	dispatch( noticesStore ).removeNotice( 'publicize-post-share-message' );

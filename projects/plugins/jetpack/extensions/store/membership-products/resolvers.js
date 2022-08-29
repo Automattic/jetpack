@@ -1,13 +1,10 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
+import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
+import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
+import executionLock from '../../shared/execution-lock';
+import getConnectUrl from '../../shared/get-connect-url';
 import {
 	saveProduct,
 	setApiState,
@@ -17,12 +14,8 @@ import {
 	setSiteSlug,
 	setUpgradeUrl,
 } from './actions';
-import { onError } from './utils';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
-import getConnectUrl from '../../shared/get-connect-url';
-import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
-import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
-import executionLock from '../../shared/execution-lock';
+import { onError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 let hydratedFromAPI = false;

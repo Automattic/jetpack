@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
 import { JetpackLogo } from '@automattic/jetpack-components';
 import PropTypes from 'prop-types';
 import React from 'react';
-
-/**
- * Internal dependencies
- */
+import { PrimaryLink } from './primary-link';
 import JetpackProductDetails from './product-details';
 import { ProductLink } from './product-link';
-import { PrimaryLink } from './primary-link';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**

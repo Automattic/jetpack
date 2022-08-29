@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
+import { render, screen } from 'test/test-utils';
 import SupportInfo from '../index';
 
 describe( 'SupportInfo', () => {
@@ -17,17 +10,21 @@ describe( 'SupportInfo', () => {
 		privacyLink: 'https://foo.com/privacy/',
 	};
 
-	const wrapper = shallow( <SupportInfo { ...testProps } /> );
-
-	it( 'should have a proper "Learn more" link', () => {
-		expect( wrapper.find( 'ForwardRef(ExternalLink)' ).get( 0 ).props.href ).to.be.equal(
-			'https://foo.com/'
-		);
+	it( 'should have a proper "Learn more" link', async () => {
+		const user = userEvent.setup();
+		render( <SupportInfo { ...testProps } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Learn more' } ) );
+		expect(
+			screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } )
+		).toHaveAttribute( 'href', 'https://foo.com/' );
 	} );
 
-	it( 'should have a proper "Privacy Information" link', () => {
-		expect( wrapper.find( 'ForwardRef(ExternalLink)' ).get( 1 ).props.href ).to.be.equal(
-			'https://foo.com/privacy/'
-		);
+	it( 'should have a proper "Privacy Information" link', async () => {
+		const user = userEvent.setup();
+		render( <SupportInfo { ...testProps } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Learn more' } ) );
+		expect(
+			screen.getByRole( 'link', { name: 'Privacy information (opens in a new tab)' } )
+		).toHaveAttribute( 'href', 'https://foo.com/privacy/' );
 	} );
 } );

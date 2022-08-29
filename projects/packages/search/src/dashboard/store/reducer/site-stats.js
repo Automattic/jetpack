@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SET_SEARCH_STATS } from '../actions/site-stats';
 
 const siteStats = ( state = {}, action ) => {

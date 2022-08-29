@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useState, useCallback, useContext } from 'react';
 import { Text } from '@automattic/jetpack-components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React, { useState, useCallback, useContext } from 'react';
 import styles from './styles.module.scss';
 
 const AccordionContext = React.createContext();
 
-export const AccordionItem = ( { id, title, label, icon, children } ) => {
+export const AccordionItem = ( { id, title, label, icon, children, onOpen } ) => {
 	const accordionData = useContext( AccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
@@ -24,10 +17,13 @@ export const AccordionItem = ( { id, title, label, icon, children } ) => {
 	} );
 
 	const handleClick = useCallback( () => {
+		if ( ! open ) {
+			onOpen?.();
+		}
 		setOpen( current => {
 			return current === id ? null : id;
 		} );
-	}, [ setOpen, id ] );
+	}, [ open, onOpen, setOpen, id ] );
 
 	return (
 		<div className={ styles[ 'accordion-item' ] }>

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console */
-const isJetpackDraftMode = require( './jetpack-draft' );
 const { spawnSync } = require( 'child_process' );
 const chalk = require( 'chalk' );
+const isJetpackDraftMode = require( './jetpack-draft' );
 
 /**
  * Print the "push again" message.
@@ -38,7 +38,7 @@ function checkChangelogFiles() {
 	// Check if any changelog files are needed.
 	const needChangelog = spawnSync(
 		'tools/check-changelogger-use.php',
-		[ '--maybe-merge', 'origin/master', 'HEAD' ],
+		[ '--maybe-merge', 'origin/trunk', 'HEAD' ],
 		{
 			stdio: 'inherit',
 			cwd: __dirname + '/../../../',

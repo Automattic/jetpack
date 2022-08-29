@@ -67,16 +67,21 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			array(
 				'args'                => array(
 					'access_token' => array(
-						'description' => __( 'An Instagram Keyring access token.', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
+						'description'       => __( 'An Instagram Keyring access token.', 'jetpack' ),
+						'type'              => 'integer',
+						'required'          => true,
+						'minimum'           => 1,
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param ) && (int) $param > 0;
+						},
 					),
 					'count'        => array(
 						'description'       => __( 'How many Instagram posts?', 'jetpack' ),
-						'type'              => 'int',
+						'type'              => 'integer',
 						'required'          => true,
+						'minimum'           => 1,
 						'validate_callback' => function ( $param ) {
-							return is_numeric( $param );
+							return is_numeric( $param ) && (int) $param > 0;
 						},
 					),
 				),

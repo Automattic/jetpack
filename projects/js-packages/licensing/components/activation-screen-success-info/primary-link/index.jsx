@@ -1,15 +1,9 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const PrimaryLink = props => {

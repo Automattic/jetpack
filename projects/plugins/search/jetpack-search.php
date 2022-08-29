@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Search
  * Plugin URI: https://jetpack.com/search/
  * Description: A cloud-powered replacement for WordPress' search.
- * Version: 0.1.0-alpha
+ * Version: 1.3.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -26,7 +26,7 @@ define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__FILE', __FILE__ );
 define( 'JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
-define( 'JETPACK_SEARCH_PLUGIN__VERSION', '0.1.0-alpha' );
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '1.3.0-alpha' );
 
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
@@ -50,7 +50,7 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 			sprintf(
 			/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack Search is incomplete. If you installed Jetpack Search from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack-search' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -77,7 +77,7 @@ if ( ! is_readable( $autoload_packages_path ) ) {
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>

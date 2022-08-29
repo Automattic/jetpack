@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
+import { QRCode } from '@automattic/jetpack-components';
+import { Component, Button, Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { Component, Button, Modal } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { QRCode } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { JetpackLogo } from '../../../shared/icons.js';
 import useSiteLogo from '../hooks/use-site-logo.js';
 import { handleDownloadQRCode } from '../utils/handle-download-qr-code.js';
-import { JetpackLogo } from '../../../shared/icons.js';
 
 /**
  * React component that renders a QR code for the post,

@@ -18,13 +18,19 @@
   	overflow-x: hidden;
 }
 
-.jb-feature-toggle__content .title:focus-visible, .jb-connection__title:focus-visible {
+.jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
 	outline: none;
 }
 
 .jb-section {
 	padding-top: $padding;
 	padding-bottom: $padding;
+}
+
+.jb-link{
+	display:inline-block;
+	margin-top: 10px;
+	font-size:0.8em;
 }
 
 .jb-section--alt {

@@ -1,23 +1,13 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React, { useCallback, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
 import lockImage from '../jetpack-license-activation-with-lock.png';
 import successImage from '../jetpack-license-activation-with-success.png';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**

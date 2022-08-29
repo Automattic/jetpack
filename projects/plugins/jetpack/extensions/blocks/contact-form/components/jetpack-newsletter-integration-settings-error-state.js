@@ -1,8 +1,5 @@
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
 import { ExternalLink, Notice } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const CreativeMailPluginErrorState = ( { error } ) => {

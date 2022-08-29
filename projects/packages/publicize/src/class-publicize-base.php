@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -147,9 +148,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the default Publicize message.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param string $this->default_message Publicize's default message. Default is the post title.
 				 */
@@ -164,9 +164,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the message prepended to the Publicize custom message.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param string $this->default_prefix String prepended to the Publicize custom message.
 				 */
@@ -180,9 +179,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the message appended to the Publicize custom message.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param string $this->default_suffix String appended to the Publicize custom message.
 				 */
@@ -197,9 +195,8 @@ abstract class Publicize_Base {
 		 * All users with this cap can un-globalize all other global connections, and globalize any of their own
 		 * Globalized connections cannot be unselected by users without this capability when publishing.
 		 *
-		 * @module publicize
-		 *
-		 * @since 2.2.1
+		 * @since 0.1.0
+		 * @since-jetpack 2.2.1
 		 *
 		 * @param string $this->GLOBAL_CAP default capability in control of global Publicize connection options. Default to edit_others_posts.
 		 */
@@ -219,8 +216,13 @@ abstract class Publicize_Base {
 		// Connection test callback.
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
-		add_action( 'init', array( $this, 'add_post_type_support' ) );
+		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
+		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+
+		// The custom priority for this action ensures that any existing code that
+		// removes post-thumbnails support during 'init' continues to work.
+		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
 	}
 
 	/**
@@ -445,7 +447,8 @@ abstract class Publicize_Base {
 				return false;
 			}
 
-			$profile_url_query = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query_args = null;
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;
@@ -717,7 +720,8 @@ abstract class Publicize_Base {
 	 * data directly as array so it can be retrieved for static HTML generation
 	 * or JSON consumption.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @param integer $selected_post_id Optional. Post ID to query connection status for.
 	 *
@@ -771,9 +775,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter whether a post should be publicized to a given service.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param bool true Should the post be publicized to a given service? Default to true.
 				 * @param int $post_id Post ID.
@@ -816,9 +819,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the checkbox state of each Publicize connection appearing in the post editor.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.1
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.1
 				 *
 				 * @param bool $enabled Should the Publicize checkbox be enabled for a given service.
 				 * @param int $post_id Post ID.
@@ -837,9 +839,8 @@ abstract class Publicize_Base {
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
 					 *
-					 * @module publicize
-					 *
-					 * @since 3.7.0
+					 * @since 0.1.0
+					 * @since-jetpack 3.7.0
 					 *
 					 * @param bool   $enabled Indicates if this connection should be enabled. Default true.
 					 * @param int    $post_id ID of the current post
@@ -875,7 +876,8 @@ abstract class Publicize_Base {
 	/**
 	 * Checks if post has already been shared by Publicize in the past.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
@@ -889,7 +891,8 @@ abstract class Publicize_Base {
 	 * Retrieves current available publicize service connections
 	 * with associated labels and URLs.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @return array {
 	 *     Array of UI service connection data for all services
@@ -972,9 +975,8 @@ abstract class Publicize_Base {
 		/**
 		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
 		 *
-		 * @module publicize
-		 *
-		 * @since 4.1.0
+		 * @since 0.1.0
+		 * @since-jetpack 4.1.0
 		 *
 		 * @param string $capability User capability needed to use publicize
 		 */
@@ -1005,7 +1007,7 @@ abstract class Publicize_Base {
 	public function register_post_meta() {
 		$message_args = array(
 			'type'          => 'string',
-			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack-publicize-pkg' ),
+			'description'   => __( 'The message to use instead of the title when sharing to Jetpack Social services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => '',
 			'show_in_rest'  => array(
@@ -1213,7 +1215,8 @@ abstract class Publicize_Base {
 				 * Users may hook in here and do anything else they need to after meta is written,
 				 * and before the post is processed for Publicize.
 				 *
-				 * @since 2.1.2
+				 * @since 0.1.0
+				 * @since-jetpack 2.1.2
 				 *
 				 * @param bool $submit_post Should the post be publicized.
 				 * @param int $post->ID Post ID.
@@ -1439,6 +1442,47 @@ abstract class Publicize_Base {
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
 	}
+
+	/**
+	 * Call the WPCOM REST API to get the Publicize shares info.
+	 *
+	 * @param string $blog_id The blog_id.
+	 * @return array
+	 */
+	public function get_publicize_shares_info( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
+	}
+
+	/**
+	 * Call the WPCOM REST API to calculate the scheduled shares.
+	 *
+	 * @param string $blog_id The blog_id.
+	 */
+	public function calculate_scheduled_shares( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social/count-scheduled-shares', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
+	}
 }
 
 /**
@@ -1449,4 +1493,14 @@ abstract class Publicize_Base {
 function publicize_calypso_url() {
 	_deprecated_function( __METHOD__, '0.2.0', 'Publicize::publicize_connections_url' );
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
+}
+
+/**
+ * Adds support for the post-thumbnails feature, regardless of underlying theme support.
+ *
+ * This ensures the featured image UI appears in the editor, allowing the user to
+ * explicitly set an image for their social media post.
+ */
+function add_theme_post_thumbnails_support() {
+	add_theme_support( 'post-thumbnails', get_post_types_by_support( 'publicize' ) );
 }

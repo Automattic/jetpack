@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { renderHook, act } from '@testing-library/react-hooks';
-
-/**
- * Internal dependencies
- */
 import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
 
 const originalFetch = window.fetch;
@@ -22,11 +15,11 @@ const GIPHY_SINGLE_RESPONSE = {
 				height: 10,
 				width: 10,
 			},
-		}
+		},
 	},
 };
 
-export const GIPHY_MULTIPLE_RESPONSE = {
+const GIPHY_MULTIPLE_RESPONSE = {
 	data: [
 		{
 			id: '9',
@@ -39,7 +32,7 @@ export const GIPHY_MULTIPLE_RESPONSE = {
 					height: 10,
 					width: 10,
 				},
-			}
+			},
 		},
 		{
 			id: '99',
@@ -52,15 +45,16 @@ export const GIPHY_MULTIPLE_RESPONSE = {
 					height: 12,
 					width: 12,
 				},
-			}
-		}
-	]
+			},
+		},
+	],
 };
 
 /**
  * Mock return value for a successful fetch JSON return value.
  *
- * @return {Promise} Mock return value.
+ * @param {*} resolvedFetchPromiseResponse - JSON return value.
+ * @returns {Promise} Mock return value.
  */
 function getFetchMockReturnValue( resolvedFetchPromiseResponse ) {
 	const resolvedFetchPromise = Promise.resolve( resolvedFetchPromiseResponse );
@@ -72,6 +66,7 @@ function getFetchMockReturnValue( resolvedFetchPromiseResponse ) {
 
 describe( 'useFetchGiphyData', () => {
 	beforeEach( () => {
+		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( getFetchMockReturnValue( GIPHY_SINGLE_RESPONSE ) );
 	} );
@@ -81,9 +76,7 @@ describe( 'useFetchGiphyData', () => {
 	} );
 
 	test( 'should return object response data after fetch', async () => {
-		const { result } = renderHook(() =>
-			useFetchGiphyData()
-		);
+		const { result } = renderHook( () => useFetchGiphyData() );
 
 		await act( async () => {
 			result.current.fetchGiphyData( 'https://icantbelieve.its/not/butter' );
@@ -95,11 +88,9 @@ describe( 'useFetchGiphyData', () => {
 	} );
 
 	test( 'should return array data after fetch', async () => {
-		window.fetch.mockReturnValueOnce( getFetchMockReturnValue( GIPHY_MULTIPLE_RESPONSE ) )
+		window.fetch.mockReturnValueOnce( getFetchMockReturnValue( GIPHY_MULTIPLE_RESPONSE ) );
 
-		const { result } = renderHook(() =>
-			useFetchGiphyData()
-		);
+		const { result } = renderHook( () => useFetchGiphyData() );
 
 		await act( async () => {
 			result.current.fetchGiphyData( 'https://icantbelieve.its/not/butter' );
@@ -111,9 +102,7 @@ describe( 'useFetchGiphyData', () => {
 	} );
 
 	test( 'should not fetch if url is falsy', async () => {
-		const { result } = renderHook(() =>
-			useFetchGiphyData()
-		);
+		const { result } = renderHook( () => useFetchGiphyData() );
 
 		await act( async () => {
 			result.current.fetchGiphyData( null );
@@ -123,5 +112,4 @@ describe( 'useFetchGiphyData', () => {
 
 		expect( result.current.isFetching ).toBe( false );
 	} );
-
 } );

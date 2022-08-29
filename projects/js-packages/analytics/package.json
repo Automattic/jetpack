@@ -1,27 +1,25 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "0.1.12",
+	"version": "0.1.18",
 	"description": "Jetpack Analytics Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
-	"dependencies": {
-		"lodash": "4.17.21"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"debug": "4.3.3",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"jest": "28.1.0",
+		"jest-environment-jsdom": "28.1.0"
 	},
 	"type": "module",
 	"exports": {
 		".": "./index.jsx"
 	},
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom 'glob:./test/*.@(jsx|js)'"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

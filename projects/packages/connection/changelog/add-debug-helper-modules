@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Allow plugins to filter the list of available modules. Only activate and consider active modules that are available

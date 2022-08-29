@@ -2822,6 +2822,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
+			// Backup Getting Started card on dashboard.
+			'dismiss_dash_backup_getting_started'  => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+			// Agencies Learn More card on dashboard.
+			'dismiss_dash_agencies_learn_more'     => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
 			'lang_id'                              => array(
 				'description' => esc_html__( 'Primary language for the site.', 'jetpack' ),
 				'type'        => 'string',

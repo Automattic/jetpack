@@ -1,17 +1,20 @@
 name: Bug Report
 description: Report issues with one of our products.
-labels: [ '[Type] Bug' ]
+labels: [ 'Needs triage', '[Type] Bug' ]
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for contributing to Jetpack!
-        Pick a clear title ("Sharing: add new Facebook button") and proceed.
+        Pick a clear title ("Sharing: Facebook button missing") and proceed.
+
+        __Avoid using image hosting services such as Cloudup, Droplr, Imgur, etc., to link to media.__
+        Instead, attach screenshot(s) or recording(s) directly in any of the text areas below: click, then drag and drop.
   - type: dropdown
     id: plugin-type
     attributes:
       label: Impacted plugin
-      description: Multiple selection is supported.
+      description: Multiple selection is supported. If you experienced the issue on WordPress.com, please select "Jetpack".
       options:
         - Jetpack
         - Backup
@@ -21,6 +24,7 @@ body:
         - Protect
         - Search
         - Social
+        - Super Cache
         - VaultPress
         - None / Other
       multiple: true
@@ -49,43 +53,81 @@ body:
       label: What actually happened
       placeholder: |
         eg. Clicking the button does nothing visibly.
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: (You may select more than one)
+      options:
+        - Google Chrome/Chromium
+        - Mozilla Firefox
+        - Microsoft Edge
+        - Apple Safari
+        - iOS Safari
+        - Android Chrome
+      multiple: true
   - type: textarea
     id: other
     attributes:
       label: Other information
       placeholder: Screenshots, additional logs, notes, etc.
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Additional context
+
+        The following section is optional. If you're an Automattician, you should be able to fill it in. If not, please scroll to the bottom and submit the issue.
   - type: dropdown
-    id: os
+    id: site-type
     attributes:
-      label: Operating System
-      description: Multiple selection is supported.
+      label: Platform (Simple, Atomic, or both?)
+      description: (You may select more than one)
       options:
-        - Windows
-        - macOS
-        - Linux
-        - Android
-        - iOS
-        - Other
+        - Simple
+        - Atomic
+        - Self-hosted
       multiple: true
-  - type: input
-    id: os_version
+  - type: markdown
     attributes:
-      label: OS Version
+      value: |
+        ## Issue severity
+
+        Please provide details around how often the issue is reproducible & how many users are affected.
   - type: dropdown
-    id: browser
+    id: reproducibility
     attributes:
-      label: Browser
-      description: Multiple selection is supported.
+      label: Reproducibility
       options:
-        - Chrome/Chromium
-        - Firefox
-        - Microsoft Edge
-        - Microsoft Edge (legacy)
-        - Safari
-        - Other / Not applicable
-      multiple: true
+        - Consistent
+        - Intermittent
+        - Once
     validations:
       required: true
-  - type: input
+  - type: dropdown
+    id: users-affected
     attributes:
-      label: Browser Version(s)
+      label: Severity
+      description: How many users are impacted? A guess is fine.
+      options:
+        - One
+        - Some (< 50%)
+        - Most (> 50%)
+        - All
+  - type: dropdown
+    id: workarounds
+    attributes:
+      label: Available workarounds?
+      options:
+        - No and the platform is unusable
+        - No but the platform is still usable
+        - Yes, difficult to implement
+        - Yes, easy to implement
+        - There is no user impact
+  - type: textarea
+    id: workarounds-detail
+    attributes:
+      label: Workaround details
+      description: If you are aware of a workaround, please describe it below.
+      placeholder: |
+        e.g. There is an alternative way to access this setting in the sidebar, but it's not readily apparent.

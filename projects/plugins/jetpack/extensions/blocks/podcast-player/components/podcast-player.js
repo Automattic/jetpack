@@ -1,25 +1,14 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { Component } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
+import { Component } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
 import AudioPlayer from '../../../shared/components/audio-player';
-import Playlist from './playlist';
-import Header from './header';
+import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { getColorsObject } from '../utils';
+import Header from './header';
+import Playlist from './playlist';
 import withErrorBoundary from './with-error-boundary';
 
 export class PodcastPlayer extends Component {

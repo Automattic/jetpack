@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
@@ -28,7 +22,6 @@ import {
 	SITE_RECONNECT_FAIL,
 	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {

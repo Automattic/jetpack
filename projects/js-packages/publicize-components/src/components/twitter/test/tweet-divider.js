@@ -2,9 +2,6 @@
  * @jest-environment jsdom
  */
 
-/**
- * Internal dependencies
- */
 import TweetDivider from '../tweet-divider';
 
 describe( 'TweetDivider', () => {
