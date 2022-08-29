@@ -15,79 +15,86 @@ class Threat_Model {
 	/**
 	 * Threat ID.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $id;
 
 	/**
 	 * Threat Signature.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $signature;
 
 	/**
 	 * Threat Title.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $title;
 
 	/**
 	 * Threat Description.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $description;
 
 	/**
 	 * The data the threat was first detected.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $first_detected;
 
 	/**
 	 * The version the threat is fixed in.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $fixed_in;
 
 	/**
 	 * The severity of the threat between 1-5.
 	 *
-	 * @var int
+	 * @var null|int
 	 */
 	public $severity;
 
 	/**
 	 * Information about the auto-fix available for this threat. False when not auto-fixable.
 	 *
-	 * @var false|object
+	 * @var null|bool|object
 	 */
 	public $fixable;
 
 	/**
 	 * The current status of the threat.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $status;
 
 	/**
 	 * The filename of the threat.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $filename;
 
 	/**
 	 * The context of the threat.
 	 *
-	 * @var object
+	 * @var null|object
 	 */
 	public $context;
+
+	/**
+	 * The source URL of the threat.
+	 *
+	 * @var null|string
+	 */
+	public $source;
 
 	/**
 	 * Threat Constructor

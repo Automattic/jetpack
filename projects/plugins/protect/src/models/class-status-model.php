@@ -12,6 +12,11 @@ namespace Automattic\Jetpack\Protect;
  */
 class Status_Model {
 	/**
+	 * Data source.
+	 */
+	public $data_source;
+
+	/**
 	 * The date and time when the status was generated.
 	 *
 	 * @var string
@@ -42,7 +47,7 @@ class Status_Model {
 	/**
 	 * The current report status.
 	 *
-	 * @var string
+	 * @var string in_progress|scheduled|idle|scanning|provisioning|unavailable
 	 */
 	public $status;
 
@@ -66,6 +71,20 @@ class Status_Model {
 	 * @var array<Extension_Model>
 	 */
 	public $plugins = array();
+
+	/**
+	 * File threats.
+	 *
+	 * @var array<Extension_Model>
+	 */
+	public $files = array();
+
+	/**
+	 * Database threats.
+	 *
+	 * @var array<Extension_Model>
+	 */
+	public $database = array();
 
 	/**
 	 * Whether the site includes items that have not been checked.

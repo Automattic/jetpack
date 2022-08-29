@@ -35,8 +35,9 @@ class Protect_Helper {
 			// Display a notice when this module overwrites Protect Status.
 			add_action( 'admin_notices', array( $this, 'display_protect_overwritten_notice' ) );
 
-			$option_name      = Automattic\Jetpack\Protect\Status::OPTION_NAME;
-			$option_time_name = Automattic\Jetpack\Protect\Status::OPTION_TIMESTAMP_NAME;
+			define( 'JETPACK_PROTECT_DEV__DATA_SOURCE', 'protect_report' );
+			$option_name      = Automattic\Jetpack\Protect\Protect_Status::OPTION_NAME;
+			$option_time_name = Automattic\Jetpack\Protect\Protect_Status::OPTION_TIMESTAMP_NAME;
 			add_filter( "option_$option_name", array( $this, 'get_mock_response' ) );
 			add_filter( "option_$option_time_name", array( $this, 'filter_option_time' ) );
 
@@ -341,7 +342,7 @@ class Protect_Helper {
 	 * @return mixed WP_Error if it's a request to Protect status API
 	 */
 	public function filter_status_fetch( $preempt, $parsed_args, $url ) {
-		if ( strpos( $url, Automattic\Jetpack\Protect\Status::get_api_url() ) !== false ) {
+		if ( strpos( $url, Automattic\Jetpack\Protect\Protect_Status::get_api_url() ) !== false ) {
 			return new WP_Error( 'error' );
 		}
 		return $preempt;
