@@ -22,7 +22,7 @@ registerBlockType( name, {
 			{
 				type: 'block',
 				blocks: [ 'core/video' ],
-				transform: attrs => createBlock( 'jetpack/videopress', attrs ),
+				transform: attrs => createBlock( 'videopress/video', attrs ),
 			},
 		],
 		to: [
