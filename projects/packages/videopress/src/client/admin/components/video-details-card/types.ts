@@ -15,14 +15,16 @@ export type VideoDetailsCardProps = {
 	src: string;
 
 	/**
-	 * Video thumbnial image
-	 */
-	thumbnail: string;
-
-	/**
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+};
+
+export type VideoThumbailEditProps = {
+	/**
+	 * Video thumbnial image
+	 */
+	thumbnail: string;
 
 	/**
 	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
