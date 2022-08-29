@@ -214,21 +214,19 @@ class Connections_Post_Field {
 	 * @return Filtered $post
 	 */
 	public function rest_pre_insert( $post, $request ) {
-		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {
-			return $post;
-		}
+		$request_connections = ! empty( $request['jetpack_publicize_connections'] ) ? $request['jetpack_publicize_connections'] : array();
 
 		$permission_check = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
 		if ( is_wp_error( $permission_check ) ) {
 			return $permission_check;
 		}
 		// memoize.
-		$this->get_meta_to_update( $request['jetpack_publicize_connections'], isset( $post->ID ) ? $post->ID : 0 );
+		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
 
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
-			$this->update( $request['jetpack_publicize_connections'], $post );
+			$this->update( $request_connections, $post );
 		}
 
 		return $post;
@@ -247,10 +245,6 @@ class Connections_Post_Field {
 			// An existing post was edited - no need to update
 			// our cache - we started out knowing the correct
 			// post ID.
-			return;
-		}
-
-		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {
 			return;
 		}
 
