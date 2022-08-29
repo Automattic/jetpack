@@ -24,6 +24,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/modules/memberships/',
 	'projects/plugins/jetpack/modules/publicize.php',
 	'projects/plugins/jetpack/modules/seo-tools/',
+	'projects/plugins/jetpack/modules/shortcodes/',
 	'projects/plugins/jetpack/modules/sitemaps',
 	'projects/plugins/jetpack/modules/theme-tools/compat/',
 	'projects/plugins/jetpack/modules/theme-tools/site-logo.php',
