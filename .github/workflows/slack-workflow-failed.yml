@@ -7,7 +7,6 @@ on:
       - Build Docker
       - Tests
       - Gardening
-      - Post-Build
       - PR is up-to-date
     branches: [ 'trunk', '*/branch-*' ]
 
