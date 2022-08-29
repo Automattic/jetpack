@@ -5,13 +5,17 @@ import Checkbox from '../checkbox';
 import VideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
 
-const VideoList = ( { videos } ) => {
-	const [ selected, setSelected ] = useState( null );
+const VideoList = ( { videos, onClickEdit } ) => {
+	const [ selected, setSelected ] = useState( [] );
 	const [ all, setAll ] = useState( false );
 
 	const handleAll = checked => {
 		setAll( checked );
-		setSelected( null );
+		setSelected( [] );
+	};
+
+	const handleClickEdit = index => () => {
+		onClickEdit?.( videos[ index ] );
 	};
 
 	return (
@@ -33,17 +37,21 @@ const VideoList = ( { videos } ) => {
 			{ videos.map( ( video, index ) => {
 				return (
 					<VideoRow
-						key={ index }
+						key={ video?.id }
 						{ ...video }
 						className={ styles.row }
-						checked={ selected === index || all }
+						checked={ selected.includes( index ) || all }
+						onClickEdit={ handleClickEdit( index ) }
 						onSelect={ check =>
 							setSelected( current => {
+								const indexOf = current.indexOf( index );
+
 								if ( check ) {
-									return index;
-								} else if ( ! check && current === index ) {
-									return null;
+									return [ ...current, index ];
+								} else if ( ! check && indexOf > -1 ) {
+									return [ ...current.slice( 0, indexOf ), ...current.slice( indexOf + 1 ) ];
 								}
+
 								return current;
 							} )
 						}
