@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+When adding video from local library that was previously uploaded to VideoPress, check if videopress attachment still exists
