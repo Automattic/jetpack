@@ -336,4 +336,38 @@ class Test_Connections_Post_Field  extends TestCase {
 			$this->assertSame( 'facebook' !== $connection->service_name, $connection->enabled );
 		}
 	}
+
+	/**
+	 * Test that connections are enabled when the publicize_checkbox_default filter isn't used.
+	 */
+	public function test_default_checkbox_filter() {
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$this->server->dispatch( $request );
+
+		foreach ( self::$connection_ids as $unique_id ) {
+			$skip_key = $this->publicize->POST_SKIP . $unique_id;
+			$this->assertEmpty( get_post_meta( $this->draft_id, $skip_key, true ) );
+		}
+	}
+
+	/**
+	 * Test that connections are skipped when the publicize_checkbox_default filter is used.
+	 */
+	public function test_default_checkbox_filter_disabled() {
+		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$filter_func = function ( $default ) {
+			return false;
+		};
+
+		add_filter( 'publicize_checkbox_default', $filter_func );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$this->server->dispatch( $request );
+
+		foreach ( self::$connection_ids as $unique_id ) {
+			$skip_key = $this->publicize->POST_SKIP . $unique_id;
+			$this->assertNotEmpty( get_post_meta( $this->draft_id, $skip_key, true ) );
+		}
+
+		remove_filter( 'publicize_checkbox_default', $filter_func );
+	}
 }
