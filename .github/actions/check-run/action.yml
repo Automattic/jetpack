@@ -1,0 +1,71 @@
+name: "Check Run"
+description: "Create or update a check run. This is a simple wrapper around GitHub's checks API, https://docs.github.com/en/rest/checks/runs."
+inputs:
+  id:
+    description: "Check run ID to update. If not given, a new run will be created"
+  sha:
+    description: "The SHA of the commit."
+  name:
+    description: "The name of the check. For example, \"code-coverage\"."
+  status:
+    description: "The current status. Can be one of: `queued`, `in_progress`, `completed`"
+  conclusion:
+    description: "The final conclusion of the check. Can be one of: `action_required`, `cancelled`, `failure`, `neutral`, `success`, `skipped`, `timed_out`"
+  title:
+    description: "Title of the check. Shown in the PR's checks list."
+  summary:
+    description: "Summary of the check. Can contain Markdown."
+  token:
+    description: "Access token. Defaults to `github.token`."
+    default: ${{ github.token }}
+outputs:
+  id:
+    description: "Check run ID."
+    value: ${{ steps.run.outputs.id }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        ID: ${{ inputs.id }}
+        SHA: ${{ inputs.sha }}
+        NAME: ${{ inputs.name }}
+        STATUS: ${{ inputs.status }}
+        CONCLUSION: ${{ inputs.conclusion }}
+        TITLE: ${{ inputs.title }}
+        SUMMARY: ${{ inputs.summary }}
+        TOKEN: ${{ inputs.token }}
+      run: |
+        if [[ -n "$ID" ]]; then
+          METHOD=PATCH
+          URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs/$ID"
+        else
+          METHOD=POST
+          URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs"
+        fi
+
+        DATA="{}"
+        if [[ -n "$NAME" ]]; then
+          DATA="$(jq --arg v "$NAME" '.name |= $v' <<<"$DATA")"
+        fi
+        if [[ -n "$SHA" ]]; then
+          DATA="$(jq --arg v "$SHA" '.head_sha |= $v' <<<"$DATA")"
+        fi
+        if [[ -n "$STATUS" ]]; then
+          DATA="$(jq --arg v "$STATUS" '.status |= $v' <<<"$DATA")"
+        fi
+        if [[ -n "$CONCLUSION" ]]; then
+          DATA="$(jq --arg v "$CONCLUSION" '.conclusion |= $v' <<<"$DATA")"
+        fi
+        if [[ -n "$TITLE" ]]; then
+          DATA="$(jq --arg v "$TITLE" '.output.title |= $v' <<<"$DATA")"
+        fi
+        if [[ -n "$SUMMARY" ]]; then
+          DATA="$(jq --arg v "$SUMMARY" '.output.summary |= $v' <<<"$DATA")"
+        fi
+
+        echo "Data: $DATA"
+        JSON="$(curl -v -X "$METHOD" --header "authorization: token $TOKEN" --url "$URL" --data "$DATA")"
+        echo "$JSON"
+        echo "::set-output name=id::$(jq -r .id <<<"$JSON")"
