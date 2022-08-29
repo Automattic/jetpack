@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed NaN error that prevented the pricing interstitial from rendering.
