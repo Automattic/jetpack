@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { useState, useRef } from 'react';
 import Checkbox from '../checkbox';
 import privacy from './privacy-icon';
+import StatsBase from './stats';
 import styles from './style.module.scss';
 
 const millisecondsToMinutesAndSeconds = ( milliseconds: number ) => {
@@ -103,50 +104,46 @@ const Stats = ( {
 	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
 	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
 
+	const privacyElement = isSmall ? (
+		<>
+			<span>{ privacyLabel }</span>
+			<span>
+				{ isPrivate
+					? __( 'Private', 'jetpack-videopress-pkg' )
+					: __( 'Public', 'jetpack-videopress-pkg' ) }
+			</span>
+		</>
+	) : (
+		<>{ isPrivate && <Icon icon={ privacy } /> }</>
+	);
+
+	const durationElement = isSmall ? (
+		<>
+			<span>{ durationLabel }</span>
+			<span>{ duration }</span>
+		</>
+	) : (
+		duration
+	);
+
+	const playsElement = isSmall ? (
+		<>
+			<span>{ playsLabel }</span>
+			<span>{ plays }</span>
+		</>
+	) : (
+		plays
+	);
+
+	const uploadElement = isSmall ? null : uploadDate;
+
 	return (
-		<div className={ classNames( styles.stats, { [ styles.small ]: isSmall } ) }>
-			<Text aria-disabled={ isSmall ? 'false' : 'true' } component="div">
-				{ isSmall ? (
-					<>
-						<span>{ privacyLabel }</span>
-						<span>
-							{ isPrivate
-								? __( 'Private', 'jetpack-videopress-pkg' )
-								: __( 'Public', 'jetpack-videopress-pkg' ) }
-						</span>
-					</>
-				) : (
-					<>{ isPrivate && <Icon icon={ privacy } /> }</>
-				) }
-			</Text>
-			<Text component="div">
-				{ isSmall ? (
-					<>
-						<span>{ durationLabel }</span>
-						<span>{ duration }</span>
-					</>
-				) : (
-					duration
-				) }
-			</Text>
-			{ Number.isFinite( plays ) && (
-				<Text component="div">
-					{ isSmall ? (
-						<>
-							<span>{ playsLabel }</span>
-							<span>{ plays }</span>
-						</>
-					) : (
-						plays
-					) }
-				</Text>
-			) }
-			{ ! isSmall && (
-				<Text className={ styles.upload } component="div">
-					{ uploadDate }
-				</Text>
-			) }
-		</div>
+		<StatsBase
+			privacy={ privacyElement }
+			duration={ durationElement }
+			plays={ Number.isFinite( plays ) ? playsElement : null }
+			upload={ uploadElement }
+		/>
 	);
 };
 
@@ -302,4 +299,5 @@ const VideoRow = ( {
 	);
 };
 
+export { StatsBase as Stats };
 export default VideoRow;
