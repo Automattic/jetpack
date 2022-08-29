@@ -1,26 +1,4 @@
-export type VideoDetailsCardProps = {
-	/**
-	 * Optional classname to apply to the root element.
-	 */
-	className?: string;
-
-	/**
-	 * Video filename.
-	 */
-	filename: string;
-
-	/**
-	 * Video source file URL.
-	 */
-	src: string;
-
-	/**
-	 * Video uploaded date
-	 */
-	uploadDate: string;
-};
-
-export type VideoThumbailEditProps = {
+export type VideoThumbnailEditProps = {
 	/**
 	 * Video thumbnial image
 	 */
@@ -40,4 +18,26 @@ export type VideoThumbailEditProps = {
 	 * Callback to be invoked when clicking on the `Upload image` dropdown menu option.
 	 */
 	onUploadImage: () => void;
+};
+
+export type VideoDetailsProps = {
+	/**
+	 * Optional classname to apply to the root element.
+	 */
+	className?: string;
+
+	/**
+	 * Video filename.
+	 */
+	filename: string;
+
+	/**
+	 * Video source file URL.
+	 */
+	src: string;
+
+	/**
+	 * Video uploaded date
+	 */
+	uploadDate: string;
 };

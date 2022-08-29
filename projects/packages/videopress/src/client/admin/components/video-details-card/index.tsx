@@ -11,16 +11,16 @@ import { edit, cloud, image, media } from '@wordpress/icons';
  */
 import ClipboardButtonInput from '../clipboard-button-input';
 import styles from './style.module.scss';
-import { VideoDetailsCardProps, VideoThumbailEditProps } from './types';
+import { VideoDetailsProps, VideoThumbnailEditProps } from './types';
 import type React from 'react';
 
 /**
  * React component to display video thumbnail.
  *
- * @param {VideoThumbailEditProps} props - Component props.
- * @returns {React.ReactNode} - VideoThumbailEdit react component.
+ * @param {VideoThumbnailEditProps} props - Component props.
+ * @returns {React.ReactNode} - VideoThumbnailEdit react component.
  */
-const VideoThumbailEdit: React.FC< VideoThumbailEditProps > = ( {
+export const VideoThumbnailEdit: React.FC< VideoThumbnailEditProps > = ( {
 	thumbnail,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
@@ -78,13 +78,34 @@ const VideoThumbailEdit: React.FC< VideoThumbailEditProps > = ( {
 	);
 };
 
+export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, uploadDate } ) => {
+	return (
+		<div className={ styles.details }>
+			<div className={ styles[ 'detail-row' ] }>
+				<Text variant="body-small">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
+				<ClipboardButtonInput value={ src } />
+			</div>
+
+			<div>
+				<Text variant="body-small">{ __( 'File name', 'jetpack-videopress-pkg' ) }</Text>
+				<Text variant="body">{ filename }</Text>
+			</div>
+
+			<div>
+				<Text variant="body-small">{ __( 'Upload date', 'jetpack-videopress-pkg' ) }</Text>
+				<Text variant="body">{ gmdateI18n( 'F j, Y', uploadDate ) }</Text>
+			</div>
+		</div>
+	);
+};
+
 /**
  * Video Details Card component
  *
- * @param {VideoDetailsCardProps} props - Component props.
+ * @param {VideoThumbnailEditProps} props - Component props.
  * @returns {React.ReactNode} - VideoDetailsCard react component.
  */
-const VideoDetailsCard: React.FC< VideoDetailsCardProps > = ( {
+const VideoDetailsCard: React.FC< VideoDetailsProps & VideoThumbnailEditProps > = ( {
 	filename,
 	src,
 	uploadDate,
@@ -94,33 +115,16 @@ const VideoDetailsCard: React.FC< VideoDetailsCardProps > = ( {
 	onSelectFromVideo,
 	onUploadImage,
 } ) => {
-	const formattedUploadDate = gmdateI18n( 'F j, Y', uploadDate );
-
 	return (
 		<div className={ styles.wrapper }>
-			<VideoThumbailEdit
+			<VideoThumbnailEdit
 				thumbnail={ thumbnail }
 				onUseDefaultThumbnail={ onUseDefaultThumbnail }
 				onSelectFromVideo={ onSelectFromVideo }
 				onUploadImage={ onUploadImage }
 			/>
 
-			<div className={ styles.details }>
-				<div className={ styles[ 'detail-row' ] }>
-					<Text variant="body-small">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
-					<ClipboardButtonInput value={ src } />
-				</div>
-
-				<div>
-					<Text variant="body-small">{ __( 'File name', 'jetpack-videopress-pkg' ) }</Text>
-					<Text variant="body">{ filename }</Text>
-				</div>
-
-				<div>
-					<Text variant="body-small">{ __( 'Upload date', 'jetpack-videopress-pkg' ) }</Text>
-					<Text variant="body">{ formattedUploadDate }</Text>
-				</div>
-			</div>
+			<VideoDetails filename={ filename } src={ src } uploadDate={ uploadDate } />
 		</div>
 	);
 };
