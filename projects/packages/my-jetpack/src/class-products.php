@@ -17,22 +17,42 @@ class Products {
 	 *
 	 * Here's where all the existing Products are registered
 	 *
+	 * @throws \Exception If the result of a filter has invalid classes.
 	 * @return array List of class names
 	 */
 	public static function get_products_classes() {
-		return array(
-			Products\Anti_Spam::class,
-			Products\Backup::class,
-			Products\Boost::class,
-			Products\Crm::class,
-			Products\Extras::class,
-			Products\Scan::class,
-			Products\Search::class,
-			Products\Social::class,
-			Products\Security::class,
-			Products\Protect::class,
-			Products\Videopress::class,
+		$classes = array(
+			'anti-spam'  => Products\Anti_Spam::class,
+			'backup'     => Products\Backup::class,
+			'boost'      => Products\Boost::class,
+			'crm'        => Products\Crm::class,
+			'extras'     => Products\Extras::class,
+			'scan'       => Products\Scan::class,
+			'search'     => Products\Search::class,
+			'social'     => Products\Social::class,
+			'security'   => Products\Security::class,
+			'protect'    => Products\Protect::class,
+			'videopress' => Products\Videopress::class,
 		);
+
+		/**
+		 * This filter allows plugin to override the Product class of a given product. The new class must be a child class of the default one declared in My Jetpack
+		 *
+		 * @param array $classes An array where the keys are the product slugs and the values are the class names.
+		 */
+		$final_classes = apply_filters( 'my_jetpack_products_classes', $classes );
+
+		// Check that the classes are still child of the same original classes.
+		foreach ( (array) $final_classes as $slug => $final_class ) {
+			if ( $final_class === $classes[ $slug ] ) {
+				continue;
+			}
+			if ( ! class_exists( $final_class ) || ! is_subclass_of( $final_class, $classes[ $slug ] ) ) {
+				throw new \Exception( 'You can only overwrite a Product class with a child of the original class.' );
+			}
+		}
+
+		return $final_classes;
 	}
 
 	/**
@@ -57,13 +77,24 @@ class Products {
 	 * @return ?array
 	 */
 	public static function get_product( $product_slug ) {
-		foreach ( self::get_products_classes() as $class ) {
-			$p_slug = $class::$slug;
-			if ( $p_slug === $product_slug ) {
-				return $class::get_info();
-			}
+		$classes = self::get_products_classes();
+		if ( isset( $classes[ $product_slug ] ) ) {
+			return $classes[ $product_slug ]::get_info();
 		}
-		return null;
+	}
+
+	/**
+	 * Get one product Class name
+	 *
+	 * @param string $product_slug The product slug.
+	 *
+	 * @return ?string
+	 */
+	public static function get_product_class( $product_slug ) {
+		$classes = self::get_products_classes();
+		if ( isset( $classes[ $product_slug ] ) ) {
+			return $classes[ $product_slug ];
+		}
 	}
 
 	/**
@@ -72,11 +103,7 @@ class Products {
 	 * @return array Product slugs array.
 	 */
 	public static function get_products_slugs() {
-		$slugs = array();
-		foreach ( self::get_products_classes() as $class ) {
-			$slugs[] = $class::$slug;
-		}
-		return $slugs;
+		return array_keys( self::get_products_classes() );
 	}
 
 	/**
@@ -133,12 +160,12 @@ class Products {
 	 * tied to the Products.
 	 */
 	public static function extend_plugins_action_links() {
-		Products\Backup::extend_plugin_action_links();
-		Products\Boost::extend_plugin_action_links();
-		Products\Crm::extend_plugin_action_links();
+		( self::get_product_class( 'backup' ) )::extend_plugin_action_links();
+		( self::get_product_class( 'boost' ) )::extend_plugin_action_links();
+		( self::get_product_class( 'crm' ) )::extend_plugin_action_links();
 
 		// Extend Jetpack plugin using Videopress instance.
-		Products\Videopress::extend_plugin_action_links();
+		( self::get_product_class( 'videopress' ) )::extend_plugin_action_links();
 	}
 
 }
