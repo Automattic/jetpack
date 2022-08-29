@@ -1,4 +1,4 @@
-/* global jetpack_broken_token_xmlrpc_errors */
+/* global jetpack_broken_token_connection_errors */
 ( function ( $ ) {
 	$( '.verify-error' ).click( function () {
 		const button = this;
@@ -7,7 +7,7 @@
 		$( button ).val( 'Sending request...' );
 
 		$.post(
-			jetpack_broken_token_xmlrpc_errors.verify_error_url,
+			jetpack_broken_token_connection_errors.verify_error_url,
 			{
 				nonce: $( this ).data( 'nonce' ),
 			},
@@ -15,9 +15,9 @@
 				$( button ).val( 'Updating list...' );
 
 				$.post(
-					jetpack_broken_token_xmlrpc_errors.admin_post_url,
+					jetpack_broken_token_connection_errors.admin_post_url,
 					{
-						_wpnonce: jetpack_broken_token_xmlrpc_errors.refresh_verified_errors_nonce,
+						_wpnonce: jetpack_broken_token_connection_errors.refresh_verified_errors_nonce,
 						action: 'refresh_verified_errors_list',
 					},
 					function ( response ) {
