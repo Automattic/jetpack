@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.18.1 - 2022-08-25
+### Added
+- Components: Support forwardRef at Text [#25798]
+
+### Changed
+- Components: set background color for Button, secondary variant [#25810]
+- Updated package dependencies. [#25814]
+
 ## 0.18.0 - 2022-08-23
 ### Added
 - Add new PricingTable component [#25377]
