@@ -69,11 +69,9 @@ abstract class Hybrid_Product extends Product {
 	public static function activate_plugin() {
 		/*
 		 * Activate self-installed plugin if it's installed.
-		 * Silent mode True to avoid redirects in Backup.
-		 * @TODO When new Hybrid products are added, we might not want to go silent with all of them.
 		 */
 		if ( parent::is_plugin_installed() ) {
-			return activate_plugin( static::get_installed_plugin_filename(), '', false, true );
+			return activate_plugin( static::get_installed_plugin_filename() );
 		}
 
 		/*

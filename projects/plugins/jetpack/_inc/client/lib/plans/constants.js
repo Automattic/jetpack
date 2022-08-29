@@ -301,6 +301,16 @@ export function isJetpackPlanWithAntiSpam( plan ) {
 }
 
 /**
+ * Determines if a plan includes backup features.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if the plan contains backup features
+ */
+export function isJetpackPlanWithBackup( plan ) {
+	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
+}
+
+/**
  * Determines if a product is Jetpack Backup.
  *
  * @param {string} product - The product slug

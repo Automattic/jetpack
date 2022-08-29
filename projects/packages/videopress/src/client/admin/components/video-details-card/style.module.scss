@@ -1,0 +1,45 @@
+.wrapper {
+	--jp-video-details-wrapper-max-width: 360px;
+
+	max-width: var(--jp-video-details-wrapper-max-width);
+	border-radius: var( --jp-border-radius );
+	background-color: var( --jp-gray-0 );
+
+	&.small {
+		height: 200px;
+
+		.button {
+			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
+		}
+	}
+
+	.thumbnail button.thumbnail__edit-button {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
+}
+
+.thumbnail {
+	position: relative;
+	> img {
+		border-radius: var( --jp-border-radius );
+		width: 100%;
+	}
+}
+
+.video-details-card__edit-button-container {
+	position: absolute;
+	top: var( --spacing-base );
+	right: var( --spacing-base );
+}
+
+.details {
+	color: var( --jp-black-80 );
+	padding: calc( var( --spacing-base ) * 3 ); // 24px;
+	display: flex;
+	flex-direction: column;
+	gap: calc( var( --spacing-base ) * 2 );;
+}

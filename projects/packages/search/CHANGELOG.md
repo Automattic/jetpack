@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2022-08-25
+### Changed
+- Search: revert "Search should not require user connection" [#25802]
+- Updated package dependencies. [#25814]
+
+## [0.20.0] - 2022-08-23
+### Added
+- Add author filtering support [#25409]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25628, #25762, #25769]
+
+### Fixed
+- Instant Search: Add focus styles for easier keyboard navigation. (a11y) [#25671]
+- Instant Search: Remove redundant links from search results. (a11y) [#25699]
+
 ## [0.19.0] - 2022-08-16
 ### Added
 - Instant Search: always use submit overlay trigger if user prefers reduced motion. [#25413]
@@ -436,6 +452,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.21.0]: https://github.com/Automattic/jetpack-search/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/jetpack-search/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Automattic/jetpack-search/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-search/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/Automattic/jetpack-search/compare/v0.17.0...v0.17.1
