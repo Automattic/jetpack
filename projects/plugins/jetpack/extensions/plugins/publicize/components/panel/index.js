@@ -13,6 +13,7 @@ import {
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
 } from '@automattic/jetpack-publicize-components';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -35,6 +36,8 @@ const PublicizePanel = ( { prePublish } ) => {
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
+
+	const connectionsAdminUrl = `https://wordpress.com/marketing/connections/${ getSiteFragment() }`;
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -91,6 +94,7 @@ const PublicizePanel = ( { prePublish } ) => {
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
+						connectionsAdminUrl={ connectionsAdminUrl }
 					/>
 					{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 

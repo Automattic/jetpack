@@ -374,7 +374,7 @@ jQuery( function($) {
 	$( document ).ready( function() {
 		// If we have the #pub-connection-tests div present, kick off the connection test
 		if ( $( '#pub-connection-tests' ).length ) {
-			publicizeConnTestStart();
+			// publicizeConnTestStart(); TODO: Fix magic links
 		}
 	} );
 
@@ -546,7 +546,7 @@ jQuery( function($) {
 				$labels = array();
 
 				foreach ( $connections_data as $connection_data ) {
-					if ( ! $connection_data['enabled'] ) {
+					if ( ! $connection_data['enabled'] || ! $connection_data['is_healthy'] ) {
 						continue;
 					}
 
@@ -627,6 +627,7 @@ jQuery( function($) {
 
 		$all_done             = $this->publicize->post_is_done_sharing();
 		$all_connections_done = true;
+		$all_healthy          = true;
 
 		ob_start();
 
@@ -637,6 +638,9 @@ jQuery( function($) {
 
 		foreach ( $connections_data as $connection_data ) {
 			$all_connections_done = $all_connections_done && $connection_data['done'];
+			if ( ! $connection_data['is_healthy'] ) {
+				$all_healthy = false;
+			}
 			?>
 
 			<li>
@@ -651,11 +655,11 @@ jQuery( function($) {
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
 					<?php
-						checked( true, $connection_data['enabled'] );
-						disabled( false, $connection_data['toggleable'] );
+						checked( true, $connection_data['enabled'] && $connection_data['is_healthy'] );
+						disabled( false, $connection_data['toggleable'] && $connection_data['is_healthy'] );
 					?>
 					/>
-				<?php if ( $connection_data['enabled'] && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
+				<?php if ( $connection_data['enabled'] && $connection_data['is_healthy'] && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
 					<input
 						type="hidden"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
@@ -690,6 +694,27 @@ jQuery( function($) {
 
 		<?php if ( ! $all_done ) : ?>
 			<div id="pub-connection-tests"></div>
+		<?php endif; ?>
+
+		<?php if ( ! $all_healthy ) : ?>
+			<div class="error below-h2 publicize-token-refresh-message">
+				<?php
+					printf(
+						wp_kses(
+							/* translators: %s is the link to the connections page in Calypso */
+							__( 'Some of your social connections are broken! Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page..', 'jetpack-publicize-pkg' ),
+							array(
+								'a' => array(
+									'href'   => array(),
+									'target' => array(),
+									'rel'    => array(),
+								),
+							)
+						),
+						esc_url( $this->publicize->publicize_connections_url() )
+					);
+				?>
+			</div>
 		<?php endif; ?>
 		<?php
 

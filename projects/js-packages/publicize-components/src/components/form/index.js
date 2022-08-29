@@ -9,8 +9,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
-import { Fragment, createInterpolateElement, useEffect } from '@wordpress/element';
-import { _n, sprintf } from '@wordpress/i18n';
+import { Fragment, createInterpolateElement } from '@wordpress/element';
+import { _n, sprintf, __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import MessageBoxControl from '../message-box-control';
@@ -41,7 +41,6 @@ export default function PublicizeForm( {
 		toggleById,
 		hasConnections,
 		enabledConnections,
-		refresh,
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
@@ -53,10 +52,6 @@ export default function PublicizeForm( {
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
-
-	useEffect( () => {
-		refresh();
-	}, [ refresh ] );
 
 	return (
 		<Wrapper>
@@ -90,7 +85,10 @@ export default function PublicizeForm( {
 					{ hasBrokenConnection && (
 						<Notice type={ 'error' }>
 							{ createInterpolateElement(
-								'Some of your social connections are broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
+								__(
+									'Some of your social connections are broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
+									'jetpack'
+								),
 								{
 									fixLink: <ExternalLink href={ connectionsAdminUrl } />,
 								}
