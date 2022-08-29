@@ -148,6 +148,7 @@ const Stats = ( {
 };
 
 const VideoRow = ( {
+	className = '',
 	checked = false,
 	videoTitle,
 	posterImage,
@@ -158,6 +159,7 @@ const VideoRow = ( {
 	onClickEdit,
 	onSelect,
 }: {
+	className?: string;
 	checked: boolean;
 	videoTitle: string;
 	posterImage: string;
@@ -249,9 +251,13 @@ const VideoRow = ( {
 			onMouseLeave={ isSmall ? null : handleLeave }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
-			className={ classNames( styles[ 'video-row' ], {
-				[ styles.pressed ]: keyPressed,
-			} ) }
+			className={ classNames(
+				styles[ 'video-row' ],
+				{
+					[ styles.pressed ]: keyPressed,
+				},
+				className
+			) }
 		>
 			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
 				<Checkbox ref={ checkboxRef } checked={ checked } tabIndex={ -1 } onChange={ onSelect } />
