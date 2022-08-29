@@ -630,11 +630,20 @@ class Search_Widget extends \WP_Widget {
 		$new_instance = $this->maybe_reformat_widget( $new_instance );
 		$instance     = array();
 
-		$instance['title']              = sanitize_text_field( $new_instance['title'] );
-		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
-		$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
-		$instance['sort']               = empty( $new_instance['sort'] ) ? self::DEFAULT_SORT : $new_instance['sort'];
-		$instance['post_types']         = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
+		$instance['title'] = sanitize_text_field( $new_instance['title'] );
+
+		// Keep `search_box_enabled` and `user_sort_enabled` settings when updating widget on Instant Search
+		// Set `search_box_enabled` and `user_sort_enabled` default to '1' when createing a NEW widget
+		if ( Options::is_instant_enabled() ) {
+			$instance['search_box_enabled'] = empty( $old_instance ) ? '1' : $old_instance['search_box_enabled'];
+			$instance['user_sort_enabled']  = empty( $old_instance ) ? '1' : $old_instance['user_sort_enabled'];
+		} else {
+			$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
+			$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
+		}
+
+		$instance['sort']       = empty( $new_instance['sort'] ) ? self::DEFAULT_SORT : $new_instance['sort'];
+		$instance['post_types'] = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
 			? array()
 			: array_map( 'sanitize_key', $new_instance['post_types'] );
 
@@ -658,6 +667,13 @@ class Search_Widget extends \WP_Widget {
 						$filters[] = array(
 							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
 							'type'  => 'post_type',
+							'count' => $count,
+						);
+						break;
+					case 'author':
+						$filters[] = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'author',
 							'count' => $count,
 						);
 						break;
@@ -863,7 +879,7 @@ class Search_Widget extends \WP_Widget {
 			<?php if ( ! Helper::are_filters_by_widget_disabled() ) : ?>
 				<div class="jetpack-search-filters-widget__filters">
 					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
-						<?php $this->render_widget_edit_filter( $filter ); ?>
+						<?php $this->render_widget_edit_filter( $filter, false, true ); ?>
 					<?php endforeach; ?>
 				</div>
 				<p class="jetpack-search-filters-widget__add-filter-wrapper">
@@ -872,7 +888,7 @@ class Search_Widget extends \WP_Widget {
 					</a>
 				</p>
 				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
-					<?php $this->render_widget_edit_filter( array(), true ); ?>
+					<?php $this->render_widget_edit_filter( array(), true, true ); ?>
 				</script>
 				<noscript>
 					<p class="jetpack-search-filters-help">
@@ -921,9 +937,10 @@ class Search_Widget extends \WP_Widget {
 	 *
 	 * @param array $filter      The filter to render.
 	 * @param bool  $is_template Whether this is for an Underscore template or not.
+	 * @param bool  $is_instant_search Whether this site enables Instant Search or not.
 	 * @since 5.7.0
 	 */
-	public function render_widget_edit_filter( $filter, $is_template = false ) {
+	public function render_widget_edit_filter( $filter, $is_template = false, $is_instant_search = false ) {
 		$args = wp_parse_args(
 			$filter,
 			array(
@@ -939,6 +956,10 @@ class Search_Widget extends \WP_Widget {
 
 		$args['name_placeholder'] = Helper::generate_widget_filter_name( $args );
 
+		// Hide author filter when Instant Search is turned off.
+		if ( ! $is_instant_search && 'author' === $args['type'] ) :
+			return;
+		endif;
 		?>
 		<div class="jetpack-search-filters-widget__filter is-<?php $this->render_widget_attr( 'type', $args['type'], $is_template ); ?>">
 			<p class="jetpack-search-filters-widget__type-select">
@@ -951,6 +972,11 @@ class Search_Widget extends \WP_Widget {
 						<option value="post_type" <?php $this->render_widget_option_selected( 'type', $args['type'], 'post_type', $is_template ); ?>>
 							<?php esc_html_e( 'Post Type', 'jetpack-search-pkg' ); ?>
 						</option>
+						<?php if ( $is_instant_search ) : ?>
+						<option value="author" <?php $this->render_widget_option_selected( 'type', $args['type'], 'author', $is_template ); ?>>
+							<?php esc_html_e( 'Author', 'jetpack-search-pkg' ); ?>
+						</option>
+						<?php endif; ?>
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
 						</option>
@@ -1052,7 +1078,7 @@ class Search_Widget extends \WP_Widget {
 				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack-search-pkg' ); ?></a>
 			</p>
 		</div>
-		<?php
+			<?php
 	}
 
 	/**

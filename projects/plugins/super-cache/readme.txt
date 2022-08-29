@@ -1,6 +1,6 @@
-=== Jetpack super-cache ===
-Contributors: automattic,
-Tags: jetpack, stuff
+=== WP Super Cache ===
+Contributors: donncha, automattic
+Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -271,7 +271,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 ### 1.8 - 2022-08-16
 - Added PHP 8 Support
 - Added a link to give feedback on WP Super Cache
-- Added information on Jetpack Boost 
+- Added information on Jetpack Boost
 - Fixed jQuery deprecated notice
 - Fixed replacing dirname(__FILE__) with __DIR__
 

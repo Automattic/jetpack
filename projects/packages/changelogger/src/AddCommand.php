@@ -181,7 +181,7 @@ EOF
 				$filename = $this->getDefaultFilename( $output );
 			}
 			if ( $isInteractive ) {
-				$question = new Question( "Name your change file <info>[default: $filename]</> > ", $filename );
+				$question = new Question( "Name your changelog file <info>[default: $filename]</> > ", $filename );
 				$question->setValidator( array( $this, 'validateFilename' ) );
 				$filename = $this->getHelper( 'question' )->ask( $input, $output, $question );
 				if ( null === $filename ) { // non-interactive.

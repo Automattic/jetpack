@@ -1,0 +1,24 @@
+.wrapper {
+	display: flex;
+	flex-direction: row;
+	height: 36px;
+	border: 1px solid var( --jp-gray-40 );	
+	border-radius: calc( var( --jp-border-radius ) / 2 );
+	padding: calc( var( --spacing-base ) * 0.5 );
+	padding-left: calc( var( --spacing-base ) * 1.5 );
+	background-color: var( --jp-white );
+
+	> input {
+		width: 100%;
+		border: 0;
+		font-size: var( --font-body-small );
+		color: var( --jp-gray-80 );
+		outline: none;
+		text-overflow: ellipsis;
+		cursor: default;
+	}
+
+	.button-wrapper {
+		display: inline-flex;
+	}
+}

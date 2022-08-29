@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Protect
  * Plugin URI: https://wordpress.org/plugins/jetpack-protect
  * Description: Security tools that keep your site safe and sound, from posts to plugins.
- * Version: 1.1.0-alpha
+ * Version: 1.0.4-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'JETPACK_PROTECT_VERSION', '1.1.0-alpha' );
+define( 'JETPACK_PROTECT_VERSION', '1.0.4-alpha' );
 define( 'JETPACK_PROTECT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_PROTECT_ROOT_FILE', __FILE__ );
 define( 'JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
@@ -97,7 +97,10 @@ add_action( 'activated_plugin', 'jetpack_protect_plugin_activation' );
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  */
 function jetpack_protect_plugin_activation( $plugin ) {
-	if ( JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+	if (
+		JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH === $plugin &&
+		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH )
+	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-protect' ) ) );
 		exit;
 	}

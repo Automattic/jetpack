@@ -22,9 +22,11 @@ describe( 'getFilterKeys', () => {
 			{ filters: [ { type: 'taxonomy', taxonomy: 'subject' } ] },
 			{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
 			{ filters: [ { type: 'post_type' } ] },
+			{ filters: [ { type: 'author' } ] },
 		];
 		const widgetsOutsideOverlay = [ { filters: [ { type: 'taxonomy', taxonomy: 'post_tag' } ] } ];
 		expect( getFilterKeys( widgets, widgetsOutsideOverlay ) ).toEqual( [
+			'authors',
 			'post_types',
 			'category',
 			'post_format',
@@ -52,11 +54,13 @@ describe( 'getSelectableFilterKeys', () => {
 			{ filters: [ { type: 'taxonomy', taxonomy: 'category' } ] },
 			{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
 			{ filters: [ { type: 'post_type' } ] },
+			{ filters: [ { type: 'author' } ] },
 		];
 		expect( getSelectableFilterKeys( widgets ) ).toEqual( [
 			'category',
 			'year_post_date',
 			'post_types',
+			'authors',
 		] );
 	} );
 } );
@@ -75,6 +79,7 @@ describe( 'getUnselectableFilterKeys', () => {
 			{ filters: [ { type: 'taxonomy', taxonomy: 'post_tag' } ] },
 			{ filters: [ { type: 'date_histogram', field: 'post_date', interval: 'year' } ] },
 			{ filters: [ { type: 'post_type' } ] },
+			{ filters: [ { type: 'author' } ] },
 		];
 		expect( getUnselectableFilterKeys( widgets ) ).toEqual( [
 			'category',
@@ -138,6 +143,11 @@ describe( 'mapFilterKeyToFilter', () => {
 	test( 'handles post types filter key', () => {
 		expect( mapFilterKeyToFilter( 'post_types' ) ).toEqual( {
 			type: 'post_type',
+		} );
+	} );
+	test( 'handles author filter key', () => {
+		expect( mapFilterKeyToFilter( 'authors' ) ).toEqual( {
+			type: 'author',
 		} );
 	} );
 	test( 'handles taxonomies-related filter keys', () => {
