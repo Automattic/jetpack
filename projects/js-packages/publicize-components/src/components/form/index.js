@@ -41,7 +41,6 @@ export default function PublicizeForm( {
 		toggleById,
 		hasConnections,
 		enabledConnections,
-		refresh,
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
@@ -53,10 +52,6 @@ export default function PublicizeForm( {
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
-
-	useEffect( () => {
-		refresh();
-	}, [ refresh ] );
 
 	return (
 		<Wrapper>
