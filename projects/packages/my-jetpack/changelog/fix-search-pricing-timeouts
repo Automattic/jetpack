@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: increased search plan/pricing API timeouts to 5s
