@@ -6,6 +6,12 @@
 		display: flex;
 	}
 
+	.button {
+		width: calc( var( --spacing-base ) * 4 );
+		height: calc( var( --spacing-base ) * 4 );
+		line-height: calc( var( --spacing-base ) * 4 );
+	}
+
 	.button:not(.selected):disabled {
 		background-color: unset;
 	}
