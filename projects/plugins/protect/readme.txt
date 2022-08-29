@@ -109,17 +109,7 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.3 - 2022-08-26
-#### Added
-- Added a default 'See all results' label to the mobile navigation button.
-- Added a spinner to the in progress scan page in admin
-- Added JITM functionality
-- Added threat descriptions.
-- My Jetpack includes JITMs
-
-#### Changed
-- Add condition to check plugin activation context before redirecting
-
+### 1.0.4 - 2022-08-29
 #### Fixed
-- Fixed alignment of long navigation item labels on mobile screen sizes.
+- Fixed NaN error that prevented the pricing interstitial from rendering.
 
