@@ -38,6 +38,13 @@ class Products {
 		/**
 		 * This filter allows plugin to override the Product class of a given product. The new class must be a child class of the default one declared in My Jetpack
 		 *
+		 * For example, a stand-alone plugin could overwrite its product class to control specific behavior of the product in the My Jetpack page after it is active without having to commit changes to the My Jetpack package:
+		 *
+		 * add_filter( 'my_jetpack_products_classes', function( $classes ) {
+		 *  $classes['my_plugin'] = 'My_Plugin'; // a class that extends the original one declared in the My Jetpack package.
+		 *  return $classes
+		 * } );
+		 *
 		 * @param array $classes An array where the keys are the product slugs and the values are the class names.
 		 */
 		$final_classes = apply_filters( 'my_jetpack_products_classes', $classes );
