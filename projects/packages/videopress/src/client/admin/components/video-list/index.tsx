@@ -8,6 +8,7 @@ import styles from './style.module.scss';
 const VideoList = ( { videos } ) => {
 	const [ selected, setSelected ] = useState( null );
 	const [ all, setAll ] = useState( false );
+
 	const handleAll = checked => {
 		setAll( checked );
 		setSelected( null );
@@ -34,6 +35,7 @@ const VideoList = ( { videos } ) => {
 					<VideoRow
 						key={ index }
 						{ ...video }
+						className={ styles.row }
 						checked={ selected === index || all }
 						onSelect={ check =>
 							setSelected( current => {
