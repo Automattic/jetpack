@@ -32,6 +32,7 @@ const Pagination: React.FC< PaginationProps > = ( {
 	currentPage = 1,
 	perPage,
 	total,
+	minColumns = 7,
 	disabled,
 	onChangePage,
 } ) => {
@@ -65,40 +66,50 @@ const Pagination: React.FC< PaginationProps > = ( {
 		);
 	};
 
+	// Smallest odd integer from minColumns, inclusive, with a minimum of 7 columns
+	let numColumns = Math.max( minColumns, 7 );
+	numColumns = numColumns % 2 === 0 ? numColumns + 1 : numColumns;
+
 	let content;
 
-	if ( numPages <= 7 ) {
+	if ( numPages <= numColumns ) {
 		content = range( 1, numPages ).map( i => <PageButton page={ i } key={ i } /> );
-	} else if ( currentPage < 5 ) {
+	} else if ( currentPage < numColumns - 2 ) {
 		content = (
 			<>
-				{ range( 1, 5 ).map( i => (
+				{ range( 1, numColumns - 2 ).map( i => (
 					<PageButton page={ i } key={ i } />
 				) ) }
 				<Ellipsis />
 				<PageButton page={ numPages } />
 			</>
 		);
-	} else if ( currentPage > numPages - 4 ) {
+	} else if ( currentPage > numPages - numColumns + 3 ) {
 		content = (
 			<>
 				<PageButton page={ 1 } />
 				<Ellipsis />
-				{ range( numPages - 4, 5 ).map( i => (
+				{ range( numPages - numColumns + 3, numColumns - 2 ).map( i => (
 					<PageButton page={ i } key={ i } />
 				) ) }
 			</>
 		);
 	} else {
+		const numSideColumns = ( numColumns - 5 ) / 2;
+
 		content = (
 			<>
-				<PageButton page={ 1 } />
+				{ range( 1, numSideColumns ).map( i => (
+					<PageButton page={ i } key={ i } />
+				) ) }
 				<Ellipsis />
 				{ range( currentPage - 1, 3 ).map( i => (
 					<PageButton page={ i } key={ i } />
 				) ) }
 				<Ellipsis />
-				<PageButton page={ numPages } />
+				{ range( numPages - numSideColumns + 1, numSideColumns ).map( i => (
+					<PageButton page={ i } key={ i } />
+				) ) }
 			</>
 		);
 	}
