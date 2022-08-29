@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useArgs } from '@storybook/client-api';
 import Checkbox from '..';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
@@ -11,10 +11,12 @@ export default {
 } as ComponentMeta< typeof Checkbox >;
 
 const Template: ComponentStory< typeof Checkbox > = args => {
-	const [ checked, setChecked ] = useState( false );
-	const onChange = current => setChecked( current );
-	return <Checkbox { ...args } checked={ checked } onChange={ onChange } />;
+	const [ , updateArgs ] = useArgs();
+	const onChange = current => updateArgs( { checked: current } );
+	return <Checkbox { ...args } onChange={ onChange } />;
 };
 
 export const _default = Template.bind( {} );
-_default.args = {};
+_default.args = {
+	checked: true,
+};
