@@ -17,6 +17,10 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 		pricingForUi,
 	} = securityBundle;
 
+	if ( ! pricingForUi.fullPrice ) {
+		return <p>Loading...</p>;
+	}
+
 	// Compute the price per month.
 	const price = Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100;
 	const offPrice = Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100;
