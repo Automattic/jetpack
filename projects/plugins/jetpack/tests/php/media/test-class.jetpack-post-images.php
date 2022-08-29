@@ -633,4 +633,53 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$expected_poster_url = str_replace( 'mp4', 'jpg', $post_info['img_urls'][1] );
 		$this->assertEquals( $expected_poster_url, $images[1]['src'] );
 	}
+
+	/**
+	 * Test if the array extracted is empty in case post_id is null.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @since 11.3
+	 */
+	public function test_from_gravatar_returns_empty_array_if_post_id_is_null() {
+		$post_id = null;
+		$images  = Jetpack_PostImages::from_gravatar( $post_id );
+
+		$this->assertEmpty( $images );
+	}
+
+	/**
+	 * Test if the array extracted is empty in case post_id is an integer.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @since 11.3
+	 */
+	public function test_from_gravatar_returns_empty_array_if_post_id_is_integer() {
+		$post_id = 5;
+		$images  = Jetpack_PostImages::from_gravatar( $post_id );
+
+		$this->assertEmpty( $images );
+	}
+
+	/**
+	 * Test if the array extracted has a valid image when sending a valid post.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @since 11.3
+	 */
+	public function test_from_gravatar_returns_valid_image() {
+
+		$post_id = $this->factory->post->create();
+
+		$images = Jetpack_PostImages::from_gravatar( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 'image', $images[0]['type'] );
+		$this->assertEquals( 'gravatar', $images[0]['from'] );
+		$this->assertStringContainsString( 'gravatar.com/avatar', $images[0]['src'] );
+		$this->assertEquals( 96, $images[0]['src_width'] );
+		$this->assertEquals( 96, $images[0]['src_height'] );
+		$this->assertNotEmpty( $images[0]['href'] );
+		$this->assertSame( '', $images[0]['alt_text'] );
+	}
+
 } // end class
