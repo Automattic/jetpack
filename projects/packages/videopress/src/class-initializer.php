@@ -27,17 +27,6 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'plugins_loaded', array( __CLASS__, 'do_init' ), 90 ); // do the actual initialization after Config ensured options from all consumers.
-	}
-
-	/**
-	 * Actually initializes the package, after all calls to Config::ensure have been processed
-	 *
-	 * Do not call this method directly.
-	 *
-	 * @return void
-	 */
-	public static function do_init() {
 		if ( ! did_action( 'videopress_init' ) ) {
 
 			self::unconditional_initialization();
