@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress Pkg: apply changes according on the `videopress/video` name convention for the video block
