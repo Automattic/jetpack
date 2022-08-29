@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45f257c971c451c1af6a77b64108dcc0",
+    "content-hash": "d2b950075caf7c2a6988f5f04becea4c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -807,46 +807,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-options",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/options",
-                "reference": "5cd3b84f6d23ff27dc4f10e755cb974ea6bdba5c"
-            },
-            "require": {
-                "automattic/jetpack-connection": "^1.43"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.2",
-                "yoast/phpunit-polyfills": "1.0.3"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-options",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "1.16.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "legacy"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options.",
-            "abandoned": "automattic/jetpack-connection",
             "transport-options": {
                 "relative": true
             }
@@ -4393,7 +4353,6 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-publicize": 20,
-        "automattic/jetpack-options": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-sync": 20,
