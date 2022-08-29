@@ -1,4 +1,4 @@
-import { Text } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import Checkbox from '../checkbox';
@@ -8,6 +8,7 @@ import styles from './style.module.scss';
 const VideoList = ( { videos, onClickEdit } ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ all, setAll ] = useState( false );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const handleAll = checked => {
 		setAll( checked );
@@ -25,14 +26,16 @@ const VideoList = ( { videos, onClickEdit } ) => {
 					<Checkbox checked={ all } onChange={ handleAll } />
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
-				<div className={ styles[ 'data-wrapper' ] }>
-					<Stats
-						privacy={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
-						duration={ __( 'Duration', 'jetpack-videopress-pkg' ) }
-						plays={ __( 'Plays', 'jetpack-videopress-pkg' ) }
-						upload={ __( 'Upload date', 'jetpack-videopress-pkg' ) }
-					/>
-				</div>
+				{ ! isSmall && (
+					<div className={ styles[ 'data-wrapper' ] }>
+						<Stats
+							privacy={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
+							duration={ __( 'Duration', 'jetpack-videopress-pkg' ) }
+							plays={ __( 'Plays', 'jetpack-videopress-pkg' ) }
+							upload={ __( 'Upload date', 'jetpack-videopress-pkg' ) }
+						/>
+					</div>
+				) }
 			</div>
 			{ videos.map( ( video, index ) => {
 				return (
