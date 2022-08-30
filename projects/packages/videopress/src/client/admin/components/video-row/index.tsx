@@ -5,6 +5,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, image, trash, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
+import Checkbox from '../checkbox';
 import privacy from './privacy-icon';
 import styles from './style.module.scss';
 
@@ -241,10 +242,6 @@ const VideoRow = ( {
 		setShowActions( false );
 	};
 
-	const handleCheckboxChange = e => {
-		onSelect?.( e.target.checked );
-	};
-
 	return (
 		<div
 			role="button"
@@ -260,14 +257,7 @@ const VideoRow = ( {
 			} ) }
 		>
 			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
-				<input
-					ref={ checkboxRef }
-					type="checkbox"
-					checked={ checked }
-					tabIndex={ -1 }
-					className={ styles.checkbox }
-					onChange={ handleCheckboxChange }
-				/>
+				<Checkbox ref={ checkboxRef } checked={ checked } tabIndex={ -1 } onChange={ onSelect } />
 			</div>
 			<div
 				className={ classNames( styles[ 'video-data-wrapper' ], {

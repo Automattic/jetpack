@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix encryption key used for e2e tests
+
+

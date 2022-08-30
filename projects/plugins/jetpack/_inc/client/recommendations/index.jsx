@@ -61,8 +61,8 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
 			break;
-		case RECOMMENDATION_WIZARD_STEP.SECURITY_PLAN:
-			redirectPath = '/security-plan';
+		case RECOMMENDATION_WIZARD_STEP.PROTECT:
+			redirectPath = '/protect';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.ANTI_SPAM:
 			redirectPath = '/anti-spam';
@@ -80,7 +80,8 @@ const RecommendationsComponent = props => {
 			redirectPath = '/summary';
 			break;
 		default:
-			throw `Unknown step ${ step } in RecommendationsComponent`;
+			redirectPath = '/summary';
+			break;
 	}
 
 	// Check to see if a step slug is "new" - has not been viewed yet.
@@ -134,8 +135,8 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/publicize">
 						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
 					</Route>
-					<Route path="/recommendations/security-plan">
-						<ResourcePrompt stepSlug="security-plan" isNew={ isNew( 'security-plan' ) } />
+					<Route path="/recommendations/protect">
+						<FeaturePrompt stepSlug="protect" isNew={ isNew( 'protect' ) } />
 					</Route>
 					<Route path="/recommendations/anti-spam">
 						<ResourcePrompt stepSlug="anti-spam" isNew={ isNew( 'anti-spam' ) } />
