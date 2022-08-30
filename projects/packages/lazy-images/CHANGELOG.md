@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.22] - 2022-08-30
+### Changed
+- Updated package dependencies. [#25814]
+
 ## [2.1.21] - 2022-07-26
 ### Changed
 - Updated package dependencies. [#25158]
@@ -249,6 +253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.22]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.21...v2.1.22
 [2.1.21]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.20...v2.1.21
 [2.1.20]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.19...v2.1.20
 [2.1.19]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.18...v2.1.19

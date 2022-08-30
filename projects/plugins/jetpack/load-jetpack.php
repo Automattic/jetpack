@@ -10,7 +10,7 @@
  * in require_lib().
  *
  * @since 4.0.2
- * @deprecated since $$next-version$$ Use `JETPACK__PLUGIN_DIR . '_inc/lib/'` instead.
+ * @deprecated since 11.3 Use `JETPACK__PLUGIN_DIR . '_inc/lib/'` instead.
  *
  * @return string Location of Jetpack library directory.
  *
