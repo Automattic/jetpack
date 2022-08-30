@@ -11,9 +11,15 @@ type RecordMeterDonutItem = {
 	 */
 	label: string;
 	/**
-	 * Color code for the background color for the item
+	 * Color code for the background color for the item.
+	 * If not provided defaults to Jetpack Green
 	 */
-	backgroundColor: string;
+	backgroundColor?: string;
+
+	/**
+	 * thickness for the chart border
+	 */
+	thickness?: number;
 };
 
 export type RecordMeterDonutProps = {
@@ -55,7 +61,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( { totalCount, item
 					cy="20"
 					r="15.91549430918954"
 					fill="transparent"
-					stroke-width="3.5"
+					stroke-width={ items[ 0 ].thickness }
 				></circle>
 				<circle
 					className="donut-segment"
@@ -64,7 +70,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( { totalCount, item
 					r="15.91549430918954"
 					fill="transparent"
 					stroke={ items[ 0 ].backgroundColor }
-					stroke-width="3.5"
+					stroke-width={ items[ 0 ].thickness }
 					stroke-dasharray={ `${ count() } ${ 100 - count() }` }
 					stroke-dashoffset="25"
 				></circle>
