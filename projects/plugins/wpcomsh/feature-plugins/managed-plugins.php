@@ -88,6 +88,24 @@ function wpcomsh_is_marketplace_plugin( $plugin_file ) {
 }
 
 /**
+ * Disable the capability to deactivate the WPCOM_CORE_ATOMIC_PLUGINS.
+ *
+ * @param array  $caps    Array of required capabilities.
+ * @param string $cap     Capability name.
+ * @param int    $user_id The user ID.
+ * @param array  $args    Adds the context to the cap. For the purpose of this callback: Plugin to be deactivated.
+ * @return array Primitive caps.
+ */
+function wpcomsh_deactivate_plugin_cap( $caps, $cap, $user_id, $args ) {
+	if ( 'deactivate_plugin' === $cap && in_array( $args[0], WPCOM_CORE_ATOMIC_PLUGINS, true ) ) {
+		$caps[] = 'do_not_allow';
+	}
+
+	return $caps;
+}
+add_filter( 'map_meta_cap', 'wpcomsh_deactivate_plugin_cap', 10, 4 );
+
+/**
  * Add managed plugins action links.
  */
 function wpcomsh_managed_plugins_action_links() {
