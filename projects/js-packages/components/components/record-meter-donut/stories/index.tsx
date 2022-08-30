@@ -8,8 +8,11 @@ export default {
 const Template = args => <RecordMeterDonut { ...args } />;
 
 const DefaultArgs: RecordMeterDonutProps = {
-	items: [ { count: 18, label: 'Posts', backgroundColor: '#00BA37' } ],
+	segmentCount: 18,
 	totalCount: 100,
+	label: 'Posts',
+	backgroundColor: '#00BA37',
+	thickness: '3.5',
 };
 
 // Export Default story
