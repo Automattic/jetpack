@@ -9,6 +9,7 @@
 const deFusionedFiles = [
 	'projects/plugins/jetpack/_inc/crowdsignal-shortcode.js',
 	'projects/plugins/jetpack/_inc/crowdsignal-survey.js',
+	'projects/plugins/jetpack/_inc/facebook-embed.js',
 	'projects/plugins/jetpack/_inc/polldaddy-shortcode.js',
 	'projects/plugins/jetpack/_inc/genericons.php',
 	'projects/plugins/jetpack/_inc/genericons/',
@@ -25,6 +26,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/modules/publicize.php',
 	'projects/plugins/jetpack/modules/seo-tools/',
 	'projects/plugins/jetpack/modules/shortcodes/',
+	'projects/plugins/jetpack/modules/shortcodes/js/brightcove.js',
 	'projects/plugins/jetpack/modules/sitemaps',
 	'projects/plugins/jetpack/modules/theme-tools/compat/',
 	'projects/plugins/jetpack/modules/theme-tools/site-logo.php',
