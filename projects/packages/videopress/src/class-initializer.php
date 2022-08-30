@@ -27,17 +27,6 @@ class Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'plugins_loaded', array( __CLASS__, 'do_init' ), 90 ); // do the actual initialization after Config ensured options from all consumers.
-	}
-
-	/**
-	 * Actually initializes the package, after all calls to Config::ensure have been processed
-	 *
-	 * Do not call this method directly.
-	 *
-	 * @return void
-	 */
-	public static function do_init() {
 		if ( ! did_action( 'videopress_init' ) ) {
 
 			self::unconditional_initialization();
@@ -86,7 +75,9 @@ class Initializer {
 	 * @return void
 	 */
 	private static function unconditional_initialization() {
-		require_once __DIR__ . '/utility-functions.php';
+		if ( self::should_include_utilities() ) {
+			require_once __DIR__ . '/utility-functions.php';
+		}
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -99,6 +90,22 @@ class Initializer {
 	}
 
 	/**
+	 * This avoids conflicts when running VideoPress plugin with older versions of the Jetpack plugin
+	 *
+	 * On version 11.3-a.7 utility functions include were removed from the plugin and it is safe to include it from the package
+	 *
+	 * @return boolean
+	 */
+	private static function should_include_utilities() {
+		if ( ! class_exists( 'Jetpack' ) || ! defined( 'JETPACK__VERSION' ) ) {
+			return true;
+		}
+
+		return version_compare( JETPACK__VERSION, '11.3-a.7', '>=' );
+
+	}
+
+	/**
 	 * Initialize VideoPress features that should be initialized only when the module is active
 	 *
 	 * @return void
@@ -107,6 +114,7 @@ class Initializer {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
 		Uploader_Rest_Endpoints::init();
+		XMLRPC::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
 			Admin_UI::init();
@@ -152,11 +160,24 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_videopress_block() {
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/videopress' ) ) {
+	public static function register_videopress_video_block() {
+		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/video/block.json';
+		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
+		if ( ! $videopress_video_metadata_file_exists ) {
 			return;
 		}
 
-		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+		$videopress_video_metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $videopress_video_metadata_file )
+		);
+
+		// Pick the block name straight from the block metadata .json file.
+		$videopress_video_block_name = $videopress_video_metadata->name;
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
+			return;
+		}
+
+		register_block_type( $videopress_video_metadata_file );
 	}
 }
