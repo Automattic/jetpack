@@ -167,12 +167,16 @@ class Products {
 	 * tied to the Products.
 	 */
 	public static function extend_plugins_action_links() {
-		( self::get_product_class( 'backup' ) )::extend_plugin_action_links();
-		( self::get_product_class( 'boost' ) )::extend_plugin_action_links();
-		( self::get_product_class( 'crm' ) )::extend_plugin_action_links();
-
-		// Extend Jetpack plugin using Videopress instance.
-		( self::get_product_class( 'videopress' ) )::extend_plugin_action_links();
+		$products = array(
+			'backup',
+			'boost',
+			'crm',
+			'videopress', // we use videopress here to add the plugin action to the Jetpack plugin itself
+		);
+		foreach ( $products as $product ) {
+			$class_name = self::get_product_class( $product );
+			$class_name::extend_plugin_action_links();
+		}
 	}
 
 }
