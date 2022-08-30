@@ -21,8 +21,7 @@ const { getMessage, sendMessage } = require( './slack' );
 		return;
 	}
 
-	const defaultChannel = getInput( 'slack_channel' );
-	if ( ! defaultChannel ) {
+	if ( ! getInput( 'slack_channel' ) ) {
 		setFailed( 'Input `slack_channel` is required' );
 		return;
 	}
