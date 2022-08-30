@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45f257c971c451c1af6a77b64108dcc0",
+    "content-hash": "4972c9bd3e39011cfb9006410943df33",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -324,7 +324,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "792f880df7c67c9ec497af1918dbd4b7319fc9e1"
+                "reference": "ed3ac31335237baceacc57e471d81d5568708097"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -352,7 +352,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.43.x-dev"
+                    "dev-trunk": "1.44.x-dev"
                 }
             },
             "autoload": {
@@ -491,11 +491,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "3e72cfcbf5af4e7d2137c8dbda45ccd07d87e27c"
+                "reference": "d4cf7719db679334fff38d6a0c671fe1b7214375"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.43",
+                "automattic/jetpack-connection": "^1.44",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-status": "^1.14"
@@ -563,12 +563,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "cee8ec48ac7ebaeaaaa8e9d8dd348b373ba9082b"
+                "reference": "221ce4e00cfc86d96a069b89cb122edb4ac5b633"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.43",
+                "automattic/jetpack-connection": "^1.44",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-partner": "^1.7",
@@ -631,10 +631,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "7509f508c7148df1b5807c2e201c5a252f2c94ee"
+                "reference": "a4fb63b60a41475b486a458bc727ccceb8917965"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.43"
+                "automattic/jetpack-connection": "^1.44"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -733,12 +733,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "91e0bd55a1ccedca20539140698ee40fc0e3ac18"
+                "reference": "295ad69ef48e410e8f8dffa2febfa48ef5211dd3"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-connection": "^1.43",
+                "automattic/jetpack-connection": "^1.44",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-jitm": "^2.2",
                 "automattic/jetpack-licensing": "^1.7",
@@ -812,55 +812,15 @@
             }
         },
         {
-            "name": "automattic/jetpack-options",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/options",
-                "reference": "5cd3b84f6d23ff27dc4f10e755cb974ea6bdba5c"
-            },
-            "require": {
-                "automattic/jetpack-connection": "^1.43"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^3.2",
-                "yoast/phpunit-polyfills": "1.0.3"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-options",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "1.16.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "legacy"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A wrapper for wp-options to manage specific Jetpack options.",
-            "abandoned": "automattic/jetpack-connection",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
             "name": "automattic/jetpack-partner",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "f1b73ca54aba295e6b3b0bc27395dde58e166fa5"
+                "reference": "e7e4d7c2d4466948e6c56d7f54f48ba34ebbc2b1"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.43",
+                "automattic/jetpack-connection": "^1.44",
                 "automattic/jetpack-status": "^1.14"
             },
             "require-dev": {
@@ -965,10 +925,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "ae0c0f0590c3464cd058e5cc1b5a3945e038da24"
+                "reference": "c5058276f1aecef990073ade984dcff0125d0985"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.43"
+                "automattic/jetpack-connection": "^1.44"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -1077,12 +1037,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "699eea601bda70cae03ee459e2a886473e20b308"
+                "reference": "31437883224650caa956fb658f7d6efae9605254"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
                 "automattic/jetpack-config": "^1.9",
-                "automattic/jetpack-connection": "^1.43"
+                "automattic/jetpack-connection": "^1.44"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -1290,10 +1250,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "5b71c6b268210417aa4f611e2be0cad011351b42"
+                "reference": "e0681e35fcbe28d243f4a6aa038ce0f9ec448c92"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.43",
+                "automattic/jetpack-connection": "^1.44",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-password-checker": "^0.2",
@@ -2480,7 +2440,8 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.9.3"
+                "url": "https://api.github.com/repos/WordPress/WordPress/zipball/refs/tags/5.9.3",
+                "reference": "5.9.3"
             },
             "require": {
                 "php": ">=5.3.2",
@@ -4393,7 +4354,6 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-publicize": 20,
-        "automattic/jetpack-options": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-sync": 20,

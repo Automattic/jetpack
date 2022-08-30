@@ -1,0 +1,24 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import ProgressBar from '../index';
+
+<Meta
+  title="Packages/VideoPress/Progress Bar"
+  component={ProgressBar}
+/>
+
+# ProgressBar
+A simple progress bar.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-progress-bar--default" />
+</Canvas>
+
+## API
+
+### progress
+
+- type: `number`
+
+The current progress percentage. A number between 0 and 1, inclusive.
+Will round up to 0 if less than 0.
+Will round down to 1 if above 1.

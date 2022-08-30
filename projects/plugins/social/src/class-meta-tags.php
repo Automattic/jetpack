@@ -230,6 +230,10 @@ class Meta_Tags {
 			);
 		}
 
+		// Trim the description if it's still too long, and add an ellipsis.
+		$description_length = 197;
+		$description        = mb_strimwidth( $description, 0, $description_length, '…' );
+
 		return $description;
 	}
 
@@ -259,20 +263,20 @@ class Meta_Tags {
 
 		$tags['og:url'] = get_permalink( $data->ID );
 		if ( ! post_password_required( $data ) ) {
+			$excerpt = '';
+
 			/*
 			 * If the post author set an excerpt, use that.
 			 * Otherwise, pick the post content that comes before the More tag if there is one.
 			 * Do not use the post content if it contains premium content.
 			 */
 			if ( ! empty( $data->post_excerpt ) ) {
-				$tags['og:description'] = $this->get_description( $data->post_excerpt );
+				$excerpt = $data->post_excerpt;
 			} elseif ( ! has_block( 'premium-content/container', $data->post_content ) ) {
-				$excerpt                = explode( '<!--more-->', $data->post_content )[0];
-				$tags['og:description'] = $this->get_description( $excerpt );
+				$excerpt = explode( '<!--more-->', $data->post_content )[0];
 			}
-			// Shorten the description if it's too long.
-			$description_length     = 197;
-			$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '…' : $tags['og:description'];
+
+			$tags['og:description'] = $this->get_description( $excerpt );
 		}
 
 		$image = $this->get_featured_image();
