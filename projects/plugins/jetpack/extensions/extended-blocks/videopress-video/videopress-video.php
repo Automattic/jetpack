@@ -23,8 +23,8 @@ add_action(
 		 * until the next relase of Jetpack-on-dotcom happens.
 		 * Todo: remove this code once the next release of Jetpack-on-dotcom lands.
 		 */
-		if ( ! method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_block' ) ) {
-			VideoPress_Pkg_Initializer::register_videopress_block();
+		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_block' ) ) {
+			return VideoPress_Pkg_Initializer::register_videopress_block();
 		}
 
 		if ( ! method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' ) ) {
