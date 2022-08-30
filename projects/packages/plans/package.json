@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-plans",
-	"version": "0.2.2-alpha",
+	"version": "0.2.2",
 	"description": "Fetch information about Jetpack Plans from wpcom",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plans/#readme",
 	"bugs": {
