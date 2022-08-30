@@ -6,6 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import { isPriceValid } from '../../shared/currencies';
 import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
 import save from './save';
 import './editor.scss';
@@ -102,7 +103,7 @@ export const settings = {
 		html: false,
 		__experimentalExposeControlsToChildren: true,
 	},
-	deprecated: [ deprecatedV1 ],
+	deprecated: [ deprecatedV2, deprecatedV1 ],
 	transforms: {
 		from: [
 			{
