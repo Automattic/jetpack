@@ -156,7 +156,18 @@ class Initializer {
 	}
 
 	/**
-	 * Register the VideoPress block editor block
+	 * Register all VideoPress blocks
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_blocks() {
+		// Register VideoPress Video block.
+		self::register_videopress_video_block();
+	}
+
+	/**
+	 * Register the VideoPress block editor block,
+	 * AKA "VideoPress Block v6".
 	 *
 	 * @return void
 	 */
