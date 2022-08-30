@@ -4,40 +4,32 @@
 
 ## 11.3-beta - 2022-08-30
 ### Enhancements
-- Added tracks to record when the new recommendations bubble is visible and when the user clicks on it [#25728]
-- Enhancement: Update security plan recommendation to promote Jetpack Protect to increase installs [#25391]
-- General: enable the Post List package in Jetpack, to display extra information alongside each post in your dashboard's Posts screen. [#25301]
-- Include custom post types items inside the calypso admin menu [#25670]
-- Jetpack: register VideoPress Video block from Jetpack plugin [#25429]
-- Jetpack: update to the lastest changes of the VideoPress pkg API [#25844]
-- Rebrand Publicize to Jetpack Social [#25787]
-- Updated management of installing state for recommended features [#25451]
+- General: enable the Post List package in Jetpack to display extra information alongside each post in wp-admin dashboard Posts screen. [#25301]
 
 ### Improved compatibility
-- Rely on videopress package for XMLRPC initialization [#25863]
+- VideoPress: rely on videopress package for XMLRPC initialization. [#25863]
+- Jetpack: register VideoPress Video block from Jetpack plugin. [#25429]
+- Publicize: replace Publicize with Jetpack Social. [#25787]
 
 ### Bug fixes
-- Fixed the criteria for showing VideoPress upsells in the Jetpack Dashboard [#25691]
-- Fixes a js error when closing a non-VideoPress video modal in the Media Library. [#25834]
-- Fix JS error when installing boost plugin from recommendations [#25835]
-- Fix Subscribe block input and submit button coupling for Safari when split style is selected [#25805]
-- Leverage placeholder attribute when rendering the shortcode in wpcom [#25923]
-- Remove inline styles from subscription notification [#25793]
-- Tiled Gallery: ensure we link to the original image URL for media links [#25655]
+- VideoPress: fix a js error when closing a non-VideoPress video modal in the Media Library. [#25834]
+- Subscribe Block: fix input and submit button coupling for Safari when split style is selected. [#25805]
+- Subscriptions Block: remove inline styles from subscription notification. [#25793]
+- Tiled Gallery: ensure the link to the original image URL is used when linking to media files. [#25655]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Compat: wp_startswith should only pass to strpos if string is passed. [#25797]
 - Deprecated `jetpack_require_lib` and `jetpack_require_lib_dir`. No `_deprecated_function` calls yet, that will come after we've removed internal uses. [#25886]
 - Fix some linting issues in tiled-gallery and remove files from the linter exclude list [#25784]
-- Init 11.3-a.10 [#25781]
-- Testing instructions [#25926]
-- Updated package dependencies. [#25661]
-- Updated package dependencies. [#25694]
-- Updated package dependencies. [#25787]
-- Updated package dependencies. [#25802]
-- Updated package dependencies. [#25814]
-- Updated package dependencies. [#25845]
-- Updated package dependencies. [#25846]
+- Updated package dependencies.
+- Added tracks to record when the new recommendations bubble is visible and when the user clicks on it [#25728]
+- Enhancement: Update security plan recommendation to promote Jetpack Protect to increase installs [#25391]
+- Include custom post types items inside the calypso admin menu [#25670]
+- Updated management of installing state for recommended features [#25451]
+- Jetpack: update to the lastest changes of the VideoPress pkg API [#25844]
+- Fixed the criteria for showing VideoPress upsells in the Jetpack Dashboard [#25691]
+- Fix JS error when installing boost plugin from recommendations [#25835]
+- Leverage placeholder attribute when rendering the shortcode in wpcom [#25923]
 
 ## 11.3-a.11 - 2022-08-23
 ### Bug fixes
