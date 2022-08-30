@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix some linting issues in tiled-gallery and remove files from the linter exclude list

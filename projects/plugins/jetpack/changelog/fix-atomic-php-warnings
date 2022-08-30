@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Compat: wp_startswith should only pass to strpos if string is passed.
