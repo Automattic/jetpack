@@ -44,7 +44,7 @@
 		"svelte": "3.49.0",
 		"svelte-preprocess": "4.9.2",
 		"tslib": "2.3.1",
-		"typescript": "4.7.4"
+		"typescript": "4.8.2"
 	},
 	"scripts": {
 		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:compile-ts' 'rollup -c'",
