@@ -329,16 +329,31 @@ class Jetpack_Memberships {
 	public function get_subscription_url( $plan_id ) {
 		global $wp;
 
-		return add_query_arg(
-			array(
-				'blog'     => esc_attr( self::get_blog_id() ),
-				'plan'     => esc_attr( $plan_id ),
-				'lang'     => esc_attr( get_locale() ),
-				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
-				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
-			),
-			'https://subscribe.wordpress.com/memberships/'
+		$query_args = array(
+			'blog'     => esc_attr( self::get_blog_id() ),
+			'plan'     => esc_attr( $plan_id ),
+			'lang'     => esc_attr( get_locale() ),
+			'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
+			'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
 		);
+
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			return add_query_arg( $query_args, 'https://subscribe.wordpress.com/memberships/' );
+		}
+
+		require_lib( 'memberships' );
+		$plan = Memberships_Product::get_from_post( self::get_blog_id(), $plan_id );
+
+		if ( ! $plan ) {
+			return add_query_arg( $query_args, 'https://subscribe.wordpress.com/memberships/' );
+		}
+
+		$plan = $plan->to_array();
+		if ( isset( $plan['buyer_can_change_amount'] ) ) {
+			$query_args['customAmount'] = $plan['buyer_can_change_amount'];
+		}
+
+		return add_query_arg( $query_args, 'https://subscribe.wordpress.com/memberships/' );
 	}
 
 	/**
