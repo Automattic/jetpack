@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import './style.scss';
 export type RecordMeterDonutProps = {
@@ -36,8 +37,8 @@ export type RecordMeterDonutProps = {
 const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	totalCount,
 	segmentCount,
-	// label = 'record meter donut chart',
-	backgroundColor = '#00BA37', // jetpack green
+	label = __( 'record meter donut chart', 'jetpack' ),
+	backgroundColor = '#00BA37', // jetpack green fallback
 	thickness = '3.5',
 } ) => {
 	const count = () => {
@@ -46,7 +47,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	};
 
 	return (
-		<div className="svg-item">
+		<div className="svg-item" aria-hidden="true">
 			<svg width="100%" height="100%" viewBox="0 0 40 40" className="donut">
 				<circle
 					className="donut-hole"
@@ -75,6 +76,19 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 					stroke-dashoffset="25"
 				></circle>
 			</svg>
+			<table className="screen-reader-text">
+				<caption>{ __( 'Summary of the records', 'jetpack' ) }</caption>
+				<tbody>
+					<tr>
+						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Record count', 'jetpack' ) }</th>
+					</tr>
+					<tr>
+						<td>{ label }</td>
+						<td>{ count }</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	);
 };
