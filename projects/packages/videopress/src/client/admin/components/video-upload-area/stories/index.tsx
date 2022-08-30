@@ -1,5 +1,11 @@
+/**
+ * External dependencies
+ */
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import classnames from 'classnames';
+/**
+ * Internal dependencies
+ */
 import VideoUploadArea from '..';
 import Doc from './VideoUploadArea.mdx';
 import styles from './style.module.scss';
