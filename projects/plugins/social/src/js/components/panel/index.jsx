@@ -10,11 +10,15 @@ import {
 	usePostJustPublished,
 } from '@automattic/jetpack-publicize-components';
 import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, register, createReduxStore } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { STORE_ID, storeConfig } from '../../store';
 import Description from './description';
+
+const store = createReduxStore( STORE_ID, storeConfig );
+register( store );
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
@@ -24,6 +28,15 @@ const PublicizePanel = ( { prePublish } ) => {
 		[]
 	);
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
+
+	const { isShareLimitEnabled, numberOfSharesRemaining, hasPaidPlan } = useSelect( select => {
+		const socialStore = select( STORE_ID );
+		return {
+			isShareLimitEnabled: socialStore.isShareLimitEnabled(),
+			numberOfSharesRemaining: socialStore.numberOfSharesRemaining(),
+			hasPaidPlan: socialStore.hasPaidPlan(),
+		};
+	} );
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -71,6 +84,9 @@ const PublicizePanel = ( { prePublish } ) => {
 				<PublicizeForm
 					isPublicizeEnabled={ isPublicizeEnabled }
 					isRePublicizeFeatureEnabled={ ! isPostPublished }
+					numberOfSharesRemaining={
+						isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
+					}
 				/>
 			</Fragment>
 		</PanelWrapper>

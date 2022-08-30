@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Starter Plugin
  * Plugin URI: https://wordpress.org/plugins/jetpack-starter-plugin
  * Description: plugin--description.
- * Version: 0.1.1-alpha
+ * Version: 0.2.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later

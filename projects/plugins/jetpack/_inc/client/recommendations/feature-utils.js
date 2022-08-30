@@ -41,6 +41,13 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=related%20posts',
 			};
+		case 'protect':
+			return {
+				configureButtonLabel: __( 'Settings', 'jetpack' ),
+				displayName: __( 'Jetpack Protect', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Install', 'jetpack' ),
+				configLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-protect',
+			};
 		case 'site-accelerator':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
@@ -84,12 +91,6 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLabel: __( 'Read More', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
 			};
-		case 'security-plan':
-			return {
-				displayName: __( 'Site Security', 'jetpack' ),
-				ctaLabel: __( 'Read More', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
-			};
 		case 'anti-spam':
 			return {
 				displayName: __( 'Spam Management', 'jetpack' ),
@@ -106,8 +107,8 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'boost':
 			return {
 				activateFeature: () => {
-					restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+					return restApi.installPlugin( 'jetpack-boost', 'recommendations' ).then( () => {
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};
@@ -117,7 +118,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					return restApi
 						.installPlugin( 'creative-mail-by-constant-contact', 'recommendations' )
 						.then( () => {
-							dispatch( fetchPluginsData() );
+							return dispatch( fetchPluginsData() );
 						} );
 				},
 			};
@@ -131,6 +132,14 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return dispatch( updateSettings( { 'related-posts': true } ) );
+				},
+			};
+		case 'protect':
+			return {
+				activateFeature: () => {
+					return restApi.installPlugin( 'jetpack-protect', 'recommendations' ).then( () => {
+						dispatch( fetchPluginsData() );
+					} );
 				},
 			};
 		case 'site-accelerator':
@@ -162,7 +171,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return restApi.installPlugin( 'woocommerce', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};
@@ -266,24 +275,15 @@ export const getStepContent = stepSlug => {
 				descriptionLink: getRedirectUrl( 'jetpack-blog-social-sharing' ),
 				ctaText: __( 'Enable Social Media Sharing', 'jetpack' ),
 			};
-		case 'security-plan':
+		case 'protect':
 			return {
 				question: __( 'With more plugins comes more responsibility.', 'jetpack' ),
 				description: __(
-					'As you add plugins to your site, you have to start thinking about vulnerabilities, failed updates, and incompatible plugins. You should ensure that the plugins you install:',
+					'As you add plugins to your site, you have to start thinking about vulnerabilities.<br /><br /><strong>Jetpack Protect</strong> is a free security solution for WordPress that runs automated scans on your site and warns you about vulnerabilities.<br /><br />Focus on running your business while we protect your site with Jetpack Protect. <ExternalLink>Learn More</ExternalLink>.',
 					'jetpack'
 				),
-				descriptionList: [
-					__( 'Have good user ratings', 'jetpack' ),
-					__( 'Are compatible with the most recent version of WordPress', 'jetpack' ),
-					__( 'Are developed by teams that respond to support requests promptly', 'jetpack' ),
-				],
-				descriptionSecondary: __(
-					'Or let Jetpack handle your security and backups so you can focus on your business.',
-					'jetpack'
-				),
-				ctaText: __( 'Read WordPress Security for Beginners', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'jetpack-blog-wordpress-security-for-beginners' ),
+				descriptionLink: getRedirectUrl( 'jetpack-protect-assistant-recommendation' ),
+				ctaText: __( 'Install Protect for Free', 'jetpack' ),
 			};
 		case 'anti-spam':
 			return {
@@ -390,7 +390,7 @@ export const getProductCardDataStepOverrides = ( state, productSlug, stepSlug ) 
 				return {
 					productCardTitle: __( 'Your site is growing. It’s time for a security plan.', 'jetpack' ),
 				};
-			} else if ( stepSlug === 'security-plan' ) {
+			} else if ( stepSlug === 'protect' ) {
 				return {
 					productCardTitle: __(
 						'Jetpack Security gives you complete site protection and backups.',

@@ -56,7 +56,7 @@ class Jetpack_VideoPress_Plugin {
 		);
 
 		// Register VideoPress block
-		add_action( 'init', array( $this, 'register_videopress_block' ) );
+		add_action( 'init', array( $this, 'register_videopress_video_block' ) );
 
 		My_Jetpack_Initializer::init();
 	}
@@ -76,7 +76,7 @@ class Jetpack_VideoPress_Plugin {
 	/**
 	 * Register the VideoPress block.
 	 */
-	public function register_videopress_block() {
-		VideoPress_Pkg_Initializer::register_videopress_block();
+	public function register_videopress_video_block() {
+		VideoPress_Pkg_Initializer::register_videopress_video_block();
 	}
 }

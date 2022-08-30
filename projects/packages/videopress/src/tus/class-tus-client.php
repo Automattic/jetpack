@@ -546,7 +546,21 @@ class Tus_Client {
 		$status_code = wp_remote_retrieve_response_code( $response );
 
 		if ( WP_Http::CREATED !== $status_code ) {
-			throw new Tus_Exception( 'Unable to create resource.' );
+			$body          = json_decode( wp_remote_retrieve_body( $response ) );
+			$error_message = __( 'Unable to create resource.', 'jetpack-videopress-pkg' );
+			if ( ! empty( $body->message ) ) {
+				$error_message = $body->message;
+				if ( ! empty( $body->error ) ) {
+					$error_message = $body->error . ': ' . $error_message;
+				}
+			}
+			// server can respond in a few different ways.
+			if ( isset( $body->success ) && false === $body->success ) {
+				if ( ! empty( $body->data ) && ! empty( $body->data->message ) ) {
+					$error_message = $body->data->message;
+				}
+			}
+			throw new Tus_Exception( $error_message, $status_code );
 		}
 
 		$upload_offset   = $bytes > 0 ? wp_remote_retrieve_header( $response, 'upload-offset' ) : 0;
@@ -711,7 +725,7 @@ class Tus_Client {
 			return new Tus_Exception( 'Unsupported media types.' );
 		}
 
-		return new Tus_Exception( (string) $response->getBody(), $response_code );
+		return new Tus_Exception( (string) wp_remote_retrieve_body( $response ), $response_code );
 	}
 
 	/**

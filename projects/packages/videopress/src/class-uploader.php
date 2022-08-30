@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use VideoPressUploader\File_Exception;
 use VideoPressUploader\Tus_Client;
@@ -136,6 +137,9 @@ class Uploader {
 	 * @return string
 	 */
 	public function get_upload_token() {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			throw new Upload_Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
+		}
 		$blog_id  = Jetpack_Options::get_option( 'id' );
 		$endpoint = "sites/{$blog_id}/media/videopress-upload-jwt";
 		$args     = array( 'method' => 'POST' );
@@ -174,6 +178,15 @@ class Uploader {
 	 */
 	protected function mark_as_uploaded( $new_attachment_id ) {
 		update_post_meta( $this->attachment_id, self::UPLOADED_KEY, $new_attachment_id );
+	}
+
+	/**
+	 * Sets the current attachment as not being uploaded before. Deletes the reference to the videopress attachment
+	 *
+	 * @return void
+	 */
+	protected function unmark_as_uploaded() {
+		delete_post_meta( $this->attachment_id, self::UPLOADED_KEY );
 	}
 
 	/**
@@ -262,12 +275,19 @@ class Uploader {
 	public function check_status() {
 
 		if ( $this->is_uploaded() ) {
-			return array(
-				'status'              => 'uploaded',
-				'upload_key'          => $this->get_key(),
-				'uploaded_post_id'    => $this->get_uploaded_attachment_id(),
-				'uploaded_video_guid' => get_post_meta( $this->get_uploaded_attachment_id(), 'videopress_guid', true ),
-			);
+			$uploaded_attachment_id = $this->get_uploaded_attachment_id();
+			$uploaded_video_guid    = get_post_meta( $uploaded_attachment_id, 'videopress_guid', true );
+			if ( $uploaded_video_guid ) {
+				return array(
+					'status'              => 'uploaded',
+					'upload_key'          => $this->get_key(),
+					'uploaded_post_id'    => $uploaded_attachment_id,
+					'uploaded_video_guid' => $uploaded_video_guid,
+				);
+			} else {
+				// VideoPress attachment is gone, allow user to upload it again.
+				$this->unmark_as_uploaded();
+			}
 		}
 
 		try {
@@ -296,6 +316,7 @@ class Uploader {
 				'bytes_uploaded' => -1,
 				'file_size'      => $this->get_file_size(),
 				'file_name'      => $this->get_file_name(),
+				'message'        => $e->getMessage(),
 			);
 		}
 	}

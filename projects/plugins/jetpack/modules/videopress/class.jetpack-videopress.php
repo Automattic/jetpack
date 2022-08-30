@@ -4,7 +4,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\VideoPress\Attachment_Handler;
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
-use Automattic\Jetpack\VideoPress\XMLRPC;
 /**
  * VideoPress in Jetpack
  */
@@ -50,7 +49,6 @@ class Jetpack_VideoPress {
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
 		VideoPress_Scheduler::init();
-		XMLRPC::init();
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
