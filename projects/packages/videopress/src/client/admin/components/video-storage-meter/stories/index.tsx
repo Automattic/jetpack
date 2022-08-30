@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-/**
- * Internal dependencies
- */
 import VideoStorageMeter from '..';
 import Doc from './VideoStorageMeter.mdx';
-import styles from './style.module.scss';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
@@ -21,7 +13,7 @@ export default {
 } as ComponentMeta< typeof VideoStorageMeter >;
 
 const Template: ComponentStory< typeof VideoStorageMeter > = args => (
-	<VideoStorageMeter { ...args } className={ classnames( styles.wrapper ) } />
+	<VideoStorageMeter { ...args } />
 );
 
 export const _default = Template.bind( {} );
