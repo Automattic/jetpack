@@ -34,6 +34,11 @@ export type RecordMeterDonutProps = {
  * @returns {React.ReactElement} - JSX element
  */
 const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( { totalCount, items = [] } ) => {
+	const count = () => {
+		// get count as a percent value
+		return ( items[ 0 ].count / totalCount ) * 100;
+	};
+
 	return (
 		<div className="svg-item">
 			<svg width="100%" height="100%" viewBox="0 0 40 40" className="donut">
@@ -53,13 +58,14 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( { totalCount, item
 					stroke-width="3.5"
 				></circle>
 				<circle
-					className="donut-segment donut-segment-2"
+					className="donut-segment"
 					cx="20"
 					cy="20"
 					r="15.91549430918954"
 					fill="transparent"
+					stroke="#ff6200"
 					stroke-width="3.5"
-					stroke-dasharray={ `${ items[ 0 ].count } ${ totalCount - items[ 0 ].count }` }
+					stroke-dasharray={ `${ count() } ${ 100 - count() }` }
 					stroke-dashoffset="25"
 				></circle>
 			</svg>
