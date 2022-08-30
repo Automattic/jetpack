@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix Subscribe block input and submit button coupling for Safari when split style is selected

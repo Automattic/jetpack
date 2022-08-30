@@ -1,4 +1,4 @@
 /**
  * Internal dependencies
  */
-import './blocks/videopress/';
+import './blocks/video';
