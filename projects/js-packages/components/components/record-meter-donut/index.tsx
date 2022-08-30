@@ -26,6 +26,11 @@ export type RecordMeterDonutProps = {
 	 * If not provided, defaults to 3.5
 	 */
 	thickness?: string;
+	/**
+	 * width for the full chart size
+	 * If not provided, defaults to 64px
+	 */
+	donutWidth?: string;
 };
 
 /**
@@ -40,6 +45,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	label = __( 'record meter donut chart', 'jetpack' ),
 	backgroundColor = '#00BA37', // jetpack green fallback
 	thickness = '3.5',
+	donutWidth = '64px',
 } ) => {
 	const count = () => {
 		// get count as a percent value
@@ -48,7 +54,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 
 	return (
 		<div className="svg-item" aria-hidden="true">
-			<svg width="100%" height="100%" viewBox="0 0 40 40" className="donut">
+			<svg width={ donutWidth } height="auto" viewBox="0 0 40 40" className="donut">
 				<circle
 					className="donut-hole"
 					cx="20"
@@ -75,7 +81,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 					stroke={ backgroundColor }
 					stroke-width={ thickness }
 					stroke-dasharray={ `${ count() } ${ 100 - count() }` }
-					stroke-dashoffset="-25"
+					stroke-dashoffset="-25" // this ensures the segment begins at the bottom of the donut instead of the top
 				></circle>
 			</svg>
 			<table className="screen-reader-text">

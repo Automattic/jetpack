@@ -13,6 +13,7 @@ const DefaultArgs: RecordMeterDonutProps = {
 	label: 'Posts',
 	backgroundColor: '#00BA37',
 	thickness: '3.5',
+	donutWidth: '64px',
 };
 
 // Export Default story
