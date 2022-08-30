@@ -30,6 +30,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-js": [
+			"pnpm run test"
+		],
 		"build-production": [
 			"NODE_ENV=production BABEL_ENV=production pnpm run build"
 		],

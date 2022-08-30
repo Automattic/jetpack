@@ -62,7 +62,7 @@
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
 		"storybook-addon-mock": "2.0.2",
-		"typescript": "4.7.4",
+		"typescript": "4.8.2",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
