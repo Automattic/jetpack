@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Automated triaging: add Platform label to new issues based on info provided in issue.

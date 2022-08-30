@@ -1267,15 +1267,15 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -4 );
+		$events = array_slice( $events, -6 );
 
-		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
+		$this->assertEquals( $events[0]->args[0], $events[2]->args[0] );
 		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[2]->action );
 
-		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
+		$this->assertEquals( $events[3]->args[0], $events[5]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $events[3]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[5]->action );
 	}
 
 	/**

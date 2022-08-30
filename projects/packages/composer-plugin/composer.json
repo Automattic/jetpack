@@ -9,7 +9,7 @@
 	"require-dev": {
 		"composer/composer": "2.2.12",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -47,7 +47,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "1.1.x-dev"
+			"dev-trunk": "1.1.x-dev"
 		}
 	}
 }

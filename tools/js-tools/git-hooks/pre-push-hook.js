@@ -38,7 +38,7 @@ function checkChangelogFiles() {
 	// Check if any changelog files are needed.
 	const needChangelog = spawnSync(
 		'tools/check-changelogger-use.php',
-		[ '--maybe-merge', 'origin/master', 'HEAD' ],
+		[ '--maybe-merge', 'origin/trunk', 'HEAD' ],
 		{
 			stdio: 'inherit',
 			cwd: __dirname + '/../../../',

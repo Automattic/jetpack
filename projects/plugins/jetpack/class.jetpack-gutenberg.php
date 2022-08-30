@@ -733,12 +733,15 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		$allowed_pages       = array( 'admin.php', 'themes.php' );
-		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
-			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Pre 13.7 pages that still need to be supported if < 13.7 is
+		// still installed.
+		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
+		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
 
-		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
-		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+		$should_skip_adding_styles = ! $is_site_editor_page && ! $is_old_site_editor_page;
+		if ( $should_skip_adding_styles ) {
 			return;
 		}
 
@@ -1193,7 +1196,7 @@ if ( ( new Host() )->is_woa_site() ) {
 	 * This feature is false as default,
 	 * so let's enable it through this filter.
 	 *
-	 * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
+	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
 	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 

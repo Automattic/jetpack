@@ -1,15 +1,6 @@
-import { render, screen, within, fireEvent } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
 import ButtonControls from '../controls';
-
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../button-width-panel', () => ( {
-	__esModule: true,
-	default: () => <div>Mocked Width Settings</div>,
-} ) );
 
 const defaultAttributes = {
 	align: undefined,
@@ -27,6 +18,7 @@ const defaultProps = {
 		class: undefined,
 		color: undefined,
 	},
+	context: {},
 	fallbackBackgroundColor: 'rgba(0, 0, 0, 0)',
 	fallbackTextColor: undefined,
 	setAttributes: setAttributes,
@@ -39,6 +31,7 @@ const defaultProps = {
 	gradientValue: undefined,
 	setGradient: setGradient,
 	isGradientAvailable: false,
+	WidthSettings: () => null,
 };
 
 beforeEach( () => {
@@ -53,31 +46,38 @@ describe( 'Inspector settings', () => {
 		test( 'loads and displays Color Settings panel', () => {
 			render( <ButtonControls { ...defaultProps } /> );
 
-			expect( screen.getByText( 'Background & Text Color' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Text Color' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Background' ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { name: 'Background & Text Color' } )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Text Color' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Background' } ) ).toBeInTheDocument();
 		} );
 
 		test( 'loads and displays only default background color options', async () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
-			const backgroundColorPanel = screen
-				.getByText( 'Background' )
-				.closest( 'div.components-dropdown' );
-
-			expect( within( backgroundColorPanel ).queryByText( 'Solid' ) ).not.toBeInTheDocument();
-			expect( within( backgroundColorPanel ).queryByText( 'Gradient' ) ).not.toBeInTheDocument();
+			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
+			await user.click( backgroundButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			expect(
+				within( backgroundSection ).queryByRole( 'tab', { name: 'Solid' } )
+			).not.toBeInTheDocument();
+			expect(
+				within( backgroundSection ).queryByRole( 'tab', { name: 'Gradient' } )
+			).not.toBeInTheDocument();
 		} );
 
 		test( 'sets text color attribute', async () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			await user.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
-			const textColors = screen.getByText( 'Text Color' ).closest( 'div.components-dropdown' );
-			await user.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
+			const textColorButton = screen.getByRole( 'button', { name: 'Text Color' } );
+			await user.click( textColorButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const textColors = textColorButton.closest( 'div.components-dropdown' );
+			await user.click( within( textColors ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ] );
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
@@ -86,14 +86,13 @@ describe( 'Inspector settings', () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
-			const backgroundSection = screen
-				.getByText( 'Background' )
-				.closest( 'div.components-dropdown' );
-			const backgroundColorOption = within( backgroundSection ).getAllByLabelText( 'Color: ', {
-				exact: false,
-			} )[ 0 ];
-			await user.click( backgroundColorOption );
+			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
+			await user.click( backgroundButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			await user.click(
+				within( backgroundSection ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
+			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
@@ -103,74 +102,72 @@ describe( 'Inspector settings', () => {
 		test( 'loads and displays Gradient Color Settings panel', () => {
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			expect( screen.getByText( 'Background & Text Color' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Text Color' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Background' ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { name: 'Background & Text Color' } )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Text Color' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Background' } ) ).toBeInTheDocument();
 		} );
 
-		test( 'loads and displays solid and gradient background color options', async () =>{
+		test( 'loads and displays solid and gradient background color options', async () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
-			const backgroundSection = screen
-				.getByText( 'Background' )
-				.closest( 'div.components-dropdown' );
-
+			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
+			await user.click( backgroundButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
 			expect(
-				within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } )
+				within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } )
 			).toBeInTheDocument();
 			expect(
-				within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } )
+				within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } )
 			).toBeInTheDocument();
 		} );
 
-		test( 'sets text color attribute', async () =>{
+		test( 'sets text color attribute', async () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			await user.click( screen.getByText( 'Text Color', { ignore: '[aria-hidden=true]' } ) );
-			const textColors = screen.getByText( 'Text Color' ).closest( 'div.components-dropdown' );
-			await user.click( within( textColors ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ] );
+			const textColorButton = screen.getByRole( 'button', { name: 'Text Color' } );
+			await user.click( textColorButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const textColors = textColorButton.closest( 'div.components-dropdown' );
+			await user.click( within( textColors ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ] );
 
 			expect( setTextColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
-		test( 'sets solid background color attribute', async () =>{
+		test( 'sets solid background color attribute', async () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
-			const backgroundSection = screen
-				.getByText( 'Background' )
-				.closest( 'div.components-dropdown' );
-
+			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
+			await user.click( backgroundButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Solid' } ) );
 			await user.click(
-				within( backgroundSection ).getByText( 'Solid', { ignore: '[aria-hidden=true]' } )
-			);
-			await user.click(
-				within( backgroundSection ).getAllByLabelText( 'Color: ', { exact: false } )[ 0 ]
+				within( backgroundSection ).getAllByRole( 'button', { name: /^Color: / } )[ 0 ]
 			);
 
 			expect( setBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
 		} );
 
-		test( 'sets gradient background color attribute', async () =>{
+		test( 'sets gradient background color attribute', async () => {
 			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } isGradientAvailable={ true } /> );
 
-			await user.click( screen.getByText( 'Background', { ignore: '[aria-hidden=true]' } ) );
-			const backgroundSection = screen
-				.getByText( 'Background' )
-				.closest( 'div.components-dropdown' );
+			const backgroundButton = screen.getByRole( 'button', { name: 'Background' } );
+			await user.click( backgroundButton );
+			// eslint-disable-next-line testing-library/no-node-access
+			const backgroundSection = backgroundButton.closest( 'div.components-dropdown' );
+			await user.click( within( backgroundSection ).getByRole( 'tab', { name: 'Gradient' } ) );
 			await user.click(
-				within( backgroundSection ).getByText( 'Gradient', { ignore: '[aria-hidden=true]' } )
-			);
-			await user.click(
-				within( backgroundSection ).getAllByLabelText( 'Gradient: ', { exact: false } )[ 0 ]
+				within( backgroundSection ).getAllByRole( 'button', { name: /^Gradient: / } )[ 0 ]
 			);
 
-			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear\-gradient\((.+)\)/ );
+			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear-gradient\((.+)\)/ );
 		} );
 	} );
 
@@ -181,13 +178,12 @@ describe( 'Inspector settings', () => {
 			expect( screen.getByText( 'Border Settings' ) ).toBeInTheDocument();
 		} );
 
-		test( 'sets the border radius attribute', () => {
+		test( 'sets the border radius attribute', async () => {
+			const user = userEvent.setup();
 			render( <ButtonControls { ...defaultProps } /> );
 
-			const borderPanel = screen.getByText( 'Border Settings' ).closest( 'div' );
-			const input = borderPanel.querySelector( 'input[type="number"]' );
-			input.focus();
-			fireEvent.change( input, { target: { value: '6' } } );
+			const input = screen.getByRole( 'spinbutton', { name: 'Border radius' } );
+			await user.type( input, '6', { initialSelectionStart: 0, initialSelectionEnd: Infinity } );
 			expect( setAttributes ).toHaveBeenCalledWith( { borderRadius: 6 } );
 		} );
 	} );

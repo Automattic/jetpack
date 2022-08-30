@@ -20,7 +20,7 @@ import {
 	connectUser,
 } from 'state/connection';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
 
 class SupportCard extends React.Component {
 	static displayName = 'SupportCard';
@@ -156,7 +156,7 @@ export default connect(
 			isCurrentUserLinked: isCurrentUserLinked( state ),
 			isConnectionOwner: isConnectionOwner( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			hasSupport: hasActiveSiteFeature( state, 'support' ),
+			hasSupport: siteHasFeature( state, 'support' ),
 		};
 	},
 	dispatch => ( {

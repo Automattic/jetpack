@@ -23,22 +23,16 @@ const Address = ( {
 		{ city && ! ( region || postal ) && <div className="jetpack-address__city">{ city }</div> }
 		{ city && ( region || postal ) && (
 			<div>
-				{ [
-					<span className="jetpack-address__city">{ city }</span>,
-					', ',
-					<span className="jetpack-address__region">{ region }</span>,
-					' ',
-					<span className="jetpack-address__postal">{ postal }</span>,
-				] }
+				<span className="jetpack-address__city">{ city }</span>
+				{ ', ' }
+				<span className="jetpack-address__region">{ region }</span>{ ' ' }
+				<span className="jetpack-address__postal">{ postal }</span>
 			</div>
 		) }
 		{ ! city && ( region || postal ) && (
 			<div>
-				{ [
-					<span className="jetpack-address__region">{ region }</span>,
-					' ',
-					<span className="jetpack-address__postal">{ postal }</span>,
-				] }
+				<span className="jetpack-address__region">{ region }</span>{ ' ' }
+				<span className="jetpack-address__postal">{ postal }</span>
 			</div>
 		) }
 		{ country && <div className="jetpack-address__country">{ country }</div> }

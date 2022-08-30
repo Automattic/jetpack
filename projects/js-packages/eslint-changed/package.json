@@ -1,8 +1,9 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.0.3-alpha",
+	"version": "2.0.4-alpha",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/#readme",
+	"type": "module",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Eslint Changed"
 	},
@@ -17,23 +18,22 @@
 		"eslint-changed": "bin/eslint-changed.js"
 	},
 	"scripts": {
-		"test": "js-test-runner 'glob:tests/**/*.js'"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"dependencies": {
-		"chalk": "4.1.2",
-		"commander": "7.2.0",
+		"chalk": "5.0.1",
+		"commander": "9.3.0",
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"jest": "28.1.0"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.0.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -166,6 +166,7 @@ export function SubscriptionEdit( props ) {
 	const getBlockClassName = () => {
 		return classnames(
 			className,
+			'wp-block-jetpack-subscriptions__container',
 			'wp-block-jetpack-subscriptions__supports-newline',
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
 			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
@@ -256,9 +257,8 @@ export function SubscriptionEdit( props ) {
 						allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
 					/>
 				</div>
-
 				{ showSubscribersTotal && (
-					<p className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</p>
+					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
 				) }
 			</div>
 		</>

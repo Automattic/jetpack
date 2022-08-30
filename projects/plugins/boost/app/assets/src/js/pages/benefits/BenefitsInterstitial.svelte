@@ -1,10 +1,12 @@
 <script>
 	import { PricingCard } from '@automattic/jetpack-components';
 	import React from 'react';
+	import { derived } from 'svelte/store';
 	import { createInterpolateElement } from '@wordpress/element';
 	import { __ } from '@wordpress/i18n';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import config from '../../stores/config';
 	import Logo from '../../svg/jetpack-green.svg';
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
@@ -35,9 +37,9 @@
 		}
 	);
 
-	const { pricing } = window.Jetpack_Boost;
+	const pricing = derived( config, $config => $config.pricing );
 
-	if ( ! ( 'yearly' in pricing ) ) {
+	if ( ! ( 'yearly' in $pricing ) ) {
 		goToCheckout();
 	}
 </script>
@@ -63,15 +65,15 @@
 			</div>
 
 			<div class="jb-card__cta px-2 my-4">
-				{#if 'yearly' in pricing}
+				{#if 'yearly' in $pricing}
 					<ReactComponent
 						this={PricingCard}
 						title={'Jetpack Boost'}
 						icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
-						priceBefore={pricing.yearly.priceBefore / 12}
-						priceAfter={pricing.yearly.priceAfter / 12}
+						priceBefore={$pricing.yearly.priceBefore / 12}
+						priceAfter={$pricing.yearly.priceAfter / 12}
 						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
-						currencyCode={pricing.yearly.currencyCode}
+						currencyCode={$pricing.yearly.currencyCode}
 						ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
 						onCtaClick={goToCheckout}
 						{infoText}

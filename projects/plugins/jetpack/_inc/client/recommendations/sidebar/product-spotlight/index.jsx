@@ -16,6 +16,7 @@ const ProductSpotlightComponent = props => {
 		productCardCtaText,
 		productCardList,
 		productCardIcon,
+		productCardDisclaimer,
 		stepSlug,
 	} = props;
 
@@ -40,10 +41,18 @@ const ProductSpotlightComponent = props => {
 						<h3 className="jp-recommendations-discount-card__heading">{ productCardTitle }</h3>
 						{ productCardList && (
 							<ul className="jp-recommendations-discount-card__feature-list">
-								{ productCardList.map( listItem => {
-									return <li>{ listItem }</li>;
+								{ productCardList.map( ( listItem, index ) => {
+									return <li key={ `feature-${ index }` }>{ listItem }</li>;
 								} ) }
 							</ul>
+						) }
+						{ productCardDisclaimer && (
+							<p className="jp-recommendations-discount-card__disclaimer">
+								{ productCardDisclaimer.text }{ ' ' }
+								<ExternalLink href={ productCardDisclaimer.url }>
+									{ productCardDisclaimer.link_text }
+								</ExternalLink>
+							</p>
 						) }
 						<ExternalLink
 							type="button"
@@ -60,7 +69,7 @@ const ProductSpotlightComponent = props => {
 	);
 };
 
-ProductSpotlightComponent.PropTypes = {
+ProductSpotlightComponent.propTypes = {
 	productSlug: PropTypes.string.isRequired,
 };
 

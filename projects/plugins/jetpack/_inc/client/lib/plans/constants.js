@@ -13,6 +13,7 @@ export const PLAN_PREMIUM_MONTHLY = 'value_bundle-monthly';
 export const PLAN_PERSONAL = 'personal-bundle';
 export const PLAN_PERSONAL_2_YEARS = 'personal-bundle-2y';
 export const PLAN_PERSONAL_MONTHLY = 'personal-bundle-monthly';
+export const PLAN_STARTER = 'starter-plan';
 export const PLAN_PRO = 'pro-plan';
 export const PLAN_FREE = 'free_plan';
 export const PLAN_JETPACK_FREE = 'jetpack_free';
@@ -300,6 +301,16 @@ export function isJetpackPlanWithAntiSpam( plan ) {
 }
 
 /**
+ * Determines if a plan includes backup features.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if the plan contains backup features
+ */
+export function isJetpackPlanWithBackup( plan ) {
+	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
+}
+
+/**
  * Determines if a product is Jetpack Backup.
  *
  * @param {string} product - The product slug
@@ -380,6 +391,7 @@ export function getPlanClass( plan ) {
 		case PLAN_PERSONAL:
 		case PLAN_PERSONAL_2_YEARS:
 		case PLAN_PERSONAL_MONTHLY:
+		case PLAN_STARTER:
 		case PLAN_JETPACK_PERSONAL:
 		case PLAN_JETPACK_PERSONAL_MONTHLY:
 			return 'is-personal-plan';

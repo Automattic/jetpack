@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.9.1
+Stable tag: 11.2
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -242,38 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.0-beta - 2022-05-31
+### 11.3-a.9 - 2022-08-23
 #### Enhancements
-- Custom CSS: add support for CSS properties: accent-color, aspect-ratio, gap, text-underline-offset.
-- Custom CSS: ensure the Additional CSS sub-menu link displays correctly.
-- Email subscriptions: update the default body of the "Confirmation request" email.
-- Google Fonts: add additional fonts to the list of available fonts.
-- Latest Instagram Posts Block: improve performance of the block by adding lazy load for the images.
-- Payments Blocks: refactors the donation block by unifying Stripe Nudge component.
-- Payments Blocks: reset form data to default values after creating a subscription.
-- Payments Blocks: refactor the product memberships store to reduce complexity and improve speed.
-- Sharing: update the email sharing button to use mailto links instead of server submissions.
-- VideoPress: add support for automatic seekbar color.
-- VideoPress: improve Extensibility of Privacy Setting filter by adding the embedded post id.
-- VideoPress: improve help message of VideoPress Privacy Setting at the block level.
-- WAF: add settings UI for Jetpack Firewall.
+- Payments block: add new container block to support using multiple inline Payment Button blocks.
+- VideoPress block (beta): add support to pause/resume video upload.
 
 #### Improved compatibility
-- General: improve connection sharing between Jetpack and Jetpack standalone plugins.
-- Stats: remove unnecessary type attribute from style element.
+- Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour.
 
 #### Bug fixes
-- Assistant: fix unclickable banner dismiss button.
-- Comments: update UI to reflect that Google accounts are no longer a sign-in option.
-- Custom CSS: avoid PHP notice when using the Sass preprocessor on PHP 7.4+.
-- Payments Blocks: ensure payment block can only auto-select an existing product.
-- Stats: ensure the Stats column can always be displayed, even when the post type does not support comments.
-- Subscriptions: fix typo in confirmation message.
-- VaultPress: fixes a bug that caused certain cards in the Dashboard to flicker in some circumstances when VaultPress is active.
-- VideoPress: fix validation errors for core video block usage.
-- WAF: add activation/deactivation hooks for WAF feature.
-- Widget Visibility: avoid PHP warnings when loading widgets in some scenarios.
+- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified.
+- Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly.
+- Dashboard Widget: do not show the stats configuration links when the feature is inactive.
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/jetpack/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

@@ -20,6 +20,7 @@ declare global {
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
+			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
 		version: string;
@@ -31,7 +32,9 @@ declare global {
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
 		showRatingPromptNonce?: string;
+		showScorePromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
+		dismissedScorePrompts: string[];
 		site: {
 			domain: string;
 			url: string;

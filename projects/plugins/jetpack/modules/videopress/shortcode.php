@@ -17,17 +17,10 @@ class VideoPress_Shortcode {
 	 * VideoPress_Shortcode constructor.
 	 */
 	protected function __construct() {
-
-		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
-		wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'https://public-api.wordpress.com/oembed/1.0/', true );
-		wp_oembed_add_provider( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', 'https://public-api.wordpress.com/oembed/1.0/', true ); // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
-
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
 
 		add_filter( 'wp_video_shortcode_override', array( $this, 'video_shortcode_override' ), 10, 4 );
-
-		add_filter( 'oembed_fetch_url', array( $this, 'add_oembed_for_parameter' ) );
 
 		$this->add_video_embed_hander();
 	}
@@ -244,22 +237,6 @@ class VideoPress_Shortcode {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Adds a `for` query parameter to the oembed provider request URL.
-	 *
-	 * @param String $oembed_provider URL of the oEmbed provider.
-	 * @return String $ehnanced_oembed_provider
-	 */
-	public function add_oembed_for_parameter( $oembed_provider ) {
-		$providers = array( 'videopress.com', 'v.wordpress.com' );
-		foreach ( $providers as $provider ) {
-			if ( false !== stripos( $oembed_provider, $provider ) ) {
-				return add_query_arg( 'for', wp_parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
-			}
-		}
-		return $oembed_provider;
 	}
 
 	/**

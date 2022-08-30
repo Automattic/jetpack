@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search: avoid query on component mount when the overlay might not be visible

@@ -15,7 +15,7 @@ use Jetpack_Gutenberg;
  * Helper class that lets us add schema attributes dynamically because they are not something that is store with the content.
  * Due to the limitations of wp_kses.
  *
- * @since $$next-version$$
+ * @since 11.1
  */
 class Jetpack_Recipe_Block {
 	/**

@@ -6,7 +6,7 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -36,7 +36,8 @@
 				"js-packages/connection",
 				"js-packages/idc",
 				"packages/my-jetpack",
-				"plugins/protect"
+				"plugins/protect",
+				"packages/videopress"
 			]
 		},
 		"mirror-repo": "Automattic/jetpack-storybook"

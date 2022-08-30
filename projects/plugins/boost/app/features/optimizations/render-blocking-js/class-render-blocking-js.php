@@ -210,7 +210,7 @@ class Render_Blocking_JS implements Feature {
 			'~<!--.*?-->~si',
 
 			// Scripts with application/json type
-			'~<script.*type=(?<q>["\']*)application/json\k<q>.*>.*</script>~si',
+			'~<script\s+[^\>]*type=(?<q>["\']*)application/json\k<q>.*?>.*?</script>~si',
 		);
 
 		return preg_replace_callback(
@@ -306,7 +306,7 @@ class Render_Blocking_JS implements Feature {
 		return $opening_tags_count > $closing_tags_count;
 	}
 
-	public function get_slug() {
+	public static function get_slug() {
 		return 'render-blocking-js';
 	}
 

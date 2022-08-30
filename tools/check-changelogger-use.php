@@ -336,7 +336,7 @@ foreach ( $touched_projects as $slug => $files ) {
 				$slug,
 				"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/"
 			);
-			$msg2  = sprintf( "\n\nUse `jetpack changelogger add %s` to add a change file.\nGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md", $slug );
+			$msg2  = sprintf( "\n\nUse `jetpack changelogger add %s` to add a change file.\nGuidelines: https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md", $slug );
 			$exit |= 2;
 		}
 
@@ -352,7 +352,7 @@ foreach ( $touched_projects as $slug => $files ) {
 }
 if ( ( $exit & 2 ) && ! getenv( 'CI' ) && ! $list ) {
 	printf( "\e[32mUse `jetpack changelogger add <slug>` to add a change file for each project.\e[0m\n" );
-	printf( "\e[32mGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\e[0m\n" );
+	printf( "\e[32mGuidelines: https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md\e[0m\n" );
 }
 
 exit( $exit );

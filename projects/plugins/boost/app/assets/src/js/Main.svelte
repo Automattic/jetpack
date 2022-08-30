@@ -20,7 +20,7 @@
 				<Header />
 			</div>
 
-			{#if $connection.connected || ! config.site.online}
+			{#if $connection.connected || ! $config.site.online}
 				<Settings />
 			{:else}
 				<Connection />

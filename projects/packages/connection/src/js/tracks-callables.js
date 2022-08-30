@@ -1,5 +1,5 @@
 /**
- * This was abstracted from wp-calypso's analytics lib: https://github.com/Automattic/wp-calypso/blob/master/client/lib/analytics/README.md
+ * This was abstracted from wp-calypso's analytics lib: https://github.com/Automattic/wp-calypso/blob/trunk/client/lib/analytics/README.md
  * Some stuff was removed like GA tracking and other things not necessary for Jetpack tracking.
  *
  * This library should only be used and loaded if the Jetpack site is connected.

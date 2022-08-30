@@ -33,6 +33,12 @@
 			opacity: 1;
 		}
 
+	  	//overide display collision with coblocks plugin styles which causes a gap
+		//see https://github.com/Automattic/wp-calypso/issues/63082#issuecomment-1175225512
+		&.swiper-container {
+			display: block;
+		}
+
 		// High specifity to override theme styles
 		.wp-block-jetpack-slideshow_swiper-wrapper,
 		.wp-block-jetpack-slideshow_slide {
@@ -62,6 +68,13 @@
 				user-select: none;
 			}
 		}
+	}
+
+	&.alignwide .wp-block-jetpack-slideshow_image,
+	&.alignfull .wp-block-jetpack-slideshow_image {
+		width: 100vw;
+		max-width: unset;
+		object-fit: cover;
 	}
 
 	// When the slideshow transition is set to "fade", hide all slides that are not active.

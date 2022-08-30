@@ -1,4 +1,3 @@
-
 import { getAttributesFromEmbedCode } from '../utils';
 
 const inlineEmbedCode =

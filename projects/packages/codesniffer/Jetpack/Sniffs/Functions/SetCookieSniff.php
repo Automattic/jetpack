@@ -15,7 +15,7 @@ use WordPressCS\WordPress\AbstractFunctionParameterSniff;
  *
  * @package Automattic/jetpack-coding-standards
  *
- * @since   $$next-version$$
+ * @since   2.6.0
  */
 class SetCookieSniff extends AbstractFunctionParameterSniff {
 
@@ -31,7 +31,7 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 	 *
 	 * @link http://php.net/setcookie
 	 *
-	 * @since $$next-version$$
+	 * @since 2.6.0
 	 *
 	 * @var array <string function_name> => array( <bool always needed ?>, <int parameter number ?> )
 	 */
@@ -45,7 +45,7 @@ class SetCookieSniff extends AbstractFunctionParameterSniff {
 	/**
 	 * Process the parameters of a matched function.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.6.0
 	 *
 	 * @param int    $stackPtr        The position of the current token in the stack.
 	 * @param string $group_name      The name of the group which was matched.

@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import analytics from 'lib/analytics';

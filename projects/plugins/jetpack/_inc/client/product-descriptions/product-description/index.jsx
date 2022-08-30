@@ -5,7 +5,7 @@ import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getProductsForPurchase } from 'state/initial-state';
 import { getIntroOffers } from 'state/intro-offers';
@@ -66,7 +66,9 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 
 	const offer = offers?.find( ( { product_slug } ) => product_slug === product.slug );
 	const price = offer?.original_price || product.fullPrice;
-	const discountedPrice = offer?.raw_price;
+	// Sale discount defaults to 1 so no change is made to discounted price if null
+	const saleDiscount = product?.saleCoupon?.discount ? 1 - product.saleCoupon.discount / 100 : 1;
+	const discountedPrice = ( offer?.raw_price || price ) * saleDiscount;
 
 	return (
 		<JetpackProductCard
@@ -75,9 +77,10 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 			productSlug={ product.slug }
 			description={ product.description }
 			features={ product.features }
+			disclaimer={ product.disclaimer }
 			currencyCode={ product.currencyCode }
 			price={ price / 12 }
-			discountedPrice={ discountedPrice ? discountedPrice / 12 : null }
+			discountedPrice={ discountedPrice && discountedPrice !== price ? discountedPrice / 12 : null }
 			billingDescription={ __( 'per month, paid yearly', 'jetpack' ) }
 			callToAction={ cta }
 			priority={ priority }

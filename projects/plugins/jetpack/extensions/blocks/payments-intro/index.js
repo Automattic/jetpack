@@ -35,7 +35,7 @@ export const settings = {
 		// This block acts as a temporary placeholder before inserting a different block and so should not offer any
 		// customisation or mark-up specific to this block. Such things are up to the individual blocks inserted instead.
 		alignWide: false,
-		className: false,
+		className: true,
 		customClassName: false,
 		html: false,
 		reusable: false,

@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -17,7 +18,12 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <Admin />, container );
+	ReactDOM.render(
+		<ThemeProvider>
+			<Admin />
+		</ThemeProvider>,
+		container
+	);
 }
 
 render();

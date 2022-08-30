@@ -176,7 +176,10 @@ export class DashStats extends Component {
 		);
 	}
 
-	activateStats = () => this.props.updateOptions( { stats: true } );
+	activateStats = e => {
+		this.props.updateOptions( { stats: true } );
+		e.preventDefault();
+	};
 
 	renderStatsArea() {
 		if ( this.props.getOptionValue( 'stats' ) ) {
@@ -240,7 +243,7 @@ export class DashStats extends Component {
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+									a: <a href="#" onClick={ this.activateStats } />,
 									a1: (
 										<a
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
@@ -268,9 +271,18 @@ export class DashStats extends Component {
 		this.props.fetchStatsData( timeFrame );
 	}
 
-	switchToDay = () => this.switchTo( 'day' );
-	switchToWeek = () => this.switchTo( 'week' );
-	switchToMonth = () => this.switchTo( 'month' );
+	switchToDay = e => {
+		this.switchTo( 'day' );
+		e.preventDefault();
+	};
+	switchToWeek = e => {
+		this.switchTo( 'week' );
+		e.preventDefault();
+	};
+	switchToMonth = e => {
+		this.switchTo( 'month' );
+		e.preventDefault();
+	};
 
 	maybeShowStatsTabs() {
 		const statsChart = this.statsChart( this.props.activeTab );
@@ -289,7 +301,7 @@ export class DashStats extends Component {
 					<li className="jp-at-a-glance__stats-view">
 						<a
 							tabIndex="0"
-							href="javascript:void(0)"
+							href="#"
 							onClick={ this.switchToDay }
 							className={ this.getClass( 'day' ) }
 						>
@@ -299,7 +311,7 @@ export class DashStats extends Component {
 					<li className="jp-at-a-glance__stats-view">
 						<a
 							tabIndex="0"
-							href="javascript:void(0)"
+							href="#"
 							onClick={ this.switchToWeek }
 							className={ this.getClass( 'week' ) }
 						>
@@ -309,7 +321,7 @@ export class DashStats extends Component {
 					<li className="jp-at-a-glance__stats-view">
 						<a
 							tabIndex="0"
-							href="javascript:void(0)"
+							href="#"
 							onClick={ this.switchToMonth }
 							className={ this.getClass( 'month' ) }
 						>

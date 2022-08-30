@@ -118,6 +118,10 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 			background: $color-dark-modal-background; // necessary to override theme styles
 			color: $color-dark-text;
 		}
+
+		&:focus {
+			outline: dotted thin $color-layout-borders;
+		}
 	}
 
 	.jetpack-instant-search__search-results {
@@ -168,7 +172,7 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		color: $studio-gray-80;
 	}
 
-	#jetpack-instant-search__search-sort-select {
+	.jetpack-instant-search__search-sort-select {
 		background: $color-dark-modal-background;
 		border-color: $color-dark-layout-borders;
 		color: $color-dark-text;

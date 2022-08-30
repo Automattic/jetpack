@@ -797,6 +797,7 @@ class Defaults {
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
 		'automatic-feed-links',
+		'block-templates',
 		'custom-background',
 		'custom-header',
 		'custom-logo',

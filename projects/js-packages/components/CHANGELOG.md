@@ -2,6 +2,121 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.18.1 - 2022-08-25
+### Added
+- Components: Support forwardRef at Text [#25798]
+
+### Changed
+- Components: set background color for Button, secondary variant [#25810]
+- Updated package dependencies. [#25814]
+
+## 0.18.0 - 2022-08-23
+### Added
+- Add new PricingTable component [#25377]
+- Components: add a couple of new black and gray colors [#25730]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25339, #25762, #25764]
+
+## 0.17.3 - 2022-08-09
+### Changed
+- JS Components: Convert AdminPage component to TypeScript [#25352]
+- JS Components: Convert AdminSection and AdminSectionHero components to TypeScript [#25360]
+- JS Components: Converted ThemeProvider component to TypeScript [#25353]
+- JS Components: Convert utility functions to TypeScript [#25361]
+
+## 0.17.2 - 2022-08-03
+### Added
+- JS Components: Add fullWidth prop to Button [#25357]
+- JS Components: Add hidePriceFraction prop to ProductPrice [#25318]
+
+### Changed
+- JS Components: Converted Col and Container components to TypeScript [#25325]
+- JS Components: Convert JetpackFooter component to TypeScript [#25295]
+- JS Components: Convert ProductOffer component to TypeScript [#25294]
+
+### Fixed
+- JS Components: Fix price render on ProductPrice when price is 0 [#25318]
+
+## 0.17.1 - 2022-07-29
+### Changed
+- JS Components: Converted AutomatticBylineLogo component to TypeScript
+- JS Components: Converted DecorativeCard component to TypeScript
+- JS Components: Converted icons to TypeScript
+- JS Components: Convert Gridicon to TypeScript
+
+## 0.17.0 - 2022-07-26
+### Added
+- Added missing color to ThemeProvider [#25147]
+
+### Changed
+- Converted PricingCard component to TypeScript [#24906]
+- Updated package dependencies. [#25158]
+
+## 0.16.8 - 2022-07-19
+### Changed
+- Updated package dependencies. [#24710]
+
+### Fixed
+- Gridicon: Change title to desc [#25081]
+
+## 0.16.7 - 2022-07-12
+### Changed
+- JS Components: Converted ProductPrice component to TypeScript [#24931]
+- Updated package dependencies. [#25048, #25055]
+
+## 0.16.6 - 2022-07-07
+### Removed
+- JS Components: Removed unnecessary React imports in tests after using automatic runtime in jest config
+
+## 0.16.5 - 2022-07-06
+### Added
+- Export Alert component [#24884]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+### Fixed
+- AutomatticBylineLogo & JetpackLogo: Change title tag to desc [#24935]
+
+## 0.16.4 - 2022-06-29
+### Added
+- Components: Introduce CUT component
+
+## 0.16.3 - 2022-06-28
+### Added
+- Components: Add README docs for Layout related components [#24804]
+- RecordMeterBar component: adds accessible content fallback table [#24748]
+
+### Changed
+- JS Components: Fix multiline visual issue in Alert component [#24788]
+- Record meter: format the numbers for each entry. [#24811]
+
+### Fixed
+- Fix missing imports in `button` and `product-offer`. [#24792]
+
+## 0.16.2 - 2022-06-21
+### Changed
+- Convert JetpackLogo component to TypeScript
+- Convert JS Components SplitButton to TypeScript
+- Updated package dependencies.
+
+## 0.16.1 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.16.0 - 2022-06-08
+### Added
+- Add sortByCount prop to RecordMeterBar component [#24518]
+
+### Changed
+- JS Component: move Product offer placeholder above button [#24510]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24596, #24597, #24598]
+
+### Fixed
+- Fixed lints in TS types for Text component [#24579]
+
 ## 0.15.1 - 2022-05-31
 ### Added
 - Added an option to display a custom disclaimer below the product add button. [#24523]

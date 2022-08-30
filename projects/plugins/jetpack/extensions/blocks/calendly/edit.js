@@ -5,7 +5,6 @@ import { select, dispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { isEqual } from 'lodash';
-import queryString from 'query-string';
 import './editor.scss';
 import './view.scss';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -143,7 +142,7 @@ export function CalendlyEdit( props ) {
 	);
 
 	const iframeSrc = () => {
-		const query = queryString.stringify( {
+		const query = new URLSearchParams( {
 			embed_domain: 'wordpress.com',
 			embed_type: 'Inline',
 			hide_event_type_details: hideEventTypeDetails ? 1 : 0,

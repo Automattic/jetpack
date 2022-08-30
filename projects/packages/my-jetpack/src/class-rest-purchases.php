@@ -67,7 +67,7 @@ class REST_Purchases {
 		$response_code     = wp_remote_retrieve_response_code( $response );
 		$body              = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
+		if ( is_wp_error( $response ) || empty( $response['body'] ) || 200 !== $response_code ) {
 			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
 		}
 

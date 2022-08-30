@@ -221,6 +221,6 @@ test( 'Default functions exported', () => {
 	// Test that it's immutable.
 	plugin.defaultFunctions.__ = 10;
 	plugin.defaultFunctions.foo = 11;
-	expect( plugin.defaultFunctions.__ ).toEqual( 1 );
+	expect( plugin.defaultFunctions.__ ).toBe( 1 );
 	expect( plugin.defaultFunctions.foo ).toBeUndefined();
 } );

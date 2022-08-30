@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 import DisconnectDialog from '../index';
 
@@ -11,14 +10,20 @@ describe( 'DisconnectDialog', () => {
 	};
 
 	describe( 'Initially', () => {
-		const wrapper = shallow( <DisconnectDialog { ...testProps } /> );
-
 		it( 'renders the Modal', () => {
-			expect( wrapper.find( '.jp-connection__disconnect-dialog' ) ).to.have.lengthOf( 1 );
+			render( <DisconnectDialog { ...testProps } /> );
+			expect(
+				screen.getByRole( 'dialog', { name: 'Are you sure you want to disconnect?' } )
+			).toBeInTheDocument();
 		} );
 
 		it( 'renders the "StepDisconnect" step', () => {
-			expect( wrapper.find( 'StepDisconnect' ) ).to.exist;
+			render( <DisconnectDialog { ...testProps } /> );
+			expect(
+				within(
+					screen.getByRole( 'dialog', { name: 'Are you sure you want to disconnect?' } )
+				).getByRole( 'heading' )
+			).toHaveTextContent( 'Are you sure you want to disconnect?' );
 		} );
 	} );
 } );

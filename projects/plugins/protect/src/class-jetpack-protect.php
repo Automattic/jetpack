@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
@@ -106,6 +107,9 @@ class Jetpack_Protect {
 
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+
+		// Sets up JITMS.
+		JITM::configure();
 	}
 
 	/**
@@ -217,7 +221,7 @@ class Jetpack_Protect {
 		if ( $total > 0 ) {
 			$args = array(
 				'id'    => 'jetpack-protect',
-				'title' => '<span class="ab-icon noticon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
+				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
 					// translators: %d is the number of vulnerabilities found.

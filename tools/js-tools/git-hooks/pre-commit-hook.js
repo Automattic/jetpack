@@ -258,7 +258,7 @@ function runEslint( toLintFiles ) {
 
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
+		[ 'run', 'lint-file', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
 		{
 			stdio: 'inherit',
 		}
@@ -286,7 +286,7 @@ function runEslintFix( toFixFiles ) {
 
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, '--fix', ...toFixFiles ],
+		[ 'run', 'lint-file', `--max-warnings=${ maxWarnings }`, '--fix', ...toFixFiles ],
 		{
 			stdio: 'inherit',
 		}
@@ -322,7 +322,7 @@ function runEslintChanged( toLintFiles ) {
 		return;
 	}
 
-	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', '--', ...toLintFiles ], {
+	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', ...toLintFiles ], {
 		stdio: 'inherit',
 	} );
 

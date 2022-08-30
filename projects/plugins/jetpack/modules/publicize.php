@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Publicize
- * Module Description: Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.
+ * Module Name: Jetpack Social
+ * Module Description: Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0
@@ -38,20 +38,6 @@ class Jetpack_Publicize {
 
 		if ( $this->in_jetpack ) {
 			Jetpack::enable_module_configurable( __FILE__ );
-
-			if ( $this->modules->is_active( 'publicize' ) ) {
-				add_action(
-					'jetpack_register_gutenberg_extensions',
-					function () {
-						global $publicize;
-						if ( $publicize->current_user_can_access_publicize_data() ) {
-							Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-						} else {
-							Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-						}
-					}
-				);
-			}
 
 			// if sharedaddy isn't active, the sharing menu hasn't been added yet.
 			if ( $this->modules->is_active( 'publicize' ) && ! $this->modules->is_active( 'sharedaddy' ) ) {
@@ -92,13 +78,24 @@ class Jetpack_Publicize {
 				}
 			);
 		} else {
-			require_once __DIR__ . '/publicize/publicize.php';
-			require_once dirname( __DIR__ ) . '/mu-plugins/keyring/keyring.php';
-			require_once __DIR__ . '/publicize/publicize-wpcom.php';
-			require_once __DIR__ . '/publicize/ui.php';
-			$publicize_ui = new Publicize_UI();
+			global $publicize;
+			require_once WP_CONTENT_DIR . '/mu-plugins/keyring/keyring.php';
+			require_once WP_CONTENT_DIR . '/admin-plugins/publicize/publicize-wpcom.php';
+			$publicize    = new Publicize();
+			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 		}
 
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			function () {
+				global $publicize;
+				if ( $publicize->current_user_can_access_publicize_data() ) {
+					Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
+				} else {
+					Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
+				}
+			}
+		);
 		$publicize_ui->in_jetpack = $this->in_jetpack;
 	}
 }

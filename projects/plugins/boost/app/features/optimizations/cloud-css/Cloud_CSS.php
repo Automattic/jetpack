@@ -49,7 +49,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		return true;
 	}
 
-	public function get_slug() {
+	public static function get_slug() {
 		return 'cloud-css';
 	}
 
@@ -196,7 +196,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 			return;
 		}
 
-		$this->generate_cloud_css( $post );
+		$this->generate_cloud_css();
 	}
 
 	/**

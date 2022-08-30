@@ -835,7 +835,7 @@ async function buildProject( t ) {
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
-		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-master' ] || 'dev-master',
+		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
 	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore

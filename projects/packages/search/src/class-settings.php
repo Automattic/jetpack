@@ -40,7 +40,7 @@ class Settings {
 			array( $setting_prefix . 'color_theme', 'string', 'light' ),
 			array( $setting_prefix . 'result_format', 'string', 'minimal' ),
 			array( $setting_prefix . 'default_sort', 'string', 'relevance' ),
-			array( $setting_prefix . 'overlay_trigger', 'string', 'results' ),
+			array( $setting_prefix . 'overlay_trigger', 'string', Options::DEFAULT_OVERLAY_TRIGGER ),
 			array( $setting_prefix . 'excluded_post_types', 'string', '' ),
 			array( $setting_prefix . 'highlight_color', 'string', '#FFC' ),
 			array( $setting_prefix . 'enable_sort', 'boolean', true ),

@@ -1,105 +1,83 @@
 import restApi from '@automattic/jetpack-api';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import sinon from 'sinon';
 import ActivationScreen from '..';
-import ActivationScreenControls from '../../activation-screen-controls';
-import ActivationScreenSuccessInfo from '../../activation-screen-success-info';
 
 describe( 'ActivationScreen', () => {
 	const testProps = {
 		assetBaseUrl: 'jetpack.com',
 		lockImage: '/lock.png',
+		siteAdminUrl: 'jetpack.com/wp-admin',
 		siteRawUrl: 'jetpack.com',
 		successImage: '/success.png',
 	};
 
-	const apiStub = sinon.stub( restApi, 'attachLicenses' );
+	const apiStub = jest.spyOn( restApi, 'attachLicenses' ).mockReset();
 
 	afterEach( () => {
-		apiStub.resetBehavior();
+		apiStub.mockReset();
 	} );
 
 	it( 'should render ActivationScreenControls first', () => {
-		const wrapper = shallow( <ActivationScreen { ...testProps } /> );
-		const activationScreenControls = wrapper.find( ActivationScreenControls );
-
-		expect( activationScreenControls ).to.have.lengthOf( 1 );
+		render( <ActivationScreen { ...testProps } /> );
+		expect( screen.getByLabelText( 'License key' ) ).toBeInTheDocument();
 	} );
 
-	it( 'should render an error from API', () => {
-		const wrapper = shallow( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
-		let activationScreenControls = wrapper.find( ActivationScreenControls );
+	it( 'should render an error from API', async () => {
+		const user = userEvent.setup();
+		render( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
 
 		// stub the api to return an error
-		apiStub.returns( Promise.resolve( [ { errors: { 400: [ 'an error' ] } } ] ) );
+		apiStub.mockResolvedValue( [ { errors: { 400: [ 'an error' ] } } ] );
 
-		// an alternative to a full render and stimulating a click of the activate button
-		return activationScreenControls
-			.invoke( 'activateLicense' )()
-			.then( () => {
-				activationScreenControls = wrapper.find( ActivationScreenControls );
-
-				expect( activationScreenControls ).to.have.lengthOf( 1 );
-				expect( activationScreenControls.prop( 'licenseError' ) ).to.equal( 'an error' );
-			} );
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		expect( screen.getByText( 'an error' ) ).toBeInTheDocument();
 	} );
 
-	it( 'should render success with an activated product id from API', () => {
-		const wrapper = shallow( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
-		const activationScreenControls = wrapper.find( ActivationScreenControls );
+	it( 'should render success with an activated product id from API', async () => {
+		const user = userEvent.setup();
+		render( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
 
 		// stub the api to return an activated product id
-		apiStub.returns( Promise.resolve( [ [ { activatedProductId: 3000 } ] ] ) );
+		apiStub.mockResolvedValue( [ [ { activatedProductId: 3000 } ] ] );
 
-		return activationScreenControls
-			.invoke( 'activateLicense' )()
-			.then( () => {
-				const activationScreenSuccessInfo = wrapper.find( ActivationScreenSuccessInfo );
-
-				expect( activationScreenSuccessInfo ).to.have.lengthOf( 1 );
-				expect( activationScreenSuccessInfo.prop( 'productId' ) ).to.equal( 3000 );
-			} );
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		expect(
+			screen.getByRole( 'heading', { name: /Your product is active!/ } )
+		).toBeInTheDocument();
 	} );
 
-	it( 'should render a generic error for malformed response', () => {
-		const wrapper = shallow( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
-		let activationScreenControls = wrapper.find( ActivationScreenControls );
+	it( 'should render a generic error for malformed response', async () => {
+		const user = userEvent.setup();
+		render( <ActivationScreen { ...testProps } startingLicense={ 'a' } /> );
 
 		// stub the api to return a malformed response
-		apiStub.returns( Promise.resolve( [ { bug: 'an error' } ] ) );
+		apiStub.mockResolvedValue( [ { bug: 'an error' } ] );
 
-		return activationScreenControls
-			.invoke( 'activateLicense' )()
-			.then( () => {
-				activationScreenControls = wrapper.find( ActivationScreenControls );
-
-				expect( activationScreenControls ).to.have.lengthOf( 1 );
-				expect( activationScreenControls.prop( 'licenseError' ) ).to.equal(
-					'An unknown error occurred during license activation. Please try again.'
-				);
-			} );
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		expect(
+			screen.getByText( 'An unknown error occurred during license activation. Please try again.' )
+		).toBeInTheDocument();
 	} );
 
-	it( 'should call onActivationSuccess if activation successful', () => {
-		const onActivationSuccessSpy = sinon.spy();
-		const wrapper = shallow(
+	it( 'should call onActivationSuccess if activation successful', async () => {
+		const user = userEvent.setup();
+		const onActivationSuccessSpy = jest.fn();
+		render(
 			<ActivationScreen
 				{ ...testProps }
 				startingLicense={ 'a' }
 				onActivationSuccess={ onActivationSuccessSpy }
 			/>
 		);
-		const activationScreenControls = wrapper.find( ActivationScreenControls );
 
 		// stub the api to return an activated product id
-		apiStub.returns( Promise.resolve( [ [ { activatedProductId: 3000 } ] ] ) );
+		apiStub.mockResolvedValue( [ [ { activatedProductId: 3000 } ] ] );
 
-		return activationScreenControls
-			.invoke( 'activateLicense' )()
-			.then( () => {
-				expect( onActivationSuccessSpy.calledOnceWith( 3000 ) ).to.be.true;
-			} );
+		await user.click( screen.getByRole( 'button', { name: 'Activate' } ) );
+		expect( onActivationSuccessSpy ).toHaveBeenCalledTimes( 1 );
+		expect( onActivationSuccessSpy ).toHaveBeenCalledWith( 3000 );
 	} );
 } );

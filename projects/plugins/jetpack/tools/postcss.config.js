@@ -12,6 +12,7 @@ module.exports = () => ( {
 			// where people were confused about what was going on when calypso-build stopped
 			// including a postcss.config.js like this by default.
 			preserve: false,
+			disableDeprecationNotice: true,
 		},
 		autoprefixer: {},
 	},

@@ -207,6 +207,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Get site rewind data.
+		register_rest_route(
+			'jetpack/v4',
+			'/restores',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_recent_restores',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
 		// Get information on site products.
 		// Backup plugin version of /site/purchases from JP plugin.
 		// Revert once this route and MyPlan component are extracted to a common package.
@@ -230,7 +241,29 @@ class Jetpack_Backup {
 					'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 				)
 			);
+
+		// Get and set value of dismissed_backup_review_request option
+		register_rest_route(
+			'jetpack/v4',
+			'/site/dismissed-review-request',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::manage_dismissed_backup_review_request',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+				'args'                => array(
+					'option_name'    => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+					'should_dismiss' => array(
+						'required' => true,
+						'type'     => 'boolean',
+					),
+				),
+			)
+		);
 	}
+
 	/**
 	 * The backup calls should only occur from a signed in admin user
 	 *
@@ -304,6 +337,33 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Get information about recent restores
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array An array of recent restores
+	 */
+	public static function get_recent_restores() {
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			'/sites/' . $blog_id . '/rewind/restores',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
 	 * Gets information about the currently promoted backup product.
 	 *
 	 * @return string|WP_Error A JSON object of the current backup product being promoted if the request was successful, or a WP_Error otherwise.
@@ -329,18 +389,6 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Removes plugin from the connection manager
-	 * If it's the last plugin using the connection, the site will be disconnected.
-	 *
-	 * @access public
-	 * @static
-	 */
-	public static function plugin_deactivation() {
-		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->remove_connection();
-	}
-
-	/**
 	 * Returns the result of `/sites/%d/purchases` endpoint call.
 	 *
 	 * @return array of site purchases.
@@ -359,20 +407,43 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error();
 		}
 
-		// Decode the results.
-		$results = json_decode( $response['body'], true );
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
 
-		// Bail if there were no results or purchase details returned.
-		if ( ! is_array( $results ) ) {
-			return self::get_failed_fetch_error();
+	}
+
+	/**
+	 * Set value of the dismissed_backup_review_request Jetack option.
+	 * Get value if should_dismiss is false
+	 *
+	 * @access public
+	 * @static
+	 * @param array $request arguments should_dismiss and option_name.
+	 * @return bool value of option if value is requested | updated or not if value is updated.
+	 */
+	public static function manage_dismissed_backup_review_request( $request ) {
+
+		if ( ! $request['should_dismiss'] ) {
+
+			return rest_ensure_response(
+				\Jetpack_Options::get_option( 'dismissed_backup_review_' . $request['option_name'] )
+			);
 		}
 
-		return rest_ensure_response(
-			array(
-				'code'    => 'success',
-				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack-backup-pkg' ),
-				'data'    => wp_remote_retrieve_body( $response ),
-			)
-		);
+		return \Jetpack_Options::update_option( 'dismissed_backup_review_' . $request['option_name'], true );
 	}
+
+	/**
+	 * Removes plugin from the connection manager
+	 * If it's the last plugin using the connection, the site will be disconnected.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function plugin_deactivation() {
+		$manager = new Connection_Manager( 'jetpack-backup' );
+		$manager->remove_connection();
+	}
+
 }

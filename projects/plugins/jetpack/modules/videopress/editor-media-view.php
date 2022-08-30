@@ -11,7 +11,7 @@ use Automattic\Jetpack\Assets;
  * WordPress Shortcode Editor View JS Code
  */
 function videopress_handle_editor_view_js() {
-	global $content_width;
+	$content_width  = Jetpack::get_content_width();
 	$current_screen = get_current_screen();
 	if ( ! isset( $current_screen->id ) || $current_screen->base !== 'post' ) {
 		return;
@@ -23,7 +23,7 @@ function videopress_handle_editor_view_js() {
 		'videopress-editor-ui',
 		plugins_url( 'css/editor.css', __FILE__ ),
 		array(),
-		Jetpack_VideoPress::VERSION
+		JETPACK__VERSION
 	);
 	wp_enqueue_script(
 		'videopress-editor-view',
@@ -32,7 +32,7 @@ function videopress_handle_editor_view_js() {
 			'modules/videopress/js/editor-view.js'
 		),
 		array( 'wp-util', 'jquery' ),
-		Jetpack_VideoPress::VERSION,
+		JETPACK__VERSION,
 		true
 	);
 	wp_localize_script(
@@ -41,7 +41,7 @@ function videopress_handle_editor_view_js() {
 		array(
 			'home_url_host'     => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
-			'content_width'     => $content_width,
+			'content_width'     => $content_width ? (int) $content_width : VIDEOPRESS_DEFAULT_WIDTH,
 			'modal_labels'      => array(
 				'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
 				'guid'      => esc_html__( 'Video ID', 'jetpack' ),
@@ -234,7 +234,10 @@ function videopress_override_media_templates() {
 				escape: function () {
 					BaseMediaModal.prototype.escape.apply( this );
 					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
-					playerIframe.parentElement.removeChild( playerIframe );
+					if ( playerIframe && playerIframe.parentElement ) {
+						playerIframe.parentElement.removeChild( playerIframe );
+					}
+
 				}
 			} );
 		})( wp.media );

@@ -40,6 +40,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce: This is a view, not a model or controller. InputNotSanitized: Sanitized below via `$this->module_info_check()`.
 		$modal_info = isset( $_GET['info'] ) ? wp_unslash( $_GET['info'] ) : false;
 
+		// Adding in a hidden h1 heading for screen-readers.
+		?>
+		<h1 class="screen-reader-text"><?php esc_html_e( 'Jetpack Modules List', 'jetpack' ); ?></h1>
+		<?php
+
 		wp_register_script(
 			'models.jetpack-modules',
 			Assets::get_file_url_for_environment(

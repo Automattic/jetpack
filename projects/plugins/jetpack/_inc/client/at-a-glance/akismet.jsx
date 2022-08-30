@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -16,7 +17,7 @@ import { connect } from 'react-redux';
 import { getAkismetData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getApiNonce } from 'state/initial-state';
-import { hasActiveSiteFeature } from 'state/site';
+import { siteHasFeature } from 'state/site';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -25,7 +26,8 @@ class DashAkismet extends Component {
 		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
-		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
+		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object, PropTypes.number ] )
+			.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
@@ -159,7 +161,7 @@ class DashAkismet extends Component {
 			if ( '0' !== this.props.akismetData ) {
 				return (
 					<>
-						<h2 className="jp-dash-item__count">{ this.props.akismetData }</h2>
+						<h2 className="jp-dash-item__count">{ numberFormat( this.props.akismetData ) }</h2>
 						<p className="jp-dash-item__description">
 							{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
 						</p>
@@ -288,8 +290,8 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			hasAntiSpam: hasActiveSiteFeature( state, 'antispam' ),
-			hasAkismet: hasActiveSiteFeature( state, 'akismet' ),
+			hasAntiSpam: siteHasFeature( state, 'antispam' ),
+			hasAkismet: siteHasFeature( state, 'akismet' ),
 		};
 	},
 	dispatch => ( {

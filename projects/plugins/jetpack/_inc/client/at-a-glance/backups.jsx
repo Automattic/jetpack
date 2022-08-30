@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -18,8 +19,9 @@ import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getPartnerCoupon, showBackups } from 'state/initial-state';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
+import BackupGettingStarted from './backup-getting-started';
 import BackupUpgrade from './backup-upgrade';
 
 /**
@@ -76,12 +78,14 @@ class DashBackups extends Component {
 		trackUpgradeButtonView: noop,
 	};
 
-	trackBackupsClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			type: 'backups-link',
-			target: 'at-a-glance',
-			feature: 'backups',
-		} );
+	trackBackupsClick = ( trackingName = 'backups-link' ) => {
+		return function () {
+			analytics.tracks.recordJetpackClick( {
+				type: trackingName,
+				target: 'at-a-glance',
+				feature: 'backups',
+			} );
+		};
 	};
 
 	trackRedeemCouponButtonView = () => {
@@ -236,7 +240,7 @@ class DashBackups extends Component {
 
 	getRewindContent() {
 		const { hasRealTimeBackups, rewindStatus, siteRawUrl } = this.props;
-		const buildAction = ( url, message ) => (
+		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
 				key="manage-backups"
@@ -244,7 +248,7 @@ class DashBackups extends Component {
 				href={ url }
 				target="_blank"
 				rel="noopener noreferrer"
-				onClick={ this.trackBackupsClick }
+				onClick={ this.trackBackupsClick( trackingName ) }
 			>
 				{ message }
 			</Card>
@@ -272,7 +276,8 @@ class DashBackups extends Component {
 						) }
 						{ buildAction(
 							getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ),
-							__( 'Enter credentials', 'jetpack' )
+							__( 'Enter credentials', 'jetpack' ),
+							'enter-credentials-link'
 						) }
 					</React.Fragment>
 				);
@@ -280,16 +285,52 @@ class DashBackups extends Component {
 				/* Avoid ternary as code minification will break translation function. :( */
 				let message = __( 'We are backing up your site daily.', 'jetpack' );
 				if ( hasRealTimeBackups ) {
-					message = __( 'We are backing up your site in real-time.', 'jetpack' );
+					message = createInterpolateElement(
+						__(
+							'Every change you make will be backed up, in real-time, as you edit your site. <ExternalLink>Learn More</ExternalLink>',
+							'jetpack'
+						),
+						{
+							ExternalLink: (
+								<ExternalLink
+									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={ this.trackBackupsClick( 'realtime-learn-more-link' ) }
+								></ExternalLink>
+							),
+						}
+					);
 				}
 
 				return (
 					<React.Fragment>
 						{ buildCard( message ) }
-						{ buildAction(
-							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl, query: 'group=rewind' } ),
-							__( "View your site's backups", 'jetpack' )
-						) }
+						<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
+							<div className="jp-dash-item__action-links">
+								<a
+									href={ getRedirectUrl( 'my-jetpack-manage-backup', {
+										site: siteRawUrl,
+									} ) }
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={ this.trackBackupsClick( 'backups-link' ) }
+								>
+									{ __( "View your site's backups", 'jetpack' ) }
+								</a>
+								<a
+									href={ getRedirectUrl( 'calypso-activity-log', {
+										site: siteRawUrl,
+										query: 'group=rewind',
+									} ) }
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={ this.trackBackupsClick( 'restore-points-link' ) }
+								>
+									{ __( 'View your most recent restore points', 'jetpack' ) }
+								</a>
+							</div>
+						</Card>
 					</React.Fragment>
 				);
 			}
@@ -327,6 +368,14 @@ class DashBackups extends Component {
 		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 	}
 
+	renderGettingStartedVideo() {
+		if ( this.props.rewindStatus !== 'awaiting_credentials' ) {
+			return null;
+		}
+
+		return <BackupGettingStarted />;
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -352,6 +401,7 @@ class DashBackups extends Component {
 			<div>
 				<QueryVaultPressData />
 				{ this.renderFromRewindStatus() }
+				{ this.renderGettingStartedVideo() }
 			</div>
 		);
 	}
@@ -367,8 +417,8 @@ export default connect(
 			upgradeUrl: getProductDescriptionUrl( state, 'backup' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 			isFetchingSite: isFetchingSiteData( state ),
-			hasBackups: hasActiveSiteFeature( state, 'backups' ),
-			hasRealTimeBackups: hasActiveSiteFeature( state, 'real-time-backups' ),
+			hasBackups: siteHasFeature( state, 'backups' ),
+			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
 		};
 	},

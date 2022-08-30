@@ -20,6 +20,15 @@ const composerLibraryFiles = [];
 	composerLibraryFiles.sort();
 }
 
+const versions = Object.fromEntries(
+	Array.from(
+		fs
+			.readFileSync( monorepoBase + '.github/versions.sh', 'utf8' )
+			.matchAll( /^\s*([a-zA-Z_][a-zA-Z0-9_]*)=(.*?)\s*$/gm ),
+		v => [ v[ 1 ], v[ 2 ] ]
+	)
+);
+
 module.exports = {
 	branchPrefix: 'renovate/',
 	allowPlugins: true,
@@ -30,7 +39,7 @@ module.exports = {
 
 	// We're including configuration in this file.
 	onboarding: false,
-	requireConfig: false,
+	requireConfig: 'optional',
 
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,
@@ -50,6 +59,9 @@ module.exports = {
 	schedule: [ 'before 3am on the first day of the month' ],
 	updateNotScheduled: false,
 	semanticCommits: 'disabled',
+	constraints: {
+		php: `~${ versions.PHP_VERSION }.0`,
+	},
 	packageRules: [
 		// Monorepo packages shouldn't be processed by renovate.
 		{
@@ -148,7 +160,7 @@ module.exports = {
 				'@testing-library/preact',
 			],
 			reviewers: [ 'team:jetpack-search' ],
-			labels: [ 'Search', 'Instant Search' ],
+			addLabels: [ 'Search', 'Instant Search' ],
 		},
 	],
 	lockFileMaintenance: {

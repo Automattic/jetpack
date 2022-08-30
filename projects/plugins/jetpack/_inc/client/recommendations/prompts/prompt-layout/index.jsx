@@ -25,13 +25,13 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 		return (
 			<div className="jp-recommendations-question__illustration-container">
 				<picture className="jp-recommendations-question__illustration-picture">
-					<source type="image/webp" srcset={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
+					<source type="image/webp" srcSet={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
 					<img
 						className={ classNames(
 							'jp-recommendations-question__illustration',
 							illustrationClassName
 						) }
-						srcset={ `${ imgBase }-2x.png 2x` }
+						srcSet={ `${ imgBase }-2x.png 2x` }
 						src={ `${ imgBase }.png` }
 						alt=""
 					/>
@@ -87,12 +87,12 @@ PromptLayoutComponent.propTypes = {
 	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 	illustration: PropTypes.string,
 	illustrationClassName: PropTypes.string,
-	progressBar: PropTypes.element.isRequired,
+	progressBar: PropTypes.element,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
-	content: PropTypes.element.isRequired,
+	content: PropTypes.element,
 	sidebarCard: PropTypes.element,
-	isNew: PropTypes.boolean,
-	isLoading: PropTypes.boolean,
+	isNew: PropTypes.bool,
+	isLoading: PropTypes.bool,
 };
 
 const PromptLayout = connect( state => ( {

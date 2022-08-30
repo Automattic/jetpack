@@ -7,10 +7,12 @@ import { settings as buttonSettings } from '../../button';
  * involved in this set of tests.
  *
  * Example containing multiple blocks:
+ * ```
  * const blocks = [
- *		{ name: 'jetpack/whatsapp-button', settings },
- *		{ name: 'jetpack/send-a-message', settings: parentSettings },
+ *    { name: 'jetpack/whatsapp-button', settings },
+ *    { name: 'jetpack/send-a-message', settings: parentSettings },
  * ];
+ * ```
  */
 const blocks = [
 	{ name: `jetpack/${ name }`, settings },

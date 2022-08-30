@@ -26,7 +26,7 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 	const isPostEditor = Object.keys( currentPost ).length > 0;
 
 	const isWidgetEditor = useSelect( select => {
-		if ( window.wp.customize ) {
+		if ( window.wp?.customize ) {
 			return true;
 		}
 

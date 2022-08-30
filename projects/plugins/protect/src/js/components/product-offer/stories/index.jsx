@@ -18,9 +18,6 @@ export default {
 		isCard: {
 			control: { type: 'boolean' },
 		},
-		showError: {
-			control: { type: 'boolean' },
-		},
 	},
 };
 
@@ -31,6 +28,5 @@ const DefaultDefaultProductOffer = args => {
 export const Default = DefaultDefaultProductOffer.bind( {} );
 Default.args = {
 	isCard: false,
-	showError: false,
 	onAdd: () => {},
 };

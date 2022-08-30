@@ -67,7 +67,9 @@ function NewProduct( { onClose } ) {
 		return (
 			<MenuItem>
 				{ siteSlug && (
-					<ExternalLink href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }` }>
+					<ExternalLink
+						href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }#add-new-payment-plan` }
+					>
 						{ getMessageByProductType( 'add a new product', productType ) }
 					</ExternalLink>
 				) }

@@ -1,5 +1,5 @@
 import QueryIntroOffers from 'components/data/query-intro-offers';
-import QueryProducts from 'components/data/query-products';
+import QuerySiteProducts from 'components/data/query-site-products';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
@@ -44,7 +44,7 @@ const ProductDescriptions = props => {
 
 	return (
 		<>
-			<QueryProducts />
+			<QuerySiteProducts />
 			<QueryIntroOffers />
 
 			{ isLoading ? (

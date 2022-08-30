@@ -141,7 +141,7 @@ const ProductCardUpsellComponent = ( {
 
 ProductCardUpsellComponent.propTypes = {
 	slug: PropTypes.string.isRequired,
-	cost: PropTypes.number.isRequired,
+	cost: PropTypes.number,
 	title: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	billing_timeframe: PropTypes.string.isRequired,

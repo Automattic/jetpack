@@ -363,6 +363,9 @@ class Sender {
 		// Try to disconnect the request as quickly as possible and process things in the background.
 		$this->fastcgi_finish_request();
 
+		// Output not used right now. Try to release dedicated sync lock
+		Dedicated_Sender::try_release_lock_spawn_request();
+
 		// Actually try to send Sync events.
 		$result = $this->do_sync_and_set_delays( $this->sync_queue );
 

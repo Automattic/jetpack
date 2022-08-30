@@ -1,9 +1,9 @@
 {
-	"ref": "refs/heads/master",
+	"ref": "refs/heads/trunk",
 	"repository": "Automattic/jetpack",
 	"run_id": "1761344296",
 	"run_number": "2934",
 	"event_name": "push",
-	"ref_name": "master",
+	"ref_name": "trunk",
 	"server_url": "https://github.com"
 }

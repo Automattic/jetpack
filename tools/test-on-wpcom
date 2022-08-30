@@ -42,7 +42,7 @@ if ( !file_exists( $back_out_to_jetpack_root . 'wpcom-test-backup/' ) && ( isset
 
 
 // Get all changed files
-$diff = shell_exec( 'git diff master' );
+$diff = shell_exec( 'git diff trunk' );
 
 $diff_array = explode( PHP_EOL, $diff );
 

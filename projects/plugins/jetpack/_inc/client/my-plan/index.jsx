@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -25,6 +26,7 @@ export function MyPlan( props ) {
 
 	return (
 		<React.Fragment>
+			<h1 className="screen-reader-text">{ __( 'Jetpack My Plan Details', 'jetpack' ) }</h1>
 			<QuerySite />
 			<MyPlanPartnerCoupon siteRawUrl={ props.siteRawUrl } />
 			<MyPlanHeader

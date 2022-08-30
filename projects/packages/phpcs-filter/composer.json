@@ -8,7 +8,7 @@
 		"squizlabs/php_codesniffer": "^3.6.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
@@ -44,7 +44,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-trunk": "1.0.x-dev"
 		}
 	}
 }

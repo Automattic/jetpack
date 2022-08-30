@@ -9,14 +9,14 @@
     "packages-dev": [
         {
             "name": "automattic/ignorefile",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "83df3961934b8068249d09ef1d4167e5e537eca4"
+                "reference": "d6bd2419be99279faf386fe972cc0e50c61acca9"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
+                "automattic/jetpack-changelogger": "^3.2",
                 "wikimedia/at-ease": "^1.2 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -28,7 +28,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-trunk": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -57,11 +57,11 @@
         },
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "51829660678dddaafa5c6c1397da13cf6fbc2c44"
+                "reference": "e03e50b16ed5287a50de5b630696c84360f53260"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -72,8 +72,8 @@
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
-                "wp-coding-standards/wpcs": "dev-develop#7b39722c38cbf2fe64c55be7154ee6f1807d304c as 2.3.1",
+                "automattic/jetpack-changelogger": "^3.2",
+                "wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "phpcodesniffer-standard",
@@ -84,7 +84,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.6.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 }
             },
             "autoload": {
@@ -119,24 +119,24 @@
         },
         {
             "name": "automattic/jetpack-phpcs-filter",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "b3777393b31aa50e37f3f2f92af1d668fca3c826"
+                "reference": "3265b84987e92883bf729706f120c0a7898c1373"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
                 "squizlabs/php_codesniffer": "^3.6.1"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
+                "automattic/jetpack-changelogger": "^3.2",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-trunk": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -914,28 +914,29 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.11.3",
+            "version": "v2.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "c921498b474212fe4552928bbeb68d70250ce5e8"
+                "reference": "ad2b0b57803a48bb3495777bee2a9a13c8e9da53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/c921498b474212fe4552928bbeb68d70250ce5e8",
-                "reference": "c921498b474212fe4552928bbeb68d70250ce5e8",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/ad2b0b57803a48bb3495777bee2a9a13c8e9da53",
+                "reference": "ad2b0b57803a48bb3495777bee2a9a13c8e9da53",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
-                "squizlabs/php_codesniffer": "^3.5"
+                "squizlabs/php_codesniffer": "^3.5.6"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-                "limedeck/phpunit-detailed-printer": "^3.1 || ^4.0 || ^5.0",
-                "phpstan/phpstan": "^0.11.8",
-                "phpunit/phpunit": "^5.0 || ^6.5 || ^7.0 || ^8.0",
-                "sirbrillig/phpcs-import-detection": "^1.1"
+                "phpcsstandards/phpcsdevcs": "^1.1",
+                "phpstan/phpstan": "^1.7",
+                "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.5 || ^7.0 || ^8.0 || ^9.0",
+                "sirbrillig/phpcs-import-detection": "^1.1",
+                "vimeo/psalm": "^0.2 || ^0.3 || ^1.1 || ^4.24 || ^5.0@beta"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -963,7 +964,7 @@
                 "source": "https://github.com/sirbrillig/phpcs-variable-analysis",
                 "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
             },
-            "time": "2022-02-21T17:01:13+00:00"
+            "time": "2022-08-16T22:19:00+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",

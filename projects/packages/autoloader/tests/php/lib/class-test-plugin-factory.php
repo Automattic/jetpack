@@ -341,7 +341,7 @@ class Test_Plugin_Factory {
 			'autoload' => $this->autoloads,
 		);
 		if ( $this->is_using_local_package() ) {
-			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-master' );
+			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-trunk' );
 			$composer_config['repositories'] = array(
 				array(
 					'type'    => 'path',
@@ -449,7 +449,7 @@ class Test_Plugin_Factory {
 
 				$content = file_get_contents( $manifest );
 				// Use a sufficiently large version so that the local package will always be the latest autoloader.
-				$content = str_replace( 'dev-master', self::VERSION_CURRENT, $content );
+				$content = str_replace( 'dev-trunk', self::VERSION_CURRENT, $content );
 				file_put_contents( $manifest, $content );
 			}
 		}

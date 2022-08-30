@@ -9,7 +9,7 @@ import styles from './style.module.scss';
 const { Icon: WPIcon, ...icons } = allIcons;
 const { check, cloud } = icons;
 
-const DisableVariant = {
+const disableVariant = {
 	variant: {
 		table: {
 			disable: true,
@@ -17,7 +17,7 @@ const DisableVariant = {
 	},
 };
 
-const DisableDisabled = {
+const disableDisabled = {
 	disabled: {
 		table: {
 			disable: true,
@@ -25,7 +25,7 @@ const DisableDisabled = {
 	},
 };
 
-const DisableIsDestructive = {
+const disableIsDestructive = {
 	isDestructive: {
 		table: {
 			disable: true,
@@ -33,7 +33,7 @@ const DisableIsDestructive = {
 	},
 };
 
-const DisableIsLoading = {
+const disableIsLoading = {
 	isLoading: {
 		table: {
 			disable: true,
@@ -41,7 +41,7 @@ const DisableIsLoading = {
 	},
 };
 
-const DisableIcon = {
+const disableIcon = {
 	icon: {
 		table: {
 			disable: true,
@@ -51,6 +51,14 @@ const DisableIcon = {
 
 const disableClassName = {
 	className: {
+		table: {
+			disable: true,
+		},
+	},
+};
+
+const disableFullWidth = {
+	fullWidth: {
 		table: {
 			disable: true,
 		},
@@ -111,6 +119,7 @@ _default.args = {
 	isLoading: false,
 	disabled: false,
 	isDestructive: false,
+	fullWidth: false,
 	children: 'Once upon a time… a button story',
 };
 
@@ -118,11 +127,12 @@ const Template = args => <Button { ...args } />;
 
 export const ButtonPrimary = Template.bind( {} );
 ButtonPrimary.argTypes = {
-	...DisableVariant,
-	...DisableDisabled,
-	...DisableIcon,
-	...DisableIsLoading,
-	...DisableIsDestructive,
+	...disableVariant,
+	...disableDisabled,
+	...disableIcon,
+	...disableIsLoading,
+	...disableIsDestructive,
+	...disableFullWidth,
 };
 ButtonPrimary.args = {
 	size: 'normal',
@@ -132,12 +142,13 @@ ButtonPrimary.args = {
 
 export const ButtonSecondary = Template.bind( {} );
 ButtonSecondary.argTypes = {
-	...DisableVariant,
-	...DisableDisabled,
-	...DisableIcon,
-	...DisableIsLoading,
-	...DisableIsDestructive,
+	...disableVariant,
+	...disableDisabled,
+	...disableIcon,
+	...disableIsLoading,
+	...disableIsDestructive,
 	...disableClassName,
+	...disableFullWidth,
 };
 ButtonSecondary.args = {
 	size: 'normal',
@@ -147,12 +158,13 @@ ButtonSecondary.args = {
 
 export const ButtonLink = Template.bind( {} );
 ButtonLink.argTypes = {
-	...DisableVariant,
-	...DisableDisabled,
-	...DisableIcon,
-	...DisableIsLoading,
-	...DisableIsDestructive,
+	...disableVariant,
+	...disableDisabled,
+	...disableIcon,
+	...disableIsLoading,
+	...disableIsDestructive,
 	...disableClassName,
+	...disableFullWidth,
 };
 ButtonLink.args = {
 	size: 'normal',
@@ -162,11 +174,12 @@ ButtonLink.args = {
 
 export const Icon = Template.bind( {} );
 Icon.argTypes = {
-	...DisableIcon,
-	...DisableDisabled,
-	...DisableIsLoading,
-	...DisableIsDestructive,
+	...disableIcon,
+	...disableDisabled,
+	...disableIsLoading,
+	...disableIsDestructive,
 	...disableClassName,
+	...disableFullWidth,
 };
 Icon.args = {
 	size: 'normal',
@@ -177,10 +190,12 @@ Icon.args = {
 
 export const Disabled = Template.bind( {} );
 Disabled.argTypes = {
-	...DisableDisabled,
-	...DisableIsDestructive,
-	...DisableIsLoading,
+	...disableDisabled,
+	...disableIsDestructive,
+	...disableIsLoading,
 	...disableClassName,
+	...disableFullWidth,
+	...disableIcon,
 };
 Disabled.args = {
 	size: 'normal',
@@ -191,10 +206,12 @@ Disabled.args = {
 
 export const Destructive = Template.bind( {} );
 Destructive.argTypes = {
-	...DisableIsDestructive,
-	...DisableIsLoading,
-	...DisableDisabled,
+	...disableIsDestructive,
+	...disableIsLoading,
+	...disableDisabled,
 	...disableClassName,
+	...disableFullWidth,
+	...disableIcon,
 };
 Destructive.args = {
 	size: 'normal',
@@ -205,16 +222,33 @@ Destructive.args = {
 
 export const Loading = Template.bind( {} );
 Loading.argTypes = {
-	...DisableIsDestructive,
-	...DisableIsLoading,
-	...DisableDisabled,
+	...disableIsDestructive,
+	...disableIsLoading,
+	...disableDisabled,
 	...disableClassName,
+	...disableFullWidth,
+	...disableIcon,
 };
 Loading.args = {
 	size: 'normal',
 	children: 'Jetpack Button',
 	variant: 'primary',
 	isLoading: true,
+};
+
+export const FullWidth = Template.bind( {} );
+FullWidth.argTypes = {
+	...disableIsDestructive,
+	...disableIsLoading,
+	...disableDisabled,
+	...disableClassName,
+	...disableIcon,
+};
+FullWidth.args = {
+	size: 'normal',
+	children: 'Jetpack Button',
+	variant: 'primary',
+	fullWidth: true,
 };
 
 export const VariantsAndProps = () => {
@@ -336,6 +370,15 @@ export const VariantsAndProps = () => {
 				{ variants.map( variant => (
 					<Col sm={ 4 } md={ 2 } lg={ 3 }>
 						<Button { ...ButtonPrimary.args } variant={ variant } isLoading />
+					</Col>
+				) ) }
+
+				<Col className={ styles[ 'row-instance' ] } sm={ 4 } md={ 2 } lg={ 3 }>
+					<Text size="body-extra-small">fullWidth</Text>
+				</Col>
+				{ variants.map( variant => (
+					<Col sm={ 4 } md={ 2 } lg={ 3 }>
+						<Button { ...ButtonPrimary.args } variant={ variant } fullWidth />
 					</Col>
 				) ) }
 			</Container>

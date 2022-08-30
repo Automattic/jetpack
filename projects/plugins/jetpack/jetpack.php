@@ -4,7 +4,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 11.1-a.0
+ * Version: 11.4-a.0
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.9' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '11.1-a.0' );
+define( 'JETPACK__VERSION', '11.4-a.0' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -148,7 +148,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 			sprintf(
 				/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -175,7 +175,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>

@@ -97,6 +97,17 @@ function releaseProject {
 	local I="$4"
 
 	cd "$BASE/projects/$SLUG"
+
+	# If it's being depended on by something (and not a js-package), check that it has a mirror repo set up.
+	# Can't do the release without one.
+	if [[ -n "$FROM" && "$SLUG" != js-packages/* ]] &&
+		! jq -e '.extra["mirror-repo"] // null' composer.json > /dev/null
+	then
+		error "${I}Cannot release $SLUG as it has no mirror repo configured!"
+		info "${I}See https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#mirror-repositories for details."
+		exit 1
+	fi
+
 	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
 		if [[ -z "$FROM" ]]; then

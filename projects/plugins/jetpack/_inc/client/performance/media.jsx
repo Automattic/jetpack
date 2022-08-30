@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -22,7 +22,7 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 import {
 	getSitePlan,
 	getVideoPressStorageUsed,
-	hasActiveSiteFeature,
+	siteHasFeature,
 	isFetchingSitePurchases,
 } from 'state/site';
 
@@ -156,9 +156,10 @@ export default connect( state => {
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
 		hasVideoPressFeature:
-			hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
-			hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
-		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
+			siteHasFeature( state, 'videopress-1tb-storage' ) ||
+			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
+			siteHasFeature( state, 'videopress' ),
+		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),

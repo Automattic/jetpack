@@ -2,26 +2,23 @@
  * @jest-environment jsdom
  */
 
-import { render } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import PhotonImage from '../photon-image';
 
 test( 'returns a Photon URL for a site with Photon enabled', () => {
-	const { getByRole } = render(
-		<PhotonImage src={ 'http://example.com/okapi.jpg' } isPhotonEnabled={ true } />
-	);
-	expect( getByRole( 'img' ).src ).toMatch( /i[0-9]\.wp\.com/ );
+	render( <PhotonImage src={ 'http://example.com/okapi.jpg' } isPhotonEnabled={ true } /> );
+	expect( screen.getByRole( 'img' ).src ).toMatch( /i[0-9]\.wp\.com/ );
 } );
 
 test( 'returns the original URL for a private site', () => {
 	const imageUrl = 'http://example.com/okapi.jpg';
-	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ false } /> );
-	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
+	render( <PhotonImage src={ imageUrl } isPhotonEnabled={ false } /> );
+	expect( screen.getByRole( 'img' ).src ).toEqual( imageUrl );
 } );
 
 test( 'returns the original URL for a SVG image', () => {
 	const imageUrl = 'http://example.com/okapi.svg';
-	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ true } /> );
-	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
+	render( <PhotonImage src={ imageUrl } isPhotonEnabled={ true } /> );
+	expect( screen.getByRole( 'img' ).src ).toEqual( imageUrl );
 } );

@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -101,6 +101,7 @@ const ResourcePromptComponent = props => {
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
+				br: <br />,
 				strong: <strong />,
 				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
@@ -109,8 +110,8 @@ const ResourcePromptComponent = props => {
 					<React.Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
-								{ descriptionList.map( item => (
-									<li>{ item }</li>
+								{ descriptionList.map( ( item, index ) => (
+									<li key={ index }>{ item }</li>
 								) ) }
 							</ul>
 						) }

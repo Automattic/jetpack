@@ -1,12 +1,6 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
-
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import InstagramGalleryEdit from '../edit';
 
 const originalFetch = window.fetch;
@@ -43,6 +37,7 @@ describe( 'InstagramGalleryEdit', () => {
 
 	beforeEach( () => {
 		setAttributes.mockClear();
+		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window[ JETPACK_DATA_PATH ] = {
 			jetpack: {
@@ -64,18 +59,15 @@ describe( 'InstagramGalleryEdit', () => {
 		render( <InstagramGalleryEdit { ...defaultProps } /> );
 
 		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
 				'/wpcom/v2/instagram-gallery/connections?_locale=user'
 			)
 		);
 
-		await waitFor( () =>
-			expect(
-				screen.getByText( 'Connect to Instagram to start sharing your images.' )
-			).toBeInTheDocument()
-		);
-
-		await waitFor( () => expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument() );
+		expect(
+			screen.getByText( 'Connect to Instagram to start sharing your images.' )
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument();
 	} );
 
 	test( 'updates instagram user and access token when selecting existing connection', async () => {
@@ -91,17 +83,15 @@ describe( 'InstagramGalleryEdit', () => {
 		render( <InstagramGalleryEdit { ...defaultProps } /> );
 
 		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
 				'/wpcom/v2/instagram-gallery/connections?_locale=user'
 			)
 		);
 
-		await waitFor( () =>
-			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument()
-		);
+		expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument();
 
-		await waitFor( async () => await user.click( screen.getByLabelText( '@testjetpackuser' ) ) );
-		await waitFor( async () => await user.click( screen.getByText( 'Connect to Instagram' ) ) );
+		await user.click( screen.getByLabelText( '@testjetpackuser' ) );
+		await user.click( screen.getByText( 'Connect to Instagram' ) );
 
 		expect( setAttributes ).toHaveBeenLastCalledWith( {
 			accessToken: '123456',
@@ -122,25 +112,20 @@ describe( 'InstagramGalleryEdit', () => {
 		render( <InstagramGalleryEdit { ...defaultProps } /> );
 
 		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
 				'/wpcom/v2/instagram-gallery/connections?_locale=user'
 			)
 		);
 
-		await waitFor( () =>
-			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument()
-		);
+		expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument();
 
-		await waitFor( async () => await user.click( screen.getByLabelText( 'Add a new account' ) ) );
-		await waitFor( () =>
-			expect(
-				screen.getByText(
-					'If you are currently logged in to Instagram on this device, you might need to log out of it first.'
-				)
-			).toBeInTheDocument()
-		);
-
-		await waitFor( () => expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument() );
+		await user.click( screen.getByLabelText( 'Add a new account' ) );
+		expect(
+			screen.getByText(
+				'If you are currently logged in to Instagram on this device, you might need to log out of it first.'
+			)
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument();
 	} );
 
 	test( 'renders a gallery when an existing connection is active', async () => {
@@ -173,15 +158,13 @@ describe( 'InstagramGalleryEdit', () => {
 		render( <InstagramGalleryEdit { ...propsWithConnectedAccount } /> );
 
 		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
 				'/wpcom/v2/instagram-gallery/gallery?access_token=123456&count=30&_locale=user'
 			)
 		);
 
-		await waitFor( () => expect( screen.getByAltText( 'test image 1' ) ).toBeInTheDocument() );
-		await waitFor( () => expect( screen.getByAltText( 'test image 2' ) ).toBeInTheDocument() );
-		await waitFor( () =>
-			expect( screen.queryByText( 'Connect to Instagram' ) ).not.toBeInTheDocument()
-		);
+		expect( screen.getByAltText( 'test image 1' ) ).toBeInTheDocument();
+		expect( screen.getByAltText( 'test image 2' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Connect to Instagram' ) ).not.toBeInTheDocument();
 	} );
 } );

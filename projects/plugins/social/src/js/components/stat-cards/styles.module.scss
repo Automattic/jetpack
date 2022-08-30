@@ -1,0 +1,46 @@
+.cards {
+	display: flex;
+
+	> * + * {
+		margin-left: calc( var( --spacing-base ) * 3 );
+	}
+
+	justify-content: space-evenly;
+
+	@media ( min-width: 600px ) {
+		justify-content: flex-end;
+	}
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
+	background: white;
+	box-shadow: 0px 0px 40px rgba( 0, 0, 0, 0.08 );
+	border-radius: 4px;
+	padding: calc( var( --spacing-base ) * 3 );
+	flex: 0 1 auto;
+	width: 100%;
+	
+	@media ( min-width: 600px ) {
+		max-width: 170px;
+	}
+}
+
+.label {
+	font-weight: 600;
+	margin-top: calc( var( --spacing-base ) * 2 );
+
+	a {
+		color: inherit;
+	}
+}
+
+.spinner {
+	margin-top: calc( var( --spacing-base ) * 2 );
+	align-self: flex-start;
+}
+
+.value {
+	margin-top: auto;
+}

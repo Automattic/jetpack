@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -20,7 +20,7 @@ import {
 	isFetchingSitePurchases,
 	getSitePlan,
 	getVideoPressStorageUsed,
-	hasActiveSiteFeature,
+	siteHasFeature,
 } from 'state/site';
 
 class DashVideoPress extends Component {
@@ -172,9 +172,10 @@ export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		hasVideoPressFeature:
-			hasActiveSiteFeature( state, 'videopress-1tb-storage' ) ||
-			hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
-		hasVideoPressUnlimitedStorage: hasActiveSiteFeature( state, 'videopress-unlimited-storage' ),
+			siteHasFeature( state, 'videopress-1tb-storage' ) ||
+			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
+			siteHasFeature( state, 'videopress' ),
+		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),

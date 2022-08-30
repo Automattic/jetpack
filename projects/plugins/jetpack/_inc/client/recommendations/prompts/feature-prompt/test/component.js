@@ -1,13 +1,19 @@
+import { jest } from '@jest/globals';
+import userEvent from '@testing-library/user-event';
+import analytics from 'lib/analytics';
 import * as React from 'react';
-import { expect } from 'chai';
-import sinon from 'sinon';
-
+import * as recommendationsActions from 'state/recommendations/actions';
+import { render, screen } from 'test/test-utils';
 import * as featureUtils from '../../../feature-utils';
 import { FeaturePrompt } from '../index';
-import analytics from 'lib/analytics';
-import * as recommendationsActions from 'state/recommendations/actions';
-import { fireEvent, render, screen } from 'test/test-utils';
 
+/**
+ * Build initial state.
+ *
+ * @param {object} _ - Dummy positional parameter.
+ * @param {string} _.recommendationsStep - Value for jetpack.recommendations.step.
+ * @returns {object} - State.
+ */
 function buildInitialState( { recommendationsStep } = {} ) {
 	return {
 		jetpack: {
@@ -34,15 +40,15 @@ function buildInitialState( { recommendationsStep } = {} ) {
 			},
 			siteData: {
 				requests: {
-					isFetchingSiteDiscount: false
+					isFetchingSiteDiscount: false,
 				},
 			},
 			introOffers: {
 				requests: {
-					isFetching: false
+					isFetching: false,
 				},
 			},
-		}
+		},
 	};
 }
 
@@ -51,19 +57,18 @@ describe( 'Recommendations – Feature Prompt', () => {
 	let updateRecommendationsStepStub;
 	let addViewedRecommendationStub;
 
-	before( function () {
-		updateRecommendationsStepStub = sinon
-			.stub( recommendationsActions, 'updateRecommendationsStep' )
-			.returns( DUMMY_ACTION );
-
-		addViewedRecommendationStub = sinon
-			.stub( recommendationsActions, 'addViewedRecommendation' )
-			.returns( DUMMY_ACTION );
+	beforeAll( () => {
+		updateRecommendationsStepStub = jest
+			.spyOn( recommendationsActions, 'updateRecommendationsStep' )
+			.mockReturnValue( DUMMY_ACTION );
+		addViewedRecommendationStub = jest
+			.spyOn( recommendationsActions, 'addViewedRecommendation' )
+			.mockReturnValue( DUMMY_ACTION );
 	} );
 
-	after( function () {
-		updateRecommendationsStepStub.restore();
-		addViewedRecommendationStub.restore();
+	afterAll( () => {
+		updateRecommendationsStepStub.mockRestore();
+		addViewedRecommendationStub.mockRestore();
 	} );
 
 	describe( 'Monitor', () => {
@@ -77,7 +82,7 @@ describe( 'Recommendations – Feature Prompt', () => {
 				screen.getByRole( 'heading', {
 					name: /Would you like Downtime Monitoring to notify you if your site goes offline?/i,
 				} )
-			).to.be.not.null;
+			).toBeInTheDocument();
 		} );
 
 		it( 'shows the enable and skip feature buttons', () => {
@@ -89,25 +94,39 @@ describe( 'Recommendations – Feature Prompt', () => {
 				screen.getByRole( 'link', {
 					name: /Enable Downtime Monitoring/i,
 				} )
-			).to.be.not.null;
+			).toBeInTheDocument();
 
 			expect(
 				screen.getByRole( 'link', {
 					name: /Not now/i,
 				} )
-			).to.be.not.null;
+			).toBeInTheDocument();
 		} );
 
-		it( 'calls the right actions when a user clicks on the enable feature button', () => {
+		it( 'calls the right actions when a user clicks on the enable feature button', async () => {
+			const user = userEvent.setup();
+
 			// Stub methods that perform side-effects through async actions
-			const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
-			const addSelectedRecommendationStub = sinon
-				.stub( recommendationsActions, 'addSelectedRecommendation' )
-				.returns( DUMMY_ACTION );
-			const activateFeatureStub = sinon.stub().returns( DUMMY_ACTION );
-			const mapDispatchToPropsStub = sinon.stub( featureUtils, 'mapDispatchToProps' ).returns( {
-				activateFeature: activateFeatureStub,
+			const recordEventStub = jest
+				.spyOn( analytics.tracks, 'recordEvent' )
+				.mockImplementation( () => {} );
+			const addSelectedRecommendationStub = jest
+				.spyOn( recommendationsActions, 'addSelectedRecommendation' )
+				.mockReturnValue( DUMMY_ACTION );
+			const startInstallingStub = jest
+				.spyOn( recommendationsActions, 'startFeatureInstall' )
+				.mockReturnValue( DUMMY_ACTION );
+			// Fake a promise-ish return since we call the "finally" method after the feature is activated.
+			const activateFeatureStub = jest.fn().mockImplementation( () => {
+				return {
+					finally: () => {},
+				};
 			} );
+			const mapDispatchToPropsStub = jest
+				.spyOn( featureUtils, 'mapDispatchToProps' )
+				.mockReturnValue( {
+					activateFeature: activateFeatureStub,
+				} );
 
 			render( <FeaturePrompt stepSlug={ stepSlug } />, {
 				initialState: buildInitialState( { recommendationsStep: stepSlug } ),
@@ -116,40 +135,44 @@ describe( 'Recommendations – Feature Prompt', () => {
 			const enableFeatureButton = screen.getByRole( 'link', {
 				name: /Enable Downtime Monitoring/i,
 			} );
-			expect( enableFeatureButton ).to.be.not.null;
+			expect( enableFeatureButton ).toBeInTheDocument();
 
 			// Make sure the enable button points to the right link
-			expect( enableFeatureButton.href ).to.have.string( 'recommendations/related-posts' );
+			expect( enableFeatureButton.href ).toContain( 'recommendations/related-posts' );
 
 			// The jetpack_recommendations_recommendation_viewed event has already fired on step load
-			expect( recordEventStub.callCount ).to.be.equal( 1 );
-			fireEvent.click( enableFeatureButton );
+			expect( recordEventStub ).toHaveBeenCalledTimes( 1 );
+			await user.click( enableFeatureButton );
 
 			// Make sure tracks work
-			expect(
-				recordEventStub.withArgs( 'jetpack_recommended_feature_enable_click', {
-					feature: stepSlug,
-				} ).callCount
-			).to.be.equal( 1 );
+			expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_recommended_feature_enable_click', {
+				feature: stepSlug,
+			} );
 
 			// Make sure addSelectedRecommendation action is called with the right step slug
-			expect( addSelectedRecommendationStub.withArgs( stepSlug ).callCount ).to.be.equal( 1 );
+			expect( addSelectedRecommendationStub ).toHaveBeenCalledWith( stepSlug );
 
 			// Make sure activateFeature action is called
-			expect( activateFeatureStub.callCount ).to.be.equal( 1 );
+			expect( activateFeatureStub ).toHaveBeenCalledTimes( 1 );
+
+			expect( startInstallingStub ).toHaveBeenCalledTimes( 1 );
 
 			// Restore stubs
-			recordEventStub.restore();
-			addSelectedRecommendationStub.restore();
-			mapDispatchToPropsStub.restore();
+			recordEventStub.mockRestore();
+			addSelectedRecommendationStub.mockRestore();
+			mapDispatchToPropsStub.mockRestore();
 		} );
 
-		it( 'calls the right actions when a user clicks on the skip feature button', () => {
+		it( 'calls the right actions when a user clicks on the skip feature button', async () => {
+			const user = userEvent.setup();
+
 			// Stub methods that perform side-effects through async actions
-			const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
-			const addSkippedRecommendationStub = sinon
-				.stub( recommendationsActions, 'addSkippedRecommendation' )
-				.returns( DUMMY_ACTION );
+			const recordEventStub = jest
+				.spyOn( analytics.tracks, 'recordEvent' )
+				.mockImplementation( () => {} );
+			const addSkippedRecommendationStub = jest
+				.spyOn( recommendationsActions, 'addSkippedRecommendation' )
+				.mockReturnValue( DUMMY_ACTION );
 
 			render( <FeaturePrompt stepSlug={ stepSlug } />, {
 				initialState: buildInitialState( { recommendationsStep: stepSlug } ),
@@ -158,28 +181,29 @@ describe( 'Recommendations – Feature Prompt', () => {
 			const skipFeatureButton = screen.getByRole( 'link', {
 				name: /Not now/i,
 			} );
-			expect( skipFeatureButton ).to.be.not.null;
+			expect( skipFeatureButton ).toBeInTheDocument();
 
 			// Make sure the enable button points to the right link
-			expect( skipFeatureButton.href ).to.have.string( 'recommendations/related-posts' );
-			
+			expect( skipFeatureButton.href ).toContain( 'recommendations/related-posts' );
+
 			// The jetpack_recommendations_recommendation_viewed event has already fired on step load
-			expect( recordEventStub.callCount ).to.be.equal( 1 );
-			fireEvent.click( skipFeatureButton );
+			expect( recordEventStub ).toHaveBeenCalledTimes( 1 );
+			await user.click( skipFeatureButton );
 
 			// Make sure tracks work
-			expect(
-				recordEventStub.withArgs( 'jetpack_recommended_feature_decide_later_click', {
+			expect( recordEventStub ).toHaveBeenCalledWith(
+				'jetpack_recommended_feature_decide_later_click',
+				{
 					feature: stepSlug,
-				} ).callCount
-			).to.be.equal( 1 );
+				}
+			);
 
 			// Make sure addSkippedRecommendation action is called with the right step slug
-			expect( addSkippedRecommendationStub.withArgs( stepSlug ).callCount ).to.be.equal( 1 );
+			expect( addSkippedRecommendationStub ).toHaveBeenCalledWith( stepSlug );
 
 			// Restore stubs
-			recordEventStub.restore();
-			addSkippedRecommendationStub.restore();
+			recordEventStub.mockRestore();
+			addSkippedRecommendationStub.mockRestore();
 		} );
 	} );
 } );

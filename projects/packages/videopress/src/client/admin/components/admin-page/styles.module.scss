@@ -1,0 +1,21 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.heading {
+	font-size: 36px;
+	line-height: 40px;
+	font-weight: 700;
+	margin: 0;
+}
+
+ul.jp-product-promote {
+
+	li {
+		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC) no-repeat;
+		background-size: 24px;
+		padding-left: 30px;
+		margin-bottom: 9px;
+		color: var(--jp-black);
+		font-size: 16px;
+		line-height: 1.5;
+	} 
+}
