@@ -142,11 +142,24 @@ class Initializer {
 	 *
 	 * @return void
 	 */
-	public static function register_videopress_block() {
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/videopress' ) ) {
+	public static function register_videopress_video_block() {
+		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/video/block.json';
+		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
+		if ( ! $videopress_video_metadata_file_exists ) {
 			return;
 		}
 
-		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+		$videopress_video_metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $videopress_video_metadata_file )
+		);
+
+		// Pick the block name straight from the block metadata .json file.
+		$videopress_video_block_name = $videopress_video_metadata->name;
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
+			return;
+		}
+
+		register_block_type( $videopress_video_metadata_file );
 	}
 }

@@ -41,6 +41,14 @@ class Client {
 
 		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
+		Error_Handler::get_instance()->check_api_response_for_errors(
+			$response,
+			$result['auth'],
+			empty( $args['url'] ) ? '' : $args['url'],
+			empty( $args['method'] ) ? 'POST' : $args['method'],
+			'rest'
+		);
+
 		/**
 		 * Fired when the remote request response has been received.
 		 *
@@ -63,6 +71,7 @@ class Client {
 	 *
 	 *     @type String $url     The request URL.
 	 *     @type array  $request Request arguments.
+	 *     @type array  $auth    Authorization data.
 	 * }
 	 */
 	public static function build_signed_request( $args, $body = null ) {
@@ -205,7 +214,7 @@ class Client {
 			$url = add_query_arg( 'signature', rawurlencode( $signature ), $url );
 		}
 
-		return compact( 'url', 'request' );
+		return compact( 'url', 'request', 'auth' );
 	}
 
 	/**
