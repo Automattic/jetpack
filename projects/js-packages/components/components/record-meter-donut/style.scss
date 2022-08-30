@@ -11,32 +11,6 @@
 	}
 }
 
-.donut-ring {
-	stroke: #ebebeb;
-}
-
-.donut-segment {
-	transform-origin: center;
-}
-
-.donut-percent {
-	font-size: 0.5em;
-	line-height: 1;
-	transform: translateY(0.5em);
-	font-weight: bold;
-}
-
-.donut-data {
-	font-size: 0.12em;
-	line-height: 1;
-	transform: translateY(0.5em);
-	text-align: center;
-	text-anchor: middle;
-	color: #666;
-	fill: #666;
-	animation: donutfadelong 1s;
-}
-
 /* ---------- */
 /* just for this presentation */
 html {

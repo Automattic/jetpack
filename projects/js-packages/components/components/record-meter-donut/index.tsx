@@ -63,6 +63,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 					r="15.91549430918954"
 					fill="transparent"
 					stroke-width={ thickness }
+					stroke="#ebebeb"
 				></circle>
 				<circle
 					className="donut-segment"
@@ -70,10 +71,11 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 					cy="20"
 					r="15.91549430918954"
 					fill="transparent"
+					transform-origin="center"
 					stroke={ backgroundColor }
 					stroke-width={ thickness }
 					stroke-dasharray={ `${ count() } ${ 100 - count() }` }
-					stroke-dashoffset="25"
+					stroke-dashoffset="-25"
 				></circle>
 			</svg>
 			<table className="screen-reader-text">
