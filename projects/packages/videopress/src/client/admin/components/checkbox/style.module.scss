@@ -1,0 +1,25 @@
+.checkbox {
+	all: unset;
+	border: 1px solid black;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	border-radius: 2px;
+
+	// This is going out of normal, since it helps to center the checkmark
+	// Since it takes 18px from children + 2px from padding.
+	// Which makes it with 20px
+	padding: 2px;
+
+	&::before {
+		content: "";
+		width: 18px;
+		height: 18px;
+	}
+
+	&:checked::before {
+		background: var(--jp-black);
+	}
+}

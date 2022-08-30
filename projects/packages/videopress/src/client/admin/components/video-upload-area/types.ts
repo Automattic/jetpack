@@ -1,10 +1,11 @@
 export type VideoUploadAreaProps = {
 	/**
-	 * A className to be concat with default ones.
+	 * Optional classname to apply to the root element.
 	 */
 	className?: string;
+
 	/**
-	 * A className to be concat with default ones.
+	 * Callback to be invoked when files are selected.
 	 */
 	onSelectFiles: ( files: File[] ) => void;
 };
