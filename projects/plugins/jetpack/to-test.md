@@ -30,7 +30,7 @@ Improvement was made to Gallery block and Carousel when images style is set to r
 
 ### Payments Buttons
 
-A new Payments Buttons block was added that acts as a container for several Payment Button blocks [[#25297](https://github.com/Automattic/jetpack/pull/25297)]. Note that testing this requires a pid plan and Stripe connection.
+A new Payments Buttons block was added that acts as a container for several Payment Button blocks [[#25297](https://github.com/Automattic/jetpack/pull/25297)]. Note that testing this requires a paid plan and Stripe connection.
 
 - On a Jetpack connected site, create a new post and add a Payments Buttons block.
 - If you don't have a paid plan, you will be asked to upgrade.
@@ -43,12 +43,21 @@ A new Payments Buttons block was added that acts as a container for several Paym
 
 ### Google documents, spreadsheets and slideshows
 
-We are adding support for Google documents, spreadsheets and slideshows. [[#24628](https://github.com/Automattic/jetpack/pull/24628)]. Please note these blocks are still in beta so testing them requires enabling JETPACK_BETA_BLOCKS constant in the site Settings. To test, try the following:
+We are adding support for Google documents, spreadsheets and slideshows. [[#24628](https://github.com/Automattic/jetpack/pull/24628)]. Please note these blocks are still in beta so testing them requires enabling JETPACK_BETA_BLOCKS constant in the site Settings on JN site or adding `define( 'JETPACK_BETA_BLOCKS', true );` to the wp-config.php file. To test, try the following:
 
 - On a Jetpack connected site create a new post.
 - Search for Google blocks and add each block to your post.
 - Populate the blocks with links to publicly available documents.
 - Try adding a link to a private document. You should see a warning.
 - Publish the post and view the front end. Documents should be available to users.
+
+### Post List
+
+We are adding support for Post List feature. This feature was previously available only to sites on WordPress.com. [[#25301](https://github.com/Automattic/jetpack/pull/25301)].
+
+- On a Jetpack connected site go to yoursite/wp-admin/admin.php?page=jetpack_modules
+- Enable the Post List module.
+- Go to your posts and pages list and see that the wp-admin view matches that of one available on WordPress.com.
+- Try adding a featured image to a post and see it shows up in wp-admin view and on WordPress.com.
 
 **Thank you for all your help!**
