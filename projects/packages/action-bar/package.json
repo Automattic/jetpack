@@ -29,15 +29,13 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
 		"@babel/core": "7.18.6",
-		"@wordpress/babel-plugin-import-jsx-pragma": "3.2.0",
 		"@wordpress/browserslist-config": "4.1.2",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.6.0",
 		"core-js": "3.23.5",
 		"sass": "1.54.4",
 		"sass-loader": "12.4.0",
 		"webpack": "5.72.1",
-		"webpack-cli": "4.9.1",
-		"wp-prettier": "npm:wp-prettier@2.0.5"
+		"webpack-cli": "4.9.1"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"

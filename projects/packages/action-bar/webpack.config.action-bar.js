@@ -2,7 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
-	entry: { 'action-bar': path.join( __dirname, './src/action-bar.js' ) },
+	entry: { 'action-bar': path.join( __dirname, './src/js/action-bar.js' ) },
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
