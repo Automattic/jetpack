@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid conflict with old versions of Jetpack plugin

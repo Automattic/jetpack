@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Leverage placeholder attribute when rendering the shortcode in wpcom

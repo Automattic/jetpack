@@ -400,7 +400,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							? esc_attr( $email_field_styles )
 							: 'width: 95%; padding: 1px 10px'
 						),
-						esc_attr__( 'Enter your email address', 'jetpack' ),
+						( empty( $subscribe_placeholder ) ? esc_attr__( 'Enter your email address', 'jetpack' ) : esc_attr( $subscribe_placeholder ) ),
 						esc_attr( $email_field_id )
 					);
 					?>
