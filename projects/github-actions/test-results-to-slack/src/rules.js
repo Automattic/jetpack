@@ -17,9 +17,7 @@ function getChannels() {
 	if ( ! rulesConfigurationPath ) {
 		debug( 'No rules configuration found, returning only the default channel' );
 		channels.push( defaultChannel );
-	}
-
-	if ( rulesConfigurationPath ) {
+	} else {
 		const rulesConfiguration = require( rulesConfigurationPath );
 		const { refs, suites } = rulesConfiguration;
 		const { refType, refName } = extras;
