@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Added Advertising menu entry for Atomic sites gated behind a filter that will be toggled from wpcomsh
+WordPress.com toolbar: allow enabling an "Advertising" menu item via a new filter.
