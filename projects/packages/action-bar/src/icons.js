@@ -1,6 +1,6 @@
 /* global jetpackActionBar */
 
-export const CommentIcon = () => `
+export const commentIcon = () => `
 	<svg
 		role="img"
 		width="24"
@@ -17,7 +17,7 @@ export const CommentIcon = () => `
 	</svg>
 `;
 
-export const EllipsisIcon = () => `
+export const ellipsisIcon = () => `
 	<svg
 		role="img"
 		width="24"
@@ -33,7 +33,7 @@ export const EllipsisIcon = () => `
 	</svg>
 `;
 
-export const FollowIcon = () => `
+export const followIcon = () => `
 	<svg
 		role="img"
 		width="24"
@@ -70,7 +70,7 @@ export const FollowIcon = () => `
 	</svg>
 `;
 
-export const StarIcon = () => `
+export const starIcon = () => `
 	<svg
 		role="img"
 		width="24"
