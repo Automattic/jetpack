@@ -5,16 +5,6 @@
 	animation: donutfade 1s;
 }
 
-// @keyframes donutfade {
-// 	/* this applies to the whole svg item wrapper */
-// 	0% {
-// 		opacity: 0.2;
-// 	}
-// 	100% {
-// 		opacity: 1;
-// 	}
-// }
-
 @media (min-width: 992px) {
 	.svg-item {
 		width: 80%;
@@ -27,31 +17,7 @@
 
 .donut-segment {
 	transform-origin: center;
-	stroke: #ff6200;
-	// animation: donut1 3s;
 }
-
-// .donut-percent {
-// 	animation: donutfadelong 1s;
-// }
-
-// @keyframes donutfadelong {
-// 	0% {
-// 		opacity: 0;
-// 	}
-// 	100% {
-// 		opacity: 1;
-// 	}
-// }
-
-// @keyframes donut1 {
-// 	0% {
-// 		stroke-dasharray: 0, 100;
-// 	}
-// 	100% {
-// 		stroke-dasharray: 69, 31;
-// 	}
-// }
 
 .donut-percent {
 	font-size: 0.5em;
