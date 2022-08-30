@@ -78,7 +78,8 @@ class Test_Products extends TestCase {
 	 */
 	public function test_filter_classes_valid() {
 		add_filter( 'my_jetpack_products_classes', array( $this, 'return_valid_class' ) );
-		$this->assertEquals( 'Child Boost', ( Products::get_product_class( 'boost' ) )::get_name() );
+		$class_name = Products::get_product_class( 'boost' );
+		$this->assertEquals( 'Child Boost', $class_name::get_name() );
 	}
 
 	/**
