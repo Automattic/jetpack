@@ -25,9 +25,7 @@
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
-	"dependencies": {
-		"@wordpress/element": "4.10.0"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
 		"@babel/core": "7.18.6",

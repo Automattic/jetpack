@@ -2,7 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
-	entry: { 'action-bar': path.join( __dirname, './src/action-bar.jsx' ) },
+	entry: { 'action-bar': path.join( __dirname, './src/action-bar.js' ) },
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
@@ -24,11 +24,7 @@ module.exports = {
 		},
 	},
 	node: false,
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			I18nLoaderPlugin: { textdomain: 'jetpack-action-bar' },
-		} ),
-	],
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -45,15 +41,6 @@ module.exports = {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				// extraLoaders: [
-				// 	{
-				// 		loader: 'postcss-loader',
-				// 		options: {
-				// 			postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
-				// 		},
-				// 	},
-				// 	'sass-loader',
-				// ],
 			} ),
 
 			// Handle images.
