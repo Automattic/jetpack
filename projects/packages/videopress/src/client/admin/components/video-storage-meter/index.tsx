@@ -30,7 +30,7 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( { className, tot
 
 	return (
 		<div className={ classnames( className ) }>
-			<Text className={ classnames( styles.text ) }>
+			<Text className={ classnames( styles[ 'percentage-description' ] ) }>
 				{ sprintf(
 					/* translators: %1$s is the storage percentage, from 0% to 100%, %2$s is the total storage. */
 					__( '%1$s of %2$s of cloud video storage', 'jetpack-videopress-pkg' ),
