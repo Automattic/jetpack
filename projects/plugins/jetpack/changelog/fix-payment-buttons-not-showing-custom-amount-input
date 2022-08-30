@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed an issue that prevented the custom amount field to be shown when interacting with payment buttons.
