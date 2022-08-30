@@ -5,10 +5,15 @@ import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
 import { useCallback, useEffect } from 'react';
 import { SidebarCard } from '../sidebar-card';
+import type { FC } from 'react';
 
 import './style.scss';
 
-const MobileApp = () => {
+type Props = {
+	slug: string;
+};
+
+const MobileApp: FC< Props > = ( { slug } ) => {
 	const features = [
 		__( 'Refined post and page editor', 'jetpack' ),
 		__( 'Manage multiple sites from one dashboard', 'jetpack' ),
@@ -16,6 +21,15 @@ const MobileApp = () => {
 		__( 'Free stock photo library', 'jetpack' ),
 		__( 'Update your site from any device', 'jetpack' ),
 	];
+
+	const getHeading = () => {
+		switch ( slug ) {
+			case 'download-app':
+				return __( 'Check your site activity anywhere, any time.', 'jetpack' );
+			default:
+				return __( 'Check your site activity anywhere, any time.', 'jetpack' );
+		}
+	};
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
@@ -57,9 +71,7 @@ const MobileApp = () => {
 	return (
 		<SidebarCard header={ header }>
 			<div>
-				<h2 className="jp-recommendation-sidebar-mobile__heading">
-					{ __( 'Explore a better editing experience', 'jetpack' ) }
-				</h2>
+				<h2 className="jp-recommendation-sidebar-mobile__heading">{ getHeading() }</h2>
 				<p>
 					{ createInterpolateElement(
 						__(
@@ -80,7 +92,7 @@ const MobileApp = () => {
 					) }
 				</p>
 				<ul className="jp-recommendations-sidebar-card__features">
-					{ features.map( ( feature, index ) => (
+					{ features.map( ( feature: string, index: number ) => (
 						<li key={ index }>{ feature }</li>
 					) ) }
 				</ul>
