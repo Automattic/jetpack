@@ -1,25 +1,5 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const {
-	defaultRequestToExternal,
-	defaultRequestToHandle,
-} = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
-
-/**
- * Used to determine if the module import request should be externalized.
- * For instant search, we prevent react and react-dom from being externalized by the Gutenberg toolchain.
- * This enables us to alias Preact to all React imports.
- *
- * @param {string} request - Requested module
- * @returns {(string|string[]|undefined)} Script global
- */
-function requestToExternal( request ) {
-	// Ensure that React will be aliased to preact/compat by preventing externalization.
-	if ( request === 'react' || request === 'react-dom' ) {
-		return;
-	}
-	return defaultRequestToExternal( request );
-}
 
 module.exports = {
 	entry: { 'action-bar': path.join( __dirname, './src/action-bar.jsx' ) },
@@ -33,27 +13,18 @@ module.exports = {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
 			// Unused keys are prefixed with underscores, as per eslint recommendation.
-			name: ( _module, _chunks, key ) => `jp-search.${ key }`,
+			name: ( _module, _chunks, key ) => `action-bar.${ key }`,
 		},
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-			react: require.resolve( 'preact/compat' ),
-			'react-dom/test-utils': require.resolve( 'preact/test-utils' ),
-			'react-dom': require.resolve( 'preact/compat' ), // Must be below test-utils
 		},
 	},
 	node: false,
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: {
-				injectPolyfill: true,
-				useDefaults: false,
-				requestToExternal,
-				requestToHandle: defaultRequestToHandle,
-			},
 			I18nLoaderPlugin: { textdomain: 'jetpack-action-bar' },
 		} ),
 	],

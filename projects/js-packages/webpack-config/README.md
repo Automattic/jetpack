@@ -9,7 +9,7 @@ In a webpack.config.js, you might do something like this.
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
 
-module.exports = {
+modules.exports = {
 	entry: {
 		// ... your entry points...
 	},
