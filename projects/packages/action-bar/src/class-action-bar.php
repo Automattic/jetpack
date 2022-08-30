@@ -21,8 +21,8 @@ class Action_Bar {
 
 		Assets::register_script(
 			'jetpack-action-bar',
-			'build/action-bar.js',
-			dirname( __DIR__ ) . DIRECTORY_SEPARATOR . 'src', // A full path to a file or a directory inside a plugin.
+			'../build/action-bar.js',
+			__FILE__,
 			array(
 				'dependencies' => array(),
 				'in_footer'    => true,

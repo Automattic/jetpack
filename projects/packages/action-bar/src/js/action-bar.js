@@ -1,5 +1,5 @@
 import { commentIcon, ellipsisIcon, followIcon, starIcon } from './icons';
-import '../css/action-bar.scss';
+import '../scss/action-bar.scss';
 
 const actionBar = () => {
 	return `
