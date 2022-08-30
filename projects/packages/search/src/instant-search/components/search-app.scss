@@ -153,12 +153,13 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		}
 	}
 
-	.jetpack-instant-search__search-sort-option {
+	.jetpack-instant-search__search-form-controls
+		.jetpack-instant-search__search-sort
+		button.jetpack-instant-search__search-sort-option {
+		// Extra specificity to override overly agressive theme styles.
+		// Without this, we need to use "!important" to get our default styling.
 		color: $color-dark-text-lighter;
 
-		&::after {
-			color: $color-dark-text-lighter;
-		}
 		&.is-selected {
 			color: $color-dark-link-alt;
 		}
