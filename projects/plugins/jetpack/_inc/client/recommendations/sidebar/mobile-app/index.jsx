@@ -3,7 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { SidebarCard } from '../sidebar-card';
 
 import './style.scss';
@@ -36,10 +36,30 @@ const MobileApp = () => {
 		} );
 	}, [] );
 
+	const header = (
+		<div className="jp-recommendations-sidebar-mobile__header-container">
+			<img
+				src={ imagePath + '/recommendations/wordpress-icon.svg' }
+				width={ 25 }
+				height={ 25 }
+				alt="wordpress icon"
+			/>
+			<img
+				className="jp-recommendation-sidebar-mobile__jetpack-icon"
+				src={ imagePath + '/recommendations/jetpack-icon.svg' }
+				width={ 27 }
+				height={ 27 }
+				alt="jetpack icon"
+			/>
+		</div>
+	);
+
 	return (
-		<SidebarCard illustrationPath={ imagePath + '/recommendations/mobile-app.svg' }>
+		<SidebarCard header={ header }>
 			<div>
-				<h2>{ __( 'Explore a better editing experience', 'jetpack' ) }</h2>
+				<h2 className="jp-recommendation-sidebar-mobile__heading">
+					{ __( 'Explore a better editing experience', 'jetpack' ) }
+				</h2>
 				<p>
 					{ createInterpolateElement(
 						__(
@@ -60,11 +80,11 @@ const MobileApp = () => {
 					) }
 				</p>
 				<ul className="jp-recommendations-sidebar-card__features">
-					{ features.map( feature => (
-						<li>{ feature }</li>
+					{ features.map( ( feature, index ) => (
+						<li key={ index }>{ feature }</li>
 					) ) }
 				</ul>
-				<div className="jp-recommendations-sidebar-card__apps-badge">
+				<div className="jp-recommendations-sidebar-mobile__apps-badge">
 					<AppsBadge
 						onBadgeClick={ onAppBadgeClick }
 						storeName={ 'ios' }

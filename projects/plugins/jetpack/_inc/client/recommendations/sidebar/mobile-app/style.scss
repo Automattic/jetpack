@@ -1,8 +1,24 @@
-.jp-recommendations-sidebar-card__apps-badge {
+.jp-recommendations-sidebar-mobile__apps-badge {
 	display: flex;
 	margin-top: 32px;
 
 	.apps-badge {
 		width: 50%;
 	}
+}
+
+.jp-recommendations-sidebar-mobile__header-container {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-direction: row;
+	padding: 2.5rem 1.5rem 0 1.5rem;
+}
+
+.jp-recommendation-sidebar-mobile__jetpack-icon {
+	margin-left: -0.3rem;
+}
+
+h2.jp-recommendation-sidebar-mobile__heading {
+	margin-top: 0.5rem;
 }
