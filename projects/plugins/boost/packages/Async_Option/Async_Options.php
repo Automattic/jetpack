@@ -18,7 +18,6 @@ class Async_Options {
 		$this->registry      = $registry;
 	}
 
-
 	/**
 	 * Don't call this method directly.
 	 * It's only public so that it can be called as a hook
@@ -26,17 +25,17 @@ class Async_Options {
 	 * @return void
 	 */
 	public function _print_options_script_tag() {
-		$data = [
-			'rest_api' => [
+		$data = array(
+			'rest_api' => array(
 				'value' => rest_url( $this->registry->get_namespace_http() ),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
-			],
-		];
+			),
+		);
 		foreach ( $this->registry->all() as $option ) {
-			$data[ $option->key() ] = [
+			$data[ $option->key() ] = array(
 				'value' => $option->get(),
 				'nonce' => $this->registry->get_endpoint( $option->key() )->create_nonce(),
-			];
+			);
 		}
 
 		wp_localize_script( $this->script_handle, $this->registry->get_namespace(), $data );
@@ -53,7 +52,7 @@ class Async_Options {
 	 */
 	public function add_to_plugin_page( $plugin_page, $parent_page ) {
 		$plugin_page_hook = get_plugin_page_hook( $plugin_page, $parent_page );
-		add_action( $plugin_page_hook, [ $this, '_print_options_script_tag' ] );
+		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
 	}
 
 	public static function setup( $registry_name, $script_handle, $plugin_page = null, $parent_page = 'admin' ) {
@@ -76,7 +75,7 @@ class Async_Options {
 		$instance = new self( $script_handle, $registry );
 		$instance->add_to_plugin_page( $plugin_page, $parent_page );
 
+		return $instance;
 	}
-
 
 }
