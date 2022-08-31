@@ -7,7 +7,6 @@ import { formatVersion } from '../utils/version';
 export interface OperatingSystemResult {
 	name: string;
 	version: string;
-	platform: 'ARM' | 'x64' | 'x86' | 'MIPS' | 'SuperH' | '';
 }
 
 export type Result = OperatingSystemResult | null;
@@ -66,7 +65,6 @@ export default class OperatingSystemParser {
 		const result: OperatingSystemResult = {
 			name: '',
 			version: '',
-			platform: this.parsePlatform( userAgent ),
 		};
 
 		for ( const os of operatingSystems ) {
@@ -98,29 +96,5 @@ export default class OperatingSystemParser {
 		}
 
 		return null;
-	};
-
-	private parsePlatform = ( userAgent: string ) => {
-		if ( userAgentParser( 'arm|aarch64|Watch ?OS|Watch1,[12]', userAgent ) ) {
-			return 'ARM';
-		}
-
-		if ( userAgentParser( 'mips', userAgent ) ) {
-			return 'MIPS';
-		}
-
-		if ( userAgentParser( 'sh4', userAgent ) ) {
-			return 'SuperH';
-		}
-
-		if ( userAgentParser( 'WOW64|x64|win64|amd64|x86_?64', userAgent ) ) {
-			return 'x64';
-		}
-
-		if ( userAgentParser( '(?:i[0-9]|x)86|i86pc', userAgent ) ) {
-			return 'x86';
-		}
-
-		return '';
 	};
 }
