@@ -259,10 +259,12 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
-				<PlaceholderWrapper>
-					<Spinner />
-					{ __( 'Generating preview…', 'jetpack-videopress-pkg' ) }
-					<strong> { generatingPreviewCounter }</strong>
+				<PlaceholderWrapper disableInstructions>
+					<div className="loading-wrapper">
+						<Spinner />
+						{ __( 'Generating preview…', 'jetpack-videopress-pkg' ) }
+						<strong> { generatingPreviewCounter }</strong>
+					</div>
 				</PlaceholderWrapper>
 			</div>
 		);
