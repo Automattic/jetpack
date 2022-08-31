@@ -1,8 +1,8 @@
-import operatingSystems from '../../fixtures/regexes/oss.json';
-import { userAgentParser } from '../../utils/user-agent';
-import { variableReplacement } from '../../utils/variable-replacement';
-import { formatVersion } from '../../utils/version';
-import operatingSystem from './fixtures/operating-system.json';
+import operatingSystem from '../fixtures/operating-system.json';
+import operatingSystems from '../fixtures/oss.json';
+import { userAgentParser } from '../utils/user-agent';
+import { variableReplacement } from '../utils/variable-replacement';
+import { formatVersion } from '../utils/version';
 
 export interface OperatingSystemResult {
 	name: string;

@@ -1,5 +1,5 @@
-import vendorFragments from '../../fixtures/regexes/vendorfragments.json';
-import { userAgentParser } from '../../utils/user-agent';
+import vendorFragments from '../fixtures/vendorfragments.json';
+import { userAgentParser } from '../utils/user-agent';
 
 export default class VendorFragmentParser {
 	public parse = ( userAgent: string ): string => {
