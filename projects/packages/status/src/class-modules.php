@@ -17,6 +17,13 @@ use Automattic\Jetpack\Constants as Constants;
 class Modules {
 
 	/**
+	 * An array of module slugs to be force-loaded.
+	 *
+	 * @var Array
+	 */
+	protected $enforced_modules = array();
+
+	/**
 	 * Check whether or not a Jetpack module is active.
 	 *
 	 * @param string $module The slug of a Jetpack module.
@@ -470,6 +477,35 @@ class Modules {
 			exit;
 		}
 		return true;
+	}
+
+	/**
+	 * Enforces the passed module slugs to always be enabled.
+	 *
+	 * @param Array $enforced_modules an array of module slugs to be always enabled.
+	 */
+	public function enforce( $enforced_modules ) {
+		if ( ! is_array( $enforced_modules ) ) {
+			return;
+		}
+
+		$this->enforced_modules = $enforced_modules;
+		add_filter( 'jetpack_active_modules', array( $this, 'filter_active_modules' ) );
+	}
+
+	/**
+	 * A filter for active modules, adding the enforced modules.
+	 *
+	 * @param Array $active_modules the input of the filter.
+	 */
+	public function filter_active_modules( $active_modules ) {
+		return array_values(
+			array_filter(
+				array_unique(
+					array_merge( $active_modules, $this->enforced_modules )
+				)
+			)
+		);
 	}
 
 	/**
