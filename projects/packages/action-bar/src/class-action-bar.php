@@ -46,6 +46,10 @@ class Action_Bar {
 	 * Render app container html.
 	 */
 	public function print_html() {
+		if ( is_admin() || ! is_single() ) {
+			return;
+		}
+
 		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
 	}
 
