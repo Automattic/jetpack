@@ -6,7 +6,7 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-connection": "^1.43",
+		"automattic/jetpack-connection": "^1.44",
 		"automattic/jetpack-plans": "^0.2"
 	},
 	"require-dev": {
@@ -29,6 +29,9 @@
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"test-js": [
+			"pnpm run test"
 		],
 		"build-production": [
 			"NODE_ENV=production BABEL_ENV=production pnpm run build"

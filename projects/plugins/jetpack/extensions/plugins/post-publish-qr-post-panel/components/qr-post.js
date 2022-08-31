@@ -6,7 +6,6 @@ import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { JetpackLogo } from '../../../shared/icons.js';
 import useSiteLogo from '../hooks/use-site-logo.js';
-import { handleDownloadQRCode } from '../utils/handle-download-qr-code.js';
 
 /**
  * React component that renders a QR code for the post,
@@ -61,7 +60,6 @@ export function QRPost() {
 
 export function QRPostButton() {
 	const qrCodeRef = useRef();
-	const slug = useSelect( select => select( editorStore ).getEditedPostSlug(), [] );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const switchModal = () => setIsModalOpen( v => ! v );
 	const closeModal = () => setIsModalOpen( false );
@@ -80,16 +78,6 @@ export function QRPostButton() {
 				>
 					<div className="qr-post-modal__qr-code" ref={ qrCodeRef }>
 						<QRPost />
-					</div>
-
-					<div className="qr-post-modal__actions_buttons">
-						<Button isSecondary onClick={ () => handleDownloadQRCode( slug, qrCodeRef ) }>
-							{ __( 'Download', 'jetpack' ) }
-						</Button>
-
-						<Button isSecondary onClick={ closeModal }>
-							{ __( 'Close', 'jetpack' ) }
-						</Button>
 					</div>
 				</Modal>
 			) }

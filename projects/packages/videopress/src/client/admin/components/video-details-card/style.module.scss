@@ -12,11 +12,28 @@
 			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
 		}
 	}
+
+	.thumbnail button.thumbnail__edit-button {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
 }
 
 .thumbnail {
-	display: flex;
-	border-radius: var( --jp-border-radius );
+	position: relative;
+	> img {
+		border-radius: var( --jp-border-radius );
+		width: 100%;
+	}
+}
+
+.video-details-card__edit-button-container {
+	position: absolute;
+	top: var( --spacing-base );
+	right: var( --spacing-base );
 }
 
 .details {

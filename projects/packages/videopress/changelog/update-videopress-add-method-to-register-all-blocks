@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Add register_videopress_blocks() method to register all VideoPress blocks

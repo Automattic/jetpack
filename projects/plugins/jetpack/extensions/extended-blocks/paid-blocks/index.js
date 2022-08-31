@@ -37,6 +37,12 @@ const jetpackPaidBlock = ( settings, name ) => {
 				default: true,
 			};
 		}
+
+		// Ensure that the toolbar of the inner blocks doesn't overlap the upgrade banner.
+		settings.supports = {
+			...settings.supports,
+			__experimentalExposeControlsToChildren: true,
+		};
 	}
 
 	return settings;
@@ -46,7 +52,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
 
 // Extend BlockListBlock.
-addFilter( 'editor.BlockListBlock', 'jetpack/paid-block-with-warning', withUpgradeBanner );
+addFilter( 'editor.BlockEdit', 'jetpack/paid-block-with-warning', withUpgradeBanner );
 
 // Take the control of the MediaPlaceholder.
 addFilter(
