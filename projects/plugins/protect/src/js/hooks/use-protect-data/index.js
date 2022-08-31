@@ -23,7 +23,7 @@ export default function useProtectData() {
 
 	return {
 		numThreats: status.numThreats || 0,
-		numCoreThreats: status.core?.Threats?.length || 0,
+		numCoreThreats: status.core?.threats?.length || 0,
 		numPluginsThreats: status.numPluginsThreats || 0,
 		numThemesThreats: status.numThemesThreats || 0,
 		lastChecked: status.lastChecked || null,
