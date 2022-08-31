@@ -9,7 +9,7 @@ use Automattic\Jetpack\Packages\Async_Option\Registry;
  */
 function jetpack_boost_register_option( $name, $handler ) {
 	return Registry::get_instance( 'jetpack_boost' )
-	               ->register( $name, $handler );
+				   ->register( $name, $handler );
 }
 
 /**
@@ -32,10 +32,12 @@ function jetpack_boost_update_option( $option, $value ) {
 /**
  * Ensure that Async Options are passed to the relevant scripts.
  */
-add_action( 'admin_init', function() {
-	Async_Options::setup( 'jetpack_boost', 'jetpack-boost-admin' );
-} );
-
-
+add_action(
+	'admin_init',
+	function () {
+		$options = Async_Options::setup( 'jetpack_boost', 'jetpack-boost-admin' );
+		add_action( 'jetpack_page_jetpack-boost', array( $options, '_print_options_script_tag' ) );
+	}
+);
 
 
