@@ -12,6 +12,7 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/_inc/polldaddy-shortcode.js',
 	'projects/plugins/jetpack/_inc/genericons.php',
 	'projects/plugins/jetpack/_inc/genericons/',
+	'projects/plugins/jetpack/_inc/lib/class-jetpack-mapbox-helper.php',
 	'projects/plugins/jetpack/class.jetpack-post-images.php',
 	'projects/plugins/jetpack/class.jetpack-twitter-cards.php',
 	'projects/plugins/jetpack/modules/carousel.php',
