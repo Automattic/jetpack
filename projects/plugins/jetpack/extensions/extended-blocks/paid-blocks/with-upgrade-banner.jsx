@@ -110,16 +110,6 @@ export default createHigherOrderComponent(
 
 		return (
 			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible } hasParentBanner>
-				<UpgradePlanBanner
-					className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
-					title={ null }
-					align={ attributes?.align }
-					visible={ isBannerVisible }
-					description={ usableBlocksProps?.description }
-					requiredPlan={ requiredPlan }
-					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-				/>
 				<BlockEdit { ...props } />
 			</PaidBlockProvider>
 		);
