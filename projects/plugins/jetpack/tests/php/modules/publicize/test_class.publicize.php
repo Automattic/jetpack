@@ -50,7 +50,13 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		global $publicize_ui;
 		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 
-		$this->publicize          = publicize_init();
+		$this->publicize = publicize_init();
+
+		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
 		$this->publicized_post_id = null;
 
 		$post_id    = self::factory()->post->create( array( 'post_status' => 'draft' ) );
