@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Action Bar: introduce new module (currently only scaffolding).
 
-Adds the Action Bar package and Jetpack plugin module for follows, likes, and comments. Just a scaffold to build on, for now.
+
