@@ -54,6 +54,8 @@ class Jetpack_VideoPress_Plugin {
 			1
 		);
 
+		add_filter( 'my_jetpack_videopress_activation', array( $this, 'my_jetpack_activation' ) );
+
 		// Register VideoPress block
 		add_action( 'init', array( $this, 'register_videopress_video_block' ) );
 
@@ -77,5 +79,22 @@ class Jetpack_VideoPress_Plugin {
 	 */
 	public function register_videopress_video_block() {
 		VideoPress_Pkg_Initializer::register_videopress_video_block();
+	}
+
+	/**
+	 * Initializes the package when the plugin is activated via My Jetpack
+	 *
+	 * This assures that the module will be filtered and considered active and that the Manage link will point to the VideoPress Admin UI
+	 *
+	 * @param bool|WP_Error $result The result of the activation.
+	 * @return bool|WP_Error
+	 */
+	public function my_jetpack_activation( $result ) {
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		VideoPress_Pkg_Initializer::update_init_options( array( 'admin_ui' => true ) );
+		VideoPress_Pkg_Initializer::init();
+		return $result;
 	}
 }
