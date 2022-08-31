@@ -124,23 +124,25 @@ const Stats = ( {
 		<>{ isPrivate && <Icon icon={ privacy } /> }</>
 	);
 
-	const durationElement = isSmall ? (
-		<>
-			<span>{ durationLabel }</span>
-			<span>{ duration }</span>
-		</>
-	) : (
-		duration
-	);
+	const durationElement =
+		isSmall && duration ? (
+			<>
+				<span>{ durationLabel }</span>
+				<span>{ duration }</span>
+			</>
+		) : (
+			duration
+		);
 
-	const playsElement = isSmall ? (
-		<>
-			<span>{ playsLabel }</span>
-			<span>{ plays }</span>
-		</>
-	) : (
-		plays
-	);
+	const playsElement =
+		isSmall && plays ? (
+			<>
+				<span>{ playsLabel }</span>
+				<span>{ plays }</span>
+			</>
+		) : (
+			plays
+		);
 
 	const uploadElement = isSmall ? null : uploadDate;
 
@@ -184,6 +186,12 @@ const VideoRow = ( {
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
 	const showBottom = ! isSmall || ( isSmall && expanded );
+	const canExpand =
+		isSmall &&
+		( ! hideEditButton ||
+			Boolean( duration ) ||
+			Boolean( plays ) ||
+			typeof isPrivate === 'boolean' );
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
@@ -210,8 +218,12 @@ const VideoRow = ( {
 		</Button>
 	);
 
-	const toggleExpand = () => {
-		setExpanded( current => ! current );
+	const handleInfoWrapperClick = e => {
+		if ( canExpand ) {
+			setExpanded( current => ! current );
+		} else {
+			handleClick( e );
+		}
 	};
 
 	const handleClick = e => {
@@ -269,7 +281,7 @@ const VideoRow = ( {
 			>
 				<div
 					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-					onClick={ isSmall ? toggleExpand : null }
+					onClick={ isSmall ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
 					{ posterImage && <img className={ styles.poster } alt="" src={ posterImage } /> }
@@ -284,7 +296,7 @@ const VideoRow = ( {
 						</Text>
 						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
 					</div>
-					{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
+					{ canExpand && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
@@ -303,7 +315,7 @@ const VideoRow = ( {
 								isPrivate={ isPrivate }
 							/>
 						) }
-						{ isSmall && editDetailsButton }
+						{ isSmall && ! hideEditButton && editDetailsButton }
 					</div>
 				) }
 			</div>
