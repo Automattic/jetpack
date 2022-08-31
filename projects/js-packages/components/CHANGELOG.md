@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.18.2 - 2022-08-31
+### Changed
+- Updated package dependencies. [#25856]
+
 ## 0.18.1 - 2022-08-25
 ### Added
 - Components: Support forwardRef at Text [#25798]
