@@ -71,13 +71,18 @@ export default createHigherOrderComponent(
 		}, [ setAttributes, hasParentBanner ] );
 
 		useEffect( () => {
+			const block = document.querySelector( `[data-block="${ clientId }"]` );
+			if ( ! block ) {
+				return;
+			}
+
 			let upgradeBannerContainer = document.querySelector(
 				`[data-block="${ clientId }"] > .jetpack-block-upgrade-banner-container`
 			);
 			if ( ! upgradeBannerContainer ) {
 				upgradeBannerContainer = document.createElement( 'div' );
 				upgradeBannerContainer.classList.add( 'jetpack-block-upgrade-banner-container' );
-				document.querySelector( `[data-block="${ clientId }"]` ).prepend( upgradeBannerContainer );
+				block.prepend( upgradeBannerContainer );
 			}
 
 			render(
@@ -105,6 +110,16 @@ export default createHigherOrderComponent(
 
 		return (
 			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible } hasParentBanner>
+				<UpgradePlanBanner
+					className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+					title={ null }
+					align={ attributes?.align }
+					visible={ isBannerVisible }
+					description={ usableBlocksProps?.description }
+					requiredPlan={ requiredPlan }
+					context={ bannerContext }
+					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+				/>
 				<BlockEdit { ...props } />
 			</PaidBlockProvider>
 		);
