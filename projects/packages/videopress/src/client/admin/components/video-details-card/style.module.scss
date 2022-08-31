@@ -20,14 +20,23 @@
 		width: 100%;
 	}
 
-	button.thumbnail__edit-button:global(.components-button) {
-		padding: var( --spacing-base );
-
-		> svg {
-			margin: 0;
-		}
+	.video-thumbnail-edit {
+		position: absolute;
+		top: var( --spacing-base );
+		right: var( --spacing-base );
 	}
 	
+	.video-thumbnail-duration {
+		position: absolute;
+		bottom: var( --spacing-base );
+		right: var( --spacing-base );
+		padding-left: var( --spacing-base );
+		padding-right: var( --spacing-base );
+		border-radius: var( --jp-border-radius );
+		color: var( --jp-white );
+		background-color: rgba( 44, 51, 56, 0.9 ); // (--jp-gray-80) Todo: figure how to apply opacity with HEXA colors
+	}
+
 	&:not( .is-small ) {
 		> img {
 			border-radius: var( --jp-border-radius );
@@ -35,10 +44,14 @@
 	}
 }
 
-.video-details-card__edit-button-container {
-	position: absolute;
-	top: var( --spacing-base );
-	right: var( --spacing-base );
+.video-thumbnail-edit {
+        .thumbnail__edit-button:global(.components-button) {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
 }
 
 .details {
