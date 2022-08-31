@@ -111,26 +111,18 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.1.0 - 2022-08-02
+### 1.2.0-beta - 2022-08-25
 #### Added
-- Dashboard: new Record Meter feature to show the breakdown of records in your search index.
+- Adds links to Search plugin line on plugins page
+- My Jetpack includes JITMs
+- Search: start v1.2.0-alpha release
 
-#### Fixed
-- Customization: fix fill color for gridicons in dark mode.
-- Customization: hide unsupported taxonomies from Search widget.
-- Customization: re-enable auto-collapsing sidebar in Customberg.
-- Dashboard: fix currency code in upsell page.
-- Dashboard: fix pricing issue before site is connected to Jetpack.
-- Dashboard: minor CSS changes for Hello Dolly compatibility.
-- Instant Search: avoid search query on component mount.
-- Instant Search: consistent design for focus states in Search overlay.
-- Instant Search: don't open modal if only sort parameter is set.
-- Instant Search: fix header letter spacing in modal.
-- Instant Search: fix irrelevant widgets added to sidebar during auto config.
-- Instant Search: fix keyboard handling on search options.
-- Instant Search: prevent hidden submit button appearing on focus.
-- Instant Search: restore support for filtering by multiple post types with post_type=.
-- Search: redirect to the Search Dashboard on activation only when Jetpack plugin does not exist.
+#### Changed
+- Activation: only redirect when activating from the Plugins page in the browser
+- E2E tests: bump dependencies
+- Search: always show Search submenu when Search plugin is installed
+- Search: changed default overlay trigger to form submission
+- Updated package dependencies.
 
 == Testimonials ==
 

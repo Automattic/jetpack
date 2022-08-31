@@ -725,7 +725,7 @@ class Tus_Client {
 			return new Tus_Exception( 'Unsupported media types.' );
 		}
 
-		return new Tus_Exception( (string) $response->getBody(), $response_code );
+		return new Tus_Exception( (string) wp_remote_retrieve_body( $response ), $response_code );
 	}
 
 	/**

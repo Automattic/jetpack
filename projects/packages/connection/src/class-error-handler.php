@@ -197,17 +197,18 @@ class Error_Handler {
 	/**
 	 * Keep track of a connection error that was encountered
 	 *
-	 * @since 1.14.2
+	 * @param \WP_Error $error  The error object.
+	 * @param boolean   $force  Force the report, even if should_report_error is false.
+	 * @param boolean   $skip_wpcom_verification Set to 'true' to verify the error locally and skip the WP.com verification.
 	 *
-	 * @param \WP_Error $error the error object.
-	 * @param boolean   $force Force the report, even if should_report_error is false.
 	 * @return void
+	 * @since 1.14.2
 	 */
-	public function report_error( \WP_Error $error, $force = false ) {
+	public function report_error( \WP_Error $error, $force = false, $skip_wpcom_verification = false ) {
 		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
 			$stored_error = $this->store_error( $error );
 			if ( $stored_error ) {
-				$this->send_error_to_wpcom( $stored_error );
+				$skip_wpcom_verification ? $this->verify_error( $stored_error ) : $this->send_error_to_wpcom( $stored_error );
 			}
 		}
 	}
@@ -223,15 +224,14 @@ class Error_Handler {
 	 * @return boolean $should_report True if gate is open and the error should be reported.
 	 */
 	public function should_report_error( \WP_Error $error ) {
-
 		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 			return true;
 		}
 
 		/**
-		 * Whether to bypass the gate for XML-RPC error handling
+		 * Whether to bypass the gate for the error handling
 		 *
-		 * By default, we only process XML-RPC errors once an hour for each error code.
+		 * By default, we only process errors once an hour for each error code.
 		 * This is done to avoid overflows. If you need to disable this gate, you can set this variable to true.
 		 *
 		 * This filter is useful for unit testing
@@ -307,21 +307,22 @@ class Error_Handler {
 			return false;
 		}
 
-		$data = $data['signature_details'];
+		$signature_details = $data['signature_details'];
 
-		if ( ! isset( $data['token'] ) || empty( $data['token'] ) ) {
+		if ( ! isset( $signature_details['token'] ) || empty( $signature_details['token'] ) ) {
 			return false;
 		}
 
-		$user_id = $this->get_user_id_from_token( $data['token'] );
+		$user_id = $this->get_user_id_from_token( $signature_details['token'] );
 
 		$error_array = array(
 			'error_code'    => $error->get_error_code(),
 			'user_id'       => $user_id,
 			'error_message' => $error->get_error_message(),
-			'error_data'    => $data,
+			'error_data'    => $signature_details,
 			'timestamp'     => time(),
 			'nonce'         => wp_generate_password( 10, false ),
+			'error_type'    => empty( $data['error_type'] ) ? '' : $data['error_type'],
 		);
 
 		return $error_array;
@@ -387,7 +388,7 @@ class Error_Handler {
 	 *
 	 * @since 1.14.2
 	 *
-	 * @param string $token the token used to make the xml-rpc request.
+	 * @param string $token the token used to make the request.
 	 * @return string $the user id or `invalid` if user id not present.
 	 */
 	public function get_user_id_from_token( $token ) {
@@ -603,7 +604,6 @@ class Error_Handler {
 	 * @return boolean
 	 */
 	public function verify_xml_rpc_error( \WP_REST_Request $request ) {
-
 		$error = $this->get_error_by_nonce( $request['nonce'] );
 
 		if ( $error ) {
@@ -634,7 +634,7 @@ class Error_Handler {
 		}
 
 		/**
-		 * Filters the message to be displayed in the admin notices area when there's a xmlrpc error.
+		 * Filters the message to be displayed in the admin notices area when there's a connection error.
 		 *
 		 * By default  we don't display any errors.
 		 *
@@ -679,12 +679,58 @@ class Error_Handler {
 	 */
 	public function jetpack_react_dashboard_error( $errors ) {
 		$errors[] = array(
-			'code'    => 'xmlrpc_error',
+			'code'    => 'connection_error',
 			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack-connection' ),
 			'action'  => 'reconnect',
 			'data'    => array( 'api_error_code' => $this->error_code ),
 		);
 		return $errors;
+	}
+
+	/**
+	 * Check REST API response for errors, and report them to WP.com if needed.
+	 *
+	 * @see wp_remote_request() For more information on the $http_response array format.
+	 * @param array|\WP_Error $http_response The response or WP_Error on failure.
+	 * @param array           $auth_data Auth data, allowed keys: `token`, `timestamp`, `nonce`, `body-hash`.
+	 * @param string          $url Request URL.
+	 * @param string          $method Request method.
+	 * @param string          $error_type The source of an error: 'xmlrpc' or 'rest'.
+	 *
+	 * @return void
+	 */
+	public function check_api_response_for_errors( $http_response, $auth_data, $url, $method, $error_type ) {
+		if ( 200 === wp_remote_retrieve_response_code( $http_response ) || ! is_array( $auth_data ) || ! $url || ! $method ) {
+			return;
+		}
+
+		$body_raw = wp_remote_retrieve_body( $http_response );
+		if ( ! $body_raw ) {
+			return;
+		}
+
+		$body = json_decode( $body_raw, true );
+		if ( empty( $body['error'] ) ) {
+			return;
+		}
+
+		$error = new \WP_Error(
+			$body['error'],
+			empty( $body['message'] ) ? '' : $body['message'],
+			array(
+				'signature_details' => array(
+					'token'     => empty( $auth_data['token'] ) ? '' : $auth_data['token'],
+					'timestamp' => empty( $auth_data['timestamp'] ) ? '' : $auth_data['timestamp'],
+					'nonce'     => empty( $auth_data['nonce'] ) ? '' : $auth_data['nonce'],
+					'body_hash' => empty( $auth_data['body_hash'] ) ? '' : $auth_data['body_hash'],
+					'method'    => $method,
+					'url'       => $url,
+				),
+				'error_type'        => in_array( $error_type, array( 'xmlrpc', 'rest' ), true ) ? $error_type : '',
+			)
+		);
+
+		$this->report_error( $error, false, true );
 	}
 
 }
