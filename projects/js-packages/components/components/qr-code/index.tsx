@@ -1,7 +1,7 @@
-import QRCodeLib from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 import type React from 'react';
 
-type QRCodeLibProps = React.ComponentProps< typeof QRCodeLib >;
+type QRCodeLibProps = React.ComponentProps< typeof QRCodeCanvas >;
 
 export type QRCodeProps = {
 	/**
@@ -58,11 +58,10 @@ const QRCode: React.FC< QRCodeProps > = ( {
 	level,
 	includeMargin,
 	imageSettings,
-	renderAs = 'canvas',
 	size = 248,
 } ) => {
 	return (
-		<QRCodeLib
+		<QRCodeCanvas
 			value={ value }
 			size={ size }
 			bgColor={ bgColor }
@@ -70,7 +69,6 @@ const QRCode: React.FC< QRCodeProps > = ( {
 			level={ level }
 			includeMargin={ includeMargin }
 			imageSettings={ imageSettings }
-			renderAs={ renderAs }
 		/>
 	);
 };
