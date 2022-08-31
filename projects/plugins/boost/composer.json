@@ -63,7 +63,10 @@
 	"autoload": {
 		"classmap": [
 			"app/"
-		]
+		],
+		"psr-4": {
+			"Automattic\\Jetpack\\Packages\\": "packages/"
+		}
 	},
 	"config": {
 		"sort-packages": true,

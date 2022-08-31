@@ -10,6 +10,9 @@
 		 */
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true,
-		"rootDir": "."
+		"rootDir": ".",
+		"paths": {
+			"@async-options/*": [ "./package/Async_Option/scripts/*" ]
+		}
 	}
 }
