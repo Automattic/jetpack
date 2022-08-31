@@ -9,11 +9,14 @@ import Checkbox from '../checkbox';
 import privacy from './privacy-icon';
 import StatsBase from './stats';
 import styles from './style.module.scss';
+import { VideoPressVideo, VideoRowProps } from './types';
 
-const millisecondsToMinutesAndSeconds = ( milliseconds: number ) => {
-	const minutes = Math.floor( milliseconds / 60000 );
-	const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
-	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
+	if ( milliseconds ) {
+		const minutes = Math.floor( milliseconds / 60000 );
+		const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
+		return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+	}
 };
 
 const PopoverWithAnchor = ( {
@@ -63,15 +66,19 @@ const ActionItem = ( {
 	);
 };
 
-const QuickActions = ( { button }: { button: React.ReactNode } ) => {
-	// Hiding it based on Design request:
-	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
-	const HIDE_QUICK_ACTIONS = true;
-
-	return (
+const QuickActions = ( {
+	button,
+	hideQuickActions,
+	hideButton,
+}: {
+	button: React.ReactNode;
+	hideQuickActions?: boolean;
+	hideButton?: boolean;
+} ) => {
+	return hideButton && hideQuickActions ? null : (
 		<div className={ styles.actions }>
-			{ button }
-			{ HIDE_QUICK_ACTIONS ? null : (
+			{ hideButton ? null : button }
+			{ hideQuickActions ? null : (
 				<>
 					<ActionItem icon={ image }>
 						{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
@@ -94,10 +101,10 @@ const Stats = ( {
 	plays,
 	isPrivate,
 }: {
-	duration: string;
-	uploadDate: string;
-	plays: number;
-	isPrivate: boolean;
+	duration?: string;
+	uploadDate?: string;
+	plays?: number;
+	isPrivate?: boolean;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
@@ -139,9 +146,9 @@ const Stats = ( {
 
 	return (
 		<StatsBase
-			privacy={ privacyElement }
+			privacy={ typeof isPrivate === 'boolean' ? privacyElement : null }
 			duration={ durationElement }
-			plays={ Number.isFinite( plays ) ? playsElement : null }
+			plays={ playsElement }
 			upload={ uploadElement }
 		/>
 	);
@@ -154,22 +161,15 @@ const VideoRow = ( {
 	posterImage,
 	duration,
 	uploadDate,
-	plays = null,
-	isPrivate = false,
+	plays,
+	isPrivate,
 	onClickEdit,
 	onSelect,
-}: {
-	className?: string;
-	checked: boolean;
-	videoTitle: string;
-	posterImage: string;
-	duration: number;
-	uploadDate: string;
-	plays: number;
-	isPrivate: boolean;
-	onClickEdit?: () => void;
-	onSelect?: ( check: boolean ) => void;
-} ) => {
+	hideEditButton,
+	// Hiding it based on Design request:
+	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
+	hideQuickActions = true,
+}: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
@@ -272,7 +272,7 @@ const VideoRow = ( {
 					onClick={ isSmall ? toggleExpand : null }
 					role="presentation"
 				>
-					<img className={ styles.poster } alt="" src={ posterImage } />
+					{ posterImage && <img className={ styles.poster } alt="" src={ posterImage } /> }
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
@@ -288,7 +288,13 @@ const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && <QuickActions button={ editDetailsButton } /> }
+						{ showActions && (
+							<QuickActions
+								button={ editDetailsButton }
+								hideButton={ hideEditButton }
+								hideQuickActions={ hideQuickActions }
+							/>
+						) }
 						{ showStats && (
 							<Stats
 								duration={ durationInMinutesAndSeconds }
@@ -305,5 +311,6 @@ const VideoRow = ( {
 	);
 };
 
+export type { VideoPressVideo };
 export { StatsBase as Stats };
 export default VideoRow;
