@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: [WP.com only] Bugfix to handle situations where the block container where we want to render a paid block upgrade banner is missing
+
+

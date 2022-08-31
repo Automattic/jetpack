@@ -175,6 +175,9 @@ class Admin_UI {
 	public static function attachment_details_two_column_template() {
 
 		?>
+		<script type="text/html" id="tmpl-videopress_iframe_vnext">
+			<iframe class="videopress-iframe" style="display: block; max-width: 100%; max-height: 100%;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+		</script>
 		<script type="text/html" id="tmpl-attachment-details-two-column-videopress">
 			<div class="attachment-media-view {{ data.orientation }}">
 				<h2 class="screen-reader-text"><?php _e( 'Attachment Preview', 'jetpack-videopress-pkg' ); ?></h2>
@@ -190,8 +193,12 @@ class Admin_UI {
 		</script>
 		<script>
 			jQuery(document).ready( function($) {
-				if( typeof wp.media.view.Attachment.Details != 'undefined' ){
-					wp.media.view.Attachment.Details.TwoColumn.prototype.initialize = function() {
+				if( typeof wp.media.view.Attachment.Details.TwoColumn != 'undefined' ){
+					var TwoColumn   = wp.media.view.Attachment.Details.TwoColumn,
+						old_render  = TwoColumn.prototype.render,
+						vp_template = wp.template('videopress_iframe_vnext');
+
+					TwoColumn.prototype.initialize = function() {
 						if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
 							this.template = wp.template( 'attachment-details-two-column-videopress' );
 						} else {
@@ -201,6 +208,23 @@ class Admin_UI {
 						this.controller.on( 'content:activate:edit-details', _.bind( this.editAttachment, this ) );
 						wp.media.view.Attachment.Details.prototype.initialize.apply( this, arguments );
 					}
+
+					// Add the VideoPress player
+					TwoColumn.prototype.render = function() {
+						// Have the original renderer run first.
+						old_render.apply( this, arguments );
+
+						// Now our stuff!
+						if ( 'video' === this.model.get('type') ) {
+							if ( this.model.get('videopress_guid') ) {
+								this.$('.attachment-media-view .thumbnail-video').html( vp_template( {
+									guid   : this.model.get('videopress_guid'),
+									width  : this.model.get('width') > 0 ? this.model.get('width') : '100%',
+									height : this.model.get('height') > 0 ? this.model.get('height') : '100%'
+								}));
+							}
+						}
+					};
 				}
 			});
 		</script>

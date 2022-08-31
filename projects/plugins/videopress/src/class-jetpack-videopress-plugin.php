@@ -12,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 /**
@@ -42,7 +41,7 @@ class Jetpack_VideoPress_Plugin {
 					)
 				);
 				// Sync package.
-				$config->ensure( 'sync', Data_Settings::MUST_SYNC_DATA_SETTINGS );
+				$config->ensure( 'sync' );
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
