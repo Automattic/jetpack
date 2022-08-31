@@ -18,6 +18,8 @@ class Admin_UI {
 
 	const JETPACK_VIDEOPRESS_PKG_NAMESPACE = 'jetpack-videopress-pkg';
 
+	const ADMIN_PAGE_SLUG = 'jetpack-videopress';
+
 	/**
 	 * Initializes the Admin UI of VideoPress
 	 *
@@ -30,7 +32,7 @@ class Admin_UI {
 			__( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ),
 			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
 			'manage_options',
-			'jetpack-videopress',
+			self::ADMIN_PAGE_SLUG,
 			array( __CLASS__, 'plugin_settings_page' ),
 			99
 		);
@@ -43,6 +45,15 @@ class Admin_UI {
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
 
+	}
+
+	/**
+	 * Gets the URL for the VideoPress admin page
+	 *
+	 * @return string
+	 */
+	public static function get_admin_page_url() {
+		return admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG );
 	}
 
 	/**
@@ -141,7 +152,7 @@ class Admin_UI {
 		}
 
 		$route = sprintf( '#/video/%d/edit', $post_id );
-		$url   = admin_url( 'admin.php?page=jetpack-videopress' . $route );
+		$url   = self::get_admin_page_url() . $route;
 
 		if ( 'display' === $context ) {
 			return esc_url( $url );
