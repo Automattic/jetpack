@@ -52,9 +52,8 @@ class Test_Modules extends TestCase {
 	 * @dataProvider provider_unfiltered_module_arrays
 	 * @param Array $enforced Enforced module list.
 	 * @param Array $filtered Module list to be filtered.
-	 * @param Array $result   The list after being filtered.
 	 */
-	public function test_garbage_input( $enforced, $filtered, $result ) {
+	public function test_garbage_input( $enforced, $filtered ) {
 		$modules = new Modules();
 		$modules->enforce( 'garbage' );
 
