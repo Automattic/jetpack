@@ -10,9 +10,10 @@ type JetpackButtonBaseProps = {
 	isExternalLink?: boolean;
 	size?: 'normal' | 'small';
 	text?: string;
-	variant?: 'primary' | 'secondary' | 'link';
+	variant?: 'primary' | 'secondary' | 'link' | 'tertiary';
 	weight?: 'bold' | 'regular';
 	fullWidth?: boolean;
+	ref: React.ForwardedRef< unknown >;
 };
 
 type JetpackLinkProps = Omit< Button.AnchorProps, 'size' | 'variant' >;

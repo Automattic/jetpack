@@ -26,6 +26,7 @@
 		"autotagger": {
 			"major": true
 		},
+		"autorelease": true,
 		"mirror-repo": "Automattic/action-test-results-to-slack",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/action-test-results-to-slack/compare/v${old}...v${new}"

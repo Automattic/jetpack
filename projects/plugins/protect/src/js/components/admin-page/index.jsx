@@ -118,6 +118,11 @@ const ProtectAdminPage = () => {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						<Col>
+							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+						</Col>
+					</Container>
 					<SeventyFiveLayout
 						main={
 							<div className={ styles[ 'main-content' ] }>
@@ -144,6 +149,11 @@ const ProtectAdminPage = () => {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						<Col>
+							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+						</Col>
+					</Container>
 					<SeventyFiveLayout
 						main={
 							<div className={ styles[ 'main-content' ] }>
@@ -186,6 +196,11 @@ const ProtectAdminPage = () => {
 	return (
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<AdminSectionHero>
+				<Container horizontalSpacing={ 0 }>
+					<Col>
+						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+					</Col>
+				</Container>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 					<Col>
 						<Summary />

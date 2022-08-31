@@ -9,7 +9,7 @@
 		"automattic/jetpack-autoloader": "^2.11",
 		"automattic/jetpack-composer-plugin": "^1.1",
 		"automattic/jetpack-config": "^1.9",
-		"automattic/jetpack-connection": "^1.43",
+		"automattic/jetpack-connection": "^1.44",
 		"automattic/jetpack-connection-ui": "^2.4",
 		"automattic/jetpack-identity-crisis": "^0.8",
 		"automattic/jetpack-my-jetpack": "^2.0",
@@ -73,7 +73,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.7.x-dev"
+			"dev-trunk": "1.8.x-dev"
 		}
 	},
 	"config": {

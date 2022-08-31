@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Enable autotag, autorelease, and autosvn actions in the composer.json extras.
+
+

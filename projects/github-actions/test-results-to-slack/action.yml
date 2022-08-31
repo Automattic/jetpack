@@ -23,6 +23,12 @@ inputs:
   slack_icon_emoji:
     description: "Emoji to use as the icon for this message."
     required: false
+  suite_name:
+    description: "Name of the test suite"
+    required: false
+  rules_configuration_path:
+    description: "Path to rules configuration file"
+    required: false
 
 runs:
   using: node16
