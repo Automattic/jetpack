@@ -1,9 +1,21 @@
-export type VideoThumbnailEditProps = {
+export type VideoThumbnailProps = {
 	/**
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
 
+	/**
+	 * Video duration. Number, in milliseconds.
+	 */
+	duration?: number;
+
+	/**
+	 * Whether is possible to edit the thumbnail
+	 */
+	editable: true;
+};
+
+export type VideoThumbnailDropdownProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
 	 */
@@ -21,11 +33,6 @@ export type VideoThumbnailEditProps = {
 };
 
 export type VideoDetailsProps = {
-	/**
-	 * Optional classname to apply to the root element.
-	 */
-	className?: string;
-
 	/**
 	 * Video filename.
 	 */
