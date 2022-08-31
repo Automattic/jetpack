@@ -33,7 +33,7 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/g* in node_modules too.
+				// Transpile @automattic/* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/' ],
 				} ),
