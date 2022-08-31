@@ -45,7 +45,7 @@
 }
 
 .video-thumbnail-edit {
-	button.thumbnail__edit-button:global(.components-button) {
+        .thumbnail__edit-button:global(.components-button) {
 		padding: var( --spacing-base );
 
 		> svg {
