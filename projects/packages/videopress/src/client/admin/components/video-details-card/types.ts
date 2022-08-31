@@ -42,4 +42,9 @@ export type VideoDetailsProps = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+
+	/**
+	 * Whether is possible to edit the thumbnail
+	 */
+	editable: true;
 };

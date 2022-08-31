@@ -80,16 +80,19 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps > = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	editable,
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
 		<div className={ classnames( styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }>
-			<VideoThumbnailDropdown
-				onUseDefaultThumbnail={ onUseDefaultThumbnail }
-				onSelectFromVideo={ onSelectFromVideo }
-				onUploadImage={ onUploadImage }
-			/>
+			{ editable && (
+				<VideoThumbnailDropdown
+					onUseDefaultThumbnail={ onUseDefaultThumbnail }
+					onSelectFromVideo={ onSelectFromVideo }
+					onUploadImage={ onUploadImage }
+				/>
+			) }
 			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 		</div>
 	);
@@ -133,6 +136,7 @@ const VideoDetailsCard: React.FC<
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	editable,
 } ) => {
 	return (
 		<div className={ styles.wrapper }>
@@ -141,6 +145,7 @@ const VideoDetailsCard: React.FC<
 				onUseDefaultThumbnail={ onUseDefaultThumbnail }
 				onSelectFromVideo={ onSelectFromVideo }
 				onUploadImage={ onUploadImage }
+				editable={ editable }
 			/>
 
 			<VideoDetails filename={ filename } src={ src } uploadDate={ uploadDate } />

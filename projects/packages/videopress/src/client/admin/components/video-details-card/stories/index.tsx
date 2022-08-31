@@ -37,6 +37,7 @@ _default.args = {
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
+	editable: true,
 };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
@@ -57,6 +58,7 @@ VideoThumbnail.args = {
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
+	editable: true,
 };
 
 const VideoThumbnailDropdownTemplate: ComponentStory<
