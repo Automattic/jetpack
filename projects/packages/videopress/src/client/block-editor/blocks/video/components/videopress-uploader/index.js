@@ -297,7 +297,7 @@ const VideoPressUploader = ( {
 			<PlaceholderWrapper disableInstructions>
 				<div className="loading-wrapper">
 					<Spinner />
-					<span>{ __( 'Loading …', 'jetpack-videopress-pkg' ) }</span>
+					<span>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</span>
 				</div>
 			</PlaceholderWrapper>
 		);
