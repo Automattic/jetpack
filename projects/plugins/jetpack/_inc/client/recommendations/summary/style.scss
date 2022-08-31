@@ -64,6 +64,11 @@
 }
 
 .jp-recommendations-summary__sidebar {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-direction: column;
+
 	@include recommendation-sidebar-blob;
 
 	padding: 2rem 2.5rem 4.5rem;
@@ -75,7 +80,6 @@
 	&.isLoading {
 		min-height: 430px;
 		display: flex;
-		align-items: center;
 		justify-content: center;
 	}
 
