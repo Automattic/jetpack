@@ -6,7 +6,7 @@ import { action } from '@storybook/addon-actions';
  * Internal dependencies
  */
 import VideoDetailsCard, {
-	VideoThumbnailEdit as VideoThumbnailEditComponent,
+	VideoThumbnail as VideoThumbnailComponent,
 	VideoDetails as VideoDetailsComponent,
 } from '..';
 import Doc from './VideoDetailsCard.mdx';
@@ -46,12 +46,12 @@ VideoDetails.args = {
 	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
 };
 
-const VideoThumbnailEditTemplate: ComponentStory<
-	typeof VideoThumbnailEditComponent
-> = VideoThumbnailEditComponent;
+const VideoThumbnailTemplate: ComponentStory<
+	typeof VideoThumbnailComponent
+> = VideoThumbnailComponent;
 
-export const VideoThumbnailEdit = VideoThumbnailEditTemplate.bind( {} );
-VideoThumbnailEdit.args = {
+export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
+VideoThumbnail.args = {
 	thumbnail,
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),

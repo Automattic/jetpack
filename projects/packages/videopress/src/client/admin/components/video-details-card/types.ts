@@ -1,9 +1,11 @@
-export type VideoThumbnailEditProps = {
+export type VideoThumbnailProps = {
 	/**
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
+};
 
+export type VideoThumbnailDropdownProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
 	 */
