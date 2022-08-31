@@ -1,3 +1,5 @@
+import type { VideoPressVideo } from '../video-row';
+
 declare global {
 	interface Window {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,20 +12,14 @@ declare global {
 	}
 }
 
-export type VideoPressVideo = {
-	id: number | string;
-	videoTitle: string;
-	uploadDate: string;
-	posterImage?: string;
-	duration?: number;
-	plays?: number;
-	isPrivate?: boolean;
-};
-
 export type LocalVideo = Omit<
 	VideoPressVideo,
 	'posterImage' | 'duration' | 'plays' | 'isPrivate'
 >;
+
+export type VideoPressLibraryProps = { videos: Array< VideoPressVideo > };
+
+export type LocalVideoLibraryProps = { videos: Array< LocalVideo > };
 
 export interface ConnectionStore {
 	getConnectionStatus: () => {

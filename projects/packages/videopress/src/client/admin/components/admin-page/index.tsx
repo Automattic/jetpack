@@ -10,15 +10,14 @@ import {
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import Logo from '../logo';
 import Pagination from '../pagination';
 import VideoList from '../video-list';
 import mock from './mock';
 import styles from './styles.module.scss';
-import { LocalVideo, VideoPressVideo, ConnectionStore } from './types';
+import { ConnectionStore, VideoPressLibraryProps, LocalVideoLibraryProps } from './types';
 
-const VideoPressLibrary = ( { videos }: { videos: Array< VideoPressVideo > } ) => {
+const VideoPressLibrary = ( { videos }: VideoPressLibraryProps ) => {
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
 			<Text variant="headline-small" mb={ 1 }>
@@ -36,14 +35,14 @@ const VideoPressLibrary = ( { videos }: { videos: Array< VideoPressVideo > } ) =
 	);
 };
 
-const LocalLibrary = ( { videos }: { videos: Array< LocalVideo > } ) => {
+const LocalLibrary = ( { videos }: LocalVideoLibraryProps ) => {
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
 			<Text variant="headline-small" mb={ 1 }>
 				Local videos
 			</Text>
 			<Text mb={ 4 }>{ videos?.length } Video</Text>
-			<VideoList videos={ videos } />
+			<VideoList hidePrivacy videos={ videos } />
 			<Pagination
 				currentPage={ 1 }
 				total={ videos?.length }

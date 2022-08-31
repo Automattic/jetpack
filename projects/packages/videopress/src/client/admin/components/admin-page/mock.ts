@@ -1,6 +1,4 @@
-import { LocalVideo, VideoPressVideo } from './types';
-
-const videos: Array< VideoPressVideo > = [
+const videos = [
 	{
 		id: 1,
 		posterImage:
@@ -53,7 +51,7 @@ const videos: Array< VideoPressVideo > = [
 	},
 ];
 
-const local: Array< LocalVideo > = [
+const local = [
 	{
 		id: 1,
 		videoTitle: 'videopress-upload-demo-7-mp4',
