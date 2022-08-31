@@ -10,6 +10,9 @@
 		 */
 		"importsNotUsedAsValues": "error",
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"@async-options/*": [ "./package/Async_Option/scripts/*" ]
+		}
 	}
 }
