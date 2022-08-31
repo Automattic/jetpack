@@ -42,7 +42,7 @@ const LocalLibrary = ( { videos }: LocalVideoLibraryProps ) => {
 				Local videos
 			</Text>
 			<Text mb={ 4 }>{ videos?.length } Video</Text>
-			<VideoList hidePrivacy hideDuration hidePlays videos={ videos } />
+			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
 			<Pagination
 				currentPage={ 1 }
 				total={ videos?.length }

@@ -212,7 +212,7 @@ const VideoRow = ( {
 		e.stopPropagation();
 	};
 
-	const editDetailsButton = (
+	const editDetailsButton = hideEditButton ? null : (
 		<Button size="small" onClick={ handleEditClick } fullWidth={ isSmall }>
 			{ editVideoLabel }
 		</Button>
