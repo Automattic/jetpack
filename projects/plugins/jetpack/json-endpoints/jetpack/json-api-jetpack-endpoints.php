@@ -1437,15 +1437,15 @@ new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint(
 	)
 );
 
-// POST /sites/%s/install-backup-helper-script
-require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php';
-new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint(
+// POST /sites/%s/install-helper-script
+require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-helper-script-endpoint.php';
+new Jetpack_JSON_API_Install_Helper_Script_Endpoint(
 	array(
-		'description'             => 'Setup a Helper Script, to allow Jetpack Backup to connect to this site',
+		'description'             => 'Setup a Helper Script, to allow Jetpack to connect to this site',
 		'group'                   => '__do_not_document',
 		'method'                  => 'POST',
-		'stat'                    => 'install-backup-helper-script',
-		'path'                    => '/sites/%s/install-backup-helper-script',
+		'stat'                    => 'install-helper-script',
+		'path'                    => '/sites/%s/install-helper-script',
 		'allow_jetpack_site_auth' => true,
 		'path_labels'             => array(
 			'$site' => '(int|string) The site ID, The site domain',
@@ -1463,19 +1463,19 @@ new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint(
 				'authorization' => 'Bearer YOUR_API_TOKEN',
 			),
 		),
-		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/install-backup-helper-script',
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/install-helper-script',
 	)
 );
 
-// POST /sites/%s/delete-backup-helper-script
-require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-backup-helper-script-endpoint.php';
-new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint(
+// POST /sites/%s/delete-helper-script
+require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-helper-script-endpoint.php';
+new Jetpack_JSON_API_Delete_Helper_Script_Endpoint(
 	array(
 		'description'             => 'Delete a Helper Script',
 		'group'                   => '__do_not_document',
 		'method'                  => 'POST',
-		'stat'                    => 'delete-backup-helper-script',
-		'path'                    => '/sites/%s/delete-backup-helper-script',
+		'stat'                    => 'delete-helper-script',
+		'path'                    => '/sites/%s/delete-helper-script',
 		'allow_jetpack_site_auth' => true,
 		'path_labels'             => array(
 			'$site' => '(int|string) The site ID, The site domain',
@@ -1491,6 +1491,6 @@ new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint(
 				'authorization' => 'Bearer YOUR_API_TOKEN',
 			),
 		),
-		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/delete-backup-helper-script',
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/delete-helper-script',
 	)
 );

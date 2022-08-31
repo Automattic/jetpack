@@ -1,20 +1,20 @@
 <?php
 /**
- * API endpoint /sites/%s/install-backup-helper-script
- * This API endpoint installs a Helper Script to assist Jetpack Backup fetch data
+ * API endpoint /sites/%s/install-helper-script
+ * This API endpoint installs a Helper Script to assist Jetpack fetch data
  *
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
+use Automattic\Jetpack\Transport_Helper\Helper_Script_Manager;
 
 /**
- * API endpoint /sites/%s/install-backup-helper-script
- * This API endpoint installs a Helper Script to assist Jetpack Backup fetch data
+ * API endpoint /sites/%s/install-helper-script
+ * This API endpoint installs a Helper Script to assist Jetpack fetch data
  */
-class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
+class Jetpack_JSON_API_Install_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
-	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
+	 * This endpoint is only accessible from Jetpack; it requires no further capabilities.
 	 *
 	 * @var array
 	 */

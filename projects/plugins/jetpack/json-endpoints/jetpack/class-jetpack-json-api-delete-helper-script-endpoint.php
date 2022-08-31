@@ -1,20 +1,20 @@
 <?php
 /**
- * API endpoint /sites/%s/delete-backup-helper-script
- * This API endpoint deletes a Jetpack Backup Helper Script
+ * API endpoint /sites/%s/delete-helper-script
+ * This API endpoint deletes a Jetpack Helper Script
  *
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
+use Automattic\Jetpack\Transport_Helper\Helper_Script_Manager;
 
 /**
- * API endpoint /sites/%s/delete-backup-helper-script
- * This API endpoint deletes a Jetpack Backup Helper Script
+ * API endpoint /sites/%s/delete-helper-script
+ * This API endpoint deletes a Jetpack Helper Script
  */
-class Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
+class Jetpack_JSON_API_Delete_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
-	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
+	 * This endpoint is only accessible from Jetpack; it requires no further capabilities.
 	 *
 	 * @var array
 	 */
