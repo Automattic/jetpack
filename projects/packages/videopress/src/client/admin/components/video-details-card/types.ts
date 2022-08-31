@@ -44,6 +44,11 @@ export type VideoDetailsProps = {
 	uploadDate: string;
 
 	/**
+	 * Video duration. Number, in milliseconds.
+	 */
+	duration?: number;
+
+	/**
 	 * Whether is possible to edit the thumbnail
 	 */
 	editable: true;

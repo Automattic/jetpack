@@ -38,6 +38,7 @@ _default.args = {
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
 	editable: true,
+	duration: ( 4 * 60 + 20 ) * 1000, // 4 minutes and 20 seconds
 };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;

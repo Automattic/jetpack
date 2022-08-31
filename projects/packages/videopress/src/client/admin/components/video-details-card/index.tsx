@@ -77,6 +77,7 @@ export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = (
  */
 export const VideoThumbnail: React.FC< VideoThumbnailProps > = ( {
 	thumbnail,
+	duration,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
@@ -93,6 +94,16 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps > = ( {
 					onUploadImage={ onUploadImage }
 				/>
 			) }
+			{ duration && (
+				<div className={ styles[ 'video-thumbnail-duration' ] }>
+					<Text variant="body-small" component="div">
+						{ duration >= 3600 * 1000
+							? gmdateI18n( 'H:i:s', duration )
+							: gmdateI18n( 'i:s', duration ) }
+					</Text>
+				</div>
+			) }
+
 			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 		</div>
 	);
@@ -131,6 +142,7 @@ const VideoDetailsCard: React.FC<
 	filename,
 	src,
 	uploadDate,
+	duration,
 
 	thumbnail,
 	onUseDefaultThumbnail,
@@ -146,6 +158,7 @@ const VideoDetailsCard: React.FC<
 				onSelectFromVideo={ onSelectFromVideo }
 				onUploadImage={ onUploadImage }
 				editable={ editable }
+				duration={ duration }
 			/>
 
 			<VideoDetails filename={ filename } src={ src } uploadDate={ uploadDate } />
