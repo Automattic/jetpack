@@ -204,12 +204,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --group=rest-api
 
 		$this->publicize = publicize_init();
-
-		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'test_connection' ) )->getMock();
-		$this->publicize->method( 'test_connection' )
-			->withAnyParameters()
-			->willReturn( true );
-
 		$this->publicize->register_post_meta();
 
 		// Flush the schema cache for those Posts Controllers that need it.
