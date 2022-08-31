@@ -1,10 +1,10 @@
 <?php
 /**
  * Module Name: Action Bar
- * Module Description: An easy to use way for visits to follow, like, and comment on your site.
+ * Module Description: An easy to use way for visitors to follow, like, and comment on your site.
  * Sort Order: 40
  * Recommendation Order: 18
- * First Introduced: 9.5
+ * First Introduced: 11.4
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
