@@ -6,8 +6,9 @@ import { action } from '@storybook/addon-actions';
  * Internal dependencies
  */
 import VideoDetailsCard, {
-	VideoThumbnail as VideoThumbnailComponent,
 	VideoDetails as VideoDetailsComponent,
+	VideoThumbnail as VideoThumbnailComponent,
+	VideoThumbnailDropdown as VideoThumbnailDropdownComponent,
 } from '..';
 import Doc from './VideoDetailsCard.mdx';
 import thumbnail from './video-thumbnail.png';
@@ -53,6 +54,17 @@ const VideoThumbnailTemplate: ComponentStory<
 export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
 VideoThumbnail.args = {
 	thumbnail,
+	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
+	onSelectFromVideo: action( 'onSelectFromVideo' ),
+	onUploadImage: action( 'onUploadImage' ),
+};
+
+const VideoThumbnailDropdownTemplate: ComponentStory<
+	typeof VideoThumbnailDropdownComponent
+> = VideoThumbnailDropdownComponent;
+
+export const VideoDropdown = VideoThumbnailDropdownTemplate.bind( {} );
+VideoDropdown.args = {
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),

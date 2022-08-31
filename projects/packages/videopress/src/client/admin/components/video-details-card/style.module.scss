@@ -19,14 +19,6 @@
 	> img {
 		width: 100%;
 	}
-
-	button.thumbnail__edit-button:global(.components-button) {
-		padding: var( --spacing-base );
-
-		> svg {
-			margin: 0;
-		}
-	}
 	
 	&:not( .is-small ) {
 		> img {
@@ -35,10 +27,18 @@
 	}
 }
 
-.videi-thumbnail-edit {
+.video-thumbnail-edit {
 	position: absolute;
 	top: var( --spacing-base );
 	right: var( --spacing-base );
+
+	button.thumbnail__edit-button:global(.components-button) {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
 }
 
 .details {

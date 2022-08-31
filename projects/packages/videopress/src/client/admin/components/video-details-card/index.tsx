@@ -15,13 +15,13 @@ import styles from './style.module.scss';
 import { VideoDetailsProps, VideoThumbnailProps, VideoThumbnailDropdownProps } from './types';
 import type React from 'react';
 
-const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
+export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
 } ) => {
 	return (
-		<div className={ styles[ 'videi-thumbnail-edit' ] }>
+		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
 				position="bottom left"
 				renderToggle={ ( { isOpen, onToggle } ) => (
