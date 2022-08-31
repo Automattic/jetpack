@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack: Hide BETA label and styles when hovering after a delay of 0.5 sec
