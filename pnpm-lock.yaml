@@ -702,30 +702,23 @@ importers:
     specifiers:
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.6
-      '@babel/plugin-transform-react-jsx': 7.18.6
-      '@preact/compat': 17.1.1
-      '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.6.0
       core-js: 3.23.5
-      preact: 10.5.15
+      sass: 1.54.4
+      sass-loader: 12.4.0
       webpack: 5.72.1
       webpack-cli: 4.9.1
-      wp-prettier: npm:wp-prettier@2.0.5
-    dependencies:
-      '@preact/compat': 17.1.1_preact@10.5.15
-      preact: 10.5.15
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.18.6
-      '@babel/plugin-transform-react-jsx': 7.18.6_@babel+core@7.18.6
-      '@wordpress/babel-plugin-import-jsx-pragma': 3.2.0_@babel+core@7.18.6
       '@wordpress/browserslist-config': 4.1.2
       '@wordpress/dependency-extraction-webpack-plugin': 3.6.0_webpack@5.72.1
       core-js: 3.23.5
+      sass: 1.54.4
+      sass-loader: 12.4.0_sass@1.54.4+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
-      wp-prettier: 2.0.5
 
   projects/packages/admin-ui:
     specifiers: {}
@@ -5378,14 +5371,6 @@ packages:
   /@popperjs/core/2.11.5:
     resolution: {integrity: sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==}
 
-  /@preact/compat/17.1.1_preact@10.5.15:
-    resolution: {integrity: sha512-OjQJ6oVcjFTiKWs4MIoE/cORFFGhqnt1RO0uxGNAFUglBMPNahMDJyX5w+qEOEaOpaNTLM1L3ixc2bFEpxgs3A==}
-    peerDependencies:
-      preact: '*'
-    dependencies:
-      preact: 10.5.15
-    dev: false
-
   /@react-spring/animated/9.4.5_react@17.0.2:
     resolution: {integrity: sha512-KWqrtvJSMx6Fj9nMJkhTwM9r6LIriExDRV6YHZV9HKQsaolUFppgkOXpC+rsL1JEtEvKv6EkLLmSqHTnuYjiIA==}
     peerDependencies:
@@ -8453,6 +8438,11 @@ packages:
       simple-html-tokenizer: 0.5.11
       uuid: 8.3.2
 
+  /@wordpress/browserslist-config/4.1.2:
+    resolution: {integrity: sha512-UH0Ifmm4tEjVPOtiqH6yxDvk2EKtqSAhnyhyfSIb0wUnEoGsWTjREZjzuhgjt/I2nTqfg+0gUSzL5D0yQH6wDQ==}
+    engines: {node: '>=12'}
+    dev: true
+
   /@wordpress/browserslist-config/5.0.0:
     resolution: {integrity: sha512-YitgByVHIBP7IscrhHVuUkZ6+qnMfATln2b3ItdyUT2gLlUmZJfqrt7UNiT6YiaArypKwkklpFw5NNtFpyvZVw==}
     engines: {node: '>=14'}
@@ -8748,6 +8738,17 @@ packages:
       '@babel/runtime': 7.18.9
       moment: 2.29.4
       moment-timezone: 0.5.34
+
+  /@wordpress/dependency-extraction-webpack-plugin/3.6.0_webpack@5.72.1:
+    resolution: {integrity: sha512-LJs2+33CJUw4vgzxAOcOXluMY+pWbO/CuBgL/ds64ydesr3uUKwLA3/tF+N76oIGObU2BM9ou3ik1vjN+dNfFw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      webpack: ^4.8.3 || ^5.0.0
+    dependencies:
+      json2php: 0.0.4
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-sources: 3.2.3
+    dev: true
 
   /@wordpress/dependency-extraction-webpack-plugin/4.0.0_webpack@5.72.1:
     resolution: {integrity: sha512-hZVmwhAK7eV9pNC/Pud8hwADJbbm01PADZyunK+Zjd8/pT5FxcDz3JaZfVQxLn6lRbJ1+N6sNTS8uEC32RbpMg==}
@@ -20091,6 +20092,28 @@ packages:
       webpack: 5.72.1_webpack-cli@4.9.1
     dev: true
 
+  /sass-loader/12.4.0_sass@1.54.4+webpack@5.72.1:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      fibers: '>= 3.1.0'
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      sass: ^1.3.0
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      fibers:
+        optional: true
+      node-sass:
+        optional: true
+      sass:
+        optional: true
+    dependencies:
+      klona: 2.0.5
+      neo-async: 2.6.2
+      sass: 1.54.4
+      webpack: 5.72.1_webpack-cli@4.9.1
+    dev: true
+
   /sass/1.38.1:
     resolution: {integrity: sha512-Lj8nPaSYOuRhgqdyShV50fY5jKnvaRmikUNalMPmbH+tKMGgEKVkltI/lP30PEfO2T1t6R9yc2QIBLgOc3uaFw==}
     engines: {node: '>=8.9.0'}
@@ -20108,6 +20131,16 @@ packages:
 
   /sass/1.54.2:
     resolution: {integrity: sha512-wbVV26sejsCIbBScZZtNkvnrB/bVCQ8hSlZ01D9nzsVh9zLqCkWrlpvTb3YEb6xsuNi9cx75hncqwikHFSz7tw==}
+    engines: {node: '>=12.0.0'}
+    hasBin: true
+    dependencies:
+      chokidar: 3.5.3
+      immutable: 4.1.0
+      source-map-js: 1.0.2
+    dev: true
+
+  /sass/1.54.4:
+    resolution: {integrity: sha512-3tmF16yvnBwtlPrNBHw/H907j8MlOX8aTBnlNX1yrKx24RKcJGPyLhFUwkoKBKesR3unP93/2z14Ll8NicwQUA==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
