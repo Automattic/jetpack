@@ -6,8 +6,9 @@ import { action } from '@storybook/addon-actions';
  * Internal dependencies
  */
 import VideoDetailsCard, {
-	VideoThumbnailEdit as VideoThumbnailEditComponent,
 	VideoDetails as VideoDetailsComponent,
+	VideoThumbnail as VideoThumbnailComponent,
+	VideoThumbnailDropdown as VideoThumbnailDropdownComponent,
 } from '..';
 import Doc from './VideoDetailsCard.mdx';
 import thumbnail from './video-thumbnail.png';
@@ -36,6 +37,8 @@ _default.args = {
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
+	editable: true,
+	duration: ( 4 * 60 + 20 ) * 1000, // 4 minutes and 20 seconds
 };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
@@ -46,13 +49,25 @@ VideoDetails.args = {
 	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
 };
 
-const VideoThumbnailEditTemplate: ComponentStory<
-	typeof VideoThumbnailEditComponent
-> = VideoThumbnailEditComponent;
+const VideoThumbnailTemplate: ComponentStory<
+	typeof VideoThumbnailComponent
+> = VideoThumbnailComponent;
 
-export const VideoThumbnailEdit = VideoThumbnailEditTemplate.bind( {} );
-VideoThumbnailEdit.args = {
+export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
+VideoThumbnail.args = {
 	thumbnail,
+	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
+	onSelectFromVideo: action( 'onSelectFromVideo' ),
+	onUploadImage: action( 'onUploadImage' ),
+	editable: true,
+};
+
+const VideoThumbnailDropdownTemplate: ComponentStory<
+	typeof VideoThumbnailDropdownComponent
+> = VideoThumbnailDropdownComponent;
+
+export const VideoDropdown = VideoThumbnailDropdownTemplate.bind( {} );
+VideoDropdown.args = {
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
