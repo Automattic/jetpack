@@ -10,13 +10,11 @@ import { withSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { AVAILABLE_SERVICES } from './constants';
-import SocialPreviewsUpgrade from './upgrade';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
 
 const SocialPreviewsModal = function SocialPreviewsModal( {
 	onClose,
-	showUpgradeNudge,
 	image,
 	title,
 	description,
@@ -44,40 +42,31 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			title={ __( 'Social Previews', 'jetpack' ) }
 			className="jetpack-social-previews__modal"
 		>
-			{ showUpgradeNudge ? (
-				<SocialPreviewsUpgrade />
-			) : (
-				<TabPanel
-					className="jetpack-social-previews__modal-previews"
-					tabs={ tabs }
-					initialTabName={ isTweetStorm ? 'twitter' : null }
-					orientation="vertical"
-				>
-					{ tab => (
-						<div>
-							<tab.preview
-								title={ title }
-								description={ description }
-								url={ url }
-								author={ author }
-								image={ image }
-								isTweetStorm={ isTweetStorm }
-								tweets={ tweets }
-							/>
-						</div>
-					) }
-				</TabPanel>
-			) }
+			<TabPanel
+				className="jetpack-social-previews__modal-previews"
+				tabs={ tabs }
+				initialTabName={ isTweetStorm ? 'twitter' : null }
+				orientation="vertical"
+			>
+				{ tab => (
+					<div>
+						<tab.preview
+							title={ title }
+							description={ description }
+							url={ url }
+							author={ author }
+							image={ image }
+							isTweetStorm={ isTweetStorm }
+							tweets={ tweets }
+						/>
+					</div>
+				) }
+			</TabPanel>
 		</Modal>
 	);
 };
 
-export default withSelect( ( select, props ) => {
-	// No need to load anything when the feature is not active.
-	if ( props.showUpgradeNudge ) {
-		return {};
-	}
-
+export default withSelect( select => {
 	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
 	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } = select(
