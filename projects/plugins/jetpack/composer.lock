@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ac4d89d394a655d571f6afe87ec0506",
+    "content-hash": "6437fa3454c673e628ab3b112d127c1a",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -290,7 +290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "e650c1f636a2df2d09d6e0a8de2a8fd39c461e3c"
+                "reference": "8518710b9f5c174709234c283d46cc1dd7886277"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -322,7 +322,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.7.x-dev"
+                    "dev-trunk": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -1535,7 +1535,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "31437883224650caa956fb658f7d6efae9605254"
+                "reference": "c62f945e04b123039c0188159f314a1e817d789b"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -1556,7 +1556,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 }
             },
             "autoload": {
@@ -1891,7 +1891,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "0bb6fe206550013da8a2c7163a84b914c90deaa3"
+                "reference": "50f5c2136f272bc8eda82a5a4ee2b556e8db697a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1934,6 +1934,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "build-production": [
                     "NODE_ENV=production BABEL_ENV=production pnpm run build"

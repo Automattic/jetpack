@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "2.0.3-alpha",
+	"version": "2.0.4-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -62,7 +62,7 @@
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
 		"storybook-addon-mock": "2.0.2",
-		"typescript": "4.7.4",
+		"typescript": "4.8.2",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
