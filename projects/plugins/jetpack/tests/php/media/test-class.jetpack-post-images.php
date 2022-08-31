@@ -635,29 +635,18 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if the array extracted is empty in case post_id is a string.
+	 * Test if the array extracted is empty in case post_id is invalid.
 	 *
 	 * @covers Jetpack_PostImages::from_gravatar
-	 * @dataProvider provider_gravatar
+	 * @dataProvider provider_gravatar_invalid_posts
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int|string|null $post_id  The post ID.
-	 * @param array           $expected The expected array.
 	 */
-	public function test_from_gravatar( $post_id, $expected ) {
+	public function test_from_gravatar_invalid( $post_id ) {
 		$image_details = Jetpack_PostImages::from_gravatar( $post_id );
-		if ( empty( $expected ) ) {
-			$this->assertEquals( $expected, $image_details );
-		} else {
-			$this->assertEquals( $expected[0]['type'], $image_details[0]['type'] );
-			$this->assertEquals( $expected[0]['from'], $image_details[0]['from'] );
-			$this->assertStringContainsString( $expected[0]['src'], $image_details[0]['src'] );
-			$this->assertEquals( $expected[0]['src_width'], $image_details[0]['src_width'] );
-			$this->assertEquals( $expected[0]['src_height'], $image_details[0]['src_height'] );
-			$this->assertEquals( $expected[0]['href'], $image_details[0]['href'] );
-			$this->assertSame( $expected[0]['alt_text'], $image_details[0]['alt_text'] );
-		}
+		$this->assertEquals( array(), $image_details );
 	}
 
 	/**
@@ -665,32 +654,38 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public function provider_gravatar() {
-		$valid_post_id = $this->factory->post->create();
+	public function provider_gravatar_invalid_posts() {
 
 		return array(
 			'invalid (null) post id'                  => array(
 				null,
-				array(),
 			),
 			'post id does not match an existing post' => array(
 				5,
-				array(),
-			),
-			'valid post'                              => array(
-				$valid_post_id,
-				array(
-					array(
-						'type'       => 'image',
-						'from'       => 'gravatar',
-						'src'        => 'gravatar.com/avatar/?s=96&d=mm&r=g',
-						'href'       => 'http://example.org/?p=4',
-						'src_width'  => 96,
-						'src_height' => 96,
-						'alt_text'   => '',
-					),
-				),
 			),
 		);
 	}
+
+	/**
+	 * Test if the array extracted has a valid image when sending a valid post.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @since $$next-version$$
+	 */
+	public function test_from_gravatar_returns_valid_image() {
+
+		$post_id = $this->factory->post->create();
+
+		$images = Jetpack_PostImages::from_gravatar( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 'image', $images[0]['type'] );
+		$this->assertEquals( 'gravatar', $images[0]['from'] );
+		$this->assertStringContainsString( 'gravatar.com/avatar/?s=96&d=mm&r=g', $images[0]['src'] );
+		$this->assertEquals( 96, $images[0]['src_width'] );
+		$this->assertEquals( 96, $images[0]['src_height'] );
+		$this->assertNotEmpty( $images[0]['href'] );
+		$this->assertSame( '', $images[0]['alt_text'] );
+	}
+
 } // end class
