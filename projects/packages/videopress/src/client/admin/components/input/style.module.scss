@@ -3,19 +3,25 @@
 	height: calc( var( --spacing-base ) * 5 ); // 40px;
 	padding: var( --spacing-base );
 	border: 1px solid var( --jp-black );
-	border-radius: 4px;
+	border-radius: var( --jp-border-radius );
 	background-color: var( --jp-white );
 	display: flex;
 
 	&:focus-within {
-		border-width: 2px;
-		padding: calc( var( --spacing-base ) - 1px ); // 7px;
+		box-shadow: 0 0 0 1px var( --jp-black ) inset;
+	}
+
+	&.disabled {
+		border-color: var( --jp-gray-10 );
+		background-color: var( --jp-gray );
+		color: var( --jp-gray-20 );
 	}
 
 	.input {
 		width: 100%;
 		border: 0;
 		outline: none;
+		background-color: transparent;
 		
 		&.with-icon {
 			margin-left: var( --spacing-base );

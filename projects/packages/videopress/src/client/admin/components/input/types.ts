@@ -17,6 +17,11 @@ export type InputProps = {
 	placeholder?: string;
 
 	/**
+	 * Whether the input is disabled.
+	 */
+	disabled?: boolean;
+
+	/**
 	 * Optional icon.
 	 */
 	icon?: React.ReactNode;

@@ -19,6 +19,11 @@ const onEnter = value => {
 	action( 'onEnter' )( value );
 };
 
+const defaultArgs = {
+	placeholder: 'Placeholder text',
+	disabled: false,
+};
+
 const Template: ComponentStory< typeof Input > = args => {
 	const [ value, setValue ] = useState( '' );
 	const onChange = inputValue => {
@@ -29,13 +34,11 @@ const Template: ComponentStory< typeof Input > = args => {
 };
 
 export const _default = Template.bind( {} );
-_default.args = {
-	placeholder: 'Placeholder text',
-};
+_default.args = defaultArgs;
 
 export const WithIcon = Template.bind( {} );
 WithIcon.args = {
-	placeholder: 'Placeholder text',
+	...defaultArgs,
 	icon: <Icon icon={ mapMarker } size={ 24 } />,
 };
 
@@ -49,3 +52,6 @@ const SearchInputTemplate: ComponentStory< typeof SearchInput > = args => {
 };
 
 export const Search = SearchInputTemplate.bind( {} );
+Search.args = {
+	disabled: false,
+};

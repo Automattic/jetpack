@@ -18,16 +18,15 @@ import type React from 'react';
  * @param {InputProps} props - Component props.
  * @returns {React.ReactNode} - Input react component.
  */
-export const Input: React.FC< InputProps > = ( {
+export const Input = ( {
 	className,
 	value,
 	placeholder,
+	disabled = true,
 	icon,
 	onChange,
 	onEnter,
-} ) => {
-	const hasIcon = icon != null;
-
+}: InputProps ) => {
 	const handleChangeEvent = useCallback(
 		( e: ChangeEvent< HTMLInputElement > ) => {
 			if ( onChange != null ) {
@@ -37,9 +36,9 @@ export const Input: React.FC< InputProps > = ( {
 		[ onChange ]
 	);
 
-	const handleKeyDownEvent = useCallback(
+	const handleKeyUpEvent = useCallback(
 		( e: KeyboardEvent< HTMLInputElement > ) => {
-			if ( onEnter != null && e.key === 'Enter' ) {
+			if ( onEnter != null && e.code === 'Enter' ) {
 				onEnter( e.currentTarget.value );
 			}
 		},
@@ -47,14 +46,16 @@ export const Input: React.FC< InputProps > = ( {
 	);
 
 	return (
-		<div className={ classnames( className, styles.wrapper ) }>
-			{ hasIcon && icon }
+		<div className={ classnames( className, styles.wrapper, { [ styles.disabled ]: disabled } ) }>
+			{ icon }
 			<input
 				placeholder={ placeholder }
 				value={ value }
-				className={ classnames( styles.input, { [ styles[ 'with-icon' ] ]: hasIcon } ) }
+				className={ classnames( styles.input, { [ styles[ 'with-icon' ] ]: icon != null } ) }
 				onChange={ handleChangeEvent }
-				onKeyDown={ handleKeyDownEvent }
+				onKeyUp={ handleKeyUpEvent }
+				disabled={ disabled }
+				aria-disabled={ disabled }
 			/>
 		</div>
 	);
@@ -66,16 +67,12 @@ export const Input: React.FC< InputProps > = ( {
  * @param {InputProps} props - Component props.
  * @returns {React.ReactNode} - Input react component.
  */
-export const SearchInput: React.FC< SearchInputProps > = ( {
+export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),
 	...componentProps
-} ) => {
+}: SearchInputProps ) => {
 	return (
-		<Input
-			{ ...componentProps }
-			icon={ <SearchIcon size={ 24 } /> }
-			placeholder={ placeholder }
-		></Input>
+		<Input { ...componentProps } icon={ <SearchIcon size={ 24 } /> } placeholder={ placeholder } />
 	);
 };
 
