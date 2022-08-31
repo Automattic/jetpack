@@ -1,0 +1,13 @@
+.jetpack-action-bar {
+	position: fixed;
+	right: var(--wp--preset--spacing--20);
+	bottom: var(--wp--preset--spacing--20);
+	background-color: var(--wp--preset--color--white);
+	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
+	border-radius: 4px;
+	margin: 0;
+}
+
+.jetpack-action-bar iframe {
+	width: 44px;
+}

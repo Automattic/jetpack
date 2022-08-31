@@ -30,17 +30,6 @@ class Action_Bar {
 				'enqueue'      => true,
 			)
 		);
-
-		$action_bar_data = 'window.WpcomActionBar = ' . wp_json_encode(
-			array(
-				'siteId'    => '123',
-				'siteURL'   => 'example.blog',
-				'siteTitle' => 'Site title',
-				'nonce'     => 'nonce',
-			)
-		);
-
-		wp_add_inline_script( 'jetpack-action-bar', $action_bar_data, 'before' );
 	}
 
 	/**
@@ -51,7 +40,31 @@ class Action_Bar {
 			return;
 		}
 
-		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
+			$post_id = get_the_ID();
+
+		if ( ! is_numeric( $post_id ) ) {
+			return;
+		}
+
+		$protocol = 'http';
+		if ( is_ssl() ) {
+			$protocol = 'https';
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$blog_id  = get_current_blog_id();
+			$bloginfo = get_blog_details( (int) $blog_id );
+			$domain   = $bloginfo->domain;
+		} else {
+			$blog_id   = \Jetpack_Options::get_option( 'id' );
+			$url       = home_url();
+			$url_parts = wp_parse_url( $url );
+			$domain    = $url_parts['host'];
+		}
+
+			$src = sprintf( 'https://widgets.wp.com/action-bar/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+
+			echo '<div class="jetpack-action-bar"><iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="' . esc_url( $src ) . '"></iframe></div>';
 	}
 
 	/**
