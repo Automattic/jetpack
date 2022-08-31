@@ -22,8 +22,8 @@ const Stats = ( {
 					{ privacy }
 				</Text>
 			) }
-			{ Boolean( duration ) && <Text component="div">{ duration }</Text> }
-			{ Boolean( plays ) && <Text component="div">{ plays }</Text> }
+			{ duration != null && <Text component="div">{ duration }</Text> }
+			{ plays != null && <Text component="div">{ plays }</Text> }
 			{ Boolean( upload ) && (
 				<Text className={ styles.upload } component="div">
 					{ upload }

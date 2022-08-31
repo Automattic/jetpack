@@ -135,7 +135,7 @@ const Stats = ( {
 		);
 
 	const playsElement =
-		isSmall && plays ? (
+		isSmall && Number.isFinite( plays ) ? (
 			<>
 				<span>{ playsLabel }</span>
 				<span>{ plays }</span>
@@ -190,7 +190,7 @@ const VideoRow = ( {
 		isSmall &&
 		( ! hideEditButton ||
 			Boolean( duration ) ||
-			Boolean( plays ) ||
+			Number.isFinite( plays ) ||
 			typeof isPrivate === 'boolean' );
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
