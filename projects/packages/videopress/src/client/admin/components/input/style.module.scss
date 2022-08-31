@@ -1,0 +1,24 @@
+.wrapper {
+	width: 100%;
+	height: calc( var( --spacing-base ) * 5 ); // 40px;
+	padding: var( --spacing-base );
+	border: 1px solid var( --jp-black );
+	border-radius: 4px;
+	background-color: var( --jp-white );
+	display: flex;
+
+	&:focus-within {
+		border-width: 2px;
+		padding: calc( var( --spacing-base ) - 1px ); // 7px;
+	}
+
+	.input {
+		width: 100%;
+		border: 0;
+		outline: none;
+		
+		&.with-icon {
+			margin-left: var( --spacing-base );
+		}
+	}
+}
