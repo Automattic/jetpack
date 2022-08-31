@@ -78,10 +78,10 @@ export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = (
 export const VideoThumbnail: React.FC< VideoThumbnailProps > = ( {
 	thumbnail,
 	duration,
+	editable,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
-	editable,
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 

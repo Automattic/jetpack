@@ -3,6 +3,16 @@ export type VideoThumbnailProps = {
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
+
+	/**
+	 * Video duration. Number, in milliseconds.
+	 */
+	duration?: number;
+
+	/**
+	 * Whether is possible to edit the thumbnail
+	 */
+	editable: true;
 };
 
 export type VideoThumbnailDropdownProps = {
@@ -24,11 +34,6 @@ export type VideoThumbnailDropdownProps = {
 
 export type VideoDetailsProps = {
 	/**
-	 * Optional classname to apply to the root element.
-	 */
-	className?: string;
-
-	/**
 	 * Video filename.
 	 */
 	filename: string;
@@ -42,14 +47,4 @@ export type VideoDetailsProps = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
-
-	/**
-	 * Video duration. Number, in milliseconds.
-	 */
-	duration?: number;
-
-	/**
-	 * Whether is possible to edit the thumbnail
-	 */
-	editable: true;
 };
