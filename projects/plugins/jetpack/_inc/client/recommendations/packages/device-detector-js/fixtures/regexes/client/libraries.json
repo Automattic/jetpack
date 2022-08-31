@@ -1,0 +1,171 @@
+[
+	{
+		"regex": "Wget(?:/(\\d+[\\.\\d]+))?",
+		"name": "Wget",
+		"version": "$1"
+	},
+	{
+		"regex": "Guzzle(?:/(\\d+[\\.\\d]+))?",
+		"name": "Guzzle (PHP HTTP Client)",
+		"version": "$1"
+	},
+	{
+		"regex": "(?:lib)?curl(?:/(\\d+[\\.\\d]+))?",
+		"name": "curl",
+		"version": "$1"
+	},
+	{
+		"regex": "python-requests(?:/(\\d+[\\.\\d]+))?",
+		"name": "Python Requests",
+		"version": "$1"
+	},
+	{
+		"regex": "Python-urllib(?:/?(\\d+[\\.\\d]+))?",
+		"name": "Python urllib",
+		"version": "$1"
+	},
+	{
+		"regex": "Java(?:/?(\\d+[\\.\\d]+))?",
+		"name": "Java",
+		"version": "$1"
+	},
+	{
+		"regex": "(?:perlclient|libwww-perl)(?:/?(\\d+[\\.\\d]+))?",
+		"name": "Perl",
+		"version": "$1"
+	},
+	{
+		"regex": "okhttp/([\\d\\.]+)",
+		"name": "OkHttp",
+		"version": "$1"
+	},
+	{
+		"regex": "HTTP_Request2(?:/(\\d+[\\.\\d]+))?",
+		"name": "HTTP_Request2",
+		"version": "$1"
+	},
+	{
+		"regex": "HTTP_Request2(?:/(\\d+[\\.\\d]+))?",
+		"name": "HTTP_Request2",
+		"version": "$1",
+		"url": "http://pear.php.net/package/http_request2"
+	},
+	{
+		"regex": "Mechanize(?:/(\\d+[\\.\\d]+))?",
+		"name": "Mechanize",
+		"version": "$1",
+		"url": "http://github.com/sparklemotion/mechanize/"
+	},
+	{
+		"regex": "aiohttp(?:/(\\d+[\\.\\d]+))?",
+		"name": "aiohttp",
+		"version": "$1"
+	},
+	{
+		"regex": "Google-HTTP-Java-Client(?:/(\\d+[\\.\\d\\w-]+))?",
+		"name": "Google HTTP Java Client",
+		"version": "$1"
+	},
+	{
+		"regex": "WWW-Mechanize(?:/(\\d+[\\.\\d]+))?",
+		"name": "WWW-Mechanize",
+		"version": "$1"
+	},
+	{
+		"regex": "Faraday(?: v(\\d+[\\.\\d]+))?",
+		"name": "Faraday",
+		"version": "$1"
+	},
+	{
+		"regex": "(?:Go-http-client|Go )/?(?:(\\d+[\\.\\d]+))?(?: package http)?",
+		"name": "Go-http-client",
+		"version": "$1"
+	},
+	{
+		"regex": "urlgrabber(?:/(\\d+[\\.\\d]+))?",
+		"name": "urlgrabber (yum)",
+		"version": "$1"
+	},
+	{
+		"regex": "libdnf(?:/(\\d+[\\.\\d]+))?",
+		"name": "libdnf",
+		"version": "$1"
+	},
+	{
+		"regex": "HTTPie(?:/(\\d+[\\.\\d]+))?",
+		"name": "HTTPie",
+		"version": "$1"
+	},
+	{
+		"regex": "rest-client/(\\d+[\\.\\d]+).*ruby",
+		"name": "REST Client for Ruby",
+		"version": "$1"
+	},
+	{
+		"regex": "RestSharp/(\\d+[\\.\\d]+)",
+		"name": "RestSharp",
+		"version": "$1",
+		"url": "http://restsharp.org/"
+	},
+	{
+		"regex": "scalaj-http/(\\d+[\\.\\d]+)",
+		"name": "ScalaJ HTTP",
+		"version": "$1",
+		"url": "https://github.com/scalaj/scalaj-http"
+	},
+	{
+		"regex": "REST::Client/(\\d+)",
+		"name": "Perl REST::Client",
+		"version": "$1",
+		"url": "https://metacpan.org/pod/REST::Client"
+	},
+	{
+		"regex": "node-fetch/(\\d+[\\.\\d]+)",
+		"name": "Node Fetch",
+		"version": "$1",
+		"url": "https://github.com/node-fetch/node-fetch"
+	},
+	{
+		"regex": "ReactorNetty/(\\d+[\\.\\d]+)",
+		"name": "ReactorNetty",
+		"version": "$1",
+		"url": "https://github.com/reactor/reactor-netty"
+	},
+	{
+		"regex": "PostmanRuntime(?:/(\\d+[\\.\\d]+))?",
+		"name": "Postman Desktop",
+		"version": "$1",
+		"url": "https://github.com/postmanlabs/postman-runtime"
+	},
+	{
+		"regex": "Jakarta Commons-HttpClient/([\\.\\d]+)",
+		"name": "Jakarta Commons HttpClient",
+		"version": "$1",
+		"url": "https://hc.apache.org/httpclient-3.x"
+	},
+	{
+		"regex": "WinHttp.WinHttpRequest.+([\\.\\d]+)",
+		"name": "WinHttp WinHttpRequest",
+		"version": "$1"
+	},
+	{
+		"regex": "Embarcadero URI Client/([\\.\\d]+)",
+		"name": "Embarcadero URI Client",
+		"version": "$1"
+	},
+	{
+		"regex": "Mikrotik/([\\.\\d]+)",
+		"name": "Mikrotik Fetch",
+		"version": "$1"
+	},
+	{
+		"regex": "GRequests(?:/(\\d+[\\.\\d]+))?",
+		"name": "GRequests",
+		"version": "$1"
+	},
+	{
+		"regex": "akka-http/([\\.\\d]+)",
+		"name": "Akka HTTP",
+		"version": "$1"
+	}
+]

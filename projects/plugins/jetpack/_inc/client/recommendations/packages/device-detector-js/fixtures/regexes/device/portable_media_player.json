@@ -1,0 +1,108 @@
+{
+	"Apple": {
+		"regex": "(?:Apple-)?iPod",
+		"device": "portable media player",
+		"models": [
+			{
+				"regex": "(?:Apple-)?iPod1[C,]1",
+				"model": "iPod Touch 1G"
+			},
+			{
+				"regex": "(?:Apple-)?iPod2[C,]1",
+				"model": "iPod Touch 2G"
+			},
+			{
+				"regex": "(?:Apple-)?iPod3[C,]1",
+				"model": "iPod Touch 3"
+			},
+			{
+				"regex": "(?:Apple-)?iPod4[C,]1",
+				"model": "iPod Touch 4"
+			},
+			{
+				"regex": "(?:Apple-)?iPod5[C,]1",
+				"model": "iPod Touch 5"
+			},
+			{
+				"regex": "(?:Apple-)?iPod7[C,]1",
+				"model": "iPod Touch 6"
+			},
+			{
+				"regex": "(?:Apple-)?iPod",
+				"model": "iPod Touch"
+			}
+		]
+	},
+	"Cowon": {
+		"regex": "COWON ([^;/]+) Build",
+		"device": "portable media player",
+		"model": "$1"
+	},
+	"Microsoft": {
+		"regex": "Microsoft ZuneHD",
+		"device": "portable media player",
+		"model": "Zune HD"
+	},
+	"Panasonic": {
+		"regex": "(SV-MV100)",
+		"device": "portable media player",
+		"model": "$1"
+	},
+	"Samsung": {
+		"regex": "YP-(G[SIPB]?1|G[57]0|GB70D)",
+		"device": "portable media player",
+		"models": [
+			{
+				"regex": "YP-G[B]?1",
+				"model": "Galaxy Player 4.0"
+			},
+			{
+				"regex": "YP-G70",
+				"model": "Galaxy Player 5.0"
+			},
+			{
+				"regex": "YP-GS1",
+				"model": "Galaxy Player 3.6"
+			},
+			{
+				"regex": "YP-GI1",
+				"model": "Galaxy Player 4.2"
+			},
+			{
+				"regex": "YP-GP1",
+				"model": "Galaxy Player 5.8"
+			},
+			{
+				"regex": "YP-G50",
+				"model": "Galaxy Player 50"
+			},
+			{
+				"regex": "YP-GB70D",
+				"model": "Galaxy Player 70 Plus"
+			}
+		]
+	},
+	"Wizz": {
+		"regex": "(DV-PTB1080)(?:[);/ ]|$)",
+		"device": "portable media player",
+		"model": "$1"
+	},
+	"SONOS": {
+		"regex": "Sonos/.+\\((?:ZP.+)\\)|Sonos;",
+		"device": "portable media player",
+		"models": [
+			{
+				"regex": "\\((ZPS(?:[13569]|1[1-578]|2[03])|ZP90)\\)",
+				"model": "$1"
+			},
+			{
+				"regex": "Sonos;Play5;",
+				"model": "Play:5"
+			},
+			{
+				"regex": "Sonos;One;",
+				"model": "One"
+			}
+		]
+	}
+}

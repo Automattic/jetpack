@@ -3,12 +3,18 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
+// import DeviceDetector from '../../packages/device-detector-js';
 import { SidebarCard } from '../sidebar-card';
-
 import './style.scss';
 
 const MobileApp = () => {
+	{
+		/* const deviceDetector = new DeviceDetector();
+	const userAgent = window.navigator.userAgent;
+	const device = deviceDetector.parse( userAgent ); */
+	}
+
 	const features = [
 		__( 'Refined post and page editor', 'jetpack' ),
 		__( 'Manage multiple sites from one dashboard', 'jetpack' ),
