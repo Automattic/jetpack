@@ -10,7 +10,6 @@ const Template = args => <RecordMeterDonut { ...args } />;
 const DefaultArgs: RecordMeterDonutProps = {
 	segmentCount: 18,
 	totalCount: 100,
-	label: 'Posts',
 	backgroundColor: '#00BA37',
 	thickness: '3.5',
 	donutWidth: '64px',

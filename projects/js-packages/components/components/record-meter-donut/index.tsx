@@ -11,11 +11,6 @@ export type RecordMeterDonutProps = {
 	 */
 	segmentCount: number;
 	/**
-	 * Label to be used for the given item.
-	 * If not provided, defaults to "record meter donut chart"
-	 */
-	label?: string;
-	/**
 	 * Color code for the background color for the item.
 	 * If not provided, defaults to Jetpack Green
 	 */
@@ -42,7 +37,6 @@ export type RecordMeterDonutProps = {
 const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	totalCount,
 	segmentCount,
-	label = __( 'record meter donut chart', 'jetpack' ),
 	backgroundColor = '#00BA37', // jetpack green fallback
 	thickness = '3.5',
 	donutWidth = '64px',
@@ -53,17 +47,22 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	};
 
 	return (
-		<div className="svg-item" aria-hidden="true">
-			<svg width={ donutWidth } height="auto" viewBox="0 0 40 40" className="donut">
+		<div className="record-meter-donut" aria-hidden="true">
+			<svg
+				width={ donutWidth }
+				height="auto"
+				viewBox="0 0 40 40"
+				className="record-meter-donut_svg"
+			>
 				<circle
-					className="donut-hole"
+					className="record-meter-donut-hole"
 					cx="20"
 					cy="20"
 					r="15.91549430918954"
 					fill="transparent"
 				></circle>
 				<circle
-					className="donut-ring"
+					className="record-meter-donut-ring"
 					cx="20"
 					cy="20"
 					r="15.91549430918954"
@@ -72,7 +71,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 					stroke="#ebebeb"
 				></circle>
 				<circle
-					className="donut-segment"
+					className="record-meter-donut-segment"
 					cx="20"
 					cy="20"
 					r="15.91549430918954"
@@ -88,12 +87,12 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 				<caption>{ __( 'Summary of the records', 'jetpack' ) }</caption>
 				<tbody>
 					<tr>
-						<th scope="col">{ __( 'Record type', 'jetpack' ) }</th>
-						<th scope="col">{ __( 'Record count', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Current usage', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Current limit', 'jetpack' ) }</th>
 					</tr>
 					<tr>
-						<td>{ label }</td>
-						<td>{ count }</td>
+						<td>{ segmentCount }</td>
+						<td>{ totalCount }</td>
 					</tr>
 				</tbody>
 			</table>
