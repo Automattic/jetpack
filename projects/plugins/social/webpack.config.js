@@ -33,9 +33,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/jetpack-* in node_modules too.
+				// Transpile @automattic/g* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
+					includeNodeModules: [ '@automattic/' ],
 				} ),
 
 				// Handle CSS.
