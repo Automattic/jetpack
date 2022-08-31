@@ -196,7 +196,7 @@ export const getStepContent = stepSlug => {
 			return {
 				question: __( 'Get more views for your new page.', 'jetpack' ),
 				description: __(
-					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. (source: <SourceLink>web.dev</SourceLink>)<br/><br/> Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%.<br/><br/> Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
 					'jetpack'
 				),
 				descriptionList: [
@@ -205,7 +205,6 @@ export const getStepContent = stepSlug => {
 					__( 'Lazy image loading and site performance scores', 'jetpack' ),
 				],
 				descriptionLink: getRedirectUrl( 'jetpack-plugin-boost-recommendation' ),
-				sourceLink: getRedirectUrl( 'jetpack-plugin-boost-recommendation-stat' ),
 				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
 			};
 		case 'creative-mail':
