@@ -19,6 +19,12 @@
 	> img {
 		width: 100%;
 	}
+
+	.video-thumbnail-edit {
+		position: absolute;
+		top: var( --spacing-base );
+		right: var( --spacing-base );
+	}
 	
 	&:not( .is-small ) {
 		> img {
@@ -28,10 +34,6 @@
 }
 
 .video-thumbnail-edit {
-	position: absolute;
-	top: var( --spacing-base );
-	right: var( --spacing-base );
-
 	button.thumbnail__edit-button:global(.components-button) {
 		padding: var( --spacing-base );
 
