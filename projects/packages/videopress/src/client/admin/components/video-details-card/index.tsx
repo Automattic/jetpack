@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { Text, Button } from '@automattic/jetpack-components';
+import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { edit, cloud, image, media } from '@wordpress/icons';
+import classnames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -26,8 +27,10 @@ export const VideoThumbnailEdit: React.FC< VideoThumbnailEditProps > = ( {
 	onSelectFromVideo,
 	onUploadImage,
 } ) => {
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
 	return (
-		<div className={ styles.thumbnail }>
+		<div className={ classnames( styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }>
 			<div className={ styles[ 'video-details-card__edit-button-container' ] }>
 				<Dropdown
 					position="bottom left"

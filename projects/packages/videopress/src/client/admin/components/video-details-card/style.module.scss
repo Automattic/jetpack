@@ -17,7 +17,6 @@
 .thumbnail {
 	position: relative;
 	> img {
-		border-radius: var( --jp-border-radius );
 		width: 100%;
 	}
 
@@ -26,6 +25,12 @@
 
 		> svg {
 			margin: 0;
+		}
+	}
+	
+	&:not( .is-small ) {
+		> img {
+			border-radius: var( --jp-border-radius );
 		}
 	}
 }
