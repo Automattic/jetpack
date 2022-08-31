@@ -45,6 +45,7 @@ const FeaturePromptComponent = props => {
 		descriptionLink,
 		descriptionList,
 		descriptionSecondary,
+		sourceLink,
 		illustration,
 		nextRoute,
 		progressValue,
@@ -150,6 +151,7 @@ const FeaturePromptComponent = props => {
 				br: <br />,
 				strong: <strong />,
 				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
+				SourceLink: <ExternalLink href={ sourceLink } />,
 			} ) }
 			content={
 				descriptionList || descriptionSecondary ? (

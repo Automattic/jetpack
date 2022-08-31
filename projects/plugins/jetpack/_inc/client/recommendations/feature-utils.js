@@ -189,14 +189,14 @@ export const getStepContent = stepSlug => {
 					'We noticed that you’ve recently enabled auto-updates for one of your plugins. Nice work, keeping plugins updated is vital for a healthy site!<br/><br/>Sometimes auto-updating plugins can cause unexpected changes on your site. Finding an older version of the plugin or learning how to install it to revert the changes can be challenging.<br/><br/>Here at Jetpack, we recommend regular backups of your site so you can go back in time with the click of a button.',
 					'jetpack'
 				),
-				ctaText: __( 'Read More', 'jetpack' ),
+				ctaText: __( 'Learn More About Site Backups', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
 			};
 		case 'boost':
 			return {
 				question: __( 'Get more views for your new page.', 'jetpack' ),
 				description: __(
-					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. (source: <SourceLink>web.dev</SourceLink>)<br/><br/> Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
 					'jetpack'
 				),
 				descriptionList: [
@@ -204,7 +204,8 @@ export const getStepContent = stepSlug => {
 					__( 'Defer non-essential Javascript', 'jetpack' ),
 					__( 'Lazy image loading and site performance scores', 'jetpack' ),
 				],
-				descriptionLink: 'https://jetpack.com/boost/',
+				descriptionLink: getRedirectUrl( 'jetpack-plugin-boost-recommendation' ),
+				sourceLink: getRedirectUrl( 'jetpack-plugin-boost-recommendation-stat' ),
 				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
 			};
 		case 'creative-mail':
