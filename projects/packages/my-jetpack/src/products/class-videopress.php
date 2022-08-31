@@ -143,7 +143,7 @@ class Videopress extends Hybrid_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( class_exists( 'Automattic\Jetpack\VideoPress\Initializer' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
+		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
 			return \Automattic\Jetpack\VideoPress\Admin_UI::get_admin_page_url();
 		} else {
 			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
