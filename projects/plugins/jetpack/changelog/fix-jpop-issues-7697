@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix an undefined array access.
