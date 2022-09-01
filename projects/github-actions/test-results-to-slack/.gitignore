@@ -2,3 +2,4 @@ dist/
 node_modules/
 vendor/
 composer.lock
+tests/ignore/*

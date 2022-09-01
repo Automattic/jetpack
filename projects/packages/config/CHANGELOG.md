@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.6] - 2022-08-26
+### Changed
+- Call ensure_options_$feature methods before the initialization
+
+## [1.9.5] - 2022-08-23
+### Changed
+- Initialize VideoPress admin UI from the package [#25692]
+
 ## [1.9.4] - 2022-08-09
 ### Changed
 - Initialize VideoPress package from the Config pkg [#25385]
@@ -136,6 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trying to add deterministic initialization.
 
+[1.9.6]: https://github.com/Automattic/jetpack-config/compare/v1.9.5...v1.9.6
+[1.9.5]: https://github.com/Automattic/jetpack-config/compare/v1.9.4...v1.9.5
 [1.9.4]: https://github.com/Automattic/jetpack-config/compare/v1.9.3...v1.9.4
 [1.9.3]: https://github.com/Automattic/jetpack-config/compare/v1.9.2...v1.9.3
 [1.9.2]: https://github.com/Automattic/jetpack-config/compare/v1.9.1...v1.9.2

@@ -9,18 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
-use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 /**
- * Class Jetpack_Videopress
+ * Class Jetpack_VideoPress_Plugin
  */
-class Jetpack_Videopress_Plugin {
+class Jetpack_VideoPress_Plugin {
 
 	/**
 	 * Constructor.
@@ -28,16 +25,6 @@ class Jetpack_Videopress_Plugin {
 	public function __construct() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
-
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VideoPress', 'jetpack-videopress' ),
-			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress' ),
-			'manage_options',
-			'jetpack-videopress',
-			array( $this, 'plugin_settings_page' ),
-			99
-		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Init Jetpack packages and ConnectionUI.
 		add_action(
@@ -54,76 +41,25 @@ class Jetpack_Videopress_Plugin {
 					)
 				);
 				// Sync package.
-				$config->ensure( 'sync', Data_Settings::MUST_SYNC_DATA_SETTINGS );
+				$config->ensure( 'sync' );
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
 
-				$config->ensure( 'videopress' );
+				$config->ensure(
+					'videopress',
+					array( 'admin_ui' => true )
+				);
 			},
 			1
 		);
 
+		add_filter( 'my_jetpack_videopress_activation', array( $this, 'my_jetpack_activation' ) );
+
+		// Register VideoPress block
+		add_action( 'init', array( $this, 'register_videopress_video_block' ) );
+
 		My_Jetpack_Initializer::init();
-	}
-
-	/**
-	 * Initialize the admin resources.
-	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-	}
-
-	/**
-	 * Enqueue plugin admin scripts and styles.
-	 */
-	public function enqueue_admin_scripts() {
-
-		Assets::register_script(
-			'jetpack-videopress',
-			'build/index.js',
-			JETPACK_VIDEOPRESS_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-videopress',
-			)
-		);
-		Assets::enqueue_script( 'jetpack-videopress' );
-		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-videopress', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-videopress', $this->render_initial_state(), 'before' );
-
-	}
-
-	/**
-	 * Render the initial state into a JavaScript variable.
-	 *
-	 * @return string
-	 */
-	public function render_initial_state() {
-		return 'var jetpackVideopressInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
-	}
-
-	/**
-	 * Get the initial state data for hydrating the React UI.
-	 *
-	 * @return array
-	 */
-	public function initial_state() {
-		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-		);
-	}
-
-	/**
-	 * Main plugin settings page.
-	 */
-	public function plugin_settings_page() {
-		?>
-			<div id="jetpack-videopress-root"></div>
-		<?php
 	}
 
 	/**
@@ -136,5 +72,29 @@ class Jetpack_Videopress_Plugin {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-videopress' );
 		$manager->remove_connection();
+	}
+
+	/**
+	 * Register the VideoPress block.
+	 */
+	public function register_videopress_video_block() {
+		VideoPress_Pkg_Initializer::register_videopress_video_block();
+	}
+
+	/**
+	 * Initializes the package when the plugin is activated via My Jetpack
+	 *
+	 * This assures that the module will be filtered and considered active and that the Manage link will point to the VideoPress Admin UI
+	 *
+	 * @param bool|WP_Error $result The result of the activation.
+	 * @return bool|WP_Error
+	 */
+	public function my_jetpack_activation( $result ) {
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		VideoPress_Pkg_Initializer::update_init_options( array( 'admin_ui' => true ) );
+		VideoPress_Pkg_Initializer::init();
+		return $result;
 	}
 }

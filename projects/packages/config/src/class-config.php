@@ -74,6 +74,8 @@ class Config {
 	 * the package to their composer project. Declaring a requirement using this method
 	 * instructs the class to initialize it.
 	 *
+	 * Run the options method (if exists) every time the method is called.
+	 *
 	 * @param String $feature the feature slug.
 	 * @param array  $options Additional options, optional.
 	 */
@@ -81,6 +83,11 @@ class Config {
 		$this->config[ $feature ] = true;
 
 		$this->set_feature_options( $feature, $options );
+
+		$method_options = 'ensure_options_' . $feature;
+		if ( method_exists( $this, $method_options ) ) {
+			$this->{ $method_options }();
+		}
 	}
 
 	/**
@@ -172,7 +179,6 @@ class Config {
 
 	/**
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
-	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature slug of the feature.
 	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
@@ -181,11 +187,6 @@ class Config {
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
 			return self::FEATURE_NOT_AVAILABLE;
-		}
-
-		$method_options = 'ensure_options_' . $feature;
-		if ( method_exists( $this, $method_options ) ) {
-			$this->{ $method_options }();
 		}
 
 		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
@@ -289,7 +290,17 @@ class Config {
 	 */
 	protected function enable_videopress() {
 		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
 
+	/**
+	 * Handles VideoPress options
+	 */
+	protected function ensure_options_videopress() {
+		$options = $this->get_feature_options( 'videopress' );
+		if ( ! empty( $options ) ) {
+			VideoPress_Pkg_Initializer::update_init_options( $options );
+		}
 		return true;
 	}
 

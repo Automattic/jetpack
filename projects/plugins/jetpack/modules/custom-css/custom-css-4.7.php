@@ -369,11 +369,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_enqueue_style( 'jetpack-customizer-css' );
 		wp_enqueue_script( 'jetpack-customizer-css' );
 
-		$content_help = __( 'Set a different content width for full size images.', 'jetpack' );
+		$content_help = __( 'Set a different media width for full size images.', 'jetpack' );
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
 				// translators: the theme name and then the default width.
-				_n( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', (int) $GLOBALS['content_width'], 'jetpack' ),
+				_n( ' The default media width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default media width for the <strong>%1$s</strong> theme is %2$d pixels.', (int) $GLOBALS['content_width'], 'jetpack' ),
 				wp_get_theme()->Name,
 				(int) $GLOBALS['content_width']
 			);
