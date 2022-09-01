@@ -122,6 +122,7 @@ jobs:
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         pnpm run test:run "${TEST_ARGS[@]}"
+        exit $(($RANDOM%2))
 
     - name: Send Slack notification
       if: ${{ failure() && ! cancelled() }}
