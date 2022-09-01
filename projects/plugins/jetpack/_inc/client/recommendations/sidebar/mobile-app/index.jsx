@@ -3,8 +3,9 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
-import { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { SidebarCard } from '../sidebar-card';
+
 import './style.scss';
 
 const MobileApp = () => {
