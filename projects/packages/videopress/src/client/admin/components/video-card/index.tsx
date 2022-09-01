@@ -163,21 +163,26 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 	);
 
 	return (
-		<div className={ styles.wrapper }>
+		<div className={ styles[ 'video-card__wrapper' ] }>
 			<VideoThumbnail thumbnail={ thumbnail } duration={ duration } editable={ editable } />
-			<div className={ styles[ 'title-section' ] }>
-				<Title className={ styles.title } mb={ 0 } size="small">
+			<div className={ styles[ 'video-card__title-section' ] }>
+				<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
 					{ title }
 				</Title>
 				<Text
 					weight="regular"
 					size="small"
 					component="div"
-					className={ styles[ 'video-plays-counter' ] }
+					className={ styles[ 'video-card__video-plays-counter' ] }
 				>
 					<Icon icon={ chartBar } />
 					{ playsCount }
 				</Text>
+			</div>
+			<div className={ styles[ 'video-card__quick-actions-section' ] }>
+				<Button variant="primary" size="small">
+					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
+				</Button>
 			</div>
 		</div>
 	);

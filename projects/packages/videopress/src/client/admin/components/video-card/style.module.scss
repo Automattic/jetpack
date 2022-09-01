@@ -65,3 +65,31 @@
 	flex-direction: column;
 	gap: calc( var( --spacing-base ) * 2 );;
 }
+
+.video-card__wrapper {
+	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
+	max-width: var( --videopress-video-item-max-width );
+}
+.video-card__title-section {
+	display: flex;
+	align-items: center;
+	margin-top: calc( var( --spacing-base ) * 2 );
+}
+
+.video-card__title {
+	flex-grow: 2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.video-card__video-plays-counter {
+	display: flex;
+	align-items: center;
+	color: var( --jp-gray-50 );
+	white-space: nowrap;
+
+	> svg {
+		fill: var( --jp-gray-50 );
+	}
+}

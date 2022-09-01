@@ -48,3 +48,13 @@ export type VideoDetailsProps = {
 	 */
 	uploadDate: string;
 };
+
+export type VideoPressVideoProp = {
+	id: number | string;
+	title: string;
+	uploadDate: string;
+	posterImage?: string;
+	duration?: number;
+	plays?: number;
+	isPrivate?: boolean;
+};
