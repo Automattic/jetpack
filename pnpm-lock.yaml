@@ -889,10 +889,17 @@ importers:
     specifiers:
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
+<<<<<<< HEAD
       '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-components': workspace:* || ^0.22
       '@automattic/jetpack-connection': workspace:* || ^0.22
       '@automattic/jetpack-licensing': workspace:* || ^0.5
+=======
+      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-components': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-licensing': workspace:* || ^0.6
+>>>>>>> e035e9f0a9 (Update dependencies)
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.19.3
       '@babel/preset-env': 7.19.3
