@@ -62,7 +62,7 @@
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.18",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
-		"@storybook/addon-actions": "6.5.9",
+		"@storybook/addon-actions": "6.5.10",
 		"@wordpress/components": "20.0.0",
 		"@wordpress/compose": "5.14.0",
 		"@wordpress/data": "7.0.0",

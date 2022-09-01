@@ -1,5 +1,10 @@
 export type VideoThumbnailProps = {
 	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
@@ -47,4 +52,46 @@ export type VideoDetailsProps = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+};
+
+export type VideoPressVideoProp = {
+	/**
+	 * Video ID
+	 */
+	id: number | string;
+
+	/**
+	 * Video title
+	 */
+	title: string;
+
+	/**
+	 * Video uploaded date
+	 */
+	uploadDate: string;
+
+	/**
+	 * Video thumbnial/poster image URL
+	 */
+	posterImage?: string;
+
+	/**
+	 * Video duration, in milliseconds
+	 */
+	duration?: number;
+
+	/**
+	 * Plays counter
+	 */
+	plays?: number;
+
+	/**
+	 * Whether the video is private, or not.
+	 */
+	isPrivate?: boolean;
+
+	/**
+	 * Callback to be invoked when clicking on the `Edit video details` button.
+	 */
+	onVideoDetailsClick?: () => void;
 };
