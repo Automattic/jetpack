@@ -147,6 +147,10 @@ class Jetpack_Social {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		$screen = get_current_screen();
+		if ( ! empty( $screen ) && 'jetpack_page_jetpack-social' !== $screen->base ) {
+			return;
+		}
 
 		Assets::register_script(
 			'jetpack-social',
@@ -171,6 +175,21 @@ class Jetpack_Social {
 	 */
 	public function render_initial_state() {
 		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+	}
+
+	/**
+	 * Get the shares data, but cache it so we don't call the API
+	 * more than once per request.
+	 *
+	 * @return array The shares data.
+	 */
+	public function get_shares_info() {
+		global $publicize;
+		static $shares_info = null;
+		if ( ! $shares_info ) {
+			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		}
+		return ! is_wp_error( $shares_info ) ? $shares_info : null;
 	}
 
 	/**
@@ -210,6 +229,23 @@ class Jetpack_Social {
 		}
 
 		return $state;
+	}
+
+	/**
+	 * Returns a boolean as to whether we have a plan that supports
+	 * sharing beyond the free limit.
+	 *
+	 * It also caches the result to make sure that we don't call the API
+	 * more than once a request.
+	 *
+	 * @returns boolean True if the site has a plan that supports a higher share limit.
+	 */
+	public function has_paid_plan() {
+		static $has_plan = null;
+		if ( null === $has_plan ) {
+			$has_plan = Current_Plan::supports( 'social-shares-1000', true );
+		}
+		return $has_plan;
 	}
 
 	/**

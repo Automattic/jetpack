@@ -1,13 +1,17 @@
-import {
-	useSocialMediaConnections,
-	useSocialMediaMessage,
-} from '@automattic/jetpack-publicize-components';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
+/**
+ * Takes an error object and returns a more meaningful error message.
+ *
+ * @param {object} result - An API error object.
+ * @returns {{ message: string, result: object }} The error message and passed in error object.
+ */
 function getHumanReadableError( result ) {
 	// Errors coming from the API.
 	const errorCode = result?.code;
@@ -58,6 +62,12 @@ function getHumanReadableError( result ) {
 	};
 }
 
+/**
+ * A hook to get the necessary data and callbacks to reshare a post.
+ *
+ * @param {number} postId - The ID of the post to share.
+ * @returns { { doPublicize: Function, data: object } } The doPublicize callback to share the post.
+ */
 export default function useSharePost( postId ) {
 	// Sharing data.
 	const { message } = useSocialMediaMessage();
