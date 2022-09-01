@@ -76,7 +76,6 @@ abstract class Hybrid_Product extends Product {
 
 		/*
 		 * Otherwise, activate Jetpack plugin.
-		 * Silent mode True to avoid redirects.
 		 */
 		if ( static::is_jetpack_plugin_installed() ) {
 			return activate_plugin( static::get_installed_plugin_filename( 'jetpack' ) );
@@ -95,7 +94,7 @@ abstract class Hybrid_Product extends Product {
 
 		if ( is_wp_error( $product_activation ) ) {
 			// If we failed to install the stand-alone plugin because the package was not found, let's try and install Jetpack plugin instead.
-			// This might happens, for example, while the stand-alone plugin was not released to the WP.org repository yet.
+			// This might happen, for example, while the stand-alone plugin was not released to the WP.org repository yet.
 			if ( 'no_package' === $product_activation->get_error_code() ) {
 				$product_activation = Plugins_Installer::install_plugin( self::JETPACK_PLUGIN_SLUG );
 				if ( ! is_wp_error( $product_activation ) ) {

@@ -12,17 +12,73 @@ import classnames from 'classnames';
  */
 import ClipboardButtonInput from '../clipboard-button-input';
 import styles from './style.module.scss';
-import { VideoDetailsProps, VideoThumbnailEditProps } from './types';
+import { VideoDetailsProps, VideoThumbnailProps, VideoThumbnailDropdownProps } from './types';
 import type React from 'react';
+
+export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
+	onUseDefaultThumbnail,
+	onSelectFromVideo,
+	onUploadImage,
+} ) => {
+	return (
+		<div className={ styles[ 'video-thumbnail-edit' ] }>
+			<Dropdown
+				position="bottom left"
+				renderToggle={ ( { isOpen, onToggle } ) => (
+					<Button
+						variant="secondary"
+						className={ styles[ 'thumbnail__edit-button' ] }
+						icon={ edit }
+						onClick={ onToggle }
+						aria-expanded={ isOpen }
+					/>
+				) }
+				renderContent={ () => (
+					<>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ image }
+							onClick={ onUseDefaultThumbnail }
+						>
+							{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
+						</Button>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ media }
+							onClick={ onSelectFromVideo }
+						>
+							{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
+						</Button>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ cloud }
+							onClick={ onUploadImage }
+						>
+							{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
+						</Button>
+					</>
+				) }
+			/>
+		</div>
+	);
+};
 
 /**
  * React component to display video thumbnail.
  *
- * @param {VideoThumbnailEditProps} props - Component props.
- * @returns {React.ReactNode} - VideoThumbnailEdit react component.
+ * @param {VideoThumbnailProps} props - Component props.
+ * @returns {React.ReactNode} - VideoThumbnail react component.
  */
-export const VideoThumbnailEdit: React.FC< VideoThumbnailEditProps > = ( {
+export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropdownProps > = ( {
 	thumbnail,
+	duration,
+	editable,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
@@ -31,51 +87,23 @@ export const VideoThumbnailEdit: React.FC< VideoThumbnailEditProps > = ( {
 
 	return (
 		<div className={ classnames( styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }>
-			<div className={ styles[ 'video-details-card__edit-button-container' ] }>
-				<Dropdown
-					position="bottom left"
-					renderToggle={ ( { isOpen, onToggle } ) => (
-						<Button
-							variant="secondary"
-							className={ styles[ 'thumbnail__edit-button' ] }
-							icon={ edit }
-							onClick={ onToggle }
-							aria-expanded={ isOpen }
-						/>
-					) }
-					renderContent={ () => (
-						<>
-							<Button
-								weight="regular"
-								fullWidth
-								variant="tertiary"
-								icon={ image }
-								onClick={ onUseDefaultThumbnail }
-							>
-								{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
-							</Button>
-							<Button
-								weight="regular"
-								fullWidth
-								variant="tertiary"
-								icon={ media }
-								onClick={ onSelectFromVideo }
-							>
-								{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-							</Button>
-							<Button
-								weight="regular"
-								fullWidth
-								variant="tertiary"
-								icon={ cloud }
-								onClick={ onUploadImage }
-							>
-								{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</>
-					) }
+			{ editable && (
+				<VideoThumbnailDropdown
+					onUseDefaultThumbnail={ onUseDefaultThumbnail }
+					onSelectFromVideo={ onSelectFromVideo }
+					onUploadImage={ onUploadImage }
 				/>
-			</div>
+			) }
+			{ duration && (
+				<div className={ styles[ 'video-thumbnail-duration' ] }>
+					<Text variant="body-small" component="div">
+						{ duration >= 3600 * 1000
+							? gmdateI18n( 'H:i:s', duration )
+							: gmdateI18n( 'i:s', duration ) }
+					</Text>
+				</div>
+			) }
+
 			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 		</div>
 	);
@@ -105,26 +133,32 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
 /**
  * Video Details Card component
  *
- * @param {VideoThumbnailEditProps} props - Component props.
+ * @param {VideoThumbnailProps} props - Component props.
  * @returns {React.ReactNode} - VideoDetailsCard react component.
  */
-const VideoDetailsCard: React.FC< VideoDetailsProps & VideoThumbnailEditProps > = ( {
+const VideoDetailsCard: React.FC<
+	VideoDetailsProps & VideoThumbnailProps & VideoThumbnailDropdownProps
+> = ( {
 	filename,
 	src,
 	uploadDate,
+	duration,
 
 	thumbnail,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	editable,
 } ) => {
 	return (
 		<div className={ styles.wrapper }>
-			<VideoThumbnailEdit
+			<VideoThumbnail
 				thumbnail={ thumbnail }
 				onUseDefaultThumbnail={ onUseDefaultThumbnail }
 				onSelectFromVideo={ onSelectFromVideo }
 				onUploadImage={ onUploadImage }
+				editable={ editable }
+				duration={ duration }
 			/>
 
 			<VideoDetails filename={ filename } src={ src } uploadDate={ uploadDate } />
