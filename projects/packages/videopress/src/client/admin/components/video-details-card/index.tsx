@@ -75,7 +75,7 @@ export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = (
  * @param {VideoThumbnailProps} props - Component props.
  * @returns {React.ReactNode} - VideoThumbnail react component.
  */
-export const VideoThumbnail: React.FC< VideoThumbnailProps > = ( {
+export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropdownProps > = ( {
 	thumbnail,
 	duration,
 	editable,

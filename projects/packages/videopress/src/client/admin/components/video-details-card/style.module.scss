@@ -1,5 +1,5 @@
 .wrapper {
-	--jp-video-details-wrapper-max-width: 360px;
+	--jp-video-details-wrapper-max-width: 392px;
 
 	max-width: var(--jp-video-details-wrapper-max-width);
 	border-radius: var( --jp-border-radius );
@@ -15,9 +15,13 @@
 }
 
 .thumbnail {
+	--videopress-video-item-aspect-radio: calc( 16 / 9 );
 	position: relative;
 	> img {
 		width: 100%;
+		object-fit: cover;
+		aspect-ratio: var( --videopress-video-item-aspect-radio );
+		height: 100%;
 	}
 
 	.video-thumbnail-edit {
