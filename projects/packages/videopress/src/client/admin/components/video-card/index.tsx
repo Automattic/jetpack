@@ -158,6 +158,7 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 	plays,
 	thumbnail,
 	editable,
+	onVideoDetailsClick,
 } ) => {
 	const playsCount = sprintf(
 		/* translators: placeholder is a product name */
@@ -189,7 +190,7 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 				</Text>
 			</div>
 			<div className={ styles[ 'video-card__quick-actions-section' ] }>
-				<Button variant="primary" size="small">
+				<Button variant="primary" size="small" onClick={ onVideoDetailsClick }>
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
 			</div>

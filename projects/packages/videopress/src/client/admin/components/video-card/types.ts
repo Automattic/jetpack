@@ -62,4 +62,5 @@ export type VideoPressVideoProp = {
 	duration?: number;
 	plays?: number;
 	isPrivate?: boolean;
+	onVideoDetailsClick?: () => void;
 };

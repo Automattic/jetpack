@@ -13,7 +13,6 @@ import {
 } from '..';
 import { postersArray, randomPoster } from '../../../mock';
 import Doc from './VideoCard.mdx';
-import styles from './style.module.scss';
 /**
  * Types
  */
@@ -34,13 +33,7 @@ export default {
 	},
 } as ComponentMeta< typeof VideoCardComponent >;
 
-const Template: ComponentStory< typeof VideoCardComponent > = args => {
-	return (
-		<div className={ styles[ 'video-card__story-wrapper' ] }>
-			<VideoCardComponent { ...args } />
-		</div>
-	);
-};
+const Template: ComponentStory< typeof VideoCardComponent > = VideoCardComponent;
 
 export const _default = Template.bind( {} );
 _default.args = {
@@ -49,6 +42,7 @@ _default.args = {
 	editable: false,
 	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
 	plays: 972,
+	onVideoDetailsClick: action( 'onVideoDetailsClick' ),
 };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
