@@ -58,7 +58,7 @@ class DeviceDetector {
 			result.device.brand = 'Apple';
 		}
 
-		if ( ! result.device?.type && this.hasIphoneFragment ) {
+		if ( ! result.device?.type && this.hasIphoneFragment( userAgent ) ) {
 			if ( ! result.device ) {
 				result.device = this.createDeviceObject();
 			}
