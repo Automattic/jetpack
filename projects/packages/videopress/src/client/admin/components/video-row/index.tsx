@@ -9,11 +9,14 @@ import Checkbox from '../checkbox';
 import privacy from './privacy-icon';
 import StatsBase from './stats';
 import styles from './style.module.scss';
+import { VideoPressVideo, VideoRowProps } from './types';
 
-const millisecondsToMinutesAndSeconds = ( milliseconds: number ) => {
-	const minutes = Math.floor( milliseconds / 60000 );
-	const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
-	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
+	if ( milliseconds ) {
+		const minutes = Math.floor( milliseconds / 60000 );
+		const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
+		return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+	}
 };
 
 const PopoverWithAnchor = ( {
@@ -63,15 +66,19 @@ const ActionItem = ( {
 	);
 };
 
-const QuickActions = ( { button }: { button: React.ReactNode } ) => {
-	// Hiding it based on Design request:
-	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
-	const HIDE_QUICK_ACTIONS = true;
-
-	return (
+const QuickActions = ( {
+	button,
+	hideQuickActions,
+	hideButton,
+}: {
+	button: React.ReactNode;
+	hideQuickActions?: boolean;
+	hideButton?: boolean;
+} ) => {
+	return hideButton && hideQuickActions ? null : (
 		<div className={ styles.actions }>
-			{ button }
-			{ HIDE_QUICK_ACTIONS ? null : (
+			{ hideButton ? null : button }
+			{ hideQuickActions ? null : (
 				<>
 					<ActionItem icon={ image }>
 						{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
@@ -94,10 +101,10 @@ const Stats = ( {
 	plays,
 	isPrivate,
 }: {
-	duration: string;
-	uploadDate: string;
-	plays: number;
-	isPrivate: boolean;
+	duration?: string;
+	uploadDate?: string;
+	plays?: number;
+	isPrivate?: boolean;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
@@ -117,31 +124,33 @@ const Stats = ( {
 		<>{ isPrivate && <Icon icon={ privacy } /> }</>
 	);
 
-	const durationElement = isSmall ? (
-		<>
-			<span>{ durationLabel }</span>
-			<span>{ duration }</span>
-		</>
-	) : (
-		duration
-	);
+	const durationElement =
+		isSmall && duration ? (
+			<>
+				<span>{ durationLabel }</span>
+				<span>{ duration }</span>
+			</>
+		) : (
+			duration
+		);
 
-	const playsElement = isSmall ? (
-		<>
-			<span>{ playsLabel }</span>
-			<span>{ plays }</span>
-		</>
-	) : (
-		plays
-	);
+	const playsElement =
+		isSmall && Number.isFinite( plays ) ? (
+			<>
+				<span>{ playsLabel }</span>
+				<span>{ plays }</span>
+			</>
+		) : (
+			plays
+		);
 
 	const uploadElement = isSmall ? null : uploadDate;
 
 	return (
 		<StatsBase
-			privacy={ privacyElement }
+			privacy={ typeof isPrivate === 'boolean' ? privacyElement : null }
 			duration={ durationElement }
-			plays={ Number.isFinite( plays ) ? playsElement : null }
+			plays={ playsElement }
 			upload={ uploadElement }
 		/>
 	);
@@ -154,22 +163,15 @@ const VideoRow = ( {
 	posterImage,
 	duration,
 	uploadDate,
-	plays = null,
-	isPrivate = false,
+	plays,
+	isPrivate,
 	onClickEdit,
 	onSelect,
-}: {
-	className?: string;
-	checked: boolean;
-	videoTitle: string;
-	posterImage: string;
-	duration: number;
-	uploadDate: string;
-	plays: number;
-	isPrivate: boolean;
-	onClickEdit?: () => void;
-	onSelect?: ( check: boolean ) => void;
-} ) => {
+	hideEditButton,
+	// Hiding it based on Design request:
+	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
+	hideQuickActions = true,
+}: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
@@ -184,6 +186,12 @@ const VideoRow = ( {
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
 	const showBottom = ! isSmall || ( isSmall && expanded );
+	const canExpand =
+		isSmall &&
+		( ! hideEditButton ||
+			Boolean( duration ) ||
+			Number.isFinite( plays ) ||
+			typeof isPrivate === 'boolean' );
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
@@ -210,8 +218,12 @@ const VideoRow = ( {
 		</Button>
 	);
 
-	const toggleExpand = () => {
-		setExpanded( current => ! current );
+	const handleInfoWrapperClick = e => {
+		if ( canExpand ) {
+			setExpanded( current => ! current );
+		} else {
+			handleClick( e );
+		}
 	};
 
 	const handleClick = e => {
@@ -269,10 +281,10 @@ const VideoRow = ( {
 			>
 				<div
 					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-					onClick={ isSmall ? toggleExpand : null }
+					onClick={ isSmall ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
-					<img className={ styles.poster } alt="" src={ posterImage } />
+					{ posterImage && <img className={ styles.poster } alt="" src={ posterImage } /> }
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
@@ -284,11 +296,17 @@ const VideoRow = ( {
 						</Text>
 						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
 					</div>
-					{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
+					{ canExpand && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && <QuickActions button={ editDetailsButton } /> }
+						{ showActions && (
+							<QuickActions
+								button={ editDetailsButton }
+								hideButton={ hideEditButton }
+								hideQuickActions={ hideQuickActions }
+							/>
+						) }
 						{ showStats && (
 							<Stats
 								duration={ durationInMinutesAndSeconds }
@@ -297,7 +315,7 @@ const VideoRow = ( {
 								isPrivate={ isPrivate }
 							/>
 						) }
-						{ isSmall && editDetailsButton }
+						{ isSmall && ! hideEditButton && editDetailsButton }
 					</div>
 				) }
 			</div>
@@ -305,5 +323,6 @@ const VideoRow = ( {
 	);
 };
 
+export type { VideoPressVideo };
 export { StatsBase as Stats };
 export default VideoRow;
