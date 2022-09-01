@@ -54,7 +54,7 @@
 	gap: calc( var(--spacing-base) * 3 ); // 24px
 	min-width: 0; // Allows flex to be smaller than the content
 	position: relative;
-	max-height: var(--content-height);
+	height: var(--content-height);
 
 	&.small {
 		cursor: pointer;
