@@ -4,8 +4,13 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+<<<<<<< HEAD
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev"
+=======
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-constants": "^1.6"
+>>>>>>> trunk
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
@@ -27,6 +32,7 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+<<<<<<< HEAD
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'",
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
@@ -34,6 +40,15 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		]
+=======
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+>>>>>>> trunk
 	},
 	"repositories": [
 		{

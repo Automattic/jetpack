@@ -22,6 +22,7 @@ class Action_Bar {
 		Assets::register_script(
 			'jetpack-action-bar',
 			'../build/action-bar.js',
+<<<<<<< HEAD
 			__FILE__, // A full path to a file or a directory inside a plugin.
 			array(
 				'dependencies' => array( 'wp-i18n' ),
@@ -30,6 +31,26 @@ class Action_Bar {
 				'enqueue'      => true,
 			)
 		);
+=======
+			__FILE__,
+			array(
+				'dependencies' => array(),
+				'in_footer'    => true,
+				'enqueue'      => true,
+			)
+		);
+
+		wp_localize_script(
+			'jetpack-action-bar',
+			'jetpackActionBar',
+			array(
+				'commentTitle' => esc_html__( 'Leave a comment', 'jetpack-action-bar' ),
+				'more'         => esc_html__( 'More options', 'jetpack-action-bar' ),
+				'follow'       => esc_html__( 'Follow site', 'jetpack-action-bar' ),
+				'like'         => esc_html__( 'Like this post', 'jetpack-action-bar' ),
+			)
+		);
+>>>>>>> trunk
 	}
 
 	/**
@@ -40,6 +61,7 @@ class Action_Bar {
 			return;
 		}
 
+<<<<<<< HEAD
 			$post_id = get_the_ID();
 
 		if ( ! is_numeric( $post_id ) ) {
@@ -65,6 +87,9 @@ class Action_Bar {
 			$src = sprintf( 'https://widgets.wp.com/action-bar/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
 			echo '<div class="jetpack-action-bar"><iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="' . esc_url( $src ) . '"></iframe></div>';
+=======
+		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
+>>>>>>> trunk
 	}
 
 	/**

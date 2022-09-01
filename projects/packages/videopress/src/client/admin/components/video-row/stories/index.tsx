@@ -33,4 +33,6 @@ _default.args = {
 	plays: 200,
 	uploadDate: '2022-08-15T21:16:59+0000',
 	isPrivate: true,
+	hideEditButton: false,
+	hideQuickActions: false,
 };

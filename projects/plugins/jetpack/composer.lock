@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "ef0f342b6c7b2791c730e97cd0aa3277",
+=======
+    "content-hash": "31d82c6a91d9dec76d7414c5ab6f4589",
+>>>>>>> trunk
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -114,11 +118,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/action-bar",
+<<<<<<< HEAD
                 "reference": "e5fc5abb587b66b80878c0300ee0756ada6e47d7"
             },
             "require": {
                 "automattic/jetpack-assets": "1.17.x-dev",
                 "automattic/jetpack-constants": "1.6.x-dev"
+=======
+                "reference": "cfd52a4e7ce083a9da55dcc7ecdd0e1a0412ba14"
+            },
+            "require": {
+                "automattic/jetpack-assets": "^1.17",
+                "automattic/jetpack-constants": "^1.6"
+>>>>>>> trunk
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -153,10 +165,17 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
+<<<<<<< HEAD
                     "echo 'Add your build step to composer.json, please!'"
                 ],
                 "build-development": [
                     "echo 'Add your build step to composer.json, please!'"
+=======
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+>>>>>>> trunk
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
@@ -352,7 +371,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "e650c1f636a2df2d09d6e0a8de2a8fd39c461e3c"
+                "reference": "8518710b9f5c174709234c283d46cc1dd7886277"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -384,7 +403,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.7.x-dev"
+                    "dev-trunk": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -1597,7 +1616,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "31437883224650caa956fb658f7d6efae9605254"
+                "reference": "c62f945e04b123039c0188159f314a1e817d789b"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
@@ -1618,7 +1637,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 }
             },
             "autoload": {
@@ -1953,7 +1972,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "0bb6fe206550013da8a2c7163a84b914c90deaa3"
+                "reference": "50f5c2136f272bc8eda82a5a4ee2b556e8db697a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1996,6 +2015,9 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "build-production": [
                     "NODE_ENV=production BABEL_ENV=production pnpm run build"
@@ -4178,6 +4200,7 @@
         },
         {
             "name": "symfony/console",
+<<<<<<< HEAD
             "version": "v6.1.4",
             "source": {
                 "type": "git",
@@ -4188,6 +4211,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/console/zipball/7fccea8728aa2d431a6725b02b3ce759049fc84d",
                 "reference": "7fccea8728aa2d431a6725b02b3ce759049fc84d",
+=======
+            "version": "v6.0.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/console.git",
+                "reference": "c5c2e313aa682530167c25077d6bdff36346251e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/console/zipball/c5c2e313aa682530167c25077d6bdff36346251e",
+                "reference": "c5c2e313aa682530167c25077d6bdff36346251e",
+>>>>>>> trunk
                 "shasum": ""
             },
             "require": {
@@ -4254,7 +4289,11 @@
                 "terminal"
             ],
             "support": {
+<<<<<<< HEAD
                 "source": "https://github.com/symfony/console/tree/v6.1.4"
+=======
+                "source": "https://github.com/symfony/console/tree/v6.0.12"
+>>>>>>> trunk
             },
             "funding": [
                 {
@@ -4270,6 +4309,7 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
             "time": "2022-08-26T10:32:31+00:00"
         },
         {
@@ -4338,6 +4378,9 @@
                 }
             ],
             "time": "2022-02-25T11:15:52+00:00"
+=======
+            "time": "2022-08-23T20:52:30+00:00"
+>>>>>>> trunk
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -4817,6 +4860,7 @@
         },
         {
             "name": "symfony/string",
+<<<<<<< HEAD
             "version": "v6.1.4",
             "source": {
                 "type": "git",
@@ -4827,6 +4871,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/string/zipball/290972cad7b364e3befaa74ba0ec729800fb161c",
                 "reference": "290972cad7b364e3befaa74ba0ec729800fb161c",
+=======
+            "version": "v6.0.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/string.git",
+                "reference": "3a975ba1a1508ad97df45f4590f55b7cc4c1a0a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/string/zipball/3a975ba1a1508ad97df45f4590f55b7cc4c1a0a0",
+                "reference": "3a975ba1a1508ad97df45f4590f55b7cc4c1a0a0",
+>>>>>>> trunk
                 "shasum": ""
             },
             "require": {
@@ -4882,7 +4938,11 @@
                 "utf8"
             ],
             "support": {
+<<<<<<< HEAD
                 "source": "https://github.com/symfony/string/tree/v6.1.4"
+=======
+                "source": "https://github.com/symfony/string/tree/v6.0.12"
+>>>>>>> trunk
             },
             "funding": [
                 {
@@ -4898,7 +4958,11 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
             "time": "2022-08-12T18:05:43+00:00"
+=======
+            "time": "2022-08-12T18:05:20+00:00"
+>>>>>>> trunk
         },
         {
             "name": "theseer/tokenizer",

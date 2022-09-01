@@ -10,7 +10,6 @@ module.exports = api => {
 						modules: false,
 						useBuiltIns: 'usage',
 					},
-					pluginReplaceTextdomain: { textdomain: 'jetpack-action-bar' },
 				},
 			],
 		],
