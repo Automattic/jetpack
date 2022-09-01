@@ -1,5 +1,10 @@
 export type VideoThumbnailProps = {
 	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
@@ -12,24 +17,24 @@ export type VideoThumbnailProps = {
 	/**
 	 * Whether is possible to edit the thumbnail
 	 */
-	editable: true;
+	editable?: boolean;
 };
 
 export type VideoThumbnailDropdownProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
 	 */
-	onUseDefaultThumbnail: () => void;
+	onUseDefaultThumbnail?: () => void;
 
 	/**
 	 * Callback to be invoked when clicking on the `Select from video` dropdown menu option.
 	 */
-	onSelectFromVideo: () => void;
+	onSelectFromVideo?: () => void;
 
 	/**
 	 * Callback to be invoked when clicking on the `Upload image` dropdown menu option.
 	 */
-	onUploadImage: () => void;
+	onUploadImage?: () => void;
 };
 
 export type VideoDetailsProps = {
@@ -47,4 +52,46 @@ export type VideoDetailsProps = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+};
+
+export type VideoPressVideoProp = {
+	/**
+	 * Video ID
+	 */
+	id: number | string;
+
+	/**
+	 * Video title
+	 */
+	title: string;
+
+	/**
+	 * Video uploaded date
+	 */
+	uploadDate: string;
+
+	/**
+	 * Video thumbnial/poster image URL
+	 */
+	posterImage?: string;
+
+	/**
+	 * Video duration, in milliseconds
+	 */
+	duration?: number;
+
+	/**
+	 * Plays counter
+	 */
+	plays?: number;
+
+	/**
+	 * Whether the video is private, or not.
+	 */
+	isPrivate?: boolean;
+
+	/**
+	 * Callback to be invoked when clicking on the `Edit video details` button.
+	 */
+	onVideoDetailsClick?: () => void;
 };

@@ -5,7 +5,7 @@ import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components
 import { __ } from '@wordpress/i18n';
 import { Icon, cloudUpload } from '@wordpress/icons';
 import classnames from 'classnames';
-import { DragEvent, useCallback, useState, useRef } from 'react';
+import { DragEvent, useCallback, useState, useRef, ChangeEvent } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,10 +24,9 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( { className, onSelec
 	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
 	const inputRef = useRef( null );
 
-	const handleFileInputChangeEvent = useCallback( ( e: Event ) => {
-		const target = e.target as HTMLInputElement;
-		onSelectFiles( target.files );
-	} );
+	const handleFileInputChangeEvent = useCallback( ( e: ChangeEvent< HTMLInputElement > ) => {
+		onSelectFiles( e.currentTarget.files );
+	}, [] );
 
 	const handleClickEvent = useCallback( () => {
 		inputRef.current.click();
