@@ -181,11 +181,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		$site_count = get_user_option( 'wpcom_site_count' );
-		if ( $site_count && $site_count > 1 ) {
-			return;
-		}
-
 		$this->add_admin_menu_separator();
 		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
