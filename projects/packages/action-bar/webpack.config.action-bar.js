@@ -2,11 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
-<<<<<<< HEAD
-	entry: { 'action-bar': path.join( __dirname, './src/action-bar.js' ) },
-=======
 	entry: { 'action-bar': path.join( __dirname, './src/js/action-bar.js' ) },
->>>>>>> trunk
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
@@ -24,22 +20,10 @@ module.exports = {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-<<<<<<< HEAD
-		},
-	},
-	node: false,
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			I18nLoaderPlugin: { textdomain: 'jetpack-action-bar' },
-		} ),
-	],
-=======
-			fs: false,
 		},
 	},
 	node: false,
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
->>>>>>> trunk
 	module: {
 		strictExportPresence: true,
 		rules: [
@@ -56,28 +40,13 @@ module.exports = {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-<<<<<<< HEAD
-				// extraLoaders: [
-				// 	{
-				// 		loader: 'postcss-loader',
-				// 		options: {
-				// 			postcssOptions: { config: path.join( __dirname, '../postcss.config.js' ) },
-				// 		},
-				// 	},
-				// 	'sass-loader',
-				// ],
-=======
->>>>>>> trunk
 			} ),
 
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
 		],
 	},
-<<<<<<< HEAD
-=======
 	externals: {
 		...jetpackWebpackConfig.externals,
 	},
->>>>>>> trunk
 };
