@@ -1041,71 +1041,6 @@
 		"regex": "(?:iTunes-)?Apple[ _]?TV|Apple/|(?:Apple-|iTunes-)?(?<!like )(?:iPad|iPhone)|iPh[0-9],[0-9]|CFNetwork|HomePod|Watch ?OS|Watch1,[12]|MDCR_Mac|ICRU_iP(?:ad|hone)",
 		"models": [
 			{
-				"regex": "HomePod",
-				"device": "smart speaker",
-				"model": "HomePod"
-			},
-			{
-				"regex": "Watch1,1",
-				"device": "wearable",
-				"model": "Watch 38mm"
-			},
-			{
-				"regex": "Watch1,2",
-				"device": "wearable",
-				"model": "Watch 42mm"
-			},
-			{
-				"regex": "Watch2,6",
-				"device": "wearable",
-				"model": "Watch Series 1 38mm"
-			},
-			{
-				"regex": "Watch2,7",
-				"device": "wearable",
-				"model": "Watch Series 1 42mm"
-			},
-			{
-				"regex": "Watch2,3",
-				"device": "wearable",
-				"model": "Watch Series 2 38mm"
-			},
-			{
-				"regex": "Watch2,4",
-				"device": "wearable",
-				"model": "Watch Series 2 42mm"
-			},
-			{
-				"regex": "Watch3,[13]",
-				"device": "wearable",
-				"model": "Watch Series 3 38mm"
-			},
-			{
-				"regex": "Watch3,[24]",
-				"device": "wearable",
-				"model": "Watch Series 3 42mm"
-			},
-			{
-				"regex": "Watch5,(?:9|11)",
-				"device": "wearable",
-				"model": "Watch SE 40mm"
-			},
-			{
-				"regex": "Watch5,1[02]",
-				"device": "wearable",
-				"model": "Watch SE 44mm"
-			},
-			{
-				"regex": "Watch([456]),[13]",
-				"device": "wearable",
-				"model": "Watch Series $1 40mm"
-			},
-			{
-				"regex": "Watch([456]),[24]",
-				"device": "wearable",
-				"model": "Watch Series $1 44mm"
-			},
-			{
 				"regex": "(?:.+_)?MacBook7(?:%2C|,)1",
 				"device": "desktop",
 				"model": "MacBook 13\" (2010)"
@@ -1706,36 +1641,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "Apple-?TV2[C,_]1",
-				"model": "Apple TV 2",
-				"device": "tv"
-			},
-			{
-				"regex": "Apple-?TV3[C,_][12]",
-				"model": "Apple TV 3",
-				"device": "tv"
-			},
-			{
-				"regex": "Apple-?TV5[C,_]3",
-				"model": "Apple TV 4",
-				"device": "tv"
-			},
-			{
-				"regex": "Apple-?TV6[C,_]2",
-				"model": "Apple TV 4K",
-				"device": "tv"
-			},
-			{
-				"regex": "(?:iTunes-)?Apple[ _]?TV",
-				"model": "Apple TV",
-				"device": "tv"
-			},
-			{
-				"regex": "HomePod",
-				"model": "HomePod",
-				"device": "smart speaker"
-			},
-			{
 				"regex": "iTunes-iPad/[0-9]+(?:\\.[0-9]+)* \\(([^;]+);",
 				"model": "iPad $1",
 				"device": "tablet"
@@ -2115,21 +2020,6 @@
 		"device": "smartphone",
 		"models": [
 			{
-				"regex": "DA220HQL(?:[);/ ]|$)",
-				"model": "DA220HQL",
-				"device": "smart display"
-			},
-			{
-				"regex": "DA241HL(?:[);/ ]|$)",
-				"model": "DA241HL",
-				"device": "smart display"
-			},
-			{
-				"regex": "(DA[0-9]+HQ?L)(?:[);/ ]|$)",
-				"model": "$1",
-				"device": "smart display"
-			},
-			{
 				"regex": "A1-81[01]",
 				"model": "Iconia A",
 				"device": "tablet"
@@ -2503,16 +2393,6 @@
 			{
 				"regex": "Akai[ _-]([^;/)]+)(?: Build|[;)])",
 				"model": "$1"
-			},
-			{
-				"regex": "AKAI,(AK3219NF)",
-				"device": "tv",
-				"model": "$1"
-			},
-			{
-				"regex": "Si2157LG32",
-				"device": "tv",
-				"model": "Si2157LG32"
 			}
 		]
 	},
@@ -3621,21 +3501,6 @@
 			{
 				"regex": "ZY-07B",
 				"model": "ZY-07B"
-			},
-			{
-				"regex": "UltraOcta-T8",
-				"device": "car browser",
-				"model": "Ultra Octa T8"
-			},
-			{
-				"regex": "QUAD-CORE T3 K2001M",
-				"device": "car browser",
-				"model": "QUAD-CORE T3 K2001M"
-			},
-			{
-				"regex": "OCTA-CORE T8",
-				"device": "car browser",
-				"model": "OCTA-CORE T8"
 			}
 		]
 	},
@@ -3999,16 +3864,6 @@
 			}
 		]
 	},
-	"ARRIS": {
-		"regex": "ARRIS",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "ARRIS[,;] ([^),;/]+)",
-				"model": "$1"
-			}
-		]
-	},
 	"Ask": {
 		"regex": "ASK[ _]",
 		"device": "smartphone",
@@ -4028,16 +3883,6 @@
 		"regex": "UL40 Build",
 		"device": "smartphone",
 		"model": "UL40"
-	},
-	"AOC": {
-		"regex": "AOC,",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(LE(?:32|43)S5970(?:s)?-20|LE55U7970-30|LE43S5977-20|U60856)",
-				"model": "$1"
-			}
-		]
 	},
 	"Assistant": {
 		"regex": "(AS[-_](?:50[123]|543[1-6]|44[12]1|541[12]|54[23]1|6431|[46]01L)|AP-(?:109|115G|721N|753G|7[25]7G|10[68]|107G|110N|941|719))[;/)_ ]",
@@ -4620,11 +4465,6 @@
 				"regex": "ZN220IC",
 				"device": "desktop",
 				"model": "Zen AiO ZN220IC"
-			},
-			{
-				"regex": "(?:ASUS_)?ZenWatch( 2)?",
-				"device": "wearable",
-				"model": "ZenWatch$1"
 			},
 			{
 				"regex": "Asus(?:-|;)?([a-z0-9]+)",
@@ -5866,11 +5706,6 @@
 				"regex": "Blaupunkt[_ ](SL[_ ]0[124]|SM[_ ]0[12])",
 				"device": "smartphone",
 				"model": "$1"
-			},
-			{
-				"regex": "(4K Android TV)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
 	},
@@ -6887,16 +6722,6 @@
 		"models": [
 			{
 				"regex": "Changhong[ ]?(X1-K|X6|R8|Z9S?|Z1S|S18)(?:[);/ ]|$)",
-				"model": "$1"
-			},
-			{
-				"regex": "ChangHong Android TV",
-				"device": "tv",
-				"model": ""
-			},
-			{
-				"regex": "(?:Opera TV.+)Changhong-([^);/]+)",
-				"device": "tv",
 				"model": "$1"
 			}
 		]
@@ -8103,11 +7928,6 @@
 			{
 				"regex": "DEXP[ _]([^);/]+)(?:[);/ ]|$)",
 				"model": "$1"
-			},
-			{
-				"regex": "(F4[38]D8000K)(?:[);/ ]|$)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
 	},
@@ -8516,24 +8336,6 @@
 			}
 		]
 	},
-	"Dune HD": {
-		"regex": "DuneHD|SOLO 4K(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "SOLO 4K(?:[);/ ]|$)",
-				"model": "Solo 4k"
-			},
-			{
-				"regex": "DuneHD/\\d.\\d \\([a-z]+__([a-z0-9_-]+);",
-				"model": "$1"
-			},
-			{
-				"regex": "DuneHD/\\d.\\d \\(([a-z0-9_-]+);",
-				"model": "$1"
-			}
-		]
-	},
 	"DNS": {
 		"regex": "(?:DNS|AirTab)[ _\\-]([^;/)]+)|(?:S4505M|S4004M|SD01M)(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -8722,11 +8524,6 @@
 			}
 		]
 	},
-	"Element": {
-		"regex": "AFTRS",
-		"model": "Element 4K (2017)",
-		"device": "tv"
-	},
 	"Elenberg": {
 		"regex": "(TAB(?:101|728)[ _]3G|TAB7(?:[03]8|16|40|3[30]))(?:[);/ ]|$)",
 		"device": "tablet",
@@ -8825,16 +8622,6 @@
 				"model": "Wooze $1"
 			}
 		]
-	},
-	"Facebook": {
-		"regex": "PortalTV",
-		"device": "tv",
-		"model": "Portal TV"
-	},
-	"Rikomagic": {
-		"regex": "MK(80[28][^/;]*) Build",
-		"device": "tv",
-		"model": "MK$1"
 	},
 	"Rinno": {
 		"regex": "Rinno (R(?:400|505))",
@@ -9592,36 +9379,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "(?:BRAVIA )(2K GB ATV3|4K UR2|4K GB ATV3|4K GB|4K 2015|2015)(?:[);/ ]|$)",
-				"model": "Bravia $1",
-				"device": "tv"
-			},
-			{
-				"regex": "NW-A100Series",
-				"model": "Walkman A100",
-				"device": "portable media player"
-			},
-			{
-				"regex": "NW-Z1000Series",
-				"model": "Walkman Z1000",
-				"device": "portable media player"
-			},
-			{
-				"regex": "SonyBDP|SonyDBV",
-				"model": "Blu-ray Player",
-				"device": "tv"
-			},
-			{
-				"regex": "(?:Sony-)?(KDL?-?[0-9a-z]+)",
-				"model": "$1",
-				"device": "tv"
-			},
-			{
-				"regex": "Opera TV Store.*(?:Sony-)([0-9a-z\\-_]+)",
-				"model": "$1",
-				"device": "tv"
-			},
-			{
 				"regex": "((?:WT|SO|ST|SK|MK)[0-9]+[a-z]*[0-9]*)(?: Build|\\))",
 				"model": "$1",
 				"brand": "Sony Ericsson"
@@ -9805,11 +9562,6 @@
 				"regex": "ERGO[_ ](B700)",
 				"model": "Tab $1",
 				"device": "tablet"
-			},
-			{
-				"regex": "ERGO SmartBox SX",
-				"model": "SmartBox SX",
-				"device": "tv"
 			}
 		]
 	},
@@ -9899,11 +9651,6 @@
 			{
 				"regex": "eZee[^a-z]*Tab ?([^;/]*) Build",
 				"model": "eZee'Tab$1"
-			},
-			{
-				"regex": "STOREX LinkBox",
-				"model": "LinkBox",
-				"device": "tv"
 			}
 		]
 	},
@@ -9944,16 +9691,6 @@
 		"regex": "EVOLVEO|StrongPhone",
 		"device": "smartphone",
 		"models": [
-			{
-				"regex": "EVOLVEO MultiMedia Box M4",
-				"device": "tv",
-				"model": "MultiMedia Box M4"
-			},
-			{
-				"regex": "Smart TV ([^;/]*) Build",
-				"device": "tv",
-				"model": "Smart TV $1"
-			},
 			{
 				"regex": "EVOLVEO StrongPhone G([248])",
 				"model": "StrongPhone G$1"
@@ -10687,21 +10424,6 @@
 		"device": "smartphone",
 		"model": "GTM-5$1"
 	},
-	"Vizio": {
-		"regex": "Vizio|VAP430|VTAB1008",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "VAP430",
-				"model": "VAP430"
-			},
-			{
-				"regex": "VTAB1008",
-				"device": "tablet",
-				"model": "VTAB1008"
-			}
-		]
-	},
 	"GOCLEVER": {
 		"regex": "GOCLEVER|QUANTUM_[0-9]{3}|QUANTUM [0-9]{1}|QUANTUM 700N|Quantum2 500|QUANTUM_(1010N|1010M|900)|ARIES|INSIGNIA|ORION_|ELIPSO|LIBRA[ _]97",
 		"device": "smartphone",
@@ -10833,16 +10555,6 @@
 				"model": "$1"
 			},
 			{
-				"regex": "CrKey[^a-z0-9]",
-				"model": "Chromecast",
-				"device": "tv"
-			},
-			{
-				"regex": "GoogleTV",
-				"device": "tv",
-				"model": "GoogleTV"
-			},
-			{
 				"regex": "Pixel(?: Build|\\))",
 				"model": "Pixel"
 			},
@@ -10908,37 +10620,6 @@
 			{
 				"regex": "GRADIENTE ([a-z0-9\\-]+)",
 				"model": "$1"
-			}
-		]
-	},
-	"Grundig": {
-		"regex": "GR?-TB[0-9]+[a-z]*|GRUNDIG|portalmmm/2\\.0 G|AFTEU(?:011|014|FF014)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(GR?-TB[0-9]+[a-z]*)",
-				"device": "tablet",
-				"model": "$1"
-			},
-			{
-				"regex": "GRUNDIG ([a-z0-9]+)",
-				"model": "$1"
-			},
-			{
-				"regex": "portalmmm/2\\.0 G([a-z0-9]+)",
-				"model": "G$1"
-			},
-			{
-				"regex": "AFTEU014",
-				"model": "Vision 7 4K (2019)"
-			},
-			{
-				"regex": "AFTEUFF014",
-				"model": "OLED 4K (2019)"
-			},
-			{
-				"regex": "AFTEU011",
-				"model": "Vision 6 HD (2019)"
 			}
 		]
 	},
@@ -11201,11 +10882,6 @@
 				"model": "$1"
 			},
 			{
-				"regex": "(HAT4KDTV)(?:[);/ ]|$)",
-				"device": "tv",
-				"model": "$1"
-			},
-			{
 				"regex": "(?:HS-)?Hisense ([^;/]+) Build",
 				"model": "$1"
 			},
@@ -11273,52 +10949,6 @@
 			{
 				"regex": "(HZ0010)(?:[);/ ]|$)",
 				"model": "$1"
-			}
-		]
-	},
-	"Minix": {
-		"regex": "NEO-(?:X8-H|U9-H|X[57]-mini|X8H-PLUS|X88-?I|X7-216A|X5-116A|X[68]|U1|Z64)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "NEO-X8-H(?:[);/ ]|$)",
-				"model": "NEO X8H"
-			},
-			{
-				"regex": "NEO-X([57])-mini(?:[);/ ]|$)",
-				"model": "NEO X$1 Mini"
-			},
-			{
-				"regex": "NEO-X8H-PLUS(?:[);/ ]|$)",
-				"model": "NEO X8H Plus"
-			},
-			{
-				"regex": "NEO-X88-?I(?:[);/ ]|$)",
-				"model": "NEO X88i"
-			},
-			{
-				"regex": "NEO-X7-216A(?:[);/ ]|$)",
-				"model": "NEO X7"
-			},
-			{
-				"regex": "NEO-X5-116A(?:[);/ ]|$)",
-				"model": "NEO X5"
-			},
-			{
-				"regex": "NEO-X([68])(?:[);/ ]|$)",
-				"model": "NEO X$1"
-			},
-			{
-				"regex": "NEO-U1(?:[);/ ]|$)",
-				"model": "NEO U1"
-			},
-			{
-				"regex": "NEO-Z64(?:[);/ ]|$)",
-				"model": "NEO Z64"
-			},
-			{
-				"regex": "NEO-U9-H(?:[);/ ]|$)",
-				"model": "NEO U9H"
 			}
 		]
 	},
@@ -12585,11 +12215,6 @@
 				"model": "dtab d-01K"
 			},
 			{
-				"regex": "LEO-BX9(?:[);/ ]|$)",
-				"device": "wearable",
-				"model": "Smart Watch 2"
-			},
-			{
 				"regex": "(MediaPad[^/;]*) Build",
 				"device": "tablet",
 				"model": "$1"
@@ -12989,11 +12614,6 @@
 			{
 				"regex": "NT-3703M",
 				"model": "NetTAB Matrix 3GT"
-			},
-			{
-				"regex": "(?:iconBIT )?(Movie Smart 4K|Movie IPTV Quad|Movie Ultra HD 4K|XDS[789]4K|Omnicast UHD)",
-				"model": "$1",
-				"device": "tv"
 			}
 		]
 	},
@@ -13150,11 +12770,6 @@
 			{
 				"regex": "Lumus[_ ]Ion(?:[);/ ]|$)",
 				"model": "Ion"
-			},
-			{
-				"regex": "LUMUS Shell [0-9A-Z]+",
-				"device": "tv",
-				"model": ""
 			}
 		]
 	},
@@ -13796,16 +13411,6 @@
 			{
 				"regex": "NS-P16AT785HD",
 				"model": "Flex Elite 7.85\""
-			},
-			{
-				"regex": "AFTEAMR311",
-				"model": "HD (2018)",
-				"device": "tv"
-			},
-			{
-				"regex": "AFTJMST12",
-				"model": "4K (2018)",
-				"device": "tv"
 			}
 		]
 	},
@@ -14193,11 +13798,6 @@
 				"regex": "K-BOOK(8MG|73G)",
 				"device": "tablet",
 				"model": "K-BOOK$1"
-			},
-			{
-				"regex": "KALLEY,(55D1240)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
 	},
@@ -15850,11 +15450,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "VR-1541F",
-				"device": "wearable",
-				"model": "Mirage Solo"
-			},
-			{
 				"regex": "LENOVO/81W8(?:[);/ ]|$)",
 				"device": "desktop",
 				"model": "IdeaPad S145-15IIL"
@@ -16684,21 +16279,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "webOS.TV",
-				"device": "tv",
-				"model": "WebOS TV"
-			},
-			{
-				"regex": "LGE_DLNA_SDK|NetCast",
-				"device": "tv",
-				"model": "NetCast"
-			},
-			{
-				"regex": "LG Watch Urbane",
-				"device": "wearable",
-				"model": "Watch Urbane"
-			},
-			{
 				"regex": "(LM-[A-Z]{1}[0-9]{3}([A-Z]{1,3})?)",
 				"model": "$1"
 			},
@@ -16738,11 +16318,6 @@
 			{
 				"regex": "(VX[0-9]+)",
 				"model": "$1"
-			},
-			{
-				"regex": "Web0S; Linux/SmartTV",
-				"device": "tv",
-				"model": ""
 			}
 		]
 	},
@@ -18214,60 +17789,6 @@
 		"device": "smartphone",
 		"model": "$1"
 	},
-	"Mecool": {
-		"regex": "(?:KM9PRO|BB2 PRO|K[I]{1,3} PRO|KI PLUS|KM9_TV_BOX|M8SPROW|M8S (?:PLUS|PRO) (?:DVB|[LW]|PLUS)|M8S (?:MAX|PRO))(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "KM9PRO(?:[);/ ]|$)",
-				"model": "KM9 Pro"
-			},
-			{
-				"regex": "KM9_TV_BOX(?:[);/ ]|$)",
-				"model": "KM9 TV Box"
-			},
-			{
-				"regex": "BB2 PRO(?:[);/ ]|$)",
-				"model": "BB2 Pro"
-			},
-			{
-				"regex": "(K[I]{1,3}) PRO(?:[);/ ]|$)",
-				"model": "$1 Pro"
-			},
-			{
-				"regex": "KI PLUS(?:[);/ ]|$)",
-				"model": "KI Plus"
-			},
-			{
-				"regex": "M8SPROW(?:[);/ ]|$)",
-				"model": "M8S Pro W"
-			},
-			{
-				"regex": "M8S PLUS DVB(?:[);/ ]|$)",
-				"model": "M8S Plus DVB"
-			},
-			{
-				"regex": "M8S PLUS ([LW])(?:[);/ ]|$)",
-				"model": "M8S Plus $1"
-			},
-			{
-				"regex": "M8S PRO ([LW])(?:[);/ ]|$)",
-				"model": "M8S Pro $1"
-			},
-			{
-				"regex": "M8S PRO PLUS(?:[);/ ]|$)",
-				"model": "M8S Pro Plus"
-			},
-			{
-				"regex": "M8S PRO(?:[);/ ]|$)",
-				"model": "M8S Pro"
-			},
-			{
-				"regex": "M8S MAX(?:[);/ ]|$)",
-				"model": "M8S Max"
-			}
-		]
-	},
 	"Modecom": {
 		"regex": "Modecom|Free(?:Way )?Tab|xino z[\\d]+ x[\\d]+",
 		"device": "tablet",
@@ -18305,16 +17826,6 @@
 			},
 			{
 				"regex": "Mofut[ _\\-]?((?!Build)[^);/ ]+)",
-				"model": "$1"
-			}
-		]
-	},
-	"BrightSign": {
-		"regex": "BrightSign",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(HD1023|XD233|XD230|XD1030|XT114[34]|4K1142|LS424)",
 				"model": "$1"
 			}
 		]
@@ -19166,16 +18677,6 @@
 		"device": "feature phone",
 		"model": "$1"
 	},
-	"Netgear": {
-		"regex": "GTV100",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "GTV100",
-				"model": "NeoTV Prime"
-			}
-		]
-	},
 	"NeuImage": {
 		"regex": "NIM-",
 		"device": "smartphone",
@@ -19515,21 +19016,6 @@
 			{
 				"regex": "(SHIELD Tablet K1|Tegra Note 7)(?: Build|[;)])",
 				"model": "$1"
-			},
-			{
-				"regex": "SHIELD Android TV",
-				"model": "SHIELD Android TV",
-				"device": "tv"
-			},
-			{
-				"regex": "NVIDIA_SHIELD_PRO_2019",
-				"model": "SHIELD TV Pro",
-				"device": "tv"
-			},
-			{
-				"regex": "NVIDIA Shield",
-				"model": "SHIELD TV",
-				"device": "tv"
 			}
 		]
 	},
@@ -20779,11 +20265,6 @@
 		"device": "smartphone",
 		"models": [
 			{
-				"regex": "SC/IHD92",
-				"model": "Livebox Play",
-				"device": "tv"
-			},
-			{
 				"regex": "Nura 2",
 				"model": "Nura 2"
 			},
@@ -21042,11 +20523,6 @@
 				"model": "Eluga $1"
 			},
 			{
-				"regex": "(DMC-CM1)",
-				"model": "Lumix $1",
-				"device": "camera"
-			},
-			{
 				"regex": "P-02D(?:[);/ ]|$)",
 				"model": "Lumix Phone P-02D"
 			},
@@ -21067,21 +20543,6 @@
 				"regex": "P902i(?:[);/ ]|$)",
 				"device": "feature phone",
 				"model": "P902i"
-			},
-			{
-				"regex": "Panasonic MIL DLNA",
-				"device": "tv",
-				"model": "Viera Cast"
-			},
-			{
-				"regex": "PANATV[0-9]+|Viera/",
-				"device": "tv",
-				"model": "Smart TV"
-			},
-			{
-				"regex": "(43D1200|(?:32|43)D1270|32D1280)",
-				"device": "tv",
-				"model": "$1"
 			},
 			{
 				"regex": "Panasonic[ _\\-]?([a-z0-9]+)",
@@ -21250,30 +20711,6 @@
 			{
 				"regex": "T799[BH](?:[);/ ]|$)",
 				"model": "10 Pro"
-			},
-			{
-				"regex": "(Percee TV)(?:[);/ ]|$)",
-				"device": "tv",
-				"model": "$1"
-			},
-			{
-				"regex": "((?:43|55)S62FS|(?:43|50)P65US|U(?:43|60)P60|65P4USM|(?:40|49)S62|L32S6|55P610|50P8S|55S62|(?:43|50)P6US|55DP60)",
-				"device": "tv",
-				"model": "$1"
-			}
-		]
-	},
-	"JVC": {
-		"regex": "JVC[;,]|JVC Shell",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "JVC Shell [0-9A-Z]+",
-				"model": ""
-			},
-			{
-				"regex": "JVC[;,](32D1290)",
-				"model": "$1"
 			}
 		]
 	},
@@ -21317,11 +20754,6 @@
 				"regex": "dvr700pi",
 				"model": "DVR700PI 7.0\"",
 				"device": "tablet"
-			},
-			{
-				"regex": "(XDP-300R)",
-				"device": "portable media player",
-				"model": "$1"
 			}
 		]
 	},
@@ -21412,16 +20844,6 @@
 		"regex": "POV_TV|POV_TAB|MOB-5045",
 		"device": "tablet",
 		"models": [
-			{
-				"regex": "POV_TV-HDMI-KB-01",
-				"model": "HDMI Smart TV Dongle",
-				"device": "tv"
-			},
-			{
-				"regex": "POV_TV-HDMI-200BT",
-				"model": "Mini PC HDMI Dongle",
-				"device": "tv"
-			},
 			{
 				"regex": "MOB-5045",
 				"model": "Mobii Phone 5045",
@@ -21568,11 +20990,6 @@
 			}
 		]
 	},
-	"Roku": {
-		"regex": "Roku/DVP",
-		"device": "tv",
-		"model": "Digital Video Player"
-	},
 	"Rokit": {
 		"regex": "IO Pro",
 		"device": "smartphone",
@@ -21580,20 +20997,6 @@
 			{
 				"regex": "IO Pro",
 				"model": "IO Pro"
-			}
-		]
-	},
-	"Rombica": {
-		"regex": "(Rombica|SSQ-A0500|Smart Box v[0-9]+)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "SSQ-A0500(?:[);/ ]|$)",
-				"model": "Smart Stick 4K"
-			},
-			{
-				"regex": "(Infinity K8|Smart Box (?:v00[345789]|Quad|Ultra HD v002|4K V001))(?:[);/ ]|$)",
-				"model": "$1"
 			}
 		]
 	},
@@ -21733,30 +21136,10 @@
 			}
 		]
 	},
-	"Soundmax": {
-		"regex": "((?:SM-LED32M(?:11|04)S)(?:_-Ver01)?|SM-LED40M04S)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Samsung": {
 		"regex": "SAMSUNG(?! ?Browser)|Maple (?!III)|SC-(?:01[FGHKLM]|02[CGHJKLM]|03[JKL]|04[EJL]|05[GL]|(?:4[12]|5[1234])A)|N[57]100|N5110|N9100|S(?:CH|GH|PH|EC|AM|HV|HW|M)-|SMART-TV|GT-|(?<!GOG|GOG )Galaxy|(?:portalmmm|o2imode)/2\\.0 [SZ]|sam[rua]|vollo Vi86(?:[);/ ]|$)|(?:OTV-)?SMT-E5015|ISW11SC|SCV4[0-9]|SCV3[1-9]|40[34]SC|SCL2[234]|SCG0[1-7]|SCT21",
 		"device": "smartphone",
 		"models": [
-			{
-				"regex": "GT-B9150",
-				"device": "tv",
-				"model": "Home Sync"
-			},
-			{
-				"regex": "(?:OTV-)?SMT-E5015",
-				"device": "tv",
-				"model": "SMT-E5015"
-			},
-			{
-				"regex": "Maple ",
-				"device": "tv",
-				"model": ""
-			},
 			{
 				"regex": "(?:SAMSUNG-)?(?:GT-)?N5100",
 				"device": "tablet",
@@ -22321,11 +21704,6 @@
 				"regex": "(?:SAMSUNG[- ])?SM-T2519",
 				"model": "Galaxy Tab Q",
 				"device": "tablet"
-			},
-			{
-				"regex": "(?:SAMSUNG )?SM-R820",
-				"device": "wearable",
-				"model": "Galaxy Watch Active 2"
 			},
 			{
 				"regex": "(?:SAMSUNG-)?SM-G850(?:8S|[AFKLMSWXY])",
@@ -23824,11 +23202,6 @@
 				"model": "$1"
 			},
 			{
-				"regex": "SMART-TV",
-				"device": "tv",
-				"model": "Smart TV"
-			},
-			{
 				"regex": "Galaxy ([^/;]+) Build",
 				"model": "Galaxy $1"
 			},
@@ -24094,16 +23467,6 @@
 			},
 			{
 				"regex": "SKY[_ ]([3-7]\\.[05](?:[A-Z]{1,2})?)",
-				"model": "$1"
-			}
-		]
-	},
-	"Skyworth": {
-		"regex": "Sky_?worth",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "Sky_?worth ([^;/]+) Build",
 				"model": "$1"
 			}
 		]
@@ -24412,18 +23775,8 @@
 				"regex": "Friendly_TH101",
 				"device": "smartphone",
 				"model": "Friendly TH101"
-			},
-			{
-				"regex": "((?:49|55)UC6306|55UC63|32HD55|40FD54|55UD63)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
-	},
-	"Tanix": {
-		"regex": "TX5 MAX(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "TX5 Max"
 	},
 	"Pantech": {
 		"regex": "Pantech|P[GN]-|PT-[a-z0-9]{3,}|(?<!Winmax )TX[T]?[0-9]+|IM-[a-z0-9]+(?:[);/ ]|$)|ADR910L",
@@ -25551,16 +24904,6 @@
 				"model": "dtab d-41A"
 			},
 			{
-				"regex": "(LC-(?:[0-9]{2})[a-z0-9]+)(?:[);/ ]|$)",
-				"device": "tv",
-				"model": "$1"
-			},
-			{
-				"regex": "SHARP-AQUOS|AQUOSBrowser",
-				"device": "tv",
-				"model": "Aquos Net Plus"
-			},
-			{
 				"regex": "SHARP[ \\-]([a-z0-9\\-]+)",
 				"model": "$1"
 			},
@@ -25656,31 +24999,6 @@
 		"regex": "KF(?:OT|ONWI|TT|JWI|JWA|[DFS]OWI|A[PRSU]WI|T[BH]WI|SAW[IA]|GIWI|KAWI|MAWI|MEWI|MUWI|SUWI)(?:[);/ ]|$)|Kindle|Silk/\\d+\\.\\d+|AlexaMediaPlayer|Amazon (?:Tate|Jem)|AFT[ABMNRST]|SD4930UR|AEO(BC|KN)(?:[);/ ]|$)",
 		"device": "tablet",
 		"models": [
-			{
-				"regex": "AFTA",
-				"model": "Fire TV Cube (Gen 1)",
-				"device": "tv"
-			},
-			{
-				"regex": "AFTR",
-				"model": "Fire TV Cube (Gen 2)",
-				"device": "tv"
-			},
-			{
-				"regex": "AFTN",
-				"model": "Fire TV (Gen 3)",
-				"device": "tv"
-			},
-			{
-				"regex": "AFTB",
-				"model": "Fire TV",
-				"device": "tv"
-			},
-			{
-				"regex": "AFT[MST]",
-				"model": "Fire TV stick",
-				"device": "tv"
-			},
 			{
 				"regex": "KFFOWI(?:[);/ ]|$)",
 				"model": "Fire 7\""
@@ -25785,16 +25103,6 @@
 			{
 				"regex": "Kindle",
 				"model": "Kindle"
-			},
-			{
-				"regex": "AEO(BC|KN)(?:[);/ ]|$)",
-				"model": "Echo",
-				"device": "smart speaker"
-			},
-			{
-				"regex": "AlexaMediaPlayer",
-				"model": "Alexa",
-				"device": "smart speaker"
 			}
 		]
 	},
@@ -26370,11 +25678,6 @@
 			{
 				"regex": "(TF-MID(?:[78]02G|70[78]G|80[46]G|9705RG|9707G|7805G|100[57]G|1010G))",
 				"model": "$1"
-			},
-			{
-				"regex": "(TF-LED(?:65S75T2SU|32S39T2S|32S5[289]T2S|32S70T2S|40S63T2S))",
-				"model": "$1",
-				"device": "tv"
 			}
 		]
 	},
@@ -26993,10 +26296,6 @@
 				"regex": "(?:ViewSonic-)?ViewPad ?([^;/]+) Build",
 				"model": "ViewPad $1",
 				"device": "tablet"
-			},
-			{
-				"regex": "(VSD[0-9]+)(?:[);/ ]|$)",
-				"model": "$1"
 			}
 		]
 	},
@@ -28599,36 +27898,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "MIBOX3[ _]Pro(?:[);/ ]|$)",
-				"model": "Mi Box 3 Pro",
-				"device": "tv"
-			},
-			{
-				"regex": "MIBOX([234])(?:[);/ ]|$)",
-				"model": "Mi Box $1",
-				"device": "tv"
-			},
-			{
-				"regex": "MiBOX1S(?:[);/ ]|$)",
-				"model": "Mi Box 1S",
-				"device": "tv"
-			},
-			{
-				"regex": "MiTV-MSSP1(?:[);/ ]|$)",
-				"model": "MiTV 4S",
-				"device": "tv"
-			},
-			{
-				"regex": "(?:MiTV-AXSO0|MiTV4(?:A|-ANSM0)|MiTV-MSSP0)(?:[);/ ]|$)",
-				"model": "MiTV 4A",
-				"device": "tv"
-			},
-			{
-				"regex": "(MiTV)(4[CSX]|4)(?:[);/ ]|$)",
-				"model": "$1 $2",
-				"device": "tv"
-			},
-			{
 				"regex": "HM NOTE 1W(?:[);/ ]|$)",
 				"device": "phablet",
 				"model": "Redmi Note"
@@ -29199,11 +28468,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "TSBNetTV/",
-				"device": "tv",
-				"model": ""
-			},
-			{
 				"regex": "Toshiba[ /_\\-]?([a-z0-9_ \\-]+) Build",
 				"model": "$1"
 			},
@@ -29260,11 +28524,6 @@
 			{
 				"regex": "VIVAX TABLET TPC 802 3G(?:[);/ ]|$)",
 				"model": "TPC-802 3G"
-			},
-			{
-				"regex": "(32LE77SM|40LE77SM)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
 	},
@@ -30010,16 +29269,6 @@
 			{
 				"regex": "FTJ152E",
 				"model": "Katana 1"
-			}
-		]
-	},
-	"Western Digital": {
-		"regex": "Westerndigital|WDSimpleBrowser",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "Streamer2010",
-				"model": "Streamer (2010)"
 			}
 		]
 	},
@@ -31158,11 +30407,6 @@
 			{
 				"regex": "SMART[ _]Surf[ _]4G",
 				"model": "Smart Surf 4G"
-			},
-			{
-				"regex": "Redbox Mini 5\\(MTS\\)",
-				"device": "tv",
-				"model": "Redbox Mini 5"
 			}
 		]
 	},
@@ -31247,20 +30491,10 @@
 			}
 		]
 	},
-	"Unknown": {
-		"regex": "WebTV/(\\d+\\.\\d+)",
-		"device": "tv",
-		"model": "Web TV"
-	},
 	"Starway": {
 		"regex": "Andromeda[ _]S(707|84[05]|850|8)(?:[);/ ]|$)",
 		"device": "tablet",
 		"model": "Andromeda S$1"
-	},
-	"Savio": {
-		"regex": " (TB-PO1|TB-B01|TB-G01)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Simbans": {
 		"regex": "TangoTab|Presto[ )]|Ultimax|Valumax|S72-B|SX2W",
@@ -31383,29 +30617,6 @@
 		"regex": "RMD[-_](974R|600)(?:[);/ ]|$)",
 		"device": "tablet",
 		"model": "RMD-$1"
-	},
-	"R-TV": {
-		"regex": "R-TV BOX[ _]?(MINI\\+|X99|X10 PRO|[RXS]10)",
-		"device": "tv",
-		"model": "Box $1"
-	},
-	"NEXBOX": {
-		"regex": "(MXQ|MXQ-Pro)-NEXBOX|NEXBOX-([^) ]+)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "MXQ-Pro-NEXBOX",
-				"model": "MXQ Pro"
-			},
-			{
-				"regex": "MXQ-NEXBOX",
-				"model": "MXQ"
-			},
-			{
-				"regex": "NEXBOX-([^) ]+)",
-				"model": "$1"
-			}
-		]
 	},
 	"True": {
 		"regex": " TRUE BEYOND TAB 3G|SMART[ _](MAX 4.0 PLUS|4G[ _](?:GEN C [45].[05]|Champion|Speedy 5.0 Plus|Speedy[_ ]5inch|P1))",
@@ -31609,11 +30820,6 @@
 			}
 		]
 	},
-	"CVTE": {
-		"regex": "CVTE[_ ](MSD338_(:?1G|512M))(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Globex": {
 		"regex": "(GU1011C|GU8012C|GU7013C|GU730C|GU-6012B)(?:[);/ ]|$)",
 		"device": "tablet",
@@ -31631,11 +30837,6 @@
 				"model": "$1"
 			}
 		]
-	},
-	"Atom": {
-		"regex": "ATOM-(108AM|216RK|216AM)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Qumo": {
 		"regex": "QUMO[ _]?|(?:Quest[ _]?(?:408|410|45[56]|50[679])|Vega[ _]?78[23]|Sirius[ _]?(?:1001|890))(?:[);/ ]|$)",
@@ -31791,16 +30992,6 @@
 		"device": "smartphone",
 		"model": "$1"
 	},
-	"NG Optics": {
-		"regex": "(NG3128HD)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
-	"KATV1": {
-		"regex": "(KATV-01) PRO(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1 Pro"
-	},
 	"Ghong": {
 		"regex": "GHONG(V10)(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -31819,49 +31010,9 @@
 				"model": "TelePad $1"
 			},
 			{
-				"regex": "HMT(390Q?|400)(?:[);/ ]|$)",
-				"model": "HMT $1",
-				"device": "portable media player"
-			},
-			{
-				"regex": "HST 260(?:[);/ ]|$)",
-				"model": "HST 260",
-				"device": "tv"
-			},
-			{
 				"regex": "(Era 2X)(?:[);/ ]|$)",
 				"model": "$1",
 				"device": "smartphone"
-			}
-		]
-	},
-	"Vinga": {
-		"regex": "VMP-(015-162|021-82|041-162|011-81|025-324|045-664)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "VMP-021-82",
-				"model": "021"
-			},
-			{
-				"regex": "VMP-025-324",
-				"model": "025"
-			},
-			{
-				"regex": "VMP-015-162",
-				"model": "015"
-			},
-			{
-				"regex": "VMP-041-162",
-				"model": "041"
-			},
-			{
-				"regex": "VMP-045-664",
-				"model": "045"
-			},
-			{
-				"regex": "VMP-011-81",
-				"model": "011"
 			}
 		]
 	},
@@ -31887,25 +31038,6 @@
 				"model": "ND45"
 			}
 		]
-	},
-	"Sunvell": {
-		"regex": "(?:T95ZPLUS|T95[KU]PRO)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "T95ZPLUS",
-				"model": "T95Z Plus"
-			},
-			{
-				"regex": "(T95[KU])PRO",
-				"model": "$1 Pro"
-			}
-		]
-	},
-	"Ugoos": {
-		"regex": "UGOOS-AM6(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "AM6"
 	},
 	"Yxtel": {
 		"regex": "YXTEL_([HU]1|U3)(?:[);/ ]|$)",
@@ -31938,11 +31070,6 @@
 			{
 				"regex": "MID-(123G|72[12]|7[01348]3G|753G|8[23]3G)(?:[);/ ]|$)",
 				"model": "MID-$1"
-			},
-			{
-				"regex": "MYSTERY_TV_(D3155CH31)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
 	},
@@ -31970,11 +31097,6 @@
 			}
 		]
 	},
-	"NewsMy": {
-		"regex": "(CarPad-(?:II|III)-P)(?:[);/ ]|$)",
-		"device": "car browser",
-		"model": "$1"
-	},
 	"Newsday": {
 		"regex": "Newsday[_ ](E1|A[12])(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -31987,18 +31109,8 @@
 			{
 				"regex": "(DTA-07IDRF)(?:[);/ ]|$)",
 				"model": "Archive 7P"
-			},
-			{
-				"regex": "Daewoo (Android TV 638)(?:[);/ ]|$)",
-				"model": "$1",
-				"device": "tv"
 			}
 		]
-	},
-	"Vesta": {
-		"regex": "VESTA32LD86(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "SmartT V2.0 32LD86S"
 	},
 	"Spectrum": {
 		"regex": "(CARBONO_5|CUARZO_6|DIAMANTE_5|VULCANO_55)(?:[);/ ]|$)",
@@ -32022,30 +31134,6 @@
 			}
 		]
 	},
-	"Kivi": {
-		"regex": "(?:24H600G[RU]|24FR50WU|24HK30B|32HR55GU|4[39]UP50GU|40UR50G[RU]|40U600G[RU]|55U600G[RU]|65UP50GU|55U[PC]50G[RU]|50U600G[RU]|50UX10S|55UR50G[RU]|40FK30G|40FR50BR|43UK35G|50FK30G|50UK35G|32HR50GR|55UC30G|32HK30G|40FK30G|32HR50GU|43UK30G|32FR50(?:WR|BU)|32FK3[02]G)(?:_-Ver0[0-9])?(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(24H600G[RU]|24FR50WU|24HK30B|32HR55GU|4[39]UP50GU|40UR50G[RU]|40U600G[RU]|55U600G[RU]|65UP50GU|55U[PC]50G[RU]|50UX10S|50U600G[RU]|55UR50G[RU]|40FK30G|40FR50BR|43UK35G|50FK30G|50UK35G|32HR50GR|32FR50(?:WR|BU)|32FK3[02]G)(?:[);/ ]|$)",
-				"model": "$1"
-			},
-			{
-				"regex": "(55UC30G|40FK30G|43UK30G|32HR50G[RU]|32HK30G|32FK32G)_-Ver0([0-9])(?:[);/ ]|$)",
-				"model": "$1 v$2"
-			}
-		]
-	},
-	"Divisat": {
-		"regex": "(Divisat)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(J-Link)(?:[);/ ]|$)",
-				"model": "$1"
-			}
-		]
-	},
 	"Kanji": {
 		"regex": "KJ-(OB03|YUBI)(?:[);/ ]|$)",
 		"device": "tablet",
@@ -32064,11 +31152,6 @@
 		"regex": "KaiCloud[ ]?(7[48]4|942)(?:[);/ ]|$)",
 		"device": "tablet",
 		"model": "KaiCloud $1"
-	},
-	"National": {
-		"regex": "(NX-32THS100)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Vsun": {
 		"regex": "(?:VSUN (?:ILLUSION|RACE|V9)|MARS TOUCH|MARS NOTE|MARS NOCAM|SATURN SELFIE)(?:[);/ ]|$)",
@@ -32175,11 +31258,6 @@
 	"Soyes": {
 		"regex": "SOYES[ _]([67]S|XS)(?:[);/ ]|$)",
 		"device": "smartphone",
-		"model": "$1"
-	},
-	"Zidoo": {
-		"regex": "ZIDOO[ _](H6 Pro|X6 Pro|X9S|Z10|X[158]|X20 Pro|Z9S)(?:[);/ ]|$)",
-		"device": "tv",
 		"model": "$1"
 	},
 	"Zfiner": {
@@ -32295,45 +31373,9 @@
 		"device": "smartphone",
 		"model": "$1"
 	},
-	"Vontar": {
-		"regex": "(HK1 (?:Max|MINI|PLUS|PRO)|VONTAR[ -](?:Z[58]|V1|KIII|MX-4K|X3))(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "VONTAR[ -](Z[58]|V1|KIII|MX-4K|X3)(?:[);/ ]|$)",
-				"model": "$1"
-			},
-			{
-				"regex": "HK1 Max(?:[);/ ]|$)",
-				"model": "HK1 Max"
-			},
-			{
-				"regex": "HK1 MINI(?:[);/ ]|$)",
-				"model": "HK1 Mini"
-			},
-			{
-				"regex": "HK1 PLUS(?:[);/ ]|$)",
-				"model": "HK1 Plus"
-			},
-			{
-				"regex": "HK1 PRO(?:[);/ ]|$)",
-				"model": "HK1 Pro"
-			}
-		]
-	},
-	"Vorke": {
-		"regex": "VORKE (Z[157]|Z6(?: Plus)?)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Wigor": {
 		"regex": "Wigor (V4)(?:[);/ ]|$)",
 		"device": "smartphone",
-		"model": "$1"
-	},
-	"NEXON": {
-		"regex": "NEXON (X[1589])(?:[);/ ]|$)",
-		"device": "tv",
 		"model": "$1"
 	},
 	"ONN": {
@@ -32907,11 +31949,6 @@
 				"model": "$1"
 			},
 			{
-				"regex": "PHILCO Android TV(?:[);/ ]|$)",
-				"device": "tv",
-				"model": ""
-			},
-			{
 				"regex": "PTB7PAP_PTB7PAB_PTB7PAR(?:[);/ ]|$)",
 				"device": "tablet",
 				"model": "PTB7PA"
@@ -32963,11 +32000,6 @@
 				"model": "Carnival B5"
 			}
 		]
-	},
-	"TD Systems": {
-		"regex": "(K32DLX9HS|K40DLM8FS|K40DLX9FS)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Ravoz": {
 		"regex": "RAVOZ[ _](Z5 (?:Lite|Pro)|Z[3-7]|R[478])(?:[);/ ]|$)",
@@ -33037,11 +32069,6 @@
 		"device": "smartphone",
 		"model": "Note Grace V"
 	},
-	"Asano": {
-		"regex": "32LF7130S(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "32LF7130S 32.0\""
-	},
 	"Phonemax": {
 		"regex": "PHONEMAX[_ ](Saturn(?:[_ ]X)?|Mars|Venus X)(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -33077,11 +32104,6 @@
 				"model": "Pro $1"
 			}
 		]
-	},
-	"OzoneHD": {
-		"regex": "Ozone HD|OzoneHD[ _](T2 WiFi|4K(?: TV)?|Fun)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Kzen": {
 		"regex": "(?:Ureki_U1|Victor V1|DART KZ07)(?:[);/ ]|$)",
@@ -33126,11 +32148,6 @@
 		"device": "tablet",
 		"model": "$1"
 	},
-	"Tronsmart": {
-		"regex": "(Orion R68G|Draco AW80|Draco H3|Vega S95_(?:Meta|Pro|Telos))(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Amigoo": {
 		"regex": "AMIGOO (R300|R9 Max|M1 Max|X15)(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -33145,24 +32162,6 @@
 		"regex": "NEO[ ]?(90[689])(?:[);/ ]|$)",
 		"device": "smartphone",
 		"model": "Neo $1"
-	},
-	"Eltex": {
-		"regex": "(?:NV5(?:01|10)WAC|NV501|NV510WB)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "NV5(01|10)WAC(?:[);/ ]|$)",
-				"model": "NV-5$1-Wac"
-			},
-			{
-				"regex": "NV501(?:[);/ ]|$)",
-				"model": "NV-501"
-			},
-			{
-				"regex": "NV510WB(?:[);/ ]|$)",
-				"model": "NV-510-WB"
-			}
-		]
 	},
 	"Senkatel": {
 		"regex": "Senkatel[ _](T1009|T8002|T701[12]|T9702)(?:[);/ ]|$)",
@@ -33259,20 +32258,6 @@
 			},
 			{
 				"regex": "Tele2[ _](Mi[dn]i)(?:[);/ ]|$)",
-				"model": "$1"
-			}
-		]
-	},
-	"Alfawise": {
-		"regex": "(?:Alfawise (?:A9)|(?:A95X_R1))(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(A95X_R1)(?:[);/ ]|$)",
-				"model": "$1"
-			},
-			{
-				"regex": "Alfawise (A9)",
 				"model": "$1"
 			}
 		]
@@ -33405,11 +32390,6 @@
 				"model": "$1"
 			}
 		]
-	},
-	"Doffler": {
-		"regex": "(24DHS54)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Oyyu": {
 		"regex": "OYYUT11(?:[);/ ]|$)",
@@ -33580,11 +32560,6 @@
 				"model": "MX$1 4G"
 			}
 		]
-	},
-	"Openbox": {
-		"regex": "Openbox (A[34](?: (?:Pro|Lite))?)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
 	},
 	"Ziox": {
 		"regex": "ZIOX[_ ]|(?:Astra Viva 4G|Astra NXT Pro|Duopix F9)(?:[);/ ]|$)",
@@ -33758,25 +32733,6 @@
 		"device": "tablet",
 		"model": "Casebook 3"
 	},
-	"Dolamee": {
-		"regex": "Dolamee[_ -](D[56])(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
-	"Invin": {
-		"regex": "INVIN[ _-]|KM5PRO(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "INVIN[ _-](X[24]|KM[678])",
-				"model": "$1"
-			},
-			{
-				"regex": "KM5PRO",
-				"model": "KM5 Pro"
-			}
-		]
-	},
 	"Doopro": {
 		"regex": "Doopro P3(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -33887,28 +32843,6 @@
 			}
 		]
 	},
-	"Beelink": {
-		"regex": "(?:Beelink (?:G[ST]1|LAKE I|SEA I|A1)|GTKing|GT1mini-2|GT1-mini(?:-AT)?)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "Beelink (G[ST]1|LAKE I|SEA I|A1)(?:[);/ ]|$)",
-				"model": "$1"
-			},
-			{
-				"regex": "GT1-mini(?:-AT)?(?:[);/ ]|$)",
-				"model": "GT1 Mini"
-			},
-			{
-				"regex": "GT1mini-2(?:[);/ ]|$)",
-				"model": "GT1 Mini 2"
-			},
-			{
-				"regex": "GTKing(?:[);/ ]|$)",
-				"model": "GT King"
-			}
-		]
-	},
 	"MAXVI": {
 		"regex": "MAXVI[ _](?:MS401)(?:[);/ ]|$)|(?:\\w+)?_MAXVI_\\w+|MS502[_ ]Orion|MS531",
 		"device": "smartphone",
@@ -33978,11 +32912,6 @@
 			{
 				"regex": "XGODY Y17(?:[);/ ]|$)",
 				"model": "Y17"
-			},
-			{
-				"regex": "XGODY_X96(?:[);/ ]|$)",
-				"model": "X96",
-				"device": "tv"
 			}
 		]
 	},
@@ -34059,20 +32988,6 @@
 			{
 				"regex": "Ruio[ _](S5)Plus(?:[);/ ]|$)",
 				"model": "$1 Plus"
-			}
-		]
-	},
-	"Transpeed": {
-		"regex": "Transpeed_|(?:TR99 MINI\\+|TR99)(?:[);/ ]|$)",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "TR99 MINI\\+",
-				"model": "TR99 Mini Plus"
-			},
-			{
-				"regex": "(?:Transpeed_)?(TR99|H616|6K)(?:[);/ ]|$)",
-				"model": "$1"
 			}
 		]
 	},
@@ -34229,11 +33144,6 @@
 			}
 		]
 	},
-	"Selenga": {
-		"regex": "Selenga[ _](A[134])(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Starlight": {
 		"regex": "Starlight|(?:My_Star_X|RIO STAR|C_Note_Pro|Star_Mix_2)(?:[);/ ]|$)",
 		"device": "smartphone",
@@ -34370,16 +33280,6 @@
 		"device": "smartphone",
 		"model": "$1"
 	},
-	"Andowl": {
-		"regex": "ANDOWL-(Q[45])(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
-	"Silelis": {
-		"regex": "Silelis[ _](T-1)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Bluedot": {
 		"regex": "BLUEDOT[_ ]|(?:BNT-71)(?:[);/ ]|$)",
 		"device": "tablet",
@@ -34494,11 +33394,6 @@
 				"model": "P12 Curve"
 			}
 		]
-	},
-	"ELARI": {
-		"regex": "KidPhone4G(?:[);/ ]|$)",
-		"device": "wearable",
-		"model": "KidPhone 4G"
 	},
 	"Epik One": {
 		"regex": "(K501 Plus|[ ]K5(?:0[0-4]|1[01]|03T|3[456]|4[05]|73)|[ ]K60[01]|[ ]X507T|[ ]K40[56]|[ ]T700)(?:[);/ ]|$)",
@@ -34673,16 +33568,6 @@
 				"regex": "SPC SMART LITE",
 				"device": "smartphone",
 				"model": "Smart Lite"
-			},
-			{
-				"regex": "SPC_ALIEN_STICK",
-				"device": "tv",
-				"model": "Alien Stick"
-			},
-			{
-				"regex": "SPC_ALIEN",
-				"device": "tv",
-				"model": "Alien"
 			}
 		]
 	},
@@ -35255,11 +34140,6 @@
 			}
 		]
 	},
-	"Eagle": {
-		"regex": "Eagle[ _](Classic Pro|Elite|Gold)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
 	"Invens": {
 		"regex": "(Fighter|Eager)(?: Build|[;)])",
 		"device": "smartphone",
@@ -35624,51 +34504,6 @@
 				"regex": "Kata-Tmini4(?:[);/ ]|$)",
 				"device": "tablet",
 				"model": "T Mini 4"
-			},
-			{
-				"regex": "Kata Box 2(?:[);/ ]|$)",
-				"device": "tv",
-				"model": "Box 2"
-			}
-		]
-	},
-	"Leff": {
-		"regex": "Leff Shell (?:HV320WHB-N55|LC390TA2A)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": ""
-	},
-	"Hardkernel": {
-		"regex": "ODROID[-]?(C2|U2|XU[34])(?:[);/ ]|$)",
-		"device": "peripheral",
-		"model": "ODROID $1"
-	},
-	"Wiseasy": {
-		"regex": "WISENET5(?:[);/ ]|$)",
-		"device": "peripheral",
-		"model": "WISENET5"
-	},
-	"Shtrikh-M": {
-		"regex": "SHTRIH-SMARTPOS-F2(?:[);/ ]|$)",
-		"device": "peripheral",
-		"model": "Smartpos F2"
-	},
-	"BBK": {
-		"regex": "([65]5|4[03]|3[29]|28)LEX[-_](81(?:27|39|45|58|61)|71(?:[23]7|4[345]|5[45]|6[368]|[57]8))[_/]([FU]?TS2C)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1LEX-$2/$3"
-	},
-	"4ife": {
-		"regex": "4ife (4K Smart TV Box)(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1"
-	},
-	"Westpoint": {
-		"regex": "WESTPOINT[;,]",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "(TETS-4919SM)",
-				"model": "$1"
 			}
 		]
 	},
@@ -35713,21 +34548,6 @@
 			{
 				"regex": "3GNET[ _]T ?900",
 				"model": "T900"
-			}
-		]
-	},
-	"Yoka TV": {
-		"regex": "KB2 PRO(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "KB2 Pro"
-	},
-	"Formuler": {
-		"regex": "Formuler[ _]",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "Formuler[ _](Z8(?: Pro)?)(?:[);/ ]|$)",
-				"model": "$1"
 			}
 		]
 	},
@@ -35778,11 +34598,6 @@
 	"iQ&T": {
 		"regex": "(IFoo (?:U200|H55))(?:[);/ ]|$)",
 		"device": "smartphone",
-		"model": "$1"
-	},
-	"Mantra": {
-		"regex": "(MFSTAB(?:_74G)?)(?:[);/ ]|$)",
-		"device": "peripheral",
 		"model": "$1"
 	},
 	"Datalogic": {
@@ -35859,29 +34674,9 @@
 				"model": "$1"
 			},
 			{
-				"regex": "AND1E(?: TV)?(?:[);/ ]|$)",
-				"model": "Android TV",
-				"device": "tv"
-			},
-			{
 				"regex": "(PI3210G)",
 				"model": "$1",
 				"device": "tablet"
-			},
-			{
-				"regex": "(TPM1[79]1E)",
-				"model": "$1",
-				"device": "tv"
-			},
-			{
-				"regex": "(QM16[134]E)",
-				"model": "$1",
-				"device": "tv"
-			},
-			{
-				"regex": "(70PUH6774)_96",
-				"model": "$1/96 4K UHD",
-				"device": "tv"
 			},
 			{
 				"regex": "(TLE821L)(?:[);/ ]|$)",
@@ -35894,21 +34689,6 @@
 				"device": "tablet"
 			},
 			{
-				"regex": "Philips, BDP([0-9]{4})",
-				"model": "Blu-ray Player (BDP$1)",
-				"device": "tv"
-			},
-			{
-				"regex": "Philips, ([a-z0-9-]+)",
-				"model": "$1",
-				"device": "tv"
-			},
-			{
-				"regex": "(NETTV/[0-9\\.]{5})",
-				"model": "NetTV Series",
-				"device": "tv"
-			},
-			{
 				"regex": "Philips-FISIO ([a-z0-9]+)",
 				"model": "Fisio $1"
 			},
@@ -35917,11 +34697,6 @@
 				"model": "$1"
 			}
 		]
-	},
-	"INCAR": {
-		"regex": "(KZCAR)(?:[);/ ]|$)",
-		"device": "car browser",
-		"model": "$1"
 	},
 	"FaRao Pro": {
 		"regex": "(FTRW100)(?:[);/ ]|$)",
@@ -35978,32 +34753,6 @@
 			}
 		]
 	},
-	"Pendoo": {
-		"regex": "Pendoo|A5X MAX(?:[\\.-]\\w+)?\\.01\\.d4",
-		"device": "tv",
-		"models": [
-			{
-				"regex": "Pendoo ?(T95Z|X10) PLUS",
-				"model": "$1 Plus"
-			},
-			{
-				"regex": "Pendoo ?X8PRO+",
-				"model": "X8 Pro+"
-			},
-			{
-				"regex": "Pendoo[ \\.]?(X9[29])",
-				"model": "$1"
-			},
-			{
-				"regex": "pendoo mini",
-				"model": "Mini"
-			},
-			{
-				"regex": "A5X MAX(?:[\\.-]\\w+)?\\.01\\.d4",
-				"model": "A5X Max"
-			}
-		]
-	},
 	"PiPO": {
 		"regex": "Pipo[_ ]|PipoM9Pro",
 		"device": "tablet",
@@ -36015,27 +34764,12 @@
 			{
 				"regex": "PipoM9Pro",
 				"model": "M9 Pro"
-			},
-			{
-				"regex": "PIPO[_ ](X10|X9S)",
-				"device": "tv",
-				"model": "$1"
 			}
 		]
-	},
-	"Engel": {
-		"regex": "(EN1007Q)plus(?:[);/ ]|$)",
-		"device": "tv",
-		"model": "$1 Plus"
 	},
 	"Genesis": {
 		"regex": "(SK-Mtek GT730[15])(?:[);/ ]|$)",
 		"device": "tablet",
-		"model": "$1"
-	},
-	"InfoKit": {
-		"regex": "(TVB-906X)(?:[);/ ]|$)",
-		"device": "tv",
 		"model": "$1"
 	},
 	"Blloc": {
@@ -36105,11 +34839,6 @@
 				"model": "XS Pro"
 			}
 		]
-	},
-	"OASYS": {
-		"regex": "(TEG9300)(?:[);/ ]|$)",
-		"device": "peripheral",
-		"model": "$1"
 	},
 	"Aspera": {
 		"regex": "ASPERA|(?:Wren)(?:[);/ ]|$)",

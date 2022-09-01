@@ -50,12 +50,7 @@ export default class MobileParser {
 			break;
 		}
 
-		// Sanitize device type
-		if ( resultType === 'car browser' ) {
-			result.type = 'car';
-		} else {
-			result.type = resultType as DeviceType;
-		}
+		result.type = resultType as DeviceType;
 
 		// Sanitize device brand
 		if ( result.brand === 'Unknown' ) {
