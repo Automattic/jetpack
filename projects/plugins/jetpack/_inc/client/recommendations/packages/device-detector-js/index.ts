@@ -1,23 +1,23 @@
-import DeviceParser from './parsers/mobiles';
+import MobileParser from './parsers/mobiles';
 import OperatingSystemParser from './parsers/operating-system';
 import VendorFragmentParser from './parsers/vendor-fragment';
 import { userAgentParser } from './utils/user-agent';
 import { versionCompare } from './utils/version-compare';
-import type { DeviceResult } from './parsers/mobiles';
+import type { MobileResult } from './parsers/mobiles';
 import type { Result as OperatingSystemResult } from './parsers/operating-system';
-import type { GenericDeviceResult } from './typings/device';
+import type { GenericMobileResult } from './typings/device';
 
 export interface DeviceDetectorResult {
-	device: DeviceResult;
+	device: MobileResult;
 }
 
 class DeviceDetector {
-	private deviceParser: DeviceParser;
+	private deviceParser: MobileParser;
 	private operatingSystemParser: OperatingSystemParser;
 	private vendorFragmentParser: VendorFragmentParser;
 
 	constructor() {
-		this.deviceParser = new DeviceParser();
+		this.deviceParser = new MobileParser();
 		this.operatingSystemParser = new OperatingSystemParser();
 		this.vendorFragmentParser = new VendorFragmentParser();
 	}
@@ -218,9 +218,10 @@ class DeviceDetector {
 		return userAgentParser( 'Touch', userAgent );
 	};
 
-	private createDeviceObject = (): GenericDeviceResult => ( {
+	private createDeviceObject = (): GenericMobileResult => ( {
 		type: '',
 		brand: '',
+		model: '',
 	} );
 }
 
