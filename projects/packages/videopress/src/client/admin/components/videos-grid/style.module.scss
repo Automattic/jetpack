@@ -1,0 +1,6 @@
+.wrapper {
+	--videopress-video-item-width: 360px;
+	--videopress-videos-grid: calc( var( --videopress-video-item-width ) * 3 + 24px * 2 ); // 3 columns - max width.
+
+	max-width: var(--videopress-videos-grid);
+}
