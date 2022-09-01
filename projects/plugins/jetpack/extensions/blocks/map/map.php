@@ -20,7 +20,7 @@ const FEATURE_NAME = 'map';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-	\jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 }
 
 /**
