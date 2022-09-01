@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.9' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '11.3-beta' );
+define( 'JETPACK__VERSION', '11.3-beta2' );
 
 /**
  * Constant used to fetch the connection owner token
