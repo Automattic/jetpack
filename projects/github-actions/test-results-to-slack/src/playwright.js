@@ -18,9 +18,6 @@ function getPlaywrightBlocks() {
 	for ( const report of reports ) {
 		const suites = flattenSuites( report.suites );
 
-		//TODO I shouldn't be here. Please remove me if you found me.
-		fs.writeFileSync( './tests/ignore/_suites.json', JSON.stringify( suites, null, 2 ) );
-
 		let specs = [];
 		suites.forEach( s => ( specs = specs.concat( s.specs ) ) );
 
