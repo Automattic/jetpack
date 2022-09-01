@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Added E2E tests for the Jetpack WAF.
