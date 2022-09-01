@@ -1,10 +1,18 @@
 /**
  * External dependencies
  */
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	useBreakpointMatch,
+	Title,
+	numberFormat,
+} from '@automattic/jetpack-components';
+import { Icon } from '@wordpress/components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { chartBar } from '@wordpress/icons';
 import { edit, cloud, image, media } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
@@ -12,7 +20,12 @@ import classnames from 'classnames';
  */
 import ClipboardButtonInput from '../clipboard-button-input';
 import styles from './style.module.scss';
-import { VideoDetailsProps, VideoThumbnailProps, VideoThumbnailDropdownProps } from './types';
+import {
+	VideoDetailsProps,
+	VideoThumbnailProps,
+	VideoThumbnailDropdownProps,
+	VideoPressVideoProp,
+} from './types';
 import type React from 'react';
 
 export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
@@ -131,39 +144,43 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
 };
 
 /**
- * Video Details Card component
+ * Video Card component
  *
  * @param {VideoThumbnailProps} props - Component props.
- * @returns {React.ReactNode} - VideoDetailsCard react component.
+ * @returns {React.ReactNode} - VideoCard react component.
  */
-const VideoDetailsCard: React.FC<
-	VideoDetailsProps & VideoThumbnailProps & VideoThumbnailDropdownProps
-> = ( {
-	filename,
-	src,
-	uploadDate,
+export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = ( {
+	title,
 	duration,
-
+	plays,
 	thumbnail,
-	onUseDefaultThumbnail,
-	onSelectFromVideo,
-	onUploadImage,
 	editable,
 } ) => {
+	const playsCount = sprintf(
+		/* translators: placeholder is a product name */
+		__( '%s plays', 'jetpack-videopress-pkg' ),
+		numberFormat( plays )
+	);
+
 	return (
 		<div className={ styles.wrapper }>
-			<VideoThumbnail
-				thumbnail={ thumbnail }
-				onUseDefaultThumbnail={ onUseDefaultThumbnail }
-				onSelectFromVideo={ onSelectFromVideo }
-				onUploadImage={ onUploadImage }
-				editable={ editable }
-				duration={ duration }
-			/>
-
-			<VideoDetails filename={ filename } src={ src } uploadDate={ uploadDate } />
+			<VideoThumbnail thumbnail={ thumbnail } duration={ duration } editable={ editable } />
+			<div className={ styles[ 'title-section' ] }>
+				<Title className={ styles.title } mb={ 0 } size="small">
+					{ title }
+				</Title>
+				<Text
+					weight="regular"
+					size="small"
+					component="div"
+					className={ styles[ 'video-plays-counter' ] }
+				>
+					<Icon icon={ chartBar } />
+					{ playsCount }
+				</Text>
+			</div>
 		</div>
 	);
 };
 
-export default VideoDetailsCard;
+export default VideoCard;
