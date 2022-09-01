@@ -32,7 +32,18 @@ on:
 
 jobs:
   run-tests:
-    [...]
+    strategy:
+      matrix:
+        suite: ["suite-1", "suite-2"]
+  
+    steps:
+      - name: "Run tests"
+        run: [...] # Run tests for suite ${{ matrix.suite }}
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-output-${{ matrix.suite }}
 
   slack-notification:
     name: 'Send Slack notification'
@@ -40,6 +51,11 @@ jobs:
     needs: run-tests
   
     steps:
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-artifacts
+
       - name: 'Send Slack notification'
         uses: automattic/action-test-results-to-slack@v1
         with:
@@ -50,6 +66,7 @@ jobs:
           slack_icon_emoji: 'Slack icon emoji'
           suite_name: 'Your test suite name'
           rules_configuration_path: 'path/to/rules/configuration/file'
+          playwright_report_path: 'test-artifacts/**/report.json'
 ```
 
 ### Inputs
@@ -63,7 +80,7 @@ The action relies on the following parameters.
 - (Optional) `slack_icon_emoji` is the icon emoji to use for messages. If not set it will use your app's default icon.
 - (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
-- (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and details about the tests results will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: '**/reports/summary.json'`.
+- (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
 
 ### Rules
 

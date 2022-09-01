@@ -15,6 +15,8 @@ function getPlaywrightBlocks() {
 	const failureDetailsBlocks = [];
 	let specsCount = 0;
 
+	debug( `Parsing ${ reports.length } Playwright reports.` );
+
 	for ( const report of reports ) {
 		const suites = flattenSuites( report.suites );
 
@@ -24,8 +26,11 @@ function getPlaywrightBlocks() {
 		// Go through each spec, check tests and results and extract failure details
 		// Expected structure spec: {tests: [{results: [{}]}]}
 		specsCount += specs.length;
+		debug( `Specs: ${ specsCount }` );
 		specs.forEach( spec => {
+			debug( `Spec: ${ spec.title }` );
 			if ( ! spec.ok ) {
+				debug( `Spec failed: ${ spec.title }` );
 				failedTests.push( `- ${ spec.title }` );
 
 				// Go through each test of the spec
