@@ -60,7 +60,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.18",
+		"@automattic/jetpack-components": "workspace:* || ^0.19",
 		"@automattic/jetpack-connection": "workspace:* || ^0.18",
 		"@storybook/addon-actions": "6.5.9",
 		"@wordpress/components": "20.0.0",
