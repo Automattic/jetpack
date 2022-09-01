@@ -89,11 +89,15 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.2.0 - 2022-08-03
+### 1.3.0-beta - 2022-08-31
 #### Added
-- Dashboard: Add stats about the number of posts published.
+- Added scheduled post calculation on plugin activation.
+- Added Social Previews.
+- Added support for JITMs.
+- Enforce sharing limits in the block editor, if it is enabled for a site.
 
-#### Changed
-- Dashboard: Improve performance when fetching data.
-- Dashboard: Update wording.
-- Dashboard: Improve design for stats about the number of shares.
+#### Removed
+- Packages: remove deprecated package.
+
+#### Fixed
+- Avoid PHP warnings when OG description is not set.

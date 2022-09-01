@@ -253,6 +253,7 @@ jQuery( function($) {
 		return false;
 	} );
 
+
 	$('#publicize-form-hide').click( function() {
 		var newList = $.map( $('#publicize-form').slideUp( 'fast' ).find( ':checked' ), function( el ) {
 			return $.trim( $(el).parent( 'label' ).text() );
