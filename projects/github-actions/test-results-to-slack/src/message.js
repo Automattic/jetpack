@@ -180,7 +180,7 @@ async function getNotificationData( isFailure ) {
 			type: 'section',
 			text: {
 				type: 'mrkdwn',
-				text: `<${ getRunUrl() } | Run ${ runId }, attempt ${ runAttempt } ${
+				text: `<${ getRunUrl() } | Run ${ runId } #${ runAttempt } ${
 					isFailure ? 'has failures' : 'was successful'
 				}>`,
 			},
