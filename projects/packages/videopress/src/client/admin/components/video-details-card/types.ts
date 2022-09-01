@@ -12,7 +12,7 @@ export type VideoThumbnailProps = {
 	/**
 	 * Whether is possible to edit the thumbnail
 	 */
-	editable?: true;
+	editable?: boolean;
 };
 
 export type VideoThumbnailDropdownProps = {
