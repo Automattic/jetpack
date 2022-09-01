@@ -22,11 +22,10 @@ class Action_Bar {
 		Assets::register_script(
 			'jetpack-action-bar',
 			'../build/action-bar.js',
-			__FILE__, // A full path to a file or a directory inside a plugin.
+			__FILE__,
 			array(
-				'dependencies' => array( 'wp-i18n' ),
+				'dependencies' => array(),
 				'in_footer'    => true,
-				'textdomain'   => 'jetpack-action-bar',
 				'enqueue'      => true,
 			)
 		);
