@@ -53,6 +53,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 				height="auto"
 				viewBox="0 0 40 40"
 				className="record-meter-donut_svg"
+				data-testid="record-meter-donut_svg"
 			>
 				<circle
 					className="record-meter-donut-hole"
