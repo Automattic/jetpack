@@ -37,7 +37,8 @@
 	} );
 
 	$( document ).keyup( function ( e ) {
-		if ( 27 === e.keyCode ) {
+		// "Esc" is an IE/Edge specific value
+		if ( e.key === 'Escape' || e.key === 'Esc' ) {
 			$( fullScreenDismiss ).click();
 		}
 	} );

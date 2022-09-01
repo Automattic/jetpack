@@ -69,8 +69,8 @@ class Modal extends React.Component {
 	}
 
 	handleEscapeKey = e => {
-		if ( e.keyCode === 27 ) {
-			// escape key maps to keycode `27`
+		// "Esc" is an IE/Edge specific value
+		if ( e.key === 'Escape' || e.key === 'Esc' ) {
 			this.maybeClose();
 		}
 	};
