@@ -40,7 +40,7 @@ describe( 'Notification content', () => {
 			} );
 			mockContextExtras( { repository, refType, refName } );
 
-			const { getNotificationData } = require( '../src/github' );
+			const { getNotificationData } = require( '../src/message' );
 			const { text, mainMsgBlocks } = await getNotificationData( isFailure );
 
 			expect( text ).toBe( expected.text );
@@ -63,7 +63,7 @@ describe( 'Notification content', () => {
 				eventName: 'push',
 			} );
 
-			const { getNotificationData } = require( '../src/github' );
+			const { getNotificationData } = require( '../src/message' );
 			const { mainMsgBlocks } = await getNotificationData( true );
 
 			expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( expected.text );
@@ -82,7 +82,7 @@ describe( 'Notification content', () => {
 			eventName: 'pull_request',
 		} );
 
-		const { getNotificationData } = require( '../src/github' );
+		const { getNotificationData } = require( '../src/message' );
 		const { mainMsgBlocks } = await getNotificationData( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Title: ${ title }` );
@@ -98,7 +98,7 @@ describe( 'Notification content', () => {
 			sha: '5dc6ab9d13d9b79317b719a32a60cc682cd6930d',
 		} );
 
-		const { getNotificationData } = require( '../src/github' );
+		const { getNotificationData } = require( '../src/message' );
 		const { mainMsgBlocks } = await getNotificationData( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Last commit: 5dc6ab9d` );

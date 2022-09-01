@@ -1,4 +1,5 @@
-const debug = require( './debug' );
+const fs = require( 'fs' );
+const { debug, error } = require( './debug' );
 
 /**
  * Sends a Slack message.
@@ -6,22 +7,74 @@ const debug = require( './debug' );
  * @param {Object} client - Slack client
  * @param {boolean} update - if it should update a message. For true, it will update an existing message based on `ts`, false will send a new message.
  * @param {Object} options - options
+ * @returns {Promise<*>} the response from the Slack API. In case when multiple messages are sent due to the blocks length the last message response is returned.
  */
-async function sendMessage( client, update, options ) {
+async function postOrUpdateMessage( client, update, options ) {
 	const { text, blocks = [], channel, username, icon_emoji, ts, thread_ts } = options;
 
 	const method = update ? 'update' : 'postMessage';
-	return await client.chat[ method ]( {
-		text,
-		blocks,
-		channel,
-		ts,
-		thread_ts,
-		username,
-		icon_emoji,
-		unfurl_links: false,
-		unfurl_media: false,
-	} );
+	let response;
+
+	// Sending message will fail for more than 50 blocks
+	const chunks = blocks.length > 50 ? getBlocksChunks( blocks, 50 ) : [ blocks ];
+
+	for ( const chunk of chunks ) {
+		try {
+			response = await client.chat[ method ]( {
+				text,
+				blocks: chunk,
+				channel,
+				ts,
+				thread_ts,
+				username,
+				icon_emoji,
+				unfurl_links: false,
+				unfurl_media: false,
+			} );
+		} catch ( err ) {
+			error( err );
+		}
+	}
+
+	return response;
+}
+
+/**
+ * Uploads a file to Slack
+ *
+ * @param {object} client - the Slack client
+ * @param {string} filePath - the path to the file to upload
+ * @param {string} channel - the channel to upload the file to
+ */
+//eslint-disable-next-line no-unused-vars
+async function uploadFile( client, filePath, channel ) {
+	let response;
+	try {
+		response = await client.files.upload( {
+			fileName: filePath,
+			file: fs.createReadStream( filePath ),
+			channel,
+		} );
+	} catch ( err ) {
+		error( err );
+	}
+	return response;
+}
+
+/**
+ * Split an array of blocks into chunks of a given size
+ *
+ * @param {[object]} blocks - the array to be split
+ * @param {number} chunkSize - the maximum size of each chunk
+ * @returns {[object]} the array of chunks
+ */
+function getBlocksChunks( blocks, chunkSize ) {
+	const chunks = [];
+	for ( let i = 0; i < blocks.length; i += chunkSize ) {
+		const chunk = blocks.slice( i, i + chunkSize );
+		chunks.push( chunk );
+	}
+	return chunks;
 }
 
 /**
@@ -54,4 +107,4 @@ async function getMessage( client, channelId, identifier ) {
 	return message;
 }
 
-module.exports = { getMessage, sendMessage };
+module.exports = { getMessage, postOrUpdateMessage };

@@ -63,6 +63,7 @@ The action relies on the following parameters.
 - (Optional) `slack_icon_emoji` is the icon emoji to use for messages. If not set it will use your app's default icon.
 - (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
+- (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and details about the tests results will be included in the message.
 
 ### Rules
 
