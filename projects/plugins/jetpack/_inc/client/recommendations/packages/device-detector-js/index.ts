@@ -7,7 +7,6 @@ import type { DeviceResult } from './parsers/mobiles';
 import type { Result as OperatingSystemResult } from './parsers/operating-system';
 import type { GenericDeviceResult } from './typings/device';
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export interface DeviceDetectorResult {
 	device: DeviceResult;
 }
