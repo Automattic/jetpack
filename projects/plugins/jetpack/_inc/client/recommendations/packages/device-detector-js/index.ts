@@ -58,6 +58,14 @@ class DeviceDetector {
 			result.device.brand = 'Apple';
 		}
 
+		if ( ! result.device?.type && this.hasIphoneFragment ) {
+			if ( ! result.device ) {
+				result.device = this.createDeviceObject();
+			}
+
+			result.device.type = 'smartphone';
+		}
+
 		/**
 		 * Chrome on Android passes the device type based on the keyword 'Mobile'
 		 * If it is present the device should be a smartphone, otherwise it's a tablet
@@ -204,6 +212,10 @@ class DeviceDetector {
 
 	private hasDesktopFragment = ( userAgent: string ) => {
 		return userAgentParser( 'Desktop (x(?:32|64)|WOW64);', userAgent );
+	};
+
+	private hasIphoneFragment = ( userAgent: string ) => {
+		return userAgentParser( 'iPhone', userAgent );
 	};
 
 	private isDesktop = ( os: OperatingSystemResult, osFamily: string ): boolean => {
