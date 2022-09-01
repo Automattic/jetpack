@@ -23,14 +23,12 @@ import styles from './styles.module.scss';
  *
  * @param {object} props                                - The component props.
  * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
- * @param {boolean} props.isRePublicizeFeatureEnabled   - True if the RePublicize feature is available.
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
 	isPublicizeEnabled,
-	isRePublicizeFeatureEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 } ) {
@@ -42,8 +40,6 @@ export default function PublicizeForm( {
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
-	const isDisabled = () =>
-		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const outOfConnections =
@@ -53,7 +49,7 @@ export default function PublicizeForm( {
 		<Wrapper>
 			{ hasConnections && (
 				<>
-					{ ! isDisabled() && numberOfSharesRemaining !== null && (
+					{ numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
 								{ createInterpolateElement(
@@ -84,8 +80,7 @@ export default function PublicizeForm( {
 								( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
 									<PublicizeConnection
 										disabled={
-											( isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable ) ||
-											( ! enabled && toggleable && outOfConnections )
+											! isPublicizeEnabled || ( ! enabled && toggleable && outOfConnections )
 										}
 										enabled={ enabled && ! isPublicizeDisabledBySitePlan }
 										key={ id }
@@ -108,7 +103,6 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<MessageBoxControl
-							disabled={ isDisabled() }
 							maxLength={ maxLength }
 							onChange={ updateMessage }
 							message={ message }

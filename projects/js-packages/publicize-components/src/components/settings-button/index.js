@@ -33,7 +33,8 @@ export default function PublicizeSettingsButton() {
 	}, refreshThreshold );
 
 	const connectionsUrl =
-		getJetpackData()?.publicizeConnectionsUrl ?? 'https://wordpress.com/marketing/connections/';
+		getJetpackData()?.social?.publicizeConnectionsUrl ??
+		'https://wordpress.com/marketing/connections/';
 	/*
 	 * We should always have a siteFragment. If not, then something has
 	 * probably gone wrong.

@@ -1,17 +1,27 @@
-import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
+import {
+	usePublicizeConfig,
+	useSocialMediaConnections,
+	useSharePost,
+} from '@automattic/jetpack-publicize-components';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSharePost from '../../hooks/use-share-post';
 
+/**
+ * Removes the current message from resharing a post.
+ */
 function cleanNotice() {
 	dispatch( noticesStore ).removeNotice( 'publicize-post-share-message' );
 }
 
+/**
+ * Sets the notice to the given error message.
+ *
+ * @param {string} message - The error message to be displayed.
+ */
 function showErrorNotice( message = __( 'Unable to share the Post', 'jetpack' ) ) {
 	const { createErrorNotice } = dispatch( noticesStore );
 	createErrorNotice( message, {
@@ -19,6 +29,9 @@ function showErrorNotice( message = __( 'Unable to share the Post', 'jetpack' ) 
 	} );
 }
 
+/**
+ * Shows the successful message in a snackbar.
+ */
 function showSuccessNotice() {
 	const { createSuccessNotice } = dispatch( noticesStore );
 	createSuccessNotice( __( 'Post shared', 'jetpack' ), {
@@ -27,6 +40,11 @@ function showSuccessNotice() {
 	} );
 }
 
+/**
+ * Component to trigger the resharing of the post.
+ *
+ * @returns {object} A button component that will share the current post when clicked.
+ */
 export function SharePostButton() {
 	const { hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled } = usePublicizeConfig();
@@ -59,19 +77,21 @@ export function SharePostButton() {
 	const isButtonDisabled =
 		! isPublicizeEnabled || ! hasEnabledConnections || ! isPostPublished || isFetching;
 
+	const sharePost = useCallback( () => {
+		if ( ! isPostPublished ) {
+			return showErrorNotice(
+				__( 'You must publish your post before you can share it.', 'jetpack' )
+			);
+		}
+
+		cleanNotice( 'publicize-post-share-message' );
+		doPublicize();
+	}, [ doPublicize, isPostPublished ] );
+
 	return (
 		<Button
 			variant="secondary"
-			onClick={ function () {
-				if ( ! isPostPublished ) {
-					return showErrorNotice(
-						__( 'You must publish your post before you can share it.', 'jetpack' )
-					);
-				}
-
-				cleanNotice( 'publicize-post-share-message' );
-				doPublicize();
-			} }
+			onClick={ sharePost }
 			disabled={ isButtonDisabled }
 			isBusy={ isFetching }
 		>
@@ -80,14 +100,15 @@ export function SharePostButton() {
 	);
 }
 
+/**
+ * A panel row that renders the share button when the resharing
+ * feature is available.
+ *
+ * @returns {object|null} A PanelRow component, or null if nothing should be rendered.
+ */
 export function SharePostRow() {
-	const { isRePublicizeFeatureEnabled, isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
+	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-
-	// Do not render when RePublicize feature is not enabled.
-	if ( ! isRePublicizeFeatureEnabled ) {
-		return null;
-	}
 
 	// Do not render the button when the post is not published.
 	if ( ! isPostPublished ) {

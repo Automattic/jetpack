@@ -116,6 +116,10 @@ class Jetpack_Social {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		$screen = get_current_screen();
+		if ( ! empty( $screen ) && $screen->is_block_editor() ) {
+			return;
+		}
 
 		Assets::register_script(
 			'jetpack-social',
@@ -143,16 +147,27 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Get the shares data, but cache it so we don't call the API
+	 * more than once per request.
+	 *
+	 * @return array The shares data.
+	 */
+	public function get_shares_info() {
+		global $publicize;
+		static $shares_info = null;
+		if ( ! $shares_info ) {
+			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		}
+		return ! is_wp_error( $shares_info ) ? $shares_info : null;
+	}
+
+	/**
 	 * Get the initial state data for hydrating the React UI.
 	 *
 	 * @return array
 	 */
 	public function initial_state() {
 		global $publicize;
-
-		$shares                  = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$refresh_plan_from_wpcom = true;
-		$show_nudge              = ! Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
 
 		return array(
 			'siteData'        => array(
@@ -167,9 +182,25 @@ class Jetpack_Social {
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
-			'sharesData'      => ! is_wp_error( $shares ) ? $shares : null,
-			'showNudge'       => $show_nudge,
+			'sharesData'      => $this->get_shares_info(),
+			'showNudge'       => ! $this->has_paid_plan(),
 		);
+	}
+
+	/**
+	 * Returns a boolean as to whether we have a plan that supports
+	 * sharing beyond the free limit.
+	 *
+	 * It also caches the result to make sure that we don't call the API
+	 * more than once a request.
+	 *
+	 * @returns boolean True if the site has a plan that supports a higher share limit.
+	 */
+	public function has_paid_plan() {
+		static $refresh_plan_from_wpcom = true;
+		$has_plan                       = Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
+		$refresh_plan_from_wpcom        = false;
+		return $has_plan;
 	}
 
 	/**
@@ -206,15 +237,19 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
-		wp_add_inline_script( 'jetpack-social-editor', $this->render_initial_state(), 'before' );
-
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
-				'siteFragment'            => ( new Status() )->get_site_suffix(),
-				'connectionRefreshPath'   => '/jetpack/v4/publicize/connections',
-				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
+				'siteFragment' => ( new Status() )->get_site_suffix(),
+				'social'       => array(
+					'sharesData'              => $this->get_shares_info(),
+					'connectionRefreshPath'   => '/jetpack/v4/publicize/connections',
+					'publicizeConnectionsUrl' => esc_url_raw(
+						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
+					),
+					'hasPaidPlan'             => $this->has_paid_plan(),
+				),
 			)
 		);
 

@@ -13,4 +13,7 @@ export { default as SocialPreviewsPanel } from './src/components/social-previews
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';
+export { default as usePublicizeConfig } from './src/hooks/use-publicize-config';
+export { default as useSharePost } from './src/hooks/use-share-post';
+export * from './src/components/share-post';
 export * from './src/hooks/use-saving-post';

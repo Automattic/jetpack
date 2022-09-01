@@ -17,16 +17,16 @@ const descriptions = {
 };
 
 const getDescription = ( {
-	isPostPublished,
 	isPublicizeEnabled,
 	hasConnections,
 	hasEnabledConnections,
+	hidePublicizeFeature,
 } ) => {
+	if ( hidePublicizeFeature ) {
+		return descriptions.published;
+	}
 	if ( ! hasConnections ) {
 		return descriptions.start;
-	}
-	if ( isPostPublished ) {
-		return descriptions.published;
 	}
 	if ( isPublicizeEnabled && hasEnabledConnections ) {
 		return descriptions.enabled;
@@ -40,7 +40,7 @@ const getDescription = ( {
  * the Publicize publishing panel.
  *
  * @param {object} props                        - The component properties.
- * @param {boolean} props.isPostPublished       - Whether the post has been published.
+ * @param {boolean} props.hidePublicizeFeature  - Whether the publicize feature is available or not.
  * @param {boolean} props.isPublicizeEnabled    - Whether the main publicize toggle is enabled.
  * @param {boolean} props.hasConnections        - Whether we have any Publicize connections.
  * @param {boolean} props.hasEnabledConnections - Whether any connections are enabled.
