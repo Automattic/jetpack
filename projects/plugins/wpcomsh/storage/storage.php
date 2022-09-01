@@ -67,3 +67,108 @@ function wpcomsh_jetpack_upload_handler_can_upload( $allowed, $files ) {
 	return $allowed;
 }
 add_filter( 'jetpack_upload_handler_can_upload', 'wpcomsh_jetpack_upload_handler_can_upload', 10, 2 );
+
+/**
+ * Allow the additional mime types that WPCOM already allows.
+ *
+ * @param array    $file_data {
+ *     Values for the extension, mime type, and corrected filename.
+ *
+ *     @type string|false $ext             File extension, or false if the file doesn't match a mime type.
+ *     @type string|false $type            File mime type, or false if the file doesn't match a mime type.
+ *     @type string|false $proper_filename File name with its correct extension, or false if it cannot be determined.
+ * }
+ * @param string   $file                      Full path to the file.
+ * @param string   $filename                  The name of the file (may differ from $file due to
+ *                                                $file being in a tmp directory).
+ * @param string[] $mimes                     Array of mime types keyed by their file extension regex.
+ */
+function wpcomsh_allow_file_uploads_with_invalid_mime_types( $file_data, $file, $filename, $mimes ) {
+	// Remove itself to avoid potential infinite loops
+	remove_filter( 'wp_check_filetype_and_ext', 'wpcomsh_allow_file_uploads_with_invalid_mime_types', 1000, 4 );
+	if ( ! file_exists( $file ) ) {
+		return $file_data;
+	}
+
+	// If wp_check_filetype_and_ext already allows it or if the file does not,
+	// exist, don't bother doing the checks
+	if ( ! empty( $file_data['type'] ) ) {
+		$_invalid = array(
+			'ext'             => false,
+			'type'            => false,
+			'proper_filename' => false,
+		);
+		return $file_data;
+	}
+
+	// Try to get the file type with the extension based check, bail if it fails
+	$file_type = wp_check_filetype( $filename, $mimes );
+	if ( empty( $file_type['type'] ) ) {
+		return $file_data;
+	}
+
+	$finfo     = finfo_open( FILEINFO_MIME_TYPE );
+	$real_mime = finfo_file( $finfo, $file );
+	finfo_close( $finfo );
+
+	if ( empty( $real_mime ) ) {
+		return $file_data;
+	}
+
+	$allowed = array();
+	switch ( strtolower( $file_type['ext'] ) ) {
+		case 'doc':
+		case 'docm':
+		case 'docx':
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.wordprocessingml';
+			$allowed[] = $file_type['type'];
+			$allowed[] = 'application/cdfv2';
+			break;
+		case 'pot':
+		case 'pps':
+		case 'ppt':
+		case 'ppsm':
+		case 'ppsx':
+		case 'pptm':
+		case 'pptx':
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.presentationml.slideshow';
+			$allowed[] = $file_type['type'];
+			$allowed[] = 'application/cdfv2';
+			break;
+		case 'xla':
+		case 'xls':
+		case 'xlt':
+		case 'xlw':
+		case 'xslb':
+		case 'xlsm':
+		case 'xlsx':
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.spreadsheetml';
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+			$allowed[] = $file_type['type'];
+			$allowed[] = 'application/cdfv2';
+			break;
+		case 'odt':
+			$allowed[] = 'application/vnd.oasis.opendocument.presentation';
+			$allowed[] = $file_type['type'];
+			$allowed[] = 'application/cdfv2';
+			break;
+	}
+
+	// Duplicate the mime types as a work around for https://bugs.php.net/bug.php?id=78028
+	$_allowed = array_map(
+		function( $item ) {
+			return $item . $item;
+		},
+		$allowed
+	);
+	if ( in_array( strtolower( $real_mime ), $allowed, true ) || in_array( strtolower( $real_mime ), $_allowed, true ) ) {
+		$file_data['type'] = $file_type['type'];
+		$file_data['ext']  = $file_type['ext'];
+	}
+
+	return $file_data;
+}
+
+add_filter( 'wp_check_filetype_and_ext', 'wpcomsh_allow_file_uploads_with_invalid_mime_types', 1000, 4 );
