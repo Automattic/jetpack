@@ -1,6 +1,7 @@
 const fs = require( 'fs' );
 const { getInput } = require( '@actions/core' );
-const { debug } = require( './debug' );
+const glob = require( 'glob' );
+const { debug, error } = require( './debug' );
 
 /**
  * Parses multiple Playwright JSON reports and returns details about the failed tests.
@@ -62,22 +63,24 @@ function getPlaywrightBlocks() {
 		failedTests.push( 'There was a problem parsing one of the test results file.' );
 	}
 
-	blocks.push(
-		{
-			type: 'context',
-			elements: [
-				{
-					type: 'mrkdwn',
-					text: `*${ failedTests.length }/${ specsCount } tests failed*`,
-				},
-				{
-					type: 'mrkdwn',
-					text: failedTests.join( '\n' ),
-				},
-			],
-		},
-		...failureDetailsBlocks
-	);
+	if ( failedTests.length > 0 ) {
+		blocks.push(
+			{
+				type: 'context',
+				elements: [
+					{
+						type: 'mrkdwn',
+						text: `*${ failedTests.length }/${ specsCount } tests failed*`,
+					},
+					{
+						type: 'mrkdwn',
+						text: failedTests.join( '\n' ),
+					},
+				],
+			},
+			...failureDetailsBlocks
+		);
+	}
 
 	return blocks;
 }
@@ -93,11 +96,11 @@ function getPlaywrightReports() {
 
 	for ( const path of getPlaywrightReportsPaths() ) {
 		try {
-			debug( `Reading Playwright report from ${ path }` );
+			debug( `Reading Playwright report from ${ path }.` );
 			const report = JSON.parse( fs.readFileSync( path, { encoding: 'utf8' } ) );
 			reports.push( report );
 		} catch ( err ) {
-			debug( `There was a problem parsing the test reports. ${ err }` );
+			debug( `There was a problem parsing the test reports. ${ err }.` );
 			parseError = true;
 		}
 	}
@@ -115,10 +118,13 @@ function getPlaywrightReportsPaths() {
 	const paths = [];
 
 	if ( playwrightReportPath ) {
-		// todo parse path string and find all matching reports
-		paths.push( playwrightReportPath );
+		paths.push( ...glob.sync( playwrightReportPath ) );
 	} else {
 		debug( 'No Playwright report path defined.' );
+	}
+
+	if ( paths.length === 0 ) {
+		error( 'No Playwright report found.' );
 	}
 
 	return paths;
