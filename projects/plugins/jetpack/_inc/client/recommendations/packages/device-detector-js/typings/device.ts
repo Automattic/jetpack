@@ -4,7 +4,6 @@ export type DeviceType =
 	| 'smartphone'
 	| 'tablet'
 	| 'smart display'
-	| 'console'
 	| 'car'
 	| 'phablet'
 	| 'wearable'

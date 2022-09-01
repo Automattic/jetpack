@@ -11,10 +11,6 @@ export interface OperatingSystemResult {
 
 export type Result = OperatingSystemResult | null;
 
-interface Options {
-	versionTruncation: 0 | 1 | 2 | 3 | null;
-}
-
 const desktopOsArray = [
 	'AmigaOS',
 	'IBM',
@@ -53,14 +49,6 @@ export default class OperatingSystemParser {
 		return '';
 	};
 
-	private readonly options: Options = {
-		versionTruncation: 1,
-	};
-
-	constructor( options?: Partial< Options > ) {
-		this.options = { ...this.options, ...options };
-	}
-
 	public parse = ( userAgent: string ): Result => {
 		const result: OperatingSystemResult = {
 			name: '',
@@ -75,10 +63,7 @@ export default class OperatingSystemParser {
 			}
 
 			result.name = variableReplacement( os.name, match );
-			result.version = formatVersion(
-				variableReplacement( os.version, match ),
-				this.options.versionTruncation
-			);
+			result.version = formatVersion( variableReplacement( os.version, match ) );
 
 			if ( result.name === 'lubuntu' ) {
 				result.name = 'Lubuntu';

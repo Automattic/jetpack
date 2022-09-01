@@ -12,24 +12,14 @@ export interface DeviceDetectorResult {
 	device: DeviceResult;
 }
 
-export interface DeviceDetectorOptions {
-	versionTruncation: 0 | 1 | 2 | 3 | null;
-}
-
 class DeviceDetector {
 	private deviceParser: DeviceParser;
 	private operatingSystemParser: OperatingSystemParser;
 	private vendorFragmentParser: VendorFragmentParser;
 
-	// Default options
-	private readonly options: DeviceDetectorOptions = {
-		versionTruncation: 1,
-	};
-
-	constructor( options?: Partial< DeviceDetectorOptions > ) {
-		this.options = { ...this.options, ...options };
+	constructor() {
 		this.deviceParser = new DeviceParser();
-		this.operatingSystemParser = new OperatingSystemParser( this.options );
+		this.operatingSystemParser = new OperatingSystemParser();
 		this.vendorFragmentParser = new VendorFragmentParser();
 	}
 
