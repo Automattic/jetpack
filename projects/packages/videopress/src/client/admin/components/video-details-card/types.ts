@@ -12,24 +12,24 @@ export type VideoThumbnailProps = {
 	/**
 	 * Whether is possible to edit the thumbnail
 	 */
-	editable: true;
+	editable?: true;
 };
 
 export type VideoThumbnailDropdownProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
 	 */
-	onUseDefaultThumbnail: () => void;
+	onUseDefaultThumbnail?: () => void;
 
 	/**
 	 * Callback to be invoked when clicking on the `Select from video` dropdown menu option.
 	 */
-	onSelectFromVideo: () => void;
+	onSelectFromVideo?: () => void;
 
 	/**
 	 * Callback to be invoked when clicking on the `Upload image` dropdown menu option.
 	 */
-	onUploadImage: () => void;
+	onUploadImage?: () => void;
 };
 
 export type VideoDetailsProps = {
