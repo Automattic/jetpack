@@ -10,8 +10,8 @@ import VideoDetailsCard, {
 	VideoThumbnail as VideoThumbnailComponent,
 	VideoThumbnailDropdown as VideoThumbnailDropdownComponent,
 } from '..';
+import { postersArray, randomPoster } from '../../../mock/';
 import Doc from './VideoDetailsCard.mdx';
-import thumbnail from './video-thumbnail.png';
 /**
  * Types
  */
@@ -25,13 +25,18 @@ export default {
 			page: Doc,
 		},
 	},
+	argTypes: {
+		thumbnail: {
+			control: { type: 'select', options: postersArray },
+		},
+	},
 } as ComponentMeta< typeof VideoDetailsCard >;
 
 const Template: ComponentStory< typeof VideoDetailsCard > = VideoDetailsCard;
 
 export const _default = Template.bind( {} );
 _default.args = {
-	thumbnail,
+	thumbnail: randomPoster(),
 	filename: 'video-thumbnail.png',
 	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
@@ -55,7 +60,7 @@ const VideoThumbnailTemplate: ComponentStory<
 
 export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
 VideoThumbnail.args = {
-	thumbnail,
+	thumbnail: randomPoster(),
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
