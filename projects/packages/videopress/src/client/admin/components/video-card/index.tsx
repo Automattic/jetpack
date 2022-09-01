@@ -164,6 +164,7 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 
 	return (
 		<div className={ styles[ 'video-card__wrapper' ] }>
+			<div className={ styles[ 'video-card__background' ] } />
 			<VideoThumbnail thumbnail={ thumbnail } duration={ duration } editable={ editable } />
 			<div className={ styles[ 'video-card__title-section' ] }>
 				<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">

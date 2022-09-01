@@ -69,7 +69,23 @@
 .video-card__wrapper {
 	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
 	max-width: var( --videopress-video-item-max-width );
+	position: relative;
 }
+
+.video-card__background {
+	position: absolute;
+	top: calc( var( --spacing-base ) * -2 );
+	left: calc( var( --spacing-base ) * -2 );
+	width: 100%;
+	height: 100%;
+	background-color: var( --jp-white );
+	z-index: 0;
+	padding: calc( var( --spacing-base ) * 2 );
+	box-sizing: content-box;
+	border-radius: var( --spacing-base );
+	border: 1px solid var( --jp-gray-10 );
+}
+
 .video-card__title-section {
 	display: flex;
 	align-items: center;
@@ -81,6 +97,8 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
+	position: relative;
+	z-index: 10;
 }
 
 .video-card__video-plays-counter {
@@ -88,6 +106,8 @@
 	align-items: center;
 	color: var( --jp-gray-50 );
 	white-space: nowrap;
+	position: relative;
+	z-index: 10;
 
 	> svg {
 		fill: var( --jp-gray-50 );

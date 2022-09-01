@@ -13,6 +13,7 @@ import {
 } from '..';
 import { postersArray, randomPoster } from '../../../mock';
 import Doc from './VideoCard.mdx';
+import styles from './style.module.scss';
 /**
  * Types
  */
@@ -33,7 +34,13 @@ export default {
 	},
 } as ComponentMeta< typeof VideoCardComponent >;
 
-const Template: ComponentStory< typeof VideoCardComponent > = VideoCardComponent;
+const Template: ComponentStory< typeof VideoCardComponent > = args => {
+	return (
+		<div className={ styles[ 'video-card__story-wrapper' ] }>
+			<VideoCardComponent { ...args } />;
+		</div>
+	);
+};
 
 export const _default = Template.bind( {} );
 _default.args = {
@@ -43,20 +50,6 @@ _default.args = {
 	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
 	plays: 972,
 };
-
-// const Template: ComponentStory< typeof video-card > = video-card;
-
-// export const _default = Template.bind( {} );
-// _default.args = {
-// 	thumbnail: randomPoster(),
-// 	filename: 'video-thumbnail.png',
-// 	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
-// 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
-// 	onSelectFromVideo: action( 'onSelectFromVideo' ),
-// 	onUploadImage: action( 'onUploadImage' ),
-// 	editable: true,
-// 	duration: ( 4 * 60 + 20 ) * 1000, // 4 minutes and 20 seconds
-// };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
 
