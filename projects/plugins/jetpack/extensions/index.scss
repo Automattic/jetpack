@@ -3,6 +3,7 @@
 .is-beta-extension {
 	position: relative;
 	box-shadow: 0 0 3px var( --jp-green-30 );
+	transition: 0.5s box-shadow linear;
 
 	&::before {
 		content: 'BETA';
@@ -18,10 +19,17 @@
 		border-radius: 4px;
 		font-weight: 600;
 		z-index: 10000;
+		transition: visibility 0.5s, opacity 0.5s linear;
+		visibility: visible;
+		opacity: 1;
 	}
 
 	&:focus,
 	&:hover {
-		box-shadow: 0 0 10px solid var( --jp-green-30 );
+		box-shadow: none;
+		&::before {
+			opacity: 0;
+			visibility: hidden;
+		}
 	}
 }

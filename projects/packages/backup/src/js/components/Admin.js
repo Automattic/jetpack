@@ -74,6 +74,11 @@ const Admin = () => {
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
 					<AdminSectionHero>
+						<Container horizontalSpacing={ 0 }>
+							<Col>
+								<div id="jp-admin-notices" className="jetpack-backup-jitm-card" />
+							</Col>
+						</Container>
 						<LoadedState
 							connectionLoaded={ connectionLoaded }
 							connectionStatus={ connectionStatus }

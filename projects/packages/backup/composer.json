@@ -73,7 +73,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.7.x-dev"
+			"dev-trunk": "1.8.x-dev"
 		}
 	},
 	"config": {
