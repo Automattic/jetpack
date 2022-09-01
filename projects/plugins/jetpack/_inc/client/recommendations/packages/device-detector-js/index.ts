@@ -66,6 +66,15 @@ class DeviceDetector {
 			result.device.type = 'smartphone';
 		}
 
+		// Code has a hard time determining that iPads are tablets. According to https://developers.whatismybrowser.com/useragents/explore/operating_platform/ipad/, all userAgent strings that are iPads have the text 'iPad' in it, so we check for that here
+		if ( ! result.device?.type && this.hasIpadFragment( userAgent ) ) {
+			if ( ! result.device ) {
+				result.device = this.createDeviceObject();
+			}
+
+			result.device.type = 'tablet';
+		}
+
 		/**
 		 * Chrome on Android passes the device type based on the keyword 'Mobile'
 		 * If it is present the device should be a smartphone, otherwise it's a tablet
@@ -216,6 +225,10 @@ class DeviceDetector {
 
 	private hasIphoneFragment = ( userAgent: string ) => {
 		return userAgentParser( 'iPhone', userAgent );
+	};
+
+	private hasIpadFragment = ( userAgent: string ) => {
+		return userAgentParser( 'iPad', userAgent );
 	};
 
 	private isDesktop = ( os: OperatingSystemResult, osFamily: string ): boolean => {
