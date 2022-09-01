@@ -12,10 +12,6 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {
-	JETPACK_PLANS_WITH_BACKUP,
-	JETPACK_BACKUP_PRODUCTS,
-} from '../../../../../../projects/plugins/jetpack/_inc/client/lib/plans/constants';
 import useAnalytics from '../hooks/useAnalytics';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
@@ -186,7 +182,6 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 
 const ReviewMessage = connectionLoaded => {
 	const [ restores ] = useRestores( connectionLoaded );
-	const [ purchases ] = usePurchases( connectionLoaded );
 	const [ backups ] = useBackups( connectionLoaded );
 	const { tracks } = useAnalytics();
 	let requestReason = '';
@@ -206,40 +201,20 @@ const ReviewMessage = connectionLoaded => {
 		return false;
 	};
 
-	// Check if the site has an active Backup subscription older than 3 months
-	const hasThreeMonthsSub = () => {
-		if ( ! Array.isArray( purchases ) || purchases.length === 0 ) {
+	// Check if the last 5 backups were successful
+	const hasFiveSuccessfulBackups = () => {
+		if ( backups.length < 5 || ! Array.isArray( backups ) ) {
 			return false;
 		}
 
-		for ( const purchase of purchases ) {
-			const isActive = purchase.subscription_status === 'active';
-			const isBackupPlan =
-				JETPACK_BACKUP_PRODUCTS.includes( purchase.product_slug ) ||
-				JETPACK_PLANS_WITH_BACKUP.includes( purchase.product_slug );
-
-			if ( isBackupPlan && isActive ) {
-				const subscriptionTimeInDays =
-					( new Date() - Date.parse( purchase.subscribed_date ) ) / 86400000;
-
-				if ( subscriptionTimeInDays > 90 ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	};
-
-	// Check if the last 5 backups were successful
-	const hasFiveSuccessfulBackups = () => {
+		let fiveSuccessfulBackups = true;
 		backups.slice( 0, 5 ).forEach( backup => {
 			if ( ! 'finished' === backup.status || ! backup.stats ) {
-				return false;
+				fiveSuccessfulBackups = false;
 			}
 		} );
 
-		return true;
+		return fiveSuccessfulBackups;
 	};
 
 	const trackSendToReview = useCallback( () => {
@@ -249,9 +224,6 @@ const ReviewMessage = connectionLoaded => {
 	if ( hasRecentSuccesfulRestore() ) {
 		requestReason = 'restore';
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
-	} else if ( hasThreeMonthsSub() ) {
-		requestReason = 'time_based';
-		reviewText = __( 'Are you happy with Jetpack Backup?', 'jetpack-backup-pkg' );
 	} else if ( hasFiveSuccessfulBackups() ) {
 		requestReason = 'backups';
 		reviewText = __(
@@ -265,7 +237,7 @@ const ReviewMessage = connectionLoaded => {
 		requestReason
 	);
 
-	if ( ! hasRecentSuccesfulRestore() && ! hasThreeMonthsSub() ) {
+	if ( ! hasRecentSuccesfulRestore() && ! hasFiveSuccessfulBackups() ) {
 		return null;
 	}
 
@@ -334,28 +306,6 @@ const useBackups = connectionLoaded => {
 	}, [ setBackups, connectionLoaded ] );
 
 	return [ backups, setBackups ];
-};
-
-// eslint-disable-next-line react-hooks/exhaustive-deps
-const usePurchases = connectionLoaded => {
-	const [ purchases, setPurchases ] = useState( [] );
-
-	useEffect( () => {
-		if ( ! connectionLoaded ) {
-			return;
-		}
-
-		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
-			res => {
-				setPurchases( res );
-			},
-			() => {
-				setPurchases( [] );
-			}
-		);
-	}, [ setPurchases, connectionLoaded ] );
-
-	return [ purchases, setPurchases ];
 };
 
 const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
