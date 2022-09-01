@@ -14,7 +14,7 @@ namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Admin\Admin;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
@@ -171,8 +171,7 @@ class Jetpack_Boost {
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
 	public function handle_environment_change() {
-		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
-		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
+		Regenerate_Admin_Notice::enable();
 	}
 
 	/**
