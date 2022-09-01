@@ -22,6 +22,7 @@
 		object-fit: cover;
 		aspect-ratio: var( --videopress-video-item-aspect-radio );
 		height: 100%;
+		display: block;
 	}
 
 	.video-thumbnail-edit {
@@ -70,26 +71,48 @@
 	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
 	max-width: var( --videopress-video-item-max-width );
 	position: relative;
+
+	&:hover {
+		.video-card__background {
+			opacity: 1;
+			z-index: 5;
+			top: calc( var( --spacing-base ) * -2 );
+			left: calc( var( --spacing-base ) * -2 );
+			padding: calc( var( --spacing-base ) * 2 );
+		}
+
+		.video-card__thumbnail {
+			z-index: 10;
+		}
+
+		.video-card__quick-actions-section {
+			z-index: 10;
+			opacity: 1;
+		}
+	}
 }
 
 .video-card__background {
 	position: absolute;
-	top: calc( var( --spacing-base ) * -2 );
-	left: calc( var( --spacing-base ) * -2 );
 	width: 100%;
 	height: 100%;
+	top: 0;
+	left: 0;
+	padding: 0;
 	background-color: var( --jp-white );
 	z-index: 0;
-	padding: calc( var( --spacing-base ) * 2 );
 	box-sizing: content-box;
 	border-radius: var( --spacing-base );
 	border: 1px solid var( --jp-gray-10 );
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out, padding 0.2s ease-in-out, top 0.2s ease-in-out, left 0.2s ease-in-out;
 }
 
 .video-card__title-section {
 	display: flex;
 	align-items: center;
 	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-bottom: calc( var( --spacing-base ) * 2 );
 }
 
 .video-card__title {
@@ -112,4 +135,10 @@
 	> svg {
 		fill: var( --jp-gray-50 );
 	}
+}
+
+.video-card__quick-actions-section {
+	opacity: 0;
+	position: relative;
+	transition: opacity 0.2s ease-in-out;
 }

@@ -89,6 +89,7 @@ export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = (
  * @returns {React.ReactNode} - VideoThumbnail react component.
  */
 export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropdownProps > = ( {
+	className,
 	thumbnail,
 	duration,
 	editable,
@@ -99,7 +100,9 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropd
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
-		<div className={ classnames( styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }>
+		<div
+			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
+		>
 			{ editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
@@ -165,7 +168,12 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 	return (
 		<div className={ styles[ 'video-card__wrapper' ] }>
 			<div className={ styles[ 'video-card__background' ] } />
-			<VideoThumbnail thumbnail={ thumbnail } duration={ duration } editable={ editable } />
+			<VideoThumbnail
+				className={ styles[ 'video-card__thumbnail' ] }
+				thumbnail={ thumbnail }
+				duration={ duration }
+				editable={ editable }
+			/>
 			<div className={ styles[ 'video-card__title-section' ] }>
 				<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
 					{ title }

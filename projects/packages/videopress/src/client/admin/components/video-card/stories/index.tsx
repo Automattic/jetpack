@@ -37,7 +37,7 @@ export default {
 const Template: ComponentStory< typeof VideoCardComponent > = args => {
 	return (
 		<div className={ styles[ 'video-card__story-wrapper' ] }>
-			<VideoCardComponent { ...args } />;
+			<VideoCardComponent { ...args } />
 		</div>
 	);
 };

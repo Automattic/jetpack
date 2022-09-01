@@ -1,5 +1,10 @@
 export type VideoThumbnailProps = {
 	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
