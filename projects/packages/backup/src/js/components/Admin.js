@@ -187,6 +187,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 const ReviewMessage = connectionLoaded => {
 	const [ restores ] = useRestores( connectionLoaded );
 	const [ purchases ] = usePurchases( connectionLoaded );
+	const [ backups ] = useBackups( connectionLoaded );
 	const { tracks } = useAnalytics();
 	let requestReason = '';
 	let reviewText = '';
@@ -230,6 +231,17 @@ const ReviewMessage = connectionLoaded => {
 		return false;
 	};
 
+	// Check if the last 5 backups were successful
+	const hasFiveSuccessfulBackups = () => {
+		backups.slice( 0, 5 ).forEach( backup => {
+			if ( ! 'finished' === backup.status || ! backup.stats ) {
+				return false;
+			}
+		} );
+
+		return true;
+	};
+
 	const trackSendToReview = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
@@ -240,6 +252,12 @@ const ReviewMessage = connectionLoaded => {
 	} else if ( hasThreeMonthsSub() ) {
 		requestReason = 'time_based';
 		reviewText = __( 'Are you happy with Jetpack Backup?', 'jetpack-backup-pkg' );
+	} else if ( hasFiveSuccessfulBackups() ) {
+		requestReason = 'backups';
+		reviewText = __(
+			'Do you enjoy the peace of mind of having real-time backups?',
+			'jetpack-backup-pkg'
+		);
 	}
 
 	const [ dismissedReview, dismissMessage ] = useDismissedReviewRequest(
@@ -295,6 +313,27 @@ const useRestores = connectionLoaded => {
 	}, [ setRestores, connectionLoaded ] );
 
 	return [ restores, setRestores ];
+};
+
+const useBackups = connectionLoaded => {
+	const [ backups, setBackups ] = useState( [] );
+
+	useEffect( () => {
+		if ( ! connectionLoaded ) {
+			setBackups( [] );
+			return;
+		}
+		apiFetch( { path: '/jetpack/v4/backups' } ).then(
+			res => {
+				setBackups( res );
+			},
+			() => {
+				setBackups( [] );
+			}
+		);
+	}, [ setBackups, connectionLoaded ] );
+
+	return [ backups, setBackups ];
 };
 
 // eslint-disable-next-line react-hooks/exhaustive-deps
