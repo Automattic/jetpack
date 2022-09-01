@@ -30,7 +30,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 		}
 
 		if ( ! class_exists( 'Jetpack_Tweetstorm_Helper' ) ) {
-			\jetpack_require_lib( 'class-jetpack-tweetstorm-helper' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-tweetstorm-helper.php';
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
