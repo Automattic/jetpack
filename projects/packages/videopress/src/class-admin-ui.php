@@ -255,18 +255,15 @@ class Admin_UI {
 	 */
 	public static function attachment_details_template() {
 		?>
+		<script type="text/html" id="tmpl-videopress_iframe_vnext">
+			<iframe class="videopress-iframe" style="display: block; max-width: 100%; max-height: 180px;" width="{{ data.width }}" height="{{ data.height }}" src="https://videopress.com/embed/{{ data.guid }}?{{ data.urlargs }}" frameborder='0' allowfullscreen></iframe>
+		</script>
 		<script type="text/html" id="tmpl-attachment-details-videopress">
 			<h2>
 				<?php echo self::get_logo_svg(); ?>
 			</h2>
 			<div class="attachment-info">
 				<div class="wp-media-wrapper wp-video">
-					<video controls="controls" class="wp-video-shortcode" preload="metadata"
-						<# if ( data.width ) { #>width="{{ data.width }}"<# } #>
-						<# if ( data.height ) { #>height="{{ data.height }}"<# } #>
-						<# if ( data.image && data.image.src !== data.icon ) { #>poster="{{ data.image.src }}"<# } #>>
-						<source type="{{ data.mime }}" src="{{ data.url }}" />
-					</video>
 				</div>
 				<?php self::attachment_info_template_part(); ?>
 			</div>
@@ -274,22 +271,43 @@ class Admin_UI {
 		<script>
 			jQuery(document).ready( function($) {
 				if( typeof wp.media.view.Attachment.Details != 'undefined' ){
-					wp.media.view.Attachment.Details.prototype.initialize = function() {
-						if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
-							this.template = wp.template( 'attachment-details-videopress' );
-						} else {
-							this.template = wp.template( 'attachment-details' );
+					var DetailsTemplate = wp.media.view.Attachment.Details,
+						old_render      = DetailsTemplate.prototype.render,
+						vp_template     = wp.template('videopress_iframe_vnext');
+
+						DetailsTemplate.prototype.initialize = function() {
+							if ( 'video' === this.model.attributes.type && 'videopress' === this.model.attributes.subtype ) {
+								this.template = wp.template( 'attachment-details-videopress' );
+							} else {
+								this.template = wp.template( 'attachment-details' );
+							}
+							// From this point on, we are just copying the function from core.
+							this.options = _.defaults( this.options, {
+								rerenderOnModelChange: false
+							});
+
+							// Call 'initialize' directly on the parent class.
+							wp.media.view.Attachment.prototype.initialize.apply( this, arguments );
+
+							this.copyAttachmentDetailsURLClipboard();
 						}
-						// From this point on, we are just copying the function from core.
-						this.options = _.defaults( this.options, {
-							rerenderOnModelChange: false
-						});
 
-						// Call 'initialize' directly on the parent class.
-						wp.media.view.Attachment.prototype.initialize.apply( this, arguments );
+						// Add the VideoPress player
+						DetailsTemplate.prototype.render = function() {
+							// Have the original renderer run first.
+							old_render.apply( this, arguments );
 
-						this.copyAttachmentDetailsURLClipboard();
-					}
+							// Now our stuff!
+							if ( 'video' === this.model.get('type') ) {
+								if ( this.model.get('videopress_guid') ) {
+									this.$('.attachment-info .wp-video').html( vp_template( {
+										guid   : this.model.get('videopress_guid'),
+										// width  : this.model.get('width') > 0 ? this.model.get('width') : '100%',
+										// height : this.model.get('height') > 0 ? this.model.get('height') : '100%'
+									}));
+								}
+							}
+						};
 				}
 			});
 		</script>
