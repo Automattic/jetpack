@@ -1345,6 +1345,7 @@ importers:
       svelte-preprocess: 4.9.2
       tslib: 2.3.1
       typescript: 4.8.2
+      zod: 3.18.0
     dependencies:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@wordpress/components': 20.0.0_q6el6r4hbd2fftzckrwpdnyobi
@@ -1384,6 +1385,7 @@ importers:
       svelte-preprocess: 4.9.2_xyrucombecydo2dbpxndy5gm5q
       tslib: 2.3.1
       typescript: 4.8.2
+      zod: 3.18.0
 
   projects/plugins/boost/tests/e2e:
     specifiers:
@@ -22220,6 +22222,10 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: false
+
+  /zod/3.18.0:
+    resolution: {integrity: sha512-gwTm8RfUCe8l9rDwN5r2A17DkAa8Ez4Yl4yXqc5VqeGaXaJahzYYXbTwvhroZi0SNBqTwh/bKm2N0mpCzuw4bA==}
+    dev: true
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
