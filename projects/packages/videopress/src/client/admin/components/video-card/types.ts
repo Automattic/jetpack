@@ -1,5 +1,10 @@
 export type VideoThumbnailProps = {
 	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
 	 * Video thumbnial image
 	 */
 	thumbnail: string;
@@ -47,4 +52,15 @@ export type VideoDetailsProps = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+};
+
+export type VideoPressVideoProp = {
+	id: number | string;
+	title: string;
+	uploadDate: string;
+	posterImage?: string;
+	duration?: number;
+	plays?: number;
+	isPrivate?: boolean;
+	onVideoDetailsClick?: () => void;
 };

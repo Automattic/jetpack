@@ -1,10 +1,18 @@
 /**
  * External dependencies
  */
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	useBreakpointMatch,
+	Title,
+	numberFormat,
+} from '@automattic/jetpack-components';
+import { Icon } from '@wordpress/components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { chartBar } from '@wordpress/icons';
 import { edit, cloud, image, media } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
@@ -12,7 +20,12 @@ import classnames from 'classnames';
  */
 import ClipboardButtonInput from '../clipboard-button-input';
 import styles from './style.module.scss';
-import { VideoDetailsProps, VideoThumbnailProps, VideoThumbnailDropdownProps } from './types';
+import {
+	VideoDetailsProps,
+	VideoThumbnailProps,
+	VideoThumbnailDropdownProps,
+	VideoPressVideoProp,
+} from './types';
 import type React from 'react';
 
 export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
@@ -76,6 +89,7 @@ export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = (
  * @returns {React.ReactNode} - VideoThumbnail react component.
  */
 export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropdownProps > = ( {
+	className,
 	thumbnail,
 	duration,
 	editable,
@@ -86,7 +100,9 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropd
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
-		<div className={ classnames( styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }>
+		<div
+			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
+		>
 			{ editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
@@ -131,39 +147,55 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
 };
 
 /**
- * Video Details Card component
+ * Video Card component
  *
  * @param {VideoThumbnailProps} props - Component props.
- * @returns {React.ReactNode} - VideoDetailsCard react component.
+ * @returns {React.ReactNode} - VideoCard react component.
  */
-const VideoDetailsCard: React.FC<
-	VideoDetailsProps & VideoThumbnailProps & VideoThumbnailDropdownProps
-> = ( {
-	filename,
-	src,
-	uploadDate,
+export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = ( {
+	title,
 	duration,
-
+	plays,
 	thumbnail,
-	onUseDefaultThumbnail,
-	onSelectFromVideo,
-	onUploadImage,
 	editable,
+	onVideoDetailsClick,
 } ) => {
-	return (
-		<div className={ styles.wrapper }>
-			<VideoThumbnail
-				thumbnail={ thumbnail }
-				onUseDefaultThumbnail={ onUseDefaultThumbnail }
-				onSelectFromVideo={ onSelectFromVideo }
-				onUploadImage={ onUploadImage }
-				editable={ editable }
-				duration={ duration }
-			/>
+	const playsCount = sprintf(
+		/* translators: placeholder is a product name */
+		__( '%s plays', 'jetpack-videopress-pkg' ),
+		numberFormat( plays )
+	);
 
-			<VideoDetails filename={ filename } src={ src } uploadDate={ uploadDate } />
+	return (
+		<div className={ styles[ 'video-card__wrapper' ] }>
+			<div className={ styles[ 'video-card__background' ] } />
+			<VideoThumbnail
+				className={ styles[ 'video-card__thumbnail' ] }
+				thumbnail={ thumbnail }
+				duration={ duration }
+				editable={ editable }
+			/>
+			<div className={ styles[ 'video-card__title-section' ] }>
+				<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
+					{ title }
+				</Title>
+				<Text
+					weight="regular"
+					size="small"
+					component="div"
+					className={ styles[ 'video-card__video-plays-counter' ] }
+				>
+					<Icon icon={ chartBar } />
+					{ playsCount }
+				</Text>
+			</div>
+			<div className={ styles[ 'video-card__quick-actions-section' ] }>
+				<Button variant="primary" size="small" onClick={ onVideoDetailsClick }>
+					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
+				</Button>
+			</div>
 		</div>
 	);
 };
 
-export default VideoDetailsCard;
+export default VideoCard;
