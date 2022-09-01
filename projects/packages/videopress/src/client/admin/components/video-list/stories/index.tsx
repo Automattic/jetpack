@@ -78,4 +78,9 @@ _default.args = {
 			isPrivate: true,
 		},
 	],
+	hidePrivacy: false,
+	hideDuration: false,
+	hidePlays: false,
+	hideEditButton: false,
+	hideQuickActions: false,
 };
