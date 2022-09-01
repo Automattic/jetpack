@@ -10,23 +10,25 @@ const { debug } = require( './debug' );
 function getPlaywrightBlocks() {
 	const blocks = [];
 	const { reports, parseError } = getPlaywrightReports();
+	const failedTests = [];
+	const failureDetailsBlocks = [];
+	let specsCount = 0;
 
 	for ( const report of reports ) {
 		const suites = flattenSuites( report.suites );
 
+		//TODO I shouldn't be here. Please remove me if you found me.
 		fs.writeFileSync( './tests/ignore/_suites.json', JSON.stringify( suites, null, 2 ) );
 
 		let specs = [];
 		suites.forEach( s => ( specs = specs.concat( s.specs ) ) );
 
-		const summaryLines = [];
-		const failureDetailsBlocks = [];
-
 		// Go through each spec, check tests and results and extract failure details
 		// Expected structure spec: {tests: [{results: [{}]}]}
+		specsCount += specs.length;
 		specs.forEach( spec => {
 			if ( ! spec.ok ) {
-				summaryLines.push( `- ${ spec.title }` );
+				failedTests.push( `- ${ spec.title }` );
 
 				// Go through each test of the spec
 				spec.tests.forEach( t => {
@@ -50,38 +52,32 @@ function getPlaywrightBlocks() {
 								],
 							}
 						);
-
-						// r.attachments.forEach( attachment => {
-						// 	if ( attachment.contentType === 'image/png' ) {
-						// 		failureDetailsBlocks.push( {
-						// 			type: 'image',
-						// 			image_url: attachment.path,
-						// 			alt_text: attachment.name,
-						// 		} );
-						// 	}
-						// } );
 					} );
 				} );
 			}
 		} );
-
-		if ( parseError ) {
-			summaryLines.push( 'There was a problem parsing one of the test results file.' );
-		}
-
-		blocks.push(
-			{
-				type: 'context',
-				elements: [
-					{
-						type: 'mrkdwn',
-						text: summaryLines.join( '\n' ),
-					},
-				],
-			},
-			...failureDetailsBlocks
-		);
 	}
+
+	if ( parseError ) {
+		failedTests.push( 'There was a problem parsing one of the test results file.' );
+	}
+
+	blocks.push(
+		{
+			type: 'context',
+			elements: [
+				{
+					type: 'mrkdwn',
+					text: `*${ failedTests.length }/${ specsCount } tests failed*`,
+				},
+				{
+					type: 'mrkdwn',
+					text: failedTests.join( '\n' ),
+				},
+			],
+		},
+		...failureDetailsBlocks
+	);
 
 	return blocks;
 }

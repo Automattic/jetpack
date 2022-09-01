@@ -1,4 +1,3 @@
-const fs = require( 'fs' );
 const { debug, error } = require( './debug' );
 
 /**
@@ -36,28 +35,6 @@ async function postOrUpdateMessage( client, update, options ) {
 		}
 	}
 
-	return response;
-}
-
-/**
- * Uploads a file to Slack
- *
- * @param {object} client - the Slack client
- * @param {string} filePath - the path to the file to upload
- * @param {string} channel - the channel to upload the file to
- */
-//eslint-disable-next-line no-unused-vars
-async function uploadFile( client, filePath, channel ) {
-	let response;
-	try {
-		response = await client.files.upload( {
-			fileName: filePath,
-			file: fs.createReadStream( filePath ),
-			channel,
-		} );
-	} catch ( err ) {
-		error( err );
-	}
 	return response;
 }
 
