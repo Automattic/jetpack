@@ -1,6 +1,6 @@
 import { VideoPressVideoProp } from '../video-card/types';
 
-export type VideosGridProps = {
+export type VideoGridProps = {
 	/**
 	 * Array of VideoPressVideo objects
 	 */

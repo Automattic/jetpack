@@ -7,15 +7,15 @@ import { Container, Col } from '@automattic/jetpack-components';
  */
 import { VideoCard } from '../video-card';
 import styles from './style.module.scss';
-import { VideosGridProps } from './types';
+import { VideoGridProps } from './types';
 import type React from 'react';
 /**
- * Videos Grid component
+ * Video Grid component
  *
- * @param {VideosGridProps} props - Component props.
- * @returns {React.ReactNode} - VideosGrid react component.
+ * @param {VideoGridProps} props - Component props.
+ * @returns {React.ReactNode} - VideoGrid react component.
  */
-const VideosGrid: React.FC< VideosGridProps > = ( { videos, count = 6 } ) => {
+const VideoGrid: React.FC< VideoGridProps > = ( { videos, count = 6 } ) => {
 	if ( ! videos || ! videos.length ) {
 		return null;
 	}
@@ -44,4 +44,4 @@ const VideosGrid: React.FC< VideosGridProps > = ( { videos, count = 6 } ) => {
 	);
 };
 
-export default VideosGrid;
+export default VideoGrid;
