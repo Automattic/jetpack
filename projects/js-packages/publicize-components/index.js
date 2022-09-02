@@ -10,6 +10,7 @@ export { default as TwitterThreadListener } from './src/components/twitter';
 export { default as TwitterOptions } from './src/components/twitter/options';
 export { default as SocialPreviewsModal } from './src/components/social-previews/modal';
 export { default as SocialPreviewsPanel } from './src/components/social-previews/panel';
+export { default as PublicizePanel } from './src/components/panel';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';

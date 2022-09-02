@@ -1,19 +1,25 @@
 import { SocialIcon } from '@automattic/jetpack-components';
-import { SocialPreviewsModal, SocialPreviewsPanel } from '@automattic/jetpack-publicize-components';
+import {
+	SocialPreviewsModal,
+	SocialPreviewsPanel,
+	usePublicizeConfig,
+	useSocialMediaConnections,
+	PublicizePanel,
+} from '@automattic/jetpack-publicize-components';
 import { PanelBody } from '@wordpress/components';
-import { dispatch } from '@wordpress/data';
+import { dispatch, useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
 import {
 	PluginSidebar,
 	PluginSidebarMoreMenuItem,
 	PluginPrePublishPanel,
 } from '@wordpress/edit-post';
-import { PostTypeSupportCheck } from '@wordpress/editor';
+import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { getQueryArg } from '@wordpress/url';
-import PublicizePanel from './components/publicize-panel';
+import Description from './components/publicize-panel/description';
 
 import './editor.scss';
 
@@ -39,6 +45,20 @@ const JetpackSocialSidebar = () => {
 	const openModal = useCallback( () => setIsModalOpened( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
+	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const PanelDescription = () => (
+		<Description
+			{ ...{
+				isPostPublished,
+				isPublicizeEnabled,
+				hidePublicizeFeature,
+				hasConnections,
+				hasEnabledConnections,
+			} }
+		/>
+	);
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }
@@ -48,14 +68,18 @@ const JetpackSocialSidebar = () => {
 			</PluginSidebarMoreMenuItem>
 
 			<PluginSidebar name="jetpack-social" title="Jetpack Social" icon={ <SocialIcon /> }>
-				<PublicizePanel />
+				<PublicizePanel>
+					<PanelDescription />
+				</PublicizePanel>
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
 			</PluginSidebar>
 
 			<PluginPrePublishPanel initialOpen title={ __( 'Share this post', 'jetpack-social' ) }>
-				<PublicizePanel prePublish={ true } />
+				<PublicizePanel prePublish={ true }>
+					<PanelDescription />
+				</PublicizePanel>
 			</PluginPrePublishPanel>
 
 			<PluginPrePublishPanel initialOpen title={ __( 'Social Previews', 'jetpack-social' ) }>

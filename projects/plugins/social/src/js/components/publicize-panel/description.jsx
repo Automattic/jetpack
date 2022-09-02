@@ -14,6 +14,10 @@ const descriptions = {
 		'jetpack-social'
 	),
 	published: __( 'Posts can only be shared as they are first published.', 'jetpack-social' ),
+	reshare: __(
+		'Share this post on all your enabled social media accounts by clicking on the share post button.',
+		'jetpack-social'
+	),
 };
 
 const getDescription = ( {
@@ -21,6 +25,7 @@ const getDescription = ( {
 	hasConnections,
 	hasEnabledConnections,
 	hidePublicizeFeature,
+	isPostPublished,
 } ) => {
 	if ( hidePublicizeFeature ) {
 		return descriptions.published;
@@ -28,11 +33,13 @@ const getDescription = ( {
 	if ( ! hasConnections ) {
 		return descriptions.start;
 	}
-	if ( isPublicizeEnabled && hasEnabledConnections ) {
+	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
+		return descriptions.disabled;
+	}
+	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
 		return descriptions.enabled;
 	}
-
-	return descriptions.disabled;
+	return descriptions.reshare;
 };
 
 /**

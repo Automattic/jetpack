@@ -8,6 +8,8 @@ import {
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -49,7 +51,7 @@ function getPanelDescription(
 	);
 }
 
-export default function UpsellNotice( { isPostPublished } ) {
+export default function UpsellNotice() {
 	const {
 		isRePublicizeUpgradableViaUpsell,
 		isRePublicizeFeatureAvailable,
@@ -59,6 +61,7 @@ export default function UpsellNotice( { isPostPublished } ) {
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow( requiredPlan );
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isRePublicizeUpgradableViaUpsell;
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
 	 * Publicize:

@@ -8,12 +8,12 @@
  * displays the Publicize UI there.
  */
 
-import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
+import { TwitterThreadListener, PublicizePanel } from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import PublicizePanel from './components/panel';
+import UpsellNotice from './components/upsell';
 
 import './editor.scss';
 
@@ -25,7 +25,9 @@ export const settings = {
 			<TwitterThreadListener />
 
 			<JetpackPluginSidebar>
-				<PublicizePanel />
+				<PublicizePanel>
+					<UpsellNotice />
+				</PublicizePanel>
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
@@ -37,7 +39,9 @@ export const settings = {
 					</span>
 				}
 			>
-				<PublicizePanel prePublish={ true } />
+				<PublicizePanel prePublish={ true }>
+					<UpsellNotice />
+				</PublicizePanel>
 			</PluginPrePublishPanel>
 		</PostTypeSupportCheck>
 	),
