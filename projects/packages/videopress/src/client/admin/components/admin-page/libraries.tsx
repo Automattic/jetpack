@@ -29,11 +29,13 @@ const VideoLibraryWrapper = ( {
 	totalVideos = 0,
 	libraryType = LibraryType.List,
 	onChangeType,
+	hideFilter = false,
 }: {
 	children: React.ReactNode;
 	libraryType?: LibraryType;
 	totalVideos?: number;
 	onChangeType?: () => void;
+	hideFilter?: boolean;
 } ) => {
 	const handleSearchChange = () => {
 		// TODO: implement search
@@ -50,18 +52,20 @@ const VideoLibraryWrapper = ( {
 			</Text>
 			<div className={ styles[ 'total-filter-wrapper' ] }>
 				<Text>{ totalVideos } Video</Text>
-				<div className={ styles[ 'filter-wrapper' ] }>
-					<SearchInput onChange={ handleSearchChange } onEnter={ handleSearch } />
-					<Button variant="secondary" icon={ filterIcon } weight="regular">
-						Filters
-					</Button>
-					<Button
-						variant="tertiary"
-						size="small"
-						icon={ libraryType === LibraryType.List ? grid : formatListBullets }
-						onClick={ onChangeType }
-					/>
-				</div>
+				{ hideFilter ? null : (
+					<div className={ styles[ 'filter-wrapper' ] }>
+						<SearchInput onChange={ handleSearchChange } onEnter={ handleSearch } />
+						<Button variant="secondary" icon={ filterIcon } weight="regular">
+							Filters
+						</Button>
+						<Button
+							variant="tertiary"
+							size="small"
+							icon={ libraryType === LibraryType.List ? grid : formatListBullets }
+							onClick={ onChangeType }
+						/>
+					</div>
+				) }
 			</div>
 			{ children }
 			<Pagination
@@ -99,7 +103,7 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 
 export const LocalLibrary = ( { videos }: VideoLibraryProps ) => {
 	return (
-		<VideoLibraryWrapper totalVideos={ videos?.length }>
+		<VideoLibraryWrapper totalVideos={ videos?.length } hideFilter>
 			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
 		</VideoLibraryWrapper>
 	);
