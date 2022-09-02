@@ -6,15 +6,9 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import privacy from '../video-row/privacy-icon';
 import styles from './style.module.scss';
-import { ActionItemProps } from './types';
+import { ActionItemProps, PopoverWithAnchorProps, VideoQuickActionsProps } from './types';
 
-const PopoverWithAnchor = ( {
-	anchorRef,
-	children = null,
-}: {
-	anchorRef: HTMLElement | null;
-	children: React.ReactNode;
-} ) => {
+const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorProps ) => {
 	if ( ! anchorRef ) {
 		return null;
 	}
@@ -51,12 +45,7 @@ const VideoQuickActions = ( {
 	onUpdateThumbnailClick,
 	onUpdateUpdatePrivacyClick,
 	onDeleteClick,
-}: {
-	className?: string;
-	onUpdateThumbnailClick: () => void;
-	onUpdateUpdatePrivacyClick: () => void;
-	onDeleteClick: () => void;
-} ) => {
+}: VideoQuickActionsProps ) => {
 	return (
 		<div className={ classNames( styles.actions, className ) }>
 			<ActionItem icon={ image } onClick={ onUpdateThumbnailClick }>
