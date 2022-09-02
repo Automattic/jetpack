@@ -9,7 +9,7 @@ import Checkbox from '../checkbox';
 import VideoQuickActions from '../video-quick-actions';
 import StatsBase from './stats';
 import styles from './style.module.scss';
-import { VideoPressVideo, VideoRowProps } from './types';
+import { VideoRowProps } from './types';
 
 const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
 	if ( milliseconds ) {
@@ -83,7 +83,7 @@ const Stats = ( {
 const VideoRow = ( {
 	className = '',
 	checked = false,
-	videoTitle,
+	title,
 	posterImage,
 	duration,
 	uploadDate,
@@ -129,7 +129,7 @@ const VideoRow = ( {
 			'Video: %1$s, Duration: %2$s, Upload Date: %3$s. Click to edit details.',
 			'jetpack-videopress-pkg'
 		),
-		videoTitle,
+		title,
 		durationInMinutesAndSeconds,
 		uploadDateFormatted
 	);
@@ -219,11 +219,11 @@ const VideoRow = ( {
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
-								{ videoTitle }
+								{ title }
 							</Text>
 						) }
 						<Text variant="title-small" className={ styles.title } ref={ textRef }>
-							{ videoTitle }
+							{ title }
 						</Text>
 						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
 					</div>
@@ -263,6 +263,6 @@ const VideoRow = ( {
 	);
 };
 
-export type { VideoPressVideo };
+export type { VideoRowProps };
 export { StatsBase as Stats };
 export default VideoRow;
