@@ -54,7 +54,7 @@ export type VideoDetailsProps = {
 	uploadDate: string;
 };
 
-export type VideoPressVideoProp = {
+export type VideoCardProps = {
 	/**
 	 * Video ID
 	 */

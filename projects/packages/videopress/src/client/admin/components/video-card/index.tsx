@@ -25,7 +25,7 @@ import {
 	VideoDetailsProps,
 	VideoThumbnailProps,
 	VideoThumbnailDropdownProps,
-	VideoPressVideoProp,
+	VideoCardProps,
 } from './types';
 import type React from 'react';
 
@@ -153,7 +153,7 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
  * @param {VideoThumbnailProps} props - Component props.
  * @returns {React.ReactNode} - VideoCard react component.
  */
-export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = ( {
+export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	title,
 	duration,
 	plays,
