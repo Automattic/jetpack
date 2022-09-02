@@ -8,12 +8,15 @@ import { VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
-	onClickEdit,
 	hideQuickActions,
 	hidePrivacy = false,
 	hideDuration = false,
 	hidePlays = false,
 	hideEditButton = false,
+	onClickEdit,
+	onUpdateThumbnailClick,
+	onUpdateUpdatePrivacyClick,
+	onDeleteClick,
 }: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
@@ -27,8 +30,8 @@ const VideoList = ( {
 		}
 	};
 
-	const handleClickEdit = index => () => {
-		onClickEdit?.( videos[ index ] );
+	const handleClickWithIndex = ( index, callback ) => () => {
+		callback?.( videos[ index ] );
 	};
 
 	return (
@@ -61,7 +64,10 @@ const VideoList = ( {
 						plays={ hidePlays ? null : video.plays }
 						className={ styles.row }
 						checked={ selected.includes( index ) }
-						onClickEdit={ handleClickEdit( index ) }
+						onClickEdit={ handleClickWithIndex( index, onClickEdit ) }
+						onUpdateThumbnailClick={ handleClickWithIndex( index, onUpdateThumbnailClick ) }
+						onUpdateUpdatePrivacyClick={ handleClickWithIndex( index, onUpdateUpdatePrivacyClick ) }
+						onDeleteClick={ handleClickWithIndex( index, onDeleteClick ) }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );
