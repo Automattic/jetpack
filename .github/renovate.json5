@@ -1,0 +1,15 @@
+{
+	// Paths and files for renovate to ignore.
+	// We have to override this because the default from config:base catches projects/plugins/*/tests/e2e/package.json which we do want processed.
+	// We have to do it here rather than renovate-config.js because `extends` and `globalExtends` both somehow overwrite it when defined there, even with `ignorePresets`.
+	ignorePresets: [ ':ignoreModulesAndTests' ],
+	ignorePaths: [
+		'**/node_modules/**',
+		'**/vendor/**',
+		'**/examples/**',
+		'**/__tests__/**',
+		'**/test/**',
+		'**/tests/!(e2e/package.json)',
+		'**/__fixtures__/**',
+	],
+}
