@@ -9,7 +9,7 @@
 		'**/examples/**',
 		'**/__tests__/**',
 		'**/test/**',
-		'**/tests/!(e2e/package.json)',
+		'**/tests/!(e2e)/**',
 		'**/__fixtures__/**',
 	],
 }
