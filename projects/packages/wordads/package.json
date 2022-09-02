@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-wordads",
-	"version": "0.2.13",
+	"version": "0.2.14-alpha",
 	"description": "Earn income by allowing Jetpack to display high quality ads.",
 	"main": "main.js",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wordads/#readme",
@@ -34,7 +34,7 @@
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.13",
-		"@automattic/jetpack-components": "workspace:* || ^0.18",
+		"@automattic/jetpack-components": "workspace:* || ^0.19",
 		"@wordpress/base-styles": "4.7.0",
 		"@wordpress/block-editor": "9.8.0",
 		"@wordpress/data": "7.0.0",
