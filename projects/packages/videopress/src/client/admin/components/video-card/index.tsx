@@ -13,11 +13,12 @@ import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import { edit, cloud, image, media } from '@wordpress/icons';
+import { edit, cloud, image, media, trash } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import privacy from '../../../components/icons/privacy-icon';
 import ClipboardButtonInput from '../clipboard-button-input';
 import styles from './style.module.scss';
 import {
@@ -190,9 +191,36 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 				</Text>
 			</div>
 			<div className={ styles[ 'video-card__quick-actions-section' ] }>
-				<Button variant="primary" size="small" onClick={ onVideoDetailsClick }>
+				<Button
+					variant="primary"
+					size="small"
+					onClick={ onVideoDetailsClick }
+					className={ styles[ 'video-card__quick-actions__edit-button' ] }
+				>
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
+
+				<div className={ styles[ 'video-card__quick-actions__edit-buttons' ] }>
+					<Button
+						variant="tertiary"
+						icon={ image }
+						size="small"
+						title={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+					/>
+					<Button
+						variant="tertiary"
+						icon={ privacy }
+						size="small"
+						title={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+					/>
+					<Button
+						variant="tertiary"
+						isDestructive={ true }
+						icon={ trash }
+						size="small"
+						title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+					/>
+				</div>
 			</div>
 		</div>
 	);
