@@ -57,9 +57,9 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 			>
 				<circle
 					className="record-meter-donut-hole"
-					cx="20"
-					cy="20"
-					r="15.91549430918954"
+					cx="20" // center x value of circle
+					cy="20" // center y value of circle
+					r="15.91549430918954" // radius based on the circumference r = 100/(2π)
 					fill="transparent"
 				></circle>
 				<circle
