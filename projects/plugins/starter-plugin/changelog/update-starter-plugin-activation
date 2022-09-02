@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Plugin activation: Only redirect when activating from Plugins page in the browser

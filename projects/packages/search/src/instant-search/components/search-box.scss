@@ -75,8 +75,7 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color !important; /* this won't work without !important */
+		@include apply-overlay-focus-styling();
 	}
 }
 
@@ -86,12 +85,21 @@ input.jetpack-instant-search__box-input.search-field {
 	outline-style: none;
 	border: none;
 	box-shadow: none;
+	padding: 0px 10px;
 
 	&:hover,
 	&:focus {
 		border: none;
 		box-shadow: none;
-		outline-style: none;
+	}
+
+	&:focus {
+		outline: dotted thin $color-dark-layout-borders;
+		border-radius: 5px;
+		outline-offset: inherit;
+		margin-left: -50px;
+		padding-left: 60px;
+		margin-right: 5px;
 	}
 
 	&::-webkit-search-results-button,
@@ -112,7 +120,7 @@ input.jetpack-instant-search__box-input.search-field {
 }
 
 // Only show animation to users who have not chosen reduced motion
-@media (prefers-reduced-motion: no-preference) {
+@media ( prefers-reduced-motion: no-preference ) {
 	.jetpack-instant-search__box input[type='button'] {
 		transition: 0.1s linear all;
 	}

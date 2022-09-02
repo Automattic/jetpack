@@ -55,12 +55,8 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on @babel/runtime
 	// https://github.com/WordPress/gutenberg/issues/41343
-	// https://github.com/Automattic/wp-calypso/issues/64034 - Fixed, awaiting release.
-	// https://github.com/Automattic/wp-calypso/pull/64464
 	if (
-		( pkg.name === '@wordpress/reusable-blocks' ||
-			pkg.name === '@automattic/popup-monitor' ||
-			pkg.name === '@automattic/social-previews' ) &&
+		pkg.name === '@wordpress/reusable-blocks' &&
 		! pkg.dependencies?.[ '@babel/runtime' ] &&
 		! pkg.peerDependencies?.[ '@babel/runtime' ]
 	) {
@@ -90,18 +86,6 @@ function fixDeps( pkg ) {
 	// Dep is via storybook, fix in v7: https://github.com/storybookjs/storybook/issues/14603#issuecomment-1105006210
 	if ( pkg.dependencies.trim === '0.0.1' ) {
 		pkg.dependencies.trim = '^0.0.3';
-	}
-
-	// @octokit/plugin-paginate-rest included a breaking peer dependency change in v2.21.2.
-	// https://github.com/actions/toolkit/issues/1131
-	if (
-		pkg.name === '@actions/github' &&
-		pkg.dependencies[ '@octokit/plugin-paginate-rest' ]?.startsWith( '^2.' ) &&
-		pkg.dependencies[ '@octokit/core' ]?.startsWith( '^3.' )
-	) {
-		// This should be safe, as both major updates were just dropping node <12 support.
-		pkg.dependencies[ '@octokit/plugin-paginate-rest' ] = '^3';
-		pkg.dependencies[ '@octokit/core' ] = '^4';
 	}
 
 	// Avoid annoying flip-flopping of sub-dep peer deps.
@@ -156,13 +140,13 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// Missing peer dependency.
-	// https://github.com/Automattic/wp-calypso/pull/64238 - Fixed, awaiting release.
+	// Outdated peer dependency. Major version bump was apparently the addition of TypeScript types.
+	// No upstream bug link yet.
 	if (
-		pkg.name === 'eslint-plugin-wpcalypso' &&
-		! pkg.peerDependencies?.[ 'eslint-plugin-react' ]
+		pkg.name === '@automattic/components' &&
+		pkg.peerDependencies[ '@wordpress/data' ] === '^6.1.5'
 	) {
-		pkg.peerDependencies[ 'eslint-plugin-react' ] = '*';
+		pkg.peerDependencies[ '@wordpress/data' ] = '^6.1.5 || ^7.0.0';
 	}
 
 	return pkg;
@@ -192,6 +176,11 @@ function readPackage( pkg, context ) {
  * @returns {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
+	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
+	if ( Object.keys( lockfile.importers ).length === 1 ) {
+		return lockfile;
+	}
+
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
 		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
 		// https://github.com/pnpm/pnpm/issues/3935

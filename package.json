@@ -28,14 +28,14 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "8.17.0",
+		"eslint": "8.22.0",
 		"husky": "7.0.4",
 		"jetpack-cli": "workspace:1.0.0",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.5.0",
+		"pnpm": "^7.9.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

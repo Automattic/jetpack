@@ -126,6 +126,9 @@
 		<testsuite name="csstidy">
 			<directory prefix="test" suffix=".php">tests/php/modules/csstidy</directory>
 		</testsuite>
+		<testsuite name="compatfunctions">
+			<file>tests/php/test_functions.compat.php</file>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>

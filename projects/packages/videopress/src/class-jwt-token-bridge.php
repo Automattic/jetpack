@@ -32,7 +32,6 @@ class Jwt_Token_Bridge {
 			return;
 		}
 
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_token_bridge' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_token_bridge' ), 1 );
 
 	}
@@ -45,8 +44,8 @@ class Jwt_Token_Bridge {
 	public static function get_bridge_url() {
 		// TODO: use minified version in production.
 		return Assets::get_file_url_for_environment(
-			'js/videopress-token-bridge.js',
-			'js/videopress-token-bridge.js',
+			'../build/lib/videopress-token-bridge.js', // <- production
+			'client/lib/videopress-token-bridge.js', // <- development
 			__FILE__
 		);
 	}

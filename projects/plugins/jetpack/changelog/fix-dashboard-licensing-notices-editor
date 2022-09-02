@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license.
