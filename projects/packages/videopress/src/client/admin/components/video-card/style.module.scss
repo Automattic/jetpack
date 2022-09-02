@@ -68,7 +68,7 @@
 }
 
 .video-card__wrapper {
-	--videopress-video-item-max-width: 392px; // VideoGrid: two columns.
+	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
 	max-width: var( --videopress-video-item-max-width );
 	position: relative;
 
@@ -140,5 +140,13 @@
 .video-card__quick-actions-section {
 	opacity: 0;
 	position: relative;
+	display: flex;
 	transition: opacity 0.2s ease-in-out;
+}
+
+.video-card__quick-actions__edit-buttons {
+	flex-grow: 1;
+	display: flex;
+	justify-content: flex-end;
+	column-gap: var( --spacing-base );
 }
