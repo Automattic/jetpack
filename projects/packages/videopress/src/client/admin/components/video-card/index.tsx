@@ -160,6 +160,9 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	thumbnail,
 	editable,
 	onVideoDetailsClick,
+	onUpdateThumbnailClick,
+	onUpdateUpdatePrivacyClick,
+	onDeleteClick,
 } ) => {
 	const playsCount = sprintf(
 		/* translators: placeholder is a product name */
@@ -201,25 +204,34 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 				</Button>
 
 				<div className={ styles[ 'video-card__quick-actions__edit-buttons' ] }>
-					<Button
-						variant="tertiary"
-						icon={ image }
-						size="small"
-						title={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
-					/>
-					<Button
-						variant="tertiary"
-						icon={ privacy }
-						size="small"
-						title={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
-					/>
-					<Button
-						variant="tertiary"
-						isDestructive={ true }
-						icon={ trash }
-						size="small"
-						title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-					/>
+					{ onUpdateThumbnailClick && (
+						<Button
+							variant="tertiary"
+							icon={ image }
+							size="small"
+							title={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+							onClick={ onUpdateThumbnailClick }
+						/>
+					) }
+					{ onUpdateUpdatePrivacyClick && (
+						<Button
+							variant="tertiary"
+							icon={ privacy }
+							size="small"
+							title={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+							onClick={ onUpdateUpdatePrivacyClick }
+						/>
+					) }
+					{ onDeleteClick && (
+						<Button
+							variant="tertiary"
+							isDestructive={ true }
+							icon={ trash }
+							size="small"
+							onClick={ onDeleteClick }
+							title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+						/>
+					) }
 				</div>
 			</div>
 		</div>
