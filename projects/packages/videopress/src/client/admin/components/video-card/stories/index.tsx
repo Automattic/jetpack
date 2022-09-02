@@ -5,40 +5,44 @@ import { action } from '@storybook/addon-actions';
 /**
  * Internal dependencies
  */
-import VideoDetailsCard, {
+import {
+	VideoCard as VideoCardComponent,
 	VideoDetails as VideoDetailsComponent,
 	VideoThumbnail as VideoThumbnailComponent,
 	VideoThumbnailDropdown as VideoThumbnailDropdownComponent,
 } from '..';
-import Doc from './VideoDetailsCard.mdx';
-import thumbnail from './video-thumbnail.png';
+import { postersArray, randomPoster } from '../../../mock';
+import Doc from './VideoCard.mdx';
 /**
  * Types
  */
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
-	title: 'Packages/VideoPress/Video Details Card',
-	component: VideoDetailsCard,
+	title: 'Packages/VideoPress/Video Card',
+	component: VideoCardComponent,
 	parameters: {
 		docs: {
 			page: Doc,
 		},
 	},
-} as ComponentMeta< typeof VideoDetailsCard >;
+	argTypes: {
+		thumbnail: {
+			control: { type: 'select', options: postersArray },
+		},
+	},
+} as ComponentMeta< typeof VideoCardComponent >;
 
-const Template: ComponentStory< typeof VideoDetailsCard > = VideoDetailsCard;
+const Template: ComponentStory< typeof VideoCardComponent > = VideoCardComponent;
 
 export const _default = Template.bind( {} );
 _default.args = {
-	thumbnail,
-	filename: 'video-thumbnail.png',
-	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
-	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
-	onSelectFromVideo: action( 'onSelectFromVideo' ),
-	onUploadImage: action( 'onUploadImage' ),
-	editable: true,
-	duration: ( 4 * 60 + 20 ) * 1000, // 4 minutes and 20 seconds
+	title: 'JPD Meetup - Barcelona',
+	thumbnail: randomPoster(),
+	editable: false,
+	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
+	plays: 972,
+	onVideoDetailsClick: action( 'onVideoDetailsClick' ),
 };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
@@ -55,7 +59,7 @@ const VideoThumbnailTemplate: ComponentStory<
 
 export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
 VideoThumbnail.args = {
-	thumbnail,
+	thumbnail: randomPoster(),
 	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
