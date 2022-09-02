@@ -146,20 +146,6 @@
 	align-items: center;
 	gap: calc( var(--spacing-base) * 3 ); // 24px
 	margin-right: calc( var(--spacing-base) * 3 ); // 24px
-
-	.trash {
-		fill: var(--jp-red-60);
-	}
-
-	.popover {
-		padding: var(--spacing-base); // 8px
-		text-align: center;
-		white-space: nowrap;
-	}
-
-	& > * {
-		cursor: pointer;
-	}
 }
 
 // STORYBOOK
