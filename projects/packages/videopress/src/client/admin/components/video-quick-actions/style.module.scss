@@ -1,0 +1,18 @@
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: calc( var(--spacing-base) * 2 ); // 18px
+
+	.popover {
+		padding: var(--spacing-base); // 8px
+		text-align: center;
+		white-space: nowrap;
+	}
+}
+
+.trash {
+	svg {
+		fill: var(--jp-red-60);
+	}
+}
