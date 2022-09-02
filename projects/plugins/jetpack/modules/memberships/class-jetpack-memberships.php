@@ -312,7 +312,7 @@ class Jetpack_Memberships {
 			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
-			$subscribe_url = $this->get_subscription_url( $plan_id );
+			$subscribe_url = $this->get_subscription_url( $plan_id, $attributes['buyerCanChangeAmount'] );
 			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
 		}
 
@@ -323,10 +323,12 @@ class Jetpack_Memberships {
 	 * Builds subscription URL for this membership using the current blog and
 	 * supplied plan IDs.
 	 *
-	 * @param integer $plan_id - Unique ID for the plan being subscribed to.
+	 * @param integer $plan_id       - Unique ID for the plan being subscribed to.
+	 * @param bool    $custom_amount - Indicates if we should display the custom amount input field.
+	 *
 	 * @return string
 	 */
-	public function get_subscription_url( $plan_id ) {
+	public function get_subscription_url( $plan_id, $custom_amount = false ) {
 		global $wp;
 
 		$query_args = array(
@@ -337,20 +339,8 @@ class Jetpack_Memberships {
 			'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
 		);
 
-		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			return add_query_arg( $query_args, 'https://subscribe.wordpress.com/memberships/' );
-		}
-
-		require_lib( 'memberships' );
-		$plan = Memberships_Product::get_from_post( self::get_blog_id(), $plan_id );
-
-		if ( ! $plan ) {
-			return add_query_arg( $query_args, 'https://subscribe.wordpress.com/memberships/' );
-		}
-
-		$plan = $plan->to_array();
-		if ( isset( $plan['buyer_can_change_amount'] ) ) {
-			$query_args['customAmount'] = $plan['buyer_can_change_amount'];
+		if ( $custom_amount ) {
+			$query_args['customAmount'] = true;
 		}
 
 		return add_query_arg( $query_args, 'https://subscribe.wordpress.com/memberships/' );

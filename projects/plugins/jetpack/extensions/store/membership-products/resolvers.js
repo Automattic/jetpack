@@ -87,9 +87,9 @@ const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, sel
 	if ( selectedProductId ) {
 		return;
 	}
-	const defaultProductId = select.getProductsNoResolver()[ 0 ]?.id;
-	if ( defaultProductId ) {
-		setSelectedProductId( defaultProductId );
+	const defaultProduct = select.getProductsNoResolver()[ 0 ];
+	if ( defaultProduct?.id ) {
+		setSelectedProductId( defaultProduct.id, defaultProduct );
 	}
 };
 

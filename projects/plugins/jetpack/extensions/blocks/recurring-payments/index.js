@@ -95,6 +95,10 @@ export const settings = {
 		width: {
 			type: 'string',
 		},
+		buyerCanChangeAmount: {
+			type: 'bool',
+			default: false,
+		},
 	},
 	edit,
 	save,

@@ -84,12 +84,13 @@ export const saveProduct = (
 			interval: response.interval,
 			price: response.price,
 			currency: response.currency,
+			buyer_can_change_amount: response?.buyer_can_change_amount,
 		};
 
 		const products = registry.select( STORE_NAME ).getProducts();
 
 		dispatch( setProducts( products.concat( [ newProduct ] ) ) );
-		setSelectedProductId( newProduct.id );
+		setSelectedProductId( newProduct.id, newProduct );
 		onSuccess( getMessageByProductType( 'successfully created product', productType ), registry );
 		callback( true );
 	} catch ( error ) {

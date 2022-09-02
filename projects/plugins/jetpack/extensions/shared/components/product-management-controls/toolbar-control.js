@@ -47,7 +47,7 @@ function Product( { onClose, product } ) {
 
 	const handleClick = event => {
 		event.preventDefault();
-		setSelectedProductId( id );
+		setSelectedProductId( id, product );
 		onClose();
 	};
 

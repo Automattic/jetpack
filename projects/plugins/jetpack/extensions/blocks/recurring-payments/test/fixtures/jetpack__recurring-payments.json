@@ -6,6 +6,7 @@
 		"attributes": {
 			"planId": 12,
 			"align": "right",
+			"buyerCanChangeAmount": false,
 			"uniqueId": "recurring-payments-12",
 			"url": "?open_payment_plan=12"
 		},

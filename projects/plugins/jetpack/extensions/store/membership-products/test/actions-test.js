@@ -203,6 +203,7 @@ describe( 'Membership Products Actions', () => {
 		const selectedProductCallback = jest.fn( anyFunction );
 		const apiResponseProduct = {
 			id: 1,
+			buyer_can_change_amount: false,
 			title: 'anyTitle',
 			interval: 'anyInterval',
 			price: '12',
@@ -236,7 +237,10 @@ describe( 'Membership Products Actions', () => {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( selectedProductCallback ).toHaveBeenCalledWith(
+			apiResponseProduct.id,
+			apiResponseProduct
+		);
 		expect( noticeMock ).toHaveBeenCalled();
 		expect( getMessageMock ).toHaveBeenCalledWith(
 			'successfully created product',

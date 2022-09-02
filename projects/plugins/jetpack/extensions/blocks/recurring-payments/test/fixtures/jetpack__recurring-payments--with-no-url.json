@@ -6,6 +6,7 @@
 		"attributes": {
 			"planId": 12,
 			"align": "right",
+			"buyerCanChangeAmount": false,
 			"uniqueId": "id",
 			"url": "#"
 		},

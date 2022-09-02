@@ -20,14 +20,14 @@ import { icon, title } from './';
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
-	const { align, planId, width } = attributes;
+	const { align, planId, width, buyerCanChangeAmount } = attributes;
 	const { isPremiumContentChild } = context;
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
 	const upgradeUrl = useSelect( select => select( membershipProductsStore ).getUpgradeUrl() );
 
 	const updateSubscriptionPlan = useCallback(
-		newPlanId => {
+		( newPlanId, product ) => {
 			const resolvePaymentUrl = paymentPlanId => {
 				if ( POST_EDITOR !== editorType || ! postLink ) {
 					return '#';
@@ -42,14 +42,15 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 				planId: newPlanId,
 				url: resolvePaymentUrl( newPlanId ),
 				uniqueId: `recurring-payments-${ newPlanId }`,
+				buyerCanChangeAmount: product?.buyer_can_change_amount || false,
 			} );
 		},
 		[ editorType, postLink, setAttributes ]
 	);
 
 	useEffect( () => {
-		updateSubscriptionPlan( planId );
-	}, [ planId, updateSubscriptionPlan ] );
+		updateSubscriptionPlan( planId, { buyer_can_change_amount: buyerCanChangeAmount || false } );
+	}, [ buyerCanChangeAmount, planId, updateSubscriptionPlan ] );
 
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
 	const hasWpcomUpgradeNudge =
