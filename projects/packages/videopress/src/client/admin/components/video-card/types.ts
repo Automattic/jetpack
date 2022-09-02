@@ -1,4 +1,5 @@
 import { MouseEvent } from 'react';
+import { VideoPressVideo } from '../../types';
 
 export type VideoThumbnailProps = {
 	/**
@@ -56,42 +57,7 @@ export type VideoDetailsProps = {
 	uploadDate: string;
 };
 
-export type VideoCardProps = {
-	/**
-	 * Video ID
-	 */
-	id: number | string;
-
-	/**
-	 * Video title
-	 */
-	title: string;
-
-	/**
-	 * Video uploaded date
-	 */
-	uploadDate: string;
-
-	/**
-	 * Video thumbnial/poster image URL
-	 */
-	posterImage?: string;
-
-	/**
-	 * Video duration, in milliseconds
-	 */
-	duration?: number;
-
-	/**
-	 * Plays counter
-	 */
-	plays?: number;
-
-	/**
-	 * Whether the video is private, or not.
-	 */
-	isPrivate?: boolean;
-
+export type VideoCardProps = VideoPressVideo & {
 	/**
 	 * Callback to be invoked when clicking on the `Edit video details` button.
 	 */

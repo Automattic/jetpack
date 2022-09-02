@@ -1,4 +1,4 @@
-import type { VideoPressVideo } from '../video-row';
+import { VideoPressVideo } from '../../types';
 
 declare global {
 	interface Window {
@@ -12,14 +12,7 @@ declare global {
 	}
 }
 
-export type LocalVideo = Omit<
-	VideoPressVideo,
-	'posterImage' | 'duration' | 'plays' | 'isPrivate'
->;
-
-export type VideoPressLibraryProps = { videos: Array< VideoPressVideo > };
-
-export type LocalVideoLibraryProps = { videos: Array< LocalVideo > };
+export type VideoLibraryProps = { videos: Array< VideoPressVideo > };
 
 export interface ConnectionStore {
 	getConnectionStatus: () => {
