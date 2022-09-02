@@ -203,7 +203,7 @@ const ReviewMessage = connectionLoaded => {
 
 	// Check if the last 5 backups were successful
 	const hasFiveSuccessfulBackups = () => {
-		if ( backups.length < 5 || ! Array.isArray( backups ) ) {
+		if ( ! Array.isArray( backups ) || backups.length < 5 ) {
 			return false;
 		}
 
