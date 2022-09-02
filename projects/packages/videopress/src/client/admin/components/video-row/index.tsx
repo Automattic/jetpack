@@ -136,7 +136,7 @@ const VideoRow = ( {
 
 	const handleClickWithStopPropagation = callback => event => {
 		event.stopPropagation();
-		callback?.();
+		callback?.( event );
 	};
 
 	const editDetailsButton = (
