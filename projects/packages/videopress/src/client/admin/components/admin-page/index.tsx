@@ -10,10 +10,10 @@ import {
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import * as mock from '../../mock';
 import Logo from '../logo';
 import Pagination from '../pagination';
 import VideoList from '../video-list';
-import mock from './mock';
 import styles from './styles.module.scss';
 import { ConnectionStore, VideoPressLibraryProps, LocalVideoLibraryProps } from './types';
 
@@ -91,7 +91,7 @@ const Admin = () => {
 								<VideoPressLibrary videos={ mock.videos } />
 							</Col>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<LocalLibrary videos={ mock.local } />
+								<LocalLibrary videos={ mock.localVideos } />
 							</Col>
 						</Container>
 					</AdminSection>
