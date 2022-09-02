@@ -1,11 +1,20 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Rect, SVG } from '@wordpress/components';
-import { grid } from '@wordpress/icons';
+import { grid, formatListBullets } from '@wordpress/icons';
+import React, { useState } from 'react';
 import { SearchInput } from '../input';
 import Pagination from '../pagination';
+import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
-import { VideoPressLibraryProps, LocalVideoLibraryProps } from './types';
+import { VideoLibraryProps } from './types';
+
+const LibraryType = {
+	List: 'list',
+	Grid: 'grid',
+} as const;
+
+type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
 
 const filterIcon = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,7 +24,17 @@ const filterIcon = (
 	</SVG>
 );
 
-const VideoLibraryWrapper = ( { children, totalVideos = 0 } ) => {
+const VideoLibraryWrapper = ( {
+	children,
+	totalVideos = 0,
+	libraryType = LibraryType.List,
+	onChangeType,
+}: {
+	children: React.ReactNode;
+	libraryType?: LibraryType;
+	totalVideos?: number;
+	onChangeType?: () => void;
+} ) => {
 	const handleSearchChange = () => {
 		// TODO: implement search
 	};
@@ -36,7 +55,12 @@ const VideoLibraryWrapper = ( { children, totalVideos = 0 } ) => {
 					<Button variant="secondary" icon={ filterIcon } weight="regular">
 						Filters
 					</Button>
-					<Button variant="tertiary" size="small" icon={ grid } />
+					<Button
+						variant="tertiary"
+						size="small"
+						icon={ libraryType === LibraryType.List ? grid : formatListBullets }
+						onClick={ onChangeType }
+					/>
 				</div>
 			</div>
 			{ children }
@@ -50,15 +74,30 @@ const VideoLibraryWrapper = ( { children, totalVideos = 0 } ) => {
 	);
 };
 
-export const VideoPressLibrary = ( { videos }: VideoPressLibraryProps ) => {
+export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
+	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
+	const toggleType = () => {
+		setLibraryType( current =>
+			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
+		);
+	};
+
 	return (
-		<VideoLibraryWrapper totalVideos={ videos?.length }>
-			<VideoList videos={ videos } />
+		<VideoLibraryWrapper
+			totalVideos={ videos?.length }
+			onChangeType={ toggleType }
+			libraryType={ libraryType }
+		>
+			{ libraryType === LibraryType.Grid ? (
+				<VideoGrid videos={ videos } />
+			) : (
+				<VideoList videos={ videos } />
+			) }
 		</VideoLibraryWrapper>
 	);
 };
 
-export const LocalLibrary = ( { videos }: LocalVideoLibraryProps ) => {
+export const LocalLibrary = ( { videos }: VideoLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper totalVideos={ videos?.length }>
 			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
