@@ -39,3 +39,60 @@ export function randomPoster() {
 	const randomPos = Math.floor( Math.random() * ( max + 1 ) );
 	return postersArray[ randomPos ];
 }
+
+export const videos = [
+	{
+		id: 1,
+		posterImage: posterImage01,
+		videoTitle: 'JPD Meetup - Barcelona',
+		duration: 158633,
+		plays: 200,
+		uploadDate: '2022-08-15T21:16:59+0000',
+		isPrivate: true,
+	},
+	{
+		id: 2,
+		posterImage: posterImage02,
+		videoTitle: 'Dope Office Setup',
+		duration: 158633,
+		plays: 200,
+		uploadDate: '2022-08-15T21:16:59+0000',
+		isPrivate: true,
+	},
+	{
+		id: 3,
+		posterImage: posterImage03,
+		videoTitle: 'Geneva Wheel',
+		duration: 158633,
+		plays: 200,
+		uploadDate: '2022-08-15T21:16:59+0000',
+		isPrivate: true,
+	},
+	{
+		id: 4,
+		posterImage: posterImage04,
+		videoTitle: 'linear-x-02.mov',
+		duration: 158633,
+		plays: 200,
+		uploadDate: '2022-08-15T21:16:59+0000',
+		isPrivate: true,
+	},
+	{
+		id: 5,
+		posterImage: posterImage05,
+		videoTitle: 'Random Objects',
+		duration: 158633,
+		plays: 200,
+		uploadDate: '2022-08-15T21:16:59+0000',
+		isPrivate: true,
+	},
+	{
+		id: 6,
+		posterImage: posterImage06,
+		videoTitle: 'office-tour-experiment.mp4',
+		duration: 158633,
+		plays: 200,
+		uploadDate: '2022-08-15T21:16:59+0000',
+		isPrivate: true,
+	},
+];

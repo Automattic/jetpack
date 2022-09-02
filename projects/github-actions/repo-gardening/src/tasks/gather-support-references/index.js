@@ -54,7 +54,10 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		repo,
 		issue_number: +number,
 	} );
-	ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+
+	if ( body ) {
+		ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+	}
 
 	debug( `gather-support-references: Getting references from comments.` );
 	issueComments.map( comment => {
