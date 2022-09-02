@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import RecordMeterDonut, { RecordMeterDonutProps } from '../index';
+import DonutMeter, { DonutMeterProps } from '../index';
 
-describe( 'RecordMeterDonut', () => {
-	const testProps: RecordMeterDonutProps = {
+describe( 'DonutMeter', () => {
+	const testProps: DonutMeterProps = {
 		segmentCount: 18,
 		totalCount: 100,
 	};
 
 	it( 'renders the donut svg', () => {
-		render( <RecordMeterDonut { ...testProps } /> );
-		expect( screen.getByTestId( 'record-meter-donut_svg' ) ).toBeInTheDocument();
+		render( <DonutMeter { ...testProps } /> );
+		expect( screen.getByTestId( 'donut-meter_svg' ) ).toBeInTheDocument();
 	} );
 } );

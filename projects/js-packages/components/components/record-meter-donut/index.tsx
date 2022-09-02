@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import './style.scss';
-export type RecordMeterDonutProps = {
+export type DonutMeterProps = {
 	/**
-	 * Total number of items for the record meter donut.
+	 * Total number of items for the donut meter.
 	 */
 	totalCount: number;
 	/**
@@ -31,10 +31,10 @@ export type RecordMeterDonutProps = {
 /**
  * Generate record meter donut bar
  *
- * @param {RecordMeterDonutProps} props - Props
+ * @param {DonutMeterProps} props - Props
  * @returns {React.ReactElement} - JSX element
  */
-const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
+const DonutMeter: React.FC< DonutMeterProps > = ( {
 	totalCount,
 	segmentCount,
 	backgroundColor = '#00BA37', // jetpack green fallback
@@ -47,23 +47,23 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	};
 
 	return (
-		<div className="record-meter-donut" aria-hidden="true">
+		<div className="donut-meter" aria-hidden="true">
 			<svg
 				width={ donutWidth }
 				height="auto"
 				viewBox="0 0 40 40"
-				className="record-meter-donut_svg"
-				data-testid="record-meter-donut_svg"
+				className="donut-meter_svg"
+				data-testid="donut-meter_svg"
 			>
 				<circle
-					className="record-meter-donut-hole"
+					className="donut-meter-hole"
 					cx="20" // center x value of circle
 					cy="20" // center y value of circle
 					r="15.91549430918954" // radius based on the circumference r = 100/(2π)
 					fill="transparent"
 				></circle>
 				<circle
-					className="record-meter-donut-ring"
+					className="donut-meter-ring"
 					cx="20"
 					cy="20"
 					r="15.91549430918954"
@@ -72,7 +72,7 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 					stroke="#ebebeb"
 				></circle>
 				<circle
-					className="record-meter-donut-segment"
+					className="donut-meter-segment"
 					cx="20"
 					cy="20"
 					r="15.91549430918954"
@@ -85,11 +85,11 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 				></circle>
 			</svg>
 			<table className="screen-reader-text">
-				<caption>{ __( 'Summary of the records', 'jetpack' ) }</caption>
+				<caption>{ __( 'Summary of the meter', 'jetpack' ) }</caption>
 				<tbody>
 					<tr>
-						<th scope="col">{ __( 'Current usage', 'jetpack' ) }</th>
-						<th scope="col">{ __( 'Current limit', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Current amount', 'jetpack' ) }</th>
+						<th scope="col">{ __( 'Total limit', 'jetpack' ) }</th>
 					</tr>
 					<tr>
 						<td>{ segmentCount }</td>
@@ -101,4 +101,4 @@ const RecordMeterDonut: React.FC< RecordMeterDonutProps > = ( {
 	);
 };
 
-export default RecordMeterDonut;
+export default DonutMeter;

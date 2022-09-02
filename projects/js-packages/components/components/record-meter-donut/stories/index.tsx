@@ -1,13 +1,13 @@
-import RecordMeterDonut, { RecordMeterDonutProps } from '../index';
+import DonutMeter, { DonutMeterProps } from '../index';
 
 export default {
-	title: 'JS Packages/Components/RecordMeterDonut',
-	component: RecordMeterDonut,
+	title: 'JS Packages/Components/DonutMeter',
+	component: DonutMeter,
 };
 
-const Template = args => <RecordMeterDonut { ...args } />;
+const Template = args => <DonutMeter { ...args } />;
 
-const DefaultArgs: RecordMeterDonutProps = {
+const DefaultArgs: DonutMeterProps = {
 	segmentCount: 18,
 	totalCount: 100,
 	backgroundColor: '#00BA37',
