@@ -7,8 +7,7 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 
 class ModernOverlay extends Component {
 	maybeDismiss = e => {
-		// "Esc" is an IE/Edge specific value
-		if ( this.props.showDismiss && ( ! e.key || e.key === 'Escape' || e.key === 'Esc' ) ) {
+		if ( this.props.showDismiss && ( ! e.code || e.code === 'Escape' ) ) {
 			this.props.dismiss( e );
 		}
 	};
