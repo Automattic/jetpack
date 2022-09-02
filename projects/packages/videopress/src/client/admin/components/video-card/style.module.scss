@@ -30,7 +30,7 @@
 		top: var( --spacing-base );
 		right: var( --spacing-base );
 	}
-	
+
 	.video-thumbnail-duration {
 		position: absolute;
 		bottom: var( --spacing-base );
@@ -50,7 +50,7 @@
 }
 
 .video-thumbnail-edit {
-        .thumbnail__edit-button:global(.components-button) {
+	.thumbnail__edit-button:global(.components-button) {
 		padding: var( --spacing-base );
 
 		> svg {
@@ -75,18 +75,18 @@
 	&:hover {
 		.video-card__background {
 			opacity: 1;
-			z-index: 5;
+			z-index: 1;
 			top: calc( var( --spacing-base ) * -2 );
 			left: calc( var( --spacing-base ) * -2 );
 			padding: calc( var( --spacing-base ) * 2 );
 		}
 
 		.video-card__thumbnail {
-			z-index: 10;
+			z-index: 2;
 		}
 
 		.video-card__quick-actions-section {
-			z-index: 10;
+			z-index: 3;
 			opacity: 1;
 		}
 	}
@@ -121,7 +121,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	position: relative;
-	z-index: 10;
+	z-index: 2;
 }
 
 .video-card__video-plays-counter {
@@ -130,7 +130,7 @@
 	color: var( --jp-gray-50 );
 	white-space: nowrap;
 	position: relative;
-	z-index: 10;
+	z-index: 2;
 
 	> svg {
 		fill: var( --jp-gray-50 );
@@ -142,11 +142,5 @@
 	position: relative;
 	display: flex;
 	transition: opacity 0.2s ease-in-out;
-}
-
-.video-card__quick-actions__edit-buttons {
-	flex-grow: 1;
-	display: flex;
-	justify-content: flex-end;
-	column-gap: var( --spacing-base );
+	justify-content: space-between;
 }
