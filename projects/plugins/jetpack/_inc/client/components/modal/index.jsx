@@ -69,7 +69,7 @@ class Modal extends React.Component {
 	}
 
 	handleEscapeKey = e => {
-		if ( e.key === 'Escape' ) {
+		if ( e.code === 'Escape' ) {
 			this.maybeClose();
 		}
 	};
