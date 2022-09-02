@@ -1,25 +1,25 @@
 /**
  * Internal dependencies
  */
-import VideosGrid from '..';
+import VideoGrid from '..';
 import { videos } from '../../../mock';
-import Doc from './VideosGrid.mdx';
+import Doc from './VideoGrid.mdx';
 /**
  * Types
  */
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
-	title: 'Packages/VideoPress/Videos Grid',
-	component: VideosGrid,
+	title: 'Packages/VideoPress/Video Grid',
+	component: VideoGrid,
 	parameters: {
 		docs: {
 			page: Doc,
 		},
 	},
-} as ComponentMeta< typeof VideosGrid >;
+} as ComponentMeta< typeof VideoGrid >;
 
-const Template: ComponentStory< typeof VideosGrid > = VideosGrid;
+const Template: ComponentStory< typeof VideoGrid > = VideoGrid;
 
 export const _default = Template.bind( {} );
 _default.args = {
