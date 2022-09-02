@@ -13,18 +13,19 @@ import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import { edit, cloud, image, media } from '@wordpress/icons';
+import { edit, cloud, image, media, trash } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import privacy from '../../../components/icons/privacy-icon';
 import ClipboardButtonInput from '../clipboard-button-input';
 import styles from './style.module.scss';
 import {
 	VideoDetailsProps,
 	VideoThumbnailProps,
 	VideoThumbnailDropdownProps,
-	VideoPressVideoProp,
+	VideoCardProps,
 } from './types';
 import type React from 'react';
 
@@ -152,13 +153,16 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
  * @param {VideoThumbnailProps} props - Component props.
  * @returns {React.ReactNode} - VideoCard react component.
  */
-export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = ( {
+export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	title,
 	duration,
 	plays,
 	thumbnail,
 	editable,
 	onVideoDetailsClick,
+	onUpdateThumbnailClick,
+	onUpdateUpdatePrivacyClick,
+	onDeleteClick,
 } ) => {
 	const playsCount = sprintf(
 		/* translators: placeholder is a product name */
@@ -190,9 +194,45 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 				</Text>
 			</div>
 			<div className={ styles[ 'video-card__quick-actions-section' ] }>
-				<Button variant="primary" size="small" onClick={ onVideoDetailsClick }>
+				<Button
+					variant="primary"
+					size="small"
+					onClick={ onVideoDetailsClick }
+					className={ styles[ 'video-card__quick-actions__edit-button' ] }
+				>
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
+
+				<div className={ styles[ 'video-card__quick-actions__edit-buttons' ] }>
+					{ onUpdateThumbnailClick && (
+						<Button
+							variant="tertiary"
+							icon={ image }
+							size="small"
+							title={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+							onClick={ onUpdateThumbnailClick }
+						/>
+					) }
+					{ onUpdateUpdatePrivacyClick && (
+						<Button
+							variant="tertiary"
+							icon={ privacy }
+							size="small"
+							title={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+							onClick={ onUpdateUpdatePrivacyClick }
+						/>
+					) }
+					{ onDeleteClick && (
+						<Button
+							variant="tertiary"
+							isDestructive={ true }
+							icon={ trash }
+							size="small"
+							onClick={ onDeleteClick }
+							title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+						/>
+					) }
+				</div>
 			</div>
 		</div>
 	);

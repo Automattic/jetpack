@@ -54,7 +54,7 @@ export type VideoDetailsProps = {
 	uploadDate: string;
 };
 
-export type VideoPressVideoProp = {
+export type VideoCardProps = {
 	/**
 	 * Video ID
 	 */
@@ -94,4 +94,19 @@ export type VideoPressVideoProp = {
 	 * Callback to be invoked when clicking on the `Edit video details` button.
 	 */
 	onVideoDetailsClick?: () => void;
+
+	/**
+	 * Callback to be invoked when clicking on the `Update thumbnail` button.
+	 */
+	onUpdateThumbnailClick?: () => void;
+
+	/**
+	 * Callback to be invoked when clicking on the `Update privacy` button.
+	 */
+	onUpdateUpdatePrivacyClick?: () => void;
+
+	/**
+	 * Callback to be invoked when clicking on the `Delete video` button.
+	 */
+	onDeleteClick?: () => void;
 };

@@ -43,6 +43,9 @@ _default.args = {
 	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
 	plays: 972,
 	onVideoDetailsClick: action( 'onVideoDetailsClick' ),
+	onUpdateThumbnailClick: action( 'onUpdateThumbnailClick' ),
+	onUpdateUpdatePrivacyClick: action( 'onUpdateUpdatePrivacyClick' ),
+	onDeleteClick: action( 'onDeleteClick' ),
 };
 
 const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;

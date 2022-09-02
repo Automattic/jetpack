@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { image, trash } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState } from 'react';
-import privacy from '../video-row/privacy-icon';
+import privacy from '../../../components/icons/privacy-icon';
 import styles from './style.module.scss';
 import { ActionItemProps, PopoverWithAnchorProps, VideoQuickActionsProps } from './types';
 
