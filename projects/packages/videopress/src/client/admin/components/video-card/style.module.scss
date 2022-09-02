@@ -72,6 +72,12 @@
 	max-width: var( --videopress-video-item-max-width );
 	position: relative;
 
+	.video-card__thumbnail {
+		z-index: 0;
+		transition: opacity 0.2s linear;
+		transition-delay: 0.2s;
+	}
+
 	&:hover {
 		.video-card__background {
 			opacity: 1;
