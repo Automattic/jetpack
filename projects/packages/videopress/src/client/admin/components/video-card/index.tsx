@@ -13,13 +13,13 @@ import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
-import { edit, cloud, image, media, trash } from '@wordpress/icons';
+import { edit, cloud, image, media } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import privacy from '../../../components/icons/privacy-icon';
 import ClipboardButtonInput from '../clipboard-button-input';
+import VideoQuickActions from '../video-quick-actions';
 import styles from './style.module.scss';
 import {
 	VideoDetailsProps,
@@ -203,36 +203,11 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
 
-				<div className={ styles[ 'video-card__quick-actions__edit-buttons' ] }>
-					{ onUpdateThumbnailClick && (
-						<Button
-							variant="tertiary"
-							icon={ image }
-							size="small"
-							title={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
-							onClick={ onUpdateThumbnailClick }
-						/>
-					) }
-					{ onUpdateUpdatePrivacyClick && (
-						<Button
-							variant="tertiary"
-							icon={ privacy }
-							size="small"
-							title={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
-							onClick={ onUpdateUpdatePrivacyClick }
-						/>
-					) }
-					{ onDeleteClick && (
-						<Button
-							variant="tertiary"
-							isDestructive={ true }
-							icon={ trash }
-							size="small"
-							onClick={ onDeleteClick }
-							title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-						/>
-					) }
-				</div>
+				<VideoQuickActions
+					onUpdateThumbnailClick={ onUpdateThumbnailClick }
+					onUpdateUpdatePrivacyClick={ onUpdateUpdatePrivacyClick }
+					onDeleteClick={ onDeleteClick }
+				/>
 			</div>
 		</div>
 	);
