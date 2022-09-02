@@ -2,7 +2,7 @@
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
-	gap: calc( var(--spacing-base) * 2 ); // 18px
+	gap: var(--spacing-base); // 8px
 
 	.popover {
 		padding: var(--spacing-base); // 8px

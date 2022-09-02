@@ -29,6 +29,7 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 	return (
 		<div ref={ setAnchorRef } className={ className }>
 			<Button
+				size="small"
 				variant="tertiary"
 				icon={ icon }
 				onMouseOver={ () => setShowPopover( true ) }
