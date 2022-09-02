@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Checkbox from '../checkbox';
 import VideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
-import type { VideoPressVideo } from '../video-row';
+import { VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
@@ -14,15 +14,7 @@ const VideoList = ( {
 	hideDuration = false,
 	hidePlays = false,
 	hideEditButton = false,
-}: {
-	videos: Array< VideoPressVideo >;
-	onClickEdit?: ( video: VideoPressVideo ) => void;
-	hidePrivacy?: boolean;
-	hideDuration?: boolean;
-	hidePlays?: boolean;
-	hideEditButton?: boolean;
-	hideQuickActions?: boolean;
-} ) => {
+}: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
