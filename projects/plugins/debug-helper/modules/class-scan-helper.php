@@ -318,9 +318,7 @@ class Scan_Helper {
 	 * @return bool
 	 */
 	private function post_db_threat_exists() {
-		global $wpdb;
-		$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
-		return (bool) $post_id;
+		return (bool) get_page_by_title( 'Scan Tester Post', OBJECT, 'post' );
 	}
 
 	/**
@@ -329,11 +327,7 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function generate_post_db_threat() {
-		global $wpdb;
-
-		$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
-
-		if ( $post_id ) {
+		if ( $this->post_db_threat_exists() ) {
 			return 'Scan tester post already exists.';
 		}
 
@@ -359,15 +353,13 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function remove_post_db_threat() {
-		global $wpdb;
+		$post = get_page_by_title( 'Scan Tester Post', OBJECT, 'post' );
 
-		$post_id = $wpdb->get_var( "SELECT ID FROM $wpdb->posts WHERE post_title = 'Scan Tester Post'" );
-
-		if ( ! $post_id ) {
+		if ( ! $post ) {
 			return 'Scan tester post does not exist.';
 		}
 
-		if ( ! wp_delete_post( $post_id, true ) ) {
+		if ( ! wp_delete_post( $post->ID, true ) ) {
 			return new WP_Error( 'could-not-write', 'Unable to remove post.' );
 		}
 
