@@ -30,7 +30,8 @@ const SummaryComponent = props => {
 	const {
 		isFetchingMainData,
 		isFetchingSidebarData,
-		sidebarCardSlug,
+		isFetchingBottomSectionData,
+		sidebarCardsSlug,
 		siteTitle,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
@@ -109,48 +110,73 @@ const SummaryComponent = props => {
 		</>
 	);
 
-	let sidebarCard;
+	let sidebarCards;
+	let undersideCards;
 
 	if ( isFetchingSidebarData ) {
-		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+		sidebarCards = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
-		switch ( sidebarCardSlug ) {
+		switch ( sidebarCardsSlug ) {
 			case 'loading':
-				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+				sidebarCards = (
+					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
+				);
 				break;
 			case 'upsell':
-				sidebarCard = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
+				sidebarCards = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
+				undersideCards = <MobileApp slug={ sidebarCardsSlug } />;
 				break;
 			case 'one-click-restores':
-				sidebarCard = <OneClickRestores />;
+				sidebarCards = (
+					<>
+						<OneClickRestores />
+						<MobileApp slug={ sidebarCardsSlug } />
+					</>
+				);
 				break;
 			case 'manage-security':
-				sidebarCard = <Security />;
+				sidebarCards = (
+					<>
+						<Security />
+						<MobileApp slug={ sidebarCardsSlug } />
+					</>
+				);
 				break;
 			case 'download-app':
-				sidebarCard = <MobileApp />;
+				sidebarCards = <MobileApp slug={ sidebarCardsSlug } />;
 				break;
 			default:
-				throw `Unknown sidebarCardSlug in SummaryComponent: ${ sidebarCardSlug }`;
+				sidebarCards = <MobileApp slug={ 'unknown' } />;
 		}
 	}
 
 	return (
 		<div className="jp-recommendations-summary">
-			<div
-				className={ classNames( 'jp-recommendations-summary__content', {
-					isLoading: isFetchingMainData,
-				} ) }
-			>
-				{ mainContent }
+			<div className="jp-recommendations-summary__main">
+				<div
+					className={ classNames( 'jp-recommendations-summary__content', {
+						isLoading: isFetchingMainData,
+					} ) }
+				>
+					{ mainContent }
+				</div>
+				<div
+					className={ classNames( 'jp-recommendations-summary__sidebar', {
+						isLoading: isFetchingSidebarData,
+					} ) }
+				>
+					{ sidebarCards }
+				</div>
 			</div>
-			<div
-				className={ classNames( 'jp-recommendations-summary__sidebar', {
-					isLoading: isFetchingSidebarData,
-				} ) }
-			>
-				{ sidebarCard }
-			</div>
+			{ undersideCards && (
+				<div
+					className={ classNames( 'jp-recommendations-summary__underside', {
+						isLoading: isFetchingBottomSectionData,
+					} ) }
+				>
+					{ undersideCards }
+				</div>
+			) }
 		</div>
 	);
 };
@@ -166,11 +192,13 @@ const Summary = connect(
 		const upsell = getUpsell( state );
 		const isFetchingMainData = isEmpty( settings ) || isEmpty( pluginsData );
 		const isFetchingSidebarData = isEmpty( upsell );
+		const isFetchingBottomSectionData = isEmpty( upsell );
 
 		return {
 			isFetchingMainData,
 			isFetchingSidebarData,
-			sidebarCardSlug: getSidebarCardSlug( state ),
+			isFetchingBottomSectionData,
+			sidebarCardsSlug: getSidebarCardSlug( state ),
 			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
