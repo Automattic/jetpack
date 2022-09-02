@@ -12,46 +12,8 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import * as mock from '../../mock';
 import Logo from '../logo';
-import Pagination from '../pagination';
-import VideoList from '../video-list';
-import styles from './styles.module.scss';
-import { ConnectionStore, VideoPressLibraryProps, LocalVideoLibraryProps } from './types';
-
-const VideoPressLibrary = ( { videos }: VideoPressLibraryProps ) => {
-	return (
-		<div className={ styles[ 'library-wrapper' ] }>
-			<Text variant="headline-small" mb={ 1 }>
-				Your VideoPress library
-			</Text>
-			<Text mb={ 4 }>{ videos?.length } Video</Text>
-			<VideoList videos={ videos } />
-			<Pagination
-				currentPage={ 1 }
-				total={ videos?.length }
-				perPage={ 5 }
-				className={ styles.pagination }
-			/>
-		</div>
-	);
-};
-
-const LocalLibrary = ( { videos }: LocalVideoLibraryProps ) => {
-	return (
-		<div className={ styles[ 'library-wrapper' ] }>
-			<Text variant="headline-small" mb={ 1 }>
-				Local videos
-			</Text>
-			<Text mb={ 4 }>{ videos?.length } Video</Text>
-			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
-			<Pagination
-				currentPage={ 1 }
-				total={ videos?.length }
-				perPage={ 5 }
-				className={ styles.pagination }
-			/>
-		</div>
-	);
-};
+import { LocalLibrary, VideoPressLibrary } from './libraries';
+import { ConnectionStore } from './types';
 
 const Admin = () => {
 	const connectionStatus = useSelect(
