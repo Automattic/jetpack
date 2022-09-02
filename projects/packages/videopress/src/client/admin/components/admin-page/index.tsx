@@ -11,9 +11,17 @@ import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetp
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import * as mock from '../../mock';
+import { OriginalVideoPressVideo, VideoPressVideo } from '../../types';
 import Logo from '../logo';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import { ConnectionStore } from './types';
+
+const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
+	return videos.map( video => ( {
+		...video,
+		title: video?.videoTitle,
+	} ) );
+};
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -50,10 +58,10 @@ const Admin = () => {
 					<AdminSection>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<VideoPressLibrary videos={ mock.videos } />
+								<VideoPressLibrary videos={ mapVideos( mock.videos ) } />
 							</Col>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<LocalLibrary videos={ mock.localVideos } />
+								<LocalLibrary videos={ mapVideos( mock.localVideos ) } />
 							</Col>
 						</Container>
 					</AdminSection>
