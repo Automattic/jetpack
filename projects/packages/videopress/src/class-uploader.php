@@ -137,7 +137,7 @@ class Uploader {
 	 * @return string
 	 */
 	public function get_upload_token() {
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! ( new Connection_Manager() )->has_connected_owner() ) {
 			throw new Upload_Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
 		}
 		$blog_id  = Jetpack_Options::get_option( 'id' );

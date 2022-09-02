@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.18.1",
+	"version": "0.19.0-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -39,7 +39,7 @@
 		"react-test-renderer": "17.0.2",
 		"require-from-string": "2.0.2",
 		"storybook-addon-mock": "2.0.2",
-		"typescript": "4.7.4",
+		"typescript": "4.8.2",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},

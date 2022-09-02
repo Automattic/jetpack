@@ -4,7 +4,7 @@ export type ClipboardButtonInputProps = {
 	 * And, in case the value property is not defined,
 	 * it represents the value be copied when clicking the copy button,
 	 */
-	text: string;
+	text?: string;
 
 	/*
 	 * The value to be copied when clicking the copy button. Optional.
@@ -14,7 +14,7 @@ export type ClipboardButtonInputProps = {
 	/**
 	 * Callback to be invoked when the text is successfully copied.
 	 */
-	onCopy: () => void;
+	onCopy?: () => void;
 
 	/**
 	 * Timer in miliseconds to reset the copy button to its initial state.

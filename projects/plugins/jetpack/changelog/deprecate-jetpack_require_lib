@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Deprecated `jetpack_require_lib` and `jetpack_require_lib_dir`. No `_deprecated_function` calls yet, that will come after we've removed internal uses.
