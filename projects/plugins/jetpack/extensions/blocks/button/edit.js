@@ -15,11 +15,20 @@ import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
 export function ButtonEdit( props ) {
-	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
+	const {
+		attributes,
+		backgroundColor,
+		className,
+		clientId,
+		context,
+		setAttributes,
+		textColor,
+	} = props;
 	const { borderRadius, element, placeholder, text, width } = attributes;
+	const isWidthSetOnParentBlock = 'jetpack/parentBlockWidth' in context;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
-	useWidth( { attributes, setAttributes } );
+	useWidth( { attributes, disableEffects: isWidthSetOnParentBlock, setAttributes } );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {

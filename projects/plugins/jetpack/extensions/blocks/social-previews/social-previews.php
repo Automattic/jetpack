@@ -21,7 +21,7 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
-			'plan_check' => true,
+			'plan_check' => false,
 		)
 	);
 }
