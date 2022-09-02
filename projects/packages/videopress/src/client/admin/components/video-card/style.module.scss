@@ -30,7 +30,7 @@
 		top: var( --spacing-base );
 		right: var( --spacing-base );
 	}
-	
+
 	.video-thumbnail-duration {
 		position: absolute;
 		bottom: var( --spacing-base );
@@ -50,7 +50,7 @@
 }
 
 .video-thumbnail-edit {
-        .thumbnail__edit-button:global(.components-button) {
+	.thumbnail__edit-button:global(.components-button) {
 		padding: var( --spacing-base );
 
 		> svg {
@@ -142,11 +142,5 @@
 	position: relative;
 	display: flex;
 	transition: opacity 0.2s ease-in-out;
-}
-
-.video-card__quick-actions__edit-buttons {
-	flex-grow: 1;
-	display: flex;
-	justify-content: flex-end;
-	column-gap: var( --spacing-base );
+	justify-content: space-between;
 }
