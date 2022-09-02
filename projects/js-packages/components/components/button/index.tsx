@@ -42,6 +42,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		[ styles.loading ]: isLoading,
 		[ styles.regular ]: weight === 'regular',
 		[ styles[ 'full-width' ] ]: fullWidth,
+		[ styles[ 'is-icon-button' ] ]: Boolean( icon ) && ! children,
 	} );
 
 	componentProps.ref = ref;

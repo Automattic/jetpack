@@ -54,7 +54,10 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		repo,
 		issue_number: +number,
 	} );
-	ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+
+	if ( body ) {
+		ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+	}
 
 	debug( `gather-support-references: Getting references from comments.` );
 	issueComments.map( comment => {
@@ -188,6 +191,8 @@ function formatSlackMessage( payload, channel, message ) {
 		],
 		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
 		mrkdwn: true, // Formatting of the fallback text.
+		unfurl_links: false,
+		unfurl_media: false,
 	};
 }
 

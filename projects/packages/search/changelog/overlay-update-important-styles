@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Instant Search: Update CSS styles to removes uses of "!important" where possible.
