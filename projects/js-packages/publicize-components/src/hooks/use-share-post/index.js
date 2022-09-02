@@ -1,12 +1,10 @@
-import {
-	useSocialMediaConnections,
-	useSocialMediaMessage,
-} from '@automattic/jetpack-publicize-components';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 /**
  * Takes an error object and returns a more meaningful error message.

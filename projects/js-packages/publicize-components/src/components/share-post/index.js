@@ -1,14 +1,12 @@
-import {
-	usePublicizeConfig,
-	useSocialMediaConnections,
-	useSharePost,
-} from '@automattic/jetpack-publicize-components';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
+import useSharePost from '../../hooks/use-share-post';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 /**
  * Removes the current message from resharing a post.

@@ -7,12 +7,12 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import PublicizeConnection from '../connection';
 import MessageBoxControl from '../message-box-control';
 import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
