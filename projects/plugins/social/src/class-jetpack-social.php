@@ -293,6 +293,7 @@ class Jetpack_Social {
 				'social'       => array(
 					'sharesData'              => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 					'connectionRefreshPath'   => '/jetpack/v4/publicize/connection-test-results',
+					'resharePath'             => '/jetpack/v4/publicize/{postId}',
 					'publicizeConnectionsUrl' => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
