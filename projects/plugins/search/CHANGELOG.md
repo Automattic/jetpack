@@ -5,18 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0-beta] - 2022-08-25
+## [1.2.0] - 2022-09-06
 ### Added
-- Adds links to Search plugin line on plugins page [#25718]
-- My Jetpack includes JITMs [#22452]
-- Search: start v1.2.0-alpha release [#25320]
+- Instant Search: add author filtering support.
+- Search: add links to Search plugin line on plugins page.
+- Instant Search: add descriptions to post type icons for accessibility purposes.
+- Record Meter: adds info link to docs.
+- Instant Search: always use submit overlay trigger if user prefers reduced motion.
+- Instant Search: only show animation to users who have not chosen reduced motion.
+- Instant Search: user friendly error messaging.
+- Instant Search: add focus border to search input field.
+- My Jetpack: include JITMs.
 
 ### Changed
-- Activation: only redirect when activating from the Plugins page in the browser [#25715]
-- E2E tests: bump dependencies [#25725]
-- Search: always show Search submenu when Search plugin is installed [#25774]
-- Search: changed default overlay trigger to form submission [#25093]
+- Search: always show Search submenu when Search plugin is installed.
+- Search: changed default overlay trigger to form submission.
+- Instant Search: updates dark mode active link color for increased contrast.
+- Search: changed to only require site level connection.
+- Search: revert "Search should not require user connection".
+- Search: only redirect when activating from the Plugins page in the browser.
 - Updated package dependencies.
+
+### Fixed
+- Dashboard: updated Instant Search description to match changes in default overlay trigger.
+- Instant Search: constrain tab loop to overlay when visible.
+- Instant Search: make "Clear filters" button accessible.
+- Instant Search: fix button styling in Twenty Twenty One theme.
+- Instant Search: fix the display order on mobile to match the tab order.
+- Instant Search: use classname rather than ID for styling sort select.
+- Instant Search: add focus styles for easier keyboard navigation.
+- Instant Search: remove redundant links from search results.
+- Search Widget: keep widget preview with settings.
+
+### Removed
+- Search: remove 'results' overlay trigger.
 
 ## [1.1.0] - 2022-08-02
 ### Added
