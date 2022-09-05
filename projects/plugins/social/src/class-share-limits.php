@@ -40,6 +40,16 @@ class Share_Limits {
 	}
 
 	/**
+	 * Connections are stored in a two-dimensional array, with the first dimension being the service name and the second an array of connections. We need to
+	 * flatten this array so that we can get the number of connections.
+	 *
+	 * @return int Number of connections.
+	 */
+	public function get_number_of_connections() {
+		return count( array_merge( ...array_values( $this->connections ) ) );
+	}
+
+	/**
 	 * Run functionality required to enforce sharing limits.
 	 */
 	public function enforce_share_limits() {
@@ -61,7 +71,7 @@ class Share_Limits {
 	 * @return bool True if there's more shares than connections left, false otherwise.
 	 */
 	public function has_more_shares_than_connections() {
-		return $this->shares_remaining >= count( $this->connections );
+		return $this->shares_remaining >= $this->get_number_of_connections();
 	}
 
 	/**
@@ -112,7 +122,7 @@ class Share_Limits {
 
 		$state = array(
 			'sharesRemaining'     => $this->shares_remaining,
-			'numberOfConnections' => count( $this->connections ),
+			'numberOfConnections' => $this->get_number_of_connections(),
 			'notice'              => $notice,
 		);
 
