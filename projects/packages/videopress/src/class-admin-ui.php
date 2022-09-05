@@ -104,15 +104,6 @@ class Admin_UI {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
-
-		// Initial VideoPress date_add
-		wp_localize_script(
-			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
-			'videoPressInitialState',
-			array(
-				'version' => VideoPress_Initializer::get_version(),
-			)
-		);
 	}
 
 	/**
@@ -134,6 +125,7 @@ class Admin_UI {
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'version'           => VideoPress_Initializer::get_version(),
 		);
 	}
 
