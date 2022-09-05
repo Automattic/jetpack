@@ -38,6 +38,9 @@ class Action_Bar {
 				'more'         => esc_html__( 'More options', 'jetpack-action-bar' ),
 				'follow'       => esc_html__( 'Follow site', 'jetpack-action-bar' ),
 				'like'         => esc_html__( 'Like this post', 'jetpack-action-bar' ),
+				'report'       => esc_html__( 'Report this content', 'jetpack-action-bar' ),
+				'viewSite'     => esc_html__( 'View site in reader', 'jetpack-action-bar' ),
+				'manage'       => esc_html__( 'Manage subscriptions', 'jetpack-action-bar' ),
 			)
 		);
 	}
@@ -49,8 +52,10 @@ class Action_Bar {
 		if ( is_admin() || ! is_single() ) {
 			return;
 		}
-
+		echo '<link rel="stylesheet" href="https://widgets.wp.com/jetpack-action-bar/style.css"></link>';
+		echo '<script type="text/javascript" src="https://widgets.wp.com/jetpack-action-bar/index.js"></script>';
 		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
+		echo '<div id="jetpack-action-bar-modal" class="jetpack-action-bar-modal"></div>';
 	}
 
 	/**
