@@ -1,7 +1,7 @@
 const fs = require( 'fs' );
 const { getInput } = require( '@actions/core' );
 const glob = require( 'glob' );
-const { debug, error } = require( './debug' );
+const { debug } = require( './debug' );
 
 /**
  * Parses multiple Playwright JSON reports and returns details about the failed tests.
@@ -85,7 +85,6 @@ function getPlaywrightBlocks() {
 		);
 	}
 
-	debug( JSON.stringify( blocks ) );
 	return blocks;
 }
 
@@ -128,7 +127,7 @@ function getPlaywrightReportsPaths() {
 	}
 
 	if ( paths.length === 0 ) {
-		error( 'No Playwright report found.' );
+		debug( 'No Playwright report found.' );
 	}
 
 	return paths;

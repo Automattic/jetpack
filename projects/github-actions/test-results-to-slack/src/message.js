@@ -14,7 +14,7 @@ const { getMessage, postOrUpdateMessage } = require( './slack' );
  *
  * @param {boolean} isFailure - whether the workflow is failed or not
  */
-async function getNotificationData( isFailure ) {
+async function createMessage( isFailure ) {
 	const {
 		context: { eventName, sha, payload, runId, actor, serverUrl },
 	} = github;
@@ -203,9 +203,7 @@ async function getNotificationData( isFailure ) {
 async function sendMessage( slackToken, ghToken, channel, username ) {
 	const client = new WebClient( slackToken );
 	const isFailure = await isWorkflowFailed( ghToken );
-	const { text, id, mainMsgBlocks, detailsMsgBlocksChunks } = await getNotificationData(
-		isFailure
-	);
+	const { text, id, mainMsgBlocks, detailsMsgBlocksChunks } = await createMessage( isFailure );
 
 	const icon_emoji = getInput( 'slack_icon_emoji' );
 	const existingMessage = await getMessage( client, channel, id );
@@ -265,4 +263,4 @@ async function sendMessage( slackToken, ghToken, channel, username ) {
 	}
 }
 
-module.exports = { sendMessage, getNotificationData };
+module.exports = { sendMessage, createMessage };
