@@ -70,6 +70,11 @@ function getPlaywrightBlocks() {
 						type: 'mrkdwn',
 						text: `*${ failedTests.length }/${ specsCount } tests failed*`,
 					},
+				],
+			},
+			{
+				type: 'context',
+				elements: [
 					{
 						type: 'mrkdwn',
 						text: failedTests.join( '\n' ),
@@ -80,6 +85,7 @@ function getPlaywrightBlocks() {
 		);
 	}
 
+	debug( JSON.stringify( blocks ) );
 	return blocks;
 }
 
