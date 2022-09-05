@@ -40,14 +40,18 @@ class Regenerate_Admin_Notice {
 	}
 
 	public static function maybe_handle_dismissal() {
+		// We're okay dismissing the notice without nonce verification.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ! isset( $_GET[ self::$dismissal_key ] ) ) {
 			return;
 		}
 		static::dismiss();
-		wp_redirect( remove_query_arg( self::$dismissal_key ) );
+		wp_safe_redirect( remove_query_arg( self::$dismissal_key ) );
 	}
 
 	public static function render() {
+		// We're not actually using the GET parameter here, it's only used to find out what page we're on.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$on_settings_page = is_admin() && isset( $_GET['page'] ) && Admin::MENU_SLUG === $_GET['page'];
 		if ( $on_settings_page ) {
 			return;
