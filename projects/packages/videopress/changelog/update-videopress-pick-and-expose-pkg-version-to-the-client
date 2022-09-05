@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: create and expose videoPressInitialState global var to the client
