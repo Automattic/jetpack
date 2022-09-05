@@ -4,6 +4,7 @@ import {
 	SET_CONNECTION_STATUS_IS_FETCHING,
 	SET_SITE_IS_REGISTERING,
 	SET_USER_IS_CONNECTING,
+	DISCONNECT_USER_SUCCESS,
 	CLEAR_REGISTRATION_ERROR,
 	SET_REGISTRATION_ERROR,
 	SET_AUTHORIZATION_URL,
@@ -14,6 +15,8 @@ const connectionStatus = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_STATUS:
 			return { ...state, ...action.connectionStatus };
+		case DISCONNECT_USER_SUCCESS:
+			return { ...state, isUserConnected: false };
 	}
 
 	return state;

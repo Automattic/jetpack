@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -232,6 +233,8 @@ export const resetConnectUser = () => {
 };
 
 export const reconnectSite = () => {
+	const { restoreConnection } = useRestoreConnection();
+
 	return dispatch => {
 		dispatch( {
 			type: SITE_RECONNECT,
@@ -241,8 +244,8 @@ export const reconnectSite = () => {
 				id: 'reconnect-jetpack',
 			} )
 		);
-		return restApi
-			.reconnect()
+
+		return restoreConnection( false )
 			.then( connectionStatusData => {
 				const status = connectionStatusData.status;
 				const authorizeUrl = connectionStatusData.authorizeUrl;

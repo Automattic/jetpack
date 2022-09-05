@@ -10,6 +10,7 @@ const CLEAR_REGISTRATION_ERROR = 'CLEAR_REGISTRATION_ERROR';
 const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
+const DISCONNECT_USER_SUCCESS = 'DISCONNECT_USER_SUCCESS';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
@@ -32,6 +33,10 @@ const setSiteIsRegistering = isRegistering => {
 
 const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
+};
+
+const disconnectUserSuccess = () => {
+	return { type: DISCONNECT_USER_SUCCESS };
 };
 
 const setRegistrationError = registrationError => {
@@ -121,6 +126,7 @@ const actions = {
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
+	disconnectUserSuccess,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
 };
@@ -137,6 +143,7 @@ export {
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,
+	DISCONNECT_USER_SUCCESS,
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
 	actions as default,
