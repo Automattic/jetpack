@@ -96,9 +96,11 @@ const recommendationsRoutes = [
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
 	'/recommendations/publicize',
-	'/recommendations/security-plan',
+	'/recommendations/protect',
 	'/recommendations/anti-spam',
 	'/recommendations/videopress',
+	'/recommendations/backup-plan',
+	'/recommendations/boost',
 	'/recommendations/summary',
 ];
 
@@ -493,9 +495,11 @@ class Main extends React.Component {
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
 			case '/recommendations/publicize':
-			case '/recommendations/security-plan':
+			case '/recommendations/protect':
 			case '/recommendations/anti-spam':
 			case '/recommendations/videopress':
+			case '/recommendations/backup-plan':
+			case '/recommendations/boost':
 			case '/recommendations/summary':
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;

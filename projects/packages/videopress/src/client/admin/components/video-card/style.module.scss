@@ -1,0 +1,146 @@
+.wrapper {
+	--jp-video-details-wrapper-max-width: 392px;
+
+	max-width: var(--jp-video-details-wrapper-max-width);
+	border-radius: var( --jp-border-radius );
+	background-color: var( --jp-gray-0 );
+
+	&.small {
+		height: 200px;
+
+		.button {
+			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
+		}
+	}
+}
+
+.thumbnail {
+	--videopress-video-item-aspect-radio: calc( 16 / 9 );
+	position: relative;
+	> img {
+		width: 100%;
+		object-fit: cover;
+		aspect-ratio: var( --videopress-video-item-aspect-radio );
+		height: 100%;
+		display: block;
+	}
+
+	.video-thumbnail-edit {
+		position: absolute;
+		top: var( --spacing-base );
+		right: var( --spacing-base );
+	}
+
+	.video-thumbnail-duration {
+		position: absolute;
+		bottom: var( --spacing-base );
+		right: var( --spacing-base );
+		padding-left: var( --spacing-base );
+		padding-right: var( --spacing-base );
+		border-radius: var( --jp-border-radius );
+		color: var( --jp-white );
+		background-color: rgba( 44, 51, 56, 0.9 ); // (--jp-gray-80) Todo: figure how to apply opacity with HEXA colors
+	}
+
+	&:not( .is-small ) {
+		> img {
+			border-radius: var( --jp-border-radius );
+		}
+	}
+}
+
+.video-thumbnail-edit {
+	.thumbnail__edit-button:global(.components-button) {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
+}
+
+.details {
+	color: var( --jp-black-80 );
+	padding: calc( var( --spacing-base ) * 3 ); // 24px;
+	display: flex;
+	flex-direction: column;
+	gap: calc( var( --spacing-base ) * 2 );;
+}
+
+.video-card__wrapper {
+	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
+	max-width: var( --videopress-video-item-max-width );
+	position: relative;
+
+	&:hover {
+		.video-card__background {
+			opacity: 1;
+			z-index: 1;
+			top: calc( var( --spacing-base ) * -2 );
+			left: calc( var( --spacing-base ) * -2 );
+			padding: calc( var( --spacing-base ) * 2 );
+		}
+
+		.video-card__thumbnail {
+			z-index: 2;
+		}
+
+		.video-card__quick-actions-section {
+			z-index: 3;
+			opacity: 1;
+		}
+	}
+}
+
+.video-card__background {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	padding: 0;
+	background-color: var( --jp-white );
+	z-index: 0;
+	box-sizing: content-box;
+	border-radius: var( --spacing-base );
+	border: 1px solid var( --jp-gray-10 );
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out, padding 0.2s ease-in-out, top 0.2s ease-in-out, left 0.2s ease-in-out;
+}
+
+.video-card__title-section {
+	display: flex;
+	align-items: center;
+	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-bottom: calc( var( --spacing-base ) * 2 );
+}
+
+.video-card__title {
+	flex-grow: 2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+	z-index: 2;
+}
+
+.video-card__video-plays-counter {
+	display: flex;
+	align-items: center;
+	color: var( --jp-gray-50 );
+	white-space: nowrap;
+	position: relative;
+	z-index: 2;
+
+	> svg {
+		fill: var( --jp-gray-50 );
+	}
+}
+
+.video-card__quick-actions-section {
+	opacity: 0;
+	position: relative;
+	display: flex;
+	transition: opacity 0.2s ease-in-out;
+	justify-content: space-between;
+}

@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -28,7 +29,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '2.0.0';
+	const PACKAGE_VERSION = '2.0.5-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -64,6 +65,9 @@ class Initializer {
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
+		// Sets up JITMS.
+		JITM::configure();
+
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
@@ -80,6 +84,17 @@ class Initializer {
 	 * @return boolean
 	 */
 	public static function is_licensing_ui_enabled() {
+		// Default changed to true in 1.5.0.
+		$is_enabled = true;
+
+		/*
+		 * Bail if My Jetpack is not enabled,
+		 * and thus the licensing UI shouldn't be enabled either.
+		 */
+		if ( ! self::should_initialize() ) {
+			$is_enabled = false;
+		}
+
 		/**
 		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
 		 *
@@ -90,7 +105,7 @@ class Initializer {
 		 */
 		return apply_filters(
 			'jetpack_my_jetpack_should_enable_add_license_screen',
-			true
+			$is_enabled
 		);
 	}
 

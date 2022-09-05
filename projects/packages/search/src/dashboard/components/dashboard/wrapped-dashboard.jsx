@@ -14,7 +14,7 @@ import { STORE_ID } from 'store';
  * @returns {React.Component} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
-	const { isSiteConnected } = useConnection();
+	const { isFullyConnected } = useConnection();
 
 	const initializeAnalytics = () => {
 		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
@@ -40,8 +40,8 @@ export default function WrappedDashboard() {
 
 	return (
 		<>
-			{ ! isSiteConnected && <SearchConnectionPage /> }
-			{ isSiteConnected && <AfterConnectionPage /> }
+			{ ! isFullyConnected && <SearchConnectionPage /> }
+			{ isFullyConnected && <AfterConnectionPage /> }
 		</>
 	);
 }

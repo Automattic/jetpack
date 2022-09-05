@@ -82,13 +82,13 @@ class Connections_Post_Field {
 			'type'       => 'object',
 			'properties' => array(
 				'id'              => array(
-					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -111,7 +111,7 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 				),
 				'done'            => array(
-					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Whether Jetpack Social has already finished sharing for this post', 'jetpack-publicize-pkg' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
@@ -139,7 +139,7 @@ class Connections_Post_Field {
 		if ( ! $publicize ) {
 			return new \WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack-publicize-pkg' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack-publicize-pkg' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -150,7 +150,7 @@ class Connections_Post_Field {
 
 		return new \WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack-publicize-pkg' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data for this post.', 'jetpack-publicize-pkg' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
@@ -214,21 +214,19 @@ class Connections_Post_Field {
 	 * @return Filtered $post
 	 */
 	public function rest_pre_insert( $post, $request ) {
-		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {
-			return $post;
-		}
+		$request_connections = ! empty( $request['jetpack_publicize_connections'] ) ? $request['jetpack_publicize_connections'] : array();
 
 		$permission_check = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
 		if ( is_wp_error( $permission_check ) ) {
-			return $permission_check;
+			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
-		$this->get_meta_to_update( $request['jetpack_publicize_connections'], isset( $post->ID ) ? $post->ID : 0 );
+		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
 
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
-			$this->update( $request['jetpack_publicize_connections'], $post );
+			$this->update( $request_connections, $post );
 		}
 
 		return $post;
@@ -247,10 +245,6 @@ class Connections_Post_Field {
 			// An existing post was edited - no need to update
 			// our cache - we started out knowing the correct
 			// post ID.
-			return;
-		}
-
-		if ( ! isset( $request['jetpack_publicize_connections'] ) ) {
 			return;
 		}
 
