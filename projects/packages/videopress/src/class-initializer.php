@@ -45,6 +45,31 @@ class Initializer {
 	}
 
 	/**
+	 * Return the package version,
+	 * based on the version of the package's json file.
+	 *
+	 * @return string
+	 */
+	public static function get_version() {
+		$pkg_file        = __DIR__ . '/../package.json';
+		$pkg_file_exists = file_exists( $pkg_file );
+		if ( ! $pkg_file_exists ) {
+			return;
+		}
+
+		$package_data = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $pkg_file )
+		);
+
+		if ( ! isset( $package_data->version ) ) {
+			return;
+		}
+
+		return $package_data->version;
+	}
+
+	/**
 	 * Update the initialization options
 	 *
 	 * This method is called by the Config class
