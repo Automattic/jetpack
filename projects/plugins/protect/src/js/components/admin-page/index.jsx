@@ -158,10 +158,12 @@ const ProtectAdminPage = () => {
 						main={
 							<div className={ styles[ 'main-content' ] }>
 								<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-									<Col>
+									<Col className={ styles[ 'loading-content' ] }>
 										<Spinner
 											style={ {
 												color: 'black',
+												marginTop: 0,
+												marginLeft: 0,
 											} }
 										/>
 										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>

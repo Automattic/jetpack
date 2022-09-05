@@ -139,7 +139,7 @@ const ResourcePromptComponent = props => {
 							<>
 								<span className="jp-recommendations-question__jump-nav-separator">|</span>
 								<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
-									{ __( 'View Summary', 'jetpack' ) }{ ' ' }
+									{ __( 'View Recommendations', 'jetpack' ) }{ ' ' }
 								</a>
 							</>
 						) }

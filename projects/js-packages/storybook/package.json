@@ -22,7 +22,7 @@
 		"test-coverage": "jest tests/ --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.18",
+		"@automattic/jetpack-components": "workspace:* || ^0.19",
 		"@babel/core": "7.18.13",
 		"@babel/plugin-syntax-jsx": "7.18.6",
 		"@babel/preset-react": "7.18.6",
