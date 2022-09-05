@@ -691,6 +691,17 @@ class Jetpack_Gutenberg {
 				'is_private_site'           => '-1' === get_option( 'blog_public' ),
 				'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
 				'is_offline_mode'           => $status->is_offline_mode(),
+				/**
+				 * Enable the RePublicize UI in the block editor context.
+				 *
+				 * @module publicize
+				 *
+				 * @since 10.3.0
+				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
+				 *
+				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+				 */
+				'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
