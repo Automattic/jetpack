@@ -42,6 +42,8 @@ class WPCOM_REST_API_V2_Fields_VideoPress extends WP_REST_Controller {
 				),
 			)
 		);
+
+		add_filter( 'rest_prepare_attachment', array( $this, 'remove_field_for_non_videos' ), 10, 2 );
 	}
 
 	/**
@@ -63,7 +65,7 @@ class WPCOM_REST_API_V2_Fields_VideoPress extends WP_REST_Controller {
 		}
 
 		$post_id = absint( $attachment['id'] );
-		if ( $post_id ) {
+		if ( ! $post_id ) {
 			return '';
 		}
 
@@ -73,6 +75,34 @@ class WPCOM_REST_API_V2_Fields_VideoPress extends WP_REST_Controller {
 		}
 
 		return $videopress_guid;
+	}
+
+	/**
+	 * Checks if the given attachment is a video.
+	 *
+	 * @param object $attachment The attachment object.
+	 *
+	 * @return false|int
+	 */
+	public function is_video( $attachment ) {
+		return wp_startswith( $attachment->post_mime_type, 'video/' );
+	}
+
+	/**
+	 * Removes the jetpack_videopress_guid field from the response if the
+	 * given attachment is not a video.
+	 *
+	 * @param WP_REST_Response $response Response from the attachment endpoint.
+	 * @param WP_Post          $attachment The original attachment object.
+	 *
+	 * @return mixed
+	 */
+	public function remove_field_for_non_videos( $response, $attachment ) {
+		if ( ! $this->is_video( $attachment ) ) {
+			unset( $response->data['jetpack_videopress_guid'] );
+		}
+
+		return $response;
 	}
 }
 
