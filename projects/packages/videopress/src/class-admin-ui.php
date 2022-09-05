@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 
 /**
  * Initialized the VideoPress package
@@ -103,6 +104,15 @@ class Admin_UI {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
+
+		// Initial VideoPress date_add
+		wp_localize_script(
+			self::JETPACK_VIDEOPRESS_PKG_NAMESPACE,
+			'videoPressInitialState',
+			array(
+				'version' => VideoPress_Initializer::get_version(),
+			)
+		);
 	}
 
 	/**
