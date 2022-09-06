@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Tooltip } from '@wordpress/components';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -18,15 +19,24 @@ import type React from 'react';
  * @returns {React.ReactNode} - StatCard react component.
  */
 const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCardProps ) => {
-	const valueTextVariant = variant === 'square' ? 'headline-small' : 'title-medium-semi-bold';
 	const formattedValue = numberFormat( value );
+	const compactValue = numberFormat( value, {
+		notation: 'compact',
+		compactDisplay: 'short',
+	} );
 
 	return (
 		<div className={ classnames( className, styles.wrapper, styles[ variant ] ) }>
 			<div className={ classnames( styles.icon ) }>{ icon }</div>
 			<div className={ classnames( styles.info ) }>
 				<Text className={ styles.label }>{ label }</Text>
-				<Text variant={ valueTextVariant }>{ formattedValue }</Text>
+				{ variant === 'square' ? (
+					<Tooltip text={ formattedValue } position="top center">
+						<Text variant="headline-small">{ compactValue }</Text>
+					</Tooltip>
+				) : (
+					<Text variant="title-medium-semi-bold">{ formattedValue }</Text>
+				) }
 			</div>
 		</div>
 	);
