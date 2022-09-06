@@ -42,8 +42,10 @@ const getVideos = {
 		payload.set( 'query[paged]', reqQuery.page );
 		payload.set( 'query[post_mime_type]', reqQuery.type );
 
+		dispatch.setIsFetchingVideos( true, reqQuery );
+
 		try {
-			dispatch.setIsFetchingVideos( reqQuery );
+			dispatch.setIsFetchingVideos( false, reqQuery );
 
 			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
 				method: 'POST',
@@ -58,6 +60,7 @@ const getVideos = {
 			dispatch.setVideos( body.data, reqQuery );
 			return Promise.resolve();
 		} catch ( error ) {
+			dispatch.setIsFetchingVideos( false, reqQuery );
 			dispatch.setFetchVideosError( error );
 			return Promise.resolve();
 		}
