@@ -7,11 +7,11 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-backup": "1.8.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-plugins-installer": "^0.2"
+		"automattic/jetpack-plugins-installer": "0.2.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"autoload": {
 		"classmap": [
