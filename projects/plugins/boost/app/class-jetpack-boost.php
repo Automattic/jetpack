@@ -119,6 +119,7 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
+		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
 	}
 
