@@ -12,6 +12,7 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { safeDecodeURIComponent } from '@wordpress/url';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
@@ -602,7 +603,7 @@ export class SimplePaymentsEdit extends Component {
 
 const mapSelectToProps = withSelect( ( select, props ) => {
 	const { getEntityRecord, getMedia } = select( 'core' );
-	const { getCurrentPost } = select( 'core/editor' );
+	const { getCurrentPost, getEditedPostSlug, getPermalinkParts } = select( 'core/editor' );
 	const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( 'core' );
 	const getDirtyEntityRecords = __experimentalGetDirtyEntityRecords;
 	const { productId, featuredMediaId } = props.attributes;
@@ -623,6 +624,10 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 
 	const post = getCurrentPost();
 
+	const permalinkParts = getPermalinkParts();
+	const postSlug = safeDecodeURIComponent( getEditedPostSlug() );
+	const postLinkUrl = `${ permalinkParts?.prefix }${ postSlug }${ permalinkParts?.suffix }`;
+
 	return {
 		block: select( 'core/block-editor' ).getBlock( props.clientId ),
 		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
@@ -631,7 +636,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 		),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLinkUrl: post?.link,
+		postLinkUrl,
 		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};
 } );

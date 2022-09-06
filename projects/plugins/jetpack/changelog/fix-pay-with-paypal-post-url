@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Pay with PayPal block: The `postLinkUrl` attribute uses now the actual post URL even when it has not been published yet.
