@@ -1,3 +1,4 @@
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -78,6 +79,9 @@ export default function useSharePost( postId ) {
 	postId = postId || currentPostId;
 
 	const [ data, setData ] = useState( { data: [], error: {} } );
+	const path = (
+		getJetpackData()?.social?.resharePath ?? '/wpcom/v2/posts/{postId}/publicize'
+	).replace( '{postId}', postId );
 
 	const doPublicize = useCallback(
 		function () {
@@ -102,7 +106,7 @@ export default function useSharePost( postId ) {
 			} );
 
 			apiFetch( {
-				path: `/wpcom/v2/posts/${ postId }/publicize`,
+				path,
 				method: 'POST',
 				data: {
 					message,
@@ -147,7 +151,7 @@ export default function useSharePost( postId ) {
 				setData( initialState ); // clean the state.
 			};
 		},
-		[ postId, message, skipped_connections, data.isFetching ]
+		[ postId, message, skipped_connections, data.isFetching, path ]
 	);
 
 	return { ...data, doPublicize };
