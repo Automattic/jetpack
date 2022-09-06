@@ -3,6 +3,9 @@ import React from 'react';
 import './style.scss';
 export type DonutMeterProps = {
 	/**
+	 * Useless comment
+	 */
+	/**
 	 * Total number of items for the donut meter.
 	 */
 	totalCount: number;
