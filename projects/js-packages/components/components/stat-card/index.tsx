@@ -32,10 +32,14 @@ const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCa
 				<Text className={ styles.label }>{ label }</Text>
 				{ variant === 'square' ? (
 					<Tooltip text={ formattedValue } position="top center">
-						<Text variant="headline-small">{ compactValue }</Text>
+						<Text variant="headline-small" className={ classnames( styles.value ) }>
+							{ compactValue }
+						</Text>
 					</Tooltip>
 				) : (
-					<Text variant="title-medium-semi-bold">{ formattedValue }</Text>
+					<Text variant="title-medium-semi-bold" className={ classnames( styles.value ) }>
+						{ formattedValue }
+					</Text>
 				) }
 			</div>
 		</div>
