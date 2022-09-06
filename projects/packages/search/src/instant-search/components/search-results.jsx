@@ -158,6 +158,7 @@ class SearchResults extends Component {
 								result={ result }
 								resultFormat={ this.props.resultFormat }
 								searchQuery={ this.props.searchQuery }
+								isMultiSite={ this.props.additionalBlogIds?.length > 0 }
 							/>
 						) ) }
 					</ol>

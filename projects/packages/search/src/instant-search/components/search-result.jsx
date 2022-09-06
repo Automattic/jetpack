@@ -47,9 +47,10 @@ class SearchResult extends Component {
 			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
 		} else if ( this.props.resultFormat === RESULT_FORMAT_EXPANDED ) {
 			const isMultiSite =
-				this.props.staticFilters &&
-				this.props.staticFilters.group_id &&
-				this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
+				this.props.isMultiSite ||
+				( this.props.staticFilters &&
+					this.props.staticFilters.group_id &&
+					this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE );
 			return (
 				<SearchResultExpanded
 					onClick={ this.onClick }
