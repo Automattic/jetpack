@@ -44,7 +44,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 				'methods'                               => WP_REST_Server::EDITABLE,
 				'callback'                              => array( $this, 'parse_tweetstorm' ),
 				'allow_blog_token_when_site_is_private' => true,
-				'permission_callback'                   => '__return_true',
+				'permission_callback'                   => array( 'Jetpack_Tweetstorm_Helper', 'permissions_check' ),
 			)
 		);
 
@@ -62,7 +62,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 				'methods'                               => WP_REST_Server::EDITABLE,
 				'callback'                              => array( $this, 'generate_cards' ),
 				'allow_blog_token_when_site_is_private' => true,
-				'permission_callback'                   => '__return_true',
+				'permission_callback'                   => array( 'Jetpack_Tweetstorm_Helper', 'permissions_check' ),
 			)
 		);
 	}
