@@ -124,7 +124,54 @@ class Admin_UI {
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'videosList'        => array(
+				'videopress' => self::get_videopress_videos(),
+				'selfHosted' => self::get_videos(),
+			),
 		);
+	}
+
+	/**
+	 * Get the video hitting the `/wp/v2/media` endpoint.
+	 *
+	 * @param array $query              - Query parameters.
+	 * @return array
+	 */
+	public static function get_videos( $query = array() ) {
+		// Request query
+		$query = array_merge(
+			array(
+				'per_page'   => 1,
+				'orderby'    => 'date',
+				'order'      => 'desc',
+				'media_type' => 'video',
+			),
+			$query
+		);
+
+		// Request endpoint URL
+		$url            = get_rest_url();
+		$media_endpoint = sprintf( '%swp/v2/media', $url );
+
+		$request = wp_safe_remote_get( $media_endpoint, array( 'body' => $query ) );
+
+		if ( is_wp_error( $request ) || wp_remote_retrieve_response_code( $request ) != 200 ) {
+			$response = array();
+		} else {
+			$response = wp_remote_retrieve_body( $request );
+			$response = json_decode( $response, true );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Return VideoPress video list
+	 *
+	 * @return array
+	 */
+	public static function get_videopress_videos() {
+		return self::get_videos( array( 'mime_type' => 'video/videopress' ) );
 	}
 
 	/**
