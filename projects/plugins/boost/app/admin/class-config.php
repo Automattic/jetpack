@@ -45,7 +45,6 @@ class Config {
 				'online'    => ! ( new Status() )->is_offline_mode(),
 				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 			),
-			'shownAdminNoticeIds'   => $this->get_shown_admin_notice_ids(),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),
@@ -63,22 +62,6 @@ class Config {
 
 		// Give each module an opportunity to define extra constants.
 		return apply_filters( 'jetpack_boost_js_constants', $constants );
-	}
-
-	/**
-	 * Returns an array of notice ids (i.e.: jetpack-boost-notice-[slug]) for all
-	 * visible admin notices.
-	 *
-	 * @return array List of notice ids.
-	 */
-	private function get_shown_admin_notice_ids() {
-		$notices = Admin::get_admin_notices();
-		$ids     = array();
-		foreach ( $notices as $notice ) {
-			$ids[] = $notice->get_id();
-		}
-
-		return $ids;
 	}
 
 	/**
