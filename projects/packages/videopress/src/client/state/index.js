@@ -14,8 +14,8 @@ import storeHolder from './store-holder';
 /**
  * External dependencies
  */
-const STORE_ID = 'jetpack-videopress';
-const debug = debugFactory( 'jetpack-videopress:state' );
+const STORE_ID = 'videopress/media';
+const debug = debugFactory( 'videopress/media:state' );
 
 /**
  * jetpack-videopress redux initializer

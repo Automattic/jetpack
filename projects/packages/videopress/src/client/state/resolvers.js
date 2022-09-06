@@ -3,9 +3,30 @@
  */
 import { REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
 
+/**
+ * Return a full request query object,
+ * including the default query parameters.
+ *
+ * @param {object} query - Query object.
+ * @returns {object}       Full query object.
+ */
+function getFullRequestQuery( query ) {
+	return {
+		orderBy: 'date',
+		order: 'DESC',
+		itemsPerPage: 6,
+		page: 1,
+		type: 'video/videopress',
+		...query,
+	};
+}
+
 const getVideos = {
-	isFulfilled: state => {
-		return !! state?.videos?.items;
+	isFulfilled: ( state, recentQuery ) => {
+		const query = state?.videos.query;
+		recentQuery = getFullRequestQuery( recentQuery );
+
+		return JSON.stringify( query ) === JSON.stringify( recentQuery );
 	},
 
 	fulfill: ( query = {} ) => async ( { dispatch } ) => {
@@ -13,14 +34,7 @@ const getVideos = {
 		payload.set( 'action', 'query-attachments' );
 		payload.set( 'post_id', 0 );
 
-		const reqQuery = {
-			orderBy: 'date',
-			order: 'DESC',
-			itemsPerPage: 6,
-			page: 1,
-			type: 'video/videopress',
-			...query,
-		};
+		const reqQuery = getFullRequestQuery( query );
 
 		payload.set( 'query[orderby]', reqQuery.orderBy );
 		payload.set( 'query[order]', reqQuery.order );
@@ -41,7 +55,7 @@ const getVideos = {
 				return dispatch.setFetchVideosError( body.data );
 			}
 
-			dispatch.setVideos( body.data );
+			dispatch.setVideos( body.data, reqQuery );
 			return Promise.resolve();
 		} catch ( error ) {
 			dispatch.setFetchVideosError( error );

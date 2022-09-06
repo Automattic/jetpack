@@ -13,6 +13,7 @@ const videos = ( state = {}, action ) => {
 			return {
 				...state,
 				isFetching: true,
+				query: action.query,
 			};
 		}
 
@@ -26,11 +27,12 @@ const videos = ( state = {}, action ) => {
 		}
 
 		case SET_VIDEOS: {
-			const { videos: videosList } = action;
+			const { videos: items, query } = action;
 			return {
 				...state,
-				items: videosList,
+				items,
 				isFetching: false,
+				query,
 			};
 		}
 
