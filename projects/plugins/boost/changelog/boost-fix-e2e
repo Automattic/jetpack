@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dismiss the admin notice when the plugin is deactivated
