@@ -1,12 +1,11 @@
 const { mockGitHubContext, mockContextExtras, setInputData } = require( './test-utils' );
 
-const repository = 'foo/bar';
-
-describe( 'Notification content', () => {
+describe( 'Message content', () => {
 	afterEach( () => {
 		delete process.env.INPUT_SUITE_NAME;
 	} );
 
+	const repository = 'foo/bar';
 	const refName = 'trunk';
 	const refType = 'branch';
 	const prNumber = '123';
@@ -40,8 +39,8 @@ describe( 'Notification content', () => {
 			} );
 			mockContextExtras( { repository, refType, refName } );
 
-			const { getNotificationData } = require( '../src/github' );
-			const { text, mainMsgBlocks } = await getNotificationData( isFailure );
+			const { createMessage } = require( '../src/message' );
+			const { text, mainMsgBlocks } = await createMessage( isFailure );
 
 			expect( text ).toBe( expected.text );
 			expect( mainMsgBlocks[ 0 ].text.text ).toBe( expected.text );
@@ -63,8 +62,8 @@ describe( 'Notification content', () => {
 				eventName: 'push',
 			} );
 
-			const { getNotificationData } = require( '../src/github' );
-			const { mainMsgBlocks } = await getNotificationData( true );
+			const { createMessage } = require( '../src/message' );
+			const { mainMsgBlocks } = await createMessage( true );
 
 			expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( expected.text );
 		}
@@ -82,8 +81,8 @@ describe( 'Notification content', () => {
 			eventName: 'pull_request',
 		} );
 
-		const { getNotificationData } = require( '../src/github' );
-		const { mainMsgBlocks } = await getNotificationData( true );
+		const { createMessage } = require( '../src/message' );
+		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Title: ${ title }` );
 	} );
@@ -98,8 +97,8 @@ describe( 'Notification content', () => {
 			sha: '5dc6ab9d13d9b79317b719a32a60cc682cd6930d',
 		} );
 
-		const { getNotificationData } = require( '../src/github' );
-		const { mainMsgBlocks } = await getNotificationData( true );
+		const { createMessage } = require( '../src/message' );
+		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Last commit: 5dc6ab9d` );
 	} );
