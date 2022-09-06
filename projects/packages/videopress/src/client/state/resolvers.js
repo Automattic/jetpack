@@ -31,7 +31,7 @@ const getVideos = {
 				return dispatch.setFetchVideosError( body.data );
 			}
 
-			dispatch.fetchVideos( body.data );
+			dispatch.setVideos( body.data );
 			return Promise.resolve();
 		} catch ( error ) {
 			dispatch.setFetchVideosError( error );

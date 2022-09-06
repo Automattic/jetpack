@@ -12,6 +12,4 @@ VideoPress store implementation
 
 ### setFetchVideosError()
 
-### fetchVideos()
-
 ### setVideos()
