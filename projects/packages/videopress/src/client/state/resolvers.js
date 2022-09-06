@@ -7,16 +7,17 @@ const getVideos = {
 	isFulfilled: state => {
 		return !! state?.videos?.items;
 	},
-	fulfill: () => async ( { dispatch } ) => {
+
+	fulfill: ( query = {} ) => async ( { dispatch } ) => {
 		const payload = new FormData();
 		payload.set( 'action', 'query-attachments' );
 		payload.set( 'post_id', 0 );
 
-		payload.set( 'query[orderby]', 'date' );
-		payload.set( 'query[order]', 'DESC' );
-		payload.set( 'query[posts_per_page]', 6 );
-		payload.set( 'query[paged]', 1 );
-		payload.set( 'query[mime_type]', 'video/' );
+		payload.set( 'query[orderby]', query.orderBy || 'date' );
+		payload.set( 'query[order]', query.order || 'DESC' );
+		payload.set( 'query[posts_per_page]', query.perPage || 6 );
+		payload.set( 'query[paged]', query.page || 1 );
+		payload.set( 'query[post_mime_type]', query.type || 'video/videopress' );
 
 		try {
 			dispatch.setIsFetchingVideos();

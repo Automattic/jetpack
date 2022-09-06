@@ -1,4 +1,6 @@
-export const getVideos = state => state?.videos?.items || [];
+export const getVideos = state => {
+	return state?.videos?.items || [];
+};
 
 const productSelectors = {
 	getVideos,
