@@ -188,6 +188,11 @@ jobs:
           composer build-development
         working-directory: ./projects/github-actions/test-results-to-slack
 
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-output
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -196,5 +201,6 @@ jobs:
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
+          playwright_report_path: test-output/**/summary.json
 
 
