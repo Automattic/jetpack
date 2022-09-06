@@ -24,7 +24,7 @@ const getVideos = {
 
 		payload.set( 'query[orderby]', reqQuery.orderBy );
 		payload.set( 'query[order]', reqQuery.order );
-		payload.set( 'query[posts_per_page]', reqQuery.perPage );
+		payload.set( 'query[posts_per_page]', reqQuery.itemsPerPage );
 		payload.set( 'query[paged]', reqQuery.page );
 		payload.set( 'query[post_mime_type]', reqQuery.type );
 
