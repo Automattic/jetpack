@@ -54,9 +54,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-social-plugin",
 		"release-branch-prefix": "social",
-		"wp-plugin-slug": "jetpack-social"
+		"wp-plugin-slug": "jetpack-social",
+		"wp-svn-autopublish": true
 	},
 	"config": {
 		"allow-plugins": {
