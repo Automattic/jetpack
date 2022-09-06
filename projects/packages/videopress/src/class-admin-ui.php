@@ -141,7 +141,7 @@ class Admin_UI {
 		// Request query
 		$query = array_merge(
 			array(
-				'per_page'   => 1,
+				'per_page'   => 6,
 				'orderby'    => 'date',
 				'order'      => 'desc',
 				'media_type' => 'video',
