@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.3-beta - 2022-08-30
+### 11.3 - 2022-09-06
 #### Enhancements
 - Dashboard: add new card to highlight options available to WordPress agencies.
 - General: enable the Post List package in Jetpack to display extra information alongside each post in wp-admin dashboard Posts screen.
@@ -271,13 +271,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Bug fixes
 - Calendly block: update the embed options link.
+- Carousel: ensure carousel still opens when clicking on a gallery image that has a figcaption with a link inside.
 - Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified.
 - Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly.
 - Carousel: remove errant '<' character being displayed.
 - Carousel: resolve a PHP warning when non-attachments are processed.
 - Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license.
 - Dashboard Widget: do not show the stats configuration links when the feature is inactive.
-- Subscribe Block: fix input and submit button coupling for Safari when split style is selected.
+- Subscriptions Block: fix input and submit button coupling for Safari when split style is selected.
 - Subscriptions Block: fix subscriber count display when padding dimension is added.
 - Subscriptions Block: remove inline styles from subscription notification.
 - Tiled Gallery: ensure the link to the original image URL is used when linking to media files.
