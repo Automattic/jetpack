@@ -4,15 +4,23 @@ VideoPress store implementation
 
 ## Selectors
 
-### getVideos()
+### getVideos( query )
 
-## Actions
+```jsx
+export default function VideoList() {
+	import { useSelect } from '@wordpress/data';
 
-### setIsFetchingVideos()
+	const videos = useSelect( select => select( 'videopress/media' ).getVideos( {
+		itemsPerPage: 10,
+		orderBy: 'date',
+		order: 'DESC',
+	} ), [] );
 
-### setFetchVideosError()
-
-### setVideos( query )
+	return (
+		// ...
+	);
+}
+```
 
 `query` is an object that accepts the following fields:
 
@@ -51,3 +59,12 @@ Post mime type to use to filter the items.
 
 type: `string`
 default: `video/videopress`
+
+
+## Actions
+
+### setIsFetchingVideos()
+
+### setFetchVideosError()
+
+### setVideos()
