@@ -48,5 +48,9 @@ export const settings = {
 	save,
 	supports: {
 		__experimentalExposeControlsToChildren: true,
+		spacing: {
+			margin: true,
+			padding: true,
+		},
 	},
 };
