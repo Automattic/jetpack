@@ -13,14 +13,23 @@ const getVideos = {
 		payload.set( 'action', 'query-attachments' );
 		payload.set( 'post_id', 0 );
 
-		payload.set( 'query[orderby]', query.orderBy || 'date' );
-		payload.set( 'query[order]', query.order || 'DESC' );
-		payload.set( 'query[posts_per_page]', query.perPage || 6 );
-		payload.set( 'query[paged]', query.page || 1 );
-		payload.set( 'query[post_mime_type]', query.type || 'video/videopress' );
+		const reqQuery = {
+			orderBy: 'date',
+			order: 'DESC',
+			itemsPerPage: 6,
+			page: 1,
+			type: 'video/videopress',
+			...query,
+		};
+
+		payload.set( 'query[orderby]', reqQuery.orderBy );
+		payload.set( 'query[order]', reqQuery.order );
+		payload.set( 'query[posts_per_page]', reqQuery.perPage );
+		payload.set( 'query[paged]', reqQuery.page );
+		payload.set( 'query[post_mime_type]', reqQuery.type );
 
 		try {
-			dispatch.setIsFetchingVideos();
+			dispatch.setIsFetchingVideos( reqQuery );
 
 			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
 				method: 'POST',

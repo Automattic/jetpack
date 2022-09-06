@@ -38,7 +38,7 @@ Page number of the search result.
 type: number
 default: 1
 
-* **perPage**
+* **itemsPerPage**
 
 The number of items to show per page.
 
