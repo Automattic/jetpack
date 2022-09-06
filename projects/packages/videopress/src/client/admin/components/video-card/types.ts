@@ -1,3 +1,5 @@
+import { MouseEvent } from 'react';
+
 export type VideoThumbnailProps = {
 	/**
 	 * className to apply to the component
@@ -54,7 +56,7 @@ export type VideoDetailsProps = {
 	uploadDate: string;
 };
 
-export type VideoPressVideoProp = {
+export type VideoCardProps = {
 	/**
 	 * Video ID
 	 */
@@ -94,4 +96,19 @@ export type VideoPressVideoProp = {
 	 * Callback to be invoked when clicking on the `Edit video details` button.
 	 */
 	onVideoDetailsClick?: () => void;
+
+	/**
+	 * Callback to be invoked when clicking on the `Update thumbnail` button.
+	 */
+	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Callback to be invoked when clicking on the `Update privacy` button.
+	 */
+	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	/**
+	 * Callback to be invoked when clicking on the `Delete video` button.
+	 */
+	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 };

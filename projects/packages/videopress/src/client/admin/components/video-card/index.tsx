@@ -19,12 +19,13 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import ClipboardButtonInput from '../clipboard-button-input';
+import VideoQuickActions from '../video-quick-actions';
 import styles from './style.module.scss';
 import {
 	VideoDetailsProps,
 	VideoThumbnailProps,
 	VideoThumbnailDropdownProps,
-	VideoPressVideoProp,
+	VideoCardProps,
 } from './types';
 import type React from 'react';
 
@@ -152,13 +153,16 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
  * @param {VideoThumbnailProps} props - Component props.
  * @returns {React.ReactNode} - VideoCard react component.
  */
-export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = ( {
+export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	title,
 	duration,
 	plays,
 	thumbnail,
 	editable,
 	onVideoDetailsClick,
+	onUpdateThumbnailClick,
+	onUpdateUpdatePrivacyClick,
+	onDeleteClick,
 } ) => {
 	const playsCount = sprintf(
 		/* translators: placeholder is a product name */
@@ -190,9 +194,20 @@ export const VideoCard: React.FC< VideoPressVideoProp & VideoThumbnailProps > = 
 				</Text>
 			</div>
 			<div className={ styles[ 'video-card__quick-actions-section' ] }>
-				<Button variant="primary" size="small" onClick={ onVideoDetailsClick }>
+				<Button
+					variant="primary"
+					size="small"
+					onClick={ onVideoDetailsClick }
+					className={ styles[ 'video-card__quick-actions__edit-button' ] }
+				>
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
+
+				<VideoQuickActions
+					onUpdateThumbnailClick={ onUpdateThumbnailClick }
+					onUpdateUpdatePrivacyClick={ onUpdateUpdatePrivacyClick }
+					onDeleteClick={ onDeleteClick }
+				/>
 			</div>
 		</div>
 	);
