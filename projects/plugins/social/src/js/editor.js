@@ -1,4 +1,4 @@
-import { SocialIcon } from '@automattic/jetpack-components';
+import { JetpackIcon, SocialIcon } from '@automattic/jetpack-components';
 import { SocialPreviewsModal, SocialPreviewsPanel } from '@automattic/jetpack-publicize-components';
 import { PanelBody } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
@@ -54,11 +54,19 @@ const JetpackSocialSidebar = () => {
 				</PanelBody>
 			</PluginSidebar>
 
-			<PluginPrePublishPanel initialOpen title={ __( 'Share this post', 'jetpack-social' ) }>
+			<PluginPrePublishPanel
+				initialOpen
+				title={ __( 'Share this post', 'jetpack-social' ) }
+				icon={ <JetpackIcon /> }
+			>
 				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>
 
-			<PluginPrePublishPanel initialOpen title={ __( 'Social Previews', 'jetpack-social' ) }>
+			<PluginPrePublishPanel
+				initialOpen
+				title={ __( 'Social Previews', 'jetpack-social' ) }
+				icon={ <JetpackIcon /> }
+			>
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
 		</PostTypeSupportCheck>
