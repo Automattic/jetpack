@@ -25,11 +25,6 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Option to store options that have been dismissed.
-	 */
-	const DISMISSED_NOTICE_OPTION = 'jb-dismissed-notices';
-
-	/**
 	 * Main plugin instance.
 	 *
 	 * @var Jetpack_Boost Plugin.
@@ -61,9 +56,6 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-		add_action( 'admin_notices', array( $this, 'show_notices' ) );
-
-		$this->handle_get_parameters();
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
@@ -73,6 +65,12 @@ class Admin {
 			array( $this, 'render_settings' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+
+		// Admin Notices
+		if ( Regenerate_Admin_Notice::is_enabled() ) {
+			add_action( 'admin_notices', array( Regenerate_Admin_Notice::class, 'render' ) );
+			Regenerate_Admin_Notice::maybe_handle_dismissal();
+		}
 	}
 
 	/**
@@ -159,97 +157,4 @@ class Admin {
 		<div id="jb-admin-settings"></div>
 		<?php
 	}
-
-	/**
-	 * Get the list of dismissed notices.
-	 */
-	public static function get_dismissed_notices() {
-		return \get_option( self::DISMISSED_NOTICE_OPTION, array() );
-	}
-
-	/**
-	 * Delete the option tracking which admin notices have been dismissed during deactivation.
-	 */
-	public static function clear_dismissed_notices() {
-		\delete_option( self::DISMISSED_NOTICE_OPTION );
-	}
-
-	/**
-	 * Show any admin notices from enabled modules.
-	 */
-	public function show_notices() {
-		// Determine if we're already on the settings page.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$on_settings_page = isset( $_GET['page'] ) && self::MENU_SLUG === $_GET['page'];
-		$notices          = $this->get_admin_notices();
-
-		// Filter out any that have been dismissed, unless newer than the dismissal.
-		$dismissed_notices = self::get_dismissed_notices();
-		$notices           = array_filter(
-			$notices,
-			function ( $notice ) use ( $dismissed_notices ) {
-				$notice_slug = $notice->get_slug();
-
-				return ! in_array( $notice_slug, $dismissed_notices, true );
-			}
-		);
-
-		// Abort early if no notices to show.
-		if ( count( $notices ) === 0 ) {
-			return;
-		}
-
-		// Display all notices.
-		foreach ( $notices as $notice ) {
-			$notice->render( $on_settings_page );
-		}
-	}
-
-	/**
-	 * Returns a list of admin notices to show. Asks each module to provide admin notices the user needs to see.
-	 *
-	 * @return \Automattic\Jetpack_Boost\Admin\Admin_Notice[]
-	 */
-	public static function get_admin_notices() {
-		return apply_filters( 'jetpack_boost_admin_notices', array() );
-	}
-
-	/**
-	 * Check for a GET parameter used to dismiss an admin notice.
-	 *
-	 * Note: this method ignores the nonce verification linter rule, as jb-dismiss-notice is intended to work
-	 * without a nonce.
-	 *
-	 * phpcs:disable WordPress.Security.NonceVerification.Recommended
-	 */
-	public function handle_get_parameters() {
-		if ( is_admin() && ! empty( $_GET['jb-dismiss-notice'] ) ) {
-			$slug = sanitize_title( wp_unslash( $_GET['jb-dismiss-notice'] ) );
-
-			$dismissed_notices = self::get_dismissed_notices();
-
-			if ( ! in_array( $slug, $dismissed_notices, true ) ) {
-				$dismissed_notices[] = $slug;
-			}
-
-			\update_option( self::DISMISSED_NOTICE_OPTION, $dismissed_notices, false );
-		}
-	}
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-	/**
-	 * Clear a specific admin notice.
-	 *
-	 * @param string $notice_slug The notice slug.
-	 */
-	public static function clear_dismissed_notice( $notice_slug ) {
-		$dismissed_notices = self::get_dismissed_notices();
-
-		if ( in_array( $notice_slug, $dismissed_notices, true ) ) {
-			array_splice( $dismissed_notices, array_search( $notice_slug, $dismissed_notices, true ), 1 );
-		}
-
-		\update_option( self::DISMISSED_NOTICE_OPTION, $dismissed_notices, false );
-	}
-
 }

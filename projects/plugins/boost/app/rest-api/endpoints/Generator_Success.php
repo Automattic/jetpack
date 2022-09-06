@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
@@ -77,7 +77,7 @@ class Generator_Success implements Endpoint {
 		$generator->state->set_source_success( $cache_key );
 		$recommendations->reset();
 
-		Critical_CSS::clear_reset_reason();
+		Regenerate_Admin_Notice::dismiss();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
 		return rest_ensure_response(
