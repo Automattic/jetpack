@@ -216,7 +216,7 @@ class Jetpack_Tweetstorm_Helper {
 	 *
 	 * @return true|WP_Error True if the request has access to gather tweets from a thread, WP_Error object otherwise.
 	 */
-	public function permissions_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function permissions_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$blog_id = get_current_blog_id();
 
 		/*
@@ -1645,7 +1645,24 @@ class Jetpack_Tweetstorm_Helper {
 
 		$requests = array_filter( $requests );
 
-		$results = Requests::request_multiple( $requests );
+		$hooks = new Requests_Hooks();
+
+		$hooks->register(
+			'requests.before_redirect',
+			array( self::class, 'validate_redirect_url' )
+		);
+
+		$results = Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
+
+		foreach ( $results as $result ) {
+			if ( $result instanceof Requests_Exception ) {
+				return new WP_Error(
+					'invalid_url',
+					__( 'Sorry, something is wrong with the requested URL.', 'jetpack' ),
+					403
+				);
+			}
+		}
 
 		$card_data = array(
 			'creator'     => array(
@@ -1702,6 +1719,19 @@ class Jetpack_Tweetstorm_Helper {
 		}
 
 		return $cards;
+	}
+
+	/**
+	 * Filters the redirect URLs that can appear when requesting passed URLs.
+	 *
+	 * @param String $redirect_url the URL to which a redirect is requested.
+	 * @throws Requests_Exception In case the URL is not validated.
+	 * @return void
+	 * */
+	public static function validate_redirect_url( $redirect_url ) {
+		if ( ! wp_http_validate_url( $redirect_url ) ) {
+			throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
+		}
 	}
 
 	/**
