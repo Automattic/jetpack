@@ -34,15 +34,13 @@ const Stats = ( {
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
 	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
 	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
+	const privateLabel = __( 'Private', 'jetpack-videopress-pkg' );
+	const publicLabel = __( 'Public', 'jetpack-videopress-pkg' );
 
 	const privacyElement = isSmall ? (
 		<>
 			<span>{ privacyLabel }</span>
-			<span>
-				{ isPrivate
-					? __( 'Private', 'jetpack-videopress-pkg' )
-					: __( 'Public', 'jetpack-videopress-pkg' ) }
-			</span>
+			<span>{ isPrivate ? privateLabel : publicLabel }</span>
 		</>
 	) : (
 		<>{ isPrivate && <Icon icon={ privacy } /> }</>
