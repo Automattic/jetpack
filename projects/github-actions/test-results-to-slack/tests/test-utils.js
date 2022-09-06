@@ -25,6 +25,7 @@ function setInputData( options ) {
 		slackIconEmoji,
 		suiteName,
 		rulesConfigurationPath,
+		playwrightReportPath,
 	} = options;
 
 	if ( ghToken ) {
@@ -53,6 +54,10 @@ function setInputData( options ) {
 
 	if ( rulesConfigurationPath ) {
 		process.env.INPUT_RULES_CONFIGURATION_PATH = rulesConfigurationPath;
+	}
+
+	if ( playwrightReportPath ) {
+		process.env.INPUT_PLAYWRIGHT_REPORT_PATH = playwrightReportPath;
 	}
 }
 
