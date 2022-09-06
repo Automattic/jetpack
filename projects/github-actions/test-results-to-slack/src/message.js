@@ -24,47 +24,20 @@ async function createMessage( isFailure ) {
 	const contextElements = [];
 	const buttons = [];
 
+	const lastRunBlock = getTextContextElement(
+		`Last run: ${ runId }/${ runAttempt }, triggered by ${ triggeringActor }`
+	);
+	const actorBlock = getTextContextElement( `Actor: ${ actor }` );
+	const lastRunButtonBlock = getButton( 'Last run', getRunUrl( false ) );
+
 	if ( eventName === 'pull_request' ) {
 		const { html_url, number, title } = payload.pull_request;
 		target = `for pull request *#${ number }*`;
 		msgId = `pr-${ number }`;
 
-		contextElements.push(
-			{
-				type: 'plain_text',
-				text: `Title: ${ title }`,
-				emoji: false,
-			},
-			{
-				type: 'plain_text',
-				text: `Actor: ${ actor }`,
-				emoji: false,
-			},
-			{
-				type: 'plain_text',
-				text: `Last run: attempt ${ runAttempt } of run ${ runId }, triggered by ${ triggeringActor }`,
-				emoji: false,
-			}
-		);
+		contextElements.push( getTextContextElement( `Title: ${ title }` ), actorBlock, lastRunBlock );
 
-		buttons.push(
-			{
-				type: 'button',
-				text: {
-					type: 'plain_text',
-					text: `Last run`,
-				},
-				url: getRunUrl( false ),
-			},
-			{
-				type: 'button',
-				text: {
-					type: 'plain_text',
-					text: `PR #${ number }`,
-				},
-				url: html_url,
-			}
-		);
+		buttons.push( lastRunButtonBlock, getButton( `PR #${ number }`, html_url ) );
 	}
 
 	if ( eventName === 'push' ) {
@@ -74,41 +47,12 @@ async function createMessage( isFailure ) {
 		const truncatedMessage = message.length > 50 ? message.substring( 0, 48 ) + '...' : message;
 
 		contextElements.push(
-			{
-				type: 'plain_text',
-				text: `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }`,
-				emoji: false,
-			},
-			{
-				type: 'plain_text',
-				text: `Actor: ${ actor }`,
-				emoji: false,
-			},
-			{
-				type: 'plain_text',
-				text: `Last run: attempt ${ runAttempt } of run ${ runId }, triggered by ${ triggeringActor }`,
-				emoji: false,
-			}
+			getTextContextElement( `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }` ),
+			actorBlock,
+			lastRunBlock
 		);
 
-		buttons.push(
-			{
-				type: 'button',
-				text: {
-					type: 'plain_text',
-					text: `Last run`,
-				},
-				url: getRunUrl( false ),
-			},
-			{
-				type: 'button',
-				text: {
-					type: 'plain_text',
-					text: `Commit ${ id.substring( 0, 8 ) }`,
-				},
-				url,
-			}
-		);
+		buttons.push( lastRunButtonBlock, getButton( `Commit ${ id.substring( 0, 8 ) }`, url ) );
 	}
 
 	if ( eventName === 'schedule' ) {
@@ -119,36 +63,11 @@ async function createMessage( isFailure ) {
 		const commitUrl = `${ serverUrl }/${ repository }/commit/${ sha }`;
 
 		contextElements.push(
-			{
-				type: 'plain_text',
-				text: `Last commit: ${ sha.substring( 0, 8 ) }`,
-				emoji: false,
-			},
-			{
-				type: 'plain_text',
-				text: `Last run: attempt ${ runAttempt } of run ${ runId }, triggered by ${ triggeringActor }`,
-				emoji: false,
-			}
+			getTextContextElement( `Last commit: ${ sha.substring( 0, 8 ) }` ),
+			lastRunBlock
 		);
 
-		buttons.push(
-			{
-				type: 'button',
-				text: {
-					type: 'plain_text',
-					text: `Last run`,
-				},
-				url: getRunUrl( false ),
-			},
-			{
-				type: 'button',
-				text: {
-					type: 'plain_text',
-					text: `Commit ${ sha.substring( 0, 8 ) }`,
-				},
-				url: commitUrl,
-			}
-		);
+		buttons.push( lastRunButtonBlock, getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
 	}
 
 	const statusIcon = `${ isFailure ? ':x:' : ':white_check_mark:' }`;
@@ -180,7 +99,7 @@ async function createMessage( isFailure ) {
 			type: 'section',
 			text: {
 				type: 'mrkdwn',
-				text: `<${ getRunUrl() } | Run ${ runId } #${ runAttempt } ${
+				text: `<${ getRunUrl() } | Run ${ runId }/${ runAttempt } ${
 					isFailure ? 'has failures' : 'was successful'
 				}>`,
 			},
@@ -190,6 +109,38 @@ async function createMessage( isFailure ) {
 	detailsMsgBlocksChunks.push( ...getPlaywrightBlocks() );
 
 	return { text, id: msgId, mainMsgBlocks, detailsMsgBlocksChunks };
+}
+
+/**
+ * Returns a Slack context block element with a given text.
+ *
+ * @param {string} text - the text of the element
+ * @returns {object} - the block element
+ */
+function getTextContextElement( text ) {
+	return {
+		type: 'plain_text',
+		text,
+		emoji: false,
+	};
+}
+
+/**
+ * Returns a Slack button element with a given text and url.
+ *
+ * @param {string} text - the text of the button
+ * @param {string} url - the url of the button
+ * @returns {object} - the button element
+ */
+function getButton( text, url ) {
+	return {
+		type: 'button',
+		text: {
+			type: 'plain_text',
+			text,
+		},
+		url,
+	};
 }
 
 /**
