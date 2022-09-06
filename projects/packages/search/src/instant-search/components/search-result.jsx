@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import {
-	MULTISITE_NO_GROUP_VALUE,
-	RESULT_FORMAT_EXPANDED,
-	RESULT_FORMAT_PRODUCT,
-} from '../lib/constants';
+import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT } from '../lib/constants';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 import SearchResultExpanded from './search-result-expanded';
 import SearchResultMinimal from './search-result-minimal';
@@ -46,18 +42,7 @@ class SearchResult extends Component {
 		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
 			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
 		} else if ( this.props.resultFormat === RESULT_FORMAT_EXPANDED ) {
-			const isMultiSite =
-				this.props.isMultiSite ||
-				( this.props.staticFilters &&
-					this.props.staticFilters.group_id &&
-					this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE );
-			return (
-				<SearchResultExpanded
-					onClick={ this.onClick }
-					{ ...this.props }
-					isMultiSite={ isMultiSite }
-				/>
-			);
+			return <SearchResultExpanded onClick={ this.onClick } { ...this.props } />;
 		}
 
 		return <SearchResultMinimal onClick={ this.onClick } { ...this.props } />;

@@ -113,6 +113,12 @@ class SearchResults extends Component {
 		const hasCorrectedQuery = corrected_query !== false;
 		const hasResults = total > 0;
 
+		const isMultiSite =
+			this.props.additionalBlogIds?.length > 0 ||
+			( this.props.staticFilters &&
+				this.props.staticFilters.group_id &&
+				this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE );
+
 		return (
 			<Fragment>
 				<style
@@ -158,7 +164,7 @@ class SearchResults extends Component {
 								result={ result }
 								resultFormat={ this.props.resultFormat }
 								searchQuery={ this.props.searchQuery }
-								isMultiSite={ this.props.additionalBlogIds?.length > 0 }
+								isMultiSite={ isMultiSite }
 							/>
 						) ) }
 					</ol>
