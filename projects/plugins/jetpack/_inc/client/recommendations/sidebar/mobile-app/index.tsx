@@ -45,7 +45,9 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 	// Checks to see if this iteration of the card is on the underside of the summary page
 	// Currently only the 'upsell' slug displays the mobile card on the underside
 	const isUnderside = () => {
-		return slug === 'upsell';
+		const undersideSlugs = [ 'upsell' ];
+
+		return undersideSlugs.includes( slug );
 	};
 
 	const AppStoreBadge = () => (
