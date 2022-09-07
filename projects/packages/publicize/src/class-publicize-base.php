@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Jetpack_Options;
 
 /**
  * Base class for Publicize.
@@ -1160,12 +1161,31 @@ abstract class Publicize_Base {
 			wp_set_current_user( $post->post_author );
 		}
 
+		$connection_ids        = array();
+		$available_connections = $this->get_filtered_connection_data( $post_id );
+
+		foreach ( $available_connections as $available_connection ) {
+			$connection_ids[] = $available_connection['unique_id'];
+		}
+		$connection_ids                 = array_unique( $connection_ids );
+		$possible_connections_skip_keys = array();
+		foreach ( $connection_ids as $connection_id ) {
+			$possible_connections_skip_keys[] = $this->POST_SKIP . $connection_id;
+		}
+		$meta                = get_post_meta( $post_id );
+		$over_sharing_limits = false;
+		if ( ! empty( $meta ) ) {
+			$connections_to_be_skipped = array_intersect( $possible_connections_skip_keys, array_keys( $meta ) );
+			$over_sharing_limits       = $this->check_if_over_sharing_limits( count( $connection_ids ) - count( $connections_to_be_skipped ) );
+		}
+
 		/**
 		 * In this phase, we mark connections that we want to SKIP. When Publicize is actually triggered,
 		 * it will Publicize to everything *except* those marked for skipping.
 		 */
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
+
 				$connection_data = '';
 				if ( is_object( $connection ) && method_exists( $connection, 'get_meta' ) ) {
 					$connection_data = $connection->get_meta( 'connection_data' );
@@ -1184,6 +1204,11 @@ abstract class Publicize_Base {
 					$unique_id = $connection->unique_id;
 				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
 					$unique_id = $connection['connection_data']['token_id'];
+				}
+
+				if ( $over_sharing_limits ) {
+					update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
+					continue;
 				}
 
 				// This was a wp-admin request, so we need to check the state of checkboxes.
@@ -1232,6 +1257,26 @@ abstract class Publicize_Base {
 		}
 
 		// Next up will be ::publicize_post().
+	}
+
+	/**
+	 * Check if the sharing limits has been reached .
+	 *
+	 * @param integer $num_of_connections Number of connections the user is sharing to.
+	 */
+	public function check_if_over_sharing_limits( $num_of_connections ) {
+		global $publicize;
+		$info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		if ( is_wp_error( $info ) ) {
+			return false;
+		}
+
+		if ( empty( $info['is_share_limit_enabled'] ) ) {
+			return false;
+		}
+
+		// TODO: Skip the check if someone has the paid plan.s
+		return $num_of_connections > $info['shares_remaining'];
 	}
 
 	/**

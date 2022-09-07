@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Jetpack_Options;
-
 /**
  * The class to register the field and augment requests
  * to Publicize supported post types.
@@ -331,12 +329,10 @@ class Connections_Post_Field {
 			$available_connections_by_unique_id[ $unique_id ]['enabled'] = $enabled;
 		}
 
-		$meta_to_update      = array();
-		$over_sharing_limits = $this->check_if_over_sharing_limits( count( $available_connections_by_unique_id ) );
-
+		$meta_to_update = array();
 		// For all connections, ensure correct post_meta.
 		foreach ( $available_connections_by_unique_id as $unique_id => $available_connection ) {
-			if ( $available_connection['enabled'] && ! $over_sharing_limits ) {
+			if ( $available_connection['enabled'] ) {
 				$meta_to_update[ $publicize->POST_SKIP . $unique_id ] = null; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			} else {
 				$meta_to_update[ $publicize->POST_SKIP . $unique_id ] = 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -346,26 +342,6 @@ class Connections_Post_Field {
 		$this->memoized_updates[ $post_id ] = $meta_to_update;
 
 		return $meta_to_update;
-	}
-
-	/**
-	 * Check if the sharing limits has been reached .
-	 *
-	 * @param integer $num_of_connections Number of connections the user is sharing to.
-	 */
-	public function check_if_over_sharing_limits( $num_of_connections ) {
-		global $publicize;
-		$info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		if ( is_wp_error( $info ) ) {
-			return false;
-		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return false;
-		}
-
-		// TODO: Skip the check if someone has the paid plan.s
-		return $num_of_connections > $info['shares_remaining'];
 	}
 
 	/**
