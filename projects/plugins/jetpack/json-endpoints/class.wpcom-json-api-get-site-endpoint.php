@@ -896,7 +896,9 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$all_formats = get_post_format_strings();
 		$supported   = get_theme_support( 'post-formats' );
 
-		$response          = array();
+		$response          = array(
+			'formats' => array(),
+		);
 		$supported_formats = $response['formats'];
 
 		if ( isset( $supported[0] ) ) {
