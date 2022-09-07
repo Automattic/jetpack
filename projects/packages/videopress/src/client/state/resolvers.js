@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
+import { REST_API_SITE_PURCHASES_ENDPOINT, SET_IS_FETCHING_VIDEOS } from './constants';
 import { stateDebug } from '.';
 
 /**
@@ -66,6 +66,9 @@ const getVideos = {
 		} catch ( error ) {
 			dispatch.setFetchVideosError( error );
 		}
+	},
+	shouldInvalidate: action => {
+		return action.type === SET_IS_FETCHING_VIDEOS;
 	},
 };
 
