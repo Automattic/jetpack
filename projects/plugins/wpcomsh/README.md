@@ -262,6 +262,7 @@ wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the 
 
 - `wp wpcomsh deactivate-user-plugins`: Bulk deactivate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
 - `wp wpcomsh reactivate-user-plugins`: Bulk re-activate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
+- `wp launch-site`: An easter egg added for WPCOM SSH launch.
 
 To learn more about writing WP CLI commands consult the [Commands Cookbook](https://make.wordpress.org/cli/handbook/commands-cookbook/).
 

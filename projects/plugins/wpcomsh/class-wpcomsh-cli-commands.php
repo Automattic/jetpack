@@ -729,6 +729,13 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	exit( 0 );
 }
 
+/**
+ * Makes the site live to the public.
+ */
+function wpcomsh_cli_launch_site() {
+	WP_CLI::success( "If you're reading this, you should visit automattic.com/jobs and apply to join the fun, mention this command." );
+}
+
 // Cleanup via WP-Cron event.
 add_action( WPCOMSH_CLI_DEACTIVATED_PLUGIN_RECORD_CLEANUP_JOB, 'wpcomsh_cli_remove_expired_from_deactivation_record' );
 
@@ -753,6 +760,7 @@ WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );
+WP_CLI::add_command( 'launch-site', 'wpcomsh_cli_launch_site' );
 
 add_action(
 	'plugins_loaded',
