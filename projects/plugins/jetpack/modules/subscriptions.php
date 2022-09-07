@@ -119,6 +119,10 @@ class Jetpack_Subscriptions {
 
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
+
+		// Hide subscription messaging in Publish panel for posts that were published in the past
+		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+		add_action( 'transition_post_status', array( $this, 'maybe_set_first_published_status' ), 10, 3 );
 	}
 
 	/**
@@ -976,6 +980,40 @@ class Jetpack_Subscriptions {
 		if ( false === get_option( 'social_notifications_subscribe' ) ) {
 			add_option( 'social_notifications_subscribe', 'off' );
 		}
+	}
+
+	/**
+	 * Save a flag when a post was published for the first time.
+	 *
+	 * It saves the post meta when the post was published for the first time.
+	 * Then this meta is used to hide subscription messaging in Publish panel.
+	 *
+	 * @param string $new_status Tthe "new" post status of the transition when saved.
+	 * @param string $old_status The "old" post status of the transition when saved.
+	 * @param object $post obj The post object.
+	 */
+	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
+		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
+		if ( 'publish' === $new_status && ! $was_post_ever_published ) {
+			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
+		}
+	}
+
+	/**
+	 * Registers the 'post_was_ever_published' post meta for use in the REST API.
+	 */
+	public function register_post_meta() {
+		$jetpack_post_was_ever_published = array(
+			'type'         => 'boolean',
+			'description'  => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'       => true,
+			'default'      => false,
+			'show_in_rest' => array(
+				'name' => 'jetpack_post_was_ever_published',
+			),
+		);
+
+		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
 	}
 
 }
