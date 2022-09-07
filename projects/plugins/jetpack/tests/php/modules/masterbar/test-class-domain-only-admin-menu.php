@@ -119,13 +119,6 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		$user_id    = get_current_user_id();
 		$expiry     = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
 
-		\store_logger()
-			->set_authorized_user_id( (int) get_current_user_id() )
-			->set_request_source( \A8C\Billingdaddy\Logger\Request_Source::TESTS() )
-			->set_request_path( sprintf( 'product_id=%d;user_id=%d', $product_id, $user_id ) )
-			->set_request_endpoint( 'Test_Domain_Only_Admin_Menu::createTestSubscription' )
-			->set_request_host( 'test.wordpress.com' );
-
 		$subscription_data = array(
 			'user_id'      => $user_id,
 			'blog_id'      => get_current_blog_id(),
@@ -141,10 +134,6 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 			$subscription_data,
 			Store_Configuration::FEATURE_STORE_SUBSCRIPTIONS_HISTORY
 		);
-
-		update_option( 'bundle_upgrade', 1 );
-
-		\A8C\Billingdaddy\Container::get_purchases_api()->clear_cache_for_site_purchases( get_current_blog_id() );
 	}
 
 	private static function removeTestEmailSubscription() {
