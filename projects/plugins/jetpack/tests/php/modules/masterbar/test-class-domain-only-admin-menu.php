@@ -128,12 +128,7 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 			'ownership_id' => wp_rand(),
 		);
 
-		\WPCOM\Store\insert_with_history(
-			$wpdb,
-			$wpdb->store_subscriptions,
-			$subscription_data,
-			Store_Configuration::FEATURE_STORE_SUBSCRIPTIONS_HISTORY
-		);
+		$wpdb->insert( $wpdb->store_subscriptions, $subscription_data );
 	}
 
 	private static function removeTestEmailSubscription() {
