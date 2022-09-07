@@ -399,6 +399,9 @@ jQuery( function($) {
 	list-style: square;
 	padding-left: 1em;
 }
+.wpas-disabled {
+	color: #999;
+}
 .publicize__notice-warning {
 	display: block;
 	padding: 7px 10px;
@@ -621,7 +624,10 @@ jQuery( function($) {
 			?>
 
 			<li>
-				<label for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>">
+				<label
+					for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>"
+					<?php echo ! $connection_data['toggleable'] ? 'class="wpas-disabled"' : ''; ?>
+				>
 					<input
 						type="checkbox"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
