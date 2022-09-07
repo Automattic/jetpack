@@ -230,7 +230,7 @@ function wpcomsh_cli_forget_plugin_deactivation( $file ) {
 // phpcs:disable Squiz.Commenting.FunctionComment.MissingParamTag
 if ( class_exists( 'WP_CLI_Command' ) ) {
 	/**
-	 * Wordpress.com Site Helper (= Atomic) specific CLI commands
+	 * WPCOMSH-specific CLI commands
 	 */
 	class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		/**
