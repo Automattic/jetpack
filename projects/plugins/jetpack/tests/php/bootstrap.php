@@ -151,6 +151,7 @@ require __DIR__ . '/attachment_test_case.php';
 
 // Load WPCOM-shared helper functions.
 require __DIR__ . '/lib/class-wpcom-features.php';
+require __DIR__ . '/lib/wpcom-constants.php';
 require __DIR__ . '/lib/wpcom-helper-functions.php';
 
 // Load the Tweetstorm Requests override class.
