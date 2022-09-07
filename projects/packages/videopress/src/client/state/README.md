@@ -67,4 +67,4 @@ default: `video/videopress`
 
 ### setFetchVideosError()
 
-### setVideos( videos, query )
+### setVideos( videos )
