@@ -1,64 +1,72 @@
 import {
+	Text,
 	AdminPage,
 	AdminSectionHero,
+	AdminSection,
 	Container,
+	Button,
 	Col,
-	PricingCard,
 } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import styles from './styles.module.scss';
+import * as mock from '../../mock';
+import { OriginalVideoPressVideo, VideoPressVideo } from '../../types';
+import Logo from '../logo';
+import { LocalLibrary, VideoPressLibrary } from './libraries';
+import { ConnectionStore } from './types';
+
+const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
+	return videos.map( video => ( {
+		...video,
+		title: video?.videoTitle,
+	} ) );
+};
 
 const Admin = () => {
 	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
+		select => ( select( CONNECTION_STORE_ID ) as ConnectionStore ).getConnectionStatus(),
 		[]
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }>
-			<AdminSectionHero>
-				{ showConnectionCard ? (
+		<AdminPage
+			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
+			header={ <Logo /> }
+		>
+			{ showConnectionCard ? (
+				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
 							<ConnectionSection />
 						</Col>
 					</Container>
-				) : (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 6 } lg={ 6 }>
-							<h1 className={ styles.heading }>
-								{ __( 'The plugin headline.', 'jetpack-videopress-pkg' ) }
-							</h1>
-							<ul className={ styles[ 'jp-product-promote' ] }>
-								<li>
-									{ __( 'All the amazing things this plugin does', 'jetpack-videopress-pkg' ) }
-								</li>
-								<li>
-									{ __( 'Presented in a list of amazing features', 'jetpack-videopress-pkg' ) }
-								</li>
-								<li>{ __( 'And all the benefits you will get', 'jetpack-videopress-pkg' ) }</li>
-							</ul>
-						</Col>
-						<Col lg={ 1 } md={ 1 } sm={ 0 } />
-						<Col sm={ 4 } md={ 5 } lg={ 5 }>
-							<PricingCard
-								title={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-								priceBefore={ 9 }
-								priceAfter={ 4.5 }
-								ctaText={ __( 'Get Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-								infoText={ __(
-									'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-									'jetpack-videopress-pkg'
-								) }
-							/>
-						</Col>
-					</Container>
-				) }
-			</AdminSectionHero>
+				</AdminSectionHero>
+			) : (
+				<>
+					<AdminSectionHero>
+						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+							<Col sm={ 4 } md={ 4 } lg={ 8 }>
+								<Text variant="headline-small" mb={ 3 }>
+									High quality, ad-free video
+								</Text>
+								<Button>Add new video</Button>
+							</Col>
+						</Container>
+					</AdminSectionHero>
+					<AdminSection>
+						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
+							<Col sm={ 4 } md={ 6 } lg={ 12 }>
+								<VideoPressLibrary videos={ mapVideos( mock.videos ) } />
+							</Col>
+							<Col sm={ 4 } md={ 6 } lg={ 12 }>
+								<LocalLibrary videos={ mapVideos( mock.localVideos ) } />
+							</Col>
+						</Container>
+					</AdminSection>
+				</>
+			) }
 		</AdminPage>
 	);
 };

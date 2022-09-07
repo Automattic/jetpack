@@ -4,8 +4,8 @@ import React from 'react';
 type HEXColorType = `#${ string }`;
 
 type LogoProps = {
-	iconColor: HEXColorType;
-	color: HEXColorType;
+	iconColor?: HEXColorType;
+	color?: HEXColorType;
 };
 
 /**
