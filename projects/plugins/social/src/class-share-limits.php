@@ -53,6 +53,7 @@ class Share_Limits {
 	 * Run functionality required to enforce sharing limits.
 	 */
 	public function enforce_share_limits() {
+		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
 
 		if ( ! $this->has_more_shares_than_connections() ) {
@@ -72,6 +73,32 @@ class Share_Limits {
 	 */
 	public function has_more_shares_than_connections() {
 		return $this->shares_remaining >= $this->get_number_of_connections();
+	}
+
+	/**
+	 * Render a notice with the share count in the classic editor.
+	 */
+	public function render_classic_editor_notice() {
+		$notice = sprintf(
+			/* translators: %1$d: number of shares remaining, %2$s: link to upgrade the plan. */
+			_n(
+				'You currently have %1$d share remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
+				'You currently have %1$d shares remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
+				$this->shares_remaining,
+				'jetpack-social'
+			),
+			$this->shares_remaining,
+			Redirect::get_url( 'jetpack-social-basic-plan-classic-editor' )
+		);
+
+		$kses_allowed_tags = array(
+			'a' => array(
+				'href'   => array(),
+				'target' => array(),
+			),
+		);
+
+		echo '<p><em>' . wp_kses( $notice, $kses_allowed_tags ) . '</em></p>';
 	}
 
 	/**
@@ -108,22 +135,9 @@ class Share_Limits {
 	 * @return string
 	 */
 	public function render_initial_state() {
-		$notice = sprintf(
-			/* translators: %1$d: number of shares remaining, %2$s: link to upgrade the plan. */
-			_n(
-				'You currently have %1$d share remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
-				'You currently have %1$d shares remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
-				$this->shares_remaining,
-				'jetpack-social'
-			),
-			$this->shares_remaining,
-			Redirect::get_url( 'jetpack-social-basic-plan-classic-editor' )
-		);
-
 		$state = array(
 			'sharesRemaining'     => $this->shares_remaining,
 			'numberOfConnections' => $this->get_number_of_connections(),
-			'notice'              => $notice,
 		);
 
 		return 'var jetpackSocialClassicEditorInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $state ) ) . '"));';

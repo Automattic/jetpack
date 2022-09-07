@@ -2,8 +2,6 @@ jQuery( function ( $ ) {
 	const state = jetpackSocialClassicEditorInitialState; // eslint-disable-line
 	const form = $( '#publicize-form' );
 
-	form.prepend( '<p><em>' + state.notice + '</em></p>' );
-
 	if ( state.sharesRemaining > state.numberOfConnections ) {
 		return;
 	}
