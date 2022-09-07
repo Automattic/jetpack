@@ -10,9 +10,11 @@ import { SET_IS_FETCHING_VIDEOS, SET_VIDEOS_FETCH_ERROR, SET_VIDEOS } from './co
 const videos = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_VIDEOS: {
+			const { isFetching, query } = action;
 			return {
 				...state,
-				isFetching: true,
+				isFetching,
+				query,
 			};
 		}
 
@@ -26,10 +28,10 @@ const videos = ( state = {}, action ) => {
 		}
 
 		case SET_VIDEOS: {
-			const { videos: videosList } = action;
+			const { videos: items } = action;
 			return {
 				...state,
-				items: videosList,
+				items,
 				isFetching: false,
 			};
 		}
