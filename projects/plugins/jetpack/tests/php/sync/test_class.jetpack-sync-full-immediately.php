@@ -383,7 +383,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		global $wpdb;
 
 		$suppress      = $wpdb->suppress_errors();
-		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $this->user_id );
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', null );
 		$wpdb->suppress_errors( $suppress );
 
 		// let's create some users on the other blog
