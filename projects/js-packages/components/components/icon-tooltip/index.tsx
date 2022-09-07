@@ -1,7 +1,7 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
-import React, { useCallback, useState } from 'react';
 import { IconTooltipProps } from './types';
+import React, { useState, useCallback } from 'react';
+import Gridicon from '../gridicon/index';
 
 import './style.scss';
 
@@ -58,14 +58,11 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	};
 
 	return (
-		<div
-			className="icon-tooltip-wrapper"
-			onMouseEnter={ memoizedToggler }
-			onMouseLeave={ memoizedToggler }
-			data-testid="icon-tooltip_wrapper"
-		>
+		<div className="icon-tooltip-wrapper" data-testid="icon-tooltip_wrapper">
 			<div className="icon-tooltip-helper">
-				<Gridicon icon={ args.iconCode } size={ 18 } />
+				<span onMouseEnter={ memoizedToggler } onMouseLeave={ memoizedToggler }>
+					<Gridicon icon={ args.iconCode } size={ 18 } />
+				</span>
 			</div>
 
 			{ isVisible && <Popover { ...args }>{ args.children }</Popover> }
