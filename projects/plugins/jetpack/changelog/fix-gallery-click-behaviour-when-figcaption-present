@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Ensure Carousel still opens when clicking on a gallery image that has a figcaption with a link inside.

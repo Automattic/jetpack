@@ -1,16 +1,7 @@
 import { MouseEvent } from 'react';
+import { VideoPressVideo } from '../../types';
 
-export type VideoPressVideo = {
-	id: number | string;
-	videoTitle: string;
-	posterImage?: string;
-	uploadDate: string;
-	duration?: number;
-	plays?: number;
-	isPrivate?: boolean;
-};
-
-export type VideoRowProps = VideoPressVideo & {
+type VideoRowBaseProps = {
 	/**
 	 * className to apply to the component
 	 */
@@ -18,7 +9,7 @@ export type VideoRowProps = VideoPressVideo & {
 	/**
 	 * Mark row as checked or not
 	 */
-	checked: boolean;
+	checked?: boolean;
 	/**
 	 * Hide edit details button.
 	 */
@@ -48,3 +39,7 @@ export type VideoRowProps = VideoPressVideo & {
 	 */
 	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 };
+
+type VideoPressVideoProps = VideoRowBaseProps & VideoPressVideo;
+
+export type VideoRowProps = VideoPressVideoProps;
