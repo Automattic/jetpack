@@ -1,0 +1,84 @@
+[
+	{
+		"type": "context",
+		"elements": [
+			{
+				"type": "mrkdwn",
+				"text": "*2/41 tests failed*"
+			}
+		]
+	},
+	{
+		"type": "context",
+		"elements": [
+			{
+				"type": "mrkdwn",
+				"text": "- The Speed Scores should be able to refresh\n- Pay with PayPal"
+			}
+		]
+	},
+	{
+		"type": "divider"
+	},
+	{
+		"type": "context",
+		"elements": [
+			{
+				"type": "mrkdwn",
+				"text": "*The Speed Scores should be able to refresh *"
+			},
+			{
+				"type": "mrkdwn",
+				"text": "```Error: Score should be displayed\n\nReceived: \u001b[31mnull\u001b[39m```"
+			}
+		]
+	},
+	{
+		"type": "divider"
+	},
+	{
+		"type": "context",
+		"elements": [
+			{
+				"type": "mrkdwn",
+				"text": "*Pay with PayPal *"
+			},
+			{
+				"type": "mrkdwn",
+				"text": "```page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================```"
+			}
+		]
+	},
+	{
+		"type": "divider"
+	},
+	{
+		"type": "context",
+		"elements": [
+			{
+				"type": "mrkdwn",
+				"text": "*Pay with PayPal retry #1*"
+			},
+			{
+				"type": "mrkdwn",
+				"text": "```page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================```"
+			}
+		]
+	},
+	{
+		"type": "divider"
+	},
+	{
+		"type": "context",
+		"elements": [
+			{
+				"type": "mrkdwn",
+				"text": "*Pay with PayPal retry #2*"
+			},
+			{
+				"type": "mrkdwn",
+				"text": "```page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================```"
+			}
+		]
+	}
+]
