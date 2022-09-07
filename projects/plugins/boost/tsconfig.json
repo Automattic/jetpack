@@ -1,13 +1,11 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "app/assets/src/js/**/*" ],
+	"include": [ "app/assets/src/js/**/*", "../../js-packages/components/**/*", "packages/**/*" ],
 	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
+		"jsx": "react-jsx",
 		"types": [ "svelte" ],
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
-		/**
-		 * Values from "@tsconfig/svelte/tsconfig.json"
-		 */
 		"importsNotUsedAsValues": "error",
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true,
