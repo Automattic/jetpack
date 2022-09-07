@@ -32,5 +32,33 @@
 				"text": "```Error: Score should be displayed\n\nReceived: \u001b[31mnull\u001b[39m```"
 			}
 		]
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-1.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-2.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-3.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-4.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-5.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-6.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-7.png"
 	}
 ]
