@@ -6,6 +6,18 @@ jQuery( function ( $ ) {
 		return;
 	}
 
+	const checkboxes = $( '#publicize-form' ).find( 'input[type="checkbox"]' );
+
+	// If we're all out of shares, disable all connections and call it a day.
+	if ( state.sharesRemaining === 0 ) {
+		checkboxes.each( function () {
+			$( this ).parent().addClass( 'wpas-disabled' );
+			$( this ).prop( 'disabled', true );
+		} );
+
+		return;
+	}
+
 	form.click( function ( event ) {
 		const target = $( event.target );
 
@@ -13,24 +25,22 @@ jQuery( function ( $ ) {
 			return;
 		}
 
-		// If a connection is checked and disabled, it's already been Publicized to, and we don't want to change it.
-		const enabledConnections = form.find( 'input[type="checkbox"]:checked:not(:disabled)' );
+		const enabledConnections = form.find( 'input[type="checkbox"]:checked' );
 		const outOfConnections = enabledConnections.length >= state.sharesRemaining;
 
-		$( '#publicize-form' )
-			.find( 'input[type="checkbox"]' )
-			.each( function () {
-				// Don't do anything for the current target.
-				if ( this.id === target.attr( 'id' ) ) {
-					return true;
-				}
+		checkboxes.each( function () {
+			// Don't do anything for the current target.
+			if ( this.id === target.attr( 'id' ) ) {
+				return;
+			}
 
-				// If it's checked, don't change anything.
-				if ( this.checked ) {
-					return true;
-				}
+			// If it's checked, don't change anything.
+			if ( this.checked ) {
+				return;
+			}
 
-				$( this ).prop( 'disabled', outOfConnections );
-			} );
+			$( this ).parent().toggleClass( 'wpas-disabled', outOfConnections );
+			$( this ).prop( 'disabled', outOfConnections );
+		} );
 	} );
 } );
