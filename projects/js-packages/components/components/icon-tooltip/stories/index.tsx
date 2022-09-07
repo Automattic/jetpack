@@ -41,3 +41,14 @@ const Template = args => (
 
 // Export Default story
 export const _default = Template.bind( {} );
+
+export const HasContent = Template.bind( {} );
+HasContent.args = {
+	title: 'This is title!',
+	children: (
+		<div>
+			This is children block!<br></br>
+			<br></br>Break Line!
+		</div>
+	),
+};
