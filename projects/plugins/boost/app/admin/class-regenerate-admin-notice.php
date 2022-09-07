@@ -49,6 +49,13 @@ class Regenerate_Admin_Notice {
 		wp_safe_redirect( remove_query_arg( self::$dismissal_key ) );
 	}
 
+	public static function init() {
+		add_action( 'admin_notices', array( static::class, 'maybe_render' ) );
+		if ( static::is_enabled() ) {
+			static::maybe_handle_dismissal();
+		}
+	}
+
 	public static function maybe_render() {
 		if ( static::is_enabled() ) {
 			static::render();

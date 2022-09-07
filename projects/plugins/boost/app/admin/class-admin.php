@@ -67,10 +67,7 @@ class Admin {
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		// Admin Notices
-		add_action( 'admin_notices', array( Regenerate_Admin_Notice::class, 'maybe_render' ) );
-		if ( Regenerate_Admin_Notice::is_enabled() ) {
-			Regenerate_Admin_Notice::maybe_handle_dismissal();
-		}
+		Regenerate_Admin_Notice::setup();
 	}
 
 	/**
