@@ -52,8 +52,8 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$domain = ( new Status() )->get_site_suffix();
-		static::$user_id = $factory->user->create( [ 'role' => 'administrator' ] );
+		static::$domain    = ( new Status() )->get_site_suffix();
+		static::$user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$menu_data = get_menu_fixture();
 	}
 
@@ -115,9 +115,9 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		global $wpdb;
 
 		$product_id = WPCOM_TITAN_MAIL_YEARLY;
-		$meta = 'example.com';
-		$user_id = get_current_user_id();
-		$expiry = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
+		$meta       = 'example.com';
+		$user_id    = get_current_user_id();
+		$expiry     = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
 
 		\store_logger()
 			->set_authorized_user_id( (int) get_current_user_id() )
@@ -126,14 +126,14 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 			->set_request_endpoint( 'Test_Domain_Only_Admin_Menu::createTestSubscription' )
 			->set_request_host( 'test.wordpress.com' );
 
-		$subscription_data = [
-			'user_id' => $user_id,
-			'blog_id' => get_current_blog_id(),
-			'product_id' => $product_id,
-			'meta' => $meta,
-			'expiry' => $expiry,
+		$subscription_data = array(
+			'user_id'      => $user_id,
+			'blog_id'      => get_current_blog_id(),
+			'product_id'   => $product_id,
+			'meta'         => $meta,
+			'expiry'       => $expiry,
 			'ownership_id' => wp_rand(),
-		];
+		);
 
 		\WPCOM\Store\insert_with_history(
 			$wpdb,
