@@ -31,10 +31,7 @@ const videos = ( state = {}, action ) => {
 			const { videos: items, query } = action;
 			return {
 				...state,
-				items: {
-					...state.items,
-					...items,
-				},
+				items,
 				isFetching: false,
 				query,
 			};
