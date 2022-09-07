@@ -39,8 +39,11 @@
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-backup-plugin",
+		"autorelease": true,
+		"autotagger": true,
 		"release-branch-prefix": "backup",
-		"wp-plugin-slug": "jetpack-backup"
+		"wp-plugin-slug": "jetpack-backup",
+		"wp-svn-autopublish": true
 	},
 	"changelogger": {
 		"versioning": "wordpress"
