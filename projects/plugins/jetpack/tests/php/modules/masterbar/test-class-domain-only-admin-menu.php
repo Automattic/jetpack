@@ -128,7 +128,7 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 			'ownership_id' => wp_rand(),
 		);
 
-		$wpdb->insert( 'store_subscriptions', $subscription_data );
+		$wpdb->insert( 'store_subscriptions', $subscription_data ); // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
 	}
 
 	private static function removeTestEmailSubscription() {
