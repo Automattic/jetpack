@@ -115,6 +115,10 @@ class Share_Limits {
 			return;
 		}
 
+		if ( get_post_status() === 'publish' ) {
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-social-classic-editor-share-limits',
 			'build/classic-editor.js',
