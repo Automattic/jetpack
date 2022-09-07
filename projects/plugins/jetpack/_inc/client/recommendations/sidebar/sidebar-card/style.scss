@@ -11,13 +11,22 @@
 
 	box-shadow: 0 12px 20px rgba(0, 0, 0, 0.05);
 
-	&.underside {
-		border-radius: 0px;
-		box-shadow: none;
-	}
-
 	&.with-illustration {
 		background: linear-gradient( to bottom, #E6F2E8, 115px, var( --jp-white ) 115px );
+	}
+}
+
+.jp-recommendations-sidebar-card.underside {
+	border-radius: 0px;
+	box-shadow: none;
+
+	h2 {
+		font-size: $font-title-large;
+		margin-bottom: 0.75rem;
+	}
+
+	p {
+		font-size: $font-body;
 	}
 }
 

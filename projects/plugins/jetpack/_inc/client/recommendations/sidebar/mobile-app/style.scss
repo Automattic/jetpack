@@ -21,6 +21,10 @@
 
 .jp-recommendation-sidebar-mobile__jetpack-icon {
 	margin-left: -0.3rem;
+
+	&.underside {
+		margin-left: -0.42rem;
+	}
 }
 
 h2.jp-recommendation-sidebar-mobile__heading {

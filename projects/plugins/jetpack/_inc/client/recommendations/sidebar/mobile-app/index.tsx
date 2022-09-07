@@ -3,6 +3,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
 import detectMobileDevice from 'lib/device-detector';
@@ -163,22 +164,24 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 		}
 	};
 
-	//const QRCode = <div></div>;
+	const headerImgSize = isUnderside() ? 35 : 25;
 	const header = (
 		<div className="jp-recommendations-sidebar-mobile__header-container">
 			<img
 				src={ imagePath + '/recommendations/wordpress-icon.svg' }
-				width={ 25 }
-				height={ 25 }
+				width={ headerImgSize }
+				height={ headerImgSize }
 				alt="wordpress icon"
 			/>
 			{ /* Extra 2 pixels on width and height are to account for the white padding on this SVG, so the
 			actual image will look the same size as the wordpress one */ }
 			<img
-				className="jp-recommendation-sidebar-mobile__jetpack-icon"
+				className={ classNames( 'jp-recommendation-sidebar-mobile__jetpack-icon', {
+					underside: isUnderside(),
+				} ) }
 				src={ imagePath + '/recommendations/jetpack-icon.svg' }
-				width={ 27 }
-				height={ 27 }
+				width={ headerImgSize + 2 }
+				height={ headerImgSize + 2 }
 				alt="jetpack icon"
 			/>
 		</div>
