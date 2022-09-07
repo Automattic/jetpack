@@ -49,6 +49,12 @@ class Regenerate_Admin_Notice {
 		wp_safe_redirect( remove_query_arg( self::$dismissal_key ) );
 	}
 
+	public static function maybe_render() {
+		if ( static::is_enabled() ) {
+			static::render();
+		}
+	}
+
 	public static function render() {
 		// We're not actually using the GET parameter here, it's only used to find out what page we're on.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
