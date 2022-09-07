@@ -34,19 +34,17 @@ const getVideos = {
 		payload.set( 'action', 'query-attachments' );
 		payload.set( 'post_id', 0 );
 
-		const reqQuery = getFullRequestQuery( query );
+		const freshQuery = getFullRequestQuery( query );
 
-		payload.set( 'query[orderby]', reqQuery.orderBy );
-		payload.set( 'query[order]', reqQuery.order );
-		payload.set( 'query[posts_per_page]', reqQuery.itemsPerPage );
-		payload.set( 'query[paged]', reqQuery.page );
-		payload.set( 'query[post_mime_type]', reqQuery.type );
+		payload.set( 'query[orderby]', freshQuery.orderBy );
+		payload.set( 'query[order]', freshQuery.order );
+		payload.set( 'query[posts_per_page]', freshQuery.itemsPerPage );
+		payload.set( 'query[paged]', freshQuery.page );
+		payload.set( 'query[post_mime_type]', freshQuery.type );
 
-		dispatch.setIsFetchingVideos( true, reqQuery );
+		dispatch.setIsFetchingVideos( true, freshQuery );
 
 		try {
-			dispatch.setIsFetchingVideos( false, reqQuery );
-
 			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
 				method: 'POST',
 				body: payload,
@@ -57,12 +55,10 @@ const getVideos = {
 				return dispatch.setFetchVideosError( body.data );
 			}
 
-			dispatch.setVideos( body.data, reqQuery );
-			return Promise.resolve();
+			dispatch.setVideos( body.data );
+			return body.data;
 		} catch ( error ) {
-			dispatch.setIsFetchingVideos( false, reqQuery );
 			dispatch.setFetchVideosError( error );
-			return Promise.resolve();
 		}
 	},
 };
