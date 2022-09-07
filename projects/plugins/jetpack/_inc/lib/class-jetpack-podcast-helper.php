@@ -32,6 +32,14 @@ class Jetpack_Podcast_Helper {
 	protected $cache_timeout = HOUR_IN_SECONDS;
 
 	/**
+	 * The number of seconds after which we'll perform a quick check to work out
+	 * whether the underlying podcast feed has been updated.
+	 *
+	 * @var int
+	 */
+	protected $check_period = 10 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Initialize class.
 	 *
 	 * @param string $feed The RSS feed of the podcast.
@@ -55,6 +63,20 @@ class Jetpack_Podcast_Helper {
 		// Make sure we force new values for $this->cache_timeout to be integers.
 		if ( is_numeric( $podcast_cache_timeout ) ) {
 			$this->cache_timeout = (int) $podcast_cache_timeout;
+		}
+
+		/**
+		 * Filter the number of seconds we will delay between checking for updates to a podcast.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $cache_timeout The number of seconds we'll wait before checking for an update. The default value is 10 minutes.
+		 * @param string   $podcast_url   The URL of the podcast feed.
+		 */
+		$podcast_recheck_period = apply_filters( 'jetpack_podcast_feed_check_period', $this->check_period, $this->feed );
+
+		if ( is_numeric( $podcast_recheck_period ) ) {
+			$this->check_period = (int) $podcast_recheck_period;
 		}
 	}
 
@@ -158,8 +180,7 @@ class Jetpack_Podcast_Helper {
 				}
 			}
 
-			// Cache for 1 hour.
-			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
+			set_transient( $transient_key, $player_data, $this->check_period );
 		}
 
 		return $player_data;
@@ -330,6 +351,10 @@ class Jetpack_Podcast_Helper {
 		// Fetch the feed.
 		$rss = fetch_feed( $this->feed );
 
+		if ( ! $force_refresh && ! is_wp_error( $rss ) ) {
+			$rss = $this->check_for_podcast_update( $rss );
+		}
+
 		// Remove added actions from wp_feed_options hook.
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 		if ( true === $force_refresh ) {
@@ -364,6 +389,85 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $rss;
+	}
+
+	/**
+	 * Helper function to perform a relatively quick check for updates to the podcast feed,
+	 * without invalidating the cache or fully parsing the content. We only run this code
+	 * if we already have a valid feed.
+	 *
+	 * @param SimplePie $feed The recently loaded podcast RSS feed, which may have been cached.
+	 * @return SimplePie|WP_Error
+	 */
+	protected function check_for_podcast_update( $feed ) {
+
+		$feed_last_modified = isset( $feed->data['headers']['last-modified'] ) ? $feed->data['headers']['last-modified'] : null;
+		$feed_etag          = isset( $feed->data['headers']['etag'] ) ? $feed->data['headers']['etag'] : null;
+
+		if ( empty( $feed_last_modified ) && empty( $feed_etag ) ) {
+			return $feed;
+		}
+
+		$transient_key = 'jetpack_podcast_last_update_check:' . md5( $feed->feed_url );
+
+		$last_feed_refetch_time = get_transient( $transient_key );
+
+		if ( false !== $last_feed_refetch_time && ( $last_feed_refetch_time + $this->check_period > time() ) ) {
+			return $feed;
+		}
+
+		// This matches the Accept header specified in SimplePie::fetch_data().
+		// See: https://github.com/WordPress/wordpress-develop/blob/d51e65b78fa0c650cd847c71814571ed349fadff/src/wp-includes/class-simplepie.php#L1657
+		$headers = array(
+			'Accept' => 'application/atom+xml, application/rss+xml, application/rdf+xml;q=0.9, application/xml;q=0.8, text/xml;q=0.8, text/html;q=0.7, unknown/unknown;q=0.1, application/unknown;q=0.1, */*;q=0.1',
+		);
+
+		if ( ! empty( $feed_last_modified ) ) {
+			$headers['if-modified-since'] = $feed_last_modified;
+		} else {
+			$headers['if-none-match'] = $feed_etag;
+		}
+
+		$head_response = wp_safe_remote_head(
+			$feed->feed_url,
+			array(
+				'headers'     => $headers,
+				// HEAD requests default to not following redirects, so we manually
+				// specify the number of redirects.
+				'redirection' => apply_filters( 'http_request_redirection_count', 5, $feed->feed_url ),
+			)
+		);
+
+		if ( is_wp_error( $head_response ) ) {
+			return $feed;
+		}
+
+		set_transient( $transient_key, time(), $this->check_period );
+
+		if ( ! isset( $head_response['response']['code'] ) || WP_Http::NOT_MODIFIED === $head_response['response']['code'] ) {
+			return $feed;
+		}
+
+		$force_refetch = false;
+
+		if ( ! empty( $feed_last_modified ) ) {
+			$force_refetch = isset( $head_response['headers']['last-modified'] ) && $feed_last_modified !== $head_response['headers']['last-modified'];
+		} else {
+			$force_refetch = isset( $head_response['headers']['etag'] ) && $feed_etag !== $head_response['headers']['etag'];
+		}
+
+		if ( ! $force_refetch ) {
+			return $feed;
+		}
+
+		// Ensure we clear the SimplePie cache
+		add_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
+
+		$updated_feed = fetch_feed( $feed->feed_url );
+
+		remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
+
+		return $updated_feed;
 	}
 
 	/**
