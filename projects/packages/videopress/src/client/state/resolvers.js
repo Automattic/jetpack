@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { REST_API_SITE_PURCHASES_ENDPOINT } from './constants';
+import { stateDebug } from '.';
 
 /**
  * Return a full request query object,
@@ -25,8 +26,13 @@ const getVideos = {
 	isFulfilled: ( state, recentQuery ) => {
 		const query = state?.videos.query;
 		recentQuery = getFullRequestQuery( recentQuery );
+		const isSameQueryRequest = JSON.stringify( query ) === JSON.stringify( recentQuery );
+		if ( ! isSameQueryRequest ) {
+			stateDebug( 'getVideos: isFulfilled: query mismatch', query, recentQuery );
+			return false;
+		}
 
-		return JSON.stringify( query ) === JSON.stringify( recentQuery );
+		return true;
 	},
 
 	fulfill: ( query = {} ) => async ( { dispatch } ) => {
