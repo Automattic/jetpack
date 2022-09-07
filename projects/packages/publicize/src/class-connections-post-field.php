@@ -215,12 +215,14 @@ class Connections_Post_Field {
 	 */
 	public function rest_pre_insert( $post, $request ) {
 		$request_connections = ! empty( $request['jetpack_publicize_connections'] ) ? $request['jetpack_publicize_connections'] : array();
-		$permission_check    = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
+
+		$permission_check = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
 		if ( is_wp_error( $permission_check ) ) {
 			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
 		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
+
 		if ( isset( $post->ID ) ) {
 			// Set the meta before we mark the post as published so that publicize works as expected.
 			// If this is not the case post end up on social media when they are marked as skipped.
