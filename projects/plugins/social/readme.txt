@@ -89,7 +89,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.3.0-beta - 2022-09-07
+### 1.3.0 - 2022-09-07
 #### Added
 - Added scheduled post calculation on plugin activation.
 - Added Social Previews.
