@@ -1,5 +1,5 @@
 import IconTooltip from '../index';
-import type { Placement } from '@floating-ui/react-dom';
+import type { Placement } from '../types';
 
 const AVAILABLE_PLACEMENTS: Placement[] = [
 	'top',

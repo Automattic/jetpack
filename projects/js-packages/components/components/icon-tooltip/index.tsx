@@ -1,13 +1,11 @@
 import { Popover } from '@wordpress/components';
-import { IconTooltipProps } from './types';
 import React, { useState, useCallback } from 'react';
 import Gridicon from '../gridicon/index';
+import { IconTooltipProps, Placement, Position } from './types';
 
 import './style.scss';
 
-const placementsToPositions = (
-	placement: IconTooltipProps[ 'placement' ]
-): IconTooltipProps[ 'position' ] => {
+const placementsToPositions = ( placement: Placement ): Position => {
 	const mapping = {
 		'top-end': 'top left',
 		top: 'top center',
@@ -17,7 +15,7 @@ const placementsToPositions = (
 		'bottom-start': 'bottom right',
 	};
 
-	return mapping[ placement ] as IconTooltipProps[ 'position' ];
+	return mapping[ placement ] as Position;
 };
 
 /**
