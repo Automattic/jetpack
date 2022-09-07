@@ -107,11 +107,7 @@ class Share_Limits {
 	public function enqueue_classic_editor_scripts() {
 		$current_screen = get_current_screen();
 
-		if ( $current_screen->base !== 'post' ) {
-			return;
-		}
-
-		if ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() ) {
+		if ( empty( $current_screen ) || $current_screen->base !== 'post' || $current_screen->is_block_editor() ) {
 			return;
 		}
 
