@@ -147,7 +147,7 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		\A8C\Billingdaddy\Container::get_purchases_api()->clear_cache_for_site_purchases( get_current_blog_id() );
 	}
 
-	private static function removeTestEmailSubscription(): void {
+	private static function removeTestEmailSubscription() {
 		$subscription = \get_subscription( get_current_blog_id(), get_current_user_id(), WPCOM_TITAN_MAIL_YEARLY, 'example.com' );
 		if ( $subscription ) {
 			$subscription->remove();
