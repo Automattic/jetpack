@@ -7,8 +7,6 @@
  * Keep this list in alphabetical order.
  */
 const deFusionedFiles = [
-	'projects/plugins/jetpack/functions.opengraph.php',
-	'projects/plugins/jetpack/enhanced-open-graph.php',
 	'projects/plugins/jetpack/_inc/crowdsignal-shortcode.js',
 	'projects/plugins/jetpack/_inc/crowdsignal-survey.js',
 	'projects/plugins/jetpack/_inc/polldaddy-shortcode.js',
@@ -17,6 +15,8 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/_inc/lib/class-jetpack-mapbox-helper.php',
 	'projects/plugins/jetpack/class.jetpack-post-images.php',
 	'projects/plugins/jetpack/class.jetpack-twitter-cards.php',
+	'projects/plugins/jetpack/enhanced-open-graph.php',
+	'projects/plugins/jetpack/functions.opengraph.php',
 	'projects/plugins/jetpack/modules/carousel.php',
 	'projects/plugins/jetpack/modules/carousel/',
 	'projects/plugins/jetpack/functions.photon.php',
