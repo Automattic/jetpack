@@ -89,16 +89,22 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[2][2] );
 	}
 
+	private function get_mocked_email_subscription_checker() {
+		$mock = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock->method( 'has_email' )->will( $this->returnValue( true ) );
+
+		return $mock;
+	}
+
 	/**
 	 * Tests reregister_menu_items with email subscriptions .
 	 *
 	 * @covers ::reregister_menu_items
 	 */
 	public function test_reregister_menu_items_with_email_subscriptions() {
-		self::createTestEmailSubscription();
-
 		global $menu;
 
+		static::$admin_menu->set_email_subscription_checker( self::get_mocked_email_subscription_checker() );
 		static::$admin_menu->reregister_menu_items();
 
 		$this->assertCount( 4, $menu );
@@ -107,34 +113,5 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		$this->assertEquals( 'https://wordpress.com/email/' . static::$domain . '/manage/' . static::$domain, $menu[1][2] );
 		$this->assertEquals( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $menu[2][2] );
 		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[3][2] );
-
-		self::removeTestEmailSubscription();
-	}
-
-	private static function createTestEmailSubscription() {
-		global $wpdb;
-
-		$product_id = WPCOM_TITAN_MAIL_YEARLY;
-		$meta       = 'example.com';
-		$user_id    = get_current_user_id();
-		$expiry     = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
-
-		$subscription_data = array(
-			'user_id'      => $user_id,
-			'blog_id'      => get_current_blog_id(),
-			'product_id'   => $product_id,
-			'meta'         => $meta,
-			'expiry'       => $expiry,
-			'ownership_id' => wp_rand(),
-		);
-
-		$wpdb->insert( 'store_subscriptions', $subscription_data ); // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-	}
-
-	private static function removeTestEmailSubscription() {
-		$subscription = \get_subscription( get_current_blog_id(), get_current_user_id(), WPCOM_TITAN_MAIL_YEARLY, 'example.com' );
-		if ( $subscription ) {
-			$subscription->remove();
-		}
 	}
 }
