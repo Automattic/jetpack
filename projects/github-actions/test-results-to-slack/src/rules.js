@@ -1,5 +1,5 @@
 const { getInput } = require( '@actions/core' );
-const debug = require( './debug' );
+const { debug } = require( './debug' );
 const extras = require( './extra-context' );
 
 /**

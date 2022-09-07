@@ -22,7 +22,7 @@ export const Input = ( {
 	className,
 	value,
 	placeholder,
-	disabled = true,
+	disabled = false,
 	icon,
 	onChange,
 	onEnter,
