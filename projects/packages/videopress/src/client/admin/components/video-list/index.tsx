@@ -4,34 +4,49 @@ import { useState } from 'react';
 import Checkbox from '../checkbox';
 import VideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
+import { VideoListProps } from './types';
 
-const VideoList = ( { videos, onClickEdit } ) => {
+const VideoList = ( {
+	videos,
+	hideQuickActions,
+	hidePrivacy = false,
+	hideDuration = false,
+	hidePlays = false,
+	hideEditButton = false,
+	onClickEdit,
+	onUpdateThumbnailClick,
+	onUpdateUpdatePrivacyClick,
+	onDeleteClick,
+}: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
-	const [ all, setAll ] = useState( false );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const allSelected = selected?.length === videos?.length;
 
 	const handleAll = checked => {
-		setAll( checked );
-		setSelected( [] );
+		if ( checked ) {
+			setSelected( videos.map( ( _, i ) => i ) );
+		} else {
+			setSelected( [] );
+		}
 	};
 
-	const handleClickEdit = index => () => {
-		onClickEdit?.( videos[ index ] );
+	const handleClickWithIndex = ( index, callback ) => () => {
+		callback?.( videos[ index ] );
 	};
 
 	return (
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					<Checkbox checked={ all } onChange={ handleAll } />
+					<Checkbox checked={ allSelected } onChange={ handleAll } />
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
 					<div className={ styles[ 'data-wrapper' ] }>
 						<Stats
-							privacy={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
-							duration={ __( 'Duration', 'jetpack-videopress-pkg' ) }
-							plays={ __( 'Plays', 'jetpack-videopress-pkg' ) }
+							privacy={ hidePrivacy ? null : __( 'Privacy', 'jetpack-videopress-pkg' ) }
+							duration={ hideDuration ? null : __( 'Duration', 'jetpack-videopress-pkg' ) }
+							plays={ hidePlays ? null : __( 'Plays', 'jetpack-videopress-pkg' ) }
 							upload={ __( 'Upload date', 'jetpack-videopress-pkg' ) }
 						/>
 					</div>
@@ -42,9 +57,17 @@ const VideoList = ( { videos, onClickEdit } ) => {
 					<VideoRow
 						key={ video?.id }
 						{ ...video }
+						hideEditButton={ hideEditButton }
+						hideQuickActions={ hideQuickActions }
+						isPrivate={ hidePrivacy ? null : video.isPrivate }
+						duration={ hideDuration ? null : video.duration }
+						plays={ hidePlays ? null : video.plays }
 						className={ styles.row }
-						checked={ selected.includes( index ) || all }
-						onClickEdit={ handleClickEdit( index ) }
+						checked={ selected.includes( index ) }
+						onClickEdit={ handleClickWithIndex( index, onClickEdit ) }
+						onUpdateThumbnailClick={ handleClickWithIndex( index, onUpdateThumbnailClick ) }
+						onUpdateUpdatePrivacyClick={ handleClickWithIndex( index, onUpdateUpdatePrivacyClick ) }
+						onDeleteClick={ handleClickWithIndex( index, onDeleteClick ) }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );

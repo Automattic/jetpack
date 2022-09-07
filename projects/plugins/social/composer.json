@@ -10,8 +10,8 @@
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-publicize": "0.12.x-dev",
-		"automattic/jetpack-connection": "1.44.x-dev",
+		"automattic/jetpack-publicize": "0.13.x-dev",
+		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
@@ -62,9 +62,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-social-plugin",
 		"release-branch-prefix": "social",
-		"wp-plugin-slug": "jetpack-social"
+		"wp-plugin-slug": "jetpack-social",
+		"wp-svn-autopublish": true
 	},
 	"config": {
 		"allow-plugins": {
@@ -72,6 +75,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ1_3_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ1_4_0_alpha"
 	}
 }

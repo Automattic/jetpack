@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add React variables as part of the project to have consistent connection errors across monorepo projects.
