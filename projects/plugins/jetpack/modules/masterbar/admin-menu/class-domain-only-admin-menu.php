@@ -15,7 +15,7 @@ require_once __DIR__ . '/class-wpcom-email-subscription-checker.php';
  */
 class Domain_Only_Admin_Menu extends Base_Admin_Menu {
 	/**
-	 * The `WPCOM_Email_Subscription_Checker` instance used to verify if a site has an email subscription
+	 * The `WPCOM_Email_Subscription_Checker` instance used to verify if a site has an email subscription.
 	 *
 	 * @var \WPCOM_Email_Subscription_Checker
 	 */
