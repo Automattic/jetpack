@@ -34,8 +34,8 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const videos = useVideos();
-	const localVideos = useVideos();
+	const { items: videos } = useVideos();
+	const localVideos = [];
 
 	return (
 		<AdminPage

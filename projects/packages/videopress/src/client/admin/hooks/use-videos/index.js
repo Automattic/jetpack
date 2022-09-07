@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { dispatch, useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -13,5 +13,12 @@ import { STORE_ID } from '../../../state';
  * @returns {object} videos
  */
 export default function useVideos() {
-	return useSelect( select => select( STORE_ID ).getVideos(), [] );
+	return {
+		// Data
+		items: useSelect( select => select( STORE_ID ).getVideos(), [] ),
+		...useSelect( select => select( STORE_ID ).getVideosQuery() || {} ),
+
+		// Setters
+		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
+	};
 }
