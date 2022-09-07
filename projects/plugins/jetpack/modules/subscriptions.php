@@ -983,9 +983,9 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Save a flag when a post was published for the first time.
+	 * Save a flag when a post was ever published.
 	 *
-	 * It saves the post meta when the post was published for the first time.
+	 * It saves the post meta when the post was published and becomes a draft.
 	 * Then this meta is used to hide subscription messaging in Publish panel.
 	 *
 	 * @param string $new_status Tthe "new" post status of the transition when saved.
@@ -994,7 +994,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
 		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
-		if ( 'publish' === $new_status && ! $was_post_ever_published ) {
+		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
 			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
 		}
 	}
