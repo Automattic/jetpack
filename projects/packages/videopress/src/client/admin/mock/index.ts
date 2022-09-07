@@ -96,3 +96,26 @@ export const videos = [
 		isPrivate: true,
 	},
 ];
+
+export const localVideos = [
+	{
+		id: 1,
+		videoTitle: 'time-clock-v2-05.mp4',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+	{
+		id: 2,
+		videoTitle: 'Barcelona Tour',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+	{
+		id: 3,
+		videoTitle: 'Mountain Dew Creative',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+	{
+		id: 4,
+		videoTitle: '2021 Reel',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+];
