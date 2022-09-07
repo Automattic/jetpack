@@ -84,7 +84,7 @@ const Edit = props => {
 		lockPostSaving( 'donations' );
 		const updateData = () => fetchStatus( 'donation' ).then( mapStatusToState, apiError );
 		updateData();
-	}, [ currency ] );
+	}, [ currency, lockPostSaving ] );
 
 	if ( loadingError ) {
 		return <LoadingError className={ className } error={ loadingError } />;
