@@ -24,7 +24,7 @@ export default function useConnectionWatcher() {
 	const oneProductMessage = sprintf(
 		/* translators: placeholder is product name. */
 		__(
-			'Jetpack %s needs a user connection to WordPress.com to be able to work.',
+			'Jetpack %s needs a user connection to Jetpack.com to be able to work.',
 			'jetpack-my-jetpack'
 		),
 		productsThatRequiresUserConnection[ 0 ]
@@ -33,7 +33,7 @@ export default function useConnectionWatcher() {
 	const message =
 		productsThatRequiresUserConnection.length > 1
 			? __(
-					'Some products need a user connection to WordPress.com to be able to work.',
+					'Some products need a user connection to Jetpack.com to be able to work.',
 					'jetpack-my-jetpack'
 			  )
 			: oneProductMessage;
