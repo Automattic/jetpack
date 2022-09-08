@@ -2,8 +2,10 @@ import { Button, Text } from '@automattic/jetpack-components';
 import { Rect, SVG } from '@wordpress/components';
 import { grid, formatListBullets } from '@wordpress/icons';
 import React, { useState } from 'react';
+import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import Pagination from '../pagination';
+import { PaginationProps } from '../pagination/types';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
@@ -23,6 +25,11 @@ const filterIcon = (
 		<Rect x="9" y="15.5" width="6" height="1.5" fill="black" />
 	</SVG>
 );
+
+const ConnectedPagination: React.FC< PaginationProps > = props => {
+	const { setPage, page } = useVideos();
+	return <Pagination { ...props } onChangePage={ setPage } currentPage={ page } />;
+};
 
 const VideoLibraryWrapper = ( {
 	children,
@@ -68,9 +75,9 @@ const VideoLibraryWrapper = ( {
 				) }
 			</div>
 			{ children }
-			<Pagination
+			<ConnectedPagination
 				currentPage={ 1 }
-				total={ totalVideos }
+				total={ 30 }
 				perPage={ 5 }
 				className={ styles.pagination }
 			/>

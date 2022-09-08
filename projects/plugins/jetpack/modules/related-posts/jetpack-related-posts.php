@@ -1580,18 +1580,23 @@ EOT;
 			}
 		}
 
+		$user_agent = '';
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$user_agent = strtolower( filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
+		}
+
 		$response = wp_remote_post(
 			"https://public-api.wordpress.com/rest/v1/sites/{$this->get_blog_id()}/posts/$post_id/related/",
 			array(
 				'timeout'    => 10,
-				'user-agent' => 'jetpack_related_posts',
+				'user-agent' => "jetpack_related_posts, $user_agent",
 				'sslverify'  => true,
 				'body'       => $body,
 			)
 		);
 
-		// Oh no... return nothing don't cache errors.
-		if ( is_wp_error( $response ) ) {
+		// Oh no... return nothing don't cache errors. Also, don't cache HTTP 409 conflict responses.
+		if ( is_wp_error( $response ) || WP_Http::CONFLICT === wp_remote_retrieve_response_code( $response ) ) {
 			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) ) {
 				return $cache[ $cache_key ]['payload']; // return stale.
 			} else {

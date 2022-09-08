@@ -51,6 +51,17 @@ function getPlaywrightBlocks() {
 								],
 							}
 						);
+
+						r.attachments.forEach( attachment => {
+							if ( attachment.contentType === 'image/png' ) {
+								// this is not a valid Slack block, but a hacky way to send images further to be uploaded
+								// when detected further down, it should upload the file and then discard this "block"
+								failureDetailsBlocks.push( {
+									type: 'file',
+									path: attachment.path,
+								} );
+							}
+						} );
 					} );
 				} );
 			}

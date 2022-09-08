@@ -10,17 +10,20 @@ import {
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import * as mock from '../../mock';
+import useVideos from '../../hooks/use-videos';
 import { OriginalVideoPressVideo, VideoPressVideo } from '../../types';
 import Logo from '../logo';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import { ConnectionStore } from './types';
 
 const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
-	return videos.map( video => ( {
-		...video,
-		title: video?.videoTitle,
-	} ) );
+	return videos.map( video => {
+		return {
+			...video,
+			title: video.title,
+			posterImage: video.image.src,
+		};
+	} );
 };
 
 const Admin = () => {
@@ -30,6 +33,10 @@ const Admin = () => {
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+
+	const { items: videos } = useVideos();
+	const localVideos = [];
+
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
@@ -58,10 +65,10 @@ const Admin = () => {
 					<AdminSection>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<VideoPressLibrary videos={ mapVideos( mock.videos ) } />
+								<VideoPressLibrary videos={ mapVideos( videos ) } />
 							</Col>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<LocalLibrary videos={ mapVideos( mock.localVideos ) } />
+								<LocalLibrary videos={ mapVideos( localVideos ) } />
 							</Col>
 						</Container>
 					</AdminSection>
