@@ -1,7 +1,7 @@
 /*
  * API
  */
-export const REST_API_SITE_PURCHASES_ENDPOINT = '/wp-admin/admin-ajax.php';
+export const REST_API_SITE_PURCHASES_ENDPOINT = '/wp/v2/media';
 
 /*
  * Actions

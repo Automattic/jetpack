@@ -20,7 +20,7 @@ import {
 export function getDefaultQuery() {
 	return {
 		orderBy: 'date',
-		order: 'DESC',
+		order: 'desc',
 		itemsPerPage: 6,
 		page: 1,
 		type: 'video/videopress',

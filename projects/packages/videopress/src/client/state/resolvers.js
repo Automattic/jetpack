@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
+/**
  * Internal dependencies
  */
 import { REST_API_SITE_PURCHASES_ENDPOINT, SET_VIDEOS_QUERY } from './constants';
@@ -21,28 +26,23 @@ const getVideos = {
 			dispatch.setVideosQuery( query );
 		}
 
-		payload.set( 'query[orderby]', query.orderBy );
-		payload.set( 'query[order]', query.order );
-		payload.set( 'query[posts_per_page]', query.itemsPerPage );
-		payload.set( 'query[paged]', query.page );
-		payload.set( 'query[post_mime_type]', query.type );
-
 		dispatch.setIsFetchingVideos( true );
 
 		try {
-			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
-				method: 'POST',
-				body: payload,
+			const response = await apiFetch( {
+				path: addQueryArgs( REST_API_SITE_PURCHASES_ENDPOINT, {
+					media_type: 'video',
+					orderby: query.orderBy,
+					order: query.order,
+					mime_type: query.type,
+					page: query.page,
+					per_page: query.itemsPerPage,
+				} ),
 			} );
 
-			const body = await response.json();
-			if ( ! body.success ) {
-				return dispatch.setFetchVideosError( body.data );
-			}
-
-			dispatch.setVideos( body.data );
-			return body.data;
+			dispatch.setVideos( response );
 		} catch ( error ) {
+			console.error( 'error: ', error ); // eslint-disable-line no-console
 			dispatch.setFetchVideosError( error );
 		}
 	},
