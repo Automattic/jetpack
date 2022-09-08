@@ -105,6 +105,10 @@ function get_button_classes( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+	$has_font_size               = array_key_exists( 'fontSize', $attributes );
+	$has_typography_styles       = array_key_exists( 'styles', $attributes ) && array_key_exists( 'typography', $attributes['styles'] );
+	$has_custom_font_size        = ! $has_font_size && $has_typography_styles && array_key_exists( 'fontSize', $attributes['styles']['typography'] );
+	$has_custom_font_size        = ! $has_font_size && $has_typography_styles && array_key_exists( 'fontSize', $attributes['styles']['typography'] );
 
 	if ( $has_class_name ) {
 		$classes[] = $attributes['className'];
