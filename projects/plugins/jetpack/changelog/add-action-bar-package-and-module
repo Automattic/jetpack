@@ -1,5 +1,4 @@
-Significance: patch
-Type: other
-Comment: Action Bar: introduce new module (currently only scaffolding).
+Significance: minor
+Type: enhancement
 
-
+Action Bar: introduce new module (currently only scaffolding).
