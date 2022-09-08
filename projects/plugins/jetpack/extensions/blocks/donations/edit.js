@@ -15,6 +15,7 @@ const Edit = props => {
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ products, setProducts ] = useState( [] );
 
+	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
 	const { setShouldUpgrade, setConnectUrl } = useDispatch( MEMBERSHIPS_PRODUCTS_STORE );
 	useEffect( () => {
@@ -45,6 +46,7 @@ const Edit = props => {
 
 	const mapStatusToState = result => {
 		if ( ( ! result && typeof result !== 'object' ) || result.errors ) {
+			unlockPostSaving( 'donations' );
 			setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
 			return;
 		}
@@ -55,6 +57,7 @@ const Edit = props => {
 
 		if ( hasRequiredProducts( filteredProducts ) ) {
 			setProducts( filteredProducts );
+			unlockPostSaving( 'donations' );
 			return;
 		}
 
@@ -66,19 +69,22 @@ const Edit = props => {
 				'1 month': -1,
 				'1 year': -1,
 			} );
+			unlockPostSaving( 'donations' );
 			return;
 		}
 
 		// Only create products if we have the correct plan and stripe connection.
 		fetchDefaultProducts( currency ).then( defaultProducts => {
-			return setProducts( filterProducts( defaultProducts ) );
+			setProducts( filterProducts( defaultProducts ) );
+			unlockPostSaving( 'donations' );
 		}, apiError );
 	};
 
 	useEffect( () => {
+		lockPostSaving( 'donations' );
 		const updateData = () => fetchStatus( 'donation' ).then( mapStatusToState, apiError );
 		updateData();
-	}, [ currency ] );
+	}, [ currency, lockPostSaving ] );
 
 	if ( loadingError ) {
 		return <LoadingError className={ className } error={ loadingError } />;
