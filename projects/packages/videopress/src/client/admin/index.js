@@ -1,10 +1,20 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import React from 'react';
 import ReactDOM from 'react-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { initStore } from '../state';
 import AdminPage from './components/admin-page';
 
 initStore();
+
+const VideoPress = () => (
+	<ThemeProvider>
+		<HashRouter>
+			<Routes>
+				<Route path="/" element={ <AdminPage /> } />
+			</Routes>
+		</HashRouter>
+	</ThemeProvider>
+);
 
 /**
  * Initial render function.
@@ -16,12 +26,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
-		<ThemeProvider>
-			<AdminPage />
-		</ThemeProvider>,
-		container
-	);
+	ReactDOM.render( <VideoPress />, container );
 }
 
 render();
