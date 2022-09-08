@@ -84,4 +84,5 @@ Search.args = {
 	disabled: false,
 	onEnter: action( 'onEnter' ),
 	onChange: action( 'onChange' ),
+	onSearch: action( 'onSearch' ),
 };

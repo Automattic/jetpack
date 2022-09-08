@@ -109,12 +109,29 @@ export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),
 	...componentProps
 }: SearchInputProps ) => {
+	const onEnterHandler = useCallback(
+		( value: string ) => {
+			componentProps.onEnter?.( value );
+			componentProps.onSearch?.( value );
+		},
+		[ componentProps.onEnter, componentProps.onSearch ]
+	);
+
+	const onChangeHandler = useCallback(
+		( value: string ) => {
+			componentProps.onChange?.( value );
+		},
+		[ componentProps.onChange ]
+	);
+
 	return (
 		<Input
 			{ ...componentProps }
 			icon={ <SearchIcon size={ 24 } /> }
 			placeholder={ placeholder }
 			type="text"
+			onEnter={ onEnterHandler }
+			onChange={ onChangeHandler }
 		/>
 	);
 };

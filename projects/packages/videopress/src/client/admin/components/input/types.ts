@@ -51,4 +51,10 @@ type TextArea = React.TextareaHTMLAttributes< HTMLTextAreaElement > & {
 
 export type InputProps = Input | TextArea;
 
-export type SearchInputProps = InputBaseProps & Omit< Input, 'icon' | 'type' >;
+export type SearchInputProps = InputBaseProps &
+	Omit< Input, 'icon' | 'type' > & {
+		/**
+		 * Callback to be invoked when the seacrhing
+		 */
+		onSearch: ( value: string ) => unknown;
+	};
