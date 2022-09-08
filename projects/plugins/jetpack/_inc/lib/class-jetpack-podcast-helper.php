@@ -524,7 +524,7 @@ class Jetpack_Podcast_Helper {
 		$cache_key = $this->get_last_update_check_key( $feed );
 
 		if ( $this->update_check_cache_mode === 'cache' ) {
-			wp_cache_set( $cache_key, time(), 'jetpack_podcast_update_cache' );
+			wp_cache_set( $cache_key, time(), 'jetpack_podcast_update_cache', $this->update_check_period );
 			return;
 		}
 
