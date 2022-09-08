@@ -1296,7 +1296,7 @@ abstract class Publicize_Base {
 	 */
 	public function show_over_the_limit_notice() {
 
-		// phpcs:ignore Processing form data without nonce verification.
+		// phpcs:ignore
 		if ( ! isset( $_REQUEST['over_the_imit'] ) || empty( $_REQUEST['over_the_imit'] ) ) {
 			return;
 		}
