@@ -14,6 +14,12 @@ export default {
 	title: 'JS Packages/Components/IconTooltip',
 	component: IconTooltip,
 	argTypes: {
+		className: {
+			control: { type: 'text' },
+		},
+		iconClassName: {
+			control: { type: 'text' },
+		},
 		placement: {
 			control: { type: 'select' },
 			options: AVAILABLE_PLACEMENTS,

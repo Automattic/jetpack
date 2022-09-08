@@ -9,9 +9,11 @@ export type Position =
 	| 'bottom right';
 
 export type IconTooltipProps = {
+	className?: string;
+	iconClassName?: string;
 	position?: Position;
 	placement?: Placement;
-	animate?: false | true;
+	animate?: boolean;
 	iconCode?: string;
 	title?: string;
 	children?: React.ReactNode;

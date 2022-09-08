@@ -1,5 +1,6 @@
 import { Popover } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
+import classNames from 'classnames';
 import React, { useState } from 'react';
 import Gridicon from '../gridicon/index';
 import { IconTooltipProps, Placement, Position } from './types';
@@ -26,6 +27,8 @@ const placementsToPositions = ( placement: Placement ): Position => {
  * @returns {React.ReactElement} - JSX element
  */
 const IconTooltip: React.FC< IconTooltipProps > = ( {
+	className = '',
+	iconClassName = '',
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = 'info-outline',
@@ -71,17 +74,19 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		offset: 10,
 	};
 
+	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
+
 	return (
-		<div className="icon-tooltip-wrapper" data-testid="icon-tooltip_wrapper">
+		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
 			<span
 				style={ { cursor: 'pointer' } }
 				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
 				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
 			>
+				<Gridicon className={ iconClassName } icon={ args.iconCode } size={ 18 } />
 			</span>
 
 			<div className="icon-tooltip-helper">
-					<Gridicon icon={ args.iconCode } size={ 18 } />
 				{ isVisible && <Popover { ...args }>{ args.children }</Popover> }
 			</div>
 		</div>
