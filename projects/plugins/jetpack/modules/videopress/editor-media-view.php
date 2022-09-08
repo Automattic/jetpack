@@ -101,10 +101,10 @@ function videopress_editor_view_js_templates() {
  * so that they don't seem to display twice.
  *
  * @param array $args Query variables.
- * @deprecated $$next-version$$
+ * @deprecated 11.4
  */
 function videopress_ajax_query_attachments_args( $args ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
 	return Automattic\Jetpack\VideoPress\Attachment_Handler::ajax_query_attachments_args( $args );
 }
 
@@ -113,10 +113,10 @@ function videopress_ajax_query_attachments_args( $args ) {
  * Do the same as `videopress_ajax_query_attachments_args()` but for the list view.
  *
  * @param array $query WP_Query instance.
- * @deprecated $$next-version$$
+ * @deprecated 11.4
  */
 function videopress_media_list_table_query( $query ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
 	return Automattic\Jetpack\VideoPress\Attachment_Handler::media_list_table_query( $query );
 }
 
@@ -124,10 +124,10 @@ function videopress_media_list_table_query( $query ) {
  * Make sure that any Video that has a VideoPress GUID passes that data back.
  *
  * @param WP_Post $post Attachment object.
- * @deprecated $$next-version$$
+ * @deprecated 11.4
  */
 function videopress_prepare_attachment_for_js( $post ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
 	return Automattic\Jetpack\VideoPress\Attachment_Handler::prepare_attachment_for_js( $post );
 }
 
