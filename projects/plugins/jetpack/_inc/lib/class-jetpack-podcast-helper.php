@@ -377,7 +377,11 @@ class Jetpack_Podcast_Helper {
 		// Fetch the feed.
 		$rss = fetch_feed( $this->feed );
 
-		if ( ! $force_refresh && ! is_wp_error( $rss ) ) {
+		// Only check for updates if:
+		// 1. We didn't already force a refresh
+		// 2. We didn't get an error
+		// 3. We used already-cached data, i.e. there is only processed data from the cache.
+		if ( ! $force_refresh && ! is_wp_error( $rss ) && false === $rss->get_raw_data() ) {
 			$rss = $this->check_for_podcast_update( $rss );
 		}
 
