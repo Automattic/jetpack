@@ -219,6 +219,7 @@ class WPCOM_Features {
 	public const EMAIL_UNLIMITED_FORWARDS      = 'email-unlimited-forwards';
 	public const FREE_BLOG                     = 'free-blog';
 	public const FULL_ACTIVITY_LOG             = 'full-activity-log';
+	public const GLOBAL_STYLES                 = 'global-styles';
 	public const GOOGLE_ANALYTICS              = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS            = 'google-my-business';
 	public const INSTALL_PLUGINS               = 'install-plugins';
@@ -254,6 +255,7 @@ class WPCOM_Features {
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SSH                           = 'ssh';
+	public const SUBSCRIBER_UNLIMITED_IMPORTS  = 'subscriber-unlimited-imports';
 	public const SUPPORT                       = 'support';
 	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES            = 'upload-audio-files';
@@ -388,6 +390,7 @@ class WPCOM_Features {
 		self::CLOUD_CRITICAL_CSS            => array(
 			self::JETPACK_BOOST,
 			self::JETPACK_BOOST_MONTHLY,
+			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::CLOUDFLARE_ANALYTICS          => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
@@ -476,6 +479,9 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::GLOBAL_STYLES                 => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 		self::GOOGLE_ANALYTICS              => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
@@ -718,6 +724,14 @@ class WPCOM_Features {
 			self::SPACE_100GB,
 			self::SPACE_200GB,
 		),
+
+		// Importing subscribers to the site without limits.
+		self::SUBSCRIBER_UNLIMITED_IMPORTS  => array(
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_PERSONAL_AND_HIGHER,
+		),
+
 		// SUPPORT - Everybody needs somebody.
 		self::SUPPORT                       => array(
 			self::WPCOM_ALL_SITES,
