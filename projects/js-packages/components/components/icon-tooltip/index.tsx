@@ -1,5 +1,6 @@
 import { Popover } from '@wordpress/components';
-import React, { useState, useCallback } from 'react';
+import { useDebounce } from '@wordpress/compose';
+import React, { useState } from 'react';
 import Gridicon from '../gridicon/index';
 import { IconTooltipProps, Placement, Position } from './types';
 
@@ -31,11 +32,26 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	title,
 	children,
 } ) => {
+	const delay = 300;
 	const [ isVisible, setIsVisible ] = useState( false );
+	const delayedSetIsOver = useDebounce( setIsVisible, delay );
 
-	const memoizedToggler = useCallback( () => {
-		setIsVisible( state => ! state );
-	}, [] );
+	const createToggleIsOver = ( eventName, isDelayed = false ) => {
+		return event => {
+			event.stopPropagation();
+			event.preventDefault();
+			const _isVisible = [ 'focus', 'mouseenter' ].includes( event.type );
+			if ( _isVisible === isVisible ) {
+				return;
+			}
+
+			if ( isDelayed ) {
+				delayedSetIsOver( _isVisible );
+			} else {
+				setIsVisible( _isVisible );
+			}
+		};
+	};
 
 	const args = {
 		iconCode,
@@ -57,13 +73,17 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	return (
 		<div className="icon-tooltip-wrapper" data-testid="icon-tooltip_wrapper">
-			<div className="icon-tooltip-helper">
-				<span onMouseEnter={ memoizedToggler } onMouseLeave={ memoizedToggler }>
-					<Gridicon icon={ args.iconCode } size={ 18 } />
-				</span>
-			</div>
+			<span
+				style={ { cursor: 'pointer' } }
+				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
+				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
+			>
+			</span>
 
-			{ isVisible && <Popover { ...args }>{ args.children }</Popover> }
+			<div className="icon-tooltip-helper">
+					<Gridicon icon={ args.iconCode } size={ 18 } />
+				{ isVisible && <Popover { ...args }>{ args.children }</Popover> }
+			</div>
 		</div>
 	);
 };
