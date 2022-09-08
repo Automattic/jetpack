@@ -11,5 +11,5 @@ export type VideoGridProps = {
 	 *
 	 * @default 6
 	 */
-	count: number;
+	count?: number;
 };
