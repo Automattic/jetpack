@@ -23,6 +23,23 @@ describe( 'Existing messages', () => {
 	} );
 } );
 
+describe( 'Blocks chunks', () => {
+	test.each`
+		description                     | blocks                                                                                                        | type           | maxSize | expected
+		${ '5 blocks 1 matching type' } | ${ [ { type: 'context' }, { type: 'whatever' }, { type: 'context' }, { type: 'match' }, { type: 'other' } ] } | ${ 'match' }   | ${ 2 }  | ${ [ [ { type: 'context' }, { type: 'whatever' } ], [ { type: 'context' } ], [ { type: 'match' } ], [ { type: 'other' } ] ] }
+		${ 'no matching type' }         | ${ [ { type: 'context' }, { type: 'whatever' }, { type: 'context' }, { type: 'match' }, { type: 'other' } ] } | ${ 'nomatch' } | ${ 2 }  | ${ [ [ { type: 'context' }, { type: 'whatever' } ], [ { type: 'context' }, { type: 'match' } ], [ { type: 'other' } ] ] }
+		${ 'all matching type' }        | ${ [ { type: 'match' }, { type: 'match' }, { type: 'match' } ] }                                              | ${ 'match' }   | ${ 2 }  | ${ [ [ { type: 'match' } ], [ { type: 'match' } ], [ { type: 'match' } ] ] }
+		${ 'no blocks' }                | ${ [] }                                                                                                       | ${ 'match' }   | ${ 2 }  | ${ [] }
+	`(
+		'Blocks are chunked by delimiter: $description',
+		async ( { blocks, maxSize, type, expected } ) => {
+			const { getBlocksChunks } = require( '../src/slack' );
+			const chunks = getBlocksChunks( blocks, maxSize, type );
+			expect( chunks ).toEqual( expected );
+		}
+	);
+} );
+
 describe.skip( 'Notification is sent', () => {
 	jest.mock( '@slack/web-api', () => {
 		const slack = {
