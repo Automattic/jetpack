@@ -8,9 +8,11 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
+import * as mock from '../../mock';
 import Input from '../input';
 import Logo from '../logo';
+import { VideoDetails, VideoThumbnail } from '../video-card';
 import styles from './style.module.scss';
 
 const noop = () => {
@@ -34,14 +36,20 @@ const Infos = () => {
 	return (
 		<>
 			<Input label="Title" name="title" onChange={ noop } onEnter={ noop } />
-			<Input label="Description" name="description" onChange={ noop } onEnter={ noop } />
+			<Input
+				label="Description"
+				name="description"
+				onChange={ noop }
+				onEnter={ noop }
+				type="textarea"
+			/>
 			<Input label="Caption" name="caption" onChange={ noop } onEnter={ noop } type="textarea" />
 		</>
 	);
 };
 
 const EditVideoDetails = () => {
-	const { videoId } = useParams();
+	const video = mock.videos[ 0 ];
 
 	return (
 		<AdminPage
@@ -50,11 +58,16 @@ const EditVideoDetails = () => {
 		>
 			<AdminSection>
 				<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
-					<Col sm={ 4 } md={ 6 } lg={ 12 }>
+					<Col sm={ 4 } md={ 6 } lg={ 7 }>
 						<Infos />
 					</Col>
-					<Col sm={ 4 } md={ 6 } lg={ 12 }>
-						<div>EditVideoDetails { videoId }</div>
+					<Col sm={ 4 } md={ 6 } lg={ 5 }>
+						<VideoThumbnail thumbnail={ video?.posterImage } duration={ video?.duration } />
+						<VideoDetails
+							filename={ video?.videoTitle }
+							uploadDate={ video?.uploadDate }
+							src="https://jetpack.com"
+						/>
 					</Col>
 				</Container>
 			</AdminSection>
