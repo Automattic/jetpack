@@ -54,3 +54,8 @@
 		margin-top: calc( var( --spacing-base ) * 3 );
 	}
 }
+
+// Defined twice to avoid specificity issues.
+.cut.cut {
+	margin-top: calc( var( --spacing-base ) * 3 );
+}
