@@ -1,3 +1,4 @@
-Significance: patch
-Type: other
-Comment: Sidebar: Add some additional menu items to the domain-only sidebar
+Significance: minor
+Type: enhancement
+
+Action Bar: introduce new module (currently only scaffolding).
