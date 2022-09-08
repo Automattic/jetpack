@@ -1,4 +1,5 @@
 import { Icon, arrowRight } from '@wordpress/icons';
+import classnames from 'classnames';
 import Text from '../text';
 import styles from './style.module.scss';
 import { CutBaseProps } from './types';
@@ -10,12 +11,13 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	onClick,
 	href,
 	target,
+	className,
 } ) => {
 	const Tag = href !== undefined ? 'a' : 'button';
 	const tagProps = Tag === 'a' ? { href, target } : { onClick };
 
 	return (
-		<div className={ styles.cut }>
+		<div className={ classnames( styles.cut, className ) }>
 			<div>
 				<Text>{ description }</Text>
 				<Tag { ...tagProps }>
