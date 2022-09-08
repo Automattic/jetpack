@@ -44,7 +44,7 @@ type TextArea = React.TextareaHTMLAttributes< HTMLTextAreaElement > & {
 	 */
 	icon?: undefined;
 	/**
-	 * Only use these types if is textarea.
+	 * Fixed as textarea to enforce TS use related props.
 	 */
 	type: 'textarea';
 } & InputBaseProps;
