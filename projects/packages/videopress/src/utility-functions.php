@@ -732,3 +732,27 @@ function videopress_is_valid_video_rating( $rating ) {
 }
 
 add_filter( 'the_content', 'jetpack_videopress_flash_embed_filter', 7 ); // Needs to be priority 7 to allow Core to oEmbed.
+
+if ( ! function_exists( 'wp_startswith' ) ) :
+	/**
+	 * Check whether a string starts with a specific substring.
+	 *
+	 * @param string $haystack String we are filtering.
+	 * @param string $needle The substring we are looking for.
+	 * @return bool
+	 */
+	function wp_startswith( $haystack, $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_starts_with' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_starts_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
+		}
+
+		return 0 === strpos( $haystack, $needle );
+	}
+endif;
