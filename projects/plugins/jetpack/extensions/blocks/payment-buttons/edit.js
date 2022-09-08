@@ -12,7 +12,7 @@ import { icon, title } from '.';
 
 const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
-function PaymentButtonsEdit( { clientId } ) {
+function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 	const { connectUrl, isApiConnected, shouldUpgrade, upgradeUrl } = useSelect( select => {
 		const { getConnectUrl, getShouldUpgrade, getUpgradeUrl, isApiStateConnected } = select(
 			membershipProductsStore
@@ -65,18 +65,16 @@ function PaymentButtonsEdit( { clientId } ) {
 	const showStripeConnectAction = ! shouldUpgrade && ! isApiConnected && !! connectUrl;
 
 	const blockProps = useBlockProps();
-	const innerBlocksProps = useInnerBlocksProps(
-		{},
-		{
-			allowedBlocks: ALLOWED_BLOCKS,
-			orientation: 'horizontal',
-			template: [ [ 'jetpack/recurring-payments' ] ],
-			templateInsertUpdatesSelection: true,
-		}
-	);
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		orientation: 'horizontal',
+		template: [ [ 'jetpack/recurring-payments' ] ],
+		templateInsertUpdatesSelection: true,
+		__experimentalLayout: layout,
+	} );
 
 	return (
-		<div { ...blockProps }>
+		<>
 			{ showStripeConnectAction && (
 				<BlockControls group="block">
 					<StripeConnectToolbarButton
@@ -107,7 +105,7 @@ function PaymentButtonsEdit( { clientId } ) {
 			) }
 			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
 			<div { ...innerBlocksProps } />
-		</div>
+		</>
 	);
 }
 
