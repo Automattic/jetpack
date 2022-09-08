@@ -138,7 +138,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		switch ( $service ) {
 			case 'mapbox':
 				if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-					jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 				}
 				$mapbox                 = Jetpack_Mapbox_Helper::get_access_token();
 				$service_api_key        = $mapbox['key'];

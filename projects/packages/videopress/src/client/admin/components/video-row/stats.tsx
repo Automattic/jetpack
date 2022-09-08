@@ -17,11 +17,13 @@ const Stats = ( {
 
 	return (
 		<div className={ classNames( styles.stats, { [ styles.small ]: isSmall } ) }>
-			<Text aria-disabled={ isSmall ? 'false' : 'true' } component="div">
-				{ privacy }
-			</Text>
-			<Text component="div">{ duration }</Text>
-			{ Boolean( plays ) && <Text component="div">{ plays }</Text> }
+			{ Boolean( privacy ) && (
+				<Text aria-disabled={ isSmall ? 'false' : 'true' } component="div">
+					{ privacy }
+				</Text>
+			) }
+			{ duration != null && <Text component="div">{ duration }</Text> }
+			{ plays != null && <Text component="div">{ plays }</Text> }
 			{ Boolean( upload ) && (
 				<Text className={ styles.upload } component="div">
 					{ upload }
