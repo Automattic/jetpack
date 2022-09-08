@@ -27,6 +27,33 @@ export function getDefaultQuery() {
 	};
 }
 
+/**
+ * Map the data from the `/wp/v2/mediq` response body,
+ * to the data expected by the components
+ *
+ * @param {Array} data - The response body
+ * @returns {Array}      The mapped data
+ */
+function mapItemFromWPv2MediaResponseBody( data ) {
+	if ( ! data?.length ) {
+		return [];
+	}
+
+	return data.map( item => {
+		return {
+			poster: '',
+			id: item.id,
+			title: item.title?.rendered,
+			posterImage: '',
+			uploadDate: '',
+			duration: '',
+			plays: '',
+			isPrivate: '',
+			image: '',
+		};
+	} );
+}
+
 const videos = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_VIDEOS: {
@@ -59,7 +86,7 @@ const videos = ( state = {}, action ) => {
 			const { videos: items } = action;
 			return {
 				...state,
-				items,
+				items: mapItemFromWPv2MediaResponseBody( items ),
 				isFetching: false,
 			};
 		}
