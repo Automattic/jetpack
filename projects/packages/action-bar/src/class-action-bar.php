@@ -41,6 +41,10 @@ class Action_Bar {
 				'report'       => esc_html__( 'Report this content', 'jetpack-action-bar' ),
 				'viewSite'     => esc_html__( 'View site in reader', 'jetpack-action-bar' ),
 				'manage'       => esc_html__( 'Manage subscriptions', 'jetpack-action-bar' ),
+				'readerUrl'    => $this->get_reader_url(),
+				'isWpcom'      => defined( 'IS_WPCOM' ) && IS_WPCOM,
+				'siteHost'     => parse_url( get_option( 'home' ), PHP_URL_HOST ),
+				'postUrl'      => get_post_permalink( get_the_ID() ),
 			)
 		);
 	}
@@ -54,8 +58,10 @@ class Action_Bar {
 		}
 		echo '<link rel="stylesheet" href="https://widgets.wp.com/jetpack-action-bar/style.css"></link>';
 		echo '<script type="text/javascript" src="https://widgets.wp.com/jetpack-action-bar/index.js"></script>';
-		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
-		echo '<div id="jetpack-action-bar-modal" class="jetpack-action-bar-modal"></div>';
+		echo '<div class="jetpack-action-bar-container">';
+		echo '	<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
+		echo '	<div id="jetpack-action-bar-modal" class="jetpack-action-bar-modal"></div>';
+		echo '</div>';
 	}
 
 	/**
@@ -64,5 +70,21 @@ class Action_Bar {
 	public function init() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'print_html' ) );
+	}
+
+	/**
+	 * Gets the url for the sites reader feed.
+	 */
+	private function get_reader_url() {
+		$site_id = get_current_blog_id();
+		$feed_id = null;
+		if ( class_exists( 'FeedBag' ) ) {
+			$feed_id = FeedBag::get_feed_id_for_blog_id( $site_id );
+		}
+		if ( $feed_id ) {
+			return 'https://wordpress.com/read/feeds/' . esc_attr( $feed_id );
+		} else {
+			return 'https://wordpress.com/read/blogs/' . esc_attr( $site_id );
+		}
 	}
 }
