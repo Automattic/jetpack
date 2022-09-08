@@ -14,6 +14,7 @@ import { InputProps, SearchInputProps } from './types';
 import type React from 'react';
 
 const InputWrapper = ( {
+	className,
 	disabled = false,
 	icon = null,
 	onChange,
@@ -51,7 +52,7 @@ const InputWrapper = ( {
 
 	return (
 		<div
-			className={ classnames( styles[ 'input-wrapper' ], {
+			className={ classnames( className, styles[ 'input-wrapper' ], {
 				[ styles.disabled ]: disabled,
 				[ styles.large ]: size === 'large',
 			} ) }
@@ -95,7 +96,7 @@ export const Input = ( {
 			<InputWrapper name={ name } size={ size } { ...wrapperProps } />
 		</div>
 	) : (
-		<InputWrapper { ...wrapperProps } />
+		<InputWrapper className={ className } { ...wrapperProps } />
 	);
 };
 
