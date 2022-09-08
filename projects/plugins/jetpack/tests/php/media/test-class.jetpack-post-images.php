@@ -44,7 +44,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_slideshow_is_array() {
 		$slideshow = new Jetpack_Slideshow_Shortcode(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '[slideshow]',
 			)
@@ -61,7 +61,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '[gallery 1,2,3]',
 			)
@@ -86,8 +86,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'height' => 250,
 		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -134,8 +134,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'height' => 250,
 		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -155,7 +155,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			$attachment_id
 		);
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array(
 				'post_content' => $post_html,
 			)
@@ -248,10 +248,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		);
 
 		// Create post.
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 		// Attach images.
 		foreach ( $img_urls as $img_name => $img_url ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				$img_name,
 				$post_id,
 				array(
@@ -281,7 +281,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$gallery_html .= '</ul><!-- /wp:gallery -->';
 
 		// Create another post with those pictures.
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array(
 				'post_content' => $gallery_html,
 			)
@@ -350,8 +350,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'height' => 250,
 		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object(
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
 			$img_name,
 			$post_id,
 			array(
@@ -371,7 +371,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			$attachment_id
 		);
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array(
 				'post_content' => $post_html,
 			)
@@ -485,10 +485,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'height' => 1920,
 		);
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		foreach ( $media_items as $key => $media ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				$media['name'],
 				$post_id,
 				array(
@@ -539,7 +539,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$story_html .= ']} --><div class="wp-block-jetpack-story wp-story"></div><!-- /wp:jetpack/story -->';
 
 		// Create another post with that story.
-		$second_post_id = $this->factory->post->create( array( 'post_content' => $story_html ) );
+		$second_post_id = self::factory()->post->create( array( 'post_content' => $story_html ) );
 
 		$image_urls = array_map(
 			function ( $element ) {
@@ -674,7 +674,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 */
 	public function test_from_gravatar_returns_valid_image() {
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$images = Jetpack_PostImages::from_gravatar( $post_id );
 
