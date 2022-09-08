@@ -53,7 +53,7 @@ const Admin = () => {
 	}, [ connectionLoaded ] );
 
 	const isFullyConnected = () => {
-		return connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
+		return connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
 	};
 
 	const hasBackupPlan = () => {
