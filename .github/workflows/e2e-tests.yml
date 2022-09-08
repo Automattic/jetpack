@@ -5,7 +5,7 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [ trunk ]
+    branches: [ 'trunk', '*/branch-*' ]
     paths-ignore:
     - '**.md'
   schedule:

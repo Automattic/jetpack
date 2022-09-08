@@ -1,11 +1,14 @@
-export const getVideos = state => state?.videos?.items;
+export const getVideos = state => {
+	return state?.videos?.items || [];
+};
 
-const productSelectors = {
-	getVideos,
+export const getVideosQuery = state => {
+	return state?.videos?.query;
 };
 
 const selectors = {
-	...productSelectors,
+	getVideos,
+	getVideosQuery,
 };
 
 export default selectors;
