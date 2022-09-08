@@ -13,7 +13,6 @@ import { InputProps, SearchInputProps } from './types';
 import type React from 'react';
 
 const InputWrapper = ( {
-	className,
 	disabled = false,
 	icon = null,
 	onChange,
@@ -51,7 +50,7 @@ const InputWrapper = ( {
 
 	return (
 		<div
-			className={ classnames( className, styles[ 'input-wrapper' ], {
+			className={ classnames( styles[ 'input-wrapper' ], {
 				[ styles.disabled ]: disabled,
 				[ styles.large ]: size === 'large',
 			} ) }
@@ -74,9 +73,15 @@ const InputWrapper = ( {
  * @param {InputProps} props - Component props.
  * @returns {React.ReactNode} - Input react component.
  */
-export const Input = ( { name, label, size = 'small', ...wrapperProps }: InputProps ) => {
+export const Input = ( {
+	name,
+	label,
+	className,
+	size = 'small',
+	...wrapperProps
+}: InputProps ) => {
 	return label ? (
-		<div className={ styles.wrapper }>
+		<div className={ className }>
 			<Text
 				component="label"
 				variant={ size === 'small' ? 'body-small' : 'body' }
