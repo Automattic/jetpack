@@ -9,6 +9,8 @@ export type OriginalVideoPressVideo = {
 	 * Video title
 	 */
 	videoTitle: string;
+	title: string;
+
 	/**
 	 * Video poster image URL
 	 */
@@ -29,6 +31,8 @@ export type OriginalVideoPressVideo = {
 	 * Whether the video is private, or not.
 	 */
 	isPrivate?: boolean;
+
+	image?: object;
 };
 
 export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
