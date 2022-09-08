@@ -72,6 +72,7 @@ const SearchInputTemplate: ComponentStory< typeof SearchInput > = args => {
 	const [ value, setValue ] = useState( '' );
 	const onChange = inputValue => {
 		setValue( inputValue );
+		action( 'onChange' )( inputValue );
 	};
 
 	return <SearchInput { ...args } value={ value } onChange={ onChange } onEnter={ onEnter } />;
@@ -81,4 +82,6 @@ export const Search = SearchInputTemplate.bind( {} );
 
 Search.args = {
 	disabled: false,
+	onEnter: action( 'onEnter' ),
+	onChange: action( 'onChange' ),
 };
