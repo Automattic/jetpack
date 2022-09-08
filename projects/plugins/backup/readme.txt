@@ -160,7 +160,7 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 == Changelog ==
 ### 1.4.1 - 2022-09-08
 #### Added
-- My Jetpack includes JITMs
+- Include JITMs from My Jetpack
 
 #### Changed
 - Plugin activation: Only redirect when activating from the Plugins page in the browser

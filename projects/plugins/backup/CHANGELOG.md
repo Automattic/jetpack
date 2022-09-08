@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.4.1 - 2022-09-08
 ### Added
-- My Jetpack includes JITMs [#22452]
+- Include JITMs from My Jetpack [#22452]
 
 ### Changed
 - Plugin activation: Only redirect when activating from the Plugins page in the browser
