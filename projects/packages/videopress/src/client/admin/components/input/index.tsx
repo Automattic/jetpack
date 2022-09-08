@@ -118,6 +118,7 @@ export const SearchInput = ( {
 		( value: string ) => {
 			componentProps.onEnter?.( value );
 			if ( ! value?.length ) {
+				debouncedOnChange.cancel();
 				return;
 			}
 
@@ -130,6 +131,7 @@ export const SearchInput = ( {
 		( value: string ) => {
 			componentProps.onChange?.( value );
 			if ( ! value?.length ) {
+				debouncedOnChange.cancel();
 				return;
 			}
 
