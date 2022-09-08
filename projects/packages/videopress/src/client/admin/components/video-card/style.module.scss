@@ -17,12 +17,24 @@
 .thumbnail {
 	--videopress-video-item-aspect-radio: calc( 16 / 9 );
 	position: relative;
+
+	.thumbnail-placeholder,
 	> img {
 		width: 100%;
 		object-fit: cover;
 		aspect-ratio: var( --videopress-video-item-aspect-radio );
 		height: 100%;
 		display: block;
+	}
+
+	.thumbnail-placeholder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: var( --jp-gray-0 );
+		> svg {
+			fill: var( --jp-gray-50 );
+		}
 	}
 
 	.video-thumbnail-edit {
@@ -71,6 +83,18 @@
 	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
 	max-width: var( --videopress-video-item-max-width );
 	position: relative;
+
+	&.is-blank {
+		.video-card__background {
+			display: none;
+		}
+
+		.thumbnail,
+		.video-card__title-section,
+		.video-card__quick-actions-section {
+			visibility: hidden;
+		}
+	}
 
 	&:hover {
 		.video-card__background {

@@ -28,12 +28,18 @@ export default {
 	},
 	argTypes: {
 		thumbnail: {
-			control: { type: 'select', options: postersArray },
+			control: { type: 'select', options: [ ...postersArray, 'none' ] },
 		},
 	},
 } as ComponentMeta< typeof VideoCardComponent >;
 
-const Template: ComponentStory< typeof VideoCardComponent > = VideoCardComponent;
+const Template: ComponentStory< typeof VideoCardComponent > = args => {
+	if ( args.thumbnail === 'none' ) {
+		args.thumbnail = null;
+	}
+
+	return <VideoCardComponent { ...args } />;
+};
 
 export const _default = Template.bind( {} );
 _default.args = {
@@ -42,6 +48,7 @@ _default.args = {
 	editable: false,
 	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
 	plays: 972,
+	isBlank: false,
 	onVideoDetailsClick: action( 'onVideoDetailsClick' ),
 	onUpdateThumbnailClick: action( 'onUpdateThumbnailClick' ),
 	onUpdateUpdatePrivacyClick: action( 'onUpdateUpdatePrivacyClick' ),
@@ -56,9 +63,13 @@ VideoDetails.args = {
 	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
 };
 
-const VideoThumbnailTemplate: ComponentStory<
-	typeof VideoThumbnailComponent
-> = VideoThumbnailComponent;
+const VideoThumbnailTemplate: ComponentStory< typeof VideoThumbnailComponent > = args => {
+	if ( args.thumbnail === 'none' ) {
+		args.thumbnail = null;
+	}
+
+	return <VideoThumbnailComponent { ...args } />;
+};
 
 export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
 VideoThumbnail.args = {

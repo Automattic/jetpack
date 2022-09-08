@@ -12,7 +12,7 @@ import { Icon } from '@wordpress/components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { chartBar, video } from '@wordpress/icons';
 import { edit, cloud, image, media } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
@@ -121,7 +121,15 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropd
 				</div>
 			) }
 
-			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+			{ thumbnail && (
+				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+			) }
+
+			{ ! thumbnail && (
+				<div className={ styles[ 'thumbnail-placeholder' ] }>
+					<Icon icon={ video } size={ 96 } />
+				</div>
+			) }
 		</div>
 	);
 };
@@ -159,6 +167,7 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	plays,
 	thumbnail,
 	editable,
+	isBlank,
 	onVideoDetailsClick,
 	onUpdateThumbnailClick,
 	onUpdateUpdatePrivacyClick,
@@ -174,8 +183,13 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 		: '';
 
 	return (
-		<div className={ styles[ 'video-card__wrapper' ] }>
+		<div
+			className={ classnames( styles[ 'video-card__wrapper' ], {
+				[ styles[ 'is-blank' ] ]: isBlank,
+			} ) }
+		>
 			<div className={ styles[ 'video-card__background' ] } />
+
 			<VideoThumbnail
 				className={ styles[ 'video-card__thumbnail' ] }
 				thumbnail={ thumbnail }
