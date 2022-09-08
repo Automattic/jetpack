@@ -1,4 +1,9 @@
-import { SET_IS_FETCHING_VIDEOS, SET_VIDEOS, SET_VIDEOS_FETCH_ERROR } from './constants';
+import {
+	SET_IS_FETCHING_VIDEOS,
+	SET_VIDEOS,
+	SET_VIDEOS_FETCH_ERROR,
+	SET_VIDEOS_QUERY,
+} from './constants';
 
 const setIsFetchingVideos = isFetching => {
 	return { type: SET_IS_FETCHING_VIDEOS, isFetching };
@@ -9,6 +14,10 @@ const setFetchVideosError = error => ( {
 	error,
 } );
 
+const setVideosQuery = query => {
+	return { type: SET_VIDEOS_QUERY, query };
+};
+
 const setVideos = videos => {
 	return { type: SET_VIDEOS, videos };
 };
@@ -16,6 +25,7 @@ const setVideos = videos => {
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
+	setVideosQuery,
 	setVideos,
 };
 
