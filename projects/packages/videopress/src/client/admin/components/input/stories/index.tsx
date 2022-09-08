@@ -13,6 +13,17 @@ export default {
 			page: Doc,
 		},
 	},
+
+	argTypes: {
+		size: {
+			options: [ 'small', 'large' ],
+			control: { type: 'select' },
+		},
+		type: {
+			options: [ 'text', 'textarea', 'number', 'url', 'email', 'password', 'tel', 'search' ],
+			control: { type: 'select' },
+		},
+	},
 } as ComponentMeta< typeof Input >;
 
 const onEnter = value => {
@@ -22,6 +33,9 @@ const onEnter = value => {
 const defaultArgs = {
 	placeholder: 'Placeholder text',
 	disabled: false,
+	size: 'small',
+	type: 'text',
+	label: '',
 };
 
 const Template: ComponentStory< typeof Input > = args => {
@@ -33,13 +47,25 @@ const Template: ComponentStory< typeof Input > = args => {
 	return <Input { ...args } value={ value } onChange={ onChange } onEnter={ onEnter } />;
 };
 
-export const _default = Template.bind( {} );
-_default.args = defaultArgs;
+export const Default = Template.bind( {} );
+Default.args = defaultArgs;
 
 export const WithIcon = Template.bind( {} );
 WithIcon.args = {
 	...defaultArgs,
 	icon: <Icon icon={ mapMarker } size={ 24 } />,
+};
+
+export const WithLabel = Template.bind( {} );
+WithLabel.args = {
+	...defaultArgs,
+	label: 'My Label',
+};
+
+export const TextArea = Template.bind( {} );
+TextArea.args = {
+	...defaultArgs,
+	type: 'textarea',
 };
 
 const SearchInputTemplate: ComponentStory< typeof SearchInput > = args => {
@@ -52,6 +78,7 @@ const SearchInputTemplate: ComponentStory< typeof SearchInput > = args => {
 };
 
 export const Search = SearchInputTemplate.bind( {} );
+
 Search.args = {
 	disabled: false,
 };
