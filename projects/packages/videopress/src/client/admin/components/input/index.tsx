@@ -108,9 +108,11 @@ export const Input = ( {
  */
 export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),
+	onSearch,
+	wait = 500,
 	...componentProps
 }: SearchInputProps ) => {
-	const debouncedOnChange = useDebounce( componentProps.onSearch, 500 );
+	const debouncedOnChange = useDebounce( onSearch, wait );
 
 	const onEnterHandler = useCallback(
 		( value: string ) => {
@@ -119,9 +121,9 @@ export const SearchInput = ( {
 				return;
 			}
 
-			componentProps.onSearch?.( value );
+			onSearch?.( value );
 		},
-		[ componentProps.onEnter, componentProps.onSearch ]
+		[ componentProps.onEnter, onSearch ]
 	);
 
 	const onChangeHandler = useCallback(

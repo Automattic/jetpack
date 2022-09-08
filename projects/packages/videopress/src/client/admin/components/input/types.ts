@@ -57,4 +57,12 @@ export type SearchInputProps = InputBaseProps &
 		 * Callback to be invoked when the seacrhing
 		 */
 		onSearch: ( value: string ) => unknown;
+
+		/**
+		 * The debounce time in milliseconds to wait
+		 * before to invoke the `onSearch` callback.
+		 *
+		 * @default 500
+		 */
+		wait?: number;
 	};

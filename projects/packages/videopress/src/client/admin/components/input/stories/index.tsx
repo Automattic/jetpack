@@ -85,4 +85,5 @@ Search.args = {
 	onEnter: action( 'onEnter' ),
 	onChange: action( 'onChange' ),
 	onSearch: action( 'onSearch' ),
+	wait: 500,
 };
