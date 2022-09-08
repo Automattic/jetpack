@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Text, SearchIcon } from '@automattic/jetpack-components';
+import { useDebounce } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
@@ -109,6 +110,8 @@ export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),
 	...componentProps
 }: SearchInputProps ) => {
+	const debouncedOnChange = useDebounce( componentProps.onSearch, 500 );
+
 	const onEnterHandler = useCallback(
 		( value: string ) => {
 			componentProps.onEnter?.( value );
@@ -124,6 +127,11 @@ export const SearchInput = ( {
 	const onChangeHandler = useCallback(
 		( value: string ) => {
 			componentProps.onChange?.( value );
+			if ( ! value?.length ) {
+				return;
+			}
+
+			debouncedOnChange( value );
 		},
 		[ componentProps.onChange ]
 	);
