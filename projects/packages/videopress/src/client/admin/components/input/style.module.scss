@@ -1,5 +1,4 @@
 .wrapper {
-	width: 100%;
 	height: calc( var( --spacing-base ) * 5 ); // 40px;
 	padding: var( --spacing-base );
 	border: 1px solid var( --jp-black );
@@ -22,7 +21,7 @@
 		border: 0;
 		outline: none;
 		background-color: transparent;
-		
+
 		&.with-icon {
 			margin-left: var( --spacing-base );
 		}

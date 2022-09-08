@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: extend the media endpoint with the jetpack_videopress_guid field
