@@ -112,6 +112,10 @@ export const SearchInput = ( {
 	const onEnterHandler = useCallback(
 		( value: string ) => {
 			componentProps.onEnter?.( value );
+			if ( ! value?.length ) {
+				return;
+			}
+
 			componentProps.onSearch?.( value );
 		},
 		[ componentProps.onEnter, componentProps.onSearch ]
