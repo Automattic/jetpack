@@ -640,7 +640,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @covers Jetpack_PostImages::from_gravatar
 	 * @dataProvider provider_gravatar_invalid_posts
 	 *
-	 * @since $$next-version$$
+	 * @since 11.4
 	 *
 	 * @param int|string|null $post_id  The post ID.
 	 */
@@ -670,7 +670,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * Test if the array extracted has a valid image when sending a valid post.
 	 *
 	 * @covers Jetpack_PostImages::from_gravatar
-	 * @since $$next-version$$
+	 * @since 11.4
 	 */
 	public function test_from_gravatar_returns_valid_image() {
 

@@ -1,3 +1,4 @@
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { Fragment } from '@wordpress/element';
@@ -25,6 +26,7 @@ export const settings = {
 						{ __( 'SEO Description', 'jetpack' ) }
 					</span>
 				}
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#444444" /> }
 			>
 				<SeoPanel />
 			</PluginPrePublishPanel>
