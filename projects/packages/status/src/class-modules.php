@@ -489,7 +489,18 @@ class Modules {
 			return;
 		}
 
+		$existing_enforce_setting = \Jetpack_Options::get_option(
+			'active_modules_enforced',
+			array()
+		);
+
 		$this->enforced_modules = $enforced_modules;
+		\Jetpack_Options::update_option(
+			'active_modules_enforced',
+			array_merge( $existing_enforce_setting, $enforced_modules ),
+			true
+		);
+
 		add_filter( 'jetpack_active_modules', array( $this, 'filter_active_modules' ) );
 	}
 

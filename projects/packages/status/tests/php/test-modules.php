@@ -21,7 +21,8 @@ class Test_Modules extends TestCase {
 	 *
 	 * @before
 	 */
-	public function set_up() {
+	public function setUp(): void { //phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+		parent::setUp();
 		Monkey\setUp();
 
 		Functions\when( 'is_multisite' )->justReturn( false );
@@ -32,8 +33,18 @@ class Test_Modules extends TestCase {
 	 *
 	 * @after
 	 */
-	public function tear_down() {
+	public function tearDown(): void { //phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+		parent::tearDown();
+
+		$container = \Mockery::getContainer();
+		if ( $container ) {
+			$this->addToAssertionCount(
+				$container->mockery_getExpectationCount()
+			);
+		}
+
 		Monkey\tearDown();
+		\Mockery::close();
 	}
 
 	/**
@@ -81,6 +92,9 @@ class Test_Modules extends TestCase {
 	 */
 	public function test_modules_get_enforced_by_filter( $enforced, $filtered, $result ) {
 		$modules = new Modules();
+		Functions\when( 'get_option' )->justReturn( array() );
+		Functions\when( 'update_option' )->justReturn( true );
+
 		$modules->enforce( $enforced );
 
 		$this->assertEquals(
@@ -95,6 +109,42 @@ class Test_Modules extends TestCase {
 			$result,
 			$modules->filter_active_modules( $filtered )
 		);
+	}
+
+	/**
+	 * Testing the option handling.
+	 *
+	 * @dataProvider provider_unfiltered_module_arrays
+	 * @param Array $enforced Enforced module list to be passed as an argument.
+	 */
+	public function test_module_enforcement_adds_option( $enforced ) {
+		$modules = new Modules();
+
+		Functions\when( 'get_option' )->justReturn( array() );
+		Functions\expect( 'update_option' )
+			->once()
+			->with( 'jetpack_active_modules_enforced', $enforced, true );
+
+		$modules->enforce( $enforced );
+	}
+
+	/**
+	 * Testing the option handling.
+	 *
+	 * @dataProvider provider_unfiltered_module_arrays
+	 * @param Array $enforced Enforced module list to be passed as an argument.
+	 */
+	public function test_module_enforcement_combines_with_existing_option_value( $enforced ) {
+		$modules  = new Modules();
+		$existing = array( 'infinite-scroll' );
+		$result   = array_merge( $existing, $enforced );
+
+		Functions\when( 'get_option' )->justReturn( $existing );
+		Functions\expect( 'update_option' )
+			->once()
+			->with( 'jetpack_active_modules_enforced', $result, true );
+
+		$modules->enforce( $enforced );
 	}
 
 	/**
@@ -114,6 +164,11 @@ class Test_Modules extends TestCase {
 				array( 'publicize', 'sharing' ),
 				array( '' ),
 				array( 'publicize', 'sharing' ),
+			),
+			array(
+				array( 'publicize', 'sharing', 'stats' ),
+				array( 'monitor' ),
+				array( 'monitor', 'publicize', 'sharing', 'stats' ),
 			),
 			array(
 				array( '' ),
