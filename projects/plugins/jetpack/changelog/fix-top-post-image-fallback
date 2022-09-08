@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Fix image srouce type error for PHP >= 8.0
+Add source check for broken image
