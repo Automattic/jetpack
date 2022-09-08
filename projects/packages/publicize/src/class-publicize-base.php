@@ -224,6 +224,7 @@ abstract class Publicize_Base {
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
 		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
+		add_action( 'admin_notices', array( $this, 'show_over_the_limit_notice' ) );
 	}
 
 	/**
@@ -1172,11 +1173,12 @@ abstract class Publicize_Base {
 		foreach ( $connection_ids as $connection_id ) {
 			$possible_connections_skip_keys[] = $this->POST_SKIP . $connection_id;
 		}
-		$meta                = get_post_meta( $post_id );
-		$over_sharing_limits = false;
+		$meta               = get_post_meta( $post_id );
+		$over_sharing_limit = false;
 		if ( ! empty( $meta ) ) {
 			$connections_to_be_skipped = array_intersect( $possible_connections_skip_keys, array_keys( $meta ) );
-			$over_sharing_limits       = $this->check_if_over_sharing_limits( count( $connection_ids ) - count( $connections_to_be_skipped ) );
+			$over_sharing_limit        = $this->check_if_over_sharing_limits( count( $connection_ids ) - count( $connections_to_be_skipped ) );
+			$over_sharing_limit ? add_filter( 'redirect_post_location', array( $this, 'redirect_post_location_over_the_sharing_limit' ) ) : null;
 		}
 
 		/**
@@ -1206,7 +1208,7 @@ abstract class Publicize_Base {
 					$unique_id = $connection['connection_data']['token_id'];
 				}
 
-				if ( $over_sharing_limits ) {
+				if ( $over_sharing_limit ) {
 					update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
 					continue;
 				}
@@ -1280,6 +1282,29 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Add over_the_imit query param, which will be used to show the admin_notice when the blog is over the sharing limits.
+	 *
+	 * @param string $location The destination URL.
+	 */
+	public function redirect_post_location_over_the_sharing_limit( $location ) {
+		$location = add_query_arg( array( 'over_the_imit' => true ), $location );
+		return $location;
+	}
+
+	/**
+	 * Show an admin_notice when the blog is over the limit, but still tries to share to the connections it has.
+	 */
+	public function show_over_the_limit_notice() {
+
+		// phpcs:ignore Processing form data without nonce verification.
+		if ( ! isset( $_REQUEST['over_the_imit'] ) || empty( $_REQUEST['over_the_imit'] ) ) {
+			return;
+		}
+
+		echo '<div class="error message"><p><strong>You are over the sharing limit, please upgrade if you want your post to be shared!</strong></p></div>';
+	}
+
+	/**
 	 * Alters the "Post Published" message to include information about where the post
 	 * was Publicized to.
 	 *
@@ -1290,6 +1315,7 @@ abstract class Publicize_Base {
 	 */
 	public function update_published_message( $messages ) {
 		global $post_type, $post_type_object, $post;
+
 		if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 			return $messages;
 		}
