@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.1 - 2022-09-08
+### Added
+- My Jetpack includes JITMs [#22452]
+
+### Changed
+- Plugin activation: Only redirect when activating from the Plugins page in the browser
+- Updated package dependencies. [#25713] [#24929] [#24998] [#25048] [#25158] [#25279] [#25315] [#25406] [#25945]
+
 ## 1.4.0 - 2022-06-28
 ### Added
 - Added Social card to My Jetpack.
