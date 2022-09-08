@@ -96,7 +96,7 @@ export const Input = ( {
 			<InputWrapper name={ name } size={ size } { ...wrapperProps } />
 		</div>
 	) : (
-		<InputWrapper className={ className } { ...wrapperProps } />
+		<InputWrapper { ...wrapperProps } />
 	);
 };
 
