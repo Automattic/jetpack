@@ -193,11 +193,10 @@ function videopress_override_media_templates() {
 			wp.media.view.Modal = BaseMediaModal.extend( {
 				escape: function () {
 					BaseMediaModal.prototype.escape.apply( this );
-					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
-					if ( playerIframe && playerIframe.parentElement ) {
-						playerIframe.parentElement.removeChild( playerIframe );
+					var playerIframes = document.getElementsByClassName( "videopress-iframe" );
+					if ( playerIframes.length && playerIframes[0].parentElement ) {
+						playerIframes[0].parentElement.removeChild( playerIframes[0] );
 					}
-
 				}
 			} );
 		})( wp.media );
