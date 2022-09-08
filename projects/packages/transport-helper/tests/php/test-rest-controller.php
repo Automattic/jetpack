@@ -75,17 +75,17 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/helper-script` endpoint when the `helper` param is missing.
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint when the `helper` param is missing.
 	 */
 	public function test_install_helper_script_missing_required_param() {
-		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/helper-script' );
+		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'Missing parameter(s): helper', $response->get_data()['message'] );
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/helper-script` endpoint with admin user.
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint with admin user.
 	 */
 	public function test_install_helper_script_unauthorized() {
 		wp_set_current_user( $this->admin_id );
@@ -93,7 +93,7 @@ class Test_REST_Controller extends TestCase {
 		$body    = array(
 			'helper' => 'dummy',
 		);
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/helper-script' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
@@ -102,7 +102,7 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/helper-script` endpoint on success.
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint on success.
 	 */
 	public function test_install_helper_script_success() {
 		$body = array(
@@ -110,7 +110,7 @@ class Test_REST_Controller extends TestCase {
 			'helper' => base64_encode( "<?php /* Jetpack Helper Script */\n" ),
 		);
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/helper-script' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 
@@ -126,17 +126,17 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `DELETE /jetpack/v4/helper-script` endpoint when the `path` param is missing.
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint when the `path` param is missing.
 	 */
 	public function test_delete_helper_script_missing_required_param() {
-		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/helper-script' );
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'Missing parameter(s): path', $response->get_data()['message'] );
 	}
 
 	/**
-	 * Testing the `DELETE /jetpack/v4/helper-script` endpoint with admin user.
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint with admin user.
 	 */
 	public function test_delete_helper_script_unauthorized() {
 		wp_set_current_user( $this->admin_id );
@@ -145,7 +145,7 @@ class Test_REST_Controller extends TestCase {
 			'path' => 'dummy',
 		);
 
-		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/helper-script' );
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
@@ -155,14 +155,14 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `DELETE /jetpack/v4/helper-script` endpoint on success.
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint on success.
 	 */
 	public function test_delete_helper_script_success() {
 		$body = array(
 			'path' => 'dummy',
 		);
 
-		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/helper-script' );
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 

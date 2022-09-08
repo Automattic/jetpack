@@ -27,7 +27,8 @@ class REST_Controller {
 		// Install a Helper Script to assist with fetching data.
 		register_rest_route(
 			'jetpack/v4',
-			'/helper-script',
+			// This route can be generalized once we no longer depend on the backup package
+			'/backup-helper-script',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::install_helper_script',
@@ -45,7 +46,8 @@ class REST_Controller {
 		// Delete a Helper Script.
 		register_rest_route(
 			'jetpack/v4',
-			'/helper-script',
+			// This route can be generalized once we no longer depend on the backup package
+			'/backup-helper-script',
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => __CLASS__ . '::delete_helper_script',
