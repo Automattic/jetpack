@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2022-09-08
+### Added
+- Added for videopress videos in the media selector [#25969]
+- Migrating Media Library UI snippets to pkg [#25877]
+- VideoPress: Add Input and SearchInput components [#25966]
+- VideoPress: add query object to the getVideos() selector [#26074]
+- VideoPress: Add register_videopress_blocks() method to register all VideoPress blocks [#25901]
+- VideoPress: add VideoCard component [#25992]
+- VideoPress: add VideosGrid component. First approach. [#25996]
+- VideoPress: Add VideoStatsGroup component [#25998]
+- VideoPress: Add VideoStorageMeter component [#25936]
+- VideoPress: Alpha admin page [#25905]
+- VideoPress: connect data with the client app [#26073]
+- VideoPress: extend the media endpoint with the jetpack_videopress_guid field [#26043]
+- VideoPress: first approach of data handling [#26067]
+- VideoPress: implement quick actions in the VideoCard component [#26010]
+- VideoPress: Introduce VideoList component [#25898]
+- VideoPress Block: allow editing of some block settings while uploading. [#24556]
+
+### Changed
+- Change VideoPress into a Hybrid product in My Jetpack [#25954]
+- Require user connection to upload video [#25962]
+- Updated package dependencies.
+- VideoPress: Improve feedback for upload/previewing [#25952]
+- VideoPress: Introduce VideoQuickActions [#26016]
+- VideoPress: iterate over VideoThumbnailEdit component [#25956]
+- VideoPress: rename VideosGrid component to VideoGrid [#26008]
+- VideoPress: set VideoThumbnail aspect ratio. Improve stories. [#25981]
+- VideoPress: split up VideoDetailsCard into two new components [#25895]
+- VideoPress: Support enable and disable columns and actions at VideoRow/VideoList [#25968]
+
+### Fixed
+- Ensure passed args are integer in TUS File class [#26026]
+
 ## [0.2.1] - 2022-08-30
 ### Added
 - Upload from Media Library in the block [#25792]
@@ -94,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.3.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.1.4...v0.1.5
