@@ -37,7 +37,18 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * @var int
 	 */
-	protected $check_period = 10 * MINUTE_IN_SECONDS;
+	protected $update_check_period = 10 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Control whether we use `set_transient()` or `wp_cache_set()`
+	 * for tracking update checks. This is configurable so we can
+	 * default to `set_transient()` for most sites, but larger
+	 * multisite installs can switch over to `wp_cache_set()` using
+	 * a global cache group and a cache that lasts across requests.
+	 *
+	 * @var string Valid values are 'transient' and 'cache'.
+	 */
+	protected $update_check_cache_mode = 'transient';
 
 	/**
 	 * Initialize class.
@@ -70,13 +81,28 @@ class Jetpack_Podcast_Helper {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param int $cache_timeout The number of seconds we'll wait before checking for an update. The default value is 10 minutes.
-		 * @param string   $podcast_url   The URL of the podcast feed.
+		 * @param int    $update_check_period The number of seconds we'll wait before checking for an update. The default value is 10 minutes.
+		 * @param string $podcast_url         The URL of the podcast feed.
 		 */
-		$podcast_recheck_period = apply_filters( 'jetpack_podcast_feed_check_period', $this->check_period, $this->feed );
+		$podcast_recheck_period = apply_filters( 'jetpack_podcast_feed_check_period', $this->update_check_period, $this->feed );
 
 		if ( is_numeric( $podcast_recheck_period ) ) {
-			$this->check_period = (int) $podcast_recheck_period;
+			$this->update_check_period = (int) $podcast_recheck_period;
+		}
+
+		/**
+		 * Filter the mode we will use for the last update time check.
+		 * Valid values are 'transient' and 'cache', with 'transient' being the default.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $update_cache_mode The mode to use for the cache.
+		 * @param string $podcast_url       The URL of the podcast feed.
+		 */
+		$update_cache_mode = apply_filters( 'jetpack_podcast_feed_update_cache_mode', $this->update_check_cache_mode, $this->feed );
+
+		if ( in_array( $update_cache_mode, array( 'transient', 'cache' ), true ) ) {
+			$this->update_check_cache_mode = $update_cache_mode;
 		}
 	}
 
@@ -180,7 +206,7 @@ class Jetpack_Podcast_Helper {
 				}
 			}
 
-			set_transient( $transient_key, $player_data, $this->check_period );
+			set_transient( $transient_key, $player_data, $this->update_check_period );
 		}
 
 		return $player_data;
@@ -408,11 +434,9 @@ class Jetpack_Podcast_Helper {
 			return $feed;
 		}
 
-		$transient_key = 'jetpack_podcast_last_update_check:' . md5( $feed->feed_url );
+		$last_feed_refetch_time = $this->get_last_update_check( $feed );
 
-		$last_feed_refetch_time = get_transient( $transient_key );
-
-		if ( false !== $last_feed_refetch_time && ( $last_feed_refetch_time + $this->check_period > time() ) ) {
+		if ( false !== $last_feed_refetch_time && ( $last_feed_refetch_time + $this->update_check_period > time() ) ) {
 			return $feed;
 		}
 
@@ -442,7 +466,7 @@ class Jetpack_Podcast_Helper {
 			return $feed;
 		}
 
-		set_transient( $transient_key, time(), $this->check_period );
+		$this->set_last_update_check( $feed );
 
 		if ( ! isset( $head_response['response']['code'] ) || WP_Http::NOT_MODIFIED === $head_response['response']['code'] ) {
 			return $feed;
@@ -468,6 +492,49 @@ class Jetpack_Podcast_Helper {
 		remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 
 		return $updated_feed;
+	}
+
+	/**
+	 * Helper function to get the last time we checked for an update to the podcast feed.
+	 *
+	 * @param SimplePie $feed The podcast feed we are checking.
+	 * @return int|bool
+	 */
+	protected function get_last_update_check( $feed ) {
+		$cache_key = $this->get_last_update_check_key( $feed );
+
+		if ( $this->update_check_cache_mode === 'cache' ) {
+			return wp_cache_get( $cache_key, 'jetpack_podcast_update_cache' );
+		}
+
+		return get_transient( $cache_key );
+	}
+
+	/**
+	 * Helper function to set the last time we checked for an update to the podcast feed.
+	 *
+	 * @param SimplePie $feed The podcast feed we are checking.
+	 * @return void
+	 */
+	protected function set_last_update_check( $feed ) {
+		$cache_key = $this->get_last_update_check_key( $feed );
+
+		if ( $this->update_check_cache_mode === 'cache' ) {
+			wp_cache_set( $cache_key, time(), 'jetpack_podcast_update_cache' );
+			return;
+		}
+
+		set_transient( $cache_key, time(), $this->update_check_period );
+	}
+
+	/**
+	 * Get a feed-specific key for cache purposes.
+	 *
+	 * @param SimplePie $feed The feed we are caching.
+	 * @return string
+	 */
+	protected function get_last_update_check_key( $feed ) {
+		return 'jetpack_podcast_last_update_check:' . md5( $feed->feed_url );
 	}
 
 	/**
