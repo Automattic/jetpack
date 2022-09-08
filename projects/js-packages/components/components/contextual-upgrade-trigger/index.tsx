@@ -4,15 +4,26 @@ import styles from './style.module.scss';
 import { CutBaseProps } from './types';
 import type React from 'react';
 
-const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( { description, cta, onClick } ) => {
+const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
+	description,
+	cta,
+	onClick,
+	href,
+	target,
+} ) => {
+	const Tag = href !== undefined ? 'a' : 'button';
+	const tagProps = Tag === 'a' ? { href, target } : { onClick };
+
 	return (
-		<button className={ styles.cut } onClick={ onClick } role="link">
+		<div className={ styles.cut }>
 			<div>
 				<Text>{ description }</Text>
-				<Text className={ styles.cta }>{ cta }</Text>
+				<Tag { ...tagProps }>
+					<Text className={ styles.cta }>{ cta }</Text>
+				</Tag>
 			</div>
 			<Icon icon={ arrowRight } className={ styles.icon } size={ 30 } />
-		</button>
+		</div>
 	);
 };
 
