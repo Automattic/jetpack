@@ -14,14 +14,14 @@ import storeHolder from './store-holder';
 /**
  * External dependencies
  */
-const STORE_ID = 'jetpack-videopress';
-const debug = debugFactory( 'jetpack-videopress:state' );
+const STORE_ID = 'videopress/media';
+export const stateDebug = debugFactory( 'videopress/media:state' );
 
 /**
  * jetpack-videopress redux initializer
  */
 function initStore() {
-	debug( 'Initializing %o store', STORE_ID );
+	stateDebug( 'Initializing %o store', STORE_ID );
 
 	storeHolder.mayBeInit( STORE_ID, {
 		__experimentalUseThunks: true,
