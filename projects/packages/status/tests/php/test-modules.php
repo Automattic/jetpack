@@ -91,10 +91,10 @@ class Test_Modules extends TestCase {
 	 * @param Array $result   The list after being filtered.
 	 */
 	public function test_modules_get_enforced_by_filter( $enforced, $filtered, $result ) {
-		$modules = new Modules();
 		Functions\when( 'get_option' )->justReturn( array() );
 		Functions\when( 'update_option' )->justReturn( true );
 
+		$modules = new Modules();
 		$modules->enforce( $enforced );
 
 		$this->assertEquals(
@@ -107,6 +107,19 @@ class Test_Modules extends TestCase {
 
 		$this->assertEquals(
 			$result,
+			$modules->filter_active_modules( $filtered )
+		);
+
+		$modules2 = new Modules();
+		$modules2->enforce( array( 'infinite-scroll' ) );
+
+		$this->assertEquals(
+			$result,
+			$modules->filter_active_modules( $filtered )
+		);
+
+		$this->assertEquals(
+			array_merge( array( 'infinite-scroll' ), $result ),
 			$modules->filter_active_modules( $filtered )
 		);
 	}
