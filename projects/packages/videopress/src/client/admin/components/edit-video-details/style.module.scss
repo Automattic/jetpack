@@ -1,5 +1,11 @@
+.header{
+	display: flex;
+	justify-content: space-between;
+}
+
 .breadcrumb {
 	display: flex;
 	gap: var(--spacing-base);
 	align-items: center;
+	color: var(--jp-gray-40);
 }

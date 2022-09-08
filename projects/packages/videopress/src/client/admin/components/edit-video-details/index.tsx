@@ -1,18 +1,26 @@
-import { Text, AdminPage, AdminSection, Container, Col } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	AdminPage,
+	AdminSection,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import { useParams } from 'react-router-dom';
 import Logo from '../logo';
 import styles from './style.module.scss';
 
-const Header = () => {
+const Header = ( { saveDisabled = true }: { saveDisabled?: boolean } ) => {
 	return (
-		<div>
+		<div className={ styles.header }>
 			<div className={ styles.breadcrumb }>
 				<Logo />
 				<Icon icon={ chevronRightSmall } />
 				<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 			</div>
+			<Button disabled={ saveDisabled }>{ __( 'Save changes', 'jetpack-videopress-pkg' ) }</Button>
 		</div>
 	);
 };
