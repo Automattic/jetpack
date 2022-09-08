@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Remove JetpackIcon from InspectorNotice component

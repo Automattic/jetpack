@@ -78,8 +78,10 @@ test.describe( 'Critical CSS module', () => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
-		await ( await ThemesPage.init( page ) ).activateTheme( 'twentytwenty' );
-		expect( await page.locator( 'text=Jetpack Boost - Action Required' ).isVisible() ).toBeTruthy();
+		await themesPage.activateTheme( 'twentytwenty' );
+		expect(
+			await themesPage.isElementVisible( 'text=Jetpack Boost - Action Required' )
+		).toBeTruthy();
 		await themesPage.click(
 			'#jetpack-boost-notice-critical-css-regenerate a[href*="jetpack-boost"]'
 		);

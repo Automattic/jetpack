@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JS Components: Add options to numberFormat and format value as compact form on StatCard component
