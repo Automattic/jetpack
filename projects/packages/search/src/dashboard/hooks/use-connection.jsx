@@ -16,7 +16,7 @@ export default function useConnection() {
 
 	const isFullyConnected =
 		( Object.keys( connectionStatus ).length &&
-			connectionStatus.isUserConnected &&
+			connectionStatus.hasConnectedOwner &&
 			connectionStatus.isRegistered ) ||
 		isWpcom;
 
