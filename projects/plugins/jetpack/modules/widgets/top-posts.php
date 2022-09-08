@@ -419,8 +419,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 							'avatar_size'         => (int) $get_image_options['avatar_size'],
 						)
 					);
-					$post['image'] = $image['src'];
-					if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
+					$post['image'] = isset( $image['src'] ) ? $image['src'] : null;
+					if ( isset( $image['from'] ) && 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
 						$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
 					}
 				}
