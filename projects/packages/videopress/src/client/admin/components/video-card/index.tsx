@@ -164,11 +164,14 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	onUpdateUpdatePrivacyClick,
 	onDeleteClick,
 } ) => {
-	const playsCount = sprintf(
-		/* translators: placeholder is a product name */
-		__( '%s plays', 'jetpack-videopress-pkg' ),
-		numberFormat( plays )
-	);
+	const hasPlays = typeof plays !== 'undefined';
+	const playsCount = hasPlays
+		? sprintf(
+				/* translators: placeholder is a product name */
+				__( '%s plays', 'jetpack-videopress-pkg' ),
+				numberFormat( plays )
+		  )
+		: '';
 
 	return (
 		<div className={ styles[ 'video-card__wrapper' ] }>
@@ -183,15 +186,17 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 				<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
 					{ title }
 				</Title>
-				<Text
-					weight="regular"
-					size="small"
-					component="div"
-					className={ styles[ 'video-card__video-plays-counter' ] }
-				>
-					<Icon icon={ chartBar } />
-					{ playsCount }
-				</Text>
+				{ hasPlays && (
+					<Text
+						weight="regular"
+						size="small"
+						component="div"
+						className={ styles[ 'video-card__video-plays-counter' ] }
+					>
+						<Icon icon={ chartBar } />
+						{ playsCount }
+					</Text>
+				) }
 			</div>
 			<div className={ styles[ 'video-card__quick-actions-section' ] }>
 				<Button

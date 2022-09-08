@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-While we are creating a donation plan for a given currency we disable post saving.

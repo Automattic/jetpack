@@ -65,7 +65,6 @@ const Admin = () => {
 			withHeader={ false }
 			withFooter={ false }
 			moduleName={ __( 'Jetpack Backup', 'jetpack-backup-pkg' ) }
-			a8cLogoHref="https://www.jetpack.com"
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
