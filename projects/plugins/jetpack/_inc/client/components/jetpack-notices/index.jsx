@@ -180,7 +180,7 @@ export class UserUnlinked extends React.Component {
 				<div className="jp-unlinked-notice">
 					<ConnectionBanner
 						title={ __(
-							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to WordPress.com.',
+							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to Jetpack.com.',
 							'jetpack'
 						) }
 						callToAction={ __( 'Create account', 'jetpack' ) }
