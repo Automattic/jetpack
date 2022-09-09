@@ -18,7 +18,6 @@ const blankData = {
 	duration: null,
 	uploadDate: '',
 	plays: null,
-	isBlank: true,
 };
 
 /**

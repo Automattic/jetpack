@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-VideoPress: introduce isBlank and null thumb for VideoCard component
+VideoPress: handle how the VideoCard looks when no data is provided

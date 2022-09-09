@@ -165,12 +165,12 @@ export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
 	plays,
 	thumbnail,
 	editable,
-	isBlank,
 	onVideoDetailsClick,
 	onUpdateThumbnailClick,
 	onUpdateUpdatePrivacyClick,
 	onDeleteClick,
 } ) => {
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
