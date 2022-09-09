@@ -496,20 +496,28 @@ class Modules {
 		);
 
 		// Activating newly enforced modules.
-		$newly_enforced = array_diff( $enforced_modules, $existing_enforce_setting );
+		$newly_enforced         = array_diff( $enforced_modules, $existing_enforce_setting );
+		self::$enforced_modules = array_merge( self::$enforced_modules, $enforced_modules );
+
+		// Setting up the filter.
+		add_filter( 'jetpack_active_modules', array( $this, 'filter_active_modules' ) );
+
+		// If nothing has changed - we're done.
+		if ( empty( $newly_enforced ) ) {
+			return;
+		}
+
+		// If we have newly enforced modules, they need to be activated to run actions.
 		foreach ( $newly_enforced as $slug ) {
 			$this->activate( $slug );
 		}
 
 		// Storing the new configuration.
-		self::$enforced_modules = array_merge( self::$enforced_modules, $enforced_modules );
 		\Jetpack_Options::update_option(
 			'active_modules_enforced',
-			array_merge( $existing_enforce_setting, $enforced_modules ),
+			array_unique( array_merge( $existing_enforce_setting, $enforced_modules ) ),
 			true
 		);
-
-		add_filter( 'jetpack_active_modules', array( $this, 'filter_active_modules' ) );
 	}
 
 	/**
