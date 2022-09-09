@@ -189,15 +189,21 @@ SLUGS=()
 # Use a temp variable so pipefail works
 TMP="$(pnpm jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
+
+TMPDIR="${TMPDIR:-/tmp}"
+TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
+
 for SLUG in "${SLUGS[@]}"; do
 	if [[ -n "${RELEASED[$SLUG]}" ]]; then
 		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -U $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -U "$SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE -U "$SLUG"
 	else
 		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -u $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
 	fi
 done
+
+rm "$TEMP"
 
 debug "  Updating pnpm.lock..."
 pnpm install --silent

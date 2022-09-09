@@ -511,6 +511,12 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
 			composerJson.type = 'jetpack-library';
+			composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ] =
+				'^' +
+				composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ].replace(
+					/\.x-dev$/,
+					''
+				);
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};

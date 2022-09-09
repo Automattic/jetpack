@@ -191,3 +191,42 @@ jobs:
           name: ${{ matrix.artifact }}
           path: artifacts
           retention-days: 7
+
+  # Probably this should be a linting test, but we don't run linting on trunk or release branches.
+  plugin-deps:
+    name: Check plugin monorepo dep versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          node: false
+      - name: Run check
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == 'push' ]]; then
+            REF="${GITHUB_REF#refs/heads/}"
+          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' || "$GITHUB_EVENT_NAME" == 'pull_request_target' ]]; then
+            REF="$GITHUB_BASE_REF"
+          else
+            echo "::error::Unsupported github event \"$GITHUB_EVENT_NAME\""
+            exit 1
+          fi
+          echo "Detected target ref \"$REF\""
+
+          if [[ "$REF" == trunk ]]; then
+            ARGS=( --dev )
+          elif [[ "$REF" == */branch-* ]]; then
+            ARGS=( --release )
+            TMP="$(jq -r --arg P "${REF%%/branch-*}" 'if $P == .extra["release-branch-prefix"] then input_filename | match( "^projects/plugins/([^/]+)/composer.json$" ).captures[0].string else empty end' projects/plugins/*/composer.json)"
+            while IFS= read -r LINE; do
+              ARGS+=( "$LINE" )
+            done <<<"$TMP"
+          else
+            echo "Unsupported ref \"$REF\", ignoring"
+            exit 0
+          fi
+
+          echo "Running tools/check-plugin-monorepo-deps.sh ${ARGS[@]}"
+          tools/check-plugin-monorepo-deps.sh "${ARGS[@]}"
