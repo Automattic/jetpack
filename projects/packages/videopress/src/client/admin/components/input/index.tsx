@@ -117,7 +117,7 @@ export const SearchInput = ( {
 	const onEnterHandler = useCallback(
 		( value: string ) => {
 			componentProps.onEnter?.( value );
-			debouncedOnChange( value );
+			onSearch( value );
 		},
 		[ componentProps.onEnter, onSearch ]
 	);
