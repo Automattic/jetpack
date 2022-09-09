@@ -27,7 +27,7 @@ const ConnectUserBar = props => {
 			<div className="jp-connect-user-bar__text">
 				{ sprintf(
 					/* translators: placeholder is text adding extra instructions on what to do next. */
-					__( 'This feature is provided by the WordPress.com cloud. %s', 'jetpack' ),
+					__( 'This feature is provided by the Jetpack cloud. %s', 'jetpack' ),
 					text
 				) }
 			</div>
@@ -36,7 +36,7 @@ const ConnectUserBar = props => {
 				<ConnectButton
 					connectUser={ true }
 					from="unlinked-user-connect"
-					connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
+					connectLegend={ __( 'Connect your Jetpack account', 'jetpack' ) }
 					customConnect={ customConnect }
 				/>
 			</div>
