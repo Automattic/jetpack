@@ -21,7 +21,7 @@ const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
 		return {
 			...video,
 			title: video.title,
-			posterImage: video.image.src,
+			posterImage: video.image?.src,
 		};
 	} );
 };
