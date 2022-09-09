@@ -22,5 +22,4 @@ Link.args = {
 	...DefaultArgs,
 	onClick: null,
 	href: 'https://jetpack.com',
-	target: '_blank',
 };

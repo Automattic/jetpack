@@ -3,6 +3,5 @@ export type CutBaseProps = {
 	cta: string;
 	className?: string;
 	href?: string;
-	target?: string;
 	onClick?: () => void;
 };

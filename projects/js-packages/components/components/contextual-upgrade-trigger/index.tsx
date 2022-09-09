@@ -10,11 +10,10 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	cta,
 	onClick,
 	href,
-	target,
 	className,
 } ) => {
 	const Tag = href !== undefined ? 'a' : 'button';
-	const tagProps = Tag === 'a' ? { href, target } : { onClick };
+	const tagProps = Tag === 'a' ? { href, target: '_blank' } : { onClick };
 
 	return (
 		<div className={ classnames( styles.cut, className ) }>

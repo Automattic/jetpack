@@ -74,7 +74,6 @@ const Header = () => {
 								) }
 								cta={ __( 'Upgrade Jetpack Social', 'jetpack-social' ) }
 								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell' ) }
-								target="_blank"
 							/>
 						</>
 					) : (

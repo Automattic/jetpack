@@ -27,7 +27,6 @@ import { ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 	description="Current status of the product"
 	cta="Text action line, recommending the next tier"
 	href="https://jetpack.com"
-	target="_blank"
 />
 ```
 
@@ -68,14 +67,6 @@ Callback that will be called when the user click/tap into the CUT
 ### href
 
 URL to link to
-
-- Type: `String`
-- Default: `undefined`
-- Required: `false`
-
-### target
-
-Target of the link (e.g. '_blank')
 
 - Type: `String`
 - Default: `undefined`
