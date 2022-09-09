@@ -120,7 +120,7 @@ export const LocalLibrary = ( { videos }: VideoLibraryProps ) => {
 		<VideoLibraryWrapper
 			totalVideos={ videos?.length }
 			hideFilter
-			title={ __( 'Local library', 'jetpack-videopress-pkg' ) }
+			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
 			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
 		</VideoLibraryWrapper>
