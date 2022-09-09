@@ -301,7 +301,7 @@ class Jetpack_Social {
 			return;
 		}
 
-		$connections      = (array) $publicize->get_all_connections();
+		$connections      = $publicize->get_filtered_connection_data();
 		$shares_remaining = $info['shares_remaining'];
 
 		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
