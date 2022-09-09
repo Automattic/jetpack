@@ -19,12 +19,12 @@ type InputBaseProps = {
 	/**
 	 * Callback to be invoked when the input value changes.
 	 */
-	onChange: ( value: string ) => unknown;
+	onChange?: ( value: string ) => unknown;
 
 	/**
 	 * Callback to be invoked when the user presses the Enter key.
 	 */
-	onEnter: ( value: string ) => unknown;
+	onEnter?: ( value: string ) => unknown;
 };
 
 type Input = Omit< React.InputHTMLAttributes< HTMLInputElement >, 'size' > & {
