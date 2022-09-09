@@ -8,7 +8,7 @@ import './style.scss';
 
 export const ToS = createInterpolateElement(
 	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with Jetpack.com.',
 		'jetpack'
 	),
 	{
