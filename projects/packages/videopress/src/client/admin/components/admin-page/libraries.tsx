@@ -44,13 +44,7 @@ const VideoLibraryWrapper = ( {
 	onChangeType?: () => void;
 	hideFilter?: boolean;
 } ) => {
-	const handleSearchChange = () => {
-		// TODO: implement search
-	};
-
-	const handleSearch = () => {
-		// TODO: implement search
-	};
+	const { setSearch } = useVideos();
 
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
@@ -61,7 +55,7 @@ const VideoLibraryWrapper = ( {
 				<Text>{ totalVideos } Video</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
-						<SearchInput onChange={ handleSearchChange } onEnter={ handleSearch } />
+						<SearchInput onSearch={ setSearch } />
 						<Button variant="secondary" icon={ filterIcon } weight="regular">
 							Filters
 						</Button>
