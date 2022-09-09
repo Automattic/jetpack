@@ -5,7 +5,6 @@ import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import React, { useState } from 'react';
-import filterIcon from '../../../components/icons/filter-icon';
 /**
  * Internal dependencies
  */
@@ -67,7 +66,9 @@ const VideoLibraryWrapper = ( {
 							value={ searchQuery }
 							onChange={ setSearchQuery }
 						/>
+
 						<FilterButton onToggle={ () => ( {} ) } />
+
 						<Button
 							variant="tertiary"
 							size="small"
