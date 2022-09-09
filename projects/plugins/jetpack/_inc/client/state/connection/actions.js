@@ -1,5 +1,4 @@
 import restApi from '@automattic/jetpack-api';
-import { useRestoreConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -19,8 +18,6 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
-	SITE_RECONNECT,
-	SITE_RECONNECT_FAIL,
 	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
 
@@ -229,58 +226,6 @@ export const resetConnectUser = () => {
 		dispatch( {
 			type: RESET_CONNECT_USER,
 		} );
-	};
-};
-
-export const reconnectSite = () => {
-	const { restoreConnection } = useRestoreConnection();
-
-	return dispatch => {
-		dispatch( {
-			type: SITE_RECONNECT,
-		} );
-		dispatch(
-			createNotice( 'is-info', __( 'Reconnecting Jetpack', 'jetpack' ), {
-				id: 'reconnect-jetpack',
-			} )
-		);
-
-		return restoreConnection( false )
-			.then( connectionStatusData => {
-				const status = connectionStatusData.status;
-				const authorizeUrl = connectionStatusData.authorizeUrl;
-				// status: in_progress, aka user needs to re-connect their WP.com account.
-				if ( 'in_progress' === status ) {
-					dispatch( { type: UNLINK_USER_SUCCESS } );
-
-					// Set connectUrl and initiate the connection flow.
-					dispatch( {
-						type: CONNECT_URL_FETCH_SUCCESS,
-						connectUrl: authorizeUrl,
-					} );
-					dispatch( connectUser() );
-				} else {
-					window.location.reload();
-				}
-			} )
-			.catch( error => {
-				dispatch( {
-					type: SITE_RECONNECT_FAIL,
-					error: error,
-				} );
-				dispatch( removeNotice( 'reconnect-jetpack' ) );
-				dispatch(
-					createNotice(
-						'is-error',
-						sprintf(
-							/* translators: placeholder is the error. */
-							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack' ),
-							error.response.message || error.response.code
-						),
-						{ id: 'reconnect-jetpack' }
-					)
-				);
-			} );
 	};
 };
 

@@ -39,16 +39,6 @@ const NoticeActionReconnect = props => {
 		return eventProps;
 	}, [ props.errorCode, props.errorData ] );
 
-	const handleDisconnectClick = useCallback( () => {
-		// Reconnection already in progress
-		if ( props.isReconnectingSite ) {
-			return;
-		}
-
-		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', getEventProps() );
-		doReconnect();
-	}, [ props.isReconnectingSite, getEventProps, doReconnect ] );
-
 	/**
 	 * Initiate the restore connection process.
 	 *
@@ -67,6 +57,16 @@ const NoticeActionReconnect = props => {
 			} )
 			.catch( error => props.reconnectFailed( error ) );
 	}, [ props, restoreConnection ] );
+
+	const handleDisconnectClick = useCallback( () => {
+		// Reconnection already in progress
+		if ( props.isReconnectingSite ) {
+			return;
+		}
+
+		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', getEventProps() );
+		doReconnect();
+	}, [ props.isReconnectingSite, getEventProps, doReconnect ] );
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_view', getEventProps() );
