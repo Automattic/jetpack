@@ -35,7 +35,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
-	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
+	const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
@@ -65,7 +65,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	const postCount = useSelect( select => select( STORE_ID ).getPostCount() );
 	const postTypeBreakdown = useSelect( select => select( STORE_ID ).getPostTypeBreakdown() );
 	const lastIndexedDate = useSelect( select => select( STORE_ID ).getLastIndexedDate() );
-
+	const postTypes = useSelect( select => select( STORE_ID ).getPostTypes() );
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
@@ -138,7 +138,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<JetpackFooter
-						a8cLogoHref={ aboutPageUrl }
+						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 					/>
@@ -147,10 +147,6 @@ export default function DashboardPage( { isLoading = false } ) {
 		);
 	};
 
-	const isRecordMeterEnabled = useSelect( select =>
-		select( STORE_ID ).isFeatureEnabled( 'record-meter' )
-	);
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -158,14 +154,13 @@ export default function DashboardPage( { isLoading = false } ) {
 				<div className="jp-search-dashboard-page">
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
-					{ isRecordMeterEnabled && (
-						<RecordMeter
-							postCount={ postCount }
-							postTypeBreakdown={ postTypeBreakdown }
-							tierMaximumRecords={ tierMaximumRecords }
-							lastIndexedDate={ lastIndexedDate }
-						/>
-					) }
+					<RecordMeter
+						postCount={ postCount }
+						postTypeBreakdown={ postTypeBreakdown }
+						tierMaximumRecords={ tierMaximumRecords }
+						lastIndexedDate={ lastIndexedDate }
+						postTypes={ postTypes }
+					/>
 					{ renderModuleControl() }
 					{ renderFooter() }
 					<NoticesList

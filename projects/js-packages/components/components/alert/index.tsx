@@ -43,8 +43,12 @@ const Alert: React.FC< AlertProps > = ( { level, children, showIcon } ) => {
 
 	return (
 		<div className={ classes }>
-			{ showIcon && <Icon icon={ getIconByLevel( level ) } className={ styles.icon } /> }
-			{ children }
+			{ showIcon && (
+				<div className={ styles[ 'icon-wrapper' ] }>
+					<Icon icon={ getIconByLevel( level ) } className={ styles.icon } />
+				</div>
+			) }
+			<div>{ children }</div>
 		</div>
 	);
 };

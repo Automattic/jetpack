@@ -1,3 +1,4 @@
+import { get } from 'svelte/store';
 import config from '../stores/config';
 
 /**
@@ -8,7 +9,7 @@ import config from '../stores/config';
  * should be used instead. However, the redirect changes the redirect URL in a broken manner.
  */
 export function getUpgradeURL() {
-	const siteSuffix = config.site.domain;
+	const siteSuffix = get( config ).site.domain;
 	const product = 'jetpack_boost_yearly';
 
 	const redirectUrl = new URL( window.location.href );

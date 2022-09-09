@@ -23,6 +23,13 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	protected $allowed_tables = array();
 
 	/**
+	 * Array of classnames of Sync enabled modules.
+	 *
+	 * @var array
+	 */
+	protected $sync_enabled_modules;
+
+	/**
 	 * Array of Table Names and if valid.
 	 *
 	 * @return int[][]
@@ -44,6 +51,30 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Array of Table Names, enabled modules and if valid.
+	 *
+	 * @return array
+	 */
+	public function table_modules_provider() {
+		return array(
+			array( 'posts', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), false ),
+			array( 'posts', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), true ),
+			array( 'postmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), true ),
+			array( 'postmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), false ),
+			array( 'comments', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'comments', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), true ),
+			array( 'commentmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'commentmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), true ),
+			array( 'terms', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'terms', array( 'Automattic\\Jetpack\\Sync\\Modules\\Terms' ), true ),
+			array( 'termmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'termmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Terms' ), true ),
+			array( 'term_relationships', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'term_relationships', array( 'Automattic\\Jetpack\\Sync\\Modules\\Terms' ), true ),
+		);
+	}
+
+	/**
 	 * Test table names are validated.
 	 *
 	 * @dataProvider table_provider
@@ -61,6 +92,41 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		}
 
 		new Table_Checksum( $table );
+	}
+
+	/**
+	 * Validate a WP_Error checksum is returned for each table
+	 * when the corresponding Sync modules are disabled.
+	 *
+	 * @dataProvider table_modules_provider
+	 *
+	 * @param string $table           Table name.
+	 * @param array  $enabled_modules Array of classnames of Sync enabled modules.
+	 * @param bool   $is_valid        Whether the checksum is valid. If not, an exception is expected.
+	 */
+	public function test_checksum_with_disabled_sync_modules( $table, $enabled_modules, $is_valid ) {
+		if ( ! $is_valid ) {
+			// Exception expected if corresponding Sync module is not enabled.
+			$this->expectException( Exception::class );
+		} else {
+			// Valid Tables do not need any assertion.
+			$this->assertTrue( true );
+		}
+
+		// Hack to force Sync modules to be re-initialized.
+		$reflection = new ReflectionClass( 'Automattic\Jetpack\Sync\Modules' );
+
+		$prop = $reflection->getProperty( 'initialized_modules' );
+		$prop->setAccessible( true );
+		$prop->setValue( null );
+
+		$this->sync_enabled_modules = $enabled_modules;
+		add_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ), 100 );
+		new Table_Checksum( $table );
+		remove_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ) );
+
+		// Clean-up.
+		$prop->setValue( null );
 	}
 
 	/**
@@ -535,6 +601,15 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 
 		$this->assertSame( (int) $checksum_full, (int) ( $checksum_half_1 + $checksum_half_2 ) );
 
+	}
+
+	/**
+	 * Filter Sync modules.
+	 *
+	 * @return array
+	 */
+	public function sync_modules_filter() {
+		return $this->sync_enabled_modules;
 	}
 
 }

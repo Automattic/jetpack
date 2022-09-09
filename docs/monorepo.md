@@ -240,6 +240,8 @@ When implementing tests within a new plugin, you can follow the example set in [
 
 If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-js`.
 
+JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testing, use `@testing-library/react` rather than `enzyme`.
+
 ### E2E tests
 
 **This is not implemented yet!**
@@ -264,13 +266,15 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo.
+   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-reposiroty-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Ground Control) can push to that repository.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
-2. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
-3. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
-4. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
-5. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
+2. For a package you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it. 
+   1. Once the package is added to Packagist, it is best to add some maintainers. Currently these will be `automattic`, `kraft` and `dereksmart`.
+3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
+4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
+5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
+6. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
    * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger

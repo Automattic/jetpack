@@ -95,6 +95,7 @@ class Privacy extends React.Component {
 		return (
 			this.isPrivacyFound() && (
 				<div>
+					<h1 className="screen-reader-text">{ __( 'Jetpack Privacy Settings', 'jetpack' ) }</h1>
 					<SettingsCard
 						{ ...this.props }
 						header={ _x( 'Privacy Settings', 'Settings header', 'jetpack' ) }

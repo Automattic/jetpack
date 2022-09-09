@@ -1,5 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import React, { useState, useRef, useCallback } from 'react';
@@ -17,7 +18,9 @@ const NavigationList = ( { children } ) => (
 const NavigationDropdown = ( { children, data } ) => {
 	const ref = useRef();
 	const [ listOpen, setListOpen ] = useState( false );
-	const item = data?.items?.find( navItem => navItem?.id === data?.selectedItem ) ?? {};
+	const item = data?.items?.find( navItem => navItem?.id === data?.selectedItem ) ?? {
+		label: __( 'See all results', 'jetpack-protect' ),
+	};
 	const { label, icon } = item;
 
 	const handleOpen = useCallback( () => {

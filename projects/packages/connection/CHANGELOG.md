@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.0] - 2022-09-08
+### Changed
+- Add option to JP options [#25979]
+
+## [1.44.0] - 2022-08-29
+### Added
+- Connection: verify REST API errors.
+
+## [1.43.1] - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## [1.43.0] - 2022-08-23
+### Added
+- Added verified errors to the React initial state. [#25628]
+
+### Fixed
+- Improved docs. [#25703]
+
+## [1.42.0] - 2022-08-03
+### Changed
+- Refactoring to remove usage of deprecated methods and method arguments. [#25315]
+
+### Deprecated
+- Removed deprecated method calls [#25300]
+
+## [1.41.8] - 2022-07-29
+
+- Updated package dependencies
+
+## [1.41.7] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+### Fixed
+- Tokens: edit return doc to highlight possibility of returning WP_Error. [#25127]
+
+## [1.41.6] - 2022-07-19
+### Changed
+- Updated package dependencies.
+
+## [1.41.5] - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## [1.41.4] - 2022-06-29
+
+- Updated package dependencies.
+
+## [1.41.3] - 2022-06-28
+### Fixed
+- Connection: fix fatal error due to undefined constant in remote_provision()
+
+## [1.41.2] - 2022-06-28
+### Removed
+- Removed use of autounit tag [#24845]
+
+## [1.41.1] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+- Renaming `master` references to `trunk`
+
 ## [1.41.0] - 2022-06-14
 ### Changed
 - Updated package dependencies. [#24529]
@@ -620,6 +682,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.45.0]: https://github.com/Automattic/jetpack-connection/compare/v1.44.0...v1.45.0
+[1.44.0]: https://github.com/Automattic/jetpack-connection/compare/v1.43.1...v1.44.0
+[1.43.1]: https://github.com/Automattic/jetpack-connection/compare/v1.43.0...v1.43.1
+[1.43.0]: https://github.com/Automattic/jetpack-connection/compare/v1.42.0...v1.43.0
+[1.42.0]: https://github.com/Automattic/jetpack-connection/compare/v1.41.8...v1.42.0
+[1.41.8]: https://github.com/Automattic/jetpack-connection/compare/v1.41.7...v1.41.8
+[1.41.7]: https://github.com/Automattic/jetpack-connection/compare/v1.41.6...v1.41.7
+[1.41.6]: https://github.com/Automattic/jetpack-connection/compare/v1.41.5...v1.41.6
+[1.41.5]: https://github.com/Automattic/jetpack-connection/compare/v1.41.4...v1.41.5
+[1.41.4]: https://github.com/Automattic/jetpack-connection/compare/v1.41.3...v1.41.4
+[1.41.3]: https://github.com/Automattic/jetpack-connection/compare/v1.41.2...v1.41.3
+[1.41.2]: https://github.com/Automattic/jetpack-connection/compare/v1.41.1...v1.41.2
+[1.41.1]: https://github.com/Automattic/jetpack-connection/compare/v1.41.0...v1.41.1
 [1.41.0]: https://github.com/Automattic/jetpack-connection/compare/v1.40.5...v1.41.0
 [1.40.5]: https://github.com/Automattic/jetpack-connection/compare/v1.40.4...v1.40.5
 [1.40.4]: https://github.com/Automattic/jetpack-connection/compare/v1.40.3...v1.40.4

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search/Sync: Avoid broken images in search results by preferring the _jetpack_featured_media_url postmeta over the GUID

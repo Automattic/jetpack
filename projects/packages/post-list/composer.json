@@ -8,7 +8,7 @@
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
@@ -50,7 +50,7 @@
 			"link-template": "https://github.com/automattic/jetpack-post-list/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		}
 	},
 	"config": {

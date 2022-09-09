@@ -158,13 +158,12 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.3.0 - 2022-05-19
-#### Changed
-- Now requires WordPress 5.9 since WordPress 6.0 is just around the corner.
-- Updated package dependencies
+### 1.4.1 - 2022-09-08
+#### Added
+- Include contextual notifications from My Jetpack 
 
-#### Fixed
-- Fixed progress state in admin page to use real site title.
+#### Changed
+- Plugin activation: Only redirect when activating from the Plugins page in the browser
 
 --------
 

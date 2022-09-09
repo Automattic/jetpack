@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use WP_Error;
 use WP_REST_Server;
 
 /**
@@ -67,7 +68,7 @@ class Waf_Endpoints {
 
 		try {
 			Waf_Runner::generate_rules();
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 			$success = false;
 			$message = $e->getMessage();
 		}

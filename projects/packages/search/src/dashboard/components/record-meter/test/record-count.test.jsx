@@ -3,7 +3,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import { RecordCount } from 'components/record-meter/record-count';
 import React from 'react';
 

@@ -28,9 +28,8 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 
 				return addQueryArgs(
 					window.location.protocol +
-						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/admin.php`,
+						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/site-editor.php`,
 					{
-						page: 'gutenberg-edit-site',
 						postId: queryParams.get( 'postId' ),
 						postType: queryParams.get( 'postType' ),
 						plan_upgraded: 1,

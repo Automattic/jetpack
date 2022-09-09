@@ -1,7 +1,7 @@
 /* global jpConnect */
 
 jQuery( document ).ready( function ( $ ) {
-	var connectButton = $( '.jp-connect-button, .jp-banner__alt-connect-button' ).eq( 0 );
+	var connectButton = $( '.jp-connect-button, #jp-connect-button--alt' ).eq( 0 );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	// Sections that only show up in the first Set Up screen
 	var connectionHelpSections = $(
@@ -49,7 +49,7 @@ jQuery( document ).ready( function ( $ ) {
 		},
 		handleConnection: function () {
 			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
-			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
+			if ( connectButton.attr( 'id' ) === 'jp-connect-button--alt' ) {
 				// Make sure we don't lose the `from` parameter, if set.
 				var fromParam = ( connectButtonFrom && '&from=' + connectButtonFrom ) || '';
 				window.location = jpConnect.connectInPlaceUrl + fromParam;

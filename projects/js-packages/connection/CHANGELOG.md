@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.19.0 - 2022-09-08
+### Added
+- Add React variables as part of the project to have consistent connection errors across monorepo projects. [#25934]
+
+### Changed
+- Updated package dependencies.
+
+## 0.18.12 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.18.11 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762, #25764]
+
+## 0.18.10 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
+## 0.18.9 - 2022-07-12
+### Changed
+- Updated package dependencies. [#25048, #25055]
+
+## 0.18.8 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.18.7 - 2022-06-28
+### Fixed
+- Fix include loop between state/store and state/controls + state/resolvers. [#24777]
+
+## 0.18.6 - 2022-06-21
+### Added
+- JS Connection: return a Promise when registering site [#24238]
+
 ## 0.18.5 - 2022-06-14
 ### Changed
 - Updated package dependencies. [#24722]

@@ -3,7 +3,7 @@
  */
 module.exports = {
 	extends: [
-		'./base',
+		'./preload',
 		'plugin:jest/recommended',
 		'plugin:jest/style',
 		'plugin:jest-dom/recommended',

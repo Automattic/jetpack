@@ -1,6 +1,6 @@
 const { getInput, setFailed } = require( '@actions/core' );
-const debug = require( '../../debug' );
-const sendSlackMessage = require( '../../send-slack-message' );
+const debug = require( '../../utils/debug' );
+const sendSlackMessage = require( '../../utils/send-slack-message' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 

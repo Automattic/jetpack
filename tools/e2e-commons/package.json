@@ -21,10 +21,10 @@
 		"slack": "node bin/slack.cjs"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.22.2",
-		"@slack/web-api": "6.7.1",
-		"allure-playwright": "2.0.0-beta.17",
-		"axios": "0.26.1",
+		"@playwright/test": "1.25.0",
+		"@slack/web-api": "6.7.2",
+		"allure-playwright": "2.0.0-beta.19",
+		"axios": "0.27.2",
 		"chalk": "5.0.1",
 		"config": "3.3.7",
 		"localtunnel": "2.0.2",
@@ -32,12 +32,11 @@
 		"node-fetch": "2.6.7",
 		"pm2": "5.2.0",
 		"shell-escape": "0.2.0",
-		"winston": "3.6.0",
-		"yargs": "17.4.0"
+		"winston": "3.8.1",
+		"yargs": "17.5.1"
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],

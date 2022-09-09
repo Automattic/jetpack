@@ -1,8 +1,11 @@
+import { Gridicon, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 
 import './record-count.scss';
+
+const DOCS_URL = 'https://jetpack.com/support/search/jetpack-search-record-meter/';
 
 /**
  * Returns record count component showing current records indexed and max records available for tier.
@@ -16,11 +19,11 @@ export function RecordCount( props ) {
 	}
 
 	const recordCount =
-		typeof props.recordCount === 'number' ? props.recordCount?.toLocaleString() : props.recordCount;
+		typeof props.recordCount === 'number' ? numberFormat( props.recordCount ) : props.recordCount;
 
 	const recordLimit =
 		typeof props.tierMaximumRecords === 'number'
-			? props.tierMaximumRecords?.toLocaleString()
+			? numberFormat( props.tierMaximumRecords )
 			: props.tierMaximumRecords;
 	let message;
 
@@ -54,7 +57,23 @@ export function RecordCount( props ) {
 
 	return (
 		<div data-testid="record-count" className="jp-search-record-count">
-			<p>{ message }</p>
+			<p className="jp-search-record-count__message">
+				{ message }
+				{ DOCS_URL && (
+					<a
+						href={ DOCS_URL }
+						className="jp-search-record-count__info"
+						title={ __( 'More info', 'jetpack-search-pkg' ) }
+					>
+						<Gridicon
+							className="jp-search-record-count__info-icon"
+							icon={ 'info-outline' }
+							size={ 18 }
+						/>
+						<span className="screen-reader-text">{ __( 'More info', 'jetpack-search-pkg' ) }</span>
+					</a>
+				) }
+			</p>
 		</div>
 	);
 }

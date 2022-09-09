@@ -1,5 +1,5 @@
 import {
-	hasActiveSiteFeature,
+	siteHasFeature,
 	isDoneFetchingConnectedPlugins,
 	getConnectedPlugins,
 	getConnectedPluginsMap,
@@ -95,19 +95,19 @@ describe( 'site selectors', () => {
 		} );
 	} );
 
-	describe( '#hasActiveSiteFeature()', () => {
+	describe( '#siteHasFeature()', () => {
 		test( 'should return False when feature param is not defined', () => {
-			const activeFeature = hasActiveSiteFeature( inState );
+			const activeFeature = siteHasFeature( inState );
 			expect( activeFeature ).toBe( false );
 		} );
 
 		test( 'should return False when feature is not defined in the active array', () => {
-			const activeFeature = hasActiveSiteFeature( inState, 'unknown-feature' );
+			const activeFeature = siteHasFeature( inState, 'unknown-feature' );
 			expect( activeFeature ).toBe( false );
 		} );
 
 		test( 'should return True when feature is defined in the active array', () => {
-			const activeFeature = hasActiveSiteFeature( inState, 'feature_active_01' );
+			const activeFeature = siteHasFeature( inState, 'feature_active_01' );
 			expect( activeFeature ).toBe( true );
 		} );
 	} );

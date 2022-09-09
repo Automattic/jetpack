@@ -181,6 +181,10 @@ class Webhooks {
 		add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
 
 		if ( ! $this->connection->is_user_connected() ) {
+			if ( ! $this->connection->is_connected() ) {
+				$this->connection->register();
+			}
+
 			$connect_url = add_query_arg( 'from', $from, $this->connection->get_authorization_url( null, $redirect ) );
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.

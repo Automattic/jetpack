@@ -41,7 +41,7 @@ const postTypeBreakdown = [
 	},
 ];
 
-describe( 'API data is converted into record info ', () => {
+describe( 'API data is converted into record info', () => {
 	test( 'the total post count equals the post_type_breakdown values summed', () => {
 		const sumValues = obj => Object.values( obj ).reduce( ( a, b ) => a + b );
 		expect( testData.post_count ).toEqual( sumValues( testData.post_type_breakdown ) );
@@ -55,8 +55,8 @@ describe( 'API data is converted into record info ', () => {
 			testData.post_count,
 			maxRecordCount
 		);
-		expect( splitPostTypes.includedItems.length ).toBe( maxRecordCount );
-		expect( splitPostTypes.otherItems.length ).toBe( 2 );
+		expect( splitPostTypes.includedItems ).toHaveLength( maxRecordCount );
+		expect( splitPostTypes.otherItems ).toHaveLength( 2 );
 	} );
 
 	test( 'creates a data object using createData', () => {

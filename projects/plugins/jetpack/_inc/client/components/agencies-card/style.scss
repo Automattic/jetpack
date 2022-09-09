@@ -1,0 +1,62 @@
+.jp-agencies-card {
+	margin-top: rem( 16px );
+	margin-bottom: 0;
+}
+
+.jp-agencies-card__dismiss {
+	position: absolute;
+	content: '';
+	top: 1rem;
+	right: 1rem;
+}
+
+.jp-agencies-card__description,
+.jp-agencies-card__link-button {
+	font-size: $font-body-small;
+	line-height: 1.65;
+
+	&:first-of-type {
+		margin-top: 4px;
+	}
+
+	&:last-of-type {
+		margin-bottom: 0;
+	}
+
+	.dops-button {
+		margin: 0 16px 0 0;
+
+		@include breakpoint( "<960px" ) {
+			margin: 0 16px 8px 0;
+		}
+	}
+}
+
+.jp-agencies-card__wrapper {
+	margin-bottom: 0;
+	display: flex;
+	flex-flow: row nowrap;
+
+	border-left: 3px solid var( --jp-green-40 );
+
+	@include breakpoint( "<660px" ) {
+		.jp-agencies-card__description:first-of-type {
+			margin-bottom: rem( 16px );
+		}
+	}
+}
+
+.jp-agencies-card__header {
+	font-weight: 400;
+	font-size: $font-title-small;
+	margin: 0;
+
+	@include breakpoint( "<660px" ) {
+		margin: 1.5rem 0 0 0;
+	}
+}
+
+.jp-agencies-card__contact {
+	flex-shrink: 1;
+	flex-grow: 1;
+}

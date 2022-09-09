@@ -10,8 +10,6 @@ use Automattic\Jetpack\Connection\Manager;
 /**
  * Jetpack_Tracks_Client
  *
- * @autounit nosara tracks-client
- *
  * Send Tracks events on behalf of a user
  *
  * Example Usage:

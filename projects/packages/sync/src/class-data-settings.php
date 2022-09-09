@@ -16,15 +16,72 @@ class Data_Settings {
 	 * The data that must be synced for every synced site.
 	 */
 	const MUST_SYNC_DATA_SETTINGS = array(
-		'jetpack_sync_modules'            => array(
+		'jetpack_sync_modules'             => array(
 			'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+			'Automattic\\Jetpack\\Sync\\Modules\\Constants',
 			'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately', // enable Initial Sync on Site Connection.
+			'Automattic\\Jetpack\\Sync\\Modules\\Options',
 		),
-		'jetpack_sync_callable_whitelist' => array(
-			'site_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
-			'home_url'       => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
-			'paused_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-			'paused_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+		'jetpack_sync_callable_whitelist'  => array(
+			'site_url'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
+			'home_url'                => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
+			'get_plugins'             => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+			'get_themes'              => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
+			'paused_plugins'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
+			'paused_themes'           => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
+			'timezone'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_timezone' ),
+			'wp_get_environment_type' => 'wp_get_environment_type',
+			'wp_max_upload_size'      => 'wp_max_upload_size',
+			'wp_version'              => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		),
+		'jetpack_sync_constants_whitelist' => array(
+			'ABSPATH',
+			'ALTERNATE_WP_CRON',
+			'ATOMIC_CLIENT_ID',
+			'AUTOMATIC_UPDATER_DISABLED',
+			'DISABLE_WP_CRON',
+			'DISALLOW_FILE_EDIT',
+			'DISALLOW_FILE_MODS',
+			'EMPTY_TRASH_DAYS',
+			'FS_METHOD',
+			'IS_PRESSABLE',
+			'PHP_VERSION',
+			'WP_ACCESSIBLE_HOSTS',
+			'WP_AUTO_UPDATE_CORE',
+			'WP_CONTENT_DIR',
+			'WP_CRON_LOCK_TIMEOUT',
+			'WP_DEBUG',
+			'WP_HTTP_BLOCK_EXTERNAL',
+			'WP_MAX_MEMORY_LIMIT',
+			'WP_MEMORY_LIMIT',
+			'WP_POST_REVISIONS',
+		),
+		'jetpack_sync_options_whitelist'   => array(
+			/**
+			 * Sync related options
+			 */
+			'jetpack_sync_non_blocking',
+			'jetpack_sync_non_public_post_stati',
+			'jetpack_sync_settings_comment_meta_whitelist',
+			'jetpack_sync_settings_post_meta_whitelist',
+			'jetpack_sync_settings_post_types_blacklist',
+			'jetpack_sync_settings_taxonomies_blacklist',
+			'jetpack_sync_settings_dedicated_sync_enabled',
+			/**
+			 * Connection related options
+			 */
+			'jetpack_connection_active_plugins',
+			/**
+			 * Generic site options
+			 */
+			'blog_charset',
+			'blog_public',
+			'blogdescription',
+			'blogname',
+			'permalink_structure',
+			'stylesheet',
+			'time_format',
+			'timezone_string',
 		),
 	);
 
@@ -78,10 +135,9 @@ class Data_Settings {
 	 *                               from the DATA_FILTER_DEFAULTS list as keys.
 	 */
 	public function add_settings_list( $plugin_settings = array() ) {
-		if ( empty( $plugin_settings[ self::MODULES_FILTER_NAME ] )
-			|| ! is_array( $plugin_settings[ self::MODULES_FILTER_NAME ] ) ) {
+		if ( empty( $plugin_settings ) || ! is_array( $plugin_settings ) ) {
 			/*
-			 * No modules have been set, so use defaults for everything and bail early.
+			 * No custom plugin settings, so use defaults for everything and bail early.
 			 */
 			$this->set_all_defaults();
 			return;
@@ -135,18 +191,18 @@ class Data_Settings {
 	 * @param array $filters_settings The custom settings.
 	 */
 	private function add_filters_custom_settings_and_hooks( $filters_settings ) {
-		if ( ! isset( $filters_settings[ self::MODULES_FILTER_NAME ] ) ) {
-			// This shouldn't happen.
-			return;
+		if ( isset( $filters_settings[ self::MODULES_FILTER_NAME ] ) && is_array( $filters_settings[ self::MODULES_FILTER_NAME ] ) ) {
+			$this->add_custom_filter_setting( self::MODULES_FILTER_NAME, $filters_settings[ self::MODULES_FILTER_NAME ] );
+			$enabled_modules = $filters_settings[ self::MODULES_FILTER_NAME ];
+		} else {
+			$this->add_sync_filter_setting( self::MODULES_FILTER_NAME, Modules::DEFAULT_SYNC_MODULES );
+			$enabled_modules = Modules::DEFAULT_SYNC_MODULES;
 		}
 
-		$this->add_custom_filter_setting( self::MODULES_FILTER_NAME, $filters_settings[ self::MODULES_FILTER_NAME ] );
-
-		$enabled_modules = $filters_settings[ self::MODULES_FILTER_NAME ];
-		$all_modules     = Modules::DEFAULT_SYNC_MODULES;
+		$all_modules = Modules::DEFAULT_SYNC_MODULES;
 
 		foreach ( $all_modules as $module ) {
-			if ( in_array( $module, $enabled_modules, true ) ) {
+			if ( in_array( $module, $enabled_modules, true ) || in_array( $module, self::MUST_SYNC_DATA_SETTINGS['jetpack_sync_modules'], true ) ) {
 				$this->add_filters_for_enabled_module( $module, $filters_settings );
 			} else {
 				$this->add_filters_for_disabled_module( $module );
@@ -251,6 +307,10 @@ class Data_Settings {
 	 */
 	private function add_required_settings() {
 		foreach ( self::MUST_SYNC_DATA_SETTINGS as $filter => $setting ) {
+			// If the corresponding setting is already set and matches the default one, no need to proceed.
+			if ( isset( static::$data_settings[ $filter ] ) && static::$data_settings[ $filter ] === $this->get_default_setting_for_filter( $filter ) ) {
+				continue;
+			}
 			$this->add_custom_filter_setting( $filter, $setting );
 		}
 	}

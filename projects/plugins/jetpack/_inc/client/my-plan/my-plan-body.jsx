@@ -18,7 +18,7 @@ import {
 } from 'state/modules';
 import { updateSettings } from 'state/settings/actions';
 import { getSetting, isUpdatingSetting } from 'state/settings/reducer';
-import { hasActiveSiteFeature } from 'state/site';
+import { siteHasFeature } from 'state/site';
 import {
 	fetchPluginsData,
 	isFetchingPluginsData,
@@ -340,7 +340,7 @@ class MyPlanBody extends React.Component {
 								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) }
-										href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' }
+										href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config&view=stats` }
 									>
 										{ __( 'View your spam stats', 'jetpack' ) }
 									</Button>
@@ -547,7 +547,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
@@ -690,7 +690,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
@@ -789,7 +789,7 @@ class MyPlanBody extends React.Component {
 export default connect(
 	state => {
 		return {
-			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
+			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),

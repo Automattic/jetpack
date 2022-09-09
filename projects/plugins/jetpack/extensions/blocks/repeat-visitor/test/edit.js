@@ -1,22 +1,14 @@
-/**
- * @jest-environment jsdom
- */
-
-import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
+import { RepeatVisitorEdit } from '../components/edit';
+import { CRITERIA_BEFORE, CRITERIA_AFTER, DEFAULT_THRESHOLD } from '../constants';
 
-// Need to mock InnerBlocks before importing the RepeatVisitorEdit component as it
-// requires the Gutenberg store setup to operate.
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <p>Mocked inner block</p>,
 } ) );
 
-import { RepeatVisitorEdit } from '../components/edit';
-import { CRITERIA_BEFORE, CRITERIA_AFTER, DEFAULT_THRESHOLD } from '../constants';
-
-describe( '', () => {
+describe( 'Repeat-visitor', () => {
 	const defaultAttributes = {
 		// 👀 Setup default block attributes.
 		criteria: CRITERIA_AFTER,
@@ -38,6 +30,7 @@ describe( '', () => {
 		const propsSelected = { ...defaultProps, isSelected: true };
 		const { container } = render( <RepeatVisitorEdit { ...propsSelected } /> );
 
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).not.toHaveClass(
 			'wp-block-jetpack-repeat-visitor--is-unselected'
 		);
@@ -138,6 +131,7 @@ describe( '', () => {
 		const propsNotSelected = { ...defaultProps, isSelected: false };
 		const { container } = render( <RepeatVisitorEdit { ...propsNotSelected } /> );
 
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveClass( 'wp-block-jetpack-repeat-visitor--is-unselected' );
 	} );
 } );

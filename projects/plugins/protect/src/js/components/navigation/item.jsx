@@ -14,7 +14,7 @@ const NavigationItem = ( {
 	onClick,
 	onKeyDown,
 	onFocus,
-	notChecked,
+	checked,
 } ) => {
 	const context = useContext( NavigationContext );
 
@@ -77,7 +77,7 @@ const NavigationItem = ( {
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
-			<ItemBadge count={ badge } notChecked={ notChecked } />
+			<ItemBadge count={ badge } checked={ checked } />
 		</li>
 	);
 };

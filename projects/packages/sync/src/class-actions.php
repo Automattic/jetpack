@@ -102,10 +102,12 @@ class Actions {
 		}
 
 		// If dedicated Sync is enabled and this is a dedicated Sync request, no need to
-		// initialize Sync for cron jobs, set up listeners or set up a shut-down action
-		// for sending actions to WordPress.com.
+		// initialize Sync for cron jobs or set up a shut-down action for sending actions to WordPress.com.
 		// We only need to set up an init action for sending actions to WordPress.com and exit early.
+		// Note: We also need to initialize the listener so that callable and constant changes, eg actions that
+		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
 		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
+			self::initialize_listener();
 			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
 			return;
 		}
@@ -345,6 +347,22 @@ class Actions {
 				$debug['debug_details']['active_connection'] = false;
 			}
 		}
+
+		// Sync locks.
+		$debug['debug_details']['dedicated_sync_enabled'] = Settings::is_dedicated_sync_enabled();
+
+		$queue      = self::$sender->get_sync_queue();
+		$full_queue = self::$sender->get_full_sync_queue();
+
+		$debug['debug_details']['sync_locks'] = array(
+			'retry_time_sync'             => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
+			'retry_time_full_sync'        => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
+			'next_sync_time_sync'         => self::$sender->get_next_sync_time( 'sync' ),
+			'next_sync_time_full_sync'    => self::$sender->get_next_sync_time( 'full_sync' ),
+			'queue_locked_sync'           => $queue->is_locked(),
+			'queue_locked_full_sync'      => $full_queue->is_locked(),
+			'dedicated_sync_request_lock' => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+		);
 
 		// Sync Logs.
 		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAST_SUCCESS_PREFIX . 'sync', '' );

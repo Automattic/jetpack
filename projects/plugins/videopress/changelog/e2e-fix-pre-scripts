@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+E2E tests: fixed pretest cleanup script not running

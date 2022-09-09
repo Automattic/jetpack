@@ -103,11 +103,30 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns an array of blogging prompt settings. Only applicable on WordPress.com.
+	 *
+	 * Data comes from .com since the fearture requires a .com connection to work.
+	 *
+	 * @param int $user_id the current user_id.
+	 * @param int $blog_id the blog id in this context.
+	 */
+	public function get_blogging_prompts_settings( $user_id, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false;
+	}
+
+	/**
 	 * Returns true if a site has the 'videopress' option enabled, false otherwise.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
 	abstract public function has_videopress();
+
+	/**
+	 * Returns VideoPress storage used, in MB.
+	 *
+	 * @see class.json-api-site-jetpack-shadow.php on WordPress.com for implementation. Only applicable on WordPress.com.
+	 */
+	abstract public function get_videopress_storage_used();
 
 	/**
 	 * Sets the upgraded_filetypes_enabled Jetpack option to true as a default. Only relevant for WordPress.com sites.
@@ -462,6 +481,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the Editing Toolkit plugin is active (relevant only on WordPress.com).
+	 *
+	 * @return true
+	 */
+	public function editing_toolkit_is_active() {
+		return true;
+	}
+
+	/**
 	 * Detect whether a site has access to the Jetpack cloud.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
@@ -799,6 +827,22 @@ abstract class SAL_Site {
 			$blog_details = get_blog_details();
 			if ( ! empty( $blog_details->registered ) ) {
 				return WPCOM_JSON_API_Date::format_date( $blog_details->registered );
+			}
+		}
+
+		return '0000-00-00T00:00:00+00:00';
+	}
+
+	/**
+	 * Returns a date/time string with the date the site was last updated, or a default date/time string otherwise.
+	 *
+	 * @return string
+	 **/
+	public function get_last_update_date() {
+		if ( function_exists( 'get_blog_details' ) ) {
+			$blog_details = get_blog_details();
+			if ( ! empty( $blog_details->last_updated ) ) {
+				return WPCOM_JSON_API_Date::format_date( $blog_details->last_updated );
 			}
 		}
 
@@ -1281,6 +1325,17 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether a site has Vertical ID (used for Starter Templates) - default to only applicable on WordPress.com
+	 *
+	 * @see /wpcom/public.api/rest/sal/class.json-api-site-wpcom.php
+	 *
+	 * @return false
+	 */
+	public function get_site_vertical_id() {
+		return false;
+	}
+
+	/**
 	 * Whether a site has a 'site_creation_flow' option set (eg gutenboarding, mobile) - only applicable on WordPress.com
 	 *
 	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
@@ -1298,6 +1353,15 @@ abstract class SAL_Site {
 	 */
 	public function get_selected_features() {
 		return get_option( 'selected_features' );
+	}
+
+	/**
+	 * Return true if the site design was created with a Blank Canvas (empty homepage template), false otherwise.
+	 *
+	 * @return bool
+	 */
+	public function was_created_with_blank_canvas_design() {
+		return (bool) get_option( 'was_created_with_blank_canvas_design' );
 	}
 
 	/**
@@ -1319,6 +1383,15 @@ abstract class SAL_Site {
 			return has_blog_sticker( 'difm-lite-in-progress' );
 		}
 		return false;
+	}
+
+	/**
+	 * The site options for DIFM lite in the design picker step
+	 *
+	 * @return string
+	 */
+	public function get_difm_lite_site_options() {
+		return get_option( 'difm_lite_site_options' );
 	}
 
 	/**

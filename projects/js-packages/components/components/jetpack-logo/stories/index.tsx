@@ -1,15 +1,13 @@
 import JetpackLogo from '../index';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
-const meta: ComponentMeta< typeof JetpackLogo > = {
+export default {
 	title: 'JS Packages/Components/Jetpack Logo',
 	component: JetpackLogo,
 	argTypes: {
 		logoColor: { control: 'color' },
 	},
-};
-
-export default meta;
+} as ComponentMeta< typeof JetpackLogo >;
 
 const Template: ComponentStory< typeof JetpackLogo > = args => <JetpackLogo { ...args } />;
 

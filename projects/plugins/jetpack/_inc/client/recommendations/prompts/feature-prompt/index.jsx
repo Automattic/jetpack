@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,6 +12,8 @@ import {
 	addSkippedRecommendation as addSkippedRecommendationAction,
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	startFeatureInstall as startFeatureInstallAction,
+	endFeatureInstall as endFeatureInstallAction,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -36,9 +38,13 @@ const FeaturePromptComponent = props => {
 		addSelectedRecommendation,
 		addSkippedRecommendation,
 		addViewedRecommendation,
+		startFeatureInstall,
+		endFeatureInstall,
 		ctaText,
 		description,
 		descriptionLink,
+		descriptionList,
+		descriptionSecondary,
 		illustration,
 		nextRoute,
 		progressValue,
@@ -90,8 +96,17 @@ const FeaturePromptComponent = props => {
 			feature: stepSlug,
 		} );
 		addSelectedRecommendation( stepSlug );
-		activateFeature();
-	}, [ activateFeature, addSelectedRecommendation, stepSlug ] );
+		startFeatureInstall( stepSlug );
+		activateFeature().finally( () => {
+			endFeatureInstall( stepSlug );
+		} );
+	}, [
+		activateFeature,
+		addSelectedRecommendation,
+		stepSlug,
+		startFeatureInstall,
+		endFeatureInstall,
+	] );
 
 	const onConfigureClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommended_feature_configure_click', {
@@ -132,9 +147,26 @@ const FeaturePromptComponent = props => {
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
+				br: <br />,
 				strong: <strong />,
 				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
+			content={
+				descriptionList || descriptionSecondary ? (
+					<React.Fragment>
+						{ descriptionList && (
+							<ul className="jp-recommendations-question__description-list">
+								{ descriptionList.map( ( item, index ) => (
+									<li key={ index }>{ item }</li>
+								) ) }
+							</ul>
+						) }
+						{ descriptionSecondary && (
+							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
+						) }
+					</React.Fragment>
+				) : null
+			}
 			answer={
 				<div className="jp-recommendations-question__install-section">
 					{ featureActive ? (
@@ -177,7 +209,7 @@ const FeaturePromptComponent = props => {
 							<>
 								<span className="jp-recommendations-question__jump-nav-separator">|</span>
 								<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
-									{ __( 'View Summary', 'jetpack' ) }{ ' ' }
+									{ __( 'View Recommendations', 'jetpack' ) }{ ' ' }
 								</a>
 							</>
 						) }
@@ -208,6 +240,8 @@ const FeaturePrompt = connect(
 		addSkippedRecommendation: stepSlug => dispatch( addSkippedRecommendationAction( stepSlug ) ),
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		startFeatureInstall: step => dispatch( startFeatureInstallAction( step ) ),
+		endFeatureInstall: step => dispatch( endFeatureInstallAction( step ) ),
 		...mapDispatchToProps( dispatch, ownProps.stepSlug ),
 	} )
 )( FeaturePromptComponent );

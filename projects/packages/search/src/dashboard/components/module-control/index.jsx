@@ -17,7 +17,7 @@ const SEARCH_DESCRIPTION = __(
 	'jetpack-search-pkg'
 );
 const INSTANT_SEARCH_DESCRIPTION = __(
-	'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
+	'Instant search uses a dynamic overlay for lightning-fast searching, sorting, and filtering without reloading the page.',
 	'jetpack-search-pkg'
 );
 const RETURN_PATH = 'admin.php?page=jetpack-search';

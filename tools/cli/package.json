@@ -21,8 +21,8 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules pnpm jest --testMatch='<rootDir>/tests/**/*.test.js'"
 	},
 	"dependencies": {
-		"@octokit/auth-token": "2.5.0",
-		"@octokit/rest": "18.12.0",
+		"@octokit/auth-token": "3.0.1",
+		"@octokit/rest": "19.0.4",
 		"chalk": "4.1.2",
 		"configstore": "5.0.1",
 		"envfile": "6.17.0",
@@ -49,7 +49,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

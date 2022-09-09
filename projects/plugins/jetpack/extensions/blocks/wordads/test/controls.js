@@ -1,14 +1,8 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '@testing-library/react';
-
-import FormatPicker from '../format-picker';
 import { AD_FORMATS, DEFAULT_FORMAT } from '../constants';
 import { AdVisibilityToggle } from '../controls';
+import FormatPicker from '../format-picker';
 
 const getFormat = format => AD_FORMATS.find( ( { tag } ) => tag === format );
 
@@ -29,6 +23,7 @@ describe( 'AdVisibilityToggle', () => {
 
 	test( 'applies correct class to toggle control', () => {
 		const { container } = render( <AdVisibilityToggle { ...defaultProps } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const toggle = container.querySelector( '.components-toggle-control' );
 
 		expect( toggle ).toHaveClass( 'jetpack-wordads__mobile-visibility' );
@@ -101,7 +96,8 @@ describe( 'FormatPicker', () => {
 		render( <FormatPicker { ...defaultProps } /> );
 
 		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
-		await waitFor( () => screen.getByText( defaultFormat.name ) );
+		// eslint-disable-next-line testing-library/prefer-explicit-assert
+		await screen.findByText( defaultFormat.name );
 
 		AD_FORMATS.forEach( format => {
 			expect( screen.getByText( format.name ) ).toBeInTheDocument();
@@ -113,7 +109,8 @@ describe( 'FormatPicker', () => {
 		render( <FormatPicker { ...defaultProps } /> );
 
 		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
-		await waitFor( () => screen.getByText( defaultFormat.name ) );
+		// eslint-disable-next-line testing-library/prefer-explicit-assert
+		await screen.findByText( defaultFormat.name );
 
 		expect( screen.getByText( defaultFormat.name ).innerHTML ).toMatch( /[A-Za-z0-9 ]+/ );
 	} );
@@ -121,7 +118,9 @@ describe( 'FormatPicker', () => {
 	test( 'applies correct class to toolbar button', () => {
 		render( <FormatPicker { ...defaultProps } /> );
 
-		expect( screen.getByLabelText( 'Pick an ad format' ) ).toHaveClass( 'wp-block-jetpack-wordads__format-picker-icon' );
+		expect( screen.getByLabelText( 'Pick an ad format' ) ).toHaveClass(
+			'wp-block-jetpack-wordads__format-picker-icon'
+		);
 	} );
 
 	test( 'applies format picker class to menu', async () => {
@@ -129,7 +128,8 @@ describe( 'FormatPicker', () => {
 		render( <FormatPicker { ...defaultProps } /> );
 
 		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
-		await waitFor( () => screen.getByText( defaultFormat.name ) );
+		// eslint-disable-next-line testing-library/prefer-explicit-assert
+		await screen.findByText( defaultFormat.name );
 		const menu = screen.getByRole( 'menu' );
 
 		expect( menu ).toBeInTheDocument();
@@ -142,7 +142,8 @@ describe( 'FormatPicker', () => {
 		const leaderboard = getFormat( 'leaderboard' );
 
 		await user.click( screen.getByLabelText( 'Pick an ad format' ) );
-		await waitFor( () => screen.getByText( leaderboard.name ) );
+		// eslint-disable-next-line testing-library/prefer-explicit-assert
+		await screen.findByText( leaderboard.name );
 		await user.click( screen.getByText( leaderboard.name ) );
 
 		expect( onChange ).toHaveBeenCalledWith( leaderboard.tag );

@@ -1,14 +1,15 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
-import { render, screen, waitFor } from '@testing-library/react';
-
+import { render, screen } from '@testing-library/react';
 import ImageCompareEdit from '../edit';
 
+/**
+ * Render image compare.
+ *
+ * @param {object} props - Props.
+ * @returns {HTMLElement} Element.
+ */
 function renderImageCompare( props ) {
 	const { container } = render( <ImageCompareEdit { ...props } /> );
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 	return container.querySelector( `.${ props.className } > div:not([aria-hidden="true"])` );
 }
 
@@ -42,9 +43,10 @@ describe( 'ImageCompareEdit', () => {
 
 		expect( wrapper ).toHaveClass( defaultProps.className );
 		expect( wrapper ).toHaveAttribute( 'id', defaultProps.clientId );
-	} )
+	} );
 
 	test( 'applies juxtapose classes when images present', () => {
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const element = renderImageCompare( defaultProps );
 
 		expect( element ).toHaveClass( 'image-compare__comparison' );
@@ -54,6 +56,7 @@ describe( 'ImageCompareEdit', () => {
 
 	test( 'applies placeholder classes when without images', () => {
 		const attributes = { ...defaultAttributes, ...emptyImages };
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const element = renderImageCompare( { ...defaultProps, attributes } );
 
 		expect( element ).not.toHaveClass( 'image-compare__comparison' );
@@ -62,6 +65,7 @@ describe( 'ImageCompareEdit', () => {
 	} );
 
 	test( 'applies fallback horizontal orientation in data-mode attribute', () => {
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const element = renderImageCompare( defaultProps );
 
 		expect( element ).toHaveAttribute( 'data-mode', 'horizontal' );
@@ -69,6 +73,7 @@ describe( 'ImageCompareEdit', () => {
 
 	test( 'applies selected orientation in data-mode attribute', () => {
 		const attributes = { ...defaultAttributes, orientation: 'vertical' };
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- False positive.
 		const element = renderImageCompare( { ...defaultProps, attributes } );
 
 		expect( element ).toHaveAttribute( 'data-mode', 'vertical' );

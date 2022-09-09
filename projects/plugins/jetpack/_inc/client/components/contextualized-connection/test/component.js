@@ -1,8 +1,8 @@
-import { shallow } from 'enzyme';
+import { jest } from '@jest/globals';
 import React from 'react';
+import { render, screen } from 'test/test-utils';
 import ContextualizedConnection from '../index';
 
-// TODO Mock requests with dummy data.
 describe( 'ContextualizedConnection', () => {
 	const testProps = {
 		apiNonce: 'test',
@@ -12,46 +12,59 @@ describe( 'ContextualizedConnection', () => {
 		redirectTo: 'Elsewhere',
 		isSiteConnected: false,
 		title: 'Test title',
+		setHasSeenWCConnectionModal: jest.fn(),
 	};
 
 	describe( 'The contextualized connection screen', () => {
-		const wrapper = shallow(
-			<ContextualizedConnection { ...testProps }>
-				<p>Test content</p>
-			</ContextualizedConnection>
-		);
-
 		it( 'renders the title', () => {
-			expect( wrapper.find( 'h2' ).first().render().text() ).toEqual( testProps.title );
+			render(
+				<ContextualizedConnection { ...testProps }>
+					<p>Test content</p>
+				</ContextualizedConnection>
+			);
+			expect( screen.getByRole( 'heading', { name: testProps.title } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the connection children', () => {
-			expect( wrapper.find( 'p' ).first().render().text() ).toBe( 'Test content' );
+			render(
+				<ContextualizedConnection { ...testProps }>
+					<p>Test content</p>
+				</ContextualizedConnection>
+			);
+			expect( screen.getByText( 'Test content' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the footer with a feature list with 3 columns', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__footer-column' ) ).toHaveLength( 3 );
+			render(
+				<ContextualizedConnection { ...testProps }>
+					<p>Test content</p>
+				</ContextualizedConnection>
+			);
+			expect( screen.getByRole( 'heading', { name: 'Security tools' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'heading', { name: 'Performance tools' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'heading', { name: 'Growth tools' } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'When the user has not connected their WordPress.com account', () => {
-		const wrapper = shallow( <ContextualizedConnection { ...testProps } /> );
-
 		it( 'renders the "Set up Jetpack" button', () => {
-			expect( wrapper.find( 'ConnectButton' ) ).toBeDefined();
+			render( <ContextualizedConnection { ...testProps } /> );
+			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the TOS', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__tos' ) ).toBeDefined();
+			render( <ContextualizedConnection { ...testProps } /> );
+			expect(
+				screen.getByText( /By clicking the button above, you agree to our/ )
+			).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'When the user has connected their WordPress.com account', () => {
 		const disconnectedProps = { ...testProps, isSiteConnected: true };
-		const wrapper = shallow( <ContextualizedConnection { ...disconnectedProps } /> );
-
 		it( 'renders the "Continue to Jetpack" button', () => {
-			expect( wrapper.find( '.jp-contextualized-connection__button' ) ).toBeDefined();
+			render( <ContextualizedConnection { ...disconnectedProps } /> );
+			expect( screen.getByRole( 'link', { name: 'Continue to Jetpack' } ) ).toBeInTheDocument();
 		} );
 	} );
 } );

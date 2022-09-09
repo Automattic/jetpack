@@ -1,4 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
+
 /**
  * VideoPress playback module markup generator.
  *
@@ -339,7 +341,10 @@ class VideoPress_Player {
 			$html .= ' lang="' . esc_attr( $this->video->language ) . '"';
 		}
 		$html .= '>';
-		if ( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false ) {
+		if (
+			( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false )
+			&& isset( $this->video->videos->mp4 )
+		) {
 			$mp4 = $this->video->videos->mp4->url;
 			if ( ! empty( $mp4 ) ) {
 				$html .= '<source src="' . esc_url( $mp4 ) . '" type="video/mp4; codecs=&quot;' . esc_attr( $this->video->videos->mp4->codecs ) . '&quot;" />';
@@ -609,6 +614,8 @@ class VideoPress_Player {
 	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;
 
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+
 		// Must not use iframes for IE11 due to a fullscreen bug
 		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'Trident/7.0; rv:11.0' ) ) {
 			$iframe_embed = false;
@@ -697,7 +704,7 @@ class VideoPress_Player {
 
 		} else {
 			$videopress_options = wp_json_encode( $videopress_options );
-			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress.js';
+			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
 			return "<div id='{$video_container_id}'></div>
 				<script src='{$js_url}'></script>

@@ -6,7 +6,6 @@ import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen } from 'test/test-utils';
 import * as featureUtils from '../../../feature-utils';
 import { FeaturePrompt } from '../index';
-import '@testing-library/jest-dom/extend-expect';
 
 /**
  * Build initial state.
@@ -114,10 +113,20 @@ describe( 'Recommendations – Feature Prompt', () => {
 			const addSelectedRecommendationStub = jest
 				.spyOn( recommendationsActions, 'addSelectedRecommendation' )
 				.mockReturnValue( DUMMY_ACTION );
-			const activateFeatureStub = jest.fn().mockReturnValue( DUMMY_ACTION );
+			const startInstallingStub = jest
+				.spyOn( recommendationsActions, 'startFeatureInstall' )
+				.mockReturnValue( DUMMY_ACTION );
+			// Fake a promise-ish return since we call the "finally" method after the feature is activated.
+			const activateFeatureStub = jest.fn().mockImplementation( () => {
+				return {
+					finally: () => {},
+				};
+			} );
 			const mapDispatchToPropsStub = jest
 				.spyOn( featureUtils, 'mapDispatchToProps' )
-				.mockReturnValue( { activateFeature: activateFeatureStub } );
+				.mockReturnValue( {
+					activateFeature: activateFeatureStub,
+				} );
 
 			render( <FeaturePrompt stepSlug={ stepSlug } />, {
 				initialState: buildInitialState( { recommendationsStep: stepSlug } ),
@@ -145,6 +154,8 @@ describe( 'Recommendations – Feature Prompt', () => {
 
 			// Make sure activateFeature action is called
 			expect( activateFeatureStub ).toHaveBeenCalledTimes( 1 );
+
+			expect( startInstallingStub ).toHaveBeenCalledTimes( 1 );
 
 			// Restore stubs
 			recordEventStub.mockRestore();

@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},

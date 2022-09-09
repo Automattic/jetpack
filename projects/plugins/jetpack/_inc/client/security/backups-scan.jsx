@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { showBackups } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
-import { hasActiveSiteFeature } from 'state/site';
+import { siteHasFeature } from 'state/site';
 
 class LoadingCard extends Component {
 	render() {
@@ -273,7 +273,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		vaultPressData: getVaultPressData( state ),
-		hasScan: hasActiveSiteFeature( state, 'scan' ),
+		hasScan: siteHasFeature( state, 'scan' ),
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),

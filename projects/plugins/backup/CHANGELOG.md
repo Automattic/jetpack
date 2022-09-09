@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.1 - 2022-09-08
+### Added
+- Include contextual notifications from My Jetpack [#22452]
+
+### Changed
+- Plugin activation: Only redirect when activating from the Plugins page in the browser
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated package dependencies. [#25713] [#24929] [#24998] [#25048] [#25158] [#25279] [#25315] [#25406] [#25945]
+
+## 1.4.0 - 2022-06-28
+### Added
+- Added Social card to My Jetpack.
+
+### Changed
+- Renamed main branch `master` references to `trunk`
+- Updated package dependencies.
+
 ## 1.3.0 - 2022-05-19
 ### Changed
 - Now requires WordPress 5.9 since WordPress 6.0 is just around the corner.

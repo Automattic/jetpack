@@ -1,4 +1,5 @@
-# Add issues to Organization Project Board(s) based on their labels.
+# Add issues and PRs to Organization Project Board(s),
+# based on labels and/or requested reviewers.
 
 #
 # Requires a Personal Access Token with the following permissions in a secret PUSH_ISSUES_TO_PROJECTS:
@@ -7,22 +8,42 @@
 # - read:org
 #
 
-name: Add issues to Organization Project Boards
+name: Add issues and PRs to Organization Project Boards
 
 on:
   issues:
     types: [ opened, edited, reopened, labeled ]
+  pull_request_target:
+    types: [ review_requested ]
+
+# map fields with customized labels
+env:
+  pending_review: 👀 Pending review
 
 jobs:
-  insert:
+  assign_boost_issues:
+    name: Assign Boost issues to Boost board.
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'issues'
     steps:
       # Jetpack Boost: Push to Boost Maintenance Board if labelled "[Plugin] Boost"
-      - uses: leonsteinhaeuser/project-beta-automations@v1.2.0
+      - uses: leonsteinhaeuser/project-beta-automations@v1.2.1
         if: contains(github.event.issue.labels.*.name, '[Plugin] Boost')
         with:
           gh_token: ${{ secrets.PUSH_ISSUES_TO_PROJECT_TOKEN }}
           organization: 'automattic'
           project_id: 322
           resource_node_id: ${{ github.event.issue.node_id }}
+  assign_jarvis_review_prs:
+    name: Assign PRs where JARVIS is requested as reviewer to the JARVIS board.
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.action == 'review_requested'
+    steps:
+      - uses: leonsteinhaeuser/project-beta-automations@v1.2.1
+        if: contains(github.event.pull_request.requested_teams, 'Automattic/jarvis-jetpack-quality')
+        with:
+          gh_token: ${{ secrets.PUSH_ISSUES_TO_PROJECT_TOKEN }}
+          organization: 'automattic'
+          project_id: 424
+          resource_node_id: ${{ github.event.pull_request.node_id }}
+          status_value: ${{ env.pending_review }}

@@ -37,8 +37,16 @@ export { default as Text, H2, H3, Title } from './components/text';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
+export {
+	default as PricingTable,
+	PricingTableColumn,
+	PricingTableHeader,
+	PricingTableItem,
+} from './components/pricing-table';
 export { default as ProductPrice } from './components/product-price';
 export { default as ProductOffer, IconsCard } from './components/product-offer';
 export { default as Dialog } from './components/dialog';
 export { default as RecordMeterBar } from './components/record-meter-bar';
+export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
+export { default as Alert } from './components/alert';
 export { getUserLocale, cleanLocale } from './lib/locale';

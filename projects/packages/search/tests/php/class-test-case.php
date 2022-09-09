@@ -40,13 +40,19 @@ class Test_Case extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		$this->admin_id  = wp_insert_user(
+		// Clear any existing data.
+		WorDBless_Options::init()->clear_options();
+		WorDBless_Posts::init()->clear_all_posts();
+		WorDBless_Users::init()->clear_all_users();
+
+		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user_1',
 				'user_pass'  => 'dummy_pass_1',
 				'role'       => 'administrator',
 			)
 		);
+
 		$this->editor_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user_2',

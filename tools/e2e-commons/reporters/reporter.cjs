@@ -7,10 +7,12 @@ class LogReporter {
 
 	onTestBegin( test ) {
 		logger.debug( `Starting test ${ test.title }` );
+		logger.sync( `==> Starting test ${ test.title }` );
 	}
 
 	onTestEnd( test, result ) {
 		logger.debug( `Finished test ${ test.title }: ${ result.status }` );
+		logger.sync( `<== Finished test ${ test.title }: ${ result.status }\n` );
 		if ( result.status === 'failed' ) {
 			logger.debug( result.error.stack );
 		}
@@ -18,6 +20,7 @@ class LogReporter {
 
 	onEnd( result ) {
 		logger.debug( `Finished the run: ${ result.status }` );
+		logger.sync( `=== Finished run: ${ result.status } ===` );
 	}
 
 	getSuiteName( suite ) {

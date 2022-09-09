@@ -20,6 +20,6 @@ export default function useMyJetpackConnection() {
 		apiRoot,
 		...connectionData,
 		isSiteConnected,
-		redirectUrl: topJetpackMenuItemUrl,
+		topJetpackMenuItemUrl,
 	};
 }

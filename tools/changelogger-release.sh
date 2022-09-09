@@ -10,7 +10,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-v] [-p] [-a|-b] <slug>
+		usage: $0 [-v] [-p] [-a|-b|-r <version>] <slug>
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
@@ -20,6 +20,7 @@ function usage {
 		Pass \`-p\` to add PR numbers to change entries by passing \`--add-pr-num\` to changelogger.
 		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
+		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
 	EOH
 	exit 1
 }
@@ -32,7 +33,7 @@ fi
 VERBOSE=
 ADDPRNUM=
 ALPHABETA=
-while getopts ":vpabh" opt; do
+while getopts ":vpabhr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -49,6 +50,9 @@ while getopts ":vpabh" opt; do
 			;;
 		b)
 			ALPHABETA=beta
+			;;
+		r)
+			ALPHABETA=$OPTARG
 			;;
 		h)
 			usage
@@ -73,6 +77,7 @@ fi
 
 # Determine the project
 [[ -z "$1" ]] && die "A project slug must be specified."
+[[ $# -gt 1 ]] && die "Only one project slug must be specified, got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
 SLUG="${1#projects/}" # DWIM
 SLUG="${SLUG%/}" # Sanitize
 if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
@@ -80,7 +85,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-pnpm jetpack install --all
+#pnpm jetpack install --all
 
 DEPS="$(pnpm jetpack dependencies json)"
 declare -A RELEASED
@@ -97,6 +102,17 @@ function releaseProject {
 	local I="$4"
 
 	cd "$BASE/projects/$SLUG"
+
+	# If it's being depended on by something (and not a js-package), check that it has a mirror repo set up.
+	# Can't do the release without one.
+	if [[ -n "$FROM" && "$SLUG" != js-packages/* ]] &&
+		! jq -e '.extra["mirror-repo"] // null' composer.json > /dev/null
+	then
+		error "${I}Cannot release $SLUG as it has no mirror repo configured!"
+		info "${I}See https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#mirror-repositories for details."
+		exit 1
+	fi
+
 	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
 		if [[ -z "$FROM" ]]; then
@@ -134,6 +150,8 @@ function releaseProject {
 		ARGS+=( "--prerelease=$P" )
 	elif [[ "$ALPHABETA" == "beta" ]]; then
 		ARGS+=( "--prerelease=beta" )
+	elif [[ -n "$ALPHABETA" ]]; then
+		ARGS+=( "--use-version=$ALPHABETA" )
 	fi
 	debug "${I}  $CL ${ARGS[*]}"
 	$CL "${ARGS[@]}"

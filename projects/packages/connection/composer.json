@@ -15,7 +15,7 @@
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"brain/monkey": "2.6.1",
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -64,7 +64,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.41.x-dev"
+			"dev-trunk": "1.45.x-dev"
 		}
 	},
 	"config": {

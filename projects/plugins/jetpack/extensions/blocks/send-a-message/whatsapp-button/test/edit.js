@@ -1,16 +1,10 @@
-/**
- * @jest-environment jsdom
- */
-
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
 // this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-register( blockEditorStore );
-
+import { register } from '@wordpress/data';
 import WhatsAppButtonEdit from '../edit';
+
+register( blockEditorStore );
 
 const defaultAttributes = {
 	countryCode: 'us',
@@ -45,5 +39,6 @@ test( 'displays button as multiline textbox for updating the buttonText attribut
 test( 'assigns colorClass attribute to the block wrapper', () => {
 	const { container } = render( <WhatsAppButtonEdit { ...defaultProps } /> );
 
+	// eslint-disable-next-line testing-library/no-node-access
 	expect( container.firstChild ).toHaveClass( 'is-color-blue' );
 } );

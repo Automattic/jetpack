@@ -1,16 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-import SubscriptionsInspectorControls from '../controls';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
-
-// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
-// dependencies in the jest test runner.
-jest.mock( '../../button/button-width-panel', () => ( {
-	...jest.requireActual( '../../button/button-width-panel' ),
-	ButtonWidthControl: () => <div>Mocked Width Control</div>,
-} ) );
+import SubscriptionsInspectorControls from '../controls';
 
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
@@ -64,7 +55,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByText( 'Button Background', { ignore: '[aria-hidden=true]' } ) );
 			await user.click( screen.getByText( 'Solid', { ignore: '[aria-hidden=true]' } ) );
 			await user.click(
-				screen.queryAllByLabelText( /Color\: (?!Black)/i, { selector: 'button' } )[ 0 ]
+				screen.queryAllByLabelText( /Color: (?!Black)/i, { selector: 'button' } )[ 0 ]
 			);
 
 			expect( setButtonBackgroundColor.mock.calls[ 0 ][ 0 ] ).toMatch( /#[a-z0-9]{6,6}/ );
@@ -86,9 +77,9 @@ describe( 'Inspector controls', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			await user.click( screen.getByText( 'Button Background', { ignore: '[aria-hidden=true]' } ) );
 			await user.click( screen.getByText( 'Gradient', { ignore: '[aria-hidden=true]' } ) );
-			await user.click( screen.queryAllByLabelText( /Gradient\:/i, { selector: 'button' } )[ 0 ] );
+			await user.click( screen.queryAllByLabelText( /Gradient:/i, { selector: 'button' } )[ 0 ] );
 
-			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear\-gradient\((.+)\)/ );
+			expect( setGradient.mock.calls[ 0 ][ 0 ] ).toMatch( /linear-gradient\((.+)\)/ );
 		} );
 	} );
 
@@ -99,7 +90,7 @@ describe( 'Inspector controls', () => {
 			expect( screen.getByText( 'Typography' ) ).toBeInTheDocument();
 		} );
 
-		test( 'set custom text ', async () => {
+		test( 'set custom text', async () => {
 			const user = userEvent.setup();
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			await user.click( screen.getByText( 'Typography' ), { selector: 'button' } );

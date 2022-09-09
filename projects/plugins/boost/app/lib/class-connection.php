@@ -119,14 +119,7 @@ class Connection {
 			return true;
 		}
 
-		// Temporary hack for Jetpack < 9.2 compatibility without notices.
-		if ( method_exists( $this->manager, 'is_connected' ) ) {
-			$is_connected = $this->manager->is_connected();
-		} else {
-			$is_connected = $this->manager->is_registered();
-		}
-
-		return $is_connected;
+		return $this->manager->is_connected();
 	}
 
 	/**

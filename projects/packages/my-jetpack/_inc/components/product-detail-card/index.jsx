@@ -1,9 +1,21 @@
+// eslint-disable-next-line no-unused-vars
+/* global myJetpackInitialState */
+
 import { getCurrencyObject } from '@automattic/format-currency';
-import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
+import {
+	CheckmarkIcon,
+	getIconBySlug,
+	StarIcon,
+	Text,
+	H3,
+	Alert,
+} from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
@@ -55,16 +67,22 @@ function Price( { value, currency, isOld } ) {
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
+	const fileSystemWriteAccess = window?.myJetpackInitialState?.fileSystemWriteAccess;
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
 		longDescription,
 		features,
+		disclaimers,
 		pricingForUi,
 		isBundle,
 		supportedProducts,
 		hasRequiredPlan,
+		status,
+		pluginSlug,
 	} = detail;
+
+	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
 
 	const {
 		isFree,
@@ -74,6 +92,8 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		wpcomProductSlug,
 	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
+
+	const { recordEvent } = useAnalytics();
 
 	/*
 	 * Product needs purchase when:
@@ -115,6 +135,16 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 			onClick();
 		}
 	}, [ onClick, trackButtonClick ] );
+
+	const disclaimerClickHandler = useCallback(
+		id => {
+			recordEvent( 'jetpack_myjetpack_product_card_disclaimer_click', {
+				id: id,
+				product: slug,
+			} );
+		},
+		[ slug, recordEvent ]
+	);
 
 	/**
 	 * Temporary ProductIcon component.
@@ -181,11 +211,31 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
 
+				{ cantInstallPlugin && (
+					<Alert>
+						<Text>
+							{ sprintf(
+								// translators: %s is the plugin name.
+								__(
+									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+									'jetpack-my-jetpack'
+								),
+								title
+							) }
+							&nbsp;
+							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+							</ExternalLink>
+						</Text>
+					</Alert>
+				) }
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
 						isLoading={ isFetching }
+						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
 						href={ onClick ? undefined : addProductUrl }
 						className={ styles[ 'checkout-button' ] }
@@ -196,6 +246,32 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 						}
 					</Text>
+				) }
+
+				{ disclaimers.length > 0 && (
+					<div className={ styles.disclaimers }>
+						{ disclaimers.map( ( disclaimer, id ) => {
+							const { text, link_text = null, url = null } = disclaimer;
+
+							return (
+								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+									{ `${ text } ` }
+									{ url && link_text && (
+										<ExternalLink
+											// Ignoring rule so I can pass ID to analytics in order to tell which disclaimer was clicked if there is more than one
+											/* eslint-disable react/jsx-no-bind */
+											onClick={ () => disclaimerClickHandler( id ) }
+											href={ url }
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{ link_text }
+										</ExternalLink>
+									) }
+								</Text>
+							);
+						} ) }
+					</div>
 				) }
 
 				{ isBundle && hasRequiredPlan && (

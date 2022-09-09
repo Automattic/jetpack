@@ -23,7 +23,7 @@ function videopress_handle_editor_view_js() {
 		'videopress-editor-ui',
 		plugins_url( 'css/editor.css', __FILE__ ),
 		array(),
-		Jetpack_VideoPress::VERSION
+		JETPACK__VERSION
 	);
 	wp_enqueue_script(
 		'videopress-editor-view',
@@ -32,7 +32,7 @@ function videopress_handle_editor_view_js() {
 			'modules/videopress/js/editor-view.js'
 		),
 		array( 'wp-util', 'jquery' ),
-		Jetpack_VideoPress::VERSION,
+		JETPACK__VERSION,
 		true
 	);
 	wp_localize_script(
@@ -101,75 +101,35 @@ function videopress_editor_view_js_templates() {
  * so that they don't seem to display twice.
  *
  * @param array $args Query variables.
+ * @deprecated 11.4
  */
 function videopress_ajax_query_attachments_args( $args ) {
-	$meta_query = array(
-		array(
-			'key'     => 'videopress_poster_image',
-			'compare' => 'NOT EXISTS',
-		),
-	);
-
-	// If there was already a meta query, let's AND it via
-	// nesting it with our new one. No need to specify the
-	// relation, as it defaults to AND.
-	if ( ! empty( $args['meta_query'] ) ) {
-		$meta_query[] = $args['meta_query'];
-	}
-	$args['meta_query'] = $meta_query;
-
-	return $args;
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
+	return Automattic\Jetpack\VideoPress\Attachment_Handler::ajax_query_attachments_args( $args );
 }
-add_filter( 'ajax_query_attachments_args', 'videopress_ajax_query_attachments_args' );
 
 /**
  * Media List:
  * Do the same as `videopress_ajax_query_attachments_args()` but for the list view.
  *
  * @param array $query WP_Query instance.
+ * @deprecated 11.4
  */
 function videopress_media_list_table_query( $query ) {
-
-	if (
-		! function_exists( 'get_current_screen' )
-		|| get_current_screen() === null
-	) {
-		return;
-	}
-
-	if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
-		$meta_query = array(
-			array(
-				'key'     => 'videopress_poster_image',
-				'compare' => 'NOT EXISTS',
-			),
-		);
-
-		$old_meta_query = $query->get( 'meta_query' );
-		if ( $old_meta_query ) {
-			$meta_query[] = $old_meta_query;
-		}
-
-		$query->set( 'meta_query', $meta_query );
-	}
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
+	return Automattic\Jetpack\VideoPress\Attachment_Handler::media_list_table_query( $query );
 }
-add_action( 'pre_get_posts', 'videopress_media_list_table_query' );
 
 /**
  * Make sure that any Video that has a VideoPress GUID passes that data back.
  *
  * @param WP_Post $post Attachment object.
+ * @deprecated 11.4
  */
 function videopress_prepare_attachment_for_js( $post ) {
-	if ( 'video' === $post['type'] ) {
-		$guid = get_post_meta( $post['id'], 'videopress_guid' );
-		if ( $guid ) {
-			$post['videopress_guid'] = $guid;
-		}
-	}
-	return $post;
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
+	return Automattic\Jetpack\VideoPress\Attachment_Handler::prepare_attachment_for_js( $post );
 }
-add_filter( 'wp_prepare_attachment_for_js', 'videopress_prepare_attachment_for_js' );
 
 /**
  * Wherever the Media Modal is deployed, also deploy our overrides.
@@ -233,8 +193,10 @@ function videopress_override_media_templates() {
 			wp.media.view.Modal = BaseMediaModal.extend( {
 				escape: function () {
 					BaseMediaModal.prototype.escape.apply( this );
-					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
-					playerIframe.parentElement.removeChild( playerIframe );
+					var playerIframes = document.getElementsByClassName( "videopress-iframe" );
+					if ( playerIframes.length && playerIframes[0].parentElement ) {
+						playerIframes[0].parentElement.removeChild( playerIframes[0] );
+					}
 				}
 			} );
 		})( wp.media );

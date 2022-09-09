@@ -93,7 +93,7 @@ const analytics = {
 	 * @param {object} props - Super props to add.
 	 */
 	assignSuperProps: function ( props ) {
-		_superProps = Object.assign( _superProps, props );
+		_superProps = Object.assign( _superProps || {}, props );
 	},
 
 	mc: {

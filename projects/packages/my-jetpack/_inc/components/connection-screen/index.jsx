@@ -9,7 +9,7 @@ import appleLogo from './apple.svg';
 import connectImage from './connect.png';
 import googleLogo from './google.svg';
 import styles from './styles.module.scss';
-import wordpressLogo from './wordpress.png';
+import wordpressLogo from './wordpress.svg';
 
 const ConnectionScreenFooter = () => {
 	return (

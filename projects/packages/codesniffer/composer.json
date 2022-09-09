@@ -12,7 +12,7 @@
 		"automattic/vipwpcs": "^2.3"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1",
+		"automattic/jetpack-changelogger": "^3.2",
 		"wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},

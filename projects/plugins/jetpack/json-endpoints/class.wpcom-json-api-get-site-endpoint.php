@@ -147,6 +147,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'default_ping_status',
 		'software_version',
 		'created_at',
+		'updated_at',
 		'wordads',
 		'publicize_permanently_disabled',
 		'frame_nonce',
@@ -189,6 +190,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected static $jetpack_response_field_additions = array(
 		'subscribers_count',
 		'site_migration',
+		'site_owner',
 	);
 
 	/**
@@ -223,6 +225,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// and defaults to `0000-00-00T00:00:00+00:00` from the Jetpack site.
 		// See https://github.com/Automattic/jetpack/blob/58638f46094b36f5df9cbc4570006544f0ad300c/sal/class.json-api-site-base.php#L387.
 		'created_at',
+		'updated_at',
 	);
 
 	/**
@@ -636,6 +639,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'created_at':
 					$options[ $key ] = $site->get_registered_date();
 					break;
+				case 'updated_at':
+					$options[ $key ] = $site->get_last_update_date();
+					break;
 				case 'wordads':
 					$options[ $key ] = $site->has_wordads();
 					break;
@@ -890,7 +896,9 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$all_formats = get_post_format_strings();
 		$supported   = get_theme_support( 'post-formats' );
 
-		$response          = array();
+		$response          = array(
+			'formats' => array(),
+		);
 		$supported_formats = $response['formats'];
 
 		if ( isset( $supported[0] ) ) {

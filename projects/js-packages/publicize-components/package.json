@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "0.2.3-alpha",
+	"version": "0.5.1",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
 	"bugs": {
@@ -15,19 +15,21 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest src"
+		"test": "jest",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.16",
-		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.4",
-		"@wordpress/annotations": "2.10.0",
-		"@wordpress/components": "19.12.0",
-		"@wordpress/compose": "5.8.0",
-		"@wordpress/data": "6.10.0",
-		"@wordpress/editor": "12.9.0",
-		"@wordpress/element": "4.8.0",
-		"@wordpress/hooks": "3.10.0",
-		"@wordpress/i18n": "4.10.0",
+		"@automattic/jetpack-components": "workspace:* || ^0.19",
+		"@automattic/jetpack-shared-extension-utils": "workspace:* || ^0.6",
+		"@automattic/social-previews": "1.1.5",
+		"@wordpress/annotations": "2.16.0",
+		"@wordpress/components": "20.0.0",
+		"@wordpress/compose": "5.14.0",
+		"@wordpress/data": "7.0.0",
+		"@wordpress/editor": "12.15.0",
+		"@wordpress/element": "4.14.0",
+		"@wordpress/hooks": "3.16.0",
+		"@wordpress/i18n": "4.16.0",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "15.8.1",
@@ -39,32 +41,28 @@
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
-		"@babel/core": "7.18.5",
-		"@babel/plugin-transform-react-jsx": "7.17.12",
-		"@babel/preset-react": "7.17.12",
-		"@babel/runtime": "7.18.3",
-		"@wojtekmaj/enzyme-adapter-react-17": "0.6.3",
-		"@wordpress/babel-plugin-import-jsx-pragma": "3.1.2",
+		"@babel/core": "7.18.13",
+		"@babel/plugin-transform-react-jsx": "7.18.10",
+		"@babel/preset-react": "7.18.6",
+		"@babel/runtime": "7.18.9",
+		"@testing-library/dom": "8.16.0",
+		"@testing-library/react": "12.1.5",
+		"@testing-library/user-event": "14.2.1",
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.0.0",
 		"babel-jest": "28.1.0",
-		"enzyme": "3.11.0",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0",
-		"jest-enzyme": "7.1.2",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2"
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
 		".": "./index.js"
 	},
 	"peerDependencies": {
-		"enzyme": "3.11.0",
 		"react-dom": "17.0.2"
 	}
 }

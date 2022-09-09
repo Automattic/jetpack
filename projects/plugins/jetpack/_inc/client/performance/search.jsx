@@ -13,7 +13,7 @@ import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 import { currentThemeSupports } from 'state/initial-state';
 import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
-import { hasActiveSiteFeature, isFetchingSitePurchases } from 'state/site';
+import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -142,8 +142,8 @@ export default connect( state => {
 	return {
 		isLoading: isFetchingSitePurchases( state ),
 		inOfflineMode: isOfflineMode( state ),
-		hasClassicSearch: hasActiveSiteFeature( state, 'search' ),
-		hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
+		hasClassicSearch: siteHasFeature( state, 'search' ),
+		hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 		failedToEnableSearch:
 			! isSettingActivated( state, 'search' ) &&
 			! isUpdatingSetting( state, 'search' ) &&

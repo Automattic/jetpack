@@ -228,6 +228,7 @@ class Gridicon extends Component {
 
 		return (
 			<svg
+				aria-label={ this.props.description }
 				className={ iconClass }
 				focusable={ this.props.focusable }
 				height={ height }

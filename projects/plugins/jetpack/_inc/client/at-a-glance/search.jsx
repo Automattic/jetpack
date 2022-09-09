@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { hasActiveSiteFeature, isFetchingSitePurchases } from 'state/site';
+import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -198,8 +198,8 @@ export default connect(
 		return {
 			isOfflineMode: isOfflineMode( state ),
 			isFetching: isFetchingSitePurchases( state ),
-			hasClassicSearch: hasActiveSiteFeature( state, 'search' ),
-			hasInstantSearch: hasActiveSiteFeature( state, 'instant-search' ),
+			hasClassicSearch: siteHasFeature( state, 'search' ),
+			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 			upgradeUrl: getProductDescriptionUrl( state, 'search' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};

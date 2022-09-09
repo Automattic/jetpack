@@ -1,54 +1,48 @@
-/**
- * @jest-environment jsdom
- */
-
-import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-
 import { RelatedPostsEdit } from '../edit';
 
 const posts = [
 	{
 		classes: [],
 		context: "In 'test one'",
-		date: "February 15, 2020",
-		excerpt: "This is the first post!",
+		date: 'February 15, 2020',
+		excerpt: 'This is the first post!',
 		format: false,
 		id: 10,
 		img: {
-			alt_text: "",
+			alt_text: '',
 			height: 200,
 			width: 350,
-			src: "https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_001.jpg?resize=350%2C200"
+			src: 'https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_001.jpg?resize=350%2C200',
 		},
-		rel: "",
-		title: "Test Post One",
-		url: "http://test.com/?p=10",
+		rel: '',
+		title: 'Test Post One',
+		url: 'http://test.com/?p=10',
 		url_meta: {
 			origin: 153,
-			positon: 0
-		}
+			positon: 0,
+		},
 	},
 	{
 		classes: [],
 		context: "In 'test two'",
-		date: "February 14, 2020",
-		excerpt: "This is the second post!",
+		date: 'February 14, 2020',
+		excerpt: 'This is the second post!',
 		format: false,
 		id: 9,
 		img: {
-			alt_text: "",
+			alt_text: '',
 			height: 200,
 			width: 350,
-			src: "https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_002.jpg?resize=350%2C200"
+			src: 'https://i0.wp.com/test/wp-content/uploads/2021/03/IMG_002.jpg?resize=350%2C200',
 		},
-		rel: "",
-		title: "Test Post Two",
-		url: "http://test.com/?p=9",
+		rel: '',
+		title: 'Test Post Two',
+		url: 'http://test.com/?p=9',
 		url_meta: {
 			origin: 153,
-			positon: 0
-		}
+			positon: 0,
+		},
 	},
 ];
 
@@ -68,17 +62,21 @@ describe( 'RelatedPostsEdit', () => {
 		clientId: 1,
 		posts: posts,
 		className: 'className',
-		instanceId: 2
+		instanceId: 2,
 	};
 
 	beforeEach( () => {
 		setAttributes.mockClear();
 	} );
 
+	/**
+	 * Render related posts.
+	 *
+	 * @param {object} attributeOverrides - Attribute overrides.
+	 */
 	function renderRelatedPosts( attributeOverrides = {} ) {
 		const attributes = { ...defaultAttributes, ...attributeOverrides };
-		const { relatedPosts } = render( <RelatedPostsEdit { ...{ ...defaultProps, attributes } } /> );
-		return relatedPosts;
+		render( <RelatedPostsEdit { ...{ ...defaultProps, attributes } } /> );
 	}
 
 	describe( 'layout', () => {
@@ -108,7 +106,11 @@ describe( 'RelatedPostsEdit', () => {
 
 			expect( screen.getByText( 'Test Post One' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Test Post Two' ) ).toBeInTheDocument();
-			expect( screen.getByText( "Preview unavailable: you haven't published enough posts with similar content." ) ).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					"Preview unavailable: you haven't published enough posts with similar content."
+				)
+			).toBeInTheDocument();
 		} );
 	} );
 
@@ -153,13 +155,17 @@ describe( 'RelatedPostsEdit', () => {
 		test( 'post title links to the post', () => {
 			renderRelatedPosts();
 
-			expect( screen.getByText( 'Test Post One' ) ).toHaveAttribute( 'href', 'http://test.com/?p=10' );
+			expect( screen.getByText( 'Test Post One' ) ).toHaveAttribute(
+				'href',
+				'http://test.com/?p=10'
+			);
 		} );
 
 		test( 'post thumbnail links to the post', () => {
 			renderRelatedPosts( { displayThumbnails: true } );
 			const thumbnail = screen.getByAltText( 'Test Post One' );
 
+			// eslint-disable-next-line testing-library/no-node-access
 			expect( thumbnail.closest( 'a' ) ).toHaveAttribute( 'href', 'http://test.com/?p=10' );
 		} );
 	} );

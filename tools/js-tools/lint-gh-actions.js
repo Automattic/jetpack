@@ -7,7 +7,6 @@ const fs = require( 'fs' );
 const chalk = require( 'chalk' );
 const glob = require( 'glob' );
 const YAML = require( 'yaml' );
-const yamlTypes = require( 'yaml/types' );
 
 const isCI = !! process.env.CI;
 
@@ -54,7 +53,7 @@ const error = ( file, line, msg, hint ) => {
 /**
  * Get the line number of a node.
  *
- * @param {yamlTypes.Node} node - Node being checked.
+ * @param {YAML.Node} node - Node being checked.
  * @param {string}         fileContents - Contents of the file.
  * @returns {number} Line number.
  */
@@ -68,10 +67,10 @@ function yamlLine( node, fileContents ) {
  * @param {string}         file - Filename being checked.
  * @param {string}         fileContents - Contents of the file.
  * @param {string}         path - Path to the node.
- * @param {yamlTypes.Node} node - Node being checked.
+ * @param {YAML.Node} node - Node being checked.
  */
 function checkRunStepsForExpressions( file, fileContents, path, node ) {
-	if ( node instanceof yamlTypes.YAMLMap ) {
+	if ( node instanceof YAML.YAMLMap ) {
 		const run = node.get( 'run', true );
 		if ( run && run.value.indexOf( '${{' ) >= 0 ) {
 			const extra = node.get( 'name' ) ? ` (step "${ node.get( 'name' ) }")` : '';
@@ -86,7 +85,7 @@ function checkRunStepsForExpressions( file, fileContents, path, node ) {
 		node.items.forEach( v =>
 			checkRunStepsForExpressions( file, fileContents, `${ path }.${ v.key.value }`, v.value )
 		);
-	} else if ( node instanceof yamlTypes.YAMLSeq ) {
+	} else if ( node instanceof YAML.YAMLSeq ) {
 		node.items.forEach( ( v, i ) =>
 			checkRunStepsForExpressions( file, fileContents, `${ path }[${ i }]`, v )
 		);
@@ -114,10 +113,10 @@ function checkConcurrencyGroup( file, fileContents, node ) {
 	if ( ! concurrency ) {
 		return;
 	}
-	if ( concurrency instanceof yamlTypes.Scalar ) {
+	if ( concurrency instanceof YAML.Scalar ) {
 		groupline = yamlLine( concurrency, fileContents );
 		grouptext = concurrency.value;
-	} else if ( concurrency instanceof yamlTypes.YAMLMap ) {
+	} else if ( concurrency instanceof YAML.YAMLMap ) {
 		const concurrencyGroup = concurrency.get( 'group', true );
 		if ( ! concurrencyGroup ) {
 			error(
@@ -127,7 +126,7 @@ function checkConcurrencyGroup( file, fileContents, node ) {
 			);
 			return;
 		}
-		if ( ! ( concurrencyGroup instanceof yamlTypes.Scalar ) ) {
+		if ( ! ( concurrencyGroup instanceof YAML.Scalar ) ) {
 			error(
 				file,
 				yamlLine( concurrencyGroup, fileContents ),

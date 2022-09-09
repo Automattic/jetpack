@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { usePartnerCouponRedemption } from '../../hooks';
+import { usePartnerCouponRedemption } from '../../hooks.js';
 
 /**
  * Import styles

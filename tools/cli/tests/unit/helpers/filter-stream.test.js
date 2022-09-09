@@ -10,21 +10,21 @@ describe( 'FilterStream', () => {
 		ts.pend = promisify( ts.end );
 
 		await ts.pwrite( 'line 1\n' );
-		expect( ts.read() ).toEqual( 'LINE 1\n' );
+		expect( ts.read() ).toBe( 'LINE 1\n' );
 		await ts.pwrite( 'line 2...' );
-		expect( ts.read() ).toEqual( null );
+		expect( ts.read() ).toBeNull();
 		await ts.pwrite( ' ... done\n' );
-		expect( ts.read() ).toEqual( 'LINE 2... ... DONE\n' );
+		expect( ts.read() ).toBe( 'LINE 2... ... DONE\n' );
 		await ts.pwrite( 'line 3\nline 4\n\nline 5\n' );
-		expect( ts.read() ).toEqual( 'LINE 3\nLINE 4\n\nLINE 5\n' );
+		expect( ts.read() ).toBe( 'LINE 3\nLINE 4\n\nLINE 5\n' );
 		await ts.pwrite( '\nline 6\n' );
-		expect( ts.read() ).toEqual( '\nLINE 6\n' );
+		expect( ts.read() ).toBe( '\nLINE 6\n' );
 		await ts.pwrite( 'line 7\nline 8' );
-		expect( ts.read() ).toEqual( 'LINE 7\n' );
+		expect( ts.read() ).toBe( 'LINE 7\n' );
 		await ts.pwrite( '...\nline 9' );
-		expect( ts.read() ).toEqual( 'LINE 8...\n' );
+		expect( ts.read() ).toBe( 'LINE 8...\n' );
 		await ts.pend();
-		expect( ts.read() ).toEqual( 'LINE 9' );
+		expect( ts.read() ).toBe( 'LINE 9' );
 	} );
 
 	test( 'filters', async () => {
@@ -34,7 +34,7 @@ describe( 'FilterStream', () => {
 
 		await ts.pwrite( 'line 1\nnope\nno\nline 2\nline 3' );
 		await ts.pend();
-		expect( ts.read() ).toEqual( 'line 1\nline 2\nline 3' );
+		expect( ts.read() ).toBe( 'line 1\nline 2\nline 3' );
 	} );
 
 	test( 'filters (2)', async () => {
@@ -44,7 +44,7 @@ describe( 'FilterStream', () => {
 
 		await ts.pwrite( 'nope\nno\nnot this either' );
 		await ts.pend();
-		expect( ts.read() ).toEqual( null );
+		expect( ts.read() ).toBeNull();
 	} );
 
 	test( "doesn't produce a stray line if EOF is a newline", async () => {
@@ -54,7 +54,7 @@ describe( 'FilterStream', () => {
 
 		await ts.pwrite( 'line 1\n' );
 		await ts.pend();
-		expect( ts.read() ).toEqual( '<line 1>\n' );
+		expect( ts.read() ).toBe( '<line 1>\n' );
 	} );
 
 	test( "doesn't produce a stray line if nothing was written", async () => {
@@ -63,7 +63,7 @@ describe( 'FilterStream', () => {
 		ts.pend = promisify( ts.end );
 
 		await ts.pend();
-		expect( ts.read() ).toEqual( null );
+		expect( ts.read() ).toBeNull();
 	} );
 
 	test( "doesn't die from backpressure", async () => {

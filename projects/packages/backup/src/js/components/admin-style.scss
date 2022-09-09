@@ -1,4 +1,5 @@
 @import '@automattic/jetpack-base-styles/style';
+@import 'masthead/calypso-mixins';
 
 .jp-header,
 .jp-footer {
@@ -67,6 +68,7 @@
 		display: inline-block;
 		padding: 8px 24px;
 		font-weight: 500;
+		font-size: 16px;
 		color: var( --jp-white );
 		background: var( --jp-black );
 		text-decoration: none;
@@ -103,6 +105,21 @@
 		margin-bottom: 9px;
 		color: var(--jp-black);
 	}
+
+	.jp-realtime-note {
+		font-size: 14px;
+		line-height: 22px;
+		a {
+			white-space: nowrap;
+		}
+	}
+
+	.jp-realtime-note + h2 {
+		margin-top: 37px;
+		@include responsive( one-col ) {
+			margin-top: 56px;
+		}
+	}
 }
 
 .jp-hero {
@@ -125,6 +142,12 @@
 		margin-top: 18px;
 	}
 }
+
+.jetpack-backup-jitm-card {
+		.jitm-card {
+			margin-right: 0;
+		}
+	}
 
 .jp-dashboard-footer {
 	padding: 40px 0;

@@ -1,7 +1,10 @@
 import child_process from 'child_process';
 import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
+import execa from 'execa';
 import semver from 'semver';
 
 /**
@@ -50,5 +53,51 @@ export async function compareComposerVersion() {
 			chalk.yellow( `To fix, you can run 'composer self-update ${ monorepoComposerVersion }'` )
 		);
 		process.exit( 1 );
+	}
+}
+
+/**
+ * Check for whether the CLI is being run from within a different monorepo checkout.
+ *
+ * If so, this will shell out to the correct CLI, then return.
+ */
+export async function checkCliLocation() {
+	// Did our caller already do this? Don't check again.
+	if ( process.env.JETPACK_CLI_DID_REEXEC ) {
+		return;
+	}
+
+	// Use `path.dirname()` to ensure same trailing-slash behavior as is used below.
+	const thisRoot = path.dirname( fileURLToPath( new URL( '../../', import.meta.url ) ) );
+
+	for (
+		let olddir = null, dir = process.cwd();
+		dir !== olddir;
+		olddir = dir, dir = path.dirname( dir )
+	) {
+		const exe = path.join( dir, 'tools/cli/bin/jetpack.js' );
+		if ( ! fs.existsSync( exe ) ) {
+			continue;
+		}
+
+		if ( dir === thisRoot ) {
+			return;
+		}
+
+		console.log(
+			chalk.yellow(
+				`Jetpack CLI was linked to ${ thisRoot }, but a Jetpack Monorepo checkout was found at ${ dir }. Executing the CLI from ${ dir }.`
+			)
+		);
+
+		// Alas node doesn't expose `execve()` or the like, so this seems the best we can do without messing with native function call stuff.
+		const res = await execa.node( exe, process.argv.slice( 2 ), {
+			env: {
+				JETPACK_CLI_DID_REEXEC: thisRoot,
+			},
+			stdio: [ 'inherit', 'inherit', 'inherit' ],
+			reject: false,
+		} );
+		process.exit( res.exitCode );
 	}
 }

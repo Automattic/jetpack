@@ -61,7 +61,7 @@
 .backup__latest {
 	display: flex;
 	align-items: center;
-	margin-bottom: 8px;
+	margin-bottom: 32px;
 
 	svg,
 	img {
@@ -78,6 +78,13 @@
 	+ h1 {
 		white-space: nowrap;
 	}
+}
+
+.backup__restore-point-link {
+	font-size: 14px;
+	line-height: 22px;
+	display: inline-block;
+	margin-top: 16px;
 }
 
 .backup__animation {

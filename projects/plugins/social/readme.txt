@@ -4,7 +4,7 @@ Tags: social-media, publicize, social-media-manager, social-networking, social m
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 0.1.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -89,6 +89,27 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.0.0 - 2022-05-31
+### 1.3.0 - 2022-09-07
 #### Added
-- Initial release.
+- Added scheduled post calculation on plugin activation.
+- Added Social Previews.
+- Added support for JITMs.
+- Enforce sharing limits in the block editor, if it is enabled for a site.
+
+#### Changed
+- Updated package dependencies. [#24477, #25265, #25300, #25315, #25334, #25338, #25339, #25377, #25406, #25628, #25661, #25665, #25694, #25762, #25769, #25787, #25814, #25931]
+
+#### Removed
+- Packages: remove deprecated package.
+
+#### Fixed
+- Avoid PHP warnings when OG description is not set.
+
+#### Other
+- My Jetpack includes JITMs
+- Post release tasks.
+- Start a new release cycle.
+- Support section for paid users
+- Tweaked the supports method of the plans package to refresh the plan data.
+- Updated Readme.txt for the jetpack-social-1.2.0-beta
+- Enables autotag, autorelease, and autosvn actions

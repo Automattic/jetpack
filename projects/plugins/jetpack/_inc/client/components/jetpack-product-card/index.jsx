@@ -1,4 +1,5 @@
 import { ProductPrice } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -16,6 +17,7 @@ const JetpackProductCard = props => {
 		productSlug,
 		description,
 		features,
+		disclaimer,
 		currencyCode,
 		price,
 		discountedPrice,
@@ -38,6 +40,12 @@ const JetpackProductCard = props => {
 
 	const onClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_product_card_checkout_click', {
+			type: productSlug,
+		} );
+	}, [ productSlug ] );
+
+	const onDisclaimerClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_product_card_disclaimer_click', {
 			type: productSlug,
 		} );
 	}, [ productSlug ] );
@@ -91,6 +99,20 @@ const JetpackProductCard = props => {
 				<Button className={ buttonClasses } href={ checkoutUrl } onClick={ onClick }>
 					{ checkoutText }
 				</Button>
+
+				{ disclaimer && (
+					<p className="jp-product-card__disclaimer">
+						{ `${ disclaimer.text } ` }
+						<ExternalLink
+							onClick={ onDisclaimerClick }
+							href={ disclaimer.url }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ disclaimer.link_text }
+						</ExternalLink>
+					</p>
+				) }
 			</div>
 
 			{ hasMedia && (
@@ -119,6 +141,7 @@ JetpackProductCard.propTypes = {
 	productSlug: PropTypes.string.isRequired,
 	description: PropTypes.string,
 	features: PropTypes.array,
+	disclaimer: PropTypes.object,
 	icon: PropTypes.element,
 	callToAction: PropTypes.string,
 	priority: PropTypes.string,

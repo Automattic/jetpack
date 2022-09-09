@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"repositories": [
 		{
@@ -19,11 +19,14 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-always-use-jetpack-open-graph",
+		"autorelease": true,
+		"autotagger": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-always-use-jetpack-open-graph/compare/v${old}...v${new}"
 		},
+		"mirror-repo": "Automattic/jetpack-always-use-jetpack-open-graph",
 		"release-branch-prefix": "always-use-jetpack-open-graph",
-		"wp-plugin-slug": "always-use-jetpack-open-graph"
+		"wp-plugin-slug": "always-use-jetpack-open-graph",
+		"wp-svn-autopublish": true
 	}
 }

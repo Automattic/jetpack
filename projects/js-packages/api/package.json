@@ -1,11 +1,11 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.13.6-alpha",
+	"version": "0.13.11",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.11.0",
+		"@wordpress/url": "3.17.0",
 		"@automattic/jetpack-config": "workspace:* || ^0.1"
 	},
 	"devDependencies": {
@@ -24,7 +24,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

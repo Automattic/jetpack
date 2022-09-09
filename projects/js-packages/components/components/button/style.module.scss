@@ -8,8 +8,26 @@
 	justify-content: center;
 	font-weight: 600;
 
+	// Icon Button
+	&.is-icon-button {
+		padding: var( --spacing-base );
+		width: calc( var( --spacing-base ) * 5 );
+		height: calc( var( --spacing-base ) * 5 );
+		> svg:first-child {
+			margin: 0;
+			padding: 0;
+		}
+
+		&.small {
+			padding: calc( var( --spacing-base ) / 2 );
+			width: calc( var( --spacing-base ) * 4 );
+			min-width: calc( var( --spacing-base ) * 4 );
+			height: calc( var( --spacing-base ) * 4 );	
+		}
+	}
+
 	// Normal Size & Font
-	&.normal {
+	&.normal:not(.is-icon-button) {
 		height: auto;
 		font-size: var(--font-body);
 		line-height: 24px;
@@ -22,7 +40,7 @@
 	}
 
 	// Small Size & Font
-	&.small {
+	&.small:not(.is-icon-button) {
 		height: auto;
 		font-size: var(--font-body-extra-small);
 		line-height: 20px;
@@ -42,6 +60,11 @@
 		font-weight: 400;
 	}
 
+	// Full Width
+	&.full-width {
+		min-width: 100%;
+	}
+
 	// SPECIFICS
 	// PRIMARY AND SECONDARY
 
@@ -57,6 +80,8 @@
 
 	// Only Secondary
 	&:global(.is-secondary) {
+		background: var(--jp-white);
+
 		// Hover & Active
 		&:active:not(:disabled),
 		&:hover:not(:disabled) {

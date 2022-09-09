@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix dev dep on WPCS to point at our fork rather than their dev-develop. Even though we're depending on a specific old commit, Composer gets confused now that their dev-develop depends on newer PHPCS than we can currently use. No change to the package itself.
-
-

@@ -1,7 +1,5 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
 import AddressEdit from '../edit';
 
 const defaultAttributes = {
@@ -83,7 +81,7 @@ describe( 'Address', () => {
 		};
 		render( <AddressEdit { ...propsSelected } /> );
 
-		expect( screen.getByPlaceholderText( 'Street Address' ).value ).toEqual( '987 Photon Drive' );
+		expect( screen.getByPlaceholderText( 'Street Address' ).value ).toBe( '987 Photon Drive' );
 		expect( screen.getByPlaceholderText( 'Address Line 2' ) ).toBeInTheDocument();
 		expect( screen.getByPlaceholderText( 'Address Line 3' ) ).toBeInTheDocument();
 		expect( screen.getByPlaceholderText( 'City' ) ).toBeInTheDocument();

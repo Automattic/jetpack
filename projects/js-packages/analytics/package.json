@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "0.1.15-alpha",
+	"version": "0.1.18",
 	"description": "Jetpack Analytics Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -20,7 +20,6 @@
 	},
 	"engines": {
 		"node": "^16.13.2",
-		"pnpm": "^7.1.1",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

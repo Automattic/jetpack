@@ -17,9 +17,9 @@ class Premium_Features {
 	}
 
 	public static function get_features() {
-		$features = Transient::get( self::TRANSIENT_KEY, array() );
+		$features = Transient::get( self::TRANSIENT_KEY, false );
 
-		if ( empty( $features ) ) {
+		if ( ! is_array( $features ) ) {
 			$features = Boost_API::get( 'features' );
 			if ( ! is_array( $features ) ) {
 				$features = array();

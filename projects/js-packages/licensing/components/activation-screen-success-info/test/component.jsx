@@ -1,26 +1,20 @@
-import { expect } from 'chai';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import ActivationSuccessInfo from '..';
-import JetpackProductDetails from '../product-details';
 
 describe( 'ActivationSuccessInfo', () => {
 	const testProps = {
 		productId: 2100,
+		siteAdminUrl: 'http://test-site.jurassic.ninja/wp-admin',
 		siteRawUrl: 'http://test-site.jurassic.ninja',
 	};
 
 	describe( 'Render the ActivationSuccessInfo component', () => {
-		const wrapper = mount( <ActivationSuccessInfo { ...testProps } /> );
-
-		const jetpackProductDetailsComponent = wrapper.find( JetpackProductDetails );
-
-		it( 'correct product class is used', () => {
-			expect( jetpackProductDetailsComponent ).to.have.lengthOf( 1 );
-		} );
-
 		it( 'shows the correct product name', () => {
-			expect( jetpackProductDetailsComponent.text() ).to.contain( 'Jetpack Backup is active!' );
+			render( <ActivationSuccessInfo { ...testProps } /> );
+			expect(
+				screen.getByRole( 'heading', { name: /Jetpack Backup is active!/ } )
+			).toBeInTheDocument();
 		} );
 	} );
 } );

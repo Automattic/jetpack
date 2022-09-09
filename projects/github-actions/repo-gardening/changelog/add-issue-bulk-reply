@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+New task: Reply to customers Reminder -- Sends a Slack message to remind triage teams to reply to customers once an issue has been closed.

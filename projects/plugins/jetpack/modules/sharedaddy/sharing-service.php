@@ -942,8 +942,20 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// Prevent from rendering sharing buttons in block which is fetched from REST endpoint by editor
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST &&
+		isset( $_GET['context'] ) && 'edit' === $_GET['context'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return $text;
+	}
+
 	// Don't output flair on excerpts.
 	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
+		return $text;
+	}
+
+	// Ensure we don't display sharing buttons on post excerpts that are hooked inside the post content
+	if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
+		in_array( 'the_content', (array) $wp_current_filter, true ) ) {
 		return $text;
 	}
 

@@ -1,3 +1,6 @@
+// Useful assertions for use with jsdom and testing-library.
+require( '@testing-library/jest-dom' );
+
 // Mocks and noops `console.log`, `console.info`, `console.warn`, and `console.error`.
 // Also, if any of those get called, the test will fail unless it did the approrpiate tests of
 //

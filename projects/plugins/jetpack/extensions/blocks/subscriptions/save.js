@@ -14,6 +14,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import { encodeValueForShortcodeAttribute } from './utils';
 
 export default function Save( { className, attributes } ) {
 	const {
@@ -134,7 +135,10 @@ export default function Save( { className, attributes } ) {
 			if ( undefined === value ) {
 				return stringifiedAttributes;
 			}
-			return stringifiedAttributes + ` ${ key }="${ value }"`;
+			return (
+				stringifiedAttributes +
+				` ${ key }="${ encodeValueForShortcodeAttribute( value.toString() ) }"`
+			);
 		},
 		''
 	);

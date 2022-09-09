@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { ESLint } from 'eslint';
 import parseDiff from 'parse-diff';
 
-const APP_VERSION = '2.0.3-alpha';
+const APP_VERSION = '2.0.4-alpha';
 
 /**
  * Create a Commander instance.
@@ -102,7 +102,7 @@ async function main( process, argv, program ) {
 	} );
 
 	const writeOut = program.configureOutput().writeOut;
-	const debug = argv.debug ? ( ...m ) => writeOut( chalk.grey( ...m ) ) : () => {};
+	const debug = argv.debug ? ( ...m ) => writeOut( chalk.grey( ...m ) + '\n' ) : () => {};
 
 	/**
 	 * Get files from a diff.
@@ -141,7 +141,7 @@ async function main( process, argv, program ) {
 	}
 
 	const eslint = new ESLint();
-	debug( 'Using ESLint version', eslint.version );
+	debug( 'Using ESLint version', ESLint.version );
 	const formatter = await eslint.loadFormatter( argv.format );
 
 	let diff, diffBase, files, eslintOrig, eslintNew;
@@ -156,7 +156,7 @@ async function main( process, argv, program ) {
 				1
 			);
 		}
-		debug( 'Using git version', ret.stdout.trim() );
+		debug( 'Using git version', ret.stdout.trim().replace( /^git version /, '' ) );
 
 		args = [ 'rev-parse', '--show-toplevel' ];
 		debug( 'Getting git top level:', git, args.join( ' ' ) );
