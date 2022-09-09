@@ -14,7 +14,7 @@ describe( 'ConnectionStatusCard', () => {
 		redirectUri: 'https://example.org',
 	};
 
-	describe( 'When the user has not connected their WordPress.com account', () => {
+	describe( 'When the user has not connected their Jetpack account', () => {
 		const setup = () => {
 			let storeSelect;
 			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
@@ -48,7 +48,7 @@ describe( 'ConnectionStatusCard', () => {
 		} );
 	} );
 
-	describe( "When the user has not connected their WordPress.com account but the site has an owner and we don't need a user connection", () => {
+	describe( "When the user has not connected their Jetpack account but the site has an owner and we don't need a user connection", () => {
 		const setup = () => {
 			let storeSelect;
 			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
@@ -83,7 +83,7 @@ describe( 'ConnectionStatusCard', () => {
 		} );
 	} );
 
-	describe( 'When the user has connected their WordPress.com account', () => {
+	describe( 'When the user has connected their Jetpack account', () => {
 		const setup = () => {
 			let storeSelect;
 			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
@@ -115,7 +115,7 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.queryByText( 'Requires user connection.' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'doesn\'t render the "Connect your WordPress.com account" button', () => {
+		it( 'doesn\'t render the "Connect your Jetpack account" button', () => {
 			setup();
 			expect(
 				screen.queryByRole( 'button', { name: 'Connect your user account' } )
