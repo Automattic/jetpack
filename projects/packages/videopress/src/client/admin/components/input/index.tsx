@@ -117,12 +117,7 @@ export const SearchInput = ( {
 	const onEnterHandler = useCallback(
 		( value: string ) => {
 			componentProps.onEnter?.( value );
-			if ( ! value?.length ) {
-				debouncedOnChange.cancel();
-				return;
-			}
-
-			onSearch?.( value );
+			debouncedOnChange( value );
 		},
 		[ componentProps.onEnter, onSearch ]
 	);
@@ -130,11 +125,6 @@ export const SearchInput = ( {
 	const onChangeHandler = useCallback(
 		( value: string ) => {
 			componentProps.onChange?.( value );
-			if ( ! value?.length ) {
-				debouncedOnChange.cancel();
-				return;
-			}
-
 			debouncedOnChange( value );
 		},
 		[ componentProps.onChange ]
