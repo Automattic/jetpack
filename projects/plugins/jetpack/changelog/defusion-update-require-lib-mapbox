@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Removes usage of jetpack_require_lib() for class-jetpack-mapbox-helper

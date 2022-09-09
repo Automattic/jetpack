@@ -1,12 +1,24 @@
+/**
+ * External dependencies
+ */
 import { Button, Text } from '@automattic/jetpack-components';
 import { Rect, SVG } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import React, { useState } from 'react';
+/**
+ * Internal dependencies
+ */
+import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import Pagination from '../pagination';
+import { PaginationProps } from '../pagination/types';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
+/**
+ * Types
+ */
 import { VideoLibraryProps } from './types';
 
 const LibraryType = {
@@ -24,39 +36,40 @@ const filterIcon = (
 	</SVG>
 );
 
+const ConnectedPagination: React.FC< PaginationProps > = props => {
+	const { setPage, page } = useVideos();
+	return <Pagination { ...props } onChangePage={ setPage } currentPage={ page } />;
+};
+
 const VideoLibraryWrapper = ( {
 	children,
 	totalVideos = 0,
 	libraryType = LibraryType.List,
 	onChangeType,
 	hideFilter = false,
+	title,
 }: {
 	children: React.ReactNode;
 	libraryType?: LibraryType;
 	totalVideos?: number;
 	onChangeType?: () => void;
 	hideFilter?: boolean;
+	title?: string;
 } ) => {
-	const handleSearchChange = () => {
-		// TODO: implement search
-	};
-
-	const handleSearch = () => {
-		// TODO: implement search
-	};
+	const { setSearch } = useVideos();
 
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
 			<Text variant="headline-small" mb={ 1 }>
-				Your VideoPress library
+				{ title }
 			</Text>
 			<div className={ styles[ 'total-filter-wrapper' ] }>
 				<Text>{ totalVideos } Video</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
-						<SearchInput onChange={ handleSearchChange } onEnter={ handleSearch } />
+						<SearchInput onSearch={ setSearch } />
 						<Button variant="secondary" icon={ filterIcon } weight="regular">
-							Filters
+							{ __( 'Filters', 'jetpack-videopress-pkg' ) }
 						</Button>
 						<Button
 							variant="tertiary"
@@ -68,9 +81,9 @@ const VideoLibraryWrapper = ( {
 				) }
 			</div>
 			{ children }
-			<Pagination
+			<ConnectedPagination
 				currentPage={ 1 }
-				total={ totalVideos }
+				total={ 30 }
 				perPage={ 5 }
 				className={ styles.pagination }
 			/>
@@ -91,6 +104,7 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 			totalVideos={ videos?.length }
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
+			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
 		>
 			{ libraryType === LibraryType.Grid ? (
 				<VideoGrid videos={ videos } />
@@ -103,7 +117,11 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 
 export const LocalLibrary = ( { videos }: VideoLibraryProps ) => {
 	return (
-		<VideoLibraryWrapper totalVideos={ videos?.length } hideFilter>
+		<VideoLibraryWrapper
+			totalVideos={ videos?.length }
+			hideFilter
+			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
+		>
 			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
 		</VideoLibraryWrapper>
 	);
