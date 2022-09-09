@@ -1,7 +1,7 @@
 const { getInput } = require( '@actions/core' );
+const minimatch = require( 'minimatch' );
 const { debug } = require( './debug' );
 const extras = require( './extra-context' );
-
 /**
  * Returns a list o Slack channel ids, based on context and rules configuration.
  *
@@ -24,7 +24,7 @@ function getChannels() {
 
 		if ( refs ) {
 			for ( const rule of refs ) {
-				if ( rule.type === refType && rule.name === refName ) {
+				if ( rule.type === refType && minimatch( refName, rule.name ) ) {
 					channels.push( ...rule.channels );
 				}
 
