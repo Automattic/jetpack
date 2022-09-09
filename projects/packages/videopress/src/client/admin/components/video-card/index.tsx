@@ -121,11 +121,9 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropd
 				</div>
 			) }
 
-			{ thumbnail && (
+			{ thumbnail ? (
 				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
-			) }
-
-			{ ! thumbnail && (
+			) : (
 				<div className={ styles[ 'thumbnail-placeholder' ] }>
 					<Icon icon={ video } size={ 96 } />
 				</div>
