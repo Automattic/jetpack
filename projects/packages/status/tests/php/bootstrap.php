@@ -10,6 +10,11 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+/**
+ * Includes additional test-only dependencies
+ */
+require_once __DIR__ . '/../../../connection/legacy/class-jetpack-options.php';
+
 // Additional functions that brain/monkey doesn't currently define.
 if ( ! function_exists( 'wp_unslash' ) ) {
 	/**
