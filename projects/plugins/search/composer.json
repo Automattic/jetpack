@@ -50,12 +50,16 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-search-plugin",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "search",
 		"wp-plugin-slug": "jetpack-search",
+		"wp-svn-autopublish": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"version-constants": {
 			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
 		}
