@@ -105,9 +105,16 @@ function get_packages {
 	else
 		PKGS=()
 	fi
-	for PKG in "${PKGS[@]}"; do
-		PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | .extra["branch-alias"]["dev-trunk"] as $trunkver | ( $trunkver | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "\(.v)" ) ) as $depver | $packages | .[$k] |= { rel: $ver, trunk: ( $trunkver // "@dev" ), dep: "^\( $depver )", dep2: ( "^" + if $ver[0:($depver | length + 1)] == "\( $depver )." then $ver else $depver end ) }' "$PKG")
-	done
+	if [[ "$PACKAGES" == '{}' && -n "$PACKAGE_VERSIONS_CACHE" && -s "$PACKAGE_VERSIONS_CACHE" ]]; then
+		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
+	else
+		for PKG in "${PKGS[@]}"; do
+			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | .extra["branch-alias"]["dev-trunk"] as $trunkver | ( $trunkver | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "\(.v)" ) ) as $depver | $packages | .[$k] |= { rel: $ver, trunk: ( $trunkver // "@dev" ), dep: "^\( $depver )", dep2: ( "^" + if $ver[0:($depver | length + 1)] == "\( $depver )." then $ver else $depver end ) }' "$PKG")
+		done
+		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
+			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
+		fi
+	fi
 
 	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
