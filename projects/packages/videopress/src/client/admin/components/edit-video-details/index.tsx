@@ -12,8 +12,8 @@ import { Icon, chevronRightSmall } from '@wordpress/icons';
 import * as mock from '../../mock';
 import Input from '../input';
 import Logo from '../logo';
-import { VideoThumbnail } from '../video-card';
 import VideoDetails from '../video-details';
+import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 
 const noop = () => {
@@ -36,15 +36,25 @@ const Header = ( { saveDisabled = true }: { saveDisabled?: boolean } ) => {
 const Infos = () => {
 	return (
 		<>
-			<Input label="Title" name="title" onChange={ noop } onEnter={ noop } />
+			<Input label="Title" name="title" onChange={ noop } onEnter={ noop } size="large" />
 			<Input
+				className={ styles.input }
 				label="Description"
 				name="description"
 				onChange={ noop }
 				onEnter={ noop }
 				type="textarea"
+				size="large"
 			/>
-			<Input label="Caption" name="caption" onChange={ noop } onEnter={ noop } type="textarea" />
+			<Input
+				className={ styles.input }
+				label="Caption"
+				name="caption"
+				onChange={ noop }
+				onEnter={ noop }
+				type="textarea"
+				size="large"
+			/>
 		</>
 	);
 };
@@ -59,11 +69,15 @@ const EditVideoDetails = () => {
 		>
 			<AdminSection>
 				<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
-					<Col sm={ 4 } md={ 6 } lg={ 7 }>
+					<Col sm={ 4 } md={ 8 } lg={ 7 }>
 						<Infos />
 					</Col>
-					<Col sm={ 4 } md={ 6 } lg={ 5 }>
-						<VideoThumbnail thumbnail={ video?.posterImage } duration={ video?.duration } />
+					<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
+						<VideoThumbnail
+							thumbnail={ video?.posterImage }
+							duration={ video?.duration }
+							editable
+						/>
 						<VideoDetails
 							filename={ video?.videoTitle }
 							uploadDate={ video?.uploadDate }
