@@ -59,6 +59,16 @@ export type VideoDetailsProps = {
 
 export type VideoCardProps = VideoPressVideo & {
 	/**
+	 * Whether the card should look "blank" style.
+	 */
+	isBlank?: boolean;
+
+	/**
+	 * True when the card is loading data.
+	 */
+	isLoading?: boolean;
+
+	/**
 	 * Callback to be invoked when clicking on the `Edit video details` button.
 	 */
 	onVideoDetailsClick?: () => void;
