@@ -5,7 +5,6 @@ import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import React, { useState } from 'react';
-import filterIcon from '../../../components/icons/filter-icon';
 /**
  * Internal dependencies
  */
@@ -13,6 +12,7 @@ import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import Pagination from '../pagination';
 import { PaginationProps } from '../pagination/types';
+import { FilterButton } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
@@ -60,9 +60,7 @@ const VideoLibraryWrapper = ( {
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput onSearch={ setSearch } />
-						<Button variant="secondary" icon={ filterIcon } weight="regular">
-							{ __( 'Filters', 'jetpack-videopress-pkg' ) }
-						</Button>
+						<FilterButton onToggle={ () => ( {} ) } />
 						<Button
 							variant="tertiary"
 							size="small"
