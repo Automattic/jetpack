@@ -125,7 +125,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			'rating'          => $info->rating,
 			'allow_download'  =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'privacy_setting' => ! isset( $info->privacy_setting ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
+			'privacy_setting' => ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
 		);
 	}
 
