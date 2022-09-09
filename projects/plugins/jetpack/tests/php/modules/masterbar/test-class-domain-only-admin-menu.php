@@ -89,13 +89,6 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[2][2] );
 	}
 
-	private function get_mocked_email_subscription_checker() {
-		$mock = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
-		$mock->method( 'has_email' )->will( $this->returnValue( true ) );
-
-		return $mock;
-	}
-
 	/**
 	 * Tests reregister_menu_items with email subscriptions .
 	 *
@@ -104,7 +97,10 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	public function test_reregister_menu_items_with_email_subscriptions() {
 		global $menu;
 
-		static::$admin_menu->set_email_subscription_checker( self::get_mocked_email_subscription_checker() );
+		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker->method( 'has_email' )->will( $this->returnValue( true ) ); // always returns true
+
+		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
 		static::$admin_menu->reregister_menu_items();
 
 		$this->assertCount( 4, $menu );

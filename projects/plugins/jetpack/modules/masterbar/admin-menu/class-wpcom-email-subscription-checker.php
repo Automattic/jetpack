@@ -1,6 +1,6 @@
 <?php
 /**
- * A class that knows how to check for the existence of email subscriptions for a user.
+ * A class that checks for the existence of email subscriptions for a user.
  *
  * @package automattic/jetpack
  */
