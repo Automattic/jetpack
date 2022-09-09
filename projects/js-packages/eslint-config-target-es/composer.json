@@ -4,7 +4,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"scripts": {
 		"test-js": [

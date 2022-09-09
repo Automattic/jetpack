@@ -17,6 +17,11 @@ type InputBaseProps = {
 	label?: React.ReactNode;
 
 	/**
+	 * Whether the input is loading.
+	 */
+	loading?: boolean;
+
+	/**
 	 * Callback to be invoked when the input value changes.
 	 */
 	onChange?: ( value: string ) => unknown;
@@ -44,7 +49,7 @@ type TextArea = Omit< React.TextareaHTMLAttributes< HTMLTextAreaElement >, 'onCh
 	 */
 	icon?: undefined;
 	/**
-	 * Fixed as textarea to enforce TS use related props.
+	 * Fixed as textarea to enforce TS use of related props.
 	 */
 	type: 'textarea';
 } & InputBaseProps;
