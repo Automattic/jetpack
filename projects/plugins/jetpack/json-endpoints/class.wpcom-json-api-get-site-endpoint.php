@@ -73,6 +73,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
 		'is_wpcom_atomic'             => '(bool) If the site is a WP.com Atomic one.',
+		'user_interactions'           => '(array) An array of user interactions with a site.',
 	);
 
 	/**
@@ -520,6 +521,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_wpcom_atomic':
 				$response[ $key ] = $this->site->is_wpcom_atomic();
+				break;
+			case 'user_interactions':
+				$response[ $key ] = $this->site->get_user_interactions();
 				break;
 		}
 
@@ -972,5 +976,27 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 		$response['templates'] = $page_templates;
 
 		return $response;
+	}
+
+	/**
+	 * Get user interactions with a site
+	 *
+	 * @return array
+	 **/
+	public function get_user_interactions() {
+		if ( ! is_user_logged_in() ) {
+			return array();
+		}
+		$current_user = wp_get_current_user();
+
+		$user_interactions = (array) get_user_attribute(
+			$current_user->ID,
+			\WPCOM_User_Site_Interactions::INTERACTIONS_ATTRIBUTE
+		);
+
+		if ( isset( $user_interactions[ $this->blog_id ] ) ) {
+			return $user_interactions[ $this->blog_id ];
+		}
+		return array();
 	}
 }
