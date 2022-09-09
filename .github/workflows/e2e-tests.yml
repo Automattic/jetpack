@@ -193,6 +193,11 @@ jobs:
         with:
           path: test-output
 
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: ./.github/files/e2e-tests/encryption.sh decrypt
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -202,5 +207,6 @@ jobs:
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
           playwright_report_path: test-output/**/summary.json
+          rules_configuration_path: test-output/**/summary.json
 
 
