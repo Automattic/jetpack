@@ -18,15 +18,9 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import ClipboardButtonInput from '../clipboard-button-input';
 import VideoQuickActions from '../video-quick-actions';
 import styles from './style.module.scss';
-import {
-	VideoDetailsProps,
-	VideoThumbnailProps,
-	VideoThumbnailDropdownProps,
-	VideoCardProps,
-} from './types';
+import { VideoThumbnailProps, VideoThumbnailDropdownProps, VideoCardProps } from './types';
 import type React from 'react';
 
 export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
@@ -131,28 +125,6 @@ export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropd
 		</div>
 	);
 };
-
-export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, uploadDate } ) => {
-	return (
-		<div className={ styles.details }>
-			<div className={ styles[ 'detail-row' ] }>
-				<Text variant="body-small">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
-				<ClipboardButtonInput value={ src } />
-			</div>
-
-			<div>
-				<Text variant="body-small">{ __( 'File name', 'jetpack-videopress-pkg' ) }</Text>
-				<Text variant="body">{ filename }</Text>
-			</div>
-
-			<div>
-				<Text variant="body-small">{ __( 'Upload date', 'jetpack-videopress-pkg' ) }</Text>
-				<Text variant="body">{ gmdateI18n( 'F j, Y', uploadDate ) }</Text>
-			</div>
-		</div>
-	);
-};
-
 /**
  * Video Card component
  *

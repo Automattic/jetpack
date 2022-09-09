@@ -7,7 +7,6 @@ import { action } from '@storybook/addon-actions';
  */
 import {
 	VideoCard as VideoCardComponent,
-	VideoDetails as VideoDetailsComponent,
 	VideoThumbnail as VideoThumbnailComponent,
 	VideoThumbnailDropdown as VideoThumbnailDropdownComponent,
 } from '..';
@@ -52,14 +51,6 @@ _default.args = {
 	onUpdateThumbnailClick: action( 'onUpdateThumbnailClick' ),
 	onUpdateUpdatePrivacyClick: action( 'onUpdateUpdatePrivacyClick' ),
 	onDeleteClick: action( 'onDeleteClick' ),
-};
-
-const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
-
-export const VideoDetails = VideoDetailsTemplate.bind( {} );
-VideoDetails.args = {
-	filename: 'video-thumbnail.png',
-	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
 };
 
 const VideoThumbnailTemplate: ComponentStory< typeof VideoThumbnailComponent > = args => {
