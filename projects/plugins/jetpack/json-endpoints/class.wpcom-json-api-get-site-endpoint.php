@@ -977,26 +977,4 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 
 		return $response;
 	}
-
-	/**
-	 * Get user interactions with a site
-	 *
-	 * @return array
-	 **/
-	public function get_user_interactions() {
-		if ( ! is_user_logged_in() ) {
-			return array();
-		}
-		$current_user = wp_get_current_user();
-
-		$user_interactions = (array) get_user_attribute(
-			$current_user->ID,
-			\WPCOM_User_Site_Interactions::INTERACTIONS_ATTRIBUTE
-		);
-
-		if ( isset( $user_interactions[ $this->blog_id ] ) ) {
-			return $user_interactions[ $this->blog_id ];
-		}
-		return array();
-	}
 }
