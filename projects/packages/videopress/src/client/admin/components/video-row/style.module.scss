@@ -54,7 +54,7 @@
 	gap: calc( var(--spacing-base) * 3 ); // 24px
 	min-width: 0; // Allows flex to be smaller than the content
 	position: relative;
-	max-height: var(--content-height);
+	height: var(--content-height);
 
 	&.small {
 		cursor: pointer;
@@ -146,20 +146,6 @@
 	align-items: center;
 	gap: calc( var(--spacing-base) * 3 ); // 24px
 	margin-right: calc( var(--spacing-base) * 3 ); // 24px
-
-	.trash {
-		fill: var(--jp-red-60);
-	}
-
-	.popover {
-		padding: var(--spacing-base); // 8px
-		text-align: center;
-		white-space: nowrap;
-	}
-
-	& > * {
-		cursor: pointer;
-	}
 }
 
 // STORYBOOK

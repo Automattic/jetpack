@@ -21,18 +21,18 @@ class WP_Test_Jetpack_Sync_Checksum_Smoke extends WP_UnitTestCase {
 		parent::set_up();
 
 		// create user.
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		// create posts.
-		$post_id  = $this->factory->post->create( array( 'post_author' => $user_id ) );
-		$post_id2 = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id  = self::factory()->post->create( array( 'post_author' => $user_id ) );
+		$post_id2 = self::factory()->post->create( array( 'post_author' => $user_id ) );
 
 		// add meta.
 		add_post_meta( $post_id, 'content_width', 220 );
 		add_post_meta( $post_id, 'content_width', 180 );
 
 		// add comments.
-		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
+		$comment_ids = self::factory()->comment->create_post_comments( $post_id );
 		$comment     = get_comment( $comment_ids[0] );
 
 		// add comment_meta.

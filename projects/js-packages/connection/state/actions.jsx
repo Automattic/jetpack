@@ -14,6 +14,7 @@ const DISCONNECT_USER_SUCCESS = 'DISCONNECT_USER_SUCCESS';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
+const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -57,6 +58,10 @@ const fetchAuthorizationUrl = redirectUri => {
 
 const setConnectedPlugins = connectedPlugins => {
 	return { type: SET_CONNECTED_PLUGINS, connectedPlugins };
+};
+
+const setConnectionErrors = connectionErrors => {
+	return { type: SET_CONNECTION_ERRORS, connectionErrors };
 };
 
 /**
@@ -129,6 +134,7 @@ const actions = {
 	disconnectUserSuccess,
 	setConnectedPlugins,
 	refreshConnectedPlugins,
+	setConnectionErrors,
 };
 
 export {
@@ -146,5 +152,6 @@ export {
 	DISCONNECT_USER_SUCCESS,
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
+	SET_CONNECTION_ERRORS,
 	actions as default,
 };

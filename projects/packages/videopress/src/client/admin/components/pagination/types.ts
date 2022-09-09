@@ -32,5 +32,5 @@ export type PaginationProps = {
 	/**
 	 * Callback to be invoked when a page is selected.
 	 */
-	onChangePage: ( newPage: number ) => void;
+	onChangePage?: ( newPage: number ) => void;
 };

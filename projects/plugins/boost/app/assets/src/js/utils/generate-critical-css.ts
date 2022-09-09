@@ -13,7 +13,6 @@ import { logPreCriticalCSSGeneration } from './console';
 import { isSameOrigin } from './is-same-origin';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
-import { removeShownAdminNotices } from './remove-admin-notices';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
 
@@ -83,8 +82,6 @@ export default async function generateCriticalCss(
 		if ( ! cssStatus || cssStatus.status !== 'requesting' ) {
 			return;
 		}
-
-		removeShownAdminNotices( 'critical-css' );
 
 		updateGenerateStatus( { status: 'requesting', progress: 0 } );
 
