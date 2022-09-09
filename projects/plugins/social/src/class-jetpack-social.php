@@ -301,12 +301,8 @@ class Jetpack_Social {
 			return;
 		}
 
-		$connections      = $publicize->get_all_connections();
+		$connections      = (array) $publicize->get_all_connections();
 		$shares_remaining = $info['shares_remaining'];
-
-		if ( empty( $connections ) ) {
-			$connections = array();
-		}
 
 		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
 		$share_limits->enforce_share_limits();
