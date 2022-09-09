@@ -105,7 +105,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account to enable high-quality, ad-free video.',
+							'Connect your Jetpack account to enable high-quality, ad-free video.',
 							'jetpack'
 						) }
 						callToAction={ connectLabel }
@@ -132,7 +132,7 @@ export const SettingsCard = props => {
 				) : (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account to upgrade and generate income with high-quality ads.',
+							'Connect your Jetpack account to upgrade and generate income with high-quality ads.',
 							'jetpack'
 						) }
 						callToAction={ connectLabel }
@@ -163,7 +163,7 @@ export const SettingsCard = props => {
 					) : (
 						<JetpackBanner
 							title={ __(
-								'Connect your WordPress.com account to upgrade and save every change and get back online quickly with one-click restores.',
+								'Connect your Jetpack account to upgrade and save every change and get back online quickly with one-click restores.',
 								'jetpack'
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
@@ -190,7 +190,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ connectLabel }
 						title={ __(
-							'Connect your WordPress.com account to upgrade for automated scanning and one-click fixes keep your site ahead of security threats.',
+							'Connect your Jetpack account to upgrade for automated scanning and one-click fixes keep your site ahead of security threats.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
@@ -217,7 +217,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ connectLabel }
 						title={ __(
-							'Connect your WordPress.com account to upgrade and connect your site to Google Analytics.',
+							'Connect your Jetpack account to upgrade and connect your site to Google Analytics.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
@@ -247,7 +247,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ connectLabel }
 						title={ __(
-							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+							'Connect your Jetpack account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
@@ -273,7 +273,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ connectLabel }
 						title={ __(
-							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
+							'Connect your Jetpack account to upgrade and automatically clear spam from comments and forms.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
