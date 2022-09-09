@@ -1,3 +1,4 @@
+const fs = require( 'fs' );
 const { getInput } = require( '@actions/core' );
 const minimatch = require( 'minimatch' );
 const { debug } = require( './debug' );
@@ -18,7 +19,9 @@ function getChannels() {
 		debug( 'No rules configuration found, returning only the default channel' );
 		channels.push( defaultChannel );
 	} else {
-		const rulesConfiguration = require( rulesConfigurationPath );
+		const rulesConfiguration = JSON.parse(
+			fs.readFileSync( rulesConfigurationPath, { encoding: 'utf8' } )
+		);
 		const { refs, suites } = rulesConfiguration;
 		const { refType, refName } = extras;
 
