@@ -420,7 +420,7 @@ const LoadedState = ( {
 
 	if (
 		! connectionLoaded ||
-		! connectionStatus.isUserConnected ||
+		! connectionStatus.hasConnectedOwner ||
 		! connectionStatus.isRegistered
 	) {
 		if ( showHeaderFooter ) {
