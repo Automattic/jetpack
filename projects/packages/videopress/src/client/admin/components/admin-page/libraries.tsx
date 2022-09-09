@@ -49,6 +49,7 @@ const VideoLibraryWrapper = ( {
 	title?: string;
 } ) => {
 	const { setSearch } = useVideos();
+	const [ searchQuery, setSearchQuery ] = useState( '' );
 
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
@@ -59,7 +60,12 @@ const VideoLibraryWrapper = ( {
 				<Text>{ totalVideos } Video</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
-						<SearchInput onSearch={ setSearch } />
+						<SearchInput
+							className={ styles[ 'search-input' ] }
+							onSearch={ setSearch }
+							value={ searchQuery }
+							onChange={ setSearchQuery }
+						/>
 						<FilterButton onToggle={ () => ( {} ) } />
 						<Button
 							variant="tertiary"
