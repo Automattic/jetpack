@@ -489,11 +489,19 @@ class Modules {
 			return;
 		}
 
+		// Retrieving existing configuration.
 		$existing_enforce_setting = \Jetpack_Options::get_option(
 			'active_modules_enforced',
 			array()
 		);
 
+		// Activating newly enforced modules.
+		$newly_enforced = array_diff( $enforced_modules, $existing_enforce_setting );
+		foreach ( $newly_enforced as $slug ) {
+			$this->activate( $slug );
+		}
+
+		// Storing the new configuration.
 		self::$enforced_modules = array_merge( self::$enforced_modules, $enforced_modules );
 		\Jetpack_Options::update_option(
 			'active_modules_enforced',

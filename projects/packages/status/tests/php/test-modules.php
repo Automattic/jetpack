@@ -96,7 +96,8 @@ class Test_Modules extends TestCase {
 		Functions\when( 'get_option' )->justReturn( array() );
 		Functions\when( 'update_option' )->justReturn( true );
 
-		$modules = new Modules();
+		$modules = \Mockery::mock( '\Automattic\Jetpack\Modules[activate]' );
+		$modules->shouldReceive( 'activate' );
 		$modules->enforce( $enforced );
 
 		$this->assertEquals(
@@ -112,7 +113,8 @@ class Test_Modules extends TestCase {
 			$modules->filter_active_modules( $filtered )
 		);
 
-		$modules2 = new Modules();
+		$modules2 = \Mockery::mock( '\Automattic\Jetpack\Modules[activate]' );
+		$modules2->shouldReceive( 'activate' );
 		$modules2->enforce( array( 'infinite-scroll' ) );
 
 		$this->assertEquals(
@@ -128,7 +130,8 @@ class Test_Modules extends TestCase {
 	 * @param Array $enforced Enforced module list to be passed as an argument.
 	 */
 	public function test_module_enforcement_adds_option( $enforced ) {
-		$modules = new Modules();
+		$modules = \Mockery::mock( '\Automattic\Jetpack\Modules[activate]' );
+		$modules->shouldReceive( 'activate' );
 
 		Functions\when( 'get_option' )->justReturn( array() );
 		Functions\expect( 'update_option' )
@@ -145,7 +148,7 @@ class Test_Modules extends TestCase {
 	 * @param Array $enforced Enforced module list to be passed as an argument.
 	 */
 	public function test_module_enforcement_combines_with_existing_option_value( $enforced ) {
-		$modules  = new Modules();
+		$modules  = \Mockery::mock( '\Automattic\Jetpack\Modules[activate]' );
 		$existing = array( 'infinite-scroll' );
 		$result   = array_merge( $existing, $enforced );
 
@@ -153,6 +156,13 @@ class Test_Modules extends TestCase {
 		Functions\expect( 'update_option' )
 			->once()
 			->with( 'jetpack_active_modules_enforced', $result, true );
+
+		foreach ( $enforced as $slug ) {
+			$modules
+				->shouldReceive( 'activate' )
+				->with( $slug )
+				->times( 1 );
+		}
 
 		$modules->enforce( $enforced );
 	}
