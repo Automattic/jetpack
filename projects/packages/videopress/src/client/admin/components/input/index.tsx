@@ -33,7 +33,7 @@ const InputWrapper = ( {
 
 	const handleKeyUpEvent = useCallback(
 		( e: KeyboardEvent< HTMLInputElement | HTMLTextAreaElement > ) => {
-			if ( onEnter != null && e.code === 'Enter' ) {
+			if ( onEnter != null && [ 'Enter', 'NumpadEnter' ].includes( e.code ) ) {
 				onEnter( e.currentTarget.value );
 			}
 		},
