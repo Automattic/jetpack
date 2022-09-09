@@ -56,7 +56,7 @@ describe( 'Connections', () => {
 		it( 'renders cards for site and user connection', () => {
 			render( <DashConnections { ...testProps } />, { initialState: buildInitialState() } );
 			expect(
-				withinCard( 'Site connection' ).getByText( 'Your site is connected to WordPress.com.' )
+				withinCard( 'Site connection' ).getByText( 'Your site is connected to Jetpack.com.' )
 			).toBeInTheDocument();
 			expect( withinCard( 'Account connection' ).getByText( 'jetpack' ) ).toBeInTheDocument();
 			expect(
@@ -129,7 +129,7 @@ describe( 'Connections', () => {
 			} );
 			expect(
 				withinCard( 'Account connection' ).getByRole( 'link', {
-					name: 'Connect your WordPress.com account',
+					name: 'Connect your Jetpack account',
 				} )
 			).toBeInTheDocument();
 		} );

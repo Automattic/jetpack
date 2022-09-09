@@ -31,13 +31,13 @@ describe( 'ConnectButton', () => {
 		it( 'renders a button to connect or link', () => {
 			render( <ConnectButton { ...testProps } fetchingConnectUrl={ true } /> );
 			expect(
-				screen.getByRole( 'link', { name: 'Connect your WordPress.com account' } )
+				screen.getByRole( 'link', { name: 'Connect your Jetpack account' } )
 			).toBeInTheDocument();
 		} );
 
 		it( 'disables the button while fetching the connect URL', () => {
 			render( <ConnectButton { ...testProps } fetchingConnectUrl={ true } /> );
-			expect( screen.getByRole( 'link', { name: 'Connect your WordPress.com account' } ) )
+			expect( screen.getByRole( 'link', { name: 'Connect your Jetpack account' } ) )
 				// eslint-disable-next-line jest-dom/prefer-enabled-disabled -- `.toBeDisabled()` doesn't work on links.
 				.toHaveAttribute( 'disabled' );
 		} );
@@ -47,7 +47,7 @@ describe( 'ConnectButton', () => {
 		it( 'has a link to jetpack.wordpress.com', () => {
 			render( <ConnectButton { ...testProps } /> );
 			expect(
-				screen.getByRole( 'link', { name: 'Connect your WordPress.com account' } )
+				screen.getByRole( 'link', { name: 'Connect your Jetpack account' } )
 			).toHaveAttribute( 'href', 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
 		} );
 	} );
@@ -58,13 +58,13 @@ describe( 'ConnectButton', () => {
 			isSiteConnected: true,
 			connectUser: true,
 			connectInPlace: true,
-			connectLegend: 'Link your account to WordPress.com',
+			connectLegend: 'Link your account to Jetpack.com',
 		};
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			render( <ConnectButton { ...currentTestProps } /> );
 			expect(
-				screen.getByRole( 'link', { name: 'Link your account to WordPress.com' } )
+				screen.getByRole( 'link', { name: 'Link your account to Jetpack.com' } )
 			).toHaveAttribute( 'href', 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
 		} );
 
@@ -80,9 +80,7 @@ describe( 'ConnectButton', () => {
 			}
 
 			render( <ConnectButtonMock { ...currentTestProps } /> );
-			await user.click(
-				screen.getByRole( 'link', { name: 'Link your account to WordPress.com' } )
-			);
+			await user.click( screen.getByRole( 'link', { name: 'Link your account to Jetpack.com' } ) );
 			expect( loadIframe ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
@@ -92,13 +90,13 @@ describe( 'ConnectButton', () => {
 			...testProps,
 			isLinked: true,
 			unlinkUser: jest.fn(),
-			connectLegend: 'Unlink your account from WordPress.com',
+			connectLegend: 'Unlink your account from Jetpack.com',
 		};
 
 		it( 'does not link to a URL', () => {
 			render( <ConnectButton { ...currentTestProps } /> );
 			expect(
-				screen.getByRole( 'button', { name: 'Unlink your account from WordPress.com' } )
+				screen.getByRole( 'button', { name: 'Unlink your account from Jetpack.com' } )
 			).not.toHaveAttribute( 'href' );
 		} );
 
@@ -106,7 +104,7 @@ describe( 'ConnectButton', () => {
 			const user = userEvent.setup();
 			render( <ConnectButton { ...currentTestProps } /> );
 			await user.click(
-				screen.getByRole( 'button', { name: 'Unlink your account from WordPress.com' } )
+				screen.getByRole( 'button', { name: 'Unlink your account from Jetpack.com' } )
 			);
 			expect( currentTestProps.unlinkUser ).toHaveBeenCalledTimes( 1 );
 		} );
@@ -119,13 +117,13 @@ describe( 'ConnectButton', () => {
 			isSiteConnected: false,
 			isLinked: false,
 			connectUser: false,
-			connectLegend: 'Connect your site to WordPress.com',
+			connectLegend: 'Connect your site to Jetpack.com',
 		};
 
 		it( 'has a link to Jetpack admin page in register mode', () => {
 			render( <ConnectButton { ...currentTestProps } /> );
 			expect(
-				screen.getByRole( 'link', { name: 'Connect your site to WordPress.com' } )
+				screen.getByRole( 'link', { name: 'Connect your site to Jetpack.com' } )
 			).toHaveAttribute(
 				'href',
 				'http://example.org/wp-admin/admin.php?page=jetpack&action=register'
@@ -135,7 +133,7 @@ describe( 'ConnectButton', () => {
 		it( "if prop 'from' has something, it's included in the link", () => {
 			render( <ConnectButton { ...currentTestProps } from="somewhere" /> );
 			expect(
-				screen.getByRole( 'link', { name: 'Connect your site to WordPress.com' } )
+				screen.getByRole( 'link', { name: 'Connect your site to Jetpack.com' } )
 			).toHaveAttribute(
 				'href',
 				'http://example.org/wp-admin/admin.php?page=jetpack&action=register&from=somewhere'
@@ -148,13 +146,13 @@ describe( 'ConnectButton', () => {
 			...testProps,
 			isSiteConnected: true,
 			connectUser: false,
-			connectLegend: 'Disconnect your site from WordPress.com',
+			connectLegend: 'Disconnect your site from Jetpack.com',
 		};
 
 		it( 'does not link to a URL', () => {
 			render( <ConnectButton { ...currentTestProps } /> );
 			expect(
-				screen.getByRole( 'button', { name: 'Disconnect your site from WordPress.com' } )
+				screen.getByRole( 'button', { name: 'Disconnect your site from Jetpack.com' } )
 			).not.toHaveAttribute( 'href' );
 		} );
 
@@ -171,7 +169,7 @@ describe( 'ConnectButton', () => {
 
 			render( <ConnectButtonMock { ...currentTestProps } /> );
 			await user.click(
-				screen.getByRole( 'button', { name: 'Disconnect your site from WordPress.com' } )
+				screen.getByRole( 'button', { name: 'Disconnect your site from Jetpack.com' } )
 			);
 			expect( handleOpenModal ).toHaveBeenCalledTimes( 1 );
 		} );

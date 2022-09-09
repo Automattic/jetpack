@@ -87,7 +87,7 @@ class DashMonitor extends Component {
 				{ ! this.props.isOfflineMode && ! this.props.hasConnectedOwner && (
 					<p className="jp-dash-item__description jp-dash-item__connect">
 						{ createInterpolateElement(
-							__( '<a>Connect your WordPress.com</a> account to use this feature.', 'jetpack' ),
+							__( '<a>Connect your Jetpack</a> account to use this feature.', 'jetpack' ),
 							{
 								a: <a href="javascript:void(0)" onClick={ this.connect } />,
 							}

@@ -133,7 +133,7 @@ class DashVideoPress extends Component {
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
-								'Connect your WordPress.com account to enable high-quality, ad-free video.',
+								'Connect your Jetpack account to enable high-quality, ad-free video.',
 								'jetpack'
 							) }
 							disableHref="false"

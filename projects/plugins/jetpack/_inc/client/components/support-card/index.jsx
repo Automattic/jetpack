@@ -125,7 +125,7 @@ class SupportCard extends React.Component {
 				{ this.props.siteConnectionStatus && ! hasSupport && ! this.props.hasConnectedOwner && (
 					<JetpackBanner
 						title={ __(
-							'Connect your WordPress.com account and upgrade to get a faster resolution to your support questions.',
+							'Connect your Jetpack account and upgrade to get a faster resolution to your support questions.',
 							'jetpack'
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }

@@ -120,7 +120,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
+						{ this.props.connectLegend || __( 'Disconnect your Jetpack account', 'jetpack' ) }
 					</a>
 				</div>
 			);
@@ -137,8 +137,7 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend =
-				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
+			connectLegend = this.props.connectLegend || __( 'Connect your Jetpack account', 'jetpack' );
 
 		// Secondary users in-place connection flow
 
@@ -210,7 +209,7 @@ export class ConnectButton extends React.Component {
 					<p className="jp-banner__tos-blurb">
 						{ createInterpolateElement(
 							__(
-								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with Jetpack.com.',
 								'jetpack'
 							),
 							{

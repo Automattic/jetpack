@@ -122,7 +122,7 @@ class DashSearch extends Component {
 					<JetpackBanner
 						callToAction={ __( 'Connect', 'jetpack' ) }
 						title={ __(
-							'Connect your WordPress.com account to upgrade and get Jetpack Search, which helps your visitors instantly find the right content – right when they need it.',
+							'Connect your Jetpack account to upgrade and get Jetpack Search, which helps your visitors instantly find the right content – right when they need it.',
 							'jetpack'
 						) }
 						disableHref="false"

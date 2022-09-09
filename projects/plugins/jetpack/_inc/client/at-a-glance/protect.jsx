@@ -86,7 +86,7 @@ class DashProtect extends Component {
 						! this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<a>Connect your WordPress.com</a> account to keep your site protected from malicious sign in attempts.',
+								'<a>Connect your Jetpack</a> account to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{

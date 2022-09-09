@@ -257,7 +257,7 @@ class JetpackNotices extends React.Component {
 						showDismiss={ false }
 						status="is-warning"
 						text={ __(
-							'This site is not connected to WordPress.com. Please ask the site administrator to connect.',
+							'This site is not connected to Jetpack.com. Please ask the site administrator to connect.',
 							'jetpack'
 						) }
 					/>

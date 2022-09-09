@@ -50,7 +50,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Offline Mode, so it can not be connected to WordPress.com.',
+							'Your site is in Offline Mode, so it can not be connected to Jetpack.com.',
 							'jetpack'
 						) }
 					</div>
@@ -72,7 +72,7 @@ export class DashConnections extends Component {
 							<Gridicon icon="globe" size={ 64 } />
 						) }
 						<div className="jp-connection-settings__text">
-							{ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
+							{ __( 'Your site is connected to Jetpack.com.', 'jetpack' ) }
 							{ this.props.isConnectionOwner && (
 								<span className="jp-connection-settings__is-owner">
 									<br />
@@ -123,7 +123,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'The site is in Offline Mode, so you can not connect to WordPress.com.',
+							'The site is in Offline Mode, so you can not connect to Jetpack.com.',
 							'jetpack'
 						) }
 					</div>
