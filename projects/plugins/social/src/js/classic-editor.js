@@ -1,8 +1,8 @@
 jQuery( function ( $ ) {
-	const state = jetpackSocialClassicEditorInitialState; // eslint-disable-line no-undef -- This is set by wp_localize_script().
+	const state = window.jetpackSocialClassicEditorInitialState ?? {};
 	const form = $( '#publicize-form' );
 
-	if ( state.sharesRemaining > state.numberOfConnections ) {
+	if ( ! state || state.sharesRemaining > state.numberOfConnections ) {
 		return;
 	}
 
