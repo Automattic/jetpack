@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { Button, Text } from '@automattic/jetpack-components';
-import { Rect, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import React, { useState } from 'react';
+import filterIcon from '../../../components/icons/filter-icon';
 /**
  * Internal dependencies
  */
@@ -27,14 +27,6 @@ const LibraryType = {
 } as const;
 
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
-
-const filterIcon = (
-	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<Rect x="5" y="7" width="14" height="1.5" fill="black" />
-		<Rect x="7" y="11.25" width="10" height="1.5" fill="black" />
-		<Rect x="9" y="15.5" width="6" height="1.5" fill="black" />
-	</SVG>
-);
 
 const ConnectedPagination: React.FC< PaginationProps > = props => {
 	const { setPage, page } = useVideos();
