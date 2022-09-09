@@ -19,15 +19,12 @@ class Action_Bar {
 			return;
 		}
 
-		Assets::register_script(
+		wp_register_script(
 			'jetpack-action-bar',
-			'../build/action-bar.js',
-			__FILE__,
-			array(
-				'dependencies' => array(),
-				'in_footer'    => true,
-				'enqueue'      => true,
-			)
+			'https://widgets.wp.com/jetpack-action-bar/index.js',
+			array(),
+			JETPACK__VERSION,
+			true
 		);
 
 		wp_localize_script(
@@ -43,9 +40,17 @@ class Action_Bar {
 				'manage'       => esc_html__( 'Manage subscriptions', 'jetpack-action-bar' ),
 				'readerUrl'    => $this->get_reader_url(),
 				'isWpcom'      => defined( 'IS_WPCOM' ) && IS_WPCOM,
-				'siteHost'     => parse_url( get_option( 'home' ), PHP_URL_HOST ),
+				'siteHost'     => wp_parse_url( get_option( 'home' ), PHP_URL_HOST ),
 				'postUrl'      => get_post_permalink( get_the_ID() ),
 			)
+		);
+		wp_enqueue_script( 'jetpack-action-bar' );
+
+		wp_enqueue_style(
+			'jetpack-action-bar-style',
+			'https://widgets.wp.com/jetpack-action-bar/style.css',
+			array(),
+			JETPACK__VERSION
 		);
 	}
 
@@ -56,8 +61,6 @@ class Action_Bar {
 		if ( is_admin() || ! is_single() ) {
 			return;
 		}
-		echo '<link rel="stylesheet" href="https://widgets.wp.com/jetpack-action-bar/style.css"></link>';
-		echo '<script type="text/javascript" src="https://widgets.wp.com/jetpack-action-bar/index.js"></script>';
 		echo '<div class="jetpack-action-bar-container">';
 		echo '	<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
 		echo '	<div id="jetpack-action-bar-modal" class="jetpack-action-bar-modal"></div>';
