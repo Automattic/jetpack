@@ -94,7 +94,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id = \Jetpack_Options::get_option( 'id' );
 		}
 
 		$post_id = absint( $attachment['id'] );
