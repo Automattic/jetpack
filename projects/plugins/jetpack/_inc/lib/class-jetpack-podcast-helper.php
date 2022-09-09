@@ -466,11 +466,12 @@ class Jetpack_Podcast_Helper {
 			)
 		);
 
+		// Always set the last update time, even if we hit an error.
+		$this->set_last_update_check( $feed );
+
 		if ( is_wp_error( $head_response ) ) {
 			return $feed;
 		}
-
-		$this->set_last_update_check( $feed );
 
 		if ( ! isset( $head_response['response']['code'] ) || WP_Http::NOT_MODIFIED === $head_response['response']['code'] ) {
 			return $feed;
