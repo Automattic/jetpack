@@ -80,6 +80,10 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	public function test_reregister_menu_items_without_email_subscriptions() {
 		global $menu;
 
+		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker->method( 'has_email' )->will( $this->returnValue( false ) ); // always returns false
+
+		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
 		static::$admin_menu->reregister_menu_items();
 
 		$this->assertCount( 3, $menu );
