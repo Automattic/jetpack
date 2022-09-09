@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.0] - 2022-09-08
+### Changed
+- Add option to JP options [#25979]
+
+## [1.44.0] - 2022-08-29
+### Added
+- Connection: verify REST API errors.
+
+## [1.43.1] - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
 ## [1.43.0] - 2022-08-23
 ### Added
 - Added verified errors to the React initial state. [#25628]
@@ -670,6 +682,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.45.0]: https://github.com/Automattic/jetpack-connection/compare/v1.44.0...v1.45.0
+[1.44.0]: https://github.com/Automattic/jetpack-connection/compare/v1.43.1...v1.44.0
+[1.43.1]: https://github.com/Automattic/jetpack-connection/compare/v1.43.0...v1.43.1
 [1.43.0]: https://github.com/Automattic/jetpack-connection/compare/v1.42.0...v1.43.0
 [1.42.0]: https://github.com/Automattic/jetpack-connection/compare/v1.41.8...v1.42.0
 [1.41.8]: https://github.com/Automattic/jetpack-connection/compare/v1.41.7...v1.41.8

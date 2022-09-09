@@ -56,18 +56,24 @@
 
 .jetpack-instant-search__search-sort-option {
 	@include remove-button-styling();
-	@include inherit-parent-colors-important();
-	@include inherit-parent-font-size-important();
 	cursor: pointer;
 	padding: 0 2px 0 2px;
 
 	&:focus {
 		@include apply-overlay-focus-styling();
 	}
+}
+
+.jetpack-instant-search__search-form-controls
+	.jetpack-instant-search__search-sort
+	button.jetpack-instant-search__search-sort-option {
+	// Extra specificity to override overly agressive theme styles.
+	// Without this, we need to use "!important" to get our default styling.
+	@include apply-default-overlay-colors();
+	@include apply-default-overlay-font-metrics();
 
 	&.is-selected {
-		// !important is temporarily needed to override :not() selectors in certain themes like Twenty Twenty One
-		color: $color-link-alt !important;
+		color: $color-link-alt;
 		font-weight: 600;
 		text-decoration: none;
 	}

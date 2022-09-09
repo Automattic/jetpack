@@ -95,6 +95,7 @@
   paths:
    - 'projects/plugins/social/**'
    - 'projects/packages/publicize/**'
+   - 'projects/js-packages/publicize-components/**'
    - '!projects/plugins/*/composer.lock'
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'

@@ -1,0 +1,21 @@
+.list {
+	background-color: var(--jp-white);
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	padding: calc( var(--spacing-base) * 2 ) var(--spacing-base); // 16px | 8px
+	justify-content: space-between;
+	gap: calc( var(--spacing-base) * 2 ); // 16px
+	border-bottom: 1px solid var(--jp-gray-5);
+}
+
+.title-wrapper {
+	display: flex;
+	gap: calc( var(--spacing-base) * 2 ); // 16px
+}
+
+.row {
+	border-bottom: 1px solid var(--jp-gray-5);
+}

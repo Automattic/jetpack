@@ -13,14 +13,15 @@
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "1.4.x-dev",
 		"automattic/jetpack-abtest": "1.10.x-dev",
+		"automattic/jetpack-action-bar": "0.1.x-dev",
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-backup": "1.7.x-dev",
+		"automattic/jetpack-backup": "1.8.x-dev",
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.7.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-connection": "1.43.x-dev",
+		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-connection-ui": "2.4.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
@@ -35,13 +36,13 @@
 		"automattic/jetpack-partner": "1.7.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
 		"automattic/jetpack-post-list": "0.4.x-dev",
-		"automattic/jetpack-publicize": "0.12.x-dev",
+		"automattic/jetpack-publicize": "0.13.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
-		"automattic/jetpack-search": "0.20.x-dev",
+		"automattic/jetpack-search": "0.22.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
-		"automattic/jetpack-videopress": "0.2.x-dev",
+		"automattic/jetpack-videopress": "0.3.x-dev",
 		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-wordads": "0.2.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
@@ -99,7 +100,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_3_a_12",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_4_a_2",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
