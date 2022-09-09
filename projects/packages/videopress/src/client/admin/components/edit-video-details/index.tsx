@@ -12,7 +12,8 @@ import { Icon, chevronRightSmall } from '@wordpress/icons';
 import * as mock from '../../mock';
 import Input from '../input';
 import Logo from '../logo';
-import { VideoDetails, VideoThumbnail } from '../video-card';
+import { VideoThumbnail } from '../video-card';
+import VideoDetails from '../video-details';
 import styles from './style.module.scss';
 
 const noop = () => {
