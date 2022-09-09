@@ -1,4 +1,3 @@
-import { __ } from '@wordpress/i18n';
 import React from 'react';
 import './style.scss';
 
@@ -104,19 +103,6 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 					strokeDashoffset="-25" // this ensures the segment begins at the bottom of the donut instead of the top
 				></circle>
 			</svg>
-			<table className="screen-reader-text">
-				<caption>{ __( 'Summary of the meter', 'jetpack' ) }</caption>
-				<tbody>
-					<tr>
-						<th scope="col">{ __( 'Current amount', 'jetpack' ) }</th>
-						<th scope="col">{ __( 'Total limit', 'jetpack' ) }</th>
-					</tr>
-					<tr>
-						<td>{ segmentCount }</td>
-						<td>{ totalCount }</td>
-					</tr>
-				</tbody>
-			</table>
 		</div>
 	);
 };
