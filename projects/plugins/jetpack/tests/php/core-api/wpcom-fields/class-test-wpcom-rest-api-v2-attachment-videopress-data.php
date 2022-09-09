@@ -57,7 +57,7 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WP_Test_Jetpack_
 					)
 				);
 
-		$attachment_id = $this->factory->attachment->create_upload_object( dirname( dirname( __DIR__ ) ) . '/jetpack-icon.jpg', 0 );
+		$attachment_id = self::factory()->attachment->create_upload_object( dirname( dirname( __DIR__ ) ) . '/jetpack-icon.jpg', 0 );
 		$object        = array(
 			'id' => $attachment_id,
 		);
