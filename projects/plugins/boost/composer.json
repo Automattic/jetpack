@@ -85,13 +85,17 @@
 		}
 	],
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-boost-production",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "boost",
 		"version-constants": {
 			"JETPACK_BOOST_VERSION": "jetpack-boost.php"
 		},
 		"wp-plugin-slug": "jetpack-boost",
+		"wp-svn-autopublish": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-boost-production/compare/v${old}...v${new}"
 		}

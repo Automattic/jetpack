@@ -63,7 +63,9 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
+		"autotagger": {
+			"v": false
+		},
 		"mirror-repo": "Automattic/jetpack-social-plugin",
 		"release-branch-prefix": "social",
 		"wp-plugin-slug": "jetpack-social",
