@@ -572,6 +572,12 @@ jQuery( function($) {
 			?>
 			</span>
 			<?php
+			/**
+			 * Fires right before rendering the Publicize form in the Classic
+			 * Editor.
+			 *
+			 * @since $$next-version
+			 */
 			do_action( 'publicize_classic_editor_form_before' );
 
 			/**
@@ -584,6 +590,12 @@ jQuery( function($) {
 			 */
 			echo apply_filters( 'publicize_form', $publicize_form ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Parts of the form are escaped individually in the code above.
 
+			/**
+			 * Fires right after rendering the Publicize form in the Classic
+			 * Editor.
+			 *
+			 * @since $$next-version
+			 */
 			do_action( 'publicize_classic_editor_form_after' );
 			?>
 		</div>
