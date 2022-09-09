@@ -21,7 +21,7 @@ class Modules {
 	 *
 	 * @var Array
 	 */
-	protected $enforced_modules = array();
+	protected static $enforced_modules = array();
 
 	/**
 	 * Check whether or not a Jetpack module is active.
@@ -494,7 +494,7 @@ class Modules {
 			array()
 		);
 
-		$this->enforced_modules = $enforced_modules;
+		self::$enforced_modules = array_merge( self::$enforced_modules, $enforced_modules );
 		\Jetpack_Options::update_option(
 			'active_modules_enforced',
 			array_merge( $existing_enforce_setting, $enforced_modules ),
@@ -513,7 +513,7 @@ class Modules {
 		return array_values(
 			array_filter(
 				array_unique(
-					array_merge( $active_modules, $this->enforced_modules )
+					array_merge( $active_modules, self::$enforced_modules )
 				)
 			)
 		);

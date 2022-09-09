@@ -13,6 +13,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.
+ *
+ * @backupStaticAttributes enabled
  */
 class Test_Modules extends TestCase {
 
@@ -114,12 +116,7 @@ class Test_Modules extends TestCase {
 		$modules2->enforce( array( 'infinite-scroll' ) );
 
 		$this->assertEquals(
-			$result,
-			$modules->filter_active_modules( $filtered )
-		);
-
-		$this->assertEquals(
-			array_merge( array( 'infinite-scroll' ), $result ),
+			array_merge( $result, array( 'infinite-scroll' ) ),
 			$modules->filter_active_modules( $filtered )
 		);
 	}
