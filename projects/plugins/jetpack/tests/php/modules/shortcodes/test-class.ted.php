@@ -126,7 +126,7 @@ BODY;
 		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)
@@ -153,7 +153,7 @@ BODY;
 		$height  = '315';
 		$content = '[ted id=' . $ted_id . ' width=' . $width . ' height=' . $height . ']';
 
-		$post_id         = $this->factory->post->create(
+		$post_id         = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)
@@ -178,7 +178,7 @@ BODY;
 		$lang    = 'fr';
 		$content = '[ted id=' . $ted_id . ' lang=' . $lang . ']';
 
-		$post_id         = $this->factory->post->create(
+		$post_id         = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)
@@ -205,7 +205,7 @@ BODY;
 		$ted_id  = '1969';
 		$content = '[ted id=' . $ted_id . ']';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post-content' => $content,
 			)

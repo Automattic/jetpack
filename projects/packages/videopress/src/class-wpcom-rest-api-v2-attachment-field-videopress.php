@@ -4,7 +4,7 @@
  *
  * @package automattic/jetpack-videopress
  * @since-jetpack 7.1.0
- * @since $$next-version$$
+ * @since 0.3.0
  */
 
 namespace Automattic\Jetpack\VideoPress;
