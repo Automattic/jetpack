@@ -14,6 +14,7 @@ import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 import { VideoCardProps } from './types';
 import type React from 'react';
+
 /**
  * Video Card component
  *
