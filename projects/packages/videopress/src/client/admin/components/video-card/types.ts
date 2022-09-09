@@ -40,23 +40,6 @@ export type VideoThumbnailDropdownProps = {
 	onUploadImage?: () => void;
 };
 
-export type VideoDetailsProps = {
-	/**
-	 * Video filename.
-	 */
-	filename: string;
-
-	/**
-	 * Video source file URL.
-	 */
-	src: string;
-
-	/**
-	 * Video uploaded date
-	 */
-	uploadDate: string;
-};
-
 export type VideoCardProps = VideoPressVideo & {
 	/**
 	 * Whether the card should look "blank" style.
