@@ -41,10 +41,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function set_up() {
 		parent::set_up();
 
-		static::$user_id_editor     = $this->factory->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		static::$user_id_editor     = self::factory()->user->create( array( 'role' => 'editor' ) );
+		static::$user_id_subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'published',
 				'post_author' => (string) static::$user_id_editor,

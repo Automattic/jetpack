@@ -20,7 +20,7 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->user_id = $this->factory->user->create(
+		$this->user_id = self::factory()->user->create(
 			array(
 				'role' => 'administrator',
 			)

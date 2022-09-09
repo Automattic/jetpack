@@ -19,12 +19,12 @@ type InputBaseProps = {
 	/**
 	 * Callback to be invoked when the input value changes.
 	 */
-	onChange: ( value: string ) => unknown;
+	onChange?: ( value: string ) => unknown;
 
 	/**
 	 * Callback to be invoked when the user presses the Enter key.
 	 */
-	onEnter: ( value: string ) => unknown;
+	onEnter?: ( value: string ) => unknown;
 };
 
 type Input = Omit< React.InputHTMLAttributes< HTMLInputElement >, 'size' > & {
@@ -51,4 +51,18 @@ type TextArea = React.TextareaHTMLAttributes< HTMLTextAreaElement > & {
 
 export type InputProps = Input | TextArea;
 
-export type SearchInputProps = InputBaseProps & Omit< Input, 'icon' | 'type' >;
+export type SearchInputProps = InputBaseProps &
+	Omit< Input, 'icon' | 'type' > & {
+		/**
+		 * Callback to be invoked when the seacrhing
+		 */
+		onSearch: ( value: string ) => unknown;
+
+		/**
+		 * The debounce time in milliseconds to wait
+		 * before to invoke the `onSearch` callback.
+		 *
+		 * @default 500
+		 */
+		wait?: number;
+	};
