@@ -81,7 +81,7 @@ const EditVideoDetails = () => {
 						<VideoDetails
 							filename={ video?.videoTitle }
 							uploadDate={ video?.uploadDate }
-							src="https://jetpack.com"
+							src={ video?.url }
 						/>
 					</Col>
 				</Container>
