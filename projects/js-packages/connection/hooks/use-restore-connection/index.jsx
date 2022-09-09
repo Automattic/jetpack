@@ -50,7 +50,7 @@ export default function useRestoreConnection() {
 				setRestoreConnectionError( error );
 				setIsRestoringConnection( false );
 
-				return error;
+				throw error;
 			} );
 	};
 
