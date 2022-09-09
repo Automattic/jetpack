@@ -3,10 +3,12 @@
  */
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
+import React from 'react';
 import Button from '../button';
 import styles from './style.module.scss';
 
@@ -27,7 +29,7 @@ const ActionButton = props => {
 		<>
 			{
 				<Button
-					className={ styles.button }
+					className={ classNames( styles.button, 'jp-action-button--button' ) }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
@@ -37,7 +39,9 @@ const ActionButton = props => {
 				</Button>
 			}
 
-			{ displayError && <p className={ styles.error }>{ errorMessage }</p> }
+			{ displayError && (
+				<p className={ classNames( styles.error, 'jp-action-button__error' ) }>{ errorMessage }</p>
+			) }
 		</>
 	);
 };
