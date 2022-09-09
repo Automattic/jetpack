@@ -1,0 +1,7 @@
+.filter-button {
+	&.is-active {
+		> svg {
+			fill: var( --jp-white );
+		}
+	}
+}
