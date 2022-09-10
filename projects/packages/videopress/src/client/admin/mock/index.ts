@@ -49,6 +49,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 2,
@@ -58,6 +59,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 3,
@@ -67,6 +69,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 4,
@@ -76,6 +79,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 5,
@@ -85,6 +89,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 6,
@@ -94,6 +99,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 ];
 

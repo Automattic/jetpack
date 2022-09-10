@@ -43,7 +43,7 @@ type Input = Omit< React.InputHTMLAttributes< HTMLInputElement >, 'size' | 'onCh
 	type?: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
 } & InputBaseProps;
 
-type TextArea = React.TextareaHTMLAttributes< HTMLTextAreaElement > & {
+type TextArea = Omit< React.TextareaHTMLAttributes< HTMLTextAreaElement >, 'onChange' > & {
 	/**
 	 * No support for icon when using textarea.
 	 */
