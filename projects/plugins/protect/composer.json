@@ -14,7 +14,9 @@
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
-		"automattic/jetpack-transport-helper": "0.1.x-dev"
+		"automattic/jetpack-transport-helper": "0.1.x-dev",
+		"symfony/console": "5.2",
+		"symfony/deprecation-contracts": "3.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
