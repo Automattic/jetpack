@@ -12,6 +12,9 @@
 		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
+		"files": [
+			"actions.php"
+		],
 		"classmap": [
 			"src/"
 		]
