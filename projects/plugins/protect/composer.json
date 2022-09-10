@@ -13,7 +13,8 @@
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
-		"automattic/jetpack-sync": "1.38.x-dev"
+		"automattic/jetpack-sync": "1.38.x-dev",
+		"automattic/jetpack-transport-helper": "dev-add/transport-helper-funcitonality-2"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
