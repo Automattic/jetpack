@@ -26,7 +26,7 @@ if ( function_exists( 'add_filter' ) ) {
 $add_action( 'jetpack_cleanup_helper_scripts', array( 'Automattic\\Jetpack\\Transport_Helper\\Helper_Script_Manager', 'cleanup_expired_helper_scripts' ) );
 
 // Register REST routes.
-$add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Transport_Helper\\\REST_Controller', 'register_rest_routes' ) );
+$add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Transport_Helper\\REST_Controller', 'register_rest_routes' ) );
 
 // Set up package version hook.
-$add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Transport_Helper\\\Package_Version::send_package_version_to_tracker' );
+$add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Transport_Helper\\Package_Version::send_package_version_to_tracker' );
