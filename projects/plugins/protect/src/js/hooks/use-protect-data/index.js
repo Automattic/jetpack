@@ -22,10 +22,10 @@ export default function useProtectData() {
 	}
 
 	return {
-		numVulnerabilities: status.numVulnerabilities || 0,
-		numCoreVulnerabilities: status.core?.vulnerabilities?.length || 0,
-		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
-		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
+		numThreats: status.numThreats || 0,
+		numCoreThreats: status.core?.threats?.length || 0,
+		numPluginsThreats: status.numPluginsThreats || 0,
+		numThemesThreats: status.numThemesThreats || 0,
 		lastChecked: status.lastChecked || null,
 		errorCode: status.errorCode || null,
 		errorMessage: status.errorMessage || null,

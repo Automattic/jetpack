@@ -84,10 +84,10 @@ class Jetpack_Protect {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		$total_vuls = Protect_Status::get_total_vulnerabilities();
-		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
-		if ( $total_vuls ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
+		$total_threats = Protect_Status::get_total_threats();
+		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
+		if ( $total_threats ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_threats );
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
@@ -206,7 +206,7 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Create a shortcut on Admin Bar to show the total of vulnerabilities found.
+	 * Create a shortcut on Admin Bar to show the total of threats found.
 	 *
 	 * @param object $wp_admin_bar The Admin Bar object.
 	 * @return void
@@ -216,7 +216,7 @@ class Jetpack_Protect {
 			return;
 		}
 
-		$total = Protect_Status::get_total_vulnerabilities();
+		$total = Protect_Status::get_total_threats();
 
 		if ( $total > 0 ) {
 			$args = array(
@@ -224,8 +224,8 @@ class Jetpack_Protect {
 				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
-					// translators: %d is the number of vulnerabilities found.
-					'title' => sprintf( _n( '%d vulnerability found by Jetpack Protect', '%d vulnerabilities found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
+					// translators: %d is the number of threats found.
+					'title' => sprintf( _n( '%d threat found by Jetpack Protect', '%d threats found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
 				),
 			);
 

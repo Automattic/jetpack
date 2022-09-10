@@ -32,20 +32,20 @@ class Test_Status extends BaseTestCase {
 	 * Get a sample checked theme result
 	 *
 	 * @param string $id The unique theme ID.
-	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
+	 * @param bool   $with_threats Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_theme( $id, $with_vuls = true ) {
+	public function get_sample_theme( $id, $with_threats = true ) {
 		$item = (object) array(
-			'version'         => '1.0.2',
-			'name'            => 'Sample Theme',
-			'checked'         => true,
-			'type'            => 'themes',
-			'vulnerabilities' => array(),
-			'slug'            => "theme-$id",
+			'version' => '1.0.2',
+			'name'    => 'Sample Theme',
+			'checked' => true,
+			'type'    => 'themes',
+			'threats' => array(),
+			'slug'    => "theme-$id",
 		);
-		if ( $with_vuls ) {
-			$item->vulnerabilities[] = $this->get_sample_vul();
+		if ( $with_threats ) {
+			$item->threats[] = $this->get_sample_threat();
 		}
 		return $item;
 	}
@@ -54,20 +54,20 @@ class Test_Status extends BaseTestCase {
 	 * Get a sample checked plugin result
 	 *
 	 * @param string $id The unique plugin ID.
-	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
+	 * @param bool   $with_threats Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_plugin( $id, $with_vuls = true ) {
+	public function get_sample_plugin( $id, $with_threats = true ) {
 		$item = (object) array(
-			'version'         => '1.0.2',
-			'name'            => 'Sample Plugin',
-			'checked'         => true,
-			'type'            => 'plugins',
-			'vulnerabilities' => array(),
-			'slug'            => "plugin-$id",
+			'version' => '1.0.2',
+			'name'    => 'Sample Plugin',
+			'checked' => true,
+			'type'    => 'plugins',
+			'threats' => array(),
+			'slug'    => "plugin-$id",
 		);
-		if ( $with_vuls ) {
-			$item->vulnerabilities[] = $this->get_sample_vul();
+		if ( $with_threats ) {
+			$item->threats[] = $this->get_sample_threat();
 		}
 		return $item;
 	}
@@ -75,21 +75,21 @@ class Test_Status extends BaseTestCase {
 	/**
 	 * Get a sample checked core result
 	 *
-	 * @param bool $with_vuls Whether the sample should include a vulnerability.
+	 * @param bool $with_threats Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_core( $with_vuls = true ) {
+	public function get_sample_core( $with_threats = true ) {
 		global $wp_version;
 
 		$item = (object) array(
-			'version'         => $wp_version,
-			'vulnerabilities' => array(),
-			'checked'         => true,
-			'name'            => 'WordPress',
-			'type'            => 'core',
+			'version' => $wp_version,
+			'threats' => array(),
+			'checked' => true,
+			'name'    => 'WordPress',
+			'type'    => 'core',
 		);
-		if ( $with_vuls ) {
-			$item->vulnerabilities[] = $this->get_sample_vul();
+		if ( $with_threats ) {
+			$item->threats[] = $this->get_sample_threat();
 		}
 
 		return $item;
@@ -105,6 +105,21 @@ class Test_Status extends BaseTestCase {
 			'id'       => 'asdasdasd-123123-asdasd',
 			'title'    => 'Sample Vul',
 			'fixed_in' => '2.0.0',
+		);
+	}
+
+	/**
+	 * Get a sample threat
+	 *
+	 * @return object
+	 */
+	public function get_sample_threat() {
+		return new Threat_Model(
+			array(
+				'id'       => 'asdasdasd-123123-asdasd',
+				'title'    => 'Sample Vul',
+				'fixed_in' => '2.0.0',
+			)
 		);
 	}
 
@@ -127,20 +142,50 @@ class Test_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_response() {
+		global $wp_version;
+
 		return (object) array(
 			'last_checked'                => '2003-03-03 03:03:03',
 			'num_vulnerabilities'         => 3,
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 1,
 			'themes'                      => (object) array(
-				'theme-1' => $this->get_sample_theme( '1' ),
+				'theme-1' => (object) array(
+					'slug'            => 'theme-1',
+					'name'            => 'Sample Theme',
+					'version'         => '1.0.2',
+					'checked'         => true,
+					'vulnerabilities' => array(
+						$this->get_sample_vul(),
+					),
+				),
 			),
 			'plugins'                     => (object) array(
-				'plugin-1' => $this->get_sample_plugin( '1' ),
-				'plugin-2' => $this->get_sample_plugin( '2', false ),
+				'plugin-1' => (object) array(
+					'slug'            => 'plugin-1',
+					'name'            => 'Sample Plugin',
+					'version'         => '1.0.2',
+					'checked'         => true,
+					'vulnerabilities' => array(
+						$this->get_sample_vul(),
+					),
+				),
+				'plugin-2' => (object) array(
+					'slug'            => 'plugin-2',
+					'name'            => 'Sample Plugin',
+					'version'         => '1.0.2',
+					'checked'         => true,
+					'vulnerabilities' => array(),
+				),
 			),
-			'core'                        => $this->get_sample_core(),
-			'wordpress'                   => $this->get_sample_core(),
+			'core'                        => (object) array(
+				'version'         => $wp_version,
+				'checked'         => true,
+				'vulnerabilities' => array(
+					$this->get_sample_vul(),
+				),
+				'name'            => 'WordPress',
+			),
 		);
 	}
 
@@ -152,20 +197,20 @@ class Test_Status extends BaseTestCase {
 	public function get_sample_status() {
 		return new Status_Model(
 			array(
-				'plugins'                     => array(
+				'plugins'             => array(
 					new Extension_Model( $this->get_sample_plugin( '1' ) ),
 					new Extension_Model( $this->get_sample_plugin( '2', false ) ),
 				),
-				'themes'                      => array(
+				'themes'              => array(
 					new Extension_Model( $this->get_sample_theme( '1' ) ),
 				),
-				'core'                        => new Extension_Model( $this->get_sample_core() ),
-				'wordpress'                   => $this->get_sample_core(),
-				'last_checked'                => '2003-03-03 03:03:03',
-				'num_vulnerabilities'         => 3,
-				'num_themes_vulnerabilities'  => 1,
-				'num_plugins_vulnerabilities' => 1,
-				'has_unchecked_items'         => false,
+				'core'                => new Extension_Model( $this->get_sample_core() ),
+				'wordpress'           => $this->get_sample_core(),
+				'last_checked'        => '2003-03-03 03:03:03',
+				'num_threats'         => 3,
+				'num_themes_threats'  => 1,
+				'num_plugins_threats' => 1,
+				'has_unchecked_items' => false,
 			)
 		);
 	}
@@ -295,13 +340,13 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Test get total vuls
+	 * Test get total threats
 	 */
-	public function test_get_total_vuls() {
+	public function test_get_total_threats() {
 		$this->mock_connection();
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		$status = Status::get_total_vulnerabilities();
+		$status = Status::get_total_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
 		$this->assertSame( 3, $status );
@@ -309,21 +354,21 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Test get total vuls
+	 * Test get all threats
 	 */
-	public function test_get_all_vuls() {
+	public function test_get_all_threats() {
 		$this->mock_connection();
 
 		$expected = array(
-			new Threat_Model( $this->get_sample_vul() ),
-			new Threat_Model( $this->get_sample_vul() ),
-			new Threat_Model( $this->get_sample_vul() ),
+			$this->get_sample_threat(),
+			$this->get_sample_threat(),
+			$this->get_sample_threat(),
 		);
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_all_vulnerabilities();
+		$status = Status::get_all_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );

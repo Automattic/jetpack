@@ -94,86 +94,86 @@ class Status {
 	}
 
 	/**
-	 * Checks the current status to see if there are any vulnerabilities found
+	 * Checks the current status to see if there are any threats found
 	 *
 	 * @return boolean
 	 */
-	public static function has_vulnerabilities() {
-		return 0 < self::get_total_vulnerabilities();
+	public static function has_threats() {
+		return 0 < self::get_total_threats();
 	}
 
 	/**
-	 * Gets the total number of vulnerabilities found
+	 * Gets the total number of threats found
 	 *
 	 * @return integer
 	 */
-	public static function get_total_vulnerabilities() {
+	public static function get_total_threats() {
 		$status = self::get_status();
-		return isset( $status->num_vulnerabilities ) && is_int( $status->num_vulnerabilities ) ? $status->num_vulnerabilities : 0;
+		return isset( $status->num_threats ) && is_int( $status->num_threats ) ? $status->num_threats : 0;
 	}
 
 	/**
-	 * Get all vulnerabilities combined
+	 * Get all threats combined
 	 *
 	 * @return array
 	 */
-	public static function get_all_vulnerabilities() {
+	public static function get_all_threats() {
 		return array_merge(
-			self::get_wordpress_vulnerabilities(),
-			self::get_themes_vulnerabilities(),
-			self::get_plugins_vulnerabilities()
+			self::get_wordpress_threats(),
+			self::get_themes_threats(),
+			self::get_plugins_threats()
 		);
 	}
 
 	/**
-	 * Get vulnerabilities found for WordPress core
+	 * Get threats found for WordPress core
 	 *
 	 * @return array
 	 */
-	public static function get_wordpress_vulnerabilities() {
-		return self::get_vulnerabilities( 'core' );
+	public static function get_wordpress_threats() {
+		return self::get_threats( 'core' );
 	}
 
 	/**
-	 * Get vulnerabilities found for themes
+	 * Get threats found for themes
 	 *
 	 * @return array
 	 */
-	public static function get_themes_vulnerabilities() {
-		return self::get_vulnerabilities( 'themes' );
+	public static function get_themes_threats() {
+		return self::get_threats( 'themes' );
 	}
 
 	/**
-	 * Get vulnerabilities found for plugins
+	 * Get threats found for plugins
 	 *
 	 * @return array
 	 */
-	public static function get_plugins_vulnerabilities() {
-		return self::get_vulnerabilities( 'plugins' );
+	public static function get_plugins_threats() {
+		return self::get_threats( 'plugins' );
 	}
 
 	/**
-	 * Get the vulnerabilities for one type of extension or core
+	 * Get the threats for one type of extension or core
 	 *
-	 * @param string $type What vulnerabilities you want to get. Possible values are 'core', 'themes' and 'plugins'.
+	 * @param string $type What threats you want to get. Possible values are 'core', 'themes' and 'plugins'.
 	 *
 	 * @return array
 	 */
-	public static function get_vulnerabilities( $type ) {
+	public static function get_threats( $type ) {
 		$status = self::get_status();
 		if ( 'core' === $type ) {
-			return isset( $status->$type ) && ! empty( $status->$type->vulnerabilities ) ? $status->$type->vulnerabilities : array();
+			return isset( $status->$type ) && ! empty( $status->$type->threats ) ? $status->$type->threats : array();
 		}
 
-		$vuls = array();
+		$threats = array();
 		if ( isset( $status->$type ) ) {
 			foreach ( (array) $status->$type as $item ) {
-				if ( ! empty( $item->vulnerabilities ) ) {
-					$vuls = array_merge( $vuls, $item->vulnerabilities );
+				if ( ! empty( $item->threats ) ) {
+					$threats = array_merge( $threats, $item->threats );
 				}
 			}
 		}
-		return $vuls;
+		return $threats;
 	}
 
 	/**
@@ -305,11 +305,11 @@ class Status {
 		$status = new Status_Model();
 
 		// map report data properties directly into the Status_Model
-		$status->status                      = isset( $report_data->status ) ? $report_data->status : null;
-		$status->last_checked                = isset( $report_data->last_checked ) ? $report_data->last_checked : null;
-		$status->num_vulnerabilities         = isset( $report_data->num_vulnerabilities ) ? $report_data->num_vulnerabilities : null;
-		$status->num_themes_vulnerabilities  = isset( $report_data->num_themes_vulnerabilities ) ? $report_data->num_themes_vulnerabilities : null;
-		$status->num_plugins_vulnerabilities = isset( $report_data->num_plugins_vulnerabilities ) ? $report_data->num_plugins_vulnerabilities : null;
+		$status->status              = isset( $report_data->status ) ? $report_data->status : null;
+		$status->last_checked        = isset( $report_data->last_checked ) ? $report_data->last_checked : null;
+		$status->num_threats         = isset( $report_data->num_vulnerabilities ) ? $report_data->num_vulnerabilities : null;
+		$status->num_themes_threats  = isset( $report_data->num_themes_vulnerabilities ) ? $report_data->num_themes_vulnerabilities : null;
+		$status->num_plugins_threats = isset( $report_data->num_plugins_vulnerabilities ) ? $report_data->num_plugins_vulnerabilities : null;
 
 		// merge plugins from report with all installed plugins before mapping into the Status_Model
 		$installed_plugins   = Plugins_Installer::get_plugins();
@@ -340,9 +340,9 @@ class Status {
 	/**
 	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
 	 *
-	 * @param array $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param array $checked   The list of checked extensions.
-	 * @param array $append    Additional data to append to each result in the list.
+	 * @param array  $installed The list of installed extensions, where each attribute key is the extension slug.
+	 * @param object $checked   The list of checked extensions.
+	 * @param array  $append    Additional data to append to each result in the list.
 	 * @return array Normalized list of extensions.
 	 */
 	private static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
@@ -352,11 +352,11 @@ class Status {
 			$extension = new Extension_Model(
 				array_merge(
 					array(
-						'name'            => $installed[ $slug ]['Name'],
-						'version'         => $installed[ $slug ]['Version'],
-						'slug'            => $slug,
-						'vulnerabilities' => array(),
-						'checked'         => false,
+						'name'    => $installed[ $slug ]['Name'],
+						'version' => $installed[ $slug ]['Version'],
+						'slug'    => $slug,
+						'threats' => array(),
+						'checked' => false,
 					),
 					$append
 				)
@@ -367,7 +367,7 @@ class Status {
 				$extension->checked = true;
 				if ( is_array( $checked->{ $slug }->vulnerabilities ) ) {
 					foreach ( $checked->{ $slug }->vulnerabilities as $vulnerability ) {
-						$extension->vulnerabilities[] = new Threat_Model(
+						$extension->threats[] = new Threat_Model(
 							array(
 								'id'          => $vulnerability->id,
 								'title'       => $vulnerability->title,
@@ -385,11 +385,11 @@ class Status {
 		usort(
 			$new_list,
 			function ( $a, $b ) {
-				// sort primarily based on the presence of vulnerabilities
-				if ( ! empty( $a->vulnerabilities ) && empty( $b->vulnerabilities ) ) {
+				// sort primarily based on the presence of threats
+				if ( ! empty( $a->threats ) && empty( $b->threats ) ) {
 					return -1;
 				}
-				if ( empty( $a->vulnerabilities ) && ! empty( $b->vulnerabilities ) ) {
+				if ( empty( $a->threats ) && ! empty( $b->threats ) ) {
 					return 1;
 				}
 				// sort secondarily on whether the item has been checked
@@ -427,7 +427,7 @@ class Status {
 		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
 			if ( is_array( $core_check->vulnerabilities ) ) {
 				$core->checked = true;
-				$core->set_vulnerabilities( $core_check->vulnerabilities );
+				$core->set_threats( $core_check->vulnerabilities );
 			}
 		}
 

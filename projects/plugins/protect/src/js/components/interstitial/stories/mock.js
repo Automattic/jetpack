@@ -4,146 +4,146 @@ export const jetpackProtectInitialState = {
 	registrationNonce: 'c923ca109f',
 	status: {
 		last_checked: '2022-05-05 20:56:27',
-		num_vulnerabilities: 6,
-		num_plugins_vulnerabilities: 3,
-		num_themes_vulnerabilities: 3,
+		num_threats: 6,
+		num_plugins_threats: 3,
+		num_themes_threats: 3,
 		status: 'scheduled',
 		wordpress: {
 			version: '5.9.3',
-			vulnerabilities: [],
+			threats: [],
 		},
 		themes: {
 			twentynineteen: {
 				version: '2.2',
-				vulnerabilities: [
+				threats: [
 					{
 						id: '1fd6742e-1a32-446d-be3d-7cce44f8f416',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
 			twentytwenty: {
 				version: '1.9',
-				vulnerabilities: [
+				threats: [
 					{
 						id: '1ac912c1-5e29-41ac-8f76-a062de254c09',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 					{
 						id: '6e61b246-5af1-4a4f-9ca8-a8c87eb2e499',
-						title: 'Sample Vulnerability number 2 with a long title',
+						title: 'Sample Threat number 2 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
 			twentytwentyone: {
 				version: '1.5',
-				vulnerabilities: [],
+				threats: [],
 			},
 			twentytwentytwo: {
 				version: '1.1',
-				vulnerabilities: [],
+				threats: [],
 			},
 		},
 		plugins: {
 			'akismet/akismet.php': {
 				version: '4.2.3',
-				vulnerabilities: [
+				threats: [
 					{
 						id: '36e3817f-7fcc-4a97-9ea2-e5e3b01f93a1',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
 			'always-use-jetpack-open-graph/always-use-jetpack-open-graph.php': {
 				version: '1.0.2-alpha',
-				vulnerabilities: [
+				threats: [
 					{
 						id: 'd442acac-4394-45e4-b6bb-adf4a40960fb',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 					{
 						id: '0c980e1c-d4dc-4b96-b0ce-282289674f55',
-						title: 'Sample Vulnerability number 2 with a long title',
+						title: 'Sample Threat number 2 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
 			'core-control/core-control.php': {
 				version: '1.2.1',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'creative-mail-by-constant-contact/creative-mail-plugin.php': {
 				version: '1.4.9',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'gutenberg/gutenberg.php': {
 				version: '12.7.1',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'jetpack/jetpack.php': {
 				version: '11.0-a.2',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'backup/jetpack-backup.php': {
 				version: '1.3.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'beta/jetpack-beta.php': {
 				version: '3.1.2-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'boost/jetpack-boost.php': {
 				version: '1.4.3-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'jetpack-boost/jetpack-boost.php': {
 				version: '1.4.0',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'zero-bs-crm/ZeroBSCRM.php': {
 				version: '4.9.0',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'debug-helper/plugin.php': {
 				version: '1.4.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'protect/jetpack-protect.php': {
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'search/jetpack-search.php': {
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'social/jetpack-social.php': {
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'starter-plugin/jetpack-starter-plugin.php': {
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'qr-block/qr-block.php': {
 				version: '0.0.10',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'query-monitor/query-monitor.php': {
 				version: '3.8.2',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'vaultpress/vaultpress.php': {
 				version: '2.2.2-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
 			'wp-crontrol/wp-crontrol.php': {
 				version: '1.12.0',
-				vulnerabilities: [],
+				threats: [],
 			},
 		},
 	},
