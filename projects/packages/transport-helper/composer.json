@@ -4,7 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.45"
+		"automattic/jetpack-connection": "^1.45",
+		"automattic/jetpack-autoloader": "^2.11"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
@@ -57,7 +58,8 @@
 	},
 	"config": {
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true
 		}
 	}
 }
