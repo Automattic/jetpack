@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { Text, SearchIcon } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { Icon, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
 /**
@@ -16,6 +18,7 @@ import type React from 'react';
 const InputWrapper = ( {
 	className,
 	disabled = false,
+	loading = false,
 	icon = null,
 	onChange,
 	onEnter,
@@ -33,12 +36,16 @@ const InputWrapper = ( {
 
 	const handleKeyUpEvent = useCallback(
 		( e: KeyboardEvent< HTMLInputElement | HTMLTextAreaElement > ) => {
-			if ( onEnter != null && e.code === 'Enter' ) {
+			if ( onEnter != null && [ 'Enter', 'NumpadEnter' ].includes( e.code ) ) {
 				onEnter( e.currentTarget.value );
 			}
 		},
 		[ onEnter ]
 	);
+
+	const clearInput = useCallback( () => {
+		onChange( '' );
+	}, [ onChange ] );
 
 	const baseProps = {
 		className: classnames( styles.input, {
@@ -50,19 +57,37 @@ const InputWrapper = ( {
 		[ 'aria-disabled' ]: disabled,
 	};
 
+	const isTextarea = inputProps?.type === 'textarea';
+
 	return (
 		<div
 			className={ classnames( className, styles[ 'input-wrapper' ], {
 				[ styles.disabled ]: disabled,
 				[ styles.large ]: size === 'large',
+				[ styles[ 'is-textarea' ] ]: isTextarea,
 			} ) }
 		>
-			{ inputProps?.type === 'textarea' ? (
+			{ isTextarea ? (
 				<textarea { ...inputProps } { ...baseProps } />
 			) : (
 				<>
-					{ icon }
-					<input { ...inputProps } { ...baseProps } />
+					{ loading ? (
+						<div className={ classnames( styles[ 'icon-wrapper' ], styles.loader ) }>
+							<Spinner />
+						</div>
+					) : (
+						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>{ icon }</div>
+					) }
+					<input { ...inputProps } { ...baseProps } value={ inputProps.value } />
+					{ inputProps.value !== '' && (
+						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
+							<Icon
+								icon={ closeSmall }
+								onClick={ clearInput }
+								className={ classnames( styles[ 'clear-icon' ] ) }
+							/>
+						</div>
+					) }
 				</>
 			) }
 		</div>
@@ -96,7 +121,7 @@ export const Input = ( {
 			<InputWrapper name={ name } size={ size } { ...wrapperProps } />
 		</div>
 	) : (
-		<InputWrapper className={ className } { ...wrapperProps } />
+		<InputWrapper className={ className } size={ size } { ...wrapperProps } />
 	);
 };
 
