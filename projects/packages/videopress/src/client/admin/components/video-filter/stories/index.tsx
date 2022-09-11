@@ -5,7 +5,7 @@ import { action } from '@storybook/addon-actions';
 /**
  * Internal dependencies
  */
-import { FilterButton } from '..';
+import { FilterButton, FilterSection, CheckboxCheckmark } from '..';
 /**
  * Types
  */
@@ -19,9 +19,20 @@ export default {
 	},
 } as ComponentMeta< typeof FilterButton >;
 
-const VideoFilterButtonTemplate: ComponentStory< typeof FilterButton > = FilterButton;
+const VideoFilterSectionTemplate: ComponentStory< typeof FilterSection > = FilterSection;
+export const filterSection = VideoFilterSectionTemplate.bind( {} );
+filterSection.args = {};
 
+const VideoFilterButtonTemplate: ComponentStory< typeof FilterButton > = FilterButton;
 export const filterButton = VideoFilterButtonTemplate.bind( {} );
 filterButton.args = {
 	onToggle: action( 'onToggle' ),
+};
+
+const CheckboxCheckmarkButtonTemplate: ComponentStory<
+	typeof CheckboxCheckmark
+> = CheckboxCheckmark;
+export const checkboxCheckmark = CheckboxCheckmarkButtonTemplate.bind( {} );
+checkboxCheckmark.args = {
+	label: 'Is it checked?',
 };
