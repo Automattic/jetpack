@@ -15,8 +15,10 @@ import styles from './style.module.scss';
 export const FilterButton = ( props: { onToggle?: ( isActive ) => void } ): JSX.Element => {
 	const [ isActive, setIsActive ] = useState( false );
 	const onClickHandler = useCallback( () => {
-		setIsActive( v => ! v );
-		props?.onToggle( isActive );
+		setIsActive( v => {
+			props?.onToggle( ! v );
+			return ! v;
+		} );
 	}, [ props?.onToggle ] );
 
 	return (
@@ -39,7 +41,9 @@ export const CheckboxCheckmark = ( props: { label?: string; for: string } ): JSX
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
 			<Checkbox id={ props.for } className={ styles.checkbox } />
 			<span className={ styles[ 'checkbox-checkmark' ] } />
-			<Text variant="body-small">{ props.label }</Text>
+			<Text variant="body-small" weight="regular">
+				{ props.label }
+			</Text>
 		</label>
 	);
 };
@@ -47,7 +51,23 @@ export const CheckboxCheckmark = ( props: { label?: string; for: string } ): JSX
 export const FilterSection = ( props ): JSX.Element => {
 	return (
 		<div className={ classnames( styles[ 'filters-section' ], props.className ) }>
-			<Container horizontalSpacing={ 4 } horizontalGap={ 4 }>
+			<Container horizontalSpacing={ 4 } horizontalGap={ 1 }>
+				<Col sm={ 4 } md={ 4 } lg={ 4 }>
+					<Text variant="body-small" weight="bold">
+						{ __( 'Uploader', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Col>
+				<Col sm={ 4 } md={ 4 } lg={ 4 }>
+					<Text variant="body-small" weight="bold">
+						{ __( 'Privacy', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Col>
+				<Col sm={ 4 } md={ 4 } lg={ 4 }>
+					<Text variant="body-small" weight="bold">
+						{ __( 'Rating', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</Col>
+
 				<Col sm={ 4 } md={ 4 } lg={ 4 } />
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
 					<CheckboxCheckmark

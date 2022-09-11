@@ -39,8 +39,8 @@
 
 	.checkbox-checkmark {
 		position: absolute;
-		top: 0;
-		left: 0;
+		top: -1px;
+		left: -1px;
 		height: 20px;
 		width: 20px;
 		box-sizing: border-box;
