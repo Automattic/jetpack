@@ -1,4 +1,4 @@
-import { JetpackLogo } from '@automattic/components';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
