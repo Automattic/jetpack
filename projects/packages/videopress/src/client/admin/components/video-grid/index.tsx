@@ -9,6 +9,17 @@ import { VideoCard } from '../video-card';
 import styles from './style.module.scss';
 import { VideoGridProps } from './types';
 import type React from 'react';
+
+// Generate en ampty array of length count
+const blankData = {
+	id: 0,
+	title: '...',
+	thumbnail: null,
+	duration: null,
+	uploadDate: '',
+	plays: null,
+};
+
 /**
  * Video Grid component
  *
@@ -16,11 +27,11 @@ import type React from 'react';
  * @returns {React.ReactNode} - VideoGrid react component.
  */
 const VideoGrid: React.FC< VideoGridProps > = ( { videos, count = 6 } ) => {
-	if ( ! videos || ! videos.length ) {
-		return null;
-	}
+	let gridVideos = videos.slice( 0, count );
 
-	const gridVideos = videos.slice( 0, count );
+	if ( gridVideos.length < count ) {
+		gridVideos = gridVideos.concat( Array( count - gridVideos.length ).fill( blankData ) );
+	}
 
 	return (
 		<div className={ styles.wrapper }>
