@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 		$this->sender->reset_data();
 
 		$this->taxonomy    = 'category';
-		$this->post_id     = $this->factory->post->create();
+		$this->post_id     = self::factory()->post->create();
 		$term              = wp_insert_term( 'dog', $this->taxonomy );
 		$this->term_object = get_term_by( 'id', $term['term_id'], $this->taxonomy );
 

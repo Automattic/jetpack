@@ -5,7 +5,7 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [ trunk ]
+    branches: [ 'trunk', '*/branch-*' ]
     paths-ignore:
     - '**.md'
   schedule:
@@ -188,6 +188,16 @@ jobs:
           composer build-development
         working-directory: ./projects/github-actions/test-results-to-slack
 
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-output
+
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: ./.github/files/e2e-tests/encryption.sh decrypt
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -196,5 +206,7 @@ jobs:
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
+          playwright_report_path: test-output/**/summary.json
+          rules_configuration_path: .github/files/e2e-tests/notification-rules.json
 
 

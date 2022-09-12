@@ -44,13 +44,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$this->set_globals();
 
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'user_email' => 'john@example.com',
 			)
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => (string) $author_id,
@@ -525,7 +525,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'     => 'feedback',
 				'post_status'   => 'spam',
@@ -544,7 +544,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'   => 'feedback',
 				'post_status' => 'spam',

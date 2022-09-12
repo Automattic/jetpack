@@ -56,12 +56,16 @@ importers:
       '@actions/github': 5.0.3
       '@slack/web-api': 6.7.2
       '@vercel/ncc': 0.28.5
+      glob: 8.0.3
       jest: 28.1.3
+      minimatch: 5.1.0
       nock: 13.2.9
     dependencies:
       '@actions/core': 1.9.1
       '@actions/github': 5.0.3
       '@slack/web-api': 6.7.2
+      glob: 8.0.3
+      minimatch: 5.1.0
     devDependencies:
       '@vercel/ncc': 0.28.5
       jest: 28.1.3
@@ -400,7 +404,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@babel/core': 7.18.13
       '@babel/preset-react': 7.18.6
       '@testing-library/dom': 8.16.0
@@ -745,7 +749,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-env': 7.18.10
@@ -805,7 +809,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/jetpack-api': workspace:* || ^0.13
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-env': 7.18.10
@@ -917,7 +921,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-licensing': workspace:* || ^0.5
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
@@ -1004,7 +1008,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6
@@ -1125,7 +1129,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-react': 7.18.6
@@ -1160,6 +1164,7 @@ importers:
       postcss-loader: 6.2.0
       react: 17.0.2
       react-dom: 17.0.2
+      react-router-dom: 6.3.0
       require-from-string: 2.0.2
       sass: 1.54.2
       sass-loader: 12.4.0
@@ -1184,6 +1189,7 @@ importers:
       filesize: 8.0.6
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-router-dom: 6.3.0_sfoxds7t5ydpegc3knd667wn6m
       tus-js-client: 2.3.0
     devDependencies:
       '@automattic/calypso-color-schemes': 2.1.1
@@ -1431,7 +1437,7 @@ importers:
       '@automattic/jetpack-api': workspace:* || ^0.13
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-licensing': workspace:* || ^0.5
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
       '@automattic/jetpack-publicize-components': workspace:* || ^0.5
@@ -1658,7 +1664,7 @@ importers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-env': 7.18.10
@@ -1733,7 +1739,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-publicize-components': workspace:* || ^0.5
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
@@ -1794,7 +1800,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-env': 7.18.10
@@ -1854,7 +1860,7 @@ importers:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.19
-      '@automattic/jetpack-connection': workspace:* || ^0.18
+      '@automattic/jetpack-connection': workspace:* || ^0.19
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-env': 7.18.10
@@ -3863,6 +3869,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.9
+    dev: true
 
   /@babel/runtime/7.18.9:
     resolution: {integrity: sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==}
@@ -10383,6 +10390,12 @@ packages:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
+  /brace-expansion/2.0.1:
+    resolution: {integrity: sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==}
+    dependencies:
+      balanced-match: 1.0.2
+    dev: false
+
   /braces/2.3.2:
     resolution: {integrity: sha512-aNdbnj9P8PjdXU4ybaWLK2IF3jc/EoDYbC7AazW6to3TRsfXxscC9UXOB5iDiEQrkyIbWp2SLQda4+QAa7nc3w==}
     engines: {node: '>=0.10.0'}
@@ -13855,6 +13868,17 @@ packages:
       path-is-absolute: 1.0.1
     dev: true
 
+  /glob/8.0.3:
+    resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 5.1.0
+      once: 1.4.0
+    dev: false
+
   /global-cache/1.2.1:
     resolution: {integrity: sha512-EOeUaup5DgWKlCMhA9YFqNRIlZwoxt731jCh47WBV9fQqHgXhr3Fa55hfgIUqilIcPsfdNKN7LHjrNY+Km40KA==}
     engines: {node: '>= 0.4'}
@@ -14173,7 +14197,7 @@ packages:
   /history/5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
     dependencies:
-      '@babel/runtime': 7.18.6
+      '@babel/runtime': 7.18.9
     dev: false
 
   /hoist-non-react-statics/3.3.2:
@@ -16841,6 +16865,13 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
 
+  /minimatch/5.1.0:
+    resolution: {integrity: sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==}
+    engines: {node: '>=10'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: false
+
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
 
@@ -19167,6 +19198,18 @@ packages:
       react-router: 6.2.2_react@17.0.2
     dev: false
 
+  /react-router-dom/6.3.0_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-uaJj7LKytRxZNQV8+RbzJWnJ8K2nPsOOEuX7aQstlMZKQT0164C+X2w6bnkqU3sjtLvpd5ojrezAyfZ1+0sStw==}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-router: 6.3.0_react@17.0.2
+    dev: false
+
   /react-router/5.2.0_react@17.0.2:
     resolution: {integrity: sha512-smz1DUuFHRKdcJC0jobGo8cVbhO3x50tCL4icacOlcwDOEQPq4TMqwx3sY1TP+DvtTgz4nm3thuo7A+BK2U0Dw==}
     peerDependencies:
@@ -19187,6 +19230,15 @@ packages:
 
   /react-router/6.2.2_react@17.0.2:
     resolution: {integrity: sha512-/MbxyLzd7Q7amp4gDOGaYvXwhEojkJD5BtExkuKmj39VEE0m3l/zipf6h2WIB2jyAO0lI6NGETh4RDcktRm4AQ==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
+    dev: false
+
+  /react-router/6.3.0_react@17.0.2:
+    resolution: {integrity: sha512-7Wh1DzVQ+tlFjkeo+ujvjSqSJmkt1+8JO+T5xklPlgrh70y7ogx75ODRW0ThWhY7S+6yEDks8TYrtQe/aoboBQ==}
     peerDependencies:
       react: '>=16.8'
     dependencies:

@@ -19,14 +19,14 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-connection": "1.44.x-dev",
+		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-lazy-images": "2.1.x-dev",
 		"tedivm/jshrink": "1.4.0"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "3.2.x-dev",
 		"automattic/wordbless": "0.3.1",
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.3"
@@ -85,13 +85,17 @@
 		}
 	],
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-boost-production",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "boost",
 		"version-constants": {
 			"JETPACK_BOOST_VERSION": "jetpack-boost.php"
 		},
 		"wp-plugin-slug": "jetpack-boost",
+		"wp-svn-autopublish": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-boost-production/compare/v${old}...v${new}"
 		}
