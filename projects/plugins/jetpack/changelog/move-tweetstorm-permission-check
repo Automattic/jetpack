@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Moved the permission check for the Tweetstorm endpoint into a helper class.

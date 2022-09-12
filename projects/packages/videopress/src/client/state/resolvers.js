@@ -1,54 +1,37 @@
 /**
  * Internal dependencies
  */
-import { REST_API_SITE_PURCHASES_ENDPOINT, SET_IS_FETCHING_VIDEOS } from './constants';
-import { stateDebug } from '.';
-
-/**
- * Return a full request query object,
- * including the default query parameters.
- *
- * @param {object} query - Query object.
- * @returns {object}       Full query object.
- */
-function getFullRequestQuery( query ) {
-	return {
-		orderBy: 'date',
-		order: 'DESC',
-		itemsPerPage: 6,
-		page: 1,
-		type: 'video/videopress',
-		...query,
-	};
-}
+import { REST_API_SITE_PURCHASES_ENDPOINT, SET_VIDEOS_QUERY } from './constants';
+import { getDefaultQuery } from './reducers';
 
 const getVideos = {
-	isFulfilled: ( state, recentQuery ) => {
-		const query = state?.videos.query;
-		recentQuery = getFullRequestQuery( recentQuery );
-		const isSameQueryRequest = JSON.stringify( query ) === JSON.stringify( recentQuery );
-		if ( ! isSameQueryRequest ) {
-			stateDebug( 'getVideos: isFulfilled: query mismatch', query, recentQuery );
-			return false;
-		}
-
-		return true;
-	},
-
-	fulfill: ( query = {} ) => async ( { dispatch } ) => {
+	fulfill: () => async ( { dispatch, select } ) => {
 		const payload = new FormData();
 		payload.set( 'action', 'query-attachments' );
 		payload.set( 'post_id', 0 );
 
-		const freshQuery = getFullRequestQuery( query );
+		let query = select.getVideosQuery();
+		/*
+		 * If there is no query:
+		 * - set the default query (dispatch)
+		 * - and use it to fetch the videos.
+		 */
+		if ( ! query ) {
+			query = getDefaultQuery();
+			dispatch.setVideosQuery( query );
+		}
 
-		payload.set( 'query[orderby]', freshQuery.orderBy );
-		payload.set( 'query[order]', freshQuery.order );
-		payload.set( 'query[posts_per_page]', freshQuery.itemsPerPage );
-		payload.set( 'query[paged]', freshQuery.page );
-		payload.set( 'query[post_mime_type]', freshQuery.type );
+		payload.set( 'query[orderby]', query.orderBy );
+		payload.set( 'query[order]', query.order );
+		payload.set( 'query[posts_per_page]', query.itemsPerPage );
+		payload.set( 'query[paged]', query.page );
+		payload.set( 'query[post_mime_type]', query.type );
 
-		dispatch.setIsFetchingVideos( true, freshQuery );
+		if ( typeof query.search === 'string' && query.search.length > 0 ) {
+			payload.set( 'query[s]', query.search );
+		}
+
+		dispatch.setIsFetchingVideos( true );
 
 		try {
 			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
@@ -68,7 +51,7 @@ const getVideos = {
 		}
 	},
 	shouldInvalidate: action => {
-		return action.type === SET_IS_FETCHING_VIDEOS;
+		return action.type === SET_VIDEOS_QUERY;
 	},
 };
 
