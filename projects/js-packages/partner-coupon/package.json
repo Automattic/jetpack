@@ -42,7 +42,7 @@
 		"react-dom": "17.0.2"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.19",
+		"@automattic/jetpack-components": "workspace:* || ^0.20",
 		"@automattic/jetpack-connection": "workspace:* || ^0.19",
 		"@wordpress/i18n": "4.16.0",
 		"classnames": "2.3.1",
