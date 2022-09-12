@@ -144,10 +144,10 @@ function getPlaywrightReportsPaths() {
 }
 
 /**
- * Creates the final path to attachments. If attachmentPath is defined it will replace the outputPath
+ * Creates the final path to attachments.
  *
- * @param {string} outputPath - the output root path as defined in the Playwright report
- * @param {string} attachmentPath - the root path to attachment as defined in actions input
+ * @param {string} outputPath - the output root path, as defined in the Playwright report
+ * @param {string} attachmentPath - the original path to the attachment, as defined in the Playwright report
  * @returns {string} the final path to the attachment
  */
 function getAttachmentPath( outputPath, attachmentPath ) {
