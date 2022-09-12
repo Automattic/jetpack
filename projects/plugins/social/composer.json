@@ -18,7 +18,7 @@
 		"automattic/jetpack-plans": "0.2.x-dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "3.2.x-dev",
 		"automattic/wordbless": "0.3.1",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"brain/monkey": "2.6.1"
@@ -63,7 +63,9 @@
 	"prefer-stable": true,
 	"extra": {
 		"autorelease": true,
-		"autotagger": true,
+		"autotagger": {
+			"v": false
+		},
 		"mirror-repo": "Automattic/jetpack-social-plugin",
 		"release-branch-prefix": "social",
 		"wp-plugin-slug": "jetpack-social",

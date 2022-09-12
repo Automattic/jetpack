@@ -174,6 +174,7 @@ const SEOTokenButtonList = ( pageType, customSeoTitleInputRef, handleCustomSeoTi
 				customSeoTitleInputRef={ customSeoTitleInputRef }
 				handleCustomSeoTitleInput={ handleCustomSeoTitleInput }
 				token={ token }
+				key={ token }
 			/>
 		);
 	} );
@@ -187,10 +188,7 @@ const CustomSeoTitleInput = ( {
 	siteData,
 } ) => {
 	return (
-		<div
-			className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }
-			key={ pageType.name }
-		>
+		<div className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }>
 			<div className={ `jp-seo-custom-titles-input-controls` }>
 				<FormLabel
 					className={ `jp-seo-custom-titles-input-label` }
@@ -270,6 +268,7 @@ const CustomSeoTitles = props => {
 						handleCustomSeoTitleInput={ handleCustomSeoTitleInput }
 						customSeoTitleInputRef={ customSeoTitleInputRefs[ pageType.name ] }
 						siteData={ props.siteData }
+						key={ pageType.name }
 					/>
 				);
 			} ) }
