@@ -4,34 +4,33 @@
 
 ## 11.4-a.1 - 2022-09-08
 ### Enhancements
-- Editor Extensions: Brand Jetpack features in publish flows [#26044]
-- Jetpack: Hide BETA label and styles when hovering after a delay of 0.5 sec [#25938]
-- Jetpack: improve labeling beta extensions in the block editor context [#25852]
-- Jetpack: remove buttons from the QRPostCode modal [#25929]
-- Move Social Previews components to separate package [#25931]
-- Payment Buttons: add the Gutenberg dimensions controls [#26058]
-- Remove JetpackIcon from InspectorNotice component [#26064]
-- VideoPress Block: allow editing of some block settings while uploading. [#24556]
-
-### Improved compatibility
-- Migrating videopress features to package [#25877]
-- VideoPress: Moved jetpack_videopress_guid REST custom field to VideoPress package. [#26043]
+- Blocks: add "BETA" labels for beta extensions used in the block editor context. [#25852, #25938]
+- Jetpack: brand Jetpack features in publishing flows. [#26044, #26064]
+- Payment Buttons: add support for vertical dimensions controls. [#26058]
+- QR Post: remove redundant buttons from the opened modal. [#25929]
+- VideoPress Block (beta): allow editing of some block settings while uploading. [#24556]
 
 ### Bug fixes
 - Post Images: avoid PHP notices when fetching images from posts with missing metadata. [#25829]
-- While we are creating a donation plan for a given currency we disable post saving. [#26061]
+- Donations Block: avoid race condition when updating currency. [#26061]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Added E2E tests for the Jetpack WAF. [#25643]
 - Fix an undefined array key access in `WPCOM_JSON_API_List_Post_Formats_Endpoint`. [#25991]
-- Init 11.4 cycle [#25932]
-- Jetpack: implement a temporary solution to register VideoPress block v6 in dotcom [#25902]
-- Jetpack: remove VideoPress v6 block from Jetpack plugin [#25873]
-- Publicize Connections Post Field: Fix the tests [#26084]
-- Related posts: append original user agent to API requests [#25946]
-- Removes usage of jetpack_require_lib() for class-jetpack-mapbox-helper [#25958]
+- Jetpack: add Social Previews components to separate package. [#25931]
+- Jetpack: implement a temporary solution to register VideoPress block v6 in dotcom. [#25902]
+- Jetpack: remove VideoPress v6 block from Jetpack plugin. [#25873]
+- Publicize Connections Post Field: fix tests. [#26084]
+- Related Posts: append original user agent to API requests. [#25946]
+- Remove usage of jetpack_require_lib() for class-jetpack-mapbox-helper. [#25958]
 - Updated package dependencies.
+- VideoPress: migrate pluging features to separate package. [#25877]
+- VideoPress: moved jetpack_videopress_guid REST custom field to VideoPress package. [#26043]
 - WordPress.com toolbar: allow enabling an "Advertising" menu item via a new filter. [#25874]
+
+## 11.3.1 - 2022-09-08
+### Improved compatibility
+- Notifications: improve third-party cookie check to work with modsecurity rules. [#26122]
 
 ## [11.3] - 2022-09-06
 ### Enhancements

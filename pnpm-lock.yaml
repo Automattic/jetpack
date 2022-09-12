@@ -58,12 +58,14 @@ importers:
       '@vercel/ncc': 0.28.5
       glob: 8.0.3
       jest: 28.1.3
+      minimatch: 5.1.0
       nock: 13.2.9
     dependencies:
       '@actions/core': 1.9.1
       '@actions/github': 5.0.3
       '@slack/web-api': 6.7.2
       glob: 8.0.3
+      minimatch: 5.1.0
     devDependencies:
       '@vercel/ncc': 0.28.5
       jest: 28.1.3
@@ -577,7 +579,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/format-library': 3.14.0
       '@wordpress/postcss-plugins-preset': 4.0.0
-      autoprefixer: 10.4.2
+      autoprefixer: 10.4.9
       babel-loader: 8.2.5
       babel-plugin-inline-json-import: 0.3.2
       css-loader: 6.5.1
@@ -623,7 +625,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/format-library': 3.14.0_q6el6r4hbd2fftzckrwpdnyobi
       '@wordpress/postcss-plugins-preset': 4.0.0_postcss@8.4.16
-      autoprefixer: 10.4.2_postcss@8.4.16
+      autoprefixer: 10.4.9_postcss@8.4.16
       babel-loader: 8.2.5_m5tdevr4bs72kc3uk2yich4vse
       babel-plugin-inline-json-import: 0.3.2
       css-loader: 6.5.1_webpack@5.72.1
@@ -1028,7 +1030,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/i18n': 4.16.0
       '@wordpress/icons': 9.7.0
-      autoprefixer: 10.4.2
+      autoprefixer: 10.4.9
       babel-jest: 28.1.0
       classnames: 2.3.1
       concurrently: 6.4.0
@@ -1103,7 +1105,7 @@ importers:
       '@wordpress/babel-plugin-import-jsx-pragma': 4.0.0_@babel+core@7.18.13
       '@wordpress/browserslist-config': 5.0.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.0.0_webpack@5.72.1
-      autoprefixer: 10.4.2_postcss@8.4.16
+      autoprefixer: 10.4.9_postcss@8.4.16
       babel-jest: 28.1.0_@babel+core@7.18.13
       concurrently: 6.4.0
       core-js: 3.23.5
@@ -1151,7 +1153,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/i18n': 4.16.0
       '@wordpress/icons': 9.7.0
-      autoprefixer: 10.4.2
+      autoprefixer: 10.4.9
       classnames: 2.3.1
       debug: 4.3.4
       filesize: 8.0.6
@@ -1162,6 +1164,7 @@ importers:
       postcss-loader: 6.2.0
       react: 17.0.2
       react-dom: 17.0.2
+      react-router-dom: 6.3.0
       require-from-string: 2.0.2
       sass: 1.54.2
       sass-loader: 12.4.0
@@ -1186,6 +1189,7 @@ importers:
       filesize: 8.0.6
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-router-dom: 6.3.0_sfoxds7t5ydpegc3knd667wn6m
       tus-js-client: 2.3.0
     devDependencies:
       '@automattic/calypso-color-schemes': 2.1.1
@@ -1204,7 +1208,7 @@ importers:
       '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0_sfoxds7t5ydpegc3knd667wn6m
       '@wordpress/browserslist-config': 5.0.0
-      autoprefixer: 10.4.2_postcss@8.4.16
+      autoprefixer: 10.4.9_postcss@8.4.16
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       postcss: 8.4.16
@@ -1482,7 +1486,7 @@ importers:
       '@wordpress/url': 3.17.0
       '@wordpress/viewport': 4.14.0
       '@wordpress/widgets': 2.14.0
-      autoprefixer: 10.4.2
+      autoprefixer: 10.4.9
       babel-jest: 28.1.0
       bounding-client-rect: 1.0.5
       classnames: 2.3.1
@@ -1627,7 +1631,7 @@ importers:
       '@wordpress/keycodes': 3.16.0
       '@wordpress/notices': 3.16.0_react@17.0.2
       '@wordpress/token-list': 2.16.0
-      autoprefixer: 10.4.2_postcss@8.4.16
+      autoprefixer: 10.4.9_postcss@8.4.16
       babel-jest: 28.1.0_@babel+core@7.18.13
       concurrently: 6.0.2
       fs-extra: 10.0.0
@@ -1748,7 +1752,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/i18n': 4.16.0
       '@wordpress/icons': 9.7.0
-      autoprefixer: 10.4.2
+      autoprefixer: 10.4.9
       classnames: 2.3.1
       concurrently: 6.0.2
       postcss: 8.4.16
@@ -1782,7 +1786,7 @@ importers:
       '@babel/register': 7.18.9_@babel+core@7.18.13
       '@babel/runtime': 7.18.9
       '@wordpress/browserslist-config': 5.0.0
-      autoprefixer: 10.4.2_postcss@8.4.16
+      autoprefixer: 10.4.9_postcss@8.4.16
       concurrently: 6.0.2
       postcss: 8.4.16
       postcss-custom-properties: 12.1.7_postcss@8.4.16
@@ -2393,7 +2397,7 @@ packages:
       '@babel/compat-data': 7.18.6
       '@babel/core': 7.18.6
       '@babel/helper-validator-option': 7.18.6
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       semver: 6.3.0
     dev: true
 
@@ -3865,6 +3869,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.9
+    dev: true
 
   /@babel/runtime/7.18.9:
     resolution: {integrity: sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==}
@@ -9101,7 +9106,7 @@ packages:
       postcss: ^8.0.0
     dependencies:
       '@wordpress/base-styles': 4.7.0
-      autoprefixer: 10.4.7_postcss@8.4.16
+      autoprefixer: 10.4.9_postcss@8.4.16
       postcss: 8.4.16
     dev: true
 
@@ -9906,31 +9911,15 @@ packages:
     hasBin: true
     dev: true
 
-  /autoprefixer/10.4.2_postcss@8.4.16:
-    resolution: {integrity: sha512-9fOPpHKuDW1w/0EKfRmVnxTDt8166MAnLI3mgZ1JCnhNtYWxcJ6Ud5CO/AVOZi/AvFa8DY9RTy3h3+tFBlrrdQ==}
+  /autoprefixer/10.4.9_postcss@8.4.16:
+    resolution: {integrity: sha512-Uu67eduPEmOeA0vyJby5ghu1AAELCCNSsLAjK+lz6kYzNM5sqnBO36MqfsjhPjQF/BaJM5U/UuFYyl7PavY/wQ==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
-      browserslist: 4.21.1
-      caniuse-lite: 1.0.30001364
-      fraction.js: 4.2.0
-      normalize-range: 0.1.2
-      picocolors: 1.0.0
-      postcss: 8.4.16
-      postcss-value-parser: 4.2.0
-    dev: true
-
-  /autoprefixer/10.4.7_postcss@8.4.16:
-    resolution: {integrity: sha512-ypHju4Y2Oav95SipEcCcI5J7CGPuvz8oat7sUtYj3ClK44bldfvtvcxK6IEK++7rqB7YchDGzweZIBG+SD0ZAA==}
-    engines: {node: ^10 || ^12 || >=14}
-    hasBin: true
-    peerDependencies:
-      postcss: ^8.1.0
-    dependencies:
-      browserslist: 4.21.1
-      caniuse-lite: 1.0.30001364
+      browserslist: 4.21.3
+      caniuse-lite: 1.0.30001397
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -10448,6 +10437,16 @@ packages:
       node-releases: 2.0.6
       update-browserslist-db: 1.0.4_browserslist@4.21.1
 
+  /browserslist/4.21.3:
+    resolution: {integrity: sha512-898rgRXLAyRkM1GryrrBHGkqA5hlpkV5MhtZwg9QXeiyLUYs2k00Un05aX5l2/yJIOObYKOpS2JNo8nJDE7fWQ==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+    dependencies:
+      caniuse-lite: 1.0.30001397
+      electron-to-chromium: 1.4.247
+      node-releases: 2.0.6
+      update-browserslist-db: 1.0.8_browserslist@4.21.3
+
   /bser/2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
     dependencies:
@@ -10590,13 +10589,16 @@ packages:
   /caniuse-api/3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
-      browserslist: 4.21.1
-      caniuse-lite: 1.0.30001364
+      browserslist: 4.21.3
+      caniuse-lite: 1.0.30001397
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
   /caniuse-lite/1.0.30001364:
     resolution: {integrity: sha512-9O0xzV3wVyX0SlegIQ6knz+okhBB5pE0PC40MNdwcipjwpxoUEHL24uJ+gG42cgklPjfO5ZjZPme9FTSN3QT2Q==}
+
+  /caniuse-lite/1.0.30001397:
+    resolution: {integrity: sha512-SW9N2TbCdLf0eiNDRrrQXx2sOkaakNZbCjgNpPyMJJbiOrU5QzMIrXOVMRM1myBXTD5iTkdrtU/EguCrBocHlA==}
 
   /capital-case/1.0.4:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
@@ -11177,7 +11179,7 @@ packages:
   /core-js-compat/3.23.4:
     resolution: {integrity: sha512-RkSRPe+JYEoflcsuxJWaiMPhnZoFS51FcIxm53k4KzhISCBTmaGlto9dTIrYuk0hnJc3G6pKufAKepHnBq6B6Q==}
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       semver: 7.0.0
 
   /core-js-pure/3.23.4:
@@ -11994,6 +11996,9 @@ packages:
 
   /electron-to-chromium/1.4.185:
     resolution: {integrity: sha512-9kV/isoOGpKkBt04yYNaSWIBn3187Q5VZRtoReq8oz5NY/A4XmU6cAoqgQlDp7kKJCZMRjWZ8nsQyxfpFHvfyw==}
+
+  /electron-to-chromium/1.4.247:
+    resolution: {integrity: sha512-FLs6R4FQE+1JHM0hh3sfdxnYjKvJpHZyhQDjc2qFq/xFvmmRt/TATNToZhrcGUFzpF2XjeiuozrA8lI0PZmYYw==}
 
   /elegant-spinner/1.0.1:
     resolution: {integrity: sha512-B+ZM+RXvRqQaAmkMlO/oSe5nMUOaUnyfGYCEHoR8wrXsZR2mA0XVibsxV1bvTwxdRWah1PkQqso2EzhILGHtEQ==}
@@ -14192,7 +14197,7 @@ packages:
   /history/5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
     dependencies:
-      '@babel/runtime': 7.18.6
+      '@babel/runtime': 7.18.9
     dev: false
 
   /hoist-non-react-statics/3.3.2:
@@ -17883,7 +17888,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       caniuse-api: 3.0.0
       colord: 2.9.2
       postcss: 8.4.14
@@ -17896,7 +17901,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       caniuse-api: 3.0.0
       colord: 2.9.2
       postcss: 8.4.16
@@ -17909,7 +17914,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       postcss: 8.4.14
       postcss-value-parser: 4.2.0
     dev: false
@@ -17920,7 +17925,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
     dev: true
@@ -18065,7 +18070,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       caniuse-api: 3.0.0
       cssnano-utils: 3.1.0_postcss@8.4.14
       postcss: 8.4.14
@@ -18078,7 +18083,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       caniuse-api: 3.0.0
       cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
@@ -18135,7 +18140,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       cssnano-utils: 3.1.0_postcss@8.4.14
       postcss: 8.4.14
       postcss-value-parser: 4.2.0
@@ -18147,7 +18152,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       cssnano-utils: 3.1.0_postcss@8.4.16
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
@@ -18350,7 +18355,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       postcss: 8.4.14
       postcss-value-parser: 4.2.0
     dev: false
@@ -18361,7 +18366,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       postcss: 8.4.16
       postcss-value-parser: 4.2.0
     dev: true
@@ -18436,7 +18441,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       caniuse-api: 3.0.0
       postcss: 8.4.14
     dev: false
@@ -18447,7 +18452,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       caniuse-api: 3.0.0
       postcss: 8.4.16
     dev: true
@@ -19193,6 +19198,18 @@ packages:
       react-router: 6.2.2_react@17.0.2
     dev: false
 
+  /react-router-dom/6.3.0_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-uaJj7LKytRxZNQV8+RbzJWnJ8K2nPsOOEuX7aQstlMZKQT0164C+X2w6bnkqU3sjtLvpd5ojrezAyfZ1+0sStw==}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-router: 6.3.0_react@17.0.2
+    dev: false
+
   /react-router/5.2.0_react@17.0.2:
     resolution: {integrity: sha512-smz1DUuFHRKdcJC0jobGo8cVbhO3x50tCL4icacOlcwDOEQPq4TMqwx3sY1TP+DvtTgz4nm3thuo7A+BK2U0Dw==}
     peerDependencies:
@@ -19213,6 +19230,15 @@ packages:
 
   /react-router/6.2.2_react@17.0.2:
     resolution: {integrity: sha512-/MbxyLzd7Q7amp4gDOGaYvXwhEojkJD5BtExkuKmj39VEE0m3l/zipf6h2WIB2jyAO0lI6NGETh4RDcktRm4AQ==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
+    dev: false
+
+  /react-router/6.3.0_react@17.0.2:
+    resolution: {integrity: sha512-7Wh1DzVQ+tlFjkeo+ujvjSqSJmkt1+8JO+T5xklPlgrh70y7ogx75ODRW0ThWhY7S+6yEDks8TYrtQe/aoboBQ==}
     peerDependencies:
       react: '>=16.8'
     dependencies:
@@ -20904,7 +20930,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       postcss: 8.4.14
       postcss-selector-parser: 6.0.10
     dev: false
@@ -20915,7 +20941,7 @@ packages:
     peerDependencies:
       postcss: ^8.2.15
     dependencies:
-      browserslist: 4.21.1
+      browserslist: 4.21.3
       postcss: 8.4.16
       postcss-selector-parser: 6.0.10
     dev: true
@@ -21669,6 +21695,16 @@ packages:
       browserslist: '>= 4.21.0'
     dependencies:
       browserslist: 4.21.1
+      escalade: 3.1.1
+      picocolors: 1.0.0
+
+  /update-browserslist-db/1.0.8_browserslist@4.21.3:
+    resolution: {integrity: sha512-GHg7C4M7oJSJYW/ED/5QOJ7nL/E0lwTOBGsOorA7jqHr8ExUhPfwAotIAmdSw/LWv3SMLSNpzTAgeLG9zaZKTA==}
+    hasBin: true
+    peerDependencies:
+      browserslist: '>= 4.21.0'
+    dependencies:
+      browserslist: 4.21.3
       escalade: 3.1.1
       picocolors: 1.0.0
 

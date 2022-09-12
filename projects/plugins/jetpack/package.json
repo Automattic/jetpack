@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "11.4.0-a.1",
+	"version": "11.4.0-a.2",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -137,7 +137,7 @@
 		"@wordpress/keycodes": "3.16.0",
 		"@wordpress/notices": "3.16.0",
 		"@wordpress/token-list": "2.16.0",
-		"autoprefixer": "10.4.2",
+		"autoprefixer": "10.4.9",
 		"babel-jest": "28.1.0",
 		"concurrently": "6.0.2",
 		"fs-extra": "10.0.0",
