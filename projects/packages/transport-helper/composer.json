@@ -3,13 +3,18 @@
 	"description": "Package to help transport server communication",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "^1.45"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
+		"files": [
+			"actions.php"
+		],
 		"classmap": [
 			"src/"
 		]
@@ -49,5 +54,10 @@
 			"dev-trunk": "0.1.x-dev"
 		},
 		"textdomain": "jetpack-transport-helper"
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	}
 }
