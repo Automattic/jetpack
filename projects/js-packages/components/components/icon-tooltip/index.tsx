@@ -58,12 +58,6 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	const args = {
 		iconCode,
-		children: (
-			<div>
-				<div className="icon-tooltip-title">{ title }</div>
-				<div className="icon-tooltip-content">{ children }</div>
-			</div>
-		),
 		// To be compatible with deprecating option `position`
 		position: placementsToPositions( placement ),
 		placement,
@@ -87,7 +81,14 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 			</span>
 
 			<div className="icon-tooltip-helper">
-				{ isVisible && <Popover { ...args }>{ args.children }</Popover> }
+				{ isVisible && (
+					<Popover { ...args }>
+						<div>
+							{ title && <div className="icon-tooltip-title">{ title }</div> }
+							<div className="icon-tooltip-content">{ children }</div>
+						</div>
+					</Popover>
+				) }
 			</div>
 		</div>
 	);
