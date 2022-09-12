@@ -58,14 +58,14 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	const args = {
 		iconCode,
-		// To be compatible with deprecating option `position`
+		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
 		placement,
 		animate,
 		noArrow: false,
 		resize: false,
 		flip: false,
-		offset: 10,
+		offset: 10, // The distance (in px) between the anchor and the popover.
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
