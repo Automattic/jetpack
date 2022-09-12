@@ -26,7 +26,8 @@ filterSection.args = {};
 const VideoFilterButtonTemplate: ComponentStory< typeof FilterButton > = FilterButton;
 export const filterButton = VideoFilterButtonTemplate.bind( {} );
 filterButton.args = {
-	onToggle: action( 'onToggle' ),
+	isActive: false,
+	onClick: action( 'onClick' ),
 };
 
 const CheckboxCheckmarkButtonTemplate: ComponentStory<
