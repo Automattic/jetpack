@@ -28,6 +28,10 @@
 - VideoPress: moved jetpack_videopress_guid REST custom field to VideoPress package. [#26043]
 - WordPress.com toolbar: allow enabling an "Advertising" menu item via a new filter. [#25874]
 
+## 11.3.1 - 2022-09-08
+### Improved compatibility
+- Notifications: improve third-party cookie check to work with modsecurity rules. [#26122]
+
 ## [11.3] - 2022-09-06
 ### Enhancements
 - General: enable the Post List package in Jetpack to display extra information alongside each post in wp-admin dashboard Posts screen. [#25301]
