@@ -186,7 +186,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	public function set_up() {
 		parent::set_up();
 
-		$this->draft_id = $this->factory->post->create(
+		$this->draft_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => self::$user_id,
