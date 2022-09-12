@@ -81,6 +81,7 @@ The action relies on the following parameters.
 - (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
 - (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
+- (Optional) `playwright_attachments_root_path` is the root path to the Playwright attachments (screenshots, videos, traces). If this is defined, this path will replace the `outputDir` from Playwright's JSON report to compute the final path to attachments. It is needed when the artefacts are downloaded from a previous job, and the absolute paths to attachments found in the JSON report are not valid anymore.
 
 ### Rules
 

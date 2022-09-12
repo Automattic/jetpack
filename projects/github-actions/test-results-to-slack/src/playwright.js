@@ -58,7 +58,7 @@ function getPlaywrightBlocks() {
 								// when detected further down, it should upload the file and then discard this "block"
 								failureDetailsBlocks.push( {
 									type: 'file',
-									path: attachment.path,
+									path: getAttachmentPath( report.config.projects[ 0 ].outputDir, attachment.path ),
 								} );
 							}
 						} );
@@ -142,6 +142,22 @@ function getPlaywrightReportsPaths() {
 	}
 
 	return paths;
+}
+
+/**
+ * Creates the final path to attachments. If attachmentPath is defined it will replace the outputPath
+ *
+ * @param {string} outputPath - the output root path as defined in the Playwright report
+ * @param {string} attachmentPath - the root path to attachment as defined in actions input
+ * @returns {string} the final path to the attachment
+ */
+function getAttachmentPath( outputPath, attachmentPath ) {
+	const attachmentRootPath = getInput( 'playwright_attachments_root_path' );
+
+	if ( attachmentRootPath ) {
+		return attachmentPath.replace( outputPath, attachmentRootPath ).replace( '//', '/' );
+	}
+	return attachmentPath;
 }
 
 /**
