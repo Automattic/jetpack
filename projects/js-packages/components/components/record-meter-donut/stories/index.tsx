@@ -14,7 +14,7 @@ const DefaultArgs: DonutMeterProps = {
 	thickness: '3.5',
 	donutWidth: '64px',
 	title: 'Meter title goes here',
-	description: 'Meter description goes here'
+	description: 'Meter description goes here',
 };
 
 // Export Default story

@@ -55,7 +55,7 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 	thickness = '3.5',
 	donutWidth = '64px',
 	title = '',
-	description = ''
+	description = '',
 } ) => {
 	const count = () => {
 		// get count as a percent value
