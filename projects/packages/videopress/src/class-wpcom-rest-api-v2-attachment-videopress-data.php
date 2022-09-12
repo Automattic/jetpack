@@ -1,9 +1,13 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Extend the REST API functionality for VideoPress users.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-videopress
+ * @since-jetpack 7.1.0
+ * @since $$next-version$$
  */
+
+namespace Automattic\Jetpack\VideoPress;
 
 /**
  * Add per-attachment VideoPress data.
@@ -16,7 +20,7 @@
  *
  * @since 7.1.0
  */
-class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Field_Controller {
+class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	/**
 	 * The REST Object Type to which the jetpack_videopress field will be added.
 	 *
@@ -32,10 +36,34 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 	protected $field_name = 'jetpack_videopress';
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
+
+		// do this again later to collect any CPTs that get registered later.
+		add_action( 'restapi_theme_init', array( $this, 'register_fields' ), 20 );
+	}
+
+	/**
 	 * Registers the jetpack_videopress field and adds a filter to remove it for attachments that are not videos.
 	 */
 	public function register_fields() {
-		parent::register_fields();
+		global $wp_rest_additional_fields;
+
+		if ( ! empty( $wp_rest_additional_fields[ $this->object_type ][ $this->field_name ] ) ) {
+			return;
+		}
+
+		register_rest_field(
+			$this->object_type,
+			$this->field_name,
+			array(
+				'get_callback'    => array( $this, 'get' ),
+				'update_callback' => null,
+				'schema'          => $this->get_schema(),
+			)
+		);
 
 		add_filter( 'rest_prepare_attachment', array( $this, 'remove_field_for_non_videos' ), 10, 2 );
 	}
@@ -50,7 +78,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 			'type'        => 'object',
 			'context'     => array( 'view', 'edit' ),
 			'readonly'    => true,
-			'description' => __( 'VideoPress Data', 'jetpack' ),
+			'description' => __( 'VideoPress Data', 'jetpack-videopress-pkg' ),
 		);
 	}
 
@@ -66,7 +94,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+			$blog_id = \Jetpack_Options::get_option( 'id' );
 		}
 
 		$post_id = absint( $attachment['id'] );
@@ -97,7 +125,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 			'rating'          => $info->rating,
 			'allow_download'  =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'privacy_setting' => ! isset( $info->privacy_setting ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
+			'privacy_setting' => ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
 		);
 	}
 
@@ -128,51 +156,8 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data extends WPCOM_REST_API_V2_Fie
 
 		return $response;
 	}
-
-	/**
-	 * Setter: It does nothing since `jetpack_videopress` is a read-only field.
-	 *
-	 * @param mixed           $value The new value for the field.
-	 * @param WP_Post         $object The attachment object.
-	 * @param WP_REST_Request $request The request object.
-	 *
-	 * @return null
-	 */
-	public function update( $value, $object, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return null;
-	}
-
-	/**
-	 * Permission Check for the field's getter. Delegate the responsibility to the
-	 * attachment endpoint, so it always returns true.
-	 *
-	 * @param mixed           $object Response from the attachment endpoint.
-	 * @param WP_REST_Request $request Request to the attachment endpoint.
-	 *
-	 * @return true
-	 */
-	public function get_permission_check( $object, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return true;
-	}
-
-	/**
-	 * Permission Check for the field's setter. Delegate the responsibility to the
-	 * attachment endpoint, so it always returns true.
-	 *
-	 * @param mixed           $value The new value for the field.
-	 * @param WP_Post         $object The attachment object.
-	 * @param WP_REST_Request $request Request to the attachment endpoint.
-	 *
-	 * @return true
-	 */
-	public function update_permission_check( $value, $object, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return true;
-	}
 }
 
-if (
-	( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) ||
-	( defined( 'IS_WPCOM' ) && IS_WPCOM )
-) {
-	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Attachment_VideoPress_Data' );
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\VideoPress\WPCOM_REST_API_V2_Attachment_VideoPress_Data' );
 }
