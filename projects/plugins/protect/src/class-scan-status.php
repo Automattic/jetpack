@@ -133,7 +133,7 @@ class Scan_Status extends Status {
 				'type'    => 'core',
 				'name'    => 'WordPress',
 				'version' => $wp_version,
-				'checked' => false,
+				'checked' => true, // to do: default to false once Scan API has manifest
 			)
 		);
 
@@ -284,7 +284,7 @@ class Scan_Status extends Status {
 						'version' => $installed[ $slug ]['Version'],
 						'slug'    => $slug,
 						'threats' => array(),
-						'checked' => false,
+						'checked' => true, // to do: default to false once Scan API has manifest
 					),
 					$append
 				)
