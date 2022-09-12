@@ -56,9 +56,9 @@ const Admin = () => {
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
-									High quality, ad-free video
+									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
-								<Button>Add new video</Button>
+								<Button>{ __( 'Add new video', 'jetpack-videopress-pkg' ) }</Button>
 							</Col>
 						</Container>
 					</AdminSectionHero>
