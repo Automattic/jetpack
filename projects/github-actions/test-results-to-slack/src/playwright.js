@@ -25,7 +25,7 @@ function getPlaywrightBlocks() {
 		// Expected structure spec: {tests: [{results: [{}]}]}
 		specsCount += specs.length;
 		specs.forEach( spec => {
-			debug( `Spec: ${ spec.title }` );
+			// debug( `Spec: ${ spec.title }` );
 			if ( ! spec.ok ) {
 				failedTests.push( `- ${ spec.title }` );
 
@@ -152,10 +152,22 @@ function getPlaywrightReportsPaths() {
  * @returns {string} the final path to the attachment
  */
 function getAttachmentPath( outputPath, attachmentPath ) {
-	const attachmentRootPath = getInput( 'playwright_attachments_root_path' );
+	const resultsPath = getInput( 'playwright_output_dir' );
 
-	if ( attachmentRootPath ) {
-		return attachmentPath.replace( outputPath, attachmentRootPath ).replace( '//', '/' );
+	if ( resultsPath ) {
+		const globPath = attachmentPath.replace( outputPath, resultsPath );
+		debug( `Converting attachment path: ${ attachmentPath }` );
+
+		const resolvedPaths = glob.sync( globPath );
+
+		if ( resolvedPaths.length > 0 ) {
+			attachmentPath = resolvedPaths[ 0 ];
+		}
+
+		if ( resolvedPaths.length > 1 ) {
+			debug( `WARN: More than one files were found for path: ${ globPath }` );
+			debug( `Resolved paths: ${ resolvedPaths }` );
+		}
 	}
 	return attachmentPath;
 }
