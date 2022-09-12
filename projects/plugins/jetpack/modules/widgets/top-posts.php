@@ -458,7 +458,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-						if ( $image ) {
+						if ( $post['image'] ) {
 							printf(
 								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true"/></a>',
 								esc_url( $filtered_permalink ),
@@ -495,7 +495,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						/** This filter is documented in modules/widgets/top-posts.php */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-						if ( $image ) {
+						if ( $post['image'] ) {
 							printf(
 								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar" /></a>',
 								esc_url( $filtered_permalink ),
