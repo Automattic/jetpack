@@ -37,6 +37,9 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# Install Gutenberg
 	# https://wordpress.org/plugins/gutenberg/
 	wp --allow-root plugin install gutenberg --activate
+
+	# Intentionally not auto-updating Akismet since we may be wanting to test that with a specific version.
+	wp --allow-root plugin auto-updates enable query-monitor wp-crontrol gutenberg
 fi
 
 # Activate Jetpack
