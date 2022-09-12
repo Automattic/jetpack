@@ -60,8 +60,13 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-protect-plugin",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "protect",
 		"wp-plugin-slug": "jetpack-protect",
+		"wp-svn-autopublish": true,
 		"version-constants": {
 			"JETPACK_PROTECT_VERSION": "jetpack-protect.php"
 		}

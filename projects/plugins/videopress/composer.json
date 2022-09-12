@@ -39,9 +39,12 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-videopress-plugin",
+		"autorelease": true,
+		"autotagger": true,
 		"release-branch-prefix": "videopress",
 		"beta-plugin-slug": "jetpack-videopress",
-		"wp-plugin-slug": "jetpack-videopress"
+		"wp-plugin-slug": "jetpack-videopress",
+		"wp-svn-autopublish": true
 	},
 	"config": {
 		"allow-plugins": {

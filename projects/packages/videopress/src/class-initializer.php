@@ -83,8 +83,11 @@ class Initializer {
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
 		Module_Control::init();
+
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
+		new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
 		if ( is_admin() ) {
 			AJAX::init();
 		}
