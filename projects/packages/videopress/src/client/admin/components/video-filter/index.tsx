@@ -40,9 +40,7 @@ export const CheckboxCheckmark = ( props: { label?: string; for: string } ): JSX
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
 			<Checkbox id={ props.for } className={ styles.checkbox } />
 			<span className={ styles[ 'checkbox-checkmark' ] } />
-			<Text variant="body-small" weight="regular">
-				{ props.label }
-			</Text>
+			<Text variant="body-small">{ props.label }</Text>
 		</label>
 	);
 };
