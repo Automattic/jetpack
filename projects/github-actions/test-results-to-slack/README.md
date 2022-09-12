@@ -67,6 +67,7 @@ jobs:
           suite_name: 'Your test suite name'
           rules_configuration_path: 'path/to/rules/configuration/file'
           playwright_report_path: 'test-artifacts/**/report.json'
+          playwright_output_dir: 'test-artifacts/**/results'
 ```
 
 ### Inputs
