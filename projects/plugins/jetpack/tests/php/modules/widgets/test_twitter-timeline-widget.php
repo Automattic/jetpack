@@ -115,7 +115,7 @@ class WP_Test_Twitter_Timeline_Widget extends WP_UnitTestCase {
 	 * @param string $expected The expected output of the tested method.
 	 */
 	public function test_widget( $instance, $is_amp, $expected ) {
-		wp_set_current_user( $this->factory()->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		if ( $is_amp ) {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
