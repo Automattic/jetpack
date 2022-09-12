@@ -13,6 +13,8 @@ namespace Automattic\Jetpack\Protect;
 class Status_Model {
 	/**
 	 * Data source.
+	 *
+	 * @var string protect_report|scan_api
 	 */
 	public $data_source;
 
