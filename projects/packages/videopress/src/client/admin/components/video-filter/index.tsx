@@ -5,22 +5,21 @@ import { Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 /**
+ * Types
+ */
+import { MouseEvent } from 'react';
+/**
  * Internal dependencies
  */
-import { useCallback, useState } from 'react';
 import filterIcon from '../../../components/icons/filter-icon';
 import Checkbox from '../checkbox';
 import styles from './style.module.scss';
 
-export const FilterButton = ( props: { onToggle?: ( isActive ) => void } ): JSX.Element => {
-	const [ isActive, setIsActive ] = useState( false );
-	const onClickHandler = useCallback( () => {
-		setIsActive( v => {
-			props?.onToggle( ! v );
-			return ! v;
-		} );
-	}, [ props?.onToggle ] );
-
+export const FilterButton = ( props: {
+	isActive: boolean;
+	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+} ): JSX.Element => {
+	const { isActive, ...componentProps } = props;
 	return (
 		<Button
 			variant={ isActive ? 'primary' : 'secondary' }
@@ -29,7 +28,7 @@ export const FilterButton = ( props: { onToggle?: ( isActive ) => void } ): JSX.
 			} ) }
 			icon={ filterIcon }
 			weight="regular"
-			onClick={ onClickHandler }
+			{ ...componentProps }
 		>
 			{ __( 'Filters', 'jetpack-videopress-pkg' ) }
 		</Button>

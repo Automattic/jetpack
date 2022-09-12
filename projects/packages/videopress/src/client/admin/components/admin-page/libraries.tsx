@@ -62,7 +62,6 @@ const VideoLibraryWrapper = ( {
 				<Text>{ totalVideos } Video</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
-
 						<SearchInput
 							className={ styles[ 'search-input' ] }
 							onSearch={ setSearch }
@@ -70,9 +69,10 @@ const VideoLibraryWrapper = ( {
 							onChange={ setSearchQuery }
 						/>
 
-						<SearchInput onSearch={ setSearch } />
-
-						<FilterButton onToggle={ setIsFilterActive } />
+						<FilterButton
+							onClick={ () => setIsFilterActive( v => ! v ) }
+							isActive={ isFilterActive }
+						/>
 
 						<Button
 							variant="tertiary"
