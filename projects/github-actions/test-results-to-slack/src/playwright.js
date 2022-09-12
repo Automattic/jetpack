@@ -25,7 +25,6 @@ function getPlaywrightBlocks() {
 		// Expected structure spec: {tests: [{results: [{}]}]}
 		specsCount += specs.length;
 		specs.forEach( spec => {
-			// debug( `Spec: ${ spec.title }` );
 			if ( ! spec.ok ) {
 				failedTests.push( `- ${ spec.title }` );
 
@@ -165,8 +164,8 @@ function getAttachmentPath( outputPath, attachmentPath ) {
 		}
 
 		if ( resolvedPaths.length > 1 ) {
-			debug( `WARN: More than one files were found for path: ${ globPath }` );
-			debug( `Resolved paths: ${ resolvedPaths }` );
+			debug( `WARN: More files were found for path: ${ globPath }` );
+			debug( `WARN: Resolved paths: ${ resolvedPaths }` );
 		}
 	}
 	return attachmentPath;
@@ -190,4 +189,4 @@ function flattenSuites( suites ) {
 	}, [] );
 }
 
-module.exports = { getPlaywrightBlocks };
+module.exports = { getPlaywrightBlocks, getAttachmentPath };
