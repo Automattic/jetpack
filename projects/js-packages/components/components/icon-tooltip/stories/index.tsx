@@ -40,7 +40,7 @@ export default {
 };
 
 const Template = args => (
-	<div style={ { position: 'absolute', height: '2000px', left: '400px', top: '400px' } }>
+	<div style={ { position: 'absolute', height: '1000px', left: '300px', top: '200px' } }>
 		<IconTooltip { ...args } />
 	</div>
 );
