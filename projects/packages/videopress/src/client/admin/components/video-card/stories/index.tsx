@@ -5,12 +5,7 @@ import { action } from '@storybook/addon-actions';
 /**
  * Internal dependencies
  */
-import {
-	VideoCard as VideoCardComponent,
-	VideoDetails as VideoDetailsComponent,
-	VideoThumbnail as VideoThumbnailComponent,
-	VideoThumbnailDropdown as VideoThumbnailDropdownComponent,
-} from '..';
+import { VideoCard as VideoCardComponent } from '..';
 import { postersArray, randomPoster } from '../../../mock';
 import Doc from './VideoCard.mdx';
 /**
@@ -52,40 +47,4 @@ _default.args = {
 	onUpdateThumbnailClick: action( 'onUpdateThumbnailClick' ),
 	onUpdateUpdatePrivacyClick: action( 'onUpdateUpdatePrivacyClick' ),
 	onDeleteClick: action( 'onDeleteClick' ),
-};
-
-const VideoDetailsTemplate: ComponentStory< typeof VideoDetailsComponent > = VideoDetailsComponent;
-
-export const VideoDetails = VideoDetailsTemplate.bind( {} );
-VideoDetails.args = {
-	filename: 'video-thumbnail.png',
-	src: 'https://videos.files.wordpress.com/fx123456B/video-thumbnail.mov',
-};
-
-const VideoThumbnailTemplate: ComponentStory< typeof VideoThumbnailComponent > = args => {
-	if ( args.thumbnail === 'none' ) {
-		args.thumbnail = null;
-	}
-
-	return <VideoThumbnailComponent { ...args } />;
-};
-
-export const VideoThumbnail = VideoThumbnailTemplate.bind( {} );
-VideoThumbnail.args = {
-	thumbnail: randomPoster(),
-	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
-	onSelectFromVideo: action( 'onSelectFromVideo' ),
-	onUploadImage: action( 'onUploadImage' ),
-	editable: true,
-};
-
-const VideoThumbnailDropdownTemplate: ComponentStory<
-	typeof VideoThumbnailDropdownComponent
-> = VideoThumbnailDropdownComponent;
-
-export const VideoDropdown = VideoThumbnailDropdownTemplate.bind( {} );
-VideoDropdown.args = {
-	onUseDefaultThumbnail: action( 'onUseDefaultThumbnail' ),
-	onSelectFromVideo: action( 'onSelectFromVideo' ),
-	onUploadImage: action( 'onUploadImage' ),
 };
