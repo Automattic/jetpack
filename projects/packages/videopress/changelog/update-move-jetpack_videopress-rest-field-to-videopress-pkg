@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Moved jetpack_videopress REST custom field to VideoPress package.
