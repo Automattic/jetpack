@@ -12,6 +12,9 @@
 		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
+		"files": [
+			"actions.php"
+		],
 		"classmap": [
 			"src/"
 		]
@@ -43,6 +46,9 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-transport-helper",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-package-version.php"
+		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-transport-helper/compare/v${old}...v${new}"
 		},
