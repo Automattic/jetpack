@@ -23,7 +23,6 @@ import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import withVideoChaptersEdit from './video-chapters/edit';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
-import './video-chapters';
 import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
