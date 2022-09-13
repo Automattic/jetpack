@@ -405,7 +405,7 @@ if ( ! function_exists( 'get_plugin_data' ) ) {
 	function get_plugin_data( $plugin_file ) {
 		return array(
 			'Name'    => basename( $plugin_file ),
-			'Version' => str_contains( $plugin_file, 'mu-plugins' ) ? 'mu-plugin' : 'plugin',
+			'Version' => strpos( $plugin_file, 'mu-plugins' ) !== false ? 'mu-plugin' : 'plugin',
 		);
 	}
 }
