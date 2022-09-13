@@ -5,8 +5,9 @@ import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 /**
- * Internal dependencies
+ *
  */
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
@@ -88,11 +89,17 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
+	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
+
 	const toggleType = () => {
 		setLibraryType( current =>
 			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
 		);
+	};
+
+	const handleClickEditDetails = video => {
+		navigate( `/video/${ video?.id }/edit` );
 	};
 
 	return (
@@ -103,9 +110,9 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
 		>
 			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid videos={ videos } />
+				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
 			) : (
-				<VideoList videos={ videos } />
+				<VideoList videos={ videos } onClickEdit={ handleClickEditDetails } />
 			) }
 		</VideoLibraryWrapper>
 	);
