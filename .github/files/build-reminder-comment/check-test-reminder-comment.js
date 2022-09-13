@@ -3,7 +3,7 @@ const getCheckComments = require( './get-check-comments.js' );
 /* global GitHub, Core */
 
 /**
- * Does the PR touches anything that needs testing on WordPress.com.
+ * Does the PR touch anything that needs testing on WordPress.com.
  *
  * Currently we look whether process.env.CHANGED contains `plugins/jetpack`,
  * meaning that Jetpack is being built.
@@ -13,7 +13,7 @@ const getCheckComments = require( './get-check-comments.js' );
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  * @param {Core}   core    - A reference to the @actions/core package
- * @returns {Promise<boolean>} Promise resolving to a boolean if the PR touches something needing testing.
+ * @returns {Promise<boolean>} Promise resolving to a boolean if the PR touches something that needs testing.
  */
 async function isTouchingSomethingNeedingTesting( github, owner, repo, number, core ) {
 	const changed = JSON.parse( process.env.CHANGED );
@@ -23,7 +23,7 @@ async function isTouchingSomethingNeedingTesting( github, owner, repo, number, c
 		return true;
 	}
 
-	core.info( 'Build: Nothing needing testing was found' );
+	core.info( 'Build: Nothing that needs testing was found' );
 	return false;
 }
 
@@ -55,7 +55,7 @@ async function checkTestReminderComment( github, context, core ) {
 	core.info(
 		`Build: This PR ${
 			touchesSomethingNeedingTesting ? 'touches' : 'does not touch'
-		} something needing testing on WordPress.com.`
+		} something that needs testing on WordPress.com.`
 	);
 
 	// Get all the test reminder comments in our PR.
@@ -73,7 +73,7 @@ async function checkTestReminderComment( github, context, core ) {
 		// If it previously touched Jetpack, delete the comments that were created then.
 		if ( testCommentIDs.length > 0 ) {
 			core.info(
-				`Build: this PR previously touched something needing testing, but does not anymore. Deleting previous test reminder comments.`
+				`Build: this PR previously touched something that needs testing, but does not anymore. Deleting previous test reminder comments.`
 			);
 
 			await Promise.all(
@@ -95,15 +95,15 @@ async function checkTestReminderComment( github, context, core ) {
 	// If so, we'll only take care of the first one.
 	if ( testCommentIDs.length > 0 ) {
 		core.info(
-			`Build: this PR touches something needing testing, and there was previously a test reminder comment, ${ testCommentIDs[ 0 ] }.`
+			`Build: this PR touches something that needs testing, and there was previously a test reminder comment, ${ testCommentIDs[ 0 ] }.`
 		);
 		return testCommentIDs[ 0 ];
 	}
 
-	// If our PR touches something needing testing, and there has been no test reminder comment yet, create one.
+	// If our PR touches something that needs testing, and there has been no test reminder comment yet, create one.
 	if ( testCommentIDs.length === 0 ) {
 		core.info(
-			`Build: this PR touches something needing testing, and there has been no test reminder comment yet. Creating one.`
+			`Build: this PR touches something that needs testing, and there has been no test reminder comment yet. Creating one.`
 		);
 		const body = `${ TEST_COMMENT_INDICATOR }Are you an Automattician? The PR will need to be tested on WordPress.com. This comment will be updated with testing instructions as soon the build is complete.`;
 		const {
