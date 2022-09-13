@@ -55,6 +55,13 @@ const getVideos = {
 	},
 };
 
+const getVideo = {
+	fulfill: () => async ( { resolveSelect } ) => {
+		await resolveSelect.getVideos();
+	},
+};
+
 export default {
 	getVideos,
+	getVideo,
 };
