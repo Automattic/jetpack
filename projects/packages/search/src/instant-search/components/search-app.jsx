@@ -80,7 +80,10 @@ class SearchApp extends Component {
 
 	componentDidMount() {
 		// The condition can only occur in the Customberg preview context.
-		if ( this.props.initialShowResults && this.props.initialIsVisible ) {
+		if (
+			( this.props.initialShowResults && this.props.initialIsVisible ) ||
+			this.props.isInCustomizer
+		) {
 			this.getResults();
 		}
 		if ( this.props.hasActiveQuery ) {
