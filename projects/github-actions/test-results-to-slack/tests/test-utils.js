@@ -26,6 +26,7 @@ function setInputData( options ) {
 		suiteName,
 		rulesConfigurationPath,
 		playwrightReportPath,
+		playwrightOutputDir,
 	} = options;
 
 	if ( ghToken ) {
@@ -58,6 +59,10 @@ function setInputData( options ) {
 
 	if ( playwrightReportPath ) {
 		process.env.INPUT_PLAYWRIGHT_REPORT_PATH = playwrightReportPath;
+	}
+
+	if ( playwrightOutputDir ) {
+		process.env.INPUT_PLAYWRIGHT_OUTPUT_DIR = playwrightOutputDir;
 	}
 }
 

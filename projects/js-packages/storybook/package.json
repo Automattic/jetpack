@@ -48,7 +48,7 @@
 		"@wordpress/element": "4.14.0",
 		"@wordpress/format-library": "3.14.0",
 		"@wordpress/postcss-plugins-preset": "4.0.0",
-		"autoprefixer": "10.4.2",
+		"autoprefixer": "10.4.9",
 		"babel-loader": "8.2.5",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"css-loader": "6.5.1",
