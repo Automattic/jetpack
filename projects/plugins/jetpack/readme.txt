@@ -242,17 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.4-a.1 - 2022-09-08
+### 11.4-a.3 - 2022-09-13
 #### Enhancements
-- Blocks: add "BETA" labels for beta extensions used in the block editor context. [#25852, #25938]
-- Jetpack: brand Jetpack features in publishing flows. [#26044, #26064]
-- Payment Buttons: add support for vertical dimensions controls.
-- QR Post: remove redundant buttons from the opened modal.
-- VideoPress Block (beta): allow editing of some block settings while uploading.
+- VideoPress block (Beta): register a video-chapters beta feature with basic controls.
+
+#### Improved compatibility
+- Jetpack: update styling for Jetpack logo shown in pre-publish panels for Jetpack and Jetpack Social plugins. [#26101, 26162]
+- Pay with PayPal block: the `postLinkUrl` attribute now uses the immutable post GUID to prevent the editor from becoming dirty after publishing a post.
+- Subscriptions: do not load Subscriptions block while using Jetpack Offline Mode.
+- VideoPress: move jetpack_videopress_guid REST custom field to VideoPress package.
 
 #### Bug fixes
-- Post Images: avoid PHP notices when fetching images from posts with missing metadata.
-- Donations Block: avoid race condition when updating currency.
+- Widgets: add source check for broken image.
 
 --------
 
