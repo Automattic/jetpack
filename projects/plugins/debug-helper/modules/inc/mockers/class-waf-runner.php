@@ -49,7 +49,7 @@ class Waf_Runner implements Runner_Interface {
 			$values_to_insert[] = $this->get_random_datestamp();
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.NotPrepared
 		$wpdb->query( $wpdb->prepare( $sql, $values_to_insert ) );
 
 		return true;
