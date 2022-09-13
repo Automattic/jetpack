@@ -25,10 +25,22 @@ function register_block() {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+	$supports = array(
+		'__experimentalLayout' => array(
+			'allowSwitching'  => false,
+			'allowInheriting' => false,
+			'default'         => array(
+				'type' => 'flex',
+			),
+		),
+	);
 	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
-			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+			array(
+				'render_callback' => __NAMESPACE__ . '\render_block',
+				'supports'        => $supports,
+			)
 		);
 	} else {
 		$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
@@ -38,6 +50,7 @@ function register_block() {
 			array(
 				'required_feature' => 'memberships',
 				'required_plan'    => $required_plan,
+				'supports'         => $supports,
 			)
 		);
 	}

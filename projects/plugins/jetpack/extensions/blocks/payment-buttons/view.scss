@@ -1,13 +1,8 @@
 .wp-block-jetpack-payment-buttons {
-	/*
 	--jetpack-payment-buttons-gap: 0.5em;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-start;
-	flex-wrap: wrap;
-	gap: var( --jetpack-payment-buttons-gap );*/
-
+	&.is-layout-flex {
+		gap: var(--jetpack-payment-buttons-gap);
+	}
 	.wp-block-button__link {
 		width: 100%;
 	}
