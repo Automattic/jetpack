@@ -400,6 +400,13 @@ abstract class SAL_Site {
 	abstract protected function is_a8c_publication( $post_id );
 
 	/**
+	 * Return the user interactions with a site. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function get_user_interactions();
+
+	/**
 	 * Defines a filter to set whether a site is an automated_transfer site or not.
 	 *
 	 * Default is false.

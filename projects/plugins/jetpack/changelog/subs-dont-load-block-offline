@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Subscriptions: do not load Subscriptions block while under Offline Mode

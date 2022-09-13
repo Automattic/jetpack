@@ -48,7 +48,7 @@
 		"@babel/register": "7.18.9",
 		"@babel/runtime": "7.18.9",
 		"@wordpress/browserslist-config": "5.0.0",
-		"autoprefixer": "10.4.2",
+		"autoprefixer": "10.4.9",
 		"concurrently": "6.0.2",
 		"postcss": "8.4.16",
 		"postcss-custom-properties": "12.1.7",
