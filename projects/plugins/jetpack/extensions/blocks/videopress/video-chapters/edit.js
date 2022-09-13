@@ -7,9 +7,12 @@ import { createHigherOrderComponent } from '@wordpress/compose';
  * Internal dependencies
  */
 import DetailsControl from './components/details-control';
+import useVideoItem from './hooks/use-video-item';
 import { isVideoChaptersEnabled } from '.';
 
 const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => {
+	const [ isRequestingVideoItem ] = useVideoItem( props?.attributes?.id );
+
 	if ( ! isVideoChaptersEnabled ) {
 		return <BlockEdit { ...props } />;
 	}
@@ -21,7 +24,7 @@ const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => 
 	return (
 		<>
 			<InspectorControls>
-				<DetailsControl id={ props?.attributes?.id } />
+				<DetailsControl isRequestingVideoItem={ isRequestingVideoItem } />
 			</InspectorControls>
 
 			<BlockEdit { ...props } />

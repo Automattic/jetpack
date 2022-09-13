@@ -7,15 +7,13 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import useBlockAttributes from '../../hooks/use-block-attributes';
-import useVideoItem from '../../hooks/use-video-item';
 
 const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
 const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
 	VIDEOPRESS_VIDEO_CHAPTERS_FEATURE
 ];
 
-export default function DetailsControl( { id } ) {
-	const [ isRequestingVideoItem ] = useVideoItem( id );
+export default function DetailsControl( { isRequestingVideoItem } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
 
 	if ( ! isVideoChaptersEnabled ) {
