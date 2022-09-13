@@ -104,4 +104,7 @@ add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
 
 add_filter( 'wp_resource_hints', '\Automattic\Jetpack\Fonts\Utils::font_source_resource_hint', 10, 2 );
 add_filter( 'pre_render_block', '\Automattic\Jetpack\Fonts\Introspectors\Blocks::enqueue_block_fonts', 10, 2 );
-add_action( 'init', '\Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts' );
+// The priority for the next hook is is set to 22 because the default (or lower)
+// because it was causing style issues if it ran before the `gutenberg_register_webfonts_from_theme_json`
+// which runs in the same hook but at priority 21.
+add_action( 'init', '\Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts', 22 );
