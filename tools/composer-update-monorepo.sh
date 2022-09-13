@@ -77,16 +77,26 @@ if [[ -z "$DIR" ]]; then
 	usage
 fi
 
+PACKAGES="$(jq -r '.name' "$BASE"/projects/packages/*/composer.json)"
+
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(
 	(
-		composer info --working-dir="$DIR" --locked --name-only | sed -e 's/ *$//' | grep --fixed-strings --line-regexp --file=<( jq -r '.name' "$BASE"/projects/packages/*/composer.json )
+		composer info --working-dir="$DIR" --locked --name-only | sed -e 's/ *$//' | grep --fixed-strings --line-regexp --file=/dev/fd/3 3<<<"$PACKAGES"
 		if $ROOT_REQS; then
 			composer info --working-dir="$DIR" --locked --direct --name-only | sed -e 's/ *$//'
 		fi
 	) | sort -u
 )
-COMPOSER_ROOT_VERSION=dev-trunk composer update "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
+
+# Any deps that look like "^1.2.3" should be locked at that version, as it's probably a release branch.
+WITH=()
+TMP="$(jq -r --arg packages $'\n'"$PACKAGES"$'\n' '.require // {}, .["require-dev"] // {} | to_entries[] | select( ( "\n\( .key )\n" | inside( $packages ) ) and ( .value | test( "^\\^[0-9]+\\.[0-9]+\\.[0-9]+$" ) ) ) | "--with=\( .key )=\( .value[1:] )"' "$DIR/composer.json")"
+if [[ -n "$TMP" ]]; then
+	mapfile -t WITH <<<"$TMP"
+fi
+
+COMPOSER_ROOT_VERSION=dev-trunk composer update "${COMPOSER_ARGS[@]}" "${WITH[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 
 # Point out if the user's composer version is outdated.
 VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
