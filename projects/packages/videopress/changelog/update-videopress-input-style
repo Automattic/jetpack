@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Fix styles, add loading state and clear icon to input component

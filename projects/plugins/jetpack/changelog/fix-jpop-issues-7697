@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix an undefined array key access in `WPCOM_JSON_API_List_Post_Formats_Endpoint`.
