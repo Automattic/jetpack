@@ -291,8 +291,15 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 
 	private function setup_publicize_mock() {
 		global $publicize;
-		$this->publicize = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' )->setMethods( array( 'test_connection' ) )->getMock();
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/admin-plugins/publicize.php';
+			$mockbuilder = $this->getMockBuilder( 'Publicize' );
+		} else {
+			$mockbuilder = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' );
+		}
+
+		$this->publicize = $mockbuilder->setMethods( array( 'test_connection' ) )->getMock();
 		$this->publicize->method( 'test_connection' )
 			->withAnyParameters()
 			->willReturn( true );
