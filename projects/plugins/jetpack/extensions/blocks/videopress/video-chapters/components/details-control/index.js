@@ -3,13 +3,16 @@
  */
 import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import useVideoItem from '../../hooks/use-video-item';
 
 const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
 const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
 	VIDEOPRESS_VIDEO_CHAPTERS_FEATURE
 ];
 
-export default function DetailsControl( { title, description } ) {
+export default function DetailsControl( { guid } ) {
+	const [ videoItem, isRequestingVideoItem ] = useVideoItem( guid );
+
 	if ( ! isVideoChaptersEnabled ) {
 		return null;
 	}
@@ -26,16 +29,18 @@ export default function DetailsControl( { title, description } ) {
 		<PanelBody title={ __( 'Details', 'jetpack' ) }>
 			<TextControl
 				label={ __( 'Title', 'jetpack' ) }
-				value={ title }
+				value={ videoItem?.title }
 				placeholder={ __( 'Video title', 'jetpack' ) }
 				onChange={ onTitleChangeHandler }
+				disabled={ isRequestingVideoItem }
 			/>
 
 			<TextareaControl
 				label={ __( 'Description', 'jetpack' ) }
-				value={ description }
+				value={ videoItem?.description }
 				placeholder={ __( 'Video description', 'jetpack' ) }
 				onChange={ onDescriptionChangeHandler }
+				disabled={ isRequestingVideoItem }
 			/>
 		</PanelBody>
 	);
