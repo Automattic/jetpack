@@ -205,7 +205,7 @@ class Scan_Helper {
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
 	private function generate_suspicious_link_threat() {
-		if ( ! $this->write_file( $this->threats['suspicious_link'], "<?php\n \$url = 'https://example.com/akismet-guaranteed-spam/'; \n" ) ) {
+		if ( ! $this->write_file( $this->threats['suspicious_link'], "<?php\n \$url = 'https://example.com" . "/akismet-guaranteed-spam/'; \n" ) ) {
 			return new WP_Error( 'could-not-write', "Unable to write threat file {$this->threats['suspicious_link']}" );
 		}
 
