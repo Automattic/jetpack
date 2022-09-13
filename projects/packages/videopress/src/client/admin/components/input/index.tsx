@@ -160,7 +160,7 @@ export const SearchInput = ( {
 			onChange={ onChangeHandler }
 			endAdornment={
 				<>
-					{ componentProps.value !== '' && (
+					{ Boolean( componentProps.value ) && (
 						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
 							<Icon
 								icon={ closeSmall }
