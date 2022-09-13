@@ -38,6 +38,7 @@ if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
 
 define( 'JETPACK_BOOST_DIR_PATH', __DIR__ );
 define( 'JETPACK_BOOST_PATH', __FILE__ );
+define( 'JETPACK_BOOST_DIR_URL', plugin_dir_url( JETPACK_BOOST_PATH ) );
 
 if ( ! defined( 'JETPACK_BOOST_PLUGIN_BASE' ) ) {
 	define( 'JETPACK_BOOST_PLUGIN_BASE', plugin_basename( __FILE__ ) );

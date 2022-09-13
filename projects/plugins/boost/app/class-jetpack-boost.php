@@ -121,6 +121,32 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
+		$this->deactivation_survey();
+	}
+
+	/**
+	 * Plugin deactivation survey handler. The plugin will have been deactivated but present this
+	 * page to ask for feedback.
+	 */
+	public function deactivation_survey() {
+		// Skip the deactivation feedback if it's a JSON/AJAX request or via WP-CLI
+		if ( wp_is_json_request() || wp_doing_ajax() || ( defined( 'WP_CLI' ) && WP_CLI ) || wp_is_xml_request() ) {
+			return;
+		}
+
+		if ( ! defined( 'BOOSTDEACTIVATINGINPROG' ) ) {
+			define( 'BOOSTDEACTIVATINGINPROG', true );
+			try {
+				// Also manually deactivate before exit
+				deactivate_plugins( plugin_basename( JETPACK_BOOST_PATH ) );
+				// require template
+				require_once JETPACK_BOOST_DIR_PATH . '/app/admin/feedback/deactivation/deactivate.php';
+				exit();
+			} catch ( Exception $e ) {
+				// just die
+				die();
+			}
+		}
 	}
 
 	/**
