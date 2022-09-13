@@ -387,6 +387,7 @@ const addVideoPressSupport = ( settings, name ) => {
  * @see packages/block-editor/src/hooks/align.js
  */
 addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport, 5 );
+
 addFilter(
 	'blocks.registerBlockType',
 	'videopress/add-wp-chapters-support',

@@ -5,7 +5,7 @@ export const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.a
 ];
 
 export default function addVideoPressVideoChaptersSupport( settings, name ) {
-	if ( isVideoChaptersEnabled ) {
+	if ( ! isVideoChaptersEnabled ) {
 		return settings;
 	}
 
@@ -13,16 +13,18 @@ export default function addVideoPressVideoChaptersSupport( settings, name ) {
 		return settings;
 	}
 
+	const videoChaptersAttributes = {
+		...settings.attributes,
+		title: {
+			type: 'string',
+		},
+		description: {
+			type: 'string',
+		},
+	};
+
 	return {
 		...settings,
-		attributes: {
-			...settings.attributes,
-			title: {
-				type: 'string',
-			},
-			description: {
-				type: 'string',
-			},
-		},
+		attributes: videoChaptersAttributes,
 	};
 }
