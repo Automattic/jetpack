@@ -14,6 +14,10 @@ const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => 
 		return <BlockEdit { ...props } />;
 	}
 
+	if ( ! props.name === 'core/video' || ! props.attributes?.guid ) {
+		return <BlockEdit { ...props } />;
+	}
+
 	return (
 		<>
 			<InspectorControls>
