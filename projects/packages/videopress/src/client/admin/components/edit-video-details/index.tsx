@@ -6,16 +6,17 @@ import {
 	Container,
 	Col,
 } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { STORE_ID } from '../../../state';
+import useVideo from '../../hooks/use-video';
 import Input from '../input';
 import Logo from '../logo';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
+
 const noop = () => {
 	// noop
 };
@@ -33,24 +34,43 @@ const Header = ( { saveDisabled = true }: { saveDisabled?: boolean } ) => {
 	);
 };
 
-const Infos = () => {
+const Infos = ( { video } ) => {
+	const [ title, setTitle ] = useState( video?.title );
+	const [ description, setDescription ] = useState( video?.description );
+	const [ caption, setCaption ] = useState( video?.caption );
+
+	useEffect( () => {
+		setTitle( video?.title );
+		setDescription( video?.description );
+		setCaption( video?.caption );
+	}, [ video ] );
+
 	return (
 		<>
-			<Input label="Title" name="title" onChange={ noop } onEnter={ noop } size="large" />
 			<Input
+				value={ title }
+				label="Title"
+				name="title"
+				onChange={ setTitle }
+				onEnter={ noop }
+				size="large"
+			/>
+			<Input
+				value={ description }
 				className={ styles.input }
 				label="Description"
 				name="description"
-				onChange={ noop }
+				onChange={ setDescription }
 				onEnter={ noop }
 				type="textarea"
 				size="large"
 			/>
 			<Input
+				value={ caption }
 				className={ styles.input }
 				label="Caption"
 				name="caption"
-				onChange={ noop }
+				onChange={ setCaption }
 				onEnter={ noop }
 				type="textarea"
 				size="large"
@@ -61,10 +81,7 @@ const Infos = () => {
 
 const EditVideoDetails = () => {
 	const { videoId } = useParams();
-
-	const video = useSelect( select => select( STORE_ID ).getVideo( Number( videoId ) ), [
-		videoId,
-	] );
+	const video = useVideo( Number( videoId ) );
 
 	return (
 		<AdminPage
@@ -74,7 +91,7 @@ const EditVideoDetails = () => {
 			<AdminSection>
 				<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 					<Col sm={ 4 } md={ 8 } lg={ 7 }>
-						<Infos />
+						<Infos video={ video } />
 					</Col>
 					<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 						<VideoThumbnail
