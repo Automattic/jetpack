@@ -33,6 +33,7 @@ export function ReconnectModal( props ) {
 		beforeReconnectSite: beforeReconnectSiteProp,
 		initiateUserConnection: initiateUserConnectionProp,
 		reconnectFailed: reconnectFailedProp,
+		clickReconnectSite: clickReconnectSiteProp,
 	} = props;
 
 	const shouldShowModal = useCallback( () => {
@@ -92,7 +93,11 @@ export function ReconnectModal( props ) {
 						<Button className="reconnect__modal-cancel" onClick={ closeModal }>
 							{ _x( 'Cancel', 'A caption for a button to cancel an action.', 'jetpack' ) }
 						</Button>
-						<Button className="reconnect__modal-reconnect" onClick={ clickReconnectSite } primary>
+						<Button
+							className="reconnect__modal-reconnect"
+							onClick={ clickReconnectSiteProp || clickReconnectSite }
+							primary
+						>
 							{ _x(
 								'Reconnect Jetpack',
 								'A caption for a button to reconnect Jetpack.',
@@ -111,6 +116,7 @@ ReconnectModal.displayName = 'ReconnectModal';
 ReconnectModal.propTypes = {
 	show: PropTypes.bool,
 	onHide: PropTypes.func,
+	clickReconnectSite: PropTypes.func,
 };
 
 ReconnectModal.defaultProps = {
