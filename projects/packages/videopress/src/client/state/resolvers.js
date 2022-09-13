@@ -57,6 +57,8 @@ const getVideos = {
 
 const getVideo = {
 	fulfill: () => async ( { resolveSelect } ) => {
+		// We make sure that videos are fullfiled.
+		// This is used when user comes from Media Library.
 		await resolveSelect.getVideos();
 	},
 };
