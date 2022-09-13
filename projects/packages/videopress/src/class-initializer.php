@@ -75,16 +75,38 @@ class Initializer {
 	 * @return void
 	 */
 	private static function unconditional_initialization() {
-		require_once __DIR__ . '/utility-functions.php';
+		if ( self::should_include_utilities() ) {
+			require_once __DIR__ . '/utility-functions.php';
+		}
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
 		Module_Control::init();
+
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
+		new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
 		if ( is_admin() ) {
 			AJAX::init();
 		}
+	}
+
+	/**
+	 * This avoids conflicts when running VideoPress plugin with older versions of the Jetpack plugin
+	 *
+	 * On version 11.3-a.7 utility functions include were removed from the plugin and it is safe to include it from the package
+	 *
+	 * @return boolean
+	 */
+	private static function should_include_utilities() {
+		if ( ! class_exists( 'Jetpack' ) || ! defined( 'JETPACK__VERSION' ) ) {
+			return true;
+		}
+
+		return version_compare( JETPACK__VERSION, '11.3-a.7', '>=' );
+
 	}
 
 	/**
@@ -138,15 +160,39 @@ class Initializer {
 	}
 
 	/**
-	 * Register the VideoPress block editor block
+	 * Register all VideoPress blocks
 	 *
 	 * @return void
 	 */
-	public static function register_videopress_block() {
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/videopress' ) ) {
+	public static function register_videopress_blocks() {
+		// Register VideoPress Video block.
+		self::register_videopress_video_block();
+	}
+
+	/**
+	 * Register the VideoPress block editor block,
+	 * AKA "VideoPress Block v6".
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_video_block() {
+		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/video/block.json';
+		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
+		if ( ! $videopress_video_metadata_file_exists ) {
 			return;
 		}
 
-		register_block_type( __DIR__ . '/client/block-editor/blocks/videopress/' );
+		$videopress_video_metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $videopress_video_metadata_file )
+		);
+
+		// Pick the block name straight from the block metadata .json file.
+		$videopress_video_block_name = $videopress_video_metadata->name;
+		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
+			return;
+		}
+
+		register_block_type( $videopress_video_metadata_file );
 	}
 }

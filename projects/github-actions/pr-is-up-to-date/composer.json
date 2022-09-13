@@ -23,6 +23,7 @@
 		"autotagger": {
 			"major": true
 		},
+		"autorelease": true,
 		"mirror-repo": "Automattic/action-pr-is-up-to-date",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/action-pr-is-up-to-date/compare/v${old}...v${new}"

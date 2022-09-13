@@ -1,89 +1,22 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, image, trash, chevronDown, chevronUp } from '@wordpress/icons';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
-import privacy from './privacy-icon';
+import privacy from '../../../components/icons/privacy-icon';
+import Checkbox from '../checkbox';
+import VideoQuickActions from '../video-quick-actions';
+import StatsBase from './stats';
 import styles from './style.module.scss';
+import { VideoRowProps } from './types';
 
-const millisecondsToMinutesAndSeconds = ( milliseconds: number ) => {
-	const minutes = Math.floor( milliseconds / 60000 );
-	const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
-	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
-};
-
-const PopoverWithAnchor = ( {
-	anchorRef,
-	children = null,
-}: {
-	anchorRef: HTMLElement | null;
-	children: React.ReactNode;
-} ) => {
-	if ( ! anchorRef ) {
-		return null;
+const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
+	if ( milliseconds ) {
+		const minutes = Math.floor( milliseconds / 60000 );
+		const seconds = Math.floor( ( milliseconds % 60000 ) / 1000 );
+		return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
 	}
-
-	return (
-		<Popover placement="top" offset={ 15 } noArrow={ false } anchorRef={ anchorRef }>
-			<Text variant="body-small" className={ styles.popover }>
-				{ children }
-			</Text>
-		</Popover>
-	);
-};
-
-const ActionItem = ( {
-	icon,
-	children,
-	className = '',
-}: {
-	icon: JSX.Element;
-	children: React.ReactNode;
-	className?: string;
-} ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
-
-	return (
-		<div
-			ref={ setAnchorRef }
-			onMouseOver={ () => setShowPopover( true ) }
-			onMouseLeave={ () => setShowPopover( false ) }
-			onFocus={ () => setShowPopover( true ) }
-			onBlur={ () => setShowPopover( false ) }
-			className={ className }
-		>
-			<Icon icon={ icon } />
-			{ showPopover && <PopoverWithAnchor anchorRef={ anchorRef }>{ children }</PopoverWithAnchor> }
-		</div>
-	);
-};
-
-const QuickActions = ( { button }: { button: React.ReactNode } ) => {
-	// Hiding it based on Design request:
-	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
-	const HIDE_QUICK_ACTIONS = true;
-
-	return (
-		<div className={ styles.actions }>
-			{ button }
-			{ HIDE_QUICK_ACTIONS ? null : (
-				<>
-					<ActionItem icon={ image }>
-						{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
-					</ActionItem>
-					<ActionItem icon={ privacy }>
-						{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
-					</ActionItem>
-					<ActionItem icon={ trash } className={ styles.trash }>
-						{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-					</ActionItem>
-				</>
-			) }
-		</div>
-	);
 };
 
 const Stats = ( {
@@ -92,84 +25,78 @@ const Stats = ( {
 	plays,
 	isPrivate,
 }: {
-	duration: string;
-	uploadDate: string;
-	plays: number;
-	isPrivate: boolean;
+	duration?: string;
+	uploadDate?: string;
+	plays?: number;
+	isPrivate?: boolean;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
 	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
 	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
+	const privateLabel = __( 'Private', 'jetpack-videopress-pkg' );
+	const publicLabel = __( 'Public', 'jetpack-videopress-pkg' );
+
+	const privacyElement = isSmall ? (
+		<>
+			<span>{ privacyLabel }</span>
+			<span>{ isPrivate ? privateLabel : publicLabel }</span>
+		</>
+	) : (
+		<>{ isPrivate && <Icon icon={ privacy } /> }</>
+	);
+
+	const durationElement =
+		isSmall && duration ? (
+			<>
+				<span>{ durationLabel }</span>
+				<span>{ duration }</span>
+			</>
+		) : (
+			duration
+		);
+
+	const playsElement =
+		isSmall && Number.isFinite( plays ) ? (
+			<>
+				<span>{ playsLabel }</span>
+				<span>{ plays }</span>
+			</>
+		) : (
+			plays
+		);
+
+	const uploadElement = isSmall ? null : uploadDate;
 
 	return (
-		<div className={ classNames( styles.stats, { [ styles.small ]: isSmall } ) }>
-			<Text aria-disabled={ isSmall ? 'false' : 'true' } component="div">
-				{ isSmall ? (
-					<>
-						<span>{ privacyLabel }</span>
-						<span>
-							{ isPrivate
-								? __( 'Private', 'jetpack-videopress-pkg' )
-								: __( 'Public', 'jetpack-videopress-pkg' ) }
-						</span>
-					</>
-				) : (
-					<>{ isPrivate && <Icon icon={ privacy } /> }</>
-				) }
-			</Text>
-			<Text component="div">
-				{ isSmall ? (
-					<>
-						<span>{ durationLabel }</span>
-						<span>{ duration }</span>
-					</>
-				) : (
-					duration
-				) }
-			</Text>
-			{ Number.isFinite( plays ) && (
-				<Text component="div">
-					{ isSmall ? (
-						<>
-							<span>{ playsLabel }</span>
-							<span>{ plays }</span>
-						</>
-					) : (
-						plays
-					) }
-				</Text>
-			) }
-			{ ! isSmall && (
-				<Text className={ styles.upload } component="div">
-					{ uploadDate }
-				</Text>
-			) }
-		</div>
+		<StatsBase
+			privacy={ typeof isPrivate === 'boolean' ? privacyElement : null }
+			duration={ durationElement }
+			plays={ playsElement }
+			upload={ uploadElement }
+		/>
 	);
 };
 
 const VideoRow = ( {
+	className = '',
 	checked = false,
-	videoTitle,
+	title,
 	posterImage,
 	duration,
 	uploadDate,
-	plays = null,
-	isPrivate = false,
+	plays,
+	isPrivate,
 	onClickEdit,
 	onSelect,
-}: {
-	checked: boolean;
-	videoTitle: string;
-	posterImage: string;
-	duration: number;
-	uploadDate: string;
-	plays: number;
-	isPrivate: boolean;
-	onClickEdit?: () => void;
-	onSelect?: ( check: boolean ) => void;
-} ) => {
+	hideEditButton,
+	// Hiding it based on Design request:
+	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
+	hideQuickActions = true,
+	onUpdateThumbnailClick,
+	onUpdateUpdatePrivacyClick,
+	onDeleteClick,
+}: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
@@ -184,6 +111,12 @@ const VideoRow = ( {
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
 	const showBottom = ! isSmall || ( isSmall && expanded );
+	const canExpand =
+		isSmall &&
+		( ! hideEditButton ||
+			Boolean( duration ) ||
+			Number.isFinite( plays ) ||
+			typeof isPrivate === 'boolean' );
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
@@ -194,24 +127,32 @@ const VideoRow = ( {
 			'Video: %1$s, Duration: %2$s, Upload Date: %3$s. Click to edit details.',
 			'jetpack-videopress-pkg'
 		),
-		videoTitle,
+		title,
 		durationInMinutesAndSeconds,
 		uploadDateFormatted
 	);
 
-	const handleEditClick = e => {
-		onClickEdit?.();
-		e.stopPropagation();
+	const handleClickWithStopPropagation = callback => event => {
+		event.stopPropagation();
+		callback?.( event );
 	};
 
 	const editDetailsButton = (
-		<Button size="small" onClick={ handleEditClick } fullWidth={ isSmall }>
+		<Button
+			size="small"
+			onClick={ handleClickWithStopPropagation( onClickEdit ) }
+			fullWidth={ isSmall }
+		>
 			{ editVideoLabel }
 		</Button>
 	);
 
-	const toggleExpand = () => {
-		setExpanded( current => ! current );
+	const handleInfoWrapperClick = e => {
+		if ( canExpand ) {
+			setExpanded( current => ! current );
+		} else {
+			handleClick( e );
+		}
 	};
 
 	const handleClick = e => {
@@ -241,10 +182,6 @@ const VideoRow = ( {
 		setShowActions( false );
 	};
 
-	const handleCheckboxChange = e => {
-		onSelect?.( e.target.checked );
-	};
-
 	return (
 		<div
 			role="button"
@@ -255,19 +192,16 @@ const VideoRow = ( {
 			onMouseLeave={ isSmall ? null : handleLeave }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
-			className={ classNames( styles[ 'video-row' ], {
-				[ styles.pressed ]: keyPressed,
-			} ) }
+			className={ classNames(
+				styles[ 'video-row' ],
+				{
+					[ styles.pressed ]: keyPressed,
+				},
+				className
+			) }
 		>
 			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
-				<input
-					ref={ checkboxRef }
-					type="checkbox"
-					checked={ checked }
-					tabIndex={ -1 }
-					className={ styles.checkbox }
-					onChange={ handleCheckboxChange }
-				/>
+				<Checkbox ref={ checkboxRef } checked={ checked } tabIndex={ -1 } onChange={ onSelect } />
 			</div>
 			<div
 				className={ classNames( styles[ 'video-data-wrapper' ], {
@@ -276,26 +210,41 @@ const VideoRow = ( {
 			>
 				<div
 					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-					onClick={ isSmall ? toggleExpand : null }
+					onClick={ isSmall ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
-					<img className={ styles.poster } alt="" src={ posterImage } />
+					{ posterImage && <img className={ styles.poster } alt="" src={ posterImage } /> }
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
-								{ videoTitle }
+								{ title }
 							</Text>
 						) }
 						<Text variant="title-small" className={ styles.title } ref={ textRef }>
-							{ videoTitle }
+							{ title }
 						</Text>
 						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
 					</div>
-					{ isSmall && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
+					{ canExpand && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && <QuickActions button={ editDetailsButton } /> }
+						{ showActions && ( ! hideEditButton || ! hideQuickActions ) && (
+							<div className={ styles.actions }>
+								{ ! hideEditButton && editDetailsButton }
+								{ ! hideQuickActions && (
+									<VideoQuickActions
+										onUpdateThumbnailClick={ handleClickWithStopPropagation(
+											onUpdateThumbnailClick
+										) }
+										onUpdateUpdatePrivacyClick={ handleClickWithStopPropagation(
+											onUpdateUpdatePrivacyClick
+										) }
+										onDeleteClick={ handleClickWithStopPropagation( onDeleteClick ) }
+									/>
+								) }
+							</div>
+						) }
 						{ showStats && (
 							<Stats
 								duration={ durationInMinutesAndSeconds }
@@ -304,7 +253,7 @@ const VideoRow = ( {
 								isPrivate={ isPrivate }
 							/>
 						) }
-						{ isSmall && editDetailsButton }
+						{ isSmall && ! hideEditButton && editDetailsButton }
 					</div>
 				) }
 			</div>
@@ -312,4 +261,6 @@ const VideoRow = ( {
 	);
 };
 
+export type { VideoRowProps };
+export { StatsBase as Stats };
 export default VideoRow;

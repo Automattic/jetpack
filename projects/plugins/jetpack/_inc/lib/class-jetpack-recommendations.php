@@ -21,18 +21,17 @@ use Automattic\Jetpack\Status\Host;
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
-
-	const PUBLICIZE_RECOMMENDATION     = 'publicize';
-	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
-	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
-	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
-	const BACKUP_PLAN_RECOMMENDATION   = 'backup-plan';
-	const BOOST_RECOMMENDATION         = 'boost';
+	const PUBLICIZE_RECOMMENDATION   = 'publicize';
+	const PROTECT_RECOMMENDATION     = 'protect';
+	const ANTI_SPAM_RECOMMENDATION   = 'anti-spam';
+	const VIDEOPRESS_RECOMMENDATION  = 'videopress';
+	const BACKUP_PLAN_RECOMMENDATION = 'backup-plan';
+	const BOOST_RECOMMENDATION       = 'boost';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
-		self::SECURITY_PLAN_RECOMMENDATION,
+		self::PROTECT_RECOMMENDATION,
 		self::ANTI_SPAM_RECOMMENDATION,
 		self::VIDEOPRESS_RECOMMENDATION,
 		self::BACKUP_PLAN_RECOMMENDATION,
@@ -206,6 +205,7 @@ class Jetpack_Recommendations {
 			'creative-mail.php',
 			'jetpack-backup.php',
 			'jetpack-boost.php',
+			'jetpack-protect.php',
 			'crowdsignal.php',
 			'vaultpress.php',
 			'woocommerce.php',
@@ -215,21 +215,18 @@ class Jetpack_Recommendations {
 		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
 
 		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
-			$products              = array_column( Jetpack_Plan::get_products(), 'product_slug' );
-			$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $products ) ) > 0;
-			$has_anti_spam         = is_plugin_active( 'akismet/akismet.php' ) || Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product;
-
-			// Check the backup state.
-			$rewind_state = get_transient( 'jetpack_rewind_state' );
-			$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
+			$products = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 
 			// Check for a plan or product that enables scan.
 			$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
 			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
 			$has_scan           = $plan_supports_scan || $has_scan_product;
 
-			if ( ! $has_scan || ! $has_backup || ! $has_anti_spam ) {
-				self::enable_conditional_recommendation( self::SECURITY_PLAN_RECOMMENDATION );
+			// Check if Jetpack Protect plugin is already active.
+			$has_protect = Plugins_Installer::is_plugin_active( 'jetpack-protect/jetpack-protect.php' ) || Plugins_Installer::is_plugin_active( 'protect/jetpack-protect.php' );
+
+			if ( ! $has_scan && ! $has_protect ) {
+				self::enable_conditional_recommendation( self::PROTECT_RECOMMENDATION );
 			}
 		}
 	}

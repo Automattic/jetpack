@@ -5,12 +5,12 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [ trunk ]
+    branches: [ 'trunk', '*/branch-*' ]
     paths-ignore:
     - '**.md'
   schedule:
-    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
-    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
+    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
@@ -45,7 +45,7 @@ jobs:
         env:
           CRON: ${{ github.event.schedule }}
         run: |
-          TEST_PLAN="$(.github/files/create-e2e-projects-matrix.sh)"
+          TEST_PLAN="$(.github/files/e2e-tests/create-e2e-projects-matrix.sh)"
           echo "$TEST_PLAN"
 
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
@@ -188,6 +188,16 @@ jobs:
           composer build-development
         working-directory: ./projects/github-actions/test-results-to-slack
 
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-output
+
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: ./.github/files/e2e-tests/encryption.sh decrypt
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -196,5 +206,8 @@ jobs:
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
+          playwright_report_path: test-output/**/summary.json
+          playwright_output_dir: test-output/**/results
+          rules_configuration_path: .github/files/e2e-tests/notification-rules.json
 
 

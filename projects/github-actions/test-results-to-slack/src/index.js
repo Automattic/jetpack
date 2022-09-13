@@ -1,8 +1,6 @@
 const { setFailed, getInput, startGroup, endGroup } = require( '@actions/core' );
-const { WebClient } = require( '@slack/web-api' );
-const debug = require( './debug' );
-const { isWorkflowFailed, getNotificationData } = require( './github' );
-const { getMessage, sendMessage } = require( './slack' );
+const { sendMessage } = require( './message' );
+const { getChannels } = require( './rules' );
 
 ( async function main() {
 	startGroup( 'Send results to Slack' );
@@ -20,8 +18,7 @@ const { getMessage, sendMessage } = require( './slack' );
 		return;
 	}
 
-	const channel = getInput( 'slack_channel' );
-	if ( ! channel ) {
+	if ( ! getInput( 'slack_channel' ) ) {
 		setFailed( 'Input `slack_channel` is required' );
 		return;
 	}
@@ -33,65 +30,10 @@ const { getMessage, sendMessage } = require( './slack' );
 	}
 	//endregion
 
-	const client = new WebClient( slackToken );
+	const channels = getChannels();
 
-	const isFailure = await isWorkflowFailed( ghToken );
-	const { text, id, mainMsgBlocks, detailsMsgBlocks } = await getNotificationData( isFailure );
-	const existingMessage = await getMessage( client, channel, id );
-	let mainMessageTS = existingMessage ? existingMessage.ts : undefined;
-	const icon_emoji = getInput( 'slack_icon_emoji' );
-
-	if ( existingMessage ) {
-		debug( 'Main message found' );
-		debug( 'Updating the main message' );
-		// Update the existing message
-		await sendMessage( client, true, {
-			text: `${ text }\n${ id }`,
-			blocks: mainMsgBlocks,
-			channel,
-			username,
-			ts: mainMessageTS,
-		} );
-
-		if ( isFailure ) {
-			debug( 'Sending new reply to main message with failure details' );
-			// Send a reply to the main message with the current failure result
-			await sendMessage( client, false, {
-				text,
-				blocks: detailsMsgBlocks,
-				channel,
-				username,
-				icon_emoji,
-				thread_ts: mainMessageTS,
-			} );
-		}
-	} else {
-		debug( 'Main message not found' );
-		if ( isFailure ) {
-			debug( 'Sending new main message' );
-			// Send a new main message
-			const response = await sendMessage( client, false, {
-				text: `${ text }\n${ id }`,
-				blocks: mainMsgBlocks,
-				channel,
-				username,
-				icon_emoji,
-			} );
-			mainMessageTS = response.ts;
-
-			debug( 'Sending new reply to main message with failure details' );
-			// Send a reply to the main message with the current failure result
-			await sendMessage( client, false, {
-				text,
-				blocks: detailsMsgBlocks,
-				channel,
-				username,
-				icon_emoji,
-				thread_ts: mainMessageTS,
-			} );
-		} else {
-			debug( 'No previous failure found, no notification needed for success' );
-		}
+	for ( const channel of channels ) {
+		await sendMessage( slackToken, ghToken, channel, username );
 	}
 
 	endGroup();

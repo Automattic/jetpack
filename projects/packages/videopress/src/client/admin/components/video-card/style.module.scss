@@ -1,0 +1,105 @@
+.wrapper {
+	--jp-video-details-wrapper-max-width: 392px;
+
+	max-width: var(--jp-video-details-wrapper-max-width);
+	border-radius: var( --jp-border-radius );
+	background-color: var( --jp-white );
+
+	&.small {
+		height: 200px;
+
+		.button {
+			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
+		}
+	}
+}
+
+.video-card__wrapper {
+	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
+	max-width: var( --videopress-video-item-max-width );
+	position: relative;
+
+	&.is-blank {
+		.video-card__background {
+			display: none;
+		}
+
+		.thumbnail,
+		.video-card__title-section,
+		.video-card__quick-actions-section {
+			visibility: hidden;
+		}
+	}
+
+	&:hover {
+		.video-card__background {
+			opacity: 1;
+			z-index: 1;
+			top: calc( var( --spacing-base ) * -2 );
+			left: calc( var( --spacing-base ) * -2 );
+			padding: calc( var( --spacing-base ) * 2 );
+		}
+
+		.video-card__thumbnail {
+			z-index: 2;
+		}
+
+		.video-card__quick-actions-section {
+			z-index: 3;
+			opacity: 1;
+		}
+	}
+}
+
+.video-card__background {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	padding: 0;
+	background-color: var( --jp-white );
+	z-index: 0;
+	box-sizing: content-box;
+	border-radius: var( --spacing-base );
+	border: 1px solid var( --jp-gray-10 );
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out, padding 0.2s ease-in-out, top 0.2s ease-in-out, left 0.2s ease-in-out;
+}
+
+.video-card__title-section {
+	display: flex;
+	align-items: center;
+	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-bottom: calc( var( --spacing-base ) * 2 );
+}
+
+.video-card__title {
+	flex-grow: 2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	position: relative;
+	z-index: 2;
+}
+
+.video-card__video-plays-counter {
+	display: flex;
+	align-items: center;
+	color: var( --jp-gray-50 );
+	white-space: nowrap;
+	position: relative;
+	z-index: 2;
+
+	> svg {
+		fill: var( --jp-gray-50 );
+	}
+}
+
+.video-card__quick-actions-section {
+	opacity: 0;
+	position: relative;
+	display: flex;
+	transition: opacity 0.2s ease-in-out;
+	justify-content: space-between;
+}
