@@ -1,10 +1,6 @@
-const { mockGitHubContext, mockContextExtras, setInputData } = require( './test-utils' );
+const { mockContextExtras, setInputData } = require( './test-utils' );
 
 describe( 'Message content', () => {
-	afterEach( () => {
-		delete process.env.INPUT_SUITE_NAME;
-	} );
-
 	const repository = 'foo/bar';
 	const refName = 'trunk';
 	const refType = 'branch';
@@ -26,6 +22,8 @@ describe( 'Message content', () => {
 	`(
 		`Message text is correct for $eventName and workflow failed=$isFailure and suiteName=$suiteName`,
 		async ( { eventName, isFailure, suiteName, expected } ) => {
+			const { mockGitHubContext } = require( './test-utils' );
+
 			setInputData( { suiteName } );
 
 			// Mock GitHub context
@@ -54,6 +52,8 @@ describe( 'Message content', () => {
 	`(
 		`First main message context line is correct for push`,
 		async ( { commitId, commitMsg, expected } ) => {
+			const { mockGitHubContext } = require( './test-utils' );
+
 			// Mock GitHub context
 			mockGitHubContext( {
 				payload: {
@@ -71,6 +71,7 @@ describe( 'Message content', () => {
 
 	test( `First main message context line is correct for pull_request`, async () => {
 		const title = 'Pull request title';
+		const { mockGitHubContext } = require( './test-utils' );
 
 		// Mock GitHub context
 		mockGitHubContext( {
@@ -88,6 +89,8 @@ describe( 'Message content', () => {
 	} );
 
 	test( `First main message context line is correct for schedule`, async () => {
+		const { mockGitHubContext } = require( './test-utils' );
+
 		// Mock GitHub context
 		mockGitHubContext( {
 			payload: {
@@ -101,5 +104,45 @@ describe( 'Message content', () => {
 		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Last commit: 5dc6ab9d` );
+	} );
+} );
+
+describe( 'Send message', () => {
+	test.each`
+		description                                                    | mainMessageExists | isFailure  | expectedCalls
+		${ 'Should update main message and send reply on failure' }    | ${ true }         | ${ true }  | ${ [ { update: true }, { update: false } ] }
+		${ 'Should only update main message on success' }              | ${ true }         | ${ false } | ${ [ { update: true } ] }
+		${ 'Should create main message and send reply on failure' }    | ${ false }        | ${ true }  | ${ [ { update: false }, { update: false } ] }
+		${ 'Should not send anything on success and no main message' } | ${ false }        | ${ false } | ${ [] }
+	`( `$description`, async ( { isFailure, mainMessageExists, expectedCalls } ) => {
+		const slack = require( '../src/slack' );
+		const spy = jest
+			.spyOn( slack, 'postOrUpdateMessage' )
+			.mockImplementation()
+			.mockReturnValue( { ts: '123' } );
+
+		// Mock message existence
+		jest.spyOn( slack, 'getMessage' ).mockReturnValue( mainMessageExists );
+
+		// Mock the run conclusion
+		const github = require( '../src/github' );
+		jest.spyOn( github, 'isWorkflowFailed' ).mockReturnValue( isFailure );
+
+		// Mock message content
+		const message = require( '../src/message' );
+		jest.spyOn( message, 'createMessage' ).mockReturnValue( {
+			text: 'message text',
+			id: 'msg-id',
+			mainMsgBlocks: [],
+			detailsMsgBlocksChunks: [],
+		} );
+
+		await message.sendMessage( '', '', '', '' );
+
+		await expect( spy ).toHaveBeenCalledTimes( expectedCalls.length );
+
+		for ( const args of expectedCalls ) {
+			await expect( spy ).toHaveBeenCalledWith( expect.anything(), args.update, expect.anything() );
+		}
 	} );
 } );
