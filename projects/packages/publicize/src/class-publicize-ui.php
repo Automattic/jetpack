@@ -576,7 +576,7 @@ jQuery( function($) {
 			 * Fires right before rendering the Publicize form in the Classic
 			 * Editor.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.14.0
 			 */
 			do_action( 'publicize_classic_editor_form_before' );
 
@@ -594,7 +594,7 @@ jQuery( function($) {
 			 * Fires right after rendering the Publicize form in the Classic
 			 * Editor.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.14.0
 			 */
 			do_action( 'publicize_classic_editor_form_after' );
 			?>
