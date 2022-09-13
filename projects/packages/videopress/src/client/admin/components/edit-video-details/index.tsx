@@ -9,7 +9,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useVideo from '../../hooks/use-video';
 import Input from '../input';
 import Logo from '../logo';
@@ -22,10 +22,13 @@ const noop = () => {
 };
 
 const Header = ( { saveDisabled = true }: { saveDisabled?: boolean } ) => {
+	const navigate = useNavigate();
 	return (
 		<div className={ styles.header }>
 			<div className={ styles.breadcrumb }>
-				<Logo />
+				<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
+					<Logo />
+				</button>
 				<Icon icon={ chevronRightSmall } />
 				<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 			</div>
