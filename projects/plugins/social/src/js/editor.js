@@ -57,7 +57,7 @@ const JetpackSocialSidebar = () => {
 			<PluginPrePublishPanel
 				initialOpen
 				title={ __( 'Share this post', 'jetpack-social' ) }
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#444444" /> }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>
@@ -65,7 +65,7 @@ const JetpackSocialSidebar = () => {
 			<PluginPrePublishPanel
 				initialOpen
 				title={ __( 'Social Previews', 'jetpack-social' ) }
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#444444" /> }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>

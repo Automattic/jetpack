@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Pay with PayPal block: The `postLinkUrl` attribute uses now the immutable post GUID to prevent the editor from becoming dirty after publishing a post.
