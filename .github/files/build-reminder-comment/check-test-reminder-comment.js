@@ -19,11 +19,11 @@ async function isTouchingSomethingNeedingTesting( github, owner, repo, number, c
 	const changed = JSON.parse( process.env.CHANGED );
 
 	if ( changed[ 'plugins/jetpack' ] ) {
-		core.debug( 'Build: Jetpack is being built, testing needed' );
+		core.info( 'Build: Jetpack is being built, testing needed' );
 		return true;
 	}
 
-	core.debug( 'Build: Nothing needing testing was found' );
+	core.info( 'Build: Nothing needing testing was found' );
 	return false;
 }
 
@@ -52,7 +52,7 @@ async function checkTestReminderComment( github, context, core ) {
 		core
 	);
 
-	core.debug(
+	core.info(
 		`Build: This PR ${
 			touchesSomethingNeedingTesting ? 'touches' : 'does not touch'
 		} something needing testing on WordPress.com.`
@@ -72,7 +72,7 @@ async function checkTestReminderComment( github, context, core ) {
 	if ( ! touchesSomethingNeedingTesting ) {
 		// If it previously touched Jetpack, delete the comments that were created then.
 		if ( testCommentIDs.length > 0 ) {
-			core.debug(
+			core.info(
 				`Build: this PR previously touched something needing testing, but does not anymore. Deleting previous test reminder comments.`
 			);
 
@@ -94,7 +94,7 @@ async function checkTestReminderComment( github, context, core ) {
 	// There should normally only be one comment, but we need to handle the case where there would be more.
 	// If so, we'll only take care of the first one.
 	if ( testCommentIDs.length > 0 ) {
-		core.debug(
+		core.info(
 			`Build: this PR touches something needing testing, and there was previously a test reminder comment, ${ testCommentIDs[ 0 ] }.`
 		);
 		return testCommentIDs[ 0 ];
@@ -102,7 +102,7 @@ async function checkTestReminderComment( github, context, core ) {
 
 	// If our PR touches something needing testing, and there has been no test reminder comment yet, create one.
 	if ( testCommentIDs.length === 0 ) {
-		core.debug(
+		core.info(
 			`Build: this PR touches something needing testing, and there has been no test reminder comment yet. Creating one.`
 		);
 		const body = `${ TEST_COMMENT_INDICATOR }Are you an Automattician? The PR will need to be tested on WordPress.com. This comment will be updated with testing instructions as soon the build is complete.`;
@@ -114,12 +114,14 @@ async function checkTestReminderComment( github, context, core ) {
 			repo: repoName,
 			body,
 		} );
-		core.debug( `Build: created test reminder comment with ID ${ id }.` );
+		core.info( `Build: created test reminder comment with ID ${ id }.` );
 		return id;
 	}
 
 	// Fallback. No comment exists, or was created.
-	core.debug( `Build: final fallback. No comment exists, or was created. We should not get here.` );
+	core.notice(
+		`Build: final fallback. No comment exists, or was created. We should not get here.`
+	);
 	return 0;
 }
 
