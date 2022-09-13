@@ -67,6 +67,7 @@ jobs:
           suite_name: 'Your test suite name'
           rules_configuration_path: 'path/to/rules/configuration/file'
           playwright_report_path: 'test-artifacts/**/report.json'
+          playwright_output_dir: 'test-artifacts/**/results'
 ```
 
 ### Inputs
@@ -81,6 +82,7 @@ The action relies on the following parameters.
 - (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
 - (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
+- (Optional) `playwright_output_dir` is the path to the Playwright's configured output directory, where results and attachments are saved. It is needed when the artefacts are downloaded from a previous job, and the absolute paths to attachments found in the JSON report are not valid anymore. This path will be used to convert the paths to those attachments. You can use the glob pattern. For example: `playwright_output_dir: 'artifacts/**/results'`
 
 ### Rules
 
