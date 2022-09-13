@@ -36,7 +36,6 @@ import { get, indexOf } from 'lodash';
 import { useEffect } from 'react';
 import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
-import DetailsControl from './components/details-control';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
 import ResumableUpload from './resumable-upload';
@@ -930,10 +929,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			/* eslint-disable jsx-a11y/no-static-element-interactions */
 			return (
 				<Fragment>
-					<InspectorControls>
-						<DetailsControl />
-					</InspectorControls>
-
 					{ blockSettings }
 					{ shouldRenderLoadingBlock && (
 						<Loading text={ __( 'Generating preview…', 'jetpack' ) } />
