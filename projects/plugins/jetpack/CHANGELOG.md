@@ -4,10 +4,10 @@
 
 ## 11.4-a.3 - 2022-09-13
 ### Enhancements
-- VideoPress block (Beta): register a video-chapters beta feature with basic controls. [#26177]
+- VideoPress block (beta): register a video-chapters beta feature with basic controls. [#26177]
 
 ### Improved compatibility
-- Jetpack: update styling for Jetpack logo shown in pre-publish panels for Jetpack and Jetpack Social plugins. [#26101, 26162]
+- Jetpack: update styling for Jetpack logo shown in pre-publish panels for Jetpack and Jetpack Social plugins. [#26101, #26162]
 - Pay with PayPal block: the `postLinkUrl` attribute now uses the immutable post GUID to prevent the editor from becoming dirty after publishing a post. [#26063]
 - Subscriptions: do not load Subscriptions block while using Jetpack Offline Mode. [#26179]
 - VideoPress: move jetpack_videopress_guid REST custom field to VideoPress package. [#26140]
