@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '../../utils';
 
 const MEDIA_ENDPOINT = 'https://public-api.wordpress.com/rest/v1.1/videos/';
 
@@ -15,7 +16,11 @@ export default function useVideoItem( guid ) {
 				setLoading( false );
 				const response = await fetch( `${ MEDIA_ENDPOINT }${ guid }` );
 				const data = await response.json();
-				setItem( data );
+				setItem( {
+					...data,
+					title: decodeEntities( data?.title ),
+					description: decodeEntities( data?.description ),
+				} );
 			} catch ( error ) {
 				setLoading( false );
 			}
