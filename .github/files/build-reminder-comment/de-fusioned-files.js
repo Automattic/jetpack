@@ -39,6 +39,8 @@ const deFusionedFiles = [
 	'projects/plugins/jetpack/modules/theme-tools/site-logo/inc/compat.php',
 	'projects/plugins/jetpack/modules/theme-tools/site-logo/inc/functions.php',
 	'projects/plugins/jetpack/modules/theme-tools/site-logo/js/site-logo-header-text.js',
+	'projects/plugins/jetpack/modules/theme-tools/social-menu/',
+	'projects/plugins/jetpack/modules/theme-tools/social-menu.php',
 	'projects/plugins/jetpack/modules/videopress/class.videopress-gutenberg.php',
 	'projects/plugins/jetpack/modules/videopress/js/',
 	'projects/plugins/jetpack/modules/videopress/class-videopress-attachment-metadata.php',
