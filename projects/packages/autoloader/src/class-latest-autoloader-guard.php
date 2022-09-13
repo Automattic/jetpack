@@ -52,6 +52,9 @@ class Latest_Autoloader_Guard {
 	 * @return bool True if we should stop initialization, otherwise false.
 	 */
 	public function should_stop_init( $current_plugin, $plugins, $was_included_by_autoloader ) {
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		global $jetpack_autoloader_latest_version;
 
 		// We need to reset the autoloader when the plugins change because
@@ -68,7 +71,11 @@ class Latest_Autoloader_Guard {
 		}
 
 		$latest_plugin = $this->autoloader_locator->find_latest_autoloader( $plugins, $jetpack_autoloader_latest_version );
-		if ( isset( $latest_plugin ) && $latest_plugin !== $current_plugin ) {
+
+		$current_plugin_data = $current_plugin ? get_plugin_data( $current_plugin . '/' . basename( $current_plugin ) . '.php' ) : null;
+		$latest_plugin_data  = $latest_plugin ? get_plugin_data( $latest_plugin . '/' . basename( $latest_plugin ) . '.php' ) : null;
+
+		if ( isset( $latest_plugin ) && $current_plugin_data !== $latest_plugin_data ) {
 			require $this->autoloader_locator->get_autoloader_path( $latest_plugin );
 			return true;
 		}
