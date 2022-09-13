@@ -6,16 +6,16 @@ import {
 	Container,
 	Col,
 } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
-// import { useParams } from 'react-router-dom';
-import * as mock from '../../mock';
+import { useParams } from 'react-router-dom';
+import { STORE_ID } from '../../../state';
 import Input from '../input';
 import Logo from '../logo';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
-
 const noop = () => {
 	// noop
 };
@@ -60,7 +60,11 @@ const Infos = () => {
 };
 
 const EditVideoDetails = () => {
-	const video = mock.videos[ 0 ];
+	const { videoId } = useParams();
+
+	const video = useSelect( select => select( STORE_ID ).getVideo( Number( videoId ) ), [
+		videoId,
+	] );
 
 	return (
 		<AdminPage
@@ -79,7 +83,7 @@ const EditVideoDetails = () => {
 							editable
 						/>
 						<VideoDetails
-							filename={ video?.videoTitle }
+							filename={ video?.filename }
 							uploadDate={ video?.uploadDate }
 							src={ video?.url }
 						/>
