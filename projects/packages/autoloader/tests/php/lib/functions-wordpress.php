@@ -389,6 +389,27 @@ if ( ! function_exists( 'add_action' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_plugin_data' ) ) {
+
+	/**
+	 * A drop-in replacement for a WordPress core function.
+	 *
+	 * @param string $plugin_file Absolute path to the main plugin file.
+	 * @return array {
+	 *     Plugin data. Values will be empty if not supplied by the plugin.
+	 *
+	 *     @type string $Name        Name of the plugin. Should be unique.
+	 *     @type string $Version     Plugin version.
+	 * }
+	 */
+	function get_plugin_data( $plugin_file ) {
+		return array(
+			'Name'    => basename( $plugin_file ),
+			'Version' => str_contains( $plugin_file, 'mu-plugins' ) ? 'mu-plugin' : 'plugin',
+		);
+	}
+}
+
 /**
  * A function to clean up all of the test data added by the test suite.
  */
