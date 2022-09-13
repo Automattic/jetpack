@@ -207,6 +207,7 @@ jobs:
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
           playwright_report_path: test-output/**/summary.json
+          playwright_output_dir: test-output/**/results
           rules_configuration_path: .github/files/e2e-tests/notification-rules.json
 
 
