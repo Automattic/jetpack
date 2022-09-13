@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Jetpack Monorepo (not a real plugin)
+ * Plugin Name: Jetpack Monorepo (not a real plugin!)
  * Plugin URI: https://github.com/Automattic/jetpack#jetpack-monorepo
  * Description: The Jetpack Monorepo is not a plugin. Don't try to use it as one. See the Jetpack Monorepo documentation for instructions on correctly installing Jetpack.
  * Author: Automattic
