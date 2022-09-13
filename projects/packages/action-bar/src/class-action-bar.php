@@ -12,58 +12,51 @@ namespace Automattic\Jetpack;
  */
 class Action_Bar {
 	/**
-	 * Enqueue scripts for rendering Action Bar client.
-	 */
-	public function enqueue_scripts() {
-		if ( is_admin() || ! is_single() ) {
-			return;
-		}
-
-		wp_register_script(
-			'jetpack-action-bar',
-			'https://widgets.wp.com/jetpack-action-bar/index.js',
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-
-		wp_localize_script(
-			'jetpack-action-bar',
-			'jetpackActionBar',
-			array(
-				'commentTitle' => esc_html__( 'Leave a comment', 'jetpack-action-bar' ),
-				'more'         => esc_html__( 'More options', 'jetpack-action-bar' ),
-				'follow'       => esc_html__( 'Follow site', 'jetpack-action-bar' ),
-				'like'         => esc_html__( 'Like this post', 'jetpack-action-bar' ),
-				'report'       => esc_html__( 'Report this content', 'jetpack-action-bar' ),
-				'viewSite'     => esc_html__( 'View site in reader', 'jetpack-action-bar' ),
-				'manage'       => esc_html__( 'Manage subscriptions', 'jetpack-action-bar' ),
-				'readerUrl'    => $this->get_reader_url(),
-				'isWpcom'      => defined( 'IS_WPCOM' ) && IS_WPCOM,
-				'siteHost'     => wp_parse_url( get_option( 'home' ), PHP_URL_HOST ),
-				'postUrl'      => get_post_permalink( get_the_ID() ),
-			)
-		);
-		wp_enqueue_script( 'jetpack-action-bar' );
-
-		wp_enqueue_style(
-			'jetpack-action-bar-style',
-			'https://widgets.wp.com/jetpack-action-bar/style.css',
-			array(),
-			JETPACK__VERSION
-		);
-	}
-
-	/**
 	 * Render app container html.
 	 */
 	public function print_html() {
 		if ( is_admin() || ! is_single() ) {
 			return;
 		}
-		echo '<div class="jetpack-action-bar-container">';
-		echo '	<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
-		echo '	<div id="jetpack-action-bar-modal" class="jetpack-action-bar-modal"></div>';
+
+		$post_id = get_the_ID();
+
+		if ( ! is_numeric( $post_id ) ) {
+			return;
+		}
+
+		$protocol = 'http';
+		if ( is_ssl() ) {
+			$protocol = 'https';
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$blog_id  = get_current_blog_id();
+			$bloginfo = get_blog_details( (int) $blog_id );
+			$domain   = $bloginfo->domain;
+		} else {
+			$blog_id   = \Jetpack_Options::get_option( 'id' );
+			$url       = home_url();
+			$url_parts = wp_parse_url( $url );
+			$domain    = $url_parts['host'];
+		}
+
+		// TODO: do we need to encode the urls? Also postUrls with query params won't currently be parsed correctly by splitParams in the iframe.
+		// TODO: add favicon in some way.
+		$settings = array(
+			'readerUrl=' . $this->get_reader_url(),
+			'isWpcom=' . defined( 'IS_WPCOM' ) && IS_WPCOM,
+			'siteHost=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ),
+			'postUrl=' . get_permalink( get_the_ID() ),
+		);
+
+		// TODO: combine these more cleanly.
+		$src  = sprintf( 'https://widgets.wp.com/jetpack-action-bar/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+		$src .= '&amp;' . implode( '&amp;', $settings );
+
+		echo '<div class="jetpack-action-bar">';
+		echo '	<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="' . esc_url( $src ) . '">';
+		echo '	</iframe>';
 		echo '</div>';
 	}
 
@@ -71,7 +64,6 @@ class Action_Bar {
 	 * Initialize Action Bar.
 	 */
 	public function init() {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'print_html' ) );
 	}
 
