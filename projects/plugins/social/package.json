@@ -27,7 +27,7 @@
 	],
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.19",
+		"@automattic/jetpack-components": "workspace:* || ^0.20",
 		"@automattic/jetpack-connection": "workspace:* || ^0.19",
 		"@automattic/jetpack-publicize-components": "workspace:* || ^0.5",
 		"@wordpress/data": "7.0.0",
