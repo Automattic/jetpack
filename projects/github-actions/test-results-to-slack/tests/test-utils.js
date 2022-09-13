@@ -17,7 +17,17 @@ function mockGitHubContext( value ) {
  * @param {object} options - options object
  */
 function setInputData( options ) {
-	const { ghToken, slackToken, slackChannel, slackUsername, slackIconEmoji, suiteName } = options;
+	const {
+		ghToken,
+		slackToken,
+		slackChannel,
+		slackUsername,
+		slackIconEmoji,
+		suiteName,
+		rulesConfigurationPath,
+		playwrightReportPath,
+		playwrightOutputDir,
+	} = options;
 
 	if ( ghToken ) {
 		process.env.INPUT_GITHUB_TOKEN = ghToken;
@@ -41,6 +51,18 @@ function setInputData( options ) {
 
 	if ( suiteName ) {
 		process.env.INPUT_SUITE_NAME = suiteName;
+	}
+
+	if ( rulesConfigurationPath ) {
+		process.env.INPUT_RULES_CONFIGURATION_PATH = rulesConfigurationPath;
+	}
+
+	if ( playwrightReportPath ) {
+		process.env.INPUT_PLAYWRIGHT_REPORT_PATH = playwrightReportPath;
+	}
+
+	if ( playwrightOutputDir ) {
+		process.env.INPUT_PLAYWRIGHT_OUTPUT_DIR = playwrightOutputDir;
 	}
 }
 

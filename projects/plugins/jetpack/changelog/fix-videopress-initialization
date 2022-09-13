@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Rely on videopress package for XMLRPC initialization

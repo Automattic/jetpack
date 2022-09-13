@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Gather Support References: avoid throwing an error when an issue has no content.

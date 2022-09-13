@@ -2,6 +2,89 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.4-a.3 - 2022-09-13
+### Enhancements
+- VideoPress block (beta): register a video-chapters beta feature with basic controls. [#26177]
+
+### Improved compatibility
+- Jetpack: update styling for Jetpack logo shown in pre-publish panels for Jetpack and Jetpack Social plugins. [#26101, #26162]
+- Pay with PayPal block: the `postLinkUrl` attribute now uses the immutable post GUID to prevent the editor from becoming dirty after publishing a post. [#26063]
+- Subscriptions: do not load Subscriptions block while using Jetpack Offline Mode. [#26179]
+- VideoPress: move jetpack_videopress_guid REST custom field to VideoPress package. [#26140]
+
+### Bug fixes
+- Widgets: add source check for broken image. [#26110]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- SEO Tools: fix a couple of unique key prop warnings. [#26082]
+- QR Post: update post-publish panel to show Jetpack logo. [#26163]
+- Tests: fix factory method calls. [#26109]
+- Updated package dependencies.
+- WordPress.com REST API: expose user interactions attribute within sites API response. [#26130]
+
+## 11.4-a.1 - 2022-09-08
+### Enhancements
+- Blocks: add "BETA" labels for beta extensions used in the block editor context. [#25852, #25938]
+- Jetpack: brand Jetpack features in publishing flows. [#26044, #26064]
+- Payment Buttons: add support for vertical dimensions controls. [#26058]
+- QR Post: remove redundant buttons from the opened modal. [#25929]
+- VideoPress Block (beta): allow editing of some block settings while uploading. [#24556]
+
+### Bug fixes
+- Post Images: avoid PHP notices when fetching images from posts with missing metadata. [#25829]
+- Donations Block: avoid race condition when updating currency. [#26061]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added E2E tests for the Jetpack WAF. [#25643]
+- Fix an undefined array key access in `WPCOM_JSON_API_List_Post_Formats_Endpoint`. [#25991]
+- Jetpack: add Social Previews components to separate package. [#25931]
+- Jetpack: implement a temporary solution to register VideoPress block v6 in dotcom. [#25902]
+- Jetpack: remove VideoPress v6 block from Jetpack plugin. [#25873]
+- Publicize Connections Post Field: fix tests. [#26084]
+- Related Posts: append original user agent to API requests. [#25946]
+- Remove usage of jetpack_require_lib() for class-jetpack-mapbox-helper. [#25958]
+- Updated package dependencies.
+- VideoPress: migrate pluging features to separate package. [#25877]
+- VideoPress: moved jetpack_videopress_guid REST custom field to VideoPress package. [#26043]
+- WordPress.com toolbar: allow enabling an "Advertising" menu item via a new filter. [#25874]
+
+## 11.3.1 - 2022-09-08
+### Improved compatibility
+- Notifications: improve third-party cookie check to work with modsecurity rules. [#26122]
+
+## [11.3] - 2022-09-06
+### Enhancements
+- General: enable the Post List package in Jetpack to display extra information alongside each post in wp-admin dashboard Posts screen. [#25301]
+
+### Improved compatibility
+- Jetpack: register VideoPress Video block from Jetpack plugin. [#25429]
+- Publicize: replace Publicize with Jetpack Social. [#25787]
+- VideoPress: rely on videopress package for XMLRPC initialization. [#25863]
+
+### Bug fixes
+- Carousel: ensure carousel still opens when clicking on a gallery image that has a figcaption with a link inside. [#26032]
+- Subscriptions Block: fix input and submit button coupling for Safari when split style is selected. [#25805]
+- Subscriptions Block: remove inline styles from subscription notification. [#25793]
+- Tiled Gallery: ensure the link to the original image URL is used when linking to media files. [#25655]
+- VideoPress: fix a js error when closing a non-VideoPress video modal in the Media Library. [#25834]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added tracks to record when the new recommendations bubble is visible and when the user clicks on it [#25728]
+- Compat: wp_startswith should only pass to strpos if string is passed. [#25797]
+- Moved the permission check for the Tweetstorm endpoint into a helper class. [#26062]
+- Update 'View Summary' button to 'View recommendations' to clear up where it goes [#25986]
+- Updated copy and links in recommendations [#25967]
+- Deprecated `jetpack_require_lib` and `jetpack_require_lib_dir`. No `_deprecated_function` calls yet, that will come after we've removed internal uses. [#25886]
+- Enhancement: Update security plan recommendation to promote Jetpack Protect to increase installs [#25391]
+- Fixed the criteria for showing VideoPress upsells in the Jetpack Dashboard [#25691]
+- Fix JS error when installing boost plugin from recommendations [#25835]
+- Fix some linting issues in tiled-gallery and remove files from the linter exclude list [#25784]
+- Include custom post types items inside the calypso admin menu [#25670]
+- Jetpack: update to the lastest changes of the VideoPress pkg API [#25844]
+- Leverage placeholder attribute when rendering the shortcode in wpcom [#25923]
+- Updated management of installing state for recommended features [#25451]
+- Updated package dependencies.
+
 ## 11.3-a.11 - 2022-08-23
 ### Bug fixes
 - Carousel: remove errant '<' character being displayed. [#25795]
@@ -6955,6 +7038,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.3]: https://wp.me/p1moTy-M5i
 [11.2]: https://wp.me/p1moTy-JYL
 [11.1]: https://wp.me/p1moTy-Juo
 [11.0]: https://wp.me/p1moTy-IbF

@@ -3,8 +3,8 @@ name: Auto-tagger
 on:
   push:
     branches:
-      - master
       - trunk
+      - '*/branch-*'
 
 jobs:
   tag:

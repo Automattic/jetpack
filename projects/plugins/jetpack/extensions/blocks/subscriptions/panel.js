@@ -1,4 +1,4 @@
-import { numberFormat } from '@automattic/jetpack-components';
+import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
@@ -38,6 +38,7 @@ export default function SubscribePanels() {
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
 				title={ __( 'Subscribers', 'jetpack' ) }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<InspectorNotice>
 					{ createInterpolateElement(

@@ -28,7 +28,7 @@
 		}
 
 		.jetpack-videopress-player__loading {
-			object-fit: cover;			
+			object-fit: cover;
 			position: absolute;
 			z-index: 0;
 			top: 0;
@@ -44,6 +44,22 @@
 			animation-direction: alternate;
 			animation-iteration-count: infinite;
 		}
+	}
+
+	& > .components-placeholder {
+		min-height: 170px;
+	}
+}
+
+.loading-wrapper {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+	min-height: 70px;
+
+	& > svg {
+		margin-top: 0;
 	}
 }
 
