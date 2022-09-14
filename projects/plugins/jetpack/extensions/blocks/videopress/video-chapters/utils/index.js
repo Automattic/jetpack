@@ -1,5 +1,5 @@
 const elementInstance = ( () => {
-	if ( document.implementation && document.implementation.createHTMLDocument ) {
+	if ( document.implementation?.createHTMLDocument ) {
 		return document.implementation.createHTMLDocument( '' ).createElement( 'textarea' );
 	}
 
