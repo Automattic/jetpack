@@ -23,8 +23,9 @@ use Automattic\Jetpack\Status;
  * Class Jetpack_Social
  */
 class Jetpack_Social {
-	const JETPACK_PUBLICIZE_MODULE_SLUG    = 'publicize';
-	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -159,9 +160,11 @@ class Jetpack_Social {
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'siteSuffix'        => ( new Status() )->get_site_suffix(),
 			),
 			'jetpackSettings' => array(
-				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+				'publicize_active'  => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+				'show_pricing_page' => self::should_show_pricing_page(),
 			),
 			'connectionData'  => array(
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -283,6 +286,15 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
+	}
+
+	/**
+	 * Check if the pricing page should be displayed.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_pricing_page() {
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, true );
 	}
 
 	/**
