@@ -11,12 +11,12 @@ export default function useVideoItem( id ) {
 	useEffect( () => {
 		async function fetchVideoItem() {
 			try {
-				setLoading( false );
 				const response = await apiFetch( {
 					path: `/wp/v2/media/${ id }`,
 				} );
 
 				setItem( response?.jetpack_videopress || {} );
+				setLoading( false );
 			} catch ( error ) {
 				setLoading( false );
 				throw new Error( error );
