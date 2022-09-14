@@ -42,4 +42,8 @@ class Jetpack {
 	public static function admin_url() {
 		return 'admin_url';
 	}
+
+	public static function is_connection_ready() {
+		return true;
+	}
 }
