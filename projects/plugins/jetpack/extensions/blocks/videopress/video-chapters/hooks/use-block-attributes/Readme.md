@@ -6,7 +6,7 @@ React custom hook to handle block attributes.
 import { TextControl } from '@wordpress/components';
 import useBlockAttributes from './use-block-attributes';
 
-export default function BlockTitleControl() {
+function BlockTitleControl() {
 	const { attributes, setAttributes } = useBlockAttributes();
 
 	const { title } = attributes;
