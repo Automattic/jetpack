@@ -203,8 +203,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// but fails when:
 		// phpunit --group=rest-api
 
-		$this->setup_publicize_mock();
-
 		$this->publicize = publicize_init();
 		$this->publicize->register_post_meta();
 
@@ -287,24 +285,6 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$this->wp_rest_additional_fields = null;
 
 		unset( $GLOBALS['wpcom_rest_api_v2_plugins']['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] );
-	}
-
-	private function setup_publicize_mock() {
-		global $publicize;
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/admin-plugins/publicize.php';
-			$mockbuilder = $this->getMockBuilder( 'Publicize' );
-		} else {
-			$mockbuilder = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' );
-		}
-
-		$this->publicize = $mockbuilder->setMethods( array( 'test_connection' ) )->getMock();
-		$this->publicize->method( 'test_connection' )
-			->withAnyParameters()
-			->willReturn( true );
-
-		$publicize = $this->publicize;
 	}
 
 	public function test_register_fields_posts() {
