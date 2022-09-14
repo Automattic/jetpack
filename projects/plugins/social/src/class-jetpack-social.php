@@ -294,7 +294,7 @@ class Jetpack_Social {
 	 * @return bool
 	 */
 	public static function should_show_pricing_page() {
-		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, true );
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
 	}
 
 	/**

@@ -94,7 +94,7 @@ class REST_Controller {
 					return Jetpack_Social::should_show_pricing_page();
 				},
 				'update_callback'     => function ( $value ) {
-					return update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (bool) $value );
+					return update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $value );
 				},
 				'validation_callback' => '__return_true',
 			),
