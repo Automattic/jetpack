@@ -5,12 +5,12 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
+	getRedirectUrl,
 } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { STORE_ID } from '../../store';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 
 const PricingPage = () => {
 	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
@@ -42,7 +42,13 @@ const PricingPage = () => {
 						leyend={ __( '/month', 'jetpack-social' ) }
 						currency="USD"
 					/>
-					<Button href={ getProductCheckoutUrl( { siteSuffix } ) } fullWidth>
+					<Button
+						href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
+							site: siteSuffix,
+							query: 'redirect_to=' + window.location.href,
+						} ) }
+						fullWidth
+					>
 						{ __( 'Get Social', 'jetpack-social' ) }
 					</Button>
 				</PricingTableHeader>
