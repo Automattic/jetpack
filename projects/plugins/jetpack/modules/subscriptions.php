@@ -1000,17 +1000,30 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Checks if the current user can publish posts.
+	 *
+	 * @return bool
+	 */
+	public function first_published_status_meta_auth_callback() {
+		if ( current_user_can( 'publish_posts' ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Registers the 'post_was_ever_published' post meta for use in the REST API.
 	 */
 	public function register_post_meta() {
 		$jetpack_post_was_ever_published = array(
-			'type'         => 'boolean',
-			'description'  => __( 'Whether the post was ever published.', 'jetpack' ),
-			'single'       => true,
-			'default'      => false,
-			'show_in_rest' => array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => array(
 				'name' => 'jetpack_post_was_ever_published',
 			),
+			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
