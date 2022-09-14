@@ -1458,6 +1458,7 @@ importers:
       '@testing-library/react': 12.1.5
       '@testing-library/react-hooks': 8.0.1
       '@testing-library/user-event': 14.2.1
+      '@types/jest': 27.4.1
       '@types/react': 17.0.47
       '@wordpress/api-fetch': 6.13.0
       '@wordpress/babel-plugin-import-jsx-pragma': 4.0.0
@@ -1618,6 +1619,7 @@ importers:
       '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
       '@testing-library/react-hooks': 8.0.1_xq2qrcilqnfv63wx4morfrxcvq
       '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
+      '@types/jest': 27.4.1
       '@types/react': 17.0.47
       '@wordpress/api-fetch': 6.13.0
       '@wordpress/babel-plugin-import-jsx-pragma': 4.0.0_@babel+core@7.18.13
@@ -18143,7 +18145,7 @@ packages:
     dependencies:
       object-assign: 4.1.1
       react: 17.0.2
-      react-is: 17.0.2
+      react-is: 18.2.0
     dev: true
 
   /react-sizeme/3.0.2:
