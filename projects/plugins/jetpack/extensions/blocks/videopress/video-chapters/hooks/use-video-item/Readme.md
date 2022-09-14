@@ -1,10 +1,10 @@
 # useVideoHook()
 
-Perform a request to the media endpoint to pull video data according to the given `guid`.
+Perform a request to the media endpoint. Pull and tweak the response to be adequately delivered to the component.
 
 ```jsx
-function myVideoComponent( { guid } ) {
-	const [ videoItem, isRequestingVideoItem ] = useVideoItem( guid );
+function myVideoComponent( { id } ) {
+	const [ videoItem, isRequestingVideoItem ] = useVideoItem( id );
 
 	if ( isRequestingVideoItem ) {
 		return null;

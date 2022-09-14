@@ -10,8 +10,8 @@ const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.availabl
 	VIDEOPRESS_VIDEO_CHAPTERS_FEATURE
 ];
 
-export default function DetailsControl( { guid } ) {
-	const [ videoItem, isRequestingVideoItem ] = useVideoItem( guid );
+export default function DetailsControl( { id } ) {
+	const [ videoItem, isRequestingVideoItem ] = useVideoItem( id );
 
 	if ( ! isVideoChaptersEnabled ) {
 		return null;

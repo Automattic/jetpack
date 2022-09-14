@@ -1,12 +1,10 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { decodeEntities } from '../../utils';
 
-const MEDIA_ENDPOINT = 'https://public-api.wordpress.com/rest/v1.1/videos/';
-
-export default function useVideoItem( guid ) {
+export default function useVideoItem( id ) {
 	const [ item, setItem ] = useState( {} );
 	const [ loading, setLoading ] = useState( false );
 
@@ -14,23 +12,22 @@ export default function useVideoItem( guid ) {
 		async function fetchVideoItem() {
 			try {
 				setLoading( false );
-				const response = await fetch( `${ MEDIA_ENDPOINT }${ guid }` );
-				const data = await response.json();
-				setItem( {
-					...data,
-					title: decodeEntities( data?.title ),
-					description: decodeEntities( data?.description ),
+				const response = await apiFetch( {
+					path: `/wp/v2/media/${ id }`,
 				} );
+
+				setItem( response?.jetpack_videopress || {} );
 			} catch ( error ) {
 				setLoading( false );
+				throw new Error( error );
 			}
 		}
 
-		if ( guid ) {
+		if ( id ) {
 			setLoading( true );
 			fetchVideoItem();
 		}
-	}, [ guid ] );
+	}, [ id ] );
 
 	return [ item, loading ];
 }
