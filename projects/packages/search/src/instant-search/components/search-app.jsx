@@ -79,7 +79,7 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// The condition can only occur in the Customberg preview context.
+		// This condition can only occur within Customberg or the Customizer.
 		if (
 			( this.props.initialShowResults && this.props.initialIsVisible ) ||
 			this.props.isInCustomizer
