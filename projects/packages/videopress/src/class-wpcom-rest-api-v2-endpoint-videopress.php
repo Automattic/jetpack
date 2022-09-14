@@ -168,6 +168,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta           = true;
 				}
 
+				if ( isset( $json_params['description'] ) && isset( $meta['videopress']['description'] ) && videopress_is_valid_video_rating( $json_params['description'] ) ) {
+					$meta['videopress']['description'] = $json_params['description'];
+					$should_update_meta                = true;
+				}
+
 				if ( isset( $json_params['title'] ) ) {
 					$meta['videopress']['title'] = sanitize_text_field( $json_params['title'] );
 					$should_update_meta          = true;
