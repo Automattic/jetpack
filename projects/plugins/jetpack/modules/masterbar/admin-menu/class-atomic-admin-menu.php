@@ -370,7 +370,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 *
 		 * @module masterbar
 		 *
-		 * @since $$next-version$$
+		 * @since 11.4
 		 *
 		 * @param bool $menu_enabled Wether the menu entry is shown.
 		 * @param int  $user_id      The Advertising menu will be shown/hidden for this user.

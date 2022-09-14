@@ -43,7 +43,13 @@
 		"post-publish-qr-post-panel",
 		"payment-buttons"
 	],
-	"beta": [ "amazon", "google-docs-embed", "recipe", "videopress/video" ],
+	"beta": [
+		"amazon",
+		"google-docs-embed",
+		"recipe",
+		"videopress/video",
+		"videopress/video-chapters"
+	],
 	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
 	"no-post-editor": [
 		"business-hours",

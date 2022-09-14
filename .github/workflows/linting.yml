@@ -465,8 +465,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          php: false
       - run: pnpm install
       - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh

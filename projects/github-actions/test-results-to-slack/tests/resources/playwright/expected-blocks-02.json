@@ -34,6 +34,34 @@
 		]
 	},
 	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-1.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-2.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-3.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-4.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-5.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-6.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-7.png"
+	},
+	{
 		"type": "divider"
 	},
 	{
@@ -48,6 +76,10 @@
 				"text": "```page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================```"
 			}
 		]
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal/test-failed-1.png"
 	},
 	{
 		"type": "divider"
@@ -66,6 +98,14 @@
 		]
 	},
 	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/test-failed-1.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry1/test-failed-2.png"
+	},
+	{
 		"type": "divider"
 	},
 	{
@@ -80,5 +120,13 @@
 				"text": "```page.waitForSelector: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for selector \".post-publish-panel__postpublish-buttons a\" to be visible\n============================================================```"
 			}
 		]
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/test-failed-1.png"
+	},
+	{
+		"type": "file",
+		"path": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results/specs-blocks-pro-blocks-Paid-blocks-Pay-with-PayPal-retry2/test-failed-2.png"
 	}
 ]
