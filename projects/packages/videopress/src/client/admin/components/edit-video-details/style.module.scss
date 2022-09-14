@@ -13,3 +13,8 @@
 .input {
 	margin-top: calc( var(--spacing-base) * 3 ); // 24px
 }
+
+.logo-button {
+	all: unset;
+	cursor: pointer;
+}

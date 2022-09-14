@@ -6,4 +6,5 @@ module.exports = {
 	collectCoverageFrom: [ '<rootDir>/src/**/*.js' ],
 	resolver: require.resolve( 'jetpack-js-tools/jest/jest-resolver.js' ),
 	clearMocks: true,
+	resetModules: true,
 };
