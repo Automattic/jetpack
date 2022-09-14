@@ -33,7 +33,7 @@ export function useSyncMedia( { id, title, description } ) {
 
 	const [ initialState, setState ] = useState();
 
-	const updateData = useCallback( data => {
+	const updateInitialState = useCallback( data => {
 		setState( current => ( { ...current, ...data } ) );
 	}, [] );
 
@@ -68,7 +68,7 @@ export function useSyncMedia( { id, title, description } ) {
 			return;
 		}
 
-		updateMedia( dataToUpdate );
+		updateMedia( dataToUpdate ).then( () => updateInitialState( { title, description } ) );
 	}, [
 		id,
 		isSaving,
@@ -78,7 +78,8 @@ export function useSyncMedia( { id, title, description } ) {
 		initialState?.description,
 		description,
 		updateMedia,
+		updateInitialState,
 	] );
 
-	return [ updateData ];
+	return [ updateInitialState ];
 }

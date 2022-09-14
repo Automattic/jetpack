@@ -15,7 +15,7 @@ import { isVideoChaptersEnabled } from '.';
 const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => {
 	const { attributes, setAttributes } = props;
 	const [ videoItem, isRequestingVideoItem ] = useVideoItem( attributes?.id );
-	const [ updateDataToSync ] = useSyncMedia( attributes );
+	const [ forceInitialState ] = useSyncMedia( attributes );
 
 	/*
 	 * Propagate title and description from
@@ -32,8 +32,8 @@ const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => 
 		};
 
 		setAttributes( freshAttributes );
-		updateDataToSync( freshAttributes );
-	}, [ videoItem, setAttributes, updateDataToSync ] );
+		forceInitialState( freshAttributes );
+	}, [ videoItem, setAttributes, forceInitialState ] );
 
 	if ( ! isVideoChaptersEnabled ) {
 		return <BlockEdit { ...props } />;
