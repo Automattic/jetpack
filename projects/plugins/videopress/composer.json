@@ -18,14 +18,17 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "3.2.x-dev",
-		"automattic/wordbless": "0.3.1"
+		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
 	"repositories": [
 		{
 			"type": "path",
