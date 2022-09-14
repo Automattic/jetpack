@@ -1,4 +1,4 @@
-import { extractSingleChapter, extractVideoChapters } from '../extract-chapters';
+import { extractSingleChapter, extractVideoChapters } from '../extract-video-chapters';
 
 describe( 'extractSingleChapter', () => {
 	const testCases = [
@@ -19,21 +19,21 @@ describe( 'extractSingleChapter', () => {
 		{
 			line: '00:27 What is React',
 			expectedResult: {
-				startAt: '00:27',
+				startAt: '00:00:27',
 				title: 'What is React',
 			},
 		},
 		{
 			line: 'Playing With Bun Deployment - 2:15',
 			expectedResult: {
-				startAt: '02:15',
+				startAt: '00:02:15',
 				title: 'Playing With Bun Deployment',
 			},
 		},
 		{
 			line: '(04:55) - Things Bun Does Fast',
 			expectedResult: {
-				startAt: '04:55',
+				startAt: '00:04:55',
 				title: 'Things Bun Does Fast',
 			},
 		},
@@ -53,8 +53,8 @@ describe( 'extractSingleChapter', () => {
 } );
 
 describe( 'extractVideoChapters', () => {
-	const testCase = {
-		text: `0:00 Chapter 1
+	it( 'extracts all chapters from a video description text', () => {
+		const description = `0:00 Chapter 1
 2:30 Chapter 2
 10:00 Chapter 3
 20:00 Chapter 5
@@ -67,27 +67,23 @@ describe( 'extractVideoChapters', () => {
 49:30 Chapter 12
 53:00 Chapter 13
 15:00 Chapter 4
-`,
-		expectedResult: [
-			{ startAt: '00:00', title: 'Chapter 1' },
-			{ startAt: '02:30', title: 'Chapter 2' },
-			{ startAt: '10:00', title: 'Chapter 3' },
-			{ startAt: '15:00', title: 'Chapter 4' },
-			{ startAt: '20:00', title: 'Chapter 5' },
-			{ startAt: '23:15', title: 'Chapter 6' },
-			{ startAt: '24:00', title: 'Chapter 7' },
-			{ startAt: '37:00', title: 'Chapter 8' },
-			{ startAt: '40:00', title: 'Chapter 9' },
-			{ startAt: '45:00', title: 'Chapter 10' },
-			{ startAt: '47:50', title: 'Chapter 11' },
-			{ startAt: '49:30', title: 'Chapter 12' },
-			{ startAt: '53:00', title: 'Chapter 13' },
-		],
-	};
+`;
+		const result = extractVideoChapters( description );
 
-	it( 'extracts all chapters from a video description text', () => {
-		const result = extractVideoChapters( testCase.text );
-
-		expect( result ).toStrictEqual( testCase.expectedResult );
+		expect( result ).toStrictEqual( [
+			{ startAt: '00:00:00', title: 'Chapter 1' },
+			{ startAt: '00:02:30', title: 'Chapter 2' },
+			{ startAt: '00:10:00', title: 'Chapter 3' },
+			{ startAt: '00:15:00', title: 'Chapter 4' },
+			{ startAt: '00:20:00', title: 'Chapter 5' },
+			{ startAt: '00:23:15', title: 'Chapter 6' },
+			{ startAt: '00:24:00', title: 'Chapter 7' },
+			{ startAt: '00:37:00', title: 'Chapter 8' },
+			{ startAt: '00:40:00', title: 'Chapter 9' },
+			{ startAt: '00:45:00', title: 'Chapter 10' },
+			{ startAt: '00:47:50', title: 'Chapter 11' },
+			{ startAt: '00:49:30', title: 'Chapter 12' },
+			{ startAt: '00:53:00', title: 'Chapter 13' },
+		] );
 	} );
 } );
