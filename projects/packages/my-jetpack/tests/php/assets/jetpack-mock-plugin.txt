@@ -10,6 +10,12 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+define( 'JETPACK__VERSION', '0.0.0' ); // mocked version number
+define( 'JETPACK_MASTER_USER', true );
+define( 'JETPACK__API_VERSION', 1 );
+define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'JETPACK__PLUGIN_FILE', __FILE__ );
+
 class Jetpack {
 
 	static $active_modules = array();
