@@ -12,7 +12,7 @@ import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import Pagination from '../pagination';
 import { PaginationProps } from '../pagination/types';
-import { FilterButton } from '../video-filter';
+import { FilterButton, FilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
@@ -51,6 +51,8 @@ const VideoLibraryWrapper = ( {
 	const { setSearch } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( '' );
 
+	const [ isFilterActive, setIsFilterActive ] = useState( false );
+
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
 			<Text variant="headline-small" mb={ 1 }>
@@ -66,7 +68,12 @@ const VideoLibraryWrapper = ( {
 							value={ searchQuery }
 							onChange={ setSearchQuery }
 						/>
-						<FilterButton onToggle={ () => ( {} ) } />
+
+						<FilterButton
+							onClick={ () => setIsFilterActive( v => ! v ) }
+							isActive={ isFilterActive }
+						/>
+
 						<Button
 							variant="tertiary"
 							size="small"
@@ -76,6 +83,7 @@ const VideoLibraryWrapper = ( {
 					</div>
 				) }
 			</div>
+			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
 			<ConnectedPagination
 				currentPage={ 1 }
