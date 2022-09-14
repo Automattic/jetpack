@@ -26,12 +26,16 @@ const blankData = {
  * @param {VideoGridProps} props - Component props.
  * @returns {React.ReactNode} - VideoGrid react component.
  */
-const VideoGrid: React.FC< VideoGridProps > = ( { videos, count = 6 } ) => {
+const VideoGrid = ( { videos, count = 6, onVideoDetailsClick }: VideoGridProps ) => {
 	let gridVideos = videos.slice( 0, count );
 
 	if ( gridVideos.length < count ) {
 		gridVideos = gridVideos.concat( Array( count - gridVideos.length ).fill( blankData ) );
 	}
+
+	const handleClickWithIndex = ( index, callback ) => () => {
+		callback?.( videos[ index ] );
+	};
 
 	return (
 		<div className={ styles.wrapper }>
@@ -46,6 +50,7 @@ const VideoGrid: React.FC< VideoGridProps > = ( { videos, count = 6 } ) => {
 								duration={ video.duration }
 								uploadDate={ video.uploadDate }
 								plays={ video.plays }
+								onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 							/>
 						</Col>
 					);
