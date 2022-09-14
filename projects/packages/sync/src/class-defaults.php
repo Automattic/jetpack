@@ -806,6 +806,7 @@ class Defaults {
 		'disable-custom-colors',
 		'disable-custom-font-sizes',
 		'disable-custom-gradients',
+		'disable-layout-styles', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54159
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',

@@ -14,6 +14,10 @@ export type OriginalVideoPressVideo = {
 	 */
 	title: string;
 	/**
+	 * Video filename
+	 */
+	filename: string;
+	/**
 	 * Video poster image URL
 	 */
 	posterImage?: string;
@@ -72,4 +76,9 @@ export type LocalVideo = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+};
+
+export type VideopressSelectors = {
+	getVideo: ( id: number ) => VideoPressVideo;
+	getVideos: () => VideoPressVideo[];
 };
