@@ -54,8 +54,8 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 	backgroundColor = '#00BA37', // jetpack green fallback
 	thickness = '3.5',
 	donutWidth = '64px',
-	title = '',
-	description = '',
+	title,
+	description,
 } ) => {
 	const count = () => {
 		// get count as a percent value
