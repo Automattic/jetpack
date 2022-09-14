@@ -55,8 +55,8 @@ export function ButtonEdit( props ) {
 			[ gradientClass ]: gradientClass,
 			'no-border-radius': 0 === borderRadius,
 			'has-custom-width': !! width,
+			[ `has-${ fontSize }-font-size` ]: !! fontSize,
 		},
-		fontSize && { [ `has-${ fontSize }-font-size` ]: true }
 	);
 
 	const buttonStyles = {
