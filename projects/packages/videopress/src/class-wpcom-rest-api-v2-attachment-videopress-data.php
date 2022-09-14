@@ -120,7 +120,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 */
 	public function get_videopress_data( $attachment_id, $blog_id ) {
 		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id );
+
 		return array(
+			'title'           => $info->title,
+			'description'     => $info->description,
 			'guid'            => $info->guid,
 			'rating'          => $info->rating,
 			'allow_download'  =>
