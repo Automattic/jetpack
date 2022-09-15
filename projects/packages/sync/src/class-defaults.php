@@ -798,6 +798,7 @@ class Defaults {
 		'align-wide',
 		'automatic-feed-links',
 		'block-templates',
+		'block-template-parts', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54176
 		'custom-background',
 		'custom-header',
 		'custom-logo',
