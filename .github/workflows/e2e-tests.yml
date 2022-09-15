@@ -123,17 +123,6 @@ jobs:
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         pnpm run test:run "${TEST_ARGS[@]}"
 
-    - name: Send Slack notification
-      if: ${{ failure() && ! cancelled() }}
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-        SUITE: ${{ matrix.project }}
-        JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
-      working-directory: ${{ matrix.path }}
-      run: |
-        mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run slack suite "$SUITE" "${ARGS[@]}"
-
     - name: Test environment tear-down
       if: ${{ always() }}
       working-directory: ${{ matrix.path }}
@@ -193,6 +182,11 @@ jobs:
         with:
           path: test-output
 
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: ./.github/files/e2e-tests/encryption.sh decrypt
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -202,5 +196,7 @@ jobs:
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
           playwright_report_path: test-output/**/summary.json
+          playwright_output_dir: test-output/**/results
+          rules_configuration_path: .github/files/e2e-tests/notification-rules.json
 
 

@@ -2,8 +2,10 @@
  * External dependencies
  */
 import { Text, SearchIcon } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { Icon, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
 /**
@@ -16,7 +18,9 @@ import type React from 'react';
 const InputWrapper = ( {
 	className,
 	disabled = false,
+	loading = false,
 	icon = null,
+	endAdornment = null,
 	onChange,
 	onEnter,
 	size = 'small',
@@ -33,7 +37,7 @@ const InputWrapper = ( {
 
 	const handleKeyUpEvent = useCallback(
 		( e: KeyboardEvent< HTMLInputElement | HTMLTextAreaElement > ) => {
-			if ( onEnter != null && e.code === 'Enter' ) {
+			if ( onEnter != null && [ 'Enter', 'NumpadEnter' ].includes( e.code ) ) {
 				onEnter( e.currentTarget.value );
 			}
 		},
@@ -50,19 +54,31 @@ const InputWrapper = ( {
 		[ 'aria-disabled' ]: disabled,
 	};
 
+	const isTextarea = inputProps?.type === 'textarea';
+
 	return (
 		<div
 			className={ classnames( className, styles[ 'input-wrapper' ], {
 				[ styles.disabled ]: disabled,
 				[ styles.large ]: size === 'large',
+				[ styles[ 'is-textarea' ] ]: isTextarea,
 			} ) }
 		>
-			{ inputProps?.type === 'textarea' ? (
+			{ isTextarea ? (
 				<textarea { ...inputProps } { ...baseProps } />
 			) : (
 				<>
-					{ icon }
-					<input { ...inputProps } { ...baseProps } />
+					{ loading || icon ? (
+						<div
+							className={ classnames( styles[ 'icon-wrapper' ], {
+								[ styles.loader ]: loading,
+							} ) }
+						>
+							{ loading ? <Spinner /> : icon }
+						</div>
+					) : null }
+					<input { ...inputProps } { ...baseProps } value={ inputProps.value } />
+					{ endAdornment }
 				</>
 			) }
 		</div>
@@ -96,7 +112,7 @@ export const Input = ( {
 			<InputWrapper name={ name } size={ size } { ...wrapperProps } />
 		</div>
 	) : (
-		<InputWrapper className={ className } { ...wrapperProps } />
+		<InputWrapper className={ className } size={ size } { ...wrapperProps } />
 	);
 };
 
@@ -130,6 +146,10 @@ export const SearchInput = ( {
 		[ componentProps.onChange ]
 	);
 
+	const clearInput = useCallback( () => {
+		componentProps.onChange?.( '' );
+	}, [ componentProps.onChange ] );
+
 	return (
 		<Input
 			{ ...componentProps }
@@ -138,6 +158,19 @@ export const SearchInput = ( {
 			type="text"
 			onEnter={ onEnterHandler }
 			onChange={ onChangeHandler }
+			endAdornment={
+				<>
+					{ Boolean( componentProps.value ) && (
+						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
+							<Icon
+								icon={ closeSmall }
+								onClick={ clearInput }
+								className={ classnames( styles[ 'clear-icon' ] ) }
+							/>
+						</div>
+					) }
+				</>
+			}
 		/>
 	);
 };

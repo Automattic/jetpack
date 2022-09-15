@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -22,7 +23,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	if (
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
-		|| ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'subscriptions' ) )
+		|| ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'subscriptions' ) && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
