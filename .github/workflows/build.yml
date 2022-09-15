@@ -122,7 +122,7 @@ jobs:
           script: |
             const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. p9dueE-5Nn-p2`;
+            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. More details: p9dueE-5Nn-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
