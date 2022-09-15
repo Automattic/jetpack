@@ -10,9 +10,13 @@ export type OriginalVideoPressVideo = {
 	 */
 	videoTitle: string;
 	/**
-	 * Video title (used internally)
+	 * Video description
 	 */
-	title: string;
+	description: string;
+	/**
+	 * Video caption
+	 */
+	caption: string;
 	/**
 	 * Video filename
 	 */
