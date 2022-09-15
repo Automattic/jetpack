@@ -134,18 +134,22 @@ class Jetpack_Boost {
 			return;
 		}
 
-		if ( ! defined( 'BOOSTDEACTIVATINGINPROG' ) ) {
-			define( 'BOOSTDEACTIVATINGINPROG', true );
+		// Make sure we only take over the deactivation flow once.
+		static $showing_survey = false;
+		if ( ! $showing_survey ) {
+			$showing_survey = true;
+
 			try {
-				// Also manually deactivate before exit
+				// Manually deactivate the plugin, as we are going to take over the page-load.
 				deactivate_plugins( plugin_basename( JETPACK_BOOST_PATH ) );
-				// require template
-				require_once JETPACK_BOOST_DIR_PATH . '/app/admin/feedback/deactivation/deactivate.php';
-				exit();
-			} catch ( Exception $e ) {
-				// just die
-				die();
+			} catch ( \Exception $e ) {
+				// If we can't gracefully deactivate the plugin, don't take over; fall back to the standard flow.
+				return;
 			}
+
+			// Deactivation successful. Show the deactivation survey.
+			require_once JETPACK_BOOST_DIR_PATH . '/app/admin/feedback/deactivation/deactivate.php';
+			exit();
 		}
 	}
 
