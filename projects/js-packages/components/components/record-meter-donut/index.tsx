@@ -32,14 +32,14 @@ export type DonutMeterProps = {
 	 * Not visible. Used for a11y support.
 	 * If not provided, defaults to an empty string.
 	 */
-	title: string;
+	title?: string;
 
 	/**
 	 * Localized description for meter.
 	 * Not visible. Used for a11y support.
 	 * If not provided, defaults to an empty string.
 	 */
-	description: string;
+	description?: string;
 };
 
 /**
@@ -54,16 +54,19 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 	backgroundColor = '#00BA37', // jetpack green fallback
 	thickness = '3.5',
 	donutWidth = '64px',
-	title,
-	description,
+	title = '',
+	description = '',
 } ) => {
 	const count = () => {
 		// get count as a percent value
 		return ( segmentCount / totalCount ) * 100;
 	};
 
+	// If we don't have a title or description, hide the meter from screen readers.
+	const isHidden = title.length === 0 && description.length === 0 ? 'true' : 'false';
+
 	return (
-		<div className="donut-meter">
+		<div className="donut-meter" aria-hidden={ isHidden }>
 			<svg
 				width={ donutWidth }
 				height="auto"
