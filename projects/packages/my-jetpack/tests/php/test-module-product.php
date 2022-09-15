@@ -3,14 +3,15 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\My_Jetpack\Products\Videopress;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 
+require_once __DIR__ . '/class-mock-module-product.php';
+
 /**
- * Unit tests for the REST API endpoints.
+ * Unit tests for Module Product class.
  *
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Rest_Products
@@ -50,7 +51,7 @@ class Test_Module_Product extends TestCase {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		Jetpack_Options::update_option( 'id', 123 );
 
-		Jetpack_Options::update_option( 'available_modules', array( JETPACK__VERSION => array( 'videopress' => '2.5' ) ) );
+		Jetpack_Options::update_option( 'available_modules', array( JETPACK__VERSION => array( Mock_Module_Product::$module_name => '1.0' ) ) );
 
 		Initializer::init();
 
@@ -102,21 +103,21 @@ class Test_Module_Product extends TestCase {
 	 * Test plugin slug and filename are overriden
 	 */
 	public function test_plugin_slug_and_filename() {
-		$this->assertSame( Videopress::JETPACK_PLUGIN_SLUG, Videopress::get_plugin_slug() );
-		$this->assertSame( Videopress::JETPACK_PLUGIN_FILENAME, Videopress::get_plugin_filename() );
+		$this->assertSame( Mock_Module_Product::JETPACK_PLUGIN_SLUG, Mock_Module_Product::get_plugin_slug() );
+		$this->assertSame( Mock_Module_Product::JETPACK_PLUGIN_FILENAME, Mock_Module_Product::get_plugin_filename() );
 	}
 
 	/**
 	 * Tests activating/deactivating and checking active
 	 */
 	public function test_activate_and_check() {
-		$this->assertFalse( Videopress::is_active() );
-		$this->assertTrue( Videopress::activate() );
-		$this->assertTrue( Videopress::is_active() );
-		$this->assertTrue( Videopress::deactivate() );
-		$this->assertFalse( Videopress::is_active() );
-		$this->assertFalse( Videopress::is_module_active() );
-		$this->assertTrue( Videopress::is_plugin_active() );
+		$this->assertFalse( Mock_Module_Product::is_active() );
+		$this->assertTrue( Mock_Module_Product::activate() );
+		$this->assertTrue( Mock_Module_Product::is_active() );
+		$this->assertTrue( Mock_Module_Product::deactivate() );
+		$this->assertFalse( Mock_Module_Product::is_active() );
+		$this->assertFalse( Mock_Module_Product::is_module_active() );
+		$this->assertTrue( Mock_Module_Product::is_plugin_active() );
 	}
 
 	/**
@@ -125,10 +126,10 @@ class Test_Module_Product extends TestCase {
 	public function test_return_error_on_activation_failure() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		\Jetpack::$return_false = true;
-		$this->assertTrue( is_wp_error( Videopress::activate() ) );
+		$this->assertTrue( is_wp_error( Mock_Module_Product::activate() ) );
 
 		// also check deactivate returns false.
-		$this->assertFalse( Videopress::deactivate() );
+		$this->assertFalse( Mock_Module_Product::deactivate() );
 	}
 
 }
