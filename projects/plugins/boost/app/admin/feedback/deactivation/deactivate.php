@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack Boost - Deactivation Takeover
  *
  * This fires on the deactivation hook. There's no way of stopping the process of deactivation
@@ -23,7 +22,7 @@ if ( ! defined( 'WPINC' ) ) {
 wp_enqueue_style( 'jb-deactivate-font', 'https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700;1,900&display=swap', false, '1.0' );
 wp_dequeue_style( 'admin-bar-css' );
 
-// } Deactivation survey link - wrap via Jetpack Redirect Manager in case we want to update the survey in future.
+// Deactivation survey link - wrap via Jetpack Redirect Manager in case we want to update the survey in future.
 $survey_link = 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback';
 $logo_link   = JETPACK_BOOST_DIR_URL . 'app/assets/src/images/logo.svg';
 
