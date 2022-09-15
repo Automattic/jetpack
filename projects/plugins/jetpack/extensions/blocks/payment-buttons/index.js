@@ -24,6 +24,8 @@ const supportLink =
 		? 'https://wordpress.com/support/video-tutorials-add-payments-features-to-your-site-with-our-guides/#how-to-use-the-payments-block-video'
 		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
 
+const paymentsFeaturesLink = `https://wordpress.com/home/${ window.location.host }?myHomeCoursePaymentsModal=payments-features`;
+
 export const settings = {
 	apiVersion: 2,
 	title,
@@ -39,7 +41,16 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
-			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
+			<p>
+				<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
+			</p>
+			{ ( isSimpleSite() || isAtomicSite() ) && (
+				<p>
+					<ExternalLink href={ paymentsFeaturesLink }>
+						{ __( 'Payments Features Videos', 'jetpack' ) }
+					</ExternalLink>
+				</p>
+			) }
 		</Fragment>
 	),
 	category: 'earn',
