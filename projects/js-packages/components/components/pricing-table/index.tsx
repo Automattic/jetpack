@@ -10,6 +10,8 @@ import {
 	ReactElement,
 } from 'react';
 import React, { CSSProperties } from 'react';
+import { ToS } from '../../../connection';
+import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';
 import styles from './styles.module.scss';
@@ -26,6 +28,8 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	isIncluded,
 	index = 0,
 	label = null,
+	tooltipInfo,
+	tooltipTitle,
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const items = useContext( PricingTableContext );
@@ -35,7 +39,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
 	defaultLabel = isLg ? defaultLabel : rowLabel;
 
-	if ( ! isLg && ! isIncluded ) {
+	if ( ! isLg && ! isIncluded && label === null ) {
 		return null;
 	}
 
@@ -50,6 +54,17 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				icon={ isIncluded ? check : closeSmall }
 			/>
 			{ label || defaultLabel }
+			{ tooltipInfo && (
+				<IconTooltip
+					title={ tooltipTitle }
+					iconClassName={ styles[ 'popover-icon' ] }
+					className={ styles.popover }
+					placement={ 'bottom-end' }
+					iconSize={ 22 }
+				>
+					<Text>{ tooltipInfo }</Text>
+				</IconTooltip>
+			) }
 		</Text>
 	);
 };
@@ -58,11 +73,14 @@ export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { child
 	<div className={ styles.header }>{ children }</div>
 );
 
-export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
+export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
+	primary = false,
+	children,
+} ) => {
 	let index = 0;
 
 	return (
-		<div className={ styles.card }>
+		<div className={ classnames( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
@@ -102,11 +120,16 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 								className={ classnames( styles.item, styles.label ) }
 								key={ i }
 							>
-								<Icon className={ classnames( styles.icon ) } size={ 24 } icon={ info } />
 								<strong>{ item }</strong>
+								<Icon className={ classnames( styles.icon ) } size={ 24 } icon={ info } />
 							</Text>
 						) ) }
 					{ children }
+				</div>
+				<div className={ styles[ 'tos-container' ] }>
+					<Text className={ styles.tos } variant="body-small">
+						{ ToS }
+					</Text>
 				</div>
 			</div>
 		</PricingTableContext.Provider>

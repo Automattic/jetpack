@@ -11,19 +11,24 @@ export default {
 
 const Template: ComponentStory< typeof PricingTable > = args => (
 	<PricingTable { ...args }>
-		<PricingTableColumn>
+		<PricingTableColumn primary>
 			<PricingTableHeader>
 				<ProductPrice
 					price={ 9.95 }
 					offPrice={ 4.98 }
 					leyend="/month, billed yearly"
 					currency="USD"
+					showOffPercentage
 				/>
 				<Button fullWidth>Get Premium</Button>
 			</PricingTableHeader>
 			<PricingTableItem isIncluded={ true } label={ <strong>Up to 1000</strong> } />
-			<PricingTableItem isIncluded={ true } />
-			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } tooltipInfo={ 'This is an info' } />
+			<PricingTableItem
+				isIncluded={ true }
+				tooltipInfo={ 'This is an info with title' }
+				tooltipTitle={ 'Small title' }
+			/>
 			<PricingTableItem isIncluded={ true } />
 			<PricingTableItem isIncluded={ true } />
 		</PricingTableColumn>
@@ -35,10 +40,14 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 				</Button>
 			</PricingTableHeader>
 			<PricingTableItem isIncluded={ true } label="Up to 300" />
-			<PricingTableItem isIncluded={ true } />
-			<PricingTableItem isIncluded={ true } />
-			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem
+				isIncluded={ false }
+				label="This is not included"
+				tooltipInfo="This is not included but has a label so it is still shown on small screens"
+			/>
 			<PricingTableItem isIncluded={ false } />
+			<PricingTableItem isIncluded={ true } />
+			<PricingTableItem isIncluded={ true } />
 		</PricingTableColumn>
 	</PricingTable>
 );

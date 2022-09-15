@@ -16,6 +16,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	offPrice,
 	currency = '',
 	showNotOffPrice = true,
+	showOffPercentage = false,
 	leyend = __( '/month, paid yearly', 'jetpack' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
@@ -26,9 +27,17 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 
 	showNotOffPrice = showNotOffPrice && offPrice != null;
 
+	const offPercentage = 100 - Math.round( ( offPrice / price ) * 100 );
+
 	return (
 		<>
 			<div className={ styles.container }>
+				<Price
+					value={ offPrice ?? price }
+					currency={ currency }
+					isOff={ ! isNotConvenientPrice }
+					hidePriceFraction={ hidePriceFraction }
+				/>
 				{ showNotOffPrice && (
 					<Price
 						value={ price }
@@ -37,12 +46,9 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 						hidePriceFraction={ hidePriceFraction }
 					/>
 				) }
-				<Price
-					value={ offPrice ?? price }
-					currency={ currency }
-					isOff={ ! isNotConvenientPrice }
-					hidePriceFraction={ hidePriceFraction }
-				/>
+				{ offPrice && showOffPercentage && (
+					<Text className={ styles[ 'off-percentage' ] }>{ offPercentage }% off</Text>
+				) }
 			</div>
 			{ leyend && <Text className={ styles.leyend }>{ leyend }</Text> }
 		</>

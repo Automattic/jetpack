@@ -32,6 +32,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = 'info-outline',
+	iconSize = 18,
 	title,
 	children,
 } ) => {
@@ -77,7 +78,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
 				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
 			>
-				<Gridicon className={ iconClassName } icon={ args.iconCode } size={ 18 } />
+				<Gridicon className={ iconClassName } icon={ args.iconCode } size={ iconSize } />
 			</span>
 
 			<div className="icon-tooltip-helper">

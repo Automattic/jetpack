@@ -17,6 +17,11 @@ export type PricingTableProps = {
 
 export type PricingTableColumnProps = {
 	/**
+	 * Whether the column has the primary style.
+	 */
+	primary?: boolean;
+
+	/**
 	 * Items to show in a column.
 	 */
 	children: React.ReactElement[];
@@ -44,4 +49,14 @@ export type PricingTableItemProps = {
 	 * Index of the item, relative to other PricingTableItem components. Internal use only.
 	 */
 	index?: number;
+
+	/*
+	 * If the item has more description a popover info can contain that.
+	 */
+	tooltipInfo?: string;
+
+	/**
+	 * Title for the popover, not required.
+	 */
+	tooltipTitle?: string;
 };
