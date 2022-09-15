@@ -62,13 +62,6 @@ jobs:
         run: |
           node ./bin/performance.js
 
-      - name: Send Slack notification
-        if: ${{ failure() }}
-        working-directory: tools/e2e-commons
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: pnpm run slack status "failed" --report "Blocks performance"
-
       - name: Environment tear-down
         if: ${{ always() }}
         working-directory: tools/e2e-commons
@@ -100,3 +93,33 @@ jobs:
           repository: automattic/jetpack-e2e-reports
           event-type: block-perf
           client-payload: '{"run_id": "${{github.run_id}}", "repository": "${{github.repository}}"}'
+
+  slack-notification:
+    name: "Slack notification"
+    runs-on: ubuntu-latest
+    if: ${{ ! cancelled() }}
+    needs: [block-performance]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up tools
+        uses: ./.github/actions/tool-setup
+
+      - name: Build action
+        env:
+          COMPOSER_ROOT_VERSION: dev-trunk
+        run: |
+          pnpm install
+          composer install
+          composer build-development
+        working-directory: ./projects/github-actions/test-results-to-slack
+
+      - name: "Send notification"
+        uses: ./projects/github-actions/test-results-to-slack
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
+          slack_icon_emoji: ":jetpack:"
+          suite_name: "blocks performance"

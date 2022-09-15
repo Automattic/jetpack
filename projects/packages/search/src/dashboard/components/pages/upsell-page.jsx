@@ -16,6 +16,8 @@ import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 
 import './upsell-page.scss';
 
+const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
+
 /**
  * defines UpsellPage.
  *
@@ -64,7 +66,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						withHeader={ true }
 						withFooter={ true }
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						a8cLogoHref="https://www.jetpack.com"
+						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 					>
 						<AdminSectionHero>
 							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

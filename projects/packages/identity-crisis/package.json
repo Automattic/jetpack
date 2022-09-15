@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.8.23-alpha",
+	"version": "0.8.24-alpha",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": {

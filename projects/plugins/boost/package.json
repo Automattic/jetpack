@@ -15,7 +15,7 @@
 		"svelte-navigator": "3.1.5"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.19",
+		"@automattic/jetpack-components": "workspace:* || ^0.20",
 		"@babel/core": "7.18.13",
 		"@babel/preset-env": "7.18.10",
 		"@babel/preset-react": "7.18.6",
@@ -53,7 +53,7 @@
 		"compile-ts": "tsc --pretty",
 		"dev-serve": "rollup -c -w --environment SERVE",
 		"dev": "pnpm run clear-dist && rollup -c -w",
-		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path ../../../.eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
+		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
 		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
 		"clear-dist": "rm -rf app/assets/dist/*",
 		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure passed args are integer in TUS File class

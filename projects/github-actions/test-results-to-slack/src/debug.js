@@ -9,4 +9,13 @@ function debug( message ) {
 	}
 }
 
-module.exports = debug;
+/**
+ * Prints an error message to STDOUT
+ *
+ * @param {string} message - The message to print.
+ */
+function error( message ) {
+	process.stdout.write( message + '\n' );
+}
+
+module.exports = { debug, error };

@@ -1,0 +1,37 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import StatCard from '../index';
+
+<Meta
+  title="JS Packages/Components/Stat Card"
+  component={StatCard}
+/>
+
+# StatCard
+
+Component that shows a stat value.
+
+## API
+
+### icon
+
+- type: `JSX.Element`
+
+### label
+
+- type: `string`
+
+### value
+
+- type: `number`
+
+### variant
+
+- type: `string`
+- default: `"square"`
+
+It accepts 2 values: `square` and `horizontal`.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-stat-card--default" />
+  <Story id="js-packages-components-stat-card--horizontal" />
+</Canvas>

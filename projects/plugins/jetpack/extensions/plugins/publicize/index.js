@@ -8,6 +8,7 @@
  * displays the Publicize UI there.
  */
 
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -36,6 +37,7 @@ export const settings = {
 						{ __( 'Share this post', 'jetpack' ) }
 					</span>
 				}
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>

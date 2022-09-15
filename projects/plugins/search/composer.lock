@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a685cd85c9c00f22b38d9b2c3a6def7f",
+    "content-hash": "f6bf79f57c732537134f46483f7202ba",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -59,7 +59,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "4498cbcc23a16ae1159bb69b9482660a9aaad9a5"
+                "reference": "643ce07d751c26cabbb330339d515ef5a35808f3"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -96,8 +96,11 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -324,7 +327,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "06f2ba7d4cd8f7be27d0082e0a6ace5a9b5f0c4e"
+                "reference": "66670bb0ec3f8a39d85411487f9abfcc4cb96db1"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -372,8 +375,11 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
@@ -491,7 +497,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "76fec901b781738295d4e641a6da07a40011d14a"
+                "reference": "b9d5804fd7b1e1e62f4e8c3b4840a200d5f3d508"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -541,8 +547,11 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -631,7 +640,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "fa7e32a5017c339c1a5806c815b66f3e599c8805"
+                "reference": "df164d9453328271e52b95d216af6a81fafb59ca"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.45"
@@ -662,8 +671,11 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
@@ -733,7 +745,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d79660e1462106ca52d136d277d667e92d21a3f1"
+                "reference": "5c725f4c45a646f81958b45ee484a2cf3369956a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -799,8 +811,11 @@
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -817,7 +832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "dd26acca9d59dfea6be673a4b69ed97032c667ec"
+                "reference": "c6cc19572306fd3b8e430b70c321000e3428a7d2"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.45",
@@ -849,8 +864,11 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
@@ -873,7 +891,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "bb9512c17df550276057c69779e22578e621f96f"
+                "reference": "0995c8ea7103360f58e87fad6758825b66b9d268"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
@@ -907,8 +925,11 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -1075,7 +1096,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "be50738728d7eb9521ece50d6f0e6dc8f9e68990"
+                "reference": "43a2eb73101907a5820d00384f3a085f6fca24ec"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1087,7 +1108,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
-                "automattic/wordbless": "0.3.1",
+                "automattic/wordbless": "^0.4.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1099,7 +1120,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.21.x-dev"
+                    "dev-trunk": "0.22.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1133,8 +1154,11 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
@@ -1206,7 +1230,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "67ee97753b58d9d69882a76319413dc88565fa30"
+                "reference": "fa95cf4ca2f604d27c02b9a1be1918ed34f39b89"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.45",
@@ -1251,8 +1275,11 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -1468,16 +1495,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.14.0",
+            "version": "v4.15.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "34bea19b6e03d8153165d8f30bba4c3be86184c1"
+                "reference": "0ef6c55a3f47f89d7a374e6f835197a0b5fcf900"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/34bea19b6e03d8153165d8f30bba4c3be86184c1",
-                "reference": "34bea19b6e03d8153165d8f30bba4c3be86184c1",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/0ef6c55a3f47f89d7a374e6f835197a0b5fcf900",
+                "reference": "0ef6c55a3f47f89d7a374e6f835197a0b5fcf900",
                 "shasum": ""
             },
             "require": {
@@ -1518,9 +1545,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v4.14.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v4.15.1"
             },
-            "time": "2022-05-31T20:59:12+00:00"
+            "time": "2022-09-04T07:30:47+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -1635,16 +1662,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.16",
+            "version": "9.2.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "2593003befdcc10db5e213f9f28814f5aa8ac073"
+                "reference": "aa94dc41e8661fe90c7316849907cba3007b10d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/2593003befdcc10db5e213f9f28814f5aa8ac073",
-                "reference": "2593003befdcc10db5e213f9f28814f5aa8ac073",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/aa94dc41e8661fe90c7316849907cba3007b10d8",
+                "reference": "aa94dc41e8661fe90c7316849907cba3007b10d8",
                 "shasum": ""
             },
             "require": {
@@ -1700,7 +1727,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.16"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.17"
             },
             "funding": [
                 {
@@ -1708,7 +1735,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-08-20T05:26:47+00:00"
+            "time": "2022-08-30T12:24:04+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -1953,16 +1980,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.23",
+            "version": "9.5.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "888556852e7e9bbeeedb9656afe46118765ade34"
+                "reference": "d0aa6097bef9fd42458a9b3c49da32c6ce6129c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/888556852e7e9bbeeedb9656afe46118765ade34",
-                "reference": "888556852e7e9bbeeedb9656afe46118765ade34",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d0aa6097bef9fd42458a9b3c49da32c6ce6129c5",
+                "reference": "d0aa6097bef9fd42458a9b3c49da32c6ce6129c5",
                 "shasum": ""
             },
             "require": {
@@ -1991,7 +2018,7 @@
                 "sebastian/global-state": "^5.0.1",
                 "sebastian/object-enumerator": "^4.0.3",
                 "sebastian/resource-operations": "^3.0.3",
-                "sebastian/type": "^3.0",
+                "sebastian/type": "^3.1",
                 "sebastian/version": "^3.0.2"
             },
             "suggest": {
@@ -2035,7 +2062,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.23"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.24"
             },
             "funding": [
                 {
@@ -2047,7 +2074,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-08-22T14:01:36+00:00"
+            "time": "2022-08-30T07:42:16+00:00"
         },
         {
             "name": "psr/container",
@@ -2959,16 +2986,16 @@
         },
         {
             "name": "sebastian/type",
-            "version": "3.0.0",
+            "version": "3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/type.git",
-                "reference": "b233b84bc4465aff7b57cf1c4bc75c86d00d6dad"
+                "reference": "fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/b233b84bc4465aff7b57cf1c4bc75c86d00d6dad",
-                "reference": "b233b84bc4465aff7b57cf1c4bc75c86d00d6dad",
+                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e",
+                "reference": "fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e",
                 "shasum": ""
             },
             "require": {
@@ -2980,7 +3007,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -3003,7 +3030,7 @@
             "homepage": "https://github.com/sebastianbergmann/type",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/type/issues",
-                "source": "https://github.com/sebastianbergmann/type/tree/3.0.0"
+                "source": "https://github.com/sebastianbergmann/type/tree/3.2.0"
             },
             "funding": [
                 {
@@ -3011,7 +3038,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-15T09:54:48+00:00"
+            "time": "2022-09-12T14:47:03+00:00"
         },
         {
             "name": "sebastian/version",
@@ -3068,16 +3095,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v6.0.11",
+            "version": "v6.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "09b8e50f09bf0e5bbde9b61b19d7f53751114725"
+                "reference": "c5c2e313aa682530167c25077d6bdff36346251e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/09b8e50f09bf0e5bbde9b61b19d7f53751114725",
-                "reference": "09b8e50f09bf0e5bbde9b61b19d7f53751114725",
+                "url": "https://api.github.com/repos/symfony/console/zipball/c5c2e313aa682530167c25077d6bdff36346251e",
+                "reference": "c5c2e313aa682530167c25077d6bdff36346251e",
                 "shasum": ""
             },
             "require": {
@@ -3143,7 +3170,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.0.11"
+                "source": "https://github.com/symfony/console/tree/v6.0.12"
             },
             "funding": [
                 {
@@ -3159,7 +3186,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-22T14:17:38+00:00"
+            "time": "2022-08-23T20:52:30+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -3636,16 +3663,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v6.0.11",
+            "version": "v6.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "042b6bf0f6ccca6d456a0572eb788cfb8b1ff809"
+                "reference": "3a975ba1a1508ad97df45f4590f55b7cc4c1a0a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/042b6bf0f6ccca6d456a0572eb788cfb8b1ff809",
-                "reference": "042b6bf0f6ccca6d456a0572eb788cfb8b1ff809",
+                "url": "https://api.github.com/repos/symfony/string/zipball/3a975ba1a1508ad97df45f4590f55b7cc4c1a0a0",
+                "reference": "3a975ba1a1508ad97df45f4590f55b7cc4c1a0a0",
                 "shasum": ""
             },
             "require": {
@@ -3701,7 +3728,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v6.0.11"
+                "source": "https://github.com/symfony/string/tree/v6.0.12"
             },
             "funding": [
                 {
@@ -3717,7 +3744,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-27T15:50:26+00:00"
+            "time": "2022-08-12T18:05:20+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -3896,8 +3923,10 @@
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-search": 20,
+        "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-plugins-installer": 20
+        "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

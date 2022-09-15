@@ -30,7 +30,9 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const items = useContext( PricingTableContext );
 	const rowLabel = items[ index ];
-	let defaultLabel = isIncluded ? __( 'Included', 'jetpack' ) : __( 'Not included', 'jetpack' );
+	const includedLabel = __( 'Included', 'jetpack' );
+	const notIncludedLabel = __( 'Not included', 'jetpack' );
+	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
 	defaultLabel = isLg ? defaultLabel : rowLabel;
 
 	if ( ! isLg && ! isIncluded ) {
