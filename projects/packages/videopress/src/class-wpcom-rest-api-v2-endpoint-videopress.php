@@ -180,7 +180,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				}
 
 				if ( isset( $json_params['description'] ) ) {
-					$meta['videopress']['description'] = sanitize_text_field( $json_params['description'] );
+					$meta['videopress']['description'] = sanitize_textarea_field( $json_params['description'] );
 					$should_update_meta                = true;
 					wp_update_post(
 						array(
