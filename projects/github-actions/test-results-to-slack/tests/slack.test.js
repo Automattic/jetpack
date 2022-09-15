@@ -1,8 +1,25 @@
+const path = require( 'path' );
 const { WebClient } = require( '@slack/web-api' );
-const nock = require( 'nock' );
-const { setInputData } = require( './test-utils' );
 
-describe( 'Existing messages', () => {
+jest.mock( '@slack/web-api', () => {
+	const slack = {
+		chat: {
+			postMessage: jest.fn(),
+			update: jest.fn(),
+		},
+		files: {
+			upload: jest.fn(),
+		},
+		conversations: {
+			history: jest.fn(),
+		},
+	};
+	return { WebClient: jest.fn( () => slack ) };
+} );
+
+const slackClient = new WebClient();
+
+describe( 'Find existing messages', () => {
 	const messageIdentifier = '123-abc';
 
 	test.each`
@@ -13,12 +30,10 @@ describe( 'Existing messages', () => {
 		${ { text: messageIdentifier } }                  | ${ 'Message is returned when there is a full match' }               | ${ { ok: true, messages: [ { text: `${ messageIdentifier }` } ] } }
 		${ { text: `first ${ messageIdentifier }` } }     | ${ 'First message is returned when there is a multi match' }        | ${ { ok: true, messages: [ { text: `first ${ messageIdentifier }` }, { text: `second ${ messageIdentifier }` } ] } }
 	`( '$description', async ( { expected, response } ) => {
-		nock( 'https://slack.com' )
-			.post( `/api/conversations.history`, /channel=\w+/gi )
-			.reply( 200, response );
+		slackClient.conversations.history.mockResolvedValue( response );
 
 		const { getMessage } = require( '../src/slack' );
-		const message = await getMessage( new WebClient( 'token' ), '123abc', messageIdentifier );
+		const message = await getMessage( slackClient, '123abc', messageIdentifier );
 		await expect( JSON.stringify( message ) ).toBe( JSON.stringify( expected ) );
 	} );
 } );
@@ -40,52 +55,69 @@ describe( 'Blocks chunks', () => {
 	);
 } );
 
-describe.skip( 'Notification is sent', () => {
-	jest.mock( '@slack/web-api', () => {
-		const slack = {
-			chat: {
-				postMessage: jest.fn(),
-			},
-		};
-		return { WebClient: jest.fn( () => slack ) };
-	} );
+describe( 'Post message', () => {
+	test.each`
+		isUpdate   | expectedMethod
+		${ false } | ${ 'postMessage' }
+		${ true }  | ${ 'update' }
+	`( 'Message is sent: $expectedMethod', async ( { isUpdate, expectedMethod } ) => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		const text = 'Notification text';
+		const blocks = [ { type: 'context' } ];
+		const channel = '123abc';
+		const username = 'slack.username';
+		const icon_emoji = ':red_circle:';
+		const ts = '12345';
+		const thread_ts = '123456';
 
-	const slackChannel = '1234ABCD';
-	const slackUsername = 'Test Reporter';
+		await postOrUpdateMessage( slackClient, isUpdate, {
+			text,
+			blocks,
+			channel,
+			username,
+			icon_emoji,
+			ts,
+			thread_ts,
+		} );
 
-	beforeAll( () => {
-		setInputData( { slackChannel, slackUsername } );
-	} );
-
-	const client = new WebClient();
-
-	test( `Correct message is sent to Slack`, async () => {
-		// Mock workflow conclusion
-		const gh = require( '../src/github' );
-		jest.spyOn( gh, 'isWorkflowFailed' ).mockImplementation().mockReturnValueOnce( true );
-
-		// Mock existing message
-		const slack = require( '../src/slack' );
-		jest.spyOn( slack, 'getMessage' ).mockImplementation().mockReturnValueOnce( undefined );
-
-		// Mock notification text
-		const expectedData = { text: 'This is the message text', id: 'expected-id' };
-		jest
-			.spyOn( gh, 'getNotificationData' )
-			.mockImplementation()
-			.mockReturnValueOnce( expectedData );
-
-		// Run the action
-		const action = await require( '../src/index' );
-		await action;
-
-		// Expect that Slack client gets called with the right arguments
-		await expect( client.chat.postMessage ).toHaveBeenCalledWith(
+		await expect( slackClient.chat[ expectedMethod ] ).toHaveBeenCalledWith(
 			expect.objectContaining( {
-				text: expectedData.text,
-				channel: slackChannel,
-				username: slackUsername,
-				icon_emoji: ':red_circle:',
+				text,
+				channel,
+				username,
+				icon_emoji,
+				ts,
+				thread_ts,
+			} )
+		);
+	} );
+
+	test( 'File is uploaded', async () => {
+		const { postOrUpdateMessage } = require( '../src/slack' );
+		const filePath = path.resolve(
+			'tests/resources/playwright/suite-1/results/spec-1/test-failed-1.png'
+		);
+		const blocks = [
+			{ type: 'context' },
+			{
+				type: 'file',
+				path: filePath,
+			},
+		];
+		const channel = '123abc';
+		const thread_ts = '12345';
+
+		await postOrUpdateMessage( slackClient, false, {
+			blocks,
+			channel,
+			thread_ts,
+		} );
+
+		await expect( slackClient.files.upload ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				file: expect.objectContaining( { path: filePath } ),
+				channels: channel,
+				thread_ts,
 			} )
 		);
 	} );

@@ -4,15 +4,10 @@ const path = require( 'path' );
 const { mockContextExtras, setInputData } = require( './test-utils' );
 
 describe( 'Notification rules', () => {
-	afterEach( () => {
-		jest.resetModules();
-	} );
-
 	const defaultChannel = 'DEFAULT_CHANNEL_ID';
 
 	test.each`
 		description                                                           | refType       | refName                   | suiteName         | rules                                                                                                                                                                                                                            | expectedChannels
-		'
 		${ 'No rules' }                                                       | ${ 'branch' } | ${ 'trunk' }              | ${ undefined }    | ${ undefined }                                                                                                                                                                                                                   | ${ [ defaultChannel ] }
 		${ 'Missing rules in config' }                                        | ${ 'branch' } | ${ 'trunk' }              | ${ undefined }    | ${ {} }                                                                                                                                                                                                                          | ${ [ defaultChannel ] }
 		${ 'Invalid rules' }                                                  | ${ 'branch' } | ${ 'trunk' }              | ${ undefined }    | ${ { someEntry: [] } }                                                                                                                                                                                                           | ${ [ defaultChannel ] }

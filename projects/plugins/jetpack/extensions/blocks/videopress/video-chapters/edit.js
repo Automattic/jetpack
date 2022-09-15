@@ -21,7 +21,7 @@ const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => 
 	return (
 		<>
 			<InspectorControls>
-				<DetailsControl />
+				<DetailsControl id={ props?.attributes?.id } />
 			</InspectorControls>
 
 			<BlockEdit { ...props } />

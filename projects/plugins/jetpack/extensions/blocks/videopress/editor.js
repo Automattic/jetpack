@@ -386,4 +386,4 @@ const addVideoPressSupport = ( settings, name ) => {
  * @see packages/block-editor/src/hooks/align.js
  */
 addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport, 5 );
-addFilter( 'editor.BlockEdit', 'jetpack/videopress', withVideoChaptersEdit );
+addFilter( 'editor.BlockEdit', 'videopress/with-video-chapters-edit', withVideoChaptersEdit );
