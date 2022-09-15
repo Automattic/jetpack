@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check for GET parameters using QUERY_STRING in preference to parse_url, as the latter gets confused by double-slashes
