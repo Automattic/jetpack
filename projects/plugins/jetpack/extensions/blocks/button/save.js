@@ -35,19 +35,16 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		[ `wp-block-jetpack-${ blockName }` ]: blockName,
 	} );
 
-	const buttonClasses = classnames(
-		'wp-block-button__link',
-		{
-			'has-text-color': textColor || customTextColor,
-			[ textClass ]: textClass,
-			'has-background': backgroundColor || gradient || customBackgroundColor || customGradient,
-			[ backgroundClass ]: backgroundClass,
-			[ gradientClass ]: gradientClass,
-			'no-border-radius': 0 === borderRadius,
-			'has-custom-width': !! width,
-		},
-		fontSize && { [ `has-${ fontSize }-font-size` ]: true }
-	);
+	const buttonClasses = classnames( 'wp-block-button__link', {
+		'has-text-color': textColor || customTextColor,
+		[ textClass ]: textClass,
+		'has-background': backgroundColor || gradient || customBackgroundColor || customGradient,
+		[ backgroundClass ]: backgroundClass,
+		[ gradientClass ]: gradientClass,
+		'no-border-radius': 0 === borderRadius,
+		'has-custom-width': !! width,
+		[ `has-${ fontSize }-font-size` ]: !! fontSize,
+	} );
 
 	const buttonStyle = {
 		background: customGradient || undefined,

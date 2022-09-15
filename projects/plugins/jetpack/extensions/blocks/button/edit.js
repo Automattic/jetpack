@@ -45,19 +45,16 @@ export function ButtonEdit( props ) {
 
 	const blockClasses = classnames( 'wp-block-button', className );
 
-	const buttonClasses = classnames(
-		'wp-block-button__link',
-		{
-			'has-background': backgroundColor.color || gradientValue,
-			[ backgroundColor.class ]: ! gradientValue && backgroundColor.class,
-			'has-text-color': textColor.color,
-			[ textColor.class ]: textColor.class,
-			[ gradientClass ]: gradientClass,
-			'no-border-radius': 0 === borderRadius,
-			'has-custom-width': !! width,
-		},
-		fontSize && { [ `has-${ fontSize }-font-size` ]: true }
-	);
+	const buttonClasses = classnames( 'wp-block-button__link', {
+		'has-background': backgroundColor.color || gradientValue,
+		[ backgroundColor.class ]: ! gradientValue && backgroundColor.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
+		[ gradientClass ]: gradientClass,
+		'no-border-radius': 0 === borderRadius,
+		'has-custom-width': !! width,
+		[ `has-${ fontSize }-font-size` ]: !! fontSize,
+	} );
 
 	const buttonStyles = {
 		...( ! backgroundColor.color && gradientValue
