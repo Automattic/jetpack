@@ -8,22 +8,22 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 /**
- * Mock Module Product for testing
+ * Sample Module Product for testing
  */
-class Mock_Module_Product extends Module_Product {
+class Sample_Module_Product extends Module_Product {
 	/**
 	 * The product slug
 	 *
 	 * @var string
 	 */
-	public static $slug = 'mock-module-product';
+	public static $slug = 'sample-module-product';
 
 	/**
 	 * The Jetpack module name
 	 *
 	 * @var string
 	 */
-	public static $module_name = 'mock-module-product';
+	public static $module_name = 'sample-module-product';
 
 	/**
 	 * Get the internationalized product name. Sample data.
