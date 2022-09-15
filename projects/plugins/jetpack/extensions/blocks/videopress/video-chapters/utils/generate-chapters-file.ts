@@ -27,11 +27,12 @@ function millisecondsToClockTime( milliseconds: number ) {
  * @param {number} videoDuration - The video duration, in milliseconds
  * @returns {string}             - WebVTT text content
  */
-export default function generateChaptersFileContent(
-	description: string,
-	videoDuration: number
-): string {
+function generateChaptersFileContent( description: string, videoDuration: number ): string | null {
 	const chapters = extractVideoChapters( description );
+	if ( chapters.length === 0 ) {
+		return null;
+	}
+
 	let content = 'WEBVTT\n';
 	let chapterCount = 1;
 
@@ -51,4 +52,17 @@ export default function generateChaptersFileContent(
 	return content;
 }
 
-export { millisecondsToClockTime, generateChaptersFileContent };
+export default function generateChaptersFile(
+	description: string,
+	videoDuration: number
+): File | null {
+	const content = generateChaptersFileContent( description, videoDuration );
+
+	if ( ! content ) {
+		return null;
+	}
+
+	return new File( [ content ], 'chapters.vtt', { type: 'text/vtt' } );
+}
+
+export { millisecondsToClockTime, generateChaptersFileContent, generateChaptersFile };
