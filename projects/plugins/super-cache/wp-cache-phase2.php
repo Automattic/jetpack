@@ -3421,8 +3421,7 @@ function wpsc_is_get_query() {
 	static $is_get_query = null;
 
 	if ( null === $is_get_query ) {
-		$request_uri  = parse_url( $_SERVER['REQUEST_URI'] );
-		$is_get_query = $request_uri && ! empty( $request_uri['query'] );
+		$is_get_query = ! empty( $_SERVER['QUERY_STRING'] );
 	}
 
 	return $is_get_query;
