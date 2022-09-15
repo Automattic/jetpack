@@ -39,7 +39,7 @@ export type DonutMeterProps = {
 	 * Not visible. Used for a11y support.
 	 * If not provided, defaults to an empty string.
 	 */
-	description?: string;
+	description: string;
 };
 
 /**
