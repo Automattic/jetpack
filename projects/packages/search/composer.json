@@ -14,7 +14,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.2",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/wordbless": "0.3.1"
+		"automattic/wordbless": "^0.4.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -44,7 +44,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
