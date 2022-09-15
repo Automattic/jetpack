@@ -8,10 +8,14 @@ import {
 	AdminSection,
 	Container,
 	Col,
+	ThemeProvider,
 } from '@automattic/jetpack-components';
+import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import VideoFrameSelector from '../../../components/video-frame-selector';
 /**
  * Internal dependencies
  */
@@ -106,6 +110,8 @@ const Infos = ( {
 };
 
 const EditVideoDetails = () => {
+	const [ frameSelectorIsOpen, setFrameSelectorIsOpen ] = useState( false );
+	const [ modalRef, setModalRef ] = useState< HTMLDivElement | null >( null );
 	const {
 		duration,
 		posterImage,
@@ -124,39 +130,68 @@ const EditVideoDetails = () => {
 	} = useEditDetails();
 
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={
-				<Header
-					onSaveChanges={ handleSaveChanges }
-					saveDisabled={ saveDisabled }
-					saveLoading={ updating }
-				/>
-			}
-		>
-			<AdminSection>
-				<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
-					<Col sm={ 4 } md={ 8 } lg={ 7 }>
-						<Infos
-							title={ title ?? '' }
-							onChangeTitle={ setTitle }
-							description={ description ?? '' }
-							onChangeDescription={ setDescription }
-							caption={ caption ?? '' }
-							onChangeCaption={ setCaption }
-						/>
-					</Col>
-					<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
-						<VideoThumbnail thumbnail={ posterImage } duration={ duration } editable />
-						<VideoDetails
-							filename={ filename ?? '' }
-							uploadDate={ uploadDate ?? '' }
-							src={ url ?? '' }
-						/>
-					</Col>
-				</Container>
-			</AdminSection>
-		</AdminPage>
+		<>
+			{ frameSelectorIsOpen && (
+				<Modal
+					title={ __( 'Select thumbnail from video', 'jetpack-videopress-pkg' ) }
+					onRequestClose={ () => setFrameSelectorIsOpen( false ) }
+					isDismissible={ false }
+				>
+					<ThemeProvider targetDom={ modalRef }>
+						<div ref={ setModalRef } className={ styles.selector }>
+							<VideoFrameSelector src={ url } onVideoFrameSelected={ noop } />
+							<div className={ styles.actions }>
+								<Button variant="secondary" onClick={ () => setFrameSelectorIsOpen( false ) }>
+									{ __( 'Close', 'jetpack-videopress-pkg' ) }
+								</Button>
+								<Button variant="primary">
+									{ __( 'Select this frame', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</div>
+						</div>
+					</ThemeProvider>
+				</Modal>
+			) }
+
+			<AdminPage
+				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
+				header={
+					<Header
+						onSaveChanges={ handleSaveChanges }
+						saveDisabled={ saveDisabled }
+						saveLoading={ updating }
+					/>
+				}
+			>
+				<AdminSection>
+					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
+						<Col sm={ 4 } md={ 8 } lg={ 7 }>
+							<Infos
+								title={ title ?? '' }
+								onChangeTitle={ setTitle }
+								description={ description ?? '' }
+								onChangeDescription={ setDescription }
+								caption={ caption ?? '' }
+								onChangeCaption={ setCaption }
+							/>
+						</Col>
+						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
+							<VideoThumbnail
+								thumbnail={ posterImage }
+								duration={ duration }
+								editable
+								onSelectFromVideo={ () => setFrameSelectorIsOpen( true ) }
+							/>
+							<VideoDetails
+								filename={ filename ?? '' }
+								uploadDate={ uploadDate ?? '' }
+								src={ url ?? '' }
+							/>
+						</Col>
+					</Container>
+				</AdminSection>
+			</AdminPage>
+		</>
 	);
 };
 
