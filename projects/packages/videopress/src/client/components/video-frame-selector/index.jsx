@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import playIcon from '../icons/play-icon';
 import styles from './style.module.scss';
 
-const VideoFrameSelector = ( { src, onVideoFrameSelected } ) => {
+const VideoFrameSelector = ( { src, onVideoFrameSelected, className = '' } ) => {
 	const [ maxDuration, setMaxDuration ] = useState( 0 );
 	const videoPlayer = useRef( null );
 
@@ -36,7 +36,7 @@ const VideoFrameSelector = ( { src, onVideoFrameSelected } ) => {
 	};
 
 	return (
-		<div className={ classNames( styles.container ) }>
+		<div className={ classNames( styles.container, className ) }>
 			<video
 				ref={ videoPlayer }
 				muted
