@@ -23,11 +23,12 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const { showPricingPage, hasPaidPlan } = useSelect( select => {
+	const { showPricingPage, hasPaidPlan, isShareLimitEnabled } = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
 			showPricingPage: store.showPricingPage(),
 			hasPaidPlan: store.hasPaidPlan(),
+			isShareLimitEnabled: store.isShareLimitEnabled(),
 		};
 	} );
 
@@ -47,8 +48,18 @@ const Admin = () => {
 		);
 	}
 
-	if ( ! hasPaidPlan && showPricingPage ) {
-		return <PricingPage />;
+	if ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) {
+		return (
+			<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col>
+							<PricingPage />
+						</Col>
+					</Container>
+				</AdminSectionHero>
+			</AdminPage>
+		);
 	}
 
 	return (

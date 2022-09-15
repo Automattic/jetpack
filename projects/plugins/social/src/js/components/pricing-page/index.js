@@ -25,7 +25,7 @@ const PricingPage = () => {
 
 	return (
 		<PricingTable
-			title={ __( 'Post once, share everywhere', 'jetpack-social' ) }
+			title={ __( 'Write once, post everywhere', 'jetpack-social' ) }
 			items={ [
 				__( 'Number of shares', 'jetpack-social' ),
 				__( 'Schedule posting', 'jetpack-social' ),
