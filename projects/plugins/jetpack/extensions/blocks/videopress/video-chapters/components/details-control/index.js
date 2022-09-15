@@ -3,33 +3,38 @@
  */
 import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import useVideoItem from '../../hooks/use-video-item';
+/**
+ * Internal dependencies
+ */
+import useBlockAttributes from '../../hooks/use-block-attributes';
 
 const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
 const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
 	VIDEOPRESS_VIDEO_CHAPTERS_FEATURE
 ];
 
-export default function DetailsControl( { id } ) {
-	const [ videoItem, isRequestingVideoItem ] = useVideoItem( id );
+export default function DetailsControl( { isRequestingVideoItem } ) {
+	const { attributes, setAttributes } = useBlockAttributes();
 
 	if ( ! isVideoChaptersEnabled ) {
 		return null;
 	}
 
-	const onTitleChangeHandler = () => {
-		// @todo
+	const { title, description } = attributes;
+
+	const onTitleChangeHandler = newTitle => {
+		setAttributes( { title: newTitle } );
 	};
 
-	const onDescriptionChangeHandler = () => {
-		// @todo
+	const onDescriptionChangeHandler = newDescription => {
+		setAttributes( { description: newDescription } );
 	};
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack' ) }>
 			<TextControl
 				label={ __( 'Title', 'jetpack' ) }
-				value={ videoItem?.title }
+				value={ title }
 				placeholder={ __( 'Video title', 'jetpack' ) }
 				onChange={ onTitleChangeHandler }
 				disabled={ isRequestingVideoItem }
@@ -37,7 +42,7 @@ export default function DetailsControl( { id } ) {
 
 			<TextareaControl
 				label={ __( 'Description', 'jetpack' ) }
-				value={ videoItem?.description }
+				value={ description }
 				placeholder={ __( 'Video description', 'jetpack' ) }
 				onChange={ onDescriptionChangeHandler }
 				disabled={ isRequestingVideoItem }
