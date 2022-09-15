@@ -50,6 +50,7 @@ export default () => {
 			} )
 			.catch( () => {
 				setUpdating( false );
+				// TODO: provide feedback for user
 			} );
 	};
 
