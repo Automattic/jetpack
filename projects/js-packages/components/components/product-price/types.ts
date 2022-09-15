@@ -33,6 +33,11 @@ export type ProductPriceProps = {
 	 * Hides the price fraction if fraction is zero.
 	 */
 	hidePriceFraction?: boolean;
+
+	/**
+	 * Hides the discount label
+	 */
+	hideDiscountLabel?: boolean;
 };
 
 export type PriceProps = {
