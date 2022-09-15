@@ -17,8 +17,8 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2",
-		"automattic/wordbless": "0.3.1"
+		"automattic/jetpack-changelogger": "3.2.x-dev",
+		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -45,7 +45,8 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -60,8 +61,13 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-protect-plugin",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "protect",
 		"wp-plugin-slug": "jetpack-protect",
+		"wp-svn-autopublish": true,
 		"version-constants": {
 			"JETPACK_PROTECT_VERSION": "jetpack-protect.php"
 		}

@@ -11,20 +11,9 @@ import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetp
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import useVideos from '../../hooks/use-videos';
-import { OriginalVideoPressVideo, VideoPressVideo } from '../../types';
 import Logo from '../logo';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import { ConnectionStore } from './types';
-
-const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
-	return videos.map( video => {
-		return {
-			...video,
-			title: video.title,
-			posterImage: video.image.src,
-		};
-	} );
-};
 
 const Admin = () => {
 	const connectionStatus = useSelect(
@@ -56,19 +45,19 @@ const Admin = () => {
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
-									High quality, ad-free video
+									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
-								<Button>Add new video</Button>
+								<Button>{ __( 'Add new video', 'jetpack-videopress-pkg' ) }</Button>
 							</Col>
 						</Container>
 					</AdminSectionHero>
 					<AdminSection>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<VideoPressLibrary videos={ mapVideos( videos ) } />
+								<VideoPressLibrary videos={ videos } />
 							</Col>
 							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<LocalLibrary videos={ mapVideos( localVideos ) } />
+								<LocalLibrary videos={ localVideos } />
 							</Col>
 						</Container>
 					</AdminSection>

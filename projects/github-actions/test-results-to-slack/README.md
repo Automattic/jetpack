@@ -67,6 +67,7 @@ jobs:
           suite_name: 'Your test suite name'
           rules_configuration_path: 'path/to/rules/configuration/file'
           playwright_report_path: 'test-artifacts/**/report.json'
+          playwright_output_dir: 'test-artifacts/**/results'
 ```
 
 ### Inputs
@@ -81,6 +82,7 @@ The action relies on the following parameters.
 - (Optional) `suite_name` is the name of the test suite. It will be included in the message, and it can also be used to define notification rules. See more in the Rules section.
 - (Optional) `rules_configuration_path` is the path to the configuration file that defines the rules. See more in the Rules section.
 - (Optional) `playwright_report_path` is the path to the JSON report, output from Playwright test runner JSON reporter. See [Playwright's docs](  https://playwright.dev/docs/test-reporters#json-reporter) for details on how to generate this file. If specified, it will be parsed and failures details will be included in the message. You can use the glob pattern to specify multiple files. For example: `playwright_report_path: 'artifacts/**/report.json'`.
+- (Optional) `playwright_output_dir` is the path to the Playwright's configured output directory, where results and attachments are saved. It is needed when the artefacts are downloaded from a previous job, and the absolute paths to attachments found in the JSON report are not valid anymore. This path will be used to convert the paths to those attachments. You can use the glob pattern. For example: `playwright_output_dir: 'artifacts/**/results'`
 
 ### Rules
 
@@ -90,7 +92,7 @@ There are two types of rules: refs rules, used to send notifications for specifi
 
 #### Refs rules
 
-You can create as many rules as you want. For each rule, you need to define the ref type (branch, tag) and ref name to match, and a list of channels to send the notification in case of a match. Optionally you can also define whether to exclude the default channel. By default, the default channel is not excluded and a notification will also be sent there.
+You can create as many rules as you want. For each rule, you need to define the ref type (branch, tag) and ref name to match, and a list of channels to send the notification in case of a match. Optionally you can also define whether to exclude the default channel. By default, the default channel is not excluded and a notification will also be sent there. You can use glob patterns that use characters like *, **, +, ? to define ref names.
 
 Example:
 
@@ -107,7 +109,7 @@ Example:
 	},
 	{
 	  "type": "branch",
-	  "name": "dev",
+	  "name": "releases/**",
 	  "channels": [
 		"CHANNEL_ID_2"
 	  ]
@@ -116,7 +118,7 @@ Example:
 }
 ```
 
-In the example, for runs on branch trunk, a notification will be sent to `CHANNEL_ID_1`. For runs on branch dev, a notification will be sent to `CHANNEL_ID_2` and to the default channel.
+In the example, for runs on branch trunk, a notification will be sent to `CHANNEL_ID_1`. For runs on any branch matching releases/** pattern, (e.g. releases/v1.1), a notification will be sent to `CHANNEL_ID_2` and to the default channel.
 
 #### Suites rules
 

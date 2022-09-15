@@ -15,6 +15,14 @@
 		gap: var(--spacing-base);
 	}
 
+	.search-input {
+		width: 262px;
+	}
+
+	.filter-section {
+		margin-bottom: calc( var(--spacing-base) * 4 );
+	}
+
 	.pagination {
 		align-self: center;
 		margin-top: calc( var(--spacing-base) * 4 );
