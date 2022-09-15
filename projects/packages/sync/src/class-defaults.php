@@ -796,6 +796,7 @@ class Defaults {
 	 */
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
+		'appearance-tools', // In Gutenberg.
 		'automatic-feed-links',
 		'block-templates',
 		'block-template-parts', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54176
@@ -804,6 +805,8 @@ class Defaults {
 		'custom-logo',
 		'customize-selective-refresh-widgets',
 		'dark-editor-style',
+		'default-color-palette', // In Gutenberg.
+		'default-gradient-presets', // In Gutenberg.
 		'disable-custom-colors',
 		'disable-custom-font-sizes',
 		'disable-custom-gradients',
