@@ -35,7 +35,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
-	const aboutPageUrl = siteAdminUrl + 'admin.php?page=jetpack_about';
+	const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
@@ -138,7 +138,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 				<div className="jp-search-dashboard-row">
 					<JetpackFooter
-						a8cLogoHref={ aboutPageUrl }
+						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 					/>

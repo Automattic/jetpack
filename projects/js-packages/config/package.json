@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-config",
-	"version": "0.1.13",
+	"version": "0.1.14-alpha",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {

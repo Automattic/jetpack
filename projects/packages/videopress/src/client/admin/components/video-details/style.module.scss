@@ -1,0 +1,8 @@
+.details {
+	color: var( --jp-black-80 );
+	padding: calc( var( --spacing-base ) * 3 ); // 24px;
+	display: flex;
+	flex-direction: column;
+	gap: calc( var( --spacing-base ) * 2 );
+	background-color: var(--jp-gray-0);
+}

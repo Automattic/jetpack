@@ -218,7 +218,7 @@ class Connections_Post_Field {
 
 		$permission_check = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
 		if ( is_wp_error( $permission_check ) ) {
-			return $permission_check;
+			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
 		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );
