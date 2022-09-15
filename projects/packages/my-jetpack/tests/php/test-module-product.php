@@ -50,6 +50,8 @@ class Test_Module_Product extends TestCase {
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		Jetpack_Options::update_option( 'id', 123 );
 
+		Jetpack_Options::update_option( 'available_modules', array( JETPACK__VERSION => array( 'videopress' => '2.5' ) ) );
+
 		Initializer::init();
 
 		self::$user_id = wp_insert_user(
