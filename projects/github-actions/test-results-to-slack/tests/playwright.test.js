@@ -2,10 +2,6 @@ const fs = require( 'fs' );
 const { setInputData } = require( './test-utils' );
 
 describe( 'Playwright report content', () => {
-	afterEach( () => {
-		jest.resetModules();
-	} );
-
 	const rootPath = 'tests/resources/playwright';
 
 	test.each`
