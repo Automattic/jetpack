@@ -50,7 +50,7 @@ $logo_link   = JETPACK_BOOST_DIR_URL . 'app/assets/src/images/logo.svg';
 				<p>Jetpack Boost</p>
 			</div>
 			<div class="buttons">
-				<a href="<?php echo esc_url( $survey_link ); ?>" target="_blank" class="btn btn-jp" id="giveFeedback"><?php esc_html_e( 'Give Feedback', 'jetpack-boost' ); ?></a>
+				<a href="<?php echo esc_url( $survey_link ); ?>" target="_blank" class="btn btn-jp" id="giveFeedback" onclick="window.location='<?php esc_url( admin_url( 'plugins.php' ) ); ?>'"><?php esc_html_e( 'Give Feedback', 'jetpack-boost' ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="button button-large" id="notNow"><?php esc_html_e( 'Not right now', 'jetpack-boost' ); ?></a>
 			</div>			
 		<p class="trailer" style="text-align:center"><?php esc_html_e( "Giving feedback won't close this tab, and it shouldn't take more than 2 minutes", 'jetpack-boost' ); ?></p>
