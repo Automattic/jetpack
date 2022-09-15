@@ -35,14 +35,17 @@ export const VideoThumbnailDropdown = ( {
 						aria-expanded={ isOpen }
 					/>
 				) }
-				renderContent={ () => (
+				renderContent={ ( { onClose } ) => (
 					<>
 						<Button
 							weight="regular"
 							fullWidth
 							variant="tertiary"
 							icon={ image }
-							onClick={ onUseDefaultThumbnail }
+							onClick={ () => {
+								onClose();
+								onUseDefaultThumbnail?.();
+							} }
 						>
 							{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
 						</Button>
@@ -51,7 +54,10 @@ export const VideoThumbnailDropdown = ( {
 							fullWidth
 							variant="tertiary"
 							icon={ media }
-							onClick={ onSelectFromVideo }
+							onClick={ () => {
+								onClose();
+								onSelectFromVideo?.();
+							} }
 						>
 							{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
 						</Button>
@@ -60,7 +66,10 @@ export const VideoThumbnailDropdown = ( {
 							fullWidth
 							variant="tertiary"
 							icon={ cloud }
-							onClick={ onUploadImage }
+							onClick={ () => {
+								onClose();
+								onUploadImage?.();
+							} }
 						>
 							{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
 						</Button>
