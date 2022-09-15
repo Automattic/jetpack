@@ -40,7 +40,6 @@ import {
 	isConnectingUser,
 	resetConnectUser,
 	isReconnectingSite,
-	reconnectSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
@@ -775,9 +774,6 @@ export default connect(
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
-		},
-		reconnectSite: () => {
-			return dispatch( reconnectSite() );
 		},
 		setHasSeenWCConnectionModal: () => {
 			return dispatch( setHasSeenWCConnectionModal() );
