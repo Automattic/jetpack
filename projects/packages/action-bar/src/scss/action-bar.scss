@@ -2,6 +2,8 @@
 	position: fixed;
 	right: var(--wp--preset--spacing--20);
 	bottom: var(--wp--preset--spacing--20);
+	font-size: 0;
+	line-height: 1;
 }
 
 .jetpack-action-bar__action-list {
@@ -19,4 +21,9 @@
 	line-height: 0;
 	margin: 8px;
 	padding: 0;
+}
+
+.jetpack-action-bar-widget {
+	height: 40px;
+	width: 40px;
 }

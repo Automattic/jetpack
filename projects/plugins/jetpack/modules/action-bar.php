@@ -14,7 +14,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Action_Bar;
+use Automattic\Jetpack\ActionBar\Action_Bar;
 
 $action_bar = new Action_Bar();
 $action_bar->init();

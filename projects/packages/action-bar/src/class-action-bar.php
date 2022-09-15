@@ -5,7 +5,9 @@
  * @package automattic/jetpack-action-bar
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\ActionBar;
+
+use Automattic\Jetpack\Assets;
 
 /**
  * Action_Bar class.
@@ -50,7 +52,56 @@ class Action_Bar {
 			return;
 		}
 
-		echo '<div id="jetpack-action-bar" class="jetpack-action-bar"></div>';
+		$post_id = get_the_ID();
+
+		if ( ! is_numeric( $post_id ) ) {
+			return;
+		}
+
+		$protocol = 'http';
+		if ( is_ssl() ) {
+			$protocol = 'https';
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$blog_id  = get_current_blog_id();
+			$bloginfo = get_blog_details( (int) $blog_id );
+			$domain   = $bloginfo->domain;
+		} else {
+			$blog_id   = \Jetpack_Options::get_option( 'id' );
+			$url       = home_url();
+			$url_parts = wp_parse_url( $url );
+			$domain    = $url_parts['host'];
+		}
+
+		$src = sprintf( 'https://widgets.wp.com/action-bar/like#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+
+		require_once __DIR__ . '/action-bar-icons.php';
+
+		?>
+		<div id="jetpack-action-bar" class="jetpack-action-bar">
+			<ul class="jetpack-action-bar__action-list">
+				<li>
+					<button class="jetpack-action-bar__action-button">
+						<?php ellipsis_icon( __( 'More options', 'jetpack-action-bar' ) ); ?>
+					</button>
+				</li>
+				<li>
+					<button class="jetpack-action-bar__action-button">
+						<?php comment_icon( __( 'Leave a comment', 'jetpack-action-bar' ) ); ?>
+					</button>
+				</li>
+				<li>
+					<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="<?php echo esc_url( $src ); ?>"></iframe>
+				</li>
+				<li>
+					<button class="jetpack-action-bar__action-button">
+						<?php follow_icon( __( 'Follow site', 'jetpack-action-bar' ) ); ?>
+					</button>
+				</li>
+			</ul>
+		</div>
+		<?php
 	}
 
 	/**

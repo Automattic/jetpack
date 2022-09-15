@@ -34,7 +34,10 @@
 			"pnpm run build"
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"watch": [
+			"pnpm run watch"
+		]
 	},
 	"repositories": [
 		{
