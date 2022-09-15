@@ -303,8 +303,7 @@ class Jetpack_Social {
 
 		$connections      = $publicize->get_filtered_connection_data();
 		$shares_remaining = $info['shares_remaining'];
-
-		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
+		$share_limits     = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining, Current_Plan::supports( 'social-shares-1000', true ) );
 		$share_limits->enforce_share_limits();
 	}
 }
