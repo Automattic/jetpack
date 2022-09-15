@@ -1,9 +1,19 @@
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
 import { forwardRef } from 'react';
+/**
+ * Internal dependencies
+ */
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import { CheckboxProps } from './types';
 
 const Checkbox = forwardRef< HTMLInputElement, CheckboxProps >(
-	( { checked, onChange, ...inputProps }, ref ) => {
+	( { checked, onChange, className, ...inputProps }, ref ) => {
 		const handleCheckboxChange = e => {
 			onChange?.( e.target.checked );
 		};
@@ -14,7 +24,7 @@ const Checkbox = forwardRef< HTMLInputElement, CheckboxProps >(
 				ref={ ref }
 				type="checkbox"
 				checked={ checked }
-				className={ styles.checkbox }
+				className={ classnames( className, styles.checkbox ) }
 				onChange={ handleCheckboxChange }
 			/>
 		);

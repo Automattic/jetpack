@@ -116,7 +116,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 * @return void Echoes it's output
 	 */
 	public function widget( $args, $instance ) {
-		jetpack_require_lib( 'icalendar-reader' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
 		$ical           = new iCalendarReader();
 		$events         = $ical->get_events( $instance['feed-url'], $instance['count'] );
@@ -178,7 +178,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	 * @param array|false $events Array of events, false on failure.
 	 */
 	private function apply_timezone_offset( $events ) {
-		jetpack_require_lib( 'icalendar-reader' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
 		$ical = new iCalendarReader();
 		return $ical->apply_timezone_offset( $events );

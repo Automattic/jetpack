@@ -84,6 +84,7 @@ class Test_Uploader extends BaseTestCase {
 		// Mock connection
 		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
 		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
 
 		$this->valid_attachment_id = $this->create_upload_object( __DIR__ . '/assets/sample-video.mp4', 'video/mp4' );

@@ -13,19 +13,22 @@
 		"automattic/jetpack-my-jetpack": "2.0.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
-		"automattic/jetpack-videopress": "0.3.x-dev"
+		"automattic/jetpack-videopress": "0.4.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "3.2.x-dev",
-		"automattic/wordbless": "0.3.1"
+		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
 	"repositories": [
 		{
 			"type": "path",
