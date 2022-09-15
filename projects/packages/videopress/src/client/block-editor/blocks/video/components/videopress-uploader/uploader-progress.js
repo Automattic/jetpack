@@ -6,11 +6,11 @@ import { Button, Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
-import { PlaceholderWrapper } from '../../edit.js';
 /**
  * Internal dependencies
  */
-import useMetaUpdate from '../../hooks/use-meta-update.js';
+import useMetaUpdate from '../../../../../hooks/use-meta-update.js';
+import { PlaceholderWrapper } from '../../edit.js';
 import usePosterImage from '../../hooks/use-poster-image.js';
 import usePosterUpload from '../../hooks/use-poster-upload.js';
 import UploadingEditor from './uploader-editor.js';
