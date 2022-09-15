@@ -43,7 +43,7 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:* || ^0.20",
-		"@automattic/jetpack-connection": "workspace:* || ^0.19",
+		"@automattic/jetpack-connection": "workspace:* || ^0.20",
 		"@wordpress/i18n": "4.16.0",
 		"classnames": "2.3.1",
 		"prop-types": "15.7.2"
