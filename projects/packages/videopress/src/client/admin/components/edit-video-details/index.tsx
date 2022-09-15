@@ -28,9 +28,11 @@ const noop = () => {
 
 const Header = ( {
 	saveDisabled = true,
+	saveLoading = false,
 	onSaveChanges,
 }: {
 	saveDisabled?: boolean;
+	saveLoading?: boolean;
 	onSaveChanges: () => void;
 } ) => {
 	const navigate = useNavigate();
@@ -43,7 +45,11 @@ const Header = ( {
 				<Icon icon={ chevronRightSmall } />
 				<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 			</div>
-			<Button disabled={ saveDisabled } onClick={ onSaveChanges }>
+			<Button
+				disabled={ saveDisabled || saveLoading }
+				onClick={ onSaveChanges }
+				isLoading={ saveLoading }
+			>
 				{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 			</Button>
 		</div>
@@ -114,12 +120,19 @@ const EditVideoDetails = () => {
 		setCaption,
 		saveDisabled,
 		handleSaveChanges,
+		updating,
 	} = useEditDetails();
 
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <Header onSaveChanges={ handleSaveChanges } saveDisabled={ saveDisabled } /> }
+			header={
+				<Header
+					onSaveChanges={ handleSaveChanges }
+					saveDisabled={ saveDisabled }
+					saveLoading={ updating }
+				/>
+			}
 		>
 			<AdminSection>
 				<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>

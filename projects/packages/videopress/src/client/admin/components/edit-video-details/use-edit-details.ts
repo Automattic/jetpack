@@ -1,21 +1,27 @@
 /**
  * External dependencies
  */
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
+import { STORE_ID } from '../../../state';
 import useVideo from '../../hooks/use-video';
 
 export default () => {
+	const navigate = useNavigate();
+	const dispatch = useDispatch( STORE_ID );
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
 
 	const video = useVideo( Number( videoId ) );
 	const updateMeta = useMetaUpdate( videoId );
 
+	const [ updating, setUpdating ] = useState( false );
 	const [ data, setData ] = useState( video );
 
 	const saveDisabled =
@@ -36,7 +42,15 @@ export default () => {
 	};
 
 	const handleSaveChanges = () => {
-		updateMeta( data );
+		setUpdating( true );
+		updateMeta( data )
+			.then( () => {
+				dispatch?.setVideo( data );
+				navigate( '/' );
+			} )
+			.catch( () => {
+				setUpdating( false );
+			} );
 	};
 
 	// Make sure we have the latest data from the API
@@ -52,5 +66,6 @@ export default () => {
 		setCaption,
 		saveDisabled,
 		handleSaveChanges,
+		updating,
 	};
 };
