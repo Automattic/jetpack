@@ -5,6 +5,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useState, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { uploadTrackForGuid } from '../../../tracks-editor';
+import extractVideoChapters from '../../utils/extract-video-chapters';
+import generateChaptersFile from '../../utils/generate-chapters-file';
 
 export default function useMediaItemUpdate( id ) {
 	const updateMediaItem = data => {
@@ -27,7 +34,7 @@ export default function useMediaItemUpdate( id ) {
 	return updateMediaItem;
 }
 
-export function useSyncMedia( { id, title, description } ) {
+export function useSyncMedia( { id, title, description, guid } ) {
 	const isSaving = useSelect( select => select( 'core/editor' ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
 
@@ -69,8 +76,29 @@ export function useSyncMedia( { id, title, description } ) {
 		}
 
 		updateMedia( dataToUpdate ).then( () => updateInitialState( { title, description } ) );
+
+		// Video Chapters //
+		if ( ! dataToUpdate?.description?.length ) {
+			return;
+		}
+
+		// Upload .vtt file if it description contains chapters
+		const chapters = extractVideoChapters( dataToUpdate.description );
+		if ( ! chapters?.length ) {
+			return;
+		}
+
+		const track = {
+			label: __( 'English', 'jetpack' ),
+			srcLang: 'en',
+			kind: 'chapters',
+			tmpFile: generateChaptersFile( dataToUpdate.description ),
+		};
+
+		uploadTrackForGuid( track, guid );
 	}, [
 		id,
+		guid,
 		isSaving,
 		wasSaving,
 		title,
