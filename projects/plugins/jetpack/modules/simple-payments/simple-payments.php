@@ -410,7 +410,7 @@ class Jetpack_Simple_Payments {
 	 * @return string           Formatted price.
 	 */
 	private function format_price( $price, $currency ) {
-		jetpack_require_lib( 'class-jetpack-currencies' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 		return Jetpack_Currencies::format_price( $price, $currency );
 	}
 
@@ -790,7 +790,7 @@ class Jetpack_Simple_Payments {
 	 * @return ?array               Currency object or null if not found.
 	 */
 	private static function get_currency( $the_currency ) {
-		jetpack_require_lib( 'class-jetpack-currencies' );
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 		$currencies = Jetpack_Currencies::CURRENCIES;
 
 		if ( isset( $currencies[ $the_currency ] ) ) {

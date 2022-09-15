@@ -9,11 +9,11 @@ export type VideoPressChapter = {
  * @param {string} line         - The line to be processed
  * @returns {VideoPressChapter} - Title and start time of the chapter
  */
-function extractSingleChapter( line: string ): VideoPressChapter {
+function extractSingleChapter( line: string ): VideoPressChapter | null {
 	const regex = /(?<timeBlock>\(?(?<time>\d{1,2}:\d{2}:\d{2}|\d{1,2}:\d{2})\)?)/;
 	const result = regex.exec( line );
 
-	if ( result == null ) {
+	if ( result == null || result.groups == null ) {
 		return null;
 	}
 
@@ -30,7 +30,15 @@ function extractSingleChapter( line: string ): VideoPressChapter {
 		.trim()
 		.replace( /(\s-$)|(^-\s)/, '' );
 
-	const startAt = time.split( ':' )[ 0 ].length === 2 ? time : `0${ time }`;
+	const timeSections = time.split( ':' );
+	if ( timeSections[ 0 ].length === 1 ) {
+		timeSections[ 0 ] = `0${ timeSections[ 0 ] }`;
+	}
+	if ( timeSections.length === 2 ) {
+		timeSections.unshift( '00' );
+	}
+
+	const startAt = timeSections.join( ':' );
 
 	return { startAt, title };
 }
@@ -44,12 +52,13 @@ function extractSingleChapter( line: string ): VideoPressChapter {
 export default function extractVideoChapters( text: string ): Array< VideoPressChapter > {
 	const lines = text.split( '\n' );
 
-	return lines
+	const chapters = lines
 		.map( line => extractSingleChapter( line ) )
-		.filter( line => line != null )
-		.sort( ( lineA, lineB ) => {
-			return lineA.startAt.localeCompare( lineB.startAt );
-		} );
+		.filter( chapter => chapter !== null ) as Array< VideoPressChapter >;
+
+	return chapters.sort( ( lineA, lineB ) => {
+		return lineA.startAt.localeCompare( lineB.startAt );
+	} );
 }
 
 export { extractSingleChapter, extractVideoChapters };
