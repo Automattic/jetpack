@@ -11,9 +11,10 @@ import useVideo from '../../hooks/use-video';
 
 export default () => {
 	const { videoId: videoIdFromParams } = useParams();
-
 	const videoId = Number( videoIdFromParams );
+
 	const video = useVideo( Number( videoId ) );
+	const updateMeta = useMetaUpdate( videoId );
 
 	const [ data, setData ] = useState( video );
 
@@ -33,7 +34,6 @@ export default () => {
 	const setCaption = ( caption: string ) => {
 		setData( { ...data, caption } );
 	};
-	const updateMeta = useMetaUpdate( videoId );
 
 	const handleSaveChanges = () => {
 		updateMeta( data );
@@ -46,8 +46,7 @@ export default () => {
 	}, [ video ] );
 
 	return {
-		...video,
-		...data, // override default data for the ones that are being edited
+		...data, // data is the local representation of the video
 		setTitle,
 		setDescription,
 		setCaption,
