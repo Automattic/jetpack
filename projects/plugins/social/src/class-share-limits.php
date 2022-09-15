@@ -29,23 +29,14 @@ class Share_Limits {
 	public $shares_remaining;
 
 	/**
-	 * If the blog has a Jetpack Social paid plan.
-	 *
-	 * @var boolean
-	 */
-	public $has_paid_plan;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param array   $connections List of Publicize connections.
-	 * @param int     $shares_remaining Number of shares remaining for this period.
-	 * @param boolean $has_paid_plan If the blog has a Jetpack Social paid plan.
+	 * @param array $connections List of Publicize connections.
+	 * @param int   $shares_remaining Number of shares remaining for this period.
 	 */
-	public function __construct( $connections, $shares_remaining, $has_paid_plan ) {
+	public function __construct( $connections, $shares_remaining ) {
 		$this->connections      = $connections;
 		$this->shares_remaining = $shares_remaining;
-		$this->has_paid_plan    = $has_paid_plan;
 	}
 
 	/**
@@ -53,9 +44,6 @@ class Share_Limits {
 	 */
 	public function enforce_share_limits() {
 
-		if ( $this->has_paid_plan ) {
-			return;
-		}
 		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
 
@@ -82,19 +70,7 @@ class Share_Limits {
 	 * Render a notice with the share count in the classic editor.
 	 */
 	public function render_classic_editor_notice() {
-		$current_page_url = null;
-		if ( isset( $_SERVER['REQUEST_SCHEME'] ) && isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
-			// phpcs:ignore -- WordPress.Security.ValidatedSanitizedInput.InputNotSanitized If we use esc_raw_url, it adds http to the beginning.
-			$current_page_url =  wp_unslash( $_SERVER['REQUEST_SCHEME'] ) . '://' . wp_unslash( $_SERVER['HTTP_HOST'] ) . wp_unslash( $_SERVER['REQUEST_URI'] );
-		}
-		$redirect_url = $current_page_url ? Redirect::get_url(
-			'jetpack-social-basic-plan-classic-editor',
-			array(
-				'query' => 'redirect_to=' . $current_page_url,
-			)
-		) :
-		Redirect::get_url( 'jetpack-social-basic-plan-classic-editor' );
-
+		global $pagenow;
 		$notice = sprintf(
 			/* translators: %1$d: number of shares remaining, %2$s: link to upgrade the plan. */
 			_n(
@@ -104,7 +80,12 @@ class Share_Limits {
 				'jetpack-social'
 			),
 			$this->shares_remaining,
-			$redirect_url
+			Redirect::get_url(
+				'jetpack-social-basic-plan-classic-editor',
+				array(
+					'query' => 'redirect_to=' . $pagenow,
+				)
+			)
 		);
 
 		$kses_allowed_tags = array(
