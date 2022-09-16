@@ -120,7 +120,18 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 */
 	public function get_videopress_data( $attachment_id, $blog_id ) {
 		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id );
+		$info = video_get_info_by_blogpostid( $blog_id, $attachment_id );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$title       = video_get_title( $blog_id, $attachment_id );
+			$description = video_get_description( $blog_id, $attachment_id );
+		} else {
+			$title       = $info->title;
+			$description = $info->description;
+		}
+
 		return array(
+			'title'           => $title,
+			'description'     => $description,
 			'guid'            => $info->guid,
 			'rating'          => $info->rating,
 			'allow_download'  =>

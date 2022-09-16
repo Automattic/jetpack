@@ -485,6 +485,8 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->guid            = null;
 	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
 	$video_info->rating          = null;
+	$video_info->description     = $post->post_content;
+	$video_info->title           = $post->post_title;
 
 	if ( is_wp_error( $post ) ) {
 		return $video_info;
