@@ -58,14 +58,11 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	};
 
 	const args = {
-		iconCode,
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
 		placement,
 		animate,
 		noArrow: false,
-		resize: false,
-		flip: false,
 		offset: 10, // The distance (in px) between the anchor and the popover.
 	};
 
@@ -78,7 +75,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
 				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
 			>
-				<Gridicon className={ iconClassName } icon={ args.iconCode } size={ iconSize } />
+				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 			</span>
 
 			<div className="icon-tooltip-helper">

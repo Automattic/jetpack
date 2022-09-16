@@ -44,7 +44,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	}
 
 	return (
-		<Text variant="body-small" className={ classnames( styles.item, styles.value ) }>
+		<div className={ classnames( styles.item, styles.value ) }>
 			<Icon
 				className={ classnames(
 					styles.icon,
@@ -53,7 +53,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				size={ 32 }
 				icon={ isIncluded ? check : closeSmall }
 			/>
-			{ label || defaultLabel }
+			<Text variant="body-small">{ label || defaultLabel }</Text>
 			{ tooltipInfo && (
 				<IconTooltip
 					title={ tooltipTitle }
@@ -65,7 +65,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 					<Text>{ tooltipInfo }</Text>
 				</IconTooltip>
 			) }
-		</Text>
+		</div>
 	);
 };
 
