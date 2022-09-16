@@ -3,10 +3,9 @@
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "3.2.x-dev"
+		"automattic/jetpack-changelogger": "^3.2.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -26,15 +25,7 @@
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
