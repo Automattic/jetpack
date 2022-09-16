@@ -272,7 +272,7 @@ class DashBackups extends Component {
 				return (
 					<React.Fragment>
 						{ buildCard(
-							__( "You need to enter your server's credentials to finish the setup.", 'jetpack' )
+							__( "Add SSH, SFTP, or FTP credentials to enable one click site restores", 'jetpack' )
 						) }
 						{ buildAction(
 							getRedirectUrl( 'jetpack-backup-dash-credentials', { site: siteRawUrl } ),
