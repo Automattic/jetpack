@@ -6,6 +6,25 @@
 	line-height: 1;
 }
 
+.jetpack-action-bar-widget {
+	height: 40px;
+	width: 40px;
+}
+
+
+/* ------------------------------------------------------ */
+/* ACTION BAR CONTAINER */
+/* ------------------------------------------------------ */
+.jetpack-action-bar-container {
+	bottom: 15px;
+	position: fixed;
+	right: 15px;
+    font-size: 14px;
+}
+
+/* ------------------------------------------------------ */
+/* ACTION BAR */
+/* ------------------------------------------------------ */
 .jetpack-action-bar__action-list {
 	background-color: var(--wp--preset--color--white);
 	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
@@ -19,11 +38,589 @@
 	background: none;
 	border: none;
 	line-height: 0;
-	margin: 8px;
-	padding: 0;
+	padding: 8px;
+	margin: 0;
+}
+/* .action-bar {
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0.92) 50%, #FFFFFF 100%);
+	border-radius: 4px;
+	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
+	padding: 8px;
+	position: relative;
+	z-index: 2;
+}
+.action-bar a {
+	display: block;
+	margin-top: 13px;
+	padding: 2px;
+	position: relative;
+	text-decoration: none;
+}
+.action-bar a:after {
+	background: #333;
+	border-radius: 2px;
+	color: #FFF;
+	content: attr(data-tooltip);
+	font-size: 10px;
+	opacity: 0;
+	padding: 6px 10px;
+	position: absolute;
+	right: 30px;
+	top: 2px;
+	transform: transform: translateX(-112%) translateY(0);
+	transition: opacity 0.2s cubic-bezier(.64,.09,.08,1), transform 0.2s cubic-bezier(.64,.09,.08,1);
+	visibility: hidden;
+	white-space: nowrap;
+	z-index: 2;
+}
+.action-bar a:hover:after {
+	display: block;
+	opacity: 0.9;
+	visibility: visible;
+	transform: transform: translateX(-110%) translateY(0);
+}
+.action-bar a:focus {
+	border-radius: 2px;
+	outline: 1px solid #C3C4C7;
+}
+.action-bar a:first-child {
+	margin-top: 0;
+}
+.action-bar a.hidden {
+	display: none;
+}
+.action-bar a img {
+	border: none;
+	display: block;
+	height: 24px;
+	width: 24px;
+}
+.action-bar a span {
+	color: #646970;
+	display: block;
+	font-family: 'SF Pro Text', sans-serif;
+	font-size: 10px;
+	font-style: normal;
+	font-weight: 600;
+	letter-spacing: -0.1px;
+	line-height: 14px;
+	margin-top:  -1px;
+	text-align: center;
+	text-decoration: none;
+	width: 24px;
+} */
+/* ACTION BAR - COMMENT */
+/* .action-bar .comment.active svg path,
+.action-bar .comment:hover svg path {
+	fill: #0675C4;
+}
+.action-bar .comment.active span,
+.action-bar .comment:hover span {
+	color: #0675C4;
+} */
+/* ACTION BAR - FOLLOW */
+/* .action-bar .follow:hover svg g,
+.action-bar .follow.active svg g,
+.action-bar .follow.active:hover svg g  {
+	stroke: #008A20;
+} */
+/* ACTION BAR - LIKE */
+/* .action-bar .like.active svg path,
+.action-bar .like:hover svg path {
+	stroke: #0675C4;
+}
+.action-bar .like.active span,
+.action-bar .like:hover span {
+	color: #0675C4;
+} */
+/* ACTION BAR - MORE */
+.jetpack-action-bar__more:hover svg circle,
+.jetpack-action-bar__more.active svg circle,
+.jetpack-action-bar__more.active:hover svg circle  {
+	fill: #0675C4;
+}
+/* Responsive ------------------------------------------------ */
+/* @media only screen and (max-width:  600px) {
+	.action-bar a:after,
+	.action-bar a:hover:after {
+		display: none;
+	}
+}  */
+/* ------------------------------------------------------ */
+/* ACTION BAR MODAL */
+/* ------------------------------------------------------ */
+.jetpack-action-bar__modal {
+	background: #FFF;
+	border-radius: 5px;
+	bottom: 0;
+	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
+	opacity: 0;
+	position: absolute;
+	right: 58px;
+	width: 360px;
+	z-index: 6;
+	transition: opacity .2s ease-in-out;
+	display: none;
 }
 
-.jetpack-action-bar-widget {
-	height: 40px;
-	width: 40px;
+.jetpack-action-bar__modal.active {
+	display: block;
 }
+
+/* Authenticate ------------------------------------------------ */
+/* .authenticate .terms {
+	color: #787C82;
+	font-size: 12px;
+	letter-spacing: -0.078px;
+	line-height: 18px;
+	margin: 6px 0 12px;
+}
+.authenticate .terms a {
+	color: #2C3338;
+	text-decoration: none;
+} */
+/* Confirmation ------------------------------------------------ */
+/* .jetpack-action-bar__modal .confirm {
+	align-items: center;
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 12px;
+	justify-content: space-between;
+}
+.jetpack-action-bar__modal .confirm input {
+	font-size: 18px;
+	padding: 11px 10px;
+	text-align: center;
+} */
+/* Errors ------------------------------------------------ */
+/* .jetpack-action-bar__modal .error {
+	color: red;
+	display: none;
+	margin-bottom: 12px;
+}
+.jetpack-action-bar__modal .error.show {
+	display: block;
+}
+.jetpack-action-bar__modal .error.show strong {
+	font-weight: 500;
+} */
+/* Header ------------------------------------------------ */
+.jetpack-action-bar__modal header {
+	align-items: flex-start;
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	padding: 16px;
+}
+.jetpack-action-bar__close {
+	max-width: 100%;
+	min-width: 0;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    padding: 4px;
+    margin-top: -4px;
+    margin-right: -4px;
+}
+.jetpack-action-bar__close:focus {
+	border-radius: 2px;
+	outline: 1px solid #C3C4C7;
+}
+.jetpack-action-bar__modal header .site-icon {
+	height: 28px;
+	margin-right: 16px;
+	max-width: 100%;
+	min-width: 0;
+	width: 28px;
+}
+.jetpack-action-bar__modal-title {
+	max-width: 100%; 
+	min-width: 0;
+	flex: 1;
+    color: black;
+    text-decoration: none;
+}
+.jetpack-action-bar__modal-title:focus,
+.jetpack-action-bar__modal-title:hover  {
+    color: black;
+    text-decoration: underline;
+}
+.jetpack-action-bar__modal-title strong {
+	font-weight: 600;
+}
+/* Follow link ------------------------------------------------ */
+/* .jetpack-action-bar__modal a.follow-link {
+	align-items: center;
+	color: #2C3338;
+	display: flex;
+	flex-wrap: nowrap;
+	text-decoration: none;
+}
+.jetpack-action-bar__modal a.follow-link span {
+	margin-left: 8px;
+	position: relative;
+	top: 1px;
+}
+.jetpack-action-bar__modal a.follow-link:focus {
+	border-radius: 2px;
+	outline: 1px solid #C3C4C7;
+}
+.jetpack-action-bar__modal a.follow-link.active span,
+.jetpack-action-bar__modal a.follow-link:hover span {
+	color: #008A20;
+}
+.jetpack-action-bar__modal a.follow-link.active svg g,
+.jetpack-action-bar__modal a.follow-link:hover svg g {
+	stroke: #008A20;
+} */
+/* Section ------------------------------------------------ */
+.jetpack-action-bar__modal section {
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	padding: 16px;
+}
+/* .jetpack-action-bar__modal section.follow-section {
+	display: none;
+}
+.jetpack-action-bar__modal .follow-section.show {
+	display: block;
+} */
+.jetpack-action-bar__modal section.menu a {
+	color: #2C3338;
+	display: block;
+	margin-bottom: 20px;
+	text-decoration: none;
+}
+.jetpack-action-bar__modal section.menu a:focus {
+	border-radius: 2px;
+	outline: 1px solid #C3C4C7;
+	outline-offset: 2px;
+}
+.jetpack-action-bar__modal section.menu a:hover {
+	color: #0675C4;
+}
+.jetpack-action-bar__modal section.menu a:last-child {
+	margin-bottom: 0;
+}
+/* Subscription Settings ------------------------------------------------ */
+/* .jetpack-action-bar__modal .settings {
+	align-items: flex-start;
+	display: flex;
+	flex-wrap: nowrap;
+	margin-bottom: 20px;
+}
+.jetpack-action-bar__modal .settings:last-child {
+	margin-bottom: 0;
+}
+.jetpack-action-bar__modal .settings .description {
+	flex: 1;
+	margin-left: 4px;
+	position: relative;
+	top: 2px;
+}
+.jetpack-action-bar__modal .settings .description p {
+	font-weight: 500;
+}
+.jetpack-action-bar__modal .settings .description small {
+	color: #50575E;
+	display: block;
+	font-size: 13px;
+	letter-spacing: -0.078px;
+	line-height: 18px;
+	margin-top: 4px;
+} */
+/* Mobile ------------------------------------------------ */
+@media only screen and (max-width:  600px) {
+	*:focus {
+		outline: none !important;
+	}
+	.jetpack-action-bar__modal {
+		bottom: 16px;
+		left: 16px;
+		position: fixed;
+		right: 16px;
+		width: auto;
+	}
+}
+/* ------------------------------------------------------ */
+/* ACTION BAR MODAL SUCCESS */
+/* ------------------------------------------------------ */
+/* .jetpack-action-bar__modal-success {
+	padding: 16px;
+	text-align: right;
+}
+.jetpack-action-bar__modal-success.confetti-lg::after {
+	background: url('confetti-lg.png') no-repeat;
+	background-size: 376px 417px;
+	content: '';
+	height: 100vh;
+	left: 0;
+	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+	top: -74px;
+	width: 100vw;
+	z-index: 7;
+}
+.jetpack-action-bar__modal-success.confetti-sm::after {
+	background: url('confetti-sm.png') no-repeat;
+	background-size: 357px 356px;
+	content: '';
+	height: 100vh;
+	left: 0;
+	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+	top: -60px;
+	transition: opacity 1400ms ease-out;
+	width: 100vw;
+	z-index: 7;
+}
+.jetpack-action-bar__modal-success.confetti-lg.active::after,
+.jetpack-action-bar__modal-success.confetti-sm.active::after {
+	opacity: 1;
+}
+.jetpack-action-bar__modal-success .centered {
+	text-align: center;
+}
+.jetpack-action-bar__modal-success .centered h2 {
+	color: #101517;
+	font-weight: 600;
+	font-size: 20px;
+	letter-spacing: 0.38px;
+	line-height: 28px;
+	margin-bottom: 16px;
+}
+.jetpack-action-bar__modal-success .centered .illo {
+	margin-bottom: 20px;
+}
+.jetpack-action-bar__modal-success .centered p {
+	color: #50575E;
+	display: inline-block;
+	font-weight: 400;
+	font-size: 14px;
+	letter-spacing: -0.154px;
+	line-height: 20px;
+	margin-bottom: 16px;
+	max-width: 280px;
+}
+.jetpack-action-bar__modal-success .centered p strong {
+	font-weight: 500;
+}
+.jetpack-action-bar__modal-success .close {
+	display: inline-block;
+}
+.jetpack-action-bar__modal-success .close:focus {
+	border-radius: 2px;
+	outline: 1px solid #C3C4C7;
+}
+.jetpack-action-bar__modal-success .follow-box.hidden,
+.jetpack-action-bar__modal-success .follow-btn.hidden {
+	display: none;
+}
+.jetpack-action-bar__modal-success .follow-btn {
+	align-items: center;
+	background: #117AC9;
+	border-radius: 4px;
+	color: #FFF;
+	display: flex;
+	flex-wrap: nowrap;
+	justify-content: center;
+	margin: 0 auto 20px;
+	max-width: 112px;
+	padding: 10px 16px;
+	text-decoration: none;
+}
+.jetpack-action-bar__modal-success .follow-btn span {
+	margin-left: 8px;
+} */
+/* ------------------------------------------------------ */
+/* ACTION BAR PILLBOX */
+/* ------------------------------------------------------ */
+/* .jetpack-action-bar__pillbox {
+	align-items: center;
+	background: #F2F2F2;
+	border-radius: 6px;
+	display: flex;
+	height: 36px;
+	margin-top: 6px;
+	overflow: hidden;
+	padding: 2px;
+	position: relative;
+	transition: all 0.4s ease-in-out;
+	width:  100%;
+}
+.jetpack-action-bar__pillbox.hidden {
+	border: none;
+	height: 0;
+	padding: 0;
+}
+.jetpack-action-bar__pillbox a {
+	border: 1px solid rgba(0, 0, 0, 0);
+	border-radius: 4px;
+	color: #101517;
+	flex: 1;
+	flex-shrink: 0;
+	font-size: 13px;
+	letter-spacing: -0.078px;
+	line-height: 18px;
+	padding: 6px 0;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	z-index: 8;
+}
+.jetpack-action-bar__pillbox a:nth-child(1) {
+	margin-right: -1px;
+}
+.jetpack-action-bar__pillbox a:nth-child(2):before {
+	background: #D7D7D4;
+	bottom: 6px;
+	content: "";
+	height: 18px;
+	left: -1px;
+	position: absolute;
+	width: 1px;
+	z-index: 6;
+}
+.jetpack-action-bar__pillbox a:nth-child(2):after {
+	background: #D7D7D4;
+	bottom: 6px;
+	content: "";
+	height: 18px;
+	position: absolute;
+	right: -1px;
+	width: 1px;
+	z-index: 6;
+}
+.jetpack-action-bar__pillbox a.active:nth-child(2):before,
+.jetpack-action-bar__pillbox a.active:nth-child(2):after {
+	background: none;
+}
+.jetpack-action-bar__pillbox a:nth-child(3) {
+	margin-left: -1px;
+}
+.jetpack-action-bar__pillbox a:hover {
+	border: 1px solid #D7D7D4;
+}
+.jetpack-action-bar__pillbox a.active {
+	background: #FFF;
+	border: 1px solid rgba(0, 0, 0, 0.18);
+	box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1), 0px 1px 1px rgba(0, 0, 0, 0.04);
+	color: #101517;
+	cursor: text;
+	font-weight: 500;
+	z-index: 10;
+} */
+/* ------------------------------------------------------ */
+/* ACTION BAR SHADE */
+/* ------------------------------------------------------ */
+.jetpack-action-bar__shade {
+	background: #000;
+	bottom: 0;
+	display: none;
+	left: 0;
+	right: 0;
+	opacity: 0.36;
+	position: fixed;
+	top: 0;
+	z-index: 3;
+}
+/* ------------------------------------------------------ */
+/* ACTION BAR SNACKBAR */
+/* ------------------------------------------------------ */
+/* .jetpack-action-bar__snackbar {
+	align-items: center;
+	background: #FFF;
+	border-radius: 5px;
+	bottom: 0;
+	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
+	display: flex;
+	flex-flow: flex-start;
+	opacity: 0;
+	padding: 16px;
+	position: absolute;
+	right: 58px;
+	width: 360px;
+	z-index: 6;
+}
+.jetpack-action-bar__snackbar span {
+	margin-left: 14px;
+}
+.jetpack-action-bar__snackbar span strong {
+	font-weight: 500;
+} */
+/* Mobile ------------------------------------------------ */
+@media only screen and (max-width:  600px) {
+	.jetpack-action-bar__shade.active {
+		display: block;
+	}
+}
+/* ------------------------------------------------------ */
+/* TOGGLE STYLES */
+/* ------------------------------------------------------ */
+/* .toggle div {
+	margin-bottom: 16px;
+}
+.toggle .hidden {
+	display: none;
+}
+.toggle input[type=checkbox]{
+	border: none;
+    height: 100%;
+    left: 0;
+    margin: 0;
+    opacity: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+.toggle input:focus + span {
+	box-shadow: 0 0 0 2px #fff,0 0 0 4px #007cba;
+    outline: 2px solid #0000;
+    outline-offset: 2px;
+}
+.toggle span {
+	background: #FFF;
+	border: 1px solid #000;
+	border-radius: 100px;
+	cursor: pointer;
+	display: inline-block;
+	height: 18px;
+	margin-right: 8px;
+	position: relative;
+	text-indent: -9999px;
+	transition: all 0.3s;
+	width: 34px;
+}
+.toggle span:after {
+	background: #000;
+	border-radius: 90px;
+	content: '';
+	height: 12px;
+	left: 2px;
+	position: absolute;
+	top: 2px;
+	transition: all 0.3s;
+	width: 12px;
+}
+.toggle input:checked + span {
+	background: #0675C4;
+	border: 1px solid #0675C4;
+}
+.toggle input:checked + span:after {
+	background: #FFF;
+	left: calc(100% - 2px);
+	transform: translateX(-100%);
+}
+.toggle span:active:after {
+	width: 26px;
+}
+.toggle .secondary {
+	margin-left: 16px;
+}
+.toggle label {
+	position: relative;
+	top: 1px;
+} */

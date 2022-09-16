@@ -1,7 +1,17 @@
 <?php
+/**
+ * Printable icons.
+ *
+ * @package automattic/jetpack-action-bar
+ */
 
 namespace Automattic\Jetpack\ActionBar;
 
+/**
+ * Prints comment icon.
+ *
+ * @param string $title translated title.
+ */
 function comment_icon( $title ) {
 	?>
 	<svg
@@ -21,6 +31,11 @@ function comment_icon( $title ) {
 	<?php
 }
 
+/**
+ * Prints ellipsis icon.
+ *
+ * @param string $title translated title.
+ */
 function ellipsis_icon( $title ) {
 	?>
 	<svg
@@ -39,6 +54,11 @@ function ellipsis_icon( $title ) {
 	<?php
 }
 
+/**
+ * Prints follow icon.
+ *
+ * @param string $title translated title.
+ */
 function follow_icon( $title ) {
 	?>
 	<svg
@@ -75,5 +95,14 @@ function follow_icon( $title ) {
 			stroke-linejoin="bevel"
 		/>
 	</svg>
+	<?php
+}
+
+/**
+ * Prints close icon.
+ */
+function close_icon() {
+	?>
+	<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><g stroke="#2c3338" stroke-linecap="square" stroke-width="1.5"><path d="m15 5-10 10"/><path d="m5 5 10 10"/></g></svg>
 	<?php
 }
