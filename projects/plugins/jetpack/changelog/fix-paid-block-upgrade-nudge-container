@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Minor WP.com-only bugfix to prevent the upgrade nudge of paid blocks from being visible on the block list view
