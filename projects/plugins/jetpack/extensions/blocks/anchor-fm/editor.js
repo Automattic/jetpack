@@ -1,5 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Button, PanelRow } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
@@ -57,12 +57,14 @@ const ConvertToAudio = () => {
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			title={ __( 'Convert to audio', 'jetpack' ) }
 		>
-			<p>
-				{ __(
-					'Seamlessly turn this post into a podcast episode with Anchor - and let readers listen to your post.',
-					'jetpack'
-				) }
-			</p>
+			<PanelRow>
+				<p>
+					{ __(
+						'Seamlessly turn this post into a podcast episode with Anchor - and let readers listen to your post.',
+						'jetpack'
+					) }
+				</p>
+			</PanelRow>
 			<div
 				role="link"
 				className="post-publish-panel__postpublish-buttons"
