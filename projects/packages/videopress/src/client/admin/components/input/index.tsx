@@ -20,6 +20,7 @@ const InputWrapper = ( {
 	disabled = false,
 	loading = false,
 	icon = null,
+	endAdornment = null,
 	onChange,
 	onEnter,
 	size = 'small',
@@ -42,10 +43,6 @@ const InputWrapper = ( {
 		},
 		[ onEnter ]
 	);
-
-	const clearInput = useCallback( () => {
-		onChange( '' );
-	}, [ onChange ] );
 
 	const baseProps = {
 		className: classnames( styles.input, {
@@ -71,23 +68,17 @@ const InputWrapper = ( {
 				<textarea { ...inputProps } { ...baseProps } />
 			) : (
 				<>
-					{ loading ? (
-						<div className={ classnames( styles[ 'icon-wrapper' ], styles.loader ) }>
-							<Spinner />
+					{ loading || icon ? (
+						<div
+							className={ classnames( styles[ 'icon-wrapper' ], {
+								[ styles.loader ]: loading,
+							} ) }
+						>
+							{ loading ? <Spinner /> : icon }
 						</div>
-					) : (
-						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>{ icon }</div>
-					) }
+					) : null }
 					<input { ...inputProps } { ...baseProps } value={ inputProps.value } />
-					{ inputProps.value !== '' && (
-						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
-							<Icon
-								icon={ closeSmall }
-								onClick={ clearInput }
-								className={ classnames( styles[ 'clear-icon' ] ) }
-							/>
-						</div>
-					) }
+					{ endAdornment }
 				</>
 			) }
 		</div>
@@ -155,6 +146,10 @@ export const SearchInput = ( {
 		[ componentProps.onChange ]
 	);
 
+	const clearInput = useCallback( () => {
+		componentProps.onChange?.( '' );
+	}, [ componentProps.onChange ] );
+
 	return (
 		<Input
 			{ ...componentProps }
@@ -163,6 +158,19 @@ export const SearchInput = ( {
 			type="text"
 			onEnter={ onEnterHandler }
 			onChange={ onChangeHandler }
+			endAdornment={
+				<>
+					{ Boolean( componentProps.value ) && (
+						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
+							<Icon
+								icon={ closeSmall }
+								onClick={ clearInput }
+								className={ classnames( styles[ 'clear-icon' ] ) }
+							/>
+						</div>
+					) }
+				</>
+			}
 		/>
 	);
 };

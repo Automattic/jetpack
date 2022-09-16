@@ -10,6 +10,7 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS,
 	SET_VIDEOS_QUERY,
+	SET_VIDEO,
 } from './constants';
 
 /**
@@ -57,6 +58,23 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEOS: {
 			const { videos: items } = action;
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		case SET_VIDEO: {
+			const { video } = action;
+
+			const items = state.items.map( item => {
+				if ( item.id === video.id ) {
+					return video;
+				}
+				return item;
+			} );
+
 			return {
 				...state,
 				items,

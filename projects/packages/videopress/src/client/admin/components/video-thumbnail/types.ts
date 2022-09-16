@@ -24,7 +24,7 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	/**
 	 * Video thumbnial image
 	 */
-	thumbnail: string;
+	thumbnail?: string;
 
 	/**
 	 * Video duration. Number, in milliseconds.
