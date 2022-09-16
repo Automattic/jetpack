@@ -1,11 +1,23 @@
-export const getVideos = state => state?.videos?.items;
+import { mapVideos } from './utils/map-videos';
 
-const productSelectors = {
-	getVideos,
+export const getVideos = state => {
+	return mapVideos( state?.videos?.items || [] );
+};
+
+export const getVideosQuery = state => {
+	return state?.videos?.query;
+};
+
+export const getVideo = ( state, id ) => {
+	const videos = getVideos( state );
+	const video = videos.find( ( { id: videoId } ) => videoId === id );
+	return video;
 };
 
 const selectors = {
-	...productSelectors,
+	getVideos,
+	getVideosQuery,
+	getVideo,
 };
 
 export default selectors;
