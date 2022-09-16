@@ -29,7 +29,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 
 	const discount =
 		price !== undefined && offPrice !== undefined
-			? Math.ceil( ( ( price - offPrice ) / price ) * 100 )
+			? Math.floor( ( ( price - offPrice ) / price ) * 100 )
 			: 0;
 	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
 	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack' ) : null;
