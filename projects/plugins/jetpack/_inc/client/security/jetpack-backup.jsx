@@ -53,7 +53,7 @@ export class JetpackBackup extends Component {
 					title: __( 'Set up your server credentials to get back online quickly', 'jetpack' ),
 					icon: 'notice',
 					description: __(
-						'Add SSH, SFTP, or FTP credentials to enable one click site restores',
+						'Add SSH, SFTP, or FTP credentials to enable one-click site restores',
 						'jetpack'
 					),
 					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),
