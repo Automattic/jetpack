@@ -17,7 +17,7 @@ class Action_Bar {
 	 * Enqueue scripts for rendering Action Bar client.
 	 */
 	public function enqueue_scripts() {
-		if ( is_admin() || ! is_single() ) {
+		if ( ! $this->is_active() ) {
 			return;
 		}
 
@@ -37,7 +37,7 @@ class Action_Bar {
 	 * Render app container html.
 	 */
 	public function print_html() {
-		if ( is_admin() || ! is_single() ) {
+		if ( ! $this->is_active() ) {
 			return;
 		}
 
@@ -119,15 +119,26 @@ class Action_Bar {
 	}
 
 	/**
+	 * Determine if the action bar is displayed for this request.
+	 *
+	 * @return boolean
+	 */
+	public function is_active() {
+		return ! is_admin() && is_single();
+	}
+
+	/**
 	 * Gets the url for the sites reader feed.
 	 *
 	 * @param string $blog_id blog id or jetpack blog id.
 	 */
 	private function get_reader_url( $blog_id ) {
 		$feed_id = null;
+
 		if ( class_exists( 'FeedBag' ) ) {
 			$feed_id = FeedBag::get_feed_id_for_blog_id( $blog_id );
 		}
+
 		if ( $feed_id ) {
 			return 'https://wordpress.com/read/feeds/' . esc_attr( $feed_id );
 		} else {
