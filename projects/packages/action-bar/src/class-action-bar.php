@@ -61,10 +61,10 @@ class Action_Bar {
 			$domain    = $url_parts['host'];
 		}
 
+		$blog_name  = get_bloginfo( 'name' );
 		$post_url   = get_permalink( $post_id );
 		$reader_url = $this->get_reader_url( $blog_id );
-
-		$src = sprintf( 'https://widgets.wp.com/action-bar/like#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+		$widget_src = sprintf( 'https://widgets.wp.com/action-bar/like#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
 		require_once __DIR__ . '/action-bar-icons.php';
 
@@ -83,7 +83,7 @@ class Action_Bar {
 						</button>
 					</li>
 					<li>
-						<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="<?php echo esc_url( $src ); ?>"></iframe>
+						<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="<?php echo esc_url( $widget_src ); ?>"></iframe>
 					</li>
 					<li>
 						<button class="jetpack-action-bar__action-button">
@@ -97,7 +97,7 @@ class Action_Bar {
 				<header>
 					<!-- TODO: fallback if there's no favicon -->
 					<img src="/favicon.ico" class="site-icon"/>
-					<a href="<?php echo esc_url( $url ); ?>" class="jetpack-action-bar__modal-title"><strong><?php echo esc_url( $url ); ?></strong></a>
+					<a href="<?php echo esc_url( $url ); ?>" class="jetpack-action-bar__modal-title"><strong><?php echo esc_html( $blog_name ? $blog_name : $domain ); ?></strong></a>
 					<a href="#" class="jetpack-action-bar__close close"><?php close_icon(); ?></a>
 				</header>
 				<section class="menu">
