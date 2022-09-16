@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import withVideoChaptersEdit from './edit';
+
 const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
 
 export const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
@@ -26,5 +31,6 @@ export default function addVideoPressVideoChaptersSupport( settings, name ) {
 	return {
 		...settings,
 		attributes: videoChaptersAttributes,
+		edit: withVideoChaptersEdit( settings.edit ),
 	};
 }

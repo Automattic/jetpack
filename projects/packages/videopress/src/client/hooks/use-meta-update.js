@@ -11,8 +11,8 @@ const useMetaUpdate = id => {
 				data: apiData,
 			} )
 				.then( result => {
-					// check for wpcom status field, if set
-					if ( 200 !== result?.status ) {
+					// check for code, if set
+					if ( 'success' !== result?.code ) {
 						reject();
 						return;
 					}

@@ -109,7 +109,10 @@ export default createHigherOrderComponent(
 		] );
 
 		return (
-			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible } hasParentBanner>
+			<PaidBlockProvider
+				onBannerVisibilityChange={ setIsVisible }
+				hasParentBanner={ isBannerVisible }
+			>
 				<BlockEdit { ...props } />
 			</PaidBlockProvider>
 		);
