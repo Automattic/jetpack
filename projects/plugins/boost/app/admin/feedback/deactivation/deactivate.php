@@ -25,6 +25,7 @@ wp_dequeue_style( 'admin-bar-css' );
 // Deactivation survey link - wrap via Jetpack Redirect Manager in case we want to update the survey in future.
 $survey_link = 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback';
 $logo_link   = JETPACK_BOOST_DIR_URL . 'app/assets/src/images/logo.svg';
+$tick_mark = JETPACK_BOOST_DIR_URL . 'app/admin/feedback/deactivation/images/white-tick.png';
 
 ?><!DOCTYPE html>
 <html lang="en-US">
@@ -35,12 +36,124 @@ $logo_link   = JETPACK_BOOST_DIR_URL . 'app/assets/src/images/logo.svg';
 	<?php wp_print_styles(); ?>
 	<style type="text/css">#wpadminbar { display:none !important; }</style>	
 	<style>
-		.buttons,.header{text-align:center}html{background:#f6f7f7;font-family:'Source Sans Pro',sans-serif}.container{max-width:680px;margin:auto;background:#fff;padding:20px;border:1px solid #ddd}.header{display:inline-block;width:100%}.header a img{width:250px;height:auto}.buttons{font-size:1.3em}.buttons .btn-jp{background:#000;color:#fff;text-decoration:none;padding:5px 15px;margin-right:15px;border-radius:4px;font-size:1.2rem}.inner-text{font-size:1.2rem;line-height:1.4rem}.trailer{font-size:.9rem;font-style:italic;margin-top:10px}a{color:#000}.close-wrap{position:relative}.close{position:absolute;top:-20px;right:-10px;color:#8e8e8e;cursor:pointer;text-decoration:none}@media only screen and (min-width:900px){.container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);-webkit-transform:translate(-50%,-50%);-moz-transform:translate(-50%,-50%);-o-transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%)}}@media only screen and (max-width:900px){.container{position:absolute;top:0;bottom:0;left:0;right:0}}
+		 .buttons,.header{
+			text-align:center
+		}
+		html{
+			background:#f6f7f7;
+			font-family:'Source Sans Pro',sans-serif
+		}
+		.container{
+			max-width:880px;
+			margin:auto;
+			background:#fff;
+			padding:20px;
+			border:1px solid #ddd
+		}
+		.header{
+			display:inline-block;
+			width:100%
+		}
+		.header a img{
+			width:250px;
+			height:auto;
+			margin-top:35px;
+		}
+		.buttons{
+			font-size:1.3em
+		}
+		.buttons .btn-jp{
+			background:#000;
+			color:#fff;
+			text-decoration:none;
+			padding:5px 15px;
+			margin-right:15px;
+			border-radius:4px;
+			font-size:1.2rem
+		}
+		.inner-text{
+			font-size:1.2rem;
+			line-height:1.4rem
+		}
+		.trailer{
+			font-size:14px;
+			font-style:italic;
+			margin-top:20px
+		}
+		a{
+			color:#000
+		}
+		.close-wrap{
+			position:relative
+		}
+		.close{
+			position:absolute;
+			top:-20px;
+			right:-10px;
+			color:#8e8e8e;
+			cursor:pointer;
+			text-decoration:none
+		}
+		@media only screen and (min-width:900px){
+			.container{
+				position:fixed;
+				top:50%;
+				left:50%;
+				transform:translate(-50%,-50%);
+				-webkit-transform:translate(-50%,-50%);
+				-moz-transform:translate(-50%,-50%);
+				-o-transform:translate(-50%,-50%);
+				-ms-transform:translate(-50%,-50%)
+			}
+		}
+		@media only screen and (max-width:900px){
+			.container{
+				position:absolute;
+				top:0;
+				bottom:0;
+				left:0;
+				right:0
+			}
+		}
+
+		.boost-is-deactivated {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			background: #2E4453;
+			border-radius: 2px;
+		}
+		.message-box {
+			color: white;
+			font-weight: 300;
+			margin-left: 31px;
+			padding: 5px;
+		}
+		.success-box {
+			width: 30px;
+			height: 30px;
+			background: #4AB866;
+			position: absolute;
+			border-radius: 2px 0px 0px 2px;
+		}
+		.success-box img{
+			width: 15px;
+			height: auto;
+			margin-top: 9px;
+			margin-left: 8px;
+		}
 	</style>
 </head>
 <body class="boost-feedback-catcher">
 	<div class="container">
-		<div class="close-wrap"><a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="close">x</a></div>
+		<div class="boost-is-deactivated">
+			<div class="success-box">
+				<img src='<?php echo esc_url($tick_mark); ?>' width = 15px; />
+			</div>
+			<div class="message-box">
+				<?php esc_html_e("Jetpack Boost is deactivated", "jetpack-boost"); ?>
+			</div>
+		</div>
 		<div class="header"><a href="https://jetpack.com/boost/" target="_blank"><img src="<?php echo esc_url( $logo_link ); ?>" alt="Jetpack Boost"></a></div>
 			<h1><?php esc_html_e( 'Before you go...', 'jetpack-boost' ); ?></h1>
 			<div class="inner-text">
@@ -50,9 +163,17 @@ $logo_link   = JETPACK_BOOST_DIR_URL . 'app/assets/src/images/logo.svg';
 				<p>Jetpack Boost</p>
 			</div>
 			<div class="buttons">
-				<a href="<?php echo esc_url( $survey_link ); ?>" target="_blank" class="btn btn-jp" id="giveFeedback" onclick="window.location='<?php esc_url( admin_url( 'plugins.php' ) ); ?>'"><?php esc_html_e( 'Give Feedback', 'jetpack-boost' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="btn btn-jp" id="giveFeedback" onclick="giveFeedback()"><?php esc_html_e( 'Give Feedback', 'jetpack-boost' ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="button button-large" id="notNow"><?php esc_html_e( 'Not right now', 'jetpack-boost' ); ?></a>
 			</div>			
 		<p class="trailer" style="text-align:center"><?php esc_html_e( "Giving feedback won't close this tab, and it shouldn't take more than 2 minutes", 'jetpack-boost' ); ?></p>
 	</div>
+	<script type="text/javascript">
+	
+	function giveFeedback(){
+		window.open('<?php echo esc_url( $survey_link ); ?>');
+		return;
+	}
+		
+	</script>
 </body></html>
