@@ -55,10 +55,8 @@ const ConvertToAudio = () => {
 		<PluginPostPublishPanel
 			className="anchor-post-publish-outbound-link"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			title={ __( 'Convert to audio', 'jetpack' ) }
 		>
-			<p className="post-publish-panel__postpublish-subheader">
-				<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
-			</p>
 			<p>
 				{ __(
 					'Seamlessly turn this post into a podcast episode with Anchor - and let readers listen to your post.',
