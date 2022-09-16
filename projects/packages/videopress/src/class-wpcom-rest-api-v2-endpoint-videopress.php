@@ -54,7 +54,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'description'       => __( 'The description of the video.', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
 						'required'          => false,
-						'sanitize_callback' => 'sanitize_text_field',
+						'sanitize_callback' => 'sanitize_textarea_field',
 					),
 					'rating'          => array(
 						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack-videopress-pkg' ),
@@ -175,6 +175,17 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						array(
 							'ID'         => $post_id,
 							'post_title' => $json_params['title'],
+						)
+					);
+				}
+
+				if ( isset( $json_params['description'] ) ) {
+					$meta['videopress']['description'] = sanitize_textarea_field( $json_params['description'] );
+					$should_update_meta                = true;
+					wp_update_post(
+						array(
+							'ID'           => $post_id,
+							'post_content' => $json_params['description'],
 						)
 					);
 				}
