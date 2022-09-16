@@ -43,6 +43,7 @@ class Share_Limits {
 	 * Run functionality required to enforce sharing limits.
 	 */
 	public function enforce_share_limits() {
+
 		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
 
@@ -69,6 +70,7 @@ class Share_Limits {
 	 * Render a notice with the share count in the classic editor.
 	 */
 	public function render_classic_editor_notice() {
+		global $pagenow;
 		$notice = sprintf(
 			/* translators: %1$d: number of shares remaining, %2$s: link to upgrade the plan. */
 			_n(
@@ -78,7 +80,12 @@ class Share_Limits {
 				'jetpack-social'
 			),
 			$this->shares_remaining,
-			Redirect::get_url( 'jetpack-social-basic-plan-classic-editor' )
+			Redirect::get_url(
+				'jetpack-social-basic-plan-classic-editor',
+				array(
+					'query' => 'redirect_to=' . $pagenow,
+				)
+			)
 		);
 
 		$kses_allowed_tags = array(

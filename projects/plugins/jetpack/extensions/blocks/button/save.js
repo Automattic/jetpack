@@ -20,6 +20,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		textColor,
 		url,
 		width,
+		fontSize,
 	} = attributes;
 
 	if ( ! saveInPostContent ) {
@@ -42,12 +43,14 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
 		'has-custom-width': !! width,
+		[ `has-${ fontSize }-font-size` ]: !! fontSize,
 	} );
 
 	const buttonStyle = {
 		background: customGradient || undefined,
 		backgroundColor:
 			backgroundClass || customGradient || gradient ? undefined : customBackgroundColor,
+		fontSize: attributes.style?.typography?.fontSize,
 		color: textClass ? undefined : customTextColor,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 		width,
