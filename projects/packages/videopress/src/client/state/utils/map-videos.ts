@@ -5,6 +5,7 @@ export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
 		...video,
 		title: video.title,
 		posterImage: video.image?.src,
+		uploadDate: video?.dateFormatted,
 	};
 };
 
