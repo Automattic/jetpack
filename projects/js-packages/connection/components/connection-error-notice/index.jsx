@@ -13,16 +13,20 @@ import styles from './styles.module.scss';
 const ConnectErrorNotice = () => {
 	const { connectionErrors } = useConnection( {} );
 
-	if ( connectionErrors.length ) {
-		return (
-			<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
-				<Icon icon={ warning } />
-				<div className={ styles.message }>{ connectionErrors[ 0 ] }</div>
-				<a className={ styles.link }>{ __( 'Restore Connection', 'jetpack' ) }</a>
-			</Notice>
-		);
+	if ( Object.values( connectionErrors ).length ) {
+		const errors = Object.values( connectionErrors ).shift();
+
+		if ( errors.length && errors[ 0 ].error_message ) {
+			return (
+				<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
+					<Icon icon={ warning } />
+					<div className={ styles.message }>{ errors[ 0 ].error_message }</div>
+					<a className={ styles.link }>{ __( 'Restore Connection', 'jetpack' ) }</a>
+				</Notice>
+			);
+		}
 	}
-	return '';
+	return null;
 };
 
 export default ConnectErrorNotice;
