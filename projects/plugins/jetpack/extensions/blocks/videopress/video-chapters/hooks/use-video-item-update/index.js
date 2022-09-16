@@ -3,13 +3,16 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { usePrevious } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { uploadTrackForGuid } from '../../../tracks-editor';
+import { getVideoPressUrl } from '../../../url';
 import extractVideoChapters from '../../utils/extract-video-chapters';
 import generateChaptersFile from '../../utils/generate-chapters-file';
 
@@ -34,9 +37,11 @@ export default function useMediaItemUpdate( id ) {
 	return updateMediaItem;
 }
 
-export function useSyncMedia( { id, title, description, guid } ) {
-	const isSaving = useSelect( select => select( 'core/editor' ).isSavingPost(), [] );
+export function useSyncMedia( attributes ) {
+	const { id, title, description, guid } = attributes;
+	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
+	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
 	const [ initialState, setState ] = useState();
 
@@ -95,10 +100,11 @@ export function useSyncMedia( { id, title, description, guid } ) {
 			tmpFile: generateChaptersFile( dataToUpdate.description ),
 		};
 
-		uploadTrackForGuid( track, guid );
+		uploadTrackForGuid( track, guid ).then( () => {
+			const videoPressUrl = getVideoPressUrl( guid, attributes );
+			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+		} );
 	}, [
-		id,
-		guid,
 		isSaving,
 		wasSaving,
 		title,
@@ -107,6 +113,10 @@ export function useSyncMedia( { id, title, description, guid } ) {
 		description,
 		updateMedia,
 		updateInitialState,
+		attributes,
+		invalidateResolution,
+		id,
+		guid,
 	] );
 
 	return [ updateInitialState ];
