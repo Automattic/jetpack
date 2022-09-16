@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Check for GET parameters using QUERY_STRING in preference to parse_url, as the latter gets confused by double-slashes
+Bugfix: Don't parse partial URLs with parse_url, as double-slashes may confuse it.
