@@ -26,7 +26,7 @@ async function fetchReviewers() {
 				// "APPROVED" allows merging, while "CHANGES_REQUESTED" and "DISMISSED" do not.
 				if ( review.state === 'APPROVED' ) {
 					reviewers.add( review.user.login );
-				} else if ( review.state === 'CHANGES_REQUESTED' || review.state === 'DISMISSED' ) {
+				} else if ( review.state !== 'COMMENTED' ) {
 					reviewers.delete( review.user.login );
 				}
 			} );
