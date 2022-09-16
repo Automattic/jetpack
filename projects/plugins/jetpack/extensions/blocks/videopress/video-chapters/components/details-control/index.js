@@ -6,7 +6,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { isBetaExtension } from '../../../../../editor';
 import useBlockAttributes from '../../hooks/use-block-attributes';
+import './index.scss';
 
 const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
 const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
@@ -16,6 +18,7 @@ const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.availabl
 export default function DetailsControl( { isRequestingVideoItem } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
 	const { title, description } = attributes;
+	const isBeta = isBetaExtension( VIDEOPRESS_VIDEO_CHAPTERS_FEATURE );
 
 	if ( ! isVideoChaptersEnabled ) {
 		return null;
@@ -30,7 +33,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 	};
 
 	return (
-		<PanelBody title={ __( 'Details', 'jetpack' ) }>
+		<PanelBody title={ __( 'Details', 'jetpack' ) } className={ isBeta ? 'is-beta' : '' }>
 			<TextControl
 				label={ __( 'Title', 'jetpack' ) }
 				value={ title }
