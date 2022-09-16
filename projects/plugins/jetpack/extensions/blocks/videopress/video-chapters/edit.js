@@ -9,26 +9,31 @@ import { useEffect } from '@wordpress/element';
  */
 import DetailsControl from './components/details-control';
 import useVideoItem from './hooks/use-video-item';
+import { useSyncMedia } from './hooks/use-video-item-update';
 import { isVideoChaptersEnabled } from '.';
 
 const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => {
-	const [ videoItem, isRequestingVideoItem ] = useVideoItem( props?.attributes?.id );
-	const { setAttributes } = props;
+	const { attributes, setAttributes } = props;
+	const [ videoItem, isRequestingVideoItem ] = useVideoItem( attributes?.id );
+	const [ forceInitialState ] = useSyncMedia( attributes );
 
 	/*
-	 * Propagate title and description from the video item
-	 * to the block attributes.
+	 * Propagate title and description from
+	 * the video item (metadata) to the block attributes.
 	 */
 	useEffect( () => {
 		if ( ! videoItem ) {
 			return;
 		}
 
-		setAttributes( {
+		const freshAttributes = {
 			title: videoItem?.title,
 			description: videoItem?.description,
-		} );
-	}, [ videoItem, setAttributes ] );
+		};
+
+		setAttributes( freshAttributes );
+		forceInitialState( freshAttributes );
+	}, [ videoItem, setAttributes, forceInitialState ] );
 
 	if ( ! isVideoChaptersEnabled ) {
 		return <BlockEdit { ...props } />;

@@ -15,18 +15,17 @@ const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.availabl
 
 export default function DetailsControl( { isRequestingVideoItem } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
+	const { title, description } = attributes;
 
 	if ( ! isVideoChaptersEnabled ) {
 		return null;
 	}
 
-	const { title, description } = attributes;
-
-	const onTitleChangeHandler = newTitle => {
+	const setTitleAttribute = newTitle => {
 		setAttributes( { title: newTitle } );
 	};
 
-	const onDescriptionChangeHandler = newDescription => {
+	const setDescriptionAttribute = newDescription => {
 		setAttributes( { description: newDescription } );
 	};
 
@@ -36,7 +35,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 				label={ __( 'Title', 'jetpack' ) }
 				value={ title }
 				placeholder={ __( 'Video title', 'jetpack' ) }
-				onChange={ onTitleChangeHandler }
+				onChange={ setTitleAttribute }
 				disabled={ isRequestingVideoItem }
 			/>
 
@@ -44,7 +43,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 				label={ __( 'Description', 'jetpack' ) }
 				value={ description }
 				placeholder={ __( 'Video description', 'jetpack' ) }
-				onChange={ onDescriptionChangeHandler }
+				onChange={ setDescriptionAttribute }
 				disabled={ isRequestingVideoItem }
 			/>
 		</PanelBody>

@@ -1,6 +1,6 @@
-import generateChaptersFileContent from '../generate-chapters-file-content';
+import { generateChaptersFileContent } from '../generate-chapters-file';
 
-describe( 'extractSingleChapter', () => {
+describe( 'generateChaptersFileContent', () => {
 	it( 'generates WebVTT file contents', () => {
 		const description = `
 0:00 Chapter 1
