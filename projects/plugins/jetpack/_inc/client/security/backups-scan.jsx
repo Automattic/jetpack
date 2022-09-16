@@ -73,7 +73,7 @@ class BackupsScanRewind extends Component {
 					title: __( 'Awaiting credentials', 'jetpack' ),
 					icon: 'notice',
 					description: __(
-						'Add SSH, SFTP, or FTP credentials to enable one click site restores fixes',
+						'Add SSH, SFTP, or FTP credentials to enable one click site restores and fixes',
 						'jetpack'
 					),
 					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),
