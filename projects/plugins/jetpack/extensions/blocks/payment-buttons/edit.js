@@ -73,8 +73,9 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 		__experimentalLayout: layout,
 	} );
 
+	delete blockProps.className;
 	return (
-		<>
+		<div { ...blockProps }>
 			{ showStripeConnectAction && (
 				<BlockControls group="block">
 					<StripeConnectToolbarButton
@@ -105,7 +106,7 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 			) }
 			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
 			<div { ...innerBlocksProps } />
-		</>
+		</div>
 	);
 }
 
