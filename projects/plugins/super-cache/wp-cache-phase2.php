@@ -3438,7 +3438,8 @@ function wpsc_is_get_query() {
 	static $is_get_query = null;
 
 	if ( null === $is_get_query ) {
-		$is_get_query = ! empty( $_SERVER['QUERY_STRING'] );
+		$request_uri  = wpsc_parse_partial_url( $_SERVER['REQUEST_URI'] );
+		$is_get_query = $request_uri && ! empty( $request_uri['query'] );
 	}
 
 	return $is_get_query;
