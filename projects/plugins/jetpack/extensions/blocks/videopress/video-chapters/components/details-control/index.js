@@ -27,7 +27,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 		.split( '\n' )
 		.map( line => Math.ceil( line.length / CHARACTERS_PER_LINE ) || 1 )
 		.reduce( ( sum, current ) => sum + current, 0 );
-	const maxRows = 20;
+	const maxRows = 12;
 	const minRows = 4;
 	const descriptionControlRows = Math.min( maxRows, Math.max( rows, minRows ) );
 
