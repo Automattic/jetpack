@@ -1,3 +1,4 @@
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
@@ -51,7 +52,10 @@ const ConvertToAudio = () => {
 		[]
 	);
 	return (
-		<PluginPostPublishPanel className="anchor-post-publish-outbound-link">
+		<PluginPostPublishPanel
+			className="anchor-post-publish-outbound-link"
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+		>
 			<p className="post-publish-panel__postpublish-subheader">
 				<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
 			</p>
