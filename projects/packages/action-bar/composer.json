@@ -36,6 +36,7 @@
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"watch": [
+			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		]
 	},

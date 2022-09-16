@@ -47,15 +47,13 @@ class Action_Bar {
 			return;
 		}
 
-		$protocol = 'http';
-		if ( is_ssl() ) {
-			$protocol = 'https';
-		}
+		$protocol = is_ssl() ? 'https' : 'http';
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id  = get_current_blog_id();
-			$bloginfo = get_blog_details( (int) $blog_id );
-			$domain   = $bloginfo->domain;
+			$blog_id = get_current_blog_id();
+			// Use the mapped domain, if there is one.
+			$domain = get_primary_redirect( $blog_id );
+			$url    = "https://$domain";
 		} else {
 			$blog_id   = \Jetpack_Options::get_option( 'id' );
 			$url       = home_url();
@@ -63,7 +61,7 @@ class Action_Bar {
 			$domain    = $url_parts['host'];
 		}
 
-		$post_url   = get_post_permalink( $blog_id );
+		$post_url   = get_permalink( $post_id );
 		$reader_url = $this->get_reader_url( $blog_id );
 
 		$src = sprintf( 'https://widgets.wp.com/action-bar/like#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
@@ -97,14 +95,15 @@ class Action_Bar {
 			<div class="jetpack-action-bar__shade"></div>
 			<div class="jetpack-action-bar__modal">
 				<header>
+					<!-- TODO: fallback if there's no favicon -->
 					<img src="/favicon.ico" class="site-icon"/>
-					<a href="<?php echo esc_html( $url ); ?>" class="jetpack-action-bar__modal-title"><strong><?php echo esc_html( $url ); ?></strong></a>
+					<a href="<?php echo esc_url( $url ); ?>" class="jetpack-action-bar__modal-title"><strong><?php echo esc_url( $url ); ?></strong></a>
 					<a href="#" class="jetpack-action-bar__close close"><?php close_icon(); ?></a>
 				</header>
 				<section class="menu">
-					<a href="https://wordpress.com/abuse/?report_url=<?php echo esc_html( $post_url ); ?>"><?php echo esc_html__( 'Report this content', 'jetpack-action-bar' ); ?></a>
-					<a href="<?php echo esc_html( $reader_url ); ?>"><?php echo esc_html__( 'View site in reader', 'jetpack-action-bar' ); ?></a>
-					<a href="https://wordpress.com/following/manage?s=<?php echo esc_html( $post_url ); ?>" class="subscription-link"><?php echo esc_html__( 'Manage subscriptions', 'jetpack-action-bar' ); ?></a>
+					<a href="https://wordpress.com/abuse/?report_url=<?php echo esc_url( rawurlencode( $post_url ) ); ?>"><?php esc_html_e( 'Report this content', 'jetpack-action-bar' ); ?></a>
+					<a href="<?php echo esc_url( $reader_url ); ?>"><?php esc_html_e( 'View site in reader', 'jetpack-action-bar' ); ?></a>
+					<a href="https://wordpress.com/following/manage?s=<?php echo esc_attr( rawurlencode( $domain ) ); ?>" class="subscription-link"><?php esc_html_e( 'Manage subscriptions', 'jetpack-action-bar' ); ?></a>
 				</section>
 			</div>
 		</div>
