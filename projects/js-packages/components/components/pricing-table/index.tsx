@@ -1,3 +1,4 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, info, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -10,7 +11,7 @@ import {
 	ReactElement,
 } from 'react';
 import React, { CSSProperties } from 'react';
-import { ToS } from '../../../connection';
+import { getRedirectUrl } from '../../../components';
 import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';
@@ -21,6 +22,23 @@ import {
 	PricingTableHeaderProps,
 	PricingTableItemProps,
 } from './types';
+
+const ToS = createInterpolateElement(
+	__(
+		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'jetpack'
+	),
+	{
+		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		shareDetailsLink: (
+			<a
+				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+				rel="noopener noreferrer"
+				target="_blank"
+			/>
+		),
+	}
+);
 
 const PricingTableContext = createContext( undefined );
 
