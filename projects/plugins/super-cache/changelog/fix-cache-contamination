@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Bugfix: Don't parse partial URLs with parse_url, as double-slashes may confuse it.
