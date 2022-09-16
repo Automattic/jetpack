@@ -27,7 +27,10 @@ function millisecondsToClockTime( milliseconds: number ) {
  * @param {number} videoDuration - The video duration, in milliseconds
  * @returns {string}             - WebVTT text content
  */
-function generateChaptersFileContent( description: string, videoDuration: number ): string | null {
+function generateChaptersFileContent(
+	description: string,
+	videoDuration = 359999000 // 99:59:59
+): string | null {
 	const chapters = extractVideoChapters( description );
 	if ( chapters.length === 0 ) {
 		return null;
