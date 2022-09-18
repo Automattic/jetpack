@@ -93,7 +93,7 @@ class Jetpack_Social {
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
 		// Add REST routes
-		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
