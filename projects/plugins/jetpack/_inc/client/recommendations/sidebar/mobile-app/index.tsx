@@ -75,7 +75,8 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 		<div className="jp-recommendations-sidebar-mobile__qr-code-section">
 			<img
 				className="jp-recommendations-sidebar-mobile__qr-code-image"
-				src={ imagePath + '/recommendations/jetpack-com-mobile-app-page-qr-code.png' }
+				// Get the QR code with the correct utm_source to track individual interaction. Each QR code is named the same with the slug appended to the end.
+				src={ imagePath + `/recommendations/mobile-app-qr-code-${ slug }.png` }
 				width={ 80 }
 				height={ 80 }
 				alt="qr code to jetpack.com/mobile/ web page"
