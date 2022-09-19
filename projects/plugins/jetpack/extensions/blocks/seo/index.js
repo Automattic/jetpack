@@ -12,28 +12,25 @@ export const name = 'seo';
 
 export const settings = {
 	render: function JetpackSEODescriptionPanel() {
-		const panelProps = {
+		const generalPanelProps = {
 			title: __( 'SEO Description', 'jetpack' ),
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+		};
+
+		const prePublishPanelProps = {
+			...generalPanelProps,
+			initialOpen: true,
+			id: 'seo-title',
 		};
 
 		return (
 			<Fragment>
 				<JetpackPluginSidebar>
-					<PanelBody { ...panelProps }>
+					<PanelBody { ...generalPanelProps }>
 						<SeoPanel />
 					</PanelBody>
 				</JetpackPluginSidebar>
-				<PluginPrePublishPanel
-					initialOpen
-					id="seo-title"
-					title={
-						<span id="seo-defaults" key="seo-title-span">
-							{ panelProps.title }
-						</span>
-					}
-					icon={ panelProps.icon }
-				>
+				<PluginPrePublishPanel { ...prePublishPanelProps }>
 					<SeoPanel />
 				</PluginPrePublishPanel>
 			</Fragment>
