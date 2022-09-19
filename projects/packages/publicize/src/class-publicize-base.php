@@ -863,7 +863,7 @@ abstract class Publicize_Base {
 					'service_label'   => $this->get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
-					'is_healthy'      => true === $connection_result ? true : false,
+					'is_healthy'      => true === $connection_result,
 
 					'enabled'         => $enabled,
 					'done'            => $done,
