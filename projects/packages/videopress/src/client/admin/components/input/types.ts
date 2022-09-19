@@ -22,6 +22,11 @@ type InputBaseProps = {
 	loading?: boolean;
 
 	/**
+	 * Append an adornment at the end of the input.
+	 */
+	endAdornment?: React.ReactNode;
+
+	/**
 	 * Callback to be invoked when the input value changes.
 	 */
 	onChange?: ( value: string ) => unknown;

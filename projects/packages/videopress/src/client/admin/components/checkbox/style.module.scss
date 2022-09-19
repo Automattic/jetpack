@@ -1,7 +1,7 @@
 .checkbox {
 	&[type="checkbox"] {
 		all: unset;
-		border: 1px solid black;
+		border: 1px solid var(--jp-black);;
 		position: relative;
 		display: flex;
 		align-items: center;

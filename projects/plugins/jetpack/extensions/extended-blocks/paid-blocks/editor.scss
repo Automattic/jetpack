@@ -93,6 +93,11 @@ $icon-background-color: #fff;
 	}
 }
 
+// Cover block: Override flexbox so we can place the banner above the block.
+.wp-block-cover.is-placeholder {
+	display: block;
+}
+
 // Media Placeholder
 .paid-block-media-placeholder {
 	width: 100%;
