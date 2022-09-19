@@ -4,7 +4,7 @@ Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 1.7.9
+Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,12 +268,12 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.8 - 2022-08-16
-- Added PHP 8 Support
-- Added a link to give feedback on WP Super Cache
-- Added information on Jetpack Boost
-- Fixed jQuery deprecated notice
-- Fixed replacing dirname(__FILE__) with __DIR__
+### 1.9 - 2022-09-16
+#### Added
+- Cache deletion: add new hook to trigger actions after a successful cache deletion from the admin bar.
+
+#### Fixed
+- Fixes to URL parsing to prevent cache pollution issues around URLs with double-slashes.
 
 --------
 
