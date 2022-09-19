@@ -8,7 +8,7 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { useState, createInterpolateElement } from '@wordpress/element';
+import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { isBetaExtension } from '../../../../../editor';
 /**
@@ -32,13 +32,8 @@ function getChaptersByLanguage( tracks = [], ln ) {
 function VideoChaptersSubPanel( { updateDataToSync, dataToSync } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
 	const { videoPressTracks } = attributes;
-	const [ language, setLanguage ] = useState( 'en' );
+	const [ language, setLanguage ] = useState( '' );
 	const { langsToSync = [] } = dataToSync;
-
-	// Populate the chapters list with the new language.
-	function addToChaptersList( newChapter ) {
-		setAttributes( { videoPressTracks: [ ...videoPressTracks, newChapter ] } );
-	}
 
 	/**
 	 * Update the chapters items,
@@ -62,8 +57,30 @@ function VideoChaptersSubPanel( { updateDataToSync, dataToSync } ) {
 		} );
 	}
 
-	const currentChapter = getChaptersByLanguage( videoPressTracks, language );
+	const currentChapter =
+		getChaptersByLanguage( videoPressTracks, language ) || videoPressTracks?.[ 0 ];
 	const hasChaptersForLanguage = !! ( currentChapter && currentChapter?.src );
+
+	useEffect( () => {
+		if ( currentChapter ) {
+			return;
+		}
+
+		// English default language.
+		setLanguage( 'en' );
+		setAttributes( {
+			videoPressTracks: [
+				...videoPressTracks,
+				{
+					kind: 'chapters',
+					srcLang: 'en',
+				},
+			],
+		} );
+		return updateDataToSync( {
+			langsToSync: 'en',
+		} );
+	}, [ currentChapter, setAttributes, videoPressTracks, updateDataToSync ] );
 
 	return (
 		<>
@@ -84,9 +101,14 @@ function VideoChaptersSubPanel( { updateDataToSync, dataToSync } ) {
 				onChange={ newLn => {
 					setLanguage( newLn );
 					if ( ! getChaptersByLanguage( videoPressTracks, newLn ) ) {
-						addToChaptersList( {
-							kind: 'chapters',
-							srcLang: newLn,
+						setAttributes( {
+							videoPressTracks: [
+								...videoPressTracks,
+								{
+									kind: 'chapters',
+									srcLang: 'en',
+								},
+							],
 						} );
 					}
 				} }
