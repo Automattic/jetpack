@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	Text,
 	Button,
@@ -8,20 +11,30 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import useVideo from '../../hooks/use-video';
+import { useNavigate } from 'react-router-dom';
+/**
+ * Internal dependencies
+ */
 import Input from '../input';
 import Logo from '../logo';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
+import useEditDetails from './use-edit-details';
 
 const noop = () => {
 	// noop
 };
 
-const Header = ( { saveDisabled = true }: { saveDisabled?: boolean } ) => {
+const Header = ( {
+	saveDisabled = true,
+	saveLoading = false,
+	onSaveChanges,
+}: {
+	saveDisabled?: boolean;
+	saveLoading?: boolean;
+	onSaveChanges: () => void;
+} ) => {
 	const navigate = useNavigate();
 	return (
 		<div className={ styles.header }>
@@ -32,38 +45,48 @@ const Header = ( { saveDisabled = true }: { saveDisabled?: boolean } ) => {
 				<Icon icon={ chevronRightSmall } />
 				<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 			</div>
-			<Button disabled={ saveDisabled }>{ __( 'Save changes', 'jetpack-videopress-pkg' ) }</Button>
+			<Button
+				disabled={ saveDisabled || saveLoading }
+				onClick={ onSaveChanges }
+				isLoading={ saveLoading }
+			>
+				{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
+			</Button>
 		</div>
 	);
 };
 
-const Infos = ( { video } ) => {
-	const [ title, setTitle ] = useState( video?.title );
-	const [ description, setDescription ] = useState( video?.description );
-	const [ caption, setCaption ] = useState( video?.caption );
-
-	useEffect( () => {
-		setTitle( video?.title );
-		setDescription( video?.description );
-		setCaption( video?.caption );
-	}, [ video ] );
-
+const Infos = ( {
+	title,
+	onChangeTitle,
+	description,
+	onChangeDescription,
+	caption,
+	onChangeCaption,
+}: {
+	title: string;
+	onChangeTitle: ( value: string ) => void;
+	description: string;
+	onChangeDescription: ( value: string ) => void;
+	caption: string;
+	onChangeCaption: ( value: string ) => void;
+} ) => {
 	return (
 		<>
 			<Input
 				value={ title }
-				label="Title"
+				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				name="title"
-				onChange={ setTitle }
+				onChange={ onChangeTitle }
 				onEnter={ noop }
 				size="large"
 			/>
 			<Input
 				value={ description }
 				className={ styles.input }
-				label="Description"
+				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				name="description"
-				onChange={ setDescription }
+				onChange={ onChangeDescription }
 				onEnter={ noop }
 				type="textarea"
 				size="large"
@@ -71,9 +94,9 @@ const Infos = ( { video } ) => {
 			<Input
 				value={ caption }
 				className={ styles.input }
-				label="Caption"
+				label={ __( 'Caption', 'jetpack-videopress-pkg' ) }
 				name="caption"
-				onChange={ setCaption }
+				onChange={ onChangeCaption }
 				onEnter={ noop }
 				type="textarea"
 				size="large"
@@ -83,29 +106,52 @@ const Infos = ( { video } ) => {
 };
 
 const EditVideoDetails = () => {
-	const { videoId } = useParams();
-	const video = useVideo( Number( videoId ) );
+	const {
+		duration,
+		posterImage,
+		filename,
+		uploadDate,
+		url,
+		title,
+		setTitle,
+		description,
+		setDescription,
+		caption,
+		setCaption,
+		saveDisabled,
+		handleSaveChanges,
+		updating,
+	} = useEditDetails();
 
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <Header /> }
+			header={
+				<Header
+					onSaveChanges={ handleSaveChanges }
+					saveDisabled={ saveDisabled }
+					saveLoading={ updating }
+				/>
+			}
 		>
 			<AdminSection>
 				<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 					<Col sm={ 4 } md={ 8 } lg={ 7 }>
-						<Infos video={ video } />
+						<Infos
+							title={ title ?? '' }
+							onChangeTitle={ setTitle }
+							description={ description ?? '' }
+							onChangeDescription={ setDescription }
+							caption={ caption ?? '' }
+							onChangeCaption={ setCaption }
+						/>
 					</Col>
 					<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
-						<VideoThumbnail
-							thumbnail={ video?.posterImage }
-							duration={ video?.duration }
-							editable
-						/>
+						<VideoThumbnail thumbnail={ posterImage } duration={ duration } editable />
 						<VideoDetails
-							filename={ video?.filename }
-							uploadDate={ video?.uploadDate }
-							src={ video?.url }
+							filename={ filename ?? '' }
+							uploadDate={ uploadDate ?? '' }
+							src={ url ?? '' }
 						/>
 					</Col>
 				</Container>
