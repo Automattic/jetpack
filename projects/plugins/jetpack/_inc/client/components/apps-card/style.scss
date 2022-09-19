@@ -38,9 +38,9 @@
 .jp-apps-card__description {
 	max-width: 80%;
 	margin: 0 auto;
-	padding: rem( 10px ) rem( 24px ) rem( 24px );
+	padding: rem( 10px ) rem( 30px ) rem( 25px );
 	line-height: 1.65;
-	color: $black;
+	color: $gray_70;
 	text-align: center;
 
 	.dops-button {
@@ -49,14 +49,16 @@
 }
 
 .jp-apps-card__paragraph {
-	font-size: $font-body;
+	font-size: 13px;
+	margin: rem( 5px ) 0 rem( 20px );
 }
 
 .jp-apps-card__header {
 	margin-top: 0;
-	margin-bottom: rem( 5px );
-	font-size: $font-title-small;
-	font-weight: 500;
+	margin-bottom: 0;
+	font-size: $font-body;
+	font-weight: 700;
+	color: $gray_100;
 }
 
 .jp-apps-card__promo_subhead {
