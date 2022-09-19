@@ -75,7 +75,7 @@ class Share_Limits {
 				'You currently have %1$d share remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
 				'You currently have %1$d shares remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
 				$this->shares_remaining,
-				'jetpack-social'
+				'jetpack-publicize-pkg'
 			),
 			$this->shares_remaining,
 			Redirect::get_url( 'jetpack-social-basic-plan-classic-editor' )
@@ -111,7 +111,7 @@ class Share_Limits {
 			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
+				'textdomain' => 'jetpack-publicize-pkg',
 			)
 		);
 
