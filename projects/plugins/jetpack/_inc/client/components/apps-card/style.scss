@@ -68,13 +68,28 @@
 
 .jp-apps-card__apps-badges {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	width: 220px;
+	margin: auto;
+
+	p {
+		font-size: 11px;
+		margin: rem( 10px ) 0 0;
+	}
+
+	a.jp-apps-card__link {
+		color: $jetpack_green;
+		font-style: normal;
+		font-weight: 700;
+	}
+
+	a.jp-apps-card__link:hover {
+		color: $jetpack_green_30;
+	}
 
 	@include breakpoint( '<480px' ) {
-		flex-direction: column;
-
 		.apps-badge:first-child {
 			margin-right: 0;
 		}

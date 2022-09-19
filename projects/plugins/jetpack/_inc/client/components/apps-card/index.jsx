@@ -82,6 +82,14 @@ class AppsCard extends React.Component {
 								storeLink="https://apps.apple.com/us/app/jetpack-wp-security-speed/id1565481562?pt=299112ct=jpdash&mt=8"
 								onBadgeClick={ this.trackDownloadClick }
 							/>
+							<QRCode value="https://jetpack.com/mobile/" renderAs="canvas" size="50" />
+							<p>
+								{ __( 'Visit ', 'jetpack' ) }{ ' ' }
+								<a className="jp-apps-card__link" href="https://jetpack.com/app">
+									jetpack.com/app
+								</a>
+								{ __( ' or scan this code to download the Jetpack mobile app.', 'jetpack' ) }
+							</p>
 						</div>
 					</div>
 				</Card>
