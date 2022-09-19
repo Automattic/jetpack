@@ -63,6 +63,8 @@ function VideoChaptersSubPanel( { updateDataToSync, dataToSync } ) {
 	}
 
 	const currentChapter = getChaptersByLanguage( videoPressTracks, language );
+	const hasChaptersForLanguage = !! ( currentChapter && currentChapter?.src );
+
 	return (
 		<>
 			<TextControl
@@ -90,29 +92,35 @@ function VideoChaptersSubPanel( { updateDataToSync, dataToSync } ) {
 				} }
 			/>
 
-			<ToggleControl
-				label={ __( 'Overwrite chapters', 'jetpack' ) }
-				checked={ langsToSync.includes( language ) }
-				onChange={ () => {
-					if ( langsToSync.includes( language ) ) {
-						return updateDataToSync( {
-							langsToSync: langsToSync.filter( ln => ln !== language ),
-						} );
-					}
+			{ hasChaptersForLanguage && (
+				<ToggleControl
+					label={ __( 'Overwrite chapters', 'jetpack' ) }
+					checked={ langsToSync.includes( language ) }
+					onChange={ () => {
+						if ( langsToSync.includes( language ) ) {
+							return updateDataToSync( {
+								langsToSync: langsToSync.filter( ln => ln !== language ),
+							} );
+						}
 
-					updateDataToSync( { langsToSync: [ ...langsToSync, language ] } );
-				} }
-				help={ createInterpolateElement(
-					sprintf(
-						// translators: %s is the language tag (en, fr, etc.)
-						__( 'Already exists chapters for <strong>%s</strong> language', 'jetpack' ),
-						currentChapter.srcLang
-					),
-					{
-						strong: <strong />,
+						updateDataToSync( { langsToSync: [ ...langsToSync, language ] } );
+					} }
+					help={
+						hasChaptersForLanguage
+							? createInterpolateElement(
+									sprintf(
+										// translators: %s is the language tag (en, fr, etc.)
+										__( 'Already exists chapters for <strong>%s</strong> language', 'jetpack' ),
+										currentChapter.srcLang
+									),
+									{
+										strong: <strong />,
+									}
+							  )
+							: null
 					}
-				) }
-			/>
+				/>
+			) }
 		</>
 	);
 }

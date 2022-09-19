@@ -87,7 +87,6 @@ export function useSyncMedia( attributes ) {
 		const tracksToUpload = videoPressTracks.filter( track =>
 			initialState.langsToSync?.includes( track.srcLang )
 		);
-
 		if ( ! tracksToUpload.length ) {
 			return;
 		}
