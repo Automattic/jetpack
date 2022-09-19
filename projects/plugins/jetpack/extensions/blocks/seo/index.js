@@ -11,28 +11,32 @@ import './editor.scss';
 export const name = 'seo';
 
 export const settings = {
-	render: () => (
-		<Fragment>
-			<JetpackPluginSidebar>
-				<PanelBody
-					title={ __( 'SEO Description', 'jetpack' ) }
-					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+	render: function JetpackSEODescriptionPanel() {
+		const panelProps = {
+			title: __( 'SEO Description', 'jetpack' ),
+			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+		};
+
+		return (
+			<Fragment>
+				<JetpackPluginSidebar>
+					<PanelBody { ...panelProps }>
+						<SeoPanel />
+					</PanelBody>
+				</JetpackPluginSidebar>
+				<PluginPrePublishPanel
+					initialOpen
+					id="seo-title"
+					title={
+						<span id="seo-defaults" key="seo-title-span">
+							{ panelProps.title }
+						</span>
+					}
+					icon={ panelProps.icon }
 				>
 					<SeoPanel />
-				</PanelBody>
-			</JetpackPluginSidebar>
-			<PluginPrePublishPanel
-				initialOpen
-				id="seo-title"
-				title={
-					<span id="seo-defaults" key="seo-title-span">
-						{ __( 'SEO Description', 'jetpack' ) }
-					</span>
-				}
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-			>
-				<SeoPanel />
-			</PluginPrePublishPanel>
-		</Fragment>
-	),
+				</PluginPrePublishPanel>
+			</Fragment>
+		);
+	},
 };
