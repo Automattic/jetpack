@@ -1,4 +1,5 @@
 import { imagePath } from 'constants/urls';
+import { QRCode } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import AppsBadge from 'components/apps-badge';
