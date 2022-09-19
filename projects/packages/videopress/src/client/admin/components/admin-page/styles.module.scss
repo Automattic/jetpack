@@ -1,0 +1,30 @@
+.library-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	.total-filter-wrapper {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: calc( var(--spacing-base) * 4 );
+	}
+
+	.filter-wrapper {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-base);
+	}
+
+	.search-input {
+		width: 262px;
+	}
+
+	.filter-section {
+		margin-bottom: calc( var(--spacing-base) * 4 );
+	}
+
+	.pagination {
+		align-self: center;
+		margin-top: calc( var(--spacing-base) * 4 );
+	}
+}

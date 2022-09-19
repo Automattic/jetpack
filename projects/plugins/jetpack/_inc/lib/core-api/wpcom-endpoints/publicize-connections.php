@@ -67,11 +67,11 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	protected function get_connection_schema_properties() {
 		return array(
 			'id'                   => array(
-				'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
+				'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack' ),
 				'type'        => 'string',
 			),
 			'service_name'         => array(
-				'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+				'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack' ),
 				'type'        => 'string',
 			),
 			'display_name'         => array(
@@ -88,6 +88,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 			),
 			'global'               => array(
 				'description' => __( 'Is this connection available to all users?', 'jetpack' ),
+				'type'        => 'boolean',
+			),
+			'is_healthy'           => array(
+				'description' => __( 'Is this connection healthy or broken?', 'jetpack' ),
 				'type'        => 'boolean',
 			),
 		);
@@ -126,6 +130,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				$connection_meta = $publicize->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
 
+				$connection_result = $publicize->test_connection( $service_name, $connection );
+
 				$items[] = array(
 					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
 					'service_name'         => $service_name,
@@ -134,6 +140,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
 					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
 					'global'               => 0 == $connection_data['user_id'],
+					'is_healthy'           => true === $connection_result ? true : false,
 				);
 			}
 		}
@@ -198,7 +205,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		if ( ! $publicize ) {
 			return new WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -209,7 +216,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data on this site.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

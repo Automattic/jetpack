@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.8-alpha
+ * Version: 1.9.1-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -995,9 +995,9 @@ table.wpsc-settings-table {
 		$call_out_box = "0px";
 		$showing_2022_survey = get_option('wpsc_2022-survey', true);
 		//to handle the way the yellow box is output in the UI in a table cell.
-		if($showing_2022_survey){
-			$call_out_box = "-90px";
-		}
+	if ( $showing_2022_survey && $curr_tab !== 'contents' ) {
+		$call_out_box = '-90px';
+	}
 	?>
 	
 	<script>

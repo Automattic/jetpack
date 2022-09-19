@@ -1,6 +1,7 @@
 const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getComments = require( '../../utils/get-comments' );
+const getLabels = require( '../../utils/get-labels' );
 const sendSlackMessage = require( '../../utils/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
@@ -53,7 +54,10 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		repo,
 		issue_number: +number,
 	} );
-	ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+
+	if ( body ) {
+		ticketReferences.push( ...body.matchAll( referencesRegexP ) );
+	}
 
 	debug( `gather-support-references: Getting references from comments.` );
 	issueComments.map( comment => {
@@ -137,6 +141,8 @@ function formatSlackMessage( payload, channel, message ) {
 			dris = '@jpop-da';
 			break;
 		case 'Automattic/zero-bs-crm':
+		case 'Automattic/sensei':
+		case 'Automattic/WP-Job-Manager':
 			dris = '@heysatellite';
 			break;
 	}
@@ -185,6 +191,8 @@ function formatSlackMessage( payload, channel, message ) {
 		],
 		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
 		mrkdwn: true, // Formatting of the fallback text.
+		unfurl_links: false,
+		unfurl_media: false,
 	};
 }
 
@@ -224,6 +232,14 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 		return true;
 	}
 
+	// When the issue is already closed, do not send any Slack reminder.
+	if ( payload.issue.state === 'closed' ) {
+		debug(
+			`gather-support-references: Issue ${ payload.issue.number } is closed, no need to escalate.`
+		);
+		return false;
+	}
+
 	debug(
 		`gather-support-references: Issue #${ payload.issue.number } has now gathered more than 10 tickets. It's time to escalate it.`
 	);
@@ -232,6 +248,85 @@ async function checkForEscalation( issueReferences, commentBody, escalationNote,
 	await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 
 	return true;
+}
+
+/**
+ * Add or update a label on the issue to indicate a number range of support references,
+ * once it has gathered more than 10 support references.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} repo - Repository name.
+ * @param {string} ownerLogin - Owner of the repository.
+ * @param {number} number - Issue number.
+ * @param {number} issueReferencesCount - Number of support references gathered in this issue.
+ * @returns {Promise<void>}
+ */
+async function addOrUpdateInteractionCountLabel(
+	octokit,
+	repo,
+	ownerLogin,
+	number,
+	issueReferencesCount
+) {
+	const ranges = [ 50, 20, 10 ];
+
+	// Check if our issue has issues in one of the ranges where we want to label it.
+	const issueRange = ranges.find( range => issueReferencesCount > range );
+
+	// Bail if our issue hasn't gathered enough support references to warrant a label.
+	if ( ! issueRange ) {
+		return;
+	}
+
+	// Name of the label we want to add to this issue.
+	const interactionCountLabel = `[Interaction #] > ${ issueRange }`;
+
+	debug(
+		`gather-support-references: Issue #${ number } has gathered ${ issueReferencesCount } support references. It deserves a label, "${ interactionCountLabel }"`
+	);
+
+	// Check if the issue already has this label.
+	const labels = await getLabels( octokit, ownerLogin, repo, number );
+	const existingInteractionCountLabels = labels.filter( label =>
+		label.startsWith( '[Interaction #]' )
+	);
+
+	// Our issue already has at least one interaction count label. Is is the right one?
+	if ( existingInteractionCountLabels.length > 0 ) {
+		await Promise.all(
+			existingInteractionCountLabels.map( async existingInteractionCountLabel => {
+				// if that's not the one we want to add, remove it.
+				if ( existingInteractionCountLabel !== interactionCountLabel ) {
+					debug(
+						`gather-support-references: Issue #${ number } already has a label, "${ existingInteractionCountLabel }". We want to add the "${ interactionCountLabel }" label. Removing the "${ existingInteractionCountLabel }" label.`
+					);
+					await octokit.rest.issues.removeLabel( {
+						owner: ownerLogin,
+						repo,
+						issue_number: +number,
+						name: existingInteractionCountLabel,
+					} );
+				}
+			} )
+		);
+	}
+
+	// Check if the issue has the label we want to add. If so, bail, no need to add it.
+	if ( existingInteractionCountLabels.includes( interactionCountLabel ) ) {
+		debug(
+			`gather-support-references: Issue #${ number } already has the "${ interactionCountLabel }" label. No need to add it.`
+		);
+		return;
+	}
+
+	// Add the label to our issue.
+	debug( `gather-support-references: Adding the "${ interactionCountLabel }" label.` );
+	await octokit.rest.issues.addLabels( {
+		owner: ownerLogin,
+		repo,
+		issue_number: +number,
+		labels: [ interactionCountLabel ],
+	} );
 }
 
 /**
@@ -274,6 +369,15 @@ async function createOrUpdateComment( payload, octokit, issueReferences, issueCo
 			existingComment.body,
 			escalationNote,
 			payload
+		);
+
+		// Add or update a label counting the number of tickets on that issue.
+		await addOrUpdateInteractionCountLabel(
+			octokit,
+			repo,
+			ownerLogin,
+			number,
+			issueReferences.length
 		);
 
 		// Build our comment body, with first the checked references, then the unchecked references.

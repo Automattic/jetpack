@@ -6,6 +6,7 @@ module.exports = [
 		entry: {
 			index: './src/js/index.js',
 			editor: './src/js/editor.js',
+			[ 'classic-editor' ]: './src/js/classic-editor.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
@@ -33,9 +34,9 @@ module.exports = [
 					exclude: /node_modules\//,
 				} ),
 
-				// Transpile @automattic/jetpack-* in node_modules too.
+				// Transpile @automattic/* in node_modules too.
 				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
+					includeNodeModules: [ '@automattic/' ],
 				} ),
 
 				// Handle CSS.

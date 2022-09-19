@@ -15,11 +15,20 @@ import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
 export function ButtonEdit( props ) {
-	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
-	const { borderRadius, element, placeholder, text, width } = attributes;
+	const {
+		attributes,
+		backgroundColor,
+		className,
+		clientId,
+		context,
+		setAttributes,
+		textColor,
+	} = props;
+	const { borderRadius, element, placeholder, text, width, fontSize } = attributes;
+	const isWidthSetOnParentBlock = 'jetpack/parentBlockWidth' in context;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
-	useWidth( { attributes, setAttributes } );
+	useWidth( { attributes, disableEffects: isWidthSetOnParentBlock, setAttributes } );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -44,12 +53,14 @@ export function ButtonEdit( props ) {
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
 		'has-custom-width': !! width,
+		[ `has-${ fontSize }-font-size` ]: !! fontSize,
 	} );
 
 	const buttonStyles = {
 		...( ! backgroundColor.color && gradientValue
 			? { background: gradientValue }
 			: { backgroundColor: backgroundColor.color } ),
+		fontSize: attributes.style?.typography?.fontSize,
 		color: textColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 		width,

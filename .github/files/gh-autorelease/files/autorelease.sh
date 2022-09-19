@@ -14,7 +14,6 @@ if [[ ! "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+$ ]]; then
 	exit 1
 fi
 TAG="${GITHUB_REF#refs/tags/}"
-TAG="${TAG#v}"
 echo "Creating release for $TAG"
 
 ## Determine slug and title format.
@@ -23,19 +22,19 @@ if [[ ! -f composer.json ]]; then
 	exit 1
 fi
 
-SLUG="$(jq -r '.extra.autorelease.slug // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
+SLUG="$(jq -r '.extra.autorelease.slug? // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
 if [[ -z "$SLUG" ]]; then
 	echo '::error::Failed to get slug from composer.json.'
 	exit 1
 fi
 echo "Using slug $SLUG"
 
-TITLEFMT="$(jq -r '.extra.autorelease.titlefmt // "%s"' composer.json)"
+TITLEFMT="$(jq -r '.extra.autorelease.titlefmt? // "%s"' composer.json)"
 if [[ "$TITLEFMT" != *"%s"* ]]; then
 	echo '::error::Missing or invalid `.extra.autorelease.titlefmt`'
 	exit 1
 fi
-printf -v TITLE "$TITLEFMT" "$TAG"
+printf -v TITLE "$TITLEFMT" "${TAG#v}"
 echo "Creating release \"$TITLE\""
 
 ## Create the archive artifact.
@@ -68,7 +67,7 @@ SCRIPT="
 ENTRY=$(sed -n -E -e "$SCRIPT" CHANGELOG.md)
 if [[ -z "$ENTRY" ]]; then
 	echo '::endgroup::'
-	echo "::error::Failed to find section for $TAG in CHANGELOG.md"
+	echo "::error::Failed to find section for ${TAG#v} in CHANGELOG.md"
 	exit 1
 fi
 
@@ -100,7 +99,7 @@ curl -v -L \
 	--header 'content-type: application/json' \
 	--header 'accept: application/vnd.github.v3+json' \
 	--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases" \
-	--data "$(jq -n --arg tag "v$TAG" --arg sha "$GITHUB_SHA" --arg title "$TITLE" --arg body "$ENTRY" '{ tag_name: $tag, target_commitish: $sha, name: $title, body: $body}')" \
+	--data "$(jq -n --arg tag "$TAG" --arg sha "$GITHUB_SHA" --arg title "$TITLE" --arg body "$ENTRY" '{ tag_name: $tag, target_commitish: $sha, name: $title, body: $body}')" \
 	2>&1 > code.txt
 cat out.json
 echo

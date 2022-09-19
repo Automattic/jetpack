@@ -1,10 +1,10 @@
-=== Jetpack super-cache ===
-Contributors: automattic,
-Tags: jetpack, stuff
+=== WP Super Cache ===
+Contributors: donncha, automattic
+Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
-Stable tag: 1.7.9
+Stable tag: 1.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,10 +268,12 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
+### 1.9 - 2022-09-16
+#### Added
+- Cache deletion: add new hook to trigger actions after a successful cache deletion from the admin bar.
 
-### 1.7.9 ###
-* Fix nonces used by "Delete Cache" button and remove JS from it on the frontend admin bar.
-* Define the constant WPSCDISABLEDELETEBUTTON to disable the "Delete Cache" button in the admin bar.
+#### Fixed
+- Fixes to URL parsing to prevent cache pollution issues around URLs with double-slashes.
 
 --------
 

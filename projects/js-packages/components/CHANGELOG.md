@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.19.0 - 2022-09-08
+### Added
+- Components: apply Icon Button styles when icon and not-text properties are provided. [#25999]
+- JS Components: add StatCard component. [#26037]
+- JS Components: add title-medium-semi-bold variant to Text. [#26017]
+- RecordMeterDonut: create RecordMeterDonut reusable component. [#25947]
+
+### Changed
+- JS Components: add options to numberFormat and format value as compact form on StatCard component. [#26065]
+
+## 0.18.2 - 2022-08-31
+### Changed
+- Updated package dependencies. [#25856]
+
+## 0.18.1 - 2022-08-25
+### Added
+- Components: Support forwardRef at Text [#25798]
+
+### Changed
+- Components: set background color for Button, secondary variant [#25810]
+- Updated package dependencies. [#25814]
+
+## 0.18.0 - 2022-08-23
+### Added
+- Add new PricingTable component [#25377]
+- Components: add a couple of new black and gray colors [#25730]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25339, #25762, #25764]
+
 ## 0.17.3 - 2022-08-09
 ### Changed
 - JS Components: Convert AdminPage component to TypeScript [#25352]

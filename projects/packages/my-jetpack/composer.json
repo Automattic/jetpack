@@ -6,9 +6,10 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-connection": "^1.42",
+		"automattic/jetpack-connection": "^1.45",
+		"automattic/jetpack-jitm": "^2.2",
 		"automattic/jetpack-licensing": "^1.7",
-		"automattic/jetpack-plugins-installer": "^0.1",
+		"automattic/jetpack-plugins-installer": "^0.2",
 		"automattic/jetpack-redirect": "^1.7",
 		"automattic/jetpack-constants": "^1.6"
 	},
@@ -51,7 +52,8 @@
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -72,7 +74,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.0.x-dev"
+			"dev-trunk": "2.1.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

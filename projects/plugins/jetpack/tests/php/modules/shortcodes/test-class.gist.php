@@ -63,7 +63,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	public function test_gist_embeds( $content, $expected, $expected_amp ) {
 		global $post;
 
-		$post = $this->factory()->post->create_and_get( array( 'post_content' => $content ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $content ) );
 		setup_postdata( $post );
 
 		// Test HTML version.

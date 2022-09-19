@@ -5,12 +5,12 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [ trunk ]
+    branches: [ 'trunk', '*/branch-*' ]
     paths-ignore:
     - '**.md'
   schedule:
-    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
-    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/create-e2e-projects-matrix.sh
+    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
+    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
@@ -45,7 +45,7 @@ jobs:
         env:
           CRON: ${{ github.event.schedule }}
         run: |
-          TEST_PLAN="$(.github/files/create-e2e-projects-matrix.sh)"
+          TEST_PLAN="$(.github/files/e2e-tests/create-e2e-projects-matrix.sh)"
           echo "$TEST_PLAN"
 
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
@@ -123,17 +123,6 @@ jobs:
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         pnpm run test:run "${TEST_ARGS[@]}"
 
-    - name: Send Slack notification
-      if: ${{ failure() && ! cancelled() }}
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-        SUITE: ${{ matrix.project }}
-        JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
-      working-directory: ${{ matrix.path }}
-      run: |
-        mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run slack suite "$SUITE" "${ARGS[@]}"
-
     - name: Test environment tear-down
       if: ${{ always() }}
       working-directory: ${{ matrix.path }}
@@ -171,7 +160,7 @@ jobs:
     name: "Slack notification"
     runs-on: ubuntu-latest
     if: ${{ ! cancelled() }} # need to run on failure and also on success, so it can send notifications when tests passed on re-runs
-    needs: [e2e-tests]
+    needs: [create-test-matrix, e2e-tests]
 
     steps:
       - uses: actions/checkout@v3
@@ -188,11 +177,26 @@ jobs:
           composer build-development
         working-directory: ./projects/github-actions/test-results-to-slack
 
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-output
+
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: ./.github/files/e2e-tests/encryption.sh decrypt
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
+          slack_icon_emoji: ":jetpack:"
+          suite_name: ${{needs.create-test-matrix.outputs.runName}}
+          playwright_report_path: test-output/**/summary.json
+          playwright_output_dir: test-output/**/results
+          rules_configuration_path: .github/files/e2e-tests/notification-rules.json
 
 

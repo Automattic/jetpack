@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
- * Version: 1.4.1-alpha
+ * Version: 1.4.2-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -140,7 +140,10 @@ add_action( 'activated_plugin', 'jetpack_backup_plugin_activation' );
  * @param string $plugin Path to the plugin file relative to the plugins directory.
  */
 function jetpack_backup_plugin_activation( $plugin ) {
-	if ( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin ) {
+	if (
+		JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin &&
+		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_BACKUP_PLUGIN_ROOT_FILE_RELATIVE_PATH )
+	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-backup' ) ) );
 		exit;
 	}
