@@ -14,7 +14,10 @@ export const settings = {
 	render: () => (
 		<Fragment>
 			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'SEO Description', 'jetpack' ) }>
+				<PanelBody
+					title={ __( 'SEO Description', 'jetpack' ) }
+					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				>
 					<SeoPanel />
 				</PanelBody>
 			</JetpackPluginSidebar>
