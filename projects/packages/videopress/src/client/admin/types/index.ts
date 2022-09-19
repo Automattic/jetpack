@@ -9,16 +9,30 @@ export type OriginalVideoPressVideo = {
 	 * Video title
 	 */
 	videoTitle: string;
-	title: string;
-
+	/**
+	 * Video description
+	 */
+	description: string;
+	/**
+	 * Video caption
+	 */
+	caption: string;
+	/**
+	 * Video filename
+	 */
+	filename: string;
 	/**
 	 * Video poster image URL
 	 */
 	posterImage?: string;
 	/**
-	 * Video uploaded date
+	 * Video uploaded date in UTC
 	 */
-	uploadDate: string;
+	date: number;
+	/**
+	 * Video uploaded date formatted
+	 */
+	dateFormatted: string;
 	/**
 	 * Video duration, in milliseconds
 	 */
@@ -28,11 +42,30 @@ export type OriginalVideoPressVideo = {
 	 */
 	plays?: number;
 	/**
+	 * Video URL
+	 */
+	url?: string;
+	/**
 	 * Whether the video is private, or not.
 	 */
 	isPrivate?: boolean;
-
-	image?: object;
+	/**
+	 * Object reflecting poster image data.
+	 */
+	image?: {
+		/**
+		 * Video poster image URL
+		 */
+		src: string;
+		/**
+		 * Poster image width
+		 */
+		width: number;
+		/**
+		 * Poster image Height
+		 */
+		height: number;
+	};
 };
 
 export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
@@ -40,6 +73,10 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 * Video title
 	 */
 	title: string;
+	/**
+	 * Video upload date
+	 */
+	uploadDate: string;
 };
 
 export type LocalVideo = {
@@ -51,4 +88,9 @@ export type LocalVideo = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+};
+
+export type VideopressSelectors = {
+	getVideo: ( id: number ) => VideoPressVideo;
+	getVideos: () => VideoPressVideo[];
 };

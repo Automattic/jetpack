@@ -26,7 +26,7 @@ export const settings = {
 						{ __( 'SEO Description', 'jetpack' ) }
 					</span>
 				}
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#444444" /> }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<SeoPanel />
 			</PluginPrePublishPanel>

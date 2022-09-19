@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-partner-coupon",
-	"version": "0.2.24",
+	"version": "0.2.26-alpha",
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/partner-coupon/#readme",
 	"bugs": {
@@ -42,8 +42,8 @@
 		"react-dom": "17.0.2"
 	},
 	"dependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.19",
-		"@automattic/jetpack-connection": "workspace:* || ^0.19",
+		"@automattic/jetpack-components": "workspace:* || ^0.20",
+		"@automattic/jetpack-connection": "workspace:* || ^0.20",
 		"@wordpress/i18n": "4.16.0",
 		"classnames": "2.3.1",
 		"prop-types": "15.7.2"
