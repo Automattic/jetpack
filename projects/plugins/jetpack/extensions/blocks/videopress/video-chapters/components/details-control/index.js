@@ -1,8 +1,14 @@
 /**
  * External dependencies
  */
-import { PanelBody, TextareaControl, TextControl, ToggleControl } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import {
+	PanelBody,
+	SelectControl,
+	TextareaControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
+import { useState, createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { isBetaExtension } from '../../../../../editor';
 /**
@@ -10,6 +16,7 @@ import { isBetaExtension } from '../../../../../editor';
  */
 import useBlockAttributes from '../../hooks/use-block-attributes';
 import { extractVideoChapters } from '../../utils/extract-video-chapters';
+import { getIsoLangs } from '../../utils/languages';
 
 const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
 const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
@@ -22,24 +29,31 @@ function getChaptersByLanguage( tracks = [], ln ) {
 	return tracks.find( track => track?.srcLang === ln );
 }
 
-function VideoChaptersSubPanel() {
+function VideoChaptersSubPanel( { updateDataToSync, dataToSync } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
 	const { videoPressTracks } = attributes;
-	const [ language, setLanguage ] = useState( '' );
+	const [ language, setLanguage ] = useState( 'en' );
+	const { langsToSync = [] } = dataToSync;
 
-	const chapterByLanguage = getChaptersByLanguage( videoPressTracks, language );
+	// Populate the chapters list with the new language.
+	function addToChaptersList( newChapter ) {
+		setAttributes( { videoPressTracks: [ ...videoPressTracks, newChapter ] } );
+	}
 
-	function updateCurrentChaptersItem( options ) {
-		if ( ! chapterByLanguage ) {
-			return;
-		}
-
+	/**
+	 * Update the chapters items,
+	 * based on the current language selected.
+	 *
+	 * @param {object} options - The options object.
+	 */
+	function updateChaptersList( options ) {
 		setAttributes( {
 			videoPressTracks: videoPressTracks.map( track => {
 				if ( track?.srcLang === language ) {
 					return {
 						...track,
 						...options,
+						srcLang: language,
 					};
 				}
 
@@ -48,47 +62,61 @@ function VideoChaptersSubPanel() {
 		} );
 	}
 
+	const currentChapter = getChaptersByLanguage( videoPressTracks, language );
 	return (
 		<>
-			<p>{ __( 'Video chapters detected.', 'jetpack' ) }</p>
-
 			<TextControl
 				label={ __( 'Title of track', 'jetpack' ) }
-				value={ chapterByLanguage?.label }
+				value={ currentChapter?.label || '' }
 				onChange={ newLabel => {
-					updateCurrentChaptersItem( {
+					updateChaptersList( {
 						label: newLabel,
 					} );
 				} }
 			/>
 
-			<TextControl
-				label={ __( 'Language tag (en, fr, etc.)', 'jetpack' ) }
+			<SelectControl
+				label={ __( 'Language', 'jetpack' ) }
 				value={ language }
-				onChange={ setLanguage }
+				options={ getIsoLangs() }
+				onChange={ newLn => {
+					setLanguage( newLn );
+					if ( ! getChaptersByLanguage( videoPressTracks, newLn ) ) {
+						addToChaptersList( {
+							kind: 'chapters',
+							srcLang: newLn,
+						} );
+					}
+				} }
 			/>
 
-			{ chapterByLanguage && (
-				<ToggleControl
-					label={ __( 'Overwrite chapters', 'jetpack' ) }
-					onChange={ () => {
-						updateCurrentChaptersItem( {
-							overwrite: ! chapterByLanguage.overwrite,
+			<ToggleControl
+				label={ __( 'Overwrite chapters', 'jetpack' ) }
+				checked={ langsToSync.includes( language ) }
+				onChange={ () => {
+					if ( langsToSync.includes( language ) ) {
+						return updateDataToSync( {
+							langsToSync: langsToSync.filter( ln => ln !== language ),
 						} );
-					} }
-					checked={ chapterByLanguage?.overwrite }
-					help={ sprintf(
+					}
+
+					updateDataToSync( { langsToSync: [ ...langsToSync, language ] } );
+				} }
+				help={ createInterpolateElement(
+					sprintf(
 						// translators: %s is the language tag (en, fr, etc.)
-						__( 'Already exist chapers for %s language. Overwrite?', 'jetpack' ),
-						chapterByLanguage.srcLang
-					) }
-				/>
-			) }
+						__( 'Already exists chapters for <strong>%s</strong> language', 'jetpack' ),
+						currentChapter.srcLang
+					),
+					{
+						strong: <strong />,
+					}
+				) }
+			/>
 		</>
 	);
 }
-
-export default function DetailsControl( { isRequestingVideoItem } ) {
+export default function DetailsControl( { isRequestingVideoItem, updateDataToSync, dataToSync } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
 	const { title, description } = attributes;
 	const isBeta = isBetaExtension( VIDEOPRESS_VIDEO_CHAPTERS_FEATURE );
@@ -117,7 +145,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 		setAttributes( { description: newDescription } );
 	};
 
-	const descriptionHasChapters = description && extractVideoChapters( description );
+	const descriptionHasChapters = description?.length && extractVideoChapters( description )?.length;
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack' ) } className={ isBeta ? 'is-beta' : '' }>
@@ -136,8 +164,11 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 				onChange={ setDescriptionAttribute }
 				disabled={ isRequestingVideoItem }
 				rows={ descriptionControlRows }
+				help={ descriptionHasChapters ? __( 'Video chapters detected', 'jetpack' ) : null }
 			/>
-			{ descriptionHasChapters?.length && <VideoChaptersSubPanel /> }
+			{ descriptionHasChapters && (
+				<VideoChaptersSubPanel updateDataToSync={ updateDataToSync } dataToSync={ dataToSync } />
+			) }
 		</PanelBody>
 	);
 }

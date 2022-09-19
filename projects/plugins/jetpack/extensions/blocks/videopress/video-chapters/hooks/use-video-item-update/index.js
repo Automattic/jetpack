@@ -7,13 +7,11 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { uploadTrackForGuid } from '../../../tracks-editor';
 import { getVideoPressUrl } from '../../../url';
-import extractVideoChapters from '../../utils/extract-video-chapters';
 import generateChaptersFile from '../../utils/generate-chapters-file';
 
 export default function useMediaItemUpdate( id ) {
@@ -38,12 +36,12 @@ export default function useMediaItemUpdate( id ) {
 }
 
 export function useSyncMedia( attributes ) {
-	const { id, title, description, guid } = attributes;
+	const { id, title, description, guid, videoPressTracks } = attributes;
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
-	const [ initialState, setState ] = useState();
+	const [ initialState, setState ] = useState( {} );
 
 	const updateInitialState = useCallback( data => {
 		setState( current => ( { ...current, ...data } ) );
@@ -66,52 +64,54 @@ export function useSyncMedia( attributes ) {
 			return;
 		}
 
-		const dataToUpdate = {};
+		const videoDataToUpdate = {};
 
 		if ( initialState?.title !== title ) {
-			dataToUpdate.title = title;
+			videoDataToUpdate.title = title;
 		}
 
 		if ( initialState?.description !== description ) {
-			dataToUpdate.description = description;
+			videoDataToUpdate.description = description;
 		}
 
-		if ( ! Object.keys( dataToUpdate ).length ) {
+		// Update video data (title and description)
+		if ( Object.keys( videoDataToUpdate ).length ) {
+			updateMedia( videoDataToUpdate ).then( () => updateInitialState( { title, description } ) );
+		}
+
+		// --- Video Chapters handling --- //
+		if ( ! videoDataToUpdate?.description?.length ) {
 			return;
 		}
 
-		updateMedia( dataToUpdate ).then( () => updateInitialState( { title, description } ) );
+		const tracksToUpload = videoPressTracks.filter( track =>
+			initialState.langsToSync?.includes( track.srcLang )
+		);
 
-		// Video Chapters //
-		if ( ! dataToUpdate?.description?.length ) {
+		if ( ! tracksToUpload.length ) {
 			return;
 		}
 
-		// Upload .vtt file if it description contains chapters
-		const chapters = extractVideoChapters( dataToUpdate.description );
-		if ( ! chapters?.length ) {
-			return;
-		}
+		// Update chapters by uploading the tracks
+		tracksToUpload.forEach( unuploadedTrack => {
+			const track = {
+				kind: 'chapters',
+				label: unuploadedTrack.label,
+				srcLang: unuploadedTrack.srcLang,
+				tmpFile: generateChaptersFile( videoDataToUpdate?.description ),
+			};
 
-		const track = {
-			label: __( 'English', 'jetpack' ),
-			srcLang: 'en',
-			kind: 'chapters',
-			tmpFile: generateChaptersFile( dataToUpdate.description ),
-		};
+			uploadTrackForGuid( track, guid ).then( () => {
+				const videoPressUrl = getVideoPressUrl( guid, attributes );
 
-		uploadTrackForGuid( track, guid ).then( () => {
-			const videoPressUrl = getVideoPressUrl( guid, attributes );
-
-			// Once chapters udpates refresh the video player
-			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				// Once chapters udpates refresh the video player
+				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+			} );
 		} );
 	}, [
 		isSaving,
 		wasSaving,
 		title,
-		initialState?.title,
-		initialState?.description,
 		description,
 		updateMedia,
 		updateInitialState,
@@ -119,7 +119,9 @@ export function useSyncMedia( attributes ) {
 		invalidateResolution,
 		id,
 		guid,
+		videoPressTracks,
+		initialState,
 	] );
 
-	return [ updateInitialState ];
+	return [ updateInitialState, initialState ];
 }

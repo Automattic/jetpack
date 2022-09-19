@@ -41,23 +41,23 @@ export default function VideoItemComponent( { attributes, setAttributes } ) {
 }
 ```
 
-## Forcing initial state
+## Update data to sync
 
-In case you need to force the initial state, the hook returns a handler for it:
+In case you need to update the data to sync, the hook returns a handler for it:
 
 ```jsx
 import { useSyncMedia } from './use-video-item-update';
 
 export default function VideoItemComponent( { attributes, setAttributes } ) {
-	const [ forceInitialState ] = useSyncMedia( attributes );
+	const [ updateDataToSync ] = useSyncMedia( attributes );
 
 	useEffect( () => {
 		if ( dataChanged ) {
 			return;
 		}
 
-		forceInitialState( dataChanged );
-	}, [ dataChanged, forceInitialState ]
+		updateDataToSync( dataChanged );
+	}, [ dataChanged, updateDataToSync ]
 
 	return (
 		<TextControl
