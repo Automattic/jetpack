@@ -15,9 +15,10 @@ import './style.scss';
 
 type Props = {
 	slug: string;
+	underside?: boolean;
 };
 
-const MobileApp: FC< Props > = ( { slug } ) => {
+const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
 			type: 'mobile_app',
@@ -42,14 +43,6 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 		},
 		[ slug ]
 	);
-
-	// Checks to see if this iteration of the card is on the underside of the summary page
-	// Currently only the 'upsell' slug displays the mobile card on the underside
-	const isUnderside = () => {
-		const undersideSlugs = [ 'upsell' ];
-
-		return undersideSlugs.includes( slug );
-	};
 
 	const AppStoreBadge = () => (
 		<div className="jp-recommendations-sidebar-mobile__apps-badge">
@@ -165,7 +158,7 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 		}
 	};
 
-	const headerImgSize = isUnderside() ? 35 : 25;
+	const headerImgSize = underside ? 35 : 25;
 	const header = (
 		<div className="jp-recommendations-sidebar-mobile__header-container">
 			<img
@@ -178,7 +171,7 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 			actual image will look the same size as the wordpress one */ }
 			<img
 				className={ classNames( 'jp-recommendation-sidebar-mobile__jetpack-icon', {
-					underside: isUnderside(),
+					underside: underside,
 				} ) }
 				src={ imagePath + '/recommendations/jetpack-icon.svg' }
 				width={ headerImgSize + 2 }
@@ -189,7 +182,7 @@ const MobileApp: FC< Props > = ( { slug } ) => {
 	);
 
 	return (
-		<SidebarCard className={ isUnderside() ? 'underside' : '' } header={ header }>
+		<SidebarCard className={ underside ? 'underside' : '' } header={ header }>
 			<h2 className="jp-recommendation-sidebar-mobile__heading">{ getHeading() }</h2>
 
 			<p>{ getBody() }</p>
