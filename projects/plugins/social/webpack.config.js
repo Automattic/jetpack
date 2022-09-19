@@ -6,7 +6,6 @@ module.exports = [
 		entry: {
 			index: './src/js/index.js',
 			editor: './src/js/editor.js',
-			[ 'classic-editor' ]: './src/js/classic-editor.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
