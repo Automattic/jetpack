@@ -315,7 +315,7 @@ class Protect_Helper {
 		}
 
 		if ( 'file' === $type ) {
-			$threat->file = 'path/to/sample-file.php';
+			$threat->filename = 'path/to/sample-file.php';
 		}
 
 		if ( 'database' === $type ) {
