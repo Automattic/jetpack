@@ -17,7 +17,18 @@ export default function SubscribePanels() {
 
 	// Only show this for posts for now (subscriptions are only available on posts).
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const postWasEverPublished = useSelect(
+		select =>
+			select( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_post_was_ever_published,
+		[]
+	);
+
 	if ( 'post' !== postType ) {
+		return null;
+	}
+
+	// Subscriptions will not be triggered for a post that was already published in the past
+	if ( postWasEverPublished ) {
 		return null;
 	}
 

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Extract Restore Connection functionality into the JS package.

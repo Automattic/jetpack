@@ -6,6 +6,10 @@ const extras = require( './extra-context' );
 const { isWorkflowFailed, getRunUrl } = require( './github' );
 const { getPlaywrightBlocks } = require( './playwright' );
 const { getMessage, postOrUpdateMessage } = require( './slack' );
+const {
+	context: { eventName, sha, payload, runId, actor, serverUrl },
+} = github;
+const { refType, refName, runAttempt, triggeringActor, repository } = extras;
 
 /**
  * Returns an object with notification data.
@@ -15,10 +19,6 @@ const { getMessage, postOrUpdateMessage } = require( './slack' );
  * @param {boolean} isFailure - whether the workflow is failed or not
  */
 async function createMessage( isFailure ) {
-	const {
-		context: { eventName, sha, payload, runId, actor, serverUrl },
-	} = github;
-	const { refType, refName, runAttempt, triggeringActor, repository } = extras;
 	let target = `for ${ sha }`;
 	let msgId;
 	const contextElements = [];
