@@ -1483,6 +1483,27 @@ abstract class Publicize_Base {
 		$rest_controller = new REST_Controller();
 		return $rest_controller->make_proper_response( $response );
 	}
+
+	/**
+	 * Set up sharing limits if they're enabled for the site.
+	 */
+	public function set_up_sharing_limits() {
+		$info = $this->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
+
+		if ( is_wp_error( $info ) ) {
+			return;
+		}
+
+		if ( empty( $info['is_share_limit_enabled'] ) ) {
+			return;
+		}
+
+		$connections      = $this->get_filtered_connection_data();
+		$shares_remaining = $info['shares_remaining'];
+
+		$share_limits = new Share_Limits( $connections, $shares_remaining );
+		$share_limits->enforce_share_limits();
+	}
 }
 
 /**

@@ -2,10 +2,10 @@
 /**
  * Enforce sharing limits for Jetpack Social.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-publicize
  */
 
-namespace Automattic\Jetpack\Social;
+namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
@@ -107,8 +107,8 @@ class Share_Limits {
 
 		Assets::register_script(
 			'jetpack-social-classic-editor-share-limits',
-			'build/classic-editor.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+			'../build/classic-editor.js',
+			__FILE__,
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-publicize-pkg',

@@ -291,20 +291,6 @@ class Jetpack_Social {
 	public function set_up_sharing_limits() {
 		global $publicize;
 
-		$info = $publicize->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
-
-		if ( is_wp_error( $info ) ) {
-			return;
-		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return;
-		}
-
-		$connections      = $publicize->get_filtered_connection_data();
-		$shares_remaining = $info['shares_remaining'];
-
-		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
-		$share_limits->enforce_share_limits();
+		$publicize->set_up_sharing_limits();
 	}
 }
