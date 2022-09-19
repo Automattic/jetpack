@@ -9,17 +9,22 @@ import { useNavigate } from 'react-router-dom';
  * Internal dependencies
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
+import usePosterImage from '../../../hooks/use-poster-image';
+import usePosterUpload from '../../../hooks/use-poster-upload';
 import { STORE_ID } from '../../../state';
 import useVideo from '../../hooks/use-video';
 
 export default () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch( STORE_ID );
+	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
 
 	const video = useVideo( Number( videoId ) );
 	const updateMeta = useMetaUpdate( videoId );
+	const posterUpload = usePosterUpload( video?.videopress_guid?.[ 0 ] );
+	const posterImage = usePosterImage( video?.videopress_guid?.[ 0 ] );
 
 	const [ updating, setUpdating ] = useState( false );
 	const [ data, setData ] = useState( video );
@@ -54,6 +59,22 @@ export default () => {
 			} );
 	};
 
+	const posterImagePooling = () => {
+		posterImage().then( ( { data: result } ) => {
+			if ( result?.generating ) {
+				setTimeout( posterImagePooling, 2000 );
+			} else if ( result?.poster ) {
+				// TODO
+			}
+		} );
+	};
+
+	const handleSelectFrame = () => {
+		posterUpload( { at_time: videoFrameMs, is_millisec: true } ).then( () => {
+			posterImagePooling();
+		} );
+	};
+
 	// Make sure we have the latest data from the API
 	// Used to update the data when user navigates direct from Media Library
 	useEffect( () => {
@@ -68,5 +89,7 @@ export default () => {
 		saveDisabled,
 		handleSaveChanges,
 		updating,
+		setVideoFrameMs,
+		handleSelectFrame,
 	};
 };

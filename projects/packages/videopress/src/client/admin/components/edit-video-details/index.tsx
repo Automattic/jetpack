@@ -127,6 +127,8 @@ const EditVideoDetails = () => {
 		saveDisabled,
 		handleSaveChanges,
 		updating,
+		setVideoFrameMs,
+		handleSelectFrame,
 	} = useEditDetails();
 
 	return (
@@ -139,12 +141,12 @@ const EditVideoDetails = () => {
 				>
 					<ThemeProvider targetDom={ modalRef }>
 						<div ref={ setModalRef } className={ styles.selector }>
-							<VideoFrameSelector src={ url } onVideoFrameSelected={ noop } />
+							<VideoFrameSelector src={ url } onVideoFrameSelected={ setVideoFrameMs } />
 							<div className={ styles.actions }>
 								<Button variant="secondary" onClick={ () => setFrameSelectorIsOpen( false ) }>
 									{ __( 'Close', 'jetpack-videopress-pkg' ) }
 								</Button>
-								<Button variant="primary">
+								<Button variant="primary" onClick={ handleSelectFrame }>
 									{ __( 'Select this frame', 'jetpack-videopress-pkg' ) }
 								</Button>
 							</div>
