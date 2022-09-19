@@ -83,7 +83,7 @@ jobs:
         pnpm install
 
     - name: Download artifacts
-      if: ${{ env.GITHUB_EVENT_NAME == workflow_run }}
+      if: ${{ env.GITHUB_EVENT_NAME == 'workflow_run' }}
       uses: dawidd6/action-download-artifact@v2
       with:
         workflow: build.yml
