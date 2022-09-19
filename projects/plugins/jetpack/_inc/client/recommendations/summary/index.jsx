@@ -116,7 +116,7 @@ const SummaryComponent = props => {
 	if ( isFetchingSidebarData ) {
 		sidebarCards = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
-		switch ( 'upsell' ) {
+		switch ( sidebarCardsSlug ) {
 			case 'loading':
 				sidebarCards = (
 					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
@@ -124,7 +124,7 @@ const SummaryComponent = props => {
 				break;
 			case 'upsell':
 				sidebarCards = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
-				undersideCards = <MobileApp slug={ 'upsell' } underside />;
+				undersideCards = <MobileApp slug={ sidebarCardsSlug } underside />;
 				break;
 			case 'one-click-restores':
 				sidebarCards = (
