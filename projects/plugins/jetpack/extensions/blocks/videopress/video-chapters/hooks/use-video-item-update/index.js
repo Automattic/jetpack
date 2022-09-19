@@ -102,6 +102,8 @@ export function useSyncMedia( attributes ) {
 
 		uploadTrackForGuid( track, guid ).then( () => {
 			const videoPressUrl = getVideoPressUrl( guid, attributes );
+
+			// Once chapters udpates refresh the video player
 			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 		} );
 	}, [
