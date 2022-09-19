@@ -12,9 +12,10 @@ on:
     - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
     - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
   workflow_run:
-    types: [ 'completed' ]
-    workflows:
-      - Build
+    types: [completed]
+    workflows: ["Build"]
+    branches:
+      - 'trunk'
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
@@ -82,12 +83,27 @@ jobs:
         pnpm install
 
     - name: Download artifacts
-      if: ${{ env.GITHUB_EVENT_NAME == 'workflow_run' }}
+      if: github.event_name == 'workflow_run'
       uses: dawidd6/action-download-artifact@v2
       with:
         workflow: build.yml
         workflow_conclusion: "success"
-        path: ../downloads
+        path: ../build-output
+
+    - name: Prepare plugin
+      working-directory: ${{ matrix.path }}
+      env:
+        COMPOSER_ROOT_VERSION: "dev-trunk"
+      run: |
+        if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
+          echo "::group::Prepare build artefacts"
+          ls -lh ../build-output
+          echo "::endgroup::"
+        else
+          echo "::group::Build plugin(s)"
+          pnpm run build
+          echo "::endgroup::"
+        fi
 
     - name: Test environment set-up
       working-directory: ${{ matrix.path }}
@@ -102,16 +118,6 @@ jobs:
         echo "::endgroup::"
 
         if [ "${RUN_NAME}" != atomic ]; then
-          if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
-            echo "::group::Prepare build artefacts"
-            ls -lh ../downloads
-            echo "::endgroup::"
-          else
-            echo "::group::Build plugin(s)"
-            pnpm run build
-            echo "::endgroup::"
-          fi
-
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
