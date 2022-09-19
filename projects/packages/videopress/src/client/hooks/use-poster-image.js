@@ -1,44 +1,22 @@
 import apiFetch from '@wordpress/api-fetch';
 
 const usePosterImage = guid => {
-	const getPosterRequest = ( resolve, reject, jwt = null ) => {
-		const url = new URL( 'https://public-api.wordpress.com/rest/v1.1/videos/' + guid + '/poster' );
-
-		if ( jwt && jwt.length ) {
-			url.searchParams.append( 'metadata_token', jwt );
-		}
-
-		apiFetch( {
-			url: url.toString(),
-			method: 'GET',
-			credentials: 'omit',
-		} )
-			.then( function ( res ) {
-				resolve( res );
+	const posterImage = () => {
+		return new Promise( function ( resolve, reject ) {
+			apiFetch( {
+				path: `/wpcom/v2/videopress/${ guid }/poster`,
+				method: 'GET',
 			} )
-			.catch( function ( error ) {
-				reject( error );
-			} );
-	};
-
-	const videopressGetPoster = () => {
-		return new Promise( ( resolve, reject ) => {
-			window.wp.ajax
-				.post( 'videopress-get-playback-jwt', {
-					async: true,
-					guid: guid,
+				.then( function ( res ) {
+					resolve( res );
 				} )
-				.done( function ( response ) {
-					getPosterRequest( resolve, reject, response.jwt );
-				} )
-				.fail( () => {
-					// Also try on ajax failure if the video doesn't need a jwt anyway
-					getPosterRequest( resolve, reject );
+				.catch( function ( error ) {
+					reject( error );
 				} );
 		} );
 	};
 
-	return videopressGetPoster;
+	return posterImage;
 };
 
 export default usePosterImage;
