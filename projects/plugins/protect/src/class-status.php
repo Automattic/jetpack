@@ -54,7 +54,7 @@ class Status {
 	 * @return Status_Model
 	 */
 	public static function get_status() {
-		$use_scan_status = Jetpack_Plan::supports( 'scan' );
+		$use_scan_status = class_exists( 'Jetpack_Plan' ) && Jetpack_Plan::supports( 'scan' );
 
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
 			if ( 'scan_api' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {
