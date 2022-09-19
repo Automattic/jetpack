@@ -43,7 +43,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 		} );
 	};
 
-	const updatePoster = result => {
+	const updatePoster = ( { data: result } ) => {
 		if ( result?.generating ) {
 			setTimeout( () => {
 				getPosterImage().then( response => updatePoster( response ) );
