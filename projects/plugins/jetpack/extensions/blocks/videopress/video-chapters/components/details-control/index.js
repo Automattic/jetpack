@@ -18,16 +18,16 @@ const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.availabl
 
 const CHARACTERS_PER_LINE = 31;
 
+function getChaptersByLanguage( tracks = [], ln ) {
+	return tracks.find( track => track?.srcLang === ln );
+}
+
 function VideoChaptersSubPanel() {
 	const { attributes, setAttributes } = useBlockAttributes();
 	const { videoPressTracks } = attributes;
 	const [ language, setLanguage ] = useState( '' );
 
-	function getChaptersByLanguage( ln ) {
-		return videoPressTracks?.find( track => track?.srcLang === ln );
-	}
-
-	const chapterByLanguage = getChaptersByLanguage( language );
+	const chapterByLanguage = getChaptersByLanguage( videoPressTracks, language );
 
 	function updateCurrentChaptersItem( options ) {
 		if ( ! chapterByLanguage ) {
