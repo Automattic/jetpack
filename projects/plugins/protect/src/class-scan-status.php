@@ -27,6 +27,20 @@ class Scan_Status extends Status {
 	const SCAN_API_BASE = '/sites/%d/scan';
 
 	/**
+	 * Name of the option where status is stored
+	 *
+	 * @var string
+	 */
+	protected static $option_name = 'jetpack_scan_status';
+
+	/**
+	 * Name of the option where the timestamp of the status is stored
+	 *
+	 * @var string
+	 */
+	protected static $option_timestamp_name = 'jetpack_scan_status_timestamp';
+
+	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
 	 * @return Status_Model
@@ -36,7 +50,11 @@ class Scan_Status extends Status {
 			return self::$status;
 		}
 
-		$status = self::fetch_from_api();
+		if ( ! self::should_use_cache() || self::is_cache_expired() ) {
+			$status = self::fetch_from_api();
+		} else {
+			$status = self::get_from_options();
+		}
 
 		if ( is_wp_error( $status ) ) {
 			$status = new Status_Model(
@@ -98,6 +116,7 @@ class Scan_Status extends Status {
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		self::update_option( $body );
 		return $body;
 	}
 

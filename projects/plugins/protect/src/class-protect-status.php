@@ -32,28 +32,14 @@ class Protect_Status extends Status {
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'jetpack_protect_status';
+	protected static $option_name = 'jetpack_protect_status';
 
 	/**
 	 * Name of the option where the timestamp of the status is stored
 	 *
 	 * @var string
 	 */
-	const OPTION_TIMESTAMP_NAME = 'jetpack_protect_status_time';
-
-	/**
-	 * Time in seconds that the cache should last
-	 *
-	 * @var int
-	 */
-	const OPTION_EXPIRES_AFTER = 3600; // 1 hour.
-
-	/**
-	 * Time in seconds that the cache for the initial empty response should last
-	 *
-	 * @var int
-	 */
-	const INITIAL_OPTION_EXPIRES_AFTER = 1 * MINUTE_IN_SECONDS;
+	protected static $option_timestamp_name = 'jetpack_protect_status_time';
 
 	/**
 	 * Gets the current status of the Jetpack Protect checks
@@ -85,30 +71,6 @@ class Protect_Status extends Status {
 
 		self::$status = $status;
 		return $status;
-	}
-
-	/**
-	 * Checks if the current cached status is expired and should be renewed
-	 *
-	 * @return boolean
-	 */
-	public static function is_cache_expired() {
-		$option_timestamp = get_option( self::OPTION_TIMESTAMP_NAME );
-
-		if ( ! $option_timestamp ) {
-			return true;
-		}
-
-		return time() > (int) $option_timestamp;
-	}
-
-	/**
-	 * Checks if we should consider the stored cache or bypass it
-	 *
-	 * @return boolean
-	 */
-	public static function should_use_cache() {
-		return defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE ? false : true;
 	}
 
 	/**
@@ -157,53 +119,6 @@ class Protect_Status extends Status {
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
 		self::update_option( $body );
 		return $body;
-	}
-
-	/**
-	 * Gets the current cached status
-	 *
-	 * @return bool|array False if value is not found. Array with values if cache is found.
-	 */
-	public static function get_from_options() {
-		return get_option( self::OPTION_NAME );
-	}
-
-	/**
-	 * Updated the cached status and its timestamp
-	 *
-	 * @param array $status The new status to be cached.
-	 * @return void
-	 */
-	public static function update_option( $status ) {
-		// TODO: Sanitize $status.
-		update_option( self::OPTION_NAME, $status );
-		$end_date = self::get_cache_end_date_by_status( $status );
-		update_option( self::OPTION_TIMESTAMP_NAME, $end_date );
-	}
-
-	/**
-	 * Returns the timestamp the cache should expire depending on the current status
-	 *
-	 * Initial empty status, which are returned before the first check was performed, should be cache for less time
-	 *
-	 * @param object $status The response from the server being cached.
-	 * @return int The timestamp when the cache should expire.
-	 */
-	public static function get_cache_end_date_by_status( $status ) {
-		if ( ! is_object( $status ) || empty( $status->last_checked ) ) {
-			return time() + self::INITIAL_OPTION_EXPIRES_AFTER;
-		}
-		return time() + self::OPTION_EXPIRES_AFTER;
-	}
-
-	/**
-	 * Delete the cached status and its timestamp
-	 *
-	 * @return void
-	 */
-	public static function delete_option() {
-		delete_option( self::OPTION_NAME );
-		delete_option( self::OPTION_TIMESTAMP_NAME );
 	}
 
 	/**

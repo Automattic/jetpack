@@ -12,6 +12,34 @@ namespace Automattic\Jetpack\Protect;
  */
 class Status {
 	/**
+	 * Name of the option where status is stored
+	 *
+	 * @var string
+	 */
+	protected static $option_name;
+
+	/**
+	 * Name of the option where the timestamp of the status is stored
+	 *
+	 * @var string
+	 */
+	protected static $option_timestamp_name;
+
+	/**
+	 * Time in seconds that the cache should last
+	 *
+	 * @var int
+	 */
+	protected static $option_expires_after = 3600; // 1 hour.
+
+	/**
+	 * Time in seconds that the cache for the initial empty response should last
+	 *
+	 * @var int
+	 */
+	protected static $initial_option_expires_after = 1 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Memoization for the current status
 	 *
 	 * @var null|Status_Model
@@ -24,21 +52,91 @@ class Status {
 	 * @return Status_Model
 	 */
 	public static function get_status() {
+		$use_scan_status = \Jetpack_Plan::supports( 'scan' );
+
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
 			if ( 'scan_api' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {
-				self::$status = Scan_Status::get_status();
-				return self::$status;
+				$use_scan_status = true;
 			}
 
 			if ( 'protect_report' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {
-				self::$status = Protect_Status::get_status();
-				return self::$status;
+				$use_scan_status = false;
 			}
 		}
 
-		$has_scan_plan = \Jetpack_Plan::supports( 'scan' );
-		self::$status  = $has_scan_plan ? Scan_Status::get_status() : Protect_Status::get_status();
+		self::$status = $use_scan_status ? Scan_Status::get_status() : Protect_Status::get_status();
 		return self::$status;
+	}
+
+	/**
+	 * Checks if the current cached status is expired and should be renewed
+	 *
+	 * @return boolean
+	 */
+	public static function is_cache_expired() {
+		$option_timestamp = get_option( static::$option_timestamp_name );
+
+		if ( ! $option_timestamp ) {
+			return true;
+		}
+
+		return time() > (int) $option_timestamp;
+	}
+
+	/**
+	 * Checks if we should consider the stored cache or bypass it
+	 *
+	 * @return boolean
+	 */
+	public static function should_use_cache() {
+		return defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE ? false : true;
+	}
+
+	/**
+	 * Gets the current cached status
+	 *
+	 * @return bool|array False if value is not found. Array with values if cache is found.
+	 */
+	public static function get_from_options() {
+		return get_option( static::$option_name );
+	}
+
+	/**
+	 * Updated the cached status and its timestamp
+	 *
+	 * @param array $status The new status to be cached.
+	 * @return void
+	 */
+	public static function update_option( $status ) {
+		// TODO: Sanitize $status.
+		update_option( static::$option_name, $status );
+		$end_date = self::get_cache_end_date_by_status( $status );
+		update_option( static::$option_timestamp_name, $end_date );
+	}
+
+	/**
+	 * Returns the timestamp the cache should expire depending on the current status
+	 *
+	 * Initial empty status, which are returned before the first check was performed, should be cache for less time
+	 *
+	 * @param object $status The response from the server being cached.
+	 * @return int The timestamp when the cache should expire.
+	 */
+	public static function get_cache_end_date_by_status( $status ) {
+		if ( ! is_object( $status ) || empty( $status->last_checked ) ) {
+			return time() + static::$initial_option_expires_after;
+		}
+		return time() + static::$option_expires_after;
+	}
+
+	/**
+	 * Delete the cached status and its timestamp
+	 *
+	 * @return void
+	 */
+	public static function delete_option() {
+		delete_option( static::$option_name );
+		delete_option( static::$option_timestamp_name );
 	}
 
 	/**
