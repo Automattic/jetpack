@@ -2082,7 +2082,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "76a37f2b5b89b3702a05cf7c31746107d606c313"
+                "reference": "40f78d6e275ccbe5c65f34f6159f6bc2ab20c9d0"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -2105,7 +2105,6 @@
             },
             "autoload": {
                 "files": [
-                    "actions.php",
                     "cli.php"
                 ],
                 "classmap": [
