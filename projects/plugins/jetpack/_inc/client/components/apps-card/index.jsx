@@ -54,7 +54,7 @@ class AppsCard extends React.Component {
 						</Button>
 					) }
 					<div className="jp-apps-card__top">
-						<img src={ imagePath + 'get-apps.svg' } alt="" />
+						<img src={ imagePath + 'get-apps-icon.svg' } alt="" />
 					</div>
 
 					<div className="jp-apps-card__description">
