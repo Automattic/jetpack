@@ -80,13 +80,13 @@
 	}
 
 	a.jp-apps-card__link {
-		color: $jetpack_green;
+		color: var( --jp-green-primary );
 		font-style: normal;
 		font-weight: 700;
 	}
 
 	a.jp-apps-card__link:hover {
-		color: $jetpack_green_30;
+		color: var( --jp-green-secondary );
 	}
 
 	@include breakpoint( '<480px' ) {
