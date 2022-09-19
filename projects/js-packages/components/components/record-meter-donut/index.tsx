@@ -63,7 +63,13 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 	};
 
 	// If we don't have a title or description, hide the meter from screen readers.
-	const isHidden = title.length === 0 && description.length === 0 ? 'true' : 'false';
+	const isHidden =
+		typeof title === 'string' &&
+		title.length === 0 &&
+		typeof description === 'string' &&
+		description.length === 0
+			? 'true'
+			: 'false';
 
 	return (
 		<div className="donut-meter" aria-hidden={ isHidden }>
