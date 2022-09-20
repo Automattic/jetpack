@@ -260,11 +260,7 @@ for SLUG in "${SLUGS[@]}"; do
 			debug "Updating $SLUG composer.lock"
 			OLD="$(<composer.lock)"
 
-			# Any deps that look like "^1.2.3" should be locked at that version, as it's probably a release branch.
-			WITH=()
-			mapfile -t WITH < <(jq -r --argjson packages "$PACKAGES" '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] and ( .value | test( "^\\^[0-9]+\\.[0-9]+\\.[0-9]+$" ) ) ) | "--with=\( .key )=\( .value[1:] )"' composer.json)
-
-			"$BASE/tools/composer-update-monorepo.sh" --quiet "${WITH[@]}" "$PROJECTFOLDER"
+			"$BASE/tools/composer-update-monorepo.sh" --quiet "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
 				changelogger "$SLUG" '' 'Updated composer.lock.'
