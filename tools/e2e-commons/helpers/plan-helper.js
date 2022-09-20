@@ -528,7 +528,12 @@ export async function syncPlanData( page ) {
 	let fePlan = null;
 
 	const planJson = await execWpCommand( 'option get jetpack_active_plan --format=json' );
-	const bePlan = JSON.parse( planJson );
+	let bePlan;
+	try {
+		bePlan = JSON.parse( planJson );
+	} catch ( e ) {
+		throw new Error( `Invalid JSON from wp:\n${ planJson }`, { cause: e } );
+	}
 
 	let i = 0;
 	do {
