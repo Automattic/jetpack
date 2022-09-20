@@ -6,6 +6,7 @@ import {
 	Col,
 	Text,
 } from '@automattic/jetpack-components';
+import { ConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning, info } from '@wordpress/icons';
@@ -72,6 +73,9 @@ export default function MyJetpackScreen() {
 						<Text variant="headline-small">
 							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
 						</Text>
+					</Col>
+					<Col>
+						<ConnectionErrorNotice />
 					</Col>
 					{ message && (
 						<Col>
