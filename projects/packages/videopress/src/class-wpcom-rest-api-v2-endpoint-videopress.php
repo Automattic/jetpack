@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -208,15 +209,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function wpcom_poster_request( $video_guid, $args, $body = null, $query = '' ) {
-		$query    = isset( $query ) ? '?' . $query : '';
+		$query    = $query !== '' ? '?' . $query : '';
 		$endpoint = 'videos/' . $video_guid . '/poster' . $query;
 
-		$result = Client::wpcom_json_api_request_as_blog(
-			$endpoint,
+		$url = sprintf(
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
+			'rest',
 			'1.1',
-			$args,
-			$body
+			$endpoint
 		);
+
+		$request_args = array_merge( $args, array( 'body' => $body ) );
+
+		$result = Client::_wp_remote_request( $url, $request_args );
 
 		if ( is_wp_error( $result ) ) {
 			return rest_ensure_response( $result );
@@ -279,12 +285,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$jwt        = $this->request_jwt_from_wpcom( $video_guid );
 
 		$args = array(
-			'method'  => 'GET',
-			'headers' => array(
-				// Force empty Authorization, to avoid X_JETPACK being included
-				// Since this endpoint is not setting allow_jetpack_site_auth
-				'Authorization' => ' ',
-			),
+			'method' => 'GET',
 		);
 
 		return $this->wpcom_poster_request(

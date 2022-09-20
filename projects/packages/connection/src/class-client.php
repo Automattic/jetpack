@@ -203,14 +203,10 @@ class Client {
 		foreach ( $auth as $key => $value ) {
 			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
 		}
-
-		$default_authorization_header = 'X_JETPACK ' . join( ' ', $header_pieces );
-		$authorization_header         = isset( $args['headers']['Authorization'] ) ? $args['headers']['Authorization'] : $default_authorization_header;
-
 		$request['headers'] = array_merge(
 			$args['headers'],
 			array(
-				'Authorization' => $authorization_header,
+				'Authorization' => 'X_JETPACK ' . join( ' ', $header_pieces ),
 			)
 		);
 
