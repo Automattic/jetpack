@@ -2,13 +2,53 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.4-a.5 - 2022-09-20
+### Enhancements
+- Added is-healthy to post field [#26216]
+- Added typography setting to the jetpack/button block [#26108]
+- Extract Restore Connection functionality into the JS package. [#26034]
+- Jetpack: pull and show title and description in the VideoPress Video sidebar [#26182]
+- Jetpack: store videopress title and descriptio in the block attributes [#26201]
+- Show Jetpack icon in post publish panel for audio [#26257]
+- Sidebar: Add some additional context-sensistive menu items to the domain-only sidebar. [#26102]
+- VideoPress: Add beta style to DetailsControl component [#26266]
+- VideoPress: Add default end time for vtt file generation function [#26269]
+- VideoPress: check title and description before to propagate to block attributes [#26286]
+- VideoPress: Expand description textarea to accomodate text on block load [#26270]
+- VideoPress: refresh player after changing video chapters [#26264]
+- VideoPress: save title and description when post saves [#26225]
+- VideoPress: upload detected .vvt file from videopress block description [#26260]
+
+### Bug fixes
+- Hide subscribers notification logic for past-published posts [#26085]
+- Jetpack: fix a typo when picking the videopress info description field [#26233]
+- Set the `Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts` callback priority in the `init` hook to 22 to prevent it from causing style issues with sites that have Gutenberg > 13.5 activated. [#26193]
+- VideoPress: check whether the description is defined before to split it up [#26283]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add loading of the waf from Jetpack to avoid use of actions.php [#24730]
+- Defusion: changing jetpack_require_lib calls for easy markdown files. [#26147]
+- E2E tests: removed deprecated Slack notification code [#26215]
+- Minor WP.com-only bugfix to prevent the upgrade nudge of paid blocks from being visible on the block list view [#26237]
+- Replace `jetpack_require_lib` calls for tonesque. [#26221]
+- Social Menu: Syncing changes in WordPress.com over to Jetpack. [#26184]
+- Updated package dependencies. [#26034]
+- Updated package dependencies. [#26081]
+- Updated package dependencies. [#26135]
+- Updated package dependencies. [#26216]
+- Updated package dependencies. [#26242]
+- Updated package dependencies. [#26259]
+- VideoPress: Add chapter file creation function [#26238]
+- VideoPress: Add webVTT chapter file generator function [#26209]
+- VideoPress: move beta label in the DetailsControl panel [#26285]
+
 ## 11.4-a.3 - 2022-09-13
 ### Enhancements
-- VideoPress block (beta): register a video-chapters beta feature with basic controls. [#26177]
+- VideoPress block (beta): register the video-chapters beta feature with basic controls. [#26177]
 
 ### Improved compatibility
 - Jetpack: update styling for Jetpack logo shown in pre-publish panels for Jetpack and Jetpack Social plugins. [#26101, #26162]
-- Pay with PayPal block: the `postLinkUrl` attribute now uses the immutable post GUID to prevent the editor from becoming dirty after publishing a post. [#26063]
+- Pay with PayPal block: the `postLinkUrl` attribute now uses the immutable post GUID to ensure correct editor state. [#26063]
 - Subscriptions: do not load Subscriptions block while using Jetpack Offline Mode. [#26179]
 - VideoPress: move jetpack_videopress_guid REST custom field to VideoPress package. [#26140]
 
