@@ -4,15 +4,13 @@ import { isMobile } from '@automattic/viewport';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import AppsBadge from 'components/apps-badge';
-import Button from 'components/button';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { arePromotionsActive, userCanManageOptions } from 'state/initial-state';
-import { updateSettings, appsCardDismissed } from 'state/settings';
+import { arePromotionsActive } from 'state/initial-state';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';
@@ -26,14 +24,6 @@ class AppsCard extends React.Component {
 		} );
 	};
 
-	dismissCard = () => {
-		this.props.dismissAppCard();
-		analytics.tracks.recordJetpackClick( {
-			target: 'apps-card',
-			button: 'dismiss',
-			page: this.props.location.pathname,
-		} );
-	};
 	getAppCards = () => (
 		<div className="jp-apps-card__apps-badges">
 			<AppsBadge
@@ -76,16 +66,6 @@ class AppsCard extends React.Component {
 		return (
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
-					{ this.props.userCanManageOptions && (
-						<Button
-							borderless
-							compact
-							className="jp-apps-card__dismiss"
-							onClick={ this.dismissCard }
-						>
-							<span className="dashicons dashicons-no" />
-						</Button>
-					) }
 					<div className="jp-apps-card__top">
 						<img src={ imagePath + 'get-apps-icon.svg' } alt="" />
 					</div>
@@ -112,19 +92,8 @@ AppsCard.propTypes = {
 	className: PropTypes.string,
 };
 
-export default connect(
-	state => {
-		return {
-			isAppsCardDismissed: appsCardDismissed( state ),
-			arePromotionsActive: arePromotionsActive( state ),
-			userCanManageOptions: userCanManageOptions( state ),
-		};
-	},
-	dispatch => {
-		return {
-			dismissAppCard: () => {
-				return dispatch( updateSettings( { dismiss_dash_app_card: true } ) );
-			},
-		};
-	}
-)( withRouter( AppsCard ) );
+export default connect( state => {
+	return {
+		arePromotionsActive: arePromotionsActive( state ),
+	};
+} )( withRouter( AppsCard ) );
