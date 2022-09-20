@@ -63,6 +63,8 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		placement,
 		animate,
 		noArrow: false,
+		resize: false,
+		flip: false,
 		offset: 10, // The distance (in px) between the anchor and the popover.
 	};
 

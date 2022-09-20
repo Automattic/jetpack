@@ -18,7 +18,7 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 					offPrice={ 4.98 }
 					leyend="/month, billed yearly"
 					currency="USD"
-					showOffPercentage
+					promoLabel="50% off"
 				/>
 				<Button fullWidth>Get Premium</Button>
 			</PricingTableHeader>
@@ -43,7 +43,7 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 			<PricingTableItem
 				isIncluded={ false }
 				label="This is not included"
-				tooltipInfo="This is not included but has a label so it is still shown on small screens"
+				tooltipInfo="This has a tooltip, so its overwrites the default info on small screens"
 			/>
 			<PricingTableItem isIncluded={ false } />
 			<PricingTableItem isIncluded={ true } />
@@ -55,11 +55,15 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 const DefaultArgs = {
 	title: 'Buy premium, or start for free',
 	items: [
-		'Feature A with limit',
-		'Feature B',
-		'Feature C with a longer title that will span multiple lines',
-		'Feature D',
-		'Feature E',
+		{ name: 'Feature A with limit', tooltipInfo: 'Default info for Feature A' },
+		{ name: 'Feature B', tooltipInfo: 'Default info for Feature B' },
+		{
+			name: 'Feature C with a longer title that will span multiple lines',
+			tooltipInfo: 'Default info for Feature C',
+			tooltipTitle: 'Title for C',
+		},
+		{ name: 'Feature D', tooltipInfo: 'Default info for Feature D', tooltipTitle: 'Title for D' },
+		{ name: 'Feature E', tooltipInfo: 'Default info for Feature E' },
 	],
 };
 

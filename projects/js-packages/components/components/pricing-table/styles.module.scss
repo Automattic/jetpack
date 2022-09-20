@@ -84,12 +84,12 @@
 	}
 
 	&:last-of-type {
-		padding-bottom: var( --padding ); 
+		padding-bottom: var( --padding );
 	}
 }
 
-.label {
-	margin-right: var( --padding );
+.last-feature {
+	padding-bottom: var( --padding );
 }
 
 .value {

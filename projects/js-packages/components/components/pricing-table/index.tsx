@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, check, info, closeSmall } from '@wordpress/icons';
+import { Icon, check, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import {
 	createContext,
@@ -51,9 +51,13 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const items = useContext( PricingTableContext );
-	const rowLabel = items[ index ];
+	const rowLabel = items[ index ].name;
+	const defaultTooltipInfo = items[ index ].tooltipInfo;
+	const defaultTooltipTitle = items[ index ].tooltipTitle;
 	const includedLabel = __( 'Included', 'jetpack' );
 	const notIncludedLabel = __( 'Not included', 'jetpack' );
+	const showTooltip = tooltipInfo || ! isLg;
+
 	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
 	defaultLabel = isLg ? defaultLabel : rowLabel;
 
@@ -72,15 +76,15 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				icon={ isIncluded ? check : closeSmall }
 			/>
 			<Text variant="body-small">{ label || defaultLabel }</Text>
-			{ tooltipInfo && (
+			{ showTooltip && (
 				<IconTooltip
-					title={ tooltipTitle }
+					title={ tooltipInfo ? tooltipTitle : defaultTooltipTitle }
 					iconClassName={ styles[ 'popover-icon' ] }
 					className={ styles.popover }
 					placement={ 'bottom-end' }
 					iconSize={ 22 }
 				>
-					<Text>{ tooltipInfo }</Text>
+					<Text>{ tooltipInfo || defaultTooltipInfo }</Text>
 				</IconTooltip>
 			) }
 		</div>
@@ -133,14 +137,25 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 					<Text variant="headline-small">{ title }</Text>
 					{ isLg &&
 						items.map( ( item, i ) => (
-							<Text
-								variant="body-small"
-								className={ classnames( styles.item, styles.label ) }
+							<div
+								className={ classnames( styles.item, {
+									[ styles[ 'last-feature' ] ]: i === items.length - 1,
+								} ) }
 								key={ i }
 							>
-								<strong>{ item }</strong>
-								<Icon className={ classnames( styles.icon ) } size={ 24 } icon={ info } />
-							</Text>
+								<Text variant="body-small">
+									<strong>{ item.name }</strong>
+								</Text>
+								<IconTooltip
+									title={ item.tooltipTitle }
+									iconClassName={ styles[ 'popover-icon' ] }
+									className={ styles.popover }
+									placement={ 'bottom-end' }
+									iconSize={ 22 }
+								>
+									<Text>{ item.tooltipInfo }</Text>
+								</IconTooltip>
+							</div>
 						) ) }
 					{ children }
 				</div>

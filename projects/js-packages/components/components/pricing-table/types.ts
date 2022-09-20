@@ -7,7 +7,11 @@ export type PricingTableProps = {
 	/**
 	 * Array of items to display in the pricing table.
 	 */
-	items: string[];
+	items: {
+		name: string;
+		tooltipInfo: string;
+		tooltipTitle: string;
+	}[];
 
 	/**
 	 * The columns to add to the table.

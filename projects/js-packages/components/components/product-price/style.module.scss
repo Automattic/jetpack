@@ -34,9 +34,13 @@
 .leyend {
 	color: var( --jp-gray-40 );
 	margin-bottom: calc( var( --spacing-base ) * 3 );
+
+	&::after {
+		content: "\200B"; // Pseudo element to keep height
+	}
 }
 
-.off-percentage {
+.promo-label {
 	position: absolute;
 	top: 0;
 	right: 0;
