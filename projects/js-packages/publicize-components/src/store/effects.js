@@ -42,7 +42,7 @@ export async function refreshConnectionTestResults() {
 				done,
 				enabled,
 				toggleable,
-				is_healthy: freshConnection.is_healthy,
+				is_healthy: freshConnection.test_success,
 			};
 
 			connections.push( connection );
