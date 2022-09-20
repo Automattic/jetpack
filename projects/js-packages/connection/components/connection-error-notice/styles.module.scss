@@ -47,8 +47,6 @@
 
 .link {
 	margin-left: auto;
-	padding-left: 8px;
+	padding-left: var( --spacing-base );
 	text-decoration: underline;
-	color: var( --jp-black );
-	font-weight:700;
 }
