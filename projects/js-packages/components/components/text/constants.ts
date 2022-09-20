@@ -8,6 +8,7 @@ export const VARIANTS_MAPPING = {
 	body: 'p',
 	'body-small': 'p',
 	'body-extra-small': 'p',
+	'body-extra-small-bold': 'p',
 	label: 'p',
 } as const;
 
