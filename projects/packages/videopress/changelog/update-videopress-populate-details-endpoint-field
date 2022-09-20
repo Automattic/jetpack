@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-VideoPress: expose title and description in jetpack_videopress endpoint response body
