@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { REST_API_SITE_PURCHASES_ENDPOINT, SET_VIDEOS_QUERY } from './constants';
+import { WP_ADMIN_AJAX_API_URL, SET_VIDEOS_QUERY } from './constants';
 import { getDefaultQuery } from './reducers';
 
 const getVideos = {
@@ -34,7 +34,7 @@ const getVideos = {
 		dispatch.setIsFetchingVideos( true );
 
 		try {
-			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
+			const response = await fetch( WP_ADMIN_AJAX_API_URL, {
 				method: 'POST',
 				body: payload,
 			} );
