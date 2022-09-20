@@ -1,5 +1,6 @@
 import { imagePath } from 'constants/urls';
 import { QRCode } from '@automattic/jetpack-components';
+import { isMobile } from '@automattic/viewport';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import AppsBadge from 'components/apps-badge';
