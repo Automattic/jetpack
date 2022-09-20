@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check request body error type before creating wp error
