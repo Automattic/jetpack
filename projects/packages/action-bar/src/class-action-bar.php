@@ -64,7 +64,7 @@ class Action_Bar {
 		$blog_name  = get_bloginfo( 'name' );
 		$post_url   = get_permalink( $post_id );
 		$reader_url = $this->get_reader_url( $blog_id );
-		$widget_src = sprintf( 'https://widgets.wp.com/action-bar/like#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+		$widget_src = sprintf( 'https://widgets.wp.com/action-bar/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
 		require_once __DIR__ . '/action-bar-icons.php';
 
@@ -82,14 +82,9 @@ class Action_Bar {
 							<?php comment_icon( __( 'Leave a comment', 'jetpack-action-bar' ) ); ?>
 						</button>
 					</li>
-					<li>
-						<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="<?php echo esc_url( $widget_src ); ?>"></iframe>
-					</li>
-					<li>
-						<button class="jetpack-action-bar__action-button">
-							<?php follow_icon( __( 'Follow site', 'jetpack-action-bar' ) ); ?>
-						</button>
-					</li>
+					<!-- TODO: remove iframe focus state and tab directly to buttons in iframe, if possible -->
+					<!-- TODO: placeholder and/or error state if iframe does not load? -->
+					<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="<?php echo esc_url( $widget_src ); ?>"></iframe>
 				</ul>
 			</div>
 			<div class="jetpack-action-bar__shade"></div>
@@ -98,7 +93,7 @@ class Action_Bar {
 					<object data="/favicon.ico" class="site-icon" type="image/x-icon" >
 						<?php globe_icon( __( 'site icon', 'jetpack-action-bar' ) ); ?>
 					</object>
-					
+
 					<a href="<?php echo esc_url( $url ); ?>" class="jetpack-action-bar__modal-title"><strong><?php echo esc_html( $blog_name ? $blog_name : $domain ); ?></strong></a>
 					<a href="#" class="jetpack-action-bar__close close"><?php close_icon( __( 'close', 'jetpack-action-bar' ) ); ?></a>
 				</header>
