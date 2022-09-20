@@ -34,9 +34,7 @@
 			box-shadow: 0px 4px 24px rgba( 0, 0, 0, 0.05 );
 
 			&:nth-child(2) {
-				clip-path: inset(
-					0px -24px -24px -24px
-					); // Offset clip-path everywhere but the top to display the shadows.
+				box-shadow: 0 4px 4px rgb(0 0 0 / 5%);
 			}
 		}
 	}
