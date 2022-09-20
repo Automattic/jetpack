@@ -165,18 +165,16 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 				src={ imagePath + '/recommendations/wordpress-icon.svg' }
 				width={ headerImgSize }
 				height={ headerImgSize }
-				alt="wordpress icon"
+				alt=""
 			/>
-			{ /* Extra 2 pixels on width and height are to account for the white padding on this SVG, so the
-			actual image will look the same size as the wordpress one */ }
 			<img
 				className={ classNames( 'jp-recommendation-sidebar-mobile__jetpack-icon', {
 					underside: underside,
 				} ) }
 				src={ imagePath + '/recommendations/jetpack-icon.svg' }
-				width={ headerImgSize + 2 }
-				height={ headerImgSize + 2 }
-				alt="jetpack icon"
+				width={ headerImgSize }
+				height={ headerImgSize }
+				alt=""
 			/>
 		</div>
 	);
