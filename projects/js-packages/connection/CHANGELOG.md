@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.20.0 - 2022-09-20
+### Added
+- Added the ConnectionErrorNotice React component. [#26259]
+- Add Restore Connection functionality extracted from Jetpack. [#26034]
+
+### Changed
+- Updated package dependencies. [#26081]
+
 ## 0.19.0 - 2022-09-08
 ### Added
 - Add React variables as part of the project to have consistent connection errors across monorepo projects. [#25934]
