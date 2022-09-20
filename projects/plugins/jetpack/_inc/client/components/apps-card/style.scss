@@ -58,7 +58,7 @@
 	margin-bottom: 0;
 	font-size: $font-body;
 	font-weight: 700;
-	color: $gray_100;
+	color: var( --jp-gray-100 );
 }
 
 .jp-apps-card__promo_subhead {
