@@ -1,4 +1,3 @@
-import { _x } from '@wordpress/i18n';
 import {
 	isJetpackPlanWithAntiSpam,
 	isJetpackPlanWithBackup,
@@ -492,34 +491,6 @@ export const getNextRoute = state => {
 	const currentStep = getStep( state );
 	const nextStep = getNextEligibleStep( state, currentStep );
 	return stepToRoute[ nextStep ];
-};
-
-export const getSiteTypeDisplayName = state => {
-	const siteTypeKeysInPreferenceOrder = [
-		'site-type-store',
-		'site-type-business',
-		'site-type-personal',
-		'site-type-other',
-	];
-
-	const siteTypeDisplayNamesByKey = {
-		/* translators: A name for a website that sells things */
-		'site-type-store': _x( 'store', 'Site type display name', 'jetpack' ),
-		/* translators: A name for a website for a business */
-		'site-type-business': _x( 'business site', 'Site type display name', 'jetpack' ),
-		/* translators: A name for a website for personal use */
-		'site-type-personal': _x( 'personal site', 'Site type display name', 'jetpack' ),
-		/* translators: A generic name for a website */
-		'site-type-other': _x( 'site', 'Site type display name', 'jetpack' ),
-	};
-
-	for ( const key of siteTypeKeysInPreferenceOrder ) {
-		if ( true === getDataByKey( state, key ) ) {
-			return siteTypeDisplayNamesByKey[ key ];
-		}
-	}
-
-	return siteTypeDisplayNamesByKey[ 'site-type-other' ];
 };
 
 export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
