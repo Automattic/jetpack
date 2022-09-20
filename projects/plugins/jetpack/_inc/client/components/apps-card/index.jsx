@@ -33,9 +33,40 @@ class AppsCard extends React.Component {
 			page: this.props.location.pathname,
 		} );
 	};
+	getAppCards = () => (
+		<div className="jp-apps-card__apps-badges">
+			<AppsBadge
+				altText={ __( 'Google Play Store download badge.', 'jetpack' ) }
+				titleText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
+				storeName="android"
+				storeLink="https://play.google.com/store/apps/details?id=com.jetpack.android&utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
+				onBadgeClick={ this.trackDownloadClick }
+			/>
+			<AppsBadge
+				altText={ __( 'Apple App Store download badge.', 'jetpack' ) }
+				titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
+				storeName="ios"
+				storeLink="https://apps.apple.com/us/app/jetpack-wp-security-speed/id1565481562?pt=299112ct=jpdash&mt=8"
+				onBadgeClick={ this.trackDownloadClick }
+			/>
+		</div>
+	);
+
+	getQrCode = () => (
+		<div className="jp-apps-card__apps-qr-code">
+			<QRCode value="https://jetpack.com/app/" renderAs="canvas" size="50" />
+			<p>
+				{ __( 'Visit', 'jetpack' ) }{ ' ' }
+				<a className="jp-apps-card__link" href="https://jetpack.com/app">
+					jetpack.com/app
+				</a>
+				{ __( ' or scan this code to download the Jetpack mobile app.', 'jetpack' ) }
+			</p>
+		</div>
+	);
 
 	render() {
-		if ( ! this.props.arePromotionsActive || this.props.isAppsCardDismissed ) {
+		if ( ! this.props.arePromotionsActive ) {
 			return null;
 		}
 
@@ -68,30 +99,7 @@ class AppsCard extends React.Component {
 							) }
 						</p>
 
-						<div className="jp-apps-card__apps-badges">
-							<AppsBadge
-								altText={ __( 'Google Play Store download badge.', 'jetpack' ) }
-								titleText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
-								storeName="android"
-								storeLink="https://play.google.com/store/apps/details?id=com.jetpack.android&utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
-								onBadgeClick={ this.trackDownloadClick }
-							/>
-							<AppsBadge
-								altText={ __( 'Apple App Store download badge.', 'jetpack' ) }
-								titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
-								storeName="ios"
-								storeLink="https://apps.apple.com/us/app/jetpack-wp-security-speed/id1565481562?pt=299112ct=jpdash&mt=8"
-								onBadgeClick={ this.trackDownloadClick }
-							/>
-							<QRCode value="https://jetpack.com/mobile/" renderAs="canvas" size="50" />
-							<p>
-								{ __( 'Visit ', 'jetpack' ) }{ ' ' }
-								<a className="jp-apps-card__link" href="https://jetpack.com/app">
-									jetpack.com/app
-								</a>
-								{ __( ' or scan this code to download the Jetpack mobile app.', 'jetpack' ) }
-							</p>
-						</div>
+						{ isMobile() ? this.getAppCards() : this.getQrCode() }
 					</div>
 				</Card>
 			</div>
