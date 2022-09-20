@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Site_Json_Api_Endpoints extends WP_UnitTestCase {
 		global $blog_id;
 
 		// Fetch as admin so that options is also present in the response.
-		$admin = $this->factory->user->create_and_get(
+		$admin = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)

@@ -1,0 +1,20 @@
+.header{
+	display: flex;
+	justify-content: space-between;
+}
+
+.breadcrumb {
+	display: flex;
+	gap: var(--spacing-base);
+	align-items: center;
+	color: var(--jp-gray-40);
+}
+
+.input {
+	margin-top: calc( var(--spacing-base) * 3 ); // 24px
+}
+
+.logo-button {
+	all: unset;
+	cursor: pointer;
+}

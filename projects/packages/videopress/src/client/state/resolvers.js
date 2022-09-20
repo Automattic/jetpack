@@ -27,6 +27,10 @@ const getVideos = {
 		payload.set( 'query[paged]', query.page );
 		payload.set( 'query[post_mime_type]', query.type );
 
+		if ( typeof query.search === 'string' && query.search.length > 0 ) {
+			payload.set( 'query[s]', query.search );
+		}
+
 		dispatch.setIsFetchingVideos( true );
 
 		try {
@@ -51,6 +55,15 @@ const getVideos = {
 	},
 };
 
+const getVideo = {
+	fulfill: () => async ( { resolveSelect } ) => {
+		// We make sure that videos are fullfiled.
+		// This is used when user comes from Media Library.
+		await resolveSelect.getVideos();
+	},
+};
+
 export default {
 	getVideos,
+	getVideo,
 };
