@@ -10,7 +10,9 @@ export default function useBlockAttributes() {
 
 		return {
 			clientId: _clientId,
-			attributes: select( 'core/block-editor' ).getBlockAttributes( _clientId ),
+			attributes: _clientId
+				? select( 'core/block-editor' ).getBlockAttributes( _clientId )
+				: undefined,
 		};
 	} );
 

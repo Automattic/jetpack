@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changing how we load and run the package to avoid actions.php

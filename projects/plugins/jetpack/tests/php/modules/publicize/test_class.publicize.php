@@ -50,6 +50,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		global $publicize_ui;
 		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 
+		$this->setup_publicize_mock();
+
 		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
@@ -105,6 +107,17 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();
+	}
+
+	private function setup_publicize_mock() {
+		global $publicize;
+		$this->publicize = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' )->setMethods( array( 'test_connection' ) )->getMock();
+
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
+		$publicize = $this->publicize;
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {

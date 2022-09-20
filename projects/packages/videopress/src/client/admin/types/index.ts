@@ -10,9 +10,13 @@ export type OriginalVideoPressVideo = {
 	 */
 	videoTitle: string;
 	/**
-	 * Video title (used internally)
+	 * Video description
 	 */
-	title: string;
+	description: string;
+	/**
+	 * Video caption
+	 */
+	caption: string;
 	/**
 	 * Video filename
 	 */
@@ -22,9 +26,13 @@ export type OriginalVideoPressVideo = {
 	 */
 	posterImage?: string;
 	/**
-	 * Video uploaded date
+	 * Video uploaded date in UTC
 	 */
-	uploadDate: string;
+	date: number;
+	/**
+	 * Video uploaded date formatted
+	 */
+	dateFormatted: string;
 	/**
 	 * Video duration, in milliseconds
 	 */
@@ -65,6 +73,10 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 * Video title
 	 */
 	title: string;
+	/**
+	 * Video upload date
+	 */
+	uploadDate: string;
 };
 
 export type LocalVideo = {

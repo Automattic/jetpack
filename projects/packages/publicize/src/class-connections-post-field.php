@@ -122,6 +122,12 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'is_healthy'      => array(
+					'description' => __( 'Whether the connection is healthy or broken', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}

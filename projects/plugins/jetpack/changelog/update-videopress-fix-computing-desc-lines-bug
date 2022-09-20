@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: check whether the description is defined before to split it up
