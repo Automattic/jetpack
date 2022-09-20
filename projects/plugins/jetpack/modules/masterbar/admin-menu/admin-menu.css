@@ -540,6 +540,7 @@
 
 body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] {
 	padding: 8px;
+	width: auto;
 }
 
 body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a {
