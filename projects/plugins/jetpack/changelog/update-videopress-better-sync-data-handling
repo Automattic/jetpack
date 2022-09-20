@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+VideoPress: check title and description before to propagate to block attributes
