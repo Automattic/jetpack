@@ -113,6 +113,14 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Check if we have a paid Jetpack Social plan.
+	 */
+	public function has_paid_plan() {
+		$refresh_from_wpcom = true;
+		return Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
+	}
+
+	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
@@ -150,9 +158,8 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		$shares                  = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$refresh_plan_from_wpcom = true;
-		$show_nudge              = ! Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
+		$shares     = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		$show_nudge = ! $this->has_paid_plan();
 
 		return array(
 			'siteData'        => array(
@@ -289,6 +296,10 @@ class Jetpack_Social {
 	 * Set up sharing limits.
 	 */
 	public function set_up_sharing_limits() {
+		if ( $this->has_paid_plan() ) {
+			return;
+		}
+
 		global $publicize;
 
 		$publicize->set_up_sharing_limits();
