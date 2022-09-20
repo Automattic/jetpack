@@ -2,7 +2,7 @@ import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { getSiteTitle } from 'state/initial-state';
 import {
@@ -41,36 +41,19 @@ const SiteTypeQuestionComponent = props => {
 		<div className="jp-recommendations-question__site-type-answer-container">
 			<div className="jp-recommendations-question__site-type-checkboxes">
 				<CheckboxAnswer
+					answerKey={ 'site-type-agency' }
+					title={ __( 'I build or manage this site for a client', 'jetpack' ) }
+					info={ __( 'Need more info', 'jetpack' ) }
+				/>
+				<CheckboxAnswer
+					answerKey={ 'site-type-e-commerce' }
+					title={ __( 'This is an e-commerce site', 'jetpack' ) }
+					info={ __( 'Need more info', 'jetpack' ) }
+				/>
+				<CheckboxAnswer
 					answerKey={ 'site-type-personal' }
-					title={ __( 'Personal', 'jetpack' ) }
-					info={ __(
-						'Personal sites usually include blogs, resume sites, weddings or other events, and hobby sites.',
-						'jetpack'
-					) }
-				/>
-				<CheckboxAnswer
-					answerKey={ 'site-type-business' }
-					title={ __( 'Business', 'jetpack' ) }
-					info={ __(
-						'Business sites usually include shops, services like lawyers, or plumbers, and advertisers or influencers.',
-						'jetpack'
-					) }
-				/>
-				<CheckboxAnswer
-					answerKey={ 'site-type-store' }
-					title={ __( 'Store', 'jetpack' ) }
-					info={ __(
-						'Stores typically include online e-commerce stores selling goods, services, or digital downloads.',
-						'jetpack'
-					) }
-				/>
-				<CheckboxAnswer
-					answerKey={ 'site-type-other' }
-					title={ __( 'Other', 'jetpack' ) }
-					info={ __(
-						'Other sites may include non-profits, colleges or schools, apps, real-estate, or others.',
-						'jetpack'
-					) }
+					title={ __( 'This is my personal site', 'jetpack' ) }
+					info={ __( 'Need more info', 'jetpack' ) }
 				/>
 			</div>
 			<Button primary rna href={ nextRoute } onClick={ onContinueClick }>
@@ -90,10 +73,10 @@ const SiteTypeQuestionComponent = props => {
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '17' } /> }
 			question={
 				/* translators: placeholder is the title of the site */
-				sprintf( __( 'What type of site is %s?', 'jetpack' ), siteTitle )
+				sprintf( __( 'Tell us more about %s?', 'jetpack' ), siteTitle )
 			}
 			description={ __(
-				'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.',
+				'To help you get the most from Jetpack, tell us about your site. Check all that apply:',
 				'jetpack'
 			) }
 			answer={ answerSection }
