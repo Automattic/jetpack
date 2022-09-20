@@ -18,7 +18,9 @@
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
++               "watch": "echo 'This script is actually watching the Jetpack Backup package, not the plugin' && jetpack watch packages/backup"
++       },
 	"repositories": [
 		{
 			"type": "path",
