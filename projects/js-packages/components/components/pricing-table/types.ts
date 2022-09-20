@@ -9,8 +9,8 @@ export type PricingTableProps = {
 	 */
 	items: {
 		name: string;
-		tooltipInfo: string;
-		tooltipTitle: string;
+		tooltipInfo?: string;
+		tooltipTitle?: string;
 	}[];
 
 	/**
