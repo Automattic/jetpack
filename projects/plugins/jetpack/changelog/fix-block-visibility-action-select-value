@@ -1,5 +1,5 @@
 Significance: patch
 Type: bugfix
-Comment: Minor
+Widget visibility: Fixes issue where customizer wasn't properly showing the set visibility settings.
 
 
