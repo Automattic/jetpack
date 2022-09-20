@@ -23,12 +23,15 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 	const isBeta = isBetaExtension( VIDEOPRESS_VIDEO_CHAPTERS_FEATURE );
 
 	// Expands the description textarea to accommodate the description
-	const rows = description
-		.split( '\n' )
-		.map( line => Math.ceil( line.length / CHARACTERS_PER_LINE ) || 1 )
-		.reduce( ( sum, current ) => sum + current, 0 );
-	const maxRows = 12;
 	const minRows = 4;
+	const maxRows = 12;
+	const rows = description?.length
+		? description
+				.split( '\n' )
+				.map( line => Math.ceil( line.length / CHARACTERS_PER_LINE ) || 1 )
+				.reduce( ( sum, current ) => sum + current, 0 )
+		: minRows;
+
 	const descriptionControlRows = Math.min( maxRows, Math.max( rows, minRows ) );
 
 	if ( ! isVideoChaptersEnabled ) {
