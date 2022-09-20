@@ -40,7 +40,7 @@
 	margin: 0 auto;
 	padding: rem( 10px ) rem( 30px ) rem( 25px );
 	line-height: 1.65;
-	color: $gray_70;
+	color: var( --jp-gray-70 );
 	text-align: center;
 
 	.dops-button {
