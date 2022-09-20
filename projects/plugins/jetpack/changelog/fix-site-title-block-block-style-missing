@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Set the `Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts` callback priority in the `init` hook to 22 to prevent it from causing style issues with sites that have Gutenberg > 13.5 activated.
