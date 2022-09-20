@@ -5,7 +5,7 @@
   "license": "GPLv3",
   "require": {
     "automattic/at-pressable-podcasting": "v1.2.8",
-    "automattic/custom-fonts": "v2.0.0",
+    "automattic/custom-fonts": "v2.0.1",
     "automattic/custom-fonts-typekit": "1.0.8",
     "automattic/text-media-widget-styles": "~1.0",
     "automattic/wc-calypso-bridge": "1.9.3",
