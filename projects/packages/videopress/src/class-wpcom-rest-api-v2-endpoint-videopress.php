@@ -171,7 +171,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return string
 	 */
 	public function request_jwt_from_wpcom( $guid ) {
-		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$blog_id = get_current_blog_id();
+		} else {
+			$blog_id = Jetpack_Options::get_option( 'id' );
+		}
 
 		$args = array(
 			'method' => 'POST',
@@ -242,7 +246,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 		} else {
-			$blog_id = \Jetpack_Options::get_option( 'id' );
+			$blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
 		$token       = $this->videopress_get_upload_token( $blog_id );
