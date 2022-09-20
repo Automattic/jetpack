@@ -46,7 +46,7 @@ const SiteTypeQuestionComponent = props => {
 					info={ __( 'Need more info', 'jetpack' ) }
 				/>
 				<CheckboxAnswer
-					answerKey={ 'site-type-e-commerce' }
+					answerKey={ 'site-type-store' }
 					title={ __( 'This is an e-commerce site', 'jetpack' ) }
 					info={ __( 'Need more info', 'jetpack' ) }
 				/>
@@ -93,9 +93,8 @@ export const SiteTypeQuestion = connect(
 		siteTitle: getSiteTitle( state ),
 		answers: {
 			personal: getDataByKey( state, 'site-type-personal' ),
-			business: getDataByKey( state, 'site-type-business' ),
+			agency: getDataByKey( state, 'site-type-agency' ),
 			store: getDataByKey( state, 'site-type-store' ),
-			other: getDataByKey( state, 'site-type-other' ),
 		},
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
