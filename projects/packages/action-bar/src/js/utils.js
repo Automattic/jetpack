@@ -8,30 +8,10 @@ export function _classAdd( el, className ) {
 	if ( ! _exists( el ) || ! className ) {
 		return;
 	}
-	if ( el ) {
-		if ( _classHas( el, className ) ) {
-			return;
-		}
-		if ( el.classList ) {
-			el.classList.add( className );
-		} else {
-			el.className += ' ' + className;
-		}
+	if ( el.classList.contains( className ) ) {
+		return;
 	}
-}
-
-/**
- * Check if class exists
- *
- * @param {Element} el - element
- * @param {string} className - class to check for
- * @returns {boolean} true if class exists
- */
-export function _classHas( el, className ) {
-	if ( ! el || ! className ) {
-		return false;
-	}
-	return el.classList.contains( className );
+	el.classList.add( className );
 }
 
 /**
@@ -45,13 +25,7 @@ export function _classRemove( el, className ) {
 	if ( ! _exists( el ) || ! className ) {
 		return false;
 	}
-	if ( el.classList ) {
-		return el.classList.remove( className );
-	}
-	return ( el.className = el.className.replace(
-		new RegExp( '(^|\\b)' + className.split( ' ' ).join( '|' ) + '(\\b|$)', 'gi' ),
-		' '
-	) );
+	return el.classList.remove( className );
 }
 
 /**

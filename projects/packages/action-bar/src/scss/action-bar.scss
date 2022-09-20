@@ -206,7 +206,7 @@
 } */
 /* Header ------------------------------------------------ */
 .jetpack-action-bar__modal header {
-	align-items: flex-start;
+	align-items: center;
 	display: flex;
 	flex-wrap: nowrap;
 	justify-content: flex-start;
@@ -232,6 +232,15 @@
 	max-width: 100%;
 	min-width: 0;
 	width: 28px;
+}
+.jetpack-action-bar__globe-icon {
+	height: 32px;
+	width: 32px;
+	line-height: 32px;
+	font-size: 32px;
+	background: rgb(195, 196, 199);
+	display:flex; align-items: center;
+	justify-content: center;
 }
 .jetpack-action-bar__modal-title {
 	max-width: 100%; 

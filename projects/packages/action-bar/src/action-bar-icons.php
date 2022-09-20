@@ -100,9 +100,32 @@ function follow_icon( $title ) {
 
 /**
  * Prints close icon.
+ *
+ * @param string $title translated title.
  */
-function close_icon() {
+function close_icon( $title ) {
 	?>
-	<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><g stroke="#2c3338" stroke-linecap="square" stroke-width="1.5"><path d="m15 5-10 10"/><path d="m5 5 10 10"/></g></svg>
+	<svg fill="none" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg">
+		<title><?php echo esc_html( $title ); ?></title>
+		<g stroke="#2c3338" stroke-linecap="square" stroke-width="1.5">
+			<path d="m15 5-10 10"/><path d="m5 5 10 10"/>
+		</g>
+	</svg>
+	<?php
+}
+
+/**
+ * Prints globe icon.
+ *
+ * @param string $title translated title.
+ */
+function globe_icon( $title ) {
+	$globe_html = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 3 24 18">
+	<g fill="white" ><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z" /></g>
+</svg>';
+	?>
+		<div class="jetpack-action-bar__globe-icon">
+			<img srcset="data:image/svg+xml,<?php echo rawurlencode( $globe_html ); ?>" alt="<?php echo esc_html( $title ); ?>"/>
+		</div>
 	<?php
 }

@@ -1,6 +1,5 @@
 import {
 	_classAdd,
-	_classHas,
 	_classRemove,
 	_fadeInAndActivate,
 	_fadeOutAndDeactivate,
@@ -92,7 +91,8 @@ function modalTrapFocus() {
  * @returns {boolean} true if the modal has the 'active' class
  */
 function isModalActive() {
-	return _classHas( document.querySelector( '.jetpack-action-bar__modal' ), 'active' );
+	const el = document.querySelector( '.jetpack-action-bar__modal' );
+	return el && el.classList.contains( 'active' );
 }
 
 /**
