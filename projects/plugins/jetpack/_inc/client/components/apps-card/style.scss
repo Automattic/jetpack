@@ -71,12 +71,11 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	width: 220px;
-	margin: auto;
 
-	p {
+	.jp-apps-card__caption {
 		font-size: 11px;
 		margin: rem( 10px ) 0 0;
+		max-width: 220px;
 	}
 
 	a.jp-apps-card__link {
@@ -88,6 +87,13 @@
 	a.jp-apps-card__link:hover {
 		color: var( --jp-green-secondary );
 	}
+}
+
+.jp-apps-card__apps-badges {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 
 	@include breakpoint( '<480px' ) {
 		.apps-badge:first-child {
