@@ -143,6 +143,30 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
+			/*
+			 * Title and description of the video are not stored as metadata on the attachment,
+			 * but as post_content and post_title on the attachment's post object.
+			 * We need to update those fields here, too.
+			 */
+			$post_title = isset( $json_params['title'] ) ? sanitize_text_field( $json_params['title'] ) : null;
+			if ( $post_title ) {
+				wp_update_post(
+					array(
+						'ID'         => $post_id,
+						'post_title' => $post_title,
+					)
+				);
+			}
+
+			$post_content = isset( $json_params['description'] ) ? sanitize_textarea_field( $json_params['description'] ) : null;
+			if ( $post_content ) {
+				wp_update_post(
+					array(
+						'ID'           => $post_id,
+						'post_content' => $post_content,
+					)
+				);
+			}
 
 			// VideoPress data is stored in attachment meta for Jetpack sites, but not on wpcom.
 			if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
@@ -168,26 +192,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta           = true;
 				}
 
-				if ( isset( $json_params['title'] ) ) {
-					$meta['videopress']['title'] = sanitize_text_field( $json_params['title'] );
+				if ( isset( $post_title ) ) {
+					$meta['videopress']['title'] = $post_title;
 					$should_update_meta          = true;
-					wp_update_post(
-						array(
-							'ID'         => $post_id,
-							'post_title' => $json_params['title'],
-						)
-					);
 				}
 
 				if ( isset( $json_params['description'] ) ) {
-					$meta['videopress']['description'] = sanitize_textarea_field( $json_params['description'] );
+					$meta['videopress']['description'] = $post_content;
 					$should_update_meta                = true;
-					wp_update_post(
-						array(
-							'ID'           => $post_id,
-							'post_content' => $json_params['description'],
-						)
-					);
 				}
 
 				if ( isset( $json_params['allow_download'] ) ) {
