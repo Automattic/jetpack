@@ -22,7 +22,7 @@ const ConnectErrorNotice = () => {
 				<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
 					<Icon icon={ warning } />
 					<div className={ styles.message }>{ errors[ 0 ].error_message }</div>
-					<Button variant="external-link" weight="bold" className={ styles.link }>
+					<Button variant="link" className={ styles.link } href="#">
 						{ __( 'Restore Connection', 'jetpack' ) }
 					</Button>
 				</Notice>
