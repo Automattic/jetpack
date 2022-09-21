@@ -839,6 +839,11 @@ class Helper {
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
+		// @todo Determine $show_powered_by by real pricing tier
+		// $show_powered_by = get_option( $prefix . 'show_powered_by', '1' ) === '1';
+		//phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$show_powered_by = isset( $_GET['free_tier'] ) && $_GET['free_tier'] === '1';
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'        => get_option( $prefix . 'color_theme', 'light' ),
@@ -847,7 +852,7 @@ class Helper {
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
+				'showPoweredBy'     => $show_powered_by,
 
 				// These options require kicking off a new search.
 				'defaultSort'       => get_option( $prefix . 'default_sort', 'relevance' ),
