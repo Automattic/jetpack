@@ -32,17 +32,17 @@
 		"automattic/jetpack-lazy-images": "2.1.x-dev",
 		"automattic/jetpack-licensing": "1.7.x-dev",
 		"automattic/jetpack-logo": "1.5.x-dev",
-		"automattic/jetpack-my-jetpack": "2.0.x-dev",
+		"automattic/jetpack-my-jetpack": "2.1.x-dev",
 		"automattic/jetpack-partner": "1.7.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
 		"automattic/jetpack-post-list": "0.4.x-dev",
-		"automattic/jetpack-publicize": "0.13.x-dev",
+		"automattic/jetpack-publicize": "0.15.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-search": "0.22.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
-		"automattic/jetpack-videopress": "0.2.x-dev",
+		"automattic/jetpack-videopress": "0.4.x-dev",
 		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-wordads": "0.2.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
@@ -100,7 +100,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_4_a_0",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_4_a_6",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

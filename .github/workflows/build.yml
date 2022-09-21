@@ -54,6 +54,8 @@ jobs:
         id: check-test-reminder-comment
         uses: actions/github-script@v6
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
         with:
           result-encoding: string
           script: |
@@ -120,7 +122,7 @@ jobs:
           script: |
             const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started.`;
+            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. More details: p9dueE-5Nn-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
