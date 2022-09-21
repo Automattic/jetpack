@@ -88,16 +88,16 @@ jobs:
       with:
         workflow: build.yml
         workflow_conclusion: "success"
-        path: ../build-output
+        path: build-output
 
     - name: Prepare plugin
-      working-directory: ${{ matrix.path }}
       env:
-        COMPOSER_ROOT_VERSION: "dev-trunk"
+        BUILD_DIR: ./build-output
+        PROJECT_PATH: ${{ matrix.path }}
       run: |
         if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
           echo "::group::Prepare build artefacts"
-          ls -lh ../build-output
+          .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
           echo "::group::Build plugin(s)"
@@ -109,7 +109,6 @@ jobs:
       working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        COMPOSER_ROOT_VERSION: "dev-trunk"
         RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
         PROJECT_NAME:  ${{ matrix.project }}
       run: |
