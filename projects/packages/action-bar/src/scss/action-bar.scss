@@ -160,10 +160,9 @@
 	z-index: 6;
 	transition: opacity 0.2s ease-in-out;
 	display: none;
-}
-
-.jetpack-action-bar__modal.active {
-	display: block;
+	&.active {
+		display: block;
+	}
 }
 
 /* Authenticate ------------------------------------------------ */
@@ -220,10 +219,10 @@
 	padding: 4px;
 	margin-top: -4px;
 	margin-right: -4px;
-}
-.jetpack-action-bar__close:focus {
-	border-radius: 2px;
-	outline: 1px solid #c3c4c7;
+	&:focus {
+		border-radius: 2px;
+		outline: 1px solid #c3c4c7;
+	}
 }
 .jetpack-action-bar__modal header .site-icon {
 	height: 28px;
@@ -248,14 +247,14 @@
 	flex: 1;
 	color: black;
 	text-decoration: none;
-}
-.jetpack-action-bar__modal-title:focus,
-.jetpack-action-bar__modal-title:hover {
-	color: black;
-	text-decoration: underline;
-}
-.jetpack-action-bar__modal-title strong {
-	font-weight: 600;
+	&:focus,
+	&:hover {
+		color: black;
+		text-decoration: underline;
+	}
+	strong {
+		font-weight: 600;
+	}
 }
 /* Follow link ------------------------------------------------ */
 /* .jetpack-action-bar__modal a.follow-link {
@@ -286,29 +285,29 @@
 .jetpack-action-bar__modal section {
 	border-top: 1px solid rgba(0, 0, 0, 0.08);
 	padding: 16px;
-}
-/* .jetpack-action-bar__modal section.follow-section {
-	display: none;
-}
-.jetpack-action-bar__modal .follow-section.show {
-	display: block;
-} */
-.jetpack-action-bar__modal section.menu a {
-	color: #2c3338;
-	display: block;
-	margin-bottom: 20px;
-	text-decoration: none;
-}
-.jetpack-action-bar__modal section.menu a:focus {
-	border-radius: 2px;
-	outline: 1px solid #c3c4c7;
-	outline-offset: 2px;
-}
-.jetpack-action-bar__modal section.menu a:hover {
-	color: #0675c4;
-}
-.jetpack-action-bar__modal section.menu a:last-child {
-	margin-bottom: 0;
+	/* .jetpack-action-bar__modal section.follow-section {
+		display: none;
+	}
+	.jetpack-action-bar__modal .follow-section.show {
+		display: block;
+	} */
+	&.menu a {
+		color: #2c3338;
+		display: block;
+		margin-bottom: 20px;
+		text-decoration: none;
+	}
+	&.menu a:focus {
+		border-radius: 2px;
+		outline: 1px solid #c3c4c7;
+		outline-offset: 2px;
+	}
+	&.menu a:hover {
+		color: #0675c4;
+	}
+	&.menu a:last-child {
+		margin-bottom: 0;
+	}
 }
 /* Subscription Settings ------------------------------------------------ */
 /* .jetpack-action-bar__modal .settings {
