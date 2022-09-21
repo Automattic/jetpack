@@ -200,6 +200,7 @@ export const getStepContent = stepSlug => {
 				descriptionLink: getRedirectUrl( 'jetpack-for-agencies-assistant-recommendation' ),
 				ctaText: __( 'Get Jetpack for Agencies', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+				illustration: 'assistant-agency',
 			};
 		case 'backup-plan':
 			return {

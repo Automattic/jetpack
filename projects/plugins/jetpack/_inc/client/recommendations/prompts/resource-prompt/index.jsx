@@ -37,6 +37,7 @@ const ResourcePromptComponent = props => {
 		descriptionSecondary,
 		descriptionLink,
 		nextRoute,
+		illustration,
 		ctaText,
 		ctaLink,
 		stepSlug,
@@ -151,7 +152,7 @@ const ResourcePromptComponent = props => {
 					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
 				) : null
 			}
-			illustration={ DEFAULT_ILLUSTRATION }
+			illustration={ illustration || DEFAULT_ILLUSTRATION }
 		/>
 	);
 };
