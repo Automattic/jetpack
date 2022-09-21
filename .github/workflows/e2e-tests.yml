@@ -92,6 +92,7 @@ jobs:
 
     - name: Prepare plugin
       env:
+        COMPOSER_ROOT_VERSION: "dev-trunk"
         BUILD_DIR: ./build-output
         PROJECT_PATH: ${{ matrix.path }}
       run: |
