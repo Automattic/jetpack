@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.20.0 - 2022-09-20
+### Added
+- Introduce component IconTooltip [#26081]
+
+### Changed
+- JS Components: Use RNA button for ActionButton component [#23936]
+
+### Fixed
+- Fixed bug preventing Pricing Table from building properly. [#26214]
+- JS Components: Add basic a11y support to donut meter. [#26129]
+
 ## 0.19.0 - 2022-09-08
 ### Added
 - Components: apply Icon Button styles when icon and not-text properties are provided. [#25999]
