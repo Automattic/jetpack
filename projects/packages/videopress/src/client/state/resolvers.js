@@ -46,7 +46,17 @@ const getVideos = {
 				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
 			);
 
+			// pick the pagination data form response header...
+			const pagination = {
+				total: response.headers.get( 'X-WP-Total' ),
+				totalPages: response.headers.get( 'X-WP-TotalPages' ),
+			};
+
+			dispatch.setVideosPagination( pagination );
+
+			// ... and the videos data from the response body.
 			const videos = await response.json();
+
 			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videos ) );
 			return videos;
 		} catch ( error ) {
