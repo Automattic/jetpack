@@ -14,17 +14,61 @@ import usePosterUpload from '../../../hooks/use-poster-upload';
 import { STORE_ID } from '../../../state';
 import useVideo from '../../hooks/use-video';
 
+const usePosterEdit = video => {
+	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
+	const [ currentTime, setCurrentTime ] = useState( null );
+	const [ frameSelectorIsOpen, setFrameSelectorIsOpen ] = useState( false );
+
+	const posterUpload = usePosterUpload( video?.guid );
+	const posterImage = usePosterImage( video?.guid );
+
+	const posterImagePooling = () => {
+		posterImage().then( ( { data: result } ) => {
+			if ( result?.generating ) {
+				setTimeout( posterImagePooling, 2000 );
+			} else if ( result?.poster ) {
+				// TODO
+			}
+		} );
+	};
+
+	const updatePosterImage = () => {
+		posterUpload( { at_time: videoFrameMs, is_millisec: true } ).then( () => {
+			posterImagePooling();
+		} );
+	};
+
+	const handleConfirmFrame = () => {
+		setVideoFrameMs( currentTime );
+		setFrameSelectorIsOpen( false );
+	};
+
+	const handleVideoFrameSelected = ( time: number ) => {
+		setCurrentTime( time );
+	};
+
+	return {
+		handleConfirmFrame,
+		handleCloseSelectFrame: () => setFrameSelectorIsOpen( false ),
+		handleOpenSelectFrame: () => setFrameSelectorIsOpen( true ),
+		handleVideoFrameSelected,
+		useVideoAsThumbnail: videoFrameMs !== null,
+		selectedTime: videoFrameMs ? videoFrameMs / 1000 : null,
+		frameSelectorIsOpen,
+		updatePosterImage,
+	};
+};
+
 export default () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch( STORE_ID );
-	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
+
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-
 	const video = useVideo( Number( videoId ) );
+
 	const updateMeta = useMetaUpdate( videoId );
-	const posterUpload = usePosterUpload( video?.videopress_guid?.[ 0 ] );
-	const posterImage = usePosterImage( video?.videopress_guid?.[ 0 ] );
+	const posterEditData = usePosterEdit( video );
 
 	const [ updating, setUpdating ] = useState( false );
 	const [ data, setData ] = useState( video );
@@ -45,7 +89,6 @@ export default () => {
 	const setCaption = ( caption: string ) => {
 		setData( { ...data, caption } );
 	};
-
 	const handleSaveChanges = () => {
 		setUpdating( true );
 		updateMeta( data )
@@ -58,23 +101,6 @@ export default () => {
 				// TODO: provide feedback for user
 			} );
 	};
-
-	const posterImagePooling = () => {
-		posterImage().then( ( { data: result } ) => {
-			if ( result?.generating ) {
-				setTimeout( posterImagePooling, 2000 );
-			} else if ( result?.poster ) {
-				// TODO
-			}
-		} );
-	};
-
-	const handleSelectFrame = () => {
-		posterUpload( { at_time: videoFrameMs, is_millisec: true } ).then( () => {
-			posterImagePooling();
-		} );
-	};
-
 	// Make sure we have the latest data from the API
 	// Used to update the data when user navigates direct from Media Library
 	useEffect( () => {
@@ -89,7 +115,6 @@ export default () => {
 		saveDisabled,
 		handleSaveChanges,
 		updating,
-		setVideoFrameMs,
-		handleSelectFrame,
+		...posterEditData,
 	};
 };

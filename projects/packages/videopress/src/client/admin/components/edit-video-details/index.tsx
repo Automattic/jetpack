@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import VideoFrameSelector from '../../../components/video-frame-selector';
+import VideoFrameSelector, { VideoPlayer } from '../../../components/video-frame-selector';
 /**
  * Internal dependencies
  */
@@ -110,25 +110,33 @@ const Infos = ( {
 };
 
 const EditVideoDetails = () => {
-	const [ frameSelectorIsOpen, setFrameSelectorIsOpen ] = useState( false );
 	const [ modalRef, setModalRef ] = useState< HTMLDivElement | null >( null );
 	const {
+		// Video Data
 		duration,
 		posterImage,
 		filename,
 		uploadDate,
 		url,
 		title,
-		setTitle,
 		description,
-		setDescription,
 		caption,
-		setCaption,
+		// Page State/Actions
 		saveDisabled,
-		handleSaveChanges,
 		updating,
-		setVideoFrameMs,
-		handleSelectFrame,
+		handleSaveChanges,
+		// Metadata
+		setTitle,
+		setDescription,
+		setCaption,
+		// Poster Image
+		useVideoAsThumbnail,
+		selectedTime,
+		handleConfirmFrame,
+		handleCloseSelectFrame,
+		handleOpenSelectFrame,
+		handleVideoFrameSelected,
+		frameSelectorIsOpen,
 	} = useEditDetails();
 
 	return (
@@ -136,17 +144,21 @@ const EditVideoDetails = () => {
 			{ frameSelectorIsOpen && (
 				<Modal
 					title={ __( 'Select thumbnail from video', 'jetpack-videopress-pkg' ) }
-					onRequestClose={ () => setFrameSelectorIsOpen( false ) }
+					onRequestClose={ handleCloseSelectFrame }
 					isDismissible={ false }
 				>
 					<ThemeProvider targetDom={ modalRef }>
 						<div ref={ setModalRef } className={ styles.selector }>
-							<VideoFrameSelector src={ url } onVideoFrameSelected={ setVideoFrameMs } />
+							<VideoFrameSelector
+								src={ url }
+								onVideoFrameSelected={ handleVideoFrameSelected }
+								initialCurrentTime={ selectedTime }
+							/>
 							<div className={ styles.actions }>
-								<Button variant="secondary" onClick={ () => setFrameSelectorIsOpen( false ) }>
+								<Button variant="secondary" onClick={ handleCloseSelectFrame }>
 									{ __( 'Close', 'jetpack-videopress-pkg' ) }
 								</Button>
-								<Button variant="primary" onClick={ handleSelectFrame }>
+								<Button variant="primary" onClick={ handleConfirmFrame }>
 									{ __( 'Select this frame', 'jetpack-videopress-pkg' ) }
 								</Button>
 							</div>
@@ -179,10 +191,16 @@ const EditVideoDetails = () => {
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ posterImage }
+								thumbnail={
+									useVideoAsThumbnail ? (
+										<VideoPlayer src={ url } currentTime={ selectedTime } />
+									) : (
+										posterImage
+									)
+								}
 								duration={ duration }
 								editable
-								onSelectFromVideo={ () => setFrameSelectorIsOpen( true ) }
+								onSelectFromVideo={ handleOpenSelectFrame }
 							/>
 							<VideoDetails
 								filename={ filename ?? '' }
