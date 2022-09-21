@@ -48,8 +48,8 @@ const getVideos = {
 
 			// pick the pagination data form response header...
 			const pagination = {
-				total: response.headers.get( 'X-WP-Total' ),
-				totalPages: response.headers.get( 'X-WP-TotalPages' ),
+				total: Number( response.headers.get( 'X-WP-Total' ) ),
+				totalPages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
 			};
 
 			dispatch.setVideosPagination( pagination );
