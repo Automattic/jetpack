@@ -89,7 +89,7 @@ jobs:
         workflow_conclusion: "success"
         path: build-output
 
-    - name: Prepare plugin
+    - name: Prepare build
       env:
         COMPOSER_ROOT_VERSION: "dev-trunk"
         BUILD_DIR: ./build-output
