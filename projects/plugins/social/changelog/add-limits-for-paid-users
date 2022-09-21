@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added check to not show the share metre if someone has a paid plan.

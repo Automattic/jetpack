@@ -24,7 +24,7 @@
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
 		"prepare": "husky install",
-		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json}\"",
+		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json,json5}\"",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
