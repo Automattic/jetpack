@@ -1419,12 +1419,12 @@ importers:
 
   projects/plugins/boost/tests/e2e:
     specifiers:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: '*'
     devDependencies:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
@@ -1653,12 +1653,12 @@ importers:
 
   projects/plugins/jetpack/tests/e2e:
     specifiers:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: '*'
     devDependencies:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
@@ -1727,12 +1727,12 @@ importers:
 
   projects/plugins/search/tests/e2e:
     specifiers:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: '*'
     devDependencies:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
@@ -1847,12 +1847,12 @@ importers:
 
   projects/plugins/starter-plugin/tests/e2e:
     specifiers:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: '*'
     devDependencies:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
@@ -1907,12 +1907,12 @@ importers:
 
   projects/plugins/videopress/tests/e2e:
     specifiers:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: '*'
     devDependencies:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
@@ -1970,7 +1970,7 @@ importers:
 
   tools/e2e-commons:
     specifiers:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       '@slack/web-api': 6.7.2
       allure-playwright: 2.0.0-beta.19
       axios: 0.27.2
@@ -1984,7 +1984,7 @@ importers:
       winston: 3.8.1
       yargs: 17.5.1
     devDependencies:
-      '@playwright/test': 1.25.0
+      '@playwright/test': 1.26.0
       '@slack/web-api': 6.7.2
       allure-playwright: 2.0.0-beta.19
       axios: 0.27.2
@@ -5078,13 +5078,13 @@ packages:
       uuid: 3.4.0
     dev: true
 
-  /@playwright/test/1.25.0:
-    resolution: {integrity: sha512-j4EZhTTQI3dBeWblE21EV//swwmBtOpIrLdOIJIRv4uqsLdHgBg1z+JtTg+AeC5o2bAXIE26kDNW5A0TimG8Bg==}
+  /@playwright/test/1.26.0:
+    resolution: {integrity: sha512-D24pu1k/gQw3Lhbpc38G5bXlBjGDrH5A52MsrH12wz6ohGDeQ+aZg/JFSEsT/B3G8zlJe/EU4EkJK74hpqsjEg==}
     engines: {node: '>=14'}
     hasBin: true
     dependencies:
       '@types/node': 18.7.16
-      playwright-core: 1.25.0
+      playwright-core: 1.26.0
     dev: true
 
   /@pm2/agent/2.0.1:
@@ -7150,7 +7150,7 @@ packages:
     resolution: {integrity: sha512-l6NQsDDyQUVeoTynNpC9uRvCUint/gSUXQA2euwmTuWGvPY5LSDUu6tkCtJB2SvGQlJQzLaKqcGZP4//7EDveA==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 16.11.58
+      '@types/node': 18.7.16
     dev: true
 
   /@types/graceful-fs/4.1.5:
@@ -7254,7 +7254,7 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 16.11.58
+      '@types/node': 18.7.16
       form-data: 3.0.1
     dev: true
 
@@ -7399,7 +7399,7 @@ packages:
   /@types/webpack/5.28.0_webpack-cli@4.9.1:
     resolution: {integrity: sha512-8cP0CzcxUiFuA9xGJkfeVpqmWTk9nx6CWwamRGCj95ph1SmlRRk9KlCZ6avhCbZd4L68LvYT6l1kpdEnQXrF8w==}
     dependencies:
-      '@types/node': 16.11.58
+      '@types/node': 18.7.16
       tapable: 2.2.1
       webpack: 5.72.1_webpack-cli@4.9.1
     transitivePeerDependencies:
@@ -13907,7 +13907,7 @@ packages:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.3
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -16955,8 +16955,8 @@ packages:
       find-up: 5.0.0
     dev: true
 
-  /playwright-core/1.25.0:
-    resolution: {integrity: sha512-kZ3Jwaf3wlu0GgU0nB8UMQ+mXFTqBIFz9h1svTlNduNKjnbPXFxw7mJanLVjqxHJRn62uBfmgBj93YHidk2N5Q==}
+  /playwright-core/1.26.0:
+    resolution: {integrity: sha512-p8huU8eU4gD3VkJd3DA1nA7R3XA6rFvFL+1RYS96cSljCF2yJE9CWEHTPF4LqX8KN9MoWCrAfVKP5381X3CZqg==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
