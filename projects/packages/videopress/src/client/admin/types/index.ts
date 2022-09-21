@@ -74,6 +74,10 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 */
 	title: string;
 	/**
+	 * VideoPress GUID
+	 */
+	guid?: string;
+	/**
 	 * Video upload date
 	 */
 	uploadDate: string;

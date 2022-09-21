@@ -23,7 +23,7 @@ export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
 ): VideoPressVideo => {
-	const { media_details: mediaDetails, id, caption } = video;
+	const { media_details: mediaDetails, id, caption, jetpack_videopress_guid: guid } = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
@@ -46,6 +46,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 
 	return {
 		id,
+		guid,
 		title,
 		description,
 		caption,
