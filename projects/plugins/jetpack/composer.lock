@@ -117,7 +117,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/action-bar",
-                "reference": "79e9a0b07d9540cc47962d41fc42af6658645838"
+                "reference": "f4440c726aa7843213d4d195540ee26a09d8a676"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -166,6 +166,10 @@
                 ],
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
