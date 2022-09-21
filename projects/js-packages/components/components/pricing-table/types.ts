@@ -7,7 +7,11 @@ export type PricingTableProps = {
 	/**
 	 * Array of items to display in the pricing table.
 	 */
-	items: string[];
+	items: {
+		name: string;
+		tooltipInfo?: string;
+		tooltipTitle?: string;
+	}[];
 
 	/**
 	 * The columns to add to the table.
@@ -16,6 +20,11 @@ export type PricingTableProps = {
 };
 
 export type PricingTableColumnProps = {
+	/**
+	 * Whether the column has the primary style.
+	 */
+	primary?: boolean;
+
 	/**
 	 * Items to show in a column.
 	 */
@@ -44,4 +53,14 @@ export type PricingTableItemProps = {
 	 * Index of the item, relative to other PricingTableItem components. Internal use only.
 	 */
 	index?: number;
+
+	/*
+	 * If the item has more description a popover info can contain that.
+	 */
+	tooltipInfo?: string;
+
+	/**
+	 * Title for the popover, not required.
+	 */
+	tooltipTitle?: string;
 };
