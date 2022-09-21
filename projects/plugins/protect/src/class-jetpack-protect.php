@@ -18,6 +18,7 @@ use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -250,6 +251,15 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'clear-scan-cache',
+			array(
+				'methods'  => \WP_REST_SERVER::EDITABLE,
+				'callback' => __CLASS__ . '::api_clear_scan_cache',
+			)
+		);
 	}
 
 	/**
@@ -260,5 +270,20 @@ class Jetpack_Protect {
 	public static function api_get_status() {
 		$status = Protect_Status::get_status();
 		return rest_ensure_response( $status, 200 );
+	}
+
+	/**
+	 * Clear the Scan_Status cache for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_clear_scan_cache() {
+		$cache_cleared = Scan_Status::delete_option();
+
+		if ( ! $cache_cleared ) {
+			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan cache.', 500 );
+		}
+
+		return new WP_REST_Response( 'Jetpack Scan cache cleared.' );
 	}
 }

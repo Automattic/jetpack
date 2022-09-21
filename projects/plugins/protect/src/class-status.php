@@ -134,11 +134,13 @@ class Status {
 	/**
 	 * Delete the cached status and its timestamp
 	 *
-	 * @return void
+	 * @return bool Whether all related status options were successfully deleted.
 	 */
 	public static function delete_option() {
-		delete_option( static::$option_name );
-		delete_option( static::$option_timestamp_name );
+		$option_deleted           = delete_option( static::$option_name );
+		$option_timestamp_deleted = delete_option( static::$option_timestamp_name );
+
+		return $option_deleted && $option_timestamp_deleted;
 	}
 
 	/**
