@@ -17,6 +17,7 @@ export default function useVideos() {
 		// Data
 		items: useSelect( select => select( STORE_ID ).getVideos(), [] ),
 		...useSelect( select => select( STORE_ID ).getVideosQuery() || {} ),
+		...useSelect( select => select( STORE_ID ).getPagination(), [] ),
 
 		// Setters
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
