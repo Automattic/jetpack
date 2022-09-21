@@ -102,11 +102,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$this->rest_base . '/(?P<video_guid>\w+)/poster',
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'videopress_block_get_poster' ),
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'videopress_block_get_poster' ),
+					'permission_callback' => function () {
+						return current_user_can( 'read' );
+					},
 				),
 				array(
-					'args'     => array(
+					'args'                => array(
 						'at_time'              => array(
 							'description'       => __( 'The time in the video to use as the poster frame.', 'jetpack-videopress-pkg' ),
 							'type'              => 'int',
@@ -130,8 +133,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							},
 						),
 					),
-					'methods'  => WP_REST_Server::EDITABLE,
-					'callback' => array( $this, 'videopress_block_update_poster' ),
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'videopress_block_update_poster' ),
+					'permission_callback' => function () {
+						return current_user_can( 'upload_files' );
+					},
 				),
 			)
 		);
