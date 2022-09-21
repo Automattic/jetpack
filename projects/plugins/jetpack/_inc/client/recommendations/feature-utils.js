@@ -85,7 +85,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 
 export const mapStateToSummaryResourceProps = resourceSlug => {
 	switch ( resourceSlug ) {
-		case 'builder':
+		case 'agency':
 			return {
 				displayName: __( 'Jetpack for Agencies', 'jetpack' ),
 				ctaLabel: __( 'Sign Up', 'jetpack' ),
@@ -188,7 +188,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 
 export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
-		case 'builder':
+		case 'agency':
 			return {
 				progressValue: '28',
 				question: __( 'Manage your clients’ sites with ease', 'jetpack' ),

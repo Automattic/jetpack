@@ -280,8 +280,8 @@ const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
-	'site-type-question': 'builder',
-	builder: 'woocommerce',
+	'site-type-question': 'agency',
+	agency: 'woocommerce',
 	'product-suggestions': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
@@ -301,7 +301,7 @@ export const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
 	'product-suggestions': '#/recommendations/product-suggestions',
-	builder: '#/recommendations/builder',
+	agency: '#/recommendations/agency',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	'related-posts': '#/recommendations/related-posts',
@@ -429,8 +429,8 @@ const isStepEligibleToShow = ( state, step ) => {
 			return true;
 		case 'product-suggestions':
 			return isProductSuggestionsAvailable( state );
-		case 'builder':
-			return !! getDataByKey( state, 'site-type-builder' );
+		case 'agency':
+			return !! getDataByKey( state, 'site-type-agency' );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':
@@ -503,8 +503,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	switch ( slug ) {
 		case 'woocommerce':
 			return true === getDataByKey( state, 'site-type-store' );
-		case 'builder':
-			return true === getDataByKey( state, 'site-type-builder' );
+		case 'agency':
+			return true === getDataByKey( state, 'site-type-agency' );
 		case 'monitor':
 			return hasConnectedOwner( state );
 		case 'boost':
@@ -557,7 +557,7 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSummaryResourceSlugs = state => {
-	const resourceSlugs = [ 'builder', 'anti-spam', 'backup-plan' ];
+	const resourceSlugs = [ 'agency', 'anti-spam', 'backup-plan' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };

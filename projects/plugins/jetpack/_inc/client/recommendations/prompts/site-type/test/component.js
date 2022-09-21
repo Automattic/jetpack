@@ -28,7 +28,7 @@ function buildInitialState() {
 			recommendations: {
 				data: {
 					'site-type-store': true,
-					'site-type-builder': true,
+					'site-type-agency': true,
 				},
 				requests: {
 					isFetchingRecommendationsProductSuggestions: false,
@@ -120,7 +120,7 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 
 		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
-		expect( continueLink.href ).toContain( '/recommendations/builder' );
+		expect( continueLink.href ).toContain( '/recommendations/agency' );
 
 		expect( saveRecommendationsStub ).not.toHaveBeenCalled();
 		await user.click( continueLink );

@@ -3,7 +3,7 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	SITE_TYPE: 'site-type-question',
 	PRODUCT_SUGGESTIONS: 'product-suggestions',
 	PRODUCT_PURCHASED: 'product-purchased',
-	BUILDER: 'builder',
+	AGENCY: 'agency',
 	WOOCOMMERCE: 'woocommerce',
 	MONITOR: 'monitor',
 	RELATED_POSTS: 'related-posts',

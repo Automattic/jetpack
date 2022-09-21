@@ -41,7 +41,7 @@ const SiteTypeQuestionComponent = props => {
 		<div className="jp-recommendations-question__site-type-answer-container">
 			<div className="jp-recommendations-question__site-type-checkboxes">
 				<CheckboxAnswer
-					answerKey={ 'site-type-builder' }
+					answerKey={ 'site-type-agency' }
 					title={ __( 'I build or manage this site for a client', 'jetpack' ) }
 					info={ __(
 						'Are you an agency or developer that builds or manages sites for clients?',
@@ -102,7 +102,7 @@ export const SiteTypeQuestion = connect(
 		siteTitle: getSiteTitle( state ),
 		answers: {
 			personal: getDataByKey( state, 'site-type-personal' ),
-			builder: getDataByKey( state, 'site-type-builder' ),
+			builder: getDataByKey( state, 'site-type-agency' ),
 			store: getDataByKey( state, 'site-type-store' ),
 		},
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),

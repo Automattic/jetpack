@@ -43,8 +43,8 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.PRODUCT_PURCHASED:
 			redirectPath = '/product-purchased';
 			break;
-		case RECOMMENDATION_WIZARD_STEP.BUILDER:
-			redirectPath = '/builder';
+		case RECOMMENDATION_WIZARD_STEP.AGENCY:
+			redirectPath = '/agency';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.WOOCOMMERCE:
 			redirectPath = '/woocommerce';
@@ -120,8 +120,8 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/product-purchased">
 						<ProductPurchased />
 					</Route>
-					<Route path="/recommendations/builder">
-						<ResourcePrompt stepSlug="builder" />
+					<Route path="/recommendations/agency">
+						<ResourcePrompt stepSlug="agency" />
 					</Route>
 					<Route path="/recommendations/woocommerce">
 						<FeaturePrompt stepSlug="woocommerce" />
