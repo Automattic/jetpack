@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { gmdateI18n } from '@wordpress/date';
-/**
  * Internal dependencies
  */
 import { OriginalVideoPressVideo, VideoPressVideo } from '../types';
@@ -16,7 +12,7 @@ export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
 	};
 };
 
-// priobably @deprecated since it was used when hitting the admin-ajax endpoint
+// Probably @deprecated since it was used when hitting the admin-ajax endpoint
 export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
 	return videos.map( mapVideo );
 };
@@ -33,7 +29,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		description,
 		original: url,
 		poster,
-		upload_date: date,
+		upload_date: uploadDate,
 		duration,
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
@@ -55,10 +51,9 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		description,
 		caption,
 		url,
-		date,
+		uploadDate,
 		duration,
 		isPrivate,
-		dateFormatted: gmdateI18n( 'F j, Y', date ),
 		posterImage: poster,
 		poster: {
 			src: poster,

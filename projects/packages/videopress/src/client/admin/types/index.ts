@@ -24,11 +24,8 @@ export type OriginalVideoPressVideo = {
 	/**
 	 * Video uploaded date in UTC
 	 */
-	date: number;
-	/**
-	 * Video uploaded date formatted
-	 */
-	dateFormatted: string;
+	uploadDate: number;
+
 	/**
 	 * Video duration, in milliseconds
 	 */
@@ -84,10 +81,6 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 * VideoPress GUID
 	 */
 	guid?: string;
-	/**
-	 * Video upload date
-	 */
-	uploadDate: string;
 };
 
 export type LocalVideo = {
