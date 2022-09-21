@@ -122,6 +122,15 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Check if the Publicize module is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_publicize_active() {
+		return ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+	}
+
+	/**
 	 * Get the version number of the plugin.
 	 *
 	 * @return string
@@ -183,7 +192,7 @@ class Jetpack_Social {
 				'pluginVersion'     => $this->get_plugin_version(),
 			),
 			'jetpackSettings' => array(
-				'publicize_active'  => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+				'publicize_active'  => self::is_publicize_active(),
 				'show_pricing_page' => self::should_show_pricing_page(),
 			),
 			'connectionData'  => array(
@@ -209,11 +218,7 @@ class Jetpack_Social {
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
-		if (
-			! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ||
-			class_exists( 'Jetpack' ) ||
-			! $this->is_supported_post()
-		) {
+		if ( ! self::is_publicize_active() || class_exists( 'Jetpack' ) || ! $this->is_supported_post() ) {
 			return;
 		}
 

@@ -74,7 +74,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 		$data   = array();
 
 		if ( rest_is_field_included( 'publicize_active', $fields ) ) {
-			$data['publicize_active'] = ( new Modules() )->is_active( \Jetpack_Social::JETPACK_PUBLICIZE_MODULE_SLUG );
+			$data['publicize_active'] = Jetpack_Social::is_publicize_active();
 		}
 
 		if ( rest_is_field_included( 'show_pricing_page', $fields ) ) {
