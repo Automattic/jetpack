@@ -1,3 +1,4 @@
+import { Button } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
@@ -21,7 +22,9 @@ const ConnectErrorNotice = () => {
 				<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
 					<Icon icon={ warning } />
 					<div className={ styles.message }>{ errors[ 0 ].error_message }</div>
-					<a className={ styles.link }>{ __( 'Restore Connection', 'jetpack' ) }</a>
+					<Button variant="link" className={ styles.link } href="#">
+						{ __( 'Restore Connection', 'jetpack' ) }
+					</Button>
 				</Notice>
 			);
 		}
