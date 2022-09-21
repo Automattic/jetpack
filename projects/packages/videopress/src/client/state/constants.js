@@ -2,10 +2,12 @@
  * STORE
  */
 export const STORE_ID = 'videopress/media';
+
 /*
  * API
  */
-export const REST_API_SITE_PURCHASES_ENDPOINT = '/wp-admin/admin-ajax.php';
+export const WP_ADMIN_AJAX_API_URL = '/wp-admin/admin-ajax.php';
+export const WP_REST_API_MEDIA_ENDPOINT = '/wp/v2/media';
 
 /*
  * Actions

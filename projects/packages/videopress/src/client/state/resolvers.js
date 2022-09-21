@@ -1,16 +1,19 @@
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
+/**
  * Internal dependencies
  */
-import { REST_API_SITE_PURCHASES_ENDPOINT, SET_VIDEOS_QUERY } from './constants';
+import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
 import { getDefaultQuery } from './reducers';
+import { mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
 const getVideos = {
 	fulfill: () => async ( { dispatch, select } ) => {
-		const payload = new FormData();
-		payload.set( 'action', 'query-attachments' );
-		payload.set( 'post_id', 0 );
-
 		let query = select.getVideosQuery();
+
 		/*
 		 * If there is no query:
 		 * - set the default query (dispatch)
@@ -21,31 +24,29 @@ const getVideos = {
 			dispatch.setVideosQuery( query );
 		}
 
-		payload.set( 'query[orderby]', query.orderBy );
-		payload.set( 'query[order]', query.order );
-		payload.set( 'query[posts_per_page]', query.itemsPerPage );
-		payload.set( 'query[paged]', query.page );
-		payload.set( 'query[post_mime_type]', query.type );
+		// Map query to the format expected by the API.
+		const wpv2MediaQuery = {
+			order: query.order,
+			orderby: query.orderBy,
+			page: query.page,
+			per_page: query.itemsPerPage,
+			media_type: 'video',
+			mime_type: 'video/videopress',
+		};
 
 		if ( typeof query.search === 'string' && query.search.length > 0 ) {
-			payload.set( 'query[s]', query.search );
+			wpv2MediaQuery.search = query.search;
 		}
 
 		dispatch.setIsFetchingVideos( true );
 
 		try {
-			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
-				method: 'POST',
-				body: payload,
+			const videosList = await apiFetch( {
+				path: addQueryArgs( WP_REST_API_MEDIA_ENDPOINT, wpv2MediaQuery ),
 			} );
 
-			const body = await response.json();
-			if ( ! body.success ) {
-				return dispatch.setFetchVideosError( body.data );
-			}
-
-			dispatch.setVideos( body.data );
-			return body.data;
+			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videosList ) );
+			return videosList;
 		} catch ( error ) {
 			dispatch.setFetchVideosError( error );
 		}

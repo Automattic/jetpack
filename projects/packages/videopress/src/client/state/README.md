@@ -13,7 +13,7 @@ export default function VideoList() {
 	const videos = useSelect( select => select( 'videopress/media' ).getVideos( {
 		itemsPerPage: 10,
 		orderBy: 'date',
-		order: 'DESC',
+		order: 'desc',
 	} ), [] );
 
 	return (
