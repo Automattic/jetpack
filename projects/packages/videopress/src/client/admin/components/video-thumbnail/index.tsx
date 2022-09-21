@@ -118,11 +118,11 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			{ thumbnail ? (
+			{ typeof thumbnail === 'string' ? (
 				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 			) : (
 				<div className={ styles[ 'thumbnail-placeholder' ] }>
-					<Icon icon={ video } size={ 96 } />
+					{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
 				</div>
 			) }
 		</div>
