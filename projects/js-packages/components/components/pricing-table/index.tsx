@@ -56,7 +56,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	const defaultTooltipTitle = items[ index ].tooltipTitle;
 	const includedLabel = __( 'Included', 'jetpack' );
 	const notIncludedLabel = __( 'Not included', 'jetpack' );
-	const showTooltip = tooltipInfo || ! isLg;
+	const showTooltip = tooltipInfo || ( ! isLg && defaultTooltipInfo );
 
 	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
 	defaultLabel = isLg ? defaultLabel : rowLabel;
@@ -146,15 +146,17 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 								<Text variant="body-small">
 									<strong>{ item.name }</strong>
 								</Text>
-								<IconTooltip
-									title={ item.tooltipTitle }
-									iconClassName={ styles[ 'popover-icon' ] }
-									className={ styles.popover }
-									placement={ 'bottom-end' }
-									iconSize={ 22 }
-								>
-									<Text>{ item.tooltipInfo }</Text>
-								</IconTooltip>
+								{ item.tooltipInfo && (
+									<IconTooltip
+										title={ item.tooltipTitle }
+										iconClassName={ styles[ 'popover-icon' ] }
+										className={ styles.popover }
+										placement={ 'bottom-end' }
+										iconSize={ 22 }
+									>
+										<Text>{ item.tooltipInfo }</Text>
+									</IconTooltip>
+								) }
 							</div>
 						) ) }
 					{ children }

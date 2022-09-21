@@ -63,7 +63,7 @@ const DefaultArgs = {
 			tooltipTitle: 'Title for C',
 		},
 		{ name: 'Feature D', tooltipInfo: 'Default info for Feature D', tooltipTitle: 'Title for D' },
-		{ name: 'Feature E', tooltipInfo: 'Default info for Feature E' },
+		{ name: 'Feature E' },
 	],
 };
 
