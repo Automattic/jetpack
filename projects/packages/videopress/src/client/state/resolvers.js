@@ -8,6 +8,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
 import { getDefaultQuery } from './reducers';
+import { mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
 const getVideos = {
 	fulfill: () => async ( { dispatch, select } ) => {
@@ -40,7 +41,7 @@ const getVideos = {
 				path: addQueryArgs( WP_REST_API_MEDIA_ENDPOINT, wpv2MediaQuery ),
 			} );
 
-			dispatch.setVideos( videosList );
+			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videosList ) );
 			return videosList;
 		} catch ( error ) {
 			dispatch.setFetchVideosError( error );
