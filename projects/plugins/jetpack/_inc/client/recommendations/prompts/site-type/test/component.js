@@ -120,7 +120,7 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 
 		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
-		expect( continueLink.href ).toContain( '/recommendations/woocommerce' );
+		expect( continueLink.href ).toContain( '/recommendations/builder' );
 
 		expect( saveRecommendationsStub ).not.toHaveBeenCalled();
 		await user.click( continueLink );
