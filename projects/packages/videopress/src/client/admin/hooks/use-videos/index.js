@@ -22,6 +22,6 @@ export default function useVideos() {
 		// Setters
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
 
-		setSearch: search => dispatch( STORE_ID ).setVideosQuery( { search } ),
+		setSearch: search => dispatch( STORE_ID ).setVideosQuery( { search, page: 1 } ),
 	};
 }
