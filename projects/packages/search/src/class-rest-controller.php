@@ -378,6 +378,9 @@ class REST_Controller {
 	 */
 	public function product_pricing() {
 		$tier_pricing = Search_Product::get_pricing_for_ui();
+		if ( Helper::is_forced_new_pricing_202208() ) {
+			$tier_pricing['pricing_version'] = Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
+		}
 		return rest_ensure_response( $tier_pricing );
 	}
 
