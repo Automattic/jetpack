@@ -1,3 +1,5 @@
+import React from 'react';
+
 export type VideoThumbnailDropdownProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
@@ -24,7 +26,7 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	/**
 	 * Video thumbnial image
 	 */
-	thumbnail?: string;
+	thumbnail?: string | React.ReactNode;
 
 	/**
 	 * Video duration. Number, in milliseconds.
