@@ -21,7 +21,7 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import withVideoChaptersEdit from './video-chapters/edit';
+import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
 
@@ -386,4 +386,9 @@ const addVideoPressSupport = ( settings, name ) => {
  * @see packages/block-editor/src/hooks/align.js
  */
 addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport, 5 );
-addFilter( 'editor.BlockEdit', 'videopress/with-video-chapters-edit', withVideoChaptersEdit );
+
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/add-wp-chapters-support',
+	addVideoPressVideoChaptersSupport
+);

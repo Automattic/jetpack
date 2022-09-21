@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-E2E tests: removed deprecated Slack notification code

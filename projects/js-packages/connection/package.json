@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.19.1-alpha",
+	"version": "0.20.0",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -15,6 +15,7 @@
 		"@wordpress/data": "7.0.0",
 		"@wordpress/element": "4.14.0",
 		"@wordpress/i18n": "4.16.0",
+		"@wordpress/icons": "9.7.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {

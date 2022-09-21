@@ -242,18 +242,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.4-a.3 - 2022-09-13
+### 11.4-a.5 - 2022-09-20
 #### Enhancements
-- VideoPress block (beta): register a video-chapters beta feature with basic controls.
-
-#### Improved compatibility
-- Jetpack: update styling for Jetpack logo shown in pre-publish panels for Jetpack and Jetpack Social plugins. [#26101, #26162]
-- Pay with PayPal block: the `postLinkUrl` attribute now uses the immutable post GUID to prevent the editor from becoming dirty after publishing a post.
-- Subscriptions: do not load Subscriptions block while using Jetpack Offline Mode.
-- VideoPress: move jetpack_videopress_guid REST custom field to VideoPress package.
+- Payment Blocks: add core typography settings to the buttons.
+- VideoPress Block (beta): various enhancements and fixes for styling, vtt files, and block settings. [#26266, #26182, #26201, #26269, #26286, #26270, #26264, #26225, #26260, #26238, #26209, #26285, #26283]
 
 #### Bug fixes
-- Widgets: add source check for broken image.
+- Fonts: set the `Automattic\JetpackFontsIntrospectorsGlobal_Styles::enqueue_global_styles_fonts` callback priority in the `init` hook to 22 to prevent it from causing style issues with sites that have Gutenberg > 13.5 activated.
+- Jetpack: fix a typo when selecting the VideoPress attachment info description field.
+- Subscriptions: add clearer messaging for past-published posts.
 
 --------
 
