@@ -101,6 +101,7 @@ jobs:
           echo "::endgroup::"
         else
           echo "::group::Build plugin(s)"
+          cd $PROJECT_PATH
           pnpm run build
           echo "::endgroup::"
         fi
