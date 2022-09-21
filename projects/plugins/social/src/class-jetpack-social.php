@@ -93,7 +93,7 @@ class Jetpack_Social {
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
 		// Add REST routes
-		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
@@ -119,6 +119,18 @@ class Jetpack_Social {
 	public function has_paid_plan() {
 		$refresh_from_wpcom = true;
 		return Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
+	}
+
+	/**
+	 * Get the version number of the plugin.
+	 *
+	 * @return string
+	 */
+	public function get_plugin_version() {
+		$plugin_data    = get_plugin_data( JETPACK_SOCIAL_PLUGIN_ROOT_FILE );
+		$plugin_version = $plugin_data['Version'];
+
+		return ! empty( $plugin_version ) ? $plugin_version : '';
 	}
 
 	/**
@@ -168,6 +180,7 @@ class Jetpack_Social {
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'siteSuffix'        => ( new Status() )->get_site_suffix(),
+				'pluginVersion'     => $this->get_plugin_version(),
 			),
 			'jetpackSettings' => array(
 				'publicize_active'  => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),

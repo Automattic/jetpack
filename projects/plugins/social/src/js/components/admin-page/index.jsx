@@ -7,7 +7,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { STORE_ID } from '../../store';
 import PricingPage from '../pricing-page';
@@ -23,22 +22,23 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const { showPricingPage, hasPaidPlan, isShareLimitEnabled } = useSelect( select => {
-		const store = select( STORE_ID );
-		return {
-			showPricingPage: store.showPricingPage(),
-			hasPaidPlan: store.hasPaidPlan(),
-			isShareLimitEnabled: store.isShareLimitEnabled(),
-		};
-	} );
+	const { showPricingPage, hasPaidPlan, isShareLimitEnabled, pluginVersion } = useSelect(
+		select => {
+			const store = select( STORE_ID );
+			return {
+				showPricingPage: store.showPricingPage(),
+				hasPaidPlan: store.hasPaidPlan(),
+				isShareLimitEnabled: store.isShareLimitEnabled(),
+				pluginVersion: store.getPluginVersion(),
+			};
+		}
+	);
+
+	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
 	if ( showConnectionCard ) {
 		return (
-			<AdminPage
-				moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) }
-				showHeader={ false }
-				showBackground={ false }
-			>
+			<AdminPage moduleName={ moduleName } showHeader={ false } showBackground={ false }>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						<ConnectionScreen />
@@ -48,9 +48,9 @@ const Admin = () => {
 		);
 	}
 
-	if ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) {
-		return (
-			<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
+	return (
+		<AdminPage moduleName={ moduleName } header={ <Logo /> }>
+			{ isShareLimitEnabled && ! hasPaidPlan && showPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -58,24 +58,22 @@ const Admin = () => {
 						</Col>
 					</Container>
 				</AdminSectionHero>
-			</AdminPage>
-		);
-	}
-
-	return (
-		<AdminPage moduleName={ __( 'Jetpack Social 1.0', 'jetpack-social' ) } header={ <Logo /> }>
-			<AdminSectionHero>
-				<Header />
-			</AdminSectionHero>
-			<AdminSection>
-				<ToggleSection />
-			</AdminSection>
-			<AdminSectionHero>
-				<InfoSection />
-			</AdminSectionHero>
-			<AdminSection>
-				<SupportSection />
-			</AdminSection>
+			) : (
+				<>
+					<AdminSectionHero>
+						<Header />
+					</AdminSectionHero>
+					<AdminSection>
+						<ToggleSection />
+					</AdminSection>
+					<AdminSectionHero>
+						<InfoSection />
+					</AdminSectionHero>
+					<AdminSection>
+						<SupportSection />
+					</AdminSection>
+				</>
+			) }
 		</AdminPage>
 	);
 };
