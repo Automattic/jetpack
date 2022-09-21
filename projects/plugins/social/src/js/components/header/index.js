@@ -22,6 +22,7 @@ const Header = () => {
 		sharesCount,
 		postsCount,
 		isShareLimitEnabled,
+		hasPaidPlan,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -31,6 +32,7 @@ const Header = () => {
 			sharesCount: select( STORE_ID ).getSharesCount(),
 			postsCount: select( STORE_ID ).getPostsCount(),
 			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
+			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
 		};
 	} );
 
@@ -61,7 +63,7 @@ const Header = () => {
 					</div>
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					{ isShareLimitEnabled ? (
+					{ isShareLimitEnabled && ! hasPaidPlan ? (
 						<ShareCounter value={ sharesCount } max={ 30 } />
 					) : (
 						<StatCards

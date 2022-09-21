@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Refactor SEO Description panel to share the same code for title and icon on both Pre-Publish panel and Jetpack Plugin Sidebar panel.
