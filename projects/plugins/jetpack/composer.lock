@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "545458bf0804fb80f0ddf26e9a897eee",
+    "content-hash": "165ea290552f7da38e4c720fb1b0abe2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -506,16 +506,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v1.44.0",
+            "version": "v1.45.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "a8b81b56f6656a89096a6259d94e34721506f6ea"
+                "reference": "01780a39cf8eb6ca75dc35a5cf9fbadfdbe8416d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/a8b81b56f6656a89096a6259d94e34721506f6ea",
-                "reference": "a8b81b56f6656a89096a6259d94e34721506f6ea",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/01780a39cf8eb6ca75dc35a5cf9fbadfdbe8416d",
+                "reference": "01780a39cf8eb6ca75dc35a5cf9fbadfdbe8416d",
                 "shasum": ""
             },
             "require": {
@@ -544,7 +544,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.44.x-dev"
+                    "dev-trunk": "1.45.x-dev"
                 }
             },
             "autoload": {
@@ -560,9 +560,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v1.44.0"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v1.45.2"
             },
-            "time": "2022-08-29T23:18:07+00:00"
+            "time": "2022-09-21T20:22:56+00:00"
         },
         {
             "name": "automattic/jetpack-connection-ui",
