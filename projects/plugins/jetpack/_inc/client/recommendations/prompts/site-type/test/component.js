@@ -28,7 +28,7 @@ function buildInitialState() {
 			recommendations: {
 				data: {
 					'site-type-store': true,
-					'site-type-agency': true,
+					'site-type-builder': true,
 				},
 				requests: {
 					isFetchingRecommendationsProductSuggestions: false,
@@ -149,7 +149,7 @@ describe( 'Recommendations – Site Type', () => {
 		await user.click( continueLink );
 		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_recommendations_site_type_answered', {
 			personal: false,
-			agency: true,
+			builder: true,
 			store: true,
 		} );
 
