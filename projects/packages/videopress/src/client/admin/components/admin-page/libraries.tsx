@@ -57,8 +57,8 @@ const VideoLibraryWrapper = ( {
 	hideFilter?: boolean;
 	title?: string;
 } ) => {
-	const { setSearch } = useVideos();
-	const [ searchQuery, setSearchQuery ] = useState( '' );
+	const { setSearch, search } = useVideos();
+	const [ searchQuery, setSearchQuery ] = useState( search );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
