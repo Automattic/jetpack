@@ -14,7 +14,7 @@ import usePosterUpload from '../../../hooks/use-poster-upload';
 import { STORE_ID } from '../../../state';
 import useVideo from '../../hooks/use-video';
 
-const usePosterEdit = video => {
+const usePosterEdit = ( { video } ) => {
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ currentTime, setCurrentTime ] = useState( null );
 	const [ frameSelectorIsOpen, setFrameSelectorIsOpen ] = useState( false );
@@ -22,19 +22,27 @@ const usePosterEdit = video => {
 	const posterUpload = usePosterUpload( video?.guid );
 	const posterImage = usePosterImage( video?.guid );
 
-	const posterImagePooling = () => {
+	const posterImagePooling = ( onGenerate = null ) => {
 		posterImage().then( ( { data: result } ) => {
 			if ( result?.generating ) {
-				setTimeout( posterImagePooling, 2000 );
+				setTimeout( () => posterImagePooling( onGenerate ), 2000 );
 			} else if ( result?.poster ) {
-				// TODO
+				onGenerate?.( result?.poster );
 			}
 		} );
 	};
 
 	const updatePosterImage = () => {
-		posterUpload( { at_time: videoFrameMs, is_millisec: true } ).then( () => {
-			posterImagePooling();
+		return new Promise( ( resolve, reject ) => {
+			if ( videoFrameMs ) {
+				posterUpload( { at_time: videoFrameMs, is_millisec: true } )
+					.then( () => {
+						posterImagePooling( resolve );
+					} )
+					.catch( reject );
+			} else {
+				resolve( null );
+			}
 		} );
 	};
 
@@ -59,6 +67,45 @@ const usePosterEdit = video => {
 	};
 };
 
+const useMetaEdit = ( { videoId, data, video, updateData } ) => {
+	const updateMeta = useMetaUpdate( videoId );
+
+	const metaChanged =
+		data?.title !== video?.title ||
+		data?.description !== video?.description ||
+		data?.caption !== video?.caption;
+
+	const setTitle = ( title: string ) => {
+		updateData( { title } );
+	};
+
+	const setDescription = ( description: string ) => {
+		updateData( { description } );
+	};
+
+	const setCaption = ( caption: string ) => {
+		updateData( { caption } );
+	};
+
+	const handleMetaUpdate = () => {
+		return new Promise( ( resolve, reject ) => {
+			if ( metaChanged ) {
+				updateMeta( data ).then( resolve ).catch( reject );
+			} else {
+				resolve( null );
+			}
+		} );
+	};
+
+	return {
+		setTitle,
+		setDescription,
+		setCaption,
+		handleMetaUpdate,
+		metaChanged,
+	};
+};
+
 export default () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch( STORE_ID );
@@ -67,39 +114,33 @@ export default () => {
 	const videoId = Number( videoIdFromParams );
 	const video = useVideo( Number( videoId ) );
 
-	const updateMeta = useMetaUpdate( videoId );
-	const posterEditData = usePosterEdit( video );
-
 	const [ updating, setUpdating ] = useState( false );
 	const [ data, setData ] = useState( video );
 
-	const saveDisabled =
-		data?.title === video?.title &&
-		data?.description === video?.description &&
-		data?.caption === video?.caption;
-
-	const setTitle = ( title: string ) => {
-		setData( { ...data, title } );
+	const updateData = newData => {
+		setData( current => ( { ...current, ...newData } ) );
 	};
 
-	const setDescription = ( description: string ) => {
-		setData( { ...data, description } );
-	};
+	const posterEditData = usePosterEdit( { video } );
+	const metaEditData = useMetaEdit( { videoId, video, data, updateData } );
 
-	const setCaption = ( caption: string ) => {
-		setData( { ...data, caption } );
-	};
+	const saveDisabled = metaEditData.metaChanged === false && posterEditData.selectedTime === null;
+
 	const handleSaveChanges = () => {
 		setUpdating( true );
-		updateMeta( data )
-			.then( () => {
-				dispatch?.setVideo( data );
-				navigate( '/' );
-			} )
-			.catch( () => {
-				setUpdating( false );
-				// TODO: provide feedback for user
-			} );
+
+		const promises = [ posterEditData.updatePosterImage(), metaEditData.handleMetaUpdate() ];
+
+		// TODO: handle errors
+		Promise.allSettled( promises ).then( results => {
+			const [ posterResult ] = results;
+			const posterImage = posterResult?.value ?? data?.posterImage;
+			const videoData = { ...data, posterImage };
+
+			setUpdating( false );
+			dispatch?.setVideo( videoData );
+			navigate( '/' );
+		} );
 	};
 	// Make sure we have the latest data from the API
 	// Used to update the data when user navigates direct from Media Library
@@ -109,12 +150,10 @@ export default () => {
 
 	return {
 		...data, // data is the local representation of the video
-		setTitle,
-		setDescription,
-		setCaption,
 		saveDisabled,
 		handleSaveChanges,
 		updating,
+		...metaEditData,
 		...posterEditData,
 	};
 };
