@@ -22,10 +22,6 @@ export type OriginalVideoPressVideo = {
 	 */
 	filename: string;
 	/**
-	 * Video poster image URL
-	 */
-	posterImage?: string;
-	/**
 	 * Video uploaded date in UTC
 	 */
 	date: number;
@@ -49,10 +45,16 @@ export type OriginalVideoPressVideo = {
 	 * Whether the video is private, or not.
 	 */
 	isPrivate?: boolean;
+
+	/**
+	 * Video poster image URL
+	 */
+	posterImage?: string;
+
 	/**
 	 * Object reflecting poster image data.
 	 */
-	image?: {
+	poster?: {
 		/**
 		 * Video poster image URL
 		 */
@@ -66,6 +68,11 @@ export type OriginalVideoPressVideo = {
 		 */
 		height: number;
 	};
+
+	/**
+	 * Video thumbnail image URL
+	 */
+	thumbnail?: string;
 };
 
 export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {

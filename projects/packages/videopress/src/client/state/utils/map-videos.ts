@@ -16,6 +16,7 @@ export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
 	};
 };
 
+// priobably @deprecated since it was used when hitting the admin-ajax endpoint
 export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
 	return videos.map( mapVideo );
 };
@@ -41,8 +42,11 @@ export const mapVideoFromWPV2MediaEndpoint = (
 
 	const { dvd } = files;
 
-	// Pick poster image from dvd file type.
-	const dvdImage = `${ fileURLBase.https }${ dvd.original_img }`;
+	/*
+	 * Define thumbnail picking the image from DVD file type
+	 * Issue: https://github.com/Automattic/jetpack/issues/26319
+	 */
+	const thumbnail = `${ fileURLBase.https }${ dvd.original_img }`;
 
 	return {
 		id,
@@ -51,16 +55,17 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		description,
 		caption,
 		url,
-		posterImage: poster,
 		date,
 		duration,
 		isPrivate,
 		dateFormatted: gmdateI18n( 'F j, Y', date ),
-		image: {
-			src: dvdImage,
+		posterImage: poster,
+		poster: {
+			src: poster,
 			width,
 			height,
 		},
+		thumbnail,
 	};
 };
 
