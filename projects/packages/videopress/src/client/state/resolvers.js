@@ -34,6 +34,10 @@ const getVideos = {
 			mime_type: 'video/videopress',
 		};
 
+		if ( typeof query.search === 'string' && query.search.length > 0 ) {
+			wpv2MediaQuery.search = query.search;
+		}
+
 		dispatch.setIsFetchingVideos( true );
 
 		try {
