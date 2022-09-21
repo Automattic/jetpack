@@ -852,7 +852,7 @@ class Helper {
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'     => $show_powered_by,
+				'showPoweredBy'     => $show_powered_by || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
 
 				// These options require kicking off a new search.
 				'defaultSort'       => get_option( $prefix . 'default_sort', 'relevance' ),
