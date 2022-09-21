@@ -9,6 +9,7 @@ const projects = [
 	'../../../packages/my-jetpack/_inc/components',
 	'../../../plugins/protect/src/js/components',
 	'../../../packages/videopress/src/client/admin/components',
+	'../../../packages/videopress/src/client/components',
 ];
 
 module.exports = projects.map( project => path.join( __dirname, project ) );
