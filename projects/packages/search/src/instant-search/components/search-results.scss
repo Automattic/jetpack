@@ -2,18 +2,22 @@
 
 $modal-max-width: 1080px;
 $modal-max-width-lg: 95%;
+$colophon-height: 40px;
 
 .jetpack-instant-search__search-wrapper {
 	position: relative;
 	max-width: $modal-max-width;
 	height: 100%;
 	margin: 0 auto;
-	padding-bottom: 40px;
 	border-radius: 4px;
 	overflow: hidden;
 
 	@include break-large-up() {
 		max-width: $modal-max-width-lg;
+	}
+
+	&.has-colophon {
+		padding-bottom: $colophon-height;
 	}
 }
 
@@ -22,7 +26,7 @@ $modal-max-width-lg: 95%;
 	bottom: 0;
 	display: flex;
 	justify-content: center;
-	height: 40px;
+	height: $colophon-height;
 	width: 100%;
 	margin: 0;
 	background-color: $studio-white;

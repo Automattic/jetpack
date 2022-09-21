@@ -1,4 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React, { Component, Fragment } from 'react';
 import { getConstrastingColor } from '../lib/colors';
 import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
@@ -212,7 +213,11 @@ class SearchResults extends Component {
 
 	render() {
 		return (
-			<div className="jetpack-instant-search__search-wrapper">
+			<div
+				className={ classNames( 'jetpack-instant-search__search-wrapper', {
+					'has-colophon': this.props.showPoweredBy,
+				} ) }
+			>
 				<div
 					aria-hidden={ this.props.isLoading === true }
 					className="jetpack-instant-search__search-results"
