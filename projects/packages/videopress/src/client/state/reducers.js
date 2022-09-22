@@ -78,13 +78,16 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
+			const { items = [] } = state;
+			const videoIndex = items.findIndex( item => item.id === video.id );
 
-			const items = state.items.map( item => {
-				if ( item.id === video.id ) {
-					return video;
-				}
-				return item;
-			} );
+			if ( videoIndex === -1 ) {
+				// Add video when not found
+				items.push( video );
+			} else {
+				// Update video when found
+				items[ videoIndex ] = video;
+			}
 
 			return {
 				...state,
