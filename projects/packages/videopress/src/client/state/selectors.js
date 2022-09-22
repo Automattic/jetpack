@@ -1,7 +1,5 @@
-import { mapVideos } from './utils/map-videos';
-
 export const getVideos = state => {
-	return mapVideos( state?.videos?.items || [] );
+	return state?.videos?.items || [];
 };
 
 export const getVideosQuery = state => {
