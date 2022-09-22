@@ -10,6 +10,7 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS,
 	SET_VIDEOS_QUERY,
+	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
 } from './constants';
 
@@ -52,6 +53,16 @@ const videos = ( state = {}, action ) => {
 				query: {
 					...state.query,
 					...action.query,
+				},
+			};
+		}
+
+		case SET_VIDEOS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					...action.pagination,
 				},
 			};
 		}
