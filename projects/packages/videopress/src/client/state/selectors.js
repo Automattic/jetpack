@@ -1,11 +1,13 @@
-import { mapVideos } from './utils/map-videos';
-
 export const getVideos = state => {
-	return mapVideos( state?.videos?.items || [] );
+	return state?.videos?.items || [];
 };
 
 export const getVideosQuery = state => {
 	return state?.videos?.query;
+};
+
+export const getPagination = state => {
+	return state?.videos?.pagination;
 };
 
 export const getVideo = ( state, id ) => {
@@ -17,6 +19,7 @@ export const getVideo = ( state, id ) => {
 const selectors = {
 	getVideos,
 	getVideosQuery,
+	getPagination,
 	getVideo,
 };
 

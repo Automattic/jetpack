@@ -105,6 +105,7 @@ const Admin = () => {
 
 // Renders additional segments under the jp-hero area condition on having a backup plan
 const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
+	const [ connectionStatus ] = useConnection();
 	const { tracks } = useAnalytics();
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -148,7 +149,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 						'jetpack-backup-pkg'
 					) }
 				</p>
-				{ hasBackupPlan && (
+				{ hasBackupPlan && connectionStatus.isUserConnected && (
 					<p>
 						<ExternalLink
 							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
@@ -168,7 +169,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 						'jetpack-backup-pkg'
 					) }
 				</p>
-				{ hasBackupPlan && (
+				{ hasBackupPlan && connectionStatus.isUserConnected && (
 					<p>
 						<ExternalLink
 							href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
