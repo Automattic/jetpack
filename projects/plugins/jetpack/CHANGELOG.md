@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.3.2 - 2022-09-22
+### Improved compatibility
+- WC Pay: resolves issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+.
+
+### Bug fixes
+- Set the `Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts` callback priority in the `init` hook to 22 to prevent it from causing style issues with sites that have Gutenberg > 13.5 activated. [#26193]
+
 ## 11.3.1 - 2022-09-08
 ### Improved compatibility
 - Notifications: improve third-party cookie check to work with modsecurity rules. [#26122]
