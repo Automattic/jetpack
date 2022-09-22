@@ -1,0 +1,4 @@
+Significance: minor
+Type: updated
+
+DonutMeter: Exposed DonutMeter to clients of the library.
