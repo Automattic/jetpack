@@ -55,7 +55,6 @@
 	}
 }
 
-// Defined twice to avoid specificity issues.
-.cut.cut {
+.cut {
 	margin-top: calc( var( --spacing-base ) * 3 );
 }
