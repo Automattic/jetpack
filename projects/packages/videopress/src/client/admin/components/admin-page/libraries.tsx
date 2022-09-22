@@ -44,6 +44,7 @@ const ConnectedPagination: React.FC< PaginationProps > = props => {
 
 const VideoLibraryWrapper = ( {
 	children,
+	videosOnPage = 0,
 	totalVideos = 0,
 	libraryType = LibraryType.List,
 	onChangeType,
@@ -52,6 +53,7 @@ const VideoLibraryWrapper = ( {
 }: {
 	children: React.ReactNode;
 	libraryType?: LibraryType;
+	videosOnPage?: number;
 	totalVideos?: number;
 	onChangeType?: () => void;
 	hideFilter?: boolean;
@@ -68,7 +70,9 @@ const VideoLibraryWrapper = ( {
 				{ title }
 			</Text>
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				<Text>{ totalVideos } Video</Text>
+				<Text>
+					{ videosOnPage } of { totalVideos } Video
+				</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
