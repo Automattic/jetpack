@@ -43,7 +43,6 @@ class Share_Limits {
 	 * Run functionality required to enforce sharing limits.
 	 */
 	public function enforce_share_limits() {
-
 		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
 
