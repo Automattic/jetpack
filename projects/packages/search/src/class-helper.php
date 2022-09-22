@@ -963,7 +963,8 @@ class Helper {
 	 * Returns true if the new_pricing_202210 is set to not empty in URL for testing purpose.
 	 */
 	public static function is_forced_new_pricing_202208() {
+		$referrer = wp_get_referer();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		return isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'];
+		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
 	}
 }
