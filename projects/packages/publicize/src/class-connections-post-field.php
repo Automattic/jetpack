@@ -122,6 +122,12 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'is_healthy'      => array(
+					'description' => __( 'Whether the connection is healthy or broken', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}
@@ -218,7 +224,7 @@ class Connections_Post_Field {
 
 		$permission_check = $this->permission_check( empty( $post->ID ) ? 0 : $post->ID );
 		if ( is_wp_error( $permission_check ) ) {
-			return $permission_check;
+			return empty( $request_connections ) ? $post : $permission_check;
 		}
 		// memoize.
 		$this->get_meta_to_update( $request_connections, isset( $post->ID ) ? $post->ID : 0 );

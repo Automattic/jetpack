@@ -186,7 +186,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		$this->add_admin_menu_separator();
 		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
@@ -370,7 +369,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 *
 		 * @module masterbar
 		 *
-		 * @since $$next-version$$
+		 * @since 11.4
 		 *
 		 * @param bool $menu_enabled Wether the menu entry is shown.
 		 * @param int  $user_id      The Advertising menu will be shown/hidden for this user.

@@ -1,25 +1,31 @@
 .checkbox {
-	all: unset;
-	border: 1px solid black;
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-sizing: border-box;
-	border-radius: 2px;
+	&[type="checkbox"] {
+		all: unset;
+		border: 1px solid var(--jp-black);;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		border-radius: 2px;
+		margin: 0;
 
-	// This is going out of normal, since it helps to center the checkmark
-	// Since it takes 18px from children + 2px from padding.
-	// Which makes it with 20px
-	padding: 2px;
+		// This is going out of normal, since it helps to center the checkmark
+		// Since it takes 18px from children + 2px from padding.
+		// Which makes it with 20px
+		// Using important because WPAdmin uses !important for padding too
+		padding: 2px !important;
 
-	&::before {
-		content: "";
-		width: 18px;
-		height: 18px;
-	}
+		// Using checked here too, because WPAdmin applies styles for checked
+		&:checked::before, &::before {
+			content: "";
+			width: 18px;
+			height: 18px;
+			margin: 0; // This is to override the margin from WP default
+		}
 
-	&:checked::before {
-		background: var(--jp-black);
+		&:checked::before {
+			background: var(--jp-black);
+		}
 	}
 }

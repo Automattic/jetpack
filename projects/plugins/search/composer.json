@@ -7,16 +7,16 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-connection": "1.44.x-dev",
+		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "2.0.x-dev",
-		"automattic/jetpack-search": "0.21.x-dev",
-		"automattic/jetpack-status": "^1.14",
+		"automattic/jetpack-my-jetpack": "2.1.x-dev",
+		"automattic/jetpack-search": "0.23.x-dev",
+		"automattic/jetpack-status": "1.14.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "3.2.x-dev",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
@@ -50,12 +50,16 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-search-plugin",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"release-branch-prefix": "search",
 		"wp-plugin-slug": "jetpack-search",
+		"wp-svn-autopublish": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
 		"version-constants": {
 			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"
 		}

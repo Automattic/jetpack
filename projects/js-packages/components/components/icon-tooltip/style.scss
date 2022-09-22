@@ -1,0 +1,92 @@
+@import '@automattic/jetpack-base-styles/style';
+
+$arrow-color: var( --jp-gray );
+
+// Fix arrow color
+.components-popover:not(.is-without-arrow)::before {
+	border-color: $arrow-color;
+}
+
+/*
+ * Fix arrow placement - section start
+ */
+.components-popover:not([data-y-axis=middle])[data-x-axis=left] .components-popover__content {
+	margin-right: -62px;
+}
+
+.components-popover:not([data-y-axis=middle])[data-x-axis=right] .components-popover__content {
+	margin-left: -62px;	
+}
+/*
+ * Fix arrow placement - section end
+ */
+
+/*
+ * Fix arrow position for legacy position option - section start
+ */
+.components-popover[data-y-axis=bottom] .components-popover__content {
+	top: 2px !important;
+}
+
+.components-popover:not(.is-without-arrow)[data-y-axis=bottom]::before {
+	top: -6px !important;
+}
+
+.components-popover:not(.is-without-arrow)[data-y-axis=bottom]::after {
+	top: -4px !important;
+}
+
+.components-popover[data-y-axis=top] .components-popover__content {
+	bottom: 10px !important;
+}
+
+.components-popover:not(.is-without-arrow)[data-y-axis=top]::before {
+	bottom: 2px;
+}
+
+.components-popover:not(.is-without-arrow)[data-y-axis=top]::after {
+	bottom: 4px;
+}
+/*
+ * Fix arrow position for legacy position option - section end
+ */
+
+.components-popover__content {
+	padding: 24px;
+	width: 304px;
+	white-space: normal;
+	border-radius: 4px;
+	outline: none;
+	border: 1px solid $arrow-color;
+}
+
+.icon-tooltip-wrapper {
+	display: inline-block;
+	position: relative;
+	color: var( --jp-black );
+}
+
+.icon-tooltip-helper {
+	width: 124px;
+    height: 18px;
+    position: absolute;
+    top: 0;
+    left: -53px;
+	pointer-events: none;
+}
+
+.icon-tooltip-title {
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 19px;
+
+	&:not(:last-child) {
+		margin-bottom: 8px;
+	}
+}
+
+.icon-tooltip-content {
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 24px;
+}
