@@ -90,10 +90,6 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				'description' => __( 'Is this connection available to all users?', 'jetpack' ),
 				'type'        => 'boolean',
 			),
-			'is_healthy'           => array(
-				'description' => __( 'Is this connection healthy or broken?', 'jetpack' ),
-				'type'        => 'boolean',
-			),
 		);
 	}
 
@@ -130,8 +126,6 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				$connection_meta = $publicize->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
 
-				$connection_result = $publicize->test_connection( $service_name, $connection );
-
 				$items[] = array(
 					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
 					'service_name'         => $service_name,
@@ -140,7 +134,6 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
 					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
 					'global'               => 0 == $connection_data['user_id'],
-					'is_healthy'           => true === $connection_result ? true : false,
 				);
 			}
 		}
