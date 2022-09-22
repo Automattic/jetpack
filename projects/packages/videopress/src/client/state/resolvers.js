@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
@@ -9,6 +8,8 @@ import { addQueryArgs } from '@wordpress/url';
 import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
 import { getDefaultQuery } from './reducers';
 import { mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
+
+const { apiRoot } = window.jetpackVideoPressInitialState;
 
 const getVideos = {
 	fulfill: () => async ( { dispatch, select } ) => {
@@ -41,13 +42,25 @@ const getVideos = {
 		dispatch.setIsFetchingVideos( true );
 
 		try {
-			const videosList = await apiFetch( {
-				path: addQueryArgs( WP_REST_API_MEDIA_ENDPOINT, wpv2MediaQuery ),
-			} );
+			const response = await fetch(
+				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+			);
 
-			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videosList ) );
-			return videosList;
+			// pick the pagination data form response header...
+			const pagination = {
+				total: Number( response.headers.get( 'X-WP-Total' ) ),
+				totalPages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
+			};
+
+			dispatch.setVideosPagination( pagination );
+
+			// ... and the videos data from the response body.
+			const videos = await response.json();
+
+			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videos ) );
+			return videos;
 		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
 			dispatch.setFetchVideosError( error );
 		}
 	},
