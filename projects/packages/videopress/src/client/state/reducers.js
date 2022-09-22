@@ -78,13 +78,10 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-
-			const items = state.items.map( item => {
-				if ( item.id === video.id ) {
-					return video;
-				}
-				return item;
-			} );
+			const { items = [] } = state;
+			if ( ! items.find( item => item.ID === video.ID ) ) {
+				items.push( video );
+			}
 
 			return {
 				...state,

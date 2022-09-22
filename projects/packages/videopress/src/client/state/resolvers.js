@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
 import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
 import { getDefaultQuery } from './reducers';
-import { mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
+import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
 const { apiRoot } = window.jetpackVideoPressInitialState;
 
@@ -61,7 +62,6 @@ const getVideos = {
 			return videos;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
-			dispatch.setFetchVideosError( error );
 		}
 	},
 	shouldInvalidate: action => {
@@ -70,10 +70,26 @@ const getVideos = {
 };
 
 const getVideo = {
-	fulfill: () => async ( { resolveSelect } ) => {
-		// We make sure that videos are fullfiled.
-		// This is used when user comes from Media Library.
-		await resolveSelect.getVideos();
+	isFulfilled: ( state, id ) => {
+		const videos = state.videos.items;
+		if ( ! videos?.length ) {
+			return false;
+		}
+		return !! videos.find( ( { id: videoId } ) => videoId === id );
+	},
+
+	fulfill: id => async ( { dispatch } ) => {
+		dispatch.setIsFetchingVideos( true );
+		try {
+			const video = await apiFetch( {
+				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
+			} );
+
+			dispatch.setVideo( mapVideoFromWPV2MediaEndpoint( video ) );
+			return video;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
 	},
 };
 
