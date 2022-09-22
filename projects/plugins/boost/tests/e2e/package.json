@@ -43,6 +43,8 @@
 		"targets": [
 			"plugins/boost",
 			"tools/e2e-commons"
-		]
+		],
+		"pluginSlug": "boost",
+		"mirrorName": "jetpack-boost-production"
 	}
 }
