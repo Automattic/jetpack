@@ -26,6 +26,7 @@
 		]
 	},
 	"scripts": {
+		"watch": "echo 'This script is actually watching the Jetpack VideoPress package' && jetpack watch packages/videopress",
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
