@@ -139,10 +139,10 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 	);
 };
 
-export const LocalLibrary = ( { videos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
-			totalVideos={ videos?.length }
+			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
