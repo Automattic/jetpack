@@ -62,13 +62,19 @@ const VideoLibraryWrapper = ( {
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
+	const singularTotalVideosLabel = __( 'Video', 'jetpack-videopress-pkg' );
+	const pluralTotalVideosLabel = __( 'Videos', 'jetpack-videopress-pkg' );
+	const totalVideosLabel = totalVideos === 1 ? singularTotalVideosLabel : pluralTotalVideosLabel;
+
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
 			<Text variant="headline-small" mb={ 1 }>
 				{ title }
 			</Text>
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				<Text>{ totalVideos } Video</Text>
+				<Text>
+					{ totalVideos } { totalVideosLabel }
+				</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
