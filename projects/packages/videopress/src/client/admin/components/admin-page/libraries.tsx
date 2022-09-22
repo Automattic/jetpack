@@ -44,7 +44,6 @@ const ConnectedPagination: React.FC< PaginationProps > = props => {
 
 const VideoLibraryWrapper = ( {
 	children,
-	videosOnPage = 0,
 	totalVideos = 0,
 	libraryType = LibraryType.List,
 	onChangeType,
@@ -53,7 +52,6 @@ const VideoLibraryWrapper = ( {
 }: {
 	children: React.ReactNode;
 	libraryType?: LibraryType;
-	videosOnPage?: number;
 	totalVideos?: number;
 	onChangeType?: () => void;
 	hideFilter?: boolean;
@@ -70,9 +68,7 @@ const VideoLibraryWrapper = ( {
 				{ title }
 			</Text>
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				<Text>
-					{ videosOnPage } of { totalVideos } Video
-				</Text>
+				<Text>{ totalVideos } Video</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
@@ -125,7 +121,6 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
-			videosOnPage={ videos?.length }
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
