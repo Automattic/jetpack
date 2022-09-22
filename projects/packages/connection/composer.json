@@ -34,7 +34,8 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],

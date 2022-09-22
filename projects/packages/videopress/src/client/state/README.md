@@ -4,7 +4,7 @@ VideoPress store implementation
 
 ## Selectors
 
-### getVideos( query )
+### getVideos()
 
 ```jsx
 export default function VideoList() {
@@ -13,7 +13,7 @@ export default function VideoList() {
 	const videos = useSelect( select => select( 'videopress/media' ).getVideos( {
 		itemsPerPage: 10,
 		orderBy: 'date',
-		order: 'DESC',
+		order: 'desc',
 	} ), [] );
 
 	return (
@@ -60,11 +60,14 @@ Post mime type to use to filter the items.
 type: `string`
 default: `video/videopress`
 
+### getVideosQuery()
 
 ## Actions
 
-### setIsFetchingVideos( isFetching, query )
+### setIsFetchingVideos( isFetching )
 
 ### setFetchVideosError()
+
+### setVideosQuery( query )
 
 ### setVideos( videos )

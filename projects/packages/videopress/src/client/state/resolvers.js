@@ -1,77 +1,70 @@
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
+/**
  * Internal dependencies
  */
-import { REST_API_SITE_PURCHASES_ENDPOINT, SET_IS_FETCHING_VIDEOS } from './constants';
-import { stateDebug } from '.';
-
-/**
- * Return a full request query object,
- * including the default query parameters.
- *
- * @param {object} query - Query object.
- * @returns {object}       Full query object.
- */
-function getFullRequestQuery( query ) {
-	return {
-		orderBy: 'date',
-		order: 'DESC',
-		itemsPerPage: 6,
-		page: 1,
-		type: 'video/videopress',
-		...query,
-	};
-}
+import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
+import { getDefaultQuery } from './reducers';
+import { mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
 const getVideos = {
-	isFulfilled: ( state, recentQuery ) => {
-		const query = state?.videos.query;
-		recentQuery = getFullRequestQuery( recentQuery );
-		const isSameQueryRequest = JSON.stringify( query ) === JSON.stringify( recentQuery );
-		if ( ! isSameQueryRequest ) {
-			stateDebug( 'getVideos: isFulfilled: query mismatch', query, recentQuery );
-			return false;
+	fulfill: () => async ( { dispatch, select } ) => {
+		let query = select.getVideosQuery();
+
+		/*
+		 * If there is no query:
+		 * - set the default query (dispatch)
+		 * - and use it to fetch the videos.
+		 */
+		if ( ! query ) {
+			query = getDefaultQuery();
+			dispatch.setVideosQuery( query );
 		}
 
-		return true;
-	},
+		// Map query to the format expected by the API.
+		const wpv2MediaQuery = {
+			order: query.order,
+			orderby: query.orderBy,
+			page: query.page,
+			per_page: query.itemsPerPage,
+			media_type: 'video',
+			mime_type: 'video/videopress',
+		};
 
-	fulfill: ( query = {} ) => async ( { dispatch } ) => {
-		const payload = new FormData();
-		payload.set( 'action', 'query-attachments' );
-		payload.set( 'post_id', 0 );
+		if ( typeof query.search === 'string' && query.search.length > 0 ) {
+			wpv2MediaQuery.search = query.search;
+		}
 
-		const freshQuery = getFullRequestQuery( query );
-
-		payload.set( 'query[orderby]', freshQuery.orderBy );
-		payload.set( 'query[order]', freshQuery.order );
-		payload.set( 'query[posts_per_page]', freshQuery.itemsPerPage );
-		payload.set( 'query[paged]', freshQuery.page );
-		payload.set( 'query[post_mime_type]', freshQuery.type );
-
-		dispatch.setIsFetchingVideos( true, freshQuery );
+		dispatch.setIsFetchingVideos( true );
 
 		try {
-			const response = await fetch( REST_API_SITE_PURCHASES_ENDPOINT, {
-				method: 'POST',
-				body: payload,
+			const videosList = await apiFetch( {
+				path: addQueryArgs( WP_REST_API_MEDIA_ENDPOINT, wpv2MediaQuery ),
 			} );
 
-			const body = await response.json();
-			if ( ! body.success ) {
-				return dispatch.setFetchVideosError( body.data );
-			}
-
-			dispatch.setVideos( body.data );
-			return body.data;
+			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videosList ) );
+			return videosList;
 		} catch ( error ) {
 			dispatch.setFetchVideosError( error );
 		}
 	},
 	shouldInvalidate: action => {
-		return action.type === SET_IS_FETCHING_VIDEOS;
+		return action.type === SET_VIDEOS_QUERY;
+	},
+};
+
+const getVideo = {
+	fulfill: () => async ( { resolveSelect } ) => {
+		// We make sure that videos are fullfiled.
+		// This is used when user comes from Media Library.
+		await resolveSelect.getVideos();
 	},
 };
 
 export default {
 	getVideos,
+	getVideo,
 };

@@ -8,24 +8,28 @@
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
-		"automattic/jetpack-connection": "^1.45",
+		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "2.0.x-dev",
+		"automattic/jetpack-my-jetpack": "2.1.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
-		"automattic/jetpack-videopress": "0.2.x-dev"
+		"automattic/jetpack-videopress": "0.4.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2",
-		"automattic/wordbless": "0.3.1"
+		"automattic/jetpack-changelogger": "3.2.x-dev",
+		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
-	"scripts": {},
+	"scripts": {
+		"watch": "echo 'This script is actually watching the Jetpack VideoPress package' && jetpack watch packages/videopress",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
 	"repositories": [
 		{
 			"type": "path",
@@ -39,9 +43,12 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-videopress-plugin",
+		"autorelease": true,
+		"autotagger": true,
 		"release-branch-prefix": "videopress",
 		"beta-plugin-slug": "jetpack-videopress",
-		"wp-plugin-slug": "jetpack-videopress"
+		"wp-plugin-slug": "jetpack-videopress",
+		"wp-svn-autopublish": true
 	},
 	"config": {
 		"allow-plugins": {

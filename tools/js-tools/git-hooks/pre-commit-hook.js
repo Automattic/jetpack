@@ -97,9 +97,17 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some( extension =>
-		file.endsWith( extension )
-	);
+	return [
+		'.js',
+		'.json',
+		'.json5',
+		'.jsx',
+		'.cjs',
+		'.mjs',
+		'.ts',
+		'.tsx',
+		'.svelte',
+	].some( extension => file.endsWith( extension ) );
 }
 
 /**
@@ -111,6 +119,7 @@ function filterJsFiles( file ) {
 function filterEslintFiles( file ) {
 	return (
 		! file.endsWith( '.json' ) &&
+		! file.endsWith( '.json5' ) &&
 		-1 === loadEslintExcludeList().findIndex( filePath => file === filePath )
 	);
 }
@@ -481,7 +490,9 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
-const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
+const jsOnlyFiles = jsFiles.filter(
+	file => ! file.endsWith( '.json' ) && ! file.endsWith( '.json5' )
+);
 const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
 const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 const eslintNoFixFiles = eslintFiles.filter(

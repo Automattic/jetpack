@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: add query object to the getVideos() selector

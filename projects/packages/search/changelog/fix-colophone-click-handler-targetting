@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixes a regression from a PR merged minutes ago. No need for changelog entry
+
+
