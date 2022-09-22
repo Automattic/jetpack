@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Updating warning message for JP Search by adding new container to fix its position.
+Fix error message styling in Instant Search overlay.
