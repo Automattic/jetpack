@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d995647d97dfd8d861a46baf1ee772dd",
+    "content-hash": "e44c3937d69a0d0d1b4b08a802d1d2c5",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -361,14 +361,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "da13b59ef9c501a881a5f84481bf72460bc687f9"
+                "reference": "927f8a309528ae37337c310f62b98c46d1b330ae"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-autoloader": "^2.11",
                 "automattic/jetpack-composer-plugin": "^1.1",
-                "automattic/jetpack-config": "^1.9",
+                "automattic/jetpack-config": "^1.10",
                 "automattic/jetpack-connection": "^1.45",
                 "automattic/jetpack-connection-ui": "^2.4",
                 "automattic/jetpack-identity-crisis": "^0.8",
@@ -592,7 +592,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "5bb0040805d51698efd2489b015f60661a39245f"
+                "reference": "1ac411523b494f83c22ee7e6b62b9bbe636dc5d5"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2"
@@ -606,7 +606,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.9.x-dev"
+                    "dev-trunk": "1.10.x-dev"
                 }
             },
             "autoload": {
@@ -1639,11 +1639,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "b25e95bd2e799ac4ca0b295b9f25ba3b5e084488"
+                "reference": "18a47420b0d6cd1bf9a6dcf7397fefcc8c83f1c5"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",
-                "automattic/jetpack-config": "^1.9",
+                "automattic/jetpack-config": "^1.10",
                 "automattic/jetpack-connection": "^1.45"
             },
             "require-dev": {
@@ -1804,11 +1804,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "6607908833b83eef517673bdff4b69d5458c6e0a"
+                "reference": "8cedac562e6a27a939793c213cac587b318e531d"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.9",
+                "automattic/jetpack-config": "^1.10",
                 "automattic/jetpack-connection": "^1.45",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-my-jetpack": "^2.1",
@@ -1887,7 +1887,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "2ed865f6a99125bc00ec1a947e59b922a4db279a"
+                "reference": "1977d504fb38b59a03cbdd63caa9cc29360d5663"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.45",
@@ -2192,11 +2192,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wordads",
-                "reference": "93eae30aa473176a6908b5710030d2536126d6fb"
+                "reference": "785f1eafc528a363cddad3db5010f5da72315a0b"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
-                "automattic/jetpack-config": "^1.9",
+                "automattic/jetpack-config": "^1.10",
                 "automattic/jetpack-connection": "^1.45",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-status": "^1.14"

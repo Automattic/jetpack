@@ -31,7 +31,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.9.x-dev"
+			"dev-trunk": "1.10.x-dev"
 		}
 	}
 }

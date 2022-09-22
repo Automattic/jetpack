@@ -8,7 +8,7 @@
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.9.x-dev",
+		"automattic/jetpack-config": "1.10.x-dev",
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-publicize": "0.15.x-dev",
 		"automattic/jetpack-connection": "1.45.x-dev",
