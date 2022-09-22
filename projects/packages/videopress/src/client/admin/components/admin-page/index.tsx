@@ -33,9 +33,9 @@ const Admin = () => {
 	const localVideos = [];
 	const hasVideos = videos && videos.length > 0;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
-	const addVideoLabel = hasVideos
-		? __( 'Add new video', 'jetpack-videopress-pkg' )
-		: __( 'Add your first video', 'jetpack-videopress-pkg' );
+	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
+	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
+	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
 
 	const processFiles = useCallback( () => {
 		// TODO
