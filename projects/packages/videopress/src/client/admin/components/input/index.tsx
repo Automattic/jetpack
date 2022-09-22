@@ -148,6 +148,7 @@ export const SearchInput = ( {
 
 	const clearInput = useCallback( () => {
 		componentProps.onChange?.( '' );
+		onSearch( '' );
 	}, [ componentProps.onChange ] );
 
 	return (
