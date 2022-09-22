@@ -16,6 +16,7 @@ export default function useVideos() {
 	return {
 		// Data
 		items: useSelect( select => select( STORE_ID ).getVideos(), [] ),
+		search: '',
 		...useSelect( select => select( STORE_ID ).getVideosQuery() || {} ),
 		...useSelect( select => select( STORE_ID ).getPagination(), [] ),
 
