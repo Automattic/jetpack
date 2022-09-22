@@ -214,7 +214,7 @@ class SearchResults extends Component {
 	render() {
 		return (
 			<div
-				className={ classNames( 'jetpack-instant-search__search-wrapper', {
+				className={ classNames( 'jetpack-instant-search__search-results-wrapper', {
 					'has-colophon': this.props.showPoweredBy,
 				} ) }
 			>
