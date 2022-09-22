@@ -46,7 +46,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Define thumbnail picking the image from DVD file type
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
-	const thumbnail = `${ fileURLBase.https }${ dvd.original_img }`;
+	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
 
 	return {
 		id,
