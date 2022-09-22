@@ -30,7 +30,7 @@
 		"test:run": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && playwright install && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test --config=./playwright.config.cjs"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.25.0",
+		"@playwright/test": "1.26.0",
 		"allure-playwright": "2.0.0-beta.19",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "*"
@@ -44,6 +44,8 @@
 		"targets": [
 			"plugins/videopress",
 			"tools/e2e-commons"
-		]
+		],
+		"pluginSlug": "videopress",
+		"mirrorName": "jetpack-videopress-plugin"
 	}
 }
