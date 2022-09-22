@@ -35,11 +35,17 @@ class Protect_Helper {
 			// Display a notice when this module overwrites Protect Status.
 			add_action( 'admin_notices', array( $this, 'display_protect_overwritten_notice' ) );
 
-			define( 'JETPACK_PROTECT_DEV__DATA_SOURCE', 'protect_report' );
-			$option_name      = Automattic\Jetpack\Protect\Protect_Status::OPTION_NAME;
-			$option_time_name = Automattic\Jetpack\Protect\Protect_Status::OPTION_TIMESTAMP_NAME;
-			add_filter( "option_$option_name", array( $this, 'get_mock_response' ) );
-			add_filter( "option_$option_time_name", array( $this, 'filter_option_time' ) );
+			$protect_option_name = Automattic\Jetpack\Protect\Protect_Status::$option_name;
+			add_filter( "option_$protect_option_name", array( $this, 'get_mock_response' ) );
+
+			$protect_option_time_name = Automattic\Jetpack\Protect\Protect_Status::$option_timestamp_name;
+			add_filter( "option_$protect_option_time_name", array( $this, 'filter_option_time' ) );
+
+			$scan_option_name = Automattic\Jetpack\Protect\Scan_Status::$option_name;
+			add_filter( "option_$scan_option_name", array( $this, 'get_mock_scan_api_response' ) );
+
+			$scan_option_time_name = Automattic\Jetpack\Protect\Scan_Status::$option_timestamp_name;
+			add_filter( "option_$scan_option_time_name", array( $this, 'filter_option_time' ) );
 
 			if ( 'error' === $settings['status'] ) {
 				add_filter( 'pre_http_request', array( $this, 'filter_status_fetch' ), 10, 3 );
@@ -102,6 +108,8 @@ class Protect_Helper {
 						<label><input type="checkbox" name="vuls_for_core" <?php echo ( $settings['vuls_for_core'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Core</label><br>
 						<label><input type="checkbox" name="vuls_for_plugins" <?php echo ( $settings['vuls_for_plugins'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Plugins</label><br>
 						<label><input type="checkbox" name="vuls_for_themes" <?php echo ( $settings['vuls_for_themes'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Themes</label><br>
+						<label><input type="checkbox" name="vuls_for_files" <?php echo ( $settings['vuls_for_files'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Files (Scan only)</label><br>
+						<label><input type="checkbox" name="vuls_for_database" <?php echo ( $settings['vuls_for_database'] ? 'checked="checked"' : '' ); ?>> Add vulnerabilities to Database (Scan only)</label><br>
 					</td>
 				</tr>
 
@@ -125,11 +133,13 @@ class Protect_Helper {
 		return wp_parse_args(
 			get_option( self::STORED_OPTIONS_KEY ),
 			array(
-				'overwrite_status' => false,
-				'status'           => 'empty',
-				'vuls_for_core'    => false,
-				'vuls_for_plugins' => false,
-				'vuls_for_themes'  => false,
+				'overwrite_status'  => false,
+				'status'            => 'empty',
+				'vuls_for_core'     => false,
+				'vuls_for_plugins'  => false,
+				'vuls_for_themes'   => false,
+				'vuls_for_files'    => false,
+				'vuls_for_database' => false,
 			)
 		);
 	}
@@ -143,11 +153,13 @@ class Protect_Helper {
 		update_option(
 			self::STORED_OPTIONS_KEY,
 			array(
-				'overwrite_status' => isset( $_POST['overwrite_status'] ) ? filter_var( wp_unslash( $_POST['overwrite_status'] ) ) : null,
-				'status'           => isset( $_POST['status'] ) ? filter_var( wp_unslash( $_POST['status'] ) ) : null,
-				'vuls_for_core'    => isset( $_POST['vuls_for_core'] ) ? true : false,
-				'vuls_for_plugins' => isset( $_POST['vuls_for_plugins'] ) ? true : false,
-				'vuls_for_themes'  => isset( $_POST['vuls_for_themes'] ) ? true : false,
+				'overwrite_status'  => isset( $_POST['overwrite_status'] ) ? filter_var( wp_unslash( $_POST['overwrite_status'] ) ) : null,
+				'status'            => isset( $_POST['status'] ) ? filter_var( wp_unslash( $_POST['status'] ) ) : null,
+				'vuls_for_core'     => isset( $_POST['vuls_for_core'] ) ? true : false,
+				'vuls_for_plugins'  => isset( $_POST['vuls_for_plugins'] ) ? true : false,
+				'vuls_for_themes'   => isset( $_POST['vuls_for_themes'] ) ? true : false,
+				'vuls_for_files'    => isset( $_POST['vuls_for_files'] ) ? true : false,
+				'vuls_for_database' => isset( $_POST['vuls_for_database'] ) ? true : false,
 			)
 		);
 
@@ -253,6 +265,112 @@ class Protect_Helper {
 
 		return $response;
 
+	}
+
+	/**
+	 * Get mock threat from the Scan API
+	 *
+	 * @param int         $id           The threat ID.
+	 * @param null|string $type The threat type.
+	 */
+	private static function get_mock_scan_api_threat( $id = 123, $type = null ) {
+		global $wp_version;
+
+		$installed_plugins = Plugins_Installer::get_plugins();
+		$installed_themes  = Sync_Functions::get_themes();
+
+		$threat = (object) array(
+			'id'          => $id,
+			'signature'   => 'Sample_Threat',
+			'title'       => 'Sample Threat',
+			'description' => 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. 
+							     Pellentesque aliquet nibh nec urna. In nisi neque, aliquet vel, dapibus id, mattis 
+							     vel, nisi. Sed pretium, ligula sollicitudin laoreet viverra, tortor libero sodales 
+							     leo, eget blandit nunc tortor eu nibh. Nullam mollis. Ut justo. Suspendisse potenti.',
+			'severity'    => 3,
+		);
+
+		if ( 'plugin' === $type ) {
+			$threat->extension = (object) array(
+				'type'    => 'plugin',
+				'slug'    => array_values( $installed_plugins )[0]['TextDomain'],
+				'name'    => array_values( $installed_plugins )[0]['Name'],
+				'version' => array_values( $installed_plugins )[0]['Version'],
+			);
+		}
+
+		if ( 'theme' === $type ) {
+			$threat->extension = (object) array(
+				'type'    => 'theme',
+				'slug'    => array_values( $installed_themes )[0]['TextDomain'],
+				'name'    => array_values( $installed_themes )[0]['Name'],
+				'version' => array_values( $installed_themes )[0]['Version'],
+			);
+		}
+
+		if ( 'core' === $type ) {
+			$threat->signature      = 'Vulnerable.WP.Core';
+			$threat->first_detected = $wp_version;
+			$threat->version        = $wp_version;
+		}
+
+		if ( 'file' === $type ) {
+			$threat->file = 'path/to/sample-file.php';
+		}
+
+		if ( 'database' === $type ) {
+			$threat->table = 'wp_sample_table';
+		}
+
+		return $threat;
+	}
+
+	/**
+	 * Gets a mock api response
+	 */
+	public function get_mock_scan_api_response() {
+		$settings = $this->get_stored_settings();
+
+		$response = (object) array(
+			'state'       => 'idle',
+			'most_recent' => (object) array(
+				'timestamp' => '',
+			),
+			'threats'     => array(),
+		);
+
+		if ( 'empty' === $settings['status'] ) {
+			return $response;
+		}
+
+		$response->most_recent->timestamp = gmdate( 'Y-m-d H:i:s', time() - 1000 );
+
+		if ( $settings['vuls_for_core'] ) {
+			$response->threats[] = self::get_mock_scan_api_threat( 1, 'core' );
+			$response->threats[] = self::get_mock_scan_api_threat( 2, 'core' );
+		}
+
+		if ( $settings['vuls_for_plugins'] ) {
+			$response->threats[] = self::get_mock_scan_api_threat( 3, 'plugin' );
+			$response->threats[] = self::get_mock_scan_api_threat( 4, 'plugin' );
+		}
+
+		if ( $settings['vuls_for_themes'] ) {
+			$response->threats[] = self::get_mock_scan_api_threat( 5, 'theme' );
+			$response->threats[] = self::get_mock_scan_api_threat( 6, 'theme' );
+		}
+
+		if ( $settings['vuls_for_files'] ) {
+			$response->threats[] = self::get_mock_scan_api_threat( 7, 'file' );
+			$response->threats[] = self::get_mock_scan_api_threat( 8, 'file' );
+		}
+
+		if ( $settings['vuls_for_database'] ) {
+			$response->threats[] = self::get_mock_scan_api_threat( 9, 'database' );
+			$response->threats[] = self::get_mock_scan_api_threat( 10, 'database' );
+		}
+
+		return $response;
 	}
 
 	/**

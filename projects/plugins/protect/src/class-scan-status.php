@@ -31,14 +31,14 @@ class Scan_Status extends Status {
 	 *
 	 * @var string
 	 */
-	protected static $option_name = 'jetpack_scan_status';
+	public static $option_name = 'jetpack_scan_status';
 
 	/**
 	 * Name of the option where the timestamp of the status is stored
 	 *
 	 * @var string
 	 */
-	protected static $option_timestamp_name = 'jetpack_scan_status_timestamp';
+	public static $option_timestamp_name = 'jetpack_scan_status_timestamp';
 
 	/**
 	 * Time in seconds that the cache should last
@@ -209,7 +209,7 @@ class Scan_Status extends Status {
 					if ( 'theme' === $threat->extension->type ) {
 						// add the extension if it does not yet exist in the status
 						if ( ! isset( $status->themes[ $threat->extension->slug ] ) ) {
-							$status->themes[] = new Extension_Model(
+							$status->themes[ $threat->extension->slug ] = new Extension_Model(
 								array(
 									'name'    => isset( $threat->extension->name ) ? $threat->extension->name : null,
 									'slug'    => isset( $threat->extension->slug ) ? $threat->extension->slug : null,
@@ -248,15 +248,15 @@ class Scan_Status extends Status {
 				}
 
 				if ( isset( $threat->signature ) && 'Vulnerable.WP.Core' === $threat->signature ) {
-
 					if ( $threat->version !== $wp_version ) {
 						continue;
 					}
 
-					$status->core->vulnerabilities[] = new Threat_Model(
+					$status->core->threats[] = new Threat_Model(
 						array(
 							'id'             => $threat->id,
 							'signature'      => $threat->signature,
+							'title'          => $threat->title,
 							'description'    => $threat->description,
 							'first_detected' => $threat->first_detected,
 							'severity'       => $threat->severity,
