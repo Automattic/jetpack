@@ -3,7 +3,12 @@
 	"description": "Collect valuable traffic stats and insights.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-connection": "^1.45",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-redirect": "^1.7",
+		"automattic/jetpack-status": "^1.14"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2",

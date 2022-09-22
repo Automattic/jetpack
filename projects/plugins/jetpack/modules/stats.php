@@ -18,14 +18,14 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Stats\Main as Stats;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Stats\XMLRPC as Stats_XMLRPC;
 use Automattic\Jetpack\Tracking;
 
-if ( defined( 'STATS_VERSION' ) ) {
-	return;
-}
-
-define( 'STATS_VERSION', '9' );
+defined( 'STATS_VERSION' ) || define( 'STATS_VERSION', '9' );
 defined( 'STATS_DASHBOARD_SERVER' ) || define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
@@ -39,22 +39,9 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
 function stats_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 
-	// Generate the tracking code after wp() has queried for posts.
-	add_action( 'template_redirect', 'stats_template_redirect', 1 );
-
-	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
-
-	add_action( 'wp_head', 'stats_hide_smile_css' );
-	add_action( 'embed_head', 'stats_hide_smile_css' );
-
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
-	// Map stats caps.
-	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 3 );
-
 	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
-
-	add_filter( 'jetpack_xmlrpc_unauthenticated_methods', 'stats_xmlrpc_methods' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -95,28 +82,13 @@ function stats_enqueue_dashboard_head() {
 /**
  * Checks if filter is set and dnt is enabled.
  *
+ * @deprecated $$next-version$$
+ *
  * @return bool
  */
 function jetpack_is_dnt_enabled() {
-	/**
-	 * Filter the option which decides honor DNT or not.
-	 *
-	 * @module stats
-	 * @since 6.1.0
-	 *
-	 * @param bool false Honors DNT for clients who don't want to be tracked. Defaults to false. Set to true to enable.
-	 */
-	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
-		return false;
-	}
-
-	foreach ( $_SERVER as $name => $value ) {
-		if ( 'http_dnt' === strtolower( $name ) && 1 === (int) $value ) {
-			return true;
-		}
-	}
-
-	return false;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::jetpack_is_dnt_enabled' );
+	return Stats::jetpack_is_dnt_enabled();
 }
 
 /**
@@ -142,6 +114,8 @@ function stats_ignore_db_version( $version ) {
 /**
  * Maps view_stats cap to read cap as needed.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @param mixed $caps Caps.
  * @param mixed $cap Cap.
@@ -149,239 +123,104 @@ function stats_ignore_db_version( $version ) {
  * @return array Possibly mapped capabilities for meta capability.
  */
 function stats_map_meta_caps( $caps, $cap, $user_id ) {
-	// Map view_stats to exists.
-	if ( 'view_stats' === $cap ) {
-		$user        = new WP_User( $user_id );
-		$user_role   = array_shift( $user->roles );
-		$stats_roles = stats_get_option( 'roles' );
-
-		// Is the users role in the available stats roles?
-		if ( is_array( $stats_roles ) && in_array( $user_role, $stats_roles, true ) ) {
-			$caps = array( 'read' );
-		}
-	}
-
-	return $caps;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::map_meta_caps' );
+	return Stats::map_meta_caps( $caps, $cap, $user_id );
 }
 
 /**
  * Stats Template Redirect.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return void
  */
 function stats_template_redirect() {
-	global $current_user;
-
-	if (
-		is_feed()
-		|| is_robots()
-		|| is_embed()
-		|| is_trackback()
-		|| is_preview()
-		|| jetpack_is_dnt_enabled()
-	) {
-		return;
-	}
-
-	// Staging Sites should not generate tracking stats.
-	$status = new Status();
-	if ( $status->is_staging_site() ) {
-		return;
-	}
-
-	// Should we be counting this user's views?
-	if ( ! empty( $current_user->ID ) ) {
-		$count_roles = stats_get_option( 'count_roles' );
-		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
-			return;
-		}
-	}
-
-	/**
-	 * Allow excluding specific IP addresses from being tracked in Stats.
-	 * Note: for this to work well, visitors' IP addresses must:
-	 * - be stored and returned properly in IP address headers;
-	 * - not be impacted by any caching setup on your site.
-	 *
-	 * @module stats
-	 *
-	 * @since 10.6
-	 *
-	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
-	 */
-	$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
-
-	// Should we be counting views for this IP address?
-	if (
-		! empty( $excluded_ips )
-		&& in_array( Jetpack::current_user_ip( true ), $excluded_ips, true )
-	) {
-		return;
-	}
-
-	add_action( 'wp_footer', 'stats_footer', 101 );
-	add_action( 'web_stories_print_analytics', 'stats_footer' );
-
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::template_redirect' );
+	Stats::template_redirect();
 }
 
 /**
  * Stats Build View Data.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return array.
  */
 function stats_build_view_data() {
-	global $wp_the_query;
-
-	$blog     = Jetpack_Options::get_option( 'id' );
-	$tz       = get_option( 'gmt_offset' );
-	$v        = 'ext';
-	$blog_url = wp_parse_url( site_url() );
-	$srv      = $blog_url['host'];
-	$j        = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
-	if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
-		// Store and reset the queried_object and queried_object_id
-		// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
-		// Repro:
-		// 1. Set home_url = https://ExamPle.com/
-		// 2. Set show_on_front = page
-		// 3. Set page_on_front = something
-		// 4. Visit https://example.com/ !
-		$queried_object    = isset( $wp_the_query->queried_object ) ? $wp_the_query->queried_object : null;
-		$queried_object_id = isset( $wp_the_query->queried_object_id ) ? $wp_the_query->queried_object_id : null;
-		try {
-			$post_obj = $wp_the_query->get_queried_object();
-			$post     = $post_obj instanceof WP_Post ? $post_obj->ID : '0';
-		} finally {
-			$wp_the_query->queried_object    = $queried_object;
-			$wp_the_query->queried_object_id = $queried_object_id;
-		}
-	} else {
-		$post = '0';
-	}
-
-	return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
+	return Stats_Tracking_Pixel::build_view_data();
 }
 
 /**
  * Stats Footer.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return void
  */
 function stats_footer() {
-	$data = stats_build_view_data();
-	if ( Jetpack_AMP_Support::is_amp_request() ) {
-
-		/**
-		 * Filter the parameters added to the AMP pixel tracking code.
-		 *
-		 * @module stats
-		 *
-		 * @since 10.9
-		 *
-		 * @param array $data Array of options about the site and page you're on.
-		 */
-		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
-		stats_render_amp_footer( $data );
-	} else {
-
-		/**
-		 * Filter the parameters added to the JavaScript stats tracking code.
-		 *
-		 * @module stats
-		 *
-		 * @since 10.9
-		 *
-		 * @param array $data Array of options about the site and page you're on.
-		 */
-		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
-		stats_render_footer( $data );
-	}
-
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
+	Stats_Tracking_Pixel::add_to_footer();
 }
 
 /**
  * Render the stats footer
  *
+ * @deprecated $$next-version$$
+ *
  * @param array $data Array of data for the JS stats tracker.
  */
 function stats_render_footer( $data ) {
-	// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
-	$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-	$data_stats_array = stats_array( $data );
-
-	$stats_footer = <<<END
-<script src='{$script}' defer></script>
-<script>
-	_stq = window._stq || [];
-	_stq.push([ 'view', {{$data_stats_array}} ]);
-	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
-</script>
-
-END;
-	// phpcs:enable
-	print $stats_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
+	Stats_Tracking_Pixel::render_footer( $data );
 }
 
 /**
  * Render the stats footer for AMP output.
  *
+ * @deprecated $$next-version$$
+ *
  * @param array $data Array of data for the AMP pixel tracker.
  */
 function stats_render_amp_footer( $data ) {
-	$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
-	$data['rand'] = 'RANDOM'; // AMP placeholder.
-	$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
-	$data         = array_map( 'rawurlencode', $data );
-	$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
-
-	?>
-	<amp-pixel src="<?php echo esc_url( $pixel_url ); ?>"></amp-pixel>
-	<?php
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
+	Stats_Tracking_Pixel::render_amp_footer( $data );
 }
 
 /**
  * Stats Get Options.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return array.
  */
 function stats_get_options() {
-	$options = get_option( 'stats_options' );
-
-	if ( ! isset( $options['version'] ) || $options['version'] < STATS_VERSION ) {
-		$options = stats_upgrade_options( $options );
-	}
-
-	return $options;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::get_options' );
+	return Stats_Options::get_options();
 }
 
 /**
  * Get Stats Options.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $option Option.
  * @return mixed|null.
  */
 function stats_get_option( $option ) {
-	$options = stats_get_options();
-
-	if ( 'blog_id' === $option ) {
-		return Jetpack_Options::get_option( 'id' );
-	}
-
-	if ( isset( $options[ $option ] ) ) {
-		return $options[ $option ];
-	}
-
-	return null;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::get_option' );
+	return Stats_Options::get_option( $option );
 }
 
 /**
  * Stats Set Options.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $option Option.
@@ -389,89 +228,50 @@ function stats_get_option( $option ) {
  * @return bool.
  */
 function stats_set_option( $option, $value ) {
-	$options = stats_get_options();
-
-	$options[ $option ] = $value;
-
-	return stats_set_options( $options );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::set_option' );
+	return Stats_Options::set_option( $option, $value );
 }
 
 /**
  * Stats Set Options.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $options Options.
  * @return bool
  */
 function stats_set_options( $options ) {
-	return update_option( 'stats_options', $options );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::set_options' );
+	return Stats_Options::set_options( $options );
 }
 
 /**
  * Stats Upgrade Options.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $options Options.
  * @return array|bool
  */
 function stats_upgrade_options( $options ) {
-	$defaults = array(
-		'admin_bar'    => true,
-		'roles'        => array( 'administrator' ),
-		'count_roles'  => array(),
-		'blog_id'      => Jetpack_Options::get_option( 'id' ),
-		'do_not_track' => true, // @todo
-	);
-
-	if ( isset( $options['reg_users'] ) ) {
-		if ( ! function_exists( 'get_editable_roles' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/user.php';
-		}
-		if ( $options['reg_users'] ) {
-			$options['count_roles'] = array_keys( get_editable_roles() );
-		}
-		unset( $options['reg_users'] );
-	}
-
-	if ( is_array( $options ) && ! empty( $options ) ) {
-		$new_options = array_merge( $defaults, $options );
-	} else {
-		$new_options = $defaults;
-	}
-
-	$new_options['version'] = STATS_VERSION;
-
-	if ( ! stats_set_options( $new_options ) ) {
-		return false;
-	}
-
-	return $new_options;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::upgrade_options' );
+	return Stats_Options::upgrade_options( $options );
 }
 
 /**
  * Creates the "array" string used as part of the JS tracker.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param array $kvs KVS.
  * @return string
  */
 function stats_array( $kvs ) {
-	/**
-	 * Filter the options added to the JavaScript Stats tracking code.
-	 *
-	 * @module stats
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param array $kvs Array of options about the site and page you're on.
-	 */
-	$kvs   = (array) apply_filters( 'stats_array', $kvs );
-	$kvs   = array_map( 'addslashes', $kvs );
-	$jskvs = array();
-	foreach ( $kvs as $k => $v ) {
-		$jskvs[] = "$k:'$v'";
-	}
-	return join( ',', $jskvs );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::stats_array' );
+	return Tracking_Pixel::stats_array( $kvs );
 }
 
 /**
@@ -630,7 +430,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		return stats_dashboard_widget_content();
 	}
 
-	$blog_id   = stats_get_option( 'blog_id' );
+	$blog_id   = Stats_Options::get_option( 'blog_id' );
 	$stats_url = Redirect::get_url( 'calypso-stats' );
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -903,7 +703,7 @@ function stats_hide_smile_css() {
  * @return void
  */
 function stats_admin_bar_head() {
-	if ( ! stats_get_option( 'admin_bar' ) ) {
+	if ( ! Stats_Options::get_option( 'admin_bar' ) ) {
 		return;
 	}
 
@@ -1003,73 +803,49 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
  * @deprecated since 10.3.
  */
 function stats_update_blog() {
-	deprecated_function( __METHOD__, 'jetpack-10.3' );
+	_deprecated_function( __METHOD__, 'jetpack-10.3' );
 	XMLRPC_Async_Call::add_call( 'jetpack.updateBlog', 0, stats_get_blog() );
 }
 
 /**
  * Stats Get Blog.
  *
+ * @deprecated $$next-version$$
+ *
  * @access public
  * @return string
  */
 function stats_get_blog() {
-	$home = wp_parse_url( trailingslashit( get_option( 'home' ) ) );
-	$blog = array(
-		'host'                => $home['host'],
-		'path'                => $home['path'],
-		'blogname'            => get_option( 'blogname' ),
-		'blogdescription'     => get_option( 'blogdescription' ),
-		'siteurl'             => get_option( 'siteurl' ),
-		'gmt_offset'          => get_option( 'gmt_offset' ),
-		'timezone_string'     => get_option( 'timezone_string' ),
-		'stats_version'       => STATS_VERSION,
-		'stats_api'           => 'jetpack',
-		'page_on_front'       => get_option( 'page_on_front' ),
-		'permalink_structure' => get_option( 'permalink_structure' ),
-		'category_base'       => get_option( 'category_base' ),
-		'tag_base'            => get_option( 'tag_base' ),
-	);
-	$blog = array_merge( stats_get_options(), $blog );
-	unset( $blog['roles'], $blog['blog_id'] );
-	return stats_esc_html_deep( $blog );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	return Stats_XMLRPC::init()->get_blog();
 }
 
 /**
  * Modified from stripslashes_deep()
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $value Value.
  * @return string
  */
 function stats_esc_html_deep( $value ) {
-	if ( is_array( $value ) ) {
-		$value = array_map( 'stats_esc_html_deep', $value );
-	} elseif ( is_object( $value ) ) {
-		$vars = get_object_vars( $value );
-		foreach ( $vars as $key => $data ) {
-			$value->{$key} = stats_esc_html_deep( $data );
-		}
-	} elseif ( is_string( $value ) ) {
-		$value = esc_html( $value );
-	}
-
-	return $value;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	return Stats::esc_html_deep( $value );
 }
 
 /**
  * Stats xmlrpc_methods function.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $methods Methods.
  * @return array
  */
 function stats_xmlrpc_methods( $methods ) {
-	$my_methods = array(
-		'jetpack.getBlog' => 'stats_get_blog',
-	);
-
-	return array_merge( $methods, $my_methods );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	return Stats_XMLRPC::init()->xmlrpc_methods( $methods );
 }
 
 /**
@@ -1326,7 +1102,7 @@ function stats_dashboard_widget_content() {
 		'search' => "&limit=5&end=$csv_end_date",
 	);
 
-	$top_posts = stats_get_csv( 'postviews', "days=$options[top]$csv_args[top]" );
+	$top_posts = WPCOM_Stats::get_csv( 'postviews', "days=$options[top]$csv_args[top]" );
 	foreach ( $top_posts as $i => $post ) {
 		if ( 0 === $post['post_id'] ) {
 			unset( $top_posts[ $i ] );
@@ -1339,7 +1115,7 @@ function stats_dashboard_widget_content() {
 	get_posts( array( 'include' => join( ',', array_unique( $post_ids ) ) ) );
 
 	$searches     = array();
-	$search_terms = stats_get_csv( 'searchterms', "days=$options[search]$csv_args[search]" );
+	$search_terms = WPCOM_Stats::get_csv( 'searchterms', "days=$options[search]$csv_args[search]" );
 	foreach ( $search_terms as $search_term ) {
 		if ( 'encrypted_search_terms' === $search_term['searchterm'] ) {
 			continue;
@@ -1484,6 +1260,8 @@ Content length: "<?php print esc_html( $content_length ); ?>"
 /**
  * Get stats from WordPress.com
  *
+ * @deprecated $$next-version$$
+ *
  * @param string $table The stats which you want to retrieve: postviews, or searchterms.
  * @param array  $args {
  *      An associative array of arguments.
@@ -1511,97 +1289,28 @@ Content length: "<?php print esc_html( $content_length ); ?>"
  * }
  */
 function stats_get_csv( $table, $args = null ) {
-	$defaults = array(
-		'end'       => false,
-		'days'      => false,
-		'limit'     => 3,
-		'post_id'   => false,
-		'summarize' => '',
-	);
-
-	$args            = wp_parse_args( $args, $defaults );
-	$args['table']   = $table;
-	$args['blog_id'] = Jetpack_Options::get_option( 'id' );
-
-	$stats_csv_url = add_query_arg( $args, 'https://stats.wordpress.com/csv.php' );
-
-	$key = md5( $stats_csv_url );
-
-	// Get cache.
-	$stats_cache = get_option( 'stats_cache' );
-	if ( ! $stats_cache || ! is_array( $stats_cache ) ) {
-		$stats_cache = array();
-	}
-
-	// Return or expire this key.
-	if ( isset( $stats_cache[ $key ] ) ) {
-		$time = key( $stats_cache[ $key ] );
-		if ( time() - $time < 300 ) {
-			return $stats_cache[ $key ][ $time ];
-		}
-		unset( $stats_cache[ $key ] );
-	}
-
-	$stats_rows = array();
-	do {
-		$stats = stats_get_remote_csv( $stats_csv_url );
-		if ( ! $stats ) {
-			break;
-		}
-
-		$labels = array_shift( $stats );
-
-		if ( 0 === stripos( $labels[0], 'error' ) ) {
-			break;
-		}
-
-		$stats_rows = array();
-		for ( $s = 0; isset( $stats[ $s ] ); $s++ ) {
-			$row = array();
-			foreach ( $labels as $col => $label ) {
-				$row[ $label ] = $stats[ $s ][ $col ];
-			}
-			$stats_rows[] = $row;
-		}
-	} while ( 0 );
-
-	// Expire old keys.
-	foreach ( $stats_cache as $k => $cache ) {
-		if ( ! is_array( $cache ) || 300 < time() - key( $cache ) ) {
-			unset( $stats_cache[ $k ] );
-		}
-	}
-
-		// Set cache.
-		$stats_cache[ $key ] = array( time() => $stats_rows );
-	update_option( 'stats_cache', $stats_cache );
-
-	return $stats_rows;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats::get_csv' );
+	return WPCOM_Stats::get_csv( $table, $args = null );
 }
 
 /**
  * Stats get remote CSV.
+ *
+ * @deprecated $$next-version$$
  *
  * @access public
  * @param mixed $url URL.
  * @return array
  */
 function stats_get_remote_csv( $url ) {
-	$method  = 'GET';
-	$timeout = 90;
-	$user_id = 0; // Blog token.
-
-	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
-	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
-		return array(); // @todo: return an error?
-	} else {
-		return stats_str_getcsv( $get['body'] );
-	}
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats::get_remote_csv' );
+	return WPCOM_Stats::get_remote_csv( $url );
 }
 
 /**
  * Recursively run str_getcsv on the stats csv.
+ *
+ * @deprecated $$next-version$$
  *
  * @since 9.7.0 Remove custom handling since str_getcsv is available on all servers running this now.
  *
@@ -1609,23 +1318,27 @@ function stats_get_remote_csv( $url ) {
  * @return array.
  */
 function stats_str_getcsv( $csv ) {
-	$lines = str_getcsv( $csv, "\n" );
-	return array_map( 'str_getcsv', $lines );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats::stats_str_getcsv' );
+	return WPCOM_Stats::stats_str_getcsv( $csv );
 }
 
 /**
  * Abstract out building the rest api stats path.
  *
+ * @deprecated $$next-version$$
+ *
  * @param  string $resource Resource.
  * @return string
  */
 function jetpack_stats_api_path( $resource = '' ) {
-	$resource = ltrim( $resource, '/' );
-	return sprintf( '/sites/%d/stats/%s', stats_get_option( 'blog_id' ), $resource );
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats::jetpack_stats_api_path' );
+	return WPCOM_Stats::jetpack_stats_api_path( $resource );
 }
 
 /**
  * Fetches stats data from the REST API.  Caches locally for 5 minutes.
+ *
+ * @deprecated $$next-version$$
  *
  * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  * @access public
@@ -1634,45 +1347,8 @@ function jetpack_stats_api_path( $resource = '' ) {
  * @return array|WP_Error.
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
-	$endpoint    = jetpack_stats_api_path( $resource );
-	$api_version = '1.1';
-	$args        = wp_parse_args( $args, array() );
-	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
-
-	$transient_name = "jetpack_restapi_stats_cache_{$cache_key}";
-
-	$stats_cache = get_transient( $transient_name );
-
-	// Return or expire this key.
-	if ( $stats_cache ) {
-		$time = key( $stats_cache );
-		$data = $stats_cache[ $time ]; // WP_Error or string (JSON encoded object).
-
-		if ( is_wp_error( $data ) ) {
-			return $data;
-		}
-
-		return (object) array_merge( array( 'cached_at' => $time ), (array) json_decode( $data ) );
-	}
-
-	// Do the dirty work.
-	$response = Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
-	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		// WP_Error.
-		$data = is_wp_error( $response ) ? $response : new WP_Error( 'stats_error' );
-		// WP_Error.
-		$return = $data;
-	} else {
-		// string (JSON encoded object).
-		$data = wp_remote_retrieve_body( $response );
-		// object (rare: null on JSON failure).
-		$return = json_decode( $data );
-	}
-
-	// To reduce size in storage: store with time as key, store JSON encoded data (unless error).
-	set_transient( $transient_name, array( time() => $data ), 5 * MINUTE_IN_SECONDS );
-
-	return $return;
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats::get_from_restapi' );
+	return WPCOM_Stats::get_from_restapi( $args, $resource );
 }
 
 /**
