@@ -30,20 +30,22 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	return (
 		<>
 			<div className={ styles.container }>
-				<Price
-					value={ offPrice ?? price }
-					currency={ currency }
-					isOff={ ! isNotConvenientPrice }
-					hidePriceFraction={ hidePriceFraction }
-				/>
-				{ showNotOffPrice && (
+				<div className={ styles[ 'price-container' ] }>
 					<Price
-						value={ price }
+						value={ offPrice ?? price }
 						currency={ currency }
-						isOff={ false }
+						isOff={ ! isNotConvenientPrice }
 						hidePriceFraction={ hidePriceFraction }
 					/>
-				) }
+					{ showNotOffPrice && (
+						<Price
+							value={ price }
+							currency={ currency }
+							isOff={ false }
+							hidePriceFraction={ hidePriceFraction }
+						/>
+					) }
+				</div>
 				{ promoLabel && <Text className={ styles[ 'promo-label' ] }>{ promoLabel }</Text> }
 			</div>
 			{ <Text className={ styles.leyend }>{ leyend }</Text> }
