@@ -71,10 +71,10 @@ const Header = () => {
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
 								description={ __(
-									'Get more shares, schedule posts and world-class support',
+									'Keep sharing all your posts to social media',
 									'jetpack-social'
 								) }
-								cta={ __( 'Upgrade Jetpack Social', 'jetpack-social' ) }
+								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
 								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell' ) }
 							/>
 						</>
