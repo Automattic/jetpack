@@ -28,7 +28,6 @@ if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
 		fi
 	done
 elif [[ "$GITHUB_EVENT_NAME" == "push" || "$GITHUB_EVENT_NAME" == "workflow_run" ]]; then
-	echo "GITHUB_EVENT_NAME is \"$GITHUB_EVENT_NAME\", returning all projects."
 	PROJECTS_MATRIX=("${PROJECTS[*]}")
 elif [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
 	# gutenberg scheduled run
