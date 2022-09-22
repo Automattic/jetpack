@@ -62,13 +62,19 @@ const VideoLibraryWrapper = ( {
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
+	const singularTotalVideosLabel = __( 'Video', 'jetpack-videopress-pkg' );
+	const pluralTotalVideosLabel = __( 'Videos', 'jetpack-videopress-pkg' );
+	const totalVideosLabel = totalVideos === 1 ? singularTotalVideosLabel : pluralTotalVideosLabel;
+
 	return (
 		<div className={ styles[ 'library-wrapper' ] }>
 			<Text variant="headline-small" mb={ 1 }>
 				{ title }
 			</Text>
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				<Text>{ totalVideos } Video</Text>
+				<Text>
+					{ totalVideos } { totalVideosLabel }
+				</Text>
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
@@ -104,7 +110,7 @@ const VideoLibraryWrapper = ( {
 	);
 };
 
-export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
+export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
 
@@ -120,7 +126,7 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 
 	return (
 		<VideoLibraryWrapper
-			totalVideos={ videos?.length }
+			totalVideos={ totalVideos }
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
@@ -134,10 +140,10 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 	);
 };
 
-export const LocalLibrary = ( { videos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
-			totalVideos={ videos?.length }
+			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
