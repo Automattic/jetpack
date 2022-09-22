@@ -108,7 +108,7 @@ const VideoLibraryWrapper = ( {
 	);
 };
 
-export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
+export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
 
@@ -124,7 +124,8 @@ export const VideoPressLibrary = ( { videos }: VideoLibraryProps ) => {
 
 	return (
 		<VideoLibraryWrapper
-			totalVideos={ videos?.length }
+			totalVideos={ totalVideos }
+			videosOnPage={ videos?.length }
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
