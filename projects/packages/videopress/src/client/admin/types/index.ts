@@ -104,4 +104,5 @@ export type LocalVideo = {
 export type VideopressSelectors = {
 	getVideo: ( id: number ) => VideoPressVideo;
 	getVideos: () => VideoPressVideo[];
+	getUploadedVideoCount: () => number;
 };
