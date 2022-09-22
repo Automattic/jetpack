@@ -87,6 +87,7 @@ jobs:
       with:
         workflow: build.yml
         workflow_conclusion: "success"
+        run_id: ${{ github.event.workflow_run.id }}
         path: build-output
 
     - name: Prepare build
