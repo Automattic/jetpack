@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -1488,24 +1489,16 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Set up sharing limits if they're enabled for the site.
+	 * Check if we have a paid Jetpack Social plan.
+	 *
+	 * @return bool True if we have a paid plan, false otherwise.
 	 */
-	public function set_up_sharing_limits() {
-		$info = $this->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
-
-		if ( is_wp_error( $info ) ) {
-			return;
+	public function has_paid_plan() {
+		static $has_paid_plan = null;
+		if ( ! $has_paid_plan ) {
+			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', true );
 		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return;
-		}
-
-		$connections      = $this->get_filtered_connection_data();
-		$shares_remaining = $info['shares_remaining'];
-
-		$share_limits = new Share_Limits( $connections, $shares_remaining );
-		$share_limits->enforce_share_limits();
+		return $has_paid_plan;
 	}
 }
 

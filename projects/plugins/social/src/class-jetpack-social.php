@@ -101,8 +101,6 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
-
-		add_action( 'admin_init', array( $this, 'set_up_sharing_limits' ) );
 	}
 
 	/**
@@ -290,18 +288,5 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
-	}
-
-	/**
-	 * Set up sharing limits.
-	 */
-	public function set_up_sharing_limits() {
-		if ( $this->has_paid_plan() ) {
-			return;
-		}
-
-		global $publicize;
-
-		$publicize->set_up_sharing_limits();
 	}
 }
