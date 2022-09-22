@@ -16,11 +16,20 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	offPrice,
 	currency = '',
 	showNotOffPrice = true,
-	promoLabel = '',
+	hidePromoLabel = true,
 	leyend = __( '/month, paid yearly', 'jetpack' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 } ) => {
+	const discount =
+		price !== undefined && offPrice !== undefined
+			? Math.floor( ( ( price - offPrice ) / price ) * 100 )
+			: 0;
+
+	const showPromoLabel = ! hidePromoLabel && discount && discount > 0;
+
+	const promoElt = showPromoLabel ? discount + __( '% off', 'jetpack' ) : null;
+
 	if ( ( price == null && offPrice == null ) || ! currency ) {
 		return null;
 	}
@@ -46,7 +55,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 						/>
 					) }
 				</div>
-				{ promoLabel && <Text className={ styles[ 'promo-label' ] }>{ promoLabel }</Text> }
+				{ promoElt && <Text className={ styles[ 'promo-label' ] }>{ promoElt }</Text> }
 			</div>
 			{ <Text className={ styles.leyend }>{ leyend }</Text> }
 		</>
