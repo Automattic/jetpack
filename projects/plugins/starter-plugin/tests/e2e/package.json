@@ -44,6 +44,8 @@
 		"targets": [
 			"plugins/starter-plugin",
 			"tools/e2e-commons"
-		]
+		],
+		"pluginSlug": "starter-plugin",
+		"mirrorName": "jetpack-starter-plugin"
 	}
 }

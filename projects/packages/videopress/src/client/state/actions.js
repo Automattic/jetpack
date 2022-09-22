@@ -3,6 +3,7 @@ import {
 	SET_VIDEOS,
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
+	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
 } from './constants';
 
@@ -19,6 +20,10 @@ const setVideosQuery = query => {
 	return { type: SET_VIDEOS_QUERY, query };
 };
 
+const setVideosPagination = pagination => {
+	return { type: SET_VIDEOS_PAGINATION, pagination };
+};
+
 const setVideos = videos => {
 	return { type: SET_VIDEOS, videos };
 };
@@ -31,6 +36,7 @@ const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
 	setVideosQuery,
+	setVideosPagination,
 	setVideos,
 	setVideo,
 };

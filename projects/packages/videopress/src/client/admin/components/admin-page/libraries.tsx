@@ -30,8 +30,16 @@ const LibraryType = {
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
 
 const ConnectedPagination: React.FC< PaginationProps > = props => {
-	const { setPage, page } = useVideos();
-	return <Pagination { ...props } onChangePage={ setPage } currentPage={ page } />;
+	const { setPage, page, itemsPerPage, total } = useVideos();
+	return (
+		<Pagination
+			{ ...props }
+			perPage={ itemsPerPage }
+			onChangePage={ setPage }
+			currentPage={ page }
+			total={ total }
+		/>
+	);
 };
 
 const VideoLibraryWrapper = ( {
@@ -49,8 +57,8 @@ const VideoLibraryWrapper = ( {
 	hideFilter?: boolean;
 	title?: string;
 } ) => {
-	const { setSearch } = useVideos();
-	const [ searchQuery, setSearchQuery ] = useState( '' );
+	const { setSearch, search } = useVideos();
+	const [ searchQuery, setSearchQuery ] = useState( search );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 

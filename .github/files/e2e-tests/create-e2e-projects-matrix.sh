@@ -6,7 +6,7 @@ PROJECTS=('{"project":"Jetpack connection","path":"projects/plugins/jetpack/test
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
-if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "push" ]]; then
+if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
 	CHANGED_PROJECTS="$(.github/files/list-changed-projects.sh)"
 
 	for PROJECT in "${PROJECTS[@]}"; do
@@ -27,18 +27,22 @@ if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "push" ]
 			done
 		fi
 	done
-else
+elif [[ "$GITHUB_EVENT_NAME" == "push" || "$GITHUB_EVENT_NAME" == "workflow_run" ]]; then
+	PROJECTS_MATRIX=("${PROJECTS[*]}")
+elif [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
 	# gutenberg scheduled run
-	if [ "$CRON" == "0 */12 * * *" ]; then
-		PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks","--retries=2"]}')
-		RUN_NAME='gutenberg'
-	fi
+  	if [ "$CRON" == "0 */12 * * *" ]; then
+  		PROJECTS_MATRIX+=('{"project":"Jetpack with Gutenberg","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks","--retries=2"]}')
+  		RUN_NAME='gutenberg'
+  	fi
 
-	# atomic scheduled run
-	if [ "$CRON" == "30 */4 * * *" ]; then
-		PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads", "--retries=2"]}')
-		RUN_NAME='atomic'
-	fi
+  	# atomic scheduled run
+  	if [ "$CRON" == "30 */4 * * *" ]; then
+  		PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads", "--retries=2"]}')
+  		RUN_NAME='atomic'
+  	fi
+else
+	echo "Unsupported GITHUB_EVENT_NAME \"$GITHUB_EVENT_NAME\""
 fi
 
 jq -n -c --arg runName "$RUN_NAME" --argjson projects "$(jq -s -c -r '.' <<<"${PROJECTS_MATRIX[@]}")" '{ "run": $runName, "matrix": $projects }'

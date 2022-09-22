@@ -10,6 +10,7 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS,
 	SET_VIDEOS_QUERY,
+	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
 } from './constants';
 
@@ -56,6 +57,16 @@ const videos = ( state = {}, action ) => {
 			};
 		}
 
+		case SET_VIDEOS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					...action.pagination,
+				},
+			};
+		}
+
 		case SET_VIDEOS: {
 			const { videos: items } = action;
 			return {
@@ -67,13 +78,10 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-
-			const items = state.items.map( item => {
-				if ( item.id === video.id ) {
-					return video;
-				}
-				return item;
-			} );
+			const { items = [] } = state;
+			if ( ! items.find( item => item.ID === video.ID ) ) {
+				items.push( video );
+			}
 
 			return {
 				...state,
