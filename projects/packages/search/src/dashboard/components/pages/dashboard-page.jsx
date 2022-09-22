@@ -1,4 +1,4 @@
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import { DonutMeter, Gridicon, JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -147,6 +147,36 @@ export default function DashboardPage( { isLoading = false } ) {
 		);
 	};
 
+	const renderDonutMeterTestSection = () => {
+		return (
+			<div className="jp-search-record-meter jp-search-dashboard-wrap">
+				<div className="jp-search-dashboard-row">
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+					<div className="jp-search-record-meter__content lg-col-span-8 md-col-span-6 sm-col-span-4">
+						<h2>DonutMeter layout testing</h2>
+						<div className="donut-meter-with-labels">
+							<div className="donut-meter-wrapper">
+								<DonutMeter />
+							</div>
+							<div className="donut-meter-info">
+								<p className="donut-meter-primary">
+									Site records{ ' ' }
+									<a href="#" className="info-icon-wrapper">
+										<Gridicon className="" icon="info-outline" size={ 16 } />
+									</a>
+								</p>
+								<p className="donut-meter-secondary">
+									212/500 <a href="#">Show details</a>
+								</p>
+							</div>
+						</div>
+					</div>
+					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+				</div>
+			</div>
+		);
+	};
+
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -154,6 +184,7 @@ export default function DashboardPage( { isLoading = false } ) {
 				<div className="jp-search-dashboard-page">
 					{ renderHeader() }
 					{ renderMockedSearchInterface() }
+					{ renderDonutMeterTestSection() }
 					<RecordMeter
 						postCount={ postCount }
 						postTypeBreakdown={ postTypeBreakdown }
