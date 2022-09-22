@@ -24,6 +24,11 @@ class Helper {
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
 	/**
+	 * TODO: remove the lock once the functionalities are finished.
+	 */
+	const NEW_PRICING_202208_READY = false;
+
+	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
 	 * @since 5.8.0
@@ -966,5 +971,12 @@ class Helper {
 		$referrer = wp_get_referer();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
+	}
+
+	/**
+	 * Return true if the new pricing is finished and ready to be used in production.
+	 */
+	public static function is_new_pricing_202208_ready() {
+		return self::NEW_PRICING_202208_READY;
 	}
 }
