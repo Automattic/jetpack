@@ -2,7 +2,13 @@
 
 set -eo pipefail
 
-PROJECTS=('{"project":"Jetpack connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/connection","--retries=2"]}' '{"project":"Jetpack pre-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/pre-connection","--retries=2"]}' '{"project":"Jetpack post-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/post-connection","--retries=2"]}' '{"project":"Jetpack sync","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/sync","--retries=2"]}' '{"project":"Jetpack blocks","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/blocks","--retries=2"]}' '{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update","--retries=2"]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[]}' '{"project":"Search","path":"projects/plugins/search/tests/e2e","testArgs":[]}' '{"project":"VideoPress","path":"projects/plugins/videopress/tests/e2e","testArgs":[]}')
+PROJECTS=('{"project":"Jetpack connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/connection","--retries=2"]}' '{"project":"Jetpack pre-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/pre-connection","--retries=2"]}' '{"project":"Jetpack post-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/post-connection","--retries=2"]}' '{"project":"Jetpack sync","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/sync","--retries=2"]}' '{"project":"Jetpack blocks","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/blocks","--retries=2"]}' '{"project":"Boost","path":"projects/plugins/boost/tests/e2e","testArgs":[]}' '{"project":"Search","path":"projects/plugins/search/tests/e2e","testArgs":[]}' '{"project":"VideoPress","path":"projects/plugins/videopress/tests/e2e","testArgs":[]}')
+
+## Update test only works with local build and workflow_run uses CI built artefacts
+if [[ "$GITHUB_EVENT_NAME" != "workflow_run" ]]; then
+	PROJECTS+=('{"project":"Jetpack update","path":"projects/plugins/jetpack/tests/e2e","testArgs":["plugin-update","--retries=2"]}')
+fi
+
 PROJECTS_MATRIX=()
 RUN_NAME=''
 
