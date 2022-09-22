@@ -77,3 +77,38 @@ body {
 		font-size: 14px;
 	}
 }
+
+.donut-meter-with-labels {
+	// background: aqua;
+	display: flex;
+	height: fit-content; // or 64px?
+	width: fit-content;
+
+	.donut-meter-wrapper {
+		// background: antiquewhite;
+		height: fit-content;
+	}
+
+	.donut-meter-info {
+		// background: beige;
+		height: auto;
+		margin: 0 8px;
+	}
+
+	.donut-meter-primary {
+		margin: 8px 0;
+		font-size: 1em;
+		font-weight: bold;
+	}
+
+	.donut-meter-secondary {
+		color: gray;
+		margin: 0;
+		font-size: 0.7em;
+	}
+
+	.info-icon-wrapper {
+		color: black;
+		vertical-align: middle;
+	}
+}
