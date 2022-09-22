@@ -6,6 +6,10 @@
 ### Improved compatibility
 - WC Pay: resolves issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+. [#26304]
 
+## 11.3.2 - 2022-09-22
+### Improved compatibility
+- WC Pay: resolves issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+. [#26304]
+
 ## 11.4-a.5 - 2022-09-20
 ### Enhancements
 - Payment Blocks: add core typography settings to the buttons. [#26108]
