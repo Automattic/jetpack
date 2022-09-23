@@ -90,7 +90,9 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 					iconSize={ 14 }
 					offset={ 4 }
 				>
-					<Text variant="body-small">{ tooltipInfo || defaultTooltipInfo }</Text>
+					<Text variant="body-small">
+						{ dangerTooltipInfo( tooltipInfo || defaultTooltipInfo ) }
+					</Text>
 				</IconTooltip>
 			) }
 		</div>
@@ -161,7 +163,7 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 										iconSize={ 14 }
 										offset={ 4 }
 									>
-										<Text variant="body-small">{ item.tooltipInfo }</Text>
+										<Text variant="body-small">{ dangerTooltipInfo( item.tooltipInfo ) }</Text>
 									</IconTooltip>
 								) }
 							</div>
