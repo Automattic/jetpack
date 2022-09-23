@@ -6,13 +6,18 @@ import {
 	Container,
 	Button,
 	Col,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { useCallback } from 'react';
 import useVideos from '../../hooks/use-videos';
 import Logo from '../logo';
+import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
+import styles from './styles.module.scss';
 import { ConnectionStore } from './types';
 
 const Admin = () => {
@@ -20,11 +25,22 @@ const Admin = () => {
 		select => ( select( CONNECTION_STORE_ID ) as ConnectionStore ).getConnectionStatus(),
 		[]
 	);
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const { items: videos } = useVideos();
+	const { items: videos, total: totalVideoCount } = useVideos();
 	const localVideos = [];
+	const localTotalVideoCount = 0;
+	const hasVideos = videos && videos.length > 0;
+	const hasLocalVideos = localVideos && localVideos.length > 0;
+	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
+	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
+	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
+
+	const processFiles = useCallback( () => {
+		// TODO
+	}, [] );
 
 	return (
 		<AdminPage
@@ -47,18 +63,32 @@ const Admin = () => {
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
-								<Button>{ __( 'Add new video', 'jetpack-videopress-pkg' ) }</Button>
+								<Button fullWidth={ isSm }>{ addVideoLabel }</Button>
 							</Col>
 						</Container>
 					</AdminSectionHero>
 					<AdminSection>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
-							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<VideoPressLibrary videos={ videos } />
-							</Col>
-							<Col sm={ 4 } md={ 6 } lg={ 12 }>
-								<LocalLibrary videos={ localVideos } />
-							</Col>
+							{ hasVideos ? (
+								<Col sm={ 4 } md={ 6 } lg={ 12 }>
+									<VideoPressLibrary videos={ videos } totalVideos={ totalVideoCount } />
+								</Col>
+							) : (
+								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
+									<Text variant="headline-small">
+										{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
+									</Text>
+									<VideoUploadArea
+										className={ classnames( styles[ 'upload-area' ], { [ styles.small ]: isSm } ) }
+										onSelectFiles={ processFiles }
+									/>
+								</Col>
+							) }
+							{ hasLocalVideos && (
+								<Col sm={ 4 } md={ 6 } lg={ 12 }>
+									<LocalLibrary videos={ localVideos } totalVideos={ localTotalVideoCount } />
+								</Col>
+							) }
 						</Container>
 					</AdminSection>
 				</>

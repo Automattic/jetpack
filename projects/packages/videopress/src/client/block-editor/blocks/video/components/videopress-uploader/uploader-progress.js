@@ -10,9 +10,9 @@ import filesize from 'filesize';
  * Internal dependencies
  */
 import useMetaUpdate from '../../../../../hooks/use-meta-update.js';
+import usePosterImage from '../../../../../hooks/use-poster-image.js';
+import usePosterUpload from '../../../../../hooks/use-poster-upload.js';
 import { PlaceholderWrapper } from '../../edit.js';
-import usePosterImage from '../../hooks/use-poster-image.js';
-import usePosterUpload from '../../hooks/use-poster-upload.js';
 import UploadingEditor from './uploader-editor.js';
 
 const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
@@ -43,7 +43,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 		} );
 	};
 
-	const updatePoster = result => {
+	const updatePoster = ( { data: result } ) => {
 		if ( result?.generating ) {
 			setTimeout( () => {
 				getPosterImage().then( response => updatePoster( response ) );

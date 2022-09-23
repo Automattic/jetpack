@@ -12,7 +12,10 @@ declare global {
 	}
 }
 
-export type VideoLibraryProps = { videos: Array< VideoPressVideo > };
+export type VideoLibraryProps = {
+	videos: Array< VideoPressVideo >;
+	totalVideos?: number;
+};
 
 export interface ConnectionStore {
 	getConnectionStatus: () => {
