@@ -13,6 +13,8 @@ import {
 	TextareaControl,
 	DropdownMenu,
 } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
+import { withSelect, withDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { menu, arrowUp, arrowDown } from '@wordpress/icons';
@@ -34,44 +36,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 
-// TODO: To be removed
-export const _default = () => {
-	const label = __( 'Label', 'jetpack' );
-	const firstMenuItemLabel = 'First Menu Item Label';
-	const secondMenuItemLabel = 'First Menu Item Label';
-	const toggleButtonTootip = 'Show tooltip on a toggle button';
-	const onClick = () => {
-		wp.data.dispatch( 'core/editor' ).editPost( { meta: { _newsletter_visibility: 'yest' } } );
-	};
-	const controls = [
-		{
-			title: firstMenuItemLabel,
-			icon: arrowUp,
-			value: 'first_value',
-			onClick: onClick,
-		},
-		{
-			title: secondMenuItemLabel,
-			icon: arrowDown,
-			value: 'second_value',
-			onClick: onClick,
-		},
-	];
-
-	const _newsletter_visibility = wp.data.select( 'core/editor' ).getEditedPostAttribute( 'meta' )
-		._newsletter_visibility;
-	console.info( '_newsletter_visibility:' + _newsletter_visibility );
-	return (
-		<DropdownMenu
-			icon={ menu }
-			label={ label }
-			controls={ controls }
-			toggleProps={ { showTooltip: toggleButtonTootip } }
-		/>
-	);
-};
-
-export default function SubscriptionControls( {
+function SubscriptionControls( {
 	buttonBackgroundColor,
 	borderColor,
 	buttonGradient,
@@ -94,7 +59,46 @@ export default function SubscriptionControls( {
 	textColor,
 	buttonWidth,
 	successMessage,
+	setPostMeta,
+	postMeta,
 } ) {
+	// TODO: To be removed
+	function _default() {
+		const label = __( 'Label', 'jetpack' );
+		const firstMenuItemLabel = 'First Menu Item Label';
+		const secondMenuItemLabel = 'First Menu Item Label';
+		const toggleButtonTootip = 'Show tooltip on a toggle button';
+		const onClick = value => {
+			setPostMeta( { _newsletter_visibility: value } );
+		};
+
+		const controls = [
+			{
+				title: firstMenuItemLabel,
+				icon: arrowUp,
+				value: 'first_value',
+				onClick: () => onClick( 'second_value' ),
+			},
+			{
+				title: secondMenuItemLabel,
+				icon: arrowDown,
+				value: 'second_value',
+				onClick: () => onClick( 'second_value' ),
+			},
+		];
+
+		const _newsletter_visibility = postMeta._newsletter_visibility;
+		return (
+			<DropdownMenu
+				icon={ menu }
+				label={ label }
+				value={ _newsletter_visibility }
+				controls={ controls }
+				toggleProps={ { showTooltip: toggleButtonTootip } }
+			/>
+		);
+	}
+
 	return (
 		<>
 			{ subscriberCount > 1 && (
@@ -304,3 +308,18 @@ export default function SubscriptionControls( {
 		</>
 	);
 }
+
+export default compose( [
+	withSelect( select => {
+		return {
+			postMeta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
+		};
+	} ),
+	withDispatch( dispatch => {
+		return {
+			setPostMeta( newMeta ) {
+				dispatch( 'core/editor' ).editPost( { meta: newMeta } );
+			},
+		};
+	} ),
+] )( SubscriptionControls );
