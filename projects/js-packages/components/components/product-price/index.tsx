@@ -47,7 +47,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 				) }
 				{ promoLabel && <Text className={ styles[ 'promo-label' ] }>{ promoLabel }</Text> }
 			</div>
-			{ leyend && <Text className={ styles.leyend }>{ leyend }</Text> }
+			{ ! children && <Text className={ styles.leyend }>{ leyend }</Text> }
 			{ children }
 		</>
 	);

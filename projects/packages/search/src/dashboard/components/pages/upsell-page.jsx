@@ -175,7 +175,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="Free forever" currency="USD" hidePriceFraction />
+					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
 					<Button onClick={ sendToCart } variant="secondary" fullWidth>
 						{ __( 'Start for free', 'jetpack-search-pkg' ) }
 					</Button>
