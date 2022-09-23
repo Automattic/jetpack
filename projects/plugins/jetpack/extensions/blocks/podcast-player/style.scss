@@ -272,7 +272,7 @@ $jetpack-podcast-player-error: $alert-red;
 	}
 
 	.jetpack-podcast-player__track-description {
-		order: 99; // high number to make it always appear after the audio player
+		order: 99; // high number to make it always appear after the audio player and before the admin controls
 		padding: 0 $gutter-l;
 		margin: 0 0 $gutter-l 0;
 		font-size: $editor-font-size;
@@ -287,6 +287,20 @@ $jetpack-podcast-player-error: $alert-red;
 			-webkit-box-orient: vertical;
 			-webkit-line-clamp: 4;
 			max-height: initial;
+		}
+	}
+
+	.jetpack-podcast-player__admin-controls {
+		align-items: center;
+		column-gap: $gutter-l;
+		display: flex;
+		font-size: $default-font-size;
+		justify-content: space-evenly;
+		order: 100; // ensure this appears after the track description above
+		padding: 0 $gutter-l $gutter-l $gutter-l;
+
+		.jetpack-podcast-player__admin-refresh-message {
+			font-style: italic;
 		}
 	}
 
