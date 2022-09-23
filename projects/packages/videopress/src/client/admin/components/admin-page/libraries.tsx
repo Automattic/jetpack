@@ -4,6 +4,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
+import classnames from 'classnames';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 /**
@@ -12,7 +13,6 @@ import { useNavigate } from 'react-router-dom';
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import Pagination from '../pagination';
-import { PaginationProps } from '../pagination/types';
 import { FilterButton, FilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
@@ -29,15 +29,18 @@ const LibraryType = {
 
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
 
-const ConnectedPagination: React.FC< PaginationProps > = props => {
-	const { setPage, page, itemsPerPage, total } = useVideos();
-	return (
+const ConnectedPagination = ( props: { className: string } ) => {
+	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
+	return total < itemsPerPage ? (
+		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
+	) : (
 		<Pagination
 			{ ...props }
 			perPage={ itemsPerPage }
 			onChangePage={ setPage }
 			currentPage={ page }
 			total={ total }
+			disabled={ isFetching }
 		/>
 	);
 };
@@ -57,7 +60,7 @@ const VideoLibraryWrapper = ( {
 	hideFilter?: boolean;
 	title?: string;
 } ) => {
-	const { setSearch, search } = useVideos();
+	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
@@ -81,6 +84,7 @@ const VideoLibraryWrapper = ( {
 							className={ styles[ 'search-input' ] }
 							onSearch={ setSearch }
 							value={ searchQuery }
+							loading={ isFetching }
 							onChange={ setSearchQuery }
 						/>
 
@@ -100,12 +104,7 @@ const VideoLibraryWrapper = ( {
 			</div>
 			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectedPagination
-				currentPage={ 1 }
-				total={ 30 }
-				perPage={ 5 }
-				className={ styles.pagination }
-			/>
+			<ConnectedPagination className={ styles.pagination } />
 		</div>
 	);
 };
