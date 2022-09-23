@@ -5,7 +5,7 @@ import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { stepToRoute } from 'state/recommendations';
-import { mapStateToSummaryResourceProps } from '../feature-utils';
+import { getSummaryResourceProps } from '../feature-utils';
 import './style.scss';
 
 const ResourceSummaryComponent = props => {
@@ -55,7 +55,7 @@ const ResourceSummaryComponent = props => {
 };
 
 const ResourceSummary = connect( ( _, ownProps ) => ( {
-	...mapStateToSummaryResourceProps( ownProps.resourceSlug ),
+	...getSummaryResourceProps( ownProps.resourceSlug ),
 	stepRoute: stepToRoute[ ownProps.resourceSlug ],
 } ) )( ResourceSummaryComponent );
 

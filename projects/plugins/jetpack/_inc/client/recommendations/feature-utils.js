@@ -83,7 +83,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	}
 };
 
-export const mapStateToSummaryResourceProps = resourceSlug => {
+export const getSummaryResourceProps = resourceSlug => {
 	switch ( resourceSlug ) {
 		case 'agency':
 			return {
@@ -104,7 +104,7 @@ export const mapStateToSummaryResourceProps = resourceSlug => {
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
 			};
 		default:
-			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
 };
 
