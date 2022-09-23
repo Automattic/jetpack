@@ -44,3 +44,4 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
  */
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
+export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
