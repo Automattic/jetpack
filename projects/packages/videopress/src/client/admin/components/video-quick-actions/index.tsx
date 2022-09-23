@@ -7,7 +7,12 @@ import { useState } from 'react';
 import privacy from '../../../components/icons/privacy-icon';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import styles from './style.module.scss';
-import { ActionItemProps, PopoverWithAnchorProps, VideoQuickActionsProps } from './types';
+import {
+	ActionItemProps,
+	PopoverWithAnchorProps,
+	ThumbnailActionsDropdownProps,
+	VideoQuickActionsProps,
+} from './types';
 
 const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorProps ) => {
 	if ( ! anchorRef ) {

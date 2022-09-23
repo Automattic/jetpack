@@ -31,16 +31,13 @@ export interface VideoQuickActionsProps {
 	 * className to apply to the component
 	 */
 	className?: string;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateVideoThumbnail?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	onUpdateVideoPrivacy?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
 	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 }
+
+export type ThumbnailActionsDropdownProps = {
+	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	description: string;
+};
