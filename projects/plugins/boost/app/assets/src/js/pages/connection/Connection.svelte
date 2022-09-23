@@ -1,25 +1,12 @@
 <script>
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
-	import CheckboxIcon from '../../svg/checkbox.svg';
-	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import externalLinkTemplateVar from '../../utils/external-link-template-var';
-	import { connection } from '../../stores/connection';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
-	import config from '../../stores/config';
-
-	function jetpackURL( url ) {
-		if ( config.site.url ) {
-			url = url + '&site=' + encodeURIComponent( config.site.url );
-		}
-		return url;
-	}
+	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import { connection } from '../../stores/connection';
+	import CheckboxIcon from '../../svg/checkbox.svg';
+	import { onConnectionComplete } from '../../utils/connection';
+	import externalLinkTemplateVar from '../../utils/external-link-template-var';
+	import { jetpackURL } from '../../utils/jetpack-url';
 
 	const benefits = [
 		__( 'Speed up your site load time', 'jetpack-boost' ),
@@ -27,6 +14,10 @@
 		__( 'Improve your SEO ranking', 'jetpack-boost' ),
 		__( 'Sell more stuff', 'jetpack-boost' ),
 	];
+
+	$: if ( $connection.connected ) {
+		onConnectionComplete();
+	}
 </script>
 
 <div class="jb-section__inner connection">

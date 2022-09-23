@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl, JetpackFooter } from '@automattic/jetpack-components';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
+import DevCard from 'components/dev-card';
+import analytics from 'lib/analytics';
 import React from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import { __, _x, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl, JetpackFooter } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
-import DevCard from 'components/dev-card';
 import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
@@ -20,7 +14,6 @@ import {
 	getSiteAdminUrl,
 	isAtomicPlatform,
 } from 'state/initial-state';
-import { isInIdentityCrisis, getSiteConnectionStatus } from 'state/connection';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 const smoothScroll = () => {

@@ -1,19 +1,11 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import UpgradeNoticeContent from 'components/upgrade-notice-content';
+import React from 'react';
+import { connect } from 'react-redux';
 import { getCurrentVersion, getSiteAdminUrl, isAtomicPlatform } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
@@ -21,9 +13,6 @@ import {
 	getJetpackStateNoticesErrorDescription,
 	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
-import NoticeAction from 'components/notice/notice-action.jsx';
-import SimpleNotice from 'components/notice';
-import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
 class JetpackStateNotices extends React.Component {
 	static displayName = 'JetpackStateNotices';

@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -107,6 +107,12 @@
 
 .jetpack-contact-form__thankyou-redirect-url__suggestions {
 	width: 260px;
+}
+
+.jetpack-contact-form__integration-panel {
+	button {
+		margin-top: 1em;
+	}
 }
 
 .jetpack-field-label {
@@ -224,6 +230,7 @@ input.components-text-control__input {
 
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-option__input.jetpack-option__input.jetpack-option__input {
+	color: inherit;
 	border-color: transparent;
 	background: transparent;
 	border-radius: 0;
@@ -239,6 +246,11 @@ input.components-text-control__input {
 		box-shadow: none;
 	}
 }
+
+.jetpack-field-multiple.components-base-control {
+	font-size: inherit;
+}
+
 // Duplicated to elevate specificity in order to overwrite calypso styles
 .jetpack-option__remove.jetpack-option__remove {
 	padding: 6px;

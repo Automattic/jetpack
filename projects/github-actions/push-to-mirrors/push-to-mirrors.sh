@@ -7,7 +7,7 @@
 # Required:
 # - BUILD_BASE: Path to the build directory, which contains "mirrors.txt" and directories for each repo to mirror to.
 # - GITHUB_ACTOR: GitHub username for the commit being mirrored.
-# - GITHUB_REF: Git ref being mirrored from, e.g. "refs/heads/master". Must begin with "refs/heads/".
+# - GITHUB_REF: Git ref being mirrored from, e.g. "refs/heads/main". Must begin with "refs/heads/".
 #
 # Other:
 # - API_TOKEN_GITHUB: Personal access token to use when accessing GitHub.

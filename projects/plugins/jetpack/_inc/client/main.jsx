@@ -1,30 +1,39 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { withRouter, Prompt } from 'react-router-dom';
-import { __, sprintf } from '@wordpress/i18n';
+import { imagePath } from 'constants/urls';
+import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ActivationScreen } from '@automattic/jetpack-licensing';
+import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { Dashicon } from '@wordpress/components';
 import { withDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import AtAGlance from 'at-a-glance/index.jsx';
+import AdminNotices from 'components/admin-notices';
+import AppsCard from 'components/apps-card';
+import ContextualizedConnection from 'components/contextualized-connection';
+import QueryRewindStatus from 'components/data/query-rewind-status';
+import Footer from 'components/footer';
+import JetpackNotices from 'components/jetpack-notices';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
+import NonAdminView from 'components/non-admin-view';
+import ReconnectModal from 'components/reconnect-modal';
+import SupportCard from 'components/support-card';
+import Tracker from 'components/tracker';
+import analytics from 'lib/analytics';
+import MyPlan from 'my-plan/index.jsx';
+import ProductDescriptions from 'product-descriptions';
+import { productDescriptionRoutes } from 'product-descriptions/constants';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter, Prompt } from 'react-router-dom';
+import { Recommendations } from 'recommendations';
 import SearchableSettings from 'settings/index.jsx';
 import {
-	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
-	updateUserLicensesCounts as updateUserLicensesCountsAction,
-} from 'state/licensing';
-import { fetchModules as fetchModulesAction } from 'state/modules';
-import {
 	getSiteConnectionStatus,
+	getConnectedWpComUser,
 	isCurrentUserLinked,
 	isSiteConnected,
 	isConnectionOwner,
@@ -59,36 +68,22 @@ import {
 	isWooCommerceActive,
 } from 'state/initial-state';
 import {
-	fetchSiteData as fetchSiteDataAction,
-	fetchSitePurchases as fetchSitePurchasesAction,
-} from 'state/site';
+	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicensesCounts as updateUserLicensesCountsAction,
+} from 'state/licensing';
+import { fetchModules as fetchModulesAction } from 'state/modules';
+import { getRewindStatus } from 'state/rewind';
+import { getSearchTerm } from 'state/search';
 import {
 	areThereUnsavedSettings,
 	clearUnsavedSettingsFlag,
 	fetchSettings as fetchSettingsAction,
 } from 'state/settings';
-import { getSearchTerm } from 'state/search';
-import { Recommendations } from 'recommendations';
-import ProductDescriptions from 'product-descriptions';
-import { productDescriptionRoutes } from 'product-descriptions/constants';
-import AtAGlance from 'at-a-glance/index.jsx';
-import MyPlan from 'my-plan/index.jsx';
-import Footer from 'components/footer';
-import SupportCard from 'components/support-card';
-import AppsCard from 'components/apps-card';
-import NonAdminView from 'components/non-admin-view';
-import JetpackNotices from 'components/jetpack-notices';
-import AdminNotices from 'components/admin-notices';
-import Tracker from 'components/tracker';
-import analytics from 'lib/analytics';
-import restApi from '@automattic/jetpack-api';
-import QueryRewindStatus from 'components/data/query-rewind-status';
-import { getRewindStatus } from 'state/rewind';
-import ReconnectModal from 'components/reconnect-modal';
-import { createInterpolateElement } from '@wordpress/element';
-import { imagePath } from 'constants/urls';
-import { ActivationScreen } from '@automattic/jetpack-licensing';
-import ContextualizedConnection from 'components/contextualized-connection';
+import {
+	fetchSiteData as fetchSiteDataAction,
+	fetchSitePurchases as fetchSitePurchasesAction,
+} from 'state/site';
+import AgenciesCard from './components/agencies-card';
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -100,6 +95,12 @@ const recommendationsRoutes = [
 	'/recommendations/related-posts',
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
+	'/recommendations/publicize',
+	'/recommendations/protect',
+	'/recommendations/anti-spam',
+	'/recommendations/videopress',
+	'/recommendations/backup-plan',
+	'/recommendations/boost',
 	'/recommendations/summary',
 ];
 
@@ -473,10 +474,7 @@ class Main extends React.Component {
 					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
-							assetBaseUrl={ this.props.pluginBaseUrl }
-							lockImage="/images/jetpack-license-activation-with-lock.png"
 							siteRawUrl={ this.props.siteRawUrl }
-							successImage="/images/jetpack-license-activation-with-success.png"
 							onActivationSuccess={ this.onLicenseActivationSuccess }
 							siteAdminUrl={ this.props.siteAdminUrl }
 							currentRecommendationsStep={ this.props.currentRecommendationsStep }
@@ -496,6 +494,12 @@ class Main extends React.Component {
 			case '/recommendations/related-posts':
 			case '/recommendations/creative-mail':
 			case '/recommendations/site-accelerator':
+			case '/recommendations/publicize':
+			case '/recommendations/protect':
+			case '/recommendations/anti-spam':
+			case '/recommendations/videopress':
+			case '/recommendations/backup-plan':
+			case '/recommendations/boost':
 			case '/recommendations/summary':
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;
@@ -542,6 +546,19 @@ class Main extends React.Component {
 	shouldShowAppsCard() {
 		// Only show on the dashboard
 		return (
+			this.props.isSiteConnected &&
+			! this.shouldShowWooConnectionScreen() &&
+			dashboardRoutes.includes( this.props.location.pathname )
+		);
+	}
+
+	shouldShowAgenciesCard() {
+		const { site_count } = this.props.connectedWpComUser;
+
+		// Only show on dashboard when users are managing 2 or more sites
+		return (
+			this.props.userCanConnectSite &&
+			site_count >= 2 &&
 			this.props.isSiteConnected &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
@@ -703,6 +720,9 @@ class Main extends React.Component {
 						message={ this.handleRouterWillLeave }
 					/>
 					{ this.renderMainContent( this.props.location.pathname ) }
+					{ this.shouldShowAgenciesCard() && (
+						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
+					) }
 					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
@@ -719,6 +739,7 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			connectionStatus: getConnectionStatus( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			connectedWpComUser: getConnectedWpComUser( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isConnectingUser: isConnectingUser( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),

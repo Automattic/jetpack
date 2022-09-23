@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
 import { assign, get } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { combineReducers } from 'redux';
 import {
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
 	JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,

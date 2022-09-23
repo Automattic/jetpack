@@ -1,85 +1,69 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
-import { forEach } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import SectionNav from 'components/section-nav';
-
-import NavTabs from 'components/section-nav/tabs';
-import NavSegmented from 'components/section-nav/segmented';
-import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
+import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavSegmented from 'components/section-nav/segmented';
+import NavTabs from 'components/section-nav/tabs';
+import { forEach } from 'lodash';
+import React from 'react';
 
 /**
  * Main
  */
-const SectionNavigation = createReactClass( {
-	displayName: 'SectionNav',
+class SectionNavigation extends React.PureComponent {
+	static displayName = 'SectionNav';
 
-	mixins: [ PureRenderMixin ],
+	state = {
+		basicTabsSelectedIndex: 0,
+		manyTabsSelectedIndex: 0,
+		siblingTabsSelectedIndex: 0,
+		siblingSegmentedSelectedIndex: 0,
+	};
 
-	getInitialState: function () {
-		return {
-			basicTabsSelectedIndex: 0,
-			manyTabsSelectedIndex: 0,
-			siblingTabsSelectedIndex: 0,
-			siblingSegmentedSelectedIndex: 0,
-		};
-	},
+	static defaultProps = {
+		basicTabs: [
+			'Days',
+			'Weeks',
+			{
+				name: 'Months',
+				count: 45,
+			},
+			{
+				name: 'Years',
+				count: 11,
+			},
+		],
+		manyTabs: [
+			'Staff Picks',
+			'Trending',
+			'Blog',
+			{
+				name: 'Business',
+				count: 8761,
+			},
+			'Food',
+			'Music',
+			{
+				name: 'Travel',
+				count: 761,
+			},
+			'Wedding',
+			'Minimal',
+			'Magazine',
+			'Photography',
+		],
+		siblingTabs: [
+			{
+				name: 'Published',
+				count: 8,
+			},
+			'Scheduled',
+			'Drafts',
+			'Trashed',
+		],
+		siblingSegmented: [ 'Only Me', 'Everyone' ],
+	};
 
-	getDefaultProps: function () {
-		return {
-			basicTabs: [
-				'Days',
-				'Weeks',
-				{
-					name: 'Months',
-					count: 45,
-				},
-				{
-					name: 'Years',
-					count: 11,
-				},
-			],
-			manyTabs: [
-				'Staff Picks',
-				'Trending',
-				'Blog',
-				{
-					name: 'Business',
-					count: 8761,
-				},
-				'Food',
-				'Music',
-				{
-					name: 'Travel',
-					count: 761,
-				},
-				'Wedding',
-				'Minimal',
-				'Magazine',
-				'Photography',
-			],
-			siblingTabs: [
-				{
-					name: 'Published',
-					count: 8,
-				},
-				'Scheduled',
-				'Drafts',
-				'Trashed',
-			],
-			siblingSegmented: [ 'Only Me', 'Everyone' ],
-		};
-	},
-
-	render: function () {
+	render() {
 		const demoSections = {};
 
 		forEach( this.props, ( prop, key ) => {
@@ -141,41 +125,41 @@ const SectionNavigation = createReactClass( {
 				</SectionNav>
 			</div>
 		);
-	},
+	}
 
-	getSelectedText: function ( section ) {
+	getSelectedText( section ) {
 		const selected = this.state[ section + 'SelectedIndex' ],
 			text = this.props[ section ][ selected ];
 
 		return 'object' === typeof text ? text.name : text;
-	},
+	}
 
-	getSelectedCount: function ( section ) {
+	getSelectedCount( section ) {
 		const selected = this.state[ section + 'SelectedIndex' ],
 			selectedItem = this.props[ section ][ selected ];
 
 		return 'object' === typeof selectedItem ? selectedItem.count || null : null;
-	},
+	}
 
-	getSiblingDemoSelectedText: function () {
+	getSiblingDemoSelectedText() {
 		return (
 			<span>
 				<span>{ this.getSelectedText( 'siblingTabs' ) }</span>
 				<small>{ this.getSelectedText( 'siblingSegmented' ) }</small>
 			</span>
 		);
-	},
+	}
 
-	handleNavItemClick: function ( section, index ) {
+	handleNavItemClick( section, index ) {
 		return function () {
 			const stateUpdate = {};
 
 			stateUpdate[ section + 'SelectedIndex' ] = index;
 			this.setState( stateUpdate );
 		}.bind( this );
-	},
+	}
 
-	demoSearch: function () {},
-} );
+	demoSearch() {}
+}
 
 export default SectionNavigation;

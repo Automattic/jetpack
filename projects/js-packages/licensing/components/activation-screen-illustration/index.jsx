@@ -1,15 +1,9 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**
@@ -30,7 +24,7 @@ const ActivationScreenIllustration = props => {
 			{ showSupportLink && (
 				<p className="jp-license-activation-screen-illustration--support-link">
 					{ createInterpolateElement( __( 'Do you need help? <a>Contact us.</a>', 'jetpack' ), {
-						a: <a href={ getRedirectUrl( 'jetpack-support' ) } />,
+						a: <a href={ getRedirectUrl( 'jetpack-support-license-activation' ) } />,
 					} ) }
 				</p>
 			) }

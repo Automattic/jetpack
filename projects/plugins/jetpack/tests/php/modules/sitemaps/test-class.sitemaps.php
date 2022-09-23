@@ -12,7 +12,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_manager_constructor() {
-		$manager = new Jetpack_Sitemap_Manager();
+		$manager = new Jetpack_Sitemap_Manager(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( true );
 	}
 
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 		delete_option( 'jetpack_sitemap_location' );
 
 		// Set the location.
-		function add_location( $string ) {
+		function add_location( $string ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			$string .= '/blah';
 			return $string;
 		}

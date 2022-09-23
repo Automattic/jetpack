@@ -1,10 +1,10 @@
 === Jetpack Backup ===
 Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
-Requires at least: 5.8
+Requires at least: 5.9
 Requires PHP: 5.6
-Tested up to: 5.9
-Stable tag: 1.1.0
+Tested up to: 6.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -158,33 +158,14 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.1.0 - 2022-01-26
+### 1.4.0 - 2022-06-28
 #### Added
-- Added My Jetpack page work in progress behind a feature flag.
-- Added pricing information to Jetpack Connection screen.
-- Pass connected plugin information to disconnect dialog flow, include analytics scripts.
-- Redirect to Jetpack Backup plugin page when the plugin is activated.
-- Use monorepo `validate-es` script to validate Webpack builds.
+- Added Social card to My Jetpack.
 
 #### Changed
-- Change initial screen for first backup.
-- Detect when a backup will retry and update error screen content.
-- Import RNA styles from base styles package.
-- Make Admin UI consume layout components.
-- The Admin page now promotes the new real-time Backup products.
-- Updated content shown on backup segments section.
-- Updated Jetpack Primary color to match latest brand book.
-- Updated upgrade button link target to point to checkout.
-- Use `Assets::register_script()` to load Webpack-built script.
-
-#### Removed
-- Remove use of deprecated `~` in sass-loader imports.
-- Remove use of `gulp` in build, all it was doing was wrapping `webpack`.
-
-#### Fixed
-- Removed backup-in-progress animation on small viewports
-- Use `@automattic/babel-plugin-replace-textdomain` to ensure proper textdomains in JS bundles.
+- Renamed main branch `master` references to `trunk
+- Updated package dependencies.
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/backup/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/backup/CHANGELOG.md#changelog)

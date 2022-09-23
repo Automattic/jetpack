@@ -1,12 +1,5 @@
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { onMount } from 'svelte';
-
-	/**
-	 * Internal dependencies
-	 */
 	import { copyDomTemplate } from '../utils/copy-dom-template';
 	import { parsePseudoHTML } from '../utils/parse-pseudo-html';
 

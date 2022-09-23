@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import child_process from 'child_process';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
-
-/**
- * Internal dependencies
- */
+import { readComposerJson } from '../helpers/json.js';
+import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { allProjects } from '../helpers/projectHelpers.js';
-import { readComposerJson } from '../helpers/json.js';
 
 /**
  * Command definition for the release subcommand.
@@ -48,6 +41,10 @@ export function releaseDefine( yargs ) {
 				.option( 'stable', {
 					alias: 's',
 					describe: 'Is this a stable release?',
+					type: 'boolean',
+				} )
+				.option( 'add-pr-num', {
+					describe: 'Append the GH PR number to each entry',
 					type: 'boolean',
 				} );
 		},
@@ -124,7 +121,7 @@ export async function runScript( argv ) {
 }
 
 /**
- * Set the argument variables depending on which script we're runnning.
+ * Set the argument variables depending on which script we're running.
  *
  * @param {object} argv - the arguments passed
  */
@@ -138,16 +135,17 @@ export async function scriptRouter( argv ) {
 			} else if ( argv.beta ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
-			argv.next = `Finished! Next: \n	- Create a new branch off master, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
+			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
+			argv.next = `Finished! Next: \n	- Create a new branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
 			argv.scriptArgs = [ argv.project ];
-			argv.next = `Finished! Next: 
-				  - If this is a beta, ensure the stable tag in readme.txt is latest stable. 
+			argv.next = `Finished! Next:
+				  - If this is a beta, ensure the stable tag in readme.txt is latest stable.
 				  - Create a PR and have your changes reviewed and merged.
 				  - Wait and make sure changes are propagated to mirror repos for each updated package.
-				  - After propagation, if you need to create a release branch, stand on master and then run:
+				  - After propagation, if you need to create a release branch, stand on trunk and then run:
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
@@ -155,7 +153,7 @@ export async function scriptRouter( argv ) {
 			argv = await promptForVersion( argv );
 			argv.script = `tools/create-release-branch.sh`;
 			argv.scriptArgs = [ argv.project, argv.version ];
-			argv.next = `Finished! Next: 
+			argv.next = `Finished! Next:
 				  - Once the branch is pushed, GitHub Actions will build and create a branch on your plugin's mirror repo.
 				  - That mirror repo branch will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
 				  - When changes are pushed to the release branch that was just created, GitHub Actions takes care of building/mirroring to the mirror repo.
@@ -166,8 +164,9 @@ export async function scriptRouter( argv ) {
 			await checkBranchValid( argv );
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
+			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
 			argv.workingDir = `projects/${ argv.project }`;
-			argv.next = `Finished! Next:  
+			argv.next = `Finished! Next:
 				  - You will now likely want to update readme.txt again, then commit to the release branch:
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
@@ -176,7 +175,7 @@ export async function scriptRouter( argv ) {
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-u', argv.version, argv.project ];
-			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:  
+			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
 				 - composer.json (the autoloader-suffix filed)

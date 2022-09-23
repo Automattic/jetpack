@@ -1,206 +1,125 @@
 .card {
-	// Card main wrapper
-	--product-card-bg-color: white;
-	--product-card-border-color: #d5d5d5;
-	--product-card-shadow: rgb(0 0 0 / 3%);
-	--product-card-border-radius: 4px;
-
-	--product-card-header-height: 36px;
-	--product-card-header-color: white;
-	--product-card-header-bg-color: black;
-	--product-card-header-font-size: 13px;
-
-	background-color: var(--product-card-bg-color);
-	border: 1px solid var(--product-card-border-color);
-	border-radius: var(--product-card-border-radius);
-	box-shadow: 0 2px 6px var(--product-card-shadow), 0 1px 2px var(--product-card-shadow);
-	max-width: 600px;
+	background-color: var( --jp-white );
 	height: 100%;
+	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
-
-	.card-header {
-		display: flex;
-		align-items: center;
-		background: var(--product-card-header-bg-color);
-		color:var(--product-card-header-color);
-		font-size: var(--product-card-header-font-size);
-		font-weight: 600;
-		letter-spacing: 0.3px;
-		border-top-left-radius: var(--product-card-border-radius);
-		border-top-right-radius: var(--product-card-border-radius);
-		position: absolute;
-		width: 100%;
-		padding: 0 10px;
-		height: var(--product-card-header-height);
-
-
-		.product-bundle-icon {
-			fill: var(--product-card-header-color);
-			margin-right: 5px;
-		}
-	}
 }
 
 .container {
-	// all css variables used down in product-detail-card
-
-	// Colors
-	--jp-green-primary: #069e08;
-	--jp-green-secondary: #2fb41f;
-	--jp-text-color: ###;
-
-	// Text
-	--font-title-large: 32px;
-	--product-card-description-line-height: 1.5;
-	--product-card-description-font-size: 16px;
-	--product-card-price-font-size: 4rem;
-
+	height: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
-	max-width: 600px;
-	height: 100%;
-	padding: 60px 40px;
+}
 
-	.product-icons {
-		flex-direction: row;
-	}
+.card-header {
+	display: flex;
+	align-items: center;
+	background: var( --jp-black );
+	color: var( --jp-white );
+	border-radius: var( --jp-border-radius ) var( --jp-border-radius ) 0 0;
+	padding: 0 var( --spacing-base );
+	height: calc( var( --spacing-base ) * 4 );
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
 
-	.plus-icon {
-		fill: rgb(140, 143, 148);
-		height: 24px;
-		line-height: 24px;
-		margin: 0 1px;
-	}
+.product-bundle-icon {
+	fill: var( --jp-white );
+	margin-right: var( --spacing-base );
+}
 
-	h3 {
-		font-size: var(--font-title-large);
-		font-weight: 700;
-		line-height: 46px;
-		color: var( --jp-black );
-		margin: 18px 0;
-	}
+.product-bundle-icons,
+.product-icon {
+	display: flex;
+	align-items: center;
+	height: calc( var( --spacing-base ) * 4 );
+	margin-bottom: calc( var( --spacing-base ) * 4 );
+}
 
-	.cta-container {
-		flex-grow: 2;
-		display: flex;
-		min-height: 60px;
-	}
+.plus-icon {
+	fill: rgb(140, 143, 148);
+	height: 24px;
+	line-height: 24px;
+}
 
-	.product-has-required-plan {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 18px;
-		align-self: flex-end;
-		margin: 0 auto;
+.product-has-required-plan {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
-		svg {
-			margin-right: 5px;
-		}
-	}
-
-	.checkout-button {
-		min-height: 42px;
-		line-height: 26px;
-		align-self: flex-end;
-		font-size: var(--product-card-description-font-size);
-		padding: 8px 60px;
-		text-align: center;
-		width: 100%;
-		display: inline-block;
-		white-space: pre-line;
-		height: auto;
-
-		.components-spinner {
-			margin: 0;
-		}
-
-		&.is-bundle:hover {
-			background: var(--jp-black);
-			color: var(--jp-white);
-		}
-
-	}
-
-	// Product Icon
-	& > svg {
-		margin-bottom: 24px;
+	svg {
+		margin-right: var( --spacing-base );
 	}
 }
 
-.name {
-	line-height: var(--product-card-description-line-height);
-	font-size: var(--product-card-description-font-size);
-	margin: 0 0 22px;
+.checkout-button {
+	display: inline-block;
+	padding: 8px 60px;
+	text-align: center;
+	width: 100%;
+	min-height: 42px;
+
+	.components-spinner {
+		margin: 0;
+	}
+
+	&:global(.is-secondary):hover:not(:disabled) {
+		background-color: var( --jp-black );
+		color: var( --jp-white );
+	}
+
 }
 
 .features {
-	margin: 0 0 30px;
+	margin: 0;
 	padding: 0;
+	flex-grow: 1;
+	margin-bottom: calc( var( --spacing-base ) * 2 );
 
 	li {
 		list-style: none;
 		display: flex;
-		align-items: center;
-		margin-bottom: 8px;
-		font-size: 14px;
-		line-height: 1.4;
+		align-items: start;
+		margin-bottom: var( --spacing-base );
 	}
 
 	svg {
-		fill: var(--jp-green-primary);
+		fill: var( --jp-green-primary);
+		margin-right: var( --spacing-base );
+		flex-shrink: 0;
 	}
+}
+
+.disclaimers {
+	margin-top: calc( var( --spacing-base ) * 2 );
 }
 
 .price-container {
 	display: flex;
 	flex-wrap: wrap;
-	flex-direction: row;
 	align-items: flex-end;
-	margin-top: auto;
-	color: var(--jp-text-color);
+	color: var( --jp-text-color);
 }
 
 .price {
-	font-size: var(--product-card-price-font-size);
-	display: flex;
-	margin: 0;
 	position: relative;
 
 	&:first-child {
-		margin-right: 10px;
-	}
-
-	.price-symbol {
-		padding-right: 1px;
-		font-size: 0.5em;
-		line-height: 1.4;
-	}
-
-	.price-number {
-		font-size: inherit;
-		font-weight: 700;
-		line-height: 1;
-	}
-
-	.price-fraction {
-		padding-left: 1px;
-		font-size: 0.35em;
-		font-weight: 700;
-		line-height: 1.7;
+		margin-right: calc( var( --spacing-base ) * 2 );
 	}
 
 	&.is-old {
-		color: #a7aaad;
+		color: var( --jp-gray-20);
 
 		&:after {
 			content: " ";
 			display: block;
 			width: 100%;
 			height: 3px;
-			background: #c9356e;
-			border-radius: 5px;
+			background: var( --jp-red);
+			border-radius: var( --jp-border-radius );
 			position: absolute;
 			top: 50%;
 			margin-top: -2px;
@@ -210,7 +129,10 @@
 }
 
 .price-description {
-	color: #787c82;
-	letter-spacing: 0.2px;
-	flex-grow: 2;
+	color: var( --jp-gray-40 );
+	margin-bottom: calc( var( --spacing-base ) * 3 );
+}
+
+.supporting-info {
+	margin-top: calc( var( --spacing-base ) * 5 );
 }

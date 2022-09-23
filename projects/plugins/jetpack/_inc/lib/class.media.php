@@ -366,7 +366,7 @@ class Jetpack_Media {
 	 * @return array items removed from `revision_history`
 	 */
 	public static function limit_revision_history( $media_id, $limit = null ) {
-		if ( is_null( $limit ) ) {
+		if ( $limit === null ) {
 			$limit = self::REVISION_HISTORY_MAXIMUM_AMOUNT;
 		}
 

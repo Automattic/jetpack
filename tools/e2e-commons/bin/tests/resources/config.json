@@ -1,0 +1,23 @@
+{
+	"slack": {
+		"channel": "notif-test",
+		"mentions": {
+			"branches": [
+				{
+					"name": "trunk",
+					"users": [ "<@abcd>", "<@xyz>" ]
+				}
+			],
+			"reports": [
+				{
+					"name": "atomic",
+					"users": [ "@test-group-abcd", "<@abcd>" ]
+				}
+			]
+		}
+	},
+	"dirs": {
+		"output": "",
+		"logs": ""
+	}
+}

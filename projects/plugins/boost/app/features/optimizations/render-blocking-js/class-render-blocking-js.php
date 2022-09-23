@@ -81,17 +81,17 @@ class Render_Blocking_JS implements Feature {
 		}
 
 		// Disable in robots.txt.
-		if ( strpos( home_url( $_SERVER['REQUEST_URI'] ), 'robots.txt' ) !== false ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( home_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ), 'robots.txt' ) !== false ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return;
 		}
 
 		// Disable in other possible AJAX requests setting cors related header.
-		if ( isset( $_SERVER['HTTP_SEC_FETCH_MODE'] ) && 'cors' === strtolower( $_SERVER['HTTP_SEC_FETCH_MODE'] ) ) {
+		if ( isset( $_SERVER['HTTP_SEC_FETCH_MODE'] ) && 'cors' === strtolower( $_SERVER['HTTP_SEC_FETCH_MODE'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			return;
 		}
 
 		// Disable in other possible AJAX requests setting XHR related header.
-		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && 'xmlhttprequest' === strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) {
+		if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && 'xmlhttprequest' === strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			return;
 		}
 
@@ -99,9 +99,11 @@ class Render_Blocking_JS implements Feature {
 		// in accordance with sitemap protocol).
 		if ( isset( $_SERVER['REQUEST_URI'] ) &&
 			(
+				// phpcs:disable WordPress.Security.ValidatedSanitizedInput -- This is validating.
 				false !== strpos( $_SERVER['REQUEST_URI'], '.xsl' ) ||
 				false !== strpos( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=index' ) ||
 				false !== strpos( $_SERVER['REQUEST_URI'], 'sitemap-stylesheet=sitemap' )
+				// phpcs:enable WordPress.Security.ValidatedSanitizedInput
 			) ) {
 			return;
 		}
@@ -148,7 +150,7 @@ class Render_Blocking_JS implements Feature {
 	 * @return array Parts of the buffer.
 	 */
 	public function handle_output_stream( $buffer_start, $buffer_end ) {
-		$joint_buffer = $this->ignore_scripts_in_comments( $buffer_start . $buffer_end );
+		$joint_buffer = $this->ignore_exclusion_scripts( $buffer_start . $buffer_end );
 		$script_tags  = $this->get_script_tags( $joint_buffer );
 
 		if ( ! $script_tags ) {
@@ -196,17 +198,25 @@ class Render_Blocking_JS implements Feature {
 	}
 
 	/**
-	 * Adds the ignore attribute to scripts inside HTML comments.
+	 * Adds the ignore attribute to scripts in the exclusion list.
 	 *
 	 * @param string $buffer Captured piece of output buffer.
 	 *
 	 * @return string
 	 */
-	protected function ignore_scripts_in_comments( $buffer ) {
-		return preg_replace_callback(
+	protected function ignore_exclusion_scripts( $buffer ) {
+		$exclusions = array(
+			// Scripts inside HTML comments.
 			'~<!--.*?-->~si',
-			function ( $comment_match ) {
-				return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $comment_match[0] );
+
+			// Scripts with application/json type
+			'~<script\s+[^\>]*type=(?<q>["\']*)application/json\k<q>.*?>.*?</script>~si',
+		);
+
+		return preg_replace_callback(
+			$exclusions,
+			function ( $script_match ) {
+				return str_replace( '<script', sprintf( '<script %s="%s"', esc_html( $this->ignore_attribute ), esc_attr( $this->ignore_value ) ), $script_match[0] );
 			},
 			$buffer
 		);
@@ -296,7 +306,7 @@ class Render_Blocking_JS implements Feature {
 		return $opening_tags_count > $closing_tags_count;
 	}
 
-	public function get_slug() {
+	public static function get_slug() {
 		return 'render-blocking-js';
 	}
 

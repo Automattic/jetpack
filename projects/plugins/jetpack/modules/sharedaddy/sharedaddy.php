@@ -1,21 +1,34 @@
 <?php
-/*
-Plugin Name: Sharedaddy
-Description: The most super duper sharing tool on the interwebs.
-Version: 0.3.1
-Author: Automattic, Inc.
-Author URI: https://automattic.com/
-Plugin URI: https://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
-*/
+/**
+ * Jetpack's Sharing feature, nee Sharedaddy.
+ * The most super duper sharing tool on the interwebs.
+ *
+ * @package automattic/jetpack
+ */
 
-require_once plugin_dir_path( __FILE__ ).'sharing.php';
+// Set up Sharing in wp-admin.
+require_once plugin_dir_path( __FILE__ ) . 'sharing.php';
 
+/**
+ * Send an email via the Email sharing button.
+ *
+ * @param array $data Array of information about the shared message.
+ *
+ * @return void
+ *
+ * @deprecated 11.0
+ */
 function sharing_email_send_post( $data ) {
 
 	$content = sharing_email_send_post_content( $data );
 	// Borrowed from wp_mail();
-	$sitename = strtolower( $_SERVER['SERVER_NAME'] );
-	if ( substr( $sitename, 0, 4 ) == 'www.' ) {
+
+	if ( empty( $_SERVER['SERVER_NAME'] ) ) {
+		return;
+	}
+
+	$sitename = strtolower( sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) );
+	if ( substr( $sitename, 0, 4 ) === 'www.' ) {
 		$sitename = substr( $sitename, 4 );
 	}
 
@@ -23,7 +36,7 @@ function sharing_email_send_post( $data ) {
 	$from_email = apply_filters( 'wp_mail_from', 'wordpress@' . $sitename );
 
 	if ( ! empty( $data['name'] ) ) {
-		$s_name = (string) $data['name'];
+		$s_name                    = (string) $data['name'];
 		$name_needs_encoding_regex =
 			'/[' .
 				// SpamAssasin's list of characters which "need MIME" encoding
@@ -41,10 +54,11 @@ function sharing_email_send_post( $data ) {
 			mb_convert_encoding( $data['name'], 'ASCII' ) !== $s_name;
 
 		if ( $needs_encoding ) {
-			$data['name'] = sprintf( '=?UTF-8?B?%s?=', base64_encode( $data['name'] ) );
+			$data['name'] = sprintf( '=?UTF-8?B?%s?=', base64_encode( $data['name'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 	}
 
+	$headers   = array();
 	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $from_email );
 	$headers[] = sprintf( 'Reply-To: %1$s <%2$s>', $data['name'], $data['source'] );
 
@@ -65,44 +79,78 @@ function sharing_email_send_post( $data ) {
 	wp_mail( $data['target'], $subject, $content, $headers );
 }
 
-
-/* Checks for spam using akismet if available. */
-/* Return $data as it if email about to be send out is not spam. */
+/**
+ * Checks for spam using Akismet if available.
+ * Return $data as it if email about to be send out is not spam.
+ *
+ * @param array $data Array of information about the shared message.
+ *
+ * @return array $data
+ *
+ * @deprecated 11.0
+ */
 function sharing_email_check_for_spam_via_akismet( $data ) {
 
-	if ( ! Jetpack::is_akismet_active() )
+	if ( ! Jetpack::is_akismet_active() ) {
 		return $data;
+	}
 
 	// Prepare the body_request for akismet
 	$body_request = array(
-		'blog'                  => get_option( 'home' ),
-		'permalink'             => $data['sharing_source']->get_share_url( $data['post']->ID ),
-		'comment_type'          => 'share',
-		'comment_author'        => $data['name'],
-		'comment_author_email'  => $data['source'],
-		'comment_content'       => sharing_email_send_post_content( $data ),
-		'user_agent'            => ( isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : null ),
-		);
+		'blog'                 => get_option( 'home' ),
+		'permalink'            => $data['sharing_source']->get_share_url( $data['post']->ID ),
+		'comment_type'         => 'share',
+		'comment_author'       => $data['name'],
+		'comment_author_email' => $data['source'],
+		'comment_content'      => sharing_email_send_post_content( $data ),
+		'user_agent'           => ( isset( $_SERVER['HTTP_USER_AGENT'] )
+			? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
+			: null
+		),
+	);
 
 	if ( method_exists( 'Akismet', 'http_post' ) ) {
-		$body_request['user_ip']	= Akismet::get_ip_address();
-		$response = Akismet::http_post( build_query( $body_request ), 'comment-check' );
+		$body_request['user_ip'] = Akismet::get_ip_address();
+		$response                = Akismet::http_post( build_query( $body_request ), 'comment-check' );
 	} else {
 		global $akismet_api_host, $akismet_api_port;
-		$body_request['user_ip'] 	= ( isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null );
-		$response = akismet_http_post( build_query( $body_request ), $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+		$body_request['user_ip'] = ( isset( $_SERVER['REMOTE_ADDR'] )
+			? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+			: null
+		);
+		$response                = akismet_http_post( build_query( $body_request ), $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 	}
 
-	// The Response is spam lets not send the email.
-	if ( ! empty( $response ) && isset( $response[1] ) && 'true' == trim( $response[1] ) ) { // 'true' is spam
+	/*
+	 * The Response is spam lets not send the email.
+	 * 'true' is spam
+	 */
+	if (
+		! empty( $response )
+		&& isset( $response[1] )
+		&& 'true' == trim( $response[1] ) // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- response comes from the Akismet API.
+	) {
 		return false; // don't send the email
 	}
 	return $data;
 }
 
+/**
+ * Content of the emails sent to the target email address.
+ *
+ * @param array $data Array of information about the shared message.
+ *
+ * @return string $content
+ *
+ * @deprecated 11.0
+ */
 function sharing_email_send_post_content( $data ) {
-	/* translators: included in email when post is shared via email. First item is sender's name. Second is sender's email address. */
-	$content  = sprintf( __( '%1$s (%2$s) thinks you may be interested in the following post:', 'jetpack' ), $data['name'], $data['source'] );
+	$content = sprintf(
+		/* translators: included in email when post is shared via email. First item is sender's name. Second is sender's email address. */
+		__( '%1$s (%2$s) thinks you may be interested in the following post:', 'jetpack' ),
+		$data['name'],
+		$data['source']
+	);
 	$content .= "\n\n";
 	// Make sure to pass the title and URL through the normal sharing filters.
 	$content .= $data['sharing_source']->get_share_title( $data['post']->ID ) . "\n";
@@ -110,6 +158,11 @@ function sharing_email_send_post_content( $data ) {
 	return $content;
 }
 
+/**
+ * Add a meta box to the post editing screen for sharing.
+ *
+ * @return void
+ */
 function sharing_add_meta_box() {
 	global $post;
 	if ( empty( $post ) ) { // If a current post is not defined, such as when editing a comment.
@@ -142,13 +195,19 @@ function sharing_add_meta_box() {
 	 */
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
 	if ( $post->ID !== get_option( 'page_for_posts' ) ) {
-		foreach( $post_types as $post_type ) {
+		foreach ( $post_types as $post_type ) {
 			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default', array( '__back_compat_meta_box' => true ) );
 		}
 	}
 }
 
-
+/**
+ * Content of the meta box.
+ *
+ * @param WP_Post $post The post to share.
+ *
+ * @return void
+ */
 function sharing_meta_box_content( $post ) {
 	/**
 	 * Fires before the sharing meta box content.
@@ -165,8 +224,8 @@ function sharing_meta_box_content( $post ) {
 
 	<p>
 		<label for="enable_post_sharing">
-			<input type="checkbox" name="enable_post_sharing" id="enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
-			<?php _e( 'Show sharing buttons.' , 'jetpack'); ?>
+			<input type="checkbox" name="enable_post_sharing" id="enable_post_sharing" value="1" <?php checked( ! $disabled ); ?>>
+			<?php esc_html_e( 'Show sharing buttons.', 'jetpack' ); ?>
 		</label>
 		<input type="hidden" name="sharing_status_hidden" value="1" />
 	</p>
@@ -180,47 +239,84 @@ function sharing_meta_box_content( $post ) {
 	 * @since 2.2.0
 	 *
 	 * @param WP_Post $post The post to share.
-	*/
+	 */
 	do_action( 'end_sharing_meta_box_content', $post );
 }
 
+/**
+ * Save new sharing status in post meta in the meta box.
+ *
+ * @param int $post_id Post ID.
+ *
+ * @return int
+ */
 function sharing_meta_box_save( $post_id ) {
-	if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 		return $post_id;
+	}
 
-	// Record sharing disable
-	if ( isset( $_POST['post_type'] ) && ( $post_type_object = get_post_type_object( $_POST['post_type'] ) ) && $post_type_object->public ) {
-		if ( current_user_can( 'edit_post', $post_id ) ) {
-			if ( isset( $_POST['sharing_status_hidden'] ) ) {
-				if ( !isset( $_POST['enable_post_sharing'] ) ) {
-					update_post_meta( $post_id, 'sharing_disabled', 1 );
-				} else {
-					delete_post_meta( $post_id, 'sharing_disabled' );
-				}
-			}
+	if ( ! isset( $_POST['post_type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
+		return $post_id;
+	}
+
+	$post_type_object = get_post_type_object( sanitize_key( $_POST['post_type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
+
+	// Record sharing disable.
+	if (
+		$post_type_object->public
+		&& current_user_can( 'edit_post', $post_id )
+		&& isset( $_POST['sharing_status_hidden'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
+	) {
+		if ( ! isset( $_POST['enable_post_sharing'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
+			update_post_meta( $post_id, 'sharing_disabled', 1 );
+		} else {
+			delete_post_meta( $post_id, 'sharing_disabled' );
 		}
 	}
 
-  	return $post_id;
+	return $post_id;
 }
 
+/**
+ * If Sharing is disabled, disable the meta box.
+ *
+ * @param bool   $protected Whether the key is considered protected.
+ * @param string $meta_key  Metadata key.
+ *
+ * @return bool
+ */
 function sharing_meta_box_protected( $protected, $meta_key ) {
-	if ( 'sharing_disabled' == $meta_key )
+	if ( 'sharing_disabled' === $meta_key ) {
 		$protected = true;
+	}
 
 	return $protected;
 }
-
 add_filter( 'is_protected_meta', 'sharing_meta_box_protected', 10, 2 );
 
+/**
+ * Add link to sharing settings in the Plugins screen.
+ *
+ * @param array $links An array of plugin action links.
+ *
+ * @return array
+ */
 function sharing_plugin_settings( $links ) {
-	$settings_link = '<a href="options-general.php?page=sharing.php">'.__( 'Settings', 'jetpack' ).'</a>';
+	$settings_link = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
 	array_unshift( $links, $settings_link );
 	return $links;
 }
 
-function sharing_add_plugin_settings($links, $file) {
-	if ( $file == basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ) ) {
+/**
+ * Add links to settings and support in the plugin row.
+ *
+ * @param array  $links An array of the plugin's metadata, including the version, author, author URI, and plugin URI.
+ * @param string $file  Path to the plugin file relative to the plugins directory.
+ *
+ * @return array
+ */
+function sharing_add_plugin_settings( $links, $file ) {
+	if ( $file === basename( __DIR__ ) . '/' . basename( __FILE__ ) ) {
 		$links[] = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
 		$links[] = '<a href="https://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
 	}
@@ -228,17 +324,23 @@ function sharing_add_plugin_settings($links, $file) {
 	return $links;
 }
 
+/**
+ * Disable sharing on the frontend if disabled in the admin.
+ *
+ * @return void
+ */
 function sharing_init() {
 	if ( Jetpack_Options::get_option_and_ensure_autoload( 'sharedaddy_disable_resources', '0' ) ) {
-		add_filter( 'sharing_js', 'sharing_disable_js' );
+		add_filter( 'sharing_js', '__return_false' );
 		remove_action( 'wp_head', 'sharing_add_header', 1 );
 	}
 }
 
-function sharing_disable_js() {
-	return false;
-}
-
+/**
+ * Add settings to disable CSS and JS normally enqueued by our feature.
+ *
+ * @return void
+ */
 function sharing_global_resources() {
 	$disable = get_option( 'sharedaddy_disable_resources' );
 	?>
@@ -257,8 +359,13 @@ function sharing_global_resources() {
 	<?php
 }
 
+/**
+ * Save settings to disable CSS and JS normally enqueued by our feature.
+ *
+ * @return void
+ */
 function sharing_global_resources_save() {
-	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
+	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce handling is handled for all elements at once.
 }
 
 /**
@@ -267,6 +374,8 @@ function sharing_global_resources_save() {
  * Supports legacy RECAPTCHA_PUBLIC_KEY or RECAPTCHA_SITE_KEY.
  *
  * @return string
+ *
+ * @deprecated 11.0
  */
 function sharing_recaptcha_site_key() {
 	if ( ! defined( 'RECAPTCHA_PUBLIC_KEY' ) && ! defined( 'RECAPTCHA_SITE_KEY' ) ) {
@@ -286,6 +395,8 @@ function sharing_recaptcha_site_key() {
  * Supports legacy RECAPTCHA_PRIVATE_KEY or RECAPTCHA_SECRET_KEY.
  *
  * @return string
+ *
+ * @deprecated 11.0
  */
 function sharing_recaptcha_secret_key() {
 	if ( ! defined( 'RECAPTCHA_PRIVATE_KEY' ) && ! defined( 'RECAPTCHA_SECRET_KEY' ) ) {
@@ -300,19 +411,44 @@ function sharing_recaptcha_secret_key() {
 
 }
 
+/**
+ * Contents of a reCAPTCHA box.
+ *
+ * @return void
+ *
+ * @deprecated 11.0
+ */
 function sharing_email_dialog() {
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key(), array( 'script_lazy' => true ) );
-	echo $recaptcha->get_recaptcha_html(); // xss ok
+	$recaptcha = new Jetpack_ReCaptcha(
+		sharing_recaptcha_site_key(),
+		sharing_recaptcha_secret_key(),
+		array( 'script_lazy' => true )
+	);
+	echo $recaptcha->get_recaptcha_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in method.
 }
 
-function sharing_email_check( $true, $post, $data ) {
+/**
+ * Short-circuit the email sharing button based on the results of reCAPTCHA.
+ *
+ * @param bool   $true Should we check if the message isn't spam.
+ * @param object $post Post information.
+ * @param array  $data Information about the shared message.
+ *
+ * @deprecated 11.0
+ */
+function sharing_email_check( $true, $post, $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	require_once plugin_dir_path( __FILE__ ) . 'recaptcha.php';
 
-	$recaptcha = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key(), array( 'script_lazy' => true ) );
-	$response  = ! empty( $_POST['g-recaptcha-response'] ) ? $_POST['g-recaptcha-response'] : '';
-	$result    = $recaptcha->verify( $response, $_SERVER['REMOTE_ADDR'] );
+	$recaptcha   = new Jetpack_ReCaptcha( sharing_recaptcha_site_key(), sharing_recaptcha_secret_key(), array( 'script_lazy' => true ) );
+	$response    = ! empty( $_POST['g-recaptcha-response'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we do not change anything on the site based on that.
+		? filter_var( wp_unslash( $_POST['g-recaptcha-response'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- we do not change anything on the site based on that.
+		: '';
+	$remote_addr = ! empty( $_SERVER['REMOTE_ADDR'] )
+		? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+		: '';
+	$result      = $recaptcha->verify( $response, $remote_addr );
 
 	return ( true === $result );
 }
@@ -321,14 +457,7 @@ add_action( 'init', 'sharing_init' );
 add_action( 'add_meta_boxes', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'edit_attachment', 'sharing_meta_box_save' );
-add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
-add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
-add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
+add_action( 'plugin_action_links_' . basename( __DIR__ ) . '/' . basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
-
-if ( sharing_recaptcha_site_key() && sharing_recaptcha_secret_key() ) {
-	add_action( 'sharing_email_dialog', 'sharing_email_dialog' );
-	add_filter( 'sharing_email_check', 'sharing_email_check', 10, 3 );
-}

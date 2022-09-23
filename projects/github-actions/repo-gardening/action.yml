@@ -8,6 +8,10 @@ inputs:
     description: "GitHub access token"
     required: true
     default: ${{ github.token }}
+  reply_to_customers_threshold:
+    description: "Minimum of support references needed to trigger a reminder to batch-reply to customers. Default to 10."
+    required: false
+    default: "10"
   slack_token:
     description: "Slack Bot access token"
     required: false
@@ -20,8 +24,16 @@ inputs:
     description: "Slack channel ID where messages for the Editorial team will be sent"
     required: false
     default: ""
+  slack_he_triage_channel:
+    description: "Slack channel ID where messages for the HE Triage team will be sent"
+    required: false
+    default: ""
   slack_team_channel:
     description: "Slack channel ID where general notifications should be sent"
+    required: false
+    default: ""
+  slack_quality_channel:
+    description: "Slack channel ID where issues needing extra triage / escalation will be sent"
     required: false
     default: ""
   tasks:

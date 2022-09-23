@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
+import NoticeAction from 'components/notice/notice-action';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import NoticeAction from 'components/notice/notice-action';
 import { reconnectSite, isReconnectingSite } from 'state/connection';
-import analytics from 'lib/analytics';
 
 class NoticeActionReconnect extends React.Component {
 	static propTypes = {

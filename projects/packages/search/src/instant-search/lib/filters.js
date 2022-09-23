@@ -1,11 +1,10 @@
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME } from './constants';
 
 // NOTE: This list is missing custom taxonomy names.
 //       getFilterKeys must be used to get the conclusive list of valid filter keys.
 export const FILTER_KEYS = Object.freeze( [
+	// Authors
+	'authors',
 	// Post types
 	'post_types',
 	// Built-in taxonomies
@@ -122,6 +121,8 @@ export function mapFilterToFilterKey( filter ) {
 		return `${ filter.taxonomy }`;
 	} else if ( filter.type === 'post_type' ) {
 		return 'post_types';
+	} else if ( filter.type === 'author' ) {
+		return 'authors';
 	} else if ( filter.type === 'group' ) {
 		return filter.filter_id;
 	}
@@ -152,6 +153,10 @@ export function mapFilterKeyToFilter( filterKey ) {
 		return {
 			type: 'post_type',
 		};
+	} else if ( filterKey === 'authors' ) {
+		return {
+			type: 'author',
+		};
 	} else if ( filterKey === 'group' ) {
 		return {
 			type: 'group',
@@ -177,6 +182,8 @@ export function mapFilterToType( filter ) {
 		return 'taxonomy';
 	} else if ( filter.type === 'post_type' ) {
 		return 'postType';
+	} else if ( filter.type === 'author' ) {
+		return 'author';
 	} else if ( filter.type === 'group' ) {
 		return 'group';
 	}

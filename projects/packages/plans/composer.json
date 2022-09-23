@@ -1,0 +1,60 @@
+{
+	"name": "automattic/jetpack-plans",
+	"description": "Fetch information about Jetpack Plans from wpcom",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "^1.44"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-status": "^1.14",
+		"automattic/wordbless": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-development": "echo 'Add your build step to composer.json, please!'"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-plans",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-trunk": "0.2.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	}
+}

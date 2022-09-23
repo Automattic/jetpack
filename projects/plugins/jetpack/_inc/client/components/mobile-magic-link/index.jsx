@@ -1,23 +1,16 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';
+import Modal from 'components/modal';
+import analytics from 'lib/analytics';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	isCurrentUserLinked as _isCurrentUserLinked,
 } from 'state/connection';
-import Modal from 'components/modal';
-import onKeyDownCallback from 'utils/onkeydown-callback';
 import { sendMobileLoginEmail } from 'state/mobile/actions';
+import onKeyDownCallback from 'utils/onkeydown-callback';
 
 export class MobileMagicLink extends React.Component {
 	static displayName = 'MobileMagicLink';

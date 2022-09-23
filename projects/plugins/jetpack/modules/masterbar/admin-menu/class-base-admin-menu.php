@@ -66,7 +66,7 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
 		$this->domain         = ( new Status() )->get_site_suffix();
 
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
@@ -280,7 +280,10 @@ abstract class Base_Admin_Menu {
 		wp_localize_script(
 			'jetpack-admin-menu',
 			'jetpackAdminMenu',
-			array( 'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ) )
+			array(
+				'upsellNudgeJitm'  => wp_create_nonce( 'upsell_nudge_jitm' ),
+				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
+			)
 		);
 	}
 
@@ -611,6 +614,7 @@ abstract class Base_Admin_Menu {
 	 */
 	public function set_preferred_view( $screen, $view ) {
 		$preferred_views            = $this->get_preferred_views();
+		$screen                     = str_replace( '?post_type=post', '', $screen );
 		$preferred_views[ $screen ] = $view;
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
 	}
@@ -660,17 +664,17 @@ abstract class Base_Admin_Menu {
 	public function get_current_screen() {
 		// phpcs:disable WordPress.Security.NonceVerification
 		global $pagenow;
-		$screen = isset( $_REQUEST['screen'] ) ? $_REQUEST['screen'] : $pagenow;
+		$screen = isset( $_REQUEST['screen'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['screen'] ) ) : $pagenow;
 		if ( isset( $_GET['post_type'] ) ) {
-			$screen = add_query_arg( 'post_type', $_GET['post_type'], $screen );
+			$screen = add_query_arg( 'post_type', sanitize_text_field( wp_unslash( $_GET['post_type'] ) ), $screen );
 		}
 		if ( isset( $_GET['taxonomy'] ) ) {
-			$screen = add_query_arg( 'taxonomy', $_GET['taxonomy'], $screen );
+			$screen = add_query_arg( 'taxonomy', sanitize_text_field( wp_unslash( $_GET['taxonomy'] ) ), $screen );
 		}
 		if ( isset( $_GET['page'] ) ) {
-			$screen = add_query_arg( 'page', $_GET['page'], $screen );
+			$screen = add_query_arg( 'page', sanitize_text_field( wp_unslash( $_GET['page'] ) ), $screen );
 		}
-		return sanitize_text_field( wp_unslash( $screen ) );
+		return $screen;
 		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
@@ -684,7 +688,7 @@ abstract class Base_Admin_Menu {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification
-		$preferred_view = $_GET['preferred-view'];
+		$preferred_view = sanitize_key( $_GET['preferred-view'] );
 
 		if ( ! in_array( $preferred_view, array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true ) ) {
 			return;

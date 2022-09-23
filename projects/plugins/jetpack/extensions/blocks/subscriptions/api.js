@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 
 export function getSubscriberCount( successCallback, failureCallback ) {

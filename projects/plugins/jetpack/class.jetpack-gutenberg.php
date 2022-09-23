@@ -346,7 +346,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_available_extensions( $allowed_extensions = null ) {
 		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
-		$allowed_extensions = is_null( $allowed_extensions ) ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
+		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
 		return array_diff( $allowed_extensions, $exclusions );
 	}
@@ -460,6 +460,10 @@ class Jetpack_Gutenberg {
 	 */
 	public static function should_load() {
 		if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		if ( get_option( 'jetpack_blocks_disabled', false ) ) {
 			return false;
 		}
 
@@ -686,6 +690,7 @@ class Jetpack_Gutenberg {
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 					'is_private_site'           => '-1' === get_option( 'blog_public' ),
+					'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
 					'is_offline_mode'           => $status->is_offline_mode(),
 					/**
 					 * Enable the RePublicize UI in the block editor context.
@@ -712,7 +717,7 @@ class Jetpack_Gutenberg {
 	 * Add the Gutenberg editor stylesheet to iframed editors, such as the site editor,
 	 * which don't have access to stylesheets added with `wp_enqueue_style`.
 	 *
-	 * This workaround is currently used by WordPress.com Simple sites.
+	 * This workaround is currently used by WordPress.com Simple and Atomic sites.
 	 *
 	 * @since 10.7
 	 *
@@ -728,12 +733,15 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		$allowed_pages       = array( 'admin.php', 'themes.php' );
-		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
-			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Pre 13.7 pages that still need to be supported if < 13.7 is
+		// still installed.
+		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
+		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
 
-		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
-		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+		$should_skip_adding_styles = ! $is_site_editor_page && ! $is_old_site_editor_page;
+		if ( $should_skip_adding_styles ) {
 			return;
 		}
 
@@ -1182,13 +1190,20 @@ class Jetpack_Gutenberg {
 	}
 }
 
-/*
- * Enable upgrade nudge for Atomic sites.
- * This feature is false as default,
- * so let's enable it through this filter.
- *
- * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
- */
 if ( ( new Host() )->is_woa_site() ) {
+	/**
+	* Enable upgrade nudge for Atomic sites.
+	 * This feature is false as default,
+	 * so let's enable it through this filter.
+	 *
+	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
+	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+
+	/**
+	 * Load block editor styles inline for iframed editors.
+	 *
+	 * @see paYJgx-1Kl-p2
+	 */
+	add_action( 'admin_init', array( 'Jetpack_Gutenberg', 'add_iframed_editor_style' ) );
 }

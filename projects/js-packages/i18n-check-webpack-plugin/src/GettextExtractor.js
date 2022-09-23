@@ -1,11 +1,11 @@
 const fs = require( 'fs/promises' );
 const babel = require( '@babel/core' );
-const PLUGIN_NAME = require( './plugin-name.js' );
 const GettextEntries = require( './GettextEntries' );
 const GettextEntry = require( './GettextEntry' );
+const PLUGIN_NAME = require( './plugin-name.js' );
+const debug = require( 'debug' )( `${ PLUGIN_NAME }:gettext` ); // eslint-disable-line import/order
 
 const { parseAsync, parseSync, traverse, types: t } = babel;
-const debug = require( 'debug' )( `${ PLUGIN_NAME }:gettext` );
 
 // Some typedefs for jsdoc. Babel doesn't export the actual constructors for us.
 /** @typedef babel.Node */

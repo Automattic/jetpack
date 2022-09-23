@@ -3,6 +3,14 @@
 		font-size: 16px;
 	}
 
+  	p {
+	  	margin: 1em 0;
+	}
+
+  	&--main {
+	  background-color: $primary-white;
+	}
+
 	min-height: calc(100vh - 60px);
 	display: flex;
 	flex-direction: column;
@@ -10,29 +18,27 @@
   	overflow-x: hidden;
 }
 
+.jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
+	outline: none;
+}
+
 .jb-section {
-	margin-bottom: $padding;
+	padding-top: $padding;
+	padding-bottom: $padding;
+}
+
+.jb-link{
+	display:inline-block;
+	margin-top: 10px;
+	font-size:0.8em;
 }
 
 .jb-section--alt {
-	@extend .jb-section;
-	padding-top: $padding;
-	padding-bottom: $padding;
 	background-color: $alt_white;
 }
 
 .jb-section--scores {
-	margin-bottom: $halfling;
   	position: relative;
-}
-
-.jb-section--main {
-	margin-top: $halfling;
-}
-
-.jb-section--subpage {
-	/* Shrink margin-top on sub-pages to bring <- go back button up */
-	margin-top: 8px;
 }
 
 .jb-container {
@@ -43,6 +49,13 @@
 	&--narrow {
 		@extend .jb-container;
 		max-width: 744px;
+	}
+
+  	&--fixed {
+	  max-width: 1080px;
+	  width: auto;
+	  padding-left: $spacing-unit * 2;
+	  padding-right: $spacing-unit * 2;
 	}
 }
 
@@ -74,11 +87,18 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-top: auto;
+	margin-top: $padding;
+	margin-bottom: $padding;
 	@include breakpoint( xs ) {
 		flex-direction: column;
 		justify-content: flex-start;
 	}
+}
+
+.jb-footer-note {
+	text-align: center;
+	margin-top: $halfling;
+	color: $gray_70;
 }
 
 .jb-signature--jetpack {

@@ -6,14 +6,14 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "3.0.x-dev"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
 		],
 		"test-coverage": [
-			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

@@ -1,28 +1,18 @@
-/**
- * External dependencies
- */
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
-import deprecatedV1 from './deprecated/v1';
-import edit from './edit';
 import { isPriceValid } from '../../shared/currencies';
+import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
+import edit from './edit';
+import save from './save';
 import './editor.scss';
 
 export const name = 'recurring-payments';
-
+export const title = __( 'Payment Button', 'jetpack' );
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Rect x="0" fill="none" width="24" height="24" />
@@ -38,7 +28,8 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
 
 export const settings = {
-	title: __( 'Payment Button', 'jetpack' ),
+	apiVersion: 2,
+	title,
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
@@ -81,6 +72,9 @@ export const settings = {
 		'venmo',
 	],
 	usesContext: [ 'isPremiumContentChild' ],
+	providesContext: {
+		'jetpack/parentBlockWidth': 'width',
+	},
 	attributes: {
 		planId: {
 			type: 'integer',
@@ -98,18 +92,18 @@ export const settings = {
 			// Used for blocks created without the payment form auto open feature.
 			default: 'id',
 		},
+		width: {
+			type: 'string',
+		},
 	},
 	edit,
-	save: ( { className } ) => (
-		<div className={ className }>
-			<InnerBlocks.Content />
-		</div>
-	),
+	save,
+	parent: [ 'jetpack/payment-buttons' ],
 	supports: {
 		html: false,
 		__experimentalExposeControlsToChildren: true,
 	},
-	deprecated: [ deprecatedV1 ],
+	deprecated: [ deprecatedV2, deprecatedV1 ],
 	transforms: {
 		from: [
 			{

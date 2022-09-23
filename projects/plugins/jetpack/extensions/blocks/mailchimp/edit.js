@@ -1,26 +1,18 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import classnames from 'classnames';
+import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
+import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
+import { Fragment, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
-import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
-import { Fragment, Component } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import { icon, innerButtonBlock } from '.';
-import { MailChimpBlockControls } from './controls';
+import classnames from 'classnames';
 import isCurrentUserConnected from '../../shared/is-current-user-connected';
+import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
+import { MailChimpBlockControls } from './controls';
+import { icon, innerButtonBlock } from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
 const API_STATE_NOTCONNECTED = 2;
-
-import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 
 class MailchimpSubscribeEdit extends Component {
 	constructor() {
@@ -126,8 +118,15 @@ class MailchimpSubscribeEdit extends Component {
 		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp';
 		const waiting = (
-			<Placeholder icon={ icon } notices={ notices }>
-				<Spinner />
+			<Placeholder
+				icon={ icon }
+				notices={ notices }
+				className="wp-block-jetpack-mailchimp"
+				label={ __( 'Mailchimp', 'jetpack' ) }
+			>
+				<div className="align-center">
+					<Spinner />
+				</div>
 			</Placeholder>
 		);
 		const placeholder = (

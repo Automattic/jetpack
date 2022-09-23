@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Waf;
 
+require_once __DIR__ . '/functions.php';
+
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about sanitizing input.
+
 /**
  * The environment variable that defined the WAF running mode.
  *
@@ -14,9 +18,9 @@ namespace Automattic\Jetpack\Waf;
  */
 
 /**
- * WafRuntime class
+ * Waf_Runtime class
  */
-class WafRuntime {
+class Waf_Runtime {
 
 	/**
 	 * Last rule.
@@ -65,13 +69,13 @@ class WafRuntime {
 	/**
 	 * Transforms.
 	 *
-	 * @var WafTransforms[]
+	 * @var Waf_Transforms[]
 	 */
 	private $transforms;
 	/**
 	 * Operators.
 	 *
-	 * @var WafOperators[]
+	 * @var Waf_Operators[]
 	 */
 	private $operators;
 
@@ -98,8 +102,8 @@ class WafRuntime {
 	/**
 	 * Constructor method.
 	 *
-	 * @param WafTransforms $transforms Transforms.
-	 * @param WafOperators  $operators Operators.
+	 * @param Waf_Transforms $transforms Transforms.
+	 * @param Waf_Operators  $operators Operators.
 	 */
 	public function __construct( $transforms, $operators ) {
 		$this->transforms = $transforms;
@@ -170,7 +174,7 @@ class WafRuntime {
 	/**
 	 * Return TRUE if at least one of the targets matches the rule.
 	 *
-	 * @param string[] $transforms One of the transform methods defined in the JetpackWafTransforms class.
+	 * @param string[] $transforms One of the transform methods defined in the Jetpack Waf_Transforms class.
 	 * @param mixed    $targets Targets.
 	 * @param string   $match_operator Match operator.
 	 * @param mixed    $match_value Match value.
@@ -236,15 +240,94 @@ class WafRuntime {
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
 		if ( ! $reason ) {
 			$reason = "rule $rule_id";
+		} else {
+			$reason = $this->sanitize_output( $reason );
 		}
-		// ToDo: This needs to be re-introduced.
-		// jpwaf_write_blocklog( $rule_id, $reason );.
+
+		$this->write_blocklog( $rule_id, $reason );
 		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
-		header( "X-JetpackWAF-Blocked: $status_code $reason" );
+		header( "X-JetpackWAF-Blocked: $status_code - rule $rule_id" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
-			header( $_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden', true, $status_code );
-			die( "rule $rule_id" );
+			$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) : 'HTTP';
+			header( $protocol . ' 403 Forbidden', true, $status_code );
+			die( "rule $rule_id - reason $reason" );
 		}
+	}
+
+	/**
+	 * Write block logs. We won't write to the file if it exceeds 100 mb.
+	 *
+	 * @param string $rule_id Rule id.
+	 * @param string $reason Block reason.
+	 */
+	public function write_blocklog( $rule_id, $reason ) {
+		$log_data              = array();
+		$log_data['rule_id']   = $rule_id;
+		$log_data['reason']    = $reason;
+		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
+
+		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
+			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
+			$file_exists = file_exists( $file_path );
+
+			if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
+				$fp = fopen( $file_path, 'a+' );
+
+				if ( $fp ) {
+					try {
+						fwrite( $fp, json_encode( $log_data ) . "\n" );
+					} finally {
+						fclose( $fp );
+					}
+				}
+			}
+		}
+
+		$this->write_blocklog_row( $log_data );
+	}
+
+	/**
+	 * Write block logs to database.
+	 *
+	 * @param array $log_data Log data.
+	 */
+	private function write_blocklog_row( $log_data ) {
+		$conn = $this->connect_to_wordpress_db();
+
+		if ( ! $conn ) {
+			return;
+		}
+
+		global $table_prefix;
+
+		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
+		if ( false !== $statement ) {
+			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+			$statement->execute();
+
+			if ( $conn->insert_id > 100 ) {
+				$conn->query( "DELETE FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id LIMIT 1" );
+			}
+		}
+	}
+
+	/**
+	 * Connect to WordPress database.
+	 */
+	private function connect_to_wordpress_db() {
+		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
+			return;
+		}
+
+		require_once JETPACK_WAF_WPCONFIG;
+		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
+
+		if ( $conn->connect_error ) {
+			error_log( 'Could not connect to the database:' . $conn->connect_error );
+			return null;
+		}
+
+		return $conn;
 	}
 
 	/**
@@ -366,7 +449,7 @@ class WafRuntime {
 					foreach ( $_SERVER as $k => $v ) {
 						$k = strtolower( $k );
 						if ( 'http_' === substr( $k, 0, 5 ) ) {
-							$value[ $this->normalizeHeaderName( substr( $k, 0, 5 ) ) ] = $v;
+							$value[ $this->normalize_header_name( substr( $k, 5 ) ) ] = $v;
 						} elseif ( 'content_type' === $k ) {
 							$value['content-type'] = $v;
 						} elseif ( 'content_length' === $k ) {
@@ -385,35 +468,35 @@ class WafRuntime {
 				case 'remote_addr':
 					$value = '';
 					if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-						$value = $_SERVER['HTTP_CLIENT_IP'];
+						$value = wp_unslash( $_SERVER['HTTP_CLIENT_IP'] );
 					} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-						$value = $_SERVER['HTTP_X_FORWARDED_FOR'];
+						$value = wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] );
 					} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-						$value = $_SERVER['REMOTE_ADDR'];
+						$value = wp_unslash( $_SERVER['REMOTE_ADDR'] );
 					}
 					break;
 				case 'request_method':
 					$value = empty( $_SERVER['REQUEST_METHOD'] )
 						? 'GET'
-						: $_SERVER['REQUEST_METHOD'];
+						: wp_unslash( $_SERVER['REQUEST_METHOD'] );
 					break;
 				case 'request_protocol':
 					$value = empty( $_SERVER['SERVER_PROTOCOL'] )
 						? ( empty( $_SERVER['HTTPS'] ) ? 'HTTP' : 'HTTPS' )
-						: $_SERVER['SERVER_PROTOCOL'];
+						: wp_unslash( $_SERVER['SERVER_PROTOCOL'] );
 					break;
 				case 'request_uri':
 					$value = isset( $_SERVER['REQUEST_URI'] )
-						? $_SERVER['REQUEST_URI']
+						? wp_unslash( $_SERVER['REQUEST_URI'] )
 						: '';
 					break;
 				case 'request_uri_raw':
-					$value = ( isset( $_SERVER['https'] ) ? 'https://' : 'http://' ) . $_SERVER['SERVER_NAME'] . $this->meta( 'request_uri' );
+					$value = ( isset( $_SERVER['https'] ) ? 'https://' : 'http://' ) . ( isset( $_SERVER['SERVER_NAME'] ) ? wp_unslash( $_SERVER['SERVER_NAME'] ) : '' ) . $this->meta( 'request_uri' );
 					break;
 				case 'request_filename':
 					$value = strtok(
 						isset( $_SERVER['REQUEST_URI'] )
-							? $_SERVER['REQUEST_URI']
+							? wp_unslash( $_SERVER['REQUEST_URI'] )
 							: '',
 						'?'
 					);
@@ -433,7 +516,7 @@ class WafRuntime {
 					$value = file_get_contents( 'php://input' );
 					break;
 				case 'query_string':
-					$value = isset( $_SERVER['QUERY_STRING'] ) ? $_SERVER['QUERY_STRING'] : '';
+					$value = isset( $_SERVER['QUERY_STRING'] ) ? wp_unslash( $_SERVER['QUERY_STRING'] ) : '';
 			}
 			$this->metadata[ $key ] = $value;
 		}
@@ -568,6 +651,19 @@ class WafRuntime {
 	}
 
 	/**
+	 * Verifies is ip from request is in an array.
+	 *
+	 * @param array $array Array to verify ip against.
+	 */
+	public function is_ip_in_array( $array ) {
+		$request = new Waf_Request();
+
+		$real_ip = $request->get_real_user_ip_address();
+
+		return in_array( $real_ip, $array, true );
+	}
+
+	/**
 	 * Normalize array target.
 	 *
 	 * @param array  $source Source.
@@ -600,7 +696,6 @@ class WafRuntime {
 			}
 		}
 
-		// todo: normalize nested arrays in values??
 		if ( $count_only ) {
 			$results[] = array(
 				'name'   => $name,
@@ -609,15 +704,54 @@ class WafRuntime {
 			);
 		} else {
 			foreach ( $output as $tk => $tv ) {
-				$results[] = array(
-					'name'   => $tk,
-					'value'  => $tv,
-					'source' => "$name:$tk",
-				);
+				if ( is_array( $tv ) ) {
+					// flatten it so we get all the values considered
+					$flat_values = $this->array_flatten( $tv );
+					foreach ( $flat_values as $fv ) {
+						$results[] = array(
+							// force names to strings
+							// we don't care about the nested keys here, just the overall variable name
+							'name'   => '' . $tk,
+							'value'  => $fv,
+							'source' => "$name:$tk",
+						);
+					}
+				} else {
+					$results[] = array(
+						// force names to strings
+						'name'   => '' . $tk,
+						'value'  => $tv,
+						'source' => "$name:$tk",
+					);
+				}
 			}
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Basic array flatten with array_merge; no-op on non-array targets.
+	 *
+	 * @param array $source Array to flatten.
+	 * @return array The flattened array.
+	 */
+	private function array_flatten( $source ) {
+		if ( ! is_array( $source ) ) {
+			return $source;
+		}
+
+		$return = array();
+
+		foreach ( $source as $v ) {
+			if ( is_array( $v ) ) {
+				$return = array_merge( $return, $this->array_flatten( $v ) );
+			} else {
+				$return[] = $v;
+			}
+		}
+
+		return $return;
 	}
 
 	/**
@@ -640,5 +774,21 @@ class WafRuntime {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Sanitize output generated from the request that was blocked.
+	 *
+	 * @param string $output Output to sanitize.
+	 */
+	public function sanitize_output( $output ) {
+		$url_decoded_output   = rawurldecode( $output );
+		$html_entities_output = htmlentities( $url_decoded_output, ENT_QUOTES, 'UTF-8' );
+		// @phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
+		$escapers     = array( "\\", "/", "\"", "\n", "\r", "\t", "\x08", "\x0c" );
+		$replacements = array( "\\\\", "\\/", "\\\"", "\\n", "\\r", "\\t", "\\f", "\\b" );
+		// @phpcs:enable Squiz.Strings.DoubleQuoteUsage.NotRequired
+
+		return( str_replace( $escapers, $replacements, $html_entities_output ) );
 	}
 }

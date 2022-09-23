@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import { __ } from '@wordpress/i18n';
-import { createRef, useState, useEffect } from '@wordpress/element';
-import { Placeholder } from '@wordpress/components';
 import { RichText } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
-import { icon, title } from './';
-import { getUrl, getSelectedGiphyAttributes } from './utils';
+import { Placeholder } from '@wordpress/components';
+import { createRef, useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import SearchForm from './components/search-form';
 import Controls from './controls';
 import useFetchGiphyData from './hooks/use-fetch-giphy-data';
+import { getUrl, getSelectedGiphyAttributes } from './utils';
+import { icon, title } from './';
 
 function GifEdit( { attributes, setAttributes, className, isSelected } ) {
 	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;

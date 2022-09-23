@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { DashboardPage, PluginsPage, Sidebar } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
@@ -18,7 +18,9 @@ test( 'Click on the plugins page should navigate to Boost settings page', async 
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 	await ( await PluginsPage.init( page ) ).clickOnJetpackBoostSettingsLink();
-	expect( await page.url() ).toContain( 'page=jetpack-boost' );
+	expect( await page.url(), "URL should contain 'page=jetpack-boost" ).toContain(
+		'page=jetpack-boost'
+	);
 } );
 
 test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost settings page', async ( {
@@ -26,7 +28,9 @@ test( 'Click on the sidebar Boost Jetpack submenu should navigate to Boost setti
 } ) => {
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectJetpackBoost();
-	expect( await page.url() ).toContain( 'page=jetpack-boost' );
+	expect( await page.url(), "URL should contain 'page=jetpack-boost" ).toContain(
+		'page=jetpack-boost'
+	);
 } );
 
 test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option', async ( {
@@ -39,7 +43,10 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 		.withActiveModules( [ 'critical-css' ] )
 		.build();
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
-	expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
+	expect(
+		await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+		'Critical CSS meta info should be visible'
+	).toBeTruthy();
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 	await ( await PluginsPage.init( page ) ).deactivatePlugin( 'jetpack-boost' );
@@ -47,9 +54,9 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	result = await execWpCommand(
 		'db query \'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"\' --skip-column-names'
 	);
-	expect( result.length ).toBe( 0 );
+	expect( result.length, 'No DB records are found' ).toBe( 0 );
 	result = await execWpCommand(
 		'db query \'SELECT option_id FROM wp_options WHERE option_name = "jb-critical-css-dismissed-recommendations"\' --skip-column-names'
 	);
-	expect( result.length ).toBe( 0 );
+	expect( result.length, 'No DB records are found' ).toBe( 0 );
 } );

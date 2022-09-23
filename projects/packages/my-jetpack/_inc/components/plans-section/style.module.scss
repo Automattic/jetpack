@@ -1,40 +1,14 @@
 .container {
-	h3 {
-		font-size: var(--font-title-large);
-		font-weight: 700;
-		margin-top: 48px;
-		line-height: 1.1;
-		color: var( --jp-black );
-		margin: 0;
-	}
-
-	h4 {
-		font-size: var(--font-title-small);
-		font-weight: 500;
-		line-height: 1;
-		color: var( --jp-black );
-	}
-
 	a, a:active, a:hover {
 		color: var( --jp-black );
 	}
-
-	p {
-		margin: 16px 0;
-		color: var( --jp-black );
-	}
-
-	p, a, li {
-		font-size: var( --font-body );
-		line-height: 24px;
-	}
 }
 
-.purchasesSection {
-	margin-top: 16px;
+.expire-date {
+	margin-bottom: calc( var(--spacing-base ) * 3 );
 }
 
-.external-link:hover {
-	color: var(--jp-black);
-	text-decoration-thickness: var(--jp-underline-thickness);
+.actions-list-item {
+	line-height: calc( var( --spacing-base ) * 3 );
+	margin: 0 0 var( --spacing-base ) 0;
 }

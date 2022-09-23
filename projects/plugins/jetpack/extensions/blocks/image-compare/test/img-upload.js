@@ -1,16 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import { render, screen, waitFor } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
+import { render, screen } from '@testing-library/react';
 import ImgUpload from '../img-upload';
 
 describe( 'ImgUpload', () => {
@@ -31,7 +19,7 @@ describe( 'ImgUpload', () => {
 
 		expect( screen.getByText( defaultProps.placeHolderLabel ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
-	} )
+	} );
 
 	test( 'displays image when available', () => {
 		render( <ImgUpload { ...defaultProps } /> );

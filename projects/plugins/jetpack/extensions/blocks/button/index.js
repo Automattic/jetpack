@@ -1,16 +1,9 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
 import save from './save';
-import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 export const name = 'button';
 
@@ -31,4 +24,5 @@ export const settings = {
 	attributes,
 	edit,
 	save,
+	usesContext: [ 'jetpack/parentBlockWidth' ],
 };

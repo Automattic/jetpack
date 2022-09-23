@@ -13,6 +13,8 @@ use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\JITMS\JITM as JITM;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -27,7 +29,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.6.11-alpha';
+	const PACKAGE_VERSION = '2.0.5-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -45,6 +47,10 @@ class Initializer {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		if ( self::is_licensing_ui_enabled() ) {
+			Licensing::instance()->initialize();
+		}
+
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
@@ -59,12 +65,48 @@ class Initializer {
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
+		// Sets up JITMS.
+		JITM::configure();
+
 		/**
 		 * Fires after the My Jetpack package is initialized
 		 *
 		 * @since 0.1.0
 		 */
 		do_action( 'my_jetpack_init' );
+	}
+
+	/**
+	 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
+	 *
+	 * @since 1.2.0
+	 *
+	 * @return boolean
+	 */
+	public static function is_licensing_ui_enabled() {
+		// Default changed to true in 1.5.0.
+		$is_enabled = true;
+
+		/*
+		 * Bail if My Jetpack is not enabled,
+		 * and thus the licensing UI shouldn't be enabled either.
+		 */
+		if ( ! self::should_initialize() ) {
+			$is_enabled = false;
+		}
+
+		/**
+		 * Acts as a feature flag, returning a boolean for whether we should show the licensing UI.
+		 *
+		 * @param bool $is_enabled Defaults to true.
+		 *
+		 * @since 1.2.0
+		 * @since 1.5.0 Update default value to true.
+		 */
+		return apply_filters(
+			'jetpack_my_jetpack_should_enable_add_license_screen',
+			$is_enabled
+		);
 	}
 
 	/**
@@ -117,12 +159,13 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
-				'redirectUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
+				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
-				'connectedPlugins'      => self::get_connected_plugins(),
+				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
+				'adminUrl'              => esc_url( admin_url() ),
 			)
 		);
 
@@ -142,28 +185,6 @@ class Initializer {
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}
-	}
-
-	/**
-	 * Get the list of plugins actively using the Connection
-	 *
-	 * @return array The list of plugins.
-	 */
-	private static function get_connected_plugins() {
-		$plugins = ( new Connection_Manager() )->get_connected_plugins();
-
-		if ( is_wp_error( $plugins ) ) {
-			return array();
-		}
-
-		array_walk(
-			$plugins,
-			function ( &$data, $slug ) {
-				$data['slug'] = $slug;
-			}
-		);
-
-		return $plugins;
 	}
 
 	/**

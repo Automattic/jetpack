@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import {
 	items as itemsReducer,
 	requests as requestsReducer,
@@ -11,14 +9,14 @@ const settings = {
 };
 
 describe( 'items reducer', () => {
-	it( 'state should default to empty object', () => {
+	test( 'state should default to empty object', () => {
 		const stateOut = itemsReducer( undefined, {} );
 
-		expect( stateOut ).to.be.empty;
+		expect( Object.keys( stateOut ) ).toHaveLength( 0 );
 	} );
 
 	describe( '#trackingSettingsFetch', () => {
-		it( 'should fetch settings', () => {
+		test( 'should fetch settings', () => {
 			const stateIn = {};
 			const action = {
 				type: 'USER_TRACKING_SETTINGS_FETCH_SUCCESS',
@@ -26,12 +24,12 @@ describe( 'items reducer', () => {
 			};
 			const stateOut = itemsReducer( stateIn, action );
 
-			expect( stateOut.tracks_opt_out ).to.be.false;
+			expect( stateOut.tracks_opt_out ).toBe( false );
 		} );
 	} );
 
 	describe( '#trackingSettingsUpdate', () => {
-		it( 'should update settings', () => {
+		test( 'should update settings', () => {
 			const stateIn = settings;
 			const action = {
 				type: 'USER_TRACKING_SETTINGS_UPDATE_SUCCESS',
@@ -39,82 +37,82 @@ describe( 'items reducer', () => {
 			};
 			const stateOut = itemsReducer( stateIn, action );
 
-			expect( stateOut.tracks_opt_out ).to.be.true;
+			expect( stateOut.tracks_opt_out ).toBe( true );
 		} );
 	} );
 } );
 
 describe( 'requests reducer', () => {
-	it( 'state should default to initialRequestsState', () => {
+	test( 'state should default to initialRequestsState', () => {
 		const stateOut = requestsReducer( undefined, {} );
 
-		expect( stateOut ).to.equal( initialRequestsState );
+		expect( stateOut ).toEqual( initialRequestsState );
 	} );
 
 	describe( '#trackingSettingsFetch', () => {
-		it( 'should set fetchingTrackingSettings to true when fetching', () => {
+		test( 'should set fetchingTrackingSettings to true when fetching', () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_TRACKING_SETTINGS_FETCH'
+				type: 'USER_TRACKING_SETTINGS_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 
-			expect( stateOut.fetchingTrackingSettings ).to.be.true;
+			expect( stateOut.fetchingTrackingSettings ).toBe( true );
 		} );
 
-		it( 'should set fetchingTrackingSettings to false when updated', () => {
+		test( 'should set fetchingTrackingSettings to false when updated', () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_TRACKING_SETTINGS_FETCH_SUCCESS'
+				type: 'USER_TRACKING_SETTINGS_FETCH_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 
-			expect( stateOut.fetchingTrackingSettings ).to.be.false;
+			expect( stateOut.fetchingTrackingSettings ).toBe( false );
 		} );
 
-		it( 'should set fetchingTrackingSettings to false when updating failed', () => {
+		test( 'should set fetchingTrackingSettings to false when updating failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_TRACKING_SETTINGS_FETCH_FAIL'
+				type: 'USER_TRACKING_SETTINGS_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 
-			expect( stateOut.fetchingTrackingSettings ).to.be.false;
+			expect( stateOut.fetchingTrackingSettings ).toBe( false );
 		} );
 	} );
 
 	describe( '#trackingSettingsUpdate', () => {
-		it( 'should set updatingTrackingSettings to true when updating', () => {
+		test( 'should set updatingTrackingSettings to true when updating', () => {
 			const stateIn = {};
 			const action = {
 				type: 'USER_TRACKING_SETTINGS_UPDATE',
 				updatedSettings: { tracks_opt_out: true },
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 
-			expect( stateOut.updatingTrackingSettings ).to.be.true;
+			expect( stateOut.updatingTrackingSettings ).toBe( true );
 		} );
 
-		it( 'should set updatingTrackingSettings to false when updated', () => {
+		test( 'should set updatingTrackingSettings to false when updated', () => {
 			const stateIn = {};
 			const action = {
 				type: 'USER_TRACKING_SETTINGS_UPDATE_SUCCESS',
 				updatedSettings: { tracks_opt_out: true },
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 
-			expect( stateOut.updatingTrackingSettings ).to.be.false;
+			expect( stateOut.updatingTrackingSettings ).toBe( false );
 		} );
 
-		it( 'should set updatingTrackingSettings to false when updating failed', () => {
+		test( 'should set updatingTrackingSettings to false when updating failed', () => {
 			const stateIn = {};
 			const action = {
 				type: 'USER_TRACKING_SETTINGS_UPDATE_FAIL',
 				updatedSettings: { tracks_opt_out: true },
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 
-			expect( stateOut.updatingTrackingSettings ).to.be.false;
+			expect( stateOut.updatingTrackingSettings ).toBe( false );
 		} );
 	} );
 } );

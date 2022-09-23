@@ -163,4 +163,60 @@ class WP_Test_Jetpack_Google_Analytics extends WP_UnitTestCase {
 			$actual
 		);
 	}
+
+	/**
+	 * Verify functionality of DNT header handling.
+	 */
+	public function test_is_dnt_enabled() {
+		$func_return_true      = function () {
+			return true;
+		};
+		$func_return_false     = function () {
+			return false;
+		};
+		$func_enable_honor_dnt = function ( $option ) {
+			$option['honor_dnt'] = true;
+			return $option;
+		};
+
+		// Test defaults
+		unset( $_SERVER['HTTP_DNT'] );
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 0;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 1;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+
+		// Test ignore DNT header.
+		add_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
+		unset( $_SERVER['HTTP_DNT'] );
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 0;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 1;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		remove_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
+
+		// Test honor DNT header.
+		add_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_true );
+		unset( $_SERVER['HTTP_DNT'] );
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 0;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 1;
+		$this->assertTrue( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		remove_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_true );
+
+		// Test filter overrides option.
+		add_filter( 'pre_option_jetpack_wga', $func_enable_honor_dnt );
+		add_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
+		unset( $_SERVER['HTTP_DNT'] );
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 0;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		$_SERVER['HTTP_DNT'] = 1;
+		$this->assertFalse( Jetpack_Google_Analytics_Utils::is_dnt_enabled() );
+		remove_filter( 'jetpack_honor_dnt_header_for_wga', $func_return_false );
+		remove_filter( 'pre_option_jetpack_wga', $func_enable_honor_dnt );
+	}
 }

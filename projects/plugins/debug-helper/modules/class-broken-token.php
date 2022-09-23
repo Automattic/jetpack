@@ -12,7 +12,7 @@
 /**
  * Require the XMLRPC functionality.
  */
-require __DIR__ . '/inc/class-broken-token-xmlrpc.php';
+require __DIR__ . '/inc/class-broken-token-connection-errors.php';
 
 /**
  * Class Broken_Token
@@ -113,7 +113,7 @@ class Broken_Token {
 		$this->tos_agreed  = Jetpack_Options::get_option( 'tos_agreed' );
 
 		if ( isset( $_GET['notice'] ) && check_admin_referer( 'jetpack_debug_broken_token_admin_notice', 'nonce' ) ) {
-			$this->notice_type = $_GET['notice'];
+			$this->notice_type = sanitize_key( $_GET['notice'] );
 			add_action( 'admin_notices', array( $this, 'render_admin_notice' ) );
 		}
 	}
@@ -572,7 +572,7 @@ function register_broken_token() {
 	if ( class_exists( 'Jetpack_Options' ) ) {
 		new Broken_Token();
 		if ( class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
-			new Broken_Token_XmlRpc();
+			new Broken_Token_Connection_Errors();
 		}
 	} else {
 		add_action( 'admin_notices', 'broken_token_jetpack_not_active' );

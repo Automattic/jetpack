@@ -309,12 +309,20 @@ class Classic_Search {
 	 * @param WP_Query $query A WP_Query instance.
 	 */
 	public function maybe_add_post_type_as_var( WP_Query $query ) {
-		$post_type = ( ! empty( $_GET['post_type'] ) ) ? $_GET['post_type'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $this->should_handle_query( $query ) && $post_type ) {
-			$post_types = ( is_string( $post_type ) && false !== strpos( $post_type, ',' ) )
-				? explode( ',', $post_type )
-				: (array) $post_type;
-			$post_types = array_map( 'sanitize_key', $post_types );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( $this->should_handle_query( $query ) && ! empty( $_GET['post_type'] ) ) {
+			if ( is_array( $_GET['post_type'] ) ) {
+				$post_types = array_map( 'sanitize_key', $_GET['post_type'] );
+			} else {
+				$post_types = array_map(
+					'sanitize_key',
+					explode(
+						',',
+						sanitize_text_field( wp_unslash( $_GET['post_type'] ) )
+					)
+				);
+			}
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 			$query->set( 'post_type', $post_types );
 		}
 	}
@@ -1227,6 +1235,11 @@ class Classic_Search {
 
 					break;
 
+				case 'author':
+					$this->add_author_aggregation_to_es_query_builder( $aggregation, $label, $builder );
+
+					break;
+
 				case 'date_histogram':
 					$this->add_date_histogram_aggregation_to_es_query_builder( $aggregation, $label, $builder );
 
@@ -1287,6 +1300,27 @@ class Classic_Search {
 			array(
 				'terms' => array(
 					'field' => 'post_type',
+					'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Given an individual author aggregation, add it to the query builder object for use in Elasticsearch.
+	 *
+	 * @since 0.20.0
+	 *
+	 * @param array                                        $aggregation The aggregation to add to the query builder.
+	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
+	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 */
+	public function add_author_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
+		$builder->add_aggs(
+			$label,
+			array(
+				'terms' => array(
+					'field' => 'author_login_slash_name',
 					'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
 				),
 			)
@@ -1553,6 +1587,30 @@ class Classic_Search {
 								$remove_url = Helper::remove_query_arg( 'post_type' );
 							}
 						}
+
+						break;
+
+					// The `author` filter is NOT supported in Classic Search. This is used to keep the compatibility for filters outside the overlay with Instant Search.
+					case 'author':
+						$split_names = preg_split( '/\/(.?)/', $item['key'] );
+
+						$name = '';
+
+						if ( false !== $split_names ) {
+							$name = $split_names[0];
+						}
+
+						if ( empty( $name ) ) {
+							continue 2;  // switch() is considered a looping structure.
+						}
+
+						$query_vars = array(
+							'author' => $name,
+						);
+
+						$active = true;
+
+						$remove_url = Helper::remove_query_arg( 'author' );
 
 						break;
 

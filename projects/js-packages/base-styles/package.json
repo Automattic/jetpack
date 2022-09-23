@@ -1,29 +1,29 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "0.1.10",
+	"version": "0.3.9",
 	"description": "Jetpack components base styles",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/base-styles/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Base Styles"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/js-packages/base-styles"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented."
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "4.1.1"
+		"@wordpress/base-styles": "4.7.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

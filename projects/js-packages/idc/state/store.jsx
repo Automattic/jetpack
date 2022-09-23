@@ -1,8 +1,5 @@
-/**
- * Internal dependencies
- */
-import reducer from './reducers';
 import actions from './actions';
+import reducer from './reducers';
 import selectors from './selectors';
 import storeHolder from './store-holder';
 

@@ -5,6 +5,88 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.15] - 2022-08-30
+### Changed
+- Updated package dependencies. [#25694, #25814]
+
+## [2.4.14] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25628, #25762]
+
+## [2.4.13] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [2.4.12] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [2.4.11] - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## [2.4.10] - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## [2.4.9] - 2022-06-28
+### Removed
+- Remove unused JS dep on `enzyme`.
+
+## [2.4.8] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
+## [2.4.7] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
+## [2.4.6] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## [2.4.5] - 2022-05-31
+### Changed
+- Updated package dependencies. [#24573]
+
+## [2.4.4] - 2022-05-18
+### Changed
+- Updated package dependencies [#24372]
+
+## [2.4.3] - 2022-05-10
+### Changed
+- Updated package dependencies. [#24189]
+
+## [2.4.2] - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies. [#24095] [#24198]
+
+## [2.4.1] - 2022-04-26
+### Changed
+- Updated package dependencies.
+- Update package.json metadata.
+
+## [2.4.0] - 2022-04-19
+### Deprecated
+- Deprecated in-place connection.
+
+## [2.3.14] - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## [2.3.13] - 2022-04-06
+### Changed
+- Updated package dependencies
+
+## [2.3.12] - 2022-03-29
+### Changed
+- Updated package dependencies.
+
+## [2.3.11] - 2022-03-23
+### Changed
+- Updated package dependencies
+
 ## [2.3.10] - 2022-03-15
 ### Changed
 - Updated package dependencies.
@@ -205,6 +287,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Connection UI: Building the Framework
 
+[2.4.15]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.14...v2.4.15
+[2.4.14]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.13...v2.4.14
+[2.4.13]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.12...v2.4.13
+[2.4.12]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.11...v2.4.12
+[2.4.11]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.10...v2.4.11
+[2.4.10]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.9...v2.4.10
+[2.4.9]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.8...v2.4.9
+[2.4.8]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.7...v2.4.8
+[2.4.7]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.6...v2.4.7
+[2.4.6]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.5...v2.4.6
+[2.4.5]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.4...v2.4.5
+[2.4.4]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.3...v2.4.4
+[2.4.3]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.2...v2.4.3
+[2.4.2]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.1...v2.4.2
+[2.4.1]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.14...v2.4.0
+[2.3.14]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.13...v2.3.14
+[2.3.13]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.12...v2.3.13
+[2.3.12]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.11...v2.3.12
+[2.3.11]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.10...v2.3.11
 [2.3.10]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.9...v2.3.10
 [2.3.9]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.8...v2.3.9
 [2.3.8]: https://github.com/Automattic/jetpack-connection-ui/compare/v2.3.7...v2.3.8

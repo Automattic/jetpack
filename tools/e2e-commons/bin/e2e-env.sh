@@ -18,7 +18,7 @@ usage() {
 	exit 1
 }
 
-BASE_CMD='jetpack docker --type e2e --name t1'
+BASE_CMD='pnpm jetpack docker --type e2e --name t1'
 
 start_env() {
 	$BASE_CMD up -d
@@ -31,7 +31,7 @@ stop_env() {
 }
 
 reset_env() {
-	$BASE_CMD uninstall || true
+	$BASE_CMD wp -- db reset --yes
 	$BASE_CMD install || true
 	configure_wp_env "$@"
 }
@@ -56,12 +56,13 @@ gb_setup() {
 configure_wp_env() {
 	$BASE_CMD wp plugin activate jetpack
 	$BASE_CMD wp plugin activate e2e-plan-data-interceptor
+	$BASE_CMD wp plugin activate e2e-waf-data-interceptor
 	$BASE_CMD wp plugin activate e2e-search-test-helper
 	if [ "${1}" == "--activate-plugins" ]; then
 		shift
 		for var in "$@"; do
 			# shellcheck disable=SC2086
-			pnpx $BASE_CMD wp plugin activate "$var"
+			pnpm $BASE_CMD wp plugin activate "$var"
 		done
 	fi
 	$BASE_CMD wp option set permalink_structure ""

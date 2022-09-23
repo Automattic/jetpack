@@ -1,14 +1,14 @@
 {
 	"name": "automattic/jetpack-plugins-installer",
 	"description": "Handle installation of plugins from WP.org",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -39,7 +39,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-trunk": "0.2.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-plugins-installer",
 		"changelogger": {

@@ -36,38 +36,87 @@ test.describe( 'Search Dashboard', () => {
 
 	test( 'Can manage search module and instant search.', async () => {
 		await test.step( 'Can display dashboard correctly', async () => {
-			expect( await searchDashboard.isSearchModuleToggleVisibile() ).toBeTruthy();
-			expect( await searchDashboard.isInstantSearchToggleVisible() ).toBeTruthy();
-			expect( await searchDashboard.isTitleVisible() ).toBeTruthy();
-			expect( await searchDashboard.isHeaderVisible() ).toBeTruthy();
-			expect( await searchDashboard.isFooterVisible() ).toBeTruthy();
-			expect( await searchDashboard.isCustomizeButtonVisible() ).toBeTruthy();
-			expect( await searchDashboard.isEditWidgetButtonVisible() ).toBeTruthy();
+			expect(
+				await searchDashboard.isSearchModuleToggleVisibile(),
+				'Search module toggle should be visible'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isInstantSearchToggleVisible(),
+				'Instant search toggle should be visible'
+			).toBeTruthy();
+			expect( await searchDashboard.isTitleVisible(), 'Title should be visible' ).toBeTruthy();
+			expect( await searchDashboard.isHeaderVisible(), 'Header should be visible' ).toBeTruthy();
+			expect( await searchDashboard.isFooterVisible(), 'Footer should be visible' ).toBeTruthy();
+			expect(
+				await searchDashboard.isCustomizeButtonVisible(),
+				'Customize button should be visible'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isEditWidgetButtonVisible(),
+				'Edit widget button should be visible'
+			).toBeTruthy();
 		} );
+
 		await test.step( 'Can toggle search module and instant search option', async () => {
 			// When toggling off search module, instant search is toggled off too.
 			await searchDashboard.toggleSearchModule();
-			expect( await searchDashboard.isSearchModuleToggleOn() ).toBeFalsy();
-			expect( await searchDashboard.isInstantSearchToggleOn() ).toBeFalsy();
-			expect( await searchDashboard.isCustomizeButtonDisabled() ).toBeTruthy();
+			expect(
+				await searchDashboard.isSearchModuleToggleOn(),
+				'Search module toggle should be off'
+			).toBeFalsy();
+			expect(
+				await searchDashboard.isInstantSearchToggleOn(),
+				'Instant search toggle should be off'
+			).toBeFalsy();
+			expect(
+				await searchDashboard.isCustomizeButtonDisabled(),
+				'Customize button should be disabled'
+			).toBeTruthy();
 
 			// When toggling on instant search, search module is toggled on too.
 			await searchDashboard.toggleInstantSearch();
-			expect( await searchDashboard.isSearchModuleToggleOn() ).toBeTruthy();
-			expect( await searchDashboard.isInstantSearchToggleOn() ).toBeTruthy();
-			expect( await searchDashboard.isCustomizeButtonDisabled() ).toBeFalsy();
+			expect(
+				await searchDashboard.isSearchModuleToggleOn(),
+				'Search module toggle should be on'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isInstantSearchToggleOn(),
+				'Instant search toggle should be on'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isCustomizeButtonDisabled(),
+				'Customize button should be enabled'
+			).toBeFalsy();
 
 			// Instant search could be toggled off individually.
 			await searchDashboard.toggleInstantSearch();
-			expect( await searchDashboard.isSearchModuleToggleOn() ).toBeTruthy();
-			expect( await searchDashboard.isInstantSearchToggleOn() ).toBeFalsy();
-			expect( await searchDashboard.isCustomizeButtonDisabled() ).toBeTruthy();
+			expect(
+				await searchDashboard.isSearchModuleToggleOn(),
+				'Search module toggle should be on'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isInstantSearchToggleOn(),
+				'Instant search toggle should be off'
+			).toBeFalsy();
+			expect(
+				await searchDashboard.isCustomizeButtonDisabled(),
+				'Customize button should be disabled'
+			).toBeTruthy();
 
 			// Instant search could be toggled on individually.
 			await searchDashboard.toggleInstantSearch();
-			expect( await searchDashboard.isSearchModuleToggleOn() ).toBeTruthy();
-			expect( await searchDashboard.isInstantSearchToggleOn() ).toBeTruthy();
-			expect( await searchDashboard.isCustomizeButtonDisabled() ).toBeFalsy();
+			expect(
+				await searchDashboard.isSearchModuleToggleOn(),
+				'Search module toggle should be on'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isInstantSearchToggleOn(),
+				'Instant search toggle should be on'
+			).toBeTruthy();
+			expect(
+				await searchDashboard.isCustomizeButtonDisabled(),
+				'Customize button should be enabled'
+			).toBeFalsy();
 		} );
 	} );
 } );

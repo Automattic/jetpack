@@ -12,10 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup tools for G
-        uses: ./.github/actions/tool-setup
+      - uses: actions/setup-node@v3
         with:
-          node: 14
+          node-version: 14
 
       - uses: actions/checkout@v3
         with:
@@ -28,7 +27,7 @@ jobs:
           npm ci
           npm run build
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
@@ -41,7 +40,7 @@ jobs:
       - name: Build Production Jetpack
         run: |
           pnpm install
-          pnpx jetpack build plugins/jetpack -v --production
+          pnpm jetpack build plugins/jetpack -v --production
 
       - name: Environment set-up
         working-directory: tools/e2e-commons
@@ -63,12 +62,21 @@ jobs:
         run: |
           node ./bin/performance.js
 
+      - name: Send Slack notification
+        if: ${{ failure() }}
+        working-directory: tools/e2e-commons
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: pnpm run slack status "failed" --report "Blocks performance"
+
       - name: Environment tear-down
         if: ${{ always() }}
         working-directory: tools/e2e-commons
         continue-on-error: true
         run: |
           pnpm run tunnel:off
+          # Update permissions to workaround https://github.com/actions/cache/issues/753
+          sudo chown -R runner:docker "$GITHUB_WORKSPACE/tools/docker"
 
       - name: Upload test artifacts
         if: ${{ always() }}
@@ -86,7 +94,7 @@ jobs:
 
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1
+        uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports

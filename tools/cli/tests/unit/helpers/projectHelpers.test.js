@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
-import chai from 'chai';
-
-/**
- * Internal dependencies
- */
+import { fileURLToPath } from 'url';
+import { toBeArray } from 'jest-extended';
 import {
 	dirs,
 	projectTypes,
@@ -13,72 +7,76 @@ import {
 	allProjectsByType,
 } from '../../../helpers/projectHelpers.js';
 
-describe( 'projectHelpers', function () {
+expect.extend( { toBeArray } );
+
+const oldCwd = process.cwd();
+beforeAll( () => process.chdir( fileURLToPath( new URL( '../../../../../', import.meta.url ) ) ) );
+afterAll( () => process.chdir( oldCwd ) );
+
+describe( 'projectHelpers', () => {
 	// Begins tests for dirs.
-	it( 'dirs should be a function', function () {
-		chai.expect( dirs ).to.be.an( 'function' );
+	test( 'dirs should be a function', () => {
+		expect( dirs ).toBeInstanceOf( Function );
 	} );
-	it( 'dirs should output an array', function () {
-		chai.expect( dirs( 'tools/cli' ) ).to.be.an( 'array' );
+	test( 'dirs should output an array', () => {
+		expect( dirs( 'tools/cli' ) ).toBeArray();
 	} );
-	it( 'dirs should output number of subfolders for the given path', function () {
+	test( 'dirs should output number of subfolders for the given path', () => {
 		// The repo-root projects dir.
-		chai.expect( dirs( 'projects' ) ).to.have.lengthOf( 5 );
+		expect( dirs( 'projects' ) ).toHaveLength( 5 );
 	} );
-	it( 'dirs should output a subfolder of given path', function () {
-		chai.expect( dirs( 'projects/plugins' ) ).to.have.contains( 'jetpack' );
+	test( 'dirs should output a subfolder of given path', () => {
+		expect( dirs( 'projects/plugins' ) ).toContain( 'jetpack' );
 	} );
-	it( 'dirs should not output an non-existent subfolder of given path', function () {
-		chai.expect( dirs( 'projects/plugins' ) ).to.not.contain( 'fake' );
+	test( 'dirs should not output an non-existent subfolder of given path', () => {
+		expect( dirs( 'projects/plugins' ) ).not.toContain( 'fake' );
 	} );
-	it( 'dirs should append a prefix when passed', function () {
-		chai.expect( dirs( 'projects/plugins', 'prefix-' ) ).to.have.contains( 'prefix-jetpack' );
+	test( 'dirs should append a prefix when passed', () => {
+		expect( dirs( 'projects/plugins', 'prefix-' ) ).toContain( 'prefix-jetpack' );
 	} );
 
 	// Begin tests for projectTypes.
-	it( 'projectTypes should be an array', function () {
-		chai.expect( projectTypes ).to.be.an( 'array' );
+	test( 'projectTypes should be an array', () => {
+		expect( projectTypes ).toBeArray();
 	} );
-	it( 'projectTypes should include plugins', function () {
-		chai.expect( projectTypes ).to.contain( 'plugins' );
+	test( 'projectTypes should include plugins', () => {
+		expect( projectTypes ).toContain( 'plugins' );
 	} );
 
 	// Begin tests for allProjects.
-	it( 'allProjects should be a function', function () {
-		chai.expect( allProjects ).to.be.a( 'function' );
+	test( 'allProjects should be a function', () => {
+		expect( allProjects ).toBeInstanceOf( Function );
 	} );
-	it( 'allProjects should output an array', function () {
-		chai.expect( allProjects() ).to.be.an( 'array' );
+	test( 'allProjects should output an array', () => {
+		expect( allProjects() ).toBeArray();
 	} );
-	it( 'allProjects should contain prefixed plugins', function () {
+	test( 'allProjects should contain prefixed plugins', () => {
 		// Confirms the type/project style.
-		chai.expect( allProjects() ).to.contain( 'plugins/jetpack' );
+		expect( allProjects() ).toContain( 'plugins/jetpack' );
 	} );
-	it( 'allProjects should contain prefixed packages', function () {
+	test( 'allProjects should contain prefixed packages', () => {
 		// Confirms the type/project style.
-		chai.expect( allProjects() ).to.contain( 'packages/abtest' );
+		expect( allProjects() ).toContain( 'packages/abtest' );
 	} );
-	it( 'allProjects should contain prefixed github-actions', function () {
+	test( 'allProjects should contain prefixed github-actions', () => {
 		// Confirms the type/project style.
-		chai.expect( allProjects() ).to.contain( 'github-actions/push-to-mirrors' );
+		expect( allProjects() ).toContain( 'github-actions/push-to-mirrors' );
 	} );
 
 	// Begin tests for allProjectsByType.
-	it( 'allProjectsByType should be a function', function () {
-		chai.expect( allProjectsByType ).to.be.a( 'function' );
+	test( 'allProjectsByType should be a function', () => {
+		expect( allProjectsByType ).toBeInstanceOf( Function );
 	} );
-	it( 'allProjectsByType should return an array for a valid type', function () {
-		chai.expect( allProjectsByType( 'plugins' ) ).to.be.an( 'array' );
+	test( 'allProjectsByType should return an array for a valid type', () => {
+		expect( allProjectsByType( 'plugins' ) ).toBeArray();
 	} );
-	it( 'allProjectsByType should include a known plugin', function () {
-		chai.expect( allProjectsByType( 'plugins' ) ).to.contain( 'plugins/jetpack' );
+	test( 'allProjectsByType should include a known plugin', () => {
+		expect( allProjectsByType( 'plugins' ) ).toContain( 'plugins/jetpack' );
 	} );
-	it( 'allProjectsByType should include a known package', function () {
-		chai.expect( allProjectsByType( 'packages' ) ).to.contain( 'packages/abtest' );
+	test( 'allProjectsByType should include a known package', () => {
+		expect( allProjectsByType( 'packages' ) ).toContain( 'packages/abtest' );
 	} );
-	it( 'allProjectsByType should include a known GitHub action', function () {
-		chai
-			.expect( allProjectsByType( 'github-actions' ) )
-			.to.contain( 'github-actions/push-to-mirrors' );
+	test( 'allProjectsByType should include a known GitHub action', () => {
+		expect( allProjectsByType( 'github-actions' ) ).toContain( 'github-actions/push-to-mirrors' );
 	} );
 } );

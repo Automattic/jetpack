@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Dashboard: avoid React warnings by using className instead of class.
-
-

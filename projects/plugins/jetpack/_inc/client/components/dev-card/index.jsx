@@ -1,22 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
+import Card from 'components/card';
 import { getPlanClass } from 'lib/plans/constants';
 import { get } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import {
-	isDevVersion as _isDevVersion,
-	userCanViewStats,
-	userCanDisconnectSite,
-	userCanEditPosts,
-} from 'state/initial-state';
-import { getSitePlan } from 'state/site';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { isConnectionOwner, isCurrentUserLinked } from 'state/connection';
 import {
 	switchPlanPreview,
@@ -27,11 +15,16 @@ import {
 	switchRewindState,
 	switchScanState,
 } from 'state/dev-version';
-import { getVaultPressScanThreatCount } from 'state/at-a-glance';
-import Card from 'components/card';
-import onKeyDownCallback from 'utils/onkeydown-callback';
+import {
+	isDevVersion as _isDevVersion,
+	userCanViewStats,
+	userCanDisconnectSite,
+	userCanEditPosts,
+} from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
+import { getSitePlan } from 'state/site';
+import onKeyDownCallback from 'utils/onkeydown-callback';
 
 export class DevCard extends React.Component {
 	static displayName = 'DevCard';
@@ -243,6 +236,19 @@ export class DevCard extends React.Component {
 								onChange={ this.onPlanChange }
 							/>
 							Complete
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_t0">
+							<input
+								type="radio"
+								id="jetpack_backup_t0"
+								value="jetpack_backup_t0_yearly"
+								name="jetpack_backup_t0_yearly"
+								checked={ 'is-backup-t0-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Backup (1 GB)
 						</label>
 					</li>
 					<li>

@@ -7,24 +7,52 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Status\Host;
+
 // We don't want to be anything in here outside WP context.
 if ( ! function_exists( 'add_action' ) ) {
 	return;
 }
 
 /**
- * Determines if the passed $option is one of the allowed WAF operation modes.
- *
- * @param  string $option The mode option.
- * @return bool
+ * Check if killswitch is defined as true
  */
-function is_allowed_mode( $option ) {
-	$allowed_modes = array(
-		'normal',
-		'silent',
-	);
+if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+	return;
+}
 
-	return in_array( $option, $allowed_modes, true );
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	return;
+}
+
+if ( ( new Host() )->is_atomic_platform() ) {
+	add_filter(
+		'jetpack_get_available_modules',
+		function ( $modules ) {
+			unset( $modules['waf'] );
+
+			return $modules;
+		}
+	);
+}
+
+/**
+ * Triggers when the Jetpack plugin is updated
+ */
+add_action(
+	'upgrader_process_complete',
+	array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_if_changed' )
+);
+
+/**
+ * Cron to update the rules periodically.
+ */
+if ( Waf_Runner::is_enabled() ) {
+	add_action( 'jetpack_waf_rules_update_cron', array( __NAMESPACE__ . '\Waf_Runner', 'update_rules_cron' ) );
+
+	if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
+		wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+	}
 }
 
 /**
@@ -33,25 +61,25 @@ function is_allowed_mode( $option ) {
  * @return void
  */
 add_action(
-	'plugin_loaded',
+	'plugins_loaded',
 	function () {
-
-		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
-			$mode_option = get_option( 'jetpack_waf_mode' );
-
-			if ( ! is_allowed_mode( $mode_option ) ) {
-				return;
-			}
-
-			define( 'JETPACK_WAF_MODE', $mode_option );
-		}
-
-		if ( ! is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
-		}
-
-		if ( ! WafRunner::did_run() ) {
-			WafRunner::run();
-		}
+		require_once __DIR__ . '/run.php';
 	}
 );
+
+/**
+ * Adds the REST API endpoints used by the WAF in the WP context.
+ *
+ * @return void
+ */
+add_action(
+	'rest_api_init',
+	function () {
+		require_once __DIR__ . '/src/class-waf-endpoints.php';
+		Waf_Endpoints::register_endpoints();
+	}
+);
+
+add_action( 'update_option_' . Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+add_action( 'update_option_' . Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );

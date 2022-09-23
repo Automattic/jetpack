@@ -1,46 +1,32 @@
-/**
- * External dependencies
- */
+import { CONNECTION_STORE_ID, useConnection } from '@automattic/jetpack-connection';
+import { jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react-hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
-import sinon from 'sinon';
-import { expect } from 'chai';
-import { CONNECTION_STORE_ID, useConnection } from '@automattic/jetpack-connection';
 
-let storeSelect;
 let stubConnectUser;
 let stubRegisterSite;
 let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
-	before( () => {
+	const setupSpies = () => {
 		const { result: dispatch } = renderHook( () => useDispatch( CONNECTION_STORE_ID ) );
+		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
-		stubConnectUser = sinon.stub( dispatch.current, 'connectUser' );
-		stubGetConnectionStatus = sinon.stub( storeSelect, 'getConnectionStatus' );
-		stubRegisterSite = sinon.stub( dispatch.current, 'registerSite' );
-	} );
+		stubConnectUser = jest.spyOn( dispatch.current, 'connectUser' ).mockReset();
+		stubGetConnectionStatus = jest
+			.spyOn( storeSelect, 'getConnectionStatus' )
+			.mockReset()
+			.mockReturnValue( {} );
+		stubRegisterSite = jest
+			.spyOn( dispatch.current, 'registerSite' )
+			.mockReset()
+			.mockResolvedValue();
+	};
 
-	beforeEach( () => {
-		stubConnectUser.returns();
-		stubGetConnectionStatus.returns( {} );
-		stubRegisterSite.resolves();
-	} );
-
-	afterEach( () => {
-		stubConnectUser.reset();
-		stubGetConnectionStatus.reset();
-		stubRegisterSite.reset();
-	} );
-
-	after( () => {
-		stubConnectUser.restore();
-		stubGetConnectionStatus.restore();
-		stubRegisterSite.restore();
-	} );
-
+	// eslint-disable-next-line jest/no-done-callback
 	it( 'passes along coupon when not connected', done => {
+		setupSpies();
 		const initialProps = {
 			registrationNonce: 'REGISTRATION',
 			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
@@ -51,25 +37,24 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		result.current.handleRegisterSite();
 
 		setTimeout( () => {
-			expect(
-				stubRegisterSite.calledOnceWith( {
-					registrationNonce: 'REGISTRATION',
-					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
-				} )
-			);
+			expect( stubRegisterSite ).toHaveBeenCalledTimes( 1 );
+			expect( stubRegisterSite ).toHaveBeenCalledWith( {
+				registrationNonce: 'REGISTRATION',
+				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+			} );
 
-			expect(
-				stubConnectUser.calledOnceWith( {
-					from: 'jetpack-partner-coupon',
-					redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
-				} )
-			);
+			expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );
+			expect( stubConnectUser ).toHaveBeenCalledWith( {
+				from: 'jetpack-partner-coupon',
+				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+			} );
 			done();
 		}, 50 );
 	} );
 
 	it( 'passes along coupon when only site is connected', () => {
-		stubGetConnectionStatus.returns( { isRegistered: true } );
+		setupSpies();
+		stubGetConnectionStatus.mockReturnValue( { isRegistered: true } );
 		const { result } = renderHook( props => useConnection( props ), {
 			initialProps: {
 				from: 'jetpack-partner-coupon',
@@ -78,12 +63,11 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		} );
 
 		result.current.handleRegisterSite();
-		expect( stubRegisterSite.called ).to.be.false;
-		expect(
-			stubConnectUser.calledOnceWith( {
-				from: 'jetpack-partner-coupon',
-				redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
-			} )
-		);
+		expect( stubRegisterSite ).not.toHaveBeenCalled();
+		expect( stubConnectUser ).toHaveBeenCalledTimes( 1 );
+		expect( stubConnectUser ).toHaveBeenCalledWith( {
+			from: 'jetpack-partner-coupon',
+			redirectUri: 'admin.php?page=jetpack&partnerCoupon=TEST_TST_1234',
+		} );
 	} );
 } );

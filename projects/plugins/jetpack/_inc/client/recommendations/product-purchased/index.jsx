@@ -1,20 +1,12 @@
-/**
- * External dependencies
- */
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import { isArray } from 'lodash';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { __, _x } from '@wordpress/i18n';
-import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
-import { PromptLayout } from '../prompts/prompt-layout';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import analytics from 'lib/analytics';
+import { isArray } from 'lodash';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import {
 	getProductSuggestions,
 	getNextRoute,
@@ -25,10 +17,8 @@ import {
 	getActiveProductPurchases,
 	isFetchingSiteData as isFetchingSiteDataState,
 } from 'state/site';
+import { PromptLayout } from '../prompts/prompt-layout';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const getPurchasedSuggestion = ( {
@@ -107,8 +97,9 @@ const ProductPurchasedComponent = props => {
 			progressBar={ <ProgressBar color={ '#00A32A' } value={ '33' } /> }
 			question={ __( 'Your plan has been upgraded!', 'jetpack' ) }
 			description={ __( 'You now have access to these benefits:', 'jetpack' ) }
-			illustrationPath={ 'recommendations/product-purchased-illustration.svg' }
 			answer={ answerSection }
+			illustration="assistant-product-purchased"
+			illustrationClassName="jp-recommendations-product-purchased__illustration"
 		/>
 	);
 };

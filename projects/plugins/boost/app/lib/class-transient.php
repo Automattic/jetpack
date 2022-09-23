@@ -92,16 +92,21 @@ class Transient {
 		 */
 		$prefix_search_pattern = $wpdb->esc_like( $option_prefix ) . '%';
 
-		$wpdb->query(
+		$option_names = $wpdb->get_col(
 			$wpdb->prepare(
 				"
-					DELETE
-					FROM    $wpdb->options
-					WHERE   `option_name` LIKE %s
+					SELECT option_name
+					FROM   $wpdb->options
+					WHERE  `option_name` LIKE %s
 				",
 				$prefix_search_pattern
 			)
 		);
+
+		// Go through each option individually to ensure caches are handled properly.
+		foreach ( $option_names as $option_name ) {
+			delete_option( $option_name );
+		}
 	}
 
 	/**

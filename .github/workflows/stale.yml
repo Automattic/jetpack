@@ -48,6 +48,6 @@ jobs:
             </ul>
 
             <p>No further action is needed. But it's worth checking if this PR has clear
-            testing instructions, is it up to date with master, and it is still valid.
+            testing instructions, is it up to date with trunk, and it is still valid.
             Feel free to close this PR if you think it's not valid anymore — if you
             do, please add a brief explanation.</p>

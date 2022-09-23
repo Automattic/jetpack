@@ -4,40 +4,21 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-admin-ui": "0.2.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-backup": "1.2.x-dev",
+		"automattic/jetpack-backup": "1.8.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.7.x-dev",
-		"automattic/jetpack-connection": "1.37.x-dev",
-		"automattic/jetpack-connection-ui": "2.3.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "0.6.x-dev",
-		"automattic/jetpack-sync": "1.30.x-dev",
-		"automattic/jetpack-status": "1.12.x-dev"
+		"automattic/jetpack-plugins-installer": "^0.2"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
 	},
-	"scripts": {
-		"build-development": [
-			"pnpm run build"
-		],
-		"build-production": [
-			"pnpm run build-production-concurrently"
-		],
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		]
-	},
+	"scripts": {},
 	"repositories": [
 		{
 			"type": "path",
@@ -50,7 +31,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_2_1_alpha",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_4_1_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

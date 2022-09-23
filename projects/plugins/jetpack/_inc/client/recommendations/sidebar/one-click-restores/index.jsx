@@ -1,29 +1,18 @@
-/**
- * External dependencies
- */
+import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { Layout } from '../layout';
-import Button from 'components/button';
-import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
-import { containsBackupRealtime, getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl } from 'state/initial-state';
-import { getActiveBackupPurchase, hasActiveBackupPurchase, getSitePlan } from 'state/site';
+import { siteHasFeature } from 'state/site';
+import { SidebarCard } from '../sidebar-card';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const OneClickRestoresComponent = props => {
-	const { planClass, siteRawUrl } = props;
+	const { hasRealTimeBackups, siteRawUrl } = props;
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
@@ -37,14 +26,21 @@ const OneClickRestoresComponent = props => {
 		} );
 	}, [] );
 
-	const backupsName = containsBackupRealtime( planClass )
-		? __( 'Real-time Backups', 'jetpack' )
-		: __( 'Daily Backups', 'jetpack' );
+	const trackOpenVideo = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_backup_getting_started_video_click', {
+			position: 'recommendations/one_click_restores',
+		} );
+	}, [] );
+
+	/* Avoid ternary as code minification will break translation function. :( */
+	let backupsName = __( 'Daily Backups', 'jetpack' );
+	if ( hasRealTimeBackups ) {
+		backupsName = __( 'Real-time Backups', 'jetpack' );
+	}
 
 	return (
-		<Layout
-			illustrationPath={ imagePath + '/recommendations/one-click-restores.svg' }
-			content={
+		<>
+			<SidebarCard illustrationPath={ imagePath + '/recommendations/one-click-restores.svg' }>
 				<div className="jp-recommendations-one-click-restores">
 					<h2>{ __( 'Enable one-click restores', 'jetpack' ) }</h2>
 					<p>
@@ -73,16 +69,37 @@ const OneClickRestoresComponent = props => {
 						</Button>
 					</div>
 				</div>
-			}
-		/>
+			</SidebarCard>
+			<SidebarCard compact>
+				<div className="jp-recommendations-getting-started-compact">
+					<a
+						href={ GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL }
+						onClick={ trackOpenVideo }
+						target="_blank"
+						rel="noreferrer"
+					>
+						<img
+							className="jp-recommendations-getting-started-compact__thumbnail"
+							src={ imagePath + 'backup-getting-started-thumbnail.png' }
+							srcSet={ `${ imagePath + 'backup-getting-started-thumbnail.png' } 1x, ${
+								imagePath + 'backup-getting-started-thumbnail-2x.png'
+							} 2x` }
+							alt=""
+						/>
+					</a>
+					<div>
+						<h2>{ __( 'Getting started with Jetpack Backup', 'jetpack' ) }</h2>
+						<p>{ __( 'A short video guide on how to back up your website', 'jetpack' ) }</p>
+					</div>
+				</div>
+			</SidebarCard>
+		</>
 	);
 };
 
 const OneClickRestores = connect( state => ( {
+	hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 	siteRawUrl: getSiteRawUrl( state ),
-	planClass: hasActiveBackupPurchase( state )
-		? getPlanClass( getActiveBackupPurchase( state ).product_slug )
-		: getPlanClass( getSitePlan( state ).product_slug ),
 } ) )( OneClickRestoresComponent );
 
 export { OneClickRestores };

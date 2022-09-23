@@ -4,13 +4,13 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.37",
+		"automattic/jetpack-connection": "^1.44",
 		"automattic/jetpack-error": "^1.3"
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -47,7 +47,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.9.x-dev"
+			"dev-trunk": "1.10.x-dev"
 		}
 	},
 	"config": {

@@ -1,0 +1,62 @@
+@import './view.scss';
+
+.wp-block-jetpack-google-docs-embed {
+	margin: 0 0 1.5em 0;
+	clear: both;
+
+	&__wrapper {
+		position: relative;
+
+		&::before {
+			content: "";
+			display: block;
+			padding-top: 50%;
+		}
+	}
+
+	&__interactive-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		opacity: 0;
+	}
+
+	&-embed-form-editor {
+		margin: 0;
+
+		textarea {
+			margin-right: 1px;
+			flex: 1;
+			height: 36px;
+			padding-top: 9px;
+			font-family: inherit;
+			font-size: inherit;
+		}
+	}
+
+	iframe {
+		max-width: 100%;
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+	}
+
+	.wp-block[data-align="left"] > &,
+	.wp-block[data-align="right"] > &,
+	&.alignleft,
+	&.alignright {
+		max-width: 360px;
+		width: 100%;
+
+		// Unless these have a min-width, they collapse when floated.
+		&__wrapper {
+			min-width: $break-zoomed-in;
+		}
+	}
+}

@@ -2,13 +2,15 @@
 /**
  * Publicize class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
+use Jetpack_IXR_Client;
+use Jetpack_Options;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
@@ -53,10 +55,6 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
-
-		include_once __DIR__ . '/enhanced-open-graph.php';
-
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
 	}
 
 	/**
@@ -93,7 +91,7 @@ class Publicize extends Publicize_Base {
 	 * Show a warning when Publicize does not have a connection.
 	 */
 	public function admin_page_warning() {
-		$jetpack   = Jetpack::init();
+		$jetpack   = \Jetpack::init();
 		$blog_name = get_bloginfo( 'blogname' );
 		if ( empty( $blog_name ) ) {
 			$blog_name = home_url( '/' );
@@ -107,7 +105,7 @@ class Publicize extends Publicize_Base {
 						<?php
 							printf(
 								/* translators: %s is the name of the blog */
-								esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack-publicize-pkg' ) ) ),
+								esc_html( wptexturize( __( "To use Jetpack Social, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack-publicize-pkg' ) ) ),
 								'<strong>' . esc_html( $blog_name ) . '</strong>'
 							);
 						?>
@@ -140,7 +138,7 @@ class Publicize extends Publicize_Base {
 	 * @return false|void False on failure. Void on success.
 	 */
 	public function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		return Jetpack_Keyring_Service_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
+		return Keyring_Helper::disconnect( $service_name, $connection_id, $_blog_id, $_user_id, $force_delete );
 	}
 
 	/**
@@ -276,9 +274,9 @@ class Publicize extends Publicize_Base {
 	 * Show error on settings page if applicable.
 	 */
 	public function admin_page_load() {
-		$action = sanitize_text_field( wp_unslash( $_GET['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( ! empty( $action ) && 'error' === $action ) {
+		if ( 'error' === $action ) {
 			add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 		}
 	}
@@ -294,7 +292,7 @@ class Publicize extends Publicize_Base {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( $service ) {
-			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
+			/* translators: %s is the name of the Jetpack Social service (e.g. Facebook, Twitter) */
 			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack-publicize-pkg' ), self::get_service_label( $service ) );
 		} else {
 			if ( $publicize_error ) {
@@ -307,18 +305,18 @@ class Publicize extends Publicize_Base {
 						$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack-publicize-pkg' );
 						break;
 					case 'empty_blog_id':
-						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack-publicize-pkg' );
+						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Jetpack Social again.', 'jetpack-publicize-pkg' );
 						break;
 					case 'empty_state':
 						/* translators: %s is the URL of the Jetpack admin page */
-						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), Jetpack::admin_url() );
+						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
 						break;
 					default:
 						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
 						break;
 				}
 			} else {
-				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack-publicize-pkg' );
+				$error = __( 'There was a problem connecting with Jetpack Social. Please try again in a moment.', 'jetpack-publicize-pkg' );
 			}
 		}
 		// Using the same formatting/style as Jetpack::admin_notices() error.
@@ -372,7 +370,7 @@ class Publicize extends Publicize_Base {
 	 * @param string $connection_id Connection ID.
 	 */
 	public function globalization( $connection_id ) {
-		if ( 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce check happens earlier in the process before we get here
+		if ( isset( $_REQUEST['global'] ) && 'on' === $_REQUEST['global'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- nonce check happens earlier in the process before we get here
 			if ( ! current_user_can( $this->GLOBAL_CAP ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				return;
 			}
@@ -464,7 +462,7 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function connect_url( $service_name, $for = 'publicize' ) {
-		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
+		return Keyring_Helper::connect_url( $service_name, $for );
 	}
 
 	/**
@@ -475,7 +473,7 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function refresh_url( $service_name, $for = 'publicize' ) {
-		return Jetpack_Keyring_Service_Helper::refresh_url( $service_name, $for );
+		return Keyring_Helper::refresh_url( $service_name, $for );
 	}
 
 	/**
@@ -486,14 +484,16 @@ class Publicize extends Publicize_Base {
 	 * @return string
 	 */
 	public function disconnect_url( $service_name, $id ) {
-		return Jetpack_Keyring_Service_Helper::disconnect_url( $service_name, $id );
+		return Keyring_Helper::disconnect_url( $service_name, $id );
 	}
 
 	/**
 	 * Get social networks, either all available or only those that the site is connected to.
 	 *
-	 * @since 2.0.0
-	 * @since 6.6.0 Removed Path. Service closed October 2018.
+	 * @since 0.1.0
+	 * @since-jetpack 2.0.0
+	 *
+	 * @since-jetpack 6.6.0 Removed Path. Service closed October 2018.
 	 *
 	 * @param string    $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
 	 * @param false|int $_blog_id Get services for a specific blog by ID, or set to false for current blog. Default false.
@@ -547,20 +547,21 @@ class Publicize extends Publicize_Base {
 			return;
 		}
 
+		$should_publicize = $this->should_submit_post_pre_checks( $post );
+
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			/**
 			 * Determines whether a post being published gets publicized.
 			 *
 			 * Side-note: Possibly our most alliterative filter name.
 			 *
-			 * @module publicize
-			 *
-			 * @since 4.1.0
+			 * @since 0.1.0 No longer defaults to true. Adds checks to not publicize based on different contexts.
+			 * @since-jetpack 4.1.0
 			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
 			 * @param WP_POST $post Current Post object.
 			 */
-			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', true, $post );
+			$should_publicize = apply_filters( 'publicize_should_publicize_published_post', $should_publicize, $post );
 
 			if ( $should_publicize ) {
 				update_post_meta( $post->ID, $this->PENDING, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -602,7 +603,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		return new WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+		return new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
 	}
 
 	/**
@@ -612,7 +613,8 @@ class Publicize extends Publicize_Base {
 	 * 1. A POST_DONE . 'all' postmeta flag, or
 	 * 2. if the post has already been published.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
@@ -621,7 +623,7 @@ class Publicize extends Publicize_Base {
 	public function post_is_done_sharing( $post_id = null ) {
 		// Defaults to current post if $post_id is null.
 		$post = get_post( $post_id );
-		if ( is_null( $post ) ) {
+		if ( $post === null ) {
 			return false;
 		}
 
@@ -636,7 +638,7 @@ class Publicize extends Publicize_Base {
 	 * @param \WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
-		if ( is_null( $post ) ) {
+		if ( $post === null ) {
 			return;
 		}
 		// Only do this when a post transitions to being published.
@@ -660,8 +662,11 @@ class Publicize extends Publicize_Base {
 		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
 			return $flags;
 		}
+
+		$should_publicize = $this->should_submit_post_pre_checks( $post );
+
 		/** This filter is already documented in modules/publicize/publicize-jetpack.php */
-		if ( ! apply_filters( 'publicize_should_publicize_published_post', true, $post ) ) {
+		if ( ! apply_filters( 'publicize_should_publicize_published_post', $should_publicize, $post ) ) {
 			return $flags;
 		}
 
@@ -680,11 +685,13 @@ class Publicize extends Publicize_Base {
 	 * Render Facebook options.
 	 */
 	public function options_page_facebook() {
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
+
 		// Nonce check.
-		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
+		check_admin_referer( 'options_page_facebook_' . $connection_name );
 
 		$connected_services = $this->get_all_connections();
-		$connection         = $connected_services['facebook'][ $_REQUEST['connection'] ];
+		$connection         = $connected_services['facebook'][ $connection_name ];
 		$options_to_show    = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
 
 		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
@@ -719,8 +726,8 @@ class Publicize extends Publicize_Base {
 			}
 			$page_info_message = sprintf(
 				wp_kses(
-					/* translators: %s is the link to the support page about using Facebook with Publicize */
-					__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack-publicize-pkg' ),
+					/* translators: %s is the link to the support page about using Facebook with Jetpack Social */
+					__( 'Facebook supports Jetpack Social connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Jetpack Social for Facebook</a>', 'jetpack-publicize-pkg' ),
 					array( 'a' => array( 'href' ) )
 				),
 				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
@@ -731,7 +738,7 @@ class Publicize extends Publicize_Base {
 				<p>
 					<?php
 						echo wp_kses(
-							__( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack-publicize-pkg' ),
+							__( 'Share to my <strong>Facebook Page</strong>:', 'jetpack-publicize-pkg' ),
 							array( 'strong' )
 						);
 					?>
@@ -769,12 +776,12 @@ class Publicize extends Publicize_Base {
 					</tbody>
 				</table>
 
-				<?php Publicize_UI::global_checkbox( 'facebook', $_REQUEST['connection'] ); ?>
+				<?php Publicize_UI::global_checkbox( 'facebook', $connection_name ); ?>
 				<p style="text-align: center;">
 					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
 						class="button fb-options save-options" name="save"
-						data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $_REQUEST['connection'] ) ); ?>"/>
+						data-connection="<?php echo esc_attr( $connection_name ); ?>"
+						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $connection_name ) ); ?>"/>
 				</p><br/>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<p><?php echo $page_info_message; ?></p>
@@ -805,17 +812,19 @@ class Publicize extends Publicize_Base {
 	 * Save Facebook options.
 	 */
 	public function options_save_facebook() {
-		// Nonce check.
-		check_admin_referer( 'save_fb_token_' . $_REQUEST['connection'] );
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
 
-		// Check for a numeric page ID.
-		$page_id = $_POST['selected_id'];
-		if ( ! ctype_digit( $page_id ) ) {
-			die( 'Security check' );
+		// Nonce check.
+		check_admin_referer( 'save_fb_token_' . $connection_name );
+
+		if ( ! isset( $_POST['type'] ) || 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
+			return;
 		}
 
-		if ( 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
-			return;
+		// Check for a numeric page ID.
+		$page_id = $_POST['selected_id']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Manually validated just below
+		if ( ! ctype_digit( $page_id ) ) {
+			die( 'Security check' );
 		}
 
 		// Publish to Page.
@@ -824,18 +833,20 @@ class Publicize extends Publicize_Base {
 			'facebook_profile' => null,
 		);
 
-		$this->set_remote_publicize_options( $_POST['connection'], $options );
+		$this->set_remote_publicize_options( $connection_name, $options );
 	}
 
 	/**
 	 * Render Tumblr options.
 	 */
 	public function options_page_tumblr() {
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
+
 		// Nonce check.
-		check_admin_referer( 'options_page_tumblr_' . $_REQUEST['connection'] );
+		check_admin_referer( 'options_page_tumblr_' . $connection_name );
 
 		$connected_services = $this->get_all_connections();
-		$connection         = $connected_services['tumblr'][ $_POST['connection'] ];
+		$connection         = $connected_services['tumblr'][ $connection_name ];
 		$options_to_show    = $connection['connection_data']['meta']['options_responses'];
 		$request            = $options_to_show[0];
 
@@ -874,7 +885,7 @@ class Publicize extends Publicize_Base {
 			}
 			?>
 
-			<p><?php echo wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack-publicize-pkg' ), array( 'strong' ) ); ?></p>
+			<p><?php echo wp_kses( __( 'Share to my <strong>Tumblr blog</strong>:', 'jetpack-publicize-pkg' ), array( 'strong' ) ); ?></p>
 
 			<ul id="option-tumblr-blog">
 
@@ -892,13 +903,13 @@ class Publicize extends Publicize_Base {
 
 			</ul>
 
-			<?php Publicize_UI::global_checkbox( 'tumblr', $_REQUEST['connection'] ); ?>
+			<?php Publicize_UI::global_checkbox( 'tumblr', $connection_name ); ?>
 
 			<p style="text-align: center;">
 				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
 					class="button tumblr-options save-options" name="save"
-					data-connection="<?php echo esc_attr( $_REQUEST['connection'] ); ?>"
-					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $_REQUEST['connection'] ) ); ?>"/>
+					data-connection="<?php echo esc_attr( $connection_name ); ?>"
+					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $connection_name ) ); ?>"/>
 			</p> <br/>
 		</div>
 
@@ -919,11 +930,13 @@ class Publicize extends Publicize_Base {
 	 * Save Tumblr options.
 	 */
 	public function options_save_tumblr() {
-		// Nonce check.
-		check_admin_referer( 'save_tumblr_blog_' . $_REQUEST['connection'] );
-		$options = array( 'tumblr_base_hostname' => $_POST['selected_id'] );
+		$connection_name = isset( $_POST['connection'] ) ? filter_var( wp_unslash( $_POST['connection'] ) ) : null;
 
-		$this->set_remote_publicize_options( $_POST['connection'], $options );
+		// Nonce check.
+		check_admin_referer( 'save_tumblr_blog_' . $connection_name );
+		$options = array( 'tumblr_base_hostname' => isset( $_POST['selected_id'] ) ? sanitize_text_field( wp_unslash( $_POST['selected_id'] ) ) : null );
+
+		$this->set_remote_publicize_options( $connection_name, $options );
 
 	}
 
@@ -978,10 +991,12 @@ class Publicize extends Publicize_Base {
 	 * @param string $service_name Name of the service to save options for.
 	 */
 	public function options_save_other( $service_name ) {
-		// Nonce check.
-		check_admin_referer( 'save_' . $service_name . '_token_' . $_REQUEST['connection'] );
+		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : '';
 
-		$this->globalization( $_REQUEST['connection'] );
+		// Nonce check.
+		check_admin_referer( 'save_' . $service_name . '_token_' . $connection_name );
+
+		$this->globalization( $connection_name );
 	}
 
 	/**

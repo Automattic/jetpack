@@ -8,13 +8,22 @@
 	justify-content: space-between;
 
 	h1 {
-		//typography-exception
+		// typography-exception
 		font-size: 44px;
 		font-weight: 700;
+
+		// This is inherited in the Jetpack plugin from the top level Jetpack page. Doesn't carry over to My Jetpack.
+		line-height: 1.4;
+
+		// Exception here due to being overridden by Text component styles when used in My Jetpack.
+		margin: 0.67em 0;
 	}
 
 	p {
-		font-size: var( --font-body );
+		font-size: var(--font-body);
+
+		// Exception here due to being overridden by Text component styles when used in My Jetpack.
+		margin: 1em 0;
 	}
 
 	label {

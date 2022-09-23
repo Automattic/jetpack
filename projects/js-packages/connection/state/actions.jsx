@@ -1,3 +1,5 @@
+import restApi from '@automattic/jetpack-api';
+
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';
 const FETCH_CONNECTION_STATUS = 'FETCH_CONNECTION_STATUS';
@@ -9,6 +11,8 @@ const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
+const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
+const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -44,6 +48,10 @@ const setAuthorizationUrl = authorizationUrl => {
 
 const fetchAuthorizationUrl = redirectUri => {
 	return { type: FETCH_AUTHORIZATION_URL, redirectUri };
+};
+
+const setConnectedPlugins = connectedPlugins => {
+	return { type: SET_CONNECTED_PLUGINS, connectedPlugins };
 };
 
 /**
@@ -87,6 +95,20 @@ function* registerSite( { registrationNonce, redirectUri } ) {
 	}
 }
 
+/**
+ * Side effect action which will fetch a new list of connectedPlugins from the server
+ *
+ * @returns {Promise} - Promise which resolves when the product status is activated.
+ */
+const refreshConnectedPlugins = () => async ( { dispatch } ) => {
+	return await new Promise( resolve => {
+		return restApi.fetchConnectedPlugins().then( data => {
+			dispatch( setConnectedPlugins( data ) );
+			resolve( data );
+		} );
+	} );
+};
+
 const actions = {
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
@@ -99,6 +121,8 @@ const actions = {
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
+	setConnectedPlugins,
+	refreshConnectedPlugins,
 };
 
 export {
@@ -113,5 +137,7 @@ export {
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,
+	SET_CONNECTED_PLUGINS,
+	REFRESH_CONNECTED_PLUGINS,
 	actions as default,
 };

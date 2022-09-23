@@ -80,7 +80,6 @@ wp.apiFetch.use( function ( options, next ) {
 	var path = options.path;
 	var method = options.method;
 	var body = options.body;
-	var file = body ? body.get( 'file' ) : null;
 
 	// Override only requests to the WP REST API media endpoint uploading new videos.
 	if ( ! path || path.indexOf( '/wp/v2/media' ) === -1 ) {
@@ -89,6 +88,7 @@ wp.apiFetch.use( function ( options, next ) {
 	if ( ! method || 'post' !== method.toLowerCase() ) {
 		return next( options );
 	}
+	var file = body ? body.get( 'file' ) : null;
 	if ( ! file || file.type.indexOf( 'video/' ) !== 0 ) {
 		return next( options );
 	}

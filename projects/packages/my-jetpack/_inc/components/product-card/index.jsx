@@ -1,18 +1,10 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import { Text, Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
-import { Text } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
@@ -38,15 +30,16 @@ const ActionButton = ( {
 	onFixConnection,
 	isFetching,
 	className,
+	onAdd,
 } ) => {
 	if ( ! admin ) {
 		return (
-			<span className={ styles[ 'action-link-button' ] }>
+			<Button { ...buttonState } size="small" variant="link" weight="regular">
 				{
 					/* translators: placeholder is product name. */
 					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
 				}
-			</span>
+			</Button>
 		);
 	}
 
@@ -57,31 +50,48 @@ const ActionButton = ( {
 	};
 
 	switch ( status ) {
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
-				<span className={ styles[ 'action-link-button' ] }>
+				<Button { ...buttonState } size="small" variant="link" weight="regular">
 					{
 						/* translators: placeholder is product name. */
 						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
 					}
-				</span>
+				</Button>
+			);
+		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+			return (
+				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
+					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
+				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
 			return (
-				<Button { ...buttonState } variant="secondary" onClick={ onManage }>
+				<Button
+					{ ...buttonState }
+					size="small"
+					weight="regular"
+					variant="secondary"
+					onClick={ onManage }
+				>
 					{ __( 'Manage', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ERROR:
 			return (
-				<Button { ...buttonState } onClick={ onFixConnection }>
+				<Button { ...buttonState } size="small" weight="regular" onClick={ onFixConnection }>
 					{ __( 'Fix connection', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.INACTIVE:
 			return (
-				<Button { ...buttonState } onClick={ onActivate }>
+				<Button
+					{ ...buttonState }
+					size="small"
+					weight="regular"
+					variant="secondary"
+					onClick={ onActivate }
+				>
 					{ __( 'Activate', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
@@ -107,7 +117,7 @@ const ProductCard = props => {
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.NEEDS_PURCHASE;
+	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
 	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
@@ -120,7 +130,7 @@ const ProductCard = props => {
 
 	const statusClassName = classNames( styles.status, {
 		[ styles.active ]: isActive,
-		[ styles.inactive ]: isInactive,
+		[ styles.inactive ]: isInactive || isPurchaseRequired,
 		[ styles.error ]: isError,
 		[ styles[ 'is-fetching' ] ]: isFetching,
 	} );

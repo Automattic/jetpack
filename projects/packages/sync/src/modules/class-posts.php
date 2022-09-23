@@ -589,7 +589,7 @@ class Posts extends Module {
 	 * @param boolean  $update  Whether this is an existing post being updated or not.
 	 */
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
-		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+		if ( ! is_numeric( $post_ID ) || $post === null ) {
 			return;
 		}
 
@@ -633,7 +633,7 @@ class Posts extends Module {
 	 * @param \WP_Post $post    Post object.
 	 **/
 	public function wp_after_insert_post( $post_ID, $post ) {
-		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+		if ( ! is_numeric( $post_ID ) || $post === null ) {
 			return;
 		}
 
@@ -691,6 +691,11 @@ class Posts extends Module {
 
 		// Only Send Pulished Post event if post_type is not blacklisted.
 		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+
+			// Refreshing the post in the cache site before triggering the publish event.
+			// The true parameter means that it's an update action, not create action.
+			$this->wp_insert_post( $post_ID, $post, true );
+
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *

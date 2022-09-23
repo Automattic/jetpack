@@ -1,29 +1,29 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-google-fonts-provider",
-	"version": "0.2.0",
+	"version": "0.3.4",
 	"description": "WordPress Webfonts provider for Google Fonts",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/google-fonts-provider/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Google Fonts Provider"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/google-fonts-provider"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented.",
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
 	},
 	"devDependencies": {},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

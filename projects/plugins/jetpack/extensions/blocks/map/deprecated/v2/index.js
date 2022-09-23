@@ -8,9 +8,6 @@
  * deprecation.
  */
 
-/**
- * Internal dependencies
- */
 import save from './save';
 
 const attributes = {

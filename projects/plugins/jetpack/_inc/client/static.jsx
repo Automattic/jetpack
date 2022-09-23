@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
+import StaticWarning from 'components/jetpack-notices/static-warning';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Provider } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import store from 'state/redux-store';
 import StaticMain from 'static-main';
-import StaticWarning from 'components/jetpack-notices/static-warning';
 
 const staticHtml = renderToStaticMarkup(
 	<div>

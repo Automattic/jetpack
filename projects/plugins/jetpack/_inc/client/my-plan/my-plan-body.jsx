@@ -1,26 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
+import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
-import { imagePath } from 'constants/urls';
-import {
-	fetchPluginsData,
-	isFetchingPluginsData,
-	isPluginActive,
-	isPluginInstalled,
-} from 'state/site/plugins';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { showBackups } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -29,8 +18,13 @@ import {
 } from 'state/modules';
 import { updateSettings } from 'state/settings/actions';
 import { getSetting, isUpdatingSetting } from 'state/settings/reducer';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import { showBackups } from 'state/initial-state';
+import { siteHasFeature } from 'state/site';
+import {
+	fetchPluginsData,
+	isFetchingPluginsData,
+	isPluginActive,
+	isPluginInstalled,
+} from 'state/site/plugins';
 
 class MyPlanBody extends React.Component {
 	static propTypes = {
@@ -301,7 +295,7 @@ class MyPlanBody extends React.Component {
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
 						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
-						{ this.props.hasActiveSearchPurchase && getSearchCard() }
+						{ this.props.hasInstantSearch && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -346,7 +340,7 @@ class MyPlanBody extends React.Component {
 								this.props.isPluginActive( 'akismet/akismet.php' ) ? (
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) }
-										href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' }
+										href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config&view=stats` }
 									>
 										{ __( 'View your spam stats', 'jetpack' ) }
 									</Button>
@@ -553,7 +547,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
@@ -564,6 +558,7 @@ class MyPlanBody extends React.Component {
 				break;
 
 			case 'is-free-plan':
+			case 'is-backup-t0-plan':
 			case 'is-backup-t1-plan':
 			case 'is-backup-t2-plan':
 			case 'is-search-plan':
@@ -575,7 +570,7 @@ class MyPlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }
-						{ this.props.hasActiveSearchPurchase && getSearchCard() }
+						{ this.props.hasInstantSearch && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -695,7 +690,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
@@ -794,6 +789,7 @@ class MyPlanBody extends React.Component {
 export default connect(
 	state => {
 		return {
+			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 			isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),

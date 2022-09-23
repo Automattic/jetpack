@@ -1,20 +1,9 @@
-/**
- * External dependencies
- */
 import { PanelBody, PanelRow } from '@wordpress/components';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
-
-/**
- * Internal dependencies
- */
 import { QRPostButton } from './components/qr-post.js';
 import './editor.scss';
 

@@ -1,17 +1,19 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Client;
-
+use Automattic\Jetpack\VideoPress\Attachment_Handler;
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
+use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
 /**
  * VideoPress in Jetpack
  */
 class Jetpack_VideoPress {
-	/** @var string */
+	/**
+	 * Module name.
+	 *
+	 * @var string
+	 */
 	public $module = 'videopress';
-
-	/** @var int */
-	public $version = 5;
 
 	/**
 	 * Singleton
@@ -32,7 +34,6 @@ class Jetpack_VideoPress {
 	 * Sets up the initializer and makes sure that videopress activates and deactivates properly.
 	 */
 	private function __construct() {
-		// $this->version = time(); // <s>ghost</s> cache busters!
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
 	}
@@ -43,26 +44,25 @@ class Jetpack_VideoPress {
 	public function on_init() {
 		add_action( 'wp_enqueue_media', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'plupload_default_settings', array( $this, 'videopress_pluploder_config' ) );
-		add_filter( 'wp_get_attachment_url', array( $this, 'maybe_get_attached_url_for_videopress' ), 10, 2 );
-		add_filter( 'get_attached_file', array( $this, 'maybe_get_attached_url_for_videopress' ), 10, 2 );
-
-		if ( Jetpack_Plan::supports( 'videopress' ) ) {
-			add_filter( 'upload_mimes', array( $this, 'add_video_upload_mimes' ), 999 );
-		}
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
 
-		add_filter( 'pre_delete_attachment', array( $this, 'delete_video_wpcom' ), 10, 2 );
-		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
-		add_filter( 'wp_video_extensions', array( $this, 'add_videopress_extenstion' ) );
-
 		VideoPress_Scheduler::init();
-		VideoPress_XMLRPC::init();
 
 		if ( $this->is_videopress_enabled() ) {
 			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
 		}
+	}
+
+	/**
+	 * Enqueues the jwt bridge script.
+	 *
+	 * @deprecated 11.3
+	 */
+	public function enqueue_jwt_token_bridge() {
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Jwt_Token_Bridge::enqueue_jwt_token_bridge' );
+		return Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 	}
 
 	/**
@@ -100,10 +100,11 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * A can of coke
+	 * Similar to current_user_can, but internal to VideoPress.
 	 *
-	 * Similar to current_user_can, but internal to VideoPress. Returns
-	 * true if the given VideoPress capability is allowed by the given user.
+	 * @param string $cap Capability name.
+	 * @param int    $user_id User ID.
+	 * @return bool Returns true if the given VideoPress capability is allowed by the given user.
 	 */
 	public function can( $cap, $user_id = false ) {
 		if ( ! $user_id ) {
@@ -120,11 +121,11 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
-		if ( 'edit_videos' == $cap && ! user_can( $user_id, 'edit_others_posts' ) ) {
+		if ( 'edit_videos' === $cap && ! user_can( $user_id, 'edit_others_posts' ) ) {
 			return false;
 		}
 
-		if ( 'delete_videos' == $cap && ! user_can( $user_id, 'delete_others_posts' ) ) {
+		if ( 'delete_videos' === $cap && ! user_can( $user_id, 'delete_others_posts' ) ) {
 			return false;
 		}
 
@@ -135,7 +136,7 @@ class Jetpack_VideoPress {
 	 * Register and enqueue VideoPress admin styles.
 	 */
 	public function enqueue_admin_styles() {
-		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
+		wp_register_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'videopress-admin' );
 	}
 
@@ -146,54 +147,13 @@ class Jetpack_VideoPress {
 	 * @param Boolean $delete if the deletion should occur or not (unused).
 	 * @param WP_Post $post the post object.
 	 *
+	 * @deprecated 11.3
+	 *
 	 * @return null|WP_Error|Boolean null if deletion should continue.
 	 */
 	public function delete_video_wpcom( $delete, $post ) {
-		if ( ! is_videopress_attachment( $post->ID ) ) {
-			return null;
-		}
-
-		$guid = get_post_meta( $post->ID, 'videopress_guid', true );
-		if ( empty( $guid ) ) {
-			$this->delete_video_poster_attachment( $post->ID );
-			return null;
-		}
-
-		// Phone home and have wp.com delete the VideoPress entry and files.
-		$wpcom_response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/videos/%s/delete', $guid ),
-			'1.1',
-			array( 'method' => 'POST' )
-		);
-
-		if ( is_wp_error( $wpcom_response ) ) {
-			return $wpcom_response;
-		}
-
-		// Upon success or a 404 (video already deleted on wp.com), return null to allow the deletion to continue.
-		if ( 200 === $wpcom_response['response']['code'] || 404 === $wpcom_response['response']['code'] ) {
-			$this->delete_video_poster_attachment( $post->ID );
-			return null;
-		}
-
-		// Otherwise we stop the deletion from proceeding.
-		return false;
-	}
-
-	/**
-	 * Deletes a video poster attachment if it exists.
-	 *
-	 * @param int $attachment_id the WP attachment id.
-	 */
-	private function delete_video_poster_attachment( $attachment_id ) {
-		$thumbnail_id = get_post_meta( $attachment_id, '_thumbnail_id', true );
-		if ( ! empty( $thumbnail_id ) ) {
-			// Let's ensure this is a VP poster image before we delete it.
-			if ( '1' === get_post_meta( $thumbnail_id, 'videopress_poster_image', true ) ) {
-				// This call triggers the `delete_video_wpcom` filter again but it bails early at the is_videopress_attachment() check.
-				wp_delete_attachment( $thumbnail_id );
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::delete_video_wpcom' );
+		return Attachment_Handler::delete_video_wpcom( $delete, $post );
 	}
 
 	/**
@@ -215,7 +175,8 @@ class Jetpack_VideoPress {
 					'jquery',
 					'wp-plupload',
 				),
-				$this->version
+				JETPACK__VERSION,
+				true
 			);
 
 			wp_enqueue_script(
@@ -227,7 +188,8 @@ class Jetpack_VideoPress {
 				array(
 					'videopress-plupload',
 				),
-				$this->version
+				JETPACK__VERSION,
+				true
 			);
 
 			wp_enqueue_script(
@@ -237,7 +199,7 @@ class Jetpack_VideoPress {
 					'modules/videopress/js/media-video-widget-extensions.js'
 				),
 				array(),
-				$this->version,
+				JETPACK__VERSION,
 				true
 			);
 		}
@@ -255,21 +217,20 @@ class Jetpack_VideoPress {
 	 *
 	 * This is an attachment-based filter handler.
 	 *
+	 * @deprecated 11.3
+	 *
 	 * @param string $default The default return value if post id is not a VideoPress video.
 	 * @param int    $post_id The post id for the current attachment.
 	 */
 	public function maybe_get_attached_url_for_videopress( $default, $post_id ) {
-		$videopress_url = videopress_get_attachment_url( $post_id );
-
-		if ( null !== $videopress_url ) {
-			return $videopress_url;
-		}
-
-		return $default;
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::maybe_get_attached_url_for_videopress' );
+		return Attachment_Handler::maybe_get_attached_url_for_videopress( $default, $post_id );
 	}
 
 	/**
-	 * Modify the default plupload config to turn on videopress specific filters.
+	 * Modify the default plupload config to turn on VideoPress specific filters.
+	 *
+	 * @param array $config The plupload config.
 	 */
 	public function videopress_pluploder_config( $config ) {
 
@@ -284,7 +245,6 @@ class Jetpack_VideoPress {
 
 		return $config;
 	}
-
 
 	/**
 	 * Helper function to determine if the media uploader should be overridden.
@@ -309,7 +269,7 @@ class Jetpack_VideoPress {
 		);
 
 		// Only load on the post, new post, or upload pages.
-		if ( ! in_array( $pagenow, $acceptable_pages ) ) {
+		if ( ! in_array( $pagenow, $acceptable_pages, true ) ) {
 			return false;
 		}
 
@@ -344,7 +304,7 @@ class Jetpack_VideoPress {
 			return false;
 		}
 
-		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) {
+		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add-new' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
@@ -363,64 +323,57 @@ class Jetpack_VideoPress {
 	/**
 	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
 	 *
-	 * @param array $existing_mimes
+	 * @deprecated 11.3
+	 *
+	 * @param array $existing_mimes Mime types to extend/filter.
 	 * @return array
 	 */
 	public function add_video_upload_mimes( $existing_mimes = array() ) {
-		$mime_types  = wp_get_mime_types();
-		$video_types = array_filter( $mime_types, array( $this, 'filter_video_mimes' ) );
-
-		foreach ( $video_types as $key => $value ) {
-			$existing_mimes[ $key ] = $value;
-		}
-
-		// Make sure that videopress mimes are considered videos.
-		$existing_mimes['videopress'] = 'video/videopress';
-
-		return $existing_mimes;
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::add_video_upload_mimes' );
+		return Attachment_Handler::add_video_upload_mimes( $existing_mimes );
 	}
 
 	/**
 	 * Filter designed to get rid of non video mime types.
 	 *
-	 * @param string $value
+	 * @deprecated 11.3
+	 *
+	 * @param string $value Mime type to filter.
 	 * @return int
 	 */
 	public function filter_video_mimes( $value ) {
-		return preg_match( '@^video/@', $value );
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::filter_video_mimes' );
+		return Attachment_Handler::filter_video_mimes( $value );
 	}
 
 	/**
-	 * @param string $icon
-	 * @param string $mime
-	 * @param int    $post_id
+	 * Filter the mime type icon.
+	 *
+	 * @param string $icon Icon path.
+	 * @param string $mime Mime type.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @deprecated 11.3
 	 *
 	 * @return string
 	 */
 	public function wp_mime_type_icon( $icon, $mime, $post_id ) {
-
-		if ( $mime !== 'video/videopress' ) {
-			return $icon;
-		}
-
-		$status = get_post_meta( $post_id, 'videopress_status', true );
-
-		if ( $status === 'complete' ) {
-			return $icon;
-		}
-
-		return 'https://wordpress.com/wp-content/mu-plugins/videopress/images/media-video-processing-icon.png';
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::wp_mime_type_icon' );
+		return Attachment_Handler::wp_mime_type_icon( $icon, $mime, $post_id );
 	}
 
 	/**
-	 * @param array $extensions
+	 * Filter the list of supported video formats.
+	 *
+	 * @param array $extensions Supported video formats.
+	 *
+	 * @deprecated 11.3
 	 *
 	 * @return array
 	 */
 	public function add_videopress_extenstion( $extensions ) {
-		$extensions[] = 'videopress';
-
-		return $extensions;
+		_deprecated_function( __METHOD__, 'jetpack-11.3', 'Automattic\Jetpack\VideoPress\Attachment_Handler::add_videopress_extenstion' );
+		return Attachment_Handler::add_videopress_extenstion( $extensions );
 	}
 }
 

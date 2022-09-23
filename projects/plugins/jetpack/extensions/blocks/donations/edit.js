@@ -1,28 +1,22 @@
-/**
- * WordPress dependencies
- */
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Tabs from './tabs';
-import LoadingError from './loading-error';
+import getConnectUrl from '../../shared/get-connect-url';
+import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
 import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
+import LoadingError from './loading-error';
+import Tabs from './tabs';
 
 const Edit = props => {
 	const { attributes, className, setAttributes } = props;
 	const { currency } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
-	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
-	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( [] );
 
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+	const { setShouldUpgrade, setConnectUrl } = useDispatch( MEMBERSHIPS_PRODUCTS_STORE );
 	useEffect( () => {
 		setAttributes( { fallbackLinkUrl: post.link } );
 	}, [ post.link, setAttributes ] );
@@ -55,7 +49,7 @@ const Edit = props => {
 			return;
 		}
 		setShouldUpgrade( result.should_upgrade_to_access_memberships );
-		setStripeConnectUrl( result.connect_url );
+		setConnectUrl( getConnectUrl( post.id, result.connect_url ) );
 
 		const filteredProducts = filterProducts( result.products );
 
@@ -90,14 +84,7 @@ const Edit = props => {
 		return <LoadingError className={ className } error={ loadingError } />;
 	}
 
-	return (
-		<Tabs
-			{ ...props }
-			products={ products }
-			shouldUpgrade={ shouldUpgrade }
-			stripeConnectUrl={ stripeConnectUrl }
-		/>
-	);
+	return <Tabs { ...props } products={ products } />;
 };
 
 export default Edit;

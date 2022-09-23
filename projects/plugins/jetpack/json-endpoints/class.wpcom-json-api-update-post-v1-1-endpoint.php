@@ -31,8 +31,8 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint(
 			'excerpt'           => '(HTML) An optional post excerpt.',
 			'slug'              => '(string) The name (slug) for the post, used in URLs.',
 			'author'            => '(string) The username or ID for the user to assign the post to.',
-			'publicize'         => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
-			'publicize_message' => '(string) Custom message to be publicized to external services.',
+			'publicize'         => '(array|bool) True or false if the post be shared to external services. An array of services if we only want to share to a select few. Defaults to true.',
+			'publicize_message' => '(string) Custom message to be shared to external services.',
 			'status'            => array(
 				'publish'    => 'Publish the post.',
 				'private'    => 'Privately publish the post.',
@@ -105,8 +105,8 @@ new WPCOM_JSON_API_Update_Post_v1_1_Endpoint(
 			'excerpt'           => '(HTML) An optional post excerpt.',
 			'slug'              => '(string) The name (slug) for the post, used in URLs.',
 			'author'            => '(string) The username or ID for the user to assign the post to.',
-			'publicize'         => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
-			'publicize_message' => '(string) Custom message to be publicized to external services.',
+			'publicize'         => '(array|bool) True or false if the post be shared to external services. An array of services if we only want to share to a select few. Defaults to true.',
+			'publicize_message' => '(string) Custom message to be shared to external services.',
 			'status'            => array(
 				'publish' => 'Publish the post.',
 				'private' => 'Privately publish the post.',
@@ -812,7 +812,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( ! is_null( $publicize_custom_message ) ) {
+		if ( $publicize_custom_message !== null ) {
 			if ( empty( $publicize_custom_message ) ) {
 				delete_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS );
 			} else {

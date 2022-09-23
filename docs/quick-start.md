@@ -12,7 +12,7 @@ This guide assumes you are using MacOS or a Linux machine and are an Automattici
 
 To speed up the installation process, you may use our monorepo installation script. To do so:
  - clone the Jetpack repo using one of these two methods: 
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
+ 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
  - `cd` into the cloned `jetpack` folder.
  - run `tools/install-monorepo.sh` from the monorepo root.
@@ -25,21 +25,22 @@ Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to mana
 - Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
 
-The Jetpack Monorepo requires the following to be installed on your machine:
-
+The Jetpack Monorepo requires various software to be installed on your machine.
 - Start by cloning the GitHub repo using one of these two methods:
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
-	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
-	- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
-- Bash (will need to be updated from default Mac version): `brew install bash`
-- jq (JSON processor used in scripts): `brew install jq` 
-- cd into the Jetpack directory that was created when cloning the repo: `cd jetpack`
-- Node.js (used for build process and our CLI): `nvm install && nvm use`
-- PNPM (a Node.js package manager): `npm install -g pnpm`
-- PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
-- Composer (our PHP package manager): `brew install composer`
-- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpx jetpack cli link`
-	- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
+	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
+		- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
+		- If you're not an Automattician, you can [fork the repo following the instructions here](https://docs.github.com/en/get-started/quickstart/contributing-to-projects).
+	- Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). If you are not cloning into a Docker environment, read the [full Development Environment guide here](development-environment.md#clone-the-repository) to find out how to add symlinks.
+- This software needs to be installed or updated system-wide:
+	- Bash (will need to be updated from default Mac version): `brew install bash`
+	- jq (JSON processor used in scripts): `brew install jq` 
+- To install or update the following software, cd into the Jetpack directory that was created when cloning the repo: `cd jetpack`:
+	- Node.js (used for build process and our CLI): `nvm install && nvm use`
+	- PNPM (a Node.js package manager): `npm install -g pnpm`
+	- PHP (the language at the core of the WordPress ecosystem): `source .github/versions.sh && brew install php@$PHP_VERSION`
+	- Composer (our PHP package manager): `brew install composer`
+	- Jetpack CLI (an internal tool that assists with development): `pnpm install && pnpm jetpack cli link`
+		- [You can read more about using the CLI here](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
 ## Running Jetpack locally
 
@@ -66,16 +67,17 @@ In order to test features that require a WordPress.com connection and other netw
 **Warning: This creates a tunnel to your local machine which should not be trusted as secure. If it is compromised, so is your computer and everything it has access to. Only `jetpack docker jt-up` when needed for testing things that require the site to be publicly accessible, and `jetpack docker jt-down` when completed.**
 
 - Visit the [jurassic.tube](https://jurassic.tube/) homepage to create a subdomain
-- Make sure you've run `pnpm install && pnpm cli-link`
+- Make sure you've run `pnpm install && pnpm jetpack cli link`
 - Make sure Docker is running `jetpack docker up -d`
 - Stand on the monorepo root in your terminal and run `mkdir tools/docker/bin/jt`
+- Stop and restart the docker env: `jetpack docker stop && jetpack docker up -d`
 - Download and run the installation script: `curl "https://jurassic.tube/get-installer.php?env=jetpack" -o tools/docker/bin/jt/installer.sh && chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh`
 - Set your username: `jetpack docker jt-config username [your-username-here e.g david]`
 - Set your subdomain: `jetpack docker jt-config subdomain [your-subdomain-here e.g. spaceman]` 
 - Now, you can start your site with `jetpack docker jt-up`
 - Your site should be avalable at `https://custom-subdomain.jurassic.tube`
 
-Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
+Note: This is for Automattician use only. For other methods, check out [ngrok](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
 
 ### Check if your environment is ready for Jetpack development
 

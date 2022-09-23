@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
-import ConnectUserBar from 'components/connect-user-bar';
+import React, { Component } from 'react';
 
 export const Masterbar = withModuleSettingsFormHelpers(
 	class extends Component {

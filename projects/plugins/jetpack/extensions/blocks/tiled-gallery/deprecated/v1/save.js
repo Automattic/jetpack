@@ -1,9 +1,6 @@
-/**
- * Internal dependencies
- */
-import Layout from './layout';
 import { getActiveStyleName } from '../../../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';
+import Layout from './layout';
 
 export function defaultColumnsNumber( attributes ) {
 	return Math.min( 3, attributes.images.length );

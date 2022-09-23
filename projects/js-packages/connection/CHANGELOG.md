@@ -2,6 +2,131 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.18.12 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.18.11 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762, #25764]
+
+## 0.18.10 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
+## 0.18.9 - 2022-07-12
+### Changed
+- Updated package dependencies. [#25048, #25055]
+
+## 0.18.8 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.18.7 - 2022-06-28
+### Fixed
+- Fix include loop between state/store and state/controls + state/resolvers. [#24777]
+
+## 0.18.6 - 2022-06-21
+### Added
+- JS Connection: return a Promise when registering site [#24238]
+
+## 0.18.5 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.18.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.18.3 - 2022-05-30
+### Added
+- Add option to use the checkout workflow from the ConnectionScreenRequirePlan component
+
+### Changed
+- Updated package dependencies
+
+## 0.18.2 - 2022-05-24
+### Changed
+- Updated package dependencies. [#24449]
+
+## 0.18.1 - 2022-05-18
+### Changed
+- Updated package dependencies. [#23795]
+
+## 0.18.0 - 2022-05-10
+### Changed
+- Do not hard disconnect Jetpack on deactivation [#24272]
+- Updated package dependencies. [#24204]
+- Updated references to old licensing activation UI to licensing activation UI in My Jetpack [#24189]
+- Update tests for updated `@testing-library/user-event`. [#24276]
+
+## 0.17.12 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Connection: introduce useProductCheckoutWorkflow() custom hook [#24122]
+
+### Changed
+- JS Connection: use connection global state as a fallback to be used by the useProductCheckoutWorkflow() custom hook [#24137]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Connection: fix builinfg the product checkout URL in useProductCheckoutWorkflow() custom hook [#24191]
+
+## 0.17.11 - 2022-05-03
+### Removed
+- Connection: Allowing hard disconnection on deactivation.
+
+## 0.17.10 - 2022-04-26
+### Changed
+- JS Connection: add default connection arguments for the useConnection() hook
+- Updated package dependencies.
+
+### Fixed
+- Disconnect Modal: Fix react warning
+
+## 0.17.9 - 2022-04-19
+### Added
+- Add connected plugins list to the initial state and add action to update it when needed
+- Allow secondary users to connect from My Jetpack
+
+### Changed
+- Do not hard disconnect Jetpack on deactivation
+
+### Fixed
+- Avoid Warning in React PropTypes
+- do not display warning for secondary users if connection has an owner
+
+## 0.17.8 - 2022-04-12
+### Changed
+- Updated package dependencies.
+
+## 0.17.7 - 2022-04-05
+### Added
+- Add skipUserConnection option to connectScreen component
+
+### Changed
+- Updated package dependencies.
+
+## 0.17.6 - 2022-03-31
+### Changed
+- My Jetpack: tweak connection card styles and wording
+
+## 0.17.5 - 2022-03-29
+### Added
+- Connection: Use heading components to render status card cmp
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed minor react warnings
+
+## 0.17.4 - 2022-03-23
+### Changed
+- Updated package dependencies
+
 ## 0.17.3 - 2022-03-15
 
 ## 0.17.2 - 2022-03-09

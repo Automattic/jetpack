@@ -1,22 +1,15 @@
-/**
- * External dependencies
- */
+import child_process from 'child_process';
+import path from 'path';
 import chalk from 'chalk';
 import execa from 'execa';
 import inquirer from 'inquirer';
-import child_process from 'child_process';
-import path from 'path';
 import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
-
-/**
- * Internal dependencies
- */
+import VerboseRenderer from 'listr-verbose-renderer';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
-import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json.js';
 import { allProjects } from '../helpers/projectHelpers.js';
+import promptForProject from '../helpers/promptForProject.js';
 
 /**
  * Command definition for the test subcommand.

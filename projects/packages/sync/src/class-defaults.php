@@ -172,6 +172,7 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'videopress_private_enabled_for_site',
 	);
 
 	/**
@@ -283,6 +284,7 @@ class Defaults {
 	 */
 	public static $default_callable_whitelist = array(
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+		'get_themes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
 		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
 		'home_url'                         => array( 'Automattic\\Jetpack\\Connection\\Urls', 'home_url' ),
@@ -310,6 +312,7 @@ class Defaults {
 		'wp_get_environment_type'          => 'wp_get_environment_type',
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+		'active_modules'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_active_modules' ),
 	);
 
 	/**
@@ -730,6 +733,7 @@ class Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
+		'_jetpack_blogging_prompt_key',
 	);
 
 	/**
@@ -793,6 +797,7 @@ class Defaults {
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
 		'automatic-feed-links',
+		'block-templates',
 		'custom-background',
 		'custom-header',
 		'custom-logo',

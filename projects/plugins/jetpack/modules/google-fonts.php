@@ -1,7 +1,7 @@
 <?php
 /**
- * Module Name: Google Fonts
- * Module Description: A selection of Google fonts for block enabled themes.
+ * Module Name: Google Fonts (Beta)
+ * Module Description: A selection of Google fonts for block enabled themes. This feature is still being developed.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 10.8.0
@@ -28,13 +28,18 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Domine',
 	'EB Garamond',
 	'Fira Sans',
+	'IBM Plex Sans',
+	'IBM Plex Mono',
 	'Inter',
 	'Josefin Sans',
+	'Jost',
 	'Libre Baskerville',
 	'Libre Franklin',
+	'Literata',
 	'Lora',
 	'Merriweather',
 	'Montserrat',
+	'Newsreader',
 	'Nunito',
 	'Open Sans',
 	'Overpass',
@@ -47,6 +52,7 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Source Sans Pro',
 	'Source Serif Pro',
 	'Space Mono',
+	'Texturina',
 	'Work Sans',
 );
 
@@ -97,3 +103,5 @@ function jetpack_add_google_fonts_provider() {
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
 
 add_filter( 'wp_resource_hints', '\Automattic\Jetpack\Fonts\Utils::font_source_resource_hint', 10, 2 );
+add_filter( 'pre_render_block', '\Automattic\Jetpack\Fonts\Introspectors\Blocks::enqueue_block_fonts', 10, 2 );
+add_action( 'init', '\Automattic\Jetpack\Fonts\Introspectors\Global_Styles::enqueue_global_styles_fonts' );

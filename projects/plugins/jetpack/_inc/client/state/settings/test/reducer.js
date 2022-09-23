@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import {
 	items as itemsReducer,
 	requests as requestsReducer,
@@ -7,12 +5,12 @@ import {
 } from '../reducer';
 
 describe( 'items reducer', () => {
-	it( 'state should default to empty object', () => {
+	test( 'state should default to empty object', () => {
 		const stateOut = itemsReducer( undefined, {} );
-		expect( stateOut ).to.be.empty;
+		expect( Object.keys( stateOut ) ).toHaveLength( 0 );
 	} );
 
-	let settings = {
+	const settings = {
 		a: {
 			name: 'setting-a',
 		},
@@ -22,19 +20,19 @@ describe( 'items reducer', () => {
 	};
 
 	describe( '#settingsFetch', () => {
-		it( 'should replace .items with the settings list', () => {
+		test( 'should replace .items with the settings list', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_FETCH_RECEIVE',
 				settings: settings,
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.settings ).length );
+			const stateOut = itemsReducer( stateIn, action );
+			expect( Object.keys( stateOut ) ).toHaveLength( Object.keys( action.settings ).length );
 		} );
 	} );
 
 	describe( '#settingsUpdate', () => {
-		it( 'should update a setting', () => {
+		test( 'should update a setting', () => {
 			const stateIn = settings;
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
@@ -42,13 +40,13 @@ describe( 'items reducer', () => {
 					setting_name: 'new-value',
 				},
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut.setting_name ).to.equal( 'new-value' );
+			const stateOut = itemsReducer( stateIn, action );
+			expect( stateOut.setting_name ).toBe( 'new-value' );
 		} );
 	} );
 
 	describe( '#multipleSettingsUpdate', () => {
-		it( 'should update multiple settings', () => {
+		test( 'should update multiple settings', () => {
 			const stateIn = settings;
 			const action = {
 				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS',
@@ -57,14 +55,14 @@ describe( 'items reducer', () => {
 					setting_name_other: 'other-new-value',
 				},
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut.setting_name ).to.equal( 'new-value' );
-			expect( stateOut.setting_name_other ).to.equal( 'other-new-value' );
+			const stateOut = itemsReducer( stateIn, action );
+			expect( stateOut.setting_name ).toBe( 'new-value' );
+			expect( stateOut.setting_name_other ).toBe( 'other-new-value' );
 		} );
 	} );
 
 	describe( '#initialState', () => {
-		it( "should replace .items with the initial state's settings list", () => {
+		test( "should replace .items with the initial state's settings list", () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SET_INITIAL_STATE',
@@ -72,49 +70,49 @@ describe( 'items reducer', () => {
 					settings: settings,
 				},
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut ).to.eql( action.initialState.settings );
+			const stateOut = itemsReducer( stateIn, action );
+			expect( stateOut ).toEqual( action.initialState.settings );
 		} );
 	} );
 } );
 
 describe( 'requests reducer', () => {
-	it( 'state should default to initialRequestsState', () => {
+	test( 'state should default to initialRequestsState', () => {
 		const state = requestsReducer( undefined, {} );
-		expect( state ).to.equal( initialRequestsState );
+		expect( state ).toEqual( initialRequestsState );
 	} );
 
 	describe( '#settingsFetch', () => {
-		it( 'should set fetchingSettingsList to true when fetching', () => {
+		test( 'should set fetchingSettingsList to true when fetching', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingSettingsList ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingSettingsList ).toBe( true );
 		} );
 
-		it( 'should set fetchingSettingsList to false when setting was updated', () => {
+		test( 'should set fetchingSettingsList to false when setting was updated', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_FETCH_RECEIVE',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingSettingsList ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingSettingsList ).toBe( false );
 		} );
 
-		it( 'should set fetchingSettingsList to false when updating a setting failed', () => {
+		test( 'should set fetchingSettingsList to false when updating a setting failed', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingSettingsList ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingSettingsList ).toBe( false );
 		} );
 	} );
 
 	describe( '#settingUpdate', () => {
-		it( 'should set settingsSent to true when updating a setting', () => {
+		test( 'should set settingsSent to true when updating a setting', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE',
@@ -123,12 +121,12 @@ describe( 'requests reducer', () => {
 					settingTwo: 'new-value-two',
 				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.settingsSent.settingOne ).to.be.true;
-			expect( stateOut.settingsSent.settingTwo ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.settingsSent.settingOne ).toBe( true );
+			expect( stateOut.settingsSent.settingTwo ).toBe( true );
 		} );
 
-		it( 'should set settingsSent to false when a setting was updated', () => {
+		test( 'should set settingsSent to false when a setting was updated', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
@@ -137,12 +135,12 @@ describe( 'requests reducer', () => {
 					settingTwo: 'new-value-two',
 				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.settingsSent.settingOne ).to.be.false;
-			expect( stateOut.settingsSent.settingTwo ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.settingsSent.settingOne ).toBe( false );
+			expect( stateOut.settingsSent.settingTwo ).toBe( false );
 		} );
 
-		it( 'should set updatedSettings to true when a setting was successfully updated', () => {
+		test( 'should set updatedSettings to true when a setting was successfully updated', () => {
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
 				success: { success: true },
@@ -152,10 +150,10 @@ describe( 'requests reducer', () => {
 				},
 			};
 			const stateOut = requestsReducer( null, action );
-			expect( stateOut.updatedSettings.settingOne ).to.be.true;
-			expect( stateOut.updatedSettings.settingTwo ).to.be.true;
+			expect( stateOut.updatedSettings.settingOne ).toBe( true );
+			expect( stateOut.updatedSettings.settingTwo ).toBe( true );
 		} );
-		it( 'should set updatedSettings to false when a setting failed to update', () => {
+		test( 'should set updatedSettings to false when a setting failed to update', () => {
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
 				success: false,
@@ -165,13 +163,13 @@ describe( 'requests reducer', () => {
 				},
 			};
 			const stateOut = requestsReducer( null, action );
-			expect( stateOut.updatedSettings.settingOne ).to.be.false;
-			expect( stateOut.updatedSettings.settingTwo ).to.be.false;
+			expect( stateOut.updatedSettings.settingOne ).toBe( false );
+			expect( stateOut.updatedSettings.settingTwo ).toBe( false );
 		} );
 	} );
 
 	describe( '#multipleSettingsUpdate', () => {
-		it( 'should set updatingSetting to true when updating multiple settings', () => {
+		test( 'should set updatingSetting to true when updating multiple settings', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_UPDATE',
@@ -180,12 +178,12 @@ describe( 'requests reducer', () => {
 					settingTwo: 'new-value-two',
 				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.settingsSent.settingOne ).to.be.true;
-			expect( stateOut.settingsSent.settingTwo ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.settingsSent.settingOne ).toBe( true );
+			expect( stateOut.settingsSent.settingTwo ).toBe( true );
 		} );
 
-		it( 'should set updatingSetting to false when settings were updated', () => {
+		test( 'should set updatingSetting to false when settings were updated', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS',
@@ -194,9 +192,9 @@ describe( 'requests reducer', () => {
 					settingTwo: 'new-value-two',
 				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.settingsSent.settingOne ).to.be.false;
-			expect( stateOut.settingsSent.settingTwo ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.settingsSent.settingOne ).toBe( false );
+			expect( stateOut.settingsSent.settingTwo ).toBe( false );
 		} );
 	} );
 } );

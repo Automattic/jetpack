@@ -7,41 +7,73 @@
    - jetpack-approvers
 
 # Everyone who can approve anything can merge pnpm.lock.
-- name: pnpm lockfile
+- name: pnpm lockfile, composer files
   paths:
    - 'pnpm-lock.yaml'
+   - 'projects/plugins/*/composer.lock'
+   - 'projects/plugins/*/composer.json'
+   - 'projects/plugins/*/changelog/*'
   teams:
    # Unfortunately this list need to be maintaned manually...
+   # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
    - jetpack-approvers
    - yamato-backup-and-security
    - heart-of-gold
    - jetpack-search
+   - jetpack-reach
 
-# Jetpack Approvers review the Jetpack plugin and all packages.
+# Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
 - name: Jetpack and packages
   paths:
    - 'projects/packages/**'
    - 'projects/plugins/jetpack/**'
    # Exclude packages managed by other teams, which are covered by other blocks below.
+   - '!projects/packages/backup/**'
    - '!projects/packages/search/**'
+   - '!projects/packages/publicize/**'
+   - '!projects/packages/waf/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-approvers
 
 # The Backup team reviews changes to the VaultPress and Backup plugin,
 # and can add dependencies to the monorepo's lock file.
-- name: VaultPress and Backup
+- name: VaultPress & Backup
   paths:
+   - 'projects/packages/backup/**'
    - 'projects/plugins/vaultpress/**'
    - 'projects/plugins/backup/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
   teams:
-   - yamato-backup-and-security
+   - yamato-backup
    - jetpack-approvers
 
-# The Boost team reviews changes to the Boost plugin,
+# The Scan team reviews changes to the protect plugin, the WAF package, etc,
+# and can add dependencies to the monorepo's lock file.
+- name: Scan
+  paths:
+    - 'projects/packages/waf/**'
+    - 'projects/plugins/protect/**'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
+    - '!projects/plugins/*/changelog/*'
+  teams:
+    - yamato-scan
+    - jetpack-approvers
+
+# The Heart of Gold team reviews changes to the Boost or Super Cache plugin,
 # and can add dependencies to the monorepo's lock file.
 - name: Boost
   paths:
    - 'projects/plugins/boost/**'
+   - 'projects/plugins/super-cache/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - heart-of-gold
    - jetpack-approvers
@@ -51,8 +83,24 @@
   paths:
    - 'projects/plugins/search/**'
    - 'projects/packages/search/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-search
+   - jetpack-approvers
+
+# The Reach team reviews changes to the Social plugin, and the Publicize package.
+- name: Social
+  paths:
+   - 'projects/plugins/social/**'
+   - 'projects/packages/publicize/**'
+   - 'projects/js-packages/publicize-components/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
+  teams:
+   - jetpack-reach
    - jetpack-approvers
 
 # Jetpack Approvers review everything that hasn't been specifically assigned above.

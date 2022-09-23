@@ -1,12 +1,6 @@
-/**
- * WordPress dependencies
- */
+import { InnerBlocks } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { button as icon } from '@wordpress/icons';
-import { InnerBlocks } from '@wordpress/block-editor';
-/**
- * Internal dependencies
- */
 import edit from './edit';
 import save from './save';
 

@@ -3,53 +3,63 @@
 	"description": "Share your site’s posts on several social media networks automatically when you publish a new post.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Social"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/social"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
-		"build-client": "pnpx webpack",
-		"build-concurrently": "pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
-		"build-production-concurrently": "pnpm run clean && pnpx concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
+		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "pnpm run build && pnpx webpack watch"
+		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
-		"@automattic/jetpack-connection": "workspace:^0.17.4-alpha",
-		"@wordpress/data": "6.3.0",
-		"@wordpress/element": "4.1.1",
-		"@wordpress/date": "4.3.1",
-		"@wordpress/i18n": "4.3.1",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@automattic/jetpack-components": "workspace:* || ^0.19",
+		"@automattic/jetpack-connection": "workspace:* || ^0.18",
+		"@automattic/jetpack-publicize-components": "workspace:* || ^0.5",
+		"@wordpress/data": "7.0.0",
+		"@wordpress/date": "4.16.0",
+		"@wordpress/element": "4.14.0",
+		"@wordpress/i18n": "4.16.0",
+		"@wordpress/icons": "9.7.0",
+		"classnames": "2.3.1",
 		"react": "17.0.2",
 		"react-dom": "17.0.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:^1.1.5-alpha",
-		"@babel/core": "7.17.8",
-		"@babel/preset-env": "7.16.11",
-		"@babel/register": "7.17.7",
-		"@babel/runtime": "7.17.8",
-		"@wordpress/browserslist-config": "4.1.1",
+		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/color-studio": "2.5.0",
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
+		"@babel/core": "7.18.13",
+		"@babel/preset-env": "7.18.10",
+		"@babel/register": "7.18.9",
+		"@babel/runtime": "7.18.9",
+		"@wordpress/browserslist-config": "5.0.0",
+		"autoprefixer": "10.4.2",
 		"concurrently": "6.0.2",
+		"postcss": "8.4.16",
+		"postcss-custom-properties": "12.1.7",
+		"postcss-loader": "6.2.0",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
-		"webpack": "5.65.0",
+		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

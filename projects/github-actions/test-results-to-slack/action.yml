@@ -1,0 +1,35 @@
+name: "Send tests results to Slack"
+description: "Send Slack notifications with test results."
+branding:
+  icon: 'message-square'
+  color: 'green'
+inputs:
+  github_token:
+    description: "GitHub access token"
+    required: true
+    default: ${{ github.token }}
+  slack_token:
+    description: "Slack Bot access token"
+    required: true
+    default: ""
+  slack_channel:
+    description: "Slack channel ID where to send messages"
+    required: true
+    default: ""
+  slack_username:
+    description: "Custom username to be used for messages"
+    required: false
+    default: "GitHub Reporter"
+  slack_icon_emoji:
+    description: "Emoji to use as the icon for this message."
+    required: false
+  suite_name:
+    description: "Name of the test suite"
+    required: false
+  rules_configuration_path:
+    description: "Path to rules configuration file"
+    required: false
+
+runs:
+  using: node16
+  main: "dist/index.js"

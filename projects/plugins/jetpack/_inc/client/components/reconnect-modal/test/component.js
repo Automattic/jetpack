@@ -1,141 +1,102 @@
-/**
- * External dependencies
- */
+import { jest } from '@jest/globals';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
-import { noop } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import { render, screen } from 'test/test-utils';
 import { ReconnectModal } from '../index';
 
 describe( 'ReconnectModal', () => {
-
-	let defaultTestProps, wrapper = {};
-
-	before( () => {
-		defaultTestProps = {
-			show:               true,
-			onHide:             noop,
-			isSiteConnected:    true,
-			isReconnectingSite: false,
-		};
-	} );
+	const defaultTestProps = {
+		show: true,
+		onHide: jest.fn(),
+		isSiteConnected: true,
+		isReconnectingSite: false,
+	};
 
 	describe( 'Initially', () => {
-
-		before( () => {
-			wrapper = shallow( <ReconnectModal { ...defaultTestProps } /> );
-		} );		
-
 		it( 'renders the modal', () => {
-			expect( wrapper.find( 'Modal' ) ).to.have.length( 1 );
+			render( <ReconnectModal { ...defaultTestProps } /> );
+			expect( screen.getByRole( 'heading', { name: 'Reconnect Jetpack' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'has a Cancel button', () => {
-			expect( wrapper.find( '.reconnect__modal-cancel' ) ).to.have.length( 1 );
-		} );
+		describe( 'Cancel button', () => {
+			it( 'has a Cancel button', () => {
+				render( <ReconnectModal { ...defaultTestProps } /> );
+				expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toBeInTheDocument();
+			} );
 
-		it( 'its text is: Cancel', () => {
-			expect( wrapper.find( '.reconnect__modal-cancel' ).first().render().text() ).to.be.equal( 'Cancel' );
-		} );
+			it( 'when clicked, closeModal() is called once', async () => {
+				const user = userEvent.setup();
+				const closeModal = jest.fn();
 
-		it( 'has an onClick method', () => {
-			expect( wrapper.find( '.reconnect__modal-cancel' ).first().props().onClick ).to.exist; 
-		} );
-
-		it( 'when clicked, closeModal() is called once', () => {
-			const closeModal = sinon.spy();
-
-			class ReconnectModalMock extends ReconnectModal {
-				constructor( props ) {
-					super( props );
-					this.closeModal = closeModal;
+				class ReconnectModalMock extends ReconnectModal {
+					constructor( props ) {
+						super( props );
+						this.closeModal = closeModal;
+					}
 				}
-			}
-			const mockWrapper = shallow( <ReconnectModalMock { ...defaultTestProps } /> );
-
-			mockWrapper.find( '.reconnect__modal-cancel'  ).simulate('click', { preventDefault: () => undefined });
-			expect( closeModal.calledOnce ).to.be.true;
+				render( <ReconnectModalMock { ...defaultTestProps } /> );
+				await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+				expect( closeModal ).toHaveBeenCalledTimes( 1 );
+			} );
 		} );
 
-		it( 'has a Reconnect button', () => {
-			expect( wrapper.find( '.reconnect__modal-reconnect' ) ).to.have.length( 1 );
-		} );
+		describe( 'Reconnect button', () => {
+			it( 'has a Reconnect button', () => {
+				render( <ReconnectModal { ...defaultTestProps } /> );
+				expect( screen.getByRole( 'button', { name: 'Reconnect Jetpack' } ) ).toBeInTheDocument();
+			} );
 
-		it( 'its text is: Reconnect Jetpack', () => {
-			expect( wrapper.find( '.reconnect__modal-reconnect' ).first().render().text() ).to.be.equal( 'Reconnect Jetpack' );
-		} );
+			it( 'when clicked, clickReconnectSite() is called once', async () => {
+				const user = userEvent.setup();
+				const clickReconnectSite = jest.fn();
 
-		it( 'has an onClick method', () => {
-			expect( wrapper.find( '.reconnect__modal-reconnect' ).first().props().onClick ).to.exist; 
-		} );
-
-		it( 'when clicked, clickReconnectSite() is called once', () => {
-			const clickReconnectSite = sinon.spy();
-
-			class ReconnectModalMock extends ReconnectModal {
-				constructor( props ) {
-					super( props );
-					this.clickReconnectSite = clickReconnectSite;
+				class ReconnectModalMock extends ReconnectModal {
+					constructor( props ) {
+						super( props );
+						this.clickReconnectSite = clickReconnectSite;
+					}
 				}
-			}
-			const mockWrapper = shallow( <ReconnectModalMock { ...defaultTestProps } /> );
 
-			mockWrapper.find( '.reconnect__modal-reconnect'  ).simulate('click', { preventDefault: () => undefined });
-			expect( clickReconnectSite.calledOnce ).to.be.true;
+				render( <ReconnectModalMock { ...defaultTestProps } /> );
+				await user.click( screen.getByRole( 'button', { name: 'Reconnect Jetpack' } ) );
+				expect( clickReconnectSite ).toHaveBeenCalledTimes( 1 );
+			} );
 		} );
 	} );
 
 	describe( 'When the site is not connected', () => {
+		const props = {
+			...defaultTestProps,
+			isSiteConnected: false,
+		};
 
-		before( () => {
-			const testProps = {
-				isSiteConnected: false,
-			};
-			const props = { ...defaultTestProps, ...testProps };
-			wrapper = shallow( <ReconnectModal { ...props } /> );
+		it( "doesn't render the modal", () => {
+			const { container } = render( <ReconnectModal { ...props } /> );
+			expect( container ).toBeEmptyDOMElement();
 		} );
-
-		it( 'doesn\'t render the modal', () => {
-			expect( wrapper.find( 'Modal' ) ).to.have.length( 0 );
-		} );
-
 	} );
 
 	describe( 'When a reconnect is already in progress', () => {
+		const props = {
+			...defaultTestProps,
+			isReconnectingSite: true,
+		};
 
-		before( () => {
-			const testProps = {
-				isReconnectingSite: true,
-			};
-			const props = { ...defaultTestProps, ...testProps };
-			wrapper = shallow( <ReconnectModal { ...props } /> );
+		it( "doesn't render the modal", () => {
+			const { container } = render( <ReconnectModal { ...props } /> );
+			expect( container ).toBeEmptyDOMElement();
 		} );
-
-		it( 'doesn\'t render the modal', () => {
-			expect( wrapper.find( 'Modal' ) ).to.have.length( 0 );
-		} );
-
 	} );
 
 	describe( 'When `show` is false', () => {
+		const props = {
+			...defaultTestProps,
+			show: false,
+		};
 
-		before( () => {
-			const testProps = {
-				show: false,
-			} ;
-			const props = { ...defaultTestProps, ...testProps };
-			wrapper = shallow( <ReconnectModal { ...props } /> );
+		it( "doesn't render the modal", () => {
+			const { container } = render( <ReconnectModal { ...props } /> );
+			expect( container ).toBeEmptyDOMElement();
 		} );
-
-		it( 'doesn\'t render the modal', () => {
-			expect( wrapper.find( 'Modal' ) ).to.have.length( 0 );
-		} );
-
 	} );
-
 } );

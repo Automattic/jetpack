@@ -1,14 +1,15 @@
 {
 	"name": "@automattic/i18n-check-webpack-plugin",
-	"version": "1.0.6-alpha",
+	"version": "1.0.18",
 	"description": "A Webpack plugin to check that WordPress i18n hasn't been mangled by Webpack optimizations.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-check-webpack-plugin/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Check Webpack Plugin"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/i18n-check-webpack-plugin"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -20,17 +21,17 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@babel/core": "7.17.8",
-		"jest": "27.3.1",
-		"webpack": "5.65.0"
+		"@babel/core": "7.18.13",
+		"jest": "28.1.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
 		"webpack": "^5.0.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {

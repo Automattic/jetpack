@@ -1,20 +1,11 @@
-/**
- * External dependencies
- */
 import formatCurrency from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-management-controls/constants';
+import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
+import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import { STORE_NAME } from './constants';
 import { onError, onSuccess } from './utils';
-import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 
 export const setProducts = products => ( {
 	type: 'SET_PRODUCTS',
@@ -48,13 +39,14 @@ export const setUpgradeUrl = upgradeUrl => ( {
 
 export const saveProduct = (
 	product,
+	productType = PRODUCT_TYPE_PAYMENT_PLAN,
 	setSelectedProductId = () => {},
 	callback = () => {}
 ) => async ( { dispatch, registry } ) => {
 	const { title, price, currency } = product;
 
 	if ( ! title || 0 === title.length ) {
-		onError( __( 'Plan requires a name', 'jetpack' ), registry );
+		onError( getMessageByProductType( 'product requires a name', productType ), registry );
 		callback( false );
 		return;
 	}
@@ -67,13 +59,14 @@ export const saveProduct = (
 				// translators: %s: Price
 				__( 'Minimum allowed price is %s.', 'jetpack' ),
 				formatCurrency( minPrice, currency )
-			)
+			),
+			registry
 		);
 		callback( false );
 		return;
 	}
 	if ( ! isPriceValid( currency, parsedPrice ) ) {
-		onError( __( 'Plan requires a valid price', 'jetpack' ), registry );
+		onError( getMessageByProductType( 'product requires a valid price', productType ), registry );
 		callback( false );
 		return;
 	}
@@ -97,10 +90,13 @@ export const saveProduct = (
 
 		dispatch( setProducts( products.concat( [ newProduct ] ) ) );
 		setSelectedProductId( newProduct.id );
-		onSuccess( __( 'Successfully created plan', 'jetpack' ), registry );
+		onSuccess( getMessageByProductType( 'successfully created product', productType ), registry );
 		callback( true );
 	} catch ( error ) {
-		onError( __( 'There was an error when adding the plan.', 'jetpack' ), registry );
+		onError(
+			getMessageByProductType( 'there was an error when adding the product', productType ),
+			registry
+		);
 		callback( false );
 	}
 };

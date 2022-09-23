@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { RichText } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
-import { BASE_CLASS_NAME } from './utils';
 import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
+import { BASE_CLASS_NAME } from './utils';
 
 export default function save( { attributes } ) {
 	const { content, label, showTimestamp, timestamp } = attributes;

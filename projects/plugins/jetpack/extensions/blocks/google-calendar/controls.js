@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { Button, PanelBody } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 

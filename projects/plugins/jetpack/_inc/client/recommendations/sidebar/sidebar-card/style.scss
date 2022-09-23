@@ -1,0 +1,60 @@
+@import '../../../scss/variables/colors';
+@import '../../../scss/mixins/ui';
+@import '../../../scss/typography';
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+
+.jp-recommendations-sidebar-card {
+	@include card;
+
+	width: 100%;
+	margin-bottom: 1rem;
+
+	box-shadow: 0 12px 20px rgba(0, 0, 0, 0.05);
+
+	&.with-illustration {
+		background: linear-gradient( to bottom, #E6F2E8, 115px, var( --jp-white ) 115px );
+	}
+}
+
+.jp-recommendations-sidebar-card__content {
+	padding: 0 1.5rem 1.5rem;
+
+	&.is-compact {
+		padding: 0 1.5rem;
+	}
+
+	h2 {
+		margin-top: 1.75rem;
+
+		font-size: $font-body;
+	}
+
+	p {
+		font-size: $font-body-small;
+	}
+
+	.dops-button {
+		width: 100%;
+		margin-top: 1rem;
+	}
+}
+
+.jp-recommendations-sidebar-card__illustration-container {
+	text-align: center;
+}
+
+.jp-recommendations-sidebar-card__illustration {
+	display: inline-flex;
+	justify-content: center;
+	width: 220px;
+	height: 115px;
+	margin-top: 24px;
+	padding: 8px;
+	background: $white;
+	border-radius: 3px;
+	box-shadow: 0px 0px 24px rgba( 0, 0, 0, 0.16 );
+}
+
+.jp-recommendations-sidebar-card__features {
+	@include features-list;	
+}

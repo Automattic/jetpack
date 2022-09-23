@@ -95,7 +95,6 @@ class Story_Block_Test extends \WP_UnitTestCase {
 	 * If no server rendered fixture can be found, then one is created.
 	 */
 	public function test_server_side_rendering_based_on_serialized_fixtures() {
-		// phpcs:disable WordPress.WP.AlternativeFunctions
 		$fixtures_path = 'extensions/blocks/story/test/fixtures/';
 		$file_pattern  = '*.serialized.html';
 		$files         = glob( JETPACK__PLUGIN_DIR . $fixtures_path . $file_pattern );
@@ -144,6 +143,5 @@ class Story_Block_Test extends \WP_UnitTestCase {
 				"\nTry running this test again. Be sure to commit generated fixture files with any code changes."
 			);
 		}
-		// phpcs:enable WordPress.WP.AlternativeFunctions
 	}
 }

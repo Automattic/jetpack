@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Remove use of `strptime`, which was only used in a branch for compatibility with PHP before 5.3.

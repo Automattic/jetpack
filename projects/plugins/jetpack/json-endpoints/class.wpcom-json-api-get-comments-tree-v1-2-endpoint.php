@@ -149,7 +149,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_v1_2_Endpoint extends WPCOM_JSON_API_Get_
 		}
 
 		if ( ! empty( $args['post_id'] ) ) {
-			if ( is_null( get_post( absint( $args['post_id'] ) ) ) ) {
+			if ( get_post( absint( $args['post_id'] ) ) === null ) {
 				return new WP_Error( 'invalid_post', 'Invalid post', 400 );
 			}
 			$filters['post_id'] = absint( $args['post_id'] );

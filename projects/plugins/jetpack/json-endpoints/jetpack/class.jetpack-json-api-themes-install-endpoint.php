@@ -1,18 +1,44 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-include_once ABSPATH . 'wp-admin/includes/file.php';
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 
 use Automattic\Jetpack\Automatic_Install_Skin;
 use Automattic\Jetpack\Connection\Client;
 
+/**
+ * Themes install endpoint class.
+ *
+ * POST  /sites/%s/themes/%s/install
+ */
 class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 
-	// POST  /sites/%s/themes/%s/install
+	/**
+	 * Needed capabilities.
+	 *
+	 * @var string
+	 */
 	protected $needed_capabilities = 'install_themes';
-	protected $action              = 'install';
-	protected $download_links      = array();
 
+	/**
+	 * The action.
+	 *
+	 * @var string
+	 */
+	protected $action = 'install';
+
+	/**
+	 * Download links.
+	 *
+	 * @var array
+	 */
+	protected $download_links = array();
+
+	/**
+	 * Install the theme.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function install() {
 
 		foreach ( $this->themes as $theme ) {
@@ -35,9 +61,9 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			 */
 			$result = apply_filters( 'jetpack_wpcom_theme_install', false, $theme );
 
-			$skin = null;
+			$skin     = null;
 			$upgrader = null;
-			$link = null;
+			$link     = null;
 
 			// If the alternative install method was not used, use the standard method.
 			if ( ! $result ) {
@@ -58,30 +84,33 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 			}
 
 			if ( ! $result ) {
-				$error = $this->log[ $theme ]['error'] = __( 'An unknown error occurred during installation', 'jetpack' );
-			}
-
-			elseif ( ! self::is_installed_theme( $theme ) ) {
-				$error = $this->log[ $theme ]['error'] = __( 'There was an error installing your theme', 'jetpack' );
-			}
-
-			elseif ( $upgrader ) {
+				$error                        = __( 'An unknown error occurred during installation', 'jetpack' );
+				$this->log[ $theme ]['error'] = $error;
+			} elseif ( ! self::is_installed_theme( $theme ) ) {
+				$error                        = __( 'There was an error installing your theme', 'jetpack' );
+				$this->log[ $theme ]['error'] = $error;
+			} elseif ( $upgrader ) {
 				$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 			}
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
-			return  new WP_Error( 'install_error', $error, 400 );
+			return new WP_Error( 'install_error', $error, 400 );
 		}
 
 		return true;
 	}
 
+	/**
+	 * Validate the themes.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function validate_themes() {
 		if ( empty( $this->themes ) || ! is_array( $this->themes ) ) {
 			return new WP_Error( 'missing_themes', __( 'No themes found.', 'jetpack' ) );
 		}
-		foreach( $this->themes as $index => $theme ) {
+		foreach ( $this->themes as $theme ) {
 
 			if ( self::is_installed_theme( $theme ) ) {
 				return new WP_Error( 'theme_already_installed', __( 'The theme is already installed', 'jetpack' ) );
@@ -123,22 +152,22 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 				continue;
 			}
 
-			$params = (object) array( 'slug' => $theme );
-			$url = 'https://api.wordpress.org/themes/info/1.0/';
-			$args = array(
+			$params     = (object) array( 'slug' => $theme );
+			$url        = 'https://api.wordpress.org/themes/info/1.0/'; // @todo Switch to https://api.wordpress.org/themes/info/1.1/, which uses JSON rather than PHP serialization.
+			$args       = array(
 				'body' => array(
-					'action' => 'theme_information',
-					'request' => serialize( $params ),
-				)
+					'action'  => 'theme_information',
+					'request' => serialize( $params ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				),
 			);
-			$response = wp_remote_post( $url, $args );
-			$theme_data = unserialize( $response['body'] );
+			$response   = wp_remote_post( $url, $args );
+			$theme_data = unserialize( $response['body'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
 			if ( is_wp_error( $theme_data ) ) {
 				return $theme_data;
 			}
 
-			if ( ! is_object( $theme_data ) && !isset( $theme_data->download_link ) ) {
-				return new WP_Error( 'theme_not_found', __( 'This theme does not exist', 'jetpack' ) , 404 );
+			if ( ! is_object( $theme_data ) && ! isset( $theme_data->download_link ) ) {
+				return new WP_Error( 'theme_not_found', __( 'This theme does not exist', 'jetpack' ), 404 );
 			}
 
 			$this->download_links[ $theme ] = $theme_data->download_link;
@@ -147,25 +176,41 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 		return true;
 	}
 
+	/**
+	 * Check if the theme is installed.
+	 *
+	 * @param string $theme - the theme we're checking.
+	 *
+	 * @return bool
+	 */
 	protected static function is_installed_theme( $theme ) {
 		$wp_theme = wp_get_theme( $theme );
 		return $wp_theme->exists();
 	}
 
+	/**
+	 * Download the wpcom theme.
+	 *
+	 * @param string $theme - the theme to download.
+	 *
+	 * @return string|WP_Error
+	 */
 	protected static function download_wpcom_theme_to_file( $theme ) {
-		$wpcom_theme_slug = preg_replace( '/-wpcom$/', '', $theme );
 
 		$file = wp_tempnam( 'theme' );
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', __( 'Problem creating file for theme download', 'jetpack' ) );
 		}
 
-		$url = "themes/download/$theme.zip";
-		$args = array( 'stream' => true, 'filename' => $file );
+		$url    = "themes/download/$theme.zip";
+		$args   = array(
+			'stream'   => true,
+			'filename' => $file,
+		);
 		$result = Client::wpcom_json_api_request_as_blog( $url, '1.1', $args );
 
-		$response =  $result[ 'response' ];
-		if ( $response[ 'code' ] !== 200 ) {
+		$response = $result['response'];
+		if ( $response['code'] !== 200 ) {
 			unlink( $file );
 			return new WP_Error( 'problem_fetching_theme', __( 'Problem downloading theme', 'jetpack' ) );
 		}

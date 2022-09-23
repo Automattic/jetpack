@@ -13,7 +13,7 @@ done
 
 cd /var/www/html
 for SLUG in "${SLUGS[@]}"; do
-	for FROM in stable master dev; do
+	for FROM in stable trunk dev; do
 		for HOW in web cli; do
 			[[ -e "$ZIPDIR/$SLUG-$FROM.zip" ]] || continue
 

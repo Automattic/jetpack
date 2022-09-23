@@ -1,5 +1,5 @@
 @import './view.scss';
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-recurring-payments {
 	font-family: $default-font;
@@ -114,5 +114,10 @@
 
 	.wp-block-jetpack-membership-button_notification {
 		display: block;
+	}
+
+	.wp-block[data-type='jetpack/button'] {
+		margin-top: 0;
+		margin-bottom: 0;
 	}
 }

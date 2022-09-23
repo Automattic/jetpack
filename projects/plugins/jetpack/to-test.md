@@ -1,88 +1,63 @@
-## 10.7
+## Jetpack 11.3
 
-### Before you start
+### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### My Jetpack
+### Gallery Blocks & Carousel
 
-This release contains the first iteration of My Jetpack, the new dashboard for managing standalone Jetpack plugins on the site. There's a lot to test here!
+There have been several changes made to the Gallery blocks and Carousel. In particular, we improved the way Carousel works with reusable Gallery blocks [[#25441](https://github.com/Automattic/jetpack/pull/25441)]. To test, try the following:
 
-For Jetpack, start on a free plan and go to Dashboard > Jetpack > My Dashboard. From there:
+- On a Jetpack connected site, make sure Carousel is enabled in the Media section of the Writing tab in Jetpack Settings.
+- Create a new post and add a standard Gallery block and make sure it is using the Carousel by setting the 'Link to - media file' in the block settings.
+- Check the post and see if the carousel is showing up when an image is clicked on.
+- Duplicate the gallery and save it as a reusable block. 
+- Test if the reusable gallery is still opening a carousel.
+- Repeat the test using Tiled Gallery block.
+- Switch between a few themes and verify consistent behavior in each theme.
 
-- Check the various links
-- Attempt to activate features and install additional standalone plugins.
-- Check styling on desktop and mobile.
-- Make sure Conntion links work.
+Improvement was made to Gallery block and Carousel when images style is set to rounded and a custom URL is used [[#65350](https://github.com/Automattic/wp-calypso/issues/65350)]. To test, try the following:
+
+- On a Jetpack connected site, make sure Carousel is enabled in the Media section of the Writing tab in Jetpack Settings.
+- Create a new post and add a standard Gallery block and make sure it is using the Carousel by setting the 'Link to - media file' in the block settings.
+- Set each image style to rounded.
+- Add a custom link to some images.
+- View the post and click the white space between the images (the part where the corner of the image has been cut off). 
+- Note it opens a carousel view for images with no custom URL and the appropriate link if the image has a custom URL.
+- Switch between a few themes and verify consistent behavior in each theme.
 
 
-### Color, Spacing, and Alignment Options for Various Blocks
+### Payments Buttons
 
-Color, spacing, and alignment options were added for the following blocks:
+A new Payments Buttons block was added that acts as a container for several Payment Button blocks [[#25297](https://github.com/Automattic/jetpack/pull/25297)]. Note that testing this requires a paid plan and Stripe connection.
 
-- Form 
-- Mailchimp
-- Podcast Player
-- Related Posts
+- On a Jetpack connected site, create a new post and add a Payments Buttons block.
+- If you don't have a paid plan, you will be asked to upgrade.
+- You will be asked to connect to Stripe.
+- Select the Payment Buttons block and try adding several Payment Button block inside it.
+- Make sure you can select different plans for each button.
+- Make sure you can change the width of each button.
+- View the post and confirm Payment Blocks look as intended.
 
-Color and spacing options were added for:
 
-- Business Hours
+### Google documents, spreadsheets and slideshows
 
-Alignment options were also added to:
+We are adding support for Google documents, spreadsheets and slideshows. [[#24628](https://github.com/Automattic/jetpack/pull/24628)]. Please note these blocks are still in beta so testing them requires enabling JETPACK_BETA_BLOCKS constant in the site Settings on JN site or adding `define( 'JETPACK_BETA_BLOCKS', true );` to the wp-config.php file. To test, try the following:
 
-- Repeat Visitor blocks
+- On a Jetpack connected site create a new post.
+- Search for Google blocks and add each block to your post.
+- Populate the blocks with links to publicly available documents.
+- Try adding a link to a private document. You should see a warning.
+- Publish the post and view the front end. Documents should be available to users.
 
-We can check and make sure those new features work as expected by adding them to posts and block widget areas and playing around with color, spacing and alignment.
+### Post List
 
-### At-a-glance Partner Coupon Redemption CTA
+We are adding support for Post List feature. This feature was previously available only to sites on WordPress.com. [[#25301](https://github.com/Automattic/jetpack/pull/25301)].
 
-We've introduced a new CTA to redeem a coupon that may have been provided by a partner at the top of the At-a-glance page.
-
-- Make sure Jetpack is activated but not connected.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Confirm you are redirected to `/wp-admin/admin.php?page=jetpack&showCouponRedemption=1#/` which matches screenshot 1 below.
-- For every step, make sure that the Redeem button redirects you to checkout with your partner coupon applied. The "Set up & redeem" buttons should first connect you and then redirect you to checkout instead.
-- Establish a site connection by bailing out of the connection flow before approving the connection to your account.
-- Go to Jetpack Dashboard and confirm it matches screenshot 2 below.
-- Establish a user connection.
-- Go to Jetpack Dashboard and confirm it matches screenshot 3 below.
-- Go to Jetpack Dashboard, add `&showCouponRedemption=1` to your URL and confirm it matches screenshot 4 below.
-
-Screenshot 1) No connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 28 40](https://user-images.githubusercontent.com/22746396/150391173-39ae5381-a9ce-4fb4-ae70-954a3d28266e.png)
-
-Screenshot 2) Site connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 29 41](https://user-images.githubusercontent.com/22746396/150391194-e9ce9d7d-a93c-4a4e-9e26-e631c0406517.png)
-
-Screenshot 3) User connection without showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 14](https://user-images.githubusercontent.com/22746396/153063496-80f4423d-d9d3-456c-a19e-c2c3bb108163.png)
-
-Screenshot 4) User connection and showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 41](https://user-images.githubusercontent.com/22746396/153063516-8d121e0a-0fb1-4a71-b296-5339965393f7.png)
-
-### At-a-glance Partner Coupon Redemption Backup Banner
-
-We've introduced a new callout to redeem a coupon that may have been provided by a partner replacing the Backup upgrade banner.
-
-- Make sure Jetpack is activated and connected, has Jetpack Free as its plan, and has no other products.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 1 below.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 2 below. Clicking on the Redeem button should redirect you to checkout with your partner coupon applied.
-- Purchase a product to your test site that provides backups.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 3 below.
-
-Screenshot 1) No backup product, no partner coupon:
-
-![Screen Shot 2022-02-01 at 19 08 35](https://user-images.githubusercontent.com/22746396/152016113-1da5365c-3f54-40c9-b079-47e97767bd40.png)
-
-Screenshot 2) No backup product, partner coupon available:
-
-![Screen Shot 2022-02-01 at 19 03 52](https://user-images.githubusercontent.com/22746396/152016107-bf474b8b-2970-44f5-b11a-b5f997bb613c.png)
-
-Screenshot 3) Backup product active, partner coupon status is irrelevant:
-
-![Screen Shot 2022-02-01 at 18 57 18](https://user-images.githubusercontent.com/22746396/152016100-6fe4a8f5-4ac4-482e-9501-8ed7f216f592.png)
+- On a Jetpack connected site go to yoursite/wp-admin/admin.php?page=jetpack_modules
+- Enable the Post List module.
+- Go to your posts and pages list and see that the wp-admin view matches that of one available on WordPress.com.
+- Try adding a featured image to a post and see it shows up in wp-admin view and on WordPress.com.
 
 **Thank you for all your help!**

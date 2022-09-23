@@ -2,13 +2,14 @@
 /**
  * Publicize_Base class.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-publicize
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -147,9 +148,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the default Publicize message.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param string $this->default_message Publicize's default message. Default is the post title.
 				 */
@@ -164,9 +164,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the message prepended to the Publicize custom message.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param string $this->default_prefix String prepended to the Publicize custom message.
 				 */
@@ -180,9 +179,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the message appended to the Publicize custom message.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param string $this->default_suffix String appended to the Publicize custom message.
 				 */
@@ -197,9 +195,8 @@ abstract class Publicize_Base {
 		 * All users with this cap can un-globalize all other global connections, and globalize any of their own
 		 * Globalized connections cannot be unselected by users without this capability when publishing.
 		 *
-		 * @module publicize
-		 *
-		 * @since 2.2.1
+		 * @since 0.1.0
+		 * @since-jetpack 2.2.1
 		 *
 		 * @param string $this->GLOBAL_CAP default capability in control of global Publicize connection options. Default to edit_others_posts.
 		 */
@@ -219,9 +216,13 @@ abstract class Publicize_Base {
 		// Connection test callback.
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 
-		add_action( 'init', array( $this, 'add_post_type_support' ) );
+		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
+		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_extension' ) );
+
+		// The custom priority for this action ensures that any existing code that
+		// removes post-thumbnails support during 'init' continues to work.
+		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
 	}
 
 	/**
@@ -446,7 +447,8 @@ abstract class Publicize_Base {
 				return false;
 			}
 
-			$profile_url_query = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query      = wp_parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			$profile_url_query_args = null;
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
 
 			$id = null;
@@ -718,7 +720,8 @@ abstract class Publicize_Base {
 	 * data directly as array so it can be retrieved for static HTML generation
 	 * or JSON consumption.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @param integer $selected_post_id Optional. Post ID to query connection status for.
 	 *
@@ -772,9 +775,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter whether a post should be publicized to a given service.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.0
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.0
 				 *
 				 * @param bool true Should the post be publicized to a given service? Default to true.
 				 * @param int $post_id Post ID.
@@ -817,9 +819,8 @@ abstract class Publicize_Base {
 				/**
 				 * Filter the checkbox state of each Publicize connection appearing in the post editor.
 				 *
-				 * @module publicize
-				 *
-				 * @since 2.0.1
+				 * @since 0.1.0
+				 * @since-jetpack 2.0.1
 				 *
 				 * @param bool $enabled Should the Publicize checkbox be enabled for a given service.
 				 * @param int $post_id Post ID.
@@ -838,9 +839,8 @@ abstract class Publicize_Base {
 					/**
 					 * Filters the checkboxes for global connections with non-prilvedged users.
 					 *
-					 * @module publicize
-					 *
-					 * @since 3.7.0
+					 * @since 0.1.0
+					 * @since-jetpack 3.7.0
 					 *
 					 * @param bool   $enabled Indicates if this connection should be enabled. Default true.
 					 * @param int    $post_id ID of the current post
@@ -876,7 +876,8 @@ abstract class Publicize_Base {
 	/**
 	 * Checks if post has already been shared by Publicize in the past.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
@@ -890,7 +891,8 @@ abstract class Publicize_Base {
 	 * Retrieves current available publicize service connections
 	 * with associated labels and URLs.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @return array {
 	 *     Array of UI service connection data for all services
@@ -964,20 +966,6 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Register the Publicize Gutenberg extension
-	 */
-	public function register_gutenberg_extension() {
-		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
-		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
-
-		if ( $this->current_user_can_access_publicize_data() ) {
-			Jetpack_Gutenberg::set_extension_available( 'jetpack/publicize' );
-		} else {
-			Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/publicize', 'unauthorized' );
-		}
-	}
-
-	/**
 	 * Can the current user access Publicize Data.
 	 *
 	 * @param int $post_id 0 for general access. Post_ID for specific access.
@@ -987,9 +975,8 @@ abstract class Publicize_Base {
 		/**
 		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
 		 *
-		 * @module publicize
-		 *
-		 * @since 4.1.0
+		 * @since 0.1.0
+		 * @since-jetpack 4.1.0
 		 *
 		 * @param string $capability User capability needed to use publicize
 		 */
@@ -1020,7 +1007,7 @@ abstract class Publicize_Base {
 	public function register_post_meta() {
 		$message_args = array(
 			'type'          => 'string',
-			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack-publicize-pkg' ),
+			'description'   => __( 'The message to use instead of the title when sharing to Jetpack Social services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => '',
 			'show_in_rest'  => array(
@@ -1067,49 +1054,31 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
-	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 * Helper function to allow us to not publicize posts in certain contexts.
 	 *
-	 * Attached to the `save_post` action.
-	 *
-	 * @param int     $post_id Post ID.
 	 * @param WP_Post $post Post object.
 	 */
-	public function save_meta( $post_id, $post ) {
-		$cron_user   = null;
+	public function should_submit_post_pre_checks( $post ) {
 		$submit_post = true;
 
-		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
-			return;
-		}
-
-		// Don't Publicize during certain contexts.
-
-		// - import
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			$submit_post = false;
 		}
 
-		// - on quick edit, autosave, etc but do fire on p2, quickpress, and instapost ajax.
 		if (
-			defined( 'DOING_AJAX' )
+			defined( 'DOING_AUTOSAVE' )
 		&&
-			DOING_AJAX
-		&&
-			! did_action( 'p2_ajax' )
-		&&
-			! did_action( 'wp_ajax_json_quickpress_post' )
-		&&
-			! did_action( 'wp_ajax_instapost_publish' )
-		&&
-			! did_action( 'wp_ajax_post_reblog' )
-		&&
-			! did_action( 'wp_ajax_press-this-save-post' )
+			DOING_AUTOSAVE
 		) {
 			$submit_post = false;
 		}
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- just ignoring the line doesn't work for some reason
+		// To stop quick edits from getting publicized.
+		if ( did_action( 'wp_ajax_inline-save' ) ) {
+			$submit_post = false;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['bulk_edit'] ) ) {
 			$submit_post = false;
 		}
@@ -1142,6 +1111,28 @@ abstract class Publicize_Base {
 			$submit_post = false;
 		}
 
+		return $submit_post;
+	}
+
+	/**
+	 * Fires when a post is saved, checks conditions and saves state in postmeta so that it
+	 * can be picked up later by @see ::publicize_post() on WordPress.com codebase.
+	 *
+	 * Attached to the `save_post` action.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post Post object.
+	 */
+	public function save_meta( $post_id, $post ) {
+		$cron_user   = null;
+		$submit_post = true;
+
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+			return;
+		}
+
+		$submit_post = $this->should_submit_post_pre_checks( $post );
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- We're only checking if a value is set
 		$admin_page = isset( $_POST[ $this->ADMIN_PAGE ] ) ? $_POST[ $this->ADMIN_PAGE ] : null;
 
@@ -1153,7 +1144,7 @@ abstract class Publicize_Base {
 			! empty( $admin_page );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$title = isset( $_POST['wpas_title'] ) ? sanitize_text_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
+		$title = isset( $_POST['wpas_title'] ) ? sanitize_textarea_field( wp_unslash( $_POST['wpas_title'] ) ) : null;
 
 		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && $title ) {
 			if ( empty( $title ) ) {
@@ -1224,7 +1215,8 @@ abstract class Publicize_Base {
 				 * Users may hook in here and do anything else they need to after meta is written,
 				 * and before the post is processed for Publicize.
 				 *
-				 * @since 2.1.2
+				 * @since 0.1.0
+				 * @since-jetpack 2.1.2
 				 *
 				 * @param bool $submit_post Should the post be publicized.
 				 * @param int $post->ID Post ID.
@@ -1301,7 +1293,7 @@ abstract class Publicize_Base {
 		) . $view_post_link_html;
 
 		if ( 'post' === $post_type && class_exists( 'Jetpack_Subscriptions' ) ) {
-			$subscription = Jetpack_Subscriptions::init();
+			$subscription = \Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
 					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
@@ -1438,6 +1430,59 @@ abstract class Publicize_Base {
 		}
 		return str_replace( $search, $replace, $string );
 	}
+
+	/**
+	 * Get Calypso URL for Publicize connections.
+	 *
+	 * @param string $source The idenfitier of the place the function is called from.
+	 * @return string
+	 */
+	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
+		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
+		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
+		return Redirect::get_url( $source, array( 'site' => ( new Status() )->get_site_suffix() ) );
+	}
+
+	/**
+	 * Call the WPCOM REST API to get the Publicize shares info.
+	 *
+	 * @param string $blog_id The blog_id.
+	 * @return array
+	 */
+	public function get_publicize_shares_info( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
+	}
+
+	/**
+	 * Call the WPCOM REST API to calculate the scheduled shares.
+	 *
+	 * @param string $blog_id The blog_id.
+	 */
+	public function calculate_scheduled_shares( $blog_id ) {
+		$response        = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social/count-scheduled-shares', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$rest_controller = new REST_Controller();
+		return $rest_controller->make_proper_response( $response );
+	}
 }
 
 /**
@@ -1446,5 +1491,16 @@ abstract class Publicize_Base {
  * @return string
  */
 function publicize_calypso_url() {
+	_deprecated_function( __METHOD__, '0.2.0', 'Publicize::publicize_connections_url' );
 	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
+}
+
+/**
+ * Adds support for the post-thumbnails feature, regardless of underlying theme support.
+ *
+ * This ensures the featured image UI appears in the editor, allowing the user to
+ * explicitly set an image for their social media post.
+ */
+function add_theme_post_thumbnails_support() {
+	add_theme_support( 'post-thumbnails', get_post_types_by_support( 'publicize' ) );
 }

@@ -1,20 +1,40 @@
-/**
- * Internal dependencies
- */
 import api from '../api/api';
-import { getStatus, updateStatus, resetStatus, CloudCssStatus } from '../stores/cloud-css-status';
+import {
+	getStatus,
+	updateGenerateStatus,
+	resetCloudStatus,
+	resetCloudRetryStatus,
+	setError,
+	CriticalCssStatus,
+} from '../stores/critical-css-status';
 
 export async function requestCloudCss(): Promise< void > {
-	// Todo: Debounce request.
-	resetStatus();
-	await api.post( '/cloud-css/request-generate' );
+	resetCloudStatus();
+	await startCloudCssRequest();
+}
+
+export async function retryCloudCss(): Promise< void > {
+	resetCloudRetryStatus();
+	await startCloudCssRequest();
+}
+
+async function startCloudCssRequest(): Promise< void > {
+	try {
+		await api.post( '/cloud-css/request-generate' );
+	} catch ( e ) {
+		if ( 200 !== e.httpCode ) {
+			setError();
+			stopPollingCloudCssStatus();
+			return;
+		}
+	}
 	pollCloudCssStatus();
 }
 
 let statusIntervalId = null;
 
-function pollIntervalForStatus( status: CloudCssStatus ) {
-	return status.pending ? 5 * 1000 : 2 * 60 * 1000;
+function pollIntervalForStatus( status: CriticalCssStatus ) {
+	return status.progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
 }
 
 /**
@@ -35,8 +55,8 @@ export function pollCloudCssStatus() {
 	stopPollingCloudCssStatus();
 
 	statusIntervalId = setInterval( async () => {
-		status = await api.get< CloudCssStatus >( '/cloud-css/status' );
-		updateStatus( status );
+		status = await api.get< CriticalCssStatus >( '/cloud-css/status' );
+		updateGenerateStatus( status );
 
 		if ( interval !== pollIntervalForStatus( status ) ) {
 			pollCloudCssStatus();

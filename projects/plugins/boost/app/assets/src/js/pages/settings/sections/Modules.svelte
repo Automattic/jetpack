@@ -1,24 +1,25 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
-	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
+	import { getRedirectUrl } from '@automattic/jetpack-components';
+	import { __ } from '@wordpress/i18n';
+	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import {
 		requestCloudCss,
 		pollCloudCssStatus,
 		stopPollingCloudCssStatus,
 	} from '../../../utils/cloud-css';
-	import GenerateCss from '../elements/GenerateCSS.svelte';
+	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
+	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
+	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
-	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
+	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
+	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
+	const lazyLoadlink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
 </script>
 
 <div class="jb-container--narrow">
@@ -36,12 +37,12 @@
 					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
+				vars={externalLinkTemplateVar( criticalCssLink )}
 			/>
 		</p>
 
 		<div slot="meta">
-			<GenerateCss />
+			<CriticalCssMeta />
 			<PremiumCTA />
 		</div>
 	</Module>
@@ -62,7 +63,7 @@
 					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar( 'https://web.dev/extract-critical-css/' )}
+				vars={externalLinkTemplateVar( criticalCssLink )}
 			/>
 		</p>
 		<div slot="meta" class="jb-feature-toggle__meta">
@@ -80,7 +81,7 @@
 					`Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar( 'https://web.dev/efficiently-load-third-party-javascript/' )}
+				vars={externalLinkTemplateVar( deferJsLink )}
 			/>
 		</p>
 	</Module>
@@ -93,7 +94,7 @@
 					`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar( 'https://web.dev/browser-level-image-lazy-loading/' )}
+				vars={externalLinkTemplateVar( lazyLoadlink )}
 			/>
 		</p>
 	</Module>

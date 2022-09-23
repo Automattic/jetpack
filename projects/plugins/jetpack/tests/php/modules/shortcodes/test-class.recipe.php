@@ -65,6 +65,11 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	public function test_add_scripts_amp() {
 		global $posts;
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$post               = new stdClass();
 		$post->post_content = '[recipe]';
@@ -442,6 +447,11 @@ EOT;
 	 * @since 8.5.0
 	 */
 	public function test_shortcodes_recipe_amp( $shortcode, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$expected = preg_replace( '/\s+/', ' ', $expected );

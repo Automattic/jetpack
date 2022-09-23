@@ -7,7 +7,7 @@
 	"require-dev": {
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -43,7 +43,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.6.x-dev"
+			"dev-trunk": "1.6.x-dev"
 		}
 	}
 }

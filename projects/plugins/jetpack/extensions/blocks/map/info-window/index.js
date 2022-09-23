@@ -1,7 +1,3 @@
-/**
- * External dependencies
- */
-
 import { Component, createPortal } from '@wordpress/element';
 
 export class InfoWindow extends Component {

@@ -119,7 +119,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		// Are we testing all the options.
 		$unique_whitelist = array_unique( $whitelist );
 
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
 	}
 
 	/**

@@ -1,9 +1,48 @@
 .jb-settings .jb-button--primary {
-  	color: #ffffff;
+	color: #ffffff;
 	background-color: #000000;
-  	border-radius: 4px;
-  	border: none;
-  	padding: 10px 24px;
-  	text-decoration: none;
-  	display: inline-block;
+	border-radius: 4px;
+	border: none;
+	padding: 10px 24px;
+	text-decoration: none;
+	display: inline-block;
+}
+
+.components-button.components-button--back {
+	color: $gray_90;
+	font-size: 14pt;
+	text-decoration: none;
+	margin-bottom: 20px;
+
+	&.is-link {
+		margin-left: auto;
+	}
+
+	&.is-link:hover {
+		color: $gray_90;
+	}
+
+	svg {
+		margin: 4px 4px 2px 0;
+		height: 1.5rem;
+		margin-right: 20px;
+	}
+}
+
+.jb-button {
+  min-width: 135px !important;
+  text-align: center;
+  border-radius: 4px;
+  padding: 10px 24px;
+  display: inline-block;
+  font-weight: 500;
+
+  &--primary {
+  	color: var(--jp-white)!important;
+  }
+
+  &--outline {
+    color: var(--jp-black)!important;
+    border: 1px solid!important;
+  }
 }

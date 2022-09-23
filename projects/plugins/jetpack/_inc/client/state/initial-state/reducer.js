@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { assign, get, merge } from 'lodash';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { assign, get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
-import { getPlanDuration } from 'state/plans/reducer';
-import { getProducts } from 'state/products';
 import { isCurrentUserLinked } from 'state/connection';
+import { getPlanDuration } from 'state/plans/reducer';
+import { getSiteProducts } from 'state/site-products';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -402,6 +395,26 @@ export function showMyJetpack( state ) {
 }
 
 /**
+ * Get an array of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of recommendation slugs
+ */
+export function getNewRecommendations( state ) {
+	return get( state.jetpack.initialState, 'newRecommendations', [] );
+}
+
+/**
+ * Get a count of new recommendations for this site
+ *
+ * @param {object} state - Global state tree
+ * @returns {number} - Count of recommendations
+ */
+export function getNewRecommendationsCount( state ) {
+	return getNewRecommendations( state ).length;
+}
+
+/**
  * Determines if the Jetpack Licensing UI should be displayed
  *
  * @param {object} state - Global state tree
@@ -517,6 +530,16 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 };
 
 /**
+ * Returns the list of products that are available for purchase in the initial state.
+ *
+ * @param {object} state - Global state tree
+ * @returns {Array} - Array of Products that you can purchase.
+ */
+export function getStaticProductsForPurchase( state ) {
+	return get( state.jetpack.initialState, 'products', {} );
+}
+
+/**
  * Returns the list of products that are available for purchase.
  *
  * @param state
@@ -524,7 +547,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  */
 export function getProductsForPurchase( state ) {
 	const staticProducts = get( state.jetpack.initialState, 'products', {} );
-	const jetpackProducts = getProducts( state );
+	const jetpackProducts = getSiteProducts( state );
 	const products = {};
 
 	for ( const [ key, product ] of Object.entries( staticProducts ) ) {
@@ -534,12 +557,14 @@ export function getProductsForPurchase( state ) {
 			key: key,
 			description: product.description,
 			features: product.features,
+			disclaimer: product.disclaimer,
 			available: get( jetpackProducts, [ product.slug, 'available' ], false ),
 			currencyCode: get( jetpackProducts, [ product.slug, 'currency_code' ], '' ),
 			showPromotion: product.show_promotion,
 			promotionPercentage: product.discount_percent,
 			includedInPlans: product.included_in_plans,
 			fullPrice: get( jetpackProducts, [ product.slug, 'cost' ], '' ),
+			saleCoupon: get( jetpackProducts, [ product.slug, 'sale_coupon' ], undefined ),
 			upgradeUrl: getRedirectUrl( 'jetpack-product-description-checkout', {
 				path: product.slug,
 			} ),

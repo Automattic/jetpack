@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
-import withMock from 'storybook-addon-mock';
 import { HashRouter, Routes, Route } from 'react-router-dom';
+import withMock from 'storybook-addon-mock';
 import { getAllMockData } from '../../product-detail-card/stories/utils.js';
-
-/**
- * Internal dependencies
- */
 import ProductCardsSection from '../index.jsx';
 
 export default {

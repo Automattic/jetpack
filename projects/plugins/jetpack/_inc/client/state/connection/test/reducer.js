@@ -1,240 +1,238 @@
-import { expect } from 'chai';
-
 import {
 	connectUrl as connectUrlReducer,
 	status as statusReducer,
 	user as userReducer,
 	requests as requestsReducer,
 	connectionRequests,
-	hasSeenWCConnectionModal
+	hasSeenWCConnectionModal,
 } from '../reducer';
 
 describe( 'status reducer', () => {
 	describe( '#disconnectSite', () => {
-		it( 'should set siteConnected to false when disconnecting site', () => {
+		test( 'should set siteConnected to false when disconnecting site', () => {
 			const stateIn = {};
 			const action = {
 				type: 'DISCONNECT_SITE_SUCCESS',
-				siteConnected: false
+				siteConnected: false,
 			};
-			let stateOut = statusReducer( stateIn, action );
-			expect( stateOut.siteConnected ).to.be.false;
+			const stateOut = statusReducer( stateIn, action );
+			expect( stateOut.siteConnected ).toBe( false );
 		} );
 
-		it( 'should set siteConnected to action.siteConnected\'s value when fetching connection status', () => {
+		test( "should set siteConnected to action.siteConnected's value when fetching connection status", () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_CONNECTION_STATUS_FETCH',
-				siteConnected: true
+				siteConnected: true,
 			};
-			let stateOut = statusReducer( stateIn, action );
-			expect( stateOut.siteConnected ).to.equal( action.siteConnected );
+			const stateOut = statusReducer( stateIn, action );
+			expect( stateOut.siteConnected ).toEqual( action.siteConnected );
 		} );
 	} );
 } );
 
 describe( 'connect url reducer', () => {
-	it( 'state should default to empty string', () => {
+	test( 'state should default to empty string', () => {
 		const state = connectUrlReducer( undefined, {} );
-		expect( state ).to.eql( '' );
+		expect( state ).toBe( '' );
 	} );
 	describe( '#fetchConnectUrl', () => {
-		it( 'should set connectUrl to action.connectUrl\'s value when fetching connect url', () => {
+		test( "should set connectUrl to action.connectUrl's value when fetching connect url", () => {
 			const stateIn = {};
 			const action = {
 				type: 'CONNECT_URL_FETCH_SUCCESS',
-				connectUrl: '/asdf'
+				connectUrl: '/asdf',
 			};
-			let stateOut = connectUrlReducer( stateIn, action );
-			expect( stateOut ).to.equal( action.connectUrl );
+			const stateOut = connectUrlReducer( stateIn, action );
+			expect( stateOut ).toEqual( action.connectUrl );
 		} );
 	} );
 } );
 
 describe( 'user reducer', () => {
 	describe( '#fetchConnectUrl', () => {
-		it( 'should set state.user to action.userConnectionData when fetching connect url', () => {
+		test( 'should set state.user to action.userConnectionData when fetching connect url', () => {
 			const stateIn = {};
 			const action = {
 				type: 'USER_CONNECTION_DATA_FETCH_SUCCESS',
-				userConnectionData: { a: 'b' }
+				userConnectionData: { a: 'b' },
 			};
-			let stateOut = userReducer( stateIn, action );
-			expect( stateOut ).to.eql( action.userConnectionData );
+			const stateOut = userReducer( stateIn, action );
+			expect( stateOut ).toEqual( action.userConnectionData );
 		} );
 	} );
 } );
 
 describe( 'requests reducer', () => {
-	it( 'state should default to connectionRequests', () => {
+	test( 'state should default to connectionRequests', () => {
 		const state = requestsReducer( undefined, {} );
-		expect( state ).to.equal( connectionRequests );
+		expect( state ).toEqual( connectionRequests );
 	} );
 
 	describe( '#disconnectSite', () => {
-		it( 'should set disconnectingSite to true when disconnecting site', () => {
+		test( 'should set disconnectingSite to true when disconnecting site', () => {
 			const stateIn = {};
 			const action = {
-				type: 'DISCONNECT_SITE'
+				type: 'DISCONNECT_SITE',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.disconnectingSite ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.disconnectingSite ).toBe( true );
 		} );
 
-		it( 'should set disconnectingSite to false when site was disconnected', () => {
+		test( 'should set disconnectingSite to false when site was disconnected', () => {
 			const stateIn = {};
 			const action = {
-				type: 'DISCONNECT_SITE_SUCCESS'
+				type: 'DISCONNECT_SITE_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.disconnectingSite ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.disconnectingSite ).toBe( false );
 		} );
 
-		it( 'should set disconnectingSite to false when disconnecting site failed', () => {
+		test( 'should set disconnectingSite to false when disconnecting site failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'DISCONNECT_SITE_FAIL'
+				type: 'DISCONNECT_SITE_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.disconnectingSite ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.disconnectingSite ).toBe( false );
 		} );
 	} );
 
 	describe( '#unlinkUser', () => {
-		it( 'should set unlinkingUser to true when unliking user', () => {
+		test( 'should set unlinkingUser to true when unliking user', () => {
 			const stateIn = {};
 			const action = {
-				type: 'UNLINK_USER'
+				type: 'UNLINK_USER',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.unlinkingUser ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.unlinkingUser ).toBe( true );
 		} );
 
-		it( 'should set unlinkingUser to false when user was unlinked', () => {
+		test( 'should set unlinkingUser to false when user was unlinked', () => {
 			const stateIn = {};
 			const action = {
-				type: 'UNLINK_USER_SUCCESS'
+				type: 'UNLINK_USER_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.unlinkingUser ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.unlinkingUser ).toBe( false );
 		} );
 
-		it( 'should set unlinkingUser to false when unlinking a user failed', () => {
+		test( 'should set unlinkingUser to false when unlinking a user failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'UNLINK_USER_FAIL'
+				type: 'UNLINK_USER_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.unlinkingUser ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.unlinkingUser ).toBe( false );
 		} );
 	} );
 
 	describe( '#fetchConnectUrl', () => {
-		it( 'should set fetchingConnectUrl to true when fetching connect URL', () => {
+		test( 'should set fetchingConnectUrl to true when fetching connect URL', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_URL_FETCH'
+				type: 'CONNECT_URL_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingConnectUrl ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingConnectUrl ).toBe( true );
 		} );
 
-		it( 'should set fetchingConnectUrl to false when connect URL was fetched', () => {
+		test( 'should set fetchingConnectUrl to false when connect URL was fetched', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_URL_FETCH_SUCCESS'
+				type: 'CONNECT_URL_FETCH_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingConnectUrl ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingConnectUrl ).toBe( false );
 		} );
 
-		it( 'should set fetchingConnectUrl to false when fecthing the connect URL', () => {
+		test( 'should set fetchingConnectUrl to false when fecthing the connect URL', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_URL_FETCH_FAIL'
+				type: 'CONNECT_URL_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingConnectUrl ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingConnectUrl ).toBe( false );
 		} );
 	} );
 
 	describe( '#fetchUSerConnectionData', () => {
-		it( 'should set fetchingUserData to true when fetching User\'s connection data', () => {
+		test( "should set fetchingUserData to true when fetching User's connection data", () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_CONNECTION_DATA_FETCH'
+				type: 'USER_CONNECTION_DATA_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingUserData ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingUserData ).toBe( true );
 		} );
 
-		it( 'should set fetchingUserData to false when User\'s connection data was fetched', () => {
+		test( "should set fetchingUserData to false when User's connection data was fetched", () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_CONNECTION_DATA_FETCH_SUCCESS'
+				type: 'USER_CONNECTION_DATA_FETCH_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingUserData ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingUserData ).toBe( false );
 		} );
 
-		it( 'should set fetchingUserData to false when fecthing the User\'s connection data', () => {
+		test( "should set fetchingUserData to false when fecthing the User's connection data", () => {
 			const stateIn = {};
 			const action = {
-				type: 'USER_CONNECTION_DATA_FETCH_FAIL'
+				type: 'USER_CONNECTION_DATA_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingUserData ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingUserData ).toBe( false );
 		} );
 	} );
 
 	describe( '#connectUser', () => {
-		it( 'should set isConnectingUser to true when connect ', () => {
+		test( 'should set isConnectingUser to true when connect', () => {
 			const stateIn = {};
 			const action = {
-				type: 'CONNECT_USER'
+				type: 'CONNECT_USER',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.connectingUser ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.connectingUser ).toBe( true );
 		} );
 	} );
 
 	describe( '#reconnectSite', () => {
-		it( 'should set reconnectingSite to true when reconnecting site', () => {
+		test( 'should set reconnectingSite to true when reconnecting site', () => {
 			const stateIn = {};
 			const action = {
-				type: 'SITE_RECONNECT'
+				type: 'SITE_RECONNECT',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.reconnectingSite ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.reconnectingSite ).toBe( true );
 		} );
 
-		it( 'should set reconnectingSite to false when site was reconnected', () => {
+		test( 'should set reconnectingSite to false when site was reconnected', () => {
 			const stateIn = {};
 			const action = {
-				type: 'SITE_RECONNECT_SUCCESS'
+				type: 'SITE_RECONNECT_SUCCESS',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.reconnectingSite ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.reconnectingSite ).toBe( false );
 		} );
 
-		it( 'should set reconnectingSite to false when reconnecting site failed', () => {
+		test( 'should set reconnectingSite to false when reconnecting site failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'SITE_RECONNECT_FAIL'
+				type: 'SITE_RECONNECT_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.reconnectingSite ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.reconnectingSite ).toBe( false );
 		} );
 	} );
 } );
 
 describe( '#hasSeenWCConnectionModal', () => {
-	it( 'should set hasSeenWCConnectionModal to true when ', () => {
+	test( 'should set hasSeenWCConnectionModal to true when', () => {
 		const stateIn = {};
 		const action = {
-			type: 'JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL'
+			type: 'JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL',
 		};
-		let stateOut = hasSeenWCConnectionModal( stateIn, action );
-		expect( stateOut ).to.be.true;
+		const stateOut = hasSeenWCConnectionModal( stateIn, action );
+		expect( stateOut ).toBe( true );
 	} );
 } );

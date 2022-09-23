@@ -1,17 +1,16 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Main;
+use Automattic\Jetpack\Sync\Modules\Callables;
 use Automattic\Jetpack\Sync\Modules\Constants;
+use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
-use Automattic\Jetpack\Sync\Modules\Posts;
 
-$sync_server_dir = dirname( __FILE__ ) . '/server/';
+$sync_server_dir = __DIR__ . '/server/';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
@@ -40,8 +39,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function set_up() {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
-		$this->listener = Listener::get_instance();
-		$this->sender   = Sender::get_instance();
+		$this->listener             = Listener::get_instance();
+		$this->sender               = Sender::get_instance();
 
 		parent::set_up();
 
@@ -55,7 +54,12 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 		// Stop triggering 'jetpack.fetchPublicizeConnection' remote XML-RPC call to
 		// WPCOM on every `save_post` action.
-		$publicize = new Publicize();
+		global $publicize_ui;
+		if ( ! isset( $publicize_ui ) ) {
+			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+		}
+		global $publicize;
+
 		$publicize->set_refresh_wait_transient( HOUR_IN_SECONDS );
 
 		// Bind the two storage systems to the server events.
@@ -81,6 +85,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		unset( $_SERVER['HTTP_USER_AGENT'] );
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -113,10 +119,13 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		// Also pass the posts though the same filter other wise they woun't match any more.
 		$posts_sync_module = new Posts();
 
-		$local_posts = array_map( array(
-			$posts_sync_module,
-			'filter_post_content_and_add_links'
-		), $local->get_posts() );
+		$local_posts = array_map(
+			array(
+				$posts_sync_module,
+				'filter_post_content_and_add_links',
+			),
+			$local->get_posts()
+		);
 		$this->assertEquals( $local_posts, $remote->get_posts() );
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 
@@ -135,11 +144,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		return $codec->decode( $codec->encode( $instance ) );
 	}
 
-	function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
+	public function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
 		return $this->server->receive( $data, null, $sent_timestamp, $queue_id );
 	}
 
-	function pre_http_request_success() {
+	public function pre_http_request_success() {
 		return array( 'body' => json_encode( array( 'success' => true ) ) );
 	}
 

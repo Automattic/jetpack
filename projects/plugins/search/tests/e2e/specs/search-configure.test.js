@@ -59,15 +59,7 @@ test.describe( 'Search Configure', () => {
 			await searchConfigure.chooseNewestAsDefaultSort();
 			await searchConfigure.clickSaveButton();
 
-			// Settings changed.
-			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
-			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
-			expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
-			expect( await searchConfigure.isDefaultSortNewest() ).toBeTruthy();
-			// Settings reflected on preview.
-			expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
-			expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
-			expect( await searchConfigure.isPreviewDefaultSortNewest() ).toBeTruthy();
+			await checkSettings();
 		} );
 
 		await test.step( 'Settings stick after reload', async () => {
@@ -75,15 +67,34 @@ test.describe( 'Search Configure', () => {
 			await searchConfigure.reload();
 			await searchConfigure.waitForNetworkIdle();
 
-			// Settings do stick.
-			expect( await searchConfigure.isDarkTheme() ).toBeTruthy();
-			expect( await searchConfigure.isHighlightPink() ).toBeTruthy();
-			expect( await searchConfigure.isFormatProduct() ).toBeTruthy();
-			expect( await searchConfigure.isDefaultSortNewest() ).toBeTruthy();
-			// Settings reflected on preview.
-			expect( await searchConfigure.isPreviewDarkTheme() ).toBeTruthy();
-			expect( await searchConfigure.isPreviewFormatProduct() ).toBeTruthy();
-			expect( await searchConfigure.isPreviewDefaultSortNewest() ).toBeTruthy();
+			await checkSettings();
 		} );
 	} );
+
+	async function checkSettings() {
+		// Settings changed.
+		expect( await searchConfigure.isDarkTheme(), "Theme should be 'dark'" ).toBeTruthy();
+		expect(
+			await searchConfigure.isHighlightPink(),
+			"Highlight color should be 'pink'"
+		).toBeTruthy();
+		expect( await searchConfigure.isFormatProduct(), "Format should be 'product'" ).toBeTruthy();
+		expect(
+			await searchConfigure.isDefaultSortNewest(),
+			"Default sort should be 'newest'"
+		).toBeTruthy();
+		// Settings reflected on preview.
+		expect(
+			await searchConfigure.isPreviewDarkTheme(),
+			"Preview theme should be 'dark'"
+		).toBeTruthy();
+		expect(
+			await searchConfigure.isPreviewFormatProduct(),
+			"'Preview format should be 'product''"
+		).toBeTruthy();
+		expect(
+			await searchConfigure.isPreviewDefaultSortNewest(),
+			"Preview default sort should be 'newest'"
+		).toBeTruthy();
+	}
 } );

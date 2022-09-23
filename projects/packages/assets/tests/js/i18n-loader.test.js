@@ -1,3 +1,4 @@
+// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 global.fetch = jest.fn();
 fetch.mockFetchResponse = function ( body, init = {} ) {
 	const status = parseInt( init.status || 200 );
@@ -21,9 +22,13 @@ fetch.mockFetchResponse = function ( body, init = {} ) {
 };
 
 const mockSetLocaleData = jest.fn();
-jest.doMock( '@wordpress/i18n', () => ( {
-	setLocaleData: mockSetLocaleData,
-} ) );
+jest.doMock(
+	'@wordpress/i18n',
+	() => ( {
+		setLocaleData: mockSetLocaleData,
+	} ),
+	{ virtual: true }
+);
 
 const translations = JSON.stringify( {
 	domain: 'messages',

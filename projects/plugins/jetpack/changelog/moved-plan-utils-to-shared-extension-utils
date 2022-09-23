@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Moved plan-utils.js file from jetpack floder to shared-extension-utils. Also moved requiresPaidPlan from register-jetpack-block to plan-utils

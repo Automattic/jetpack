@@ -70,6 +70,11 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @param string $expected The expected return value of the shortcode callback.
 	 */
 	public function test_shortcodes_archives_format_option( $is_amp, $expected ) {
+		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		if ( $is_amp ) {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}

@@ -263,8 +263,8 @@ class Plugins extends Module {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$plugin  = $_POST['plugin'];
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated manually just after.
+		$plugin  = wp_unslash( $_POST['plugin'] );
 		$plugins = get_plugins();
 		if ( ! isset( $plugins[ $plugin ] ) ) {
 			return;

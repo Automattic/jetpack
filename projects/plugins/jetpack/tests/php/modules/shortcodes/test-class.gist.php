@@ -137,7 +137,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		 * If we did not specify an expected AMP output,
 		 * that means we expect it to be similar to the expected HTML output.
 		 */
-		if ( is_null( $expected_amp ) ) {
+		if ( $expected_amp === null ) {
 			$expected_amp = $expected;
 		}
 

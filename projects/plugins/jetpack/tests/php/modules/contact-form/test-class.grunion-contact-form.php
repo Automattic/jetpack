@@ -1768,4 +1768,183 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
 		$this->assertCount( 0, $posts, 'posts count matches after deleting the other feedback responder' );
 	}
+
+	/**
+	 * Tests the functionality of the grunion_contact_form_apply_block_attribute() function.
+	 */
+	public function test_grunion_contact_form_apply_block_attribute() {
+		// No contact form block.
+		$original = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$expected = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$this->assertEquals(
+			$expected,
+			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+		);
+		// Contact form block without attributes.
+		$original = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$expected = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form {"foo":"bar"} -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$this->assertEquals(
+			$expected,
+			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+		);
+		// Contact form block with attributes.
+		$original = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form {"customThankyou":"message"} -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$expected = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form {"customThankyou":"message","foo":"bar"} -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$this->assertEquals(
+			$expected,
+			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+		);
+	}
 } // end class

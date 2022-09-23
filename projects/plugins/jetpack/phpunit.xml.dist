@@ -105,9 +105,6 @@
 		<testsuite name="carousel">
 			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
 		</testsuite>
-		<testsuite name="search">
-			<directory prefix="test" suffix=".php">tests/php/modules/search</directory>
-		</testsuite>
 		<testsuite name="geo-location">
 			<directory prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
 		</testsuite>
@@ -128,6 +125,9 @@
 		</testsuite>
 		<testsuite name="csstidy">
 			<directory prefix="test" suffix=".php">tests/php/modules/csstidy</directory>
+		</testsuite>
+		<testsuite name="compatfunctions">
+			<file>tests/php/test_functions.compat.php</file>
 		</testsuite>
 	</testsuites>
 	<groups>

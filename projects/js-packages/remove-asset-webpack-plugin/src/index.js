@@ -1,10 +1,10 @@
 /**
  * Webpack plugin to avoid emitting certain assets.
  */
-const webpack = require( 'webpack' );
-const PLUGIN_NAME = 'RemoveAsset';
-
 const debug = require( 'debug' )( '@automattic/remove-asset-webpack-plugin' );
+const webpack = require( 'webpack' );
+
+const PLUGIN_NAME = 'RemoveAsset';
 
 const schema = {
 	definitions: {

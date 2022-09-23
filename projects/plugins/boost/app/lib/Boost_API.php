@@ -24,4 +24,13 @@ class Boost_API {
 		}
 		return self::$api_client;
 	}
+
+	public static function get( $path, $args = array() ) {
+		return self::get_client()->get( $path, $args );
+	}
+
+	public static function post( $path, $payload = array() ) {
+		return self::get_client()->post( $path, $payload );
+	}
+
 }

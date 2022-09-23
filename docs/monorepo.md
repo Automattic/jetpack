@@ -50,10 +50,10 @@ First time working with the monorepo? We got you covered.
 
 For the first time only:
 
-* From the root of the repo, run `pnpm install && pnpx jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
+* From the root of the repo, run `pnpm install && pnpm jetpack cli link` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
 * That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
-Once you’ve done that, it’s easy: run `jetpack` (or `pnpx jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
+Once you’ve done that, it’s easy: run `jetpack` (or `pnpm jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
 
 ## Jetpack Generate Wizard
 
@@ -157,7 +157,7 @@ A project must define `.scripts.build-development` and/or `.scripts.build-produc
 The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
 
 * If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
-* If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-master` in the environment.
+* If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-trunk` in the environment.
 * When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
   This is not normally done in development environments, even with `jetpack build --production`.
 * For a production build of a plugin, `composer install` is passed `-o --no-dev --classmap-authoritative --prefer-dist`. For development builds and for production builds of non-plugin projects, no options are passed.
@@ -197,7 +197,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
   Note we're using something of a hack to get eslint to read ignore rules from `.gitignore` and per-directory `.eslintignore` files.
   Any eslintrc that does `root: true` or an `extends` that extends from an eslintrc that includes the hack will have to do like
   ```js
-  const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+  const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
   module.exports = {
   	// Whatever stuff, including `root: true` or `extends`.
   	ignorePatterns: loadIgnorePatterns( __dirname ),
@@ -232,14 +232,15 @@ We currently make use of the following packages in testing; it's encouraged to u
 
 WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there.
 
-Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and master versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'master' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
+Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and trunk versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'trunk' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
-<!-- @todo: Update this once we drop support for WP 5.8. -->
-Note that the state of WordPress's own PHPUnit integration is currently in flux. For WordPress 5.8 and earlier you need to both use `yoast/phpunit-polyfills` to supply polyfills and need to run with PHPUnit < 8.0 (even on PHP 8, where monkey-patching is required), while for 5.9 you can use `yoast/phpunit-polyfills` normally. Your best bet for the moment is to copy what Jetpack is doing; once the situation has stabilized, we'll update this documentation and [the example bootstrap.php](./examples/bootstrap.php).
+When implementing tests within a new plugin, you can follow the example set in [the example bootstrap.php](./examples/bootstrap.php).
 
 ### JavaScript tests
 
 If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-js`.
+
+JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testing, use `@testing-library/react` rather than `enzyme`.
 
 ### E2E tests
 
@@ -263,38 +264,42 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
-   2. The default branch should be `master`, matching the monorepo.
+   2. The default branch should be `trunk`, matching the monorepo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo.
+   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. You would do this here: `https://github.com/Automattic/example-reposiroty-name/settings/branches` - creating a new branch protection rule where only Matticbot (and whoever needs access to push, for example Ground Control) can push to that repository.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
-2. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
-3. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
-4. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
-5. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
+2. For a package you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it. 
+   1. Once the package is added to Packagist, it is best to add some maintainers. Currently these will be `automattic`, `kraft` and `dereksmart`.
+3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
+4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
+5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
+6. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
    * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger
 
-If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to master, and create the tag if that version has no prerelease or build suffix.
+If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to trunk, and create the tag if that version has no prerelease or build suffix.
 
 If `.extra.autotagger` is set to an object with a truthy value for `major` (i.e. if `.extra.autotagger.major` is truthy), the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
+
+If `.extra.autotagger` is set to an object with falsey value for `v` (i.e. if `.extra.autotagger.v` is set and falsey), the tag will not be prefixed with "v".
 
 Note that, for this to work, you'll need to create a secret `API_TOKEN_GITHUB` in the mirror repo. The value of the secret must be a GitHub access token. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 
 This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
 
-1. (optional) Go to the [monorepo's branch settings page](https://github.com/Automattic/jetpack/settings/branches), and turn on "Require branches to be up to date before merging" for the master branch.
+1. (optional) Activate the "Release Lock" (see PCYsg-zQS-p2#generating-a-new-changelog).
 2. Use `tools/changelogger-release.sh` to create a PR rolling the change files into a new changelog entry.
 3. Push and merge that PR.
-4. If you turned on "Require branches to be up to date before merging" in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
+4. If you used the Release Lock in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
    * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
-5. Verify that the Build workflow run for your PR's merge to master succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Amaster) will show the runs of that workflow for all merges to master.
-   * If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
+5. Verify that the Build workflow run for your PR's merge to trunk succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Atrunk) will show the runs of that workflow for all merges to trunk.
+   * If it failed, you can try re-running it as long as no other PRs were merged. If some were merged, you'll have to manually tag the affected projects.
 
 ### Auto-release
 
-If `.extra.autorelease` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically create a GitHub release when a version tag is created. This works with Autotagger.
+If `.extra.autorelease` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically create a GitHub release when a version tag is created. This works with Autotagger. Versions are recognized with and without a "v" prefix and with 2 to 4 components.
 
 The body of the created release will be the entry from CHANGELOG.md for the tagged version. A zip file will be added to the release as an artifact. The zip file contains a single directory, which holds the output from `git archive`.
 
@@ -309,7 +314,7 @@ Note the following will also be done by the build process:
 
 ### Npmjs Auto-publisher
 
-If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger.
+If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger. Versions must have a "v" prefix and have 3 components.
 
 Note that, for this to work, you'll need to create a secret `NPMJS_AUTOMATION_TOKEN` in the mirror repo. The value of the secret must be an npmjs.com automation token for an account with the ability to publish the package.
 See PCYsg-xsv-p2#mirror-repo-secrets for details.
@@ -324,7 +329,7 @@ If additional files need to be excluded, create an `.npmignore`.
 
 ### WordPress.org SVN Auto-publisher
 
-If `.extra.wp-svn-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically publish tags to WordPress.org's SVN when a version tag is created. This works with Autotagger.
+If `.extra.wp-svn-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will automatically publish tags to WordPress.org's SVN when a version tag is created. This works with Autotagger. Versions are recognized with and without a "v" prefix, with 2 to 4 components, and with an optional prerelease suffix.
 
 Note that, for this to work, you'll need to create secrets `WPSVN_USERNAME` and `WPSVN_PASSWORD` in the mirror repo. See PCYsg-xsv-p2#mirror-repo-secrets for details.
 Also note that `.extra.wp-plugin-slug` must be set in the project's `composer.json` or the action will fail.

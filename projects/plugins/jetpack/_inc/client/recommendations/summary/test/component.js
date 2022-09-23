@@ -1,30 +1,27 @@
-/**
- * External dependencies
- */
+import { jest } from '@jest/globals';
 import * as React from 'react';
-import { expect } from 'chai';
-import sinon from 'sinon';
-
-/**
- * Internal dependencies
- */
-import { Summary as SummaryFeature } from '../index';
-import { buildInitialState } from './fixtures';
 import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen, within } from 'test/test-utils';
+import { Summary as SummaryFeature } from '../index';
+import { buildInitialState } from './fixtures';
 
 describe( 'Recommendations – Summary', () => {
 	let updateRecommendationsStepStub;
+	let addViewedRecommendationStub;
 
-	before( function () {
+	beforeAll( () => {
 		const DUMMY_ACTION = { type: 'dummy' };
-		updateRecommendationsStepStub = sinon
-			.stub( recommendationsActions, 'updateRecommendationsStep' )
-			.returns( DUMMY_ACTION );
+		updateRecommendationsStepStub = jest
+			.spyOn( recommendationsActions, 'updateRecommendationsStep' )
+			.mockReturnValue( DUMMY_ACTION );
+		addViewedRecommendationStub = jest
+			.spyOn( recommendationsActions, 'addViewedRecommendation' )
+			.mockReturnValue( DUMMY_ACTION );
 	} );
 
-	after( function () {
-		updateRecommendationsStepStub.restore();
+	afterAll( () => {
+		updateRecommendationsStepStub.mockRestore();
+		addViewedRecommendationStub.mockRestore();
 	} );
 
 	describe( 'Loading cards when fetching data', () => {
@@ -33,7 +30,7 @@ describe( 'Recommendations – Summary', () => {
 				initialState: buildInitialState( { productSlug: undefined } ),
 			} );
 
-			expect( screen.getAllByAltText( 'Loading recommendations' ) ).to.be.not.null;
+			expect( screen.getAllByAltText( 'Loading recommendations' ).length ).toBeGreaterThan( 0 );
 		} );
 
 		it( "shows loading card when site's Rewind state is being fetched", () => {
@@ -41,7 +38,7 @@ describe( 'Recommendations – Summary', () => {
 				initialState: buildInitialState( { productSlug: 'jetpack_free', rewindStatus: {} } ),
 			} );
 
-			expect( screen.getAllByAltText( 'Loading recommendations' ) ).to.be.not.null;
+			expect( screen.getAllByAltText( 'Loading recommendations' ).length ).toBeGreaterThan( 0 );
 		} );
 	} );
 
@@ -52,9 +49,10 @@ describe( 'Recommendations – Summary', () => {
 					initialState: buildInitialState( { hideUpsell: true, productSlug: 'jetpack_free' } ),
 				} );
 
-				expect( screen.getByText( 'Recommended premium product' ) ).to.be.not.null;
-				expect( screen.getByText( 'Powerful security, performance, and marketing' ) ).to.be.not
-					.null;
+				expect( screen.getByText( 'Recommended premium product' ) ).toBeInTheDocument();
+				expect(
+					screen.getByText( 'Powerful security, performance, and marketing' )
+				).toBeInTheDocument();
 			} );
 
 			it( 'shows the upsell card when hide_upsell is false', () => {
@@ -62,7 +60,7 @@ describe( 'Recommendations – Summary', () => {
 					initialState: buildInitialState( { productSlug: 'jetpack_free' } ),
 				} );
 
-				expect( screen.getByText( 'Backup Daily' ) ).to.be.not.null;
+				expect( screen.getByText( 'Backup Daily' ) ).toBeInTheDocument();
 			} );
 		} );
 
@@ -75,7 +73,9 @@ describe( 'Recommendations – Summary', () => {
 					} ),
 				} );
 
-				expect( screen.getAllByText( 'Enable one-click restores' ) ).to.be.not.null;
+				expect(
+					screen.getByText( 'Enable one-click restores', { selector: 'h2' } )
+				).toBeInTheDocument();
 			} );
 
 			it( 'show manage security card when active or provisioning', () => {
@@ -86,7 +86,7 @@ describe( 'Recommendations – Summary', () => {
 					} ),
 				} );
 
-				expect( screen.getByText( 'Manage your security on Jetpack.com' ) ).to.be.not.null;
+				expect( screen.getByText( 'Manage your security on Jetpack.com' ) ).toBeInTheDocument();
 			} );
 		} );
 	} );
@@ -102,8 +102,8 @@ describe( 'Recommendations – Summary', () => {
 
 			const enabledFeatures = screen.getByRole( 'region', { name: /recommendations enabled/i } );
 
-			expect( enabledFeatures ).to.be.not.null;
-			expect( within( enabledFeatures ).getByText( 'Related Posts' ) ).to.be.not.null;
+			expect( enabledFeatures ).toBeInTheDocument();
+			expect( within( enabledFeatures ).getByText( 'Related Posts' ) ).toBeInTheDocument();
 		} );
 
 		it( 'shows the skipped recommendations (Monitor, Site Accelerator, and Creative Mail)', () => {
@@ -116,10 +116,10 @@ describe( 'Recommendations – Summary', () => {
 
 			const skippedFeatures = screen.getByRole( 'region', { name: /recommendations skipped/i } );
 
-			expect( skippedFeatures ).to.be.not.null;
-			expect( within( skippedFeatures ).getByText( 'Downtime Monitoring' ) ).to.be.not.null;
-			expect( within( skippedFeatures ).getByText( 'Site Accelerator' ) ).to.be.not.null;
-			expect( within( skippedFeatures ).getByText( 'Creative Mail' ) ).to.be.not.null;
+			expect( skippedFeatures ).toBeInTheDocument();
+			expect( within( skippedFeatures ).getByText( 'Downtime Monitoring' ) ).toBeInTheDocument();
+			expect( within( skippedFeatures ).getByText( 'Site Accelerator' ) ).toBeInTheDocument();
+			expect( within( skippedFeatures ).getByText( 'Creative Mail' ) ).toBeInTheDocument();
 		} );
 	} );
 } );

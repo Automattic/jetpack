@@ -1,0 +1,92 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import Button from '../index';
+
+<Meta
+  title="JS Packages/Components/Button"
+  component={Button}
+/>
+
+# Button
+This is a component to create buttons and links across Jetpack.
+
+## Props
+
+Below is the current available props for `Button`.
+
+### variant
+
+It accepts 4 variant types: `primary`, `secondary`, `link`, `external-link`.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--button-primary" />
+  <Story id="js-packages-components-button--button-secondary" />
+  <Story id="js-packages-components-button--button-link" />
+  <Story id="js-packages-components-button--button-external-link" />
+</Canvas>
+
+### size
+
+It accepts 2 size types: `normal` and `small`.
+
+<Canvas>
+  <Story id="js-packages-components-button--button-primary" />
+  <Button size="small">Jetpack Button</Button>
+</Canvas>
+
+### weight
+
+It accepts 2 weight types: `bold` and `regular`. `bold` as default.
+
+### icon
+
+It accepts an SVG, Component or string.
+
+You could use the ones from [@wordpress/icons](https://github.com/WordPress/gutenberg/blob/trunk/packages/icons/src/index.js).
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--icon" />
+</Canvas>
+
+### iconSize
+
+It defines the size of the icon, it needs to be a number.
+
+### disabled
+
+Disables the button removing cursor-pointer effect.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--disabled" />
+</Canvas>
+
+### isDestructive
+
+Set button on destructive state, which changes the color to red.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--destructive" />
+</Canvas>
+
+### isLoading
+
+Set button on loading state, which applies a centered spinner.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--loading" />
+</Canvas>
+
+### text
+
+It applies a text before children, it could be used together or on its own.
+
+<Canvas>
+  <Button text="My Text">My Children</Button>
+</Canvas>
+
+### fullWidth
+
+Stretches the button to take up the full width of the container.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--full-width" />
+</Canvas>

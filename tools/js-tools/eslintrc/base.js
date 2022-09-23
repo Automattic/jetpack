@@ -1,10 +1,10 @@
 // eslint config for normal projects. If for some reason you can't just inherit from .eslintrc.js, extend this instead of .eslintrc.js, probably like this:
 //
 // ```
-// const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+// const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 // module.exports = {
 // 	root: true,
-// 	extends: [ '../../../tools/js-tools/eslintrc/base.js' ],
+// 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
 // 	parserOptions: {
 // 		babelOptions: {
@@ -14,18 +14,21 @@
 // };
 // ```
 
+/**
+ * @type {import("eslint").Linter.Config}
+ */
 module.exports = {
-	parser: '@babel/eslint-parser',
+	parser: '@typescript-eslint/parser',
 	extends: [
-		'wpcalypso',
+		'./preload',
+		'plugin:wpcalypso/recommended',
 		'plugin:@wordpress/eslint-plugin/i18n',
 		'plugin:jsx-a11y/recommended',
-		'prettier',
+		'plugin:prettier/recommended',
 	],
 	env: {
 		browser: true,
 		es6: true,
-		mocha: true,
 		node: true,
 		jquery: true,
 		jest: true,
@@ -38,7 +41,22 @@ module.exports = {
 		requireConfigFile: false,
 	},
 	settings: {},
-	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
+	overrides: [
+		{
+			files: [ '*.ts', '*.tsx' ],
+			extends: './typescript',
+		},
+		{
+			files: [
+				// Note: Keep the patterns here in sync with tools/js-tools/jest/config.base.js.
+				'**/__tests__/**/*.[jt]s?(x)',
+				'**/?(*.)+(spec|test).[jt]s?(x)',
+				'**/test/*.[jt]s?(x)',
+			],
+			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
+		},
+	],
+	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -46,6 +64,14 @@ module.exports = {
 		curly: 2,
 		'computed-property-spacing': [ 2, 'always' ],
 		'func-call-spacing': 2,
+		'import/order': [
+			2,
+			{
+				'newlines-between': 'never',
+				alphabetize: { order: 'asc' },
+				groups: [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type' ],
+			},
+		],
 		'jsx-quotes': [ 2, 'prefer-double' ],
 		'key-spacing': 2,
 		'keyword-spacing': 2,
@@ -61,8 +87,6 @@ module.exports = {
 		'no-shadow': 2,
 		'no-spaced-func': 2,
 		'no-trailing-spaces': 2,
-		// Allows Chai `expect` expressions
-		'no-unused-expressions': 0,
 		'no-var': 2,
 		'object-curly-spacing': [ 2, 'always' ],
 		'operator-linebreak': [
@@ -92,7 +116,6 @@ module.exports = {
 		],
 		'wpcalypso/i18n-no-this-translate': 2,
 		'wpcalypso/i18n-mismatched-placeholders': 2,
-		'wpcalypso/import-docblock': 2,
 		'wpcalypso/jsx-gridicon-size': 0, // Ignored for Jetpack
 		'wpcalypso/jsx-classname-namespace': 0, // Ignored for Jetpack
 		'jsx-a11y/label-has-for': [
@@ -168,5 +191,7 @@ module.exports = {
 
 		// Disabled pending #16099.
 		'inclusive-language/use-inclusive-words': 0,
+		// Misc
+		'no-use-before-define': 'off',
 	},
 };

@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 
 /*
@@ -81,9 +75,10 @@ function setIsFetchingProduct( productId, isFetching ) {
  * @param {object}   store          - Redux store.
  * @param {object}   store.select   - Redux store select.
  * @param {Function} store.dispatch - Redux store dispatch.
+ * @param {object}   store.registry - Redux registry.
  * @returns {Promise}               - Promise which resolves when the product status is updated.
  */
-function requestProductStatus( productId, data, { select, dispatch } ) {
+function requestProductStatus( productId, data, { select, dispatch, registry } ) {
 	return new Promise( ( resolve, reject ) => {
 		// Check valid product.
 		const isValid = select.isValidProduct( productId );
@@ -109,6 +104,7 @@ function requestProductStatus( productId, data, { select, dispatch } ) {
 			.then( freshProduct => {
 				dispatch( setIsFetchingProduct( productId, false ) );
 				dispatch( setProduct( freshProduct ) );
+				registry.dispatch( CONNECTION_STORE_ID ).refreshConnectedPlugins();
 				resolve( freshProduct?.status );
 			} )
 			.catch( error => {

@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
-import { Octokit } from '@octokit/rest';
 import { createTokenAuth } from '@octokit/auth-token';
-import inquirer from 'inquirer';
+import { Octokit } from '@octokit/rest';
 import Configstore from 'configstore';
+import inquirer from 'inquirer';
 
 const conf = new Configstore( 'automattic/jetpack-cli' );
 

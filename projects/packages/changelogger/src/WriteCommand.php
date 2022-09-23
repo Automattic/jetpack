@@ -71,10 +71,11 @@ class WriteCommand extends Command {
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
 			->addOption( 'release-date', null, InputOption::VALUE_REQUIRED, 'Release date, as a valid PHP date or "unreleased"', 'now' )
 			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
-			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions', 1 )
+			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions. Set -1 to disable deduplication entirely.', 1 )
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
+			->addOption( 'add-pr-num', null, InputOption::VALUE_NONE, 'Try to append the GH PR number to each entry. Commit subject must end like: (#123)' )
 			->setHelp(
 				<<<EOF
 The <info>write</info> command adds a new changelog entry based on the changes files, and removes the changes files.
@@ -277,9 +278,12 @@ EOF
 		}
 
 		$output->writeln( "Reading changes from $dir...", OutputInterface::VERBOSITY_DEBUG );
-		$files   = null; // Make phpcs happy.
-		$changes = Utils::loadAllChanges( $dir, Config::types(), $this->formatter, $output, $files );
-		$max     = $files ? max( $files ) : 0;
+		$files         = null; // Make phpcs happy.
+		$input_options = array(
+			'add-pr-num' => $input->getOption( 'add-pr-num' ),
+		);
+		$changes       = Utils::loadAllChanges( $dir, Config::types(), $this->formatter, $output, $files, $input_options );
+		$max           = $files ? max( $files ) : 0;
 		if ( $max > 0 && ! $this->askToContinue( $input, $output, ( $max > 1 ? 'Errors' : 'Warnings' ) . ' were encountered while reading changes!' ) ) {
 			return array( self::ASKED_EXIT, null, null );
 		}
@@ -309,32 +313,35 @@ EOF
 		}
 
 		$depth = (int) $input->getOption( 'deduplicate' );
-		if ( 0 === $depth ) {
-			$output->writeln( 'Skipping deduplication, --deduplicate is 0.', OutputInterface::VERBOSITY_DEBUG );
+		if ( $depth < 0 ) {
+			$output->writeln( "Skipping deduplication, --deduplicate is $depth.", OutputInterface::VERBOSITY_DEBUG );
 			return self::OK_EXIT;
 		}
 
-		$output->writeln( "Deduplicating changes from the last $depth version(s)...", OutputInterface::VERBOSITY_DEBUG );
 		$dedup = array();
-		foreach ( array_slice( $changelog->getEntries(), 0, $depth ) as $entry ) {
-			foreach ( $entry->getChanges() as $change ) {
-				$dedup[ $change->getContent() ] = true;
+		if ( $depth > 0 ) {
+			$output->writeln( "Deduplicating changes from the last $depth version(s)...", OutputInterface::VERBOSITY_DEBUG );
+			foreach ( array_slice( $changelog->getEntries(), 0, $depth ) as $entry ) {
+				foreach ( $entry->getChanges() as $change ) {
+					$dedup[ $change->getContent() ] = true;
+				}
 			}
+			unset( $dedup[''] );
+		} else {
+			$output->writeln( 'Deduplicating changes in the current version...', OutputInterface::VERBOSITY_DEBUG );
 		}
-		unset( $dedup[''] );
-		if ( $dedup ) {
-			$changes = array_filter(
-				$changes,
-				function ( $change, $name ) use ( $dedup, $output ) {
-					if ( isset( $dedup[ $change->getContent() ] ) ) {
-						$output->writeln( "Found duplicate change in $name.", OutputInterface::VERBOSITY_DEBUG );
-						return false;
-					}
-					return true;
-				},
-				ARRAY_FILTER_USE_BOTH
-			);
-		}
+		$changes = array_filter(
+			$changes,
+			function ( $change, $name ) use ( &$dedup, $output ) {
+				if ( isset( $dedup[ $change->getContent() ] ) ) {
+					$output->writeln( "Found duplicate change in $name.", OutputInterface::VERBOSITY_DEBUG );
+					return false;
+				}
+				$dedup[ $change->getContent() ] = true;
+				return true;
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
 		if ( ! $changes && ! $this->askedNoChanges ) {
 			$this->askedNoChanges = true;
 			if ( ! $this->askToContinue( $input, $output, 'All changes were duplicates.' ) ) {

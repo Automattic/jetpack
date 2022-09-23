@@ -1,29 +1,18 @@
-/**
- * External dependencies
- */
-import { uniq } from 'lodash';
 import {
 	isUpgradeNudgeEnabled,
 	isUpgradable,
 	isStillUsableWithFreePlan,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import withUpgradeBanner from './with-upgrade-banner';
-import renderPaidIcon from './render-paid-icon.js';
-
-import './editor.scss';
+import { uniq } from 'lodash';
 import paidBlockMediaPlaceholder from './media-placeholder';
 import paidBlockMediaReplaceFlow from './media-replace-flow';
+import renderPaidIcon from './render-paid-icon.js';
+import withUpgradeBanner from './with-upgrade-banner';
+
+import './editor.scss';
 
 const stylesByPaidBlocks = [];
 
@@ -48,6 +37,12 @@ const jetpackPaidBlock = ( settings, name ) => {
 				default: true,
 			};
 		}
+
+		// Ensure that the toolbar of the inner blocks doesn't overlap the upgrade banner.
+		settings.supports = {
+			...settings.supports,
+			__experimentalExposeControlsToChildren: true,
+		};
 	}
 
 	return settings;
@@ -57,7 +52,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
 
 // Extend BlockListBlock.
-addFilter( 'editor.BlockListBlock', 'jetpack/paid-block-with-warning', withUpgradeBanner );
+addFilter( 'editor.BlockEdit', 'jetpack/paid-block-with-warning', withUpgradeBanner );
 
 // Take the control of the MediaPlaceholder.
 addFilter(

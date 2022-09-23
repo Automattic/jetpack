@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Moved plan-utils.js file from plugin/jetpack to shared-extension-utils. Updated import references for the same

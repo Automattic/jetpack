@@ -6,16 +6,16 @@
 	"require": {
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-connection": "^1.37",
-		"automattic/jetpack-plugins-installer": "^0.1",
-		"automattic/jetpack-tracking": "^1.14",
-		"automattic/jetpack-redirect": "^1.7"
+		"automattic/jetpack-connection": "^1.44",
+		"automattic/jetpack-jitm": "^2.2",
+		"automattic/jetpack-licensing": "^1.7",
+		"automattic/jetpack-plugins-installer": "^0.2",
+		"automattic/jetpack-redirect": "^1.7",
+		"automattic/jetpack-constants": "^1.6"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0",
-		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
@@ -30,7 +30,7 @@
 		],
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
-			"pnpm run test -- --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+			"pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -40,7 +40,7 @@
 		],
 		"test-js-watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"pnpm run test -- --watch"
+			"pnpm run test --watch"
 		],
 		"build-development": [
 			"pnpm run build"
@@ -73,7 +73,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.6.x-dev"
+			"dev-trunk": "2.0.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

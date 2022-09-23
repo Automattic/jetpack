@@ -2,8 +2,13 @@
 /**
  * Jetpack Compatibility File
  * See: https://jetpack.com/
+ *
+ * @package automattic/jetpack
  */
 
+/**
+ * Add Jetpack theme supports for Twenty Fifteen.
+ */
 function twentyfifteen_jetpack_setup() {
 	/**
 	 * Add theme support for Responsive Videos.
@@ -17,6 +22,9 @@ function twentyfifteen_jetpack_setup() {
 }
 add_action( 'after_setup_theme', 'twentyfifteen_jetpack_setup' );
 
+/**
+ * Enqueue Jetpack compat styles for Twenty Fifteen.
+ */
 function twentyfifteen_init_jetpack() {
 	/**
 	 * Add our compat CSS file for custom widget stylings and such.

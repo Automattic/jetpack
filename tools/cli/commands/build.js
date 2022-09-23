@@ -1,30 +1,23 @@
-/**
- * External dependencies
- */
+import { constants as fsconstants } from 'fs';
+import fs from 'fs/promises';
+import npath from 'path';
 import chalk from 'chalk';
 import execa from 'execa';
-import fs from 'fs/promises';
-import { constants as fsconstants } from 'fs';
-import npath from 'path';
 import inquirer from 'inquirer';
 import Listr from 'listr';
-import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
+import ListrState from 'listr/lib/state.js';
 import pLimit from 'p-limit';
-
-/**
- * Internal dependencies
- */
-import { chalkJetpackGreen } from '../helpers/styling.js';
-import { coerceConcurrency } from '../helpers/normalizeArgv.js';
-import formatDuration from '../helpers/format-duration.js';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
-import promptForProject from '../helpers/promptForProject.js';
+import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
-import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
-import PrefixStream from '../helpers/prefix-stream.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
+import { coerceConcurrency } from '../helpers/normalizeArgv.js';
+import PrefixStream from '../helpers/prefix-stream.js';
+import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
+import promptForProject from '../helpers/promptForProject.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
@@ -482,6 +475,49 @@ async function copyDirectory( src, dest ) {
 }
 
 /**
+ * Write a file atomically.
+ *
+ * Writes to a temporary file then renames, on the assumption that the latter is an atomic operation.
+ *
+ * @param {string} file - File name.
+ * @param {string} data - Contents to write.
+ * @param {object} options - Options.
+ */
+async function writeFileAtomic( file, data, options = {} ) {
+	// Note there doesn't seem to be any need for managing ownership or flag 'wx' here,
+	// if some attacker could take advantage they could do worse more directly.
+	const tmpfile = npath.join( npath.dirname( file ), `.${ npath.basename( file ) }.tmp` );
+	await fs.writeFile( tmpfile, data, options );
+	try {
+		await fs.rename( tmpfile, file );
+	} catch ( e ) {
+		await fs.rm( tmpfile ).catch( () => null );
+		throw e;
+	}
+}
+
+/**
+ * Copy a file atomically.
+ *
+ * Copies to a temporary file then renames, on the assumption that the latter is an atomic operation.
+ *
+ * @param {string} src - Source file.
+ * @param {string} dest - Dest file.
+ */
+async function copyFileAtomic( src, dest ) {
+	// Note there doesn't seem to be any need for managing ownership or flag 'wx' here,
+	// if some attacker could take advantage they could do worse more directly.
+	const tmpfile = npath.join( npath.dirname( dest ), `.${ npath.basename( dest ) }.tmp` );
+	await fs.copyFile( src, tmpfile );
+	try {
+		await fs.rename( tmpfile, dest );
+	} catch ( e ) {
+		await fs.rm( tmpfile ).catch( () => null );
+		throw e;
+	}
+}
+
+/**
  * Build a project.
  *
  * @param {object} t - Task object.
@@ -495,36 +531,43 @@ async function buildProject( t ) {
 
 	if ( t.argv.forMirrors ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
-		if ( composerJson.repositories && Object.keys( t.ctx.versions ).length > 0 ) {
-			const idx = composerJson.repositories.findIndex( r => r.options?.monorepo );
-			if ( idx >= 0 ) {
+		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
+		if ( typeof idx === 'number' && idx >= 0 ) {
+			// Extract only the versions this project actually depends on, in a consistent order,
+			// to avoid vendor/composer/installed.json changing randomly every build.
+			const deps = new Set( t.ctx.dependencies.get( t.project ) );
+			for ( const dep of deps ) {
+				for ( const d of t.ctx.dependencies.get( dep ) ) {
+					deps.add( d );
+				}
+			}
+			const versions = {};
+			for ( const dep of [ ...deps ].sort() ) {
+				if ( t.ctx.versions[ dep ] ) {
+					versions[ t.ctx.versions[ dep ].name ] = t.ctx.versions[ dep ].version;
+				}
+			}
+
+			if ( Object.keys( versions ).length > 0 ) {
 				t.output( `\n=== Munging composer.json to fetch built packages ===\n\n` );
 				composerJson.repositories.splice( idx, 0, {
 					type: 'path',
 					url: t.argv.forMirrors + '/*/*',
 					options: {
 						monorepo: true,
-						versions: t.ctx.versions,
+						versions,
 					},
 				} );
-				await fs.writeFile(
+				await writeFileAtomic(
 					`${ t.cwd }/composer.json`,
 					JSON.stringify( composerJson, null, '\t' ) + '\n',
 					{ encoding: 'utf8' }
 				);
 				// Update composer.lock too, if any.
 				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
-					const res = await t.execa( 'composer', [ 'info', '--locked', '--name-only' ], {
+					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
 						cwd: t.cwd,
-						stdio: [ null, 'pipe', null ],
 					} );
-					const pkgs = res.stdout
-						.split( '\n' )
-						.map( s => s.trim() )
-						.filter( s => t.ctx.versions.hasOwnProperty( s ) );
-					if ( pkgs.length ) {
-						await t.execa( 'composer', [ 'update', '--no-install', ...pkgs ], { cwd: t.cwd } );
-					}
 				}
 			}
 		}
@@ -679,7 +722,11 @@ async function buildProject( t ) {
 		const srcfile = npath.join( t.cwd, file );
 		const destfile = npath.join( buildDir, file );
 		await fs.mkdir( npath.dirname( destfile ), { recursive: true } );
-		await fs.copyFile( srcfile, destfile );
+		if ( destfile.endsWith( '/composer.json' ) || destfile.endsWith( '/package.json' ) ) {
+			await copyFileAtomic( srcfile, destfile );
+		} else {
+			await fs.copyFile( srcfile, destfile );
+		}
 	}
 
 	// HACK: Create stubs to avoid upgrade errors. See https://github.com/Automattic/jetpack/pull/22431.
@@ -721,21 +768,41 @@ async function buildProject( t ) {
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
-		await fs.writeFile(
+		await writeFileAtomic(
 			`${ buildDir }/composer.json`,
 			JSON.stringify( composerJson, null, '\t' ) + '\n',
 			{ encoding: 'utf8' }
 		);
 	}
 
-	// Remove engines from package.json.
+	// Remove engines and workspace refs from package.json.
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		const packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
+
 		packageJson.engines = packageJson.publish_engines; // May be undefined, that's ok.
 		delete packageJson.publish_engines;
-		await fs.writeFile(
+
+		const depTypes = [
+			'dependencies',
+			'devDependencies',
+			'peerDependencies',
+			'optionalDependencies',
+		];
+		for ( const key of depTypes ) {
+			if ( packageJson[ key ] ) {
+				for ( const [ pkg, ver ] of Object.entries( packageJson[ key ] ) ) {
+					if ( ver.startsWith( 'workspace:* || ' ) ) {
+						packageJson[ key ][ pkg ] = ver.substring( 15 );
+					} else if ( ver === 'workspace:*' ) {
+						delete packageJson[ key ][ pkg ];
+					}
+				}
+			}
+		}
+
+		await writeFileAtomic(
 			`${ buildDir }/package.json`,
 			JSON.stringify( packageJson, null, '\t' ) + '\n',
 			{ encoding: 'utf8' }
@@ -765,8 +832,10 @@ async function buildProject( t ) {
 	}
 
 	// Build succeeded! Now do some bookkeeping.
-	t.ctx.versions[ composerJson.name ] =
-		composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-master' ] || 'dev-master';
+	t.ctx.versions[ t.project ] = {
+		name: composerJson.name,
+		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
+	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );

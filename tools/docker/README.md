@@ -17,9 +17,9 @@ Unified environment for developing Jetpack using Docker containers providing fol
 
 To use Jetpack's Docker environment, you will need:
 
-- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#clone-the-repository).
+- A [local copy of the Jetpack repository](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository).
 - [Docker](https://hub.docker.com/search/?type=edition&offering=community) installed and running.
-- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#install-development-tools).
+- [Jetpack's required tools](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#install-development-tools).
 
 Our Docker instance comes with a default settings file. You can modify those defaults by copying the file:
 
@@ -73,7 +73,7 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 
 ### Container Environments
 
-Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
+Configurable settings are documented in the [`./tools/docker/default.env` file](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/default.env).
 Customizations should go into a `./tools/docker/.env` file you create, though, not in the `./tools/docker/default.env` file.
 
 ### Docker configurations

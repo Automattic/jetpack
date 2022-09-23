@@ -1,20 +1,16 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
 import React from 'react';
 import withMock from 'storybook-addon-mock';
-
-/**
- * Internal dependencies
- */
-import ProductDetailCard, { ProductDetail } from '../index.jsx';
+import ProductDetailCard from '../index.jsx';
 import { getAllMockData } from './utils.js';
 
 export default {
 	title: 'Packages/My Jetpack/Product Detail Card',
 	component: ProductDetailCard,
 	decorators: [ withMock ],
+	parameters: {
+		layout: 'centered',
+	},
 };
 
 const mockData = getAllMockData();
@@ -25,15 +21,15 @@ export const Default = DefaultProductDetailCard.bind( {} );
 Default.parameters = { mockData };
 Default.args = {};
 
-const AntiSpamTemplate = args => <ProductDetail { ...args } slug="anti-spam" />;
+const AntiSpamTemplate = args => <ProductDetailCard { ...args } slug="anti-spam" />;
 export const JetpackAntiSpam = AntiSpamTemplate.bind( {} );
 JetpackAntiSpam.parameters = { mockData };
 
-const BackupTemplate = args => <ProductDetail { ...args } slug="backup" />;
+const BackupTemplate = args => <ProductDetailCard { ...args } slug="backup" />;
 export const JetpackBackup = BackupTemplate.bind( {} );
 JetpackBackup.parameters = { mockData };
 
-const BoostTemplate = args => <ProductDetail { ...args } slug="boost" />;
+const BoostTemplate = args => <ProductDetailCard { ...args } slug="boost" />;
 export const jetpackBoost = BoostTemplate.bind( {} );
 jetpackBoost.parameters = { mockData };
 

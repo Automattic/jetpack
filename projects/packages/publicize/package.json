@@ -1,29 +1,29 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize",
-	"version": "0.1.0-alpha",
+	"version": "0.13.1",
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/publicize/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Publicize"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/publicize"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented.",
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
 	},
 	"devDependencies": {},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

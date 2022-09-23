@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2022-07-06
+### Added
+- Added lint to ensure httponly is set (or intentionally ignored) on setcookie. [#24418]
+- Import rules from `WordPress` instead of `WordPress-Core`, `WordPress-Docs`, and `WordPress-Extra` individually. This adds two new rules. [#23932]
+
+### Changed
+- Renaming master to trunk. [#24661]
+- Rulesets: allow the use of lowercase WordPress. [#24363]
+- Updated package dependencies.
+
+### Fixed
+- Detect classes like `WP_Test_.*_Case` as test case base classes too. [#24027]
+
+## [2.5.0] - 2022-04-05
+### Added
+- Add sniff to disallow relative file includes.
+- Removed requirement for an ending character on inline comments and enabled MediaWiki.Usage.IsNull
+
+### Changed
+- Adjust deps on dev-develop of wp-coding-standards/wpcs to not require users install it.
+
+### Removed
+- Yoda conditional checks are no longer enforced.
+
+### Fixed
+- Fixed minor coding standard violation.
+- Resync PHPUnitTestTrait hack and have it detect "Testcase" in addition to "TestCase".
+- Update `wp-coding-standards/wpcs` to `dev-develop`. They haven't done a release in over a year, and we need fixes for errors in PHP 8.0 and 8.1.
+
 ## [2.4.0] - 2022-02-01
 ### Added
 - Add a sniff to check the textdomain passed to `Assets::register_script()`.
@@ -73,6 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Codesniffer: Add a package to hold our coding standard
 
+[2.6.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.5.0...v2.6.0
+[2.5.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.3.0...v2.4.0
 [2.3.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.2.1...v2.3.0
 [2.2.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v2.2.0...v2.2.1

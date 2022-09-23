@@ -461,6 +461,7 @@ class WriteCommandTest extends CommandTestCase {
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
 						'added-stuff'     => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-dup' => "Significance: patch\nType: added\n\nStuff.\n",
 						'added-stuff-2'   => "Significance: patch\nType: added\n\nStuff. And more stuff.\n",
 					),
 				),
@@ -476,6 +477,7 @@ class WriteCommandTest extends CommandTestCase {
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
 						'added-stuff'     => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-dup' => "Significance: patch\nType: added\n\nStuff.\n",
 						'added-stuff-2'   => "Significance: patch\nType: added\n\nStuff. And more stuff.\n",
 					),
 				),
@@ -484,6 +486,22 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^$}m' ),
 				true,
 				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+			),
+			'Deduplication, --dedupliacte=-1'              => array(
+				array( '--deduplicate' => '-1' ),
+				array(
+					'changes' => array(
+						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
+						'added-stuff'     => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-dup' => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-2'   => "Significance: patch\nType: added\n\nStuff. And more stuff.\n",
+					),
+				),
+				array(),
+				0,
+				array( '{^$}m' ),
+				true,
+				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff.\n- Stuff.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'Deduplication, --dedupliacte=2'               => array(
 				array( '--deduplicate' => '2' ),

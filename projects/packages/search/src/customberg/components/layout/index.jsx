@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
-import { useEffect, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
 import { store as viewportStore } from '@wordpress/viewport';
-
-/**
- * Internal dependencies
- */
 import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { eventPrefix, initialize, identifySite, recordEvent } from 'lib/analytics';
 import { OPTIONS_TAB_IDENTIFIER } from 'lib/constants';

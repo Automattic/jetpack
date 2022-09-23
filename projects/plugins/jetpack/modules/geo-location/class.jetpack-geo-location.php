@@ -51,7 +51,7 @@ class Jetpack_Geo_Location {
 	 * Jetpack_Geo_Location instance init.
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Geo_Location();
 		}
 

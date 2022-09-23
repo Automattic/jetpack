@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import React from 'react';
 
 import './style.scss';
 

@@ -4,11 +4,20 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.37",
-		"automattic/jetpack-sync": "^1.30"
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-admin-ui": "^0.2",
+		"automattic/jetpack-autoloader": "^2.11",
+		"automattic/jetpack-composer-plugin": "^1.1",
+		"automattic/jetpack-config": "^1.9",
+		"automattic/jetpack-connection": "^1.44",
+		"automattic/jetpack-connection-ui": "^2.4",
+		"automattic/jetpack-identity-crisis": "^0.8",
+		"automattic/jetpack-my-jetpack": "^2.0",
+		"automattic/jetpack-sync": "^1.38",
+		"automattic/jetpack-status": "^1.14"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0",
+		"automattic/jetpack-changelogger": "^3.2",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/wordbless": "@dev"
 	},
@@ -30,7 +39,17 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"repositories": [
 		{
@@ -54,12 +73,14 @@
 			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.2.x-dev"
+			"dev-trunk": "1.8.x-dev"
 		}
 	},
 	"config": {
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
 		}
 	}
 }

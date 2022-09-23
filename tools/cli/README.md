@@ -7,11 +7,11 @@ The `jetpack` CLI tool is used to help with development in [the Jetpack monorepo
 If you normally use just one Jetpack Monorepo checkout, you can add `jetpack` to your path by running
 ```sh
 pnpm install
-pnpx jetpack cli link
+pnpm jetpack cli link
 ```
 from the monorepo root.
 
-You can also use `pnpx --no jetpack` from (almost) anywhere in the monorepo. If you commonly use multiple checkouts, you might add this as a shell alias or a stub script in your path so as to always run the current checkout's instance.
+You can also use `pnpm jetpack` from (almost) anywhere in the monorepo. If you commonly use multiple checkouts, you might add this as a shell alias or a stub script in your path so as to always run the current checkout's instance.
 
 ## Usage
 
@@ -21,7 +21,7 @@ You run a command by using `jetpack [command] [arguments]`. Every command suppor
 
 **Linking and Unlinking the CLI**
 
-The CLI commands can be run from anywhere, and the changes will be made in whichever directory it’s symlinked to. To change the directory that you want the CLI to run commands in, you can first run jetpack cli unlink, then change into the directory you want and run pnpx jetpack cli link again.
+The CLI commands can be run from anywhere, and the changes will be made in whichever directory it’s symlinked to. To change the directory that you want the CLI to run commands in, you can first run `jetpack cli unlink`, then change into the directory you want and run `pnpm jetpack cli link` again.
 
 ## Available Commands
 
@@ -62,7 +62,7 @@ This command lets you clean the monorepo of unneeded files. As this action is de
 
 Let’s you manage docker containers directly from the CLI.
 
-There are a lot of docker commands that you can pass to `jetpack docker`. You can view [comprehensive docker documentation here](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md), or see a full list of commands by running jetpack docker --help.
+There are a lot of docker commands that you can pass to `jetpack docker`. You can view [comprehensive docker documentation here](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md), or see a full list of commands by running jetpack docker --help.
 
 - Start a docker container in detached mode: `jetpack docker up -d`
 - Start a second docker container for e2e tests on port 8888: `jetpack docker --type e2e --name test1 --port 8888 up`

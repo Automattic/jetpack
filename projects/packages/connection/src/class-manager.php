@@ -116,7 +116,6 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
-
 	}
 
 	/**
@@ -316,7 +315,7 @@ class Manager {
 	 * @return false|array
 	 */
 	public function verify_xml_rpc_signature() {
-		if ( is_null( $this->xmlrpc_verification ) ) {
+		if ( $this->xmlrpc_verification === null ) {
 			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
 
 			if ( is_wp_error( $this->xmlrpc_verification ) ) {
@@ -348,7 +347,7 @@ class Manager {
 	 * @todo Refactor to use proper nonce verification.
 	 */
 	private function internal_verify_xml_rpc_signature() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// It's not for us.
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return false;
@@ -359,14 +358,16 @@ class Manager {
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
 			'nonce'     => isset( $_GET['nonce'] ) ? wp_unslash( $_GET['nonce'] ) : '',
 			'body_hash' => isset( $_GET['body-hash'] ) ? wp_unslash( $_GET['body-hash'] ) : '',
-			'method'    => wp_unslash( $_SERVER['REQUEST_METHOD'] ),
-			'url'       => wp_unslash( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ), // Temp - will get real signature URL later.
+			'method'    => isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : null,
+			'url'       => wp_unslash( ( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null ) . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : null ) ), // Temp - will get real signature URL later.
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		$error_type = 'xmlrpc';
+
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
 
@@ -374,7 +375,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || (string) $jetpack_api_version !== $version ) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -386,7 +387,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -396,20 +397,20 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( compact( 'signature_details' ) );
+			$token->add_data( compact( 'signature_details', 'error_type' ) );
 			return $token;
 		} elseif ( ! $token ) {
 			return new \WP_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -434,7 +435,7 @@ class Manager {
 			ksort( $post_data );
 
 			$body = http_build_query( stripslashes_deep( $post_data ) );
-		} elseif ( is_null( $this->raw_post_data ) ) {
+		} elseif ( $this->raw_post_data === null ) {
 			$body = file_get_contents( 'php://input' );
 		} else {
 			$body = null;
@@ -442,7 +443,7 @@ class Manager {
 		// phpcs:enable
 
 		$signature = $jetpack_signature->sign_current_request(
-			array( 'body' => is_null( $body ) ? $this->raw_post_data : $body )
+			array( 'body' => $body === null ? $this->raw_post_data : $body )
 		);
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
@@ -451,7 +452,7 @@ class Manager {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
 			return $signature;
@@ -459,7 +460,7 @@ class Manager {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		$nonce     = wp_unslash( (string) $_GET['nonce'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- WP Core doesn't sanitize nonces either.
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
@@ -467,7 +468,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -477,11 +478,11 @@ class Manager {
 		$signature_details['expected'] = $signature;
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		if ( ! hash_equals( $signature, wp_unslash( $_GET['signature'] ) ) ) {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -977,21 +978,6 @@ class Manager {
 		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
 		/**
-		 * Filters whether the connection manager should use the iframe authorization
-		 * flow instead of the regular redirect-based flow.
-		 *
-		 * @since 1.9.0
-		 *
-		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
-		 */
-		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
-
-		// Do not modify anything that is not related to authorize requests.
-		if ( 'authorize' === $relative_url && $iframe_flow ) {
-			$relative_url = 'authorize_iframe';
-		}
-
-		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
 		 * @since 1.7.0
@@ -1160,19 +1146,12 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
-		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
-
-		if ( ! $allow_inplace_authorization ) {
-			// Forces register_site REST endpoint to return the Calypso authorization URL.
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
-		}
 
 		add_filter(
 			'jetpack_register_site_rest_response',
-			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
-				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
-				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
+			function ( $response ) use ( $alternate_authorization_url ) {
+				$response['alternateAuthorizeUrl'] = $alternate_authorization_url;
 				return $response;
 			}
 		);
@@ -1659,16 +1638,15 @@ class Manager {
 	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
 	 * This is a proxy method to simplify the Connection package API.
 	 *
-	 * @see Manager::disable_plugin()
-	 * @see Manager::disconnect_site_wpcom()
-	 * @see Manager::delete_all_connection_tokens()
+	 * @see Manager::disconnect_site()
 	 *
+	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 * @return bool
 	 */
-	public function remove_connection() {
-		$this->disable_plugin();
-		$this->disconnect_site_wpcom();
-		$this->delete_all_connection_tokens();
+	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
+
+		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
 	}
@@ -1870,7 +1848,7 @@ class Manager {
 				'scope'                 => $signed_role,
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
-				'is_active'             => $this->is_active(), // TODO Deprecate this.
+				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
 				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
@@ -1999,8 +1977,13 @@ class Manager {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
+	 * @param bool    $ignore_connected_plugins Delete the tokens even if there are other connected plugins.
 	 */
-	public function disconnect_site( $disconnect_wpcom = true ) {
+	public function disconnect_site( $disconnect_wpcom = true, $ignore_connected_plugins = true ) {
+		if ( ! $ignore_connected_plugins && null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 
 		( new Nonce_Handler() )->clean_all();
@@ -2018,10 +2001,10 @@ class Manager {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$this->disconnect_site_wpcom( true );
+			$this->disconnect_site_wpcom( $ignore_connected_plugins );
 		}
 
-		$this->delete_all_connection_tokens( true );
+		$this->delete_all_connection_tokens( $ignore_connected_plugins );
 
 		// Remove tracked package versions, since they depend on the Jetpack Connection.
 		delete_option( Package_Version_Tracker::PACKAGE_VERSION_OPTION );
@@ -2334,7 +2317,7 @@ class Manager {
 	 * @return array|WP_Error
 	 */
 	public function get_connected_plugins() {
-		$maybe_plugins = Plugin_Storage::get_all( true );
+		$maybe_plugins = Plugin_Storage::get_all();
 
 		if ( $maybe_plugins instanceof WP_Error ) {
 			return $maybe_plugins;
@@ -2347,14 +2330,11 @@ class Manager {
 	 * Force plugin disconnect. After its called, the plugin will not be allowed to use the connection.
 	 * Note: this method does not remove any access tokens.
 	 *
+	 * @deprecated since 1.39.0
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->disable();
+		return null;
 	}
 
 	/**
@@ -2362,28 +2342,23 @@ class Manager {
 	 * After its called, the plugin will be allowed to use the connection again.
 	 * Note: this method does not initialize access tokens.
 	 *
+	 * @deprecated since 1.39.0.
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->enable();
+		return null;
 	}
 
 	/**
 	 * Whether the plugin is allowed to use the connection, or it's been disconnected by user.
 	 * If no plugin slug was passed into the constructor, always returns true.
 	 *
+	 * @deprecated 1.42.0 This method no longer has a purpose after the removal of the soft disconnect feature.
+	 *
 	 * @return bool
 	 */
 	public function is_plugin_enabled() {
-		if ( ! $this->plugin ) {
-			return true;
-		}
-
-		return $this->plugin->is_enabled();
+		return true;
 	}
 
 	/**
@@ -2489,5 +2464,4 @@ class Manager {
 		}
 		return $stats;
 	}
-
 }

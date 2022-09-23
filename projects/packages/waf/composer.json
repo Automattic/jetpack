@@ -1,18 +1,19 @@
 {
 	"name": "automattic/jetpack-waf",
 	"description": "Tools to assist with the Jetpack Web Application Firewall",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"wikimedia/aho-corasick": "^1.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"files": [
-			"actions.php"
+			"actions.php",
+			"cli.php"
 		],
 		"classmap": [
 			"src/"
@@ -24,6 +25,9 @@
 		],
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-coverage-html": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage"
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -43,11 +47,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-waf",
+		"textdomain": "jetpack-waf",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-trunk": "0.6.x-dev"
 		}
 	}
 }

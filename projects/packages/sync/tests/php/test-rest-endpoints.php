@@ -234,6 +234,20 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/sync/spawn-sync` GET endpoint with Dedicated Sync disabled.
+	 */
+	public function test_sync_spawn_sync_dedicated_sync_disabled() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/sync/spawn-sync' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 422, $response->get_status() );
+		$this->assertEquals( 'dedicated_sync_disabled', $data['code'] );
+	}
+
+	/**
 	 * Array of Sync Endpoints and method.
 	 *
 	 * @return int[][]

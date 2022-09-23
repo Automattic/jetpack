@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { _x, sprintf } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
 import { date } from '@wordpress/date';
+import { Component } from '@wordpress/element';
+import { _x, sprintf } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 
 class DayPreview extends Component {

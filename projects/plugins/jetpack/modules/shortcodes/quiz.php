@@ -111,7 +111,7 @@ class Quiz_Shortcode {
 	 * @return bool|null
 	 */
 	private static function is_javascript_unavailable() {
-		if ( ! is_null( self::$javascript_unavailable ) ) {
+		if ( self::$javascript_unavailable !== null ) {
 			return self::$javascript_unavailable;
 		}
 
@@ -195,7 +195,7 @@ class Quiz_Shortcode {
 				$id .= ' data-trackid="' . esc_attr( self::$quiz_params['trackid'] ) . '"';
 			}
 			if ( self::is_wpcom() && ! empty( self::$quiz_params['a8ctraining'] ) ) {
-				if ( is_null( self::$username ) ) {
+				if ( self::$username === null ) {
 					self::$username = wp_get_current_user()->user_login;
 				}
 				$id .= ' data-a8ctraining="' . esc_attr( self::$quiz_params['a8ctraining'] ) . '" data-username="' . esc_attr( self::$username ) . '"';

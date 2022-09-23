@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-
-/**
- * Internal Dependencies
- */
 import { DecorativeCard } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import disconnectImage from '../images/disconnect-thanks.jpg';
 
 /**
