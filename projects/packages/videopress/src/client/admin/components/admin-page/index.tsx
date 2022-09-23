@@ -29,10 +29,16 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const { items: videos, total: totalVideoCount } = useVideos();
+	const {
+		items: videos,
+		total: totalVideoCount,
+		uploadedVideoCount,
+		// isFetching = true,
+		// IsFetchingTotalVideosCount = true,
+	} = useVideos();
 	const localVideos = [];
 	const localTotalVideoCount = 0;
-	const hasVideos = videos && videos.length > 0;
+	const hasVideos = uploadedVideoCount > 0;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
