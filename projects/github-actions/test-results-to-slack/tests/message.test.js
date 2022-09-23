@@ -9,9 +9,9 @@ describe( 'Message content', () => {
 
 	test.each`
 		eventName           | isFailure  | suiteName         | expected
-		${ 'push' }         | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_ (push)` } }
-		${ 'push' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_ (push)` } }
-		${ 'push' }         | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_ (push)` } }
+		${ 'push' }         | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_` } }
+		${ 'push' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_` } }
+		${ 'push' }         | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_` } }
 		${ 'workflow_run' } | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_ (workflow_run)` } }
 		${ 'workflow_run' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
 		${ 'workflow_run' } | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
@@ -34,6 +34,7 @@ describe( 'Message content', () => {
 				payload: {
 					head_commit: { id: '123', message: 'Some commit message' },
 					pull_request: { number: prNumber },
+					workflow_run: { head_commit: { id: '123', message: 'Some commit message' } },
 				},
 				sha,
 				eventName,
@@ -124,6 +125,7 @@ describe( 'Message content', () => {
 			payload: {
 				head_commit: { id: '123', message: 'Some commit message' },
 				pull_request: { number: prNumber },
+				workflow_run: { head_commit: { id: '123', message: 'Some commit message' } },
 			},
 			sha,
 			eventName,

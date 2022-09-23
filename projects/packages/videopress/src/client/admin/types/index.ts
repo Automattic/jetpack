@@ -24,15 +24,18 @@ export type OriginalVideoPressVideo = {
 	/**
 	 * Video uploaded date in UTC
 	 */
-	date: number;
-	/**
-	 * Video uploaded date formatted
-	 */
-	dateFormatted: string;
+	uploadDate: number;
+
 	/**
 	 * Video duration, in milliseconds
 	 */
 	duration?: number;
+
+	/**
+	 * Video rating
+	 */
+	rating?: 'G' | 'PG-13' | 'R-17';
+
 	/**
 	 * Plays counter
 	 */
@@ -47,9 +50,22 @@ export type OriginalVideoPressVideo = {
 	isPrivate?: boolean;
 
 	/**
+	 * Whether is possible to download the video, or not.
+	 */
+	allowDownload?: boolean;
+
+	/**
 	 * Video poster image URL
 	 */
 	posterImage?: string;
+
+	/**
+	 * Video privacy setting:
+	 * - 0 `public`: anyone can view the video
+	 * - 1 `private`: only the owner can view the video
+	 * - 2 `site-default`
+	 */
+	privacySetting?: 0 | 1 | 2;
 
 	/**
 	 * Object reflecting poster image data.
@@ -84,10 +100,6 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 * VideoPress GUID
 	 */
 	guid?: string;
-	/**
-	 * Video upload date
-	 */
-	uploadDate: string;
 };
 
 export type LocalVideo = {
@@ -104,4 +116,5 @@ export type LocalVideo = {
 export type VideopressSelectors = {
 	getVideo: ( id: number ) => VideoPressVideo;
 	getVideos: () => VideoPressVideo[];
+	getUploadedVideoCount: () => number;
 };
