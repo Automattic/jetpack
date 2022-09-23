@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Fix SearchInput clear and initial typing behavior on dashboard
