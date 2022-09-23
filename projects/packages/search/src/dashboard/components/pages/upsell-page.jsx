@@ -60,41 +60,76 @@ export default function UpsellPage( { isLoading = false } ) {
 		items: [
 			{
 				name: 'Number of records',
-				tooltipInfo:
-					'Records are all posts, pages, custom post types and other types of content indexed by Jetpack Search.',
+				tooltipInfo: (
+					<>
+						Records are all posts, pages, custom post types and other types of content indexed by
+						Jetpack Search.
+					</>
+				),
 			},
 			{
 				name: 'Monthly requests',
-				tooltipInfo: 'A search request is when someone visiting your site searches for something.',
+				tooltipInfo: (
+					<>A search request is when someone visiting your site searches for something.</>
+				),
 			},
 			{
 				name: 'Unbranded search',
-				tooltipInfo: 'Paid customers can remove branding from the search tool.',
+				tooltipInfo: <>Paid customers can remove branding from the search tool.</>,
 			},
 			{
 				name: 'Priority support',
-				tooltipInfo:
-					'Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.<br/><br/>All other questions are handled by our team as quickly as we are able to through the WordPress support forum.',
+				tooltipInfo: (
+					<>
+						Paid customers get dedicated email support from our world-class Happiness Engineers to
+						help with any issue.
+						<br />
+						<br />
+						All other questions are handled by our team as quickly as we are able to through the
+						WordPress support forum.
+					</>
+				),
 			},
 			{
 				name: 'Instant search and indexing',
-				tooltipInfo:
-					'Instant search and filtering without reloading the page.<br/><br/>Real-time indexing, so your search index will update within minutes of changes to your site.',
+				tooltipInfo: (
+					<>
+						Instant search and filtering without reloading the page.
+						<br />
+						<br />
+						Real-time indexing, so your search index will update within minutes of changes to your
+						site.
+					</>
+				),
 			},
 			{
 				name: 'Powerful filtering',
-				tooltipInfo:
-					'Filtered and faceted searches by tags, categories, dates, custom taxonomies, and post types.',
+				tooltipInfo: (
+					<>
+						Filtered and faceted searches by tags, categories, dates, custom taxonomies, and post
+						types.
+					</>
+				),
 			},
 			{
 				name: 'Supports 38 languages',
-				tooltipInfo:
-					"Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among others. <a href='#' rel='external noopener noreferrer nofollow' target='_blank'>See all supported languanges</a>",
+				tooltipInfo: (
+					<>
+						Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among
+						others.{ ' ' }
+						<a href="#" rel="external noopener noreferrer nofollow" target="_blank">
+							See all supported languanges
+						</a>
+					</>
+				),
 			},
 			{
 				name: 'Spelling correction',
-				tooltipInfo:
-					'Quick and accurate spelling correction for when your site visitors mistype their search.',
+				tooltipInfo: (
+					<>
+						Quick and accurate spelling correction for when your site visitors mistype their search.
+					</>
+				),
 			},
 		],
 	};
@@ -118,10 +153,10 @@ export default function UpsellPage( { isLoading = false } ) {
 								iconClassName="price-tip-icon"
 								offset={ 4 }
 							>
-								<span>
+								<>
 									Starting price based on the number of records for <b>{ siteDomain }</b>. For every
 									additional 10k records or requests, an additional $7.50 per month will be charged.
-								</span>
+								</>
 							</IconTooltip>
 						</div>
 					</ProductPrice>
@@ -148,12 +183,36 @@ export default function UpsellPage( { isLoading = false } ) {
 				<PricingTableItem
 					isIncluded={ true }
 					label="5k records"
-					tooltipInfo="In the free plan, you can continue using the plugin even if you have more than 5k records for three months. <a href='https://jetpack.com/search/' rel='external noopener noreferrer nofollow' target='_blank'>More about indexing and query limits</a>"
+					tooltipInfo={
+						<>
+							In the free plan, you can continue using the plugin even if you have more than 5k
+							records for three months.{ ' ' }
+							<a
+								href="https://jetpack.com/search/"
+								rel="external noopener noreferrer nofollow"
+								target="_blank"
+							>
+								More about indexing and query limits
+							</a>
+						</>
+					}
 				/>
 				<PricingTableItem
 					isIncluded={ true }
 					label="500 requests"
-					tooltipInfo="In the free plan, you can continue using the plugin even if you have more than 500 requests for three consecutive months. <a href='https://jetpack.com/search/' rel='external noopener noreferrer nofollow' target='_blank'>More about indexing and query limits</a>"
+					tooltipInfo={
+						<>
+							In the free plan, you can continue using the plugin even if you have more than 500
+							requests for three consecutive months.{ ' ' }
+							<a
+								href="https://jetpack.com/search/"
+								rel="external noopener noreferrer nofollow"
+								target="_blank"
+							>
+								More about indexing and query limits
+							</a>
+						</>
+					}
 				/>
 				<PricingTableItem isIncluded={ false } label="Shows Jetpack logo" />
 				<PricingTableItem isIncluded={ false } />

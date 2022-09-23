@@ -40,11 +40,6 @@ const ToS = createInterpolateElement(
 	}
 );
 
-const dangerTooltipInfo = html => {
-	// eslint-disable-next-line react/no-danger
-	return <div dangerouslySetInnerHTML={ { __html: html } } />;
-};
-
 const PricingTableContext = createContext( undefined );
 
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
@@ -90,9 +85,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 					iconSize={ 14 }
 					offset={ 4 }
 				>
-					<Text variant="body-small">
-						{ dangerTooltipInfo( tooltipInfo || defaultTooltipInfo ) }
-					</Text>
+					<Text variant="body-small">{ tooltipInfo || defaultTooltipInfo }</Text>
 				</IconTooltip>
 			) }
 		</div>
@@ -163,7 +156,7 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 										iconSize={ 14 }
 										offset={ 4 }
 									>
-										<Text variant="body-small">{ dangerTooltipInfo( item.tooltipInfo ) }</Text>
+										<Text variant="body-small">{ item.tooltipInfo }</Text>
 									</IconTooltip>
 								) }
 							</div>
