@@ -1,0 +1,27 @@
+@keyframes indeterminate_progress_bar__animation {
+	0% {
+		background-position: 96px 0;
+	}
+}
+
+.wrapper {
+	--jp-indeterminate-progress-bar__light-color: #D0D0D0;
+	--jp-indeterminate-progress-bar__dark-color: #DCDCDE;
+	width: 100%;
+	height: 24px;
+	background-color: transparent;
+	border-radius: calc(var(--spacing-base) * 3);
+
+	pointer-events: none;
+	animation: indeterminate_progress_bar__animation 2000ms infinite linear;
+	background-size: 48px 100%;
+	background-image: linear-gradient(
+		-45deg,
+		var(--jp-indeterminate-progress-bar__light-color) 33%,
+		var(--jp-indeterminate-progress-bar__dark-color) 33%,
+		var(--jp-indeterminate-progress-bar__dark-color) 67%,
+		var(--jp-indeterminate-progress-bar__light-color) 67%
+	);
+	display: inline-block;
+
+}
