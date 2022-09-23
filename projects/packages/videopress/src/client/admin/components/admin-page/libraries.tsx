@@ -57,7 +57,7 @@ const VideoLibraryWrapper = ( {
 	hideFilter?: boolean;
 	title?: string;
 } ) => {
-	const { setSearch, search } = useVideos();
+	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
@@ -81,6 +81,7 @@ const VideoLibraryWrapper = ( {
 							className={ styles[ 'search-input' ] }
 							onSearch={ setSearch }
 							value={ searchQuery }
+							loading={ isFetching }
 							onChange={ setSearchQuery }
 						/>
 
