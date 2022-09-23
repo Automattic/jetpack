@@ -27,16 +27,18 @@ function DonutMeterContainer() {
 	);
 }
 
+// Prevents event from firing and forwards to caller.
+const callbackForwarder = ( event, callback ) => {
+	event.preventDefault();
+	callback();
+};
+
 const InfoPrimary = ( { localizedMessage, iconClickedCallback } ) => {
 	// Verify callback before usage.
 	const haveCallback = typeof iconClickedCallback === 'function';
-	// Our local callback to prevent refresh.
+	// Package and forward click event.
 	const onIconClicked = e => {
-		e.preventDefault();
-		// TODO: Remove logging.
-		// eslint-disable-next-line no-console
-		console.log( 'icon clicked...' );
-		iconClickedCallback();
+		callbackForwarder( e, iconClickedCallback );
 	};
 	return (
 		<p className="donut-info-primary">
@@ -55,13 +57,9 @@ const InfoSecondary = ( { localizedMessage, linkClickedCallback } ) => {
 	const linkText = 'Show details';
 	// Verify callback before usage.
 	const haveCallback = typeof linkClickedCallback === 'function';
-	// Our local callback to prevent refresh.
+	// Package and forward click event.
 	const onLinkClicked = e => {
-		e.preventDefault();
-		// TODO: Remove logging.
-		// eslint-disable-next-line no-console
-		console.log( 'link clicked...' );
-		linkClickedCallback();
+		callbackForwarder( e, linkClickedCallback );
 	};
 	return (
 		<p className="donut-info-secondary">
