@@ -64,7 +64,7 @@
 
 .item {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	padding-bottom: calc( var( --spacing-base ) * 2 );
 	position: relative;
 
@@ -122,7 +122,7 @@
 }
 
 .popover-icon {
-	fill: var( --fill, var( --jp-gray ) );
+	fill: var( --jp-gray-20 );
 	flex-shrink: 0;
 }
 
