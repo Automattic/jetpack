@@ -7,6 +7,7 @@ import {
 	Button,
 	Col,
 	useBreakpointMatch,
+	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
@@ -70,6 +71,7 @@ const Admin = () => {
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 								<Button fullWidth={ isSm }>{ addVideoLabel }</Button>
+								<UpgradeTrigger />
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -127,5 +129,35 @@ const ConnectionSection = () => {
 				<li>{ __( 'Amazing feature 3', 'jetpack-videopress-pkg' ) }</li>
 			</ul>
 		</ConnectScreenRequiredPlan>
+	);
+};
+
+const UpgradeTrigger = () => {
+	const { hasPaidPlan } = window.jetpackVideoPressInitialState;
+
+	if ( hasPaidPlan ) {
+		return null;
+	}
+
+	// TODO: use count from initial state
+	const { uploadedVideoCount } = useVideos();
+	const hasUploadedVideo = uploadedVideoCount > 0;
+	const isUploading = false;
+
+	const description =
+		hasUploadedVideo || isUploading
+			? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
+			: '';
+	const cta = __(
+		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
+		'jetpack-videopress-pkg'
+	);
+
+	return (
+		<ContextualUpgradeTrigger
+			description={ description }
+			cta={ cta }
+			className={ styles[ 'upgrade-trigger' ] }
+		/>
 	);
 };
