@@ -1,9 +1,11 @@
 import {
 	Container,
+	ContextualUpgradeTrigger,
 	Col,
 	H3,
 	Button,
 	SocialIcon,
+	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
@@ -64,7 +66,18 @@ const Header = () => {
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
 					{ isShareLimitEnabled && ! hasPaidPlan ? (
-						<ShareCounter value={ sharesCount } max={ 30 } />
+						<>
+							<ShareCounter value={ sharesCount } max={ 30 } />
+							<ContextualUpgradeTrigger
+								className={ styles.cut }
+								description={ __(
+									'Keep sharing all your posts to social media',
+									'jetpack-social'
+								) }
+								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
+								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell' ) }
+							/>
+						</>
 					) : (
 						<StatCards
 							stats={ [
