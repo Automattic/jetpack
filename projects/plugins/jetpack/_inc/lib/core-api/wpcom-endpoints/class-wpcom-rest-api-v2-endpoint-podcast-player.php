@@ -66,6 +66,11 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 							'type'        => 'boolean',
 							'required'    => 'false',
 						),
+						'force-refresh'   => array(
+							'description' => __( 'Whether we should force a refresh for the podcast.', 'jetpack' ),
+							'type'        => 'boolean',
+							'required'    => 'false',
+						),
 					),
 					'schema'              => array( $this, 'get_public_item_schema' ),
 				),
@@ -114,6 +119,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 
 		if ( isset( $request['episode-options'] ) && $request['episode-options'] ) {
 			$args['episode-options'] = true;
+		}
+
+		if ( isset( $request['force-refresh'] ) && $request['force-refresh'] ) {
+			$args['force-refresh'] = true;
 		}
 
 		$player_data = $helper->get_player_data( $args );
