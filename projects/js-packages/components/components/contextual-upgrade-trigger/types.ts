@@ -1,5 +1,7 @@
 export type CutBaseProps = {
 	description: string;
 	cta: string;
-	onClick: () => void;
+	className?: string;
+	href?: string;
+	onClick?: () => void;
 };
