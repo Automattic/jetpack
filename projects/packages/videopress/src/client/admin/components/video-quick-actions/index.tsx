@@ -5,6 +5,12 @@ import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState } from 'react';
 import privacy from '../../../components/icons/privacy-icon';
+import {
+	VIDEO_PRIVACY_LEVELS,
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	VIDEO_PRIVACY_LEVEL_PUBLIC,
+	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+} from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import styles from './style.module.scss';
@@ -89,7 +95,11 @@ const ThumbnailActionsDropdown = ( { description, onUpdate }: ThumbnailActionsDr
 	);
 };
 
-const PrivacyActionsDropdown = ( { description, onUpdate }: PrivacyActionsDropdownProps ) => {
+const PrivacyActionsDropdown = ( {
+	description,
+	privacySetting,
+	onUpdate,
+}: PrivacyActionsDropdownProps ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
@@ -117,7 +127,7 @@ const PrivacyActionsDropdown = ( { description, onUpdate }: PrivacyActionsDropdo
 				</>
 			) }
 			renderContent={ ( { onClose } ) => (
-				<>
+				<div className={ styles[ 'dropdown-content' ] }>
 					<Button
 						weight="regular"
 						fullWidth
@@ -127,6 +137,7 @@ const PrivacyActionsDropdown = ( { description, onUpdate }: PrivacyActionsDropdo
 							onClose();
 							onUpdate( 'site-default' );
 						} }
+						disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT }
 					>
 						{ __( 'Site default', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -140,6 +151,7 @@ const PrivacyActionsDropdown = ( { description, onUpdate }: PrivacyActionsDropdo
 							onClose();
 							onUpdate( 'public' );
 						} }
+						disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PUBLIC }
 					>
 						{ __( 'Public', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -153,10 +165,11 @@ const PrivacyActionsDropdown = ( { description, onUpdate }: PrivacyActionsDropdo
 							onClose();
 							onUpdate( 'private' );
 						} }
+						disabled={ VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE }
 					>
 						{ __( 'Private', 'jetpack-videopress-pkg' ) }
 					</Button>
-				</>
+				</div>
 			) }
 		/>
 	);
@@ -164,6 +177,7 @@ const PrivacyActionsDropdown = ( { description, onUpdate }: PrivacyActionsDropdo
 
 const VideoQuickActions = ( {
 	className,
+	privacySetting,
 	onUpdateVideoThumbnail,
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
@@ -177,6 +191,7 @@ const VideoQuickActions = ( {
 
 			<PrivacyActionsDropdown
 				onUpdate={ onUpdateVideoPrivacy }
+				privacySetting={ privacySetting }
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
 			/>
 
@@ -193,8 +208,16 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
-	const { updateVideoPrivacy } = useVideo( videoId );
-	return <VideoQuickActions { ...props } onUpdateVideoPrivacy={ updateVideoPrivacy } />;
+	const { data, updateVideoPrivacy } = useVideo( videoId );
+	const { privacySetting } = data;
+
+	return (
+		<VideoQuickActions
+			{ ...props }
+			onUpdateVideoPrivacy={ updateVideoPrivacy }
+			privacySetting={ privacySetting }
+		/>
+	);
 };
 
 export default VideoQuickActions;
