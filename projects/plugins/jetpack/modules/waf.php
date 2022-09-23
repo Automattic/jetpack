@@ -22,17 +22,6 @@ if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
 	return;
 }
 
-if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
-	add_filter(
-		'jetpack_get_available_modules',
-		function ( $modules ) {
-			unset( $modules['waf'] );
-
-			return $modules;
-		}
-	);
-}
-
 /**
  * Triggers when the Jetpack plugin is updated
  */
