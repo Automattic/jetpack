@@ -9,9 +9,17 @@ import {
 import '../scss/action-bar.scss';
 
 /**
+ * Timer for hiding the snackbar
+ * This is made a class variable so that existing timeouts can be reset when opening a new snackbar
+ */
+let snackbarTimer;
+
+/**
  * Open the menu
  */
 function openMoreMenu() {
+	// Ensure snackbar is closed
+	dismissSnackbar();
 	// Show modal
 	_fadeInAndActivate( document.querySelector( '.jetpack-action-bar__modal' ) );
 	// Activate shade
@@ -86,6 +94,49 @@ function modalTrapFocus() {
 }
 
 /**
+ * Shows an error message using the snackbar
+ *
+ * @param {string} msg - The error message to show
+ */
+function showErrorSnackbar( msg ) {
+	// Ensure modal is closed
+	closeModal();
+
+	// Prep snackbar
+	const snackbarContainer = document.querySelector( '.jetpack-action-bar__snackbar' );
+	snackbarContainer.textContent = msg;
+	_classAdd( snackbarContainer, 'error' );
+
+	// Fade in
+	_fadeInAndActivate( snackbarContainer );
+
+	// Trigger events for this state
+	eventsSnackbar();
+}
+
+/**
+ * Fade out the snackbar after 4 seconds or on click
+ */
+function eventsSnackbar() {
+	// Clear any existing timeouts
+	clearTimeout( snackbarTimer );
+	snackbarTimer = setTimeout( function () {
+		dismissSnackbar();
+	}, 3000 );
+	// Remove snackbar on click
+	_on( document.querySelector( '.jetpack-action-bar__snackbar' ), 'click', function () {
+		dismissSnackbar();
+	} );
+}
+
+/**
+ * Dismiss the snackbar.
+ */
+function dismissSnackbar() {
+	_fadeOutAndDeactivate( document.querySelector( '.jetpack-action-bar__snackbar' ) );
+}
+
+/**
  * is modal showing
  *
  * @returns {boolean} true if the modal has the 'active' class
@@ -112,11 +163,39 @@ function closeModal() {
 }
 
 /**
+ * Handles messages from the wp.widgets.com action bar iframe sent using postMessage
+ *
+ * @param {object} event - the event passed from the action bar iframe
+ */
+function handleMessage( event ) {
+	if ( event.data && typeof event.data === 'string' ) {
+		try {
+			const data = JSON.parse( event.data );
+			switch ( data.action ) {
+				case 'postLiked':
+					showErrorSnackbar( window.actionBarConfig?.like_post_error );
+					break;
+				case 'postUnliked':
+					showErrorSnackbar( window.actionBarConfig?.unlike_post_error );
+					break;
+				case 'followSite':
+					showErrorSnackbar( window.actionBarConfig?.follow_site_error );
+					break;
+				case 'unfollowSite':
+					showErrorSnackbar( window.actionBarConfig?.unfollow_site_error );
+					break;
+			}
+		} catch {}
+	}
+}
+
+/**
  * Initialize action bar
  */
 function init() {
 	eventsActionbar();
 	eventsModalHeader();
+	window.addEventListener( 'message', handleMessage );
 }
 
 if ( document.readyState === 'complete' ) {

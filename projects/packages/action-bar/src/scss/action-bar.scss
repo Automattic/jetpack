@@ -536,13 +536,13 @@
 /* ------------------------------------------------------ */
 /* ACTION BAR SNACKBAR */
 /* ------------------------------------------------------ */
-/* .jetpack-action-bar__snackbar {
+.jetpack-action-bar__snackbar {
 	align-items: center;
 	background: #FFF;
 	border-radius: 5px;
 	bottom: 0;
 	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
-	display: flex;
+	display: none;
 	flex-flow: flex-start;
 	opacity: 0;
 	padding: 16px;
@@ -550,13 +550,21 @@
 	right: 58px;
 	width: 360px;
 	z-index: 6;
+	cursor: pointer;
+	&.active {
+		display: flex;
+	}
+	&.error {
+		color: red;
+		box-shadow: 0px 0px 0px 1px red;
+	}
+	span {
+		margin-left: 14px;
+	}
+	span strong {
+		font-weight: 500;
+	}
 }
-.jetpack-action-bar__snackbar span {
-	margin-left: 14px;
-}
-.jetpack-action-bar__snackbar span strong {
-	font-weight: 500;
-} */
 /* Mobile ------------------------------------------------ */
 @media only screen and (max-width: 600px) {
 	.jetpack-action-bar__shade.active {

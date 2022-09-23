@@ -31,6 +31,16 @@ class Action_Bar {
 				'enqueue'      => true,
 			)
 		);
+		wp_localize_script(
+			'jetpack-action-bar',
+			'actionBarConfig',
+			array(
+				'like_post_error'     => esc_html__( 'Error liking post', 'jetpack-action-bar' ),
+				'unlike_post_error'   => esc_html__( 'Error un-liking post', 'jetpack-action-bar' ),
+				'follow_site_error'   => esc_html__( 'Error following site', 'jetpack-action-bar' ),
+				'unfollow_site_error' => esc_html__( 'Error un-following site', 'jetpack-action-bar' ),
+			)
+		);
 	}
 
 	/**
@@ -87,6 +97,7 @@ class Action_Bar {
 					<iframe class="jetpack-action-bar-widget" scrolling="no" frameBorder="0" name="jetpack-action-bar-widget" src="<?php echo esc_url( $widget_src ); ?>"></iframe>
 				</ul>
 			</div>
+			<div class="jetpack-action-bar__snackbar"></div>
 			<div class="jetpack-action-bar__shade"></div>
 			<div class="jetpack-action-bar__modal">
 				<header>
