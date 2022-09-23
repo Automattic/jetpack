@@ -1583,7 +1583,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "a48a5907ef434f87ddbaa5c9d5df8d16abe8edad"
+                "reference": "7c2bd69fce9e7a17262fe77799ea01682f5a2a86"
             },
             "require": {
                 "automattic/jetpack-autoloader": "^2.11",

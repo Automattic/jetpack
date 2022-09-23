@@ -7,8 +7,8 @@
 		"automattic/jetpack-connection": "^1.45",
 		"automattic/jetpack-autoloader": "^2.11",
 		"automattic/jetpack-config": "^1.9",
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-redirect": "1.7.x-dev"
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
