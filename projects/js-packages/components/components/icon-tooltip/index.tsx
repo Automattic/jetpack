@@ -74,7 +74,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
 			<span
 				style={ { cursor: 'pointer' } }
-				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
+				onMouseEnter={ createToggleIsOver( 'onMouseEnter' ) }
 				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
 			>
 				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
