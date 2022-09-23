@@ -1,0 +1,31 @@
+.donut-meter-container {
+	display: flex;
+	height: fit-content; // or 64px?
+	width: fit-content;
+
+	.donut-meter-wrapper {
+		height: fit-content;
+	}
+
+	.donut-info-wrapper {
+		height: auto;
+		margin: 0 8px;
+	}
+
+	.donut-info-primary {
+		margin: 8px 0;
+		font-size: 1em;
+		font-weight: bold;
+	}
+
+	.donut-info-secondary {
+		color: gray;
+		margin: 0;
+		font-size: 0.7em;
+	}
+
+	.info-icon-wrapper {
+		color: black;
+		vertical-align: middle;
+	}
+}

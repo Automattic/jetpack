@@ -1,6 +1,7 @@
-import { DonutMeter, Gridicon, JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import DonutMeterContainer from 'components/donut-meter-container';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -9,27 +10,6 @@ import RecordMeter from 'components/record-meter';
 import React from 'react';
 import { STORE_ID } from 'store';
 import './dashboard-page.scss';
-
-function DonutMeterWithLabels() {
-	return (
-		<div className="donut-meter-with-labels">
-			<div className="donut-meter-wrapper">
-				<DonutMeter />
-			</div>
-			<div className="donut-meter-info">
-				<p className="donut-meter-primary">
-					Site records{ ' ' }
-					<a href="#" className="info-icon-wrapper">
-						<Gridicon className="" icon="info-outline" size={ 16 } />
-					</a>
-				</p>
-				<p className="donut-meter-secondary">
-					212/500 <a href="#">Show details</a>
-				</p>
-			</div>
-		</div>
-	);
-}
 
 /**
  * SearchDashboard component definition.
@@ -175,7 +155,7 @@ export default function DashboardPage( { isLoading = false } ) {
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-search-record-meter__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 						<h2>DonutMeter layout testing</h2>
-						<DonutMeterWithLabels />
+						<DonutMeterContainer />
 					</div>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
