@@ -1,11 +1,12 @@
 import {
+	BlockControls,
 	InspectorControls,
 	RichText,
 	withColors,
 	withFontSizes,
 	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { TextControl, withFallbackStyles } from '@wordpress/components';
+import { TextControl, Toolbar, ToolbarButton, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -23,6 +24,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 import SubscriptionControls from './controls';
+import { getPaidPlanLink } from './utils';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -204,6 +206,8 @@ export function SubscriptionEdit( props ) {
 		setBorderColor( buttonBackgroundColor.color );
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
+	const addPaidPlanButtonText = __( 'Add paid plan', 'jetpack' );
+
 	return (
 		<>
 			<InspectorControls>
@@ -232,6 +236,11 @@ export function SubscriptionEdit( props ) {
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
+			<BlockControls>
+				<Toolbar>
+					<ToolbarButton href={ getPaidPlanLink() } target="_blank">{ addPaidPlanButtonText }</ToolbarButton>
+				</Toolbar>
+			</BlockControls>
 
 			<div className={ getBlockClassName() }>
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
