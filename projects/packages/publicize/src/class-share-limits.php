@@ -45,15 +45,6 @@ class Share_Limits {
 	public function enforce_share_limits() {
 		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
-
-		if ( ! $this->has_more_shares_than_connections() ) {
-			/**
-			 * If the number of connections is greater than the share limit, we set all
-			 * connections to disabled by default. This allows the user to pick and
-			 * choose which services they want to share to, without going over the limit.
-			 */
-			add_filter( 'publicize_checkbox_default', '__return_false' );
-		}
 	}
 
 	/**
