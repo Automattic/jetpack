@@ -93,6 +93,7 @@ class WPCOM_Features {
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const JETPACK_BACKUP_T0_YEARLY                    = 'jetpack_backup_t0_yearly'; // 2120
 	private const JETPACK_BACKUP_T0_MONTHLY                   = 'jetpack_backup_t0_monthly'; // 2121
+	private const JETPACK_SEARCH_FREE                         = 'jetpack_search_free'; // 2130
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
 	private const AKISMET_PLUS_MONTHLY                        = 'ak_plus_monthly'; // 2301
 	private const AKISMET_PLUS_YEARLY                         = 'ak_plus_yearly'; // 2302
@@ -379,6 +380,7 @@ class WPCOM_Features {
 		self::CLASSIC_SEARCH                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::JETPACK_SEARCH_FREE,
 			self::JETPACK_SEARCH,
 			self::JETPACK_SEARCH_MONTHLY,
 			self::JETPACK_COMPLETE_PLANS,
@@ -513,6 +515,7 @@ class WPCOM_Features {
 			self::WPCOM_SEARCH,
 			self::WPCOM_SEARCH_MONTHLY,
 			self::WP_P2_PLUS_MONTHLY,
+			self::JETPACK_SEARCH_FREE,
 			self::JETPACK_SEARCH,
 			self::JETPACK_SEARCH_MONTHLY,
 			self::JETPACK_COMPLETE_PLANS,
