@@ -24,6 +24,7 @@ export { default as ConnectButton } from './components/connect-button';
 export { default as InPlaceConnection } from './components/in-place-connection';
 export { default as ConnectUser } from './components/connect-user';
 export { default as ConnectionErrorNotice } from './components/connection-error-notice';
+export { ConnectionError } from './hooks/use-connection-error-notice';
 export { default as ConnectionStatusCard } from './components/connection-status-card';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
@@ -44,3 +45,4 @@ export { STORE_ID as CONNECTION_STORE_ID } from './state/store';
  */
 export { default as useProductCheckoutWorkflow } from './hooks/use-product-checkout-workflow';
 export { default as useRestoreConnection } from './hooks/use-restore-connection';
+export { default as useConnectionErrorNotice } from './hooks/use-connection-error-notice';
