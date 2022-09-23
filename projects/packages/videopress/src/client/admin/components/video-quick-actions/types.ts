@@ -37,6 +37,22 @@ export interface VideoQuickActionsProps {
 	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 }
 
+export interface ConnectVideoQuickActionsProps {
+	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
+	 * Post ID of the video item.
+	 */
+	videoId: number | string;
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
+	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+}
+
 export type ThumbnailActionsDropdownProps = {
 	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	description: string;

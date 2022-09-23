@@ -5,6 +5,7 @@ import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState } from 'react';
 import privacy from '../../../components/icons/privacy-icon';
+import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import styles from './style.module.scss';
 import {
@@ -13,6 +14,7 @@ import {
 	ThumbnailActionsDropdownProps,
 	VideoQuickActionsProps,
 	PrivacyActionsDropdownProps,
+	ConnectVideoQuickActionsProps,
 } from './types';
 
 const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorProps ) => {
@@ -183,6 +185,16 @@ const VideoQuickActions = ( {
 			</ActionItem>
 		</div>
 	);
+};
+
+export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps ) => {
+	const { videoId } = props;
+	if ( ! videoId ) {
+		return null;
+	}
+
+	const { updateVideoPrivacy } = useVideo( videoId );
+	return <VideoQuickActions { ...props } onUpdateVideoPrivacy={ updateVideoPrivacy } />;
 };
 
 export default VideoQuickActions;
