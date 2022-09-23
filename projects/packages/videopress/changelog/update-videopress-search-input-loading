@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Link search input load state to videos fetch state on dashboard
