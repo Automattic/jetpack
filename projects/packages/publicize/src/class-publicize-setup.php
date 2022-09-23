@@ -48,10 +48,6 @@ class Publicize_Setup {
 			return;
 		}
 
-		if ( $current_screen->is_block_editor() ) {
-			return;
-		}
-
 		global $publicize;
 
 		if ( $publicize->has_paid_plan() ) {

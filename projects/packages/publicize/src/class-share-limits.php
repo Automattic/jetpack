@@ -43,9 +43,6 @@ class Share_Limits {
 	 * Run functionality required to enforce sharing limits.
 	 */
 	public function enforce_share_limits() {
-		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
-
 		if ( ! $this->has_more_shares_than_connections() ) {
 			/**
 			 * If the number of connections is greater than the share limit, we set all
@@ -54,6 +51,14 @@ class Share_Limits {
 			 */
 			add_filter( 'publicize_checkbox_default', '__return_false' );
 		}
+
+		$current_screen = get_current_screen();
+		if ( empty( $current_screen ) || $current_screen->base !== 'post' || $current_screen->is_block_editor() ) {
+			return;
+		}
+
+		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
 	}
 
 	/**
@@ -101,12 +106,6 @@ class Share_Limits {
 	 * Enqueue scripts for the Classic Editor on the post edit screen.
 	 */
 	public function enqueue_classic_editor_scripts() {
-		$current_screen = get_current_screen();
-
-		if ( empty( $current_screen ) || $current_screen->base !== 'post' || $current_screen->is_block_editor() ) {
-			return;
-		}
-
 		if ( get_post_status() === 'publish' ) {
 			return;
 		}

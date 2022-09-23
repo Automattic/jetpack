@@ -158,7 +158,6 @@ class Jetpack_Social {
 
 		$shares     = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
 		$show_nudge = ! $this->has_paid_plan();
-
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
