@@ -8,6 +8,7 @@ declare global {
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;
+			hasPaidPlan: boolean;
 		};
 	}
 }
