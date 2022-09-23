@@ -27,7 +27,9 @@ export async function rsyncInit( argv ) {
 		console.log( chalk.yellow( `Watching for changes in ${ argv.plugin } to rsync` ) );
 		watch( sourcePluginPath, { recursive: true }, ( eventType, fileName ) => {
 			if ( fileName && 'update' === eventType ) {
-				// console.log( chalk.yellow( `Changed detected in ${ fileName }...` ) );
+				if ( argv.v ) {
+					console.log( chalk.yellow( `Changed detected in ${ fileName }...` ) );
+				}
 				rsyncToDest( sourcePluginPath, argv.dest );
 			}
 		} );
@@ -146,17 +148,15 @@ function validatePlugin( plugin ) {
  */
 export function rsyncDefine( yargs ) {
 	yargs.command(
-		'rsync [--watch] [plugin] [dest]',
+		'rsync [plugin] [dest]',
 		'Will rsync a plugin from projects/plugins/ to a remote destination. Useful for developing against a live site.',
 		yarg => {
 			yarg
-				.options( 'plugin', {
-					alias: 'p',
+				.positional( 'plugin', {
 					describe: 'Name of the plugin',
 					type: 'string',
 				} )
-				.option( 'dest', {
-					alias: 'd',
+				.positional( 'dest', {
 					describe: 'Destination path to plugins dir',
 					type: 'string',
 				} )
