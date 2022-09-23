@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Constants;
 use Jetpack_Options;
+use WP_Post;
 
 /**
  * Stats Tracking_Pixel class.
