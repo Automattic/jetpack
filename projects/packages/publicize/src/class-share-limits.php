@@ -29,16 +29,23 @@ class Share_Limits {
 	public $shares_remaining;
 
 	/**
+	 * Whether we're loading the classic editor.
+	 *
+	 * @var bool
+	 */
+	public $is_classic_editor;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param array  $connections List of Publicize connections.
-	 * @param int    $shares_remaining Number of shares remaining for this period.
-	 * @param object $current_screen The current screen.
+	 * @param array $connections List of Publicize connections.
+	 * @param int   $shares_remaining Number of shares remaining for this period.
+	 * @param bool  $is_classic_editor Whether we're loading the classic editor.
 	 */
-	public function __construct( $connections, $shares_remaining, $current_screen ) {
-		$this->connections      = $connections;
-		$this->shares_remaining = $shares_remaining;
-		$this->current_screen   = $current_screen;
+	public function __construct( $connections, $shares_remaining, $is_classic_editor ) {
+		$this->connections       = $connections;
+		$this->shares_remaining  = $shares_remaining;
+		$this->is_classic_editor = $is_classic_editor;
 	}
 
 	/**
@@ -54,7 +61,7 @@ class Share_Limits {
 			add_filter( 'publicize_checkbox_default', '__return_false' );
 		}
 
-		if ( empty( $this->current_screen ) || $this->current_screen->base !== 'post' || $this->current_screen->is_block_editor() ) {
+		if ( ! $this->is_classic_editor ) {
 			return;
 		}
 
