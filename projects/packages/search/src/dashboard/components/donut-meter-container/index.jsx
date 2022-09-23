@@ -10,7 +10,7 @@ import './style.scss';
  */
 function DonutMeterContainer() {
 	// TODO: Remove local callback in favour of props.
-	const onLinkClicked = () => {
+	const tempCallback = () => {
 		// eslint-disable-next-line no-console
 		console.log( 'higher level callback...' );
 	};
@@ -20,20 +20,32 @@ function DonutMeterContainer() {
 				<DonutMeter />
 			</div>
 			<div className="donut-info-wrapper">
-				<InfoPrimary />
-				<InfoSecondary localizedMessage={ 'message' } linkClickedCallback={ onLinkClicked } />
+				<InfoPrimary localizedMessage={ 'Title message' } iconClickedCallback={ tempCallback } />
+				<InfoSecondary localizedMessage={ 'message' } linkClickedCallback={ tempCallback } />
 			</div>
 		</div>
 	);
 }
 
-const InfoPrimary = () => {
+const InfoPrimary = ( { localizedMessage, iconClickedCallback } ) => {
+	// Verify callback before usage.
+	const haveCallback = typeof iconClickedCallback === 'function';
+	// Our local callback to prevent refresh.
+	const onIconClicked = e => {
+		e.preventDefault();
+		// TODO: Remove logging.
+		// eslint-disable-next-line no-console
+		console.log( 'icon clicked...' );
+		iconClickedCallback();
+	};
 	return (
 		<p className="donut-info-primary">
-			Site records{ ' ' }
-			<a href="#" className="info-icon-wrapper">
-				<Gridicon className="" icon="info-outline" size={ 16 } />
-			</a>
+			{ localizedMessage }{ ' ' }
+			{ haveCallback && (
+				<a href="#" className="info-icon-wrapper" onClick={ onIconClicked }>
+					<Gridicon className="" icon="info-outline" size={ 16 } />
+				</a>
+			) }
 		</p>
 	);
 };
