@@ -16,7 +16,7 @@ const Template: ComponentStory< typeof VideoQuickActions > = args => {
 
 export const _default = Template.bind( {} );
 _default.args = {
-	onUpdateThumbnailClick: action( 'onUpdateThumbnailClick' ),
-	onUpdateUpdatePrivacyClick: action( 'onUpdateUpdatePrivacyClick' ),
-	onDeleteClick: action( 'onDeleteClick' ),
+	onUpdateVideoThumbnail: action( 'onUpdateVideoThumbnail' ),
+	onUpdateVideoPrivacy: action( 'onUpdateVideoPrivacy' ),
+	onDeleteVideo: action( 'onDeleteVideo' ),
 };

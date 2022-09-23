@@ -14,9 +14,9 @@ const VideoList = ( {
 	hidePlays = false,
 	hideEditButton = false,
 	onClickEdit,
-	onUpdateThumbnailClick,
-	onUpdateUpdatePrivacyClick,
-	onDeleteClick,
+	onUpdateVideoThumbnail,
+	onUpdateVideoPrivacy,
+	onDeleteVideo,
 }: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
@@ -65,9 +65,9 @@ const VideoList = ( {
 						className={ styles.row }
 						checked={ selected.includes( index ) }
 						onClickEdit={ handleClickWithIndex( index, onClickEdit ) }
-						onUpdateThumbnailClick={ handleClickWithIndex( index, onUpdateThumbnailClick ) }
-						onUpdateUpdatePrivacyClick={ handleClickWithIndex( index, onUpdateUpdatePrivacyClick ) }
-						onDeleteClick={ handleClickWithIndex( index, onDeleteClick ) }
+						onUpdateVideoThumbnail={ handleClickWithIndex( index, onUpdateVideoThumbnail ) }
+						onUpdateVideoPrivacy={ handleClickWithIndex( index, onUpdateVideoPrivacy ) }
+						onDeleteVideo={ handleClickWithIndex( index, onDeleteVideo ) }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );
