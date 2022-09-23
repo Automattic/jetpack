@@ -26,7 +26,6 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
-
 import { PaidPlanPanel } from './paid-plan';
 
 export default function SubscriptionControls( {
@@ -55,7 +54,7 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			<PaidPlanPanel/>
+			<PaidPlanPanel />
 			{ subscriberCount > 1 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
