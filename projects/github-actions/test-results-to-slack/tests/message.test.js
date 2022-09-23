@@ -12,6 +12,9 @@ describe( 'Message content', () => {
 		${ 'push' }         | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_` } }
 		${ 'push' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_` } }
 		${ 'push' }         | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_` } }
+		${ 'workflow_run' } | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_ (workflow_run)` } }
+		${ 'workflow_run' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
+		${ 'workflow_run' } | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
 		${ 'schedule' }     | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for scheduled run on ${ refType } _*${ refName }*_` } }
 		${ 'schedule' }     | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
 		${ 'schedule' }     | ${ true }  | ${ 'test-suite' } | ${ { text: `:x:	_*test-suite*_ tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
@@ -31,6 +34,7 @@ describe( 'Message content', () => {
 				payload: {
 					head_commit: { id: '123', message: 'Some commit message' },
 					pull_request: { number: prNumber },
+					workflow_run: { head_commit: { id: '123', message: 'Some commit message' } },
 				},
 				sha,
 				eventName,
@@ -104,6 +108,37 @@ describe( 'Message content', () => {
 		const { mainMsgBlocks } = await createMessage( true );
 
 		expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( `Last commit: 5dc6ab9d` );
+	} );
+
+	test.each`
+		eventName
+		${ 'pull_request' }
+		${ 'push' }
+		${ 'schedule' }
+		${ 'workflow_run' }
+		${ 'unsupported' }
+	`( 'There are no empty blocks elements lists for $eventName event', async ( { eventName } ) => {
+		const { mockGitHubContext } = require( './test-utils' );
+
+		// Mock GitHub context
+		mockGitHubContext( {
+			payload: {
+				head_commit: { id: '123', message: 'Some commit message' },
+				pull_request: { number: prNumber },
+				workflow_run: { head_commit: { id: '123', message: 'Some commit message' } },
+			},
+			sha,
+			eventName,
+		} );
+		mockContextExtras( { repository, refType, refName } );
+
+		const { createMessage } = require( '../src/message' );
+		const { mainMsgBlocks } = await createMessage( true );
+
+		expect( mainMsgBlocks[ 1 ].type ).toBe( 'context' );
+		expect( mainMsgBlocks[ 1 ].elements.length ).toBeGreaterThan( 0 );
+		expect( mainMsgBlocks[ 2 ].type ).toBe( 'actions' );
+		expect( mainMsgBlocks[ 2 ].elements.length ).toBeGreaterThan( 0 );
 	} );
 } );
 
