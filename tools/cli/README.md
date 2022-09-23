@@ -92,7 +92,7 @@ Watch a monorepo project, which will rebuild the project as changes are made so 
 
 Maybe you'd prefer to develop against a live site instead of Docker. Or maybe you want to quickly push the plugin you're building to a live JN site without waiting for the builds. This rsync wrapper knows which files to send and not send. 
 
-- Rsync the Jetpack plugin to server destination and watch for changes: `jetpack rsync --plugin jetpack --dest user@your.server.address:/home/path/to/wp-content/plugins --watch`
+- Rsync the Jetpack plugin to server destination and watch for changes: `jetpack rsync --plugin jetpack --dest user@your.server.example.com:/home/path/to/wp-content/plugins --watch`
 
 [the Jetpack monorepo]: https://github.com/Automattic/jetpack
 

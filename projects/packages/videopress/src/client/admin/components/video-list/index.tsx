@@ -4,25 +4,20 @@ import { useState } from 'react';
 import Checkbox from '../checkbox';
 import VideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
-import type { VideoPressVideo } from '../video-row';
+import { VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
-	onClickEdit,
 	hideQuickActions,
 	hidePrivacy = false,
 	hideDuration = false,
 	hidePlays = false,
 	hideEditButton = false,
-}: {
-	videos: Array< VideoPressVideo >;
-	onClickEdit?: ( video: VideoPressVideo ) => void;
-	hidePrivacy?: boolean;
-	hideDuration?: boolean;
-	hidePlays?: boolean;
-	hideEditButton?: boolean;
-	hideQuickActions?: boolean;
-} ) => {
+	onClickEdit,
+	onUpdateVideoThumbnail,
+	onUpdateVideoPrivacy,
+	onDeleteVideo,
+}: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
@@ -35,8 +30,8 @@ const VideoList = ( {
 		}
 	};
 
-	const handleClickEdit = index => () => {
-		onClickEdit?.( videos[ index ] );
+	const handleClickWithIndex = ( index, callback ) => () => {
+		callback?.( videos[ index ] );
 	};
 
 	return (
@@ -69,7 +64,10 @@ const VideoList = ( {
 						plays={ hidePlays ? null : video.plays }
 						className={ styles.row }
 						checked={ selected.includes( index ) }
-						onClickEdit={ handleClickEdit( index ) }
+						onClickEdit={ handleClickWithIndex( index, onClickEdit ) }
+						onUpdateVideoThumbnail={ handleClickWithIndex( index, onUpdateVideoThumbnail ) }
+						onUpdateVideoPrivacy={ handleClickWithIndex( index, onUpdateVideoPrivacy ) }
+						onDeleteVideo={ handleClickWithIndex( index, onDeleteVideo ) }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );

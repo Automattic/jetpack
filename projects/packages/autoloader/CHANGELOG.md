@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.8] - 2022-09-20
+### Fixed
+- Tests: skip test if it requires a version of Composer not compatible with the running version of PHP. [#26143]
+
 ## [2.11.7] - 2022-07-26
 ### Changed
 - Updated package dependencies. [#25158]
@@ -261,6 +265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.11.8]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.7...v2.11.8
 [2.11.7]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.6...v2.11.7
 [2.11.6]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.5...v2.11.6
 [2.11.5]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.4...v2.11.5
