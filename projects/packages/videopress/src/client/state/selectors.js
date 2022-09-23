@@ -16,11 +16,26 @@ export const getVideo = ( state, id ) => {
 	return video;
 };
 
+export const getUploadedVideoCount = state => {
+	return state?.videos?.uploadedVideoCount;
+};
+
+export const getIsFetching = state => {
+	return state?.videos?.isFetching;
+};
+
+export const getIsFetchingUploadedVideoCount = state => {
+	return state?.videos?.isFetchingUploadedVideoCount;
+};
+
 const selectors = {
 	getVideos,
 	getVideosQuery,
 	getPagination,
 	getVideo,
+	getUploadedVideoCount,
+	getIsFetching,
+	getIsFetchingUploadedVideoCount,
 };
 
 export default selectors;
