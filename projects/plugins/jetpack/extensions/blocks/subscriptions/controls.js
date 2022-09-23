@@ -6,9 +6,16 @@ import {
 	FontSizePicker,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
+import {
+	ToggleControl,
+	PanelBody,
+	RangeControl,
+	TextareaControl,
+	DropdownMenu,
+} from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { menu, arrowUp, arrowDown } from '@wordpress/icons';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { WidthControl } from '../../shared/width-panel';
 import {
@@ -26,6 +33,34 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+
+// TODO: To be removed
+export const _default = () => {
+	const label = __( 'Label', 'jetpack' );
+	const firstMenuItemLabel = 'First Menu Item Label';
+	const secondMenuItemLabel = 'First Menu Item Label';
+	const toggleButtonTootip = 'Show tooltip on a toggle button';
+
+	const controls = [
+		{
+			title: firstMenuItemLabel,
+			icon: arrowUp,
+		},
+		{
+			title: secondMenuItemLabel,
+			icon: arrowDown,
+		},
+	];
+
+	return (
+		<DropdownMenu
+			icon={ menu }
+			label={ label }
+			controls={ controls }
+			toggleProps={ { showTooltip: toggleButtonTootip } }
+		/>
+	);
+};
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -141,6 +176,13 @@ export default function SubscriptionControls( {
 				</PanelColorSettings>
 			) }
 
+			<PanelBody
+				title={ __( 'Newsletter Settings', 'jetpack' ) }
+				initialOpen={ false }
+				className="wp-block-jetpack-subscriptions__textpanel"
+			>
+				<_default />
+			</PanelBody>
 			<PanelBody
 				title={ __( 'Typography', 'jetpack' ) }
 				initialOpen={ false }
