@@ -175,7 +175,7 @@ StepDisconnect.propTypes = {
 	/** An error that occurred during a request to disconnect. */
 	disconnectError: PropTypes.bool,
 	/** A component to be rendered as part of this step */
-	disconnectStepComponent: PropTypes.elementType,
+	disconnectStepComponent: PropTypes.element,
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.array,
 	/** The slug of the plugin that is initiating the disconnection. */
