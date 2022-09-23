@@ -238,7 +238,9 @@ export function SubscriptionEdit( props ) {
 			</InspectorControls>
 			<BlockControls>
 				<Toolbar>
-					<ToolbarButton href={ getPaidPlanLink() } target="_blank">{ addPaidPlanButtonText }</ToolbarButton>
+					<ToolbarButton href={ getPaidPlanLink() } target="_blank">
+						{ addPaidPlanButtonText }
+					</ToolbarButton>
 				</Toolbar>
 			</BlockControls>
 
