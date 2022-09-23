@@ -43,12 +43,14 @@ export default function PublicizeForm( {
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
+	const isShareLimitEnabled = numberOfSharesRemaining !== null;
+	const outOfConnections =
+		isShareLimitEnabled && numberOfSharesRemaining <= enabledConnections.length;
+	const hasZeroShares = isShareLimitEnabled && 0 === numberOfSharesRemaining;
+
 	const isDisabled = () =>
 		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
-
-	const outOfConnections =
-		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
 
 	return (
 		<Wrapper>
@@ -88,10 +90,11 @@ export default function PublicizeForm( {
 								( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
 									<PublicizeConnection
 										disabled={
+											hasZeroShares ||
 											( isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable ) ||
 											( ! enabled && toggleable && outOfConnections )
 										}
-										enabled={ enabled && ! isPublicizeDisabledBySitePlan }
+										enabled={ ! hasZeroShares && enabled && ! isPublicizeDisabledBySitePlan }
 										key={ id }
 										id={ id }
 										label={ display_name }
@@ -112,7 +115,7 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<MessageBoxControl
-							disabled={ isDisabled() }
+							disabled={ isDisabled() || hasZeroShares }
 							maxLength={ maxLength }
 							onChange={ updateMessage }
 							message={ message }

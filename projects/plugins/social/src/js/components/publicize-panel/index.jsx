@@ -38,6 +38,9 @@ const PublicizePanel = ( { prePublish } ) => {
 		};
 	} );
 
+	const zeroSharesLeft =
+		isShareLimitEnabled && ! hasPaidPlan && 0 === numberOfSharesRemaining ? true : false;
+
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
 		function () {
@@ -74,8 +77,8 @@ const PublicizePanel = ( { prePublish } ) => {
 									  )
 							}
 							onChange={ togglePublicizeFeature }
-							checked={ isPublicizeEnabled }
-							disabled={ ! hasConnections }
+							checked={ isPublicizeEnabled && ! zeroSharesLeft }
+							disabled={ ! hasConnections || zeroSharesLeft }
 						/>
 					</PanelRow>
 				) }
