@@ -33,11 +33,16 @@ export interface VideoQuickActionsProps {
 	className?: string;
 
 	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
-	onUpdateVideoPrivacy?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
 	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 }
 
 export type ThumbnailActionsDropdownProps = {
 	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	description: string;
+};
+
+export type PrivacyActionsDropdownProps = {
+	onUpdate: ( action: 'site-default' | 'public' | 'private' ) => void;
 	description: string;
 };
