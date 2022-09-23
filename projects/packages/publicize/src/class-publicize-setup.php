@@ -67,15 +67,15 @@ class Publicize_Setup {
 		$connections      = $publicize->get_filtered_connection_data();
 		$shares_remaining = $info['shares_remaining'];
 
+		if ( $shares_remaining < count( $connections ) ) {
+			/**
+			 * If the number of connections is greater than the share limit, we set all
+			 * connections to disabled by default. This allows the user to pick and
+			 * choose which services they want to share to, without going over the limit.
+			 */
+			add_filter( 'publicize_checkbox_default', '__return_false' );
+		}
 		if ( $current_screen->is_block_editor() ) {
-			if ( $shares_remaining < count( connections ) ) {
-				/**
-				 * If the number of connections is greater than the share limit, we set all
-				 * connections to disabled by default. This allows the user to pick and
-				 * choose which services they want to share to, without going over the limit.
-				 */
-				add_filter( 'publicize_checkbox_default', '__return_false' );
-			}
 			return;
 		}
 
