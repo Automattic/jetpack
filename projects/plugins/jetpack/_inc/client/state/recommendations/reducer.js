@@ -58,6 +58,20 @@ const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_DATA_UPDATE:
+			// Filter out deprecated slugs and convert them to new ones (if the new ones don't already exist)
+			for ( const [ key, value ] of Object.entries( action.data ) ) {
+				const actionData = action.data;
+				if ( key === 'site-type-business' ) {
+					actionData[ 'site-type-agency' ] = actionData[ 'site-type-agency' ] || value;
+					delete actionData[ 'site-type-business' ];
+				}
+
+				if ( key === 'site-type-other' ) {
+					actionData[ 'site-type-personal' ] = actionData[ 'site-type-personal' ] || value;
+					delete actionData[ 'site-type-other' ];
+				}
+			}
+
 			return assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION: {
 			const selectedState = mergeWith(
