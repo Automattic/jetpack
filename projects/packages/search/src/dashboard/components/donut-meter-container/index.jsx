@@ -6,7 +6,7 @@ import './style.scss';
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
- * @returns {React.Component} notice box component.
+ * @returns {React.Component} DonutMeterContainer component.
  */
 function DonutMeterContainer() {
 	return (
@@ -15,18 +15,30 @@ function DonutMeterContainer() {
 				<DonutMeter />
 			</div>
 			<div className="donut-info-wrapper">
-				<p className="donut-info-primary">
-					Site records{ ' ' }
-					<a href="#" className="info-icon-wrapper">
-						<Gridicon className="" icon="info-outline" size={ 16 } />
-					</a>
-				</p>
-				<p className="donut-info-secondary">
-					212/500 <a href="#">Show details</a>
-				</p>
+				<InfoPrimary />
+				<InfoSecondary />
 			</div>
 		</div>
 	);
 }
+
+const InfoPrimary = () => {
+	return (
+		<p className="donut-info-primary">
+			Site records{ ' ' }
+			<a href="#" className="info-icon-wrapper">
+				<Gridicon className="" icon="info-outline" size={ 16 } />
+			</a>
+		</p>
+	);
+};
+
+const InfoSecondary = () => {
+	return (
+		<p className="donut-info-secondary">
+			212/500 <a href="#">Show details</a>
+		</p>
+	);
+};
 
 export default DonutMeterContainer;
