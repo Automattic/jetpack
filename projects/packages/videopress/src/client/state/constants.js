@@ -29,6 +29,11 @@ export const VIDEO_PRIVACY_LEVEL_PUBLIC = 'public';
 export const VIDEO_PRIVACY_LEVEL_PRIVATE = 'private';
 export const VIDEO_PRIVACY_LEVEL_SITE_DEFAULT = 'site-default';
 
+/*
+ * Order is very important here.
+ * The item index reflects the privacy_setting value
+ * used to hit the /meta endpoint.
+ */
 export const VIDEO_PRIVACY_LEVELS = [
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,

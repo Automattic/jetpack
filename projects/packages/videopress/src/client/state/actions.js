@@ -51,25 +51,36 @@ const setUploadedVideoCount = uploadedVideoCount => {
 	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
 };
 
-const updateVideoPrivacy = ( id, level ) => async () => {
-	const privacy_setting = Number( level );
-	if ( isNaN( privacy_setting ) ) {
+const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
+	const privacySetting = Number( level );
+	if ( isNaN( privacySetting ) ) {
 		throw new Error( `Invalid privacy level: '${ level }'` );
 	}
 
-	if ( 0 > privacy_setting || privacy_setting >= VIDEO_PRIVACY_LEVELS.length ) {
+	if ( 0 > privacySetting || privacySetting >= VIDEO_PRIVACY_LEVELS.length ) {
 		// @todo: implement error handling / UI
 		throw new Error( `Invalid privacy level: '${ level }'` );
 	}
 
 	try {
-		return await apiFetch( {
+		const resp = await apiFetch( {
 			path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 			method: 'POST',
 			data: {
 				id,
-				privacy_setting,
+				privacy_setting: privacySetting,
 			},
+		} );
+
+		if ( resp?.data !== 200 ) {
+			// Here, we expect data to be 200
+			// @todo: implement error handling / UI
+			return;
+		}
+
+		dispatch.setVideo( {
+			id,
+			privacySetting,
 		} );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
