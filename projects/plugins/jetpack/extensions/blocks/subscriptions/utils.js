@@ -16,3 +16,8 @@ export const encodeValueForShortcodeAttribute = value => {
 		.replace( /\u00a0/g, '&nbsp;' )
 		.replace( /\u200b/g, '&#x200b;' );
 };
+
+export const getPaidPlanLink = () => {
+	const siteSlug = location.hostname;
+	return 'https://wordpress.com/earn/payments-plans/' + siteSlug + '#add-new-payment-plan';
+}

@@ -27,6 +27,8 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 
+import { PaidPlanPanel } from './paid-plan';
+
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
 	borderColor,
@@ -53,6 +55,7 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
+			<PaidPlanPanel/>
 			{ subscriberCount > 1 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
