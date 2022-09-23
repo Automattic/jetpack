@@ -9,7 +9,12 @@ export const fetchTrackQuantity = async () => {
 	return trackQuantity;
 };
 
-export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions = false } ) => {
+export const fetchPodcastFeed = async ( {
+	url,
+	guids = [],
+	fetchEpisodeOptions = false,
+	forceRefresh = false,
+} ) => {
 	// First try calling our endpoint for Podcast parsing.
 	let feedData, feedError;
 	try {
@@ -18,6 +23,7 @@ export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions =
 				url,
 				guids,
 				[ 'episode-options' ]: fetchEpisodeOptions,
+				[ 'force-refresh' ]: forceRefresh,
 			} ),
 		} );
 	} catch ( err ) {
