@@ -33,6 +33,12 @@ export type OriginalVideoPressVideo = {
 	 * Video duration, in milliseconds
 	 */
 	duration?: number;
+
+	/**
+	 * Video rating
+	 */
+	rating?: 'G' | 'PG-13' | 'R-17';
+
 	/**
 	 * Plays counter
 	 */
@@ -47,9 +53,22 @@ export type OriginalVideoPressVideo = {
 	isPrivate?: boolean;
 
 	/**
+	 * Whether is possible to download the video, or not.
+	 */
+	allowDownload?: boolean;
+
+	/**
 	 * Video poster image URL
 	 */
 	posterImage?: string;
+
+	/**
+	 * Video privacy setting:
+	 * - 0 `public`: anyone can view the video
+	 * - 1 `private`: only the owner can view the video
+	 * - 2 `site-default`
+	 */
+	privacySetting?: 0 | 1 | 2;
 
 	/**
 	 * Object reflecting poster image data.
