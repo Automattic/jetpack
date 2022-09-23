@@ -67,7 +67,7 @@ class Publicize_Setup {
 		$connections      = $publicize->get_filtered_connection_data();
 		$shares_remaining = $info['shares_remaining'];
 
-		$share_limits = new Share_Limits( $connections, $shares_remaining );
+		$share_limits = new Share_Limits( $connections, $shares_remaining, $current_screen );
 		$share_limits->enforce_share_limits();
 	}
 }
