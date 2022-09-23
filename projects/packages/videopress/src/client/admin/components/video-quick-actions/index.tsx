@@ -32,7 +32,7 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 				size="small"
 				variant="tertiary"
 				icon={ icon }
-				onMouseOver={ () => setShowPopover( true ) }
+				onMouseEnter={ () => setShowPopover( true ) }
 				onMouseLeave={ () => setShowPopover( false ) }
 				{ ...props }
 			/>
