@@ -400,7 +400,7 @@ async function setupForMirroring( argv ) {
 		} catch {
 			console.error( chalk.bgRed( 'The working tree has unstaged changes!' ) );
 			console.error( 'Please stage, merge, or revert them before trying to use --for-mirrors.' );
-			// return false;
+			return false;
 		}
 		const answers = await inquirer.prompt( [
 			{
