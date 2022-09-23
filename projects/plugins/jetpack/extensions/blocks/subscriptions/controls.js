@@ -40,18 +40,27 @@ export const _default = () => {
 	const firstMenuItemLabel = 'First Menu Item Label';
 	const secondMenuItemLabel = 'First Menu Item Label';
 	const toggleButtonTootip = 'Show tooltip on a toggle button';
-
+	const onClick = () => {
+		wp.data.dispatch( 'core/editor' ).editPost( { meta: { _newsletter_visibility: 'yest' } } );
+	};
 	const controls = [
 		{
 			title: firstMenuItemLabel,
 			icon: arrowUp,
+			value: 'first_value',
+			onClick: onClick,
 		},
 		{
 			title: secondMenuItemLabel,
 			icon: arrowDown,
+			value: 'second_value',
+			onClick: onClick,
 		},
 	];
 
+	const _newsletter_visibility = wp.data.select( 'core/editor' ).getEditedPostAttribute( 'meta' )
+		._newsletter_visibility;
+	console.info( '_newsletter_visibility:' + _newsletter_visibility );
 	return (
 		<DropdownMenu
 			icon={ menu }
