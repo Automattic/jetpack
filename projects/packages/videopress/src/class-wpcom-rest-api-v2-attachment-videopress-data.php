@@ -126,11 +126,13 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		} else {
 			$title       = $info->title;
 			$description = $info->description;
+			$caption     = $info->caption;
 		}
 
 		return array(
 			'title'           => $title,
 			'description'     => $description,
+			'caption'         => isset( $caption ) ? $caption : '',
 			'guid'            => $info->guid,
 			'rating'          => $info->rating,
 			'allow_download'  =>
