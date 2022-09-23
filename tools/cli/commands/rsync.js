@@ -1,17 +1,20 @@
 /**
  * External dependencies
  */
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import watch from 'node-watch';
+import fs from 'fs';
 import process from 'process';
-
+import chalk from 'chalk';
+import execa from 'execa';
+import inquirer from 'inquirer';
+import watch from 'node-watch';
+import tmp from 'tmp';
 /**
  * Internal dependencies
  */
+import { projectDir } from '../helpers/install.js';
+import { listProjectFiles } from '../helpers/list-project-files.js';
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
 import { runCommand } from '../helpers/runCommand.js';
-import { projectDir } from '../helpers/install.js';
 
 /**
  * Entry point for the CLI.
@@ -44,10 +47,31 @@ export async function rsyncInit( argv ) {
  * @returns {Promise<void>}
  */
 async function rsyncToDest( source, dest ) {
+	let includeFiles = [];
+	for await ( const projectFiles of listProjectFiles( source, execa ) ) {
+		includeFiles.push( projectFiles );
+	}
+	includeFiles = includeFiles.map(
+		v => '/' + ( v.match( /[[*?]/ ) ? v.replace( /[[*?\\]/g, '\\$&' ) : v )
+	);
+	const tmpFileName = tmp.tmpNameSync();
+	fs.writeFileSync( tmpFileName, '+ ' + includeFiles.join( '\r\n+ ' ) );
 	try {
 		await runCommand( 'rsync', [
-			`-azLKP --delete --delete-after`,
-			"--exclude='jetpack_vendor/**/vendor' --exclude='node_modules' --exclude='vendor/**/vendor' --exclude='.cache' --exclude='tests' --exclude='*.map'",
+			'-azLKPv',
+			'--prune-empty-dirs',
+			'--delete',
+			'--delete-after',
+			'--delete-excluded',
+			`--include-from=${ tmpFileName }`,
+			'--exclude=jetpack_vendor/**/vendor',
+			'--exclude=wordpress',
+			'--exclude=jetpack_vendor/**/*/wordpress/',
+			'--exclude=node_modules',
+			'--exclude=vendor/**/vendor',
+			'--exclude=.cache',
+			'--exclude=tests',
+			'--exclude=*.map',
 			source,
 			dest,
 		] );
