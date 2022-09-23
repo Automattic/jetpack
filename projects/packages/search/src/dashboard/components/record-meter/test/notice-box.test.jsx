@@ -17,7 +17,7 @@ describe( 'with notices to display', () => {
 				hasItems={ true }
 			></NoticeBox>
 		);
-		expect( screen.getByText( /locate any content/i ) ).toBeVisible();
+		expect( screen.getByText( /gathering your usage data/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to access data notice is displayed', () => {
@@ -45,7 +45,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /locate any content/i ) ).toBeVisible();
+		expect( screen.getByText( /gathering your usage data/i ) ).toBeVisible();
 	} );
 	test( 'getting close to record limit notice is displayed', () => {
 		render(

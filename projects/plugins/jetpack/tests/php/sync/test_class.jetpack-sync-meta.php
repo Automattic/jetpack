@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		// create a post
 		$this->meta_module = Modules::get_module( 'meta' );
 		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
-		$this->post_id = $this->factory->post->create();
+		$this->post_id = self::factory()->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		$this->sender->do_sync();
 	}
@@ -180,7 +180,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_comment_meta_whitelist_cab_be_appened_in_settings() {
-		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
+		$comment_ids = self::factory()->comment->create_post_comments( $this->post_id );
 
 		add_comment_meta( $comment_ids[0], '_private_meta', 'foo' );
 		$this->sender->do_sync();
@@ -227,7 +227,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		// check that these values exists in the whitelist options
 		$white_listed_comment_meta = Defaults::$comment_meta_whitelist;
 
-		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
+		$comment_ids = self::factory()->comment->create_post_comments( $this->post_id );
 
 		// update all the comment meta
 		foreach ( $white_listed_comment_meta as $meta_key ) {

@@ -1614,9 +1614,9 @@
 				} else if (
 					parent &&
 					parent.classList.contains( 'wp-block-image' ) &&
-					parent.querySelector( 'a' )
+					parent.querySelector( ':scope > a' )
 				) {
-					parentHref = parent.querySelector( 'a' ).getAttribute( 'href' );
+					parentHref = parent.querySelector( ':scope > a' ).getAttribute( 'href' );
 				}
 
 				// If the link does not point to the attachment or media file then assume Image has

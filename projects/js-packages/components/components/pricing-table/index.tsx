@@ -1,5 +1,6 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, check, info, closeSmall } from '@wordpress/icons';
+import { Icon, check, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import {
 	createContext,
@@ -10,6 +11,8 @@ import {
 	ReactElement,
 } from 'react';
 import React, { CSSProperties } from 'react';
+import { getRedirectUrl } from '../../../components';
+import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';
 import styles from './styles.module.scss';
@@ -20,25 +23,50 @@ import {
 	PricingTableItemProps,
 } from './types';
 
+const ToS = createInterpolateElement(
+	__(
+		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'jetpack'
+	),
+	{
+		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		shareDetailsLink: (
+			<a
+				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+				rel="noopener noreferrer"
+				target="_blank"
+			/>
+		),
+	}
+);
+
 const PricingTableContext = createContext( undefined );
 
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	isIncluded,
 	index = 0,
 	label = null,
+	tooltipInfo,
+	tooltipTitle,
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const items = useContext( PricingTableContext );
-	const rowLabel = items[ index ];
-	let defaultLabel = isIncluded ? __( 'Included', 'jetpack' ) : __( 'Not included', 'jetpack' );
+	const rowLabel = items[ index ].name;
+	const defaultTooltipInfo = items[ index ].tooltipInfo;
+	const defaultTooltipTitle = items[ index ].tooltipTitle;
+	const includedLabel = __( 'Included', 'jetpack' );
+	const notIncludedLabel = __( 'Not included', 'jetpack' );
+	const showTooltip = tooltipInfo || ( ! isLg && defaultTooltipInfo );
+
+	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
 	defaultLabel = isLg ? defaultLabel : rowLabel;
 
-	if ( ! isLg && ! isIncluded ) {
+	if ( ! isLg && ! isIncluded && label === null ) {
 		return null;
 	}
 
 	return (
-		<Text variant="body-small" className={ classnames( styles.item, styles.value ) }>
+		<div className={ classnames( styles.item, styles.value ) }>
 			<Icon
 				className={ classnames(
 					styles.icon,
@@ -47,8 +75,19 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				size={ 32 }
 				icon={ isIncluded ? check : closeSmall }
 			/>
-			{ label || defaultLabel }
-		</Text>
+			<Text variant="body-small">{ label || defaultLabel }</Text>
+			{ showTooltip && (
+				<IconTooltip
+					title={ tooltipInfo ? tooltipTitle : defaultTooltipTitle }
+					iconClassName={ styles[ 'popover-icon' ] }
+					className={ styles.popover }
+					placement={ 'bottom-end' }
+					iconSize={ 22 }
+				>
+					<Text>{ tooltipInfo || defaultTooltipInfo }</Text>
+				</IconTooltip>
+			) }
+		</div>
 	);
 };
 
@@ -56,11 +95,14 @@ export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { child
 	<div className={ styles.header }>{ children }</div>
 );
 
-export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( { children } ) => {
+export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
+	primary = false,
+	children,
+} ) => {
 	let index = 0;
 
 	return (
-		<div className={ styles.card }>
+		<div className={ classnames( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
@@ -95,16 +137,34 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 					<Text variant="headline-small">{ title }</Text>
 					{ isLg &&
 						items.map( ( item, i ) => (
-							<Text
-								variant="body-small"
-								className={ classnames( styles.item, styles.label ) }
+							<div
+								className={ classnames( styles.item, {
+									[ styles[ 'last-feature' ] ]: i === items.length - 1,
+								} ) }
 								key={ i }
 							>
-								<Icon className={ classnames( styles.icon ) } size={ 24 } icon={ info } />
-								<strong>{ item }</strong>
-							</Text>
+								<Text variant="body-small">
+									<strong>{ item.name }</strong>
+								</Text>
+								{ item.tooltipInfo && (
+									<IconTooltip
+										title={ item.tooltipTitle }
+										iconClassName={ styles[ 'popover-icon' ] }
+										className={ styles.popover }
+										placement={ 'bottom-end' }
+										iconSize={ 22 }
+									>
+										<Text>{ item.tooltipInfo }</Text>
+									</IconTooltip>
+								) }
+							</div>
 						) ) }
 					{ children }
+				</div>
+				<div className={ styles[ 'tos-container' ] }>
+					<Text className={ styles.tos } variant="body-small">
+						{ ToS }
+					</Text>
 				</div>
 			</div>
 		</PricingTableContext.Provider>

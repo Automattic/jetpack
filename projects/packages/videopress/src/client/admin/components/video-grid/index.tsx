@@ -9,18 +9,33 @@ import { VideoCard } from '../video-card';
 import styles from './style.module.scss';
 import { VideoGridProps } from './types';
 import type React from 'react';
+
+// Generate en ampty array of length count
+const blankData = {
+	id: 0,
+	title: '...',
+	thumbnail: null,
+	duration: null,
+	uploadDate: '',
+	plays: null,
+};
+
 /**
  * Video Grid component
  *
  * @param {VideoGridProps} props - Component props.
  * @returns {React.ReactNode} - VideoGrid react component.
  */
-const VideoGrid: React.FC< VideoGridProps > = ( { videos, count = 6 } ) => {
-	if ( ! videos || ! videos.length ) {
-		return null;
+const VideoGrid = ( { videos, count = 6, onVideoDetailsClick }: VideoGridProps ) => {
+	let gridVideos = videos.slice( 0, count );
+
+	if ( gridVideos.length < count ) {
+		gridVideos = gridVideos.concat( Array( count - gridVideos.length ).fill( blankData ) );
 	}
 
-	const gridVideos = videos.slice( 0, count );
+	const handleClickWithIndex = ( index, callback ) => () => {
+		callback?.( videos[ index ] );
+	};
 
 	return (
 		<div className={ styles.wrapper }>
@@ -31,10 +46,11 @@ const VideoGrid: React.FC< VideoGridProps > = ( { videos, count = 6 } ) => {
 							<VideoCard
 								id={ video.id }
 								title={ video.title }
-								thumbnail={ video?.posterImage }
+								thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 								duration={ video.duration }
 								uploadDate={ video.uploadDate }
 								plays={ video.plays }
+								onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 							/>
 						</Col>
 					);

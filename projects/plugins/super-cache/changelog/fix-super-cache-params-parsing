@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid use of QUERY_STRING value, as it is not available in all hosting environments
