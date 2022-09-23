@@ -14,9 +14,12 @@ export default function useConnectionErrorNotice() {
 		connectionErrorList && connectionErrorList.length && connectionErrorList[ 0 ].error_message;
 
 	const hasConnectionError = Boolean( connectionErrorMessage );
-	const ConnectionError = () => {
-		return hasConnectionError ? <ConnectionErrorNotice message={ connectionErrorMessage } /> : null;
-	};
 
-	return { hasConnectionError, ConnectionError };
+	return { hasConnectionError, connectionErrorMessage };
 }
+
+export const ConnectionError = () => {
+	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
+
+	return hasConnectionError ? <ConnectionErrorNotice message={ connectionErrorMessage } /> : null;
+};
