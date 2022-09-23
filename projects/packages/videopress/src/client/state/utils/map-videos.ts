@@ -24,13 +24,25 @@ export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
 ): VideoPressVideo => {
-	const { media_details: mediaDetails, id, caption, jetpack_videopress_guid: guid } = video;
+	const {
+		media_details: mediaDetails,
+		id,
+		caption,
+		jetpack_videopress: jetpackVideoPress,
+		jetpack_videopress_guid: guid,
+	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
 	const {
-		title,
+		allow_download: allowDownload,
 		description,
+		privacy_setting: privacySetting,
+		rating,
+		title,
+	} = jetpackVideoPress;
+
+	const {
 		original: url,
 		poster,
 		upload_date: date,
@@ -46,7 +58,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Define thumbnail picking the image from DVD file type
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
-	const thumbnail = `${ fileURLBase.https }${ dvd.original_img }`;
+	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
 
 	return {
 		id,
@@ -60,6 +72,9 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		isPrivate,
 		dateFormatted: gmdateI18n( 'F j, Y', date ),
 		posterImage: poster,
+		allowDownload,
+		rating,
+		privacySetting,
 		poster: {
 			src: poster,
 			width,

@@ -7,6 +7,7 @@ const projects = [
 	'../../connection/components',
 	'../../idc/components',
 	'../../../packages/my-jetpack/_inc/components',
+	'../../../packages/search/src/dashboard/components',
 	'../../../plugins/protect/src/js/components',
 	'../../../packages/videopress/src/client/admin/components',
 	'../../../packages/videopress/src/client/components',

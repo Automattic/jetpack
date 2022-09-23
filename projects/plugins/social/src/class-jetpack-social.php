@@ -220,7 +220,7 @@ class Jetpack_Social {
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment'            => ( new Status() )->get_site_suffix(),
-				'connectionRefreshPath'   => '/jetpack/v4/publicize/connections',
+				'connectionRefreshPath'   => '/jetpack/v4/publicize/connection-test-results',
 				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
 			)
 		);

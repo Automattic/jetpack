@@ -28,3 +28,19 @@
 		margin-top: calc( var(--spacing-base) * 4 );
 	}
 }
+
+.first-video-wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.upload-area {
+	width: 100%;
+	max-width: 552px;
+	margin-top: calc( var( --spacing-base ) * 6 ); // 48px;
+
+	&.small {
+		margin-top: calc( var( --spacing-base ) * 3 ); // 24px;
+	}
+}
