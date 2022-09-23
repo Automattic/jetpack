@@ -88,7 +88,10 @@ const videos = ( state = {}, action ) => {
 				items.push( video );
 			} else {
 				// Update video when found
-				items[ videoIndex ] = video;
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					...video,
+				};
 			}
 
 			return {
