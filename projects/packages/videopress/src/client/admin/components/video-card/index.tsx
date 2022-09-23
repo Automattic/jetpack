@@ -9,7 +9,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import VideoQuickActions from '../video-quick-actions';
+import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 import { VideoCardProps } from './types';
@@ -23,14 +23,12 @@ import type React from 'react';
  */
 export const VideoCard = ( {
 	title,
+	id,
 	duration,
 	plays,
 	thumbnail,
 	editable,
 	onVideoDetailsClick,
-	onUpdateVideoThumbnail,
-	onUpdateVideoPrivacy,
-	onDeleteVideo,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
 	const hasPlays = typeof plays !== 'undefined';
@@ -82,11 +80,7 @@ export const VideoCard = ( {
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
 
-				<VideoQuickActions
-					onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
-					onUpdateVideoPrivacy={ onUpdateVideoPrivacy }
-					onDeleteVideo={ onDeleteVideo }
-				/>
+				<ConnectVideoQuickActions videoId={ id } />
 			</div>
 		</div>
 	);
