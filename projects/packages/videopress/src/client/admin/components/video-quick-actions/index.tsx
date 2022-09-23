@@ -43,19 +43,19 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 
 const VideoQuickActions = ( {
 	className,
-	onUpdateThumbnailClick,
-	onUpdateUpdatePrivacyClick,
-	onDeleteClick,
+	onUpdateVideoThumbnail,
+	onUpdateVideoPrivacy,
+	onDeleteVideo,
 }: VideoQuickActionsProps ) => {
 	return (
 		<div className={ classNames( styles.actions, className ) }>
-			<ActionItem icon={ image } onClick={ onUpdateThumbnailClick }>
+			<ActionItem icon={ image } onClick={ onUpdateVideoThumbnail }>
 				{ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
 			</ActionItem>
-			<ActionItem icon={ privacy } onClick={ onUpdateUpdatePrivacyClick }>
+			<ActionItem icon={ privacy } onClick={ onUpdateVideoPrivacy }>
 				{ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
 			</ActionItem>
-			<ActionItem icon={ trash } className={ styles.trash } onClick={ onDeleteClick }>
+			<ActionItem icon={ trash } className={ styles.trash } onClick={ onDeleteVideo }>
 				{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
 			</ActionItem>
 		</div>
