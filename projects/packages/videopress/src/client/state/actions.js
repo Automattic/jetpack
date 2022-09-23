@@ -15,6 +15,7 @@ import {
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
+	VIDEO_PRIVACY_LEVELS,
 } from './constants';
 
 const setIsFetchingVideos = isFetching => {
@@ -51,17 +52,27 @@ const setUploadedVideoCount = uploadedVideoCount => {
 };
 
 const updateVideoPrivacy = ( id, level ) => async () => {
+	const privacy_setting = Number( level );
+	if ( isNaN( privacy_setting ) ) {
+		throw new Error( `Invalid privacy level: '${ level }'` );
+	}
+
+	if ( 0 > privacy_setting || privacy_setting >= VIDEO_PRIVACY_LEVELS.length ) {
+		// @todo: implement error handling / UI
+		throw new Error( `Invalid privacy level: '${ level }'` );
+	}
+
 	try {
 		return await apiFetch( {
 			path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 			method: 'POST',
 			data: {
 				id,
-				privacy_setting: String( level ),
+				privacy_setting,
 			},
 		} );
 	} catch ( error ) {
-		// @todo: implement error handling
+		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
 	}
 };
