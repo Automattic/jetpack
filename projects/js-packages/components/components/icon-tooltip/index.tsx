@@ -33,6 +33,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	animate = true,
 	iconCode = 'info-outline',
 	iconSize = 18,
+	offset = 10,
 	title,
 	children,
 } ) => {
@@ -65,7 +66,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		noArrow: false,
 		resize: false,
 		flip: false,
-		offset: 10, // The distance (in px) between the anchor and the popover.
+		offset, // The distance (in px) between the anchor and the popover.
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
