@@ -27,6 +27,10 @@
 		align-self: center;
 		margin-top: calc( var(--spacing-base) * 4 );
 	}
+
+	.pagination-placeholder {
+		height: calc( var(--spacing-base) * 4 );
+	}
 }
 
 .first-video-wrapper {

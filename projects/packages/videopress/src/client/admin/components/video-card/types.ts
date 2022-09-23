@@ -22,15 +22,15 @@ export type VideoCardProps = VideoPressVideo &
 		/**
 		 * Callback to be invoked when clicking on the `Update thumbnail` button.
 		 */
-		onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+		onUpdateVideoThumbnail?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
 		/**
 		 * Callback to be invoked when clicking on the `Update privacy` button.
 		 */
-		onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+		onUpdateVideoPrivacy?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
 		/**
 		 * Callback to be invoked when clicking on the `Delete video` button.
 		 */
-		onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+		onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	};

@@ -29,9 +29,16 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const { items: videos } = useVideos();
+	const {
+		items: videos,
+		total: totalVideoCount,
+		uploadedVideoCount,
+		// isFetching = true,
+		// IsFetchingTotalVideosCount = true,
+	} = useVideos();
 	const localVideos = [];
-	const hasVideos = videos && videos.length > 0;
+	const localTotalVideoCount = 0;
+	const hasVideos = uploadedVideoCount > 0;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
@@ -70,7 +77,7 @@ const Admin = () => {
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							{ hasVideos ? (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<VideoPressLibrary videos={ videos } />
+									<VideoPressLibrary videos={ videos } totalVideos={ totalVideoCount } />
 								</Col>
 							) : (
 								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
@@ -85,7 +92,7 @@ const Admin = () => {
 							) }
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<LocalLibrary videos={ localVideos } />
+									<LocalLibrary videos={ localVideos } totalVideos={ localTotalVideoCount } />
 								</Col>
 							) }
 						</Container>
