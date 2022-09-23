@@ -38,6 +38,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	children,
 } ) => {
 	const delay = 300;
+	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
 	const delayedSetIsOver = useDebounce( setIsVisible, delay );
 
@@ -70,6 +71,9 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
+	const iconShiftBySize = {
+		left: -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
+	};
 
 	return (
 		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
@@ -81,7 +85,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 			</span>
 
-			<div className="icon-tooltip-helper">
+			<div className="icon-tooltip-helper" style={ iconShiftBySize }>
 				{ isVisible && (
 					<Popover { ...args }>
 						<div>
