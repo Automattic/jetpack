@@ -12,6 +12,7 @@ jQuery( function ( $ ) {
 	if ( state.sharesRemaining === 0 ) {
 		checkboxes.each( function () {
 			$( this ).parent().addClass( 'wpas-disabled' );
+			$( this ).prop( 'checked', false );
 			$( this ).prop( 'disabled', true );
 		} );
 
