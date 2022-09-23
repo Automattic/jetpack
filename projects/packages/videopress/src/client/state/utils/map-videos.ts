@@ -24,13 +24,25 @@ export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
 ): VideoPressVideo => {
-	const { media_details: mediaDetails, id, caption, jetpack_videopress_guid: guid } = video;
+	const {
+		media_details: mediaDetails,
+		id,
+		caption,
+		jetpack_videopress: jetpackVideoPress,
+		jetpack_videopress_guid: guid,
+	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
 	const {
-		title,
+		allow_download: allowDownload,
 		description,
+		privacy_setting: privacySetting,
+		rating,
+		title,
+	} = jetpackVideoPress;
+
+	const {
 		original: url,
 		poster,
 		upload_date: date,
@@ -60,6 +72,9 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		isPrivate,
 		dateFormatted: gmdateI18n( 'F j, Y', date ),
 		posterImage: poster,
+		allowDownload,
+		rating,
+		privacySetting,
 		poster: {
 			src: poster,
 			width,

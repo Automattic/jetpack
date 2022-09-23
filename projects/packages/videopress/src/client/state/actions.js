@@ -5,6 +5,8 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
+	SET_UPLOADED_VIDEO_COUNT,
 } from './constants';
 
 const setIsFetchingVideos = isFetching => {
@@ -32,6 +34,14 @@ const setVideo = video => {
 	return { type: SET_VIDEO, video };
 };
 
+const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
+	return { type: SET_IS_FETCHING_UPLOADED_VIDEO_COUNT, isFetchingUploadedVideoCount };
+};
+
+const setUploadedVideoCount = uploadedVideoCount => {
+	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -39,6 +49,8 @@ const actions = {
 	setVideosPagination,
 	setVideos,
 	setVideo,
+	setIsFetchingUploadedVideoCount,
+	setUploadedVideoCount,
 };
 
 export { actions as default };
