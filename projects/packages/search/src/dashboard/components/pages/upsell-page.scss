@@ -1,3 +1,5 @@
+@import 'scss/_variables.scss';
+
 .jp-search-dashboard-upsell-page {
 	line-height: 1.5;
 	width: 100%;
@@ -9,4 +11,22 @@
 	> div {
 		margin-left: 0;
 	}
+}
+
+.price-tip {
+	display: flex;
+	align-items: flex-start;
+	margin-bottom: 24px;
+}
+
+.price-tip-text {
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 20px;
+	color: $studio-gray-40;
+	margin-right: 7px;
+}
+
+.price-tip-icon {
+	fill: $studio-gray-10;
 }
