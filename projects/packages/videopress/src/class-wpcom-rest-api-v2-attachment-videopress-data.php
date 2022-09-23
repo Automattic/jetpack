@@ -123,6 +123,13 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$title       = video_get_title( $blog_id, $attachment_id );
 			$description = video_get_description( $blog_id, $attachment_id );
+
+			$video_attachment = get_blog_post( $blog_id, $attachment_id );
+			if ( null === $video_attachment ) {
+				$caption = '';
+			} else {
+				$caption = $video_attachment->post_excerpt;
+			}
 		} else {
 			$title       = $info->title;
 			$description = $info->description;
@@ -132,7 +139,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		return array(
 			'title'           => $title,
 			'description'     => $description,
-			'caption'         => isset( $caption ) ? $caption : '',
+			'caption'         => $caption,
 			'guid'            => $info->guid,
 			'rating'          => $info->rating,
 			'allow_download'  =>
