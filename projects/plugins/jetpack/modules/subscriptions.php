@@ -16,6 +16,7 @@
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
+add_action( 'the_content', 'check_for_paid_subscription' );
 
 /**
  * Loads the Subscriptions module.
@@ -1034,3 +1035,32 @@ class Jetpack_Subscriptions {
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+
+require_once WP_CONTENT_DIR . '/lib/memberships/jetpack-subscriptions.php';
+
+/**
+ * @param string $the_content
+ *
+ * @return string
+ */
+function check_for_paid_subscription( $the_content ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+
+		if (
+			!jetpack_can_subscriber_read_post( get_current_user_id(), get_current_blog_id(), get_the_ID() )
+		) {
+			return do_blocks(
+				'
+		    <!-- wp:jetpack/subscriptions {"subscribePlaceholder":"Email Address","buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} -->
+                <div class="wp-block-jetpack-subscriptions wp-block-jetpack-subscriptions__supports-newline is-style-compact">
+                    [jetpack_subscription_form subscribe_placeholder="Email Address" show_subscribers_total="false" button_on_newline="false" custom_font_size="16px" custom_border_radius="50" custom_border_weight="1" custom_padding="15" custom_spacing="10" submit_button_classes="has-primary-border-color has-text-color has-secondary-color has-background has-primary-background-color" email_field_classes="has-primary-border-color" show_only_email_and_button="true"]
+                </div>
+            <!-- /wp:jetpack/subscriptions -->'
+			);
+		}
+	}
+
+	return $the_content;
+}
+
+
