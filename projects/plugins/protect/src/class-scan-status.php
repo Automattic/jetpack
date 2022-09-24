@@ -262,17 +262,20 @@ class Scan_Status extends Status {
 							'severity'       => $threat->severity,
 						)
 					);
+					$status->num_threats++;
 
 					continue;
 				}
 
 				if ( ! empty( $threat->file ) ) {
 					$status->files[] = $threat;
+					$status->num_threats++;
 					continue;
 				}
 
 				if ( ! empty( $threat->table ) ) {
 					$status->database[] = $threat;
+					$status->num_threats++;
 					continue;
 				}
 			}
