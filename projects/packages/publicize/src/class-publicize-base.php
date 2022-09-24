@@ -1456,8 +1456,8 @@ abstract class Publicize_Base {
 	public function get_publicize_shares_info( $blog_id ) {
 		static $share_info_responses = array();
 
-		if ( empty( $share_info_responses[ $blog_id ] ) ) {
-			$response = Client::wpcom_json_api_request_as_blog(
+		if ( ! isset( $share_info_responses[ $blog_id ] ) ) {
+			$response                         = Client::wpcom_json_api_request_as_blog(
 				sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
 				'2',
 				array(
@@ -1467,11 +1467,12 @@ abstract class Publicize_Base {
 				null,
 				'wpcom'
 			);
+			$rest_controller                  = new REST_Controller();
+			$share_info_responses[ $blog_id ] = $rest_controller->make_proper_response( $response );
 		} else {
 			$response = $share_info_responses[ $blog_id ];
 		}
-		$rest_controller = new REST_Controller();
-		return $rest_controller->make_proper_response( $response );
+		return ! is_wp_error( $response ) ? $response : null;
 	}
 
 	/**
