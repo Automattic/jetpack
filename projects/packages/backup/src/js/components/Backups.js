@@ -255,13 +255,9 @@ const Backups = () => {
 		);
 	};
 
-	const renderLoading = () => {
-		return <div className="jp-row"></div>;
-	};
-
 	return (
 		<div className="jp-wrap jp-content">
-			{ BACKUP_STATE.LOADING === backupState && renderLoading() }
+			{ BACKUP_STATE.LOADING === backupState && <Loading /> }
 			{ BACKUP_STATE.NO_BACKUPS === backupState && <InProgressBackup progress={ progress } /> }
 			{ BACKUP_STATE.NO_BACKUPS_RETRY === backupState && (
 				<InProgressBackup progress={ progress } showProgressBar={ false } />
@@ -271,6 +267,10 @@ const Backups = () => {
 			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }
 		</div>
 	);
+};
+
+const Loading = () => {
+	return <div className="jp-row"></div>;
 };
 
 const InProgressBackup = ( { progress, showProgressBar = true } ) => {
