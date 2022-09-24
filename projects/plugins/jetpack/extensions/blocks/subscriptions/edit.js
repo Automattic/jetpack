@@ -8,6 +8,7 @@ import {
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, ToolbarButton, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
+import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -24,6 +25,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 import SubscriptionControls from './controls';
+import SubscriptionPostSettings from './settings';
 import { getPaidPlanLink } from './utils';
 
 const { getComputedStyle } = window;
@@ -210,6 +212,9 @@ export function SubscriptionEdit( props ) {
 
 	return (
 		<>
+			<PluginDocumentSettingPanel title={ __( 'Newsletter settings', 'jetpack' ) }>
+				<SubscriptionPostSettings />
+			</PluginDocumentSettingPanel>
 			<InspectorControls>
 				<SubscriptionControls
 					buttonBackgroundColor={ buttonBackgroundColor }
