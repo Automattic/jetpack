@@ -39,6 +39,15 @@ class Publicize_Setup {
 	}
 
 	/**
+	 * Retrieves the blog ID based on the environment we're running in.
+	 *
+	 * @return int The WPCOM blog ID.
+	 */
+	public static function get_blog_id() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
 	 * Initialise share limits if they should be enabled.
 	 */
 	public static function init_sharing_limits() {
@@ -54,7 +63,7 @@ class Publicize_Setup {
 			return;
 		}
 
-		$info = $publicize->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
+		$info = $publicize->get_publicize_shares_info( self::get_blog_id() );
 
 		if ( is_wp_error( $info ) ) {
 			return;
