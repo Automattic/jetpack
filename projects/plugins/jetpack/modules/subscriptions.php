@@ -1039,16 +1039,16 @@ require __DIR__ . '/subscriptions/views.php';
 require_once WP_CONTENT_DIR . '/lib/memberships/jetpack-subscriptions.php';
 
 /**
- * @param string $the_content
+ * Gate access to posts
+ *
+ * @param string $the_content Post content.
  *
  * @return string
  */
 function check_for_paid_subscription( $the_content ) {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 
-		if (
-			!jetpack_can_subscriber_read_post( get_current_user_id(), get_current_blog_id(), get_the_ID() )
-		) {
+		if ( ! jetpack_can_subscriber_read_post( get_current_user_id(), get_current_blog_id(), get_the_ID() ) ) {
 			return do_blocks(
 				'
 		    <!-- wp:jetpack/subscriptions {"subscribePlaceholder":"Email Address","buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} -->
