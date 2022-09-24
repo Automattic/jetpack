@@ -32,7 +32,6 @@ const Backups = () => {
 		themes: 0,
 		warnings: false,
 	} );
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	const BACKUP_STATE = {
 		LOADING: 0,
@@ -111,37 +110,6 @@ const Backups = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ trackProgress ] );
 
-	const renderNoGoodBackups = () => {
-		return (
-			<div className="jp-row">
-				<div className="lg-col-span-5 md-col-span-4 sm-col-span-4">
-					<img src={ CloudAlertIcon } alt="" />
-					<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup-pkg' ) }</h1>
-					<p>
-						{ createInterpolateElement(
-							__(
-								' <a>Get in touch with us</a> to get your site backups going again.',
-								'jetpack-backup-pkg'
-							),
-							{
-								a: (
-									<a
-										//TODO: we may want to add a specific redirect for Backup plugin related issues
-										href={ getRedirectUrl( 'jetpack-contact-support', { site: domain } ) }
-										target="_blank"
-										rel="noreferrer"
-									/>
-								),
-							}
-						) }
-					</p>
-				</div>
-				<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
-				<div className="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
-			</div>
-		);
-	};
-
 	return (
 		<div className="jp-wrap jp-content">
 			{ BACKUP_STATE.LOADING === backupState && <Loading /> }
@@ -153,7 +121,39 @@ const Backups = () => {
 			{ BACKUP_STATE.COMPLETE === backupState && (
 				<CompleteBackup latestTime={ latestTime } stats={ stats } />
 			) }
-			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }
+			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && <NoGoodBackups /> }
+		</div>
+	);
+};
+
+const NoGoodBackups = () => {
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	return (
+		<div className="jp-row">
+			<div className="lg-col-span-5 md-col-span-4 sm-col-span-4">
+				<img src={ CloudAlertIcon } alt="" />
+				<h1>{ __( "We're having trouble backing up your site", 'jetpack-backup-pkg' ) }</h1>
+				<p>
+					{ createInterpolateElement(
+						__(
+							' <a>Get in touch with us</a> to get your site backups going again.',
+							'jetpack-backup-pkg'
+						),
+						{
+							a: (
+								<a
+									//TODO: we may want to add a specific redirect for Backup plugin related issues
+									href={ getRedirectUrl( 'jetpack-contact-support', { site: domain } ) }
+									target="_blank"
+									rel="noreferrer"
+								/>
+							),
+						}
+					) }
+				</p>
+			</div>
+			<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
+			<div className="lg-col-span-6 md-col-span-2 sm-col-span-2"></div>
 		</div>
 	);
 };
