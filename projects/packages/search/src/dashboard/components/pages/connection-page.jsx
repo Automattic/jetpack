@@ -27,32 +27,6 @@ export default function ConnectionPage( { isLoading = false } ) {
 		[ isLoading ]
 	);
 
-	const renderConnectionFooter = () => {
-		return (
-			<div className="jp-search-dashboard-connection-footer">
-				<p className="jp-search-dashboard-connection-footer__text">
-					{ __(
-						'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-						'jetpack-search-pkg'
-					) }
-				</p>
-				<p className="jp-search-dashboard-connection-footer__text">
-					*{ ' ' }
-					{ __(
-						'Pricing will automatically adjust based on the number of records in your search index.',
-						'jetpack-search-pkg'
-					) }{ ' ' }
-					<a
-						href={ getRedirectUrl( 'search-product-pricing' ) }
-						className="jp-search-dashboard-connection-footer__link"
-					>
-						{ __( 'Learn more', 'jetpack-search-pkg' ) }
-					</a>
-				</p>
-			</div>
-		);
-	};
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -65,7 +39,7 @@ export default function ConnectionPage( { isLoading = false } ) {
 								<SearchConnectionScreen />
 							</Col>
 							<Col lg={ 12 } md={ 8 } sm={ 4 }>
-								{ renderConnectionFooter() }
+								{ <ConnectionFooter /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -74,6 +48,32 @@ export default function ConnectionPage( { isLoading = false } ) {
 		</>
 	);
 }
+
+const ConnectionFooter = () => {
+	return (
+		<div className="jp-search-dashboard-connection-footer">
+			<p className="jp-search-dashboard-connection-footer__text">
+				{ __(
+					'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+					'jetpack-search-pkg'
+				) }
+			</p>
+			<p className="jp-search-dashboard-connection-footer__text">
+				*{ ' ' }
+				{ __(
+					'Pricing will automatically adjust based on the number of records in your search index.',
+					'jetpack-search-pkg'
+				) }{ ' ' }
+				<a
+					href={ getRedirectUrl( 'search-product-pricing' ) }
+					className="jp-search-dashboard-connection-footer__link"
+				>
+					{ __( 'Learn more', 'jetpack-search-pkg' ) }
+				</a>
+			</p>
+		</div>
+	);
+};
 
 const SearchConnectionScreen = () => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
