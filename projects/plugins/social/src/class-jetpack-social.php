@@ -14,7 +14,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -113,11 +112,6 @@ class Jetpack_Social {
 	/**
 	 * Check if we have a paid Jetpack Social plan.
 	 */
-	public function has_paid_plan() {
-		$refresh_from_wpcom = true;
-		return Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
-	}
-
 	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
@@ -157,7 +151,7 @@ class Jetpack_Social {
 		global $publicize;
 
 		$shares     = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$show_nudge = ! $this->has_paid_plan();
+		$show_nudge = ! $publicize->has_paid_plan();
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
