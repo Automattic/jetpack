@@ -2,11 +2,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, dateI18n } from '@wordpress/date';
-import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { BACKUP_STATE } from '../constants';
-import loadBackupsState from '../hooks/loadBackupsState.js';
 import useAnalytics from '../hooks/useAnalytics';
+import useBackupsState from '../hooks/useBackupsState.js';
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
@@ -22,31 +22,11 @@ import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
-	// State information
-	const [ progress, setProgress ] = useState( 0 );
-	const [ trackProgress, setTrackProgress ] = useState( 0 );
-	const [ latestTime, setLatestTime ] = useState( '' );
-	const [ stats, setStats ] = useState( {
-		posts: 0,
-		uploads: 0,
-		plugins: 0,
-		themes: 0,
-		warnings: false,
-	} );
-
-	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
-
-	// Loads data on startup and whenever trackProgress updates.
+	const { backupState, fetchBackupsState, latestTime, progress, stats } = useBackupsState();
+	// Loads data on startup and whenever progress updates.
 	useEffect( () => {
-		loadBackupsState(
-			setProgress,
-			setBackupState,
-			setLatestTime,
-			setStats,
-			setTrackProgress,
-			trackProgress
-		);
-	}, [ setProgress, setBackupState, setLatestTime, setStats, setTrackProgress, trackProgress ] );
+		fetchBackupsState();
+	}, [ fetchBackupsState ] );
 
 	return (
 		<div className="jp-wrap jp-content">
