@@ -1,8 +1,8 @@
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
 import { Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
-import { compose, useInstanceId } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { useInstanceId } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostVisibilityCheck } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
@@ -22,7 +22,8 @@ const visibilityOptions = {
 	},
 };
 
-function NewsletterSettings( { postMeta, setPostMeta } ) {
+export default function NewsletterSettings() {
+	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 	const visibilityKey = postMeta._newsletter_visibility ?? 'public';
 	const visibilityLabel = visibilityOptions[ visibilityKey ]?.label ?? 'Public';
 
@@ -85,7 +86,7 @@ function NewsletterAudience( { visibilityLabel, visibilityKey, setPostMeta } ) {
 									<fieldset className="editor-post-visibility__fieldset">
 										<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 										{ Object.keys( visibilityOptions ).map( key => (
-											<div className="editor-post-visibility__choice">
+											<div className="editor-post-visibility__choice" key={ key }>
 												<input
 													type="radio"
 													checked={ key === visibilityKey }
@@ -122,14 +123,3 @@ function NewsletterAudience( { visibilityLabel, visibilityKey, setPostMeta } ) {
 		/>
 	);
 }
-
-export default compose( [
-	withSelect( select => ( {
-		postMeta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
-	} ) ),
-	withDispatch( dispatch => ( {
-		setPostMeta( newMeta ) {
-			dispatch( 'core/editor' ).editPost( { meta: newMeta } );
-		},
-	} ) ),
-] )( NewsletterSettings );
