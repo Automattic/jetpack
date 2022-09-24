@@ -39,6 +39,19 @@ function register_block() {
 			)
 		);
 	}
+
+	register_post_meta(
+		'post',
+		'_newsletter_visibility',
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'string',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
