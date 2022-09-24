@@ -32,6 +32,8 @@ const PublicizePanel = ( { prePublish } ) => {
 		togglePublicizeFeature,
 		isPublicizeDisabledBySitePlan,
 		hideRePublicizeFeature,
+		isShareLimitEnabled,
+		sharesRemaining,
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
@@ -91,6 +93,7 @@ const PublicizePanel = ( { prePublish } ) => {
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
+						numberOfSharesRemaining={ isShareLimitEnabled ? sharesRemaining : null }
 					/>
 					{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 

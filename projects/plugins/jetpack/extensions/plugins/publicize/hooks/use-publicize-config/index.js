@@ -72,6 +72,17 @@ export default function usePublicizeConfig() {
 		! isRePublicizeFeatureAvailable &&
 		! isRePublicizeUpgradableViaUpsell &&
 		isRePublicizeFeatureEnabled;
+	/*
+	 * isShareLimitEnabled:
+	 * Whether or not the share limit is enabled for Jetpack.
+	 */
+	const isShareLimitEnabled = !! window?.Jetpack_Editor_Initial_State.jetpack?.republicize_enabled;
+
+	/*
+	 * sharesRemaining:
+	 * Number of shares remaining, the value will be null if isShareLimitEnabled is false.
+	 */
+	const sharesRemaining = window?.Jetpack_Editor_Initial_State.jetpack?.sharesRemaining;
 
 	return {
 		isPublicizeEnabledMeta,
@@ -82,5 +93,7 @@ export default function usePublicizeConfig() {
 		isRePublicizeFeatureAvailable,
 		isRePublicizeUpgradableViaUpsell,
 		hideRePublicizeFeature,
+		isShareLimitEnabled,
+		sharesRemaining,
 	};
 }

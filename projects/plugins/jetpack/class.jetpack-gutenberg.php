@@ -679,37 +679,52 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		$jetpack_editor_initial_state = array(
+			'available_blocks' => self::get_availability(),
+			'jetpack'          => array(
+				'is_active'                 => Jetpack::is_connection_ready(),
+				'is_current_user_connected' => $is_current_user_connected,
+				/** This filter is documented in class.jetpack-gutenberg.php */
+				'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+				'is_private_site'           => '-1' === get_option( 'blog_public' ),
+				'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
+				'is_offline_mode'           => $status->is_offline_mode(),
+				/**
+				 * Enable the RePublicize UI in the block editor context.
+				 *
+				 * @module publicize
+				 *
+				 * @since 10.3.0
+				 *
+				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+				 */
+				'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+				'isShareLimitEnabled'       => false,
+				'sharesRemaining'           => null,
+			),
+			'siteFragment'     => $status->get_site_suffix(),
+			'adminUrl'         => esc_url( admin_url() ),
+			'tracksUserData'   => $user_data,
+			'wpcomBlogId'      => $blog_id,
+			'allowedMimeTypes' => wp_get_mime_types(),
+			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+		);
+		$modules                      = new Automattic\Jetpack\Modules();
+		if ( $modules->is_active( 'publicize' ) ) {
+			global $publicize;
+			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+			if ( ! is_wp_error( $shares_info ) ) {
+				$jetpack_editor_initial_state['jetpack']['isShareLimitEnabled'] = $shares_info['is_share_limit_enabled'];
+				if ( $shares_info['is_share_limit_enabled'] && isset( $shares_info['shares_remaining'] ) ) {
+					$jetpack_editor_initial_state['jetpack']['sharesRemaining'] = $shares_info['shares_remaining'];
+				}
+			}
+		}
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
-			array(
-				'available_blocks' => self::get_availability(),
-				'jetpack'          => array(
-					'is_active'                 => Jetpack::is_connection_ready(),
-					'is_current_user_connected' => $is_current_user_connected,
-					/** This filter is documented in class.jetpack-gutenberg.php */
-					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
-					'is_private_site'           => '-1' === get_option( 'blog_public' ),
-					'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
-					'is_offline_mode'           => $status->is_offline_mode(),
-					/**
-					 * Enable the RePublicize UI in the block editor context.
-					 *
-					 * @module publicize
-					 *
-					 * @since 10.3.0
-					 *
-					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
-					 */
-					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
-				),
-				'siteFragment'     => $status->get_site_suffix(),
-				'adminUrl'         => esc_url( admin_url() ),
-				'tracksUserData'   => $user_data,
-				'wpcomBlogId'      => $blog_id,
-				'allowedMimeTypes' => wp_get_mime_types(),
-				'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			)
+			$jetpack_editor_initial_state
 		);
 	}
 
