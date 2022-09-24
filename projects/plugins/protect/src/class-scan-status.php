@@ -267,7 +267,7 @@ class Scan_Status extends Status {
 					continue;
 				}
 
-				if ( ! empty( $threat->file ) ) {
+				if ( ! empty( $threat->filename ) ) {
 					$status->files[] = $threat;
 					$status->num_threats++;
 					continue;
