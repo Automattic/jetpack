@@ -30,7 +30,7 @@ domReady( function () {
 						tb_remove();
 					} else if ( data && data.action === 'jetpack_subscribe_continue' ) {
 						form.resubmitted = true;
-						form.submit();
+						form.querySelector( '#subscribe-submit button' ).click();
 					}
 				}
 			};
