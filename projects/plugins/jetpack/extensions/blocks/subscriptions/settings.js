@@ -3,7 +3,7 @@ import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '
 import { Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
 import { compose, useInstanceId } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
-import { PostVisibilityLabel, PostVisibilityCheck } from '@wordpress/editor';
+import { PostVisibilityCheck } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -14,21 +14,13 @@ const visibilityOptions = {
 		label: __( 'Public', 'jetpack' ),
 		info: __( 'Visible to everyone', 'jetpack' ),
 	},
-	all_members: {
-		label: __( 'All members', 'jetpack' ),
-		info: __( 'Only visible to your members', 'jetpack' ),
-	},
 	paid_members_only: {
-		label: __( 'Paid-members only', 'jetpack' ),
-		info: __( 'Only members with a premium subscription', 'jetpack' ),
+		label: __( 'Subscribers', 'jetpack' ),
+		info: __( 'Visible to only subscribers', 'jetpack' ),
 	},
-	specific_people: {
-		label: __( 'Specific people', 'jetpack' ),
-		info: __( 'Only people with any of the selected tiers or labels', 'jetpack' ),
-	},
-	usually_nobody: {
-		label: __( 'Usually nobody', 'jetpack' ),
-		info: __( 'Newsletters are off for new posts', 'jetpack' ),
+	nobody: {
+		label: __( 'Private', 'jetpack' ),
+		info: __( 'Visible to only admins and editors', 'jetpack' ),
 	},
 };
 
@@ -42,12 +34,8 @@ function SubscriptionPostSettings( { postMeta, setPostMeta } ) {
 				<PostVisibilityCheck
 					render={ ( { canEdit } ) => (
 						<PanelRow className="edit-post-post-visibility">
-							<span>{ __( 'Visibility', 'jetpack' ) }</span>
-							{ ! canEdit && (
-								<span>
-									<PostVisibilityLabel />
-								</span>
-							) }
+							<span>{ __( 'Audience', 'jetpack' ) }</span>
+							{ ! canEdit && <span>{ visibilityLabel }</span> }
 							{ canEdit && (
 								<Dropdown
 									position="bottom left"
@@ -58,10 +46,9 @@ function SubscriptionPostSettings( { postMeta, setPostMeta } ) {
 											isTertiary
 											onClick={ onToggle }
 											aria-expanded={ isOpen }
-											// translators: %s: Current newsletter post visibility.
 											aria-label={ sprintf(
-												// eslint-disable-next-line @wordpress/i18n-translator-comments
-												__( 'Select visibility: %s', 'jetpack' ),
+												// translators: %s: Current newsletter post visibility.
+												__( 'Select auudience: %s', 'jetpack' ),
 												visibilityLabel
 											) }
 										>
@@ -94,12 +81,12 @@ function PostVisibility( { visibility, setPostMeta, onClose } ) {
 	return (
 		<div className="editor-post-visibility">
 			<InspectorPopoverHeader
-				title={ __( 'Visibility', 'jetpack' ) }
+				title={ __( 'Audience', 'jetpack' ) }
 				help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
 				onClose={ onClose }
 			/>
 			<fieldset className="editor-post-visibility__fieldset">
-				<VisuallyHidden as="legend">{ __( 'Visibility', 'jetpack' ) } </VisuallyHidden>
+				<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 				{ Object.keys( visibilityOptions ).map( key => (
 					<PostVisibilityChoice
 						instanceId={ instanceId }
