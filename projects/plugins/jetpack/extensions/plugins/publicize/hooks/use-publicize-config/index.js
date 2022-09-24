@@ -84,6 +84,13 @@ export default function usePublicizeConfig() {
 	 */
 	const sharesRemaining = window?.Jetpack_Editor_Initial_State.jetpack?.sharesRemaining;
 
+	/*
+	 * hasJetpackSocialPaidPlan:
+	 * Whether user has a Jetpack Social paid plan.
+	 */
+	const hasJetpackSocialPaidPlan =
+		window?.Jetpack_Editor_Initial_State.jetpack?.hasJetpackSocialPaidPlan;
+
 	return {
 		isPublicizeEnabledMeta,
 		isRePublicizeFeatureEnabled,
@@ -95,5 +102,6 @@ export default function usePublicizeConfig() {
 		hideRePublicizeFeature,
 		isShareLimitEnabled,
 		sharesRemaining,
+		hasJetpackSocialPaidPlan,
 	};
 }

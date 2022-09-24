@@ -10,6 +10,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -701,6 +702,7 @@ class Jetpack_Gutenberg {
 				'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
 				'isShareLimitEnabled'       => false,
 				'sharesRemaining'           => null,
+				'hasJetpackSocialPaidPlan'  => null,
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
@@ -716,7 +718,8 @@ class Jetpack_Gutenberg {
 			if ( ! is_wp_error( $shares_info ) ) {
 				$jetpack_editor_initial_state['jetpack']['isShareLimitEnabled'] = $shares_info['is_share_limit_enabled'];
 				if ( $shares_info['is_share_limit_enabled'] && isset( $shares_info['shares_remaining'] ) ) {
-					$jetpack_editor_initial_state['jetpack']['sharesRemaining'] = $shares_info['shares_remaining'];
+					$jetpack_editor_initial_state['jetpack']['sharesRemaining']          = $shares_info['shares_remaining'];
+					$jetpack_editor_initial_state['jetpack']['hasJetpackSocialPaidPlan'] = Current_Plan::supports( 'social-shares-1000', true );
 				}
 			}
 		}

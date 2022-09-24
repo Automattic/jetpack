@@ -34,6 +34,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		hideRePublicizeFeature,
 		isShareLimitEnabled,
 		sharesRemaining,
+		hasJetpackSocialPaidPlan,
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
@@ -93,7 +94,9 @@ const PublicizePanel = ( { prePublish } ) => {
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
-						numberOfSharesRemaining={ isShareLimitEnabled ? sharesRemaining : null }
+						numberOfSharesRemaining={
+							isShareLimitEnabled && ! hasJetpackSocialPaidPlan ? sharesRemaining : null
+						}
 					/>
 					{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 
