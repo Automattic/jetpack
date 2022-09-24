@@ -3,18 +3,24 @@ import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Accordion, { AccordionItem } from '../accordion';
+import DiffViewer from '../diff-viewer';
+import MarkedLines from '../marked-lines';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
+	context,
+	description,
+	diff,
+	filename,
+	fixedIn,
+	icon,
 	id,
 	name,
-	version,
-	title,
-	description,
-	icon,
-	fixedIn,
-	type,
 	source,
+	table,
+	title,
+	type,
+	version,
 } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 
@@ -24,10 +30,32 @@ const ThreatAccordionItem = ( {
 		</Button>
 	) : null;
 
+	/**
+	 * Get Label
+	 *
+	 * @returns {string} Threat label based on the assumed threat type (extension, file, database, etc).
+	 */
+	const getLabel = useCallback( () => {
+		if ( name && version ) {
+			// Extension threat i.e. "Woocommerce (3.0.0)"
+			return `${ name } (${ version })`;
+		}
+
+		if ( filename ) {
+			// File threat i.e. "index.php"
+			return filename.split( '/' ).pop();
+		}
+
+		if ( table ) {
+			// Database threat i.e. "wp_posts"
+			return table;
+		}
+	}, [ filename, name, table, version ] );
+
 	return (
 		<AccordionItem
 			id={ id }
-			label={ `${ name } (${ version })` }
+			label={ getLabel() }
 			title={ title }
 			icon={ icon }
 			onOpen={ useCallback( () => {
@@ -46,6 +74,24 @@ const ThreatAccordionItem = ( {
 					{ learnMoreButton }
 				</div>
 			) }
+			{ ( filename || context || diff ) && (
+				<Text variant="title-small" mb={ 2 }>
+					{ __( 'The technical details', 'jetpack-protect' ) }
+				</Text>
+			) }
+			{ filename && (
+				<>
+					<Text mb={ 2 }>
+						{
+							/* translators: filename follows in separate line; e.g. "PHP.Injection.5 in: `post.php`" */
+							__( 'Threat found in file:', 'jetpack-protect' )
+						}
+						<pre className={ styles[ 'threat-filename' ] }>{ filename }</pre>
+					</Text>
+				</>
+			) }
+			{ context && <MarkedLines context={ context } /> }
+			{ diff && <DiffViewer diff={ diff } /> }
 			{ fixedIn && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
@@ -67,20 +113,40 @@ const ThreatAccordionItem = ( {
 const List = ( { list } ) => {
 	return (
 		<Accordion>
-			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type, source } ) => (
-				<ThreatAccordionItem
-					key={ id }
-					id={ id }
-					name={ name }
-					version={ version }
-					title={ title }
-					description={ description }
-					icon={ icon }
-					fixedIn={ fixedIn }
-					type={ type }
-					source={ source }
-				/>
-			) ) }
+			{ list.map(
+				( {
+					context,
+					description,
+					diff,
+					filename,
+					fixedIn,
+					icon,
+					id,
+					name,
+					source,
+					table,
+					title,
+					type,
+					version,
+				} ) => (
+					<ThreatAccordionItem
+						context={ context }
+						description={ description }
+						diff={ diff }
+						filename={ filename }
+						fixedIn={ fixedIn }
+						icon={ icon }
+						id={ id }
+						key={ id }
+						name={ name }
+						source={ source }
+						table={ table }
+						title={ title }
+						type={ type }
+						version={ version }
+					/>
+				)
+			) }
 		</Accordion>
 	);
 };
