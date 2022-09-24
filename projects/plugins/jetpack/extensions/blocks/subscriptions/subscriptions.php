@@ -51,7 +51,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 
 	return $content;
 }
