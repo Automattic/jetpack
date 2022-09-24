@@ -21,8 +21,6 @@ import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
-	const { tracks } = useAnalytics();
-
 	// State information
 	const [ progress, setProgress ] = useState( 0 );
 	const [ trackProgress, setTrackProgress ] = useState( 0 );
@@ -113,117 +111,6 @@ const Backups = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ trackProgress ] );
 
-	const trackSeeBackupsCtaClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_see_backups_cta_click', { site: domain } );
-	}, [ tracks, domain ] );
-
-	const trackRecentRestorePointClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_view_recent_restore_points_click', { site: domain } );
-	}, [ tracks, domain ] );
-
-	const formatDateString = dateString => {
-		const todayString = __( 'Today', 'jetpack-backup-pkg' );
-		const todayDate = getDate();
-		let backupDate = todayString;
-		if ( dateI18n( 'zY', todayDate ) !== dateI18n( 'zY', dateString ) ) {
-			backupDate = dateI18n( 'M j', dateString );
-		}
-		const backupTime = dateI18n( 'g:i A', dateString );
-
-		return backupDate + ', ' + backupTime;
-	};
-
-	const renderCompleteBackup = () => {
-		return (
-			<div className="jp-row">
-				<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
-					<div className="backup__latest">
-						<img
-							src={ CloudIcon }
-							alt=""
-							className={ stats.warnings ? 'backup__warning-color' : '' }
-						/>
-						<h2>{ formatDateString( latestTime ) }</h2>
-					</div>
-					{ stats.warnings && (
-						<div className="backup__warning-text">
-							{ createInterpolateElement(
-								__(
-									'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
-									'jetpack-backup-pkg'
-								),
-								{
-									a: (
-										<a
-											href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-											target="_blank"
-											rel="noreferrer"
-										/>
-									),
-								}
-							) }
-						</div>
-					) }
-					{ ! stats.warnings &&
-						createInterpolateElement(
-							__(
-								'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
-								'jetpack-backup-pkg'
-							),
-							{
-								Button: (
-									<a
-										className="button is-full-width"
-										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-										onClick={ trackSeeBackupsCtaClick }
-										target="_blank"
-										rel="noreferrer"
-									/>
-								),
-								br: <br />,
-								ExternalLink: (
-									<ExternalLink
-										className="backup__restore-point-link"
-										href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
-										onClick={ trackRecentRestorePointClick }
-									/>
-								),
-							}
-						) }
-				</div>
-				<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
-				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock
-						icon={ PostsIcon }
-						label={ __( 'Posts', 'jetpack-backup-pkg' ) }
-						value={ stats.posts }
-					/>
-				</div>
-				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock
-						icon={ UploadsIcon }
-						label={ __( 'Uploads', 'jetpack-backup-pkg' ) }
-						value={ stats.uploads }
-					/>
-				</div>
-				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock
-						icon={ PluginsIcon }
-						label={ __( 'Plugins', 'jetpack-backup-pkg' ) }
-						value={ stats.plugins }
-					/>
-				</div>
-				<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
-					<StatBlock
-						icon={ ThemesIcon }
-						label={ __( 'Themes', 'jetpack-backup-pkg' ) }
-						value={ stats.themes }
-					/>
-				</div>
-			</div>
-		);
-	};
-
 	const renderNoGoodBackups = () => {
 		return (
 			<div className="jp-row">
@@ -263,7 +150,9 @@ const Backups = () => {
 				<InProgressBackup progress={ progress } showProgressBar={ false } />
 			) }
 			{ BACKUP_STATE.IN_PROGRESS === backupState && <InProgressBackup progress={ progress } /> }
-			{ BACKUP_STATE.COMPLETE === backupState && renderCompleteBackup() }
+			{ BACKUP_STATE.COMPLETE === backupState && (
+				<CompleteBackup latestTime={ latestTime } stats={ stats } />
+			) }
 			{ BACKUP_STATE.NO_GOOD_BACKUPS === backupState && renderNoGoodBackups() }
 		</div>
 	);
@@ -271,6 +160,119 @@ const Backups = () => {
 
 const Loading = () => {
 	return <div className="jp-row"></div>;
+};
+
+const formatDateString = dateString => {
+	const todayString = __( 'Today', 'jetpack-backup-pkg' );
+	const todayDate = getDate();
+	let backupDate = todayString;
+	if ( dateI18n( 'zY', todayDate ) !== dateI18n( 'zY', dateString ) ) {
+		backupDate = dateI18n( 'M j', dateString );
+	}
+	const backupTime = dateI18n( 'g:i A', dateString );
+
+	return backupDate + ', ' + backupTime;
+};
+
+const CompleteBackup = ( { latestTime, stats } ) => {
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const { tracks } = useAnalytics();
+	const trackSeeBackupsCtaClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_see_backups_cta_click', { site: domain } );
+	}, [ tracks, domain ] );
+
+	const trackRecentRestorePointClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_view_recent_restore_points_click', { site: domain } );
+	}, [ tracks, domain ] );
+
+	return (
+		<div className="jp-row">
+			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
+				<div className="backup__latest">
+					<img
+						src={ CloudIcon }
+						alt=""
+						className={ stats.warnings ? 'backup__warning-color' : '' }
+					/>
+					<h2>{ formatDateString( latestTime ) }</h2>
+				</div>
+				{ stats.warnings && (
+					<div className="backup__warning-text">
+						{ createInterpolateElement(
+							__(
+								'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
+								'jetpack-backup-pkg'
+							),
+							{
+								a: (
+									<a
+										href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+										target="_blank"
+										rel="noreferrer"
+									/>
+								),
+							}
+						) }
+					</div>
+				) }
+				{ ! stats.warnings &&
+					createInterpolateElement(
+						__(
+							'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
+							'jetpack-backup-pkg'
+						),
+						{
+							Button: (
+								<a
+									className="button is-full-width"
+									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+									onClick={ trackSeeBackupsCtaClick }
+									target="_blank"
+									rel="noreferrer"
+								/>
+							),
+							br: <br />,
+							ExternalLink: (
+								<ExternalLink
+									className="backup__restore-point-link"
+									href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
+									onClick={ trackRecentRestorePointClick }
+								/>
+							),
+						}
+					) }
+			</div>
+			<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<StatBlock
+					icon={ PostsIcon }
+					label={ __( 'Posts', 'jetpack-backup-pkg' ) }
+					value={ stats.posts }
+				/>
+			</div>
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<StatBlock
+					icon={ UploadsIcon }
+					label={ __( 'Uploads', 'jetpack-backup-pkg' ) }
+					value={ stats.uploads }
+				/>
+			</div>
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<StatBlock
+					icon={ PluginsIcon }
+					label={ __( 'Plugins', 'jetpack-backup-pkg' ) }
+					value={ stats.plugins }
+				/>
+			</div>
+			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+				<StatBlock
+					icon={ ThemesIcon }
+					label={ __( 'Themes', 'jetpack-backup-pkg' ) }
+					value={ stats.themes }
+				/>
+			</div>
+		</div>
+	);
 };
 
 const InProgressBackup = ( { progress, showProgressBar = true } ) => {
