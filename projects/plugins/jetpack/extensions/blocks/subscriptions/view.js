@@ -9,7 +9,7 @@ domReady( function () {
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
-			if ( form.resubmitted ) {
+			if ( form.resubmitted || form.dataset.paid !== 'true' ) {
 				return;
 			}
 			event.preventDefault();

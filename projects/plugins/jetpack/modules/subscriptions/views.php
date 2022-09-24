@@ -360,7 +360,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
-				data-paid="<?php echo esc_attr( $site_has_paid_plans ); ?>"
+				data-paid="<?php echo esc_attr( $site_has_paid_plans ? 'true' : 'false' ); ?>"
 				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
@@ -465,7 +465,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
-			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>" data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>" data-paid="<?php echo esc_attr( $site_has_paid_plans ); ?>">
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>" data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>" data-paid="<?php echo esc_attr( $site_has_paid_plans ? 'true' : 'false' ); ?>">
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
