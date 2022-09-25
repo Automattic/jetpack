@@ -71,5 +71,8 @@
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"dependencies": {
+		"@wordpress/api-fetch": "6.13.0"
 	}
 }
