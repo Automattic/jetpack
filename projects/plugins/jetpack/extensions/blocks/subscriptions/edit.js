@@ -14,6 +14,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { getProducts } from '../../store/membership-products/selectors';
 import { getSubscriberCounts } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
@@ -86,6 +87,7 @@ export function SubscriptionEdit( props ) {
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
 	const [ subscriberCount, setSubscriberCount ] = useState( '' );
+	const [ userHasPlans, setUserHasPlans ] = useState( false );
 
 	const emailFieldGradient = isGradientAvailable
 		? useGradient( {
@@ -213,7 +215,13 @@ export function SubscriptionEdit( props ) {
 		setBorderColor( buttonBackgroundColor.color );
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
-	const addPaidPlanButtonText = __( 'Add paid plan', 'jetpack' );
+	useEffect( () => {
+		setUserHasPlans( getProducts().length() !== 0 );
+	}, [] );
+
+	const addPaidPlanButtonText = userHasPlans
+		? __( 'Manage plans', 'jetpack' )
+		: __( 'Add paid plan', 'jetpack' );
 
 	return (
 		<>
