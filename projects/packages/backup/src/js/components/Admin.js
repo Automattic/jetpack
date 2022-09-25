@@ -57,9 +57,7 @@ const Admin = () => {
 		);
 	}, [ connectionLoaded, connectionStatus ] );
 
-	const hasBackupPlan = () => {
-		return Array.isArray( capabilities ) && capabilities.includes( 'backup' );
-	};
+	const hasBackupPlan = Array.isArray( capabilities ) && capabilities.includes( 'backup' );
 
 	return (
 		<AdminPage
@@ -79,7 +77,7 @@ const Admin = () => {
 							connectionLoaded={ connectionLoaded }
 							connectionStatus={ connectionStatus }
 							capabilitiesLoaded={ capabilitiesLoaded }
-							hasBackupPlan={ hasBackupPlan() }
+							hasBackupPlan={ hasBackupPlan }
 							capabilitiesError={ capabilitiesError }
 							capabilities={ capabilities }
 							isFullyConnected={ isFullyConnected }
@@ -88,7 +86,7 @@ const Admin = () => {
 					<AdminSection>
 						{ isFullyConnected && (
 							<BackupSegments
-								hasBackupPlan={ hasBackupPlan() }
+								hasBackupPlan={ hasBackupPlan }
 								connectionLoaded={ connectionLoaded }
 							/>
 						) }
