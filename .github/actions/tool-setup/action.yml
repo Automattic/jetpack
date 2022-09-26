@@ -8,6 +8,10 @@ inputs:
     default: 'none'
   node:
     description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
+  token:
+    description: "Token to use for Composer's `github-oauth.github.com` config option."
+    default: ${{ github.token }}
+
 runs:
   using: composite
   steps:
@@ -60,6 +64,8 @@ runs:
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         php-version: ${{ steps.versions.outputs.php-version }}
         ini-values: error_reporting=E_ALL, display_errors=On, zend.assertions=1

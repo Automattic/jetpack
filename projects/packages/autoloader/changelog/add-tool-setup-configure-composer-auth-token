@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Clear `COMPOSER_AUTH` environment variable when running Composer for tests.
