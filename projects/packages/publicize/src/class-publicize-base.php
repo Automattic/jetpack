@@ -1466,13 +1466,17 @@ abstract class Publicize_Base {
 			'wpcom'
 		);
 
-		if ( ! is_wp_error( $response ) ) {
-			set_transient( $key, $response, DAY_IN_SECONDS );
+		if ( ! is_wp_error( $rest_controller->make_proper_response( $response ) ) ) {
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			set_transient( $key, $body, DAY_IN_SECONDS );
 			return $rest_controller->make_proper_response( $response );
 		}
 
-		$cached_response = get_transient( $key );
-		$response        = ! empty( $cached_response ) ? $cached_response : $response;
+		$cached_body = get_transient( $key );
+
+		if ( ! empty( $cached_body ) ) {
+			return $cached_body;
+		}
 
 		return $rest_controller->make_proper_response( $response );
 	}
