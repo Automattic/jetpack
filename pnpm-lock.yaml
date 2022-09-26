@@ -575,6 +575,7 @@ importers:
       '@storybook/manager-webpack5': 6.5.10
       '@storybook/react': 6.5.10
       '@storybook/source-loader': 6.5.10
+      '@wordpress/api-fetch': 6.13.0
       '@wordpress/babel-preset-default': 7.0.0
       '@wordpress/base-styles': 4.7.0
       '@wordpress/block-editor': 9.8.0
@@ -602,6 +603,8 @@ importers:
       typescript: 4.8.2
       webpack: 5.72.1
       webpack-cli: 4.9.1
+    dependencies:
+      '@wordpress/api-fetch': 6.13.0
     devDependencies:
       '@automattic/jetpack-components': link:../components
       '@babel/core': 7.18.13
@@ -7861,7 +7864,7 @@ packages:
     resolution: {integrity: sha512-PwVhZI64naytQFmMc2veQYz6jA3DyAPe3cv3L499iKgigNt41fNHZpEz5tgZmpLJA0Avp9Ldy+izCzt9A0PKcQ==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.18.9
+      '@babel/runtime': 7.19.0
       '@wordpress/i18n': 4.16.0
       '@wordpress/url': 3.17.0
 
