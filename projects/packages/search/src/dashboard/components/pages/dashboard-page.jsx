@@ -68,34 +68,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
-	const renderMockedSearchInterface = () => {
-		return (
-			<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
-				<div className="jp-search-dashboard-row">
-					<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
-						<h1>
-							{ __(
-								"Help your visitors find exactly what they're looking for, fast",
-								'jetpack-search-pkg'
-							) }
-						</h1>
-					</div>
-					<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
-				</div>
-				<div className="jp-search-dashboard-row" aria-hidden="true">
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-					<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
-						<MockedSearch
-							supportsInstantSearch={ supportsInstantSearch }
-							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-						/>
-					</div>
-					<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-				</div>
-			</div>
-		);
-	};
-
 	const renderModuleControl = () => {
 		return (
 			<div className="jp-search-dashboard-bottom">
@@ -124,7 +96,10 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<Header />
-					{ renderMockedSearchInterface() }
+					<MockedSearchInterface
+						supportsInstantSearch={ supportsInstantSearch }
+						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+					/>
 					<RecordMeter
 						postCount={ postCount }
 						postTypeBreakdown={ postTypeBreakdown }
@@ -143,6 +118,34 @@ export default function DashboardPage( { isLoading = false } ) {
 		</>
 	);
 }
+
+const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
+	return (
+		<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+			<div className="jp-search-dashboard-row">
+				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
+					<h1>
+						{ __(
+							"Help your visitors find exactly what they're looking for, fast",
+							'jetpack-search-pkg'
+						) }
+					</h1>
+				</div>
+				<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
+			</div>
+			<div className="jp-search-dashboard-row" aria-hidden="true">
+				<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
+					<MockedSearch
+						supportsInstantSearch={ supportsInstantSearch }
+						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+					/>
+				</div>
+				<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
+			</div>
+		</div>
+	);
+};
 
 const Footer = () => {
 	const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
