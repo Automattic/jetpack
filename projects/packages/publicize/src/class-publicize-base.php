@@ -1498,12 +1498,14 @@ abstract class Publicize_Base {
 	/**
 	 * Check if we have a paid Jetpack Social plan.
 	 *
+	 * @param bool $refresh_from_wpcom Whether to force refresh the plan check.
+	 *
 	 * @return bool True if we have a paid plan, false otherwise.
 	 */
-	public function has_paid_plan() {
+	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
 		if ( ! $has_paid_plan ) {
-			$force_refresh = ! class_exists( 'Jetpack' );
+			$force_refresh = $refresh_from_wpcom || ! class_exists( 'Jetpack' );
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $force_refresh );
 		}
 		return $has_paid_plan;
