@@ -346,7 +346,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
-		$site_has_paid_plans          = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' );
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -360,7 +359,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
-				data-paid="<?php echo esc_attr( $site_has_paid_plans ? 'true' : 'false' ); ?>"
 				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
@@ -465,7 +463,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
-			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>" data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>" data-paid="<?php echo esc_attr( $site_has_paid_plans ? 'true' : 'false' ); ?>">
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>" data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>">
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
