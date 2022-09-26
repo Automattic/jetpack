@@ -17,6 +17,7 @@ import {
 	SET_UPLOADED_VIDEO_COUNT,
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
+	WP_REST_API_MEDIA_ENDPOINT,
 } from './constants';
 
 const setIsFetchingVideos = isFetching => {
@@ -102,6 +103,38 @@ const removeVideo = id => {
 	return { type: REMOVE_VIDEO, id };
 };
 
+/**
+ * Thunk action to remove a video from the state,
+ *
+ * @param {string|number} id - Video post ID
+ * @returns {Function} Thunk action
+ */
+const deleteVideo = id => async ( { dispatch } ) => {
+	// Let's be optimistic and update the UI right away.
+	// @todo: Add a loading state to the state/UI.
+	dispatch.removeVideo( id );
+
+	try {
+		const resp = await apiFetch( {
+			path: `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }`,
+			method: 'DELETE',
+			data: {
+				id,
+				force: true,
+			},
+		} );
+
+		if ( ! resp?.deleted ) {
+			// Here, we expect data to be 200
+			// @todo: implement error handling / UI
+			return;
+		}
+	} catch ( error ) {
+		// @todo: implement error handling / UI
+		console.error( error ); // eslint-disable-line no-console
+	}
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -116,6 +149,7 @@ const actions = {
 	updateVideoPrivacy,
 
 	removeVideo,
+	deleteVideo,
 };
 
 export { actions as default };
