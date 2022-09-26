@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Refactor. Move capabilities fetch functionality to hook
+
+
