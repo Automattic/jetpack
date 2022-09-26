@@ -14,7 +14,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { getProducts } from '../../store/membership-products/selectors';
+import { getProductsNewsletter } from '../../store/membership-products/selectors';
 import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
@@ -211,7 +211,7 @@ export function SubscriptionEdit( props ) {
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
 	useEffect( () => {
-		setUserHasPlans( getProducts().length() !== 0 );
+		setUserHasPlans( getProductsNewsletter().length() !== 0 );
 	}, [] );
 
 	const addPaidPlanButtonText = userHasPlans
