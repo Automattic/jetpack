@@ -62,12 +62,16 @@ const data = ( state = {}, action ) => {
 			for ( const [ key, value ] of Object.entries( action.data ) ) {
 				const actionData = action.data;
 				if ( key === 'site-type-business' ) {
-					actionData[ 'site-type-agency' ] = actionData[ 'site-type-agency' ] || value;
+					const oldValue = actionData[ 'site-type-agency' ];
+
+					actionData[ 'site-type-agency' ] = oldValue !== undefined ? oldValue : value;
 					delete actionData[ 'site-type-business' ];
 				}
 
 				if ( key === 'site-type-other' ) {
-					actionData[ 'site-type-personal' ] = actionData[ 'site-type-personal' ] || value;
+					const oldValue = actionData[ 'site-type-personal' ];
+
+					actionData[ 'site-type-personal' ] = oldValue !== undefined ? oldValue : value;
 					delete actionData[ 'site-type-other' ];
 				}
 			}
