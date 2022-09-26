@@ -101,8 +101,8 @@ class Dashboard {
 		$this->remove_search_submenu_if_exists();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Search Settings', 'jetpack-search-pkg' ),
-			_x( 'Jetpack Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+			__( 'Jetpack Search', 'jetpack-search-pkg' ),
+			_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
 			'manage_options',
 			'jetpack-search',
 			array( $this, 'render' ),
