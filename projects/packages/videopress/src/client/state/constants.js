@@ -25,6 +25,11 @@ export const SET_IS_FETCHING_UPLOADED_VIDEO_COUNT = 'SET_IS_FETCHING_UPLOADED_VI
 export const SET_UPLOADED_VIDEO_COUNT = 'SET_UPLOADED_VIDEO_COUNT';
 
 /*
+ * Accepted file extensions
+ */
+export const VIDEO_EXTENSIONS = [ 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ];
+
+/*
  * Video Privacy Levels
  */
 export const VIDEO_PRIVACY_LEVEL_PUBLIC = 'public';
