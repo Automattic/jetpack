@@ -14,14 +14,16 @@ domReady( function () {
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
 		form.addEventListener( 'submit', function ( event ) {
-			if ( form.resubmitted ) {
+			const email = form.querySelector( 'input[type=email]' ).value;
+			if ( form.resubmitted || ! email ) {
 				return;
 			}
 			event.preventDefault();
 			const url =
 				'https://subscribe.wordpress.com/memberships/?blog=' +
 				form.dataset.blog +
-				'&plan=newsletter&source=jetpack_subscribe&design=alternate';
+				'&plan=newsletter&source=jetpack_subscribe&design=alternate&email=' +
+				encodeURIComponent( email );
 			window.scrollTo( 0, 0 );
 			tb_show( null, url + '&TB_iframe=true', null );
 
