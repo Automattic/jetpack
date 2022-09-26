@@ -470,6 +470,24 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Return all plans
+	 *
+	 * @return array
+	 */
+	public static function get_all_plans_id_jetpack_recurring_payments() {
+		if ( ! self::is_supported_jetpack_recurring_payments() ) {
+			return array();
+		}
+		return get_posts(
+			array(
+				'post_type'      => self::$post_type_plan,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+	}
+
+	/**
 	 * Register the Recurring Payments Gutenberg block
 	 */
 	public function register_gutenberg_block() {
