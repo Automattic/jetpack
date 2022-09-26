@@ -37,9 +37,9 @@ const PricingPage = () => {
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ 9.95 }
-						offPrice={ 4.98 }
-						leyend={ __( '/month', 'jetpack-social' ) }
+						price={ 10 }
+						promoLabel={ __( 'New', 'jetpack-social' ) }
+						leyend={ __( '/month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
 					/>
 					<Button
