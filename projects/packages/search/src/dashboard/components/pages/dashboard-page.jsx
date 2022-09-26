@@ -35,7 +35,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
-	const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
@@ -68,20 +67,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	const postTypes = useSelect( select => select( STORE_ID ).getPostTypes() );
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
-
-	const renderHeader = () => {
-		return (
-			<div className="jp-search-dashboard-header jp-search-dashboard-wrap">
-				<div className="jp-search-dashboard-row">
-					<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
-						<div className="jp-search-dashboard-header__logo-container">
-							<JetpackLogo className="jp-search-dashboard-header__masthead" />
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	};
 
 	const renderMockedSearchInterface = () => {
 		return (
@@ -133,26 +118,12 @@ export default function DashboardPage( { isLoading = false } ) {
 		);
 	};
 
-	const renderFooter = () => {
-		return (
-			<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
-				<div className="jp-search-dashboard-row">
-					<JetpackFooter
-						a8cLogoHref={ AUTOMATTIC_WEBSITE }
-						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					/>
-				</div>
-			</div>
-		);
-	};
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
-					{ renderHeader() }
+					<Header />
 					{ renderMockedSearchInterface() }
 					<RecordMeter
 						postCount={ postCount }
@@ -162,7 +133,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						postTypes={ postTypes }
 					/>
 					{ renderModuleControl() }
-					{ renderFooter() }
+					<Footer />
 					<NoticesList
 						notices={ notices }
 						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
@@ -172,3 +143,32 @@ export default function DashboardPage( { isLoading = false } ) {
 		</>
 	);
 }
+
+const Footer = () => {
+	const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
+	return (
+		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
+			<div className="jp-search-dashboard-row">
+				<JetpackFooter
+					a8cLogoHref={ AUTOMATTIC_WEBSITE }
+					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
+					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
+				/>
+			</div>
+		</div>
+	);
+};
+
+const Header = () => {
+	return (
+		<div className="jp-search-dashboard-header jp-search-dashboard-wrap">
+			<div className="jp-search-dashboard-row">
+				<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+					<div className="jp-search-dashboard-header__logo-container">
+						<JetpackLogo className="jp-search-dashboard-header__masthead" />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
