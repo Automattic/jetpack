@@ -57,7 +57,7 @@ class Customberg {
 		// Intentionally omits adding a submenu via the first null argument.
 		$hook = add_submenu_page(
 			null,
-			__( 'Search Settings', 'jetpack-search-pkg' ),
+			__( 'Jetpack Search', 'jetpack-search-pkg' ),
 			__( 'Search', 'jetpack-search-pkg' ),
 			'manage_options', // Must be an admin.
 			'jetpack-search-configure',
@@ -83,7 +83,7 @@ class Customberg {
 						top: 50%;
 					"/>
 				</div>
-				<div class="hide-if-js"><?php esc_html_e( 'Your Search customization page requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
+				<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Search customization page requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
 			</div>
 		<?php
 	}

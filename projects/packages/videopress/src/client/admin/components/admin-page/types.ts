@@ -8,6 +8,12 @@ declare global {
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;
+			paidFeatures: {
+				isVideoPressSupported: boolean;
+				isVideoPress1TBSupported: boolean;
+				isVideoPressUnlimitedSupported: boolean;
+			};
+			adminUrl: string;
 		};
 	}
 }

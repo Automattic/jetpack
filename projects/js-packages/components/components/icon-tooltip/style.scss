@@ -67,10 +67,12 @@ $arrow-color: var( --jp-gray );
 }
 
 .icon-tooltip-helper {
+	// POPOVER_HELPER_WIDTH
 	width: 124px;
     height: 18px;
     position: absolute;
     top: 0;
+	// -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px'
     left: -53px;
 	pointer-events: none;
 }
@@ -89,4 +91,6 @@ $arrow-color: var( --jp-gray );
 	font-weight: 400;
 	font-size: 14px;
 	line-height: 24px;
+	// Recover events
+	pointer-events: all;
 }
