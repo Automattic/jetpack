@@ -32,6 +32,7 @@ import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
 import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
 import useVideos from '../../hooks/use-videos';
 import Logo from '../logo';
+import VideoStorageMeter from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
@@ -148,6 +149,14 @@ const Admin = () => {
 										</Button>
 									) }
 								/>
+
+								<VideoStorageMeter
+									className={ styles[ 'storage-meter' ] }
+									total={ 100 }
+									used={ 5 }
+								/>
+								<Button fullWidth={ isSm }>{ addVideoLabel }</Button>
+
 								<UpgradeTrigger />
 							</Col>
 						</Container>
