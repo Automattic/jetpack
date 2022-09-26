@@ -126,6 +126,7 @@ class Admin_UI {
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'adminUrl'          => self::get_admin_page_url(),
 			'paidFeatures'      => array(
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
