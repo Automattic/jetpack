@@ -14,13 +14,6 @@ require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
 class WP_Test_Third_Party_Support extends WP_UnitTestCase {
 
 	/**
-	 * Setup tests.
-	 */
-	public function set_up() {
-		parent::set_up();
-	}
-
-	/**
 	 * Clean up tests.
 	 */
 	public function tear_down() {
