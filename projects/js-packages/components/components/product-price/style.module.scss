@@ -34,6 +34,8 @@
 .leyend {
 	color: var( --jp-gray-40 );
 	margin-bottom: calc( var( --spacing-base ) * 3 );
+	font-size: var(--font-body-small);
+	line-height: 20px;
 
 	&::after {
 		content: "\200B"; // Pseudo element to keep height

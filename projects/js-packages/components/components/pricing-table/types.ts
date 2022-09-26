@@ -9,7 +9,7 @@ export type PricingTableProps = {
 	 */
 	items: {
 		name: string;
-		tooltipInfo?: string;
+		tooltipInfo?: React.ReactNode;
 		tooltipTitle?: string;
 	}[];
 
@@ -57,7 +57,7 @@ export type PricingTableItemProps = {
 	/*
 	 * If the item has more description a popover info can contain that.
 	 */
-	tooltipInfo?: string;
+	tooltipInfo?: React.ReactNode;
 
 	/**
 	 * Title for the popover, not required.
