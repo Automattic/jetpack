@@ -38,7 +38,7 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( { className, tot
 					totalLabel
 				) }
 			</Text>
-			<ProgressBar progress={ progress }></ProgressBar>
+			<ProgressBar className={ styles[ 'progress-bar' ] } progress={ progress }></ProgressBar>
 		</div>
 	);
 };
