@@ -20,7 +20,7 @@ class Options {
 	 *
 	 * @var string $option_name The 'stats' option name
 	 */
-	public static $option_name = 'stats_options';
+	const OPTION_NAME = 'stats_options';
 
 	/**
 	 * Stats Options.
@@ -40,7 +40,7 @@ class Options {
 			return self::$options;
 		}
 
-		self::$options = get_option( self::$option_name, array() );
+		self::$options = get_option( self::OPTION_NAME, array() );
 		self::$options = array_merge( self::get_defaults(), self::$options );
 
 		if ( self::$options['version'] < Constants::get_constant( 'STATS_VERSION' ) ) {
@@ -98,7 +98,7 @@ class Options {
 		}
 
 		$defaults       = self::get_defaults();
-		$stored_options = get_option( self::$option_name, array() );
+		$stored_options = get_option( self::OPTION_NAME, array() );
 		$all_options    = array_merge( $defaults, $stored_options );
 		$options        = array_merge( $all_options, $options );
 
@@ -112,7 +112,7 @@ class Options {
 		$options['blog_id'] = Jetpack_Options::get_option( 'id' );
 		$options['version'] = Constants::get_constant( 'STATS_VERSION' );
 
-		$success = update_option( 'stats_options', $options );
+		$success = update_option( self::OPTION_NAME, $options );
 
 		if ( true === $success ) {
 			self::$options = $options;
