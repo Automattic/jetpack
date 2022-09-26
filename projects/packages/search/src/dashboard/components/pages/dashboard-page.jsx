@@ -68,28 +68,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
-	const renderModuleControl = () => {
-		return (
-			<div className="jp-search-dashboard-bottom">
-				<ModuleControl
-					siteAdminUrl={ siteAdminUrl }
-					updateOptions={ updateOptions }
-					domain={ domain }
-					isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-					upgradeBillPeriod={ upgradeBillPeriod }
-					supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-					supportsSearch={ supportsSearch }
-					supportsInstantSearch={ supportsInstantSearch }
-					isModuleEnabled={ isModuleEnabled }
-					isInstantSearchEnabled={ isInstantSearchEnabled }
-					isSavingEitherOption={ isSavingEitherOption }
-					isTogglingModule={ isTogglingModule }
-					isTogglingInstantSearch={ isTogglingInstantSearch }
-				/>
-			</div>
-		);
-	};
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -107,7 +85,23 @@ export default function DashboardPage( { isLoading = false } ) {
 						lastIndexedDate={ lastIndexedDate }
 						postTypes={ postTypes }
 					/>
-					{ renderModuleControl() }
+					<div className="jp-search-dashboard-bottom">
+						<ModuleControl
+							siteAdminUrl={ siteAdminUrl }
+							updateOptions={ updateOptions }
+							domain={ domain }
+							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
+							upgradeBillPeriod={ upgradeBillPeriod }
+							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+							supportsSearch={ supportsSearch }
+							supportsInstantSearch={ supportsInstantSearch }
+							isModuleEnabled={ isModuleEnabled }
+							isInstantSearchEnabled={ isInstantSearchEnabled }
+							isSavingEitherOption={ isSavingEitherOption }
+							isTogglingModule={ isTogglingModule }
+							isTogglingInstantSearch={ isTogglingInstantSearch }
+						/>
+					</div>
 					<Footer />
 					<NoticesList
 						notices={ notices }
