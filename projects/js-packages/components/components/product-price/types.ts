@@ -38,6 +38,11 @@ export type ProductPriceProps = {
 	 * Promo label to show top right of the price.
 	 */
 	promoLabel?: string;
+
+	/**
+	 * Alternative leyend with HTML syntax
+	 */
+	children?: React.ReactNode;
 };
 
 export type PriceProps = {

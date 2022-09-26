@@ -7,9 +7,9 @@ import React from 'react';
 import { STORE_ID } from '../store';
 
 /**
- * Expose the `connectionStatus` state object and `renderConnectScreen()` to show a component used for connection.
+ * Expose the `connectionStatus` state object and `BackupConnectionScreen` to show a component used for connection.
  *
- * @returns {Array} connectionStatus, renderConnectScreen
+ * @returns {Array} connectionStatus, BackupConnectionScreen
  */
 export default function useConnection() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
@@ -33,7 +33,7 @@ export default function useConnection() {
 		} );
 	}, [] );
 
-	const renderConnectScreen = () => {
+	const BackupConnectionScreen = () => {
 		return (
 			<ConnectScreenRequiredPlan
 				buttonLabel={ __( 'Get Jetpack Backup', 'jetpack-backup-pkg' ) }
@@ -62,5 +62,5 @@ export default function useConnection() {
 		);
 	};
 
-	return [ connectionStatus, renderConnectScreen ];
+	return [ connectionStatus, BackupConnectionScreen ];
 }
