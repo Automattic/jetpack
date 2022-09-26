@@ -23,7 +23,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	const {
 		media_details: mediaDetails,
 		id,
-		caption,
 		jetpack_videopress: jetpackVideoPress,
 		jetpack_videopress_guid: guid,
 	} = video;
@@ -36,6 +35,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		privacy_setting: privacySetting,
 		rating,
 		title,
+		caption,
 	} = jetpackVideoPress;
 
 	const {

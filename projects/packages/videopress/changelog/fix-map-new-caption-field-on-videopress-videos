@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Set the right mapping for the caption field, relying on the new jetpack_videopress.caption raw information.
