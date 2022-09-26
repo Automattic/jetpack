@@ -38,7 +38,7 @@ const PricingPage = () => {
 				<PricingTableHeader>
 					<ProductPrice
 						price={ 10 }
-						promoLabel={ __( 'New', 'jetpack-social' ) }
+						promoLabel={ __( 'New!', 'jetpack-social' ) }
 						leyend={ __( '/month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
 					/>
