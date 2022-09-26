@@ -1,5 +1,5 @@
 :root {
-	--jp-indeterminate-progress-bar__light-color: #d6d6d6;
+	--jp-indeterminate-progress-bar__light-color: #d9d9d9;
 	--jp-indeterminate-progress-bar__dark-color: var(--jp-gray);
 }
 
@@ -16,14 +16,14 @@
 		var(--jp-indeterminate-progress-bar__light-color) 33%,
 		var(--jp-indeterminate-progress-bar__dark-color) 33%,
 		var(--jp-indeterminate-progress-bar__dark-color) 67%,
-		var(--jp-indeterminate-progress-bar__light-color) 67%
+		var(--jp-indeterminate-progress-bar__light-color) 67%,
 	);
 	display: inline-block;
 }
 
 @keyframes indeterminate_progress_bar__animation {
 	0% {
-		background-position: 96px 0;
+		background-position: 48px 0;
 	}
 }
 
