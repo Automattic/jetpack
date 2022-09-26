@@ -1,11 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { getDate, date, dateI18n } from '@wordpress/date';
-import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
+import { getDate, dateI18n } from '@wordpress/date';
+import { createInterpolateElement, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { BACKUP_STATE } from '../constants';
 import useAnalytics from '../hooks/useAnalytics';
+import useBackupsState from '../hooks/useBackupsState.js';
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
@@ -21,94 +22,11 @@ import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
-	// State information
-	const [ progress, setProgress ] = useState( 0 );
-	const [ trackProgress, setTrackProgress ] = useState( 0 );
-	const [ latestTime, setLatestTime ] = useState( '' );
-	const [ stats, setStats ] = useState( {
-		posts: 0,
-		uploads: 0,
-		plugins: 0,
-		themes: 0,
-		warnings: false,
-	} );
-
-	const BACKUP_STATE = {
-		LOADING: 0,
-		IN_PROGRESS: 1,
-		NO_BACKUPS: 2,
-		NO_BACKUPS_RETRY: 3,
-		NO_GOOD_BACKUPS: 4,
-		COMPLETE: 5,
-	};
-	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
-
-	const progressInterval = 1 * 1000; // How often to poll for backup progress updates.
-
-	// Loads data on startup and whenever trackProgress updates.
+	const { backupState, fetchBackupsState, latestTime, progress, stats } = useBackupsState();
+	// Loads data on startup and whenever progress updates.
 	useEffect( () => {
-		apiFetch( { path: '/jetpack/v4/backups' } ).then(
-			res => {
-				// If we have no backups don't load up stats.
-				let latestBackup = null;
-				if ( res.length === 0 ) {
-					setBackupState( BACKUP_STATE.NO_BACKUPS );
-				} else if ( res.length === 1 && 'error-will-retry' === res[ 0 ].status ) {
-					setBackupState( BACKUP_STATE.NO_BACKUPS_RETRY );
-				} else {
-					// Check for the first completed backups.
-					res.forEach( backup => {
-						if ( null !== latestBackup ) {
-							return;
-						}
-
-						if ( 'finished' === backup.status && backup.stats ) {
-							latestBackup = backup;
-							setBackupState( BACKUP_STATE.COMPLETE );
-						}
-					} );
-
-					// Only the first backup can be in progress.
-					if ( null === latestBackup && 'started' === res[ 0 ].status ) {
-						latestBackup = res[ 0 ];
-						setProgress( latestBackup.percent );
-						setBackupState( BACKUP_STATE.IN_PROGRESS );
-					}
-
-					// No complete or in progress backups.
-					if ( ! latestBackup ) {
-						setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
-						return;
-					}
-
-					// Setup data for COMPLETE state.
-					if ( 'finished' === latestBackup.status ) {
-						const postsTable = latestBackup.stats.prefix + 'posts';
-						setStats( {
-							plugins: latestBackup.stats.plugins.count,
-							themes: latestBackup.stats.themes.count,
-							uploads: latestBackup.stats.uploads.count,
-							posts: latestBackup.stats.tables[ postsTable ].post_published,
-							warnings: latestBackup.has_warnings ? true : false,
-						} );
-						setLatestTime( date( 'c', latestBackup.last_updated + '+00:00' ) );
-					}
-				}
-
-				// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS
-				if ( res.length === 0 || 'started' === latestBackup.status ) {
-					// Grab progress and update every progressInterval until complete.
-					setTimeout( () => {
-						setTrackProgress( trackProgress + 1 );
-					}, progressInterval );
-				}
-			},
-			() => {
-				setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
-			}
-		);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ trackProgress ] );
+		fetchBackupsState();
+	}, [ fetchBackupsState ] );
 
 	return (
 		<div className="jp-wrap jp-content">
