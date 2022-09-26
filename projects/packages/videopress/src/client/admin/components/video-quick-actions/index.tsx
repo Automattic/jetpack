@@ -1,9 +1,13 @@
+/**
+ * External dependencies
+ */
 import { Text, Button } from '@automattic/jetpack-components';
 import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState } from 'react';
+/** */
 import privacy from '../../../components/icons/privacy-icon';
 import {
 	VIDEO_PRIVACY_LEVELS,
@@ -204,17 +208,19 @@ const VideoQuickActions = ( {
 
 export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps ) => {
 	const { videoId } = props;
+	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+
 	if ( ! videoId ) {
 		return null;
 	}
 
-	const { data, updateVideoPrivacy } = useVideo( videoId );
 	const { privacySetting } = data;
 
 	return (
 		<VideoQuickActions
 			{ ...props }
 			onUpdateVideoPrivacy={ updateVideoPrivacy }
+			onDeleteVideo={ deleteVideo }
 			privacySetting={ privacySetting }
 		/>
 	);
