@@ -1503,7 +1503,8 @@ abstract class Publicize_Base {
 	public function has_paid_plan() {
 		static $has_paid_plan = null;
 		if ( ! $has_paid_plan ) {
-			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', true );
+			$force_refresh = ! class_exists( 'Jetpack' );
+			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $force_refresh );
 		}
 		return $has_paid_plan;
 	}
