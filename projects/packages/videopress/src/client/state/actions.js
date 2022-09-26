@@ -12,6 +12,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
@@ -90,6 +91,17 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	}
 };
 
+/**
+ * Regular action to remove a video from the state,
+ * used as a primary hint for the UI to update.
+ *
+ * @param {string|number} id - Video post ID
+ * @returns {object} Action object
+ */
+const removeVideo = id => {
+	return { type: REMOVE_VIDEO, id };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -102,6 +114,8 @@ const actions = {
 	setUploadedVideoCount,
 
 	updateVideoPrivacy,
+
+	removeVideo,
 };
 
 export { actions as default };
