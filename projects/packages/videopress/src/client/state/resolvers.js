@@ -93,7 +93,35 @@ const getVideo = {
 	},
 };
 
+const getUploadedVideoCount = {
+	fulfill: () => async ( { dispatch } ) => {
+		// Only the minimum necessary data
+		const wpv2MediaQuery = {
+			per_page: 1,
+			media_type: 'video',
+			mime_type: 'video/videopress',
+		};
+
+		dispatch.setIsFetchingUploadedVideoCount( true );
+
+		try {
+			const response = await fetch(
+				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+			);
+
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+
+			dispatch.setUploadedVideoCount( total );
+
+			return total;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 export default {
 	getVideos,
 	getVideo,
+	getUploadedVideoCount,
 };

@@ -18,6 +18,18 @@ import { ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 />
 ```
 
+To use as a link:
+
+```jsx
+import { ContextualUpgradeTrigger } from '@automattic/jetpack-components';
+
+<ContextualUpgradeTrigger
+	description="Current status of the product"
+	cta="Text action line, recommending the next tier"
+	href="https://jetpack.com"
+/>
+```
+
 ## Props
 
 ### className
@@ -50,4 +62,12 @@ Callback that will be called when the user click/tap into the CUT
 
 - Type: `Function`
 - Default: `undefined`
-- Required: `true`
+- Required: `false`
+
+### href
+
+URL to link to
+
+- Type: `String`
+- Default: `undefined`
+- Required: `false`
