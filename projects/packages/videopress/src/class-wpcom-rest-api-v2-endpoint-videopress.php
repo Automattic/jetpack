@@ -428,6 +428,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta                = true;
 				}
 
+				if ( isset( $json_params['caption'] ) ) {
+					$meta['videopress']['caption'] = $post_excerpt;
+					$should_update_meta            = true;
+				}
+
 				if ( isset( $json_params['allow_download'] ) ) {
 					$allow_download = (bool) $json_params['allow_download'];
 					if ( ! isset( $meta['videopress']['allow_download'] ) || $meta['videopress']['allow_download'] !== $allow_download ) {
