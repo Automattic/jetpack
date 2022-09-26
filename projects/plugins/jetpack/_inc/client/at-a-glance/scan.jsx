@@ -339,7 +339,7 @@ class DashScan extends Component {
 			return (
 				<>
 					{ renderActiveCard(
-						__( 'Add SSH, SFTP, or FTP credentials to enable one-click fixes', 'jetpack' )
+						__( 'Enter your SSH, SFTP, or FTP credentials to enable one-click fixes', 'jetpack' )
 					) }
 					{ this.renderAction(
 						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),
