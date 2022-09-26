@@ -23,8 +23,9 @@ use Automattic\Jetpack\Status;
  * Class Jetpack_Social
  */
 class Jetpack_Social {
-	const JETPACK_PUBLICIZE_MODULE_SLUG    = 'publicize';
-	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -92,7 +93,7 @@ class Jetpack_Social {
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
 		// Add REST routes
-		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
@@ -118,6 +119,27 @@ class Jetpack_Social {
 	public function has_paid_plan() {
 		$refresh_from_wpcom = true;
 		return Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
+	}
+
+	/**
+	 * Check if the Publicize module is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_publicize_active() {
+		return ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+	}
+
+	/**
+	 * Get the version number of the plugin.
+	 *
+	 * @return string
+	 */
+	public function get_plugin_version() {
+		$plugin_data    = get_plugin_data( JETPACK_SOCIAL_PLUGIN_ROOT_FILE );
+		$plugin_version = $plugin_data['Version'];
+
+		return ! empty( $plugin_version ) ? $plugin_version : '';
 	}
 
 	/**
@@ -166,9 +188,12 @@ class Jetpack_Social {
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'siteSuffix'        => ( new Status() )->get_site_suffix(),
+				'pluginVersion'     => $this->get_plugin_version(),
 			),
 			'jetpackSettings' => array(
-				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+				'publicize_active'  => self::is_publicize_active(),
+				'show_pricing_page' => self::should_show_pricing_page(),
 			),
 			'connectionData'  => array(
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -193,11 +218,7 @@ class Jetpack_Social {
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
-		if (
-			! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ||
-			class_exists( 'Jetpack' ) ||
-			! $this->is_supported_post()
-		) {
+		if ( ! self::is_publicize_active() || class_exists( 'Jetpack' ) || ! $this->is_supported_post() ) {
 			return;
 		}
 
@@ -290,6 +311,15 @@ class Jetpack_Social {
 	 */
 	public function social_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_PUBLICIZE_MODULE_SLUG ), $modules );
+	}
+
+	/**
+	 * Check if the pricing page should be displayed.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_pricing_page() {
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
 	}
 
 	/**
