@@ -56,3 +56,7 @@
 .storage-meter {
 	margin-bottom: calc( var( --spacing-base ) * 4 );
 }
+
+.storage-meter__progress-bar {
+	background-color: var( --jp-gray );
+}
