@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Refactor. Removes use of wrong props withHeader withFooter for AdminPage component in Search
+
+
