@@ -10,15 +10,6 @@ import './mocked-instant-search.scss';
  * @returns {React.Component}	Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
-	const renderFilterOption = ( val, key ) => (
-		<div className="jp-mocked-instant-search__search-filter" key={ key }>
-			<label>
-				<input type="checkbox" disabled="disabled" />{ ' ' }
-				<TextRowPlaceHolder style={ { width: '30%' } } />
-			</label>
-		</div>
-	);
-
 	const renderSearchResult = ( val, key ) => (
 		<div className="jp-mocked-instant-search__search-result" key={ key }>
 			<TextRowPlaceHolder
@@ -75,10 +66,20 @@ export default function MockedInstantSearch() {
 						{ __( 'Filter options', 'jetpack-search-pkg' ) }
 					</div>
 					<div className="jp-mocked-instant-search__search-filter-list">
-						{ Array.apply( null, Array( 2 ) ).map( renderFilterOption ) }
+						<MockedFilterOption />
+						<MockedFilterOption />
 					</div>
 				</div>
 			</div>
 		</div>
 	);
 }
+
+const MockedFilterOption = () => (
+	<div className="jp-mocked-instant-search__search-filter">
+		<label>
+			<input type="checkbox" disabled="disabled" />{ ' ' }
+			<TextRowPlaceHolder style={ { width: '30%' } } />
+		</label>
+	</div>
+);
