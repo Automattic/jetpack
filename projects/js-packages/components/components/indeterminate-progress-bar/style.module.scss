@@ -16,14 +16,14 @@
 		var(--jp-indeterminate-progress-bar__light-color) 33%,
 		var(--jp-indeterminate-progress-bar__dark-color) 33%,
 		var(--jp-indeterminate-progress-bar__dark-color) 67%,
-		var(--jp-indeterminate-progress-bar__light-color) 67%,
+		var(--jp-indeterminate-progress-bar__light-color) 67%
 	);
 	display: inline-block;
 }
 
 @keyframes indeterminate_progress_bar__animation {
 	0% {
-		background-position: 48px 0;
+		background-position: 96px 0;
 	}
 }
 
