@@ -1453,6 +1453,8 @@ abstract class Publicize_Base {
 	 * @return array
 	 */
 	public function get_publicize_shares_info( $blog_id ) {
+		$rest_controller = new REST_Controller();
+		$key             = 'jetpack_social_shares_info';
 		$response        = Client::wpcom_json_api_request_as_blog(
 			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
 			'2',
@@ -1463,7 +1465,15 @@ abstract class Publicize_Base {
 			null,
 			'wpcom'
 		);
-		$rest_controller = new REST_Controller();
+
+		if ( ! is_wp_error( $response ) ) {
+			set_transient( $key, $response, DAY_IN_SECONDS );
+			return $rest_controller->make_proper_response( $response );
+		}
+
+		$cached_response = get_transient( $key );
+		$response        = ! empty( $cached_response ) ? $cached_response : $response;
+
 		return $rest_controller->make_proper_response( $response );
 	}
 
