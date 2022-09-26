@@ -220,6 +220,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 			<Modal
 				title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
 				onRequestClose={ () => setShowModal( false ) }
+				className={ styles[ 'delete-video-modal' ] }
 			>
 				<ThemeProvider>
 					<div>
