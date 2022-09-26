@@ -137,13 +137,16 @@ const ConnectionSection = () => {
 };
 
 const UpgradeTrigger = () => {
-	const { hasPaidPlan, adminUrl } = window.jetpackVideoPressInitialState;
+	const {
+		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
+		adminUrl,
+	} = window.jetpackVideoPressInitialState;
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_videopress',
 		redirectUrl: adminUrl,
 	} );
 
-	if ( hasPaidPlan ) {
+	if ( isVideoPress1TBSupported || isVideoPressUnlimitedSupported ) {
 		return null;
 	}
 
