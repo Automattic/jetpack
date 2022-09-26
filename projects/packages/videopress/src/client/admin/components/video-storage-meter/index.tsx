@@ -8,6 +8,7 @@ import filesize from 'filesize';
 /**
  * Internal dependencies
  */
+import useVideos from '../../hooks/use-videos';
 import ProgressBar from '../progress-bar';
 import styles from './style.module.scss';
 import { VideoStorageMeterProps } from './types';
@@ -19,7 +20,12 @@ import type React from 'react';
  * @param {VideoStorageMeterProps} props - Component props.
  * @returns {React.ReactNode} - VideoStorageMeter react component.
  */
-const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( { className, total, used } ) => {
+const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
+	className,
+	progressBarClassName,
+	total,
+	used,
+} ) => {
 	if ( ! total || used == null ) {
 		return null;
 	}
@@ -38,8 +44,18 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( { className, tot
 					totalLabel
 				) }
 			</Text>
-			<ProgressBar className={ styles[ 'progress-bar' ] } progress={ progress }></ProgressBar>
+			<ProgressBar
+				className={ classnames( styles[ 'progress-bar' ], progressBarClassName ) }
+				progress={ progress }
+			></ProgressBar>
 		</div>
+	);
+};
+
+export const ConnectVideoStorageMeter = props => {
+	const { storageUsed } = useVideos();
+	return (
+		<VideoStorageMeter { ...props } used={ storageUsed } total={ 1024 * 1024 * 1024 * 1024 } />
 	);
 };
 
