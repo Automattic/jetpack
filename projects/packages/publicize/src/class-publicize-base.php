@@ -1505,7 +1505,7 @@ abstract class Publicize_Base {
 	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
 		if ( ! $has_paid_plan ) {
-			$force_refresh = $refresh_from_wpcom || ! class_exists( 'Jetpack' );
+			$force_refresh = $refresh_from_wpcom;
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $force_refresh );
 		}
 		return $has_paid_plan;
