@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Removed connection-ui package dependency
