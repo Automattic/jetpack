@@ -73,7 +73,12 @@ class Jetpack_Social {
 				$config->ensure( 'identity_crisis' );
 
 				// Publicize package.
-				$config->ensure( 'publicize' );
+				$config->ensure(
+					'publicize',
+					array(
+						'force_refresh' => true,
+					)
+				);
 			},
 			1
 		);
@@ -150,9 +155,8 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		$shares             = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$refresh_from_wpcom = true;
-		$show_nudge         = ! $publicize->has_paid_plan( $refresh_from_wpcom );
+		$shares     = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		$show_nudge = ! $publicize->has_paid_plan();
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),

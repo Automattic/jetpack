@@ -11,6 +11,14 @@ namespace Automattic\Jetpack\Publicize;
  * The class to configure and initialize the publicize package.
  */
 class Publicize_Setup {
+
+	/**
+	 * Whether to update the plan information from WPCOM when initialising the package.
+	 *
+	 * @var bool;
+	 */
+	public static $refresh_plan_info = false;
+
 	/**
 	 * To configure the publicize package, when called via the Config package.
 	 */
@@ -59,7 +67,7 @@ class Publicize_Setup {
 
 		global $publicize;
 
-		if ( $publicize->has_paid_plan() ) {
+		if ( $publicize->has_paid_plan( self::$refresh_plan_info ) ) {
 			return;
 		}
 
