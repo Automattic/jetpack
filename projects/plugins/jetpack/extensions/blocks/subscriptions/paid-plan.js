@@ -7,7 +7,7 @@ export function PaidPlanPanel() {
 	const text = __( 'Create plans for the readers to pay for the content', 'jetpack' );
 	return (
 		<>
-			<PanelBody title={ title } opened={ true }>
+			<PanelBody title={ title } initialOpen={ true }>
 				<PanelRow>{ text }</PanelRow>
 				<PanelRow>
 					<GetAddPaidPlanButton />
