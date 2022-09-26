@@ -27,14 +27,14 @@ const PricingPage = () => {
 		<PricingTable
 			title={ __( 'Write once, post everywhere', 'jetpack-social' ) }
 			items={ [
-				__( 'Number of shares', 'jetpack-social' ),
-				__( 'Schedule posting', 'jetpack-social' ),
-				__( 'Priority support', 'jetpack-social' ),
-				__( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ),
-				__( 'Customize publications', 'jetpack-social' ),
+				{ name: __( 'Number of shares', 'jetpack-social' ) },
+				{ name: __( 'Schedule posting', 'jetpack-social' ) },
+				{ name: __( 'Priority support', 'jetpack-social' ) },
+				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
+				{ name: __( 'Customize publications', 'jetpack-social' ) },
 			] }
 		>
-			<PricingTableColumn>
+			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
 						price={ 9.95 }
