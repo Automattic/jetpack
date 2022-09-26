@@ -28,7 +28,7 @@ function buildInitialState() {
 			recommendations: {
 				data: {
 					'site-type-store': true,
-					'site-type-business': true,
+					'site-type-agency': true,
 				},
 				requests: {
 					isFetchingRecommendationsProductSuggestions: false,
@@ -69,21 +69,19 @@ describe( 'Recommendations – Site Type', () => {
 		render( <SiteTypeQuestion />, {
 			initialState: buildInitialState(),
 		} );
-		expect( screen.getByText( 'What type of site is Test Site?' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Personal' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Business' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Store' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Other' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Tell us more about Test Site?' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'I build or manage this site for a client' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'This is an e-commerce site' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'This is my personal site' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows questions with the right default initial state', () => {
 		render( <SiteTypeQuestion />, {
 			initialState: buildInitialState(),
 		} );
-		expect( screen.getByLabelText( 'Personal' ) ).not.toBeChecked();
-		expect( screen.getByLabelText( 'Business' ) ).toBeChecked();
-		expect( screen.getByLabelText( 'Store' ) ).toBeChecked();
-		expect( screen.getByLabelText( 'Other' ) ).not.toBeChecked();
+		expect( screen.getByLabelText( 'I build or manage this site for a client' ) ).toBeChecked();
+		expect( screen.getByLabelText( 'This is an e-commerce site' ) ).toBeChecked();
+		expect( screen.getByLabelText( 'This is my personal site' ) ).not.toBeChecked();
 	} );
 
 	it( 'updates the state of a question when an answer is clicked', async () => {
@@ -97,7 +95,7 @@ describe( 'Recommendations – Site Type', () => {
 			initialState: buildInitialState(),
 		} );
 
-		const personalCheckbox = screen.getByLabelText( 'Personal' );
+		const personalCheckbox = screen.getByLabelText( 'This is my personal site' );
 		expect( personalCheckbox.checked ).toBe( false );
 
 		await user.click( personalCheckbox );
@@ -122,7 +120,7 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 
 		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
-		expect( continueLink.href ).toContain( '/recommendations/woocommerce' );
+		expect( continueLink.href ).toContain( '/recommendations/agency' );
 
 		expect( saveRecommendationsStub ).not.toHaveBeenCalled();
 		await user.click( continueLink );
@@ -151,9 +149,8 @@ describe( 'Recommendations – Site Type', () => {
 		await user.click( continueLink );
 		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_recommendations_site_type_answered', {
 			personal: false,
-			business: true,
+			builder: true,
 			store: true,
-			other: false,
 		} );
 
 		recordEventStub.mockRestore();
