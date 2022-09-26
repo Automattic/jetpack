@@ -27,6 +27,8 @@ export default function useVideo( id: number | string ) {
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),
 
+		deleteVideo: () => dispatch.deleteVideo( id ),
+
 		updateVideoPrivacy: ( level: string ) => {
 			dispatch.updateVideoPrivacy(
 				id,
