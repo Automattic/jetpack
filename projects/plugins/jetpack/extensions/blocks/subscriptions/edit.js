@@ -210,7 +210,7 @@ export function SubscriptionEdit( props ) {
 
 	return (
 		<>
-			<PluginDocumentSettingPanel title={ __( 'Newsletter settings', 'jetpack' ) }>
+			<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
 				<SubscriptionPostSettings />
 			</PluginDocumentSettingPanel>
 			<InspectorControls>
