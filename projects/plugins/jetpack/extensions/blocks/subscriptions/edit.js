@@ -8,13 +8,13 @@ import {
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, ToolbarButton, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { getProductsNewsletter } from '../../store/membership-products/selectors';
 import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
@@ -64,6 +64,7 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
+		newsletterPlans,
 	} = props;
 
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -86,7 +87,6 @@ export function SubscriptionEdit( props ) {
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
 	const [ subscriberCount, setSubscriberCount ] = useState( '' );
-	const [ userHasPlans, setUserHasPlans ] = useState( false );
 
 	const emailFieldGradient = isGradientAvailable
 		? useGradient( {
@@ -210,13 +210,10 @@ export function SubscriptionEdit( props ) {
 		setBorderColor( buttonBackgroundColor.color );
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
-	useEffect( () => {
-		setUserHasPlans( getProductsNewsletter().length() !== 0 );
-	}, [] );
-
-	const addPaidPlanButtonText = userHasPlans
-		? __( 'Manage plans', 'jetpack' )
-		: __( 'Add paid plan', 'jetpack' );
+	const addPaidPlanButtonText =
+		newsletterPlans && 0 !== newsletterPlans.length
+			? __( 'Manage plans', 'jetpack' )
+			: __( 'Add paid plan', 'jetpack' );
 
 	return (
 		<>
@@ -290,6 +287,11 @@ export function SubscriptionEdit( props ) {
 }
 
 export default compose( [
+	withSelect( select => {
+		return {
+			newsletterPlans: select( 'jetpack/membership-products' ).getProductsNewsletter(),
+		};
+	} ),
 	withColors(
 		{ emailFieldBackgroundColor: 'backgroundColor' },
 		{ buttonBackgroundColor: 'backgroundColor' },
