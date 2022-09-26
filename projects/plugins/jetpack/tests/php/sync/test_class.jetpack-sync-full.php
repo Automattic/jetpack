@@ -994,6 +994,49 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
+		// Mock the update API response to guarantee that WordPress will see an "update".
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $parsed_args, $url ) {
+				$this->assertFalse( $preempt );
+				$this->assertStringStartsWith( 'https://api.wordpress.org/core/version-check/1.7/?version=', $url );
+
+				global $wp_version;
+				return array(
+					'response' => array(
+						'code' => 200,
+					),
+					'body'     => json_encode(
+						array(
+							'offers'       => array(
+								array(
+									'response'        => 'upgrade',
+									'download'        => "https://downloads.wordpress.org/release/wordpress-$wp_version.zip",
+									'locale'          => 'en_US',
+									'packages'        => array(
+										'full'        => "https://downloads.wordpress.org/release/wordpress-$wp_version.zip",
+										'no_content'  => "https://downloads.wordpress.org/release/wordpress-$wp_version-no-content.zip",
+										'new_bundled' => false,
+										'partial'     => false,
+										'rollback'    => false,
+									),
+									'current'         => $wp_version,
+									'version'         => $wp_version,
+									'php_version'     => '5.6.20',
+									'mysql_version'   => '5.0',
+									'new_bundled'     => false,
+									'partial_version' => false,
+								),
+							),
+							'translations' => array(),
+						)
+					),
+				);
+			},
+			10,
+			3
+		);
+
 		_maybe_update_core();
 
 		$this->sender->do_sync();

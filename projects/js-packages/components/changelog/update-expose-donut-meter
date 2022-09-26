@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+DonutMeter: Expose DonutMeter to clients of the component library.

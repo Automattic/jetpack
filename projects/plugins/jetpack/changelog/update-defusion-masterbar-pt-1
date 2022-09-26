@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+masterbar: Always load CSS from Jetpack, not Fusioned paths, in preparation for de-Fusioning.

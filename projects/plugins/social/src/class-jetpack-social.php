@@ -53,7 +53,7 @@ class Jetpack_Social {
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
 			function () {
