@@ -39,7 +39,6 @@
 	"projects/plugins/jetpack/_inc/client/state/initial-state/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/jetpack-notices/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/licensing/reducer.js",
-	"projects/plugins/jetpack/_inc/client/state/mobile/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/modules/actions.js",
 	"projects/plugins/jetpack/_inc/client/state/modules/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/plans/reducer.js",
