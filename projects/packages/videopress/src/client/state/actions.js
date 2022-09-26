@@ -12,6 +12,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	DELETE_VIDEO,
 	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
@@ -123,6 +124,9 @@ const deleteVideo = id => async ( { dispatch } ) => {
 				force: true,
 			},
 		} );
+
+		// dispach action to invalidate the cache
+		dispatch( { type: DELETE_VIDEO, id } );
 
 		if ( ! resp?.deleted ) {
 			// Here, we expect data to be 200

@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
+import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT, DELETE_VIDEO } from './constants';
 import { getDefaultQuery } from './reducers';
 import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -65,7 +65,7 @@ const getVideos = {
 		}
 	},
 	shouldInvalidate: action => {
-		return action.type === SET_VIDEOS_QUERY;
+		return action.type === SET_VIDEOS_QUERY || action.type === DELETE_VIDEO;
 	},
 };
 
