@@ -13,8 +13,9 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Subscriptions_Widget;
 
-const FEATURE_NAME = 'subscriptions';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+const FEATURE_NAME                                 = 'subscriptions';
+const BLOCK_NAME                                   = 'jetpack/' . FEATURE_NAME;
+const META_NAME_FOR_POST_LEVEL_VISIBILITY_SETTINGS = '_newsletter_visibility';
 
 /**
  * These block defaults should match ./constants.js
@@ -52,7 +53,7 @@ function register_block() {
 
 	register_post_meta(
 		'post',
-		'_newsletter_visibility',
+		META_NAME_FOR_POST_LEVEL_VISIBILITY_SETTINGS,
 		array(
 			'show_in_rest'  => true,
 			'single'        => true,
@@ -62,6 +63,16 @@ function register_block() {
 			},
 		)
 	);
+
+	// This ensures Jetpack will sync this post meta to WPCOM.
+	add_filter(
+		'jetpack_sync_post_meta_whitelist',
+		function ( $allowed_meta ) {
+			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_VISIBILITY_SETTINGS ) );
+		},
+		10
+	);
+
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
