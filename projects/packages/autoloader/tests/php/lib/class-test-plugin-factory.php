@@ -452,6 +452,7 @@ class Test_Plugin_Factory {
 
 		// We can finally execute Composer now that we're ready.
 		putenv( 'COMPOSER_HOME=' . TEST_TEMP_BIN_DIR ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
+		putenv( 'COMPOSER_AUTH' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
 		exec( 'php ' . escapeshellarg( $composer_bin ) . ' install -q -d ' . escapeshellarg( $plugin_dir ) );
 		if ( ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
 			throw new \RuntimeException( 'Unable to execute the `' . $composer_bin . '` archive for tests.' );
