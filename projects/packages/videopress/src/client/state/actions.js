@@ -62,6 +62,13 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 		throw new Error( `Invalid privacy level: '${ level }'` );
 	}
 
+	// Let's be optimistic and update the UI right away.
+	// @todo: Add a loading state to the state/UI.
+	dispatch.setVideo( {
+		id,
+		privacySetting,
+	} );
+
 	try {
 		const resp = await apiFetch( {
 			path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
@@ -77,11 +84,6 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 			// @todo: implement error handling / UI
 			return;
 		}
-
-		dispatch.setVideo( {
-			id,
-			privacySetting,
-		} );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
