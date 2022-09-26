@@ -13,6 +13,7 @@ import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useAnalytics from '../hooks/useAnalytics';
+import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
@@ -23,9 +24,6 @@ import './masthead/masthead-style.scss';
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus ] = useConnection();
-	const [ capabilities, setCapabilities ] = useState( null );
-	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
-	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
 	const { tracks } = useAnalytics();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
 	const isFullyConnected =
@@ -36,28 +34,7 @@ const Admin = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	useEffect( () => {
-		if ( ! connectionLoaded ) {
-			return;
-		}
-
-		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
-			res => {
-				setCapabilities( res.capabilities );
-				setCapabilitiesLoaded( true );
-			},
-			() => {
-				setCapabilitiesLoaded( true );
-				if ( ! connectionStatus.isUserConnected ) {
-					setCapabilitiesError( 'is_unlinked' );
-				} else {
-					setCapabilitiesError( 'fetch_capabilities_failed' );
-				}
-			}
-		);
-	}, [ connectionLoaded, connectionStatus ] );
-
-	const hasBackupPlan = Array.isArray( capabilities ) && capabilities.includes( 'backup' );
+	const { capabilities, capabilitiesError, capabilitiesLoaded, hasBackupPlan } = useCapabilities();
 
 	return (
 		<AdminPage
