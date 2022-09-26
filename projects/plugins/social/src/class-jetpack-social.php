@@ -177,6 +177,7 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
+		error_log( 'HERE' );
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
@@ -194,7 +195,7 @@ class Jetpack_Social {
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
 			'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-			'showNudge'       => ! $publicize->has_paid_plan(),
+			'showNudge'       => ! $publicize->has_paid_plan( true ),
 		);
 	}
 
@@ -229,8 +230,6 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
-
-		wp_add_inline_script( 'jetpack-social-editor', $this->render_initial_state(), 'before' );
 
 		wp_localize_script(
 			'jetpack-social-editor',
