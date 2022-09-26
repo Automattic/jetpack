@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Text, Button } from '@automattic/jetpack-components';
-import { Popover, Dropdown } from '@wordpress/components';
+import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
+import { Popover, Dropdown, Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -209,9 +209,48 @@ const VideoQuickActions = ( {
 export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps ) => {
 	const { videoId } = props;
 	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+	const [ showModal, setShowModal ] = useState( false );
 
 	if ( ! videoId ) {
 		return null;
+	}
+
+	if ( showModal ) {
+		return (
+			<Modal
+				title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+				onRequestClose={ () => setShowModal( false ) }
+			>
+				<ThemeProvider>
+					<div>
+						<Text>{ __( 'This action cannot be undone.', 'jetpack-videopress-pkg' ) }</Text>
+						<div className={ styles[ 'modal-actions' ] }>
+							<Button
+								className={ styles[ 'modal-action-button' ] }
+								variant="secondary"
+								weight="bold"
+								onClick={ () => setShowModal( false ) }
+							>
+								{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+							</Button>
+
+							<Button
+								className={ styles[ 'modal-action-button' ] }
+								isDestructive
+								variant="primary"
+								weight="bold"
+								onClick={ () => {
+									setShowModal( false );
+									deleteVideo();
+								} }
+							>
+								{ __( 'Delete', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</div>
+					</div>
+				</ThemeProvider>
+			</Modal>
+		);
 	}
 
 	const { privacySetting } = data;
@@ -220,7 +259,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		<VideoQuickActions
 			{ ...props }
 			onUpdateVideoPrivacy={ updateVideoPrivacy }
-			onDeleteVideo={ deleteVideo }
+			onDeleteVideo={ () => setShowModal( true ) }
 			privacySetting={ privacySetting }
 		/>
 	);
