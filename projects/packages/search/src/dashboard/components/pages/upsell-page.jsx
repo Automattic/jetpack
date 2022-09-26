@@ -2,6 +2,7 @@ import {
 	AdminPage,
 	Container,
 	Col,
+	PricingCard,
 	AdminSectionHero,
 	ProductPrice,
 	PricingTable,
@@ -15,6 +16,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import Loading from 'components/loading';
+import SearchPromotionBlock from 'components/search-promotion';
 import useConnection from 'hooks/use-connection';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
@@ -43,9 +45,10 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ isLoading ]
 	);
 
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	const sendToCart = useCallback( () => {
 		window.location.href = getProductCheckoutUrl( {
@@ -55,7 +58,19 @@ export default function UpsellPage( { isLoading = false } ) {
 		} );
 	}, [ domain, adminUrl, isFullyConnected ] );
 
-	const pricingArgs = {
+	// For old pricing card
+	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
+	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
+	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
+	const basicInfoText = __( '14 day money back guarantee.', 'jetpack-search-pkg' );
+	const onSaleInfoText = __(
+		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
+		'jetpack-search-pkg'
+	);
+
+	// For new pricing table
+	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const newPricingArgs = {
 		title: 'The best WordPress search experience',
 		items: [
 			{
@@ -134,94 +149,124 @@ export default function UpsellPage( { isLoading = false } ) {
 		],
 	};
 
-	const pricingTable = (
-		<PricingTable { ...pricingArgs }>
-			<PricingTableColumn primary>
-				<PricingTableHeader>
-					<ProductPrice
-						price={ 9.95 }
-						offPrice={ 4.97 }
-						currency="USD"
-						leyend=""
-						promoLabel="50% off"
-					>
-						<div className="price-tip">
-							<span className="price-tip-text">Starting price per month, billed yearly</span>
-							<IconTooltip
-								placement={ 'bottom-end' }
-								iconSize={ 14 }
-								iconClassName="price-tip-icon"
-								offset={ 4 }
-							>
-								<>
-									Starting price based on the number of records for <b>{ siteDomain }</b>. For every
-									additional 10k records or requests, an additional $7.50 per month will be charged.
-								</>
-							</IconTooltip>
-						</div>
-					</ProductPrice>
-					<Button onClick={ sendToCart } fullWidth>
-						{ __( 'Get Search', 'jetpack-search-pkg' ) }
-					</Button>
-				</PricingTableHeader>
-				<PricingTableItem isIncluded={ true } label={ <strong>10k records</strong> } />
-				<PricingTableItem isIncluded={ true } label={ '10k requests' } />
-				<PricingTableItem isIncluded={ true } label="Branding removed" />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-			</PricingTableColumn>
-			<PricingTableColumn>
-				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
-					<Button onClick={ sendToCart } variant="secondary" fullWidth>
-						{ __( 'Start for free', 'jetpack-search-pkg' ) }
-					</Button>
-				</PricingTableHeader>
-				<PricingTableItem
-					isIncluded={ true }
-					label="5k records"
-					tooltipInfo={
-						<>
-							In the free plan, you can continue using the plugin even if you have more than 5k
-							records for three months.{ ' ' }
-							<a
-								href="https://jetpack.com/search/"
-								rel="external noopener noreferrer nofollow"
-								target="_blank"
-							>
-								More about indexing and query limits
-							</a>
-						</>
-					}
+	const oldPricingComponent = (
+		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+			<Col lg={ 6 } md={ 6 } sm={ 4 }>
+				<h1>{ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }</h1>
+				<SearchPromotionBlock />
+			</Col>
+			<Col lg={ 1 } md={ 1 } sm={ 0 } />
+			<Col lg={ 5 } md={ 6 } sm={ 4 }>
+				<PricingCard
+					ctaText={ __( 'Get Jetpack Search', 'jetpack-search-pkg' ) }
+					icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z' fill='%23000'/%3E%3C/svg%3E"
+					infoText={ priceAfter === priceBefore ? basicInfoText : onSaleInfoText }
+					// eslint-disable-next-line react/jsx-no-bind
+					onCtaClick={ sendToCart }
+					priceAfter={ priceAfter }
+					priceBefore={ priceBefore }
+					currencyCode={ priceCurrencyCode }
+					title={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 				/>
-				<PricingTableItem
-					isIncluded={ true }
-					label="500 requests"
-					tooltipInfo={
-						<>
-							In the free plan, you can continue using the plugin even if you have more than 500
-							requests for three consecutive months.{ ' ' }
-							<a
-								href="https://jetpack.com/search/"
-								rel="external noopener noreferrer nofollow"
-								target="_blank"
-							>
-								More about indexing and query limits
-							</a>
-						</>
-					}
-				/>
-				<PricingTableItem isIncluded={ false } label="Shows Jetpack logo" />
-				<PricingTableItem isIncluded={ false } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-			</PricingTableColumn>
-		</PricingTable>
+			</Col>
+		</Container>
+	);
+
+	const newPricingComponent = (
+		<Container horizontalSpacing={ 8 }>
+			<Col lg={ 12 } md={ 12 } sm={ 12 }>
+				<ThemeProvider>
+					<PricingTable { ...newPricingArgs }>
+						<PricingTableColumn primary>
+							<PricingTableHeader>
+								<ProductPrice
+									price={ 9.95 }
+									offPrice={ 4.97 }
+									currency="USD"
+									leyend=""
+									promoLabel="50% off"
+								>
+									<div className="price-tip">
+										<span className="price-tip-text">Starting price per month, billed yearly</span>
+										<IconTooltip
+											placement={ 'bottom-end' }
+											iconSize={ 14 }
+											iconClassName="price-tip-icon"
+											offset={ 4 }
+										>
+											<>
+												Starting price based on the number of records for <b>{ siteDomain }</b>. For
+												every additional 10k records or requests, an additional $7.50 per month will
+												be charged.
+											</>
+										</IconTooltip>
+									</div>
+								</ProductPrice>
+								<Button onClick={ sendToCart } fullWidth>
+									{ __( 'Get Search', 'jetpack-search-pkg' ) }
+								</Button>
+							</PricingTableHeader>
+							<PricingTableItem isIncluded={ true } label={ <strong>10k records</strong> } />
+							<PricingTableItem isIncluded={ true } label={ '10k requests' } />
+							<PricingTableItem isIncluded={ true } label="Branding removed" />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+						</PricingTableColumn>
+						<PricingTableColumn>
+							<PricingTableHeader>
+								<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+								<Button onClick={ sendToCart } variant="secondary" fullWidth>
+									{ __( 'Start for free', 'jetpack-search-pkg' ) }
+								</Button>
+							</PricingTableHeader>
+							<PricingTableItem
+								isIncluded={ true }
+								label="5k records"
+								tooltipInfo={
+									<>
+										In the free plan, you can continue using the plugin even if you have more than
+										5k records for three months.{ ' ' }
+										<a
+											href="https://jetpack.com/search/"
+											rel="external noopener noreferrer nofollow"
+											target="_blank"
+										>
+											More about indexing and query limits
+										</a>
+									</>
+								}
+							/>
+							<PricingTableItem
+								isIncluded={ true }
+								label="500 requests"
+								tooltipInfo={
+									<>
+										In the free plan, you can continue using the plugin even if you have more than
+										500 requests for three consecutive months.{ ' ' }
+										<a
+											href="https://jetpack.com/search/"
+											rel="external noopener noreferrer nofollow"
+											target="_blank"
+										>
+											More about indexing and query limits
+										</a>
+									</>
+								}
+							/>
+							<PricingTableItem isIncluded={ false } label="Shows Jetpack logo" />
+							<PricingTableItem isIncluded={ false } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+							<PricingTableItem isIncluded={ true } />
+						</PricingTableColumn>
+					</PricingTable>
+				</ThemeProvider>
+			</Col>
+		</Container>
 	);
 
 	return (
@@ -236,11 +281,7 @@ export default function UpsellPage( { isLoading = false } ) {
 						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 					>
 						<AdminSectionHero>
-							<Container horizontalSpacing={ 8 }>
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ThemeProvider>{ pricingTable }</ThemeProvider>
-								</Col>
-							</Container>
+							{ isNewPricing ? newPricingComponent : oldPricingComponent }
 						</AdminSectionHero>
 					</AdminPage>
 				</div>
