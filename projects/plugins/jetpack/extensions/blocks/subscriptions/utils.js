@@ -1,7 +1,11 @@
-import { Button, ToolBarButton } from '@wordpress/components';
+import { Button /* ToolBarButton */ } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+// import {
+// 	useEffect,
+// 	useState,
+// } from '../../../../../packages/sync/wordpress/wp-includes/js/dist/vendor/react';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.
@@ -27,20 +31,32 @@ export const getPaidPlanLink = () => {
 	return 'https://wordpress.com/earn/payments-plans/' + siteSlug + '#add-new-payment-plan';
 };
 
-function GetAddPaidPlanButton( { context, hasNewsletterPlans } ) {
-	const addPaidPlanButtonText = hasNewsletterPlans
-		? __( 'Manage plans', 'jetpack' )
-		: __( 'Add paid plan', 'jetpack' );
-	if ( 'toolbar' === context ) {
-		return (
-			<ToolBarButton href={ getPaidPlanLink() } target="_blank">
-				{ addPaidPlanButtonText }
-			</ToolBarButton>
-		);
-	}
+/* { context, hasNewsletterPlans } */
+function GetAddPaidPlanButton() {
+	// [ addPaidPlanButtonText, setAddPaidPlanButtonText ] = useState( __( 'Add paid plan', 'jetpack' ) );
+	//
+	// useEffect( () => {
+	// 		setAddPaidPlanButtonText( hasNewsletterPlans
+	// 		? __( 'Manage plans', 'jetpack' )
+	// 		:  __( 'Add paid plan', 'jetpack' ) );
+	// 	}
+	// 	, [] );
+	//
+	//
+	// return (
+	// 	"toolbar" === context ?
+	// 		<ToolBarButton href={ getPaidPlanLink() } target="_blank">
+	// 			{ addPaidPlanButtonText }
+	// 		</ToolBarButton>
+	// 	:
+	// 		<Button variant="primary" href={ getPaidPlanLink() } target="_blank">
+	// 			{ addPaidPlanButtonText }
+	// 		</Button>
+	// );
+
 	return (
 		<Button variant="primary" href={ getPaidPlanLink() } target="_blank">
-			{ addPaidPlanButtonText }
+			{ __( 'Add paid plan', 'jetpack' ) }
 		</Button>
 	);
 }
