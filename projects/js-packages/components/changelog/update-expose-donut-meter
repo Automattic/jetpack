@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-DonutMeter: Exposed DonutMeter to clients of the library.
+DonutMeter: Expose DonutMeter to clients of the component library.

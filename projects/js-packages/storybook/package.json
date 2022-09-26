@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-storybook",
-	"version": "0.2.1-alpha",
+	"version": "0.3.0-alpha",
 	"description": "Jetpack components storybook",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/storybook/#readme",
 	"bugs": {
@@ -71,5 +71,8 @@
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"dependencies": {
+		"@wordpress/api-fetch": "6.13.0"
 	}
 }

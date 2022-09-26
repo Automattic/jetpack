@@ -22,7 +22,6 @@
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
 		"automattic/jetpack-config": "1.9.x-dev",
 		"automattic/jetpack-connection": "1.45.x-dev",
-		"automattic/jetpack-connection-ui": "2.4.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-error": "1.3.x-dev",
@@ -36,7 +35,7 @@
 		"automattic/jetpack-partner": "1.7.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
 		"automattic/jetpack-post-list": "0.4.x-dev",
-		"automattic/jetpack-publicize": "0.15.x-dev",
+		"automattic/jetpack-publicize": "0.16.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-search": "0.23.x-dev",
@@ -100,7 +99,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_4_a_6",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_4_a_8",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

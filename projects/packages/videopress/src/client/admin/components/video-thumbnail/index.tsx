@@ -17,6 +17,54 @@ import styles from './style.module.scss';
 import { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
 import type React from 'react';
 
+export const VideoThumbnailDropdownButtons = ( {
+	onUseDefaultThumbnail,
+	onSelectFromVideo,
+	onUploadImage,
+	onClose,
+} ) => {
+	return (
+		<>
+			<Button
+				weight="regular"
+				fullWidth
+				variant="tertiary"
+				icon={ image }
+				onClick={ () => {
+					onClose();
+					onUseDefaultThumbnail?.();
+				} }
+			>
+				{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
+			</Button>
+			<Button
+				weight="regular"
+				fullWidth
+				variant="tertiary"
+				icon={ media }
+				onClick={ () => {
+					onClose();
+					onSelectFromVideo?.();
+				} }
+			>
+				{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
+			</Button>
+			<Button
+				weight="regular"
+				fullWidth
+				variant="tertiary"
+				icon={ cloud }
+				onClick={ () => {
+					onClose();
+					onUploadImage?.();
+				} }
+			>
+				{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
+			</Button>
+		</>
+	);
+};
+
 export const VideoThumbnailDropdown = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
@@ -36,44 +84,12 @@ export const VideoThumbnailDropdown = ( {
 					/>
 				) }
 				renderContent={ ( { onClose } ) => (
-					<>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ image }
-							onClick={ () => {
-								onClose();
-								onUseDefaultThumbnail?.();
-							} }
-						>
-							{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ media }
-							onClick={ () => {
-								onClose();
-								onSelectFromVideo?.();
-							} }
-						>
-							{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ cloud }
-							onClick={ () => {
-								onClose();
-								onUploadImage?.();
-							} }
-						>
-							{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</>
+					<VideoThumbnailDropdownButtons
+						onClose={ onClose }
+						onUseDefaultThumbnail={ onUseDefaultThumbnail }
+						onSelectFromVideo={ onSelectFromVideo }
+						onUploadImage={ onUploadImage }
+					/>
 				) }
 			/>
 		</div>

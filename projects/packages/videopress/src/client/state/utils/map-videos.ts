@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import { gmdateI18n } from '@wordpress/date';
-/**
  * Internal dependencies
  */
 import { OriginalVideoPressVideo, VideoPressVideo } from '../types';
@@ -16,7 +12,7 @@ export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
 	};
 };
 
-// priobably @deprecated since it was used when hitting the admin-ajax endpoint
+// Probably @deprecated since it was used when hitting the admin-ajax endpoint
 export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
 	return videos.map( mapVideo );
 };
@@ -24,16 +20,28 @@ export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
 ): VideoPressVideo => {
-	const { media_details: mediaDetails, id, caption, jetpack_videopress_guid: guid } = video;
+	const {
+		media_details: mediaDetails,
+		id,
+		jetpack_videopress: jetpackVideoPress,
+		jetpack_videopress_guid: guid,
+	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
 	const {
-		title,
+		allow_download: allowDownload,
 		description,
+		privacy_setting: privacySetting,
+		rating,
+		title,
+		caption,
+	} = jetpackVideoPress;
+
+	const {
 		original: url,
 		poster,
-		upload_date: date,
+		upload_date: uploadDate,
 		duration,
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
@@ -46,7 +54,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Define thumbnail picking the image from DVD file type
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
-	const thumbnail = `${ fileURLBase.https }${ dvd.original_img }`;
+	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
 
 	return {
 		id,
@@ -55,11 +63,13 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		description,
 		caption,
 		url,
-		date,
+		uploadDate,
 		duration,
 		isPrivate,
-		dateFormatted: gmdateI18n( 'F j, Y', date ),
 		posterImage: poster,
+		allowDownload,
+		rating,
+		privacySetting,
 		poster: {
 			src: poster,
 			width,

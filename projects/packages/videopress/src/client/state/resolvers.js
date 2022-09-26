@@ -8,7 +8,9 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
 import { getDefaultQuery } from './reducers';
-import { mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
+import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
+
+const { apiRoot } = window.jetpackVideoPressInitialState;
 
 const getVideos = {
 	fulfill: () => async ( { dispatch, select } ) => {
@@ -41,14 +43,25 @@ const getVideos = {
 		dispatch.setIsFetchingVideos( true );
 
 		try {
-			const videosList = await apiFetch( {
-				path: addQueryArgs( WP_REST_API_MEDIA_ENDPOINT, wpv2MediaQuery ),
-			} );
+			const response = await fetch(
+				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+			);
 
-			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videosList ) );
-			return videosList;
+			// pick the pagination data form response header...
+			const pagination = {
+				total: Number( response.headers.get( 'X-WP-Total' ) ),
+				totalPages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
+			};
+
+			dispatch.setVideosPagination( pagination );
+
+			// ... and the videos data from the response body.
+			const videos = await response.json();
+
+			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videos ) );
+			return videos;
 		} catch ( error ) {
-			dispatch.setFetchVideosError( error );
+			console.error( error ); // eslint-disable-line no-console
 		}
 	},
 	shouldInvalidate: action => {
@@ -57,14 +70,58 @@ const getVideos = {
 };
 
 const getVideo = {
-	fulfill: () => async ( { resolveSelect } ) => {
-		// We make sure that videos are fullfiled.
-		// This is used when user comes from Media Library.
-		await resolveSelect.getVideos();
+	isFulfilled: ( state, id ) => {
+		const videos = state.videos.items;
+		if ( ! videos?.length ) {
+			return false;
+		}
+		return !! videos.find( ( { id: videoId } ) => videoId === id );
+	},
+
+	fulfill: id => async ( { dispatch } ) => {
+		dispatch.setIsFetchingVideos( true );
+		try {
+			const video = await apiFetch( {
+				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
+			} );
+
+			dispatch.setVideo( mapVideoFromWPV2MediaEndpoint( video ) );
+			return video;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
+const getUploadedVideoCount = {
+	fulfill: () => async ( { dispatch } ) => {
+		// Only the minimum necessary data
+		const wpv2MediaQuery = {
+			per_page: 1,
+			media_type: 'video',
+			mime_type: 'video/videopress',
+		};
+
+		dispatch.setIsFetchingUploadedVideoCount( true );
+
+		try {
+			const response = await fetch(
+				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+			);
+
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+
+			dispatch.setUploadedVideoCount( total );
+
+			return total;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
 	},
 };
 
 export default {
 	getVideos,
 	getVideo,
+	getUploadedVideoCount,
 };
