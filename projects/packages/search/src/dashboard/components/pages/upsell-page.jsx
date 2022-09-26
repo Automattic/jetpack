@@ -58,6 +58,30 @@ export default function UpsellPage( { isLoading = false } ) {
 		} );
 	}, [ domain, adminUrl, isFullyConnected ] );
 
+	return (
+		<>
+			{ isPageLoading && <Loading /> }
+			{ ! isPageLoading && (
+				<div className="jp-search-dashboard-upsell-page">
+					<AdminPage
+						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
+						a8cLogoHref={ AUTOMATTIC_WEBSITE }
+					>
+						<AdminSectionHero>
+							{ isNewPricing ? (
+								<NewPricingComponent sendToCart={ sendToCart } />
+							) : (
+								<OldPricingComponent sendToCart={ sendToCart } />
+							) }
+						</AdminSectionHero>
+					</AdminPage>
+				</div>
+			) }
+		</>
+	);
+}
+
+const OldPricingComponent = ( { sendToCart } ) => {
 	// For old pricing card
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
@@ -68,7 +92,7 @@ export default function UpsellPage( { isLoading = false } ) {
 		'jetpack-search-pkg'
 	);
 
-	const oldPricingComponent = (
+	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
 				<h1>{ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }</h1>
@@ -90,29 +114,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			</Col>
 		</Container>
 	);
-
-	return (
-		<>
-			{ isPageLoading && <Loading /> }
-			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-upsell-page">
-					<AdminPage
-						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						a8cLogoHref={ AUTOMATTIC_WEBSITE }
-					>
-						<AdminSectionHero>
-							{ isNewPricing ? (
-								<NewPricingComponent sendToCart={ sendToCart } />
-							) : (
-								oldPricingComponent()
-							) }
-						</AdminSectionHero>
-					</AdminPage>
-				</div>
-			) }
-		</>
-	);
-}
+};
 
 const NewPricingComponent = ( { sendToCart } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
