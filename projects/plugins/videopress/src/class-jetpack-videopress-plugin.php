@@ -26,7 +26,7 @@ class Jetpack_VideoPress_Plugin {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
 			function () {

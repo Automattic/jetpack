@@ -275,8 +275,6 @@ export default function UpsellPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-upsell-page">
 					<AdminPage
-						withHeader={ true }
-						withFooter={ true }
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						a8cLogoHref={ AUTOMATTIC_WEBSITE }
 					>
