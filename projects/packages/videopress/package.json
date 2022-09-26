@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.4.0-alpha",
+	"version": "0.4.1-alpha",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
@@ -60,8 +60,8 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.20",
-		"@automattic/jetpack-connection": "workspace:* || ^0.20",
+		"@automattic/jetpack-components": "workspace:* || ^0.21",
+		"@automattic/jetpack-connection": "workspace:* || ^0.21",
 		"@storybook/addon-actions": "6.5.10",
 		"@wordpress/components": "20.0.0",
 		"@wordpress/compose": "5.14.0",

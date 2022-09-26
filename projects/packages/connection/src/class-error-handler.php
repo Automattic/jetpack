@@ -710,7 +710,7 @@ class Error_Handler {
 		}
 
 		$body = json_decode( $body_raw, true );
-		if ( empty( $body['error'] ) ) {
+		if ( empty( $body['error'] ) || ( ! is_string( $body['error'] ) && ! is_int( $body['error'] ) ) ) {
 			return;
 		}
 

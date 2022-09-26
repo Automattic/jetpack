@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Included `watch` script on composer file to run the packages/videopress watch command.

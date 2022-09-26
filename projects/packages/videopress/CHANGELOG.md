@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2022-09-20
+### Added
+- VideoPress: implement filter section UI in the dashboard [#26169]
+- VideoPress: Load real data at Edit Details page [#26211]
+- VideoPress: sync video `description` value [#26235]
+- VideoPress: update post title and content via the /videopress/meta endpoint [#26256]
+- VideoPress: Update title, description and caption at backend [#26240]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: expose title and description in jetpack_videopress endpoint response body [#26228]
+- VideoPress: sanitize the videopress description field like a textarea [#26242]
+- VideoPress: Support endAdornment in Input [#26206]
+
+### Removed
+- VideoPress: Remove chapter extraction helper function [#26209]
+
 ## [0.3.1] - 2022-09-13
 ### Added
 - VideoPress: add onSearch() prop to SearchInput component. [#26128]
@@ -148,6 +165,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.4.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.0...v0.2.1

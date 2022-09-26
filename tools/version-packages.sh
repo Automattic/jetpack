@@ -100,10 +100,8 @@ if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
 fi
 
-# Update any indirect dependencies too. Pass `--with` options to ensure exactly the versions we expect are used.
-WITH=()
-mapfile -t WITH < <(jq -r --argjson oldvers "$OLD_VERSIONS" 'to_entries[] | select( $oldvers[.key] ) | "--with=\( .key )=\( .value )"' <<<"$PACKAGES")
-"$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "${WITH[@]}" "$DIR"
+# Now update all the deps.
+"$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "$DIR"
 
 # If there's a lock file, check that the locked versions are as expected too.
 EXIT=0

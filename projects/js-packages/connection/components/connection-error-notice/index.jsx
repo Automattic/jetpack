@@ -2,6 +2,7 @@ import { Spinner } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, warning, info } from '@wordpress/icons';
+import PropTypes from 'prop-types';
 import React from 'react';
 import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 import useConnection from '../use-connection';
@@ -10,15 +11,30 @@ import styles from './styles.module.scss';
 /**
  * The RNA Connection Error Notice component.
  *
+ * @param {object} props -- The properties.
  * @returns {React.Component} The `ConnectionErrorNotice` component.
  */
-const ConnectErrorNotice = () => {
-	const { connectionErrors } = useConnection( {} );
+const ConnectionErrorNotice = props => {
 	const {
-		restoreConnection,
+		message,
 		isRestoringConnection,
+		restoreConnectionCallback,
 		restoreConnectionError,
-	} = useRestoreConnection();
+	} = props;
+
+	if ( ! message ) {
+		return null;
+	}
+
+	if ( isRestoringConnection ) {
+		return (
+			<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
+				<Icon icon={ warning } />
+				<div className={ styles.message }>{ __( 'Reconnecting Jetpack', 'jetpack' ) }</div>
+				<Spinner color="#B32D2E" />
+			</Notice>
+		);
+	}
 
 	const errorRender = restoreConnectionError ? (
 		<Notice
@@ -37,36 +53,29 @@ const ConnectErrorNotice = () => {
 		</Notice>
 	) : null;
 
-	if ( Object.values( connectionErrors ).length && ! isRestoringConnection ) {
-		const errors = Object.values( connectionErrors ).shift();
-
-		if ( errors.length && errors[ 0 ].error_message ) {
-			return (
-				<>
-					{ errorRender }
-					<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
-						<Icon icon={ warning } />
-						<div className={ styles.message }>{ errors[ 0 ].error_message }</div>
-						<a onClick={ restoreConnection } className={ styles.link }>
-							{ __( 'Restore Connection', 'jetpack' ) }
-						</a>
-					</Notice>
-				</>
-			);
-		}
-	}
-
-	if ( isRestoringConnection ) {
-		return (
+	return (
+		<>
+			{ errorRender }
 			<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
 				<Icon icon={ warning } />
-				<div className={ styles.message }>{ __( 'Reconnecting Jetpack', 'jetpack' ) }</div>
-				<Spinner color="#B32D2E" />
+				<div className={ styles.message }>{ message }</div>
+				{ restoreConnectionCallback && (
+					<a className={ styles.link }>{ __( 'Restore Connection', 'jetpack' ) }</a>
+				) }
 			</Notice>
-		);
-	}
-
-	return null;
+		</>
+	);
 };
 
-export default ConnectErrorNotice;
+ConnectionErrorNotice.propTypes = {
+	/** The notice message. */
+	message: PropTypes.string.isRequired,
+	/** "Restore Connection" button callback. */
+	restoreConnectionCallback: PropTypes.func,
+	/** Whether connection restore is in progress. */
+	isRestoringConnection: PropTypes.bool,
+	/** The connection error text if there is one. */
+	restoreConnectionError: propTypes.string,
+};
+
+export default ConnectionErrorNotice;

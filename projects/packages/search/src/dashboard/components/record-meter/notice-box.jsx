@@ -27,7 +27,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		2: {
 			id: 2,
-			header: __( "We weren't able to locate any content for Search", 'jetpack-search-pkg' ),
+			header: __( "We're gathering your usage data.", 'jetpack-search-pkg' ),
 			message: __(
 				'If you have recently set up Search, please allow a little time for indexing to complete.',
 				'jetpack-search-pkg'
