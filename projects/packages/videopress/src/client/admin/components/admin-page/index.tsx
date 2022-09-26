@@ -9,7 +9,11 @@ import {
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import {
+	ConnectScreenRequiredPlan,
+	useProductCheckoutWorkflow,
+	CONNECTION_STORE_ID,
+} from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -133,7 +137,11 @@ const ConnectionSection = () => {
 };
 
 const UpgradeTrigger = () => {
-	const { hasPaidPlan } = window.jetpackVideoPressInitialState;
+	const { hasPaidPlan, adminUrl } = window.jetpackVideoPressInitialState;
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_videopress',
+		redirectUrl: adminUrl,
+	} );
 
 	if ( hasPaidPlan ) {
 		return null;
@@ -158,6 +166,7 @@ const UpgradeTrigger = () => {
 			description={ description }
 			cta={ cta }
 			className={ styles[ 'upgrade-trigger' ] }
+			onClick={ run }
 		/>
 	);
 };
