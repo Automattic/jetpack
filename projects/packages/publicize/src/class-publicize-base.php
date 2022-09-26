@@ -1472,7 +1472,7 @@ abstract class Publicize_Base {
 		} else {
 			$response = $share_info_responses[ $blog_id ];
 		}
-		return ! is_wp_error( $response ) ? $response : null;
+		return ! is_wp_error( $response ) ? $share_info_responses[ $blog_id ] : null;
 	}
 
 	/**
