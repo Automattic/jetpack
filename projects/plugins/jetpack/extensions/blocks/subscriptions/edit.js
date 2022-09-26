@@ -6,9 +6,8 @@ import {
 	withFontSizes,
 	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { TextControl, Toolbar, ToolbarButton, withFallbackStyles } from '@wordpress/components';
+import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -27,7 +26,7 @@ import {
 } from './constants';
 import SubscriptionControls from './controls';
 import SubscriptionPostSettings from './settings';
-import { getPaidPlanLink } from './utils';
+import GetAddPaidPlanButton from './utils';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -64,7 +63,6 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
-		newsletterPlans,
 	} = props;
 
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -210,11 +208,6 @@ export function SubscriptionEdit( props ) {
 		setBorderColor( buttonBackgroundColor.color );
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
 
-	const addPaidPlanButtonText =
-		newsletterPlans && 0 !== newsletterPlans.length
-			? __( 'Manage plans', 'jetpack' )
-			: __( 'Add paid plan', 'jetpack' );
-
 	return (
 		<>
 			<PluginDocumentSettingPanel title={ __( 'Newsletter settings', 'jetpack' ) }>
@@ -248,9 +241,7 @@ export function SubscriptionEdit( props ) {
 			</InspectorControls>
 			<BlockControls>
 				<Toolbar>
-					<ToolbarButton href={ getPaidPlanLink() } target="_blank">
-						{ addPaidPlanButtonText }
-					</ToolbarButton>
+					<GetAddPaidPlanButton context={ 'toolbar' } />
 				</Toolbar>
 			</BlockControls>
 
@@ -287,11 +278,6 @@ export function SubscriptionEdit( props ) {
 }
 
 export default compose( [
-	withSelect( select => {
-		return {
-			newsletterPlans: select( 'jetpack/membership-products' ).getProductsNewsletter(),
-		};
-	} ),
 	withColors(
 		{ emailFieldBackgroundColor: 'backgroundColor' },
 		{ buttonBackgroundColor: 'backgroundColor' },

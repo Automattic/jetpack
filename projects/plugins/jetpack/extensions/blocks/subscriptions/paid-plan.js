@@ -1,6 +1,6 @@
-import { PanelBody, PanelRow, Button } from '@wordpress/components';
+import { PanelBody, PanelRow } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getPaidPlanLink } from './utils';
+import GetAddPaidPlanButton from './utils';
 
 export function PaidPlanPanel() {
 	const title = __( 'Paid Newsletter', 'jetpack' );
@@ -10,9 +10,7 @@ export function PaidPlanPanel() {
 			<PanelBody title={ title } opened={ true }>
 				<PanelRow>{ text }</PanelRow>
 				<PanelRow>
-					<Button variant="primary" href={ getPaidPlanLink() } target="_blank">
-						{ __( 'Add paid plan', 'jetpack' ) }
-					</Button>
+					<GetAddPaidPlanButton />
 				</PanelRow>
 			</PanelBody>
 		</>
