@@ -75,6 +75,8 @@
 			content: '';
 			position: absolute;
 			top: 0;
+			left: var(--padding);
+			right: var(--padding);
 			height: 1px;
 			.is-viewport-large & {
 				width: 150%;
