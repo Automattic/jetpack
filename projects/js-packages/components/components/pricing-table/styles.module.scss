@@ -80,8 +80,8 @@
 			height: 1px;
 			.is-viewport-large & {
 				width: 150%;
-				left: 0;
-				right: 0;
+				left: unset;
+				right: unset;
 			}
 			z-index: 5;
 			background-color: var( --jp-gray );
