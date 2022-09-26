@@ -12,6 +12,8 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
+	SET_UPLOADED_VIDEO_COUNT,
 } from './constants';
 
 /**
@@ -79,14 +81,38 @@ const videos = ( state = {}, action ) => {
 		case SET_VIDEO: {
 			const { video } = action;
 			const { items = [] } = state;
-			if ( ! items.find( item => item.ID === video.ID ) ) {
+			const videoIndex = items.findIndex( item => item.id === video.id );
+
+			if ( videoIndex === -1 ) {
+				// Add video when not found
 				items.push( video );
+			} else {
+				// Update video when found
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					...video,
+				};
 			}
 
 			return {
 				...state,
 				items,
 				isFetching: false,
+			};
+		}
+
+		case SET_IS_FETCHING_UPLOADED_VIDEO_COUNT: {
+			return {
+				...state,
+				isFetchingUploadedVideoCount: action.isFetchingUploadedVideoCount,
+			};
+		}
+
+		case SET_UPLOADED_VIDEO_COUNT: {
+			return {
+				...state,
+				uploadedVideoCount: action.uploadedVideoCount,
+				isFetchingUploadedVideoCount: false,
 			};
 		}
 

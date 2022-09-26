@@ -90,4 +90,21 @@ add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
 
+// WAF should never be available on the Atomic platform.
+
+if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
+	add_filter(
+		'jetpack_get_available_modules',
+		function ( $modules ) {
+			unset( $modules['waf'] );
+
+			return $modules;
+		}
+	);
+
+	if ( ! defined( 'DISABLE_JETPACK_WAF' ) ) {
+		define( 'DISABLE_JETPACK_WAF', true );
+	}
+}
+
 Jetpack::init();

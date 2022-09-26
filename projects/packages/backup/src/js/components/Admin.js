@@ -423,7 +423,7 @@ const LoadedState = ( {
 	capabilitiesError,
 	capabilities,
 } ) => {
-	const [ connectionStatus, renderConnectScreen ] = useConnection();
+	const [ connectionStatus, BackupConnectionScreen ] = useConnection();
 
 	if (
 		! connectionLoaded ||
@@ -437,7 +437,7 @@ const LoadedState = ( {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 12 } md={ 8 } sm={ 4 }>
-					{ renderConnectScreen() }
+					<BackupConnectionScreen />
 				</Col>
 			</Container>
 		);

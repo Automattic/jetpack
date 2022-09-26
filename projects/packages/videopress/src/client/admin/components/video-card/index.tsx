@@ -28,9 +28,9 @@ export const VideoCard = ( {
 	thumbnail,
 	editable,
 	onVideoDetailsClick,
-	onUpdateThumbnailClick,
-	onUpdateUpdatePrivacyClick,
-	onDeleteClick,
+	onUpdateVideoThumbnail,
+	onUpdateVideoPrivacy,
+	onDeleteVideo,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
 	const hasPlays = typeof plays !== 'undefined';
@@ -83,9 +83,9 @@ export const VideoCard = ( {
 				</Button>
 
 				<VideoQuickActions
-					onUpdateThumbnailClick={ onUpdateThumbnailClick }
-					onUpdateUpdatePrivacyClick={ onUpdateUpdatePrivacyClick }
-					onDeleteClick={ onDeleteClick }
+					onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
+					onUpdateVideoPrivacy={ onUpdateVideoPrivacy }
+					onDeleteVideo={ onDeleteVideo }
 				/>
 			</div>
 		</div>
