@@ -1,21 +1,7 @@
 /**
  * Internal dependencies
  */
-import { OriginalVideoPressVideo, VideoPressVideo } from '../types';
-
-export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
-	return {
-		...video,
-		title: video.title,
-		posterImage: video.image?.src,
-		uploadDate: video?.dateFormatted,
-	};
-};
-
-// Probably @deprecated since it was used when hitting the admin-ajax endpoint
-export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
-	return videos.map( mapVideo );
-};
+import { OriginalVideoPressVideo, VideoPressVideo } from '../../admin/types';
 
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
@@ -27,15 +13,15 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		jetpack_videopress_guid: guid,
 	} = video;
 
-	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
+	const { videopress: videoPressMediaDetails = {}, width, height } = mediaDetails;
 
 	const {
-		allow_download: allowDownload,
-		description,
-		privacy_setting: privacySetting,
-		rating,
 		title,
+		description,
 		caption,
+		rating,
+		allow_download: allowDownload,
+		privacy_setting: privacySetting,
 	} = jetpackVideoPress;
 
 	const {
@@ -45,7 +31,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		duration,
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
-		files,
+		files = {},
 	} = videoPressMediaDetails;
 
 	const { dvd } = files;

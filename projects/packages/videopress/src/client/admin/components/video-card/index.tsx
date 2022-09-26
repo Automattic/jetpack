@@ -80,7 +80,7 @@ export const VideoCard = ( {
 					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 				</Button>
 
-				<ConnectVideoQuickActions videoId={ id } />
+				{ id && <ConnectVideoQuickActions videoId={ id } /> }
 			</div>
 		</div>
 	);
