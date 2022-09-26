@@ -49,7 +49,6 @@ export { default as ProductOffer, IconsCard } from './components/product-offer';
 export { default as Dialog } from './components/dialog';
 export { default as DonutMeter } from './components/donut-meter';
 export { default as RecordMeterBar } from './components/record-meter-bar';
-export { default as DonutMeter } from './components/record-meter-donut';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { default as Alert } from './components/alert';
 export { getUserLocale, cleanLocale } from './lib/locale';
