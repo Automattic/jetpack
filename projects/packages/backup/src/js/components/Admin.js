@@ -26,9 +26,10 @@ const Admin = () => {
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
-	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const { tracks } = useAnalytics();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
+	const isFullyConnected =
+		connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
 
 	useEffect( () => {
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
@@ -56,18 +57,12 @@ const Admin = () => {
 		);
 	}, [ connectionLoaded, connectionStatus ] );
 
-	const isFullyConnected = () => {
-		return connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
-	};
-
-	const hasBackupPlan = () => {
-		return Array.isArray( capabilities ) && capabilities.includes( 'backup' );
-	};
+	const hasBackupPlan = Array.isArray( capabilities ) && capabilities.includes( 'backup' );
 
 	return (
 		<AdminPage
-			withHeader={ false }
-			withFooter={ false }
+			showHeader={ isFullyConnected }
+			showFooter={ isFullyConnected }
 			moduleName={ __( 'Jetpack Backup', 'jetpack-backup-pkg' ) }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
@@ -81,18 +76,17 @@ const Admin = () => {
 						<LoadedState
 							connectionLoaded={ connectionLoaded }
 							connectionStatus={ connectionStatus }
-							showHeaderFooter={ showHeaderFooter }
-							setShowHeaderFooter={ setShowHeaderFooter }
 							capabilitiesLoaded={ capabilitiesLoaded }
-							hasBackupPlan={ hasBackupPlan() }
+							hasBackupPlan={ hasBackupPlan }
 							capabilitiesError={ capabilitiesError }
 							capabilities={ capabilities }
+							isFullyConnected={ isFullyConnected }
 						/>
 					</AdminSectionHero>
 					<AdminSection>
-						{ isFullyConnected() && (
+						{ isFullyConnected && (
 							<BackupSegments
-								hasBackupPlan={ hasBackupPlan() }
+								hasBackupPlan={ hasBackupPlan }
 								connectionLoaded={ connectionLoaded }
 							/>
 						) }
@@ -415,25 +409,15 @@ const NoBackupCapabilities = () => {
 };
 
 const LoadedState = ( {
-	connectionLoaded,
-	showHeaderFooter,
-	setShowHeaderFooter,
 	capabilitiesLoaded,
 	hasBackupPlan,
 	capabilitiesError,
 	capabilities,
+	isFullyConnected,
 } ) => {
-	const [ connectionStatus, BackupConnectionScreen ] = useConnection();
+	const [ , BackupConnectionScreen ] = useConnection();
 
-	if (
-		! connectionLoaded ||
-		! connectionStatus.hasConnectedOwner ||
-		! connectionStatus.isRegistered
-	) {
-		if ( showHeaderFooter ) {
-			setShowHeaderFooter( false );
-		}
-
+	if ( ! isFullyConnected ) {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 12 } md={ 8 } sm={ 4 }>
@@ -441,11 +425,6 @@ const LoadedState = ( {
 				</Col>
 			</Container>
 		);
-	}
-
-	// Show header and footer on all screens except ConnectScreen
-	if ( ! showHeaderFooter ) {
-		setShowHeaderFooter( true );
 	}
 
 	if ( ! capabilitiesLoaded ) {
@@ -461,7 +440,6 @@ const LoadedState = ( {
 			</Container>
 		);
 	}
-
 	// Render an error state, this shouldn't occurr since we've passed userConnected checks
 	if ( capabilitiesError === 'is_unlinked' ) {
 		return (
