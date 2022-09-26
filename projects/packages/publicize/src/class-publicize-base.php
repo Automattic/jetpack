@@ -1470,7 +1470,7 @@ abstract class Publicize_Base {
 			$rest_controller                  = new REST_Controller();
 			$share_info_responses[ $blog_id ] = $rest_controller->make_proper_response( $response );
 		}
-		return $share_info_responses[ $blog_id ];
+		return ! is_wp_error( $share_info_responses[ $blog_id ] ) ? $share_info_responses[ $blog_id ] : null;
 	}
 
 	/**
