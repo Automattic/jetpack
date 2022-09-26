@@ -346,7 +346,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
-		$site_has_paid_plans          = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments();
+		$site_has_paid_plans          = Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' );
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;

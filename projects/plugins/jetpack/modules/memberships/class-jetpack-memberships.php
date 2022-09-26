@@ -455,17 +455,25 @@ class Jetpack_Memberships {
 
 	/**
 	 * Whether site has any paid plan.
+	 *
+	 * @param string $type - Type of a plan for which site is configured. For now supports empty and newsletter.
 	 */
-	public static function has_configured_plans_jetpack_recurring_payments() {
+	public static function has_configured_plans_jetpack_recurring_payments( $type = '' ) {
 		if ( ! self::is_supported_jetpack_recurring_payments() ) {
 			return false;
 		}
-		$plans = get_posts(
-			array(
-				'post_type'      => self::$post_type_plan,
-				'posts_per_page' => 1,
-			)
+		$query = array(
+			'post_type'      => self::$post_type_plan,
+			'posts_per_page' => 1,
 		);
+
+		// We want to see if user has any plan marked as a newsletter set up.
+		if ( 'newsletter' === $type ) {
+			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
+			$query['meta_value'] = true;
+		}
+
+		$plans = get_posts( $query );
 		return ( count( $plans ) > 0 );
 	}
 
