@@ -64,6 +64,10 @@ $arrow-color: var( --jp-gray );
 	display: inline-block;
 	position: relative;
 	color: var( --jp-black );
+
+	.components-button.is-link:focus:not(:disabled) {
+		box-shadow: none;
+	}
 }
 
 .icon-tooltip-helper {

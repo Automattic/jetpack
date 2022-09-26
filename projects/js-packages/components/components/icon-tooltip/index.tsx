@@ -1,7 +1,7 @@
 import { Popover } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import Button from '../button';
 import Gridicon from '../gridicon/index';
 import { IconTooltipProps, Placement, Position } from './types';
 
@@ -37,27 +37,10 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	title,
 	children,
 } ) => {
-	const delay = 300;
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
-	const delayedSetIsOver = useDebounce( setIsVisible, delay );
-
-	const createToggleIsOver = ( eventName, isDelayed = false ) => {
-		return event => {
-			event.stopPropagation();
-			event.preventDefault();
-			const _isVisible = [ 'focus', 'mouseenter' ].includes( event.type );
-			if ( _isVisible === isVisible ) {
-				return;
-			}
-
-			if ( isDelayed ) {
-				delayedSetIsOver( _isVisible );
-			} else {
-				setIsVisible( _isVisible );
-			}
-		};
-	};
+	const showTooltip = useCallback( () => setIsVisible( true ), [ setIsVisible ] );
+	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 
 	const args = {
 		// To be compatible with deprecating prop `position`.
@@ -68,6 +51,8 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
+		focusOnMount: 'container' as const,
+		onClose: hideTooltip,
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
@@ -77,13 +62,9 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	return (
 		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
-			<span
-				style={ { cursor: 'pointer' } }
-				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
-				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
-			>
+			<Button variant="link" onClick={ showTooltip }>
 				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
-			</span>
+			</Button>
 
 			<div className="icon-tooltip-helper" style={ iconShiftBySize }>
 				{ isVisible && (
