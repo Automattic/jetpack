@@ -1,0 +1,33 @@
+{
+	"name": "super-cache-e2e-tests",
+	"private": true,
+	"type": "module",
+	"description": "E2E test suite for Super Cache",
+	"homepage": "https://wordpress.org/plugins/wp-super-cache/",
+	"bugs": {
+		"url": "https://wordpress.org/support/plugin/wp-super-cache/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/wp-super-cache.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm jetpack build plugins/super-cache -v --no-pnpm-install --production",
+		"clean": "rm -rf output",
+		"distclean": "rm -rf node_modules",
+		"env:up": "docker-compose up -d",
+		"env:down": "docker-compose down",
+		"pretest:run": "pnpm run clean",
+		"test:run": "jest"
+	},
+	"devDependencies": {
+		"jest": "^29.0.3",
+		"shell-escape": "0.2.0"
+	},
+	"engines": {
+		"node": "^16.13.2",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}
