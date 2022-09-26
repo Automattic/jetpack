@@ -1,7 +1,7 @@
 .jetpack-action-bar {
 	position: fixed;
-	right: var(--wp--preset--spacing--20);
-	bottom: var(--wp--preset--spacing--20);
+	right: 15px;
+	bottom: 15px;
 	font-size: 0;
 	line-height: 1;
 }
@@ -538,7 +538,7 @@
 /* ------------------------------------------------------ */
 .jetpack-action-bar__snackbar {
 	align-items: center;
-	background: #FFF;
+	background: #fff;
 	border-radius: 5px;
 	bottom: 0;
 	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
