@@ -29,7 +29,9 @@ export const getIsFetchingUploadedVideoCount = state => {
 };
 
 export const getStorageUsed = state => {
-	return state?.videos?.storageUsed || {};
+	return {
+		storageUsed: state?.videos?.storageUsed,
+	};
 };
 
 const selectors = {

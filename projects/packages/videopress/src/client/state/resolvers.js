@@ -119,12 +119,19 @@ const getStorageUsed = {
 		restApi.setApiNonce( apiNonce );
 		try {
 			const response = await restApi.fetchSiteData();
-
 			if ( ! response?.options?.videopress_storage_used ) {
 				return;
 			}
 
-			dispatch.setVideosStorageUsed( response.options.videopress_storage_used );
+			/*
+			 * Storage used in megabytes or null if not found.
+			 * Let's compute the value in bytes.
+			 */
+			const storageUsed = response.options.videopress_storage_used
+				? Number( response.options.videopress_storage_used ) * 1024 * 1024
+				: 0;
+
+			dispatch.setVideosStorageUsed( storageUsed );
 		} catch ( error ) {
 			// @todo: handle error
 			console.error( error ); // eslint-disable-line no-console
