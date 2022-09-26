@@ -12,6 +12,7 @@ use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Subscriptions_Widget;
+use Jetpack_Memberships;
 
 const FEATURE_NAME                                 = 'subscriptions';
 const BLOCK_NAME                                   = 'jetpack/' . FEATURE_NAME;
@@ -336,7 +337,12 @@ function get_element_styles_from_attributes( $attributes ) {
  * @return string
  */
 function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME, array( 'thickbox' ) );
+	if ( class_exists( 'Jetpack_Memberships' ) && Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+	} else {
+		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	}
 
 	$subscribe_email = '';
 
