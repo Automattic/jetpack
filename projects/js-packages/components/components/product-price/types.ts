@@ -35,9 +35,14 @@ export type ProductPriceProps = {
 	hidePriceFraction?: boolean;
 
 	/**
-	 * Hides promo label
+	 * Hides discount label
 	 */
-	hidePromoLabel?: boolean;
+	hideDiscountLabel?: boolean;
+
+	/**
+	 * Custom promo label
+	 */
+	promoLabel?: string;
 };
 
 export type PriceProps = {

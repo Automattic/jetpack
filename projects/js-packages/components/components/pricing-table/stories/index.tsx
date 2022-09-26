@@ -18,7 +18,7 @@ const Template: ComponentStory< typeof PricingTable > = args => (
 					offPrice={ 4.98 }
 					leyend="/month, billed yearly"
 					currency="USD"
-					hidePromoLabel={ false }
+					hideDiscountLabel={ false }
 				/>
 				<Button fullWidth>Get Premium</Button>
 			</PricingTableHeader>
