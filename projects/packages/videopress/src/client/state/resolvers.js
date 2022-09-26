@@ -70,14 +70,6 @@ const getVideos = {
 };
 
 const getVideo = {
-	isFulfilled: ( state, id ) => {
-		const videos = state.videos.items;
-		if ( ! videos?.length ) {
-			return false;
-		}
-		return !! videos.find( ( { id: videoId } ) => videoId === id );
-	},
-
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
 		try {
