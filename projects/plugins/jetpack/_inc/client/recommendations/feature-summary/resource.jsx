@@ -5,12 +5,11 @@ import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { stepToRoute } from 'state/recommendations';
-import { mapStateToSummaryResourceProps } from '../feature-utils';
+import { getSummaryResourceProps } from '../feature-utils';
 import './style.scss';
 
 const ResourceSummaryComponent = props => {
 	const { displayName, ctaLabel, ctaLink, resourceSlug, isNew, stepRoute } = props;
-
 	const onLearnMoreClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_learn_more_click', {
 			feature: resourceSlug,
@@ -55,8 +54,8 @@ const ResourceSummaryComponent = props => {
 	);
 };
 
-const ResourceSummary = connect( ( state, ownProps ) => ( {
-	...mapStateToSummaryResourceProps( state, ownProps.resourceSlug ),
+const ResourceSummary = connect( ( _, ownProps ) => ( {
+	...getSummaryResourceProps( ownProps.resourceSlug ),
 	stepRoute: stepToRoute[ ownProps.resourceSlug ],
 } ) )( ResourceSummaryComponent );
 
