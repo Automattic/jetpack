@@ -360,8 +360,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
 			/*
-			 * Title and description of the video are not stored as metadata on the attachment,
-			 * but as post_content and post_title on the attachment's post object.
+			 * Title, description and caption of the video are not stored as metadata on the attachment,
+			 * but as post_content, post_title and post_excerpt on the attachment's post object.
 			 * We need to update those fields here, too.
 			 */
 			$post_title = isset( $json_params['title'] ) ? sanitize_text_field( $json_params['title'] ) : null;
@@ -380,6 +380,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					array(
 						'ID'           => $post_id,
 						'post_content' => $post_content,
+					)
+				);
+			}
+
+			$post_excerpt = isset( $json_params['caption'] ) ? sanitize_textarea_field( $json_params['caption'] ) : null;
+			if ( $post_excerpt ) {
+				wp_update_post(
+					array(
+						'ID'           => $post_id,
+						'post_excerpt' => $post_excerpt,
 					)
 				);
 			}
