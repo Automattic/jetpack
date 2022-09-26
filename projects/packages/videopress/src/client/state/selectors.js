@@ -28,6 +28,10 @@ export const getIsFetchingUploadedVideoCount = state => {
 	return state?.videos?.isFetchingUploadedVideoCount;
 };
 
+export const getStorageUsed = state => {
+	return state?.videos?.storageUsed || {};
+};
+
 const selectors = {
 	getVideos,
 	getVideosQuery,
@@ -36,6 +40,7 @@ const selectors = {
 	getUploadedVideoCount,
 	getIsFetching,
 	getIsFetchingUploadedVideoCount,
+	getStorageUsed,
 };
 
 export default selectors;
