@@ -23,3 +23,6 @@ export const isApiStateLoading = state => state.apiState === API_STATE_LOADING;
 
 export const isInvalidProduct = ( state, productId ) =>
 	!! productId && ! getProduct( state, productId );
+
+export const getProductsNewsletter = state =>
+	getProducts( state ).find( product => product.subscribe_as_site_subscriber );
