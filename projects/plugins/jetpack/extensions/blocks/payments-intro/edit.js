@@ -10,9 +10,7 @@ import PaymentsIntroPatternPicker from './pattern-picker';
 import defaultVariations from './variations';
 
 export default function JetpackPaymentsIntroEdit( { name, clientId, className } ) {
-	const patternFilter = pattern => {
-		return pattern.categories !== undefined && pattern.categories.includes( 'earn' );
-	};
+	const patternFilter = pattern => pattern.categories?.includes( 'earn' );
 
 	const { blockType, hasInnerBlocks, hasPatterns } = useSelect( select => {
 		const { getBlocks, __experimentalGetAllowedPatterns } = select( blockEditorStore );
