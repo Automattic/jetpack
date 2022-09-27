@@ -10,15 +10,19 @@ import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,
+	getOnboarding,
 	isRecommendationsDataLoaded,
 	isRecommendationsConditionalLoaded,
+	updateRecommendationsOnboarding as updateRecommendationsOnboardingAction,
+	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
+import { isFetchingSiteData } from 'state/site';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ProductPurchased } from './product-purchased';
 import { FeaturePrompt } from './prompts/feature-prompt';
@@ -28,7 +32,7 @@ import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 
 const RecommendationsComponent = props => {
-	const { isLoading, step, newRecommendations } = props;
+	const { isLoading, step, newRecommendations, onboarding, updateOnboarding, updateStep } = props;
 
 	let redirectPath;
 
@@ -82,6 +86,12 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.BACKUP__WELCOME:
+			redirectPath = '/welcome-backup';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
+			redirectPath = '/server-credentials';
+			break;
 		default:
 			redirectPath = '/summary';
 			break;
@@ -91,6 +101,14 @@ const RecommendationsComponent = props => {
 	const isNew = stepSlug => {
 		return newRecommendations && newRecommendations.includes( stepSlug );
 	};
+
+	useEffect( () => {
+		if ( ! isLoading && onboarding.active && ! onboarding.hasStarted ) {
+			const startedOnboarding = { ...onboarding, hasStarted: true };
+			updateStep( step );
+			updateOnboarding( startedOnboarding );
+		}
+	}, [ isLoading, onboarding, updateOnboarding, step, updateStep ] );
 
 	return (
 		<>
@@ -110,6 +128,7 @@ const RecommendationsComponent = props => {
 				</div>
 			) : (
 				<Switch>
+					{ /* TODO: Why we don't redirect inproper step paths? */ }
 					<Redirect exact from={ '/recommendations' } to={ '/recommendations' + redirectPath } />
 					<Route path="/recommendations/site-type">
 						<SiteTypeQuestion />
@@ -156,6 +175,12 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/boost">
 						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
 					</Route>
+					<Route path="/recommendations/welcome-backup">
+						<ResourcePrompt stepSlug="backup__welcome" isPrimaryResource />
+					</Route>
+					<Route path="/recommendations/server-credentials">
+						<ResourcePrompt stepSlug="server-credentials" />
+					</Route>
 					<Route path="/recommendations/summary">
 						<Summary newRecommendations={ newRecommendations } />
 					</Route>
@@ -187,9 +212,18 @@ const RecommendationsComponent = props => {
 	);
 };
 
-export const Recommendations = connect( state => ( {
-	isLoading:
-		! isRecommendationsDataLoaded( state ) || ! isRecommendationsConditionalLoaded( state ),
-	step: getStep( state ),
-	newRecommendations: getNewRecommendations( state ),
-} ) )( RecommendationsComponent );
+export const Recommendations = connect(
+	state => ( {
+		isLoading:
+			! isRecommendationsDataLoaded( state ) ||
+			! isRecommendationsConditionalLoaded( state ) ||
+			isFetchingSiteData( state ),
+		step: getStep( state ),
+		onboarding: getOnboarding( state ),
+		newRecommendations: getNewRecommendations( state ),
+	} ),
+	dispatch => ( {
+		updateOnboarding: onboarding => dispatch( updateRecommendationsOnboardingAction( onboarding ) ),
+		updateStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+	} )
+)( RecommendationsComponent );

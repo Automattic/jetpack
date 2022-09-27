@@ -7,7 +7,12 @@ import {
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
-import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
+import {
+	ONBOARDING_JETPACK_BACKUP,
+	RECOMMENDATION_WIZARD_STEP,
+	sortByOnboardingPriority,
+	getOnboardingNameByProductSlug,
+} from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
@@ -32,6 +37,7 @@ import {
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
+	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_UPDATE,
 } from 'state/action-types';
 import { hasConnectedOwner } from 'state/connection';
 import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
@@ -39,9 +45,11 @@ import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
 	getSitePlan,
+	getSiteProducts,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
 	siteHasFeature,
+	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 	hasActiveBackupPurchase,
@@ -122,6 +130,14 @@ const data = ( state = {}, action ) => {
 			);
 
 			return viewedState;
+		}
+		case JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_UPDATE: {
+			const { active, viewed, hasStarted } = action.onboarding;
+			return mergeWith( {}, state, {
+				...( active !== undefined ? { onboardingActive: active } : {} ),
+				...( viewed !== undefined ? { onboardingViewed: viewed } : {} ),
+				...( hasStarted !== undefined ? { onboardingHasStarted: hasStarted } : {} ),
+			} );
 		}
 		default:
 			return state;
@@ -294,25 +310,35 @@ export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
 
-const stepToNextStep = {
-	'setup-wizard-completed': 'summary',
-	'banner-completed': 'woocommerce',
-	'not-started': 'site-type-question',
-	'site-type-question': 'agency',
-	agency: 'woocommerce',
-	'product-suggestions': 'woocommerce',
-	woocommerce: 'monitor',
-	monitor: 'related-posts',
-	'related-posts': 'creative-mail',
-	'creative-mail': 'site-accelerator',
-	'site-accelerator': 'publicize',
-	publicize: 'summary',
-	protect: 'summary',
-	'anti-spam': 'summary',
-	videopress: 'summary',
-	'backup-plan': 'summary',
-	boost: 'summary',
-	summary: 'summary',
+const stepToNextStepByPath = {
+	default: {
+		'setup-wizard-completed': 'summary',
+		'banner-completed': 'woocommerce',
+		'not-started': 'site-type-question',
+		'site-type-question': 'agency',
+		agency: 'woocommerce',
+		'product-suggestions': 'woocommerce',
+		woocommerce: 'monitor',
+		monitor: 'related-posts',
+		'related-posts': 'creative-mail',
+		'creative-mail': 'site-accelerator',
+		'site-accelerator': 'publicize',
+		publicize: 'summary',
+		protect: 'summary',
+		'anti-spam': 'summary',
+		videopress: 'summary',
+		'backup-plan': 'summary',
+		boost: 'summary',
+		summary: 'summary',
+	},
+	onboarding: {
+		[ ONBOARDING_JETPACK_BACKUP ]: {
+			backup__welcome: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+	},
 };
 
 export const stepToRoute = {
@@ -332,6 +358,9 @@ export const stepToRoute = {
 	'backup-plan': '#/recommendations/backup-plan',
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
+	// TODO: New Steps (JP Boost Onboarding)
+	backup__welcome: '#/recommendations/welcome-backup',
+	'server-credentials': '#/recommendations/server-credentials',
 };
 
 export const isStepViewed = ( state, featureSlug ) => {
@@ -370,6 +399,8 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			return !! getSetting( state, 'publicize' );
 		case 'videopress':
 			return !! getSetting( state, 'videopress' );
+		case 'server-credentials':
+			return true;
 		default:
 			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}
@@ -467,23 +498,44 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'server-credentials':
+		case 'backup__welcome':
+			return true; // TODO: Add conditional
 		default:
 			return ! isFeatureActive( state, step );
 	}
 };
 
 const getNextEligibleStep = ( state, step ) => {
-	let nextStep = stepToNextStep[ step ];
+	const active = get( getOnboarding( state ), 'active' );
+	const stepToNextStep = get( stepToNextStepByPath, active ? `onboarding.${ active }` : 'default' );
+
+	if ( ! stepToNextStep ) {
+		throw 'Next eligible steps: No path found!';
+	}
+
+	let nextStep = stepToNextStep[ step ] || 'summary';
+
 	while ( ! isStepEligibleToShow( state, nextStep ) ) {
 		nextStep = stepToNextStep[ nextStep ];
 	}
+
 	return nextStep;
 };
+
+const getInitialStepForOnboarding = ( { active } ) =>
+	Object.keys( get( stepToNextStepByPath, `onboarding.${ active }`, {} ) )[ 0 ];
 
 // Gets the step to show when one has not been set in the state yet.
 const getInitialStep = state => {
 	// Gets new recommendations from initial state.
 	const newRecommendations = getNewRecommendations( state );
+	const initialStep = getInitialRecommendationsStep( state );
+	const onboarding = getOnboarding( state );
+
+	if ( onboarding.active ) {
+		return onboarding.hasStarted ? initialStep : getInitialStepForOnboarding( onboarding );
+	}
 
 	// Jump to a new recommendation if there is one to show.
 	if ( newRecommendations.length > 0 ) {
@@ -491,14 +543,49 @@ const getInitialStep = state => {
 	}
 
 	// Return the step from the initial React state.
-	return getInitialRecommendationsStep( state );
+	return initialStep;
 };
 
+export const getOnboarding = state => {
+	const onboarding = {
+		active: getDataByKey( state, 'onboardingActive' ) || null,
+		viewed: getDataByKey( state, 'onboardingViewed' ) || [],
+		hasStarted: getDataByKey( state, 'onboardingHasStarted' ) || false,
+	};
+
+	// If no onboarding is active, try to find one that can be activated
+	if (
+		null === onboarding.active &&
+		! isFetchingSiteData( state ) &&
+		isRecommendationsDataLoaded( state )
+	) {
+		const newOnboardings = getSiteProducts( state )
+			.map( ( { product_slug } ) => getOnboardingNameByProductSlug( product_slug ) )
+			.filter( name => ! onboarding.viewed.includes( name ) );
+
+		const sortedOnboardings = newOnboardings.sort( sortByOnboardingPriority );
+
+		if ( sortedOnboardings.length > 0 ) {
+			return {
+				active: sortedOnboardings[ 0 ],
+				viewed: union( onboarding.viewed, sortedOnboardings ),
+				hasStarted: false,
+			};
+		}
+	}
+
+	return onboarding;
+};
+
+export const isOnboardingActive = state => null !== getOnboarding( state ).active;
+
 export const getStep = state => {
-	const step =
-		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
-			? getInitialStep( state )
-			: state.jetpack.recommendations.step;
+	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
+	const step = '' !== savedStep ? savedStep : getInitialStep( state );
+
+	if ( ! step ) {
+		throw `Step needs to be defined at this point!`;
+	}
 
 	// These steps are special cases set on the server. There is technically no
 	// UI to display for them so the next eligible step is returned instead.

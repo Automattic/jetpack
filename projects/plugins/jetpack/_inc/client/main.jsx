@@ -502,6 +502,8 @@ class Main extends React.Component {
 			case '/recommendations/backup-plan':
 			case '/recommendations/boost':
 			case '/recommendations/summary':
+			case '/recommendations/welcome-backup':
+			case '/recommendations/server-credentials':
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;
 				} else {

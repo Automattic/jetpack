@@ -103,6 +103,19 @@ export const getSummaryResourceProps = resourceSlug => {
 				ctaLabel: __( 'Read More', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
 			};
+		case 'server-credentials':
+			return {
+				configureButtonLabel: __( 'Add', 'jetpack' ),
+				displayName: __( 'Server Credentials', 'jetpack' ),
+				summaryActivateButtonLabel: __( 'Add', 'jetpack' ),
+				configLink: '#',
+			};
+		case 'backup__welcome':
+			return {
+				displayName: __( 'Real-time Backups', 'jetpack' ),
+				ctaLabel: __( 'Read More', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+			};
 		default:
 			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
@@ -180,6 +193,10 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 						return dispatch( fetchPluginsData() );
 					} );
 				},
+			};
+		case 'server-credentials':
+			return {
+				activateFeature: () => {},
 			};
 		default:
 			throw `Unknown feature slug in mapDispatchToProps recommendations/feature-utils.js: ${ featureSlug }`;
@@ -338,6 +355,26 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
+			};
+		case 'backup__welcome':
+			return {
+				question: __( 'Welcome to Jetpack Backup!', 'jetpack' ),
+				description: __(
+					'Real-time cloud-based backups are now active for your site. Save every change and get back online in one click from desktop and mobile.',
+					'jetpack'
+				),
+				ctaText: __( 'Manage Backups', 'jetpack' ),
+				illustration: 'assistant-backup-welcome',
+			};
+		case 'server-credentials':
+			return {
+				question: __( 'Setup one-click restores', 'jetpack' ),
+				description: __(
+					'To restore your site to a previous version, you need to add your server credentials. We recommend doing this now so you can restore your site in one click if you encounter issues in the future.',
+					'jetpack'
+				),
+				ctaText: __( 'Add server credentials', 'jetpack' ),
+				illustration: 'assistant-server-credentials',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;

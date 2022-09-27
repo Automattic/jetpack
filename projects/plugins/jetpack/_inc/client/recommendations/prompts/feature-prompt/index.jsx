@@ -22,6 +22,7 @@ import {
 	isFeatureActive,
 	isStepViewed,
 	getProductSlugForStep,
+	isOnboardingActive,
 } from 'state/recommendations';
 import { DEFAULT_ILLUSTRATION } from '../../constants';
 import {
@@ -232,7 +233,7 @@ const FeaturePrompt = connect(
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 		discountViewedStep: recommendationsSiteDiscountViewedStep( state ),
 		featureActive: isFeatureActive( state, ownProps.stepSlug ),
-		summaryViewed: isStepViewed( state, 'summary' ),
+		summaryViewed: isStepViewed( state, 'summary' ) && ! isOnboardingActive( state ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	( dispatch, ownProps ) => ( {

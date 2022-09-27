@@ -4,6 +4,7 @@ import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { ONBOARDING_JETPACK_BACKUP } from 'recommendations/constants';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
@@ -14,11 +15,15 @@ import {
 	getUpsell,
 	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	updateRecommendationsOnboarding as updateRecommendationsOnboardingAction,
+	getOnboarding,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
+import { isFetchingSiteData } from 'state/site';
 import { getPluginsData } from 'state/site/plugins';
 import { FeatureSummary } from '../feature-summary';
 import './style.scss';
+import { PrimarySummary } from '../feature-summary/primary';
 import { ResourceSummary } from '../feature-summary/resource';
 import { MobileApp } from '../sidebar/mobile-app';
 import { OneClickRestores } from '../sidebar/one-click-restores';
@@ -38,9 +43,11 @@ const SummaryComponent = props => {
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		upsell,
+		onboarding,
 		newRecommendations,
 		stateStepSlug,
 		updatingStep,
+		updateOnboarding,
 	} = props;
 
 	useEffect( () => {
@@ -50,6 +57,14 @@ const SummaryComponent = props => {
 			addViewedRecommendation( 'summary' );
 		}
 	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
+
+	useEffect( () => {
+		const plan = onboarding.active;
+
+		if ( plan ) {
+			updateOnboarding( { ...onboarding, active: null } );
+		}
+	}, [ updateOnboarding, onboarding ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -67,6 +82,14 @@ const SummaryComponent = props => {
 						siteTitle
 					) }
 				</h1>
+				{ onboarding.viewed.includes( ONBOARDING_JETPACK_BACKUP ) && (
+					<section>
+						<h2 id="primary-recommendations">Part of your Backup plan</h2>
+						<div>
+							<PrimarySummary key="backup__welcome" />
+						</div>
+					</section>
+				) }
 				<section aria-labelledby="enabled-recommendations">
 					<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
 					<div>
@@ -190,7 +213,8 @@ const Summary = connect(
 		const pluginsData = getPluginsData( state );
 		const settings = getSettings( state );
 		const upsell = getUpsell( state );
-		const isFetchingMainData = isEmpty( settings ) || isEmpty( pluginsData );
+		const isFetchingMainData =
+			isEmpty( settings ) || isEmpty( pluginsData ) || isFetchingSiteData( state );
 		const isFetchingSidebarData = isEmpty( upsell );
 		const isFetchingBottomSectionData = isEmpty( upsell );
 
@@ -204,11 +228,13 @@ const Summary = connect(
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
 			stateStepSlug: getStep( state ),
 			updatingStep: isUpdatingRecommendationsStep( state ),
+			onboarding: getOnboarding( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		updateOnboarding: onboarding => dispatch( updateRecommendationsOnboardingAction( onboarding ) ),
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );

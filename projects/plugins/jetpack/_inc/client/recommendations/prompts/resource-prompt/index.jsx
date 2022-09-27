@@ -14,6 +14,7 @@ import {
 	isUpdatingRecommendationsStep,
 	isStepViewed,
 	getProductSlugForStep,
+	isOnboardingActive,
 } from 'state/recommendations';
 import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
@@ -47,6 +48,7 @@ const ResourcePromptComponent = props => {
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		summaryViewed,
+		isPrimaryResource,
 	} = props;
 
 	useEffect( () => {
@@ -134,7 +136,7 @@ const ResourcePromptComponent = props => {
 					</ExternalLink>
 					<div className="jp-recommendations-question__jump-nav">
 						<a href={ nextRoute } onClick={ onResourceSkipClick }>
-							{ __( 'Not now', 'jetpack' ) }
+							{ isPrimaryResource ? __( 'Next', 'jetpack' ) : __( 'Not now', 'jetpack' ) }
 						</a>
 						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
 							<>
@@ -163,7 +165,7 @@ const ResourcePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
-		summaryViewed: isStepViewed( state, 'summary' ),
+		summaryViewed: isStepViewed( state, 'summary' ) && ! isOnboardingActive( state ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 	} ),
 	dispatch => ( {

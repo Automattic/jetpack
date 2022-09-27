@@ -25,6 +25,7 @@ import {
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
+	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_UPDATE,
 } from 'state/action-types';
 
 export const fetchRecommendationsData = () => {
@@ -100,6 +101,13 @@ export const updateRecommendationsStep = step => {
 			.catch( error => {
 				dispatch( { type: JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL, error } );
 			} );
+	};
+};
+
+export const updateRecommendationsOnboarding = onboarding => {
+	return ( dispatch, getState ) => {
+		dispatch( { type: JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_UPDATE, onboarding } );
+		return saveRecommendations( dispatch, getState );
 	};
 };
 
