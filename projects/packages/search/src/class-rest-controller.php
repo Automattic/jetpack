@@ -90,7 +90,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_settings' ),
-				'permission_callback' => array( $this, 'require_valid_blog_token_or_admin_permission' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -99,7 +99,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_settings' ),
-				'permission_callback' => array( $this, 'require_valid_blog_token_or_admin_permission' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -133,7 +133,7 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'activate_plan' ),
 				// admin permission is allowed for backward compatibility.
-				'permission_callback' => array( $this, 'require_valid_blog_token_or_admin_permission' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -143,7 +143,7 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'deactivate_plan' ),
 				// admin permission is allowed for backward compatibility.
-				'permission_callback' => array( $this, 'require_valid_blog_token_or_admin_permission' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
 		register_rest_route(
@@ -202,14 +202,6 @@ class REST_Controller {
 		}
 
 		return $this->get_forbidden_error();
-	}
-
-	/**
-	 * Require admin permission or a valid blog token.
-	 * For endpoints that are accessible from both WPCOM and WP-Admin.
-	 */
-	public function require_valid_blog_token_or_admin_permission() {
-		return $this->require_admin_privilege_callback() || $this->require_valid_blog_token_callback();
 	}
 
 	/**
