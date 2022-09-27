@@ -46,6 +46,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
 		files,
+		finished,
 	} = videoPressMediaDetails;
 
 	const { dvd } = files;
@@ -76,6 +77,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 			height,
 		},
 		thumbnail,
+		finished,
 	};
 };
 
