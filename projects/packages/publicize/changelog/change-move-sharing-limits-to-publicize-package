@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Move share limits code to the Publicize package

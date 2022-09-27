@@ -112,7 +112,7 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const video = useVideo( Number( videoId ) );
+	const { data: video } = useVideo( Number( videoId ) );
 
 	const [ updating, setUpdating ] = useState( false );
 	const [ data, setData ] = useState( video );

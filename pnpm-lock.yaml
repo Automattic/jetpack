@@ -205,7 +205,7 @@ importers:
   projects/js-packages/connection:
     specifiers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-config': workspace:* || ^0.1
@@ -326,7 +326,7 @@ importers:
   projects/js-packages/idc:
     specifiers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@babel/core': 7.18.13
@@ -364,7 +364,7 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@babel/core': 7.18.13
@@ -753,7 +753,7 @@ importers:
   projects/packages/backup:
     specifiers:
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-connection': workspace:* || ^0.21
@@ -887,7 +887,7 @@ importers:
     specifiers:
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-connection': workspace:* || ^0.21
       '@automattic/jetpack-licensing': workspace:* || ^0.5
@@ -966,14 +966,23 @@ importers:
     specifiers: {}
 
   projects/packages/publicize:
-    specifiers: {}
+    specifiers:
+      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      concurrently: 7.4.0
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      concurrently: 7.4.0
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
 
   projects/packages/search:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-connection': workspace:* || ^0.21
@@ -1112,7 +1121,10 @@ importers:
       '@types/react-dom': 17.0.17
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
+      '@types/wordpress__api-fetch': 3.23.1
       '@types/wordpress__components': 19.10.0
+      '@types/wordpress__url': 2.14.0
+      '@wordpress/api-fetch': 6.13.0
       '@wordpress/browserslist-config': 5.0.0
       '@wordpress/components': 20.0.0
       '@wordpress/compose': 5.14.0
@@ -1121,6 +1133,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/i18n': 4.16.0
       '@wordpress/icons': 9.7.0
+      '@wordpress/url': 3.17.0
       autoprefixer: 10.4.9
       classnames: 2.3.1
       debug: 4.3.4
@@ -1145,6 +1158,7 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@storybook/addon-actions': 6.5.10_sfoxds7t5ydpegc3knd667wn6m
+      '@wordpress/api-fetch': 6.13.0
       '@wordpress/components': 20.0.0_cw5jtwuj6ehcs2uqnpd5xfmnry
       '@wordpress/compose': 5.14.0_react@17.0.2
       '@wordpress/data': 7.0.0_react@17.0.2
@@ -1152,6 +1166,7 @@ importers:
       '@wordpress/element': 4.14.0
       '@wordpress/i18n': 4.16.0
       '@wordpress/icons': 9.7.0
+      '@wordpress/url': 3.17.0
       classnames: 2.3.1
       debug: 4.3.4
       filesize: 8.0.6
@@ -1174,7 +1189,9 @@ importers:
       '@types/react-dom': 17.0.17
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
+      '@types/wordpress__api-fetch': 3.23.1
       '@types/wordpress__components': 19.10.0_sfoxds7t5ydpegc3knd667wn6m
+      '@types/wordpress__url': 2.14.0
       '@wordpress/browserslist-config': 5.0.0
       autoprefixer: 10.4.9_postcss@8.4.16
       jest: 28.1.0
@@ -1194,7 +1211,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
@@ -1402,13 +1419,13 @@ importers:
       '@automattic/components': 2.0.1
       '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.13
+      '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-connection': workspace:* || ^0.21
       '@automattic/jetpack-licensing': workspace:* || ^0.5
       '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
-      '@automattic/jetpack-publicize-components': workspace:* || ^0.6
+      '@automattic/jetpack-publicize-components': workspace:* || ^0.7
       '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.6
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@automattic/popup-monitor': 1.0.2
@@ -1710,7 +1727,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.21
       '@automattic/jetpack-connection': workspace:* || ^0.21
-      '@automattic/jetpack-publicize-components': workspace:* || ^0.6
+      '@automattic/jetpack-publicize-components': workspace:* || ^0.7
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.18.13
       '@babel/preset-env': 7.18.10
@@ -7160,12 +7177,12 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.4.6
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
 
   /@types/eslint/8.4.6:
     resolution: {integrity: sha512-/fqTbjxyFUaYNO7VcW5g+4npmqVACz1bB7RTHYuLj+PRjw9hrCwrUXVQFpChUS0JsyEFvMZ7U/PfmvWgxJhI9g==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
 
   /@types/estree/0.0.39:
@@ -7177,7 +7194,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: true
 
   /@types/fs-extra/8.1.2:
     resolution: {integrity: sha512-SvSrYXfWSc7R4eqnOzbQF4TZmfpNSM9FrSWLU3EUnWBuyZqNBOrv1B1JA3byUDPUl9z4Ab3jeZG2eDdySlgNMg==}
@@ -7455,6 +7471,13 @@ packages:
       - webpack-cli
     dev: true
 
+  /@types/wordpress__api-fetch/3.23.1:
+    resolution: {integrity: sha512-uyv+1AVutyIjRE308HAjwFnpLf0D3pRhN928i4HmKZ3Uu8C0RkJJYye3md4jg/YsgZBMbAed2baCsEKg7gdmoQ==}
+    deprecated: This is a stub types definition. @wordpress/api-fetch provides its own type definitions, so you do not need this installed.
+    dependencies:
+      '@wordpress/api-fetch': 6.13.0
+    dev: true
+
   /@types/wordpress__components/19.10.0_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-hnJHwYJfjUSJ79ompvBmGWsJdP/P4OGv1Yz2fuFXHYLS7k2eNba31cy51sI/q7+czSb6wG+Y5cssxNcA3Nrxbg==}
     dependencies:
@@ -7488,6 +7511,13 @@ packages:
     dependencies:
       '@types/react': 17.0.49
       '@types/wordpress__data': 6.0.1
+    dev: true
+
+  /@types/wordpress__url/2.14.0:
+    resolution: {integrity: sha512-zH0M0rejxnQ8usVPP55IPpcY0+kjEln0jfR/EY0WgKE/g0HSoRALexAxvGxSqWMee5nThJIEGQwHYSJSalDkyA==}
+    deprecated: This is a stub types definition. wordpress__url provides its own type definitions, so you do not need this installed.
+    dependencies:
+      '@wordpress/url': 3.17.0
     dev: true
 
   /@types/yargs-parser/21.0.0:
@@ -10812,6 +10842,22 @@ packages:
       supports-color: 8.1.1
       tree-kill: 1.2.2
       yargs: 16.2.0
+    dev: true
+
+  /concurrently/7.4.0:
+    resolution: {integrity: sha512-M6AfrueDt/GEna/Vg9BqQ+93yuvzkSKmoTixnwEJkH0LlcGrRC2eCmjeG1tLLHIYfpYJABokqSGyMcXjm96AFA==}
+    engines: {node: ^12.20.0 || ^14.13.0 || >=16.0.0}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      date-fns: 2.29.2
+      lodash: 4.17.21
+      rxjs: 7.5.6
+      shell-quote: 1.7.3
+      spawn-command: 0.0.2-1
+      supports-color: 8.1.1
+      tree-kill: 1.2.2
+      yargs: 17.5.1
     dev: true
 
   /config/3.3.7:
@@ -18936,6 +18982,12 @@ packages:
     dependencies:
       tslib: 1.14.1
 
+  /rxjs/7.5.6:
+    resolution: {integrity: sha512-dnyv2/YsXhnm461G+R/Pe5bWP41Nm6LBXEYWI6eiFP4fiwx6WRI/CD0zbdVAudd9xwLEF2IDcKXLHit0FYjUzw==}
+    dependencies:
+      tslib: 2.4.0
+    dev: true
+
   /safe-buffer/5.1.1:
     resolution: {integrity: sha512-kKvNJn6Mm93gAczWVJg7wH+wGYWNrDHdWvpUmHyEsgCtIwwo3bqPtV4tR5tuPaUhTOo/kvhVwd8XwwOllGYkbg==}
     dev: true
@@ -19313,6 +19365,10 @@ packages:
 
   /shell-escape/0.2.0:
     resolution: {integrity: sha512-uRRBT2MfEOyxuECseCZd28jC1AJ8hmqqneWQ4VWUTgCAFvb3wKU1jLqj6egC4Exrr88ogg3dp+zroH4wJuaXzw==}
+    dev: true
+
+  /shell-quote/1.7.3:
+    resolution: {integrity: sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==}
     dev: true
 
   /shimmer/1.2.1:

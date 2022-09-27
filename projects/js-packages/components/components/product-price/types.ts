@@ -43,6 +43,11 @@ export type ProductPriceProps = {
 	 * Custom promo label
 	 */
 	promoLabel?: string;
+
+	/**
+	 * Alternative leyend with HTML syntax
+	 */
+	children?: React.ReactNode;
 };
 
 export type PriceProps = {
