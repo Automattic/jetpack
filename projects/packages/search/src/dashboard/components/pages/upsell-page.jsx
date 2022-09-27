@@ -1,4 +1,5 @@
 import {
+	JetpackSearchLogo,
 	AdminPage,
 	Container,
 	Col,
@@ -66,6 +67,7 @@ export default function UpsellPage( { isLoading = false } ) {
 					<AdminPage
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						a8cLogoHref={ AUTOMATTIC_WEBSITE }
+						header={ <JetpackSearchLogo /> }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (
