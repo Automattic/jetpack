@@ -49,7 +49,6 @@ module.exports = [
 		...socialWebpackConfig,
 		entry: {
 			editor: './src/js/editor.js',
-			[ 'classic-editor' ]: './src/js/classic-editor.js',
 		},
 		module: {
 			...socialWebpackConfig.module,
