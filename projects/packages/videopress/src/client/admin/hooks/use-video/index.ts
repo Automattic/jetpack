@@ -23,6 +23,11 @@ export default function useVideo( id: number | string ) {
 		data: useSelect( select => ( select( STORE_ID ) as VideopressSelectors ).getVideo( id ), [
 			id,
 		] ),
+		// Is Fetching
+		isFetching: useSelect(
+			select => ( select( STORE_ID ) as VideopressSelectors ).getIsFetching(),
+			[]
+		),
 
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),
