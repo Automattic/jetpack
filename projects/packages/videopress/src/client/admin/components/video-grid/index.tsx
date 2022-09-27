@@ -30,6 +30,7 @@ const VideoGrid = ( { videos, count = 6, onVideoDetailsClick }: VideoGridProps )
 					return (
 						<Col key={ index } sm={ 4 } md={ 4 } lg={ 4 }>
 							<VideoCard
+								id={ video?.id }
 								title={ video.title }
 								thumbnail={ video?.uploading ? <div>Uploading</div> : video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 								duration={ video.duration }
