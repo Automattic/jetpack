@@ -1,6 +1,7 @@
 import fsp from 'fs/promises';
 import pathLib from 'path';
 import { readDockerFile, writeDockerFile } from './docker-tools';
+import { wpcli } from './wordpress-tools';
 
 export type ConfigValue = boolean | string | number | Array< ConfigValue >;
 
@@ -58,4 +59,11 @@ function formatConfigValue( value: ConfigValue ): string {
 	}
 
 	return value.toString();
+}
+
+/**
+ * Clears the cache.
+ */
+export async function clearCache(): Promise< void > {
+	await wpcli( 'eval', 'wp_cache_clear_cache();' );
 }

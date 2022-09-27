@@ -1,5 +1,5 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
-import { setConfigValues } from '../lib/plugin-file-tools';
+import { clearCache, setConfigValues } from '../lib/plugin-file-tools';
 import { loadPage } from '../lib/test-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
@@ -37,6 +37,14 @@ describe( 'cache behavior with default settings', () => {
 	test( 'double slash at the start of URLs should not break URL processing', async () => {
 		const first = await loadPage( '//', { s: 'squid' } );
 		const second = await loadPage( '//' );
+
+		expect( first ).not.toBe( second );
+	} );
+
+	test( 'clears the cache', async () => {
+		const first = await loadPage();
+		await clearCache();
+		const second = await loadPage();
 
 		expect( first ).not.toBe( second );
 	} );
