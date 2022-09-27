@@ -708,7 +708,7 @@ class Jetpack_Gutenberg {
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 		);
 
-		if ( Jetpack::is_module_active( 'publicize' ) ) {
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || did_action( 'jetpack_module_loaded_publicize' ) ) {
 			$publicize               = publicize_init();
 			$initial_state['social'] = array(
 				'sharesData'  => $publicize->get_publicize_shares_info( $blog_id ),
