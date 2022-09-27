@@ -9,23 +9,26 @@ import { DragEvent, useCallback, useState, useRef, ChangeEvent } from 'react';
 /**
  * Internal dependencies
  */
+import { ReactNode } from 'react';
+import { VIDEO_EXTENSIONS } from '../../../state/constants';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
-import type React from 'react';
+
+const inputExtensions = VIDEO_EXTENSIONS.map( extension => `.${ extension }` ).join( ',' );
 
 /**
  * Video Upload Area component
  *
  * @param {VideoUploadAreaProps} props - Component props.
- * @returns {React.ReactNode} - VideoUploadArea react component.
+ * @returns {ReactNode} - VideoUploadArea react component.
  */
-const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( { className, onSelectFiles } ) => {
+const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
 	const inputRef = useRef( null );
 
 	const handleFileInputChangeEvent = useCallback( ( e: ChangeEvent< HTMLInputElement > ) => {
-		onSelectFiles( e.currentTarget.files );
+		onSelectFiles( Array.from( e.currentTarget.files ) );
 	}, [] );
 
 	const handleClickEvent = useCallback( () => {
@@ -46,7 +49,11 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( { className, onSelec
 			event.preventDefault();
 			setIsDraggingOver( false );
 
-			onSelectFiles( event.dataTransfer.files );
+			const files = Array.from( event.dataTransfer.files ).filter( file => {
+				return VIDEO_EXTENSIONS.some( extension => file.name.endsWith( extension ) );
+			} );
+
+			onSelectFiles( files );
 		},
 		[ onSelectFiles ]
 	);
@@ -64,6 +71,7 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( { className, onSelec
 			<input
 				ref={ inputRef }
 				type="file"
+				accept={ inputExtensions }
 				className={ classnames( styles[ 'file-input' ] ) }
 				onChange={ handleFileInputChangeEvent }
 			/>
