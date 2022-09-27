@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	SET_IS_FETCHING_VIDEOS,
+	SET_VIDEOS_STORAGE_USED,
 	SET_VIDEOS,
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
@@ -52,6 +53,10 @@ const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 
 const setUploadedVideoCount = uploadedVideoCount => {
 	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
+};
+
+const setVideosStorageUsed = used => {
+	return { type: SET_VIDEOS_STORAGE_USED, used };
 };
 
 const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
@@ -145,6 +150,7 @@ const actions = {
 	setVideosQuery,
 	setVideosPagination,
 	setVideos,
+	setVideosStorageUsed,
 	setVideo,
 
 	setIsFetchingUploadedVideoCount,

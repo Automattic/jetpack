@@ -14,6 +14,7 @@ import {
 	SET_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
+	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 } from './constants';
 
@@ -126,6 +127,14 @@ const videos = ( state = {}, action ) => {
 				items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
 			};
 		}
+
+		case SET_VIDEOS_STORAGE_USED: {
+			return {
+				...state,
+				storageUsed: action.used,
+			};
+		}
+
 		case SET_IS_FETCHING_UPLOADED_VIDEO_COUNT: {
 			return {
 				...state,
