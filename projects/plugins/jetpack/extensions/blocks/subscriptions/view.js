@@ -2,6 +2,7 @@
 
 import './view.scss';
 import '../../shared/memberships.scss';
+
 import domReady from '@wordpress/dom-ready';
 import {
 	setPurchaseResultCookie,
@@ -22,7 +23,7 @@ domReady( function () {
 			const url =
 				'https://subscribe.wordpress.com/memberships/?blog=' +
 				form.dataset.blog +
-				'&plan=newsletter&source=jetpack_subscribe&design=alternate&email=' +
+				'&plan=newsletter&source=jetpack_subscribe&display=alternate&email=' +
 				encodeURIComponent( email );
 			window.scrollTo( 0, 0 );
 			tb_show( null, url + '&TB_iframe=true', null );

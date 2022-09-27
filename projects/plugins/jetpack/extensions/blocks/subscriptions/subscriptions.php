@@ -79,6 +79,9 @@ function render_block( $attributes, $content ) {
 	if ( class_exists( 'Jetpack_Memberships' ) && Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
 		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+		if ( wp_style_is( 'enqueued' ) ) {
+			wp_enqueue_style( 'thickbox' );
+		}
 	} else {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	}
