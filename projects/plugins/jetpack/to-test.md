@@ -24,7 +24,7 @@ There have been updates for the Jetpack Recommendations Assistant. In particular
 - Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type` and select both "I build or manage this site for a client" and "This is an e-commerce site" and click on Continue.
 - You should see the Agencies recommendation first, select "Not now".
 - Next you should see the WooCommerce recommendation.
-- That is all for testing these updated recommendations..
+- That is all for testing these updated recommendations.
 
 **And to test the mobile app links:**
 
