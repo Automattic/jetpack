@@ -1057,6 +1057,11 @@ function check_for_paid_subscription( $the_content ) {
 		$can_view = $paywall->visitor_can_view_content( $plan_ids );
 	}
 
+	if ( 'subscribers' === $protection_level ) {
+		// Do something else
+		$can_view = true;
+	}
+
 	if ( ! $can_view ) {
 		return do_blocks(
 			'<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"},"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}}},"backgroundColor":"tertiary"} -->
