@@ -5,7 +5,7 @@ import { dispatch, useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../../state';
+import { STORE_ID } from '../../../state/constants';
 
 /**
  * React custom hook to get the videos.
