@@ -1,7 +1,6 @@
-import fsp from 'fs/promises';
-import path from 'path';
 import { describe, beforeAll, expect, test } from '@jest/globals';
 import { readDockerFile, dockerExec } from '../lib/docker-tools';
+import { readPluginFile } from '../lib/plugin-file-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
 describe( 'Plugin Activation', () => {
@@ -19,10 +18,7 @@ describe( 'Plugin Activation', () => {
 
 	test( 'Ensure advanced-cache is populated correctly.', async () => {
 		const advancedCache = await readDockerFile( '/var/www/html/wp-content/advanced-cache.php' );
-		const expectedContents = await fsp.readFile(
-			path.join( __dirname, '../../../advanced-cache.php' ),
-			'utf8'
-		);
+		const expectedContents = await readPluginFile( 'advanced-cache.php' );
 
 		expect( advancedCache ).toBe( expectedContents );
 	} );
