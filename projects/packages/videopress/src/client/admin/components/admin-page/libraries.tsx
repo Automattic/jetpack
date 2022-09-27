@@ -133,7 +133,7 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 			{ libraryType === LibraryType.Grid ? (
 				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
 			) : (
-				<VideoList videos={ videos } onClickEdit={ handleClickEditDetails } />
+				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
 		</VideoLibraryWrapper>
 	);
@@ -146,7 +146,14 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
+			<VideoList
+				hidePrivacy
+				hideDuration
+				hidePlays
+				showEditButton={ false }
+				showQuickActions={ false }
+				videos={ videos }
+			/>
 		</VideoLibraryWrapper>
 	);
 };
