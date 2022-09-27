@@ -28,6 +28,7 @@ export const VideoCard = ( {
 	plays,
 	thumbnail,
 	editable,
+	showQuickActions = true,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
@@ -70,18 +71,20 @@ export const VideoCard = ( {
 					</Text>
 				) }
 			</div>
-			<div className={ styles[ 'video-card__quick-actions-section' ] }>
-				<Button
-					variant="primary"
-					size="small"
-					onClick={ onVideoDetailsClick }
-					className={ styles[ 'video-card__quick-actions__edit-button' ] }
-				>
-					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
-				</Button>
+			{ showQuickActions && (
+				<div className={ styles[ 'video-card__quick-actions-section' ] }>
+					<Button
+						variant="primary"
+						size="small"
+						onClick={ onVideoDetailsClick }
+						className={ styles[ 'video-card__quick-actions__edit-button' ] }
+					>
+						{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
+					</Button>
 
-				{ id && <ConnectVideoQuickActions videoId={ id } /> }
-			</div>
+					{ id && <ConnectVideoQuickActions videoId={ id } /> }
+				</div>
+			) }
 		</div>
 	);
 };
