@@ -11,7 +11,7 @@ import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT, DELETE_VIDEO } from './co
 import { getDefaultQuery } from './reducers';
 import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
-const { apiNonce, apiRoot } = window.jetpackVideoPressInitialState;
+const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
 	fulfill: () => async ( { dispatch, select } ) => {
