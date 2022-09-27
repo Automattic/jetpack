@@ -61,7 +61,7 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:* || ^0.14",
+		"@automattic/jetpack-api": "workspace:0.14.0-alpha",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.21",
 		"@automattic/jetpack-connection": "workspace:* || ^0.21",
