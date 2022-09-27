@@ -72,10 +72,19 @@ export const setPurchaseResultCookie = function ( premiumContentJWTToken ) {
 		'; path=/';
 };
 
-export const reloadPageWithPremiumContentQueryString = function ( premiumContentJWTToken ) {
-	document.location.href = updateQueryStringParameter(
+export const reloadPageWithPremiumContentQueryString = function (
+	premiumContentJWTToken,
+	additionalParams
+) {
+	let newQueryString = updateQueryStringParameter(
 		document.location.href,
 		'token',
 		premiumContentJWTToken
 	);
+	if ( additionalParams ) {
+		Object.keys( additionalParams ).forEach( key => {
+			newQueryString = updateQueryStringParameter( newQueryString, key, additionalParams[ key ] );
+		} );
+	}
+	document.location.href = newQueryString;
 };
