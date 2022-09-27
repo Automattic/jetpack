@@ -75,9 +75,13 @@
 			content: '';
 			position: absolute;
 			top: 0;
+			left: var(--padding);
+			right: var(--padding);
 			height: 1px;
 			.is-viewport-large & {
 				width: 150%;
+				left: unset;
+				right: unset;
 			}
 			z-index: 5;
 			background-color: var( --jp-gray );
@@ -122,7 +126,7 @@
 }
 
 .popover-icon {
-	fill: var( --fill, var( --jp-gray ) );
+	fill: var( --jp-gray-20 );
 	flex-shrink: 0;
 }
 

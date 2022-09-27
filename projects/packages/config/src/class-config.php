@@ -270,6 +270,17 @@ class Config {
 	}
 
 	/**
+	 * Handles Publicize options.
+	 */
+	protected function ensure_options_publicize() {
+		$options = $this->get_feature_options( 'publicize' );
+
+		if ( ! empty( $options['force_refresh'] ) ) {
+			Publicize_Setup::$refresh_plan_info = true;
+		}
+	}
+
+	/**
 	 * Enables WordAds.
 	 */
 	protected function enable_wordads() {

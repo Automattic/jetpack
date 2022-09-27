@@ -2,6 +2,43 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.4-beta - 2022-09-27
+### Enhancements
+- Account Connection Card: Remove magic mobile link [#26311]
+- Refactor SEO Description panel to share the same code for title and icon on both Pre-Publish panel and Jetpack Plugin Sidebar panel. [#26288]
+- Replace image used for site accelerator recommendation as it is being used elsewhere [#26335]
+- Update Jetpack Plugin Sidebar icon to be 20px high [#26281]
+- Update site type assistant question to provide more useful data in recommending Jetpack products [#26302]
+
+### Improved compatibility
+- Applies Calypso 'Add new site' styles to wp-admin [#26290]
+
+### Bug fixes
+- Payments intro: Make filtering patterns more robust [#26465]
+- Plugins page: Fixes JavaScript console errors related to the disconnect button on multisite networks. [#26308]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Atomic: always disable WAF [#26401]
+- Disconnect Dialog: Fixed the prop types to avoid warnings from React [#26340]
+- E2E tests: use CI build artifacts in e2e tests [#26278]
+- masterbar: Always load CSS from Jetpack, not Fusioned paths, in preparation for de-Fusioning. [#26444]
+- Mock update API response in sync test. [#26389]
+- Register `pcast.pocketcasts.net` for oEmbed even with WordPress 6.1, they only register `pca.st`. [#26324]
+- Removed connection-ui package dependency [#26381]
+- Social: Aligned Jetpack and Social to use the connection-test-results endpoint in the block editor. [#26274]
+- Social: Move the share limits logic to the package. [#26294]
+- Sync changes to modules/masterbar/nudges/additional-css/ from wpcom. [#26362]
+- Updated package dependencies. [#25974]
+- Updated package dependencies. [#26115]
+- Updated package dependencies. [#26253]
+- Updated package dependencies. [#26274]
+- Updated package dependencies. [#26294]
+- Updated package dependencies. [#26305]
+- Updated package dependencies. [#26311]
+- Updated package dependencies. [#26320]
+- Updated package dependencies. [#26420]
+- Update the mobile sidebar component to show up under multiple contexts and to change text/styling based on context [#26093]
+
 ## 11.4-a.7 - 2022-09-22
 ### Improved compatibility
 - WC Pay: resolves issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+. [#26304]

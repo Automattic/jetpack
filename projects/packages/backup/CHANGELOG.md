@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2] - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+### Removed
+- Removed dependency connection-ui [#26381]
+
+### Fixed
+- Do not show header footer on connection screen [#26421]
+- Replace antippatern where components are returned from non-functionl components called renderSomething [#26411]
+
 ## [1.8.1] - 2022-09-20
 ### Changed
 - Updated package dependencies.
@@ -234,6 +245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.8.2]: https://github.com/Automattic/jetpack-backup/compare/v1.8.1...v1.8.2
 [1.8.1]: https://github.com/Automattic/jetpack-backup/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/Automattic/jetpack-backup/compare/v1.7.3...v1.8.0
 [1.7.3]: https://github.com/Automattic/jetpack-backup/compare/v1.7.2...v1.7.3
