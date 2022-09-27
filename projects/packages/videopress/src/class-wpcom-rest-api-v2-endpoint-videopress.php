@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
-use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Response;
@@ -144,68 +143,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
-	 * Retrieve a Upload Token via WPCOM api.
-	 *
-	 * @param string $blog_id The blog id.
-	 * @return string
-	 * @throws \WP_Error If token is empty or is had an error.
-	 */
-	public function videopress_get_upload_token( $blog_id ) {
-		$args = array(
-			'method' => 'POST',
-		);
-
-		$endpoint = "sites/{$blog_id}/media/token";
-		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
-
-		if ( is_wp_error( $result ) ) {
-			throw new WP_Error( 'videopress_wp_error', __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
-		}
-
-		$response = json_decode( $result['body'], true );
-
-		if ( empty( $response['upload_token'] ) ) {
-			throw new WP_Error( 'videopress_no_token', __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
-		}
-
-		return $response['upload_token'];
-	}
-
-	/**
-	 * Retrieve a Playback JWT via WPCOM api.
-	 *
-	 * @param string $guid The VideoPress GUID.
-	 * @return string
-	 */
-	public function request_jwt_from_wpcom( $guid ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
-		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
-		}
-
-		$args = array(
-			'method' => 'POST',
-		);
-
-		$endpoint = "sites/{$blog_id}/media/videopress-playback-jwt/{$guid}";
-
-		$result = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		$response = json_decode( $result['body'], true );
-
-		if ( empty( $response['metadata_token'] ) ) {
-			return false;
-		}
-
-		return $response['metadata_token'];
-	}
-
-	/**
 	 * Hit WPCOM poster endpoint.
 	 *
 	 * @param string $video_guid  The VideoPress GUID.
@@ -255,29 +192,28 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function videopress_block_update_poster( $request ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
-		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
+		try {
+			$blog_id     = VideoPressToken::blog_id();
+			$token       = VideoPressToken::videopress_onetime_upload_token();
+			$video_guid  = $request->get_param( 'video_guid' );
+			$json_params = $request->get_json_params();
+
+			$args = array(
+				'method'  => 'POST',
+				'headers' => array(
+					'content-type'  => 'application/json',
+					'Authorization' => 'X_UPLOAD_TOKEN token="' . $token . '" blog_id="' . $blog_id . '"',
+				),
+			);
+
+			return $this->wpcom_poster_request(
+				$video_guid,
+				$args,
+				wp_json_encode( $json_params )
+			);
+		} catch ( \Exception $e ) {
+			return rest_ensure_response( new WP_Error( 'videopress_block_update_poster_error', $e->getMessage() ) );
 		}
-
-		$token       = $this->videopress_get_upload_token( $blog_id );
-		$video_guid  = $request->get_param( 'video_guid' );
-		$json_params = $request->get_json_params();
-
-		$args = array(
-			'method'  => 'POST',
-			'headers' => array(
-				'content-type'  => 'application/json',
-				'Authorization' => 'X_UPLOAD_TOKEN token="' . $token . '" blog_id="' . $blog_id . '"',
-			),
-		);
-
-		return $this->wpcom_poster_request(
-			$video_guid,
-			$args,
-			wp_json_encode( $json_params )
-		);
 	}
 
 	/**
@@ -288,7 +224,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 */
 	public function videopress_block_get_poster( $request ) {
 		$video_guid = $request->get_param( 'video_guid' );
-		$jwt        = $this->request_jwt_from_wpcom( $video_guid );
+		$jwt        = VideoPressToken::videopress_playback_jwt( $video_guid );
 
 		$args = array(
 			'method' => 'GET',
