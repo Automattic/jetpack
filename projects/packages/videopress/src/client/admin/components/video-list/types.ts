@@ -12,9 +12,9 @@ export type VideoListProps = {
 			| 'hideQuickActions'
 			| 'onSelect'
 			| 'onClickEdit'
-			| 'onUpdateThumbnailClick'
-			| 'onUpdateUpdatePrivacyClick'
-			| 'onDeleteClick'
+			| 'onUpdateVideoThumbnail'
+			| 'onUpdateVideoPrivacy'
+			| 'onDeleteVideo'
 		>
 	>;
 	/**
@@ -44,13 +44,13 @@ export type VideoListProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Update thumbnail` button.
 	 */
-	onUpdateThumbnailClick?: ( video: VideoRowProps ) => void;
+	onUpdateVideoThumbnail?: ( video: VideoRowProps ) => void;
 	/**
 	 * Callback to be invoked when clicking on the `Update privacy` button.
 	 */
-	onUpdateUpdatePrivacyClick?: ( video: VideoRowProps ) => void;
+	onUpdateVideoPrivacy?: ( video: VideoRowProps ) => void;
 	/**
 	 * Callback to be invoked when clicking on the `Delete video` button.
 	 */
-	onDeleteClick?: ( video: VideoRowProps ) => void;
+	onDeleteVideo?: ( video: VideoRowProps ) => void;
 };

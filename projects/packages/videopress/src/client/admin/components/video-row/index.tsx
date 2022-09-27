@@ -93,9 +93,9 @@ const VideoRow = ( {
 	// Hiding it based on Design request:
 	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
 	hideQuickActions = true,
-	onUpdateThumbnailClick,
-	onUpdateUpdatePrivacyClick,
-	onDeleteClick,
+	onUpdateVideoThumbnail,
+	onUpdateVideoPrivacy,
+	onDeleteVideo,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -234,13 +234,11 @@ const VideoRow = ( {
 								{ ! hideEditButton && editDetailsButton }
 								{ ! hideQuickActions && (
 									<VideoQuickActions
-										onUpdateThumbnailClick={ handleClickWithStopPropagation(
-											onUpdateThumbnailClick
+										onUpdateVideoThumbnail={ handleClickWithStopPropagation(
+											onUpdateVideoThumbnail
 										) }
-										onUpdateUpdatePrivacyClick={ handleClickWithStopPropagation(
-											onUpdateUpdatePrivacyClick
-										) }
-										onDeleteClick={ handleClickWithStopPropagation( onDeleteClick ) }
+										onUpdateVideoPrivacy={ handleClickWithStopPropagation( onUpdateVideoPrivacy ) }
+										onDeleteVideo={ handleClickWithStopPropagation( onDeleteVideo ) }
 									/>
 								) }
 							</div>

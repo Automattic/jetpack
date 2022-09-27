@@ -21,6 +21,7 @@ export { default as AutomatticBylineLogo } from './components/automattic-byline-
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
 export { default as Gridicon } from './components/gridicon';
+export { default as IconTooltip } from './components/icon-tooltip';
 export { default as ActionButton } from './components/action-button';
 export { default as PricingCard } from './components/pricing-card';
 export { default as AdminSection } from './components/admin-section/basic';
@@ -46,7 +47,9 @@ export {
 export { default as ProductPrice } from './components/product-price';
 export { default as ProductOffer, IconsCard } from './components/product-offer';
 export { default as Dialog } from './components/dialog';
+export { default as DonutMeter } from './components/donut-meter';
 export { default as RecordMeterBar } from './components/record-meter-bar';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { default as Alert } from './components/alert';
+export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { getUserLocale, cleanLocale } from './lib/locale';

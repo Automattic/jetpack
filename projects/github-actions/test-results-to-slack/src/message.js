@@ -6,6 +6,10 @@ const extras = require( './extra-context' );
 const { isWorkflowFailed, getRunUrl } = require( './github' );
 const { getPlaywrightBlocks } = require( './playwright' );
 const { getMessage, postOrUpdateMessage } = require( './slack' );
+const {
+	context: { eventName, sha, payload, runId, actor, serverUrl },
+} = github;
+const { refType, refName, runAttempt, triggeringActor, repository } = extras;
 
 /**
  * Returns an object with notification data.
@@ -15,10 +19,6 @@ const { getMessage, postOrUpdateMessage } = require( './slack' );
  * @param {boolean} isFailure - whether the workflow is failed or not
  */
 async function createMessage( isFailure ) {
-	const {
-		context: { eventName, sha, payload, runId, actor, serverUrl },
-	} = github;
-	const { refType, refName, runAttempt, triggeringActor, repository } = extras;
 	let target = `for ${ sha }`;
 	let msgId;
 	const contextElements = [];
@@ -29,30 +29,44 @@ async function createMessage( isFailure ) {
 	);
 	const actorBlock = getTextContextElement( `Actor: ${ actor }` );
 	const lastRunButtonBlock = getButton( 'Last run', getRunUrl( false ) );
+	buttons.push( lastRunButtonBlock );
 
 	if ( eventName === 'pull_request' ) {
 		const { html_url, number, title } = payload.pull_request;
 		target = `for pull request *#${ number }*`;
 		msgId = `pr-${ number }`;
 
-		contextElements.push( getTextContextElement( `Title: ${ title }` ), actorBlock, lastRunBlock );
+		contextElements.push( getTextContextElement( `Title: ${ title }` ), actorBlock );
 
-		buttons.push( lastRunButtonBlock, getButton( `PR #${ number }`, html_url ) );
+		buttons.push( getButton( `PR #${ number }`, html_url ) );
 	}
 
 	if ( eventName === 'push' ) {
 		const { url, id, message } = payload.head_commit;
 		target = `on ${ refType } _*${ refName }*_`;
-		msgId = `commit-${ id }`;
+		msgId = `${ eventName }-${ id }`;
 		const truncatedMessage = message.length > 50 ? message.substring( 0, 48 ) + '...' : message;
 
 		contextElements.push(
 			getTextContextElement( `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }` ),
-			actorBlock,
-			lastRunBlock
+			actorBlock
 		);
 
 		buttons.push( lastRunButtonBlock, getButton( `Commit ${ id.substring( 0, 8 ) }`, url ) );
+	}
+
+	if ( eventName === 'workflow_run' ) {
+		const { id, message } = payload.workflow_run.head_commit;
+		target = `on ${ refType } _*${ refName }*_ (${ eventName })`;
+		msgId = `${ eventName }-${ id }`;
+		const truncatedMessage = message.length > 50 ? message.substring( 0, 48 ) + '...' : message;
+
+		contextElements.push(
+			getTextContextElement( `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }` ),
+			actorBlock
+		);
+
+		buttons.push( lastRunButtonBlock );
 	}
 
 	if ( eventName === 'schedule' ) {
@@ -62,13 +76,12 @@ async function createMessage( isFailure ) {
 		msgId = `sched-${ Date.now() }`;
 		const commitUrl = `${ serverUrl }/${ repository }/commit/${ sha }`;
 
-		contextElements.push(
-			getTextContextElement( `Last commit: ${ sha.substring( 0, 8 ) }` ),
-			lastRunBlock
-		);
+		contextElements.push( getTextContextElement( `Last commit: ${ sha.substring( 0, 8 ) }` ) );
 
 		buttons.push( lastRunButtonBlock, getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
 	}
+
+	contextElements.push( lastRunBlock );
 
 	const statusIcon = `${ isFailure ? ':x:' : ':white_check_mark:' }`;
 	const statusText = `${ isFailure ? 'failed' : 'passed' }`;

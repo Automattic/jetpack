@@ -596,7 +596,7 @@ class Jetpack_PostImages {
 	 * @return array containing details of the best image to be used
 	 */
 	public static function get_image( $post_id, $args = array() ) {
-		$image = '';
+		$image = array();
 
 		/**
 		 * Fires before we find a single good image for a specific post.
@@ -639,7 +639,7 @@ class Jetpack_PostImages {
 	 */
 	public static function get_images( $post_id, $args = array() ) {
 		// Figure out which image to attach to this post.
-		$media = false;
+		$media = array();
 
 		/**
 		 * Filters the array of images that would be good for a specific post.
@@ -675,7 +675,7 @@ class Jetpack_PostImages {
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
-		$media = false;
+		$media = array();
 		if ( $args['from_thumbnail'] ) {
 			$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
 		}

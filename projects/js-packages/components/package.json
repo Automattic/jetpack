@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.19.0-alpha",
+	"version": "0.21.0-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -10,6 +10,7 @@
 		"@wordpress/components": "20.0.0",
 		"@wordpress/compose": "5.14.0",
 		"@wordpress/date": "4.16.0",
+		"@wordpress/element": "4.14.0",
 		"@wordpress/i18n": "4.16.0",
 		"@wordpress/icons": "9.7.0",
 		"classnames": "2.3.1",

@@ -8,11 +8,10 @@
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-autoloader": "^2.11",
 		"automattic/jetpack-composer-plugin": "^1.1",
-		"automattic/jetpack-config": "^1.9",
+		"automattic/jetpack-config": "^1.10",
 		"automattic/jetpack-connection": "^1.45",
-		"automattic/jetpack-connection-ui": "^2.4",
 		"automattic/jetpack-identity-crisis": "^0.8",
-		"automattic/jetpack-my-jetpack": "^2.0",
+		"automattic/jetpack-my-jetpack": "^2.1",
 		"automattic/jetpack-sync": "^1.38",
 		"automattic/jetpack-status": "^1.14"
 	},
@@ -39,7 +38,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"build-development": [
 			"pnpm run build"
 		],

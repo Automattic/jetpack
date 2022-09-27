@@ -5,12 +5,16 @@ on:
     paths-ignore:
     - '**.md'
   push:
-    branches: [ trunk ]
+    branches: [ 'trunk', '*/branch-*' ]
     paths-ignore:
     - '**.md'
   schedule:
     - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
     - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
+  workflow_run:
+    types: [completed]
+    workflows: ["Build"]
+    branches: [ 'trunk', '*/branch-*' ]
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
@@ -77,11 +81,36 @@ jobs:
       run: |
         pnpm install
 
+    - name: Download artifacts
+      if: github.event_name == 'workflow_run'
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        workflow: build.yml
+        workflow_conclusion: "success"
+        run_id: ${{ github.event.workflow_run.id }}
+        path: build-output
+
+    - name: Prepare build
+      env:
+        COMPOSER_ROOT_VERSION: "dev-trunk"
+        BUILD_DIR: ./build-output
+        PROJECT_PATH: ${{ matrix.path }}
+      run: |
+        if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
+          echo "::group::Prepare build artefacts"
+          .github/files/e2e-tests/map-plugins-for-e2e-env.sh
+          echo "::endgroup::"
+        else
+          echo "::group::Build plugin(s)"
+          cd $PROJECT_PATH
+          pnpm run build
+          echo "::endgroup::"
+        fi
+
     - name: Test environment set-up
       working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        COMPOSER_ROOT_VERSION: "dev-trunk"
         RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
         PROJECT_NAME:  ${{ matrix.project }}
       run: |
@@ -90,10 +119,6 @@ jobs:
         echo "::endgroup::"
 
         if [ "${RUN_NAME}" != atomic ]; then
-          echo "::group::Build plugin(s)"
-          pnpm run build
-          echo "::endgroup::"
-
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -122,17 +147,6 @@ jobs:
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         pnpm run test:run "${TEST_ARGS[@]}"
-
-    - name: Send Slack notification
-      if: ${{ failure() && ! cancelled() }}
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-        SUITE: ${{ matrix.project }}
-        JSON_ARGS: ${{ toJSON(matrix.slackArgs) }}
-      working-directory: ${{ matrix.path }}
-      run: |
-        mapfile -t ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        pnpm run slack suite "$SUITE" "${ARGS[@]}"
 
     - name: Test environment tear-down
       if: ${{ always() }}
@@ -193,6 +207,11 @@ jobs:
         with:
           path: test-output
 
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: ./.github/files/e2e-tests/encryption.sh decrypt
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -202,5 +221,7 @@ jobs:
           slack_icon_emoji: ":jetpack:"
           suite_name: ${{needs.create-test-matrix.outputs.runName}}
           playwright_report_path: test-output/**/summary.json
+          playwright_output_dir: test-output/**/results
+          rules_configuration_path: .github/files/e2e-tests/notification-rules.json
 
 

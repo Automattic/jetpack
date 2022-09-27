@@ -1,80 +1,36 @@
 import { MouseEvent } from 'react';
 import { VideoPressVideo } from '../../types';
+import { VideoThumbnailProps } from '../video-thumbnail/types';
 
-export type VideoThumbnailProps = {
-	/**
-	 * className to apply to the component
-	 */
-	className?: string;
+export type VideoCardProps = VideoPressVideo &
+	VideoThumbnailProps & {
+		/**
+		 * Whether the card should look "blank" style.
+		 */
+		isBlank?: boolean;
 
-	/**
-	 * Video thumbnial image
-	 */
-	thumbnail: string;
+		/**
+		 * True when the card is loading data.
+		 */
+		isLoading?: boolean;
 
-	/**
-	 * Video duration. Number, in milliseconds.
-	 */
-	duration?: number;
+		/**
+		 * Callback to be invoked when clicking on the `Edit video details` button.
+		 */
+		onVideoDetailsClick?: () => void;
 
-	/**
-	 * Whether is possible to edit the thumbnail
-	 */
-	editable?: boolean;
-};
+		/**
+		 * Callback to be invoked when clicking on the `Update thumbnail` button.
+		 */
+		onUpdateVideoThumbnail?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
-export type VideoThumbnailDropdownProps = {
-	/**
-	 * Callback to be invoked when clicking on the `Use default thumbnail` dropdown menu option.
-	 */
-	onUseDefaultThumbnail?: () => void;
+		/**
+		 * Callback to be invoked when clicking on the `Update privacy` button.
+		 */
+		onUpdateVideoPrivacy?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 
-	/**
-	 * Callback to be invoked when clicking on the `Select from video` dropdown menu option.
-	 */
-	onSelectFromVideo?: () => void;
-
-	/**
-	 * Callback to be invoked when clicking on the `Upload image` dropdown menu option.
-	 */
-	onUploadImage?: () => void;
-};
-
-export type VideoDetailsProps = {
-	/**
-	 * Video filename.
-	 */
-	filename: string;
-
-	/**
-	 * Video source file URL.
-	 */
-	src: string;
-
-	/**
-	 * Video uploaded date
-	 */
-	uploadDate: string;
-};
-
-export type VideoCardProps = VideoPressVideo & {
-	/**
-	 * Callback to be invoked when clicking on the `Edit video details` button.
-	 */
-	onVideoDetailsClick?: () => void;
-
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-};
+		/**
+		 * Callback to be invoked when clicking on the `Delete video` button.
+		 */
+		onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	};
