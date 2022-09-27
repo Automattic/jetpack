@@ -122,7 +122,8 @@ class Action_Bar {
 	 * Initialize Action Bar.
 	 */
 	public function init() {
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		// Enqueue after the wpcom actionbar (priority 101), so this can override it.
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 105 );
 		add_action( 'wp_footer', array( $this, 'print_html' ) );
 	}
 
