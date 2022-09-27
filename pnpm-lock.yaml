@@ -1113,6 +1113,7 @@ importers:
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0
+      '@wordpress/api-fetch': 6.13.0
       '@wordpress/browserslist-config': 5.0.0
       '@wordpress/components': 20.0.0
       '@wordpress/compose': 5.14.0
@@ -1146,6 +1147,7 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@storybook/addon-actions': 6.5.10_sfoxds7t5ydpegc3knd667wn6m
+      '@wordpress/api-fetch': 6.13.0
       '@wordpress/components': 20.0.0_cw5jtwuj6ehcs2uqnpd5xfmnry
       '@wordpress/compose': 5.14.0_react@17.0.2
       '@wordpress/data': 7.0.0_react@17.0.2
