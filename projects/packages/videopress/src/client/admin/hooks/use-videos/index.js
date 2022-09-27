@@ -5,7 +5,7 @@ import { dispatch, useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../../state';
+import { STORE_ID } from '../../../state/constants';
 
 /**
  * React custom hook to get the videos.
@@ -23,6 +23,7 @@ export default function useVideos() {
 	);
 	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
+	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
 
 	return {
 		items,
@@ -32,6 +33,7 @@ export default function useVideos() {
 		isFetchingUploadedVideoCount,
 		...query,
 		...pagination,
+		...storageUsed,
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
 		setSearch: querySearch =>
