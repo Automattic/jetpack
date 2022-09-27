@@ -10,7 +10,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -709,7 +708,7 @@ class Jetpack_Gutenberg {
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 		);
 
-		if ( ( new Modules() )->is_active( 'publicize' ) ) {
+		if ( Jetpack::is_module_active( 'publicize' ) ) {
 			$publicize               = publicize_init();
 			$initial_state['social'] = array(
 				'sharesData'  => $publicize->get_publicize_shares_info( $blog_id ),
