@@ -14,13 +14,14 @@ import InspectorNotice from '../../shared/components/inspector-notice';
 import { getSubscriberCount } from './api';
 import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
-import { NewsletterAccess } from './settings';
+import { NewsletterAccess, accessOptions } from './settings';
 
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 
-	const accessLevel = postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? 'public';
+	const accessLevel =
+		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
 
 	useEffect( () => {
 		getSubscriberCount( count => setSubscriberCount( count ) );

@@ -6,7 +6,7 @@ import { PostVisibilityCheck } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
-const accessOptions = {
+export const accessOptions = {
 	everybody: {
 		label: __( 'Everybody', 'jetpack' ),
 		info: __( 'Visible to everyone.', 'jetpack' ),
@@ -23,8 +23,8 @@ const accessOptions = {
 
 export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 	const instanceId = useInstanceId( NewsletterAccess );
-	if ( ! accessLevel ) {
-		accessLevel = 'everybody';
+	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
+		accessLevel = Object.keys( accessOptions )[ 0 ];
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
