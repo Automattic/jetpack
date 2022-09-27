@@ -249,7 +249,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Bug fixes
 - Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks.
-- Payments block: make filtering patterns more robust used for the payments intro.
+- Payments block: make filtering patterns used for the payments intro more robust.
 
 --------
 
