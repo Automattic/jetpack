@@ -1,5 +1,4 @@
 import { imagePath } from 'constants/urls';
-import { QRCode } from '@automattic/jetpack-components';
 import { isMobile } from '@automattic/viewport';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -45,7 +44,7 @@ class AppsCard extends React.Component {
 
 	getQrCode = () => (
 		<div className="jp-apps-card__apps-qr-code">
-			<QRCode value="https://jetpack.com/app/" renderAs="canvas" size="50" />
+			<img src={ imagePath + 'get-apps-qr-code.svg' } alt="" />
 			<p className="jp-apps-card__caption">
 				{ __( 'Visit', 'jetpack' ) }{ ' ' }
 				<a className="jp-apps-card__link" href="https://jetpack.com/app">
