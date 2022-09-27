@@ -20,7 +20,7 @@
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.7.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.9.x-dev",
+		"automattic/jetpack-config": "1.10.x-dev",
 		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
@@ -99,7 +99,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_4_a_8",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_5_a_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

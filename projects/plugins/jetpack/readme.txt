@@ -242,9 +242,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.4-a.7 - 2022-09-22
+### 11.4-beta - 2022-09-27
+#### Enhancements
+- Account Connection Card: Remove magic mobile link
+- Refactor SEO Description panel to share the same code for title and icon on both Pre-Publish panel and Jetpack Plugin Sidebar panel.
+- Replace image used for site accelerator recommendation as it is being used elsewhere
+- Update Jetpack Plugin Sidebar icon to be 20px high
+- Update site type assistant question to provide more useful data in recommending Jetpack products
+
 #### Improved compatibility
+- Applies Calypso 'Add new site' styles to wp-admin
 - WC Pay: resolves issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+.
+
+#### Bug fixes
+- Payments intro: Make filtering patterns more robust
+- Plugins page: Fixes JavaScript console errors related to the disconnect button on multisite networks.
 
 --------
 

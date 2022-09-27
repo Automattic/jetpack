@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.4.1-alpha",
+	"version": "0.4.2-alpha",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
@@ -39,7 +39,9 @@
 		"@types/react-dom": "17.0.17",
 		"@types/react-test-renderer": "17.0.2",
 		"@types/testing-library__jest-dom": "5.14.1",
+		"@types/wordpress__api-fetch": "3.23.1",
 		"@types/wordpress__components": "19.10.0",
+		"@types/wordpress__url": "2.14.0",
 		"@wordpress/browserslist-config": "5.0.0",
 		"autoprefixer": "10.4.9",
 		"jest": "28.1.0",
@@ -59,10 +61,12 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
+		"@automattic/jetpack-api": "workspace:* || ^0.14",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.21",
 		"@automattic/jetpack-connection": "workspace:* || ^0.21",
 		"@storybook/addon-actions": "6.5.10",
+		"@wordpress/api-fetch": "6.13.0",
 		"@wordpress/components": "20.0.0",
 		"@wordpress/compose": "5.14.0",
 		"@wordpress/data": "7.0.0",
