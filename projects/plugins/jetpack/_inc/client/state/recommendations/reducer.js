@@ -364,11 +364,21 @@ export const stepToRoute = {
 	'server-credentials': '#/recommendations/server-credentials',
 };
 
+const getRecommendationsData = state => get( state.jetpack, [ 'recommendations', 'data' ] );
+
 export const isStepViewed = ( state, featureSlug ) => {
-	const recommendationsData = get( state.jetpack, [ 'recommendations', 'data' ] );
+	const recommendationsData = getRecommendationsData( state );
 	return (
 		recommendationsData.viewedRecommendations &&
 		recommendationsData.viewedRecommendations.includes( featureSlug )
+	);
+};
+
+export const isStepSkipped = ( state, featureSlug ) => {
+	const recommendationsData = getRecommendationsData( state );
+	return (
+		recommendationsData.skippedRecommendations &&
+		recommendationsData.skippedRecommendations.includes( featureSlug )
 	);
 };
 
@@ -668,7 +678,7 @@ export const getSummaryFeatureSlugs = state => {
 	for ( const slug of featureSlugsEligibleToShow ) {
 		if ( isFeatureActive( state, slug ) || isInstallingRecommendedFeature( state, slug ) ) {
 			selected.push( slug );
-		} else {
+		} else if ( isStepSkipped( state, slug ) ) {
 			skipped.push( slug );
 		}
 	}
