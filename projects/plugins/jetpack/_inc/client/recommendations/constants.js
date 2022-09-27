@@ -63,11 +63,11 @@ export const ONBOARDING_NAME_BY_PRODUCT_SLUG = {
 export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 	[ ONBOARDING_JETPACK_COMPLETE ]: {
 		name: 'Complete',
-		slugs: [ 'backup__welcome' ],
+		slugs: [],
 	},
 	[ ONBOARDING_JETPACK_SECURITY ]: {
 		name: 'Security',
-		slugs: [ 'backup__welcome' ],
+		slugs: [],
 	},
 	[ ONBOARDING_JETPACK_BACKUP ]: {
 		name: 'Backup',
@@ -75,19 +75,19 @@ export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 	},
 	[ ONBOARDING_JETPACK_ANTI_SPAM ]: {
 		name: 'Anti-Spam',
-		slugs: [ 'backup__welcome' ],
+		slugs: [],
 	},
 	[ ONBOARDING_JETPACK_VIDEOPRESS ]: {
 		name: 'VideoPress',
-		slugs: [ 'backup__welcome' ],
+		slugs: [],
 	},
 	[ ONBOARDING_JETPACK_SEARCH ]: {
 		name: 'Search',
-		slugs: [ 'backup__welcome' ],
+		slugs: [],
 	},
 	[ ONBOARDING_JETPACK_SCAN ]: {
 		name: 'Scan',
-		slugs: [ 'backup__welcome' ],
+		slugs: [],
 	},
 };
 
