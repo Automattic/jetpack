@@ -1,38 +1,39 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import * as tus from 'tus-js-client';
 
 const jwtsForKeys = {};
 
-export const getJWT = function ( key ) {
+export const getJWT = function () {
 	return new Promise( function ( resolve, reject ) {
-		const extras = key ? { data: { key } } : {};
-		// eslint-disable-next-line no-undef
-		wp.media
-			.ajax( 'videopress-get-upload-jwt', { async: true, ...extras } )
-			.done( function ( response ) {
+		apiFetch( {
+			path: '/videopress/v1/upload-jwt',
+			method: 'POST',
+		} )
+			.then( response => {
 				resolve( {
 					token: response.upload_token,
 					blogId: response.upload_blog_id,
-					url: response.upload_action_url,
+					url: response.upload_url,
 				} );
 			} )
-			.fail( function ( reason ) {
-				reject( reason );
+			.catch( error => {
+				reject( error );
 			} );
 	} );
 };
 
-export const useResumableUploader = ( { onError, onProgress, onSuccess, key } ) => {
+export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {
 	const [ data, setData ] = useState( {} );
 	const [ error, setError ] = useState( null );
 
 	// collect the jwt for the key
 	useEffect( () => {
-		getJWT( key ).then( setData ).catch( setError );
-	}, [ key ] );
+		getJWT().then( setData ).catch( setError );
+	}, [] );
 
 	const uploaded = file => {
 		const upload = new tus.Upload( file, {
@@ -59,11 +60,13 @@ export const useResumableUploader = ( { onError, onProgress, onSuccess, key } ) 
 				const GUID_HEADER = 'x-videopress-upload-guid';
 				const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
 				const SRC_URL_HEADER = 'x-videopress-upload-src-url';
+
 				const guid = res.getHeader( GUID_HEADER );
 				const mediaId = res.getHeader( MEDIA_ID_HEADER );
 				const src = res.getHeader( SRC_URL_HEADER );
+
 				if ( guid && mediaId && src ) {
-					onSuccess && onSuccess( { id: Number( mediaId ), guid, src } );
+					onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
 					return;
 				}
 
@@ -146,4 +149,93 @@ export const useResumableUploader = ( { onError, onProgress, onSuccess, key } ) 
 	};
 
 	return [ uploaded, data, error ];
+};
+
+export default ( { onStart = null, onSuccess = null, onError = null } ) => {
+	const tusUploader = useRef( null );
+
+	const [ file, setFile ] = useState( null );
+	const [ error, setError ] = useState( null );
+	const [ status, setStatus ] = useState( 'idle' ); // idle | uploading | error | complete
+	const [ progress, setProgress ] = useState( {
+		total: 0,
+		current: 0,
+		percentage: 0,
+	} );
+
+	/*
+	 * Tracking error data
+	 */
+
+	// Define a memoized function to register the error data.
+	const handleUploadError = uploadError => {
+		setStatus( 'error' );
+
+		if ( error?.originalResponse ) {
+			try {
+				// parse failed request response message
+				const body = uploadError?.originalResponse?.getBody?.();
+				const parsedBody = JSON.parse( body );
+				setError( parsedBody );
+				onError?.( parsedBody );
+				return;
+			} catch {}
+		}
+
+		setError( uploadError );
+		onError?.( uploadError );
+	};
+
+	/*
+	 * Handle upload progress.
+	 */
+	const handleUploadProgress = ( bytesUploaded, bytesTotal ) => {
+		const percentage = ( bytesUploaded / bytesTotal ) * 100;
+		setProgress( {
+			total: bytesTotal,
+			current: bytesUploaded,
+			percentage,
+		} );
+	};
+
+	/*
+	 * Handle upload success
+	 */
+	const handleUploadSuccess = ( data, uploadFile ) => {
+		setStatus( 'complete' );
+		onSuccess?.( data, uploadFile );
+	};
+
+	// Helper instance to upload the video to the VideoPress infrastructure.
+	const [ videoPressUploader ] = useResumableUploader( {
+		onError: handleUploadError,
+		onProgress: handleUploadProgress,
+		onSuccess: handleUploadSuccess,
+	} );
+
+	const handleFilesUpload = files => {
+		// TODO: Support uploading multiple files?
+		const uploadFile = files?.length > 0 ? files[ 0 ] : files;
+
+		// reset error
+		if ( error ) {
+			setError( null );
+		}
+
+		setFile( uploadFile );
+		setProgress( { current: 0, total: uploadFile.size, percentage: 0 } );
+		setStatus( 'uploading' );
+
+		// Upload file to VideoPress infrastructure.
+		tusUploader.current = videoPressUploader( uploadFile );
+		onStart?.( uploadFile );
+	};
+
+	return {
+		progress,
+		status,
+		file,
+		error,
+		handleFilesUpload,
+	};
 };
