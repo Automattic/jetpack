@@ -60,7 +60,7 @@ const useDashboardVideos = () => {
 
 		const video = mapVideoFromWPV2MediaEndpoint( response );
 
-		if ( video?.finished ) {
+		if ( video?.posterImage !== null ) {
 			setVideo( video );
 		} else {
 			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
