@@ -1048,9 +1048,14 @@ function check_for_paid_subscription( $the_content ) {
 	require_once __DIR__ . '/../extensions/blocks/premium-content/_inc/subscription-service/include.php';
 	require_once __DIR__ . '/../modules/memberships/class-jetpack-memberships.php';
 
-	$paywall  = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-	$plan_ids = Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-	$can_view = $paywall->visitor_can_view_content( $plan_ids );
+	$protection_level = get_post_meta( get_the_ID(), \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+	$can_view = true;
+	if ( 'members_only' === $protection_level ) {
+		$paywall  = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$plan_ids = Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
+		$can_view = $paywall->visitor_can_view_content( $plan_ids );
+	}
 
 	if ( ! $can_view ) {
 		return do_blocks(
