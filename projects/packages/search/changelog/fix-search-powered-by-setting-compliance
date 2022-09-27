@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: It's a fix for a regression introduced in a PR merged minutes ago. I'm following up and the changelog can safely assume the regression was never introduced when we release this'
-
-
