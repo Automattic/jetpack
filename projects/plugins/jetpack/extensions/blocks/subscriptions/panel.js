@@ -1,5 +1,7 @@
 import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import { PanelRow } from '@wordpress/components';
+import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
@@ -8,9 +10,15 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { getSubscriberCounts } from './api';
 import './panel.scss';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { NewsletterAccess } from './settings';
 
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
+	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+
+	const accessLevel = postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? 'public';
+
 	const [ followerCount, setFollowerCount ] = useState( null );
 	useEffect( () => {
 		getSubscriberCounts( counts => {
@@ -50,14 +58,21 @@ export default function SubscribePanels() {
 		return null;
 	}
 
+	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
+
 	return (
 		<>
+			<PanelRow>
+				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+			</PanelRow>
+
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
-				title={ __( 'Subscribers', 'jetpack' ) }
+				title={ __( 'Newsletter', 'jetpack' ) }
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
+			{ showNotices && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
@@ -77,27 +92,30 @@ export default function SubscribePanels() {
 						{ span: <span className="jetpack-subscribe-reader-count" /> }
 					) }
 				</InspectorNotice>
+			) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
-				<InspectorNotice>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: 1$s will be subscribers, %2$s will be social followers */
-							__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+				{ showNotices && (
+					<InspectorNotice>
+						{ createInterpolateElement(
 							sprintf(
-								/* translators: %s will be a number of subscribers */
-								_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-								numberFormat( subscriberCount )
+								/* translators: 1$s will be subscribers, %2$s will be social followers */
+								__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+								sprintf(
+									/* translators: %s will be a number of subscribers */
+									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+									numberFormat( subscriberCount )
+								),
+								sprintf(
+									/* translators: %s will be a number of social followers */
+									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+									numberFormat( followerCount )
+								)
 							),
-							sprintf(
-								/* translators: %s will be a number of social followers */
-								_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-								numberFormat( followerCount )
-							)
-						),
-						{ span: <span className="jetpack-subscribe-reader-count" /> }
-					) }
-				</InspectorNotice>
+							{ span: <span className="jetpack-subscribe-reader-count" /> }
+						) }
+					</InspectorNotice>
+				) }
 			</PluginPostPublishPanel>
 		</>
 	);

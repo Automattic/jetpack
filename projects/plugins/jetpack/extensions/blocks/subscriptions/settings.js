@@ -2,12 +2,10 @@
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
 import { Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
-import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostAccessCheck } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
-const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = 'jetpack_newsletter_access';
 const accessOptions = {
 	public: {
 		label: __( 'Public', 'jetpack' ),
@@ -23,24 +21,7 @@ const accessOptions = {
 	},
 };
 
-export default function NewsletterSettings() {
-	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
-	const accessLevel = postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? 'public';
-
-	return (
-		<>
-			<PanelRow>
-				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
-			</PanelRow>
-
-			<PluginPrePublishPanel title={ __( 'Newsletter settings', 'jetpack' ) }>
-				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
-			</PluginPrePublishPanel>
-		</>
-	);
-}
-
-function NewsletterAccess( { accessLevel, setPostMeta } ) {
+export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 	const instanceId = useInstanceId( NewsletterAccess );
 	const accessLabel = accessOptions[ accessLevel ]?.label ?? 'Public';
 
@@ -90,7 +71,7 @@ function NewsletterAccess( { accessLevel, setPostMeta } ) {
 													className="editor-post-access__radio"
 													onChange={ event => {
 														const obj = {};
-														obj.META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = event?.target?.value;
+														obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
 														return setPostMeta( obj );
 													} }
 												/>
