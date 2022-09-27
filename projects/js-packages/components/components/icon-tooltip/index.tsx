@@ -32,10 +32,13 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = 'info-outline',
+	iconSize = 18,
+	offset = 10,
 	title,
 	children,
 } ) => {
 	const delay = 300;
+	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
 	const delayedSetIsOver = useDebounce( setIsVisible, delay );
 
@@ -57,7 +60,6 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	};
 
 	const args = {
-		iconCode,
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
 		placement,
@@ -65,10 +67,13 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		noArrow: false,
 		resize: false,
 		flip: false,
-		offset: 10, // The distance (in px) between the anchor and the popover.
+		offset, // The distance (in px) between the anchor and the popover.
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
+	const iconShiftBySize = {
+		left: -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
+	};
 
 	return (
 		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
@@ -77,10 +82,10 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
 				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
 			>
-				<Gridicon className={ iconClassName } icon={ args.iconCode } size={ 18 } />
+				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 			</span>
 
-			<div className="icon-tooltip-helper">
+			<div className="icon-tooltip-helper" style={ iconShiftBySize }>
 				{ isVisible && (
 					<Popover { ...args }>
 						<div>

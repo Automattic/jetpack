@@ -43,6 +43,16 @@ class REST_Controller {
 	public function register_rest_routes() {
 		register_rest_route(
 			'jetpack/v4',
+			'/publicize/connection-test-results',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_publicize_connection_test_results' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/publicize/connections',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -78,6 +88,18 @@ class REST_Controller {
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Gets the current Publicize connections, with the resolt of testing them, for the site.
+	 *
+	 * GET `jetpack/v4/publicize/connection-test-results`
+	 */
+	public function get_publicize_connection_test_results() {
+		$blog_id  = $this->get_blog_id();
+		$path     = sprintf( '/sites/%d/publicize/connection-test-results', absint( $blog_id ) );
+		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
 	/**

@@ -16,11 +16,18 @@ export default function useVideos() {
 	return {
 		// Data
 		items: useSelect( select => select( STORE_ID ).getVideos(), [] ),
+		search: '',
+		uploadedVideoCount: useSelect( select => select( STORE_ID ).getUploadedVideoCount() ),
+		isFetching: useSelect( select => select( STORE_ID ).getIsFetching() ),
+		isFetchingUploadedVideoCount: useSelect( select =>
+			select( STORE_ID ).getIsFetchingUploadedVideoCount()
+		),
 		...useSelect( select => select( STORE_ID ).getVideosQuery() || {} ),
+		...useSelect( select => select( STORE_ID ).getPagination(), [] ),
 
-		// Setters
+		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
 
-		setSearch: search => dispatch( STORE_ID ).setVideosQuery( { search } ),
+		setSearch: search => dispatch( STORE_ID ).setVideosQuery( { search, page: 1 } ),
 	};
 }

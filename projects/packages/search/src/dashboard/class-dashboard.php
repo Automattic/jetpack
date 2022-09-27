@@ -101,7 +101,7 @@ class Dashboard {
 		$this->remove_search_submenu_if_exists();
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Search Settings', 'jetpack-search-pkg' ),
+			__( 'Jetpack Search', 'jetpack-search-pkg' ),
 			_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
 			'manage_options',
 			'jetpack-search',
@@ -118,7 +118,7 @@ class Dashboard {
 	public function render() {
 		?>
 		<div id="jp-search-dashboard" class="jp-search-dashboard">
-			<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
+			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
 		</div>
 		<?php
 	}

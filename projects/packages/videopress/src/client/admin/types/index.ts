@@ -22,21 +22,20 @@ export type OriginalVideoPressVideo = {
 	 */
 	filename: string;
 	/**
-	 * Video poster image URL
-	 */
-	posterImage?: string;
-	/**
 	 * Video uploaded date in UTC
 	 */
-	date: number;
-	/**
-	 * Video uploaded date formatted
-	 */
-	dateFormatted: string;
+	uploadDate: number;
+
 	/**
 	 * Video duration, in milliseconds
 	 */
 	duration?: number;
+
+	/**
+	 * Video rating
+	 */
+	rating?: 'G' | 'PG-13' | 'R-17';
+
 	/**
 	 * Plays counter
 	 */
@@ -49,10 +48,29 @@ export type OriginalVideoPressVideo = {
 	 * Whether the video is private, or not.
 	 */
 	isPrivate?: boolean;
+
+	/**
+	 * Whether is possible to download the video, or not.
+	 */
+	allowDownload?: boolean;
+
+	/**
+	 * Video poster image URL
+	 */
+	posterImage?: string;
+
+	/**
+	 * Video privacy setting:
+	 * - 0 `public`: anyone can view the video
+	 * - 1 `private`: only the owner can view the video
+	 * - 2 `site-default`
+	 */
+	privacySetting?: 0 | 1 | 2;
+
 	/**
 	 * Object reflecting poster image data.
 	 */
-	image?: {
+	poster?: {
 		/**
 		 * Video poster image URL
 		 */
@@ -66,6 +84,11 @@ export type OriginalVideoPressVideo = {
 		 */
 		height: number;
 	};
+
+	/**
+	 * Video thumbnail image URL
+	 */
+	thumbnail?: string;
 };
 
 export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
@@ -74,9 +97,9 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 */
 	title: string;
 	/**
-	 * Video upload date
+	 * VideoPress GUID
 	 */
-	uploadDate: string;
+	guid?: string;
 };
 
 export type LocalVideo = {
@@ -93,4 +116,5 @@ export type LocalVideo = {
 export type VideopressSelectors = {
 	getVideo: ( id: number ) => VideoPressVideo;
 	getVideos: () => VideoPressVideo[];
+	getUploadedVideoCount: () => number;
 };

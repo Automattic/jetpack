@@ -1,10 +1,12 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import React, { Component, Fragment } from 'react';
 import { getConstrastingColor } from '../lib/colors';
 import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
 import { getErrorMessage } from '../lib/errors';
 import { getAvailableStaticFilters } from '../lib/filters';
 import Gridicon from './gridicon';
+import JetpackColophon from './jetpack-colophon';
 import Notice from './notice';
 import ScrollButton from './scroll-button';
 import SearchControls from './search-controls';
@@ -191,7 +193,6 @@ class SearchResults extends Component {
 				locale={ this.props.locale }
 				postTypes={ this.props.postTypes }
 				response={ this.props.response }
-				showPoweredBy={ this.props.showPoweredBy }
 				widgets={ this.props.widgets }
 				widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
 			/>
@@ -213,82 +214,90 @@ class SearchResults extends Component {
 	render() {
 		return (
 			<div
-				aria-hidden={ this.props.isLoading === true }
-				className="jetpack-instant-search__search-results"
+				className={ classNames( 'jetpack-instant-search__search-results-wrapper', {
+					'has-colophon': this.props.showPoweredBy,
+				} ) }
 			>
-				<div className="jetpack-instant-search__search-results-controls" role="form">
-					<SearchForm
-						aria-controls="jetpack-instant-search__search-results-content"
-						className="jetpack-instant-search__search-results-search-form"
-						isVisible={ this.props.isVisible }
-						onChangeSearch={ this.props.onChangeSearch }
-						searchQuery={ this.props.searchQuery }
-					/>
-					<button
-						className="jetpack-instant-search__overlay-close"
-						onClick={ this.closeOverlay }
-						onKeyPress={ this.onKeyPressHandler }
-						tabIndex="0"
-						aria-label={ __( 'Close search results', 'jetpack-search-pkg' ) }
+				<div
+					aria-hidden={ this.props.isLoading === true }
+					className="jetpack-instant-search__search-results"
+				>
+					<div className="jetpack-instant-search__search-results-controls" role="form">
+						<SearchForm
+							aria-controls="jetpack-instant-search__search-results-content"
+							className="jetpack-instant-search__search-results-search-form"
+							isVisible={ this.props.isVisible }
+							onChangeSearch={ this.props.onChangeSearch }
+							searchQuery={ this.props.searchQuery }
+						/>
+						<button
+							className="jetpack-instant-search__overlay-close"
+							onClick={ this.closeOverlay }
+							onKeyPress={ this.onKeyPressHandler }
+							tabIndex="0"
+							aria-label={ __( 'Close search results', 'jetpack-search-pkg' ) }
+						>
+							<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
+						</button>
+					</div>
+
+					<SearchControls
+						enableSort={ this.props.enableSort }
+						onChangeSort={ this.props.onChangeSort }
+						resultFormat={ this.props.resultFormat }
+						sort={ this.props.sort }
 					>
-						<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
+						{ ( this.hasFilterOptions() || this.props.hasNonSearchWidgets ) && (
+							<div
+								role="button"
+								onClick={ this.toggleMobileSecondary }
+								onKeyDown={ this.toggleMobileSecondary }
+								tabIndex="0"
+								className="jetpack-instant-search__search-results-filter-button"
+							>
+								{ __( 'Filters', 'jetpack-search-pkg' ) }
+								<Gridicon
+									icon="chevron-down"
+									size={ 16 }
+									alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
+									aria-hidden="true"
+								/>
+								<span className="screen-reader-text assistive-text">
+									{ this.state.shouldShowMobileSecondary
+										? __( 'Hide filters', 'jetpack-search-pkg' )
+										: __( 'Show filters', 'jetpack-search-pkg' ) }
+								</span>
+							</div>
+						) }
+					</SearchControls>
+
+					<div
+						aria-live="polite"
+						className="jetpack-instant-search__search-results-content"
+						id="jetpack-instant-search__search-results-content"
+					>
+						<div className="jetpack-instant-search__search-results-primary">
+							{ this.renderPrimarySection() }
+						</div>
+						<div
+							className={ [
+								'jetpack-instant-search__search-results-secondary',
+								`${
+									this.state.shouldShowMobileSecondary
+										? 'jetpack-instant-search__search-results-secondary--show-as-modal'
+										: ''
+								} `,
+							].join( ' ' ) }
+						>
+							{ this.renderSecondarySection() }
+						</div>
+					</div>
+					<button id={ OVERLAY_FOCUS_ANCHOR_ID } onClick={ this.closeOverlay }>
+						Close Search
 					</button>
 				</div>
 
-				<SearchControls
-					enableSort={ this.props.enableSort }
-					onChangeSort={ this.props.onChangeSort }
-					resultFormat={ this.props.resultFormat }
-					sort={ this.props.sort }
-				>
-					{ ( this.hasFilterOptions() || this.props.hasNonSearchWidgets ) && (
-						<div
-							role="button"
-							onClick={ this.toggleMobileSecondary }
-							onKeyDown={ this.toggleMobileSecondary }
-							tabIndex="0"
-							className="jetpack-instant-search__search-results-filter-button"
-						>
-							{ __( 'Filters', 'jetpack-search-pkg' ) }
-							<Gridicon
-								icon="chevron-down"
-								size={ 16 }
-								alt={ __( 'Show search filters', 'jetpack-search-pkg' ) }
-								aria-hidden="true"
-							/>
-							<span className="screen-reader-text assistive-text">
-								{ this.state.shouldShowMobileSecondary
-									? __( 'Hide filters', 'jetpack-search-pkg' )
-									: __( 'Show filters', 'jetpack-search-pkg' ) }
-							</span>
-						</div>
-					) }
-				</SearchControls>
-
-				<div
-					aria-live="polite"
-					className="jetpack-instant-search__search-results-content"
-					id="jetpack-instant-search__search-results-content"
-				>
-					<div className="jetpack-instant-search__search-results-primary">
-						{ this.renderPrimarySection() }
-					</div>
-					<div
-						className={ [
-							'jetpack-instant-search__search-results-secondary',
-							`${
-								this.state.shouldShowMobileSecondary
-									? 'jetpack-instant-search__search-results-secondary--show-as-modal'
-									: ''
-							} `,
-						].join( ' ' ) }
-					>
-						{ this.renderSecondarySection() }
-					</div>
-				</div>
-				<button id={ OVERLAY_FOCUS_ANCHOR_ID } onClick={ this.closeOverlay }>
-					Close Search
-				</button>
+				{ this.props.showPoweredBy && <JetpackColophon locale={ this.props.locale } /> }
 			</div>
 		);
 	}

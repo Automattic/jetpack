@@ -31,22 +31,25 @@ echo "::endgroup::"
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
 	trunk)
-		git clone --depth=1 --branch trunk git://develop.git.wordpress.org/ /tmp/wordpress-trunk
+		TAG=trunk
 		;;
 	latest)
-		LATEST=$(php ./tools/get-wp-version.php)
-		git clone --depth=1 --branch "$LATEST" git://develop.git.wordpress.org/ /tmp/wordpress-latest
+		TAG=$(php ./tools/get-wp-version.php)
 		;;
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.9 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		TAG=5.9
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
 		exit 1
 		;;
 esac
+git clone --depth=1 --branch "$TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
+# We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
+rm -rf "/tmp/wordpress-$WP_BRANCH/src"
+git clone --depth=1 --branch "$TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
 echo "::endgroup::"
 
 # Don't symlink, it breaks when copied later.

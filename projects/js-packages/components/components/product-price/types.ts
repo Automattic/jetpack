@@ -33,6 +33,16 @@ export type ProductPriceProps = {
 	 * Hides the price fraction if fraction is zero.
 	 */
 	hidePriceFraction?: boolean;
+
+	/**
+	 * Promo label to show top right of the price.
+	 */
+	promoLabel?: string;
+
+	/**
+	 * Alternative leyend with HTML syntax
+	 */
+	children?: React.ReactNode;
 };
 
 export type PriceProps = {

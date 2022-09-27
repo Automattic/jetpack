@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: fix updating the store when editing video data
