@@ -14,7 +14,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -75,7 +74,12 @@ class Jetpack_Social {
 				$config->ensure( 'identity_crisis' );
 
 				// Publicize package.
-				$config->ensure( 'publicize' );
+				$config->ensure(
+					'publicize',
+					array(
+						'force_refresh' => true,
+					)
+				);
 			},
 			1
 		);
@@ -102,8 +106,6 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
-
-		add_action( 'admin_init', array( $this, 'set_up_sharing_limits' ) );
 	}
 
 	/**
@@ -116,11 +118,6 @@ class Jetpack_Social {
 	/**
 	 * Check if we have a paid Jetpack Social plan.
 	 */
-	public function has_paid_plan() {
-		$refresh_from_wpcom = true;
-		return Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
-	}
-
 	/**
 	 * Check if the Publicize module is active.
 	 *
@@ -181,8 +178,7 @@ class Jetpack_Social {
 		global $publicize;
 
 		$shares     = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$show_nudge = ! $this->has_paid_plan();
-
+		$show_nudge = ! $publicize->has_paid_plan();
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
@@ -320,30 +316,5 @@ class Jetpack_Social {
 	 */
 	public static function should_show_pricing_page() {
 		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
-	}
-
-	/**
-	 * Set up sharing limits.
-	 */
-	public function set_up_sharing_limits() {
-		if ( $this->has_paid_plan() ) {
-			return;
-		}
-		global $publicize;
-
-		$info = $publicize->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
-
-		if ( is_wp_error( $info ) ) {
-			return;
-		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return;
-		}
-
-		$connections      = $publicize->get_filtered_connection_data();
-		$shares_remaining = $info['shares_remaining'];
-		$share_limits     = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
-		$share_limits->enforce_share_limits();
 	}
 }
