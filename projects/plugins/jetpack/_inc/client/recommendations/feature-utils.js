@@ -335,6 +335,7 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Learn how to block spam', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+				illustration: 'assistant-antispam',
 			};
 		case 'videopress':
 			return {
