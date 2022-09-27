@@ -366,6 +366,7 @@ class Test_Plugin_Factory {
 	 * Downloads the appropriate version of Composer and executes an install in the plugin directory.
 	 *
 	 * @param string $plugin_dir The plugin directory we want to execute Composer in.
+	 * @throws \LogicException If no Composer version is compatible with the current autoloader and PHP versions.
 	 * @throws \RuntimeException When Composer fails to execute.
 	 */
 	private function execute_composer( $plugin_dir ) {
@@ -373,41 +374,63 @@ class Test_Plugin_Factory {
 		// the developer has installed is compatible. To address these differences we will download a
 		// composer package that is compatible based on ranges of autoloader versions.
 		$composer_versions = array(
+			// Version 2.1.6 of Composer is the first to support PHP 8.1.
+			'2.1.6'   => array(
+				'min'     => '2.6.0',
+				'url'     => 'https://getcomposer.org/download/2.1.6/composer.phar',
+				'sha256'  => '72524ccebcb071968eb83284507225fdba59f223719b2b3f333d76c8a9ac6b72',
+				'min_php' => 50302,
+			),
 			'2.0.9'   => array(
-				'min'    => '2.6.0',
-				'url'    => 'https://getcomposer.org/download/2.0.9/composer.phar',
-				'sha256' => '8e91344a5ca2fc0fb583c50f195a1f36918908561c4ea3d6f01a4ef01c3b8560',
+				'min'     => '2.6.0',
+				'url'     => 'https://getcomposer.org/download/2.0.9/composer.phar',
+				'sha256'  => '8e91344a5ca2fc0fb583c50f195a1f36918908561c4ea3d6f01a4ef01c3b8560',
+				'min_php' => 50302,
+				'max_php' => 80099,
 			),
 			// Version 2.0.6 of Composer changed a base class we used to inherit in a way that throws fatals.
 			'2.0.5'   => array(
-				'min'    => '2.0.0',
-				'url'    => 'https://getcomposer.org/download/2.0.5/composer.phar',
-				'sha256' => 'e786d1d997efc1eb463d7447394b6ad17a144afcf8e505a3ce3cb0f60c3302f9',
+				'min'     => '2.0.0',
+				'url'     => 'https://getcomposer.org/download/2.0.5/composer.phar',
+				'sha256'  => 'e786d1d997efc1eb463d7447394b6ad17a144afcf8e505a3ce3cb0f60c3302f9',
+				'min_php' => 50302,
+				'max_php' => 80099,
 			),
 			// Version 2.x support was not added until the 2.x version of the autoloader.
 			'1.10.20' => array(
-				'min'    => '1.0.0',
-				'url'    => 'https://getcomposer.org/download/1.10.20/composer.phar',
-				'sha256' => 'e70b1024c194e07db02275dd26ed511ce620ede45c1e237b3ef51d5f8171348d',
+				'min'     => '1.0.0',
+				'url'     => 'https://getcomposer.org/download/1.10.20/composer.phar',
+				'sha256'  => 'e70b1024c194e07db02275dd26ed511ce620ede45c1e237b3ef51d5f8171348d',
+				'min_php' => 50302,
+				'max_php' => 80099,
 			),
 		);
 		// Make sure that we're iterating from the oldest Composer version to the newest.
 		uksort( $composer_versions, 'version_compare' );
 
-		// When we're not installing the autoloader we can just use the latest version.
-		if ( ! isset( $this->autoloader_version ) ) {
-			$selected = '2.0.9';
-		} else {
-			// Find the latest version of Composer that is compatible with our autoloader.
-			$version  = self::CURRENT === $this->autoloader_version ? self::VERSION_CURRENT : $this->autoloader_version;
-			$selected = null;
-			foreach ( $composer_versions as $composer_version => $data ) {
-				if ( version_compare( $version, $data['min'], '<' ) ) {
-					break;
-				}
-
-				$selected = $composer_version;
+		// Find the latest version of Composer that is compatible with our autoloader and PHP version.
+		$version  = self::CURRENT === $this->autoloader_version ? self::VERSION_CURRENT : $this->autoloader_version;
+		$selected = null;
+		foreach ( $composer_versions as $composer_version => $data ) {
+			if ( isset( $data['min_php'] ) && PHP_VERSION_ID < $data['min_php'] ||
+				isset( $data['max_php'] ) && PHP_VERSION_ID > $data['max_php']
+			) {
+				continue;
 			}
+
+			if ( version_compare( $version, $data['min'], '<' ) ) {
+				break;
+			}
+
+			$selected = $composer_version;
+		}
+
+		// Check that the selected version of Composer supports the current version of PHP.
+		if ( $selected === null ) {
+			if ( $this->autoloader_version === self::CURRENT ) {
+				throw new \LogicException( 'No known version of Composer is compatible with both PHP ' . PHP_VERSION . " and Jetpack-Autoloader $this->autoloader_version. Add a compatible version!" );
+			}
+			\PHPUnit\Framework\Assert::markTestSkipped( 'No known version of Composer is compatible with both PHP ' . PHP_VERSION . " and Jetpack-Autoloader $this->autoloader_version" );
 		}
 
 		// Download the selected version of Composer if we haven't already done so.
@@ -429,6 +452,7 @@ class Test_Plugin_Factory {
 
 		// We can finally execute Composer now that we're ready.
 		putenv( 'COMPOSER_HOME=' . TEST_TEMP_BIN_DIR ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
+		putenv( 'COMPOSER_AUTH' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv
 		exec( 'php ' . escapeshellarg( $composer_bin ) . ' install -q -d ' . escapeshellarg( $plugin_dir ) );
 		if ( ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
 			throw new \RuntimeException( 'Unable to execute the `' . $composer_bin . '` archive for tests.' );

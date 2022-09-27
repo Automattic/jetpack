@@ -10,7 +10,11 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS,
 	SET_VIDEOS_QUERY,
+	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
+	SET_UPLOADED_VIDEO_COUNT,
+	REMOVE_VIDEO,
 } from './constants';
 
 /**
@@ -20,8 +24,8 @@ import {
  */
 export function getDefaultQuery() {
 	return {
+		order: 'desc',
 		orderBy: 'date',
-		order: 'DESC',
 		itemsPerPage: 6,
 		page: 1,
 		type: 'video/videopress',
@@ -56,6 +60,16 @@ const videos = ( state = {}, action ) => {
 			};
 		}
 
+		case SET_VIDEOS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					...action.pagination,
+				},
+			};
+		}
+
 		case SET_VIDEOS: {
 			const { videos: items } = action;
 			return {
@@ -67,18 +81,53 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
+			const { items = [] } = state;
+			const videoIndex = items.findIndex( item => item.id === video.id );
 
-			const items = state.items.map( item => {
-				if ( item.id === video.id ) {
-					return video;
-				}
-				return item;
-			} );
+			if ( videoIndex === -1 ) {
+				// Add video when not found
+				items.push( video );
+			} else {
+				// Update video when found
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					...video,
+				};
+			}
 
 			return {
 				...state,
 				items,
 				isFetching: false,
+			};
+		}
+
+		case REMOVE_VIDEO: {
+			const { id } = action;
+			const { items = [] } = state;
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			return {
+				...state,
+				items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
+			};
+		}
+		case SET_IS_FETCHING_UPLOADED_VIDEO_COUNT: {
+			return {
+				...state,
+				isFetchingUploadedVideoCount: action.isFetchingUploadedVideoCount,
+			};
+		}
+
+		case SET_UPLOADED_VIDEO_COUNT: {
+			return {
+				...state,
+				uploadedVideoCount: action.uploadedVideoCount,
+				isFetchingUploadedVideoCount: false,
 			};
 		}
 

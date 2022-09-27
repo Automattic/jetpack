@@ -363,7 +363,7 @@ const visibilityAdvancedControls = createHigherOrderComponent(
 						className="widget-vis__show-hide"
 						label={ __( 'Action', 'jetpack' ) }
 						hideLabelFromVision
-						value={ attributes.action }
+						value={ attributes.conditions.action }
 						options={ [
 							{ label: __( 'Show this block', 'jetpack' ), value: 'show' },
 							{ label: __( 'Hide this block', 'jetpack' ), value: 'hide' },

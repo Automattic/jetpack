@@ -82,7 +82,7 @@ class Jetpack_Backup {
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages.
 		add_action(
 			'plugins_loaded',
 			function () {
