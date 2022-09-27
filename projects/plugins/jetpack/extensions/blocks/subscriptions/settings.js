@@ -12,7 +12,7 @@ const visibilityOptions = {
 		label: __( 'Public', 'jetpack' ),
 		info: __( 'Visible to everyone', 'jetpack' ),
 	},
-	paid_members_only: {
+	members_only: {
 		label: __( 'Subscribers', 'jetpack' ),
 		info: __( 'Visible to only subscribers', 'jetpack' ),
 	},
