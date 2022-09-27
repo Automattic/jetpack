@@ -36,8 +36,7 @@ export default class WordAdsBlock extends PageActions {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		const containerSelector = ".entry-content iframe[src*='wordads']";
-
+		const containerSelector = 'article .wpa';
 		await page.waitForSelector( containerSelector );
 	}
 }
