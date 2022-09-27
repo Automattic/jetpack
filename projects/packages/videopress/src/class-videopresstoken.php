@@ -22,7 +22,7 @@ class VideoPressToken {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+		add_action( 'rest_api_init', array( static::class, 'register_rest_endpoints' ) );
 	}
 
 	/**
@@ -36,8 +36,8 @@ class VideoPressToken {
 			'upload-jwt',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::upload_jwt',
-				'permission_callback' => __CLASS__ . '::permissions_callback',
+				'callback'            => static::class . '::upload_jwt',
+				'permission_callback' => static::class . '::permissions_callback',
 			)
 		);
 	}
@@ -86,7 +86,7 @@ class VideoPressToken {
 	 * @return string
 	 */
 	public static function videopress_playback_jwt( $guid ) {
-		$blog_id = self::blog_id();
+		$blog_id = static::blog_id();
 
 		$args = array(
 			'method' => 'POST',
@@ -116,8 +116,8 @@ class VideoPressToken {
 	 * @throws Upload_Exception If token is empty or is had an error.
 	 */
 	public static function videopress_onetime_upload_token() {
-		if ( self::check_connection() ) {
-			$blog_id = self::blog_id();
+		if ( static::check_connection() ) {
+			$blog_id = static::blog_id();
 
 			$args = array(
 				'method' => 'POST',
@@ -147,8 +147,8 @@ class VideoPressToken {
 	 * @throws Upload_Exception - If user is not connected, if token is empty or failed to obtain.
 	 */
 	public static function videopress_upload_jwt() {
-		if ( self::check_connection() ) {
-			$blog_id  = self::blog_id();
+		if ( static::check_connection() ) {
+			$blog_id  = static::blog_id();
 			$endpoint = "sites/{$blog_id}/media/videopress-upload-jwt";
 			$args     = array( 'method' => 'POST' );
 			$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
@@ -176,10 +176,10 @@ class VideoPressToken {
 	 * @return WP_Rest_Response - The response object.
 	 */
 	public static function upload_jwt() {
-		$blog_id = self::blog_id();
+		$blog_id = static::blog_id();
 
 		try {
-			$token  = self::videopress_upload_jwt();
+			$token  = static::videopress_upload_jwt();
 			$status = 200;
 			$data   = array(
 				'upload_token'   => $token,
