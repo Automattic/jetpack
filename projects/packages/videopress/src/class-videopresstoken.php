@@ -1,6 +1,6 @@
 <?php
 /**
- * VideoPress Uploader
+ * VideoPress Token
  *
  * @package automattic/jetpack-videopress
  */
@@ -10,47 +10,10 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
-use WP_REST_Response;
-
 /**
  * VideoPress token utility class
  */
 class VideoPressToken {
-	/**
-	 * Initializes the endpoints
-	 *
-	 * @return void
-	 */
-	public static function init() {
-		add_action( 'rest_api_init', array( static::class, 'register_rest_endpoints' ) );
-	}
-
-	/**
-	 * Register the REST API routes.
-	 *
-	 * @return void
-	 */
-	public static function register_rest_endpoints() {
-		register_rest_route(
-			'videopress/v1',
-			'upload-jwt',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => static::class . '::upload_jwt',
-				'permission_callback' => static::class . '::permissions_callback',
-			)
-		);
-	}
-
-	/**
-	 * Checks wether the user have permission to perform the upload
-	 *
-	 * @return boolean
-	 */
-	public static function permissions_callback() {
-		return current_user_can( 'upload_files' );
-	}
-
 	/**
 	 * Check if user is connected.
 	 *
@@ -168,35 +131,5 @@ class VideoPressToken {
 
 			return $response['upload_token'];
 		}
-	}
-
-	/**
-	 * Endpoint for getting the VideoPress Upload JWT
-	 *
-	 * @return WP_Rest_Response - The response object.
-	 */
-	public static function upload_jwt() {
-		$blog_id = static::blog_id();
-
-		try {
-			$token  = static::videopress_upload_jwt();
-			$status = 200;
-			$data   = array(
-				'upload_token'   => $token,
-				'upload_url'     => videopress_make_resumable_upload_path( $blog_id ),
-				'upload_blog_id' => $blog_id,
-			);
-		} catch ( \Exception $e ) {
-			// TODO: Improve status code.
-			$status = 500;
-			$data   = array(
-				'error' => $e->getMessage(),
-			);
-
-		}
-
-		return rest_ensure_response(
-			new WP_REST_Response( $data, $status )
-		);
 	}
 }
