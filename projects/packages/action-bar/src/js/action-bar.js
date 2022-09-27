@@ -163,7 +163,7 @@ function errorIconSvg() {
  */
 function closeModal() {
 	// Fade out shade
-	_fadeOutAndDeactivate( document.querySelector( '.jetpack-action-bar__shade' ), 'active' );
+	_classRemove( document.querySelector( '.jetpack-action-bar__shade' ), 'active' );
 	// Fade out modal
 	_fadeOutAndDeactivate( document.querySelector( '.jetpack-action-bar__modal' ) );
 	// Deactivate action bar link
