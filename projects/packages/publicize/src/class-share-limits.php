@@ -2,10 +2,10 @@
 /**
  * Enforce sharing limits for Jetpack Social.
  *
- * @package automattic/jetpack-social-plugin
+ * @package automattic/jetpack-publicize
  */
 
-namespace Automattic\Jetpack\Social;
+namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
@@ -29,24 +29,29 @@ class Share_Limits {
 	public $shares_remaining;
 
 	/**
+	 * Whether we're loading the classic editor.
+	 *
+	 * @var bool
+	 */
+	public $is_classic_editor;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param array $connections List of Publicize connections.
 	 * @param int   $shares_remaining Number of shares remaining for this period.
+	 * @param bool  $is_classic_editor Whether we're loading the classic editor.
 	 */
-	public function __construct( $connections, $shares_remaining ) {
-		$this->connections      = $connections;
-		$this->shares_remaining = $shares_remaining;
+	public function __construct( $connections, $shares_remaining, $is_classic_editor ) {
+		$this->connections       = $connections;
+		$this->shares_remaining  = $shares_remaining;
+		$this->is_classic_editor = $is_classic_editor;
 	}
 
 	/**
 	 * Run functionality required to enforce sharing limits.
 	 */
 	public function enforce_share_limits() {
-
-		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
-
 		if ( ! $this->has_more_shares_than_connections() ) {
 			/**
 			 * If the number of connections is greater than the share limit, we set all
@@ -55,6 +60,13 @@ class Share_Limits {
 			 */
 			add_filter( 'publicize_checkbox_default', '__return_false' );
 		}
+
+		if ( ! $this->is_classic_editor ) {
+			return;
+		}
+
+		add_action( 'publicize_classic_editor_form_after', array( $this, 'render_classic_editor_notice' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_classic_editor_scripts' ) );
 	}
 
 	/**
@@ -77,7 +89,7 @@ class Share_Limits {
 				'You currently have %1$d share remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
 				'You currently have %1$d shares remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
 				$this->shares_remaining,
-				'jetpack-social'
+				'jetpack-publicize-pkg'
 			),
 			$this->shares_remaining,
 			Redirect::get_url(
@@ -102,23 +114,17 @@ class Share_Limits {
 	 * Enqueue scripts for the Classic Editor on the post edit screen.
 	 */
 	public function enqueue_classic_editor_scripts() {
-		$current_screen = get_current_screen();
-
-		if ( empty( $current_screen ) || $current_screen->base !== 'post' || $current_screen->is_block_editor() ) {
-			return;
-		}
-
 		if ( get_post_status() === 'publish' ) {
 			return;
 		}
 
 		Assets::register_script(
 			'jetpack-social-classic-editor-share-limits',
-			'build/classic-editor.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+			'../build/classic-editor.js',
+			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
+				'textdomain' => 'jetpack-publicize-pkg',
 			)
 		);
 

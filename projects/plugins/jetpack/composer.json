@@ -20,7 +20,7 @@
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.7.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.9.x-dev",
+		"automattic/jetpack-config": "1.10.x-dev",
 		"automattic/jetpack-connection": "1.45.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
