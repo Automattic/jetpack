@@ -4,10 +4,11 @@ import { Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/component
 import { useInstanceId } from '@wordpress/compose';
 import { useEntityProp } from '@wordpress/core-data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
-import { PostVisibilityCheck } from '@wordpress/editor';
+import { PostAccessCheck } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 
-const visibilityOptions = {
+const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = 'jetpack_newsletter_access';
+const accessOptions = {
 	public: {
 		label: __( 'Public', 'jetpack' ),
 		info: __( 'Visible to everyone', 'jetpack' ),
@@ -24,43 +25,35 @@ const visibilityOptions = {
 
 export default function NewsletterSettings() {
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
-	const visibilityKey = postMeta._newsletter_visibility ?? 'public';
-	const visibilityLabel = visibilityOptions[ visibilityKey ]?.label ?? 'Public';
+	const accessLevel = postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? 'public';
 
 	return (
 		<>
 			<PanelRow>
-				<NewsletterAudience
-					setPostMeta={ setPostMeta }
-					visibilityKey={ visibilityKey }
-					visibilityLabel={ visibilityLabel }
-				/>
+				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
 			</PanelRow>
 
 			<PluginPrePublishPanel title={ __( 'Newsletter settings', 'jetpack' ) }>
-				<NewsletterAudience
-					setPostMeta={ setPostMeta }
-					visibilityKey={ visibilityKey }
-					visibilityLabel={ visibilityLabel }
-				/>
+				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
 			</PluginPrePublishPanel>
 		</>
 	);
 }
 
-function NewsletterAudience( { visibilityLabel, visibilityKey, setPostMeta } ) {
-	const instanceId = useInstanceId( NewsletterAudience );
+function NewsletterAccess( { accessLevel, setPostMeta } ) {
+	const instanceId = useInstanceId( NewsletterAccess );
+	const accessLabel = accessOptions[ accessLevel ]?.label ?? 'Public';
 
 	return (
-		<PostVisibilityCheck
+		<PostAccessCheck
 			render={ ( { canEdit } ) => (
-				<PanelRow className="edit-post-post-visibility">
-					<span>{ __( 'Audience', 'jetpack' ) }</span>
-					{ ! canEdit && <span>{ visibilityLabel }</span> }
+				<PanelRow className="edit-post-post-access">
+					<span>{ __( 'Access', 'jetpack' ) }</span>
+					{ ! canEdit && <span>{ accessLabel }</span> }
 					{ canEdit && (
 						<Dropdown
 							position="bottom left"
-							contentClassName="edit-post-post-visibility__dialog"
+							contentClassName="edit-post-post-access__dialog"
 							focusOnMount
 							renderToggle={ ( { isOpen, onToggle } ) => (
 								<Button
@@ -68,48 +61,50 @@ function NewsletterAudience( { visibilityLabel, visibilityKey, setPostMeta } ) {
 									onClick={ onToggle }
 									aria-expanded={ isOpen }
 									aria-label={ sprintf(
-										// translators: %s: Current newsletter post visibility.
+										// translators: %s: Current newsletter post access.
 										__( 'Select audience: %s', 'jetpack' ),
-										visibilityLabel
+										accessLabel
 									) }
 								>
-									{ visibilityLabel }
+									{ accessLabel }
 								</Button>
 							) }
 							renderContent={ ( { onClose } ) => (
-								<div className="editor-post-visibility">
+								<div className="editor-post-access">
 									<InspectorPopoverHeader
 										title={ __( 'Audience', 'jetpack' ) }
 										help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
 										onClose={ onClose }
 									/>
-									<fieldset className="editor-post-visibility__fieldset">
+									<fieldset className="editor-post-access__fieldset">
 										<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
-										{ Object.keys( visibilityOptions ).map( key => (
-											<div className="editor-post-visibility__choice" key={ key }>
+										{ Object.keys( accessOptions ).map( key => (
+											<div className="editor-post-access__choice" key={ key }>
 												<input
 													type="radio"
-													checked={ key === visibilityKey }
-													name={ `editor-post-visibility__setting-${ instanceId }` }
+													checked={ key === accessLevel }
+													name={ `editor-post-access__setting-${ instanceId }` }
 													value={ key }
 													id={ `editor-post-${ key }-${ instanceId }` }
 													aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
-													className="editor-post-visibility__radio"
-													onChange={ event =>
-														setPostMeta( { _newsletter_visibility: event?.target?.value } )
-													}
+													className="editor-post-access__radio"
+													onChange={ event => {
+														const obj = {};
+														obj.META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = event?.target?.value;
+														return setPostMeta( obj );
+													} }
 												/>
 												<label
 													htmlFor={ `editor-post-${ key }-${ instanceId }` }
-													className="editor-post-visibility__label"
+													className="editor-post-access__label"
 												>
-													{ visibilityOptions[ key ].label }
+													{ accessOptions[ key ].label }
 												</label>
 												<p
 													id={ `editor-post-${ key }-${ instanceId }-description` }
-													className="editor-post-visibility__info"
+													className="editor-post-access__info"
 												>
-													{ visibilityOptions[ key ].info }
+													{ accessOptions[ key ].info }
 												</p>
 											</div>
 										) ) }
