@@ -140,6 +140,12 @@ const Admin = () => {
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
+
+								<ConnectVideoStorageMeter
+									className={ styles[ 'storage-meter' ] }
+									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+								/>
+
 								<FormFileUpload
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
 									accept="video/*"
@@ -149,13 +155,6 @@ const Admin = () => {
 										</Button>
 									) }
 								/>
-
-								<ConnectVideoStorageMeter
-									className={ styles[ 'storage-meter' ] }
-									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-								/>
-								<Button fullWidth={ isSm }>{ addVideoLabel }</Button>
-
 								<UpgradeTrigger />
 							</Col>
 						</Container>
