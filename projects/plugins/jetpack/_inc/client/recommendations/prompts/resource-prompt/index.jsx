@@ -9,6 +9,7 @@ import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	getOnboardingProgressValueIfEligible,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -165,8 +166,14 @@ const ResourcePrompt = connect(
 		...getStepContent( ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
-		summaryViewed: isStepViewed( state, 'summary' ) && ! isOnboardingActive( state ),
+		summaryViewed: isStepViewed( state, 'summary' ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
+		...( isOnboardingActive( state )
+			? {
+					progressValue: getOnboardingProgressValueIfEligible( state ),
+					summaryViewed: false,
+			  }
+			: {} ),
 	} ),
 	dispatch => ( {
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),

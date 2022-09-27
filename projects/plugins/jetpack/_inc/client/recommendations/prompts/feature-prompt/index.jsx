@@ -14,6 +14,7 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 	startFeatureInstall as startFeatureInstallAction,
 	endFeatureInstall as endFeatureInstallAction,
+	getOnboardingProgressValueIfEligible,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -233,8 +234,14 @@ const FeaturePrompt = connect(
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 		discountViewedStep: recommendationsSiteDiscountViewedStep( state ),
 		featureActive: isFeatureActive( state, ownProps.stepSlug ),
-		summaryViewed: isStepViewed( state, 'summary' ) && ! isOnboardingActive( state ),
+		summaryViewed: isStepViewed( state, 'summary' ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
+		...( isOnboardingActive( state )
+			? {
+					progressValue: getOnboardingProgressValueIfEligible( state ),
+					summaryViewed: false,
+			  }
+			: {} ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),

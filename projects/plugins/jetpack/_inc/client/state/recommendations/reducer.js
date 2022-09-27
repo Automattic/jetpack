@@ -524,8 +524,10 @@ const getNextEligibleStep = ( state, step ) => {
 	return nextStep;
 };
 
-const getInitialStepForOnboarding = ( { active } ) =>
-	Object.keys( get( stepToNextStepByPath, `onboarding.${ active }`, {} ) )[ 0 ];
+const getStepsForOnboarding = onboarding =>
+	Object.keys( get( stepToNextStepByPath, `onboarding.${ onboarding }`, {} ) );
+
+const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( onboarding )[ 0 ];
 
 // Gets the step to show when one has not been set in the state yet.
 const getInitialStep = state => {
@@ -535,7 +537,9 @@ const getInitialStep = state => {
 	const onboardingData = getOnboardingData( state );
 
 	if ( onboardingData.active ) {
-		return onboardingData.hasStarted ? initialStep : getInitialStepForOnboarding( onboardingData );
+		return onboardingData.hasStarted
+			? initialStep
+			: getInitialStepForOnboarding( onboardingData.active );
 	}
 
 	// Jump to a new recommendation if there is one to show.
@@ -595,6 +599,19 @@ export const getStep = state => {
 	}
 
 	return step;
+};
+
+export const getOnboardingProgressValueIfEligible = state => {
+	const onboardingData = getOnboardingData( state );
+
+	if ( ! onboardingData.active ) {
+		return null;
+	}
+
+	const step = getStep( state );
+	const steps = getStepsForOnboarding( onboardingData.active );
+
+	return `${ ( steps.indexOf( step ) / steps.length ) * 100 }`;
 };
 
 export const getNextRoute = state => {
