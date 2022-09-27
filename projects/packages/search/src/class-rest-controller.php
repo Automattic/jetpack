@@ -157,7 +157,7 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			'/post-type-breakdown',
+			'/search/post-type-breakdown',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_post_type_breakdown' ),
