@@ -55,6 +55,11 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed } = useVideos();
 	const total = 1024 * 1024 * 1024 * 1024;
+
+	if ( ! storageUsed ) {
+		return <VideoStorageMeter { ...props } used={ 0 } total={ 1 } />;
+	}
+
 	return <VideoStorageMeter { ...props } used={ storageUsed } total={ total } />;
 };
 
