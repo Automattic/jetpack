@@ -63,7 +63,7 @@ const useDashboardVideos = () => {
 		if ( video?.finished ) {
 			setVideo( video );
 		} else {
-			setTimeout( () => poolingUploadedVideoData( video ), 1000 );
+			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
 		}
 	};
 
