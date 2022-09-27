@@ -105,19 +105,23 @@ export const getSummaryResourceProps = resourceSlug => {
 			};
 		case 'server-credentials':
 			return {
-				configureButtonLabel: __( 'Add', 'jetpack' ),
 				displayName: __( 'Server Credentials', 'jetpack' ),
-				summaryActivateButtonLabel: __( 'Add', 'jetpack' ),
-				configLink: '#',
-			};
-		case 'backup__welcome':
-			return {
-				displayName: __( 'Real-time Backups', 'jetpack' ),
-				ctaLabel: __( 'Read More', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+				ctaLabel: __( 'Add', 'jetpack' ),
+				ctaLink: '#',
 			};
 		default:
 			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+	}
+};
+
+export const getSummaryPrimaryProps = primaryProps => {
+	switch ( primaryProps ) {
+		case 'backup__welcome':
+			return {
+				displayName: __( 'Real-time Backups', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getRedirectUrl( '#' ),
+			};
 	}
 };
 
@@ -365,6 +369,7 @@ export const getStepContent = stepSlug => {
 				),
 				ctaText: __( 'Manage Backups', 'jetpack' ),
 				illustration: 'assistant-backup-welcome',
+				skipText: __( 'Next', 'jetpack' ),
 			};
 		case 'server-credentials':
 			return {

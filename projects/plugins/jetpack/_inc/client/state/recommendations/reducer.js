@@ -9,6 +9,7 @@ import {
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
 	ONBOARDING_JETPACK_BACKUP,
+	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
 	sortByOnboardingPriority,
 	getOnboardingNameByProductSlug,
@@ -37,7 +38,7 @@ import {
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
-	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_UPDATE,
+	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE,
 } from 'state/action-types';
 import { hasConnectedOwner } from 'state/connection';
 import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
@@ -131,8 +132,8 @@ const data = ( state = {}, action ) => {
 
 			return viewedState;
 		}
-		case JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_UPDATE: {
-			const { active, viewed, hasStarted } = action.onboarding;
+		case JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE: {
+			const { active, viewed, hasStarted } = action.onboardingData;
 			return mergeWith( {}, state, {
 				...( active !== undefined ? { onboardingActive: active } : {} ),
 				...( viewed !== undefined ? { onboardingViewed: viewed } : {} ),
@@ -507,7 +508,7 @@ const isStepEligibleToShow = ( state, step ) => {
 };
 
 const getNextEligibleStep = ( state, step ) => {
-	const active = get( getOnboarding( state ), 'active' );
+	const active = get( getOnboardingData( state ), 'active' );
 	const stepToNextStep = get( stepToNextStepByPath, active ? `onboarding.${ active }` : 'default' );
 
 	if ( ! stepToNextStep ) {
@@ -531,10 +532,10 @@ const getInitialStep = state => {
 	// Gets new recommendations from initial state.
 	const newRecommendations = getNewRecommendations( state );
 	const initialStep = getInitialRecommendationsStep( state );
-	const onboarding = getOnboarding( state );
+	const onboardingData = getOnboardingData( state );
 
-	if ( onboarding.active ) {
-		return onboarding.hasStarted ? initialStep : getInitialStepForOnboarding( onboarding );
+	if ( onboardingData.active ) {
+		return onboardingData.hasStarted ? initialStep : getInitialStepForOnboarding( onboardingData );
 	}
 
 	// Jump to a new recommendation if there is one to show.
@@ -546,7 +547,7 @@ const getInitialStep = state => {
 	return initialStep;
 };
 
-export const getOnboarding = state => {
+export const getOnboardingData = state => {
 	const onboarding = {
 		active: getDataByKey( state, 'onboardingActive' ) || null,
 		viewed: getDataByKey( state, 'onboardingViewed' ) || [],
@@ -577,7 +578,7 @@ export const getOnboarding = state => {
 	return onboarding;
 };
 
-export const isOnboardingActive = state => null !== getOnboarding( state ).active;
+export const isOnboardingActive = state => null !== getOnboardingData( state ).active;
 
 export const getStep = state => {
 	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
@@ -665,6 +666,18 @@ export const getSummaryResourceSlugs = state => {
 	const resourceSlugs = [ 'agency', 'anti-spam', 'backup-plan' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
+};
+
+export const getSummaryPrimarySection = state => {
+	const sortedViewed = getOnboardingData( state ).viewed.sort( sortByOnboardingPriority );
+
+	if ( 0 === sortedViewed.length ) {
+		return null;
+	}
+
+	const mostImportantOnboarding = sortedViewed[ 0 ];
+
+	return SUMMARY_SECTION_BY_ONBOARDING_NAME[ mostImportantOnboarding ];
 };
 
 export const getSidebarCardSlug = state => {

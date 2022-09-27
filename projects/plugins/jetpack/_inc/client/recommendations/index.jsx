@@ -16,10 +16,10 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { getNewRecommendations } from 'state/initial-state';
 import {
 	getStep,
-	getOnboarding,
+	getOnboardingData,
 	isRecommendationsDataLoaded,
 	isRecommendationsConditionalLoaded,
-	updateRecommendationsOnboarding as updateRecommendationsOnboardingAction,
+	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { isFetchingSiteData } from 'state/site';
@@ -32,7 +32,14 @@ import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 
 const RecommendationsComponent = props => {
-	const { isLoading, step, newRecommendations, onboarding, updateOnboarding, updateStep } = props;
+	const {
+		isLoading,
+		step,
+		newRecommendations,
+		onboardingData,
+		updateOnboardingData,
+		updateStep,
+	} = props;
 
 	let redirectPath;
 
@@ -103,12 +110,12 @@ const RecommendationsComponent = props => {
 	};
 
 	useEffect( () => {
-		if ( ! isLoading && onboarding.active && ! onboarding.hasStarted ) {
-			const startedOnboarding = { ...onboarding, hasStarted: true };
+		if ( ! isLoading && onboardingData.active && ! onboardingData.hasStarted ) {
+			const startedOnboardingData = { ...onboardingData, hasStarted: true };
 			updateStep( step );
-			updateOnboarding( startedOnboarding );
+			updateOnboardingData( startedOnboardingData );
 		}
-	}, [ isLoading, onboarding, updateOnboarding, step, updateStep ] );
+	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep ] );
 
 	return (
 		<>
@@ -176,7 +183,7 @@ const RecommendationsComponent = props => {
 						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
 					</Route>
 					<Route path="/recommendations/welcome-backup">
-						<ResourcePrompt stepSlug="backup__welcome" isPrimaryResource />
+						<ResourcePrompt stepSlug="backup__welcome" />
 					</Route>
 					<Route path="/recommendations/server-credentials">
 						<ResourcePrompt stepSlug="server-credentials" />
@@ -219,11 +226,12 @@ export const Recommendations = connect(
 			! isRecommendationsConditionalLoaded( state ) ||
 			isFetchingSiteData( state ),
 		step: getStep( state ),
-		onboarding: getOnboarding( state ),
+		onboardingData: getOnboardingData( state ),
 		newRecommendations: getNewRecommendations( state ),
 	} ),
 	dispatch => ( {
-		updateOnboarding: onboarding => dispatch( updateRecommendationsOnboardingAction( onboarding ) ),
+		updateOnboardingData: onboardingData =>
+			dispatch( updateRecommendationsOnboardingDataAction( onboardingData ) ),
 		updateStep: step => dispatch( updateRecommendationsStepAction( step ) ),
 	} )
 )( RecommendationsComponent );

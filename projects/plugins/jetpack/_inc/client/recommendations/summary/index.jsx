@@ -4,7 +4,6 @@ import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { ONBOARDING_JETPACK_BACKUP } from 'recommendations/constants';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
@@ -12,11 +11,12 @@ import {
 	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
+	getSummaryPrimarySection,
 	getUpsell,
 	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
-	updateRecommendationsOnboarding as updateRecommendationsOnboardingAction,
-	getOnboarding,
+	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
+	getOnboardingData,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { isFetchingSiteData } from 'state/site';
@@ -40,14 +40,15 @@ const SummaryComponent = props => {
 		siteTitle,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
+		summaryPrimarySection,
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		upsell,
-		onboarding,
+		onboardingData,
 		newRecommendations,
 		stateStepSlug,
 		updatingStep,
-		updateOnboarding,
+		updateOnboardingData,
 	} = props;
 
 	useEffect( () => {
@@ -59,12 +60,12 @@ const SummaryComponent = props => {
 	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	useEffect( () => {
-		const plan = onboarding.active;
+		const plan = onboardingData.active;
 
 		if ( plan ) {
-			updateOnboarding( { ...onboarding, active: null } );
+			updateOnboardingData( { ...onboardingData, active: null } );
 		}
-	}, [ updateOnboarding, onboarding ] );
+	}, [ updateOnboardingData, onboardingData ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -82,12 +83,12 @@ const SummaryComponent = props => {
 						siteTitle
 					) }
 				</h1>
-				{ onboarding.viewed.includes( ONBOARDING_JETPACK_BACKUP ) && (
+				{ summaryPrimarySection && (
 					<section>
-						<h2 id="primary-recommendations">Part of your Backup plan</h2>
-						<div>
-							<PrimarySummary key="backup__welcome" />
-						</div>
+						<h2 id="primary-recommendations">Part of your { summaryPrimarySection.name } plan</h2>
+						{ summaryPrimarySection.slugs.map( slug => (
+							<PrimarySummary key={ slug } slug={ slug } />
+						) ) }
 					</section>
 				) }
 				<section aria-labelledby="enabled-recommendations">
@@ -226,15 +227,17 @@ const Summary = connect(
 			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			summaryPrimarySection: getSummaryPrimarySection( state ),
 			stateStepSlug: getStep( state ),
 			updatingStep: isUpdatingRecommendationsStep( state ),
-			onboarding: getOnboarding( state ),
+			onboardingData: getOnboardingData( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
-		updateOnboarding: onboarding => dispatch( updateRecommendationsOnboardingAction( onboarding ) ),
+		updateOnboardingData: onboardingData =>
+			dispatch( updateRecommendationsOnboardingDataAction( onboardingData ) ),
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );

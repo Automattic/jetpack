@@ -41,6 +41,7 @@ const ResourcePromptComponent = props => {
 		illustration,
 		ctaText,
 		ctaLink,
+		skipText,
 		stepSlug,
 		stateStepSlug,
 		updatingStep,
@@ -48,7 +49,6 @@ const ResourcePromptComponent = props => {
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		summaryViewed,
-		isPrimaryResource,
 	} = props;
 
 	useEffect( () => {
@@ -136,7 +136,7 @@ const ResourcePromptComponent = props => {
 					</ExternalLink>
 					<div className="jp-recommendations-question__jump-nav">
 						<a href={ nextRoute } onClick={ onResourceSkipClick }>
-							{ isPrimaryResource ? __( 'Next', 'jetpack' ) : __( 'Not now', 'jetpack' ) }
+							{ skipText || __( 'Not now', 'jetpack' ) }
 						</a>
 						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
 							<>
