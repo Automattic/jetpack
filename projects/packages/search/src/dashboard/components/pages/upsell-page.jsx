@@ -1,4 +1,5 @@
 import {
+	JetpackSearchLogo,
 	AdminPage,
 	Container,
 	Col,
@@ -25,6 +26,7 @@ import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 import './upsell-page.scss';
 
 const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
+const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
  * defines UpsellPage.
@@ -66,6 +68,8 @@ export default function UpsellPage( { isLoading = false } ) {
 					<AdminPage
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						a8cLogoHref={ AUTOMATTIC_WEBSITE }
+						header={ <JetpackSearchLogo /> }
+						moduleNameHref={ JETPACK_SEARCH__LINK }
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (
