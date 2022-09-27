@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 /**
- *
+ * Internal dependencies
  */
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
