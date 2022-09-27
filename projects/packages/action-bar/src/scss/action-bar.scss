@@ -541,7 +541,7 @@
 	background: #fff;
 	border-radius: 5px;
 	bottom: 0;
-	box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 2px 5px #0003;
 	display: none;
 	flex-flow: flex-start;
 	opacity: 0;
@@ -556,7 +556,10 @@
 	}
 	&.error {
 		color: red;
-		box-shadow: 0px 0px 0px 1px red;
+		border: red solid 1px;
+		.gridicons-notice {
+			margin-right: 6px;
+		}
 	}
 	span {
 		margin-left: 14px;

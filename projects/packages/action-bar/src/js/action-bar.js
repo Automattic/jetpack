@@ -104,8 +104,11 @@ function showErrorSnackbar( msg ) {
 
 	// Prep snackbar
 	const snackbarContainer = document.querySelector( '.jetpack-action-bar__snackbar' );
-	snackbarContainer.textContent = msg;
 	_classAdd( snackbarContainer, 'error' );
+
+	// Add error icon and message
+	snackbarContainer.innerHTML = errorIconSvg();
+	snackbarContainer.appendChild( document.createTextNode( msg ) );
 
 	// Fade in
 	_fadeInAndActivate( snackbarContainer );
@@ -137,13 +140,22 @@ function dismissSnackbar() {
 }
 
 /**
- * is modal showing
+ * Is the modal showing.
  *
  * @returns {boolean} true if the modal has the 'active' class
  */
 function isModalActive() {
 	const el = document.querySelector( '.jetpack-action-bar__modal' );
 	return el && el.classList.contains( 'active' );
+}
+
+/**
+ * Gets error message icon.
+ *
+ * @returns {string} an error message svg icon
+ */
+function errorIconSvg() {
+	return '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="red"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
 }
 
 /**
