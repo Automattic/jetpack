@@ -15,3 +15,5 @@ export const MAX_SPACING_VALUE = 50;
 export const DEFAULT_SPACING_VALUE = 10;
 
 export const DEFAULT_FONTSIZE_VALUE = '16px';
+
+export const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = 'jetpack_newsletter_access';
