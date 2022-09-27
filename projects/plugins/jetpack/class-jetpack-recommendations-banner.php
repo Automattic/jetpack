@@ -129,22 +129,16 @@ class Jetpack_Recommendations_Banner {
 			$tracking_answers['personal'] = $value;
 		}
 
-		if ( isset( $_REQUEST['business'] ) && is_string( $_REQUEST['business'] ) ) {
-			$value                        = 'true' === $_REQUEST['business'] ? true : false;
-			$data['site-type-business']   = $value;
-			$tracking_answers['business'] = $value;
+		if ( isset( $_REQUEST['agency'] ) && is_string( $_REQUEST['agency'] ) ) {
+			$value                      = 'true' === $_REQUEST['agency'] ? true : false;
+			$data['site-type-agency']   = $value;
+			$tracking_answers['agency'] = $value;
 		}
 
 		if ( isset( $_REQUEST['store'] ) && is_string( $_REQUEST['store'] ) ) {
 			$value                     = 'true' === $_REQUEST['store'] ? true : false;
 			$data['site-type-store']   = $value;
 			$tracking_answers['store'] = $value;
-		}
-
-		if ( isset( $_REQUEST['other'] ) && is_string( $_REQUEST['other'] ) ) {
-			$value                     = 'true' === $_REQUEST['other'] ? true : false;
-			$data['site-type-other']   = $value;
-			$tracking_answers['other'] = $value;
 		}
 
 		Jetpack_Recommendations::update_recommendations_data( $data );
