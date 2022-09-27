@@ -54,13 +54,18 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 };
 
 export const ConnectVideoStorageMeter = props => {
-	const { storageUsed } = useVideos();
+	const { storageUsed, uploadedVideoCount } = useVideos();
 	const total = 1024 * 1024 * 1024 * 1024;
 
 	const { features } = usePlan();
 
 	// Do not show storage meter for unlimited storage plans.
 	if ( features?.isVideoPressUnlimitedSupported ) {
+		return null;
+	}
+
+	// Do not show storage meter if when no videos have been uploaded.
+	if ( ! uploadedVideoCount ) {
 		return null;
 	}
 
