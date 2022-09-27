@@ -53,6 +53,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		offset, // The distance (in px) between the anchor and the popover.
 		focusOnMount: 'container' as const,
 		onClose: hideTooltip,
+		className: 'icon-tooltip-container',
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
