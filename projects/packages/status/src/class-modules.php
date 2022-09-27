@@ -536,6 +536,35 @@ class Modules {
 	}
 
 	/**
+	 * Removes the setting to enforce a certain module.
+	 *
+	 * @param Array $modules an array of module slugs to stop enforcing.
+	 */
+	public function stop_enforcing( $modules ) {
+		if ( ! is_array( $modules ) ) {
+			return;
+		}
+
+		// Retrieving existing configuration.
+		$existing_enforce_setting = \Jetpack_Options::get_option(
+			'active_modules_enforced',
+			array()
+		);
+
+		$new_setting = array_values(
+			array_filter(
+				array_diff(
+					$existing_enforce_setting,
+					$modules
+				)
+			)
+		);
+
+		// Storing the new configuration.
+		\Jetpack_Options::update_option( 'active_modules_enforced', $new_setting, true );
+	}
+
+	/**
 	 * Deactivate module.
 	 *
 	 * @param string $module Module slug.

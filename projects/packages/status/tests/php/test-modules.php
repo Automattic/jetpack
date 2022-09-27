@@ -142,6 +142,30 @@ class Test_Modules extends TestCase {
 	}
 
 	/**
+	 * Testing the removal of enforced option.
+	 *
+	 * @dataProvider provider_unfiltered_module_arrays
+	 * @param Array $enforced Enforced module list.
+	 * @param Array $filtered Module list to be filtered.
+	 * @param Array $result   The list after being filtered.
+	 */
+	public function test_module_ceasing_to_enforce_removes_option( $enforced, $filtered, $result ) {
+		$modules = \Mockery::mock( '\Automattic\Jetpack\Modules[activate]' );
+
+		// Going backwards - returning the result that we expected when adding enforced modules.
+		Functions\when( 'get_option' )->justReturn( $result );
+		Functions\expect( 'update_option' )
+			->once()
+			->with(
+				'jetpack_active_modules_enforced',
+				array_values( array_filter( $filtered ) ),
+				true
+			);
+
+		$modules->stop_enforcing( $enforced );
+	}
+
+	/**
 	 * Testing the option handling.
 	 *
 	 * @dataProvider provider_unfiltered_module_arrays
