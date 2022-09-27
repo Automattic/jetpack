@@ -10,16 +10,6 @@ import styles from './style.module.scss';
 import { VideoGridProps } from './types';
 import type React from 'react';
 
-// Generate en ampty array of length count
-const blankData = {
-	id: 0,
-	title: '...',
-	thumbnail: null,
-	duration: null,
-	uploadDate: '',
-	plays: null,
-};
-
 /**
  * Video Grid component
  *
@@ -27,11 +17,7 @@ const blankData = {
  * @returns {React.ReactNode} - VideoGrid react component.
  */
 const VideoGrid = ( { videos, count = 6, onVideoDetailsClick }: VideoGridProps ) => {
-	let gridVideos = videos.slice( 0, count );
-
-	if ( gridVideos.length < count ) {
-		gridVideos = gridVideos.concat( Array( count - gridVideos.length ).fill( blankData ) );
-	}
+	const gridVideos = videos.slice( 0, count );
 
 	const handleClickWithIndex = ( index, callback ) => () => {
 		callback?.( videos[ index ] );
@@ -45,9 +31,10 @@ const VideoGrid = ( { videos, count = 6, onVideoDetailsClick }: VideoGridProps )
 						<Col key={ index } sm={ 4 } md={ 4 } lg={ 4 }>
 							<VideoCard
 								title={ video.title }
-								thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
+								thumbnail={ video?.uploading ? <div>Uploading</div> : video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 								duration={ video.duration }
 								plays={ video.plays }
+								showQuickActions={ ! video?.uploading }
 								onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 							/>
 						</Col>
