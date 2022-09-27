@@ -177,7 +177,6 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		error_log( 'HERE' );
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
