@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Register `pcast.pocketcasts.net` for oEmbed even with WordPress 6.1, they only register `pca.st`.
