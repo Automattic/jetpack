@@ -55,11 +55,11 @@ class VideoPressToken {
 	 * Check if user is connected.
 	 *
 	 * @return bool
-	 * @throws \Exception - If user is not connected.
+	 * @throws Upload_Exception - If user is not connected.
 	 */
 	private static function check_connection() {
 		if ( ! ( new Connection_Manager() )->has_connected_owner() ) {
-			throw new \Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
+			throw new Upload_Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
 		}
 		return true;
 	}
@@ -113,7 +113,7 @@ class VideoPressToken {
 	 * Retrieve a One Time Upload Token via WPCOM api.
 	 *
 	 * @return string
-	 * @throws \Exception If token is empty or is had an error.
+	 * @throws Upload_Exception If token is empty or is had an error.
 	 */
 	public static function videopress_onetime_upload_token() {
 		if ( self::check_connection() ) {
@@ -127,13 +127,13 @@ class VideoPressToken {
 			$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 			if ( is_wp_error( $result ) ) {
-				throw new \Exception( __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
+				throw new Upload_Exception( __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
 			}
 
 			$response = json_decode( $result['body'], true );
 
 			if ( empty( $response['upload_token'] ) ) {
-				throw new \Exception( __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
+				throw new Upload_Exception( __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
 			}
 
 			return $response['upload_token'];
@@ -144,7 +144,7 @@ class VideoPressToken {
 	 * Gets the VideoPress Upload JWT
 	 *
 	 * @return string
-	 * @throws \Exception - If user is not connected, if token is empty or failed to obtain.
+	 * @throws Upload_Exception - If user is not connected, if token is empty or failed to obtain.
 	 */
 	public static function videopress_upload_jwt() {
 		if ( self::check_connection() ) {
@@ -154,7 +154,7 @@ class VideoPressToken {
 			$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
 
 			if ( is_wp_error( $result ) ) {
-				throw new \Exception(
+				throw new Upload_Exception(
 					__( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) .
 					'(' . $result->get_error_message() . ')'
 				);
@@ -163,7 +163,7 @@ class VideoPressToken {
 			$response = json_decode( $result['body'], true );
 
 			if ( empty( $response['upload_token'] ) ) {
-				throw new \Exception( __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) );
+				throw new Upload_Exception( __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) );
 			}
 
 			return $response['upload_token'];
@@ -173,8 +173,7 @@ class VideoPressToken {
 	/**
 	 * Endpoint for getting the VideoPress Upload JWT
 	 *
-	 * @return string
-	 * @throws \Exception - If user is not connected, if token is empty or failed to obtain.
+	 * @return WP_Rest_Response - The response object.
 	 */
 	public static function upload_jwt() {
 		$blog_id = self::blog_id();
