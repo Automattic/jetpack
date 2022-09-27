@@ -6,13 +6,11 @@ export function PaidPlanPanel() {
 	const title = __( 'Paid Newsletter', 'jetpack' );
 	const text = __( 'Set up a paid plan for readers to access your content.', 'jetpack' );
 	return (
-		<>
-			<PanelBody title={ title } initialOpen={ true }>
-				<PanelRow>{ text }</PanelRow>
-				<PanelRow>
-					<GetAddPaidPlanButton />
-				</PanelRow>
-			</PanelBody>
-		</>
+		<PanelBody title={ title } initialOpen={ true }>
+			<PanelRow>{ text }</PanelRow>
+			<PanelRow>
+				<GetAddPaidPlanButton />
+			</PanelRow>
+		</PanelBody>
 	);
 }
