@@ -9,7 +9,7 @@
 
 ### Bug fixes
 - Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks. [#26308]
-- Payments block: make filtering patterns more robust used for the payments intro. [#26465]
+- Payments block: make filtering patterns used for the payments intro more robust. [#26465]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Account Connection Card: remove magic mobile link [#26311]
