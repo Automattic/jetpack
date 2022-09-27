@@ -1048,7 +1048,7 @@ function maybe_get_locked_content( $the_content ) {
 	require_once __DIR__ . '/../extensions/blocks/premium-content/_inc/subscription-service/include.php';
 	require_once __DIR__ . '/../modules/memberships/class-jetpack-memberships.php';
 
-	$protection_level = get_post_meta( get_the_ID(), \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+	$protection_level = get_post_meta( get_the_ID(), 'jetpack_newsletter_access', true );
 
 	$can_view = true;
 	if ( 'paid_subscribers' === $protection_level ) {
