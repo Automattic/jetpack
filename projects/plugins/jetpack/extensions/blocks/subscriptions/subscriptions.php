@@ -14,9 +14,9 @@ use Jetpack_Gutenberg;
 use Jetpack_Subscriptions_Widget;
 use Jetpack_Memberships;
 
-const FEATURE_NAME                                 = 'subscriptions';
-const BLOCK_NAME                                   = 'jetpack/' . FEATURE_NAME;
-const META_NAME_FOR_POST_LEVEL_VISIBILITY_SETTINGS = '_newsletter_visibility';
+const FEATURE_NAME                             = 'subscriptions';
+const BLOCK_NAME                               = 'jetpack/' . FEATURE_NAME;
+const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = 'jetpack_newsletter_access';
 
 /**
  * These block defaults should match ./constants.js
@@ -54,7 +54,7 @@ function register_block() {
 
 	register_post_meta(
 		'post',
-		META_NAME_FOR_POST_LEVEL_VISIBILITY_SETTINGS,
+		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 		array(
 			'show_in_rest'  => true,
 			'single'        => true,
@@ -69,7 +69,7 @@ function register_block() {
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
 		function ( $allowed_meta ) {
-			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_VISIBILITY_SETTINGS ) );
+			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
 		},
 		10
 	);
