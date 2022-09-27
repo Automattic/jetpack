@@ -40,7 +40,9 @@ domReady( function () {
 						setPurchaseResultCookie( premiumContentJWTToken );
 					} else if ( data && data.action === 'close' && premiumContentJWTToken ) {
 						// The token was set during the purchase flow, we want to relead the whole page with token in query string so it recognizes that the user is logged in.
-						reloadPageWithPremiumContentQueryString( premiumContentJWTToken );
+						reloadPageWithPremiumContentQueryString( premiumContentJWTToken, {
+							subscribe: 'success',
+						} );
 					} else if ( data && data.action === 'close' ) {
 						// User just aborted.
 						window.removeEventListener( 'message', handleIframeResult );
