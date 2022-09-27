@@ -1,14 +1,24 @@
 import {
 	getJetpackExtensionAvailability,
 	isUpgradable,
+	getJetpackData,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
 const republicizeFeatureName = 'republicize';
 
+/**
+ * Hook that provides various elements of Publicize configuration,
+ * whether it's enabled, and whether resharing is available.
+ *
+ * @returns { object } The various flags and togglePublicizeFeature,
+ * for toggling support for the current post.
+ */
 export default function usePublicizeConfig() {
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
+	const sharesData = getJetpackData()?.social?.sharesData ?? {};
+	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
 	const { available: isRePublicizeFeatureAvailable } = getJetpackExtensionAvailability(
 		republicizeFeatureName
 	);
@@ -82,5 +92,8 @@ export default function usePublicizeConfig() {
 		isRePublicizeFeatureAvailable,
 		isRePublicizeUpgradableViaUpsell,
 		hideRePublicizeFeature,
+		isShareLimitEnabled,
+		numberOfSharesRemaining: sharesData.shares_remaining,
+		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
 	};
 }
