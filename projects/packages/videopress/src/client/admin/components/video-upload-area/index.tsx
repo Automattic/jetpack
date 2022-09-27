@@ -27,9 +27,12 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
 	const inputRef = useRef( null );
 
-	const handleFileInputChangeEvent = useCallback( ( e: ChangeEvent< HTMLInputElement > ) => {
-		onSelectFiles( Array.from( e.currentTarget.files ) );
-	}, [] );
+	const handleFileInputChangeEvent = useCallback(
+		( e: ChangeEvent< HTMLInputElement > ) => {
+			onSelectFiles( Array.from( e.currentTarget.files ) );
+		},
+		[ onSelectFiles ]
+	);
 
 	const handleClickEvent = useCallback( () => {
 		inputRef.current.click();

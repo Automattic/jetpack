@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	Text,
 	AdminPage,
@@ -14,18 +17,92 @@ import {
 	useProductCheckoutWorkflow,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
-import { useSelect } from '@wordpress/data';
+import apiFetch from '@wordpress/api-fetch';
+import { FormFileUpload } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import classnames from 'classnames';
-import { useCallback } from 'react';
+/**
+ * Internal dependencies
+ */
+import useUploader from '../../../hooks/use-uploader';
+import { STORE_ID } from '../../../state';
+import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
+import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
 import useVideos from '../../hooks/use-videos';
 import Logo from '../logo';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
+/**
+ * Types
+ */
 import { ConnectionStore } from './types';
 
+const useDashboardVideos = () => {
+	const { setVideo } = useDispatch( STORE_ID );
+
+	const {
+		items,
+		total: totalVideoCount,
+		uploadedVideoCount,
+		// isFetching = true,
+		// IsFetchingTotalVideosCount = true,
+	} = useVideos();
+
+	const poolingUploadedVideoData = async data => {
+		setVideo( data );
+
+		const response = await apiFetch( {
+			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+		} );
+
+		const video = mapVideoFromWPV2MediaEndpoint( response );
+
+		if ( video?.posterImage !== null ) {
+			setVideo( video );
+		} else {
+			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
+		}
+	};
+
+	const handleSuccess = ( data, file ) => {
+		poolingUploadedVideoData( {
+			id: data?.id,
+			guid: data?.guid,
+			url: data?.src,
+			title: file?.name,
+		} );
+	};
+
+	const { handleFilesUpload, status, file } = useUploader( {
+		onSuccess: handleSuccess,
+	} );
+
+	const videos =
+		status === 'uploading'
+			? [ { id: null, guid: null, uploading: true, title: file.name }, ...items ]
+			: items;
+
+	return {
+		videos,
+		totalVideoCount,
+		uploadedVideoCount,
+		uploadStatus: status,
+		handleFilesUpload,
+	};
+};
+
 const Admin = () => {
+	const {
+		videos,
+		totalVideoCount,
+		uploadedVideoCount,
+		uploadStatus,
+		handleFilesUpload,
+	} = useDashboardVideos();
+
 	const connectionStatus = useSelect(
 		select => ( select( CONNECTION_STORE_ID ) as ConnectionStore ).getConnectionStatus(),
 		[]
@@ -33,25 +110,13 @@ const Admin = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
-
-	const {
-		items: videos,
-		total: totalVideoCount,
-		uploadedVideoCount,
-		// isFetching = true,
-		// IsFetchingTotalVideosCount = true,
-	} = useVideos();
 	const localVideos = [];
 	const localTotalVideoCount = 0;
-	const hasVideos = uploadedVideoCount > 0;
+	const hasVideos = uploadedVideoCount > 0 || uploadStatus === 'uploading';
 	const hasLocalVideos = localVideos && localVideos.length > 0;
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
-
-	const processFiles = useCallback( () => {
-		// TODO
-	}, [] );
 
 	return (
 		<AdminPage
@@ -74,7 +139,15 @@ const Admin = () => {
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
-								<Button fullWidth={ isSm }>{ addVideoLabel }</Button>
+								<FormFileUpload
+									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									accept="video/*"
+									render={ ( { openFileDialog } ) => (
+										<Button fullWidth={ isSm } onClick={ openFileDialog }>
+											{ addVideoLabel }
+										</Button>
+									) }
+								/>
 								<UpgradeTrigger />
 							</Col>
 						</Container>
@@ -92,7 +165,7 @@ const Admin = () => {
 									</Text>
 									<VideoUploadArea
 										className={ classnames( styles[ 'upload-area' ], { [ styles.small ]: isSm } ) }
-										onSelectFiles={ processFiles }
+										onSelectFiles={ handleFilesUpload }
 									/>
 								</Col>
 							) }
