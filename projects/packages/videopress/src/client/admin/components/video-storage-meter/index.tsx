@@ -8,6 +8,7 @@ import filesize from 'filesize';
 /**
  * Internal dependencies
  */
+import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
 import ProgressBar from '../progress-bar';
 import styles from './style.module.scss';
@@ -55,6 +56,13 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed } = useVideos();
 	const total = 1024 * 1024 * 1024 * 1024;
+
+	const { features } = usePlan();
+
+	// Do not show storage meter for unlimited storage plans.
+	if ( features?.isVideoPressUnlimitedSupported ) {
+		return null;
+	}
 
 	if ( ! storageUsed ) {
 		return <VideoStorageMeter { ...props } used={ 0 } total={ 1 } />;
