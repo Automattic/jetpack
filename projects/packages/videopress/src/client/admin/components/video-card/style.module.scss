@@ -31,7 +31,7 @@
 		}
 	}
 
-	&:hover {
+	&:not(.small):hover {
 		.video-card__background {
 			opacity: 1;
 			z-index: 1;
@@ -97,9 +97,16 @@
 }
 
 .video-card__quick-actions-section {
-	opacity: 0;
-	position: relative;
 	display: flex;
-	transition: opacity 0.2s ease-in-out;
 	justify-content: space-between;
+
+	&:not(.small) {
+		opacity: 0;
+		position: relative;
+		transition: opacity 0.2s ease-in-out;
+	}
+}
+
+.chevron {
+	display: flex;
 }
