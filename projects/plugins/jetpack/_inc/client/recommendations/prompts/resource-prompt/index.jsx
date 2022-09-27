@@ -15,7 +15,7 @@ import {
 	isUpdatingRecommendationsStep,
 	isStepViewed,
 	getProductSlugForStep,
-	isOnboardingActive,
+	getIsOnboardingActive,
 } from 'state/recommendations';
 import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
@@ -168,7 +168,7 @@ const ResourcePrompt = connect(
 		updatingStep: isUpdatingRecommendationsStep( state ),
 		summaryViewed: isStepViewed( state, 'summary' ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
-		...( isOnboardingActive( state )
+		...( getIsOnboardingActive( state )
 			? {
 					progressValue: getOnboardingProgressValueIfEligible( state ),
 					summaryViewed: false,

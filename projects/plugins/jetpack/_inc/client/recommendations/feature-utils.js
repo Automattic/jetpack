@@ -198,10 +198,6 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 					} );
 				},
 			};
-		case 'server-credentials':
-			return {
-				activateFeature: () => {},
-			};
 		default:
 			throw `Unknown feature slug in mapDispatchToProps recommendations/feature-utils.js: ${ featureSlug }`;
 	}

@@ -16,10 +16,9 @@ import {
 	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
-	getOnboardingData,
+	getIsOnboardingActive,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
-import { isFetchingSiteData } from 'state/site';
 import { getPluginsData } from 'state/site/plugins';
 import { FeatureSummary } from '../feature-summary';
 import './style.scss';
@@ -44,7 +43,7 @@ const SummaryComponent = props => {
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		upsell,
-		onboardingData,
+		isOnboardingActive,
 		newRecommendations,
 		stateStepSlug,
 		updatingStep,
@@ -60,12 +59,10 @@ const SummaryComponent = props => {
 	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	useEffect( () => {
-		const plan = onboardingData.active;
-
-		if ( plan ) {
-			updateOnboardingData( { ...onboardingData, active: null } );
+		if ( isOnboardingActive ) {
+			updateOnboardingData( { active: null } );
 		}
-	}, [ updateOnboardingData, onboardingData ] );
+	}, [ updateOnboardingData, isOnboardingActive ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -214,8 +211,7 @@ const Summary = connect(
 		const pluginsData = getPluginsData( state );
 		const settings = getSettings( state );
 		const upsell = getUpsell( state );
-		const isFetchingMainData =
-			isEmpty( settings ) || isEmpty( pluginsData ) || isFetchingSiteData( state );
+		const isFetchingMainData = isEmpty( settings ) || isEmpty( pluginsData );
 		const isFetchingSidebarData = isEmpty( upsell );
 		const isFetchingBottomSectionData = isEmpty( upsell );
 
@@ -230,7 +226,7 @@ const Summary = connect(
 			summaryPrimarySection: getSummaryPrimarySection( state ),
 			stateStepSlug: getStep( state ),
 			updatingStep: isUpdatingRecommendationsStep( state ),
-			onboardingData: getOnboardingData( state ),
+			isOnboardingActive: getIsOnboardingActive( state ),
 			upsell,
 		};
 	},

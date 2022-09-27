@@ -359,7 +359,7 @@ export const stepToRoute = {
 	'backup-plan': '#/recommendations/backup-plan',
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
-	// TODO: New Steps (JP Boost Onboarding)
+	// new steps (September 2022)
 	backup__welcome: '#/recommendations/welcome-backup',
 	'server-credentials': '#/recommendations/server-credentials',
 };
@@ -510,8 +510,9 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'server-credentials':
+			return true; // Can we check if credentials were added?
 		case 'backup__welcome':
-			return true; // TODO: Add conditional
+			return getStepsForOnboarding( state ).includes( 'backup__welcome' );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -592,7 +593,7 @@ export const getOnboardingData = state => {
 	return onboarding;
 };
 
-export const isOnboardingActive = state => null !== getOnboardingData( state ).active;
+export const getIsOnboardingActive = state => null !== getOnboardingData( state ).active;
 
 export const getStep = state => {
 	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
