@@ -2,7 +2,7 @@ import { VideoPressVideo } from '../../types';
 import { VideoQuickActionsProps } from '../video-quick-actions/types';
 import { VideoThumbnailProps } from '../video-thumbnail/types';
 
-export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' > &
+export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' | 'id' > &
 	VideoThumbnailProps &
 	VideoQuickActionsProps & {
 		/**
