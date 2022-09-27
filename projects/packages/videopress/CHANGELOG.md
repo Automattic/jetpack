@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2022-09-27
+### Added
+- VideoPress: add contextual upgrade trigger to dashboard. [#26403]
+- VideoPress: add placeholder component. [#26478]
+- VideoPress: add poster endpoint. [#26291]
+- VideoPress: add sub actions to VideoQuickActions component. [#26378]
+- VideoPress: add updateVideoPrivacy() action. [#26380]
+- VideoPress: add uploaded video count fetch functions. [#26368]
+- VideoPress: add upload jwt endpoint. [#26406]
+- VideoPress: be able to remove video from the UI. [#26439]
+- VideoPress: expose and store more video data. [#26369]
+- VideoPress: included raw video caption on the jetpack_videopress field from the media details endpoint. [#26409]
+- VideoPress: link search input load state to videos fetch state on dashboard. [#26382]
+- VideoPress: set video privacy from Video Grid / dashboard. [#26405]
+- VideoPress: support selecting poster by frame. [#26317]
+- VideoPress: upload video from dashboard. [#26461]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: add file extension filter on file selection. [#26454]
+- VideoPress: add VideoUploadArea component for first use screen. [#26333]
+- VideoPress: hide pagination when there are less than two pages. [#26383]
+- VideoPress: hit wp/v2/media to request videos data. [#26318]
+- VideoPress: make Pagination work with trully data. [#26326]
+- VideoPress: resolve addVideo() selector. [#26331]
+
+### Fixed
+- Set the right mapping for the caption field, relying on the new jetpack_videopress.caption raw information. [#26440]
+- Set the right source for the total of videos counter on the VideoPress library page. [#26365]
+- StoryBook: fix nonexistent pkg bug. [#26407]
+- VideoPress: fix printing the upload video date. [#26332]
+- VideoPress: fix SearchInput clear and initial typing behavior on dashboard. [#26363]
+- VideoPress: fix updating the store when editing video data. [#26352]
+
 ## [0.4.0] - 2022-09-20
 ### Added
 - VideoPress: implement filter section UI in the dashboard [#26169]
@@ -165,6 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.4.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.1...v0.3.0

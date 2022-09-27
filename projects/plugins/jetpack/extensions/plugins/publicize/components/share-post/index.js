@@ -1,11 +1,13 @@
-import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
+import {
+	useSocialMediaConnections,
+	usePublicizeConfig,
+} from '@automattic/jetpack-publicize-components';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSharePost from '../../hooks/use-share-post';
 
 function cleanNotice() {
