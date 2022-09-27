@@ -20,11 +20,13 @@
 		"env:up": "docker-compose up -d",
 		"env:down": "docker-compose down",
 		"pretest:run": "pnpm run clean",
-		"test:run": "jest"
+		"test:run": "jest",
+		"test": "jest"
 	},
 	"devDependencies": {
 		"jest": "^29.0.3",
-		"shell-escape": "0.2.0"
+		"shell-escape": "0.2.0",
+		"ts-jest": "^29.0.2"
 	},
 	"engines": {
 		"node": "^16.13.2",

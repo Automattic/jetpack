@@ -1,6 +1,6 @@
-const child_process = require( 'node:child_process' );
-const util = require( 'util' );
-const shellEscape = require( 'shell-escape' );
+import child_process from 'node:child_process';
+import util from 'util';
+import shellEscape from 'shell-escape';
 
 const exec = util.promisify( child_process.exec );
 
@@ -9,7 +9,7 @@ const exec = util.promisify( child_process.exec );
  *
  * @param {...string} command - The command to run, as a series of strings which will each be escaped.
  */
-async function dockerExec( ...command ) {
+export async function dockerExec( ...command ) {
 	const result = await exec(
 		shellEscape( [ 'docker', 'exec', '-u', 'www-data', 'super-cache-e2e_wordpress_1', ...command ] )
 	);
@@ -23,7 +23,7 @@ async function dockerExec( ...command ) {
  * @param {string} filename - The file to be filtered.
  * @param {string} regex - A regex (without / / markers) for lines to remove.
  */
-async function deleteLinesFromDockerFile( filename, regex ) {
+export async function deleteLinesFromDockerFile( filename, regex ) {
 	await dockerExec( 'sed', '-i', `/^${ regex }/d`, filename );
 }
 
@@ -32,7 +32,7 @@ async function deleteLinesFromDockerFile( filename, regex ) {
  *
  * @param {string} filename - The file to delete.
  */
-async function deleteDockerFile( filename ) {
+export async function deleteDockerFile( filename ) {
 	await dockerExec( 'rm', '-f', filename );
 }
 
@@ -41,13 +41,6 @@ async function deleteDockerFile( filename ) {
  *
  * @param {string} filename - The file to read.
  */
-async function readDockerFile( filename ) {
+export async function readDockerFile( filename ) {
 	return dockerExec( 'cat', filename );
 }
-
-module.exports = {
-	dockerExec,
-	deleteLinesFromDockerFile,
-	deleteDockerFile,
-	readDockerFile,
-};
