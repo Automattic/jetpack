@@ -100,6 +100,10 @@ export type VideoPressVideo = Omit< OriginalVideoPressVideo, 'videoTitle' > & {
 	 * VideoPress GUID
 	 */
 	guid?: string;
+	/**
+	 * Video is uploading
+	 */
+	uploading?: boolean;
 };
 
 export type LocalVideo = {
