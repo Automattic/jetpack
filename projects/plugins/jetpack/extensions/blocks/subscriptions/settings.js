@@ -7,23 +7,26 @@ import { __, sprintf } from '@wordpress/i18n';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
 const accessOptions = {
-	public: {
-		label: __( 'Public', 'jetpack' ),
-		info: __( 'Visible to everyone', 'jetpack' ),
+	everybody: {
+		label: __( 'Everybody', 'jetpack' ),
+		info: __( 'Visible to everyone.', 'jetpack' ),
 	},
-	members_only: {
-		label: __( 'Subscribers', 'jetpack' ),
-		info: __( 'Visible to only subscribers', 'jetpack' ),
+	subscribers: {
+		label: __( 'All subscribers', 'jetpack' ),
+		info: __( 'Visible to everyone to subscribes to your site.', 'jetpack' ),
 	},
-	nobody: {
-		label: __( 'Private', 'jetpack' ),
-		info: __( 'Visible to only admins and editors', 'jetpack' ),
+	paid_subscribers: {
+		label: __( 'Paid subscribers', 'jetpack' ),
+		info: __( 'Visible to everyone who purchases a paid plan on your site.', 'jetpack' ),
 	},
 };
 
 export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 	const instanceId = useInstanceId( NewsletterAccess );
-	const accessLabel = accessOptions[ accessLevel ]?.label ?? 'Public';
+	if ( ! accessLevel ) {
+		accessLevel = 'everybody';
+	}
+	const accessLabel = accessOptions[ accessLevel ]?.label;
 
 	return (
 		<PostVisibilityCheck
