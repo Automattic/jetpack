@@ -1051,7 +1051,7 @@ function check_for_paid_subscription( $the_content ) {
 	$protection_level = get_post_meta( get_the_ID(), \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 
 	$can_view = true;
-	if ( 'members_only' === $protection_level ) {
+	if ( 'paid_subscribers' === $protection_level ) {
 		$paywall  = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		$plan_ids = Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
 		$can_view = $paywall->visitor_can_view_content( $plan_ids );
