@@ -81,12 +81,20 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { items = [] } = state;
+			const { query } = state;
+			const items = [ ...state.items ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
+			let uploadedVideoCount = state.uploadedVideoCount;
+			const pagination = { ...state.pagination };
+
 			if ( videoIndex === -1 ) {
-				// Add video when not found
-				items.push( video );
+				// Add video when not found at beginning of the list.
+				items.unshift( video );
+				// Updating pagination and count
+				uploadedVideoCount += 1;
+				pagination.total += 1;
+				pagination.totalPages = Math.ceil( pagination.total / query.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -99,6 +107,8 @@ const videos = ( state = {}, action ) => {
 				...state,
 				items,
 				isFetching: false,
+				uploadedVideoCount,
+				pagination,
 			};
 		}
 

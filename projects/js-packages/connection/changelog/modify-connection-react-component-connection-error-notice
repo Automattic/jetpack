@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Updated the ConnectionErrorNotice react component to use a required message property.

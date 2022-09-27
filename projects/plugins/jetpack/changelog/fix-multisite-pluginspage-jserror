@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Plugins page: Fixes JavaScript console errors related to the disconnect button on multisite networks.

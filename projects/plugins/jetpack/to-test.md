@@ -1,63 +1,40 @@
-## Jetpack 11.3
+## Jetpack 11.4
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Gallery Blocks & Carousel
+### Jetpack Recommendations Assistant
 
-There have been several changes made to the Gallery blocks and Carousel. In particular, we improved the way Carousel works with reusable Gallery blocks [[#25441](https://github.com/Automattic/jetpack/pull/25441)]. To test, try the following:
+There have been updates for the Jetpack Recommendations Assistant. In particular, there is a recommendation for agency managed sites [#26302], and mobile app store links are now shown based on device type [#26093].
 
-- On a Jetpack connected site, make sure Carousel is enabled in the Media section of the Writing tab in Jetpack Settings.
-- Create a new post and add a standard Gallery block and make sure it is using the Carousel by setting the 'Link to - media file' in the block settings.
-- Check the post and see if the carousel is showing up when an image is clicked on.
-- Duplicate the gallery and save it as a reusable block. 
-- Test if the reusable gallery is still opening a carousel.
-- Repeat the test using Tiled Gallery block.
-- Switch between a few themes and verify consistent behavior in each theme.
+**To test the agency specific recommendation, try:**
 
-Improvement was made to Gallery block and Carousel when images style is set to rounded and a custom URL is used [[#65350](https://github.com/Automattic/wp-calypso/issues/65350)]. To test, try the following:
+- With the Jetpack Beta Tester [plugin](https://jetpack.com/download-jetpack-beta/) activated, and the 11.4-beta branch active, on the main dashboard page `/wp-admin/admin.php?page=jetpack#/dashboard` there is an option in the footer to "Reset Options (dev only)" which can be used to reset the recommendation steps if they have already been completed.
+- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
+- Select "This is my personal site".
+- Then select "Continue", it should skip straight to the Downtime Monitoring recommendation.
+- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
+- This time, select the "I build or manage this site for a client" option.
+- Select "Continue" and this time you should get the new agencies recommendation.
+- On the agency screen, test that the "Learn More" and "Get Jetpack for Agencies" links work.
+- Click "Not now" on the agency screen recommendation and you should be directed to the next recommendation. Continue selecting "Not now" until you reach the summary page.
+- Click the "Sign Up" external link next to the Jetpack for Agencies recommendation and make sure it opens (no need to fill out): https://cloud.jetpack.com/agency/signup
+- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type` and select both "I build or manage this site for a client" and "This is an e-commerce site" and click on Continue.
+- You should see the Agencies recommendation first, select "Not now".
+- Next you should see the WooCommerce recommendation.
+- That is all for testing these updated recommendations.
 
-- On a Jetpack connected site, make sure Carousel is enabled in the Media section of the Writing tab in Jetpack Settings.
-- Create a new post and add a standard Gallery block and make sure it is using the Carousel by setting the 'Link to - media file' in the block settings.
-- Set each image style to rounded.
-- Add a custom link to some images.
-- View the post and click the white space between the images (the part where the corner of the image has been cut off). 
-- Note it opens a carousel view for images with no custom URL and the appropriate link if the image has a custom URL.
-- Switch between a few themes and verify consistent behavior in each theme.
+**And to test the mobile app links:**
 
-
-### Payments Buttons
-
-A new Payments Buttons block was added that acts as a container for several Payment Button blocks [[#25297](https://github.com/Automattic/jetpack/pull/25297)]. Note that testing this requires a paid plan and Stripe connection.
-
-- On a Jetpack connected site, create a new post and add a Payments Buttons block.
-- If you don't have a paid plan, you will be asked to upgrade.
-- You will be asked to connect to Stripe.
-- Select the Payment Buttons block and try adding several Payment Button block inside it.
-- Make sure you can select different plans for each button.
-- Make sure you can change the width of each button.
-- View the post and confirm Payment Blocks look as intended.
-
-
-### Google documents, spreadsheets and slideshows
-
-We are adding support for Google documents, spreadsheets and slideshows. [[#24628](https://github.com/Automattic/jetpack/pull/24628)]. Please note these blocks are still in beta so testing them requires enabling JETPACK_BETA_BLOCKS constant in the site Settings on JN site or adding `define( 'JETPACK_BETA_BLOCKS', true );` to the wp-config.php file. To test, try the following:
-
-- On a Jetpack connected site create a new post.
-- Search for Google blocks and add each block to your post.
-- Populate the blocks with links to publicly available documents.
-- Try adding a link to a private document. You should see a warning.
-- Publish the post and view the front end. Documents should be available to users.
-
-### Post List
-
-We are adding support for Post List feature. This feature was previously available only to sites on WordPress.com. [[#25301](https://github.com/Automattic/jetpack/pull/25301)].
-
-- On a Jetpack connected site go to yoursite/wp-admin/admin.php?page=jetpack_modules
-- Enable the Post List module.
-- Go to your posts and pages list and see that the wp-admin view matches that of one available on WordPress.com.
-- Try adding a featured image to a post and see it shows up in wp-admin view and on WordPress.com.
+- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/summary`
+- On a desktop or laptop computer, a QR code for the Jetpack mobile app will be displayed next to the `jetpack.com/mobile` URL.
+- When visiting the same recommendations page on a mobile device, the respective app store button should be shown for well known devices and mobile operating systems.
+- If you don't have a mobile device to test with, you might try using Chrome to simulate the user agent:
+  - Open the Chrome Dev Tools
+  - Click the vertical menu option > More tools > Network conditions
+  - In the Network conditions tab, uncheck the "Use browser default" for the user agent, and select an iOS or Android one for testing.
+  - When refreshing the recommendations page you should see the expected mobile app store button.
 
 **Thank you for all your help!**

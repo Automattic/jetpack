@@ -13,21 +13,28 @@ import { STORE_ID } from '../../../state';
  * @returns {object} videos
  */
 export default function useVideos() {
-	return {
-		// Data
-		items: useSelect( select => select( STORE_ID ).getVideos(), [] ),
-		search: '',
-		uploadedVideoCount: useSelect( select => select( STORE_ID ).getUploadedVideoCount() ),
-		isFetching: useSelect( select => select( STORE_ID ).getIsFetching() ),
-		isFetchingUploadedVideoCount: useSelect( select =>
-			select( STORE_ID ).getIsFetchingUploadedVideoCount()
-		),
-		...useSelect( select => select( STORE_ID ).getVideosQuery() || {} ),
-		...useSelect( select => select( STORE_ID ).getPagination(), [] ),
+	// Data
+	const items = useSelect( select => select( STORE_ID ).getVideos() );
+	const search = '';
+	const uploadedVideoCount = useSelect( select => select( STORE_ID ).getUploadedVideoCount() );
+	const isFetching = useSelect( select => select( STORE_ID ).getIsFetching() );
+	const isFetchingUploadedVideoCount = useSelect( select =>
+		select( STORE_ID ).getIsFetchingUploadedVideoCount()
+	);
+	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
+	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 
+	return {
+		items,
+		search,
+		uploadedVideoCount,
+		isFetching,
+		isFetchingUploadedVideoCount,
+		...query,
+		...pagination,
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
-
-		setSearch: search => dispatch( STORE_ID ).setVideosQuery( { search, page: 1 } ),
+		setSearch: querySearch =>
+			dispatch( STORE_ID ).setVideosQuery( { search: querySearch, page: 1 } ),
 	};
 }
