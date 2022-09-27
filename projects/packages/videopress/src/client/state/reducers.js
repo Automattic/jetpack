@@ -82,8 +82,8 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { query } = state;
-			const items = [ ...state.items ]; // Clone the array, to avoid mutating the state.
+			const { query = getDefaultQuery() } = state;
+			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
 			let uploadedVideoCount = state.uploadedVideoCount;
@@ -95,7 +95,7 @@ const videos = ( state = {}, action ) => {
 				// Updating pagination and count
 				uploadedVideoCount += 1;
 				pagination.total += 1;
-				pagination.totalPages = Math.ceil( pagination.total / query.itemsPerPage );
+				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
