@@ -1,9 +1,12 @@
 import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel, PluginPostPublishPanel } from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel,
+	PluginPostPublishPanel,
+	PluginDocumentSettingPanel,
+} from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -48,12 +51,11 @@ export default function SubscribePanels() {
 
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
 	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
-
 	return (
 		<>
-			<PanelRow>
+			<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
 				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
-			</PanelRow>
+			</PluginDocumentSettingPanel>
 
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
