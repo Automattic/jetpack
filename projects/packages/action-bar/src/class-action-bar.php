@@ -144,7 +144,7 @@ class Action_Bar {
 		$feed_id = null;
 
 		if ( class_exists( 'FeedBag' ) ) {
-			$feed_id = FeedBag::get_feed_id_for_blog_id( $blog_id );
+			$feed_id = \FeedBag::get_feed_id_for_blog_id( $blog_id );
 		}
 
 		if ( $feed_id ) {
