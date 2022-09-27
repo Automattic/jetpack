@@ -16,7 +16,7 @@
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
-add_action( 'the_content', 'check_for_paid_subscription' );
+add_action( 'the_content', 'maybe_get_locked_content' );
 
 /**
  * Loads the Subscriptions module.
@@ -1043,7 +1043,7 @@ require __DIR__ . '/subscriptions/views.php';
  *
  * @return string
  */
-function check_for_paid_subscription( $the_content ) {
+function maybe_get_locked_content( $the_content ) {
 
 	require_once __DIR__ . '/../extensions/blocks/premium-content/_inc/subscription-service/include.php';
 	require_once __DIR__ . '/../modules/memberships/class-jetpack-memberships.php';
