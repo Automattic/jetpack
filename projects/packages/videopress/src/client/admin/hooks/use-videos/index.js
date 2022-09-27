@@ -32,7 +32,7 @@ export default function useVideos() {
 		isFetchingUploadedVideoCount,
 		...query,
 		...pagination,
-		// Setters
+		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
 		setSearch: querySearch =>
 			dispatch( STORE_ID ).setVideosQuery( { search: querySearch, page: 1 } ),

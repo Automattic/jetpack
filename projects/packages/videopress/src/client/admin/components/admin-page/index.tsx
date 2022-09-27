@@ -10,8 +10,13 @@ import {
 	Button,
 	Col,
 	useBreakpointMatch,
+	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import {
+	ConnectScreenRequiredPlan,
+	useProductCheckoutWorkflow,
+	CONNECTION_STORE_ID,
+} from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -143,6 +148,7 @@ const Admin = () => {
 										</Button>
 									) }
 								/>
+								<UpgradeTrigger />
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -200,5 +206,43 @@ const ConnectionSection = () => {
 				<li>{ __( 'Amazing feature 3', 'jetpack-videopress-pkg' ) }</li>
 			</ul>
 		</ConnectScreenRequiredPlan>
+	);
+};
+
+const UpgradeTrigger = () => {
+	const {
+		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
+		adminUrl,
+	} = window.jetpackVideoPressInitialState;
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_videopress',
+		redirectUrl: adminUrl,
+	} );
+
+	if ( isVideoPress1TBSupported || isVideoPressUnlimitedSupported ) {
+		return null;
+	}
+
+	// TODO: use count from initial state
+	const { uploadedVideoCount } = useVideos();
+	const hasUploadedVideo = uploadedVideoCount > 0;
+	const isUploading = false;
+
+	const description =
+		hasUploadedVideo || isUploading
+			? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
+			: '';
+	const cta = __(
+		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
+		'jetpack-videopress-pkg'
+	);
+
+	return (
+		<ContextualUpgradeTrigger
+			description={ description }
+			cta={ cta }
+			className={ styles[ 'upgrade-trigger' ] }
+			onClick={ run }
+		/>
 	);
 };

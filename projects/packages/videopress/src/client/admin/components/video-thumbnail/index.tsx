@@ -117,7 +117,7 @@ const VideoThumbnail = ( {
 		<div
 			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
 		>
-			{ editable && (
+			{ typeof thumbnail === 'string' && editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
 					onSelectFromVideo={ onSelectFromVideo }
