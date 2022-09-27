@@ -7,17 +7,12 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Constants;
-use Jetpack_Options;
-use WorDBless\BaseTestCase;
-use WorDBless\Options as WorDBless_Options;
-
 /**
  * Class to test the XMLRPC class.
  *
  * @covers Automattic\Jetpack\Stats\XMLRPC
  */
-class Test_XMLRPC extends BaseTestCase {
+class Test_XMLRPC extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC class.
 	 *
@@ -31,9 +26,7 @@ class Test_XMLRPC extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
-		Constants::set_constant( 'STATS_VERSION', '9' );
-		Jetpack_Options::update_option( 'id', 1234 );
+		parent::set_up();
 
 		$this->xmlrpc_instance = XMLRPC::init();
 	}
@@ -44,8 +37,7 @@ class Test_XMLRPC extends BaseTestCase {
 	 * @after
 	 */
 	public function tear_down() {
-		WorDBless_Options::init()->clear_options();
-		Constants::clear_constants();
+		parent::tear_down();
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
@@ -82,7 +74,7 @@ class Test_XMLRPC extends BaseTestCase {
 			'admin_bar'           => true,
 			'count_roles'         => array(),
 			'do_not_track'        => true,
-			'version'             => '9',
+			'version'             => self::DEFAULT_STATS_VERSION,
 			'host'                => 'example.org',
 			'path'                => '/',
 			'blogname'            => false,
@@ -90,7 +82,7 @@ class Test_XMLRPC extends BaseTestCase {
 			'siteurl'             => 'http://example.org',
 			'gmt_offset'          => false,
 			'timezone_string'     => false,
-			'stats_version'       => '9',
+			'stats_version'       => self::DEFAULT_STATS_VERSION,
 			'stats_api'           => 'jetpack',
 			'page_on_front'       => false,
 			'permalink_structure' => false,
