@@ -124,7 +124,7 @@ const VideoThumbnail = ( {
 					onUploadImage={ onUploadImage }
 				/>
 			) }
-			{ duration && (
+			{ Number.isFinite( duration ) && (
 				<div className={ styles[ 'video-thumbnail-duration' ] }>
 					<Text variant="body-small" component="div">
 						{ duration >= 3600 * 1000
@@ -134,7 +134,7 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			{ typeof thumbnail === 'string' ? (
+			{ typeof thumbnail === 'string' && thumbnail !== '' ? (
 				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 			) : (
 				<div className={ styles[ 'thumbnail-placeholder' ] }>
