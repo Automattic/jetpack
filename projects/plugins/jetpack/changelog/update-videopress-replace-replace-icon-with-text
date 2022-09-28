@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match core video block.
+Changed the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar.
