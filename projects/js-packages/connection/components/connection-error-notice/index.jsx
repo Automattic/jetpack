@@ -58,7 +58,12 @@ const ConnectionErrorNotice = props => {
 				<Icon icon={ warning } />
 				<div className={ styles.message }>{ message }</div>
 				{ restoreConnectionCallback && (
-					<a onClick={ restoreConnectionCallback } className={ styles.link }>
+					<a
+						onClick={ restoreConnectionCallback }
+						onKeyDown={ restoreConnectionCallback }
+						className={ styles.link }
+						href="#"
+					>
 						{ __( 'Restore Connection', 'jetpack' ) }
 					</a>
 				) }
