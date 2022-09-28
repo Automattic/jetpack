@@ -1,4 +1,5 @@
 import {
+	JetpackSearchLogo,
 	AdminPage,
 	Container,
 	Col,
@@ -25,6 +26,7 @@ import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 import './upsell-page.scss';
 
 const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
+const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
  * defines UpsellPage.
@@ -58,6 +60,32 @@ export default function UpsellPage( { isLoading = false } ) {
 		} );
 	}, [ domain, adminUrl, isFullyConnected ] );
 
+	return (
+		<>
+			{ isPageLoading && <Loading /> }
+			{ ! isPageLoading && (
+				<div className="jp-search-dashboard-upsell-page">
+					<AdminPage
+						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
+						a8cLogoHref={ AUTOMATTIC_WEBSITE }
+						header={ <JetpackSearchLogo /> }
+						moduleNameHref={ JETPACK_SEARCH__LINK }
+					>
+						<AdminSectionHero>
+							{ isNewPricing ? (
+								<NewPricingComponent sendToCart={ sendToCart } />
+							) : (
+								<OldPricingComponent sendToCart={ sendToCart } />
+							) }
+						</AdminSectionHero>
+					</AdminPage>
+				</div>
+			) }
+		</>
+	);
+}
+
+const OldPricingComponent = ( { sendToCart } ) => {
 	// For old pricing card
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
@@ -68,88 +96,7 @@ export default function UpsellPage( { isLoading = false } ) {
 		'jetpack-search-pkg'
 	);
 
-	// For new pricing table
-	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-	const newPricingArgs = {
-		title: 'The best WordPress search experience',
-		items: [
-			{
-				name: 'Number of records',
-				tooltipInfo: (
-					<>
-						Records are all posts, pages, custom post types and other types of content indexed by
-						Jetpack Search.
-					</>
-				),
-			},
-			{
-				name: 'Monthly requests',
-				tooltipInfo: (
-					<>A search request is when someone visiting your site searches for something.</>
-				),
-			},
-			{
-				name: 'Unbranded search',
-				tooltipInfo: <>Paid customers can remove branding from the search tool.</>,
-			},
-			{
-				name: 'Priority support',
-				tooltipInfo: (
-					<>
-						Paid customers get dedicated email support from our world-class Happiness Engineers to
-						help with any issue.
-						<br />
-						<br />
-						All other questions are handled by our team as quickly as we are able to through the
-						WordPress support forum.
-					</>
-				),
-			},
-			{
-				name: 'Instant search and indexing',
-				tooltipInfo: (
-					<>
-						Instant search and filtering without reloading the page.
-						<br />
-						<br />
-						Real-time indexing, so your search index will update within minutes of changes to your
-						site.
-					</>
-				),
-			},
-			{
-				name: 'Powerful filtering',
-				tooltipInfo: (
-					<>
-						Filtered and faceted searches by tags, categories, dates, custom taxonomies, and post
-						types.
-					</>
-				),
-			},
-			{
-				name: 'Supports 38 languages',
-				tooltipInfo: (
-					<>
-						Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among
-						others.{ ' ' }
-						<a href="#" rel="external noopener noreferrer nofollow" target="_blank">
-							See all supported languanges
-						</a>
-					</>
-				),
-			},
-			{
-				name: 'Spelling correction',
-				tooltipInfo: (
-					<>
-						Quick and accurate spelling correction for when your site visitors mistype their search.
-					</>
-				),
-			},
-		],
-	};
-
-	const oldPricingComponent = (
+	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
 				<h1>{ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }</h1>
@@ -171,8 +118,11 @@ export default function UpsellPage( { isLoading = false } ) {
 			</Col>
 		</Container>
 	);
+};
 
-	const newPricingComponent = (
+const NewPricingComponent = ( { sendToCart } ) => {
+	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	return (
 		<Container horizontalSpacing={ 8 }>
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
 				<ThemeProvider>
@@ -268,22 +218,81 @@ export default function UpsellPage( { isLoading = false } ) {
 			</Col>
 		</Container>
 	);
+};
 
-	return (
-		<>
-			{ isPageLoading && <Loading /> }
-			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-upsell-page">
-					<AdminPage
-						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						a8cLogoHref={ AUTOMATTIC_WEBSITE }
-					>
-						<AdminSectionHero>
-							{ isNewPricing ? newPricingComponent : oldPricingComponent }
-						</AdminSectionHero>
-					</AdminPage>
-				</div>
-			) }
-		</>
-	);
-}
+// For new pricing table
+const newPricingArgs = {
+	title: 'The best WordPress search experience',
+	items: [
+		{
+			name: 'Number of records',
+			tooltipInfo: (
+				<>
+					Records are all posts, pages, custom post types and other types of content indexed by
+					Jetpack Search.
+				</>
+			),
+		},
+		{
+			name: 'Monthly requests',
+			tooltipInfo: <>A search request is when someone visiting your site searches for something.</>,
+		},
+		{
+			name: 'Unbranded search',
+			tooltipInfo: <>Paid customers can remove branding from the search tool.</>,
+		},
+		{
+			name: 'Priority support',
+			tooltipInfo: (
+				<>
+					Paid customers get dedicated email support from our world-class Happiness Engineers to
+					help with any issue.
+					<br />
+					<br />
+					All other questions are handled by our team as quickly as we are able to through the
+					WordPress support forum.
+				</>
+			),
+		},
+		{
+			name: 'Instant search and indexing',
+			tooltipInfo: (
+				<>
+					Instant search and filtering without reloading the page.
+					<br />
+					<br />
+					Real-time indexing, so your search index will update within minutes of changes to your
+					site.
+				</>
+			),
+		},
+		{
+			name: 'Powerful filtering',
+			tooltipInfo: (
+				<>
+					Filtered and faceted searches by tags, categories, dates, custom taxonomies, and post
+					types.
+				</>
+			),
+		},
+		{
+			name: 'Supports 38 languages',
+			tooltipInfo: (
+				<>
+					Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among others.{ ' ' }
+					<a href="#" rel="external noopener noreferrer nofollow" target="_blank">
+						See all supported languanges
+					</a>
+				</>
+			),
+		},
+		{
+			name: 'Spelling correction',
+			tooltipInfo: (
+				<>
+					Quick and accurate spelling correction for when your site visitors mistype their search.
+				</>
+			),
+		},
+	],
+};

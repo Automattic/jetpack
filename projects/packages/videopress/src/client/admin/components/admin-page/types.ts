@@ -1,3 +1,4 @@
+import { productOriginalProps } from '../../hooks/use-plan/types';
 import { VideoPressVideo } from '../../types';
 
 declare global {
@@ -8,6 +9,15 @@ declare global {
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;
+			paidFeatures: {
+				isVideoPressSupported: boolean;
+				isVideoPress1TBSupported: boolean;
+				isVideoPressUnlimitedSupported: boolean;
+			};
+			productData: productOriginalProps;
+			adminUrl: string;
+			adminUri: string;
+			siteSuffix: string;
 		};
 	}
 }

@@ -15,6 +15,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 export { default as JetpackLogo } from './components/jetpack-logo';
+export { default as JetpackSearchLogo } from './components/jetpack-search-logo';
 export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
@@ -51,4 +52,5 @@ export { default as DonutMeter } from './components/donut-meter';
 export { default as RecordMeterBar } from './components/record-meter-bar';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { default as Alert } from './components/alert';
+export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { getUserLocale, cleanLocale } from './lib/locale';
