@@ -358,6 +358,13 @@ class Test_REST_Controller extends Search_Test_Case {
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals(
+			array(
+				'post_count'          => 0,
+				'post_type_breakdown' => array(),
+			),
+			$response->get_data()
+		);
 	}
 
 	/**
