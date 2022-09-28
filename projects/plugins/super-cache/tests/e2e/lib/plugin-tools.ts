@@ -8,7 +8,7 @@ import { wpcli } from './wordpress-tools';
  * Returns the absolute path of a file in the plugin directory.
  *
  * @param {string} path - The path to the file, relative to the plugin directory.
- * @returns {string} The absolute path to the file.
+ * @return {string} The absolute path to the file.
  */
 export function pluginFilePath( path: string ) {
 	return pathLib.join( __dirname, '../../../', path );
@@ -18,7 +18,7 @@ export function pluginFilePath( path: string ) {
  * Returns the contents of the specified file from the plugin directory.
  *
  * @param {string} path - The path to the file, relative to the plugin directory.
- * @returns {string} The contents of the file. Assumed to be utf8.
+ * @return {string} The contents of the file. Assumed to be utf8.
  */
 export async function readPluginFile( path: string ): Promise< string > {
 	return fsp.readFile( pluginFilePath( path ), 'utf8' );
@@ -34,7 +34,7 @@ export async function clearCache(): Promise< void > {
 /**
  * Logs into the site and creates an auth cookie that can be used for authenticated requests.
  *
- * @returns {string} The auth cookie.
+ * @return {string} The auth cookie.
  */
 export async function getAuthCookie(): Promise< string > {
 	const user = process.env.SUPER_CACHE_E2E_ADMIN_USER;
@@ -54,9 +54,9 @@ export async function getAuthCookie(): Promise< string > {
  * Makes an authenticated request to the specified URL.
  *
  * @param {string} authCookie - Authentication cookie to use for the request.
- * @param {Method} method - HTTP method to use. e.g.: 'GET'.
- * @param {string} url - URL to request.
- * @param {Object} data - Key / value pairs (strings) to submit as post data.
+ * @param {Method} method     - HTTP method to use. e.g.: 'GET'.
+ * @param {string} url        - URL to request.
+ * @param {Object} data       - Key / value pairs (strings) to submit as post data.
  */
 export async function authenticatedRequest(
 	authCookie: string,
@@ -81,9 +81,9 @@ export async function authenticatedRequest(
 /**
  * Returns a URL within the plugin site.
  *
- * @param {string} path - The path relative to the site URL.
+ * @param {string} path  - The path relative to the site URL.
  * @param {Object} query - Query parameters to add to the URL.
- * @returns {string} The site URL.
+ * @return {string} The site URL.
  */
 export function getSiteUrl( path = '/', query: Record< string, string > = {} ): string {
 	const domain = 'http://localhost:' + process.env.SUPER_CACHE_E2E_PORT;
