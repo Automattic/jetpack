@@ -2,6 +2,7 @@
 	<testsuites>
 		<testsuite name="main">
 			<directory prefix="test" suffix=".php">tests/php</directory>
+			<file phpVersion="7.0.0" phpVersionOperator=">=">tests/php/test-modules.php</file>
 		</testsuite>
 	</testsuites>
 	<filter>
