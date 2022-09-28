@@ -126,11 +126,11 @@ class Search extends Hybrid_Product {
 		$record_count   = intval( Search_Stats::estimate_count() );
 		$search_pricing = static::get_pricing_from_wpcom( $record_count );
 
-		$pricing['estimated_record_count'] = $record_count;
-
 		if ( is_wp_error( $search_pricing ) ) {
 			return $pricing;
 		}
+
+		$pricing['estimated_record_count'] = $record_count;
 
 		return array_merge( $pricing, $search_pricing );
 	}
