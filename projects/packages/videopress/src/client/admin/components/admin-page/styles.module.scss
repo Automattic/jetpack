@@ -9,6 +9,10 @@
 		margin-bottom: calc( var(--spacing-base) * 4 );
 	}
 
+	.total-sm {
+		margin-bottom: calc( var(--spacing-base) * 3 );
+	}
+
 	.filter-wrapper {
 		display: flex;
 		align-items: center;
@@ -17,6 +21,10 @@
 
 	.search-input {
 		width: 262px;
+
+		&.small {
+			width: 100%;
+		}
 	}
 
 	.filter-section {

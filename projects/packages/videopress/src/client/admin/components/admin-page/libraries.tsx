@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Button, Text } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
@@ -64,11 +64,16 @@ const VideoLibraryWrapper = ( {
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
-	const singularTotalVideosLabel = __( 'Video', 'jetpack-videopress-pkg' );
-	const pluralTotalVideosLabel = __( 'Videos', 'jetpack-videopress-pkg' );
+	const singularTotalVideosLabel = __( '1 Video', 'jetpack-videopress-pkg' );
+	const pluralTotalVideosLabel = sprintf(
+		/* translators: placeholder is the number of videos */
+		__( '%s Videos', 'jetpack-videopress-pkg' ),
+		totalVideos
+	);
 	const totalVideosLabel = totalVideos === 1 ? singularTotalVideosLabel : pluralTotalVideosLabel;
 
 	return (
@@ -76,14 +81,13 @@ const VideoLibraryWrapper = ( {
 			<Text variant="headline-small" mb={ 1 }>
 				{ title }
 			</Text>
+			{ isSm && <Text className={ styles[ 'total-sm' ] }>{ totalVideosLabel }</Text> }
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				<Text>
-					{ totalVideos } { totalVideosLabel }
-				</Text>
+				{ ! isSm && <Text>{ totalVideosLabel }</Text> }
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ styles[ 'search-input' ] }
+							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: isSm } ) }
 							onSearch={ setSearch }
 							value={ searchQuery }
 							loading={ isFetching }
