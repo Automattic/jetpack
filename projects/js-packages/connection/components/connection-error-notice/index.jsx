@@ -1,11 +1,9 @@
 import { Spinner } from '@automattic/jetpack-components';
 import { Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, warning, info } from '@wordpress/icons';
+import { Icon, warning } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import React from 'react';
-import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
-import useConnection from '../use-connection';
 import styles from './styles.module.scss';
 
 /**
@@ -60,7 +58,9 @@ const ConnectionErrorNotice = props => {
 				<Icon icon={ warning } />
 				<div className={ styles.message }>{ message }</div>
 				{ restoreConnectionCallback && (
-					<a className={ styles.link }>{ __( 'Restore Connection', 'jetpack' ) }</a>
+					<a onClick={ restoreConnectionCallback } className={ styles.link }>
+						{ __( 'Restore Connection', 'jetpack' ) }
+					</a>
 				) }
 			</Notice>
 		</>
@@ -75,7 +75,7 @@ ConnectionErrorNotice.propTypes = {
 	/** Whether connection restore is in progress. */
 	isRestoringConnection: PropTypes.bool,
 	/** The connection error text if there is one. */
-	restoreConnectionError: propTypes.string,
+	restoreConnectionError: PropTypes.string,
 };
 
 export default ConnectionErrorNotice;
