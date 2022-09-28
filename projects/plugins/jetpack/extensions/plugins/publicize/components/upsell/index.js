@@ -1,4 +1,7 @@
-import { useSocialMediaConnections } from '@automattic/jetpack-publicize-components';
+import {
+	useSocialMediaConnections,
+	usePublicizeConfig,
+} from '@automattic/jetpack-publicize-components';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -9,7 +12,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import classNames from 'classnames';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 function getPanelDescription(
 	isPostPublished,

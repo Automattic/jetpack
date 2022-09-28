@@ -14,6 +14,7 @@ import {
 	SET_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
+	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 } from './constants';
 
@@ -81,12 +82,20 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { items = [] } = state;
+			const { query = getDefaultQuery() } = state;
+			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
+			let uploadedVideoCount = state.uploadedVideoCount;
+			const pagination = { ...state.pagination };
+
 			if ( videoIndex === -1 ) {
-				// Add video when not found
-				items.push( video );
+				// Add video when not found at beginning of the list.
+				items.unshift( video );
+				// Updating pagination and count
+				uploadedVideoCount += 1;
+				pagination.total += 1;
+				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -99,6 +108,8 @@ const videos = ( state = {}, action ) => {
 				...state,
 				items,
 				isFetching: false,
+				uploadedVideoCount,
+				pagination,
 			};
 		}
 
@@ -116,6 +127,14 @@ const videos = ( state = {}, action ) => {
 				items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
 			};
 		}
+
+		case SET_VIDEOS_STORAGE_USED: {
+			return {
+				...state,
+				storageUsed: action.used,
+			};
+		}
+
 		case SET_IS_FETCHING_UPLOADED_VIDEO_COUNT: {
 			return {
 				...state,

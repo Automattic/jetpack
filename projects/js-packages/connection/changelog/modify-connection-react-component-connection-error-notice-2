@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added connection hook useConnectionErrorNotice to more-easily integrate the ConnectionErrorNotice component with minimal processing logic at the point of integration.
