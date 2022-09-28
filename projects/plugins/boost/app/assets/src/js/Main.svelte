@@ -1,6 +1,7 @@
 <script>
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
 	import Connection from './pages/connection/Connection.svelte';
+	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
 	import Settings from './pages/settings/Settings.svelte';
 	import Footer from './sections/Footer.svelte';
@@ -14,6 +15,7 @@
 <Router history={routerHistory}>
 	<Route path="upgrade" component={BenefitsInterstitial} />
 	<Route path="purchase-successful" component={PurchaseSuccess} />
+	<Route path="getting-started" component={GettingStarted} />
 	<Route>
 		<div id="jb-settings" class="jb-settings jb-settings--main">
 			<div class="jb-container">

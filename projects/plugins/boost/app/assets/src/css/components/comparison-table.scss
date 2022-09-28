@@ -1,0 +1,84 @@
+.comparison-table {
+    --rows: 7;
+    --columns: 3;
+    --gap: 2rem;
+
+    display: grid;
+    grid-template-columns: 5fr 4fr 4fr;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(var(--rows), minmax(min-content, max-content));
+
+    > h1 {
+        padding-top: calc( var(--gap) / (1.5 / 2) );
+        font-size: 36 / 16 * 1rem;
+        font-weight: 700;
+        outline: none;
+
+         // The first column is missing any action button. So, the heading should span row 1 and 2.
+        grid-row-start: 1;
+        grid-row-end: 3;
+    }
+
+	&__feature-row {
+        margin: 0;
+		padding: calc(var(--gap) / 2) var(--gap);
+		border-bottom: 1px solid #ccc;
+	}
+
+    & > &__feature-row {
+        padding-left: 0;
+    }
+
+    &__cta {
+        padding: calc(var(--gap) / 2) var(--gap);
+    }
+
+    &__premium, &__free {
+		display: contents;
+
+        > *:first-child {
+            padding: var(--gap);
+            padding-bottom: 0;
+        }
+    }
+
+    &__premium {
+        > * {
+           background: white;
+           box-shadow: 0px 4px 24px rgb(0 0 0 / 5%);
+           -webkit-clip-path: inset(0px -24px -24px -24px);
+           clip-path: inset(0px -24px -24px -24px);
+           border-left: 1px solid var(--jp-gray);
+           border-right: 1px solid var(--jp-gray);
+       }
+
+       > *:first-child {
+           border-top-left-radius: var(--jp-border-radius);
+           border-top-right-radius: var(--jp-border-radius);
+           border-top: 1px solid var(--jp-gray);
+           -webkit-clip-path: none;
+           clip-path: none;
+       }
+
+       > *:last-child {
+        padding-top: 0.5rem;
+        padding-bottom: 1rem;
+        border-bottom-left-radius: var(--jp-border-radius);
+        border-bottom-right-radius: var(--jp-border-radius);
+        border-bottom: 1px solid var(--jp-gray);
+       }
+    }
+
+    & &__free > * {
+        padding-left: calc( var(--gap) * 2 );
+    }
+
+    .jb-button {
+        font-size: 1rem;
+        font-weight: 600;
+        width: 100%;
+        line-height: 1.5rem;
+        padding: 0.5rem;
+        height: fit-content;
+    }
+}
