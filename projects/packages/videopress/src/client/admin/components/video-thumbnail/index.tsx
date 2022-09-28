@@ -17,6 +17,54 @@ import styles from './style.module.scss';
 import { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
 import type React from 'react';
 
+export const VideoThumbnailDropdownButtons = ( {
+	onUseDefaultThumbnail,
+	onSelectFromVideo,
+	onUploadImage,
+	onClose,
+} ) => {
+	return (
+		<>
+			<Button
+				weight="regular"
+				fullWidth
+				variant="tertiary"
+				icon={ image }
+				onClick={ () => {
+					onClose();
+					onUseDefaultThumbnail?.();
+				} }
+			>
+				{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
+			</Button>
+			<Button
+				weight="regular"
+				fullWidth
+				variant="tertiary"
+				icon={ media }
+				onClick={ () => {
+					onClose();
+					onSelectFromVideo?.();
+				} }
+			>
+				{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
+			</Button>
+			<Button
+				weight="regular"
+				fullWidth
+				variant="tertiary"
+				icon={ cloud }
+				onClick={ () => {
+					onClose();
+					onUploadImage?.();
+				} }
+			>
+				{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
+			</Button>
+		</>
+	);
+};
+
 export const VideoThumbnailDropdown = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
@@ -35,36 +83,13 @@ export const VideoThumbnailDropdown = ( {
 						aria-expanded={ isOpen }
 					/>
 				) }
-				renderContent={ () => (
-					<>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ image }
-							onClick={ onUseDefaultThumbnail }
-						>
-							{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ media }
-							onClick={ onSelectFromVideo }
-						>
-							{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ cloud }
-							onClick={ onUploadImage }
-						>
-							{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</>
+				renderContent={ ( { onClose } ) => (
+					<VideoThumbnailDropdownButtons
+						onClose={ onClose }
+						onUseDefaultThumbnail={ onUseDefaultThumbnail }
+						onSelectFromVideo={ onSelectFromVideo }
+						onUploadImage={ onUploadImage }
+					/>
 				) }
 			/>
 		</div>
@@ -92,14 +117,14 @@ const VideoThumbnail = ( {
 		<div
 			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
 		>
-			{ editable && (
+			{ typeof thumbnail === 'string' && editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
 					onSelectFromVideo={ onSelectFromVideo }
 					onUploadImage={ onUploadImage }
 				/>
 			) }
-			{ duration && (
+			{ Number.isFinite( duration ) && (
 				<div className={ styles[ 'video-thumbnail-duration' ] }>
 					<Text variant="body-small" component="div">
 						{ duration >= 3600 * 1000
@@ -109,11 +134,11 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			{ thumbnail ? (
+			{ typeof thumbnail === 'string' && thumbnail !== '' ? (
 				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
 			) : (
 				<div className={ styles[ 'thumbnail-placeholder' ] }>
-					<Icon icon={ video } size={ 96 } />
+					{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
 				</div>
 			) }
 		</div>

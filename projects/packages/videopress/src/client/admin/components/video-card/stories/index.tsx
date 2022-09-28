@@ -17,6 +17,7 @@ export default {
 	title: 'Packages/VideoPress/Video Card',
 	component: VideoCardComponent,
 	parameters: {
+		layout: 'centered',
 		docs: {
 			page: Doc,
 		},
@@ -44,7 +45,8 @@ _default.args = {
 	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
 	plays: 972,
 	onVideoDetailsClick: action( 'onVideoDetailsClick' ),
-	onUpdateThumbnailClick: action( 'onUpdateThumbnailClick' ),
-	onUpdateUpdatePrivacyClick: action( 'onUpdateUpdatePrivacyClick' ),
-	onDeleteClick: action( 'onDeleteClick' ),
+	onUpdateVideoThumbnail: action( 'onUpdateVideoThumbnail' ),
+	onUpdateVideoPrivacy: action( 'onUpdateVideoPrivacy' ),
+	onDeleteVideo: action( 'onDeleteVideo' ),
+	showQuickActions: true,
 };

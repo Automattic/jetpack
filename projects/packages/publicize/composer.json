@@ -6,7 +6,9 @@
 	"require": {
 		"automattic/jetpack-connection": "^1.45",
 		"automattic/jetpack-autoloader": "^2.11",
-		"automattic/jetpack-config": "^1.9"
+		"automattic/jetpack-config": "^1.10",
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
@@ -30,8 +32,12 @@
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		]
 	},
 	"repositories": [
 		{
@@ -52,7 +58,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.15.x-dev"
+			"dev-trunk": "0.16.x-dev"
 		}
 	},
 	"config": {
