@@ -155,10 +155,10 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			'/search/post-type-breakdown',
+			'/search/local-stats',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_post_type_breakdown' ),
+				'callback'            => array( $this, 'get_local_stats' ),
 				'permission_callback' => array( $this, 'require_valid_blog_token_callback' ),
 			)
 		);
@@ -410,8 +410,11 @@ class REST_Controller {
 	/**
 	 * Return post type breakdown for the site.
 	 */
-	public function get_post_type_breakdown() {
-		return Search_Product_Stats::get_post_type_breakdown();
+	public function get_local_stats() {
+		return array(
+			'post_count'          => Search_Product_Stats::estimate_count(),
+			'post_type_breakdown' => Search_Product_Stats::get_post_type_breakdown(),
+		);
 	}
 
 	/**

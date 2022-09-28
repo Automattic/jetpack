@@ -69,7 +69,6 @@ class Search_Stats {
 	 * Calculate breakdown of post types for the site.
 	 */
 	public static function get_post_type_breakdown() {
-
 		$indexable_post_types   = get_post_types(
 			array(
 				'public'              => true,

@@ -350,10 +350,10 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `GET /jetpack/v4/search/post-type-breakdown` endpoint with blog_token.
+	 * Testing the `GET /jetpack/v4/search/local-stats` endpoint with blog_token.
 	 */
 	public function test_get_post_type_breakdown() {
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/post-type-breakdown' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/local-stats' );
 		$request->set_header( 'content-type', 'application/json' );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
@@ -361,11 +361,11 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `GET /jetpack/v4/search/post-type-breakdown` with editor user.
+	 * Testing the `GET /jetpack/v4/search/local-stats` with editor user.
 	 */
 	public function test_get_post_type_breakdown_regular_user() {
 		wp_set_current_user( $this->editor_id );
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/post-type-breakdown' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/local-stats' );
 		$request->set_header( 'content-type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
@@ -373,10 +373,10 @@ class Test_REST_Controller extends Search_Test_Case {
 	}
 
 	/**
-	 * Testing the `GET /jetpack/v4/search/post-type-breakdown` with no auth.
+	 * Testing the `GET /jetpack/v4/search/local-stats` with no auth.
 	 */
 	public function test_get_post_type_breakdown_no_auth() {
-		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/post-type-breakdown' );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/search/local-stats' );
 		$request->set_header( 'content-type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
