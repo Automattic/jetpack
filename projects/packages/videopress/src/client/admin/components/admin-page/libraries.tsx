@@ -64,7 +64,7 @@ const VideoLibraryWrapper = ( {
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
@@ -81,13 +81,13 @@ const VideoLibraryWrapper = ( {
 			<Text variant="headline-small" mb={ 1 }>
 				{ title }
 			</Text>
-			{ isSm && <Text className={ styles[ 'total-sm' ] }>{ totalVideosLabel }</Text> }
+			{ ! isLg && <Text className={ styles[ 'total-sm' ] }>{ totalVideosLabel }</Text> }
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				{ ! isSm && <Text>{ totalVideosLabel }</Text> }
+				{ isLg && <Text>{ totalVideosLabel }</Text> }
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: isSm } ) }
+							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
 							onSearch={ setSearch }
 							value={ searchQuery }
 							loading={ isFetching }

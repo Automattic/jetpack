@@ -17,6 +17,8 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-base);
+		flex-grow: 1;
+		justify-content: end;
 	}
 
 	.search-input {
@@ -24,6 +26,7 @@
 
 		&.small {
 			width: 100%;
+			max-width: 262px;
 		}
 	}
 
