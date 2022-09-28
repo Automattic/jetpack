@@ -33,7 +33,7 @@ class Search_Stats {
 		'forum', // bbpress
 	);
 
-	const CACHE_EXPIRY                  = 5 * MINUTE_IN_SECONDS;
+	const CACHE_EXPIRY                  = 1 * MINUTE_IN_SECONDS;
 	const CACHE_GROUP                   = 'jetpack_search';
 	const POST_TYPE_BREAKDOWN_CACHE_KEY = 'post_type_break_down';
 
@@ -69,10 +69,7 @@ class Search_Stats {
 	 * Calculate breakdown of post types for the site.
 	 */
 	public static function get_post_type_breakdown() {
-		$cached_value = wp_cache_get( self::POST_TYPE_BREAKDOWN_CACHE_KEY, self::CACHE_GROUP );
-		if ( false !== $cached_value ) {
-			return $cached_value;
-		}
+
 		$indexable_post_types   = get_post_types(
 			array(
 				'public'              => true,
@@ -85,8 +82,12 @@ class Search_Stats {
 				'exclude_from_search' => false,
 			)
 		);
-		$posts_counts           = static::get_post_type_breakdown_with( $indexable_post_types, $indexable_status_array );
-		wp_cache_set( self::POST_TYPE_BREAKDOWN_CACHE_KEY, $posts_counts, self::CACHE_GROUP, self::CACHE_EXPIRY );
+		$raw_posts_counts       = static::get_raw_post_type_breakdown();
+		if ( ! $raw_posts_counts || is_wp_error( $raw_posts_counts ) ) {
+			return array();
+		}
+		$posts_counts = static::get_post_type_breakdown_with( $raw_posts_counts, $indexable_post_types, $indexable_status_array );
+
 		return $posts_counts;
 	}
 
@@ -94,21 +95,13 @@ class Search_Stats {
 	 * Calculate breakdown of post types with passed in indexable post types and statuses.
 	 * The function is going to be used from WPCOM as well for consistency.
 	 *
+	 * @param array $raw_posts_counts Array of post types with counts as value.
 	 * @param array $indexable_post_types Array of indexable post types.
 	 * @param array $indexable_status_array Array of indexable post statuses.
 	 */
-	public static function get_post_type_breakdown_with( $indexable_post_types, $indexable_status_array ) {
-		global $wpdb;
-
-		$query = "SELECT post_type, post_status, COUNT( * ) AS num_posts
-		FROM {$wpdb->posts}
-		WHERE post_password = ''
-		GROUP BY post_type, post_status";
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$results = $wpdb->get_results( $query, ARRAY_A );
-
+	public static function get_post_type_breakdown_with( $raw_posts_counts, $indexable_post_types, $indexable_status_array ) {
 		$posts_counts = array();
-		foreach ( $results as $row ) {
+		foreach ( $raw_posts_counts as $row ) {
 			// ignore if post type is in excluded post types.
 			if ( in_array( $row['post_type'], self::EXCLUDED_POST_TYPES, true ) ) {
 				continue;
@@ -132,5 +125,27 @@ class Search_Stats {
 
 		arsort( $posts_counts, SORT_NUMERIC );
 		return $posts_counts;
+	}
+
+	/**
+	 * Get raw post type breakdown from the database.
+	 */
+	protected static function get_raw_post_type_breakdown() {
+		global $wpdb;
+
+		$results = wp_cache_get( self::POST_TYPE_BREAKDOWN_CACHE_KEY, self::CACHE_GROUP );
+		if ( false !== $results ) {
+			return $results;
+		}
+
+		$query = "SELECT post_type, post_status, COUNT( * ) AS num_posts
+		FROM {$wpdb->posts}
+		WHERE post_password = ''
+		GROUP BY post_type, post_status";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results( $query, ARRAY_A );
+		wp_cache_set( self::POST_TYPE_BREAKDOWN_CACHE_KEY, $results, self::CACHE_GROUP, self::CACHE_EXPIRY );
+		return $results;
 	}
 }

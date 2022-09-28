@@ -132,7 +132,6 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'activate_plan' ),
-				// admin permission is allowed for backward compatibility.
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
@@ -142,7 +141,6 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'deactivate_plan' ),
-				// admin permission is allowed for backward compatibility.
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
