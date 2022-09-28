@@ -44,6 +44,7 @@ const PricingPage = () => {
 							query: 'redirect_to=' + window.location.href,
 						} ) }
 						fullWidth
+						disabled={ isConnecting }
 					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
