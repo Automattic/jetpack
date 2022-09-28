@@ -26,7 +26,7 @@ services:
       - ./tools/apache2-wrapper.sh:/bin/apache2-wrapper
     hostname: super-cache-e2e
     ports:
-      - "${SUPER_CACHE_E2E_PORT:-2022}:80"
+      - "${SUPER_CACHE_E2E_PORT:-2022}:${SUPER_CACHE_E2E_PORT:-2022}"
     env_file: 
       - .env
     environment:

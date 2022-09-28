@@ -22,7 +22,7 @@ export async function dockerExec( ...command: string[] ) {
  * Delete any lines that match the regex from the specified file.
  *
  * @param {string} filename - The file to be filtered.
- * @param {string} regex - A regex (without / / markers) for lines to remove.
+ * @param {string} regex    - A regex (without / / markers) for lines to remove.
  */
 export async function deleteLinesFromDockerFile( filename: string, regex: string ) {
 	await dockerExec( 'sed', '-i', `/^${ regex }/d`, filename );
@@ -49,13 +49,15 @@ export async function readDockerFile( filename: string ) {
 /**
  * Writes the specified contents to the specified file in docker.
  *
- * @param {string} filename - The file to write.
- * @param {Buffer} data - The file data to write.
+ * @param {string}          filename - The file to write.
+ * @param {Buffer | string} data     - The file data to write.
  */
-export async function writeDockerFile( filename: string, data: Buffer ) {
+export async function writeDockerFile( filename: string, data: Buffer | string ) {
+	const buffer = data instanceof Buffer ? data : Buffer.from( data );
+
 	await dockerExec(
 		'bash',
 		'-c',
-		`echo '${ data.toString( 'base64' ) }' | base64 --decode > ${ filename }`
+		`echo '${ buffer.toString( 'base64' ) }' | base64 --decode > ${ filename }`
 	);
 }

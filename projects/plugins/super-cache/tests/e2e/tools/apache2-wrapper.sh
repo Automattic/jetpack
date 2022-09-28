@@ -7,6 +7,8 @@
 ##  This wrapper hijacks that part of the process, and sets up WordPress too.
 ##
 
+sed -i "s/^Listen 80$/Listen $SUPER_CACHE_E2E_PORT/g" /etc/apache2/ports.conf
+
 wp core install \
 	--allow-root \
 	--url="http://localhost:$SUPER_CACHE_E2E_PORT" \

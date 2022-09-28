@@ -1,5 +1,5 @@
-import { AnyNode, Cheerio } from 'cheerio';
 import { authenticatedRequest } from './plugin-tools';
+import type { AnyNode, Cheerio } from 'cheerio';
 
 /**
  * Helper class for reading, updating and submitting HTML forms from a Cheerio DOMs
@@ -16,7 +16,7 @@ export default class CheerioForm {
 	/**
 	 * Checks or unchecks a checkbox on the form.
 	 *
-	 * @param {string} name - Name of the checkbox.
+	 * @param {string}  name  - Name of the checkbox.
 	 * @param {boolean} value - True for check, false for uncheck.
 	 */
 	public setCheckbox( name: string, value: boolean ): void {
@@ -25,6 +25,16 @@ export default class CheerioForm {
 		} else {
 			delete this.fields[ name ];
 		}
+	}
+
+	/**
+	 * Sets the value of a radio button or text field.
+	 *
+	 * @param {string} name  - Name of the field.
+	 * @param {string} value - Value to set.
+	 */
+	public setValue( name: string, value: string ): void {
+		this.fields[ name ] = value;
 	}
 
 	/**
