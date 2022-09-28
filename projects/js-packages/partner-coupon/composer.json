@@ -5,14 +5,14 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.1"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
 		],
 		"test-coverage": [
-			"pnpm nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+			"pnpm run test-coverage"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.8] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+## [1.10.7] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [1.10.6] - 2022-08-30
+### Changed
+- Updated package dependencies. [#25694]
+
+## [1.10.5] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25628]
+
+## [1.10.4] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [1.10.3] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.10.2] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
+## [1.10.1] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24529]
+
 ## [1.10.0] - 2022-05-04
 ### Changed
 - Updated package dependencies. [#24095]
@@ -228,6 +260,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a simple A/B test package
 
+[1.10.8]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.7...v1.10.8
+[1.10.7]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.6...v1.10.7
+[1.10.6]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.5...v1.10.6
+[1.10.5]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.4...v1.10.5
+[1.10.4]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.3...v1.10.4
+[1.10.3]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.2...v1.10.3
+[1.10.2]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.1...v1.10.2
+[1.10.1]: https://github.com/Automattic/jetpack-abtest/compare/v1.10.0...v1.10.1
 [1.10.0]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.23...v1.10.0
 [1.9.23]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.22...v1.9.23
 [1.9.22]: https://github.com/Automattic/jetpack-abtest/compare/v1.9.21...v1.9.22

@@ -4,7 +4,7 @@
 module.exports = {
 	extends: [
 		'./preload.js',
-		'wpcalypso/react',
+		'plugin:wpcalypso/react',
 		// Re-extend our base to re-override wpcalypso.
 		'./base.js',
 	],

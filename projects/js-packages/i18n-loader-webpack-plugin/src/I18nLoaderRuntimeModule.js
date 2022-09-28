@@ -1,9 +1,8 @@
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 const { Template, RuntimeGlobals } = webpack;
-
 const PLUGIN_NAME = require( './plugin-name' );
-const debug = require( 'debug' )( PLUGIN_NAME );
+const debug = require( 'debug' )( PLUGIN_NAME ); // eslint-disable-line import/order
 
 /**
  * Webpack RuntimeModule for the i18n loader.

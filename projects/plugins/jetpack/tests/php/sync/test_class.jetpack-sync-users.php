@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		parent::set_up();
 
 		// create a user
-		$this->user_id = $this->factory->user->create();
+		$this->user_id = self::factory()->user->create();
 		$this->sender->do_sync();
 	}
 
@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_delete_user_reassign_is_synced() {
-		$reassign = $this->factory->user->create();
+		$reassign = self::factory()->user->create();
 		wp_delete_user( $this->user_id, $reassign );
 		$this->sender->do_sync();
 
@@ -389,7 +389,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $this->user_id );
 		$wpdb->suppress_errors( $suppress );
 
-		$other_blog_user_id = $this->factory->user->create();
+		$other_blog_user_id = self::factory()->user->create();
 		add_user_to_blog( $other_blog_id, $other_blog_user_id, 'administrator' );
 		remove_user_from_blog( $other_blog_user_id, $original_blog_id );
 
@@ -414,7 +414,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// create a user from within that blog (won't be synced)
 		switch_to_blog( $other_blog_id );
-		$mu_blog_user_id = $this->factory->user->create();
+		$mu_blog_user_id = self::factory()->user->create();
 		restore_current_blog();
 
 		$this->sender->do_sync();
@@ -452,14 +452,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_syncs_user_authentication_attempts() {
-		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
+		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_signon to trigger this event, but it tries to send headers and
 		// causes an error.
-
-		// wp_set_password( 'pw', $user_id );
-		// $result = wp_signon( array( 'user_login' => 'foobar', 'user_password' => 'pw', 'remember' => false ) );
-		// error_log(print_r($result, 1));
 
 		add_filter( 'pre_http_request', array( 'WP_Test_Jetpack_Sync_Base', 'pre_http_request_bruteprotect_api' ), 10, 3 );
 		do_action( 'wp_login', 'foobar', get_user_by( 'ID', $user_id ) );
@@ -476,15 +472,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_syncs_user_logout_event() {
-		$user_id = $this->factory->user->create( array( 'user_login' => 'foobar' ) );
+		$user_id = self::factory()->user->create( array( 'user_login' => 'foobar' ) );
 
 		// TODO: ideally we would do wp_logout to trigger this event, but it tries to send headers and
 		// causes an error.
-
-		// wp_set_password( 'pw', $user_id );
-		// $user = wp_authenticate( 'foobar', 'pw' );
-		// $this->assertFalse( is_wp_error( $user ) );
-		// wp_logout();
 
 		wp_set_current_user( $user_id );
 		do_action( 'wp_logout' );
@@ -525,8 +516,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_maybe_demote_master_user_method() {
 		// set up
-		$current_master_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );
-		$new_master_id     = $this->factory->user->create( array( 'user_login' => 'new_master' ) );
+		$current_master_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
+		$new_master_id     = self::factory()->user->create( array( 'user_login' => 'new_master' ) );
 
 		$current_master = get_user_by( 'id', $current_master_id );
 		$current_master->set_role( 'author' );
@@ -693,7 +684,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		add_user_to_blog( $blog_id, $this->user_id, 'administrator' );
 
-		$other_user_id = $this->factory->user->create();
+		$other_user_id = self::factory()->user->create();
 		add_user_to_blog( $blog_id, $other_user_id, 'administrator' );
 
 		$this->server_event_storage->reset();
@@ -727,7 +718,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_no_save_user_sync_action_when_creating_user() {
 		$this->server_event_storage->reset();
-		$this->factory->user->create();
+		self::factory()->user->create();
 
 		$this->sender->do_sync();
 
@@ -822,7 +813,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $user1_array['user_pass'] );
 		unset( $user2_array['user_pass'] );
 
-		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+		$this->assertTrue( array_diff( $user1_array, $user2_array ) === array_diff( $user2_array, $user1_array ) );
 	}
 
 	private function get_invite_user_data() {

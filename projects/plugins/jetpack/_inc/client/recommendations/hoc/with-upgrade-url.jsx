@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { getSiteAdminUrl, getSiteRawUrl } from 'state/initial-state';
 import { getSiteDiscount } from 'state/site/reducer';
 import { generateCheckoutLink } from '../utils';

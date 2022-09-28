@@ -48,6 +48,13 @@
 	}
 }
 
+.wp-block[data-align="wide"] .wp-block-jetpack-slideshow_image,
+.wp-block[data-align="full"] .wp-block-jetpack-slideshow_image {
+	width: 100vw;
+	max-width: unset;
+	object-fit: cover;
+}
+
 .wp-block-jetpack-slideshow_slide {
 	.components-spinner {
 		position: absolute;

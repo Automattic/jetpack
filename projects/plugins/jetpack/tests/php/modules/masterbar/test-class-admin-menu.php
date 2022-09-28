@@ -297,7 +297,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		// Current user can't list users.
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 		$menu    = array(
 			70 => array(
 				'Profile',
@@ -384,7 +384,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
 		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
-		$this->assertSame( 'https://wordpress.com/jetpack-search/' . static::$domain, $submenu['jetpack'][5][2] );
 	}
 
 	/**

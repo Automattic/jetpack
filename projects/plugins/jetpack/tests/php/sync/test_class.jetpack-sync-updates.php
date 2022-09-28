@@ -201,7 +201,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_automatic_updates_complete_sync_action() {
-		// wp_maybe_auto_update();
+		// Commenting this out for now. wp_maybe_auto_update();
 		do_action(
 			'automatic_updates_complete',
 			array(

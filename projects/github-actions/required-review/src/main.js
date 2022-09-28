@@ -1,7 +1,6 @@
-const core = require( '@actions/core' );
 const fs = require( 'fs' );
+const core = require( '@actions/core' );
 const yaml = require( 'js-yaml' );
-
 const reporter = require( './reporter.js' );
 const Requirement = require( './requirement.js' );
 
@@ -90,7 +89,7 @@ async function main() {
 			await reporter.status( reporter.STATE_SUCCESS, 'All required reviews have been provided!' );
 		} else {
 			await reporter.status(
-				reporter.STATE_PENDING,
+				core.getBooleanInput( 'fail' ) ? reporter.STATE_FAILURE : reporter.STATE_PENDING,
 				reviewers.length ? 'Awaiting more reviews...' : 'Awaiting reviews...'
 			);
 		}

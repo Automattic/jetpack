@@ -1,31 +1,16 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import { render, screen, waitFor } from '@testing-library/react';
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen, waitFor } from '@testing-library/react';
+import { registerBlocks } from '../../../shared/test/block-fixtures';
+import { settings } from '../../button';
+import Edit from '../edit';
 
-// We need to mock InnerBlocks before importing our edit component as it requires the Gutenberg store setup
-// to operate
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
-	InnerBlocks: () => <button>Mocked button</button>,
+	useBlockProps: jest.fn(),
 } ) );
 
 // Mock the @wordpress/edit-post, used internally to resolve the fallback URL.
 jest.mock( '@wordpress/edit-post', () => jest.fn() );
-
-/**
- * Internal dependencies
- */
-import Edit from '../edit';
-
-import { settings } from '../../button';
-import { registerBlocks } from '../../../shared/test/block-fixtures';
 
 registerBlocks( [ { name: 'jetpack/button', settings } ] );
 
@@ -54,23 +39,6 @@ describe( 'MembershipsButtonEdit', () => {
 		isSelected: true,
 		context: {},
 	};
-
-	const defaultProducts = [
-		{
-			id: 1,
-			currency: 'USD',
-			price: '10.00',
-			interval: '1 month',
-			title: 'ten a month',
-		},
-		{
-			id: 2,
-			currency: 'DKK',
-			price: '5.00',
-			interval: '1 year',
-			title: 'five a year',
-		},
-	];
 
 	const defaultFetchData = {
 		connect_url: '',
@@ -101,6 +69,7 @@ describe( 'MembershipsButtonEdit', () => {
 		onReplace.mockClear();
 		autosaveAndRedirect.mockClear();
 
+		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( defaultApiResponse );
 		window[ JETPACK_DATA_PATH ] = {
@@ -113,6 +82,12 @@ describe( 'MembershipsButtonEdit', () => {
 		window[ JETPACK_DATA_PATH ] = originalJetpackData;
 	} );
 
+	/**
+	 * Get API response.
+	 *
+	 * @param {object} overrides - Data overrides.
+	 * @returns {Promise} Promise resolving to an API response.
+	 */
 	function getApiResponse( overrides ) {
 		const data = {
 			...defaultFetchData,
@@ -143,8 +118,7 @@ describe( 'MembershipsButtonEdit', () => {
 	} );
 
 	describe( 'when the site requires an upgrade', () => {
-		/* This will be re-enabled in a follow-up PR.
-		test( 'the upgrade nudge does not display if the block is part of a Premium Content block', async () => {
+		test.skip( 'the upgrade nudge does not display if the block is part of a Premium Content block', async () => {
 			window.fetch.mockReturnValue(
 				getApiResponse( { should_upgrade_to_access_memberships: true } )
 			);
@@ -155,6 +129,5 @@ describe( 'MembershipsButtonEdit', () => {
 				expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument()
 			);
 		} );
-		*/
 	} );
 } );

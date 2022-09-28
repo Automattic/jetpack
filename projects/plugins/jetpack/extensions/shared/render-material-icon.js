@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Path, SVG } from '@wordpress/components';
 
 const renderMaterialIcon = ( svg, width = 24, height = 24, viewbox = '0 0 24 24' ) => (

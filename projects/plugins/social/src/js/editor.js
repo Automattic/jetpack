@@ -1,21 +1,24 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
+import { JetpackLogo, SocialIcon } from '@automattic/jetpack-components';
+import { SocialPreviewsModal, SocialPreviewsPanel } from '@automattic/jetpack-publicize-components';
+import { PanelBody } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
+import domReady from '@wordpress/dom-ready';
 import {
 	PluginSidebar,
 	PluginSidebarMoreMenuItem,
 	PluginPrePublishPanel,
 } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
+import { useState, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import { dispatch } from '@wordpress/data';
 import { getQueryArg } from '@wordpress/url';
-import domReady from '@wordpress/dom-ready';
-import { JetpackLogo } from '@automattic/jetpack-components';
+import PublicizePanel from './components/publicize-panel';
+
+import './editor.scss';
 
 /**
- * Open Jetpack Spcoal; sidebar by default when URL includes jetpackSidebarIsOpen=true.
+ * Open Jetpack Social sidebar by default when URL includes jetpackSidebarIsOpen=true.
  */
 domReady( () => {
 	if ( getQueryArg( window.location.search, 'jetpackSidebarIsOpen' ) === 'true' ) {
@@ -26,37 +29,46 @@ domReady( () => {
 	}
 } );
 
-const PublicizePanel = () => <span>This is a placeholder panel</span>;
-
 registerPlugin( 'jetpack-social', {
-	render: () => (
+	render: () => <JetpackSocialSidebar />,
+} );
+
+const JetpackSocialSidebar = () => {
+	const [ isModalOpened, setIsModalOpened ] = useState( false );
+
+	const openModal = useCallback( () => setIsModalOpened( true ), [] );
+	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
+
+	return (
 		<PostTypeSupportCheck supportKeys="publicize">
-			<PluginSidebarMoreMenuItem
-				target="jetpack-social"
-				icon={ <JetpackLogo showText={ false } /> }
-			>
+			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }
+
+			<PluginSidebarMoreMenuItem target="jetpack-social" icon={ <SocialIcon /> }>
 				Jetpack Social
 			</PluginSidebarMoreMenuItem>
 
-			<PluginSidebar
-				name="jetpack-social"
-				title="Jetpack Social"
-				icon={ <JetpackLogo showText={ false } /> }
-			>
+			<PluginSidebar name="jetpack-social" title="Jetpack Social" icon={ <SocialIcon /> }>
 				<PublicizePanel />
+				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
+					<SocialPreviewsPanel openModal={ openModal } />
+				</PanelBody>
 			</PluginSidebar>
 
 			<PluginPrePublishPanel
 				initialOpen
-				id="publicize-title"
-				title={
-					<span id="publicize-defaults" key="publicize-title-span">
-						{ __( 'Share this post', 'jetpack-social' ) }
-					</span>
-				}
+				title={ __( 'Share this post', 'jetpack-social' ) }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>
+
+			<PluginPrePublishPanel
+				initialOpen
+				title={ __( 'Social Previews', 'jetpack-social' ) }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			>
+				<SocialPreviewsPanel openModal={ openModal } />
+			</PluginPrePublishPanel>
 		</PostTypeSupportCheck>
-	),
-} );
+	);
+};

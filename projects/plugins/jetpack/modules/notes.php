@@ -82,8 +82,15 @@ class Jetpack_Notifications {
 
 		// Do not show notifications in the Site Editor, which is always in fullscreen mode.
 		global $pagenow;
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page'] ) {
+
+		// Pre 13.7 pages that still need to be supported if < 13.7 is
+		// still installed.
+		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
+		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
+
+		if ( $is_site_editor_page || $is_old_site_editor_page ) {
 			return;
 		}
 
@@ -188,6 +195,8 @@ class Jetpack_Notifications {
 			}
 		}
 
+		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
+
 		$classes = 'wpnt-loading wpn-read';
 		$wp_admin_bar->add_menu(
 			array(
@@ -196,7 +205,7 @@ class Jetpack_Notifications {
 					<span class="noticon noticon-notification"></span>
 					</span>',
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>',
+					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
@@ -220,6 +229,21 @@ class Jetpack_Notifications {
 	var wpNotesLinkAccountsURL = '<?php echo esc_url( $link_accounts_url ); ?>';
 <?php endif; ?>
 /* ]]> */
+	window.addEventListener('message', function ( event ) {
+		// Confirm that the message is from the right origin.
+		if ('https://widgets.wp.com' !== event.origin) {
+			return;
+		}
+		// Check whether 3rd Party Cookies are blocked
+		var has3PCBlocked = 'WPCOM:3PC:blocked' === event.data;
+
+		var tagerElement = document.getElementById('wp-admin-bar-notes');
+
+		if ( has3PCBlocked && tagerElement ) {
+			// Hide the notification button/icon
+			tagerElement.style.display = 'none';
+		}
+	}, false );
 </script>
 		<?php
 	}

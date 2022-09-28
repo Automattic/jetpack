@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Icon, warning, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import styles from './style.module.scss';
 
 type AlertProps = {
@@ -50,8 +43,12 @@ const Alert: React.FC< AlertProps > = ( { level, children, showIcon } ) => {
 
 	return (
 		<div className={ classes }>
-			{ showIcon && <Icon icon={ getIconByLevel( level ) } className={ styles.icon } /> }
-			{ children }
+			{ showIcon && (
+				<div className={ styles[ 'icon-wrapper' ] }>
+					<Icon icon={ getIconByLevel( level ) } className={ styles.icon } />
+				</div>
+			) }
+			<div>{ children }</div>
 		</div>
 	);
 };

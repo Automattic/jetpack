@@ -2,7 +2,9 @@ name: Auto-tagger
 
 on:
   push:
-    branches: [ 'master' ]
+    branches:
+      - trunk
+      - '*/branch-*'
 
 jobs:
   tag:
@@ -24,7 +26,29 @@ jobs:
           # explicitly does not trigger events.
           token: ${{ secrets.API_TOKEN_GITHUB }}
 
+      - name: Check branch
+        id: check-branch
+        run: |
+          PREFIX=
+          if [[ -e composer.json ]]; then
+            PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
+          fi
+          if [[ -z "$PREFIX" && "$GITHUB_REF" != "refs/heads/trunk" ]]; then
+            echo "::error::Expected to be called for \"refs/heads/trunk\", not \"$GITHUB_REF\""
+            exit 1
+          elif [[ -n "$PREFIX" && "$GITHUB_REF" == "refs/heads/trunk" ]]; then
+            echo "::notice::Ignoring push to trunk, as this project has a release branch prefix set (\"$PREFIX\")"
+            echo "::set-output name=run::false"
+          elif [[ -n "$PREFIX" && "$GITHUB_REF" != "refs/heads/$PREFIX/branch-"* ]]; then
+            echo "::error::Expected to be called for \"refs/heads/$PREFIX/branch-*\", not \"$GITHUB_REF\""
+            exit 1
+          else
+            echo "Push to \"$GITHUB_REF\" ok"
+            echo "::set-output name=run::true"
+          fi
+
       - name: Tag
+        if: steps.check-branch.outputs.run == 'true'
         run: |
           VER=$(sed -nEe 's/^## \[?([^]]*)\]? - .*/\1/;T;p;q' CHANGELOG.md || true)
           echo "Version from changelog is ${VER:-<unknown>}"
@@ -33,10 +57,15 @@ jobs:
             export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
             export GIT_COMMITTER_NAME=matticbot
             export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
-            git tag "v$VER"
-            git push origin "v$VER"
+            if [[ -e composer.json ]] && ! jq -e 'if try ( .extra.autotagger | has("v") ) catch false then .extra.autotagger.v else true end' composer.json >/dev/null; then
+              TAG="$VER"
+            else
+              TAG="v$VER"
+            fi
+            git tag "$TAG"
+            git push origin "$TAG"
             if [[ -e composer.json ]] && jq -e '.extra.autotagger.major?' composer.json >/dev/null; then
-              git tag --force "v${VER%%.*}"
-              git push --force origin "v${VER%%.*}"
+              git tag --force "${TAG%%.*}"
+              git push --force origin "${TAG%%.*}"
             fi
           fi

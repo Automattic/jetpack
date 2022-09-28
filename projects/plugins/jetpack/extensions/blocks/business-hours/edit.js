@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import classNames from 'classnames';
-import { __ } from '@wordpress/i18n';
-import { __experimentalGetSettings } from '@wordpress/date';
-import { Component } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 import { icon } from '.';

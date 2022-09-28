@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import photon from 'photon';
 import { isBlobURL } from '@wordpress/blob';
 import { range } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import photon from 'photon';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
 export function isSquareishLayout( layout ) {

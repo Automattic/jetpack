@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import classNames from 'classnames';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { isOfflineMode } from 'state/connection';
 
 class DashActivity extends Component {

@@ -1,20 +1,10 @@
-/**
- * External dependencies
- */
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody, PanelRow } from '@wordpress/components';
-import { PluginPostPublishPanel } from '@wordpress/edit-post';
-import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
+import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
-
-/**
- * Internal dependencies
- */
 import { QRPostButton } from './components/qr-post.js';
 import './editor.scss';
 
@@ -26,7 +16,7 @@ export const settings = {
 			name: 'post-publish-qr-post-panel',
 			title: __( 'QR Code', 'jetpack' ),
 			className: 'post-publish-qr-post-panel',
-			icon: null,
+			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 			initialOpen: true,
 		};
 

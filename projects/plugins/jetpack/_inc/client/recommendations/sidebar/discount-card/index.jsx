@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 import React, { useCallback, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import Button from 'components/button';
-import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 import {
 	getProductSuggestions,
@@ -23,9 +16,6 @@ import DiscountBadge from '../../discount-badge';
 import Timer from '../../timer';
 import { computeMaxSuggestedDiscount, isCouponValid } from '../../utils';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const DiscountCard = ( {

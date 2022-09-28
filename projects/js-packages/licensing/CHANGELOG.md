@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.14 - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+## 0.5.13 - 2022-09-20
+### Changed
+- Updated package dependencies. [#26081]
+
+## 0.5.12 - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## 0.5.11 - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## 0.5.10 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.5.9 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762]
+
+## 0.5.8 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
+## 0.5.7 - 2022-07-12
+### Changed
+- Updated package dependencies. [#25048, #25055]
+
+## 0.5.6 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.5.5 - 2022-06-28
+### Fixed
+- Declare `type: module` in package.json, as `.js` files in the package use `include` rather than `require`. [#24790]
+
+## 0.5.4 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.5.3 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.5.2 - 2022-05-30
+### Changed
+- Updated package dependencies
+
+## 0.5.1 - 2022-05-24
+### Changed
+- Updated package dependencies. [#24449]
+
+## 0.5.0 - 2022-05-19
+### Changed
+- Update view plans button after activating a license to send user to Calypso Green [#24395]
+
 ## 0.4.19 - 2022-05-18
 ### Changed
 - Updated package dependencies. [#23795]

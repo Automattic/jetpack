@@ -1,14 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * Internal dependencies
- */
 import Search from 'components/search';
-
 import SearchCard from 'components/search-card';
+import React from 'react';
 
 /**
  * Globals

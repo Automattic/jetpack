@@ -1,25 +1,14 @@
-/**
- * External dependencies
- */
 import formatCurrency from '@automattic/format-currency';
-
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { check, update, warning } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import { store as membershipProductsStore } from '../../../store/membership-products';
+import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 import { useProductManagementContext } from './context';
 import useOpenBlockSidebar from './use-open-block-sidebar';
 import { getMessageByProductType } from './utils';
-import { store as membershipProductsStore } from '../../../store/membership-products';
-import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 
 function getProductDescription( product ) {
 	const { currency, interval, price } = product;
@@ -78,7 +67,9 @@ function NewProduct( { onClose } ) {
 		return (
 			<MenuItem>
 				{ siteSlug && (
-					<ExternalLink href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }` }>
+					<ExternalLink
+						href={ `https://wordpress.com/earn/payments-plans/${ siteSlug }#add-new-payment-plan` }
+					>
 						{ getMessageByProductType( 'add a new product', productType ) }
 					</ExternalLink>
 				) }

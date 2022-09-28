@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import { __, _n } from '@wordpress/i18n';
 import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __, _n } from '@wordpress/i18n';
+import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
+import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import usePurchases from '../../hooks/use-purchases';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import styles from './style.module.scss';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 
 /**
  * Basic plan section component.
@@ -107,8 +100,9 @@ function PlanSectionFooter( { purchases } ) {
 				<Button
 					onClick={ purchaseClickHandler }
 					href={ purchases.length ? getManageYourPlanUrl() : getPurchasePlanUrl() }
-					variant="external-link"
 					weight="regular"
+					variant="link"
+					isExternalLink={ true }
 				>
 					{ planLinkDescription }
 				</Button>

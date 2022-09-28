@@ -1,21 +1,14 @@
-/**
- * External dependencies
- */
+import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import { __ } from '@wordpress/i18n';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { isDevVersion as _isDevVersion } from 'state/initial-state';
 import {
 	isNoticeDismissed as _isNoticeDismissed,
 	dismissJetpackNotice,
 } from 'state/jetpack-notices';
-import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
-import NoticeAction from 'components/notice/notice-action.jsx';
-import SimpleNotice from 'components/notice';
 
 class FeedbackDashRequest extends React.Component {
 	static displayName = 'FeedbackDashRequest';

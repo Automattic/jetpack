@@ -1,27 +1,20 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-import { isEqual } from 'lodash';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { TextControl, withFallbackStyles } from '@wordpress/components';
 import {
 	InspectorControls,
 	RichText,
 	withColors,
 	withFontSizes,
-	__experimentalUseGradient as useGradient,
+	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { useEffect, useState } from '@wordpress/element';
+import { TextControl, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
-
-/**
- * Internal dependencies
- */
+import { useEffect, useState } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEqual } from 'lodash';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getSubscriberCount } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
-import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import {
 	DEFAULT_BORDER_RADIUS_VALUE,
 	DEFAULT_BORDER_WEIGHT_VALUE,
@@ -173,6 +166,7 @@ export function SubscriptionEdit( props ) {
 	const getBlockClassName = () => {
 		return classnames(
 			className,
+			'wp-block-jetpack-subscriptions__container',
 			'wp-block-jetpack-subscriptions__supports-newline',
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
 			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
@@ -263,9 +257,8 @@ export function SubscriptionEdit( props ) {
 						allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
 					/>
 				</div>
-
 				{ showSubscribersTotal && (
-					<p className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</p>
+					<div className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</div>
 				) }
 			</div>
 		</>

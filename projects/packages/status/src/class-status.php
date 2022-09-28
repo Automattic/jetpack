@@ -227,7 +227,7 @@ class Status {
 
 		$known_staging = array(
 			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine.
+				'#\.staging\.wpengine\.com$#i', // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
 				'#\.kinsta\.cloud$#i',          // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
@@ -241,7 +241,7 @@ class Status {
 				'#\-liquidwebsites\.com$#i',    // Liquidweb.
 			),
 			'constants' => array(
-				'IS_WPE_SNAPSHOT',      // WP Engine.
+				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
 				'KINSTA_DEV_ENV',       // Kinsta.com.
 				'WPSTAGECOACH_STAGING', // WP Stagecoach.
 				'JETPACK_STAGING_MODE', // Generic.

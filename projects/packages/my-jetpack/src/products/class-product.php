@@ -112,11 +112,13 @@ abstract class Product {
 		}
 		return array(
 			'slug'                     => static::$slug,
+			'plugin_slug'              => static::$plugin_slug,
 			'name'                     => static::get_name(),
 			'title'                    => static::get_title(),
 			'description'              => static::get_description(),
 			'long_description'         => static::get_long_description(),
 			'features'                 => static::get_features(),
+			'disclaimers'              => static::get_disclaimers(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
 			'is_bundle'                => static::is_bundle_product(),
@@ -199,6 +201,15 @@ abstract class Product {
 	}
 
 	/**
+	 * Get the disclaimers corresponding to a feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_disclaimers() {
+		return array();
+	}
+
+	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
 	 * Returns true if it supports. Return false if a purchase is still required.
@@ -272,7 +283,7 @@ abstract class Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return static::is_plugin_active();
+		return static::is_plugin_active() && static::has_required_plan();
 	}
 
 	/**

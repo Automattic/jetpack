@@ -23,6 +23,13 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	protected $allowed_tables = array();
 
 	/**
+	 * Array of classnames of Sync enabled modules.
+	 *
+	 * @var array
+	 */
+	protected $sync_enabled_modules;
+
+	/**
 	 * Array of Table Names and if valid.
 	 *
 	 * @return int[][]
@@ -44,6 +51,30 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Array of Table Names, enabled modules and if valid.
+	 *
+	 * @return array
+	 */
+	public function table_modules_provider() {
+		return array(
+			array( 'posts', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), false ),
+			array( 'posts', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), true ),
+			array( 'postmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), true ),
+			array( 'postmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), false ),
+			array( 'comments', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'comments', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), true ),
+			array( 'commentmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'commentmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Comments' ), true ),
+			array( 'terms', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'terms', array( 'Automattic\\Jetpack\\Sync\\Modules\\Terms' ), true ),
+			array( 'termmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'termmeta', array( 'Automattic\\Jetpack\\Sync\\Modules\\Terms' ), true ),
+			array( 'term_relationships', array( 'Automattic\\Jetpack\\Sync\\Modules\\Posts' ), false ),
+			array( 'term_relationships', array( 'Automattic\\Jetpack\\Sync\\Modules\\Terms' ), true ),
+		);
+	}
+
+	/**
 	 * Test table names are validated.
 	 *
 	 * @dataProvider table_provider
@@ -61,6 +92,41 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		}
 
 		new Table_Checksum( $table );
+	}
+
+	/**
+	 * Validate a WP_Error checksum is returned for each table
+	 * when the corresponding Sync modules are disabled.
+	 *
+	 * @dataProvider table_modules_provider
+	 *
+	 * @param string $table           Table name.
+	 * @param array  $enabled_modules Array of classnames of Sync enabled modules.
+	 * @param bool   $is_valid        Whether the checksum is valid. If not, an exception is expected.
+	 */
+	public function test_checksum_with_disabled_sync_modules( $table, $enabled_modules, $is_valid ) {
+		if ( ! $is_valid ) {
+			// Exception expected if corresponding Sync module is not enabled.
+			$this->expectException( Exception::class );
+		} else {
+			// Valid Tables do not need any assertion.
+			$this->assertTrue( true );
+		}
+
+		// Hack to force Sync modules to be re-initialized.
+		$reflection = new ReflectionClass( 'Automattic\Jetpack\Sync\Modules' );
+
+		$prop = $reflection->getProperty( 'initialized_modules' );
+		$prop->setAccessible( true );
+		$prop->setValue( null );
+
+		$this->sync_enabled_modules = $enabled_modules;
+		add_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ), 100 );
+		new Table_Checksum( $table );
+		remove_filter( 'jetpack_sync_modules', array( $this, 'sync_modules_filter' ) );
+
+		// Clean-up.
+		$prop->setValue( null );
 	}
 
 	/**
@@ -152,10 +218,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$this->allowed_tables = $table_configurations;
 		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables' ) );
 
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		// create a post.
-		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
 		// Perform Checksum.
@@ -251,10 +317,10 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$this->allowed_tables = $table_configurations;
 		add_filter( 'jetpack_sync_checksum_allowed_tables', array( $this, 'set_allowed_tables' ) );
 
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		// create a post, needed to allow for field checks.
-		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->post = get_post( $post_id );
 
 		// Calculate checksum.
@@ -336,14 +402,14 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	public function test_get_range_edges_posts( $num_posts, $disallow_index, $expected_count ) {
 
 		// Generate Test Content.
-		$user_id            = $this->factory->user->create();
+		$user_id            = self::factory()->user->create();
 		$min_range_expected = null;
 		$max_range_expected = null;
 
 		for ( $i = 1; $i <= $num_posts; $i ++ ) {
 			if ( $disallow_index === $i ) {
 				// create a disallowed post_type post.
-				$post_id = $this->factory->post->create(
+				$post_id = self::factory()->post->create(
 					array(
 						'post_author' => $user_id,
 						'post_type'   => 'snitch',
@@ -351,7 +417,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 				);
 			} else {
 				// create an allowed post_type post.
-				$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+				$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 				if ( $min_range_expected === null ) {
 					$min_range_expected = $post_id; // set initial post_id.
 				}
@@ -470,12 +536,12 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	public function test_get_range_edges_posts_args( $num_posts, $expected_item_count, $range_from_offset, $range_to_offset, $limit ) {
 
 		// Generate Test Content.
-		$user_id            = $this->factory->user->create();
+		$user_id            = self::factory()->user->create();
 		$min_range_expected = null;
 		$max_range_expected = null;
 
 		for ( $i = 1; $i <= $num_posts; $i ++ ) {
-			$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
 			}
@@ -514,13 +580,13 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 	public function test_calculate_checksum() {
 
 		// Generate Test Content.
-		$user_id            = $this->factory->user->create();
+		$user_id            = self::factory()->user->create();
 		$min_range_expected = null;
 		$max_range_expected = null;
 
 		for ( $i = 1; $i <= 10; $i ++ ) {
 			// create an allowed post_type post.
-			$post_id = $this->factory->post->create( array( 'post_author' => $user_id ) );
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
 			}
@@ -535,6 +601,15 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 
 		$this->assertSame( (int) $checksum_full, (int) ( $checksum_half_1 + $checksum_half_2 ) );
 
+	}
+
+	/**
+	 * Filter Sync modules.
+	 *
+	 * @return array
+	 */
+	public function sync_modules_filter() {
+		return $this->sync_enabled_modules;
 	}
 
 }

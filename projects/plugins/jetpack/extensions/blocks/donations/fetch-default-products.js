@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 
 const fetchDefaultProducts = async currency => {

@@ -105,6 +105,41 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test the `has_connected_owner` functionality when connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$this->assertTrue( $this->manager->has_connected_owner() );
+	}
+
+	/**
+	 * Test the `has_connected_owner` functionality when not connected.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::has_connected_owner
+	 */
+	public function test_has_connected_owner_when_not_connected() {
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( false );
+
+		$this->assertFalse( $this->manager->has_connected_owner() );
+	}
+
+	/**
 	 * Test the `api_url` generation.
 	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::api_url

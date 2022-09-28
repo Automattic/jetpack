@@ -1,0 +1,18 @@
+<?php
+/**
+ * A dummy file to test the (Jetpack.Functions.SetCookie.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// This one is good.
+setcookie( 'jetpack_test_1', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true, true );
+
+// This one should flag as false.
+setcookie( 'jetpack_test_2', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true, false );
+
+// This one is bad (no declaration).
+setcookie( 'jetpack_test_2', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true );
+
+// This is just something random.
+setcookie( 'jetpack_test_2', 'test', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, true, 'hello' );

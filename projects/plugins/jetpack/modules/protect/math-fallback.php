@@ -130,7 +130,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 
 				$jetpack_protect = Jetpack_Protect_Module::instance();
 				$jetpack_protect->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
-				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false );
+				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 				remove_action( 'login_form', array( $this, 'math_form' ) );
 				return true;
 			}

@@ -1,13 +1,13 @@
 {
 	"name": "required-review",
-	"version": "3.0.0-alpha",
+	"version": "3.0.1-alpha",
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"main": "index.js",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@actions/core": "1.6.0",
-		"@actions/github": "5.0.1",
+		"@actions/core": "1.9.1",
+		"@actions/github": "5.0.3",
 		"error": "10.4.0",
 		"js-yaml": "4.1.0",
 		"picomatch": "2.2.3"
@@ -19,8 +19,7 @@
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

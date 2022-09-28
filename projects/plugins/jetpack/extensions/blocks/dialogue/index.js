@@ -1,25 +1,14 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
+import { name as parentName } from '../conversation/index';
+import participants from '../conversation/participants.json';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
-import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
-import participants from '../conversation/participants.json';
-const defaultParticipants = participants.list;
-
-import { name as parentName } from '../conversation/index';
-
-/**
- * Style dependencies
- */
 import './style.scss';
+
+const defaultParticipants = participants.list;
 
 export const name = 'dialogue';
 export const title = __( 'Dialogue', 'jetpack' );

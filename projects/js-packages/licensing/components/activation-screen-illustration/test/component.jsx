@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
+import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
 import ActivationScreenIllustration from '../index';
 
 describe( 'ActivationScreenIllustration', () => {
@@ -17,19 +9,15 @@ describe( 'ActivationScreenIllustration', () => {
 			showSupportLink: true,
 		};
 
-		const wrapper = shallow( <ActivationScreenIllustration { ...testProps } /> );
-
 		it( 'correct images src is used', () => {
-			const image = wrapper.find( '.jp-license-activation-screen-illustration--img' );
-
-			expect( image ).to.have.lengthOf( 1 );
-			expect( image.prop( 'src' ) ).to.equal( testProps.imageUrl );
+			render( <ActivationScreenIllustration { ...testProps } /> );
+			const image = screen.getByRole( 'img' );
+			expect( image ).toHaveAttribute( 'src', testProps.imageUrl );
 		} );
 
 		it( 'support link rendered', () => {
-			expect(
-				wrapper.find( '.jp-license-activation-screen-illustration--support-link' )
-			).to.have.lengthOf( 1 );
+			render( <ActivationScreenIllustration { ...testProps } /> );
+			expect( screen.getByRole( 'link', { name: 'Contact us.' } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -39,12 +27,9 @@ describe( 'ActivationScreenIllustration', () => {
 			showSupportLink: false,
 		};
 
-		const wrapper = shallow( <ActivationScreenIllustration { ...testProps } /> );
-
 		it( 'support link not rendered', () => {
-			expect(
-				wrapper.find( '.jp-license-activation-screen-illustration__support-link' )
-			).to.have.lengthOf( 0 );
+			render( <ActivationScreenIllustration { ...testProps } /> );
+			expect( screen.queryByRole( 'link', { name: 'Contact us.' } ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

@@ -2,7 +2,7 @@
 
 ## Branch Naming Scheme
 
-All changes should be developed in a new branch created from the `master` branch.
+All changes should be developed in a new branch created from the `trunk` branch.
 
 Branches use the following naming conventions:
 
@@ -11,7 +11,7 @@ Branches use the following naming conventions:
 * `fix/{something}` -- When you are fixing something broken in a feature
 * `try/{something}` -- When you are trying out an idea and want feedback
 
-For example, you can run: `git checkout master` and then `git checkout -b fix/whatsits` to create a new `fix/whatsits` branch off of `origin/master`.
+For example, you can run: `git checkout trunk` and then `git checkout -b fix/whatsits` to create a new `fix/whatsits` branch off of `origin/trunk`.
 
 The Jetpack repo uses the following "reserved" branch name conventions:
 
@@ -25,16 +25,16 @@ The Jetpack repo uses the following "reserved" branch name conventions:
 
 ## Keeping Your Branch Up To Date
 
-There are two ways to update your branch with changes to `master` or a parent PR.
+There are two ways to update your branch with changes to `trunk` or a parent PR.
 
-1. **Merge:** After a `git fetch`, execute `git merge origin/master` (or `git merge origin/yourbranchname` for a parent PR) to pull in the latest changes. If there are conflicts, you'll need to resolve them by hand and then commit manually.
+1. **Merge:** After a `git fetch`, execute `git merge origin/trunk` (or `git merge origin/yourbranchname` for a parent PR) to pull in the latest changes. If there are conflicts, you'll need to resolve them by hand and then commit manually.
    * Pro: GitHub deals with this much better.
    * Pro: Collaborators can just `git pull` to update their local copy of the branch.
    * Con: Can lead to a messy-looking history while the branch is in progress. Since we use "squash and merge" to commit PRs, though, this isn't an issue once the PR is finally accepted.
    * Con: If there's a conflict while merging, you might wind up having to commit the merge commit with `--no-verify` to avoid our pre-commit hook complaining about things.
    * Note: To get a clean view of the branch's history, use `git log --first-parent`.
-   * Note: To get a clean diff of the branch versus master, like what GitHub shows, use `git diff origin/master...HEAD` (note the three dots).
-2. **[Rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request):** Execute `git pull --rebase origin master` (or `git pull --rebase origin yourbranchname` for a parent PR), or do a `git fetch` then execute `git rebase origin/master` (or `git rebase origin/yourbranchname`). It will reapply each patch, and if there are conflicts at any step you'll have to resolve them by hand and then `git rebase --continue`.
+   * Note: To get a clean diff of the branch versus trunk, like what GitHub shows, use `git diff origin/trunk...HEAD` (note the three dots).
+2. **[Rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request):** Execute `git pull --rebase origin trunk` (or `git pull --rebase origin yourbranchname` for a parent PR), or do a `git fetch` then execute `git rebase origin/trunk` (or `git rebase origin/yourbranchname`). It will reapply each patch, and if there are conflicts at any step you'll have to resolve them by hand and then `git rebase --continue`.
    * Pro: Keeps the branch's history cleaner.
    * Con: GitHub doesn't handle it very well. It may lose inline comments on the pre-rebase commits, and it will remove the old commit entries from the conversation (making it harder to determine the state of the PR when earlier comments were left) and instead show every one in the rebase as being "added" again at the time that the rebase was pushed.
    * Con: Anyone else who has checked out your branch pre-rebase can't just `git pull`.
@@ -49,9 +49,9 @@ If you're working on a collaborative branch, it's also a good idea to rebase you
 
 If you're a contributor and have forked the Jetpack repository, you may need to follow some git steps to keep your PRs up to date.
 
-* We can usually ask you to "rebase against latest master" in these situations.
+* We can usually ask you to "rebase against latest trunk" in these situations.
 
-  1. Your PR has conflicts due to some recent changes in Jetpack master.
+  1. Your PR has conflicts due to some recent changes in Jetpack trunk.
   2. We changed code in the unit tests setup or dependencies and thus we need you to update your PR so we can run automated tests on your code.
 
 If we eventually ask you that, here are the commands that may help you achieve it.
@@ -64,10 +64,10 @@ $ git remote add jetpack git@github.com:Automattic/jetpack.git
 # Checkout to the branch you're working on locally
 $ git checkout update/my-changes
 
-# Ask git to bring in the changes that are currently on original Jetpack repo's master branch and
+# Ask git to bring in the changes that are currently on original Jetpack repo's trunk branch and
 # put them in your local copy of the repo before your commits.
 $ git fetch jetpack
-$ git rebase jetpack/master
+$ git rebase jetpack/trunk
 
 # Make more changes and commit OR resolve conflicts.
 # Then push your changes to your forked version of Jetpack
@@ -78,10 +78,10 @@ $ git push -f origin update/my-changes
 
 #### Dealing with lock files
 
-It's seldom worth manually merging changes to lock files. It's usually better to regenerate the changes instead. Assuming you've just done a `git merge origin/master`,
+It's seldom worth manually merging changes to lock files. It's usually better to regenerate the changes instead. Assuming you've just done a `git merge origin/trunk`,
 
-* For `composer.lock`, you can do something like `git checkout origin/master projects/x/y/composer.lock && tools/composer-update-monorepo.sh --root-reqs projects/x/y/`.
-* For `pnpm-lock.yaml`, you can do `git checkout origin/master pnpm-lock.yaml && pnpm install`.
+* For `composer.lock`, you can do something like `git checkout origin/trunk projects/x/y/composer.lock && tools/composer-update-monorepo.sh --root-reqs projects/x/y/`.
+* For `pnpm-lock.yaml`, you can do `git checkout origin/trunk pnpm-lock.yaml && pnpm install`.
 
 For the pnpm lock file in particular, it's easy for a `git merge` or `git rebase` to do weird things resulting in a diff with unnecessary changes or outdated versions of indirect dependencies.
 

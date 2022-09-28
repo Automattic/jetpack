@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.19] - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## [1.0.18] - 2022-08-23
+### Added
+- Add documentation of another problematic pattern (same string with different translator comments). [#25677]
+
+### Changed
+- Updated package dependencies. [#25339, #25762]
+
+## [1.0.17] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.0.16] - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## [1.0.15] - 2022-07-06
+### Changed
+- Updated package dependencies. [#24924]
+
+## [1.0.14] - 2022-06-14
+### Changed
+- Updated package dependencies. [#24724]
+
+## [1.0.13] - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
 ## [1.0.12] - 2022-05-18
 ### Changed
 - Updated package dependencies [#24372]
@@ -70,6 +101,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.0.19]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.18...v1.0.19
+[1.0.18]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.17...v1.0.18
+[1.0.17]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.16...v1.0.17
+[1.0.16]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.15...v1.0.16
+[1.0.15]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.0.9...v1.0.10

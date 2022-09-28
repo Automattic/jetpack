@@ -1,24 +1,14 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
+import React, { useCallback, useMemo } from 'react';
+import { connect } from 'react-redux';
 import { getUpsell } from 'state/recommendations';
 import { getSiteDiscount } from 'state/site/reducer';
 import { ProductCardUpsell } from '../product-card-upsell';
 import Timer from '../timer';
 import { isCouponValid } from '../utils';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const SummaryUpsellComponent = ( { upsell, discountData } ) => {

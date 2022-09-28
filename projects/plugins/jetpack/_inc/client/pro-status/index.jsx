@@ -1,19 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { __, _n, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _n, _x } from '@wordpress/i18n';
 import Button from 'components/button';
-import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import SimpleNotice from 'components/notice';
+import analytics from 'lib/analytics';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
@@ -22,15 +18,12 @@ import {
 	isAkismetKeyValid,
 	isFetchingAkismetData,
 } from 'state/at-a-glance';
-import { getSitePlan, hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
+import { isOfflineMode } from 'state/connection';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
-import { isOfflineMode } from 'state/connection';
+import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/site/plugins';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import SimpleNotice from 'components/notice';
 
 /**
  * Track click on Pro status badge.
@@ -313,7 +306,7 @@ export default connect( state => {
 		fetchingAkismetData: isFetchingAkismetData( state ),
 		rewindStatus: getRewindStatus( state ),
 		scanStatus: getScanStatus( state ),
-		purchasedVaultPressBackups: hasActiveSiteFeature( state, 'vaultpress-backups' ),
-		purchasedVaultPressScan: hasActiveSiteFeature( state, 'vaultpress-security-scanning' ),
+		purchasedVaultPressBackups: siteHasFeature( state, 'vaultpress-backups' ),
+		purchasedVaultPressScan: siteHasFeature( state, 'vaultpress-security-scanning' ),
 	};
 } )( ProStatus );

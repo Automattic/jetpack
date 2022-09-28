@@ -2,13 +2,13 @@
 
 /* eslint-disable no-console */
 
-const { Octokit } = require( '@octokit/rest' );
-const { createTokenAuth } = require( '@octokit/auth-token' );
-const chalk = require( 'chalk' );
 const fs = require( 'fs' );
+const path = require( 'path' );
+const { createTokenAuth } = require( '@octokit/auth-token' );
+const { Octokit } = require( '@octokit/rest' );
+const chalk = require( 'chalk' );
 const glob = require( 'glob' );
 const inquirer = require( 'inquirer' );
-const path = require( 'path' );
 
 /**
  * List secrets.

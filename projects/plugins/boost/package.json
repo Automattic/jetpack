@@ -1,34 +1,34 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.4.3-alpha",
+	"version": "1.5.2-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
 	},
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@wordpress/components": "19.10.0",
-		"@wordpress/element": "4.6.0",
+		"@wordpress/components": "20.0.0",
+		"@wordpress/element": "4.14.0",
 		"history": "5.3.0",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.4",
 		"prettier": "2.6.2",
 		"svelte-navigator": "3.1.5"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.13",
-		"@babel/core": "7.17.10",
-		"@babel/preset-env": "7.17.10",
-		"@babel/preset-react": "7.16.7",
+		"@automattic/jetpack-components": "workspace:* || ^0.22",
+		"@babel/core": "7.18.13",
+		"@babel/preset-env": "7.18.10",
+		"@babel/preset-react": "7.18.6",
 		"@rollup/plugin-babel": "5.3.1",
 		"@rollup/plugin-commonjs": "19.0.2",
 		"@rollup/plugin-json": "4.1.0",
-		"@rollup/plugin-node-resolve": "13.0.6",
+		"@rollup/plugin-node-resolve": "13.3.0",
 		"@rollup/plugin-replace": "4.0.0",
-		"@rollup/plugin-typescript": "8.2.5",
-		"@wordpress/i18n": "4.8.0",
-		"node-wp-i18n": "1.2.6",
-		"npm-run-all": "4.1.5",
-		"postcss": "8.4.13",
+		"@rollup/plugin-typescript": "8.3.3",
+		"@types/jquery": "3.5.14",
+		"@wordpress/i18n": "4.16.0",
+		"concurrently": "6.0.2",
+		"postcss": "8.4.16",
 		"prettier-plugin-svelte": "2.4.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
@@ -41,18 +41,19 @@
 		"rollup-plugin-svelte-svg": "0.2.3",
 		"rollup-plugin-terser": "7.0.2",
 		"sass": "1.43.3",
-		"svelte": "3.42.4",
+		"svelte": "3.49.0",
 		"svelte-preprocess": "4.9.2",
 		"tslib": "2.3.1",
-		"typescript": "4.6.4"
+		"typescript": "4.8.2"
 	},
 	"scripts": {
-		"add-textdomain": "wpi18n addtextdomain --textdomain=jetpack-boost --exclude=node_modules,tests,vendor *.php **/*.php",
-		"build-development": "pnpm run clear-dist && rollup -c",
-		"build-production": "pnpm run clear-dist && NODE_ENV=production BABEL_ENV=production rollup -c",
+		"build-concurrently": "pnpm run clear-dist && concurrently 'pnpm:compile-ts' 'rollup -c'",
+		"build-development": "pnpm run build-concurrently",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
+		"compile-ts": "tsc --pretty",
 		"dev-serve": "rollup -c -w --environment SERVE",
 		"dev": "pnpm run clear-dist && rollup -c -w",
-		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path ../../../.eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
+		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
 		"lint": "pnpm run reformat-files && echo 'Running eslint...' && pnpm eslint app/assets/src/js tests/e2e --fix && echo '✔ prettier and eslint ran successfully.'",
 		"clear-dist": "rm -rf app/assets/dist/*",
 		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",
@@ -73,8 +74,7 @@
 	},
 	"homepage": "https://jetpack.com/boost/",
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

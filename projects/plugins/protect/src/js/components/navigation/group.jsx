@@ -1,21 +1,17 @@
-/**
- * External dependencies
- */
-import React, { useState, useCallback } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
+import React, { useState, useCallback, useContext } from 'react';
 import ItemLabel from './label';
+import styles from './styles.module.scss';
+import { NavigationContext } from './use-menu-navigation';
 
 const MAX_ITEMS = 8;
 
 const NavigationGroup = ( { icon, label, children } ) => {
 	const [ collapsed, setCollapsed ] = useState( true );
-	const needsTruncate = Array.isArray( children ) && children?.length >= MAX_ITEMS;
+	const { mode } = useContext( NavigationContext );
+	const needsTruncate =
+		Array.isArray( children ) && children?.length >= MAX_ITEMS && mode === 'list';
 	const content = needsTruncate && collapsed ? children.slice( 0, MAX_ITEMS ) : children;
 	const totalHideItems = needsTruncate ? children?.length - MAX_ITEMS : 0;
 

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React, { createRef, Component } from 'react';
-import strip from 'strip';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
-
-/**
- * Internal dependencies
- */
+import React, { createRef, Component } from 'react';
+import strip from 'strip';
 import { getCheckedInputNames } from '../lib/dom';
 
 /**
@@ -42,6 +35,8 @@ export default class SearchFilter extends Component {
 	getIdentifier() {
 		if ( this.props.type === 'postType' ) {
 			return 'post_types';
+		} else if ( this.props.type === 'author' ) {
+			return 'authors';
 		} else if ( this.props.type === 'date' ) {
 			// (month || year)_(post_date || post_date_gmt || post_modified || post_modified_gmt )
 			// Ex: month_post_date_gmt
@@ -117,6 +112,30 @@ export default class SearchFilter extends Component {
 		);
 	};
 
+	renderAuthor = ( { key, doc_count: count } ) => {
+		const [ slug, name ] = key && key.split( /\/(.+)/ );
+
+		return (
+			<div>
+				<input
+					checked={ this.isChecked( slug ) }
+					disabled={ ! this.isChecked( slug ) && count === 0 }
+					id={ `${ this.idPrefix }-authors-${ slug }` }
+					name={ slug }
+					onChange={ this.toggleFilter }
+					type="checkbox"
+					className="jetpack-instant-search__search-filter-list-input"
+				/>
+				<label
+					htmlFor={ `${ this.idPrefix }-authors-${ slug }` }
+					className="jetpack-instant-search__search-filter-list-label"
+				>
+					{ strip( name ) } ({ count })
+				</label>
+			</div>
+		);
+	};
+
 	renderTaxonomy = ( { key, doc_count: count } ) => {
 		// Taxonomy keys contain slug and name separated by a slash
 		const [ slug, name ] = key && key.split( /\/(.+)/ );
@@ -178,6 +197,10 @@ export default class SearchFilter extends Component {
 		return this.props.aggregation.buckets.map( this.renderPostType );
 	}
 
+	renderAuthors() {
+		return this.props.aggregation.buckets.map( this.renderAuthor );
+	}
+
 	renderTaxonomies() {
 		return this.props.aggregation.buckets.map( this.renderTaxonomy );
 	}
@@ -202,6 +225,7 @@ export default class SearchFilter extends Component {
 						<div className="jetpack-instant-search__search-filter-list">
 							{ this.props.type === 'date' && this.renderDates() }
 							{ this.props.type === 'postType' && this.renderPostTypes() }
+							{ this.props.type === 'author' && this.renderAuthors() }
 							{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
 						</div>
 					) }

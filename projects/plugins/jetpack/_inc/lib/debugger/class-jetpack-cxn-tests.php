@@ -917,7 +917,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'name'              => $name,
 					'label'             => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
 					'severity'          => 'recommended',
-					'action'            => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
+					'action'            => 'https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-settings.php',
 					'action_label'      => __( 'See Github for more on Sync Settings', 'jetpack' ),
 					'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
 					'long_description'  => $description,

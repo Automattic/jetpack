@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Use a different copy when there are no found vulnerabilities but there are still some unchecked items

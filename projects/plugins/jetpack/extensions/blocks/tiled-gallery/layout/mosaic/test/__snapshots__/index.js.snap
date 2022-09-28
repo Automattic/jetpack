@@ -1,98 +1,96 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders as expected 1`] = `
-<Gallery
-  galleryRef={
-    Object {
-      "current": null,
-    }
-  }
->
-  <Row
-    key="0"
+exports[`renders as expected (set imageSet1): images 1`] = `
+<div>
+  <div
+    class="tiled-gallery__gallery"
   >
-    <Column
-      key="0"
+    <div
+      class="tiled-gallery__row"
     >
-      0
-    </Column>
-  </Row>
-  <Row
-    key="1"
-  >
-    <Column
-      key="0"
+      <div
+        class="tiled-gallery__col"
+      >
+        0
+      </div>
+    </div>
+    <div
+      class="tiled-gallery__row"
     >
-      1
-    </Column>
-  </Row>
-  <Row
-    key="2"
-  >
-    <Column
-      key="0"
+      <div
+        class="tiled-gallery__col"
+      >
+        1
+      </div>
+    </div>
+    <div
+      class="tiled-gallery__row"
     >
-      2
-    </Column>
-    <Column
-      key="1"
+      <div
+        class="tiled-gallery__col"
+      >
+        2
+      </div>
+      <div
+        class="tiled-gallery__col"
+      >
+        3
+      </div>
+      <div
+        class="tiled-gallery__col"
+      >
+        4
+      </div>
+      <div
+        class="tiled-gallery__col"
+      >
+        5
+      </div>
+    </div>
+    <div
+      class="tiled-gallery__row"
     >
-      3
-    </Column>
-    <Column
-      key="2"
+      <div
+        class="tiled-gallery__col"
+      >
+        6
+      </div>
+      <div
+        class="tiled-gallery__col"
+      >
+        7
+      </div>
+    </div>
+    <div
+      class="tiled-gallery__row"
     >
-      4
-    </Column>
-    <Column
-      key="3"
+      <div
+        class="tiled-gallery__col"
+      >
+        8
+      </div>
+      <div
+        class="tiled-gallery__col"
+      >
+        9
+        10
+      </div>
+    </div>
+    <div
+      class="tiled-gallery__row"
     >
-      5
-    </Column>
-  </Row>
-  <Row
-    key="3"
-  >
-    <Column
-      key="0"
-    >
-      6
-    </Column>
-    <Column
-      key="1"
-    >
-      7
-    </Column>
-  </Row>
-  <Row
-    key="4"
-  >
-    <Column
-      key="0"
-    >
-      8
-    </Column>
-    <Column
-      key="1"
-    >
-      9
-      10
-    </Column>
-  </Row>
-  <Row
-    key="5"
-  >
-    <Column
-      key="0"
-    >
-      11
-      12
-    </Column>
-    <Column
-      key="1"
-    >
-      13
-    </Column>
-  </Row>
-</Gallery>
+      <div
+        class="tiled-gallery__col"
+      >
+        11
+        12
+      </div>
+      <div
+        class="tiled-gallery__col"
+      >
+        13
+      </div>
+    </div>
+  </div>
+</div>
 `;

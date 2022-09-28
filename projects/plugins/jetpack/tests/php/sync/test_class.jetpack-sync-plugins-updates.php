@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_updating_a_plugin_error_is_synced() {
 		/**
-		 * in WP Plugin_Upgrader->update() doesn't fire the upgrader_process_complete action
+		 * In WP Plugin_Upgrader->update() doesn't fire the upgrader_process_complete action
 		 * when it encounters an error so right now we do not have a way to hook into why a plugin failed.
 		 */
 		$this->markTestIncomplete( "Right now this doesn't work." );

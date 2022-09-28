@@ -8,21 +8,15 @@
  * displays the Publicize UI there.
  */
 
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
+import { JetpackLogo } from '@automattic/jetpack-components';
+import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
-import './editor.scss';
-import './store';
-import TwitterThreadListener from './components/twitter';
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './components/panel';
+
+import './editor.scss';
 
 export const name = 'publicize';
 
@@ -43,6 +37,7 @@ export const settings = {
 						{ __( 'Share this post', 'jetpack' ) }
 					</span>
 				}
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>

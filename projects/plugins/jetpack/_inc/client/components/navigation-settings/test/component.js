@@ -1,276 +1,243 @@
-/**
- * External dependencies
- */
+import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
+import { render, screen } from 'test/test-utils';
 import { NavigationSettings } from '../index';
 
+// Mock components that do fetches in the background. We supply needed state directly.
+jest.mock( 'components/data/query-site-plugins', () => ( {
+	__esModule: true,
+	default: () => 'query-site-plugins',
+} ) );
+
 describe( 'NavigationSettings', () => {
-	let wrapper, testProps;
+	const testProps = {
+		hasAnyOfTheseModules: () => true,
+		hasAnyPerformanceFeature: true,
+		hasAnySecurityFeature: true,
+		userCanManageModules: false,
+		isSubscriber: true,
+		location: {
+			pathname: '/settings',
+		},
+		routeName: 'General',
+		history: {
+			listen: () => {},
+		},
+		isModuleActivated: () => true,
+		isSiteConnected: true,
+		siteRawUrl: 'example.org',
+		siteAdminUrl: 'https://example.org/wp-admin/',
+		searchForTerm: () => {},
+		isLinked: true,
+		moduleList: {
+			sitemaps: true,
+			carousel: true,
+			'custom-content-types': true,
+			'verification-tools': true,
+			markdown: true,
+			'infinite-scroll': true,
+			'gravatar-hovercards': true,
+			sharedaddy: true,
+			sso: true,
+			'related-posts': true,
+			monitor: true,
+			vaultpress: true,
+			stats: true,
+			masterbar: true,
+			'google-analytics': true,
+			'seo-tools': true,
+			wordads: true,
+			videopress: true,
+			subscriptions: true,
+			comments: true,
+			'post-by-email': true,
+			photon: true,
+			publicize: true,
+			likes: true,
+		},
+		isPluginActive: () => true,
+	};
 
-	before( () => {
-		testProps = {
-			hasAnyOfTheseModules: () => true,
-			hasAnyPerformanceFeature: true,
-			hasAnySecurityFeature: true,
-			userCanManageModules: false,
-			isSubscriber: true,
-			location: {
-				pathname: '/settings',
-			},
-			routeName: 'General',
-			history: {
-				listen: () => {},
-			},
-			isModuleActivated: () => true,
-			isSiteConnected: true,
-			siteRawUrl: 'example.org',
-			siteAdminUrl: 'https://example.org/wp-admin/',
-			searchForTerm: () => {},
-			isLinked: true,
-			moduleList: {
-				sitemaps: true,
-				carousel: true,
-				'custom-content-types': true,
-				'verification-tools': true,
-				markdown: true,
-				'infinite-scroll': true,
-				'gravatar-hovercards': true,
-				sharedaddy: true,
-				sso: true,
-				'related-posts': true,
-				monitor: true,
-				vaultpress: true,
-				stats: true,
-				masterbar: true,
-				'google-analytics': true,
-				'seo-tools': true,
-				wordads: true,
-				videopress: true,
-				subscriptions: true,
-				comments: true,
-				'post-by-email': true,
-				photon: true,
-				publicize: true,
-				likes: true,
-			},
-			isPluginActive: () => true,
-		};
-
+	beforeAll( () => {
 		window.location.hash = '#settings';
-		wrapper = shallow( <NavigationSettings { ...testProps } /> );
 	} );
 
 	describe( 'initially', () => {
 		it( 'renders a div with a className of "dops-navigation"', () => {
-			expect( wrapper.find( '.dops-navigation' ) ).to.have.length( 1 );
+			const { container } = render( <NavigationSettings { ...testProps } /> );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			expect( container.querySelector( '.dops-navigation' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders NavigationSettings, SectionNav, NavTabs', () => {
-			expect( wrapper.find( 'NavigationSettings' ) ).to.exist;
-			expect( wrapper.find( 'SectionNav' ) ).to.exist;
-			expect( wrapper.find( 'NavTabs' ) ).to.exist;
+		it( 'renders SectionNav', () => {
+			const { container } = render( <NavigationSettings { ...testProps } /> );
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			expect( container.querySelector( '.dops-section-nav' ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'for a Subscriber user', () => {
 		it( 'does not render Settings tabs', () => {
-			expect( wrapper.find( 'NavItem' ) ).to.have.length( 0 );
+			render( <NavigationSettings { ...testProps } /> );
+			expect( screen.queryByRole( 'menu' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'does not display Search', () => {
-			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
+			render( <NavigationSettings { ...testProps } /> );
+			expect( screen.queryByRole( 'search' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'for Editor, Author and Contributor users', () => {
-		before( () => {
-			Object.assign( testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-			} );
-
-			wrapper = shallow( <NavigationSettings { ...testProps } /> );
-		} );
+		const currentTestProps = {
+			...testProps,
+			userCanManageModules: false,
+			isSubscriber: false,
+			userCanPublish: true,
+		};
 
 		it( 'renders tabs with Writing and Sharing', () => {
-			expect(
-				wrapper
-					.find( 'NavItem' )
-					.children()
-					.getElements()
-					.filter( item => 'string' === typeof item )
-					.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
-			).to.be.true;
+			render( <NavigationSettings { ...currentTestProps } /> );
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 2 );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 2 );
+			expect( screen.getByRole( 'menuitem', { name: 'Writing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Writing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Sharing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Sharing' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'show only Writing if Publicize is disabled', () => {
-			const publicizeProps = Object.assign( {}, testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-				userCanPublish: true,
-				isModuleActivated: m => 'sharedaddy' === m,
-			} );
-			expect(
-				shallow( <NavigationSettings { ...publicizeProps } /> )
-					.find( 'NavItem' )
-					.children()
-					.getElements()
-					.filter( item => 'string' === typeof item )
-					.every( item => [ 'Writing' ].includes( item ) )
-			).to.be.true;
+			render(
+				// eslint-disable-next-line react/jsx-no-bind
+				<NavigationSettings { ...currentTestProps } isModuleActivated={ m => 'publicize' !== m } />
+			);
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
+			expect( screen.getByRole( 'menuitem', { name: 'Writing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Writing' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'menuitem', { name: 'Sharing' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'option', { name: 'Sharing' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'show only Sharing if Post By Email is disabled', () => {
-			const pbeProps = Object.assign( {}, testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-				userCanPublish: true,
-				isModuleActivated: m => 'post-by-email' === m,
-			} );
-			expect(
-				shallow( <NavigationSettings { ...pbeProps } /> )
-					.find( 'NavItem' )
-					.children()
-					.getElements()
-					.filter( item => 'string' === typeof item )
-					.every( item => [ 'Sharing' ].includes( item ) )
-			).to.be.true;
+			render(
+				<NavigationSettings
+					{ ...currentTestProps }
+					// eslint-disable-next-line react/jsx-no-bind
+					isModuleActivated={ m => 'post-by-email' !== m }
+				/>
+			);
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 1 );
+			// eslint-disable-next-line jest-dom/prefer-in-document -- No, we really want to assert there's exactly 1.
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 1 );
+			expect( screen.queryByRole( 'menuitem', { name: 'Writing' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'option', { name: 'Writing' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Sharing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Sharing' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'has /sharing as selected navigation item, accessing through /settings, even when both PBE and Publicize are active', () => {
-			const allActivatedProps = Object.assign( {}, testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-				userCanPublish: true,
-				isModuleActivated: m => true,
-			} );
-			expect(
-				shallow( <NavigationSettings { ...allActivatedProps } /> )
-					.find( 'NavItem' )
-					.get( 1 ).props.selected
-			).to.be.true;
-			expect(
-				shallow( <NavigationSettings { ...allActivatedProps } /> )
-					.find( 'NavItem' )
-					.get( 1 ).props.path
-			).to.equal( '#sharing' );
+			render( <NavigationSettings { ...currentTestProps } /> );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 2 );
+			const option = screen.getByRole( 'option', { name: 'Sharing' } );
+			expect( option ).toHaveAttribute( 'aria-selected', 'true' );
+			expect( option ).toHaveAttribute( 'href', '#sharing' );
 		} );
 
 		it( 'does not display Search', () => {
-			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
-		} );
-
-		it( 'do not show Sharing to contributors', () => {
-			const publicizeProps = Object.assign( {}, testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-				isContributor: true,
-				isModuleActivated: m => 'sharedaddy' === m,
-			} );
-			expect(
-				shallow( <NavigationSettings { ...publicizeProps } /> )
-					.find( 'NavItem' )
-					.children()
-					.getElements()
-					.filter( item => 'string' === typeof item )
-					.every( item => [ 'Writing' ].includes( item ) )
-			).to.be.true;
-		} );
-
-		describe( 'if Publicize is active', () => {
-			before( () => {
-				let publicizeProps = Object.assign( {}, testProps, {
-					userCanManageModules: false,
-					isSubscriber: false,
-					userCanPublish: true,
-					location: {
-						pathname: '/settings',
-					},
-					routeName: 'General',
-					isModuleActivated: m => 'publicize' === m,
-				} );
-				it( 'show Sharing if user is linked', () => {
-					expect(
-						shallow( <NavigationSettings { ...publicizeProps } /> )
-							.find( 'NavItem' )
-							.children()
-							.getElements()
-							.filter( item => 'string' === typeof item )
-							.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
-					).to.be.true;
-				} );
-			} );
+			render( <NavigationSettings { ...currentTestProps } /> );
+			expect( screen.queryByRole( 'search' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'for an Admin user', () => {
-		before( () => {
-			Object.assign( testProps, {
-				userCanManageModules: true,
-				isSubscriber: false,
-			} );
+		const currentTestProps = {
+			...testProps,
+			userCanManageModules: true,
+			isSubscriber: false,
+		};
 
-			wrapper = shallow( <NavigationSettings { ...testProps } /> );
-		} );
-
-		it( 'renders tabs with Discussion, Security, Traffic, Writing, Sharing', () => {
-			expect(
-				wrapper
-					.find( 'NavItem' )
-					.children()
-					.getElements()
-					.filter( item => 'string' === typeof item )
-					.every( item =>
-						[ 'Writing', 'Discussion', 'Traffic', 'Security', 'Sharing' ].includes( item )
-					)
-			).to.be.true;
+		it( 'renders tabs with Discussion, Security, Performance, Traffic, Writing, Sharing', () => {
+			render( <NavigationSettings { ...currentTestProps } /> );
+			expect( screen.getAllByRole( 'menuitem' ) ).toHaveLength( 6 );
+			expect( screen.getAllByRole( 'option' ) ).toHaveLength( 6 );
+			expect( screen.getByRole( 'menuitem', { name: 'Discussion' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Discussion' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Security' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Security' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Performance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Performance' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Traffic' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Traffic' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Writing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Writing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'menuitem', { name: 'Sharing' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'option', { name: 'Sharing' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'displays Search', () => {
-			expect( wrapper.find( 'Search' ) ).to.have.length( 1 );
+			render( <NavigationSettings { ...currentTestProps } /> );
+			expect( screen.getByRole( 'search' ) ).toBeInTheDocument();
 		} );
 
 		describe( 'when Search is opened', () => {
-			let instance;
-
-			before( () => {
-				instance = wrapper.instance();
+			beforeAll( () => {
+				jest.useFakeTimers();
+			} );
+			afterAll( () => {
+				jest.useRealTimers();
 			} );
 
-			it( 'does not change hash to #search', () => {
-				expect( window.location.hash ).to.be.equal( '#settings' );
+			it( 'does not change hash to #search', async () => {
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				render( <NavigationSettings { ...currentTestProps } /> );
+				await user.click( screen.getByRole( 'button', { name: 'Open Search' } ) );
+				expect( window.location.hash ).toBe( '#settings' );
 			} );
 
 			describe( 'and a search term is opened', () => {
-				it( 'adds a search term in a query string', () => {
-					instance.doSearch( 'search-term' );
-					expect( window.location.hash ).to.be.equal( '#settings?term=search-term' );
+				it( 'adds a search term in a query string', async () => {
+					const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+					render( <NavigationSettings { ...currentTestProps } /> );
+					await user.click( screen.getByRole( 'button', { name: 'Open Search' } ) );
+					await user.type( screen.getByRole( 'searchbox' ), 'search-term' );
+					jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+					expect( window.location.hash ).toBe( '#settings?term=search-term' );
 				} );
 
 				describe( 'and a search term is deleted', () => {
-					it( 'changes hash back to #settings', () => {
-						instance.doSearch( '' );
-						expect( window.location.hash ).to.be.equal( '#settings' );
+					it( 'changes hash back to #settings', async () => {
+						const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+						render( <NavigationSettings { ...currentTestProps } /> );
+						await user.click( screen.getByRole( 'button', { name: 'Open Search' } ) );
+						await user.type( screen.getByRole( 'searchbox' ), 'search-term' );
+						jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+						expect( window.location.hash ).toBe( '#settings?term=search-term' );
+						await user.clear( screen.getByRole( 'searchbox' ) );
+						jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+						expect( window.location.hash ).toBe( '#settings' );
 					} );
 				} );
 			} );
 		} );
 
-		it( 'switches to Security when the tab is clicked', () => {
-			Object.assign( testProps, {
+		// @todo Formerly this test was titled "when clicked", even though it tested setting the location routeName props as shown here.
+		// When I tried using userEvent to actually do a click, it didn't work. The link click changes the hash (after a delay), but
+		// I think the "history" prop isn't noticing.
+		it( 'switches to Traffic tab when location is set accordingly', () => {
+			const currentTestProps2 = {
+				...currentTestProps,
 				location: {
-					pathname: '/security',
+					pathname: '/traffic',
 				},
-				routeName: 'Security',
-			} );
-			wrapper = shallow( <NavigationSettings { ...testProps } /> );
-			expect( wrapper.find( 'SectionNav' ).props().selectedText ).to.be.equal( 'Security' );
+				routeName: 'Traffic',
+			};
+			render( <NavigationSettings { ...currentTestProps2 } /> );
+			const option = screen.getByRole( 'option', { name: 'Traffic' } );
+			expect( option ).toHaveAttribute( 'aria-selected', 'true' );
 		} );
 	} );
 } );

@@ -1,33 +1,60 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __, sprintf } from '@wordpress/i18n';
 import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __, sprintf } from '@wordpress/i18n';
+import React, { useCallback } from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Accordion, { AccordionItem } from '../accordion';
+import styles from './styles.module.scss';
 
-const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
+const VulAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
+	const { recordEvent } = useAnalyticsTracks();
+
+	const learnMoreButton = (
+		<Button
+			variant="link"
+			isExternalLink={ true }
+			weight="regular"
+			href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
+		>
+			{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
+		</Button>
+	);
+
 	return (
-		<AccordionItem id={ id } label={ `${ name } (${ version })` } title={ title } icon={ icon }>
-			<Text variant="title-small" mb={ 2 }>
-				{ __( 'How to fix it?', 'jetpack-protect' ) }
-			</Text>
-			<Text mb={ 2 }>
-				{
-					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-					sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
+		<AccordionItem
+			id={ id }
+			label={ `${ name } (${ version })` }
+			title={ title }
+			icon={ icon }
+			onOpen={ useCallback( () => {
+				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
+					return;
 				}
-			</Text>
-			<Button
-				variant="external-link"
-				href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
-			>
-				{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
-			</Button>
+				recordEvent( `jetpack_protect_${ type }_vulnerability_open` );
+			}, [ recordEvent, type ] ) }
+		>
+			{ description && (
+				<div className={ styles[ 'threat-section' ] }>
+					<Text variant="title-small" mb={ 2 }>
+						{ __( 'What is the problem?', 'jetpack-protect' ) }
+					</Text>
+					<Text mb={ 2 }>{ description }</Text>
+					{ learnMoreButton }
+				</div>
+			) }
+			{ fixedIn && (
+				<div className={ styles[ 'threat-section' ] }>
+					<Text variant="title-small" mb={ 2 }>
+						{ __( 'How to fix it?', 'jetpack-protect' ) }
+					</Text>
+					<Text mb={ 2 }>
+						{
+							/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
+						}
+					</Text>
+				</div>
+			) }
+			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 		</AccordionItem>
 	);
 };
@@ -35,15 +62,17 @@ const VulAccordionItem = ( { id, name, version, title, icon, fixedIn } ) => {
 const List = ( { list } ) => {
 	return (
 		<Accordion>
-			{ list.map( ( { id, name, title, version, fixedIn, icon } ) => (
+			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type } ) => (
 				<VulAccordionItem
 					key={ id }
 					id={ id }
 					name={ name }
 					version={ version }
 					title={ title }
+					description={ description }
 					icon={ icon }
 					fixedIn={ fixedIn }
+					type={ type }
 				/>
 			) ) }
 		</Accordion>

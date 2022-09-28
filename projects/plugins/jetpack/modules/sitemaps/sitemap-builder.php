@@ -49,6 +49,10 @@ class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
 		);
 
 		$this->doc->appendChild(
+			$this->doc->createComment( 'Jetpack_Sitemap_Buffer_Empty' )
+		);
+
+		$this->doc->appendChild(
 			$this->doc->createProcessingInstruction(
 				'xml-stylesheet',
 				'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'sitemap-index.xsl' ) . '"'

@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
@@ -154,5 +155,32 @@ class Test_Webhooks extends TestCase {
 		$webhooks->controller();
 
 		static::assertNull( $controller_skipped );
+	}
+
+	/**
+	 * Unit test for the `Webhooks::handle_connect_url_redirect()` method.
+	 * Testing the repeated attempt to authorize user.
+	 *
+	 * @covers \Automattic\Jetpack\Connection\Webhooks::handle_authorize
+	 */
+	public function test_handle_connect_url_redirect() {
+		$webhooks = $this->getMockBuilder( Webhooks::class )
+			->setConstructorArgs( array( new Manager() ) )
+			->setMethods( array( 'do_exit' ) )
+			->getMock();
+
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
+		Constants::set_constant( 'JETPACK__API_VERSION', '1' );
+
+		set_transient( 'jetpack_assumed_site_creation_date', '2022-06-02 11:22:33' );
+
+		$webhooks->handle_connect_url_redirect();
+
+		delete_transient( 'jetpack_assumed_site_creation_date' );
+		Constants::clear_single_constant( 'JETPACK__API_BASE' );
+		Constants::clear_single_constant( 'JETPACK__API_VERSION' );
+
+		static::assertCount( 1, $this->redirect_stack );
+		static::assertStringStartsWith( 'https://example.com/api/base.authorize/1/?response_type=code&', $this->redirect_stack[0] );
 	}
 }

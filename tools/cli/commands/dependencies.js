@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import { spawn } from 'child_process';
+import chalk from 'chalk';
 import ignore from 'ignore';
-
-/**
- * Internal dependencies
- */
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 
 // Files that mean --git-changed should report all projects as changed.

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
 import { createPortal } from 'react-dom';
 import SearchFilters from './search-filters';
 import WidgetAreaContainer from './widget-area-container';
 
-/**
- * Internal dependencies
- */
-import JetpackColophon from './jetpack-colophon';
 import './sidebar.scss';
 
 const Sidebar = props => {
@@ -50,7 +43,6 @@ const Sidebar = props => {
 					document.getElementById( `${ widget.widget_id }-wrapper` )
 				);
 			} ) }
-			{ props.showPoweredBy && <JetpackColophon locale={ props.locale } /> }
 		</div>
 	);
 };

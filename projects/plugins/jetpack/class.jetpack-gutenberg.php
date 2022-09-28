@@ -679,45 +679,47 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		$initial_state = array(
+			'available_blocks' => self::get_availability(),
+			'jetpack'          => array(
+				'is_active'                 => Jetpack::is_connection_ready(),
+				'is_current_user_connected' => $is_current_user_connected,
+				/** This filter is documented in class.jetpack-gutenberg.php */
+				'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+				'is_private_site'           => '-1' === get_option( 'blog_public' ),
+				'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
+				'is_offline_mode'           => $status->is_offline_mode(),
+				/**
+				 * Enable the RePublicize UI in the block editor context.
+				 *
+				 * @module publicize
+				 *
+				 * @since 10.3.0
+				 *
+				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
+				 */
+				'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+			),
+			'siteFragment'     => $status->get_site_suffix(),
+			'adminUrl'         => esc_url( admin_url() ),
+			'tracksUserData'   => $user_data,
+			'wpcomBlogId'      => $blog_id,
+			'allowedMimeTypes' => wp_get_mime_types(),
+			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+		);
+
+		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
+			$publicize               = publicize_init();
+			$initial_state['social'] = array(
+				'sharesData'  => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan' => $publicize->has_paid_plan(),
+			);
+		}
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
-			array(
-				'available_blocks' => self::get_availability(),
-				'jetpack'          => array(
-					'is_active'                 => Jetpack::is_connection_ready(),
-					'is_current_user_connected' => $is_current_user_connected,
-					/** This filter is documented in class.jetpack-gutenberg.php */
-					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
-					'is_private_site'           => '-1' === get_option( 'blog_public' ),
-					'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
-					'is_offline_mode'           => $status->is_offline_mode(),
-					/**
-					 * Enable the RePublicize UI in the block editor context.
-					 *
-					 * @module publicize
-					 *
-					 * @since 10.3.0
-					 *
-					 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
-					 */
-					'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
-					/**
-					 * Enable Pocket Casts block variation in block editor context.
-					 *
-					 * @since 10.9
-					 *
-					 * @param bool true Enable Pocket Casts block variation in block editor context. Defaults to false.
-					 */
-					'pocket_casts_enabled'      => apply_filters( 'jetpack_block_editor_pocket_casts_feature', false ),
-				),
-				'siteFragment'     => $status->get_site_suffix(),
-				'adminUrl'         => esc_url( admin_url() ),
-				'tracksUserData'   => $user_data,
-				'wpcomBlogId'      => $blog_id,
-				'allowedMimeTypes' => wp_get_mime_types(),
-				'siteLocale'       => str_replace( '_', '-', get_locale() ),
-			)
+			$initial_state
 		);
 	}
 
@@ -741,12 +743,15 @@ class Jetpack_Gutenberg {
 			return;
 		}
 
-		$allowed_pages       = array( 'admin.php', 'themes.php' );
-		$is_site_editor_page = in_array( $pagenow, $allowed_pages, true ) &&
-			isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Pre 13.7 pages that still need to be supported if < 13.7 is
+		// still installed.
+		$allowed_old_pages       = array( 'admin.php', 'themes.php' );
+		$is_old_site_editor_page = in_array( $pagenow, $allowed_old_pages, true ) && isset( $_GET['page'] ) && 'gutenberg-edit-site' === $_GET['page']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// For Gutenberg > 13.7, the core `site-editor.php` route is used instead
+		$is_site_editor_page = 'site-editor.php' === $pagenow;
 
-		// WP 5.9 puts the site editor in `site-editor.php` when Gutenberg is not active.
-		if ( 'site-editor.php' !== $pagenow && ! $is_site_editor_page ) {
+		$should_skip_adding_styles = ! $is_site_editor_page && ! $is_old_site_editor_page;
+		if ( $should_skip_adding_styles ) {
 			return;
 		}
 
@@ -1021,7 +1026,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function upgrade_nudge( $plan ) {
-		jetpack_require_lib( 'components' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
 				'plan' => $plan,
@@ -1201,7 +1206,7 @@ if ( ( new Host() )->is_woa_site() ) {
 	 * This feature is false as default,
 	 * so let's enable it through this filter.
 	 *
-	 * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
+	 * More doc: https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#upgrades-for-blocks
 	 */
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 

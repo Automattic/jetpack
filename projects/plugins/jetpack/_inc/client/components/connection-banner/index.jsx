@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import { Banner, connect as bannerConnect } from 'components/banner';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import Gridicon from 'components/gridicon';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 export class ConnectionBanner extends Banner {
 	static propTypes = {

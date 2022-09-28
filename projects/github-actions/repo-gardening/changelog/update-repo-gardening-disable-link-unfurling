@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: disable Slack link and media previews in messages that are already custom-formatted.

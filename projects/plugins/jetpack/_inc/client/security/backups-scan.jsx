@@ -1,33 +1,22 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { get, includes } from 'lodash';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Banner from 'components/banner';
 import Card from 'components/card';
-import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
-import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
-import { hasActiveSiteFeature } from 'state/site';
-import { isModuleActivated } from 'state/modules';
 import QueryRewindStatus from 'components/data/query-rewind-status';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
+import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
+import { get, includes } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { showBackups } from 'state/initial-state';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { isModuleActivated } from 'state/modules';
+import { siteHasFeature } from 'state/site';
 
 class LoadingCard extends Component {
 	render() {
@@ -84,7 +73,7 @@ class BackupsScanRewind extends Component {
 					title: __( 'Awaiting credentials', 'jetpack' ),
 					icon: 'notice',
 					description: __(
-						'You need to enter your server credentials to finish configuring Backups and Scan.',
+						'Enter your SSH, SFTP, or FTP credentials to enable one-click site restores and fixes',
 						'jetpack'
 					),
 					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),
@@ -284,7 +273,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		vaultPressData: getVaultPressData( state ),
-		hasScan: hasActiveSiteFeature( state, 'scan' ),
+		hasScan: siteHasFeature( state, 'scan' ),
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),

@@ -1,11 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { useSelect, useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../state/store';
 
 /**

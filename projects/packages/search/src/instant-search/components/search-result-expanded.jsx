@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
-import SearchResultComments from './search-result-comments';
 import { fixDateFormat } from './search-filter';
+import SearchResultComments from './search-result-comments';
 import './search-result-expanded.scss';
 
 /**
@@ -73,6 +66,8 @@ export default function SearchResultExpanded( props ) {
 					className="jetpack-instant-search__search-result-expanded__image-link"
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ props.onClick }
+					tabIndex="-1"
+					aria-hidden="true"
 				>
 					<div className="jetpack-instant-search__search-result-expanded__image-container">
 						{ firstImage ? (

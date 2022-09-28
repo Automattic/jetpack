@@ -1,16 +1,10 @@
-/**
- * External dependencies
- */
 import domReady from '@wordpress/dom-ready';
-
-/**
- * Internal dependencies
- */
-import './style.scss';
+import { getActiveStyleName } from '../../shared/block-styles';
+import FrontendManagement from '../../shared/frontend-management.js';
 import component from './component.js';
 import { settings } from './settings.js';
-import FrontendManagement from '../../shared/frontend-management.js';
-import { getActiveStyleName } from '../../shared/block-styles';
+
+import './style.scss';
 
 domReady( function () {
 	const frontendManagement = new FrontendManagement();

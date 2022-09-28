@@ -1,13 +1,13 @@
-/**
- * External dependencies
- */
-import { connect } from 'react-redux';
-import { get } from 'lodash';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { get } from 'lodash';
+import { connect } from 'react-redux';
+import { isCurrentUserLinked } from 'state/connection';
+import {
+	getCurrentIp,
+	getSiteAdminUrl,
+	getSiteRoles,
+	getAdminEmailAddress,
+} from 'state/initial-state';
 import { getModuleOption, getModuleOptionValidValues } from 'state/modules';
 import {
 	fetchSettings,
@@ -17,13 +17,6 @@ import {
 	setUnsavedSettingsFlag,
 	clearUnsavedSettingsFlag,
 } from 'state/settings';
-import {
-	getCurrentIp,
-	getSiteAdminUrl,
-	getSiteRoles,
-	getAdminEmailAddress,
-} from 'state/initial-state';
-import { isCurrentUserLinked } from 'state/connection';
 
 /**
  * High order component that connects to Jetpack modules'options

@@ -1,23 +1,16 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
 import CompactCard from 'components/card/compact';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
-import { isModuleFound as _isModuleFound } from 'state/search';
-import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { getModule } from 'state/modules';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 
 export class Composing extends React.Component {
 	/**

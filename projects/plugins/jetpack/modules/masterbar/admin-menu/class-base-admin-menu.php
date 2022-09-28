@@ -247,14 +247,8 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
 		if ( $this->is_rtl() ) {
-			if ( $is_wpcom ) {
-				$css_path = 'rtl/admin-menu-rtl.css';
-			} else {
-				$css_path = 'admin-menu-rtl.css';
-			}
+			$css_path = 'admin-menu-rtl.css';
 		} else {
 			$css_path = 'admin-menu.css';
 		}
@@ -614,6 +608,7 @@ abstract class Base_Admin_Menu {
 	 */
 	public function set_preferred_view( $screen, $view ) {
 		$preferred_views            = $this->get_preferred_views();
+		$screen                     = str_replace( '?post_type=post', '', $screen );
 		$preferred_views[ $screen ] = $view;
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
 	}

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { API_STATE_CONNECTED, API_STATE_LOADING } from './constants';
 
 export const getApiState = state => state.apiState;

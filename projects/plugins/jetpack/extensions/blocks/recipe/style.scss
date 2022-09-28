@@ -1,0 +1,71 @@
+.wp-block-jetpack-recipe-title {
+  &.has-background {
+    margin: 0;
+  }
+}
+
+.wp-block-jetpack-recipe-details {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(max-content, 150px));
+  margin-bottom: 3rem;
+  margin-top: 1.75rem;
+  
+  @media (min-width: 782px) {
+    margin-bottom: 6rem;
+  }
+
+  &.alignright {
+    justify-content: right;
+  }
+
+  &.aligncenter {
+    justify-content: center;
+  }
+
+  &__detail {
+    font-size: 0.875rem;
+    margin-right: 1rem;
+    padding-right: 1rem;
+    text-align: center;
+
+    &:not(:last-child) {
+      border-right: 1px solid currentColor;
+    }
+
+    p {
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    p:first-child {
+      font-size: 0.75rem;
+      color: #555;
+    }
+  }
+}
+
+.wp-block-jetpack-recipe-step {
+  counter-increment: list;
+  list-style-type: none;
+  position: relative;
+  padding-bottom: 1rem;
+
+  &::before {
+    align-items: center;
+    background-color: var(--step-highlight-color);
+    border-radius: 50%;
+    color: var(--step-text-color);
+    content: counter(list);
+    display: flex;
+    font-size: 0.875rem;
+    height: 28px;
+    justify-content: center;
+    left: -2.5rem;
+    line-height: 1;
+    position: absolute;
+    text-align: center;
+    width: 28px;
+  }
+}

@@ -105,7 +105,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -299,6 +299,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
 		}
+
+		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
+		}
 	}
 
 	/**
@@ -341,6 +345,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
+		if ( apply_filters( 'dsp_promote_posts_enabled', false, get_current_user_id() ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
 	}
 
@@ -432,7 +439,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 
 		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
-		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+
+		// Read the current stored setting and convert it to boolean in order to be able to compare the values later.
+		$current_sidebar_collapsed_setting = ( 'f' === get_user_setting( 'mfold' ) ) ? true : false;
+
+		// Only set the setting if the value differs, as `set_user_setting` always updates at least the timestamp
+		// which leads to unnecessary user meta cache purging on all wp-admin screen requests.
+		if ( $current_sidebar_collapsed_setting !== $sidebar_collapsed ) {
+			set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+		}
 	}
 
 	/**

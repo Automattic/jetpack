@@ -1,24 +1,13 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import DashItem from 'components/dash-item';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import { isModuleAvailable } from 'state/modules';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
-import DashItem from 'components/dash-item';
+import { isModuleAvailable } from 'state/modules';
 
 class DashMonitor extends Component {
 	static propTypes = {

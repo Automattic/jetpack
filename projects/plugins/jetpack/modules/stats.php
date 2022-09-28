@@ -528,7 +528,7 @@ function stats_reports_load() {
 	if ( ! empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$parsed = wp_parse_url( admin_url() );
 		// Remember user doesn't want JS.
-		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
+		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'], COOKIE_DOMAIN, is_ssl(), true ); // 2 days.
 	}
 
 	if ( ! empty( $_COOKIE['stnojs'] ) ) {
@@ -641,7 +641,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	<div id="jp-stats-wrap">
 		<div class="wrap">
-			<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
+			<h1><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
 			<?php
 			if ( current_user_can( 'jetpack_manage_modules' ) ) :
 				$i18n_headers = jetpack_get_module_i18n( 'stats' );
@@ -892,7 +892,7 @@ function stats_convert_post_title( $matches ) {
  */
 function stats_hide_smile_css() {
 	?>
-<style type='text/css'>img#wpstats{display:none}</style>
+<style>img#wpstats{display:none}</style>
 	<?php
 }
 
@@ -1126,7 +1126,7 @@ function stats_dashboard_widget_control() {
 
 	$options = stats_dashboard_widget_options();
 
-	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['widget_id'] ) && 'dashboard_stats' === $_POST['widget_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $periods[ $_POST['chart'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$options['chart'] = filter_var( wp_unslash( $_POST['chart'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		}
@@ -1192,7 +1192,7 @@ function stats_jetpack_dashboard_widget() {
 	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>
 		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
-		<input type="hidden" name="widget_id" value="dashboard_stats" />
+		<input type="hidden" name="stats_id" value="dashboard_stats" />
 		<?php submit_button( __( 'Submit', 'jetpack' ) ); ?>
 	</form>
 	<button type="button" class="handlediv js-toggle-stats_dashboard_widget_control" aria-expanded="true">
@@ -1704,11 +1704,20 @@ function jetpack_stats_post_table( $columns ) {
 	if ( ! current_user_can( 'view_stats' ) || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 		return $columns;
 	}
+
 	// Array-Fu to add before comments.
 	$pos = array_search( 'comments', array_keys( $columns ), true );
+
+	// Fallback to the last position if the post type does not support comments.
+	if ( ! is_int( $pos ) ) {
+		$pos = count( $columns );
+	}
+
+	// Final fallback, if the array was malformed by another plugin for example.
 	if ( ! is_int( $pos ) ) {
 		return $columns;
 	}
+
 	$chunks             = array_chunk( $columns, $pos, true );
 	$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack' );
 
@@ -1742,7 +1751,7 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
 				esc_url( $stats_post_url ),
-				esc_html__( 'View stats for this post in WordPress.com', 'jetpack' )
+				esc_html__( 'View stats for this post at WordPress.com', 'jetpack' )
 			);
 		}
 	}

@@ -13,6 +13,7 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
+
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -36,6 +37,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_feedback_menu();
+		$this->add_cpt_menus();
 		$this->add_wp_admin_menu();
 
 		ksort( $GLOBALS['menu'] );
@@ -53,6 +55,24 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function get_preferred_view( $screen, $fallback_global_preference = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Force default views (Calypso) on Jetpack sites since Nav Unification is disabled on WP Admin.
 		return self::DEFAULT_VIEW;
+	}
+
+	/**
+	 * Get the Calypso or wp-admin link to CPT page.
+	 *
+	 * @param object $ptype_obj The post type object.
+	 * @return string The link to Calypso if SSO is enabled and the post_type
+	 * supports rest or to WP Admin if SSO is disabled.
+	 */
+	public function get_cpt_menu_link( $ptype_obj ) {
+
+		$post_type = $ptype_obj->name;
+
+		if ( \Jetpack::is_module_active( 'sso' ) && $ptype_obj->show_in_rest ) {
+			return 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		} else {
+			return 'edit.php?post_type=' . $post_type;
+		}
 	}
 
 	/**
@@ -81,15 +101,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	/**
 	 * Adds a custom post type menu.
 	 *
-	 * @param string $post_type Custom post type.
+	 * @param string   $post_type Custom post type.
+	 * @param int|null $position Optional. Position where to display the menu item. Default null.
 	 */
-	public function add_custom_post_type_menu( $post_type ) {
+	public function add_custom_post_type_menu( $post_type, $position = null ) {
 		$ptype_obj = get_post_type_object( $post_type );
 		if ( empty( $ptype_obj ) ) {
 			return;
 		}
 
-		$menu_slug = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
+		$menu_slug = $this->get_cpt_menu_link( $ptype_obj );
 
 		// Menu icon.
 		$menu_icon = 'dashicons-admin-post';
@@ -102,7 +123,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 			}
 		}
 
-		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon );
+		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon, $position );
 	}
 
 	/**
@@ -133,10 +154,30 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds CPT menu items
+	 */
+	public function add_cpt_menus() {
+
+		$post_type_list = get_post_types(
+			array(
+				'show_in_menu' => true,
+				'_builtin'     => false,
+			)
+		);
+
+		foreach ( $post_type_list as $post_type ) {
+			$position = 46; // After Feedback.
+			$this->add_custom_post_type_menu( $post_type, $position );
+		}
+	}
+
+	/**
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
+		/* translators: Jetpack sidebar menu item. */
+		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
 		// Place "Scan" submenu after Backup.
 		$position = 0;

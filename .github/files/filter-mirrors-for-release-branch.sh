@@ -4,7 +4,7 @@
 #
 # Required:
 # - BUILD_BASE: Path to the build directory, which contains "mirrors.txt" and directories for each repo to mirror to.
-# - GITHUB_REF: Git ref being mirrored from, e.g. "refs/heads/master". Must begin with "refs/heads/".
+# - GITHUB_REF: Git ref being mirrored from, e.g. "refs/heads/trunk". Must begin with "refs/heads/".
 
 # Halt on error
 set -eo pipefail

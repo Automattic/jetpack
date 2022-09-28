@@ -1,7 +1,6 @@
 const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 module.exports = {
-	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	rules: {
 		'react/forbid-elements': [

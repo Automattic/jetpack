@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-
-/**
- * Internal dependencies
- */
 import actions from './actions';
 
 const resolvers = {

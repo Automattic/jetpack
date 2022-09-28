@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		require_once $woo_tests_dir . '/framework/class-wc-mock-wc-object-query.php';
 		require_once $woo_tests_dir . '/framework/class-wc-mock-payment-gateway.php';
 		require_once $woo_tests_dir . '/framework/class-wc-payment-token-stub.php';
-		// require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
+		// commenting this out for now. require_once( $woo_tests_dir . '/framework/vendor/class-wp-test-spy-rest-server.php' );
 
 		// test cases
 		require_once $woo_tests_dir . '/includes/wp-http-testcase.php';
@@ -179,8 +179,8 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_approving_a_review_is_synced() {
-		$post_id    = $this->factory->post->create();
-		$review_ids = $this->factory->comment->create_post_comments(
+		$post_id    = self::factory()->post->create();
+		$review_ids = self::factory()->comment->create_post_comments(
 			$post_id,
 			1,
 			array(
@@ -223,8 +223,8 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_unapproving_a_review_is_synced() {
-		$post_id    = $this->factory->post->create();
-		$review_ids = $this->factory->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review' ) );
+		$post_id    = self::factory()->post->create();
+		$review_ids = self::factory()->comment->create_post_comments( $post_id, 1, array( 'comment_type' => 'review' ) );
 		$review     = get_comment( $review_ids[0] );
 
 		$this->sender->do_sync();
@@ -282,15 +282,16 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $full_sync_order_items );
 		$synced_order_items = $full_sync_order_items->args[0];
 
-		$found_order_item_1 = $found_order_item_2 = false;
+		$found_order_item_2 = false;
+		$found_order_item_1 = $found_order_item_2; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		foreach ( $synced_order_items as $synced_order_item ) {
-			if ( $order1_item->get_id() == $synced_order_item->order_item_id ) {
+			if ( $order1_item->get_id() === $synced_order_item->order_item_id ) {
 				$this->assertHasOrderItemProperties( $synced_order_item, $order1_item );
-				$found_order_item_1 = true;
+				$found_order_item_1 = true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				continue;
 			}
 
-			if ( $order2_item->get_id() == $synced_order_item->order_item_id ) {
+			if ( $order2_item->get_id() === $synced_order_item->order_item_id ) {
 				$this->assertHasOrderItemProperties( $synced_order_item, $order2_item );
 				$found_order_item_2 = true;
 				continue;
@@ -321,7 +322,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 	private function assertHasObjectMetaValue( $metas, $order_item_id, $expected_meta_key, $expected_meta_value ) {
 		$has_meta_entry = false;
 		foreach ( $metas as $meta ) {
-			if ( $order_item_id == $meta->order_item_id && $expected_meta_key === $meta->meta_key ) {
+			if ( $order_item_id === $meta->order_item_id && $expected_meta_key === $meta->meta_key ) {
 				$this->assertEquals( $expected_meta_value, $meta->meta_value );
 				$has_meta_entry = true;
 			}

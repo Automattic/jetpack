@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
+import { Gridicon } from '@automattic/jetpack-components';
+import classnames from 'classnames';
+import assign from 'lodash/assign';
+import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
 import React from 'react';
-import classnames from 'classnames';
 /*eslint lodash/import-scope: [2, "method"]*/
-import assign from 'lodash/assign';
 /*eslint lodash/import-scope: [2, "method"]*/
-import omit from 'lodash/omit';
-
-/**
- * Internal dependencies
- */
-import { Gridicon } from '@automattic/jetpack-components';
 
 import './style.scss';
 

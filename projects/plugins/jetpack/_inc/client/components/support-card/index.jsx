@@ -1,20 +1,17 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
+import Button from 'components/button';
+import Card from 'components/card';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
+import {
+	getJetpackProductUpsellByFeature,
+	FEATURE_PRIORITY_SUPPORT_JETPACK,
+} from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import Button from 'components/button';
-import { hasActiveSiteFeature, isFetchingSiteData } from 'state/site';
 import {
 	getSiteConnectionStatus,
 	hasConnectedOwner,
@@ -23,11 +20,7 @@ import {
 	connectUser,
 } from 'state/connection';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
-import JetpackBanner from 'components/jetpack-banner';
-import {
-	getJetpackProductUpsellByFeature,
-	FEATURE_PRIORITY_SUPPORT_JETPACK,
-} from 'lib/plans/constants';
+import { siteHasFeature, isFetchingSiteData } from 'state/site';
 
 class SupportCard extends React.Component {
 	static displayName = 'SupportCard';
@@ -163,7 +156,7 @@ export default connect(
 			isCurrentUserLinked: isCurrentUserLinked( state ),
 			isConnectionOwner: isConnectionOwner( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			hasSupport: hasActiveSiteFeature( state, 'support' ),
+			hasSupport: siteHasFeature( state, 'support' ),
 		};
 	},
 	dispatch => ( {

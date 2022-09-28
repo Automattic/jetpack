@@ -1,27 +1,16 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { get, includes } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import TextInput from 'components/text-input';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { FormFieldset, FormLabel } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
+import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import JetpackBanner from 'components/jetpack-banner';
+import TextInput from 'components/text-input';
+import { get, includes } from 'lodash';
+import React from 'react';
 import GoogleVerificationService from './verification-services/google';
 
 class VerificationServicesComponent extends React.Component {

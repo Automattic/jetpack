@@ -54,7 +54,9 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	public function test_queue_lag() {
-		/* @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject */
+		/**
+		 * @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject
+		 */
 		$queue = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
 			->setMethods( array( 'generate_option_name_timestamp' ) )
 			->setConstructorArgs( array( 'my_queue' ) )
@@ -111,7 +113,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	public function test_checkout_with_memory_limit_wont_fetch_more_than_500_rows() {
 		$long_array = array();
-		for ( $i = 0; $i < 501; $i += 1 ) {
+		for ( $i = 0; $i < 501; $i++ ) {
 			$long_array[] = 'x'; // one byte
 		}
 
@@ -124,7 +126,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	public function test_checkout_with_memory_limit_can_also_specify_rows() {
 		$long_array = array();
-		for ( $i = 0; $i < 101; $i += 1 ) {
+		for ( $i = 0; $i < 101; $i++ ) {
 			$long_array[] = 'x'; // one byte
 		}
 
@@ -188,7 +190,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	public function test_checkin_wrong_buffer_raises_error() {
 		$this->queue->add_all( array( 1, 2, 3, 4 ) );
 		$buffer       = new Queue_Buffer( uniqid(), array() );
-		$other_buffer = $this->queue->checkout( 5 );
+		$other_buffer = $this->queue->checkout( 5 ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$response = $this->queue->checkin( $buffer );
 
@@ -211,8 +213,6 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( array( 1, 2 ), $buffer->get_item_values() );
 
 		$this->queue->close( $buffer );
-
-		// $this->assertEquals( array(3, 4, 5), $this->queue->flush_all() );
 
 		$buffer = $this->queue->checkout( 2 );
 		$this->assertEquals( array( 3, 4 ), $buffer->get_item_values() );
@@ -323,10 +323,10 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$post_create_time = (float) 0;
 
 		// add a whole bunch of posts
-		for ( $i = 0; $i < $iterations; $i += 1 ) {
+		for ( $i = 0; $i < $iterations; $i++ ) {
 			$start_create_post_time = microtime( true );
 
-			$post_id = $this->factory->post->create();
+			$post_id = self::factory()->post->create();
 
 			$start_add_queue_time = microtime( true );
 
@@ -345,7 +345,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$pop_buffer_time   = (float) 0;
 		$close_buffer_time = (float) 0;
 		$num_iterations    = 0;
-		for ( $i = 0; $i < $iterations / $buffer_size; $i += 1 ) {
+		for ( $i = 0; $i < $iterations / $buffer_size; $i++ ) {
 			$start_pop_buffer_time   = microtime( true );
 			$buffer                  = $this->queue->checkout( $buffer_size );
 			$start_close_buffer_time = microtime( true );

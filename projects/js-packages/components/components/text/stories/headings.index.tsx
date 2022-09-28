@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import React from 'react';
-
-/**
- * Internal dependencies
- */
 import { H2, H3 } from '../index';
-import type { H3Props } from '../types';
 import styles from './style.module.scss';
+import type { H3Props } from '../types';
 
 const TIPOGRAPHY_WEIGHTS: Array< H3Props[ 'weight' ] > = [ 'regular', 'bold' ];
 

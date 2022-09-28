@@ -61,7 +61,7 @@ This command lets you clean the monorepo of unneeded files. As this action is de
 
 Let’s you manage docker containers directly from the CLI.
 
-There are a lot of docker commands that you can pass to `jetpack docker`. You can view [comprehensive docker documentation here](https://github.com/Automattic/jetpack/blob/master/tools/docker/README.md), or see a full list of commands by running jetpack docker --help.
+There are a lot of docker commands that you can pass to `jetpack docker`. You can view [comprehensive docker documentation here](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md), or see a full list of commands by running jetpack docker --help.
 
 - Start a docker container in detached mode: `jetpack docker up -d`
 - Start a second docker container for e2e tests on port 8888: `jetpack docker --type e2e --name test1 --port 8888 up`

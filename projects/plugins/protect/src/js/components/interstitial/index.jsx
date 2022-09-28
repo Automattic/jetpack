@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { Dialog, ProductOffer, useBreakpointMatch } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import ConnectedProductOffer from '../product-offer';
+import { ToS } from '@automattic/jetpack-connection';
+import React from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import ConnectedProductOffer from '../product-offer';
 import styles from './styles.module.scss';
 
 const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
@@ -24,8 +18,12 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 	} = securityBundle;
 
 	// Compute the price per month.
-	const price = Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100;
-	const offPrice = Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100;
+	const price = pricingForUi.fullPrice
+		? Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100
+		: null;
+	const offPrice = pricingForUi.discountPrice
+		? Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100
+		: null;
 	const { currencyCode: currency = 'USD' } = pricingForUi;
 
 	return (
@@ -60,11 +58,19 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
  */
 const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 	const [ isMediumSize ] = useBreakpointMatch( 'md' );
-	const mediaClassName = isMediumSize ? styles[ 'is-viewport-medium' ] : null;
+	const mediaClassName = `${ styles.section } ${
+		isMediumSize ? styles[ 'is-viewport-medium' ] : ''
+	}`;
 
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer className={ mediaClassName } isCard={ true } /> }
+			primary={
+				<ConnectedProductOffer
+					className={ mediaClassName }
+					isCard={ true }
+					buttonDisclaimer={ <p className={ styles[ 'terms-of-service' ] }>{ ToS }</p> }
+				/>
+			}
 			secondary={
 				<SecurityBundle
 					className={ mediaClassName }

@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { fetchIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';
 
 class QueryIntroOffers extends Component {

@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-/**
- * Internal dependencies
- */
 import AdminPage from './components/admin-page';
 
 /**
@@ -19,7 +13,12 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <AdminPage />, container );
+	ReactDOM.render(
+		<ThemeProvider>
+			<AdminPage />
+		</ThemeProvider>,
+		container
+	);
 }
 
 render();

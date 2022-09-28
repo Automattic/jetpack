@@ -1,16 +1,11 @@
-/**
- * External Dependencies
- */
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import analytics from 'lib/analytics';
 import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { ProgressBar } from '@automattic/components';
-import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal Dependencies
- */
+import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
@@ -20,11 +15,9 @@ import {
 	isStepViewed,
 	getProductSlugForStep,
 } from 'state/recommendations';
-import analytics from 'lib/analytics';
-import { PromptLayout } from '../prompt-layout';
 import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
-import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
+import { PromptLayout } from '../prompt-layout';
 
 /**
  * Provide a recommendation step that gives a resource.
@@ -44,6 +37,7 @@ const ResourcePromptComponent = props => {
 		descriptionSecondary,
 		descriptionLink,
 		nextRoute,
+		illustration,
 		ctaText,
 		ctaLink,
 		stepSlug,
@@ -108,6 +102,7 @@ const ResourcePromptComponent = props => {
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
+				br: <br />,
 				strong: <strong />,
 				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
@@ -116,8 +111,8 @@ const ResourcePromptComponent = props => {
 					<React.Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
-								{ descriptionList.map( item => (
-									<li>{ item }</li>
+								{ descriptionList.map( ( item, index ) => (
+									<li key={ index }>{ item }</li>
 								) ) }
 							</ul>
 						) }
@@ -139,13 +134,13 @@ const ResourcePromptComponent = props => {
 					</ExternalLink>
 					<div className="jp-recommendations-question__jump-nav">
 						<a href={ nextRoute } onClick={ onResourceSkipClick }>
-							{ __( 'Read Later', 'jetpack' ) }
+							{ __( 'Not now', 'jetpack' ) }
 						</a>
 						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
 							<>
 								<span className="jp-recommendations-question__jump-nav-separator">|</span>
 								<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
-									{ __( 'View Summary', 'jetpack' ) }{ ' ' }
+									{ __( 'View Recommendations', 'jetpack' ) }{ ' ' }
 								</a>
 							</>
 						) }
@@ -157,7 +152,7 @@ const ResourcePromptComponent = props => {
 					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
 				) : null
 			}
-			illustration={ DEFAULT_ILLUSTRATION }
+			illustration={ illustration || DEFAULT_ILLUSTRATION }
 		/>
 	);
 };

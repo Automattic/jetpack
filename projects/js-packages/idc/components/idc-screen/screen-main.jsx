@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import CardMigrate from '../card-migrate';
-import CardFresh from '../card-fresh';
-import SafeMode from '../safe-mode';
+import PropTypes from 'prop-types';
+import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
+import CardFresh from '../card-fresh';
+import CardMigrate from '../card-migrate';
+import SafeMode from '../safe-mode';
 
 /**
  * Retrieve the main screen body.

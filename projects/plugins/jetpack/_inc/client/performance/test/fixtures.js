@@ -1,15 +1,20 @@
-function siteDataFixture( ) {
+/**
+ * Build site data.
+ *
+ * @returns {object} - Site data.
+ */
+function siteDataFixture() {
 	return {
 		requests: {
 			isFetchingSiteDiscount: false,
-			isFetchingSitePurchases: false
+			isFetchingSitePurchases: false,
 		},
 		data: {
 			site: {
 				features: {
-					active: [ 'search' ]
-				}
-			}
+					active: [ 'search' ],
+				},
+			},
 		},
 	};
 }
@@ -17,21 +22,19 @@ function siteDataFixture( ) {
 /**
  * Build an object that can be used as a Redux store initial state.
  *
- * @param {object} options
- * @param {boolean} options.themeSupportsWidgets – whether the current theme supports widgets
+ * @param {object} options - Options
+ * @param {boolean} options.themeSupportsWidgets - whether the current theme supports widgets
  * @returns {object} – initial Redux state
  */
-export function buildInitialState( {
-	themeSupportsWidgets= false,
-} = {} ) {
+export function buildInitialState( { themeSupportsWidgets = false } = {} ) {
 	return {
 		jetpack: {
 			initialState: {
 				userData: {
 					currentUser: {
 						permissions: {
-							manage_modules: true
-						}
+							manage_modules: true,
+						},
 					},
 				},
 				themeData: {
@@ -41,12 +44,12 @@ export function buildInitialState( {
 				},
 			},
 			modules: {
-				items: {}
+				items: {},
 			},
 			dashboard: {
 				requests: {
-					checkingAkismetKey: true
-				}
+					checkingAkismetKey: true,
+				},
 			},
 			connection: {
 				status: {
@@ -54,7 +57,7 @@ export function buildInitialState( {
 						offlineMode: {
 							isActive: false,
 						},
-						isActive: true
+						isActive: true,
 					},
 				},
 				user: {
@@ -65,13 +68,13 @@ export function buildInitialState( {
 			},
 			settings: {
 				items: {
-					search: true
+					search: true,
 				},
 				requests: {
 					settingsSent: {
-						search: true
-					}
-				}
+						search: true,
+					},
+				},
 			},
 			siteData: siteDataFixture(),
 		},

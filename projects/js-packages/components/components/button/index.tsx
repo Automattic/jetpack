@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
-import type React from 'react';
-import type { ButtonProps } from './types';
 import { Button as WPButton, Spinner } from '@wordpress/components';
 import { Icon, external } from '@wordpress/icons';
 import classNames from 'classnames';
+import React, { forwardRef } from 'react';
+/**
+ * Internal dependencies
+ */
 import styles from './style.module.scss';
+import type { ButtonProps } from './types';
 
 /**
  * Button component
@@ -14,29 +17,36 @@ import styles from './style.module.scss';
  * @param {ButtonProps} props - Component Props
  * @returns {React.ReactNode} Rendered button
  */
-export const Button: React.FC< ButtonProps > = ( {
-	children,
-	variant = 'primary',
-	size = 'normal',
-	weight = 'bold',
-	icon,
-	iconSize,
-	disabled,
-	isDestructive,
-	isLoading,
-	className: propsClassName,
-	text,
-	...componentProps
-} ) => {
+const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
+	const {
+		children,
+		variant = 'primary',
+		size = 'normal',
+		weight = 'bold',
+		icon,
+		iconSize,
+		disabled,
+		isDestructive,
+		isLoading,
+		isExternalLink,
+		className: propsClassName,
+		text,
+		fullWidth,
+		...componentProps
+	} = props;
+
 	const className = classNames( styles.button, propsClassName, {
 		[ styles.normal ]: size === 'normal',
 		[ styles.small ]: size === 'small',
 		[ styles.icon ]: Boolean( icon ),
 		[ styles.loading ]: isLoading,
 		[ styles.regular ]: weight === 'regular',
+		[ styles[ 'full-width' ] ]: fullWidth,
+		[ styles[ 'is-icon-button' ] ]: Boolean( icon ) && ! children,
 	} );
 
-	const isExternalLink = variant === 'external-link';
+	componentProps.ref = ref;
+
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
 		<Icon size={ externalIconSize } icon={ external } className={ styles[ 'external-icon' ] } />
@@ -46,7 +56,7 @@ export const Button: React.FC< ButtonProps > = ( {
 	return (
 		<WPButton
 			target={ externalTarget }
-			variant={ isExternalLink ? 'link' : variant }
+			variant={ variant }
 			className={ className }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
@@ -60,6 +70,6 @@ export const Button: React.FC< ButtonProps > = ( {
 			{ externalIcon }
 		</WPButton>
 	);
-};
+} );
 
 export default Button;

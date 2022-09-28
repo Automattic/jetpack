@@ -303,7 +303,18 @@ class Jetpack_PostImages {
 				$img_src         = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
 			}
 
-			$url    = $img_src[0];
+			// Let's try to use the postmeta if we can, since it seems to be
+			// more reliable
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$featured_image = get_post_meta( $post->ID, '_jetpack_featured_image' );
+				if ( $featured_image ) {
+					$url = $featured_image[0];
+				} else {
+					$url = $img_src[0];
+				}
+			} else {
+				$url = $img_src[0];
+			}
 			$images = array(
 				array( // Other methods below all return an array of arrays.
 					'type'       => 'image',
@@ -544,6 +555,10 @@ class Jetpack_PostImages {
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
+		if ( ! $post instanceof WP_Post ) {
+			return array();
+		}
+
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true );
 			if ( $url && is_array( $url ) ) {
@@ -581,7 +596,7 @@ class Jetpack_PostImages {
 	 * @return array containing details of the best image to be used
 	 */
 	public static function get_image( $post_id, $args = array() ) {
-		$image = '';
+		$image = array();
 
 		/**
 		 * Fires before we find a single good image for a specific post.
@@ -624,7 +639,7 @@ class Jetpack_PostImages {
 	 */
 	public static function get_images( $post_id, $args = array() ) {
 		// Figure out which image to attach to this post.
-		$media = false;
+		$media = array();
 
 		/**
 		 * Filters the array of images that would be good for a specific post.
@@ -660,7 +675,7 @@ class Jetpack_PostImages {
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
-		$media = false;
+		$media = array();
 		if ( $args['from_thumbnail'] ) {
 			$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
 		}

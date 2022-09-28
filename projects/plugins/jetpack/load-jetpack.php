@@ -10,6 +10,7 @@
  * in require_lib().
  *
  * @since 4.0.2
+ * @deprecated since 11.3 Use `JETPACK__PLUGIN_DIR . '_inc/lib/'` instead.
  *
  * @return string Location of Jetpack library directory.
  *
@@ -82,6 +83,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );

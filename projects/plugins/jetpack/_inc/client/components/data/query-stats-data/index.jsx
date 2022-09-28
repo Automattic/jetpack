@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
 import { isFetchingStatsData, fetchStatsData } from 'state/at-a-glance';
 
 class QueryStatsData extends Component {

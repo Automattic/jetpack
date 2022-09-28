@@ -2,6 +2,46 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.14.0 - 2022-09-27
+### Removed
+- Mobile Login Email: Remove unused code [#26311]
+
+## 0.13.11 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.13.10 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338]
+
+## 0.13.9 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## 0.13.8 - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## 0.13.7 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.13.6 - 2022-06-21
+### Changed
+- Drop dependency on lodash, use `Object.assign` instead.
+
+## 0.13.5 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.13.4 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## 0.13.3 - 2022-05-30
+### Changed
+- Updated package dependencies
+
 ## 0.13.2 - 2022-05-10
 ### Changed
 - Updated package dependencies [#24301]

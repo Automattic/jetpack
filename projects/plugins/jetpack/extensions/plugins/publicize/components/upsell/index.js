@@ -1,26 +1,17 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
+import {
+	useSocialMediaConnections,
+	usePublicizeConfig,
+} from '@automattic/jetpack-publicize-components';
 import {
 	isAtomicSite,
 	isSimpleSite,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * WordPress dependencies
- */
-import { __, sprintf } from '@wordpress/i18n';
 import { Button, ExternalLink } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
+import classNames from 'classnames';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 
 function getPanelDescription(
 	isPostPublished,
@@ -116,8 +107,8 @@ export default function UpsellNotice( { isPostPublished } ) {
 
 	// Doc page URL.
 	const docPageUrl = isPureJetpackSite
-		? 'https://jetpack.com/support/publicize/#re-sharing-your-content'
-		: 'https://wordpress.com/support/publicize/#share-your-content-again';
+		? 'https://jetpack.com/support/jetpack-social/#re-sharing-your-content'
+		: 'https://wordpress.com/support/jetpack-social/#share-your-content-again';
 
 	const buttonText = __( 'Upgrade now', 'jetpack' );
 

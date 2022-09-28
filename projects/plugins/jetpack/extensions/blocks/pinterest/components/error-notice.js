@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { renderToString } from '@wordpress/element';
-import { createBlock } from '@wordpress/blocks';
+import { __, _x } from '@wordpress/i18n';
 
 /*
 	Fallback behaviour for unembeddable URLs.

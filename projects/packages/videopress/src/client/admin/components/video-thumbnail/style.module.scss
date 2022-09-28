@@ -1,0 +1,56 @@
+.thumbnail {
+	--videopress-video-item-aspect-radio: calc( 16 / 9 );
+	position: relative;
+
+	.thumbnail-placeholder,
+	> img {
+		width: 100%;
+		object-fit: cover;
+		aspect-ratio: var( --videopress-video-item-aspect-radio );
+		height: 100%;
+		display: block;
+	}
+
+	.thumbnail-placeholder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: var( --jp-gray-0 );
+		> svg {
+			fill: var( --jp-gray-50 );
+		}
+	}
+
+	.video-thumbnail-duration {
+		position: absolute;
+		bottom: var( --spacing-base );
+		right: var( --spacing-base );
+		padding-left: var( --spacing-base );
+		padding-right: var( --spacing-base );
+		border-radius: var( --jp-border-radius );
+		color: var( --jp-white );
+		background-color: rgba( 44, 51, 56, 0.9 ); // (--jp-gray-80) Todo: figure how to apply opacity with HEXA colors
+		z-index: 1;
+	}
+
+	&:not( .is-small ) {
+		> img {
+			border-radius: var( --jp-border-radius );
+		}
+	}
+}
+
+.video-thumbnail-edit {
+	position: absolute;
+	top: var( --spacing-base );
+	right: var( --spacing-base );
+	z-index: 2;
+
+	.thumbnail__edit-button:global(.components-button) {
+		padding: var( --spacing-base );
+
+		> svg {
+			margin: 0;
+		}
+	}
+}

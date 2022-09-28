@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import { STORE_ID } from '../../state/store';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
@@ -23,7 +16,7 @@ export default function useConnectionWatcher() {
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
-	const { isSiteConnected, redirectUrl, hasConnectedOwner } = useMyJetpackConnection();
+	const { isSiteConnected, topJetpackMenuItemUrl, hasConnectedOwner } = useMyJetpackConnection();
 
 	const requiresUserConnection =
 		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
@@ -49,10 +42,10 @@ export default function useConnectionWatcher() {
 	 * When the site is not connect, redirect to the Jetpack dashboard.
 	 */
 	useEffect( () => {
-		if ( ! isSiteConnected && redirectUrl ) {
-			window.location = redirectUrl;
+		if ( ! isSiteConnected && topJetpackMenuItemUrl ) {
+			window.location = topJetpackMenuItemUrl;
 		}
-	}, [ isSiteConnected, redirectUrl ] );
+	}, [ isSiteConnected, topJetpackMenuItemUrl ] );
 
 	useEffect( () => {
 		if ( requiresUserConnection ) {

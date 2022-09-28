@@ -19,6 +19,9 @@ class Plan {
 	const JETPACK_SEARCH_PLAN_INFO_OPTION_KEY  = 'jetpack_search_plan_info';
 	const JETPACK_SEARCH_EVER_SUPPORTED_SEARCH = 'jetpack_search_ever_supported_search';
 
+	// The pricing update starting from August 2022.
+	const JETPACK_SEARCH_NEW_PRICING_VERSION = '202208';
+
 	/**
 	 * Whether we have hooked the actions.
 	 *
@@ -111,6 +114,14 @@ class Plan {
 	 */
 	public function ever_supported_search() {
 		return (bool) get_option( self::JETPACK_SEARCH_EVER_SUPPORTED_SEARCH ) || $this->supports_search();
+	}
+
+	/**
+	 * Returns true if the site is on free plan.
+	 */
+	public function is_free_tier() {
+		$plan_info = $this->get_plan_info();
+		return Helper::is_forced_free_tier() || ( isset( $plan_info['is_free_tier'] ) && $plan_info['is_free_tier'] );
 	}
 
 	/**

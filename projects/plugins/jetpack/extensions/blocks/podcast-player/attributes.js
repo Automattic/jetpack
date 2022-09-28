@@ -1,15 +1,4 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { isUrl } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
 import colorValidator from '../../shared/colorValidator';
 
 export default {

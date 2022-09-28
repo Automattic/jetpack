@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { API_STATE_LOADING } from './constants';
 
 export const DEFAULT_STATE = {

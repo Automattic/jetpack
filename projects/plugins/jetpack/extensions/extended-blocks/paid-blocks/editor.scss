@@ -1,29 +1,28 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import "@automattic/color-studio/dist/color-variables";
 
-$banner-height: 48px;
 $icon-size: 10px;
 $icon-background-color: #fff;
 
 // Upgrade Banner.
 .jetpack-upgrade-plan-banner {
-	$banner-height: 48px;
-
 	.jetpack-upgrade-plan-banner__wrapper {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		font-size: 14px;
-		height: $banner-height;
 		background: black;
 		padding: 0 20px;
 		border-radius: 2px;
 		box-shadow: 0 0 1px inset $studio-white;
+		flex-wrap: wrap;
 
 		.banner-title,
 		.banner-description {
 			color: $studio-white;
 			margin-right: 10px;
+			margin-top: 10px;
+			margin-bottom: 10px;
 		}
 
 		.jetpack-upgrade-plan-banner__title,
@@ -36,6 +35,8 @@ $icon-background-color: #fff;
 			line-height: 1;
 			margin-left: auto;
 			height: 28px;
+			margin-top: 10px;
+			margin-bottom: 10px;
 
 			&.is-primary {
 				text-decoration: none;
@@ -56,12 +57,11 @@ $icon-background-color: #fff;
 	// Banner in the editor-canvas context.
 	&.block-editor-block-list__block {
 		margin-top: 0;
-		margin-bottom: 0;
+		margin-bottom: 12px;
 	}
 
 	&.wp-block[data-align=right],
 	&.wp-block[data-align=left] {
-		height: $banner-height;
 		.jetpack-upgrade-plan-banner__wrapper {
 			max-width: $content-width;
 			width: 100%;
@@ -71,35 +71,6 @@ $icon-background-color: #fff;
 
 .jetpack-upgrade-plan__hidden {
 	display: none;
-}
-
-// Tweak Banner depending on the context.
-// Tweak Banner: Inspector Controls.
-.editor-styles-wrapper [data-block].is-upgradable,
-.block-editor-block-list__block.is-upgradable {
-	margin-top: 0;
-	padding-top: $banner-height;
-}
-
-// Tweak Banner: More specific selector needed for Inspector Controls.
-.editor-styles-wrapper .block-editor-block-list__layout.is-root-container .is-upgradable {
-	margin-top: 0;
-	padding-top: $banner-height;
-}
-
-// Tweak Banner: Editor Canvas.
-// Banner height minus half the toolbar padding to center it.
-.block-editor-block-list__layout .jetpack-upgrade-plan-banner {
-	position: relative;
-	top: $banner-height - ( $grid-unit-15 * 0.5 );
-	z-index: 10;
-}
-
-.block-editor-block-inspector {
-	.jetpack-upgrade-plan-banner {
-		border-radius: 0;
-		margin: 0 20px 20px;
-	}
 }
 
 // Paid Icons: Hide by default.
@@ -122,6 +93,11 @@ $icon-background-color: #fff;
 	}
 }
 
+// Cover block: Override flexbox so we can place the banner above the block.
+.wp-block-cover.is-placeholder {
+	display: block;
+}
+
 // Media Placeholder
 .paid-block-media-placeholder {
 	width: 100%;
@@ -142,10 +118,6 @@ $icon-background-color: #fff;
 .block-editor-block-list__block.is-upgradable.is-selected.is-placeholder {
 	padding-top: 0;
 	background-color: transparent;
-
-	.paid-block-media-placeholder {
-		margin-top: $banner-height;
-	}
 }
 
 .block-editor-block-list__layout .block-editor-block-list__block.is-upgradable:focus:after {

@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { PanelControls } from '../controls';
 
 const images = [
@@ -27,19 +19,12 @@ const images = [
 
 const setAttributes = jest.fn();
 const onChangeImageSize = jest.fn();
-const onSelectImages = jest.fn();
 
 const panelProps = {
 	attributes: { autoplay: false, delay: 1, effect: 'slide', images, sizeSlug: 'large' },
 	imageSizeOptions: [ { label: 'Thumbnail', value: 'thumbnail' } ],
 	onChangeImageSize,
 	setAttributes,
-};
-
-const toolbarProps = {
-	allowedMediaTypes: [ 'image' ],
-	attributes: { autoplay: false, delay: 1, effect: 'slide', images, sizeSlug: 'large' },
-	onSelectImages,
 };
 
 beforeEach( () => {

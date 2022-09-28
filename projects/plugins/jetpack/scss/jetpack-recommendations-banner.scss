@@ -1,8 +1,4 @@
-@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
-@import 'node_modules/@automattic/jetpack-base-styles/style';
-@import '../_inc/client/scss/calypso-colors';
-@import '../_inc/client/scss/mixin_breakpoint';
-@import '../_inc/client/recommendations/mixin';
+@import 'jetpack-banners-emerald';
 
 .jp-recommendations-banner-main {
 	position: relative;
@@ -17,7 +13,7 @@
 	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
 	border: 1px solid $gray-lighten-20;
 
-	@media (max-width: 1152px) {
+	@media (max-width: $jp-banner-md-breakpoint) {
 		margin: 4rem 1.25rem 1.25rem 0;
 		grid-template-columns: 100% 0%;
 	}
@@ -80,7 +76,7 @@
 
 	font-size: 1rem;
 	
-	@media (min-width: 1152px) {
+	@media (min-width: $jp-banner-md-breakpoint) {
 		max-width: 600px;
 	}
 
@@ -159,44 +155,6 @@
 	margin-bottom: 2rem;
 }
 
-.jp-recommendations-banner__continue-button {
-	background: $studio-black;
-	border-color: $studio-black;
-	color: $studio-white;
-	border-style: solid;
-	border-width: 1px;
-	border-radius: 4px;
-	cursor: pointer;
-	display: inline-block;
-	margin: 0;
-	outline: 0;
-	overflow: hidden;
-	font-size: 0.875rem;
-	font-weight: 600;
-	text-overflow: ellipsis;
-	vertical-align: top;
-	box-sizing: border-box;
-	padding: 0.625rem 1.5rem;
-	transition: all 150ms ease-in-out;
-
-	@include breakpoint( '<480px' ) {
-		width: 100%;
-	}
-
-	&:hover,
-	&:active {
-		background: var( --jp-gray-80 );
-		border-color: var( --jp-gray-80 );
-		color: var( --jp-white );
-	}
-
-	&:focus {
-		box-shadow: none;
-		outline: solid 1px var( --jp-black );
-		outline-offset: 1px;
-	}
-}
-
 .jp-recommendations-banner__continue-description {
 	color: $studio-gray-50;
 	margin: 0.875rem auto 0 auto;
@@ -219,7 +177,7 @@
 		right: 0;
 	}
 
-	@media (min-width: 1152px) {
+	@media (min-width: $jp-banner-md-breakpoint) {
 		overflow: hidden;
 	}
 
@@ -242,27 +200,46 @@
 }
 
 .jp-recommendations-banner__notice-dismiss {
-	background: 0 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+    z-index: 1;
+
+	display: flex;
+	align-items: center;
+
+    margin: 1.5rem 1rem 1rem;
+    padding: 1rem;
+
+	background: none;
 	border: none;
 	color: $studio-gray-50;
-	cursor: pointer;
-	display: flex;
-	font-size: 16px;
-	line-height: 1.5;
-	margin: 0;
-	padding: 2rem 2rem 2rem 0;
-	float: right;
 
-	&:hover, &:active {
+	font-size: 1rem;
+	line-height: 1;
+
+	cursor: pointer;
+
+	@include breakpoint( "<480px" ) {
+		margin-top: 0;
+	}
+	
+	&:hover,
+	&:active {
 		color: $studio-gray-100;
 
 		.jp-recommendations-banner__svg-dismiss {
-			fill: $studio-gray-100;
+			fill: currentColor;
 		}
 	}
 
+	&:focus {
+		outline-color: $studio-gray-100;
+	}
+
 	.jp-recommendations-banner__svg-dismiss {
-		fill: $studio-gray-50;
-		margin-right: 0.250rem;
+		margin-inline-end: 0.25rem;
+
+		fill: currentColor;
 	}
 }

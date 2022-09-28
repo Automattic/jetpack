@@ -1,10 +1,4 @@
-/**
- * WordPress dependencies
- */
 import { Path, G } from '@wordpress/components';
-/**
- * Internal dependencies
- */
 import renderMaterialIcon from '../../shared/render-material-icon';
 
 const icon = renderMaterialIcon(

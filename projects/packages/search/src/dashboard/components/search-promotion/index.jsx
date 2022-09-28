@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 /**

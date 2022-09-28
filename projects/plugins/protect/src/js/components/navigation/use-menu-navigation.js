@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React, { useState } from 'react';
 
 export const NavigationContext = React.createContext();
@@ -88,6 +85,7 @@ const useMenuNavigation = ( { selected, onSelect } ) => {
 		handleFocusItem,
 		registerRef,
 		registerItem,
+		items,
 	};
 };
 

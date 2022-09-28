@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
+import { ExternalLink } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import InfoPopover from 'components/info-popover';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import InfoPopover from 'components/info-popover';
 
 import './style.scss';
 

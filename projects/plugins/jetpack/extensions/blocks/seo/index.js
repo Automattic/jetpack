@@ -1,39 +1,39 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { PanelBody } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
-
-/**
- * Internal dependencies
- */
-import './editor.scss';
+import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoPanel from './panel';
+
+import './editor.scss';
 
 export const name = 'seo';
 
 export const settings = {
-	render: () => (
-		<Fragment>
-			<JetpackPluginSidebar>
-				<PanelBody title={ __( 'SEO Description', 'jetpack' ) }>
+	render: function JetpackSEODescriptionPanel() {
+		const generalPanelProps = {
+			title: __( 'SEO Description', 'jetpack' ),
+			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+		};
+
+		const prePublishPanelProps = {
+			...generalPanelProps,
+			initialOpen: true,
+			id: 'seo-title',
+		};
+
+		return (
+			<Fragment>
+				<JetpackPluginSidebar>
+					<PanelBody { ...generalPanelProps }>
+						<SeoPanel />
+					</PanelBody>
+				</JetpackPluginSidebar>
+				<PluginPrePublishPanel { ...prePublishPanelProps }>
 					<SeoPanel />
-				</PanelBody>
-			</JetpackPluginSidebar>
-			<PluginPrePublishPanel
-				initialOpen
-				id="seo-title"
-				title={
-					<span id="seo-defaults" key="seo-title-span">
-						{ __( 'SEO Description', 'jetpack' ) }
-					</span>
-				}
-			>
-				<SeoPanel />
-			</PluginPrePublishPanel>
-		</Fragment>
-	),
+				</PluginPrePublishPanel>
+			</Fragment>
+		);
+	},
 };

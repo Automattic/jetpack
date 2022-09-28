@@ -1,13 +1,10 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
-	import Tips from './sections/Tips.svelte';
-	import Score from './sections/Score.svelte';
+	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
-	import { Router, Route } from '../../utils/router';
+	import Score from './sections/Score.svelte';
 	import Support from './sections/Support.svelte';
+	import Tips from './sections/Tips.svelte';
 </script>
 
 <div class="jb-section jb-section--alt jb-section--scores">

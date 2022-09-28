@@ -1,12 +1,9 @@
-/**
- * Internal dependencies
- */
-import reducer from './reducers';
-import actions from './actions';
-import selectors from './selectors';
-import resolvers from './resolvers';
-import storeHolder from './store-holder';
 import camelize from 'camelize';
+import actions from './actions';
+import reducer from './reducers';
+import resolvers from './resolvers';
+import selectors from './selectors';
+import storeHolder from './store-holder';
 
 const STORE_ID = 'jetpack-protect';
 

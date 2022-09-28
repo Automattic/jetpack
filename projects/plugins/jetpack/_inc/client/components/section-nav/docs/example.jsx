@@ -1,18 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { forEach } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import SectionNav from 'components/section-nav';
-
-import NavTabs from 'components/section-nav/tabs';
-import NavSegmented from 'components/section-nav/segmented';
-import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
+import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavSegmented from 'components/section-nav/segmented';
+import NavTabs from 'components/section-nav/tabs';
+import { forEach } from 'lodash';
+import React from 'react';
 
 /**
  * Main
@@ -167,7 +159,7 @@ class SectionNavigation extends React.PureComponent {
 		}.bind( this );
 	}
 
-	demoSearch: () => {};
+	demoSearch() {}
 }
 
 export default SectionNavigation;

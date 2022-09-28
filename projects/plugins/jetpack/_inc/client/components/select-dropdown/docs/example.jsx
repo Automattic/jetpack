@@ -1,17 +1,10 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/**
- * External dependencies
- */
-import React from 'react';
 
-/**
- * Internal dependencies
- */
 import SelectDropdown from 'components/select-dropdown';
-
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
 import DropdownSeparator from 'components/select-dropdown/separator';
+import React from 'react';
 
 class SelectDropdownDemo extends React.PureComponent {
 	static displayName = 'SelectDropdown';
@@ -123,7 +116,7 @@ class SelectDropdownDemo extends React.PureComponent {
 		} );
 	}
 
-	onDropdownSelect: () => {};
+	onDropdownSelect() {}
 }
 
 export default SelectDropdownDemo;

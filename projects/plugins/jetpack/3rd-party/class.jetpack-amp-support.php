@@ -139,7 +139,6 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_disable_the_content_filters() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			add_filter( 'videopress_show_2015_player', '__return_true' );
 			add_filter( 'protected_embeds_use_form_post', '__return_false' );
 			remove_filter( 'the_title', 'widont' );
 		}

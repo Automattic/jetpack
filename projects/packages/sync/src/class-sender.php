@@ -334,8 +334,13 @@ class Sender {
 	 * Trigger incremental sync and early exit on Dedicated Sync request.
 	 *
 	 * @access public
+	 *
+	 * @param bool $do_real_exit If we should exit at the end of the request. We should by default.
+	 *                           In the context of running this in the REST API, we actually want to return an error.
+	 *
+	 * @return void|WP_Error
 	 */
-	public function do_dedicated_sync_and_exit() {
+	public function do_dedicated_sync_and_exit( $do_real_exit = true ) {
 		nocache_headers();
 
 		if ( ! Settings::is_dedicated_sync_enabled() ) {
@@ -352,10 +357,14 @@ class Sender {
 		 *
 		 * @see \Automattic\Jetpack\Sync\Dedicated_Sender::can_spawn_dedicated_sync_request
 		 */
-		echo 'OK';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING;
 
 		// Try to disconnect the request as quickly as possible and process things in the background.
 		$this->fastcgi_finish_request();
+
+		// Output not used right now. Try to release dedicated sync lock
+		Dedicated_Sender::try_release_lock_spawn_request();
 
 		// Actually try to send Sync events.
 		$result = $this->do_sync_and_set_delays( $this->sync_queue );
@@ -365,7 +374,9 @@ class Sender {
 			Dedicated_Sender::spawn_sync( $this->sync_queue );
 		}
 
-		exit;
+		if ( $do_real_exit ) {
+			exit;
+		}
 	}
 
 	/**

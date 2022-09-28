@@ -65,6 +65,9 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	public function register_fields() {
 		$this->object_type = get_post_types_by_support( 'publicize' );
 		foreach ( $this->object_type as $post_type ) {
+			if ( $this->is_registered( $post_type ) ) {
+				continue;
+			}
 			// Adds meta support for those post types that don't already have it.
 			// Only runs during REST API requests, so it doesn't impact UI.
 			if ( ! post_type_supports( $post_type, 'custom-fields' ) ) {
@@ -102,13 +105,13 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 			'type'       => 'object',
 			'properties' => array(
 				'id'              => array(
-					'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
+					'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
 				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+					'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
@@ -131,13 +134,19 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'context'     => array( 'edit' ),
 				),
 				'done'            => array(
-					'description' => __( 'Whether Publicize has already finished sharing for this post', 'jetpack' ),
+					'description' => __( 'Whether Jetpack Social has already finished sharing for this post', 'jetpack' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
 				'toggleable'      => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
+					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
+				),
+				'is_healthy'      => array(
+					'description' => __( 'Whether the connection is healthy or broken', 'jetpack' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
@@ -159,7 +168,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 		if ( ! $publicize ) {
 			return new WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -170,7 +179,7 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data for this post.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data for this post.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

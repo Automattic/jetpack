@@ -4,19 +4,19 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f186284f51769e3afe267074d8c2b48c",
+    "content-hash": "233df78529be4e06bbe35075284e3735",
     "packages": [],
     "packages-dev": [
         {
             "name": "automattic/ignorefile",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "83df3961934b8068249d09ef1d4167e5e537eca4"
+                "reference": "d6bd2419be99279faf386fe972cc0e50c61acca9"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
+                "automattic/jetpack-changelogger": "^3.2",
                 "wikimedia/at-ease": "^1.2 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
@@ -28,7 +28,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-trunk": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -57,11 +57,11 @@
         },
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "51829660678dddaafa5c6c1397da13cf6fbc2c44"
+                "reference": "e03e50b16ed5287a50de5b630696c84360f53260"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -72,8 +72,8 @@
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
-                "wp-coding-standards/wpcs": "dev-develop#7b39722c38cbf2fe64c55be7154ee6f1807d304c as 2.3.1",
+                "automattic/jetpack-changelogger": "^3.2",
+                "wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "phpcodesniffer-standard",
@@ -84,7 +84,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "2.6.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 }
             },
             "autoload": {
@@ -119,24 +119,24 @@
         },
         {
             "name": "automattic/jetpack-phpcs-filter",
-            "version": "dev-master",
+            "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "b3777393b31aa50e37f3f2f92af1d668fca3c826"
+                "reference": "3265b84987e92883bf729706f120c0a7898c1373"
             },
             "require": {
                 "automattic/ignorefile": "^1.0",
                 "squizlabs/php_codesniffer": "^3.6.1"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.1",
+                "automattic/jetpack-changelogger": "^3.2",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-trunk": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -298,16 +298,16 @@
         },
         {
             "name": "composer/spdx-licenses",
-            "version": "1.5.6",
+            "version": "1.5.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/spdx-licenses.git",
-                "reference": "a30d487169d799745ca7280bc90fdfa693536901"
+                "reference": "c848241796da2abf65837d51dce1fae55a960149"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/a30d487169d799745ca7280bc90fdfa693536901",
-                "reference": "a30d487169d799745ca7280bc90fdfa693536901",
+                "url": "https://api.github.com/repos/composer/spdx-licenses/zipball/c848241796da2abf65837d51dce1fae55a960149",
+                "reference": "c848241796da2abf65837d51dce1fae55a960149",
                 "shasum": ""
             },
             "require": {
@@ -358,7 +358,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/spdx-licenses/issues",
-                "source": "https://github.com/composer/spdx-licenses/tree/1.5.6"
+                "source": "https://github.com/composer/spdx-licenses/tree/1.5.7"
             },
             "funding": [
                 {
@@ -374,7 +374,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-18T10:14:14+00:00"
+            "time": "2022-05-23T07:37:50+00:00"
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
@@ -857,16 +857,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.9.0",
+            "version": "v2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "bc5ae2cce40055e87ad9d8037187797b62a6ada3"
+                "reference": "ba049e6f7da40d64056f7b6c4078e87f0f292d6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/bc5ae2cce40055e87ad9d8037187797b62a6ada3",
-                "reference": "bc5ae2cce40055e87ad9d8037187797b62a6ada3",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/ba049e6f7da40d64056f7b6c4078e87f0f292d6b",
+                "reference": "ba049e6f7da40d64056f7b6c4078e87f0f292d6b",
                 "shasum": ""
             },
             "require": {
@@ -908,34 +908,35 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.9.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.10.0"
             },
-            "time": "2022-02-01T18:05:55+00:00"
+            "time": "2022-03-09T18:16:50+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.11.3",
+            "version": "v2.11.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "c921498b474212fe4552928bbeb68d70250ce5e8"
+                "reference": "aaf902277f2889fddbdb37046ae02b9965e2cf0f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/c921498b474212fe4552928bbeb68d70250ce5e8",
-                "reference": "c921498b474212fe4552928bbeb68d70250ce5e8",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/aaf902277f2889fddbdb37046ae02b9965e2cf0f",
+                "reference": "aaf902277f2889fddbdb37046ae02b9965e2cf0f",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
-                "squizlabs/php_codesniffer": "^3.5"
+                "squizlabs/php_codesniffer": "^3.5.6"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-                "limedeck/phpunit-detailed-printer": "^3.1 || ^4.0 || ^5.0",
-                "phpstan/phpstan": "^0.11.8",
-                "phpunit/phpunit": "^5.0 || ^6.5 || ^7.0 || ^8.0",
-                "sirbrillig/phpcs-import-detection": "^1.1"
+                "phpcsstandards/phpcsdevcs": "^1.1",
+                "phpstan/phpstan": "^1.7",
+                "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.5 || ^7.0 || ^8.0 || ^9.0",
+                "sirbrillig/phpcs-import-detection": "^1.1",
+                "vimeo/psalm": "^0.2 || ^0.3 || ^1.1 || ^4.24 || ^5.0@beta"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -958,12 +959,16 @@
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
+            "keywords": [
+                "phpcs",
+                "static analysis"
+            ],
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-variable-analysis/issues",
                 "source": "https://github.com/sirbrillig/phpcs-variable-analysis",
                 "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
             },
-            "time": "2022-02-21T17:01:13+00:00"
+            "time": "2022-09-08T18:35:53+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1022,15 +1027,15 @@
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "dev-develop",
+            "version": "2022-02-07",
             "source": {
                 "type": "git",
-                "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
+                "url": "https://github.com/Automattic/WordPress-Coding-Standards.git",
                 "reference": "7b39722c38cbf2fe64c55be7154ee6f1807d304c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/7b39722c38cbf2fe64c55be7154ee6f1807d304c",
+                "url": "https://api.github.com/repos/Automattic/WordPress-Coding-Standards/zipball/7b39722c38cbf2fe64c55be7154ee6f1807d304c",
                 "reference": "7b39722c38cbf2fe64c55be7154ee6f1807d304c",
                 "shasum": ""
             },
@@ -1038,18 +1043,42 @@
                 "php": ">=5.4",
                 "phpcsstandards/phpcsextra": "^1.0",
                 "phpcsstandards/phpcsutils": "^1.0",
-                "squizlabs/php_codesniffer": "^3.6.2"
+                "squizlabs/php_codesniffer": "^3.5.0"
             },
             "require-dev": {
-                "php-parallel-lint/php-console-highlighter": "^1.0.0",
-                "php-parallel-lint/php-parallel-lint": "^1.3.2",
+                "php-parallel-lint/php-console-highlighter": "^0.5",
+                "php-parallel-lint/php-parallel-lint": "^1.0",
                 "phpcompatibility/php-compatibility": "^9.0",
                 "phpcsstandards/phpcsdevtools": "^1.0",
                 "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
-            "default-branch": true,
             "type": "phpcodesniffer-standard",
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "lint": [
+                    "@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git"
+                ],
+                "lint-ci": [
+                    "@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git --checkstyle"
+                ],
+                "check-cs": [
+                    "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs"
+                ],
+                "fix-cs": [
+                    "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
+                ],
+                "install-codestandards": [
+                    "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
+                ],
+                "run-tests": [
+                    "@php ./vendor/phpunit/phpunit/phpunit --filter WordPress ./vendor/squizlabs/php_codesniffer/tests/AllTests.php"
+                ],
+                "check-complete": [
+                    "@php ./vendor/phpcsstandards/phpcsdevtools/bin/phpcs-check-feature-completeness -q ./WordPress"
+                ],
+                "check-complete-strict": [
+                    "@php ./vendor/phpcsstandards/phpcsdevtools/bin/phpcs-check-feature-completeness ./WordPress"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -1061,22 +1090,22 @@
             ],
             "description": "PHP_CodeSniffer rules (sniffs) to enforce WordPress coding conventions",
             "keywords": [
+                "WordPress",
                 "phpcs",
-                "standards",
-                "wordpress"
+                "standards"
             ],
             "support": {
                 "issues": "https://github.com/WordPress/WordPress-Coding-Standards/issues",
-                "source": "https://github.com/WordPress/WordPress-Coding-Standards",
-                "wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki"
+                "wiki": "https://github.com/WordPress/WordPress-Coding-Standards/wiki",
+                "source": "https://github.com/WordPress/WordPress-Coding-Standards"
             },
-            "time": "2022-05-17T12:18:39+00:00"
+            "time": "2022-02-07T09:38:48+00:00"
         }
     ],
     "aliases": [
         {
             "package": "wp-coding-standards/wpcs",
-            "version": "dev-develop",
+            "version": "2022.02.07",
             "alias": "2.3.1",
             "alias_normalized": "2.3.1.0"
         }
@@ -1084,8 +1113,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-codesniffer": 20,
-        "automattic/jetpack-phpcs-filter": 20,
-        "wp-coding-standards/wpcs": 20
+        "automattic/jetpack-phpcs-filter": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

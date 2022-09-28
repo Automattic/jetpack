@@ -5,12 +5,12 @@
  * addition of `fixPnpmPaths`.
  */
 
-const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util/comparators' );
 const {
 	getUsedModuleIdsAndModules,
 	getFullModuleName,
 	assignDeterministicIds,
 } = require( 'webpack/lib/ids/IdHelpers' );
+const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util/comparators' );
 
 const PNPM_PATH_REGEXP = /(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/]*\/node_modules\/([^|!]+)/g;
 

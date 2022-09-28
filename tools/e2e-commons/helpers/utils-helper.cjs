@@ -43,6 +43,7 @@ function execSyncShellCommand( cmd ) {
 
 async function resetWordpressInstall() {
 	const cmd = 'pnpm e2e-env reset';
+	await cancelPartnerPlan();
 	execSyncShellCommand( cmd );
 }
 
@@ -80,6 +81,13 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 	return true;
 }
 
+async function cancelPartnerPlan() {
+	logger.step( `Cancelling partner plan` );
+	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const cmd = `sh /usr/local/src/jetpack-monorepo/tools/partner-cancel.sh -- --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;
+	await execContainerShellCommand( cmd );
+}
+
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
@@ -94,13 +102,8 @@ async function activateModule( page, module ) {
 	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
-		throw new Error( `${ module } failed to activate` );
+		throw new Error( `Failed to activate module ${ module }!` );
 	}
-
-	// todo we shouldn't have page references in here. these methods could be called without a browser being opened
-	// eslint-disable-next-line playwright/no-wait-for-timeout
-	await page.waitForTimeout( 1000 );
-	await page.reload( { waitUntil: 'domcontentloaded' } );
 
 	return true;
 }
@@ -108,11 +111,17 @@ async function activateModule( page, module ) {
 async function execWpCommand( wpCmd, sendUrl = true ) {
 	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
-	const result = await execShellCommand( cmd );
+	let result = await execShellCommand( cmd );
 
-	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.replace( '#!/usr/bin/env php\n', '' ).trim();
+		// Something in playwright 1.26 has started outputting these warnings. Strip them off.
+		result = result.replace(
+			/^(\(node:\d+\) ExperimentalWarning: Custom ESM Loaders is an experimental feature\. This feature could change at any time\n\(Use `node --trace-warnings \.\.\.` to show where the warning was created\)\n)+/,
+			''
+		);
+
+		// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
+		result = result.replace( '#!/usr/bin/env php\n', '' ).trim();
 	}
 
 	return result;
