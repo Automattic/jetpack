@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Disconnect Dialog: Fixed the prop types to avoid warnings from React

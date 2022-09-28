@@ -18,6 +18,7 @@ import styles from './style.module.scss';
 export const FilterButton = ( props: {
 	isActive: boolean;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	disabled?: boolean;
 } ): JSX.Element => {
 	const { isActive, ...componentProps } = props;
 	return (
