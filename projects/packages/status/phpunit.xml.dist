@@ -1,8 +1,11 @@
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
 	<testsuites>
 		<testsuite name="main">
-			<directory prefix="test" suffix=".php">tests/php</directory>
+			<file>tests/php/test-cache.php</file>
+			<file>tests/php/test-host.php</file>
 			<file phpVersion="7.0.0" phpVersionOperator=">=">tests/php/test-modules.php</file>
+			<file>tests/php/test-status.php</file>
+			<file>tests/php/test-visitor.php</file>
 		</testsuite>
 	</testsuites>
 	<filter>
