@@ -12,11 +12,7 @@ import {
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
-import {
-	ConnectScreenRequiredPlan,
-	useProductCheckoutWorkflow,
-	useConnection,
-} from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -32,6 +28,7 @@ import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
 import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
 import useVideos from '../../hooks/use-videos';
 import Logo from '../logo';
+import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
@@ -121,7 +118,7 @@ const Admin = () => {
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<ConnectionSection />
+							<PricingSection />
 						</Col>
 					</Container>
 				</AdminSectionHero>
@@ -183,31 +180,6 @@ const Admin = () => {
 };
 
 export default Admin;
-
-const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackVideoPressInitialState;
-	return (
-		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			priceAfter={ 4.5 }
-			priceBefore={ 9 }
-			pricingTitle={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			title={ __( 'High quality, ad-free video.', 'jetpack-videopress-pkg' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			from="jetpack-videopress"
-			redirectUri="admin.php?page=jetpack-videopress"
-		>
-			<h3>{ __( 'Connection screen title', 'jetpack-videopress-pkg' ) }</h3>
-			<ul>
-				<li>{ __( 'Amazing feature 1', 'jetpack-videopress-pkg' ) }</li>
-				<li>{ __( 'Amazing feature 2', 'jetpack-videopress-pkg' ) }</li>
-				<li>{ __( 'Amazing feature 3', 'jetpack-videopress-pkg' ) }</li>
-			</ul>
-		</ConnectScreenRequiredPlan>
-	);
-};
 
 const UpgradeTrigger = () => {
 	const {
