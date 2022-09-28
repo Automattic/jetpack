@@ -36,7 +36,8 @@ export default class WordAdsBlock extends PageActions {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		const containerSelector = 'article .wpa';
+		// We check for either the ads placeholder div, or the iframes if the ads are loaded.
+		const containerSelector = ".entry-content iframe[src*='wordads'],article .wpa";
 		await page.waitForSelector( containerSelector );
 	}
 }
