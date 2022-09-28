@@ -15,11 +15,11 @@ import {
 import {
 	ConnectScreenRequiredPlan,
 	useProductCheckoutWorkflow,
-	CONNECTION_STORE_ID,
+	useConnection,
 } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { FormFileUpload } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import classnames from 'classnames';
@@ -36,10 +36,6 @@ import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
-/**
- * Types
- */
-import { ConnectionStore } from './types';
 
 const useDashboardVideos = () => {
 	const { setVideo } = useDispatch( STORE_ID );
@@ -104,12 +100,9 @@ const Admin = () => {
 		handleFilesUpload,
 	} = useDashboardVideos();
 
-	const connectionStatus = useSelect(
-		select => ( select( CONNECTION_STORE_ID ) as ConnectionStore ).getConnectionStatus(),
-		[]
-	);
+	const { isUserConnected, isRegistered } = useConnection();
+
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const localVideos = [];
 	const localTotalVideoCount = 0;
