@@ -21,6 +21,7 @@ export type productOriginalProps = {
 		currency_code: string;
 		discount_price: number;
 		full_price: number;
+		wpcom_product_slug: string;
 	};
 	requires_user_connection: boolean;
 	slug: string;
