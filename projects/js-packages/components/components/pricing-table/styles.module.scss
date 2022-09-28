@@ -124,29 +124,31 @@
 	}
 }
 
-svg.popover-icon {
+.item .popover-icon {
 	fill: var( --jp-gray-20 );
 	flex-shrink: 0;
 }
 
 .tos {
 	text-align: center;
+	width: fit-content;
 
 	> a {
 		color: black;
 	}
 
 	.is-viewport-large & {
-		text-align: center;
-		grid-column: 2 / span 2;
+		padding-left: var( --padding );
+		padding-right: var( --padding );
+		grid-column: 2;
+		white-space: nowrap;
+		overflow: hidden;
 	}
 }
 
 .tos-container {
-	.is-viewport-large & {
-		display: grid;
-		grid-template-columns: repeat( var( --columns ), 1fr);
-		grid-auto-flow: column;
-		column-gap: calc( var( --spacing-base ) * 3 );
-	}
+	display: flex;
+	align-items: right;
+	justify-content: right;
+	margin: 0 calc( var( --spacing-base ) * 4 );
 }

@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	SET_IS_FETCHING_VIDEOS,
+	SET_VIDEOS_STORAGE_USED,
 	SET_VIDEOS,
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
@@ -52,6 +53,10 @@ const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 
 const setUploadedVideoCount = uploadedVideoCount => {
 	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
+};
+
+const setVideosStorageUsed = used => {
+	return { type: SET_VIDEOS_STORAGE_USED, used };
 };
 
 const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
@@ -126,13 +131,10 @@ const deleteVideo = id => async ( { dispatch } ) => {
 		} );
 
 		// dispach action to invalidate the cache
-		dispatch( { type: DELETE_VIDEO, id } );
-
 		if ( ! resp?.deleted ) {
-			// Here, we expect data to be 200
-			// @todo: implement error handling / UI
-			return;
+			return dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: false, video: {} } );
 		}
+		dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: true, video: resp?.previous } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
@@ -145,6 +147,7 @@ const actions = {
 	setVideosQuery,
 	setVideosPagination,
 	setVideos,
+	setVideosStorageUsed,
 	setVideo,
 
 	setIsFetchingUploadedVideoCount,

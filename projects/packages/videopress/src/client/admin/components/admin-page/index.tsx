@@ -32,6 +32,7 @@ import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
 import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
 import useVideos from '../../hooks/use-videos';
 import Logo from '../logo';
+import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
@@ -139,6 +140,12 @@ const Admin = () => {
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
+
+								<ConnectVideoStorageMeter
+									className={ styles[ 'storage-meter' ] }
+									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+								/>
+
 								<FormFileUpload
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
 									accept="video/*"

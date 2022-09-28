@@ -112,7 +112,7 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video } = useVideo( Number( videoId ) );
+	const { data: video, isFetching } = useVideo( Number( videoId ) );
 
 	const [ updating, setUpdating ] = useState( false );
 	const [ data, setData ] = useState( video );
@@ -152,6 +152,7 @@ export default () => {
 		...data, // data is the local representation of the video
 		saveDisabled,
 		handleSaveChanges,
+		isFetching,
 		updating,
 		...metaEditData,
 		...posterEditData,

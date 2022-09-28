@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Replace antippatern where components are returned from non-functionl components called renderSomething

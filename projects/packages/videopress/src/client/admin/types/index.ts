@@ -5,6 +5,10 @@ export type OriginalVideoPressVideo = {
 	 */
 	id: number | string;
 	/**
+	 * Video Slug
+	 */
+	slug: string;
+	/**
 	 * Video Media Details
 	 */
 	media_details: {
@@ -132,6 +136,7 @@ export type VideoPressVideo = {
 	plays?: number; // Not provided yet
 	// Video is being upload
 	uploading?: boolean;
+	filename: OriginalVideoPressVideo[ 'slug' ];
 };
 
 export type LocalVideo = {

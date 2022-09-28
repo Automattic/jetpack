@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove duplicated last run button for workflow_run events
