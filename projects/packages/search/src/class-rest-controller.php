@@ -161,7 +161,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_post_type_breakdown' ),
-				'permission_callback' => 'require_valid_blog_token_callback',
+				'permission_callback' => array( $this, 'require_valid_blog_token_callback' ),
 			)
 		);
 	}

@@ -124,6 +124,9 @@ class Search_Stats {
 				continue;
 			}
 			// add up post type counts of potentially multiple post_status.
+			if ( ! isset( $posts_counts[ $row['post_type'] ] ) ) {
+				$posts_counts[ $row['post_type'] ] = 0;
+			}
 			$posts_counts[ $row['post_type'] ] += intval( $row['num_posts'] );
 		}
 
