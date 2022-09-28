@@ -102,12 +102,12 @@ class Search_Stats {
 	public static function get_post_type_breakdown_with( $raw_posts_counts, $indexable_post_types, $indexable_status_array ) {
 		$posts_counts = array();
 		foreach ( $raw_posts_counts as $row ) {
-			// ignore if post type is in excluded post types.
-			if ( in_array( $row['post_type'], self::EXCLUDED_POST_TYPES, true ) ) {
-				continue;
-			}
 			// ignore if status is not public.
 			if ( ! in_array( $row['post_status'], $indexable_status_array, true ) ) {
+				continue;
+			}
+			// ignore if post type is in excluded post types.
+			if ( in_array( $row['post_type'], self::EXCLUDED_POST_TYPES, true ) ) {
 				continue;
 			}
 			// ignore if post type is not public and is not explicitly included.
