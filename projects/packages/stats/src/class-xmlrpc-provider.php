@@ -1,6 +1,6 @@
 <?php
 /**
- * The Stats XMLRPC class
+ * The Stats XMLRPC Provider class
  *
  * @package automattic/jetpack-stats
  */
@@ -10,25 +10,25 @@ namespace Automattic\Jetpack\Stats;
 use Automattic\Jetpack\Constants;
 
 /**
- * Stats XMLRPC.
+ * Stats XMLRPC Provider.
  *
  * Adds additional methods to the WordPress XML-RPC API for handling Stats specific features.
  *
  * @since $$next-version$$
  */
-class XMLRPC {
+class XMLRPC_Provider {
 
 	/**
-	 * Singleton XMLRPC instance.
+	 * Singleton XMLRPC_Provider instance.
 	 *
-	 * @var XMLRPC
+	 * @var XMLRPC_Provider
 	 **/
 	private static $instance = null;
 
 	/**
-	 * Private XMLRPC constructor.
+	 * Private XMLRPC_Provider constructor.
 	 *
-	 * Use the XMLRPC::init() method to get an instance.
+	 * Use the XMLRPC_Provider::init() method to get an instance.
 	 */
 	private function __construct() {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( $this, 'xmlrpc_methods' ), 10, 3 );
@@ -37,11 +37,11 @@ class XMLRPC {
 	/**
 	 * Initialize class and get back a singleton instance.
 	 *
-	 * @return XMLRPC
+	 * @return XMLRPC_Provider
 	 */
 	public static function init() {
 		if ( null === self::$instance ) {
-			self::$instance = new XMLRPC();
+			self::$instance = new XMLRPC_Provider();
 		}
 
 		return self::$instance;

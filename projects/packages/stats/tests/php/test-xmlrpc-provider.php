@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Tests Options class.
+ * Tests XMLRPC_Provider class.
  *
  * @package jetpack-stats
  */
@@ -8,15 +8,15 @@
 namespace Automattic\Jetpack\Stats;
 
 /**
- * Class to test the XMLRPC class.
+ * Class to test the XMLRPC_Provider class.
  *
- * @covers Automattic\Jetpack\Stats\XMLRPC
+ * @covers Automattic\Jetpack\Stats\XMLRPC_Provider
  */
-class Test_XMLRPC extends StatsBaseTestCase {
+class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
-	 * An instance of XMLRPC class.
+	 * An instance of XMLRPC_Provider class.
 	 *
-	 * @var XMLRPC
+	 * @var XMLRPC_Provider
 	 */
 	protected $xmlrpc_instance;
 
@@ -28,7 +28,7 @@ class Test_XMLRPC extends StatsBaseTestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->xmlrpc_instance = XMLRPC::init();
+		$this->xmlrpc_instance = XMLRPC_Provider::init();
 	}
 
 	/**
@@ -39,14 +39,14 @@ class Test_XMLRPC extends StatsBaseTestCase {
 	public function tear_down() {
 		parent::tear_down();
 
-		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC' );
+		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC_Provider' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
 		$reflected_property->setAccessible( true );
 		$reflected_property = $reflected_property->setValue( null );
 	}
 
 	/**
-	 * Test XMLRPC::init adds the 'jetpack_xmlrpc_unauthenticated_methods' filter.
+	 * Test XMLRPC_Provider::init adds the 'jetpack_xmlrpc_unauthenticated_methods' filter.
 	 */
 	public function test_jetpack_xmlrpc_unauthenticated_methods_filter() {
 
@@ -55,7 +55,7 @@ class Test_XMLRPC extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test XMLRPC::xmlrpc_methods.
+	 * Test XMLRPC_Provider::xmlrpc_methods.
 	 */
 	public function test_xmlrpc_methods() {
 		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
@@ -63,7 +63,7 @@ class Test_XMLRPC extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test XMLRPC::getBlog.
+	 * Test XMLRPC_Provider::getBlog.
 	 */
 	public function test_get_blog() {
 		$blog_description = '<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>';
