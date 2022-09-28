@@ -1,6 +1,6 @@
 import { describe, beforeAll, expect, test } from '@jest/globals';
 import { readDockerFile, dockerExec } from '../lib/docker-tools';
-import { readPluginFile } from '../lib/plugin-file-tools';
+import { readPluginFile } from '../lib/plugin-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
 describe( 'Plugin Activation', () => {

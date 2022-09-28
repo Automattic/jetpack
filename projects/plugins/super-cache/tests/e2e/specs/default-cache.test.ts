@@ -1,5 +1,6 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
-import { clearCache, setConfigValues } from '../lib/plugin-file-tools';
+import { updateSettings } from '../lib/plugin-settings';
+import { clearCache, getAuthCookie } from '../lib/plugin-tools';
 import { loadPage } from '../lib/test-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
@@ -7,9 +8,8 @@ describe( 'cache behavior with default settings', () => {
 	beforeAll( async () => {
 		await resetEnvironmnt();
 		await wpcli( 'plugin', 'activate', 'wp-super-cache' );
-		await setConfigValues( {
-			cache_enabled: true,
-			super_cache_enabled: true,
+		await updateSettings( await getAuthCookie(), {
+			wp_cache_enabled: true,
 		} );
 	} );
 

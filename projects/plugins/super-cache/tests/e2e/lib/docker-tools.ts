@@ -59,12 +59,3 @@ export async function writeDockerFile( filename: string, data: Buffer ) {
 		`echo '${ data.toString( 'base64' ) }' | base64 --decode > ${ filename }`
 	);
 }
-
-/**
- * Returns the site URL of the Docker instance.
- *
- * @returns {string} The site URL.
- */
-export function getSiteUrl() {
-	return 'http://localhost:' + process.env.SUPER_CACHE_E2E_PORT;
-}
