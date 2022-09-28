@@ -8,7 +8,7 @@ import classnames from 'classnames';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 /**
- *
+ * Internal dependencies
  */
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
@@ -29,7 +29,7 @@ const LibraryType = {
 
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
 
-const ConnectedPagination = ( props: { className: string } ) => {
+const ConnectedPagination = ( props: { className: string; disabled: boolean } ) => {
 	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
 	return total < itemsPerPage ? (
 		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
@@ -40,7 +40,7 @@ const ConnectedPagination = ( props: { className: string } ) => {
 			onChangePage={ setPage }
 			currentPage={ page }
 			total={ total }
-			disabled={ isFetching }
+			disabled={ isFetching || props.disabled }
 		/>
 	);
 };
@@ -52,6 +52,7 @@ const VideoLibraryWrapper = ( {
 	onChangeType,
 	hideFilter = false,
 	title,
+	disabled,
 }: {
 	children: React.ReactNode;
 	libraryType?: LibraryType;
@@ -59,6 +60,7 @@ const VideoLibraryWrapper = ( {
 	onChangeType?: () => void;
 	hideFilter?: boolean;
 	title?: string;
+	disabled?: boolean;
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
@@ -86,11 +88,13 @@ const VideoLibraryWrapper = ( {
 							value={ searchQuery }
 							loading={ isFetching }
 							onChange={ setSearchQuery }
+							disabled={ disabled }
 						/>
 
 						<FilterButton
 							onClick={ () => setIsFilterActive( v => ! v ) }
 							isActive={ isFilterActive }
+							disabled={ disabled }
 						/>
 
 						<Button
@@ -104,7 +108,7 @@ const VideoLibraryWrapper = ( {
 			</div>
 			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectedPagination className={ styles.pagination } />
+			<ConnectedPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
@@ -112,6 +116,9 @@ const VideoLibraryWrapper = ( {
 export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
+	const disabled = videos?.some?.(
+		video => video.uploading || ( ! video.finished && video.posterImage === null )
+	);
 
 	const toggleType = () => {
 		setLibraryType( current =>
@@ -129,11 +136,12 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
+			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
 				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
 			) : (
-				<VideoList videos={ videos } onClickEdit={ handleClickEditDetails } />
+				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
 		</VideoLibraryWrapper>
 	);
@@ -146,7 +154,14 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList hidePrivacy hideDuration hidePlays hideEditButton videos={ videos } />
+			<VideoList
+				hidePrivacy
+				hideDuration
+				hidePlays
+				showEditButton={ false }
+				showQuickActions={ false }
+				videos={ videos }
+			/>
 		</VideoLibraryWrapper>
 	);
 };

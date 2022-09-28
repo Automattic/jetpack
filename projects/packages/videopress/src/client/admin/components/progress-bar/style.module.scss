@@ -3,6 +3,7 @@
 	height: 12px;
 	background-color: var(--jp-gray-5);
 	border-radius: calc( var( --spacing-base ) * 3 );
+	overflow: hidden;
 	
 	.progress {
 		height: 100%;

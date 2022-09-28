@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add support for link variant and className to ContextualUpgradeTrigger component
