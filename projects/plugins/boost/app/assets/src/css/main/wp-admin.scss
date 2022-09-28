@@ -16,64 +16,15 @@ p {
 	--wp-admin-theme-color-darker-20: #{$jetpack_green_70};
 
 	--font-headline-medium: 48px;
-    --font-headline-small: 36px;
-    --font-title-medium: 24px;
-    --font-title-small: 20px;
-    --font-body: 16px;
-    --font-body-small: 14px;
-    --font-body-extra-small: 12px;
-    --font-title-large: var(--font-headline-small);
-    --font-label: var(--font-body-extra-small);
-    --jp-black: #000000;
-    --jp-black-80: #2c3338;
-    --jp-white: #ffffff;
-    --jp-white-off: #f9f9f6;
-    --jp-gray: #dcdcde;
-    --jp-gray-0: #F6F7F7;
-    --jp-gray-10: #C3C4C7;
-    --jp-gray-20: #A7AAAD;
-    --jp-gray-40: #787C82;
-    --jp-gray-50: #646970;
-    --jp-gray-60: #50575E;
-    --jp-gray-80: #2C3338;
-    --jp-gray-off: #e2e2df;
-    --jp-red-0: #F7EBEC;
-    --jp-red-40: #E65054;
-    --jp-red-50: #D63638;
-    --jp-red-60: #B32D2E;
-    --jp-red-70: #8A2424;
-    --jp-red-80: #691C1C;
-    --jp-red: #d63639;
-    --jp-yellow-20: #F0C930;
-    --jp-yellow-40: #C08C00;
-    --jp-blue-20: #68B3E8;
-    --jp-blue-40: #1689DB;
-    --jp-pink: #C9356E;
-    --jp-green-0: #f0f2eb;
-    --jp-green-5: #d0e6b8;
-    --jp-green-10: #9dd977;
-    --jp-green-20: #64ca43;
-    --jp-green-30: #2fb41f;
-    --jp-green-40: #069e08;
-    --jp-green-50: #008710;
-    --jp-green-60: #007117;
-    --jp-green-70: #005b18;
-    --jp-green-80: #004515;
-    --jp-green-90: #003010;
-    --jp-green-100: #001c09;
-    --jp-green: #069e08;
-    --jp-green-primary: var( --jp-green-40 );
-    --jp-green-secondary: var( --jp-green-30 );
-    --jp-border-radius: 4px;
-    --jp-menu-border-height: 1px;
-    --jp-underline-thickness: 2px;
-    --spacing-base: 8px;
+	--font-title-medium: 24px;
+	--font-body-small: 14px;
+	--spacing-base: 8px;
 
 	a {
-		color: var(--wp-admin-theme-link-color)
+		color: var( --wp-admin-theme-link-color );
 	}
 
-	.components-button.is-primary, {
+	.components-button.is-primary {
 		background-color: $jetpack_green;
 		border-radius: $border-radius;
 		font-weight: 600;
@@ -81,15 +32,20 @@ p {
 	}
 
 	.components-button.is-link {
-		color: var(--wp-admin-theme-link-color);
+		color: var( --wp-admin-theme-link-color );
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		margin: 0;
 		color: $primary-black;
 		line-height: 1.3;
 		font-weight: 500;
-	  	outline-color: transparent;
+		outline-color: transparent;
 	}
 
 	h2 {
@@ -101,7 +57,8 @@ p {
 		font-size: 24px;
 	}
 
-	button.secondary, a.button-secondary {
+	button.secondary,
+	a.button-secondary {
 		color: $primary-black;
 		background: none;
 		border: 1px solid $primary-black;

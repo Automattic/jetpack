@@ -12,16 +12,21 @@
 
 	<div class="jb-section jb-section--alt jb-section--scores">
 		<div class="jb-container">
-			<div class="comparison-table">
-				<h1>{__( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' )}</h1>
-				<p class="comparison-table__feature-row">Optimize CSS Loading</p>
-				<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
-				<p class="comparison-table__feature-row">Lazy image loading</p>
-				<p class="comparison-table__feature-row">Dedicated email support</p>
+			<div class="comparison-table" style="--rows: 11; --columns: 3">
+				<div class="comparison-table__main">
+					<h1>{__( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' )}</h1>
+					<p class="comparison-table__feature-row">Optimize CSS Loading</p>
+					<hr />
+					<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
+					<hr />
+					<p class="comparison-table__feature-row">Lazy image loading</p>
+					<hr />
+					<p class="comparison-table__feature-row">Dedicated email support</p>
+					<hr />
 
-				<footer class="comparison-table__spacing" />
-
-				<div class="comparison-table__premium">
+					<footer class="comparison-table__spacing" />
+				</div>
+				<div class="comparison-table__tier comparison-table__tier--card">
 					<header>
 						<ReactComponent
 							this={ProductPrice}
@@ -38,12 +43,17 @@
 						</button>
 					</div>
 					<p class="comparison-table__feature-row">Optimize CSS Loading</p>
+					<hr />
 					<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
+					<hr />
 					<p class="comparison-table__feature-row">Lazy image loading</p>
+					<hr />
 					<p class="comparison-table__feature-row">Dedicated email support</p>
+					<hr />
+
 					<footer class="comparison-table__spacing" />
 				</div>
-				<div class="comparison-table__free">
+				<div class="comparison-table__tier">
 					<header>
 						<ReactComponent
 							this={ProductPrice}
@@ -59,9 +69,14 @@
 						</button>
 					</div>
 					<p class="comparison-table__feature-row">Optimize CSS Loading</p>
+					<hr />
 					<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
+					<hr />
 					<p class="comparison-table__feature-row">Lazy image loading</p>
+					<hr />
 					<p class="comparison-table__feature-row">Dedicated email support</p>
+					<hr />
+
 					<footer class="comparison-table__spacing" />
 				</div>
 			</div>
