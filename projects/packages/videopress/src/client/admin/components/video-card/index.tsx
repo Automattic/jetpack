@@ -12,6 +12,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
+import useVideo from '../../hooks/use-video';
 /**
  * Internal dependencies
  */
@@ -59,9 +60,13 @@ export const VideoCard = ( {
 	thumbnail,
 	editable,
 	showQuickActions = true,
+	isDeleting,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
+	// @todo: implement removing video state properly
+	const isBlank = ( ! title && ! duration && ! plays && ! thumbnail ) || isDeleting;
+	thumbnail = isDeleting ? null : thumbnail;
+
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
@@ -127,6 +132,23 @@ export const VideoCard = ( {
 				/>
 			) }
 		</>
+	);
+};
+
+export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
+	const { data: video, isDeleting, hasBeenDeleted } = useVideo( id );
+	if ( ! id || ! video ) {
+		return null;
+	}
+
+	return (
+		<VideoCard
+			id={ id }
+			{ ...video }
+			{ ...restProps }
+			isDeleting={ isDeleting }
+			hasBeenDeleted={ hasBeenDeleted }
+		/>
 	);
 };
 

@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { VideoPressVideo } from '../../types';
-import { VideoCard } from '../video-card';
+import { ConnectVideoCard } from '../video-card';
 import styles from './style.module.scss';
 import { VideoGridProps } from './types';
 import type React from 'react';
@@ -42,7 +42,7 @@ const VideoGrid = ( { videos, count = 6, onVideoDetailsClick }: VideoGridProps )
 				{ gridVideos.map( ( video, index ) => {
 					return (
 						<Col key={ index } sm={ 4 } md={ 4 } lg={ 4 }>
-							<VideoCard
+							<ConnectVideoCard
 								id={ video?.id }
 								title={ video.title }
 								thumbnail={ getThumbnail( { video } ) } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319

@@ -16,6 +16,7 @@ import {
 	SET_UPLOADED_VIDEO_COUNT,
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
+	DELETE_VIDEO,
 } from './constants';
 
 /**
@@ -113,6 +114,13 @@ const videos = ( state = {}, action ) => {
 			};
 		}
 
+		/*
+		 * REMOVE_VIDEO is the action trigger
+		 * right after the user tries to remove the video,
+		 * for instance, when the user clicks on the "Remove" button.
+		 * Use it as an oportunity to update the UI and show a loading state,
+		 * while the video is being removed.
+		 */
 		case REMOVE_VIDEO: {
 			const { id } = action;
 			const { items = [] } = state;
@@ -122,9 +130,57 @@ const videos = ( state = {}, action ) => {
 				return state;
 			}
 
+			const _metaItems = {
+				...( state._meta?.items ?? [] ),
+			};
+
+			const _metaVideo = _metaItems[ id ] ?? {};
+
 			return {
 				...state,
-				items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
+				// Do not remove the video from the list, just update the meta data.
+				// Keep here in caswe we want to do it in the future.
+				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isDeleting: true,
+						},
+					},
+				},
+			};
+		}
+
+		/*
+		 * DELETE_VIDEO is the action trigger
+		 * right after the video is removed from the server,
+		 */
+		case DELETE_VIDEO: {
+			const { id, hasBeenDeleted, video: deletedVideo } = action;
+			const _metaItems = state?._meta?.items || [];
+			const _metaVideo = _metaItems[ id ] || {};
+
+			if ( ! _metaVideo ) {
+				return state;
+			}
+
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isDeleting: false,
+							hasBeenDeleted,
+							deletedVideo,
+						},
+					},
+				},
 			};
 		}
 

@@ -7,40 +7,24 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Constants;
-use Jetpack_Options;
-use WorDBless\BaseTestCase;
-use WorDBless\Options as WorDBless_Options;
-
 /**
  * Class to test the Options class.
  *
  * @covers Options
  */
-class Test_Options extends BaseTestCase {
-	/**
-	 * Set up before each test
-	 *
-	 * @before
-	 */
-	protected function set_up() {
-		parent::setUp();
-		Constants::set_constant( 'STATS_VERSION', '9' );
-		Jetpack_Options::update_option( 'id', 1234 );
-	}
-
+class Test_Options extends StatsBaseTestCase {
 	/**
 	 * Clean up the testing environment.
 	 *
 	 * @after
 	 */
 	public function tear_down() {
-		WorDBless_Options::init()->clear_options();
-		Constants::clear_constants();
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Options' );
 		$reflected_property = $reflected_class->getProperty( 'options' );
 		$reflected_property->setAccessible( true );
 		$reflected_property = $reflected_property->setValue( array() );
+
+		parent::tear_down();
 	}
 
 	/**
@@ -56,7 +40,7 @@ class Test_Options extends BaseTestCase {
 			'count_roles'  => array(),
 			'do_not_track' => true,
 			'blog_id'      => 1234,
-			'version'      => '9',
+			'version'      => self::DEFAULT_STATS_VERSION,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -81,7 +65,7 @@ class Test_Options extends BaseTestCase {
 			'count_roles'  => array_keys( get_editable_roles() ),
 			'do_not_track' => true,
 			'blog_id'      => 1234,
-			'version'      => '9',
+			'version'      => self::DEFAULT_STATS_VERSION,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -107,7 +91,7 @@ class Test_Options extends BaseTestCase {
 			),
 			'Version'      => array(
 				'option_name'  => 'version',
-				'option_value' => '9',
+				'option_value' => self::DEFAULT_STATS_VERSION,
 			),
 			'Honor DNT'    => array(
 				'option_name'  => 'do_not_track',
@@ -157,7 +141,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'set version'          => array(
@@ -173,7 +157,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'set blog blog_id'     => array(
@@ -189,7 +173,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'multiple options'     => array(
@@ -216,7 +200,7 @@ class Test_Options extends BaseTestCase {
 					),
 					'do_not_track' => false,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 		);
@@ -270,7 +254,7 @@ class Test_Options extends BaseTestCase {
 			),
 			'do_not_track' => true,
 			'blog_id'      => 1234,
-			'version'      => '9',
+			'version'      => self::DEFAULT_STATS_VERSION,
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -295,7 +279,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'Roles'        => array(
@@ -310,7 +294,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'Count Roles'  => array(
@@ -324,7 +308,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array( 'administrator' ),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'Version'      => array(
@@ -338,7 +322,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'Honor DNT'    => array(
@@ -352,7 +336,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => false,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 			'Dummy option' => array(
@@ -366,7 +350,7 @@ class Test_Options extends BaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => '9',
+					'version'      => self::DEFAULT_STATS_VERSION,
 				),
 			),
 		);
