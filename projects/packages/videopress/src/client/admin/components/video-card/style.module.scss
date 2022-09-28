@@ -1,19 +1,3 @@
-.wrapper {
-	--jp-video-details-wrapper-max-width: 392px;
-
-	max-width: var(--jp-video-details-wrapper-max-width);
-	border-radius: var( --jp-border-radius );
-	background-color: var( --jp-white );
-
-	&.small {
-		height: 200px;
-
-		.button {
-			margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px;
-		}
-	}
-}
-
 .video-card__wrapper {
 	--videopress-video-item-max-width: 392px; // VideosGrid: two columns.
 	max-width: var( --videopress-video-item-max-width );
@@ -31,7 +15,7 @@
 		}
 	}
 
-	&:hover {
+	&:not(.small):hover {
 		.video-card__background {
 			opacity: 1;
 			z-index: 1;
@@ -97,9 +81,16 @@
 }
 
 .video-card__quick-actions-section {
-	opacity: 0;
-	position: relative;
 	display: flex;
-	transition: opacity 0.2s ease-in-out;
 	justify-content: space-between;
+
+	&:not(.small) {
+		opacity: 0;
+		position: relative;
+		transition: opacity 0.2s ease-in-out;
+	}
+}
+
+.chevron {
+	display: flex;
 }

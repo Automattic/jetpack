@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2022-09-27
+### Added
+- Add caching to shares info check [#26449]
+
+### Changed
+- Move share limits code to the Publicize package [#26294]
+- Social: Aligned Jetpack and Social to use the connection-test-results endpoint in the block editor [#26274]
+- Updated package dependencies. [#26294]
+
 ## [0.15.0] - 2022-09-20
 ### Added
 - Added is-healthy endpoint to post field [#26216]
@@ -142,6 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.16.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.13.1...v0.13.2

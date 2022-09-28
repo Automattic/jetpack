@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.5.14-alpha",
+	"version": "0.5.15-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
@@ -20,8 +20,8 @@
 		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:* || ^0.13",
-		"@automattic/jetpack-components": "workspace:* || ^0.21",
+		"@automattic/jetpack-api": "workspace:* || ^0.14",
+		"@automattic/jetpack-components": "workspace:* || ^0.22",
 		"@wordpress/components": "20.0.0",
 		"@wordpress/element": "4.14.0",
 		"@wordpress/i18n": "4.16.0",
