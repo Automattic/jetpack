@@ -1,10 +1,7 @@
-// as soon start to use Text,
-// we reset all text elements
-:global {
-	p, h1, h2, h3, h4, h5, h6 {
-		margin: 0;
-		padding: 0;
-	}
+/* Reset all margin and padding for used components */
+.reset {
+	margin: 0;
+	padding: 0;
 }
 
 /* Emerald Typography/Headline Medium */
@@ -32,6 +29,13 @@
 .title-medium {
 	font-size: var(--font-title-medium);
 	font-weight: 500;
+	line-height: 32px;
+}
+
+/* Emerald Typography/Title Medium Semi Bold */
+.title-medium-semi-bold {
+	font-size: var(--font-title-medium);
+	font-weight: 600;
 	line-height: 32px;
 }
 
@@ -63,9 +67,59 @@
 	line-height: 20px;
 }
 
+/* Emerald Typography/Body Extra Small Bold */
+.body-extra-small-bold {
+	font-size: var(--font-body-extra-small);
+	font-weight: 700;
+	line-height: 20px;
+}
+
 /* Emerald Typography/Body Extra Small Label */
 .label {
 	font-size: var(--font-body-extra-small);
 	font-weight: 600;
 	line-height: 16px;
+}
+
+/** Box-Model: Spacing (margin) */
+$props: (
+	"margin": "m",
+	"padding": "p",
+);
+
+$sides: (
+	"top": "t",
+	"right": "r",
+	"bottom": "b",
+	"left": "l",
+);
+
+@each $prop, $p in $props {
+	$sizes: ( 0, 1, 2, 3, 4, 5, 6, 7, 8 );
+
+	@each $size in $sizes {
+		/* m, p */
+		.#{$p}-#{$size} {
+			#{$prop}: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		/* mx, px */
+		.#{$p}x-#{$size} {
+			#{$prop}-left: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-right: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		.#{$p}y-#{$size} {
+			#{$prop}-top: calc( var( --spacing-base ) * #{$size} );
+			#{$prop}-bottom: calc( var( --spacing-base ) * #{$size} );
+		}
+
+		/* mt, mr, mb, ml */
+		/* pt, pr, pb, pl */
+		@each $side, $s in $sides {
+			.#{$p}#{$s}-#{$size} {
+				#{$prop}-#{$side}: calc( var( --spacing-base ) * #{$size} );
+			}
+		}
+	}
 }

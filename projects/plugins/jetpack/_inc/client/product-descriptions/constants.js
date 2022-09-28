@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { imagePath } from 'constants/urls';
 
 export const PRODUCT_DESCRIPTION_PRODUCTS = {

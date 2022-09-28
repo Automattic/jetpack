@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { getSiteAdminUrl } from 'state/initial-state';
-
-/**
- * Internal dependencies
- */
 import { productDescriptionRoutes } from './constants';
 
 /**

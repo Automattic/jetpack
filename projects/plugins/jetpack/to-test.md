@@ -1,88 +1,40 @@
-## 10.7
+## Jetpack 11.4
 
-### Before you start
+### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
+- Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### My Jetpack
+### Jetpack Recommendations Assistant
 
-This release contains the first iteration of My Jetpack, the new dashboard for managing standalone Jetpack plugins on the site. There's a lot to test here!
+There have been updates for the Jetpack Recommendations Assistant. In particular, there is a recommendation for agency managed sites [#26302], and mobile app store links are now shown based on device type [#26093].
 
-For Jetpack, start on a free plan and go to Dashboard > Jetpack > My Dashboard. From there:
+**To test the agency specific recommendation, try:**
 
-- Check the various links
-- Attempt to activate features and install additional standalone plugins.
-- Check styling on desktop and mobile.
-- Make sure Conntion links work.
+- With the Jetpack Beta Tester [plugin](https://jetpack.com/download-jetpack-beta/) activated, and the 11.4-beta branch active, on the main dashboard page `/wp-admin/admin.php?page=jetpack#/dashboard` there is an option in the footer to "Reset Options (dev only)" which can be used to reset the recommendation steps if they have already been completed.
+- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
+- Select "This is my personal site".
+- Then select "Continue", it should skip straight to the Downtime Monitoring recommendation.
+- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
+- This time, select the "I build or manage this site for a client" option.
+- Select "Continue" and this time you should get the new agencies recommendation.
+- On the agency screen, test that the "Learn More" and "Get Jetpack for Agencies" links work.
+- Click "Not now" on the agency screen recommendation and you should be directed to the next recommendation. Continue selecting "Not now" until you reach the summary page.
+- Click the "Sign Up" external link next to the Jetpack for Agencies recommendation and make sure it opens (no need to fill out): https://cloud.jetpack.com/agency/signup
+- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type` and select both "I build or manage this site for a client" and "This is an e-commerce site" and click on Continue.
+- You should see the Agencies recommendation first, select "Not now".
+- Next you should see the WooCommerce recommendation.
+- That is all for testing these updated recommendations.
 
+**And to test the mobile app links:**
 
-### Color, Spacing, and Alignment Options for Various Blocks
-
-Color, spacing, and alignment options were added for the following blocks:
-
-- Form 
-- Mailchimp
-- Podcast Player
-- Related Posts
-
-Color and spacing options were added for:
-
-- Business Hours
-
-Alignment options were also added to:
-
-- Repeat Visitor blocks
-
-We can check and make sure those new features work as expected by adding them to posts and block widget areas and playing around with color, spacing and alignment.
-
-### At-a-glance Partner Coupon Redemption CTA
-
-We've introduced a new CTA to redeem a coupon that may have been provided by a partner at the top of the At-a-glance page.
-
-- Make sure Jetpack is activated but not connected.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Confirm you are redirected to `/wp-admin/admin.php?page=jetpack&showCouponRedemption=1#/` which matches screenshot 1 below.
-- For every step, make sure that the Redeem button redirects you to checkout with your partner coupon applied. The "Set up & redeem" buttons should first connect you and then redirect you to checkout instead.
-- Establish a site connection by bailing out of the connection flow before approving the connection to your account.
-- Go to Jetpack Dashboard and confirm it matches screenshot 2 below.
-- Establish a user connection.
-- Go to Jetpack Dashboard and confirm it matches screenshot 3 below.
-- Go to Jetpack Dashboard, add `&showCouponRedemption=1` to your URL and confirm it matches screenshot 4 below.
-
-Screenshot 1) No connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 28 40](https://user-images.githubusercontent.com/22746396/150391173-39ae5381-a9ce-4fb4-ae70-954a3d28266e.png)
-
-Screenshot 2) Site connection with and without showCouponRedemption=1:
-![Screen Shot 2022-01-20 at 19 29 41](https://user-images.githubusercontent.com/22746396/150391194-e9ce9d7d-a93c-4a4e-9e26-e631c0406517.png)
-
-Screenshot 3) User connection without showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 14](https://user-images.githubusercontent.com/22746396/153063496-80f4423d-d9d3-456c-a19e-c2c3bb108163.png)
-
-Screenshot 4) User connection and showCouponRedemption=1:
-![Screen Shot 2022-02-08 at 21 43 41](https://user-images.githubusercontent.com/22746396/153063516-8d121e0a-0fb1-4a71-b296-5339965393f7.png)
-
-### At-a-glance Partner Coupon Redemption Backup Banner
-
-We've introduced a new callout to redeem a coupon that may have been provided by a partner replacing the Backup upgrade banner.
-
-- Make sure Jetpack is activated and connected, has Jetpack Free as its plan, and has no other products.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 1 below.
-- Visit `/wp-admin/?jetpack-partner-coupon=PARTNER_COUPON_CODE` to store a partner coupon code. Please reach out to team Avalon to get a coupon code.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 2 below. Clicking on the Redeem button should redirect you to checkout with your partner coupon applied.
-- Purchase a product to your test site that provides backups.
-- Visit `/wp-admin/admin.php?page=jetpack#/dashboard` and confirm the Backup feature section shows what is visible in screenshot 3 below.
-
-Screenshot 1) No backup product, no partner coupon:
-
-![Screen Shot 2022-02-01 at 19 08 35](https://user-images.githubusercontent.com/22746396/152016113-1da5365c-3f54-40c9-b079-47e97767bd40.png)
-
-Screenshot 2) No backup product, partner coupon available:
-
-![Screen Shot 2022-02-01 at 19 03 52](https://user-images.githubusercontent.com/22746396/152016107-bf474b8b-2970-44f5-b11a-b5f997bb613c.png)
-
-Screenshot 3) Backup product active, partner coupon status is irrelevant:
-
-![Screen Shot 2022-02-01 at 18 57 18](https://user-images.githubusercontent.com/22746396/152016100-6fe4a8f5-4ac4-482e-9501-8ed7f216f592.png)
+- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/summary`
+- On a desktop or laptop computer, a QR code for the Jetpack mobile app will be displayed next to the `jetpack.com/mobile` URL.
+- When visiting the same recommendations page on a mobile device, the respective app store button should be shown for well known devices and mobile operating systems.
+- If you don't have a mobile device to test with, you might try using Chrome to simulate the user agent:
+  - Open the Chrome Dev Tools
+  - Click the vertical menu option > More tools > Network conditions
+  - In the Network conditions tab, uncheck the "Use browser default" for the user agent, and select an iOS or Android one for testing.
+  - When refreshing the recommendations page you should see the expected mobile app store button.
 
 **Thank you for all your help!**

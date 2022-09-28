@@ -7,13 +7,17 @@ body:
     id: plugin-type
     attributes:
       label: Impacted plugin
-      description: Multiple selection is supported.
+      description: Multiple selection is supported. If you'd like to suggest a change for the WordPress.com platform, please select "Jetpack".
       options:
         - Jetpack
         - Backup
         - Boost
         - Beta
         - Debug Helper
+        - Protect
+        - Search
+        - Social
+        - Super Cache
         - VaultPress
         - None / Other
       multiple: true

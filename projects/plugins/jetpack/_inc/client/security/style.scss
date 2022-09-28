@@ -1,0 +1,82 @@
+.waf__header {
+    align-items: center;
+    display: flex;
+
+    &__badge {
+        background-color: $green-primary;
+        border-radius: 2px;
+        font-size: 11px;
+        line-height: 12px;
+        margin-left: 9px;
+        padding: 4px 5px;
+
+        &,
+        &:active,
+        &:focus,
+        &:hover {
+            color: $white;
+        }
+    }
+
+}
+
+.waf__settings {
+    padding-top: 24px;
+    padding-left: 36px;
+
+    &__toggle-setting {
+        flex-wrap: wrap;
+        display: flex;
+        margin-bottom: 12px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .form-toggle__label {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    &__ips {
+        width: 100%;
+        margin-top: 24px;
+    }
+
+    &__ips:last-of-type {
+        margin-bottom: 12px;
+    }
+
+    &__share-data-popover {
+        margin-left: 8px;
+    }
+
+    &__upgrade-popover {
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+
+}
+
+.waf__enhanced-protection {
+    &, &.dops-card.is-expanded {
+        margin-bottom: 0;
+    }
+
+    &.dops-foldable-card.is-expanded .dops-foldable-card__content {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    ul {
+        list-style: disc;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-left: 32px;
+    }
+
+    code {
+        white-space: nowrap;
+    }
+}

@@ -1,4 +1,9 @@
 <?php
+/**
+ * VideoPress admin media-view functions.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Assets;
 
@@ -6,7 +11,7 @@ use Automattic\Jetpack\Assets;
  * WordPress Shortcode Editor View JS Code
  */
 function videopress_handle_editor_view_js() {
-	global $content_width;
+	$content_width  = Jetpack::get_content_width();
 	$current_screen = get_current_screen();
 	if ( ! isset( $current_screen->id ) || $current_screen->base !== 'post' ) {
 		return;
@@ -14,7 +19,12 @@ function videopress_handle_editor_view_js() {
 
 	add_action( 'admin_print_footer_scripts', 'videopress_editor_view_js_templates' );
 
-	wp_enqueue_style( 'videopress-editor-ui', plugins_url( 'css/editor.css', __FILE__ ) );
+	wp_enqueue_style(
+		'videopress-editor-ui',
+		plugins_url( 'css/editor.css', __FILE__ ),
+		array(),
+		JETPACK__VERSION
+	);
 	wp_enqueue_script(
 		'videopress-editor-view',
 		Assets::get_file_url_for_environment(
@@ -22,7 +32,7 @@ function videopress_handle_editor_view_js() {
 			'modules/videopress/js/editor-view.js'
 		),
 		array( 'wp-util', 'jquery' ),
-		false,
+		JETPACK__VERSION,
 		true
 	);
 	wp_localize_script(
@@ -31,7 +41,7 @@ function videopress_handle_editor_view_js() {
 		array(
 			'home_url_host'     => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'min_content_width' => VIDEOPRESS_MIN_WIDTH,
-			'content_width'     => $content_width,
+			'content_width'     => $content_width ? (int) $content_width : VIDEOPRESS_DEFAULT_WIDTH,
 			'modal_labels'      => array(
 				'title'     => esc_html__( 'VideoPress Shortcode', 'jetpack' ),
 				'guid'      => esc_html__( 'Video ID', 'jetpack' ),
@@ -89,78 +99,45 @@ function videopress_editor_view_js_templates() {
  * Media Grid:
  * Filter out any videopress video posters that we've downloaded,
  * so that they don't seem to display twice.
+ *
+ * @param array $args Query variables.
+ * @deprecated 11.4
  */
-add_filter( 'ajax_query_attachments_args', 'videopress_ajax_query_attachments_args' );
 function videopress_ajax_query_attachments_args( $args ) {
-	$meta_query = array(
-		array(
-			'key'     => 'videopress_poster_image',
-			'compare' => 'NOT EXISTS',
-		),
-	);
-
-	// If there was already a meta query, let's AND it via
-	// nesting it with our new one. No need to specify the
-	// relation, as it defaults to AND.
-	if ( ! empty( $args['meta_query'] ) ) {
-		$meta_query[] = $args['meta_query'];
-	}
-	$args['meta_query'] = $meta_query;
-
-	return $args;
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
+	return Automattic\Jetpack\VideoPress\Attachment_Handler::ajax_query_attachments_args( $args );
 }
 
 /**
  * Media List:
- * Do the same as ^^ but for the list view.
+ * Do the same as `videopress_ajax_query_attachments_args()` but for the list view.
+ *
+ * @param array $query WP_Query instance.
+ * @deprecated 11.4
  */
-add_action( 'pre_get_posts', 'videopress_media_list_table_query' );
 function videopress_media_list_table_query( $query ) {
-
-	if (
-		! function_exists( 'get_current_screen' )
-		|| is_null( get_current_screen() )
-	) {
-		return;
-	}
-
-	if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
-		$meta_query = array(
-			array(
-				'key'     => 'videopress_poster_image',
-				'compare' => 'NOT EXISTS',
-			),
-		);
-
-		if ( $old_meta_query = $query->get( 'meta_query' ) ) {
-			$meta_query[] = $old_meta_query;
-		}
-
-		$query->set( 'meta_query', $meta_query );
-	}
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
+	return Automattic\Jetpack\VideoPress\Attachment_Handler::media_list_table_query( $query );
 }
 
 /**
  * Make sure that any Video that has a VideoPress GUID passes that data back.
+ *
+ * @param WP_Post $post Attachment object.
+ * @deprecated 11.4
  */
-add_filter( 'wp_prepare_attachment_for_js', 'videopress_prepare_attachment_for_js' );
 function videopress_prepare_attachment_for_js( $post ) {
-	if ( 'video' === $post['type'] ) {
-		$guid = get_post_meta( $post['id'], 'videopress_guid' );
-		if ( $guid ) {
-			$post['videopress_guid'] = $guid;
-		}
-	}
-	return $post;
+	_deprecated_function( __METHOD__, 'jetpack-11.4' );
+	return Automattic\Jetpack\VideoPress\Attachment_Handler::prepare_attachment_for_js( $post );
 }
 
 /**
  * Wherever the Media Modal is deployed, also deploy our overrides.
  */
-add_action( 'wp_enqueue_media', 'add_videopress_media_overrides' );
 function add_videopress_media_overrides() {
 	add_action( 'admin_print_footer_scripts', 'videopress_override_media_templates', 11 );
 }
+add_action( 'wp_enqueue_media', 'add_videopress_media_overrides' );
 
 /**
  * Our video overrides!
@@ -216,8 +193,10 @@ function videopress_override_media_templates() {
 			wp.media.view.Modal = BaseMediaModal.extend( {
 				escape: function () {
 					BaseMediaModal.prototype.escape.apply( this );
-					var playerIframe = document.getElementsByClassName( "videopress-iframe" )[0];
-					playerIframe.parentElement.removeChild( playerIframe );
+					var playerIframes = document.getElementsByClassName( "videopress-iframe" );
+					if ( playerIframes.length && playerIframes[0].parentElement ) {
+						playerIframes[0].parentElement.removeChild( playerIframes[0] );
+					}
 				}
 			} );
 		})( wp.media );
@@ -228,9 +207,12 @@ function videopress_override_media_templates() {
 /**
  * Properly inject VideoPress data into Core shortcodes, and
  * generate videopress shortcodes for purely remote videos.
+ *
+ * @param string $html HTML markup for a media item sent to the editor.
+ * @param int    $id Attachment ID.
+ * @param array  $attachment Attachment metadata.
  */
-add_filter( 'media_send_to_editor', 'videopress_media_send_to_editor', 10, 3 );
-function videopress_media_send_to_editor( $html, $id, $attachment ) {
+function videopress_media_send_to_editor( $html, $id, $attachment ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	$videopress_guid = get_post_meta( $id, 'videopress_guid', true );
 	if ( $videopress_guid && videopress_is_valid_guid( $videopress_guid ) ) {
 		if ( '[video ' === substr( $html, 0, 7 ) ) {
@@ -246,3 +228,4 @@ function videopress_media_send_to_editor( $html, $id, $attachment ) {
 	}
 	return $html;
 }
+add_filter( 'media_send_to_editor', 'videopress_media_send_to_editor', 10, 3 );

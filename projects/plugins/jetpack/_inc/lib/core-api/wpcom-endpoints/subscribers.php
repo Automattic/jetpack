@@ -1,5 +1,9 @@
-<?php
-
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Get subscriber count from Jetpack's Subscriptions module.
+ *
+ * @package automattic/jetpack
+ */
 use Automattic\Jetpack\Constants;
 
 /**
@@ -8,7 +12,10 @@ use Automattic\Jetpack\Constants;
  * @since 6.9
  */
 class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'subscribers';
 		// This endpoint *does not* need to connect directly to Jetpack sites.
@@ -16,17 +23,27 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
+	/**
+	 * Register API routes.
+	 */
 	public function register_routes() {
 		// GET /sites/<blog_id>/subscribers/count - Return number of subscribers for this site.
-		register_rest_route( $this->namespace, '/' . $this->rest_base  . '/count', array(
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/count',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_subscriber_count' ),
-				'permission_callback' => array( $this, 'readable_permission_check' ),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_subscriber_count' ),
+					'permission_callback' => array( $this, 'readable_permission_check' ),
+				),
 			)
-		) );
+		);
 	}
 
+	/**
+	 * Permission check. Only authors can access this endpoint.
+	 */
 	public function readable_permission_check() {
 		if ( ! current_user_can_for_blog( get_current_blog_id(), 'edit_posts' ) ) {
 			return new WP_Error( 'authorization_required', 'Only users with the permission to edit posts can see the subscriber count.', array( 'status' => 401 ) );
@@ -38,20 +55,20 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	/**
 	 * Retrieves subscriber count
 	 *
-	 * @param WP_REST_Request $request incoming API request info
+	 * @param WP_REST_Request $request incoming API request info.
 	 * @return array data object containing subscriber count
 	 */
-	public function get_subscriber_count( $request ) {
-		// Get the most up to date subscriber count when request is not a test
+	public function get_subscriber_count( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Get the most up to date subscriber count when request is not a test.
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
 			delete_transient( 'wpcom_subscribers_total' );
 		}
 
-		$subscriber_info = Jetpack_Subscriptions_Widget::fetch_subscriber_count();
+		$subscriber_info  = Jetpack_Subscriptions_Widget::fetch_subscriber_count();
 		$subscriber_count = $subscriber_info['value'];
 
 		return array(
-			'count' => $subscriber_count
+			'count' => $subscriber_count,
 		);
 	}
 }

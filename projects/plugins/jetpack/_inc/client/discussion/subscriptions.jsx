@@ -1,22 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
+import ConnectUserBar from 'components/connect-user-bar';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import ConnectUserBar from 'components/connect-user-bar';
+import analytics from 'lib/analytics';
+import React from 'react';
 
 class SubscriptionsComponent extends React.Component {
 	/**

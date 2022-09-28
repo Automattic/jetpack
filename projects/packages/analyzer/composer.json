@@ -8,7 +8,7 @@
 	},
 	"require-dev": {
 		"php": "^7.4 || ^8.0",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -45,7 +45,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-analyzer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.7.x-dev"
+			"dev-trunk": "1.7.x-dev"
 		}
 	}
 }

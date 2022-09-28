@@ -2,17 +2,12 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-/**
- * External dependencies
- */
+import type { ConnectionStatus } from './stores/connection';
+import type { CriticalCssStatus } from './stores/critical-css-status';
+import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
-/**
- * Internal dependencies
- */
-import type { ConnectionStatus } from './stores/connection';
-import type { CriticalCssStatus, CloudCssStatus } from './stores/critical-css-status';
-import type { Optimizations } from './stores/modules';
+// <reference types ="@types/jquery"/>
 
 declare global {
 	const wpApiSettings: {
@@ -25,6 +20,8 @@ declare global {
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
+			showScorePrompt: boolean;
+			prioritySupport: boolean;
 		};
 		version: string;
 		api: {
@@ -34,10 +31,12 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCssStatus?: CriticalCssStatus;
-		cloudCssStatus?: CloudCssStatus;
 		showRatingPromptNonce?: string;
+		showScorePromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
+		dismissedScorePrompts: string[];
 		site: {
+			domain: string;
 			url: string;
 			online: boolean;
 			assetPath: string;
@@ -46,6 +45,13 @@ declare global {
 		shownAdminNoticeIds: string[];
 		nonces: {
 			[ key: string ]: string;
+		};
+		pricing: {
+			yearly?: {
+				priceBefore: number;
+				priceAfter: number;
+				currencyCode: string;
+			};
 		};
 	};
 
@@ -63,7 +69,7 @@ declare global {
 			eventName: string,
 			eventType: string,
 			eventProp: TracksEventProperites
-		): void;
+		): JQueryXHR;
 	};
 }
 

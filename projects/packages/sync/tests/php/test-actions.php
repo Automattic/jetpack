@@ -26,6 +26,10 @@ class Test_Actions extends BaseTestCase {
 		// Mock Site level connection.
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
 		\Jetpack_Options::update_option( 'id', 1 );
+
+		// Setting the Dedicated Sync check transient here to avoid making a test
+		// request every time dedicated Sync setting is updated.
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, 'OK' );
 	}
 
 	/**
@@ -87,9 +91,13 @@ class Test_Actions extends BaseTestCase {
 	 * Tests send_data will update dedicated_sync_enabled setting when Jetpack-Dedicated-Sync header is on.
 	 */
 	public function test_send_data_without_jetpack_dedicated_sync_enabled_response_header_on() {
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING, 100 );
+
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_set_dedicated_sync_header_on' ), 10, 3 );
 		Actions::send_data( array(), 'dummy', microtime(), 'sync', 0, 0 );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_set_dedicated_sync_header_on' ) );
+
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
 		$this->assertTrue( Settings::is_dedicated_sync_enabled() );
 	}
@@ -98,11 +106,15 @@ class Test_Actions extends BaseTestCase {
 	 * Tests send_data will NOT update dedicated_sync_enabled setting when Jetpack-Dedicated-Sync header is on.
 	 */
 	public function test_send_data_with_jetpack_dedicated_sync_enabled_response_header_on() {
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT, Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING, 100 );
+
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_request_set_dedicated_sync_header_on' ), 10, 3 );
 		Actions::send_data( array(), 'dummy', microtime(), 'sync', 0, 0 );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_set_dedicated_sync_header_on' ) );
+
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT );
 
 		$this->assertTrue( Settings::is_dedicated_sync_enabled() );
 	}

@@ -1,13 +1,6 @@
-/**
- * External Dependencies
- */
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal Dependencies
- */
+import PropTypes from 'prop-types';
+import React, { useMemo } from 'react';
 import DisconnectCard from '../disconnect-card';
 
 /**
@@ -53,7 +46,7 @@ const ConnectedPlugins = props => {
 				</div>
 				<div className="jp-connection__disconnect-card__group">
 					{ connectedPluginsArray.map( plugin => {
-						return <DisconnectCard title={ plugin.name } />;
+						return <DisconnectCard title={ plugin.name } key={ plugin.slug } />;
 					} ) }
 				</div>
 			</React.Fragment>
@@ -66,7 +59,7 @@ const ConnectedPlugins = props => {
 
 ConnectedPlugins.propTypes = {
 	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.array,
 	/** Slug of the plugin that has initiated the disconnect. */
 	disconnectingPlugin: PropTypes.string,
 };

@@ -67,7 +67,7 @@
 }
 
 /* Gallery Widget */
-.widget-gallery .slideshow-window {
+.widget-gallery .jetpack-slideshow-window {
 	border-radius: 0;
 }
 
@@ -225,7 +225,7 @@
 }
 
 /* Slideshow */
-.site .slideshow-window {
+.site .jetpack-slideshow-window {
 	border-radius: 0;
 	margin-bottom: 1.6em;
 }
@@ -259,6 +259,20 @@ iframe[id*="twitter-widget-"] {
 	margin-bottom: 1.6em;
 }
 
+/**
+ * Responsive Videos
+ */
+
+ .jetpack-video-wrapper {
+	margin-bottom: 1.6em;
+}
+
+.jetpack-video-wrapper > embed,
+.jetpack-video-wrapper > iframe,
+.jetpack-video-wrapper > object,
+.jetpack-video-wrapper > .wp-video {
+	margin-bottom: 0;
+}
 
 /**
  * Jetpack Comments
@@ -408,7 +422,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
-	.site .hentry .slideshow-window,
+	.site .hentry .jetpack-slideshow-window,
 	.site .hentry .video-player {
 		margin-bottom: 1.6471em;
 	}
@@ -419,7 +433,7 @@ iframe[id*="twitter-widget-"] {
 	.widget .CSS_Poll,
 	.site .widget .presentation-wrapper,
 	.site .widget .jetpack-recipe,
-	.site .widget .slideshow-window,
+	.site .widget .jetpack-slideshow-window,
 	.site .widget .video-player {
 		margin-bottom: 1.5em;
 	}
@@ -511,7 +525,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
-	.site .hentry .slideshow-window,
+	.site .hentry .jetpack-slideshow-window,
 	.site .hentry .video-player {
 		margin-bottom: 1.6842em;
 	}
@@ -582,7 +596,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
-	.site .hentry .slideshow-window,
+	.site .hentry .jetpack-slideshow-window,
 	.site .hentry .video-player {
 		margin-bottom: 1.6em;
 	}
@@ -656,7 +670,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
-	.site .hentry .slideshow-window,
+	.site .hentry .jetpack-slideshow-window,
 	.site .hentry .video-player {
 		margin-bottom: 1.6471em;
 	}
@@ -726,7 +740,7 @@ iframe[id*="twitter-widget-"] {
 	.hentry .CSS_Poll,
 	.site .hentry .presentation-wrapper,
 	.site .hentry .jetpack-recipe,
-	.site .hentry .slideshow-window,
+	.site .hentry .jetpack-slideshow-window,
 	.site .hentry .video-player {
 		margin-bottom: 1.6842em;
 	}

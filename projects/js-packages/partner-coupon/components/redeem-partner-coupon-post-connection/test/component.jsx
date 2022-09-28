@@ -1,19 +1,11 @@
-/**
- * External dependencies
- */
-import * as React from 'react';
-import { expect } from 'chai';
-import sinon from 'sinon';
-import { fireEvent, render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
-import RedeemPartnerCouponPostConnection from '../';
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import * as React from 'react';
+import RedeemPartnerCouponPostConnection from '../';
 
-const { location } = window;
 const partnerCoupon = {
 	coupon_code: 'TEST_TST_1234',
 	preset: 'TST',
@@ -45,27 +37,9 @@ let locationAssignSpy;
 let recordEventStub;
 
 describe( 'RedeemPartnerCouponPostConnection', () => {
-	before( () => {
-		locationAssignSpy = sinon.spy();
-		recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
-	} );
-
 	beforeEach( () => {
-		// Spy on location.assign, so we don't get breaking errors when
-		// we trigger click events on buttons/links.
-		delete window.location;
-		window.location = { assign: locationAssignSpy };
-	} );
-
-	afterEach( () => {
-		window.location = location;
-		locationAssignSpy.resetHistory();
-
-		recordEventStub.reset();
-	} );
-
-	after( () => {
-		recordEventStub.restore();
+		locationAssignSpy = jest.spyOn( window.location, 'assign' ).mockReset();
+		recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' ).mockReset();
 	} );
 
 	it( 'shows partner logo', () => {
@@ -74,9 +48,9 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 		const logo = screen.getByAltText(
 			'Logo of Company name who are offering a coupon in partnership with Jetpack'
 		);
-		expect( logo );
-		expect( logo.width ).equals( 150 );
-		expect( logo.height ).equals( 100 );
+		expect( logo ).toBeInTheDocument();
+		expect( logo.width ).toBe( 150 );
+		expect( logo.height ).toBe( 100 );
 	} );
 
 	it( 'does not try to show partner logo if we do not have any', () => {
@@ -88,26 +62,23 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 			partnerCoupon: partnerCouponCopyWithoutLogo,
 		};
 
-		const { container } = render( <RedeemPartnerCouponPostConnection { ...props } /> );
+		render( <RedeemPartnerCouponPostConnection { ...props } /> );
 
-		// We use querySelector because using typical screen.* selectors will give an
-		// error if the component doesn't exist; and we specifically want to ensure
-		// it doesn't exist while displaying the "Set up button".
 		expect(
-			container.querySelector(
-				'img[alt="Logo of Company name who are offering a coupon in partnership with Jetpack"]'
+			screen.queryByAltText(
+				'Logo of Company name who are offering a coupon in partnership with Jetpack'
 			)
-		).to.not.exist;
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'shows description and product name', () => {
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		expect(
-			screen.getAllByText(
+			screen.getByText(
 				'Redeem your coupon and get started with Awesome Product for free the first year! Never worry about losing your data, ever.'
 			)
-		).to.exist;
+		).toBeInTheDocument();
 	} );
 
 	it( 'shows product features', () => {
@@ -115,84 +86,81 @@ describe( 'RedeemPartnerCouponPostConnection', () => {
 
 		// eslint-disable-next-line no-unused-vars
 		for ( const [ key, feature ] of Object.entries( partnerCoupon.product.features ) ) {
-			expect( screen.getAllByText( feature ) ).to.exist;
+			expect( screen.getByText( feature ) ).toBeInTheDocument();
 		}
 	} );
 
-	it( 'redeem button redirects with all expected parameters', () => {
+	it( 'redeem button redirects with all expected parameters', async () => {
+		const user = userEvent.setup();
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		const redeemButton = screen.getByRole( 'button', {
 			name: 'Redeem Awesome Product',
 		} );
-		expect( redeemButton ).to.exist;
-		fireEvent.click( redeemButton );
+		expect( redeemButton ).toBeInTheDocument();
+		await user.click( redeemButton );
 
 		// Make sure we only redirect once, and it's with the same value as getRedirectUrl.
-		expect( locationAssignSpy.calledOnce );
-		expect(
-			locationAssignSpy.withArgs(
-				sinon.match.same(
-					getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
-						path: 'awesome-product',
-						site: 'example.com',
-						query: 'coupon=TEST_TST_1234',
-					} )
-				)
-			).calledOnce
+		expect( locationAssignSpy ).toHaveBeenCalledTimes( 1 );
+		expect( locationAssignSpy ).toHaveBeenCalledWith(
+			getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+				path: 'awesome-product',
+				site: 'example.com',
+				query: 'coupon=TEST_TST_1234',
+			} )
 		);
 
 		// Make sure we call track before calling location.assign.
-		expect( locationAssignSpy.calledAfter( recordEventStub ) );
+		expect( locationAssignSpy ).toHaveBeenCalledAfter( recordEventStub );
 	} );
 
-	it( 'redeem button redirects after tracking event', () => {
+	it( 'redeem button redirects after tracking event', async () => {
+		const user = userEvent.setup();
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		const redeemButton = screen.getByRole( 'button', {
 			name: 'Redeem Awesome Product',
 		} );
-		expect( redeemButton ).to.exist;
-		fireEvent.click( redeemButton );
-		expect( locationAssignSpy.calledOnce );
+		expect( redeemButton ).toBeInTheDocument();
+		await user.click( redeemButton );
+		expect( locationAssignSpy ).toHaveBeenCalledTimes( 1 );
 
 		// Make sure we trigger tracking event before redirecting.
-		expect( locationAssignSpy.calledAfter( recordEventStub ) );
+		expect( locationAssignSpy ).toHaveBeenCalledAfter( recordEventStub );
 	} );
 
 	it( 'is triggering jetpack_partner_coupon_redeem_view tracking event', () => {
-		expect( recordEventStub.callCount ).to.be.equal( 0 );
+		expect( recordEventStub ).not.toHaveBeenCalled();
 
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
-		expect(
-			recordEventStub.withArgs( 'jetpack_partner_coupon_redeem_view', {
-				coupon: 'TEST_TST_1234',
-				partner: 'TEST',
-				preset: 'TST',
-				connected: 'yes',
-			} ).callCount
-		).to.be.equal( 1 );
+		expect( recordEventStub ).toHaveBeenCalledTimes( 1 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_partner_coupon_redeem_view', {
+			coupon: 'TEST_TST_1234',
+			partner: 'TEST',
+			preset: 'TST',
+			connected: 'yes',
+		} );
 	} );
 
-	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', () => {
-		expect( recordEventStub.callCount ).to.be.equal( 0 );
+	it( 'is triggering jetpack_partner_coupon_redeem_click tracking event', async () => {
+		const user = userEvent.setup();
+		expect( recordEventStub ).not.toHaveBeenCalled();
 
 		render( <RedeemPartnerCouponPostConnection { ...requiredProps } /> );
 
 		const redeemButton = screen.getByRole( 'button', {
 			name: 'Redeem Awesome Product',
 		} );
-		expect( redeemButton ).to.exist;
-		fireEvent.click( redeemButton );
+		expect( redeemButton ).toBeInTheDocument();
+		await user.click( redeemButton );
 
-		expect(
-			recordEventStub.withArgs( 'jetpack_partner_coupon_redeem_click', {
-				coupon: 'TEST_TST_1234',
-				partner: 'TEST',
-				preset: 'TST',
-				connected: 'yes',
-			} ).callCount
-		).to.be.equal( 1 );
+		expect( recordEventStub ).toHaveBeenCalledTimes( 2 );
+		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_partner_coupon_redeem_click', {
+			coupon: 'TEST_TST_1234',
+			partner: 'TEST',
+			preset: 'TST',
+			connected: 'yes',
+		} );
 	} );
 } );

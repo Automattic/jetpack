@@ -1,7 +1,3 @@
-/* eslint-disable wpcalypso/import-docblock */
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 export default {

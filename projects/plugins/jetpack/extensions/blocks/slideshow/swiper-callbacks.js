@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { escapeHTML } from '@wordpress/escape-html';
 import { forEach } from 'lodash';
 

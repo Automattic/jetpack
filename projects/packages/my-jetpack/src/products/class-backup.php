@@ -89,8 +89,23 @@ class Backup extends Hybrid_Product {
 		return array(
 			_x( 'Real-time cloud backups', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( '10GB of backup storage', 'Backup Product Feature', 'jetpack-my-jetpack' ),
-			_x( '30-day archive & activity log', 'Backup Product Feature', 'jetpack-my-jetpack' ),
+			_x( '30-day archive & activity log*', 'Backup Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'One-click restores', 'Backup Product Feature', 'jetpack-my-jetpack' ),
+		);
+	}
+
+	/**
+	 * Get disclaimers corresponding to a feature
+	 *
+	 * @return array Backup disclaimers list
+	 */
+	public static function get_disclaimers() {
+		return array(
+			array(
+				'text'      => _x( '* Subject to your usage and storage limit.', 'Backup Product Disclaimer', 'jetpack-my-jetpack' ),
+				'link_text' => _x( 'Learn more', 'Backup Product Disclaimer', 'jetpack-my-jetpack' ),
+				'url'       => Redirect::get_url( 'jetpack-faq-backup-disclaimer' ),
+			),
 		);
 	}
 
@@ -128,13 +143,13 @@ class Backup extends Hybrid_Product {
 	private static function get_state_from_wpcom() {
 		static $status = null;
 
-		if ( ! is_null( $status ) ) {
+		if ( $status !== null ) {
 			return $status;
 		}
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_state_fetch_failed' );

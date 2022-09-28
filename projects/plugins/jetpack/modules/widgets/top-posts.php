@@ -281,6 +281,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}
+
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title );
 
@@ -315,6 +316,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$display = 'text';
 		}
 
+		$get_image_options = array();
 		if ( 'text' !== $display ) {
 			$get_image_options = array(
 				'fallback_to_avatars' => true,
@@ -352,41 +354,27 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$posts = $this->get_by_views( $count, $args, $types );
 		}
 
-		if ( ! $posts ) {
-			$posts = $this->get_fallback_posts( $count, $types );
-		}
-
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		/*
+		 * If we have no posts, add some fallback posts
+		 * and display a fallback message for admins.
+		 */
 		if ( ! $posts ) {
-			$link = esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) );
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$link = 'https://en.support.wordpress.com/getting-more-site-traffic/';
-			}
-
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . sprintf(
-					wp_kses(
-						/* Translators: Placeholder: link to the Jetpack support article. */
-						__( 'There are no posts to display. <a href="%s" target="_blank">Want more traffic?</a>', 'jetpack' ),
-						array(
-							'a' => array(
-								'href'   => array(),
-								'target' => array(),
-							),
-						)
-					),
-					esc_url( $link )
-				) . '</p>';
+				echo $this->fallback_message(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
-			echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			return;
+			$posts = $this->get_fallback_posts( $count, $types );
 		}
+
+		/*
+		 * Display our posts.
+		 */
 
 		/**
 		 * Filter the layout of the Top Posts Widget
@@ -395,15 +383,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 *
 		 * @since 6.4.0
 		 *
-		 * @param string $layout layout of the Top Posts Widget (empty string)
-		 * @param array $posts IDs of the posts to be displayed
-		 * @param array $display Display option from widget form
+		 * @param string $layout layout of the Top Posts Widget (empty string).
+		 * @param array $posts IDs of the posts to be displayed.
+		 * @param array $display Display option from widget form.
 		 */
 		$layout = apply_filters( 'jetpack_top_posts_widget_layout', '', $posts, $display );
 		if ( ! empty( $layout ) ) {
 			echo $layout; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			return;
 		}
 
 		switch ( $display ) {
@@ -424,7 +410,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				}
 
 				foreach ( $posts as &$post ) {
-					$image         = Jetpack_PostImages::get_image(
+					$image = Jetpack_PostImages::get_image(
 						$post['post_id'],
 						array(
 							'fallback_to_avatars' => (bool) $get_image_options['fallback_to_avatars'],
@@ -433,20 +419,22 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 							'avatar_size'         => (int) $get_image_options['avatar_size'],
 						)
 					);
-					$post['image'] = $image['src'];
-					if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
-						$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
+
+					if ( $image ) {
+
+						$post['image'] = $image['src'];
+						if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
+							$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
+						}
 					}
 				}
-
 				unset( $post );
 
 				if ( 'grid' === $display ) {
 					echo "<div class='widgets-grid-layout no-grav'>\n";
-					foreach ( $posts as $post ) :
-						?>
-					<div class="widget-grid-view-image">
-						<?php
+					foreach ( $posts as $post ) {
+						echo '<div class="widget-grid-view-image">';
+
 						/**
 						 * Fires before each Top Post result, inside <li>.
 						 *
@@ -470,15 +458,17 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-						printf(
-							'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true"/></a>',
-							esc_url( $filtered_permalink ),
-							esc_attr( wp_kses( $post['title'], array() ) ),
-							( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
-							absint( $width ),
-							absint( $height ),
-							esc_url( $post['image'] )
-						);
+						if ( $post['image'] ) {
+							printf(
+								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true"/></a>',
+								esc_url( $filtered_permalink ),
+								esc_attr( wp_kses( $post['title'], array() ) ),
+								( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
+								absint( $width ),
+								absint( $height ),
+								esc_url( $post['image'] )
+							);
+						}
 
 						/**
 						 * Fires after each Top Post result, inside <li>.
@@ -490,55 +480,58 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 * @param string $post['post_id'] Post ID.
 						 */
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-						?>
-						</div>
-						<?php
-					endforeach;
+
+						echo '</div>';
+					}
 					echo "</div>\n";
 				} else {
 					echo "<ul class='widgets-list-layout no-grav'>\n";
-					foreach ( $posts as $post ) :
-						?>
-					<li>
-						<?php
+					foreach ( $posts as $post ) {
+						echo '<li>';
+
 						/** This action is documented in modules/widgets/top-posts.php */
 						do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
 
 						/** This filter is documented in modules/widgets/top-posts.php */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
+						if ( $post['image'] ) {
+							printf(
+								'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar" /></a>',
+								esc_url( $filtered_permalink ),
+								esc_attr( wp_kses( $post['title'], array() ) ),
+								( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
+								absint( $width ),
+								absint( $height ),
+								esc_url( $post['image'] )
+							);
+						}
+
 						printf(
-							'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s>
-								<img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar"/>
-							</a>
-							<div class="widgets-list-layout-links">
-								<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s>%7$s</a>
+							'<div class="widgets-list-layout-links">
+								<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s>%4$s</a>
 							</div>
 							',
 							esc_url( $filtered_permalink ),
 							esc_attr( wp_kses( $post['title'], array() ) ),
 							( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
-							absint( $width ),
-							absint( $height ),
-							esc_url( $post['image'] ),
 							esc_html( wp_kses( $post['title'], array() ) )
 						);
 
 						/** This action is documented in modules/widgets/top-posts.php */
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-						?>
-						</li>
-						<?php
-					endforeach;
+
+						echo '</li>';
+					}
 					echo "</ul>\n";
 				}
 				break;
 			default:
 				echo '<ul>';
-				foreach ( $posts as $post ) :
-					?>
-				<li>
-					<?php
+
+				foreach ( $posts as $post ) {
+					echo '<li>';
+
 					/** This action is documented in modules/widgets/top-posts.php */
 					do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] );
 
@@ -554,14 +547,45 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 					/** This action is documented in modules/widgets/top-posts.php */
 					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
-					?>
-					</li>
-					<?php
-				endforeach;
+
+					echo '</li>';
+				}
+
 				echo '</ul>';
+				break;
 		}
 
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Display a message with recommendations when there are no recorded top posts.
+	 *
+	 * @return string $fallback_message
+	 */
+	private static function fallback_message() {
+		$link = esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$link = 'https://en.support.wordpress.com/getting-more-site-traffic/';
+		}
+
+		$fallback_message  = '<p>';
+		$fallback_message .= sprintf(
+			wp_kses(
+				/* Translators: Placeholder: link to the Jetpack support article. */
+				__( 'There are no popular posts to display. Instead, your visitors will see a list of your recent posts below. <a href="%s" target="_blank">Want more traffic?</a>', 'jetpack' ),
+				array(
+					'a' => array(
+						'href'   => array(),
+						'target' => array(),
+					),
+				)
+			),
+			esc_url( $link )
+		);
+		$fallback_message .= '<p>';
+
+		return $fallback_message;
 	}
 
 	/**
@@ -678,10 +702,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 * @return array
 	 */
 	public function get_fallback_posts( $count = 10, $types = array( 'post', 'page' ) ) {
-		if ( current_user_can( 'edit_theme_options' ) ) {
-			return array();
-		}
-
 		$post_query = new WP_Query();
 
 		if ( ! is_array( $types ) || empty( $types ) ) {
@@ -794,8 +814,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
  */
 function jetpack_do_top_posts_widget( $instance ) {
 	// Post Types can't be entered as an array in the shortcode parameters.
-	if ( isset( $instance['types'] ) && is_array( $instance['types'] ) ) {
-		$instance['types'] = implode( ',', $instance['types'] );
+	if ( isset( $instance['types'] ) && is_string( $instance['types'] ) ) {
+		$instance['types'] = explode( ',', $instance['types'] );
 	}
 
 	$instance = shortcode_atts(

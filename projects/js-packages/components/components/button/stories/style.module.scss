@@ -1,0 +1,20 @@
+.container {
+	row-gap: 0;
+	column-gap: 0;
+	> div {
+		border-right: 1px dotted var( --jp-gray-10 );
+		border-bottom: 1px dotted var( --jp-gray-10 );
+		padding: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 2 );
+		align-items: center;
+
+		&:nth-child(4n) {
+			border-right: none;
+		}
+	}
+}
+
+
+.header {
+	font-weight: 600;
+	text-align: center;
+}

@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 
 class Optimizations implements Has_Setup {
@@ -25,7 +26,7 @@ class Optimizations implements Has_Setup {
 	public function __construct() {
 
 		$critical_css_class = Critical_CSS::class;
-		if ( defined( 'JETPACK_BOOST_CLOUD_CSS' ) && true === JETPACK_BOOST_CLOUD_CSS ) {
+		if ( Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) ) {
 			$critical_css_class = Cloud_CSS::class;
 		}
 
@@ -63,7 +64,12 @@ class Optimizations implements Has_Setup {
 	}
 
 	public function have_enabled_modules() {
-		return count( $this->get_status() ) > 0;
+		foreach ( $this->features as $optimization ) {
+			if ( $optimization->status->is_enabled() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function get_status() {

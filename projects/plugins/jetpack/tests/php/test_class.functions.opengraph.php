@@ -14,7 +14,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	public function set_up() {
 		parent::set_up();
 
-		$this->icon_id = self::_create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
+		$this->icon_id = self::create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 
@@ -26,7 +26,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Restoring global variables.
 		global $wp_the_query;
-		$wp_the_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_the_query = new WP_Query();
 
 		wp_delete_attachment( $this->icon_id );
 	}
@@ -165,11 +165,11 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 			'height' => 250,
 		);
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$image_urls = array();
 		for ( $i = 1; $i <= $number_of_images; $i++ ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				'image' . $i . '.jpg',
 				$post_id,
 				array(
@@ -191,7 +191,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 			);
 		}
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array( 'post_content' => $post_html )
 		);
 

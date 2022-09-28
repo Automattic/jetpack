@@ -1,31 +1,24 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import Card from 'components/card';
+import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getSettings } from 'state/settings';
-import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
+import { userCanManageModules, userCanEditPosts, isAtomicSite } from 'state/initial-state';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
-import QuerySite from 'components/data/query-site';
+import { getSettings } from 'state/settings';
 import Composing from './composing';
 import CustomContentTypes from './custom-content-types';
-import ThemeEnhancements from './theme-enhancements';
-import PostByEmail from './post-by-email';
-import Widgets from './widgets';
 import { Masterbar } from './masterbar';
+import PostByEmail from './post-by-email';
+import ThemeEnhancements from './theme-enhancements';
+import Widgets from './widgets';
 import WritingMedia from './writing-media';
 
 export class Writing extends React.Component {
@@ -45,7 +38,6 @@ export class Writing extends React.Component {
 			'carousel',
 			'copy-post',
 			'custom-css',
-			'google-fonts',
 			'latex',
 			'masterbar',
 			'markdown',
@@ -55,6 +47,7 @@ export class Writing extends React.Component {
 			'infinite-scroll',
 			'widgets',
 			'widget-visibility',
+			'blocks',
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -73,6 +66,7 @@ export class Writing extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="screen-reader-text">{ __( 'Jetpack Writing Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm

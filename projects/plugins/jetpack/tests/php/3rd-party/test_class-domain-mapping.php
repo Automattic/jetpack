@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the 3rd-party domain mapping plugin integration.
  *

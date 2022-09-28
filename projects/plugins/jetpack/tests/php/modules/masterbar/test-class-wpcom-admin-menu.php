@@ -122,7 +122,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 0, $menu );
 
 		// Give user a second site.
-		$blog_id = $this->factory->blog->create();
+		$blog_id = self::factory()->blog->create();
 		add_user_to_blog( $blog_id, get_current_user_id(), 'editor' );
 
 		static::$admin_menu->add_browse_sites_link();
@@ -130,10 +130,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$browse_sites_menu_item = array(
 			'Browse sites',
 			'read',
-			'https://wordpress.com/home',
+			'https://wordpress.com/sites',
 			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/home',
-			'toplevel_page_https://wordpress.com/home',
+			'menu-top toplevel_page_https://wordpress.com/sites',
+			'toplevel_page_https://wordpress.com/sites',
 			'dashicons-arrow-left-alt2',
 		);
 		$this->assertSame( $menu[0], $browse_sites_menu_item );

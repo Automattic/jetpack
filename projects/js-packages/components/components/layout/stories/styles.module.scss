@@ -8,3 +8,15 @@
 	font-size: 1rem;
 	color: var(--jp-white-off);
 }
+
+.yes {
+	padding: var(--spacing-base);
+	background-color: var(--jp-green-0);
+	border: 1px solid var(--jp-green-50);
+}
+
+.no {
+	padding: var(--spacing-base);
+	background-color: var(--jp-red-0);
+	border: 1px solid var(--jp-red-50);
+}

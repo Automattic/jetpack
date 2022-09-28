@@ -1,22 +1,16 @@
-/**
- * External dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
+import { numberFormat } from '@automattic/jetpack-components';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
 	PanelColorSettings,
 	FontSizePicker,
-	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
+	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
-import { ButtonWidthControl } from '../button/button-width-panel';
+import { WidthControl } from '../../shared/width-panel';
 import {
 	MIN_BORDER_RADIUS_VALUE,
 	MAX_BORDER_RADIUS_VALUE,
@@ -70,7 +64,7 @@ export default function SubscriptionControls( {
 								subscriberCount,
 								'jetpack'
 							),
-							subscriberCount
+							numberFormat( subscriberCount )
 						),
 						{ span: <span style={ { textDecoration: 'underline' } } /> }
 					) }
@@ -215,7 +209,7 @@ export default function SubscriptionControls( {
 					onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 				/>
 
-				<ButtonWidthControl
+				<WidthControl
 					width={ buttonWidth }
 					onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
 				/>

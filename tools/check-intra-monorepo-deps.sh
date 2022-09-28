@@ -84,11 +84,39 @@ else
 	fi
 fi
 
+debug "Making sure changelogger is runnable"
+CL="$BASE/projects/packages/changelogger/bin/changelogger"
+if ! "$CL" &>/dev/null; then
+	(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
+	if ! "$CL" &>/dev/null; then
+		die "Changelogger is not runnable via $CL"
+	fi
+fi
+
+debug "Fetching PHP package versions"
+
 function get_packages {
-	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
-	PACKAGES_NODEV=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES_DEV")
-	PACKAGES_STAR=$(jq -c '.[] |= [ "@dev" ]' <<<"$PACKAGES_DEV")
-	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:^\($in.version)", "workspace:\($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
+	local PKGS
+	if [[ -z "$1" ]]; then
+		PACKAGES='{}'
+		PKGS=( "$BASE"/projects/packages/*/composer.json )
+	elif [[ "$1" == packages/* ]]; then
+		PKGS=( "$BASE"/projects/$1/composer.json )
+	else
+		PKGS=()
+	fi
+	if [[ "$PACKAGES" == '{}' && -n "$PACKAGE_VERSIONS_CACHE" && -s "$PACKAGE_VERSIONS_CACHE" ]]; then
+		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
+	else
+		for PKG in "${PKGS[@]}"; do
+			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | .extra["branch-alias"]["dev-trunk"] as $trunkver | ( $trunkver | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "\(.v)" ) ) as $depver | $packages | .[$k] |= { rel: $ver, trunk: ( $trunkver // "@dev" ), dep: "^\( $depver )", dep2: ( "^" + if $ver[0:($depver | length + 1)] == "\( $depver )." then $ver else $depver end ) }' "$PKG")
+		done
+		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
+			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
+		fi
+	fi
+
+	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
 }
 
@@ -98,7 +126,7 @@ DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
-	TMP="$(pnpx jetpack dependencies build-order --pretty)"
+	TMP="$(pnpm jetpack dependencies build-order --pretty)" || { echo "$TMP"; exit 1; }
 	mapfile -t SLUGS <<<"$TMP"
 	TMP="$(git ls-files '**/composer.json' '**/package.json' | sed -E -n -e '\!^projects/[^/]*/[^/]*/(composer|package)\.json$! d' -e 's!/(composer|package)\.json$!!' -e 's/^/nonproject:/p' | sort -u)"
 	mapfile -t -O ${#SLUGS[@]} SLUGS <<<"$TMP"
@@ -108,17 +136,8 @@ else
 fi
 
 if $UPDATE; then
-	DID_CL_INSTALL=false
-	CL="$BASE/projects/packages/changelogger/bin/changelogger"
-
 	function changelogger {
 		local SLUG="$1"
-
-		if ! $DID_CL_INSTALL; then
-			debug "Making sure changelogger is runnable"
-			(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
-			DID_CL_INSTALL=true
-		fi
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
@@ -130,9 +149,9 @@ if $UPDATE; then
 			ARGS+=( "--type=$CLTYPE" )
 		fi
 
-                if [[ -n "$CL_FILENAME" ]]; then
-                    ARGS+=( --filename="$CL_FILENAME" )
-                fi
+		if [[ -n "$CL_FILENAME" ]]; then
+			ARGS+=( --filename="$CL_FILENAME" )
+		fi
 		if $AUTO_SUFFIX; then
 			ARGS+=( --filename-auto-suffix )
 		fi
@@ -148,7 +167,7 @@ if $UPDATE; then
 			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
 			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
-			get_packages
+			get_packages "$SLUG"
 		fi
 		cd "$OLDDIR"
 	}
@@ -159,37 +178,57 @@ ANYJS=false
 for SLUG in "${SLUGS[@]}"; do
 	spin
 	debug "Checking dependencies of $SLUG"
+	PACKAGES_CHECK_ALLOWED_SEL=
 	if [[ "$SLUG" == monorepo ]]; then
-		PACKAGES="$PACKAGES_DEV"
+		PACKAGES_UPDATE_SEL='$packages[e.key].trunk'
+		PACKAGES_CHECK_SEL='[ $packages[.key].trunk ]'
 		JSPACKAGES="$JSPACKAGES_PROJ"
 		DOCL=false
 		DIR=.
 	elif [[ "$SLUG" == nonproject:* ]]; then
-		PACKAGES="$PACKAGES_STAR"
+		PACKAGES_UPDATE_SEL='"@dev"'
+		PACKAGES_CHECK_SEL='[ "@dev" ]'
 		JSPACKAGES="$JSPACKAGES_STAR"
 		if [[ "$SLUG" == nonproject:tools/cli/skeletons/* ]]; then
-			PACKAGES="$PACKAGES_DEV"
+			PACKAGES_UPDATE_SEL='$packages[e.key].trunk'
+			PACKAGES_CHECK_SEL='[ $packages[.key].trunk ]'
 			JSPACKAGES="$JSPACKAGES_PROJ"
 			if [[ "$SLUG" == "nonproject:tools/cli/skeletons/packages" ]]; then
-				PACKAGES="$PACKAGES_NODEV"
+				PACKAGES_UPDATE_SEL='$packages[e.key].dep'
+				PACKAGES_CHECK_SEL='[ $packages[.key].dep, $packages[.key].dep2 ]'
 			fi
 		fi
 		DOCL=false
 		DIR="${SLUG#nonproject:}"
 	else
-		PACKAGES="$PACKAGES_DEV"
+		PACKAGES_UPDATE_SEL='$packages[e.key].trunk'
+		PACKAGES_CHECK_SEL='[ $packages[.key].trunk ]'
 		JSPACKAGES="$JSPACKAGES_PROJ"
 		if [[ "$SLUG" == packages/* ]]; then
-			PACKAGES="$PACKAGES_NODEV"
+			PACKAGES_UPDATE_SEL='$packages[e.key].dep'
+			PACKAGES_CHECK_SEL='[ $packages[.key].dep, $packages[.key].dep2 ]'
+		elif [[ "$SLUG" == plugins/* ]]; then
+			PACKAGES_UPDATE_SEL='( if e.value | endswith( "-dev" ) then $packages[e.key].trunk else $packages[e.key].dep2 end )'
+			PACKAGES_CHECK_SEL='( if .value | endswith( "-dev" ) then [ $packages[.key].trunk ] else [ $packages[.key].dep2 ] end )'
+			PACKAGES_CHECK_ALLOWED_SEL='[ $packages[.key].trunk, $packages[.key].dep2 ]'
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
+	fi
+	if [[ ! -d "$DIR" ]]; then
+		EXIT=1
+		if [[ -n "$CI" ]]; then
+			echo "::error::Cannot check $SLUG, as $DIR does not exist."
+		else
+			error "Cannot check $SLUG, as $DIR does not exist."
+		fi
+		continue
 	fi
 	PHPFILE="$DIR/composer.json"
 	JSFILE="$DIR/package.json"
 	if $UPDATE; then
 		if [[ -e "$PHPFILE" ]]; then
-			JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
+			JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then '"$PACKAGES_UPDATE_SEL"' else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
 			if [[ "$JSON" != "$(<"$PHPFILE")" ]]; then
 				info "PHP dependencies of $SLUG changed!"
 				echo "$JSON" > "$PHPFILE"
@@ -220,6 +259,7 @@ for SLUG in "${SLUGS[@]}"; do
 			cd "$PROJECTFOLDER"
 			debug "Updating $SLUG composer.lock"
 			OLD="$(<composer.lock)"
+
 			"$BASE/tools/composer-update-monorepo.sh" --quiet "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
@@ -243,10 +283,10 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		done < <(
 			if [[ -e "$PHPFILE" ]]; then
-				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
+				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( .value as $v | $packages[.key] and ( '"$PACKAGES_CHECK_SEL"' | index( $v ) == null ) ) | [ input_filename, .key, ( '"${PACKAGES_CHECK_ALLOWED_SEL:-$PACKAGES_CHECK_SEL}"' | join( " or " ) ) ] | @tsv' "$PHPFILE"
 			fi
 			if [[ -e "$JSFILE" ]]; then
-				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
+				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
 			fi
 		)
 	fi

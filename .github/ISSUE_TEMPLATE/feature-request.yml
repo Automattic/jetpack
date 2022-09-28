@@ -1,19 +1,23 @@
 name: Feature Request
 description: Suggest an idea for this project!
 title: "Feature Request:"
-labels: ["[Type] Feature"]
+labels: ["[Type] Feature Request"]
 body:
   - type: dropdown
     id: plugin-type
     attributes:
       label: Impacted plugin
-      description: Multiple selection is supported.
+      description: Multiple selection is supported. If you'd like to suggest a change for the WordPress.com platform, please select "Jetpack".
       options:
         - Jetpack
         - Backup
         - Boost
         - Beta
         - Debug Helper
+        - Protect
+        - Search
+        - Social
+        - Super Cache
         - VaultPress
         - None / Other
       multiple: true

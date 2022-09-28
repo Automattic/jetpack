@@ -1,0 +1,155 @@
+.container {
+	--padding: calc( var( --spacing-base ) * 4 );
+	color: var( --jp-black );
+
+}
+
+.table {
+	--gap: calc( var( --spacing-base ) * 3 );
+	position: relative;
+	z-index: 2;
+	padding: var( --padding ) 0;
+
+	.is-viewport-large & {
+		display: grid;
+		grid-template-columns: repeat( var( --columns ), 1fr );
+		grid-auto-flow: column;
+		grid-template-rows: repeat( var( --rows ), minmax( min-content, max-content ) );
+		column-gap: var( --gap );
+		overflow: hidden;
+	}
+}
+
+.card {
+	margin-top: var( --padding );
+
+	.is-viewport-large & {
+		display: contents;
+	}
+
+	&.is-primary {
+		> * {
+			background: var( --jp-white );
+			position: relative;
+	
+			&::after {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				z-index: -1;
+				box-shadow: 0px 4px 24px rgba( 0, 0, 0, 0.05 );
+			}
+		}
+	}
+
+	> :first-child {
+		border-top-left-radius: var( --jp-border-radius );
+		border-top-right-radius: var( --jp-border-radius );
+		border-width: 1px 1px 0;
+	}
+
+	> :last-child {
+		border-width: 0 1px 1px;
+		border-bottom-left-radius: var( --jp-border-radius );
+		border-bottom-right-radius: var( --jp-border-radius );
+	}
+}
+
+.header {
+	padding: var( --padding );
+}
+
+.item {
+	display: flex;
+	align-items: center;
+	padding-bottom: calc( var( --spacing-base ) * 2 );
+	position: relative;
+
+	&:not( :nth-child(2) ) {
+		padding-top: calc( var( --spacing-base ) * 2 );
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: var(--padding);
+			right: var(--padding);
+			height: 1px;
+			.is-viewport-large & {
+				width: 150%;
+				left: unset;
+				right: unset;
+			}
+			z-index: 5;
+			background-color: var( --jp-gray );
+		}
+	}
+
+	&:last-of-type {
+		padding-bottom: var( --padding );
+	}
+}
+
+.last-feature {
+	padding-bottom: var( --padding );
+}
+
+.value {
+	padding-left: var( --padding );
+	padding-right: var( --padding );
+}
+
+.icon {
+	margin: 0 var( --spacing-base );
+	fill: var( --fill, var( --jp-gray ) );
+	flex-shrink: 0;
+}
+
+.icon-check {
+	--fill: var( --jp-green-40 );
+}
+
+.icon-cross {
+	--fill: var( --jp-red-50 );
+}
+
+.popover {
+	margin-left: auto;
+
+	.is-viewport-large & {
+		top: 1px;
+		margin: 0 var( --spacing-base );
+	}
+}
+
+.item .popover-icon {
+	fill: var( --jp-gray-20 );
+	flex-shrink: 0;
+}
+
+.tos {
+	text-align: center;
+	width: fit-content;
+
+	> a {
+		color: black;
+	}
+
+	.is-viewport-large & {
+		padding-left: var( --padding );
+		padding-right: var( --padding );
+		grid-column: 2;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+}
+
+.tos-container {
+	display: flex;
+	align-items: right;
+	justify-content: right;
+	margin: 0 calc( var( --spacing-base ) * 4 );
+}

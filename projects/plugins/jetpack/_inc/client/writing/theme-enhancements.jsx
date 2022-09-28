@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 import { FormLabel, FormLegend } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
-import { getModule } from 'state/modules';
-import { currentThemeSupports } from 'state/initial-state';
-import { isModuleFound } from 'state/search';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import analytics from 'lib/analytics';
+import React from 'react';
+import { connect } from 'react-redux';
+import { currentThemeSupports } from 'state/initial-state';
+import { getModule } from 'state/modules';
+import { isModuleFound } from 'state/search';
 
 class ThemeEnhancements extends React.Component {
 	/**
@@ -90,6 +83,14 @@ class ThemeEnhancements extends React.Component {
 		} );
 	};
 
+	trackVisitCustomizer = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'visit-customizer',
+			feature: 'custom-css',
+			extra: 'not-supported-link',
+		} );
+	};
+
 	/**
 	 * Get options for initial state.
 	 *
@@ -107,16 +108,14 @@ class ThemeEnhancements extends React.Component {
 
 	render() {
 		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-			foundCustomCSS = this.props.isModuleFound( 'custom-css' ),
-			foundGoogleFonts = this.props.isModuleFound( 'google-fonts' );
+			foundCustomCSS = this.props.isModuleFound( 'custom-css' );
 
-		if ( ! foundInfiniteScroll && ! foundCustomCSS && ! foundGoogleFonts ) {
+		if ( ! foundInfiniteScroll && ! foundCustomCSS ) {
 			return null;
 		}
 
 		const infScr = this.props.getModule( 'infinite-scroll' );
 		const customCSS = this.props.getModule( 'custom-css' );
-		const googleFonts = this.props.getModule( 'google-fonts' );
 
 		const infiniteScrollDisabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'infinite-scroll' );
@@ -203,6 +202,25 @@ class ThemeEnhancements extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-custom-css' ),
 						} }
 					>
+						<FormLegend className="jp-form-label-wide">{ customCSS.name }</FormLegend>
+						<span>
+							<p>
+								{ __(
+									'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features.',
+									'jetpack'
+								) + ' ' }
+								<a
+									onClick={ this.trackVisitCustomizer }
+									href={ `${ this.props.siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
+									title={ __(
+										'Edit and add CSS directly on your site from the Customizer.',
+										'jetpack'
+									) }
+								>
+									{ __( 'Access the Customizer here.', 'jetpack' ) }
+								</a>
+							</p>
+						</span>
 						<ModuleToggle
 							slug="custom-css"
 							activated={ !! this.props.getOptionValue( 'custom-css' ) }
@@ -212,27 +230,6 @@ class ThemeEnhancements extends React.Component {
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Enhance CSS customization panel', 'jetpack' ) }
-							</span>
-						</ModuleToggle>
-					</SettingsGroup>
-				) }
-				{ foundGoogleFonts && this.props.isWebfontsSupported && (
-					<SettingsGroup
-						module={ { module: googleFonts.module } }
-						support={ {
-							text: googleFonts.description,
-							link: getRedirectUrl( 'jetpack-support-google-fonts' ),
-						} }
-					>
-						<ModuleToggle
-							slug="google-fonts"
-							activated={ !! this.props.getOptionValue( 'google-fonts' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'google-fonts' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'google-fonts' ] ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Use Google Fonts in your block enabled theme', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
@@ -247,6 +244,5 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
-		isWebfontsSupported: currentThemeSupports( state, 'webfonts' ),
 	};
 } )( withModuleSettingsFormHelpers( ThemeEnhancements ) );

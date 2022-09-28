@@ -17,20 +17,20 @@ export default class RecommendationsPage extends WpPage {
 		return '.jp-checkbox-answer__container input#site-type-personal';
 	}
 
-	get siteTypeBusinessCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-business';
+	get siteTypeAgencyCheckboxSel() {
+		return '.jp-checkbox-answer__container input#site-type-agency';
 	}
 
 	get siteTypeStoreCheckboxSel() {
 		return '.jp-checkbox-answer__container input#site-type-store';
 	}
 
-	get siteTypeOtherCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-other';
-	}
-
 	get saveSiteTypeButtonSel() {
 		return 'a[href*="recommendations/monitor"] >> text="Continue"';
+	}
+
+	get skipProductSuggestionsButtonSel() {
+		return 'a[href*="recommendations/monitor"] >> text="Decide later"';
 	}
 
 	get enableMonitoringButtonSel() {
@@ -96,20 +96,12 @@ export default class RecommendationsPage extends WpPage {
 		return await this.click( this.siteTypePersonalCheckboxSel );
 	}
 
-	async checkOtherSiteType() {
-		return await this.click( this.siteTypeOtherCheckboxSel );
-	}
-
 	async isPersonalSiteTypeChecked() {
 		return await this.isElementChecked( this.siteTypePersonalCheckboxSel );
 	}
 
-	async isOtherSiteTypeChecked() {
-		return await this.isElementChecked( this.siteTypeOtherCheckboxSel );
-	}
-
-	async isBusinessTypeUnchecked() {
-		return await this.isElementChecked( this.siteTypeBusinessCheckboxSel );
+	async isAgencyTypeUnchecked() {
+		return await this.isElementChecked( this.siteTypeAgencyCheckboxSel );
 	}
 
 	async isStoreTypeUnchecked() {
@@ -118,6 +110,14 @@ export default class RecommendationsPage extends WpPage {
 
 	async saveSiteTypeAndContinue() {
 		return await this.click( this.saveSiteTypeButtonSel );
+	}
+
+	async isSkipProductSuggestionsButtonVisible() {
+		return await this.isElementVisible( this.skipProductSuggestionsButtonSel );
+	}
+
+	async skipProductSuggestionsAndContinue() {
+		return await this.click( this.skipProductSuggestionsButtonSel );
 	}
 
 	async isEnableMonitoringButtonVisible() {

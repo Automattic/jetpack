@@ -2,9 +2,9 @@ name: "CodeQL Code Scanning Analysis"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ trunk ]
   pull_request:
-    branches: [ master ]
+    branches: [ trunk ]
   schedule:
     - cron: '0 19 * * 0'
 concurrency:
@@ -25,19 +25,15 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        # We must fetch at least the immediate parents so that if this is
-        # a pull request then we can checkout the head.
-        fetch-depth: 2
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+      uses: github/codeql-action/init@v2
       with:
         languages: ${{ matrix.language }}
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v1
+      uses: github/codeql-action/autobuild@v2
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      uses: github/codeql-action/analyze@v2

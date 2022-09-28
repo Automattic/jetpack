@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Build: do not ship PHPCS configuration file

@@ -1,29 +1,22 @@
 <script>
-	/**
-	 * Internal dependencies
-	 */
-	import ComputerIcon from '../../../svg/computer.svg';
-	import MobileIcon from '../../../svg/mobile.svg';
-	import RefreshIcon from '../../../svg/refresh.svg';
-	import ScoreBar from '../elements/ScoreBar.svelte';
-	import ScoreContext from '../elements/ScoreContext.svelte';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import { derived, writable } from 'svelte/store';
+	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
 		requestSpeedScores,
-		didScoresImprove,
-		getScoreImprovementPercentage,
+		didScoresChange,
+		scoreChangeModal,
 	} from '../../../api/speed-scores';
-	import debounce from '../../../utils/debounce';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
-	import { derived, writable } from 'svelte/store';
-	import RatingCard from '../elements/RatingCard.svelte';
-
-	/**
-	 * WordPress dependencies
-	 */
-	import { __ } from '@wordpress/i18n';
+	import ComputerIcon from '../../../svg/computer.svg';
+	import MobileIcon from '../../../svg/mobile.svg';
+	import RefreshIcon from '../../../svg/refresh.svg';
+	import debounce from '../../../utils/debounce';
+	import PopOut from '../elements/PopOut.svelte';
+	import ScoreBar from '../elements/ScoreBar.svelte';
+	import ScoreContext from '../elements/ScoreContext.svelte';
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -31,8 +24,6 @@
 	let loadError;
 	let showPrevScores;
 	let scoreLetter = '';
-	let improvementPercentage = 0;
-	let currentPercentage = 0;
 
 	const isLoading = writable( siteIsOnline );
 
@@ -88,7 +79,7 @@
 		try {
 			scores.set( await requestSpeedScores( force ) );
 			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
-			showPrevScores = didScoresImprove( $scores ) && ! $scores.isStale;
+			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
@@ -101,14 +92,14 @@
 
 	// noinspection JSUnusedLocalSymbols
 	/**
-	 * A store that checks the speed score needs a refresh.
+	 * A store that checks if the speed score needs a refresh.
 	 */
-	const needRefresh = derived(
-		[ criticalCssStatus, modulesInSync, scoreConfigString, scores ],
+	const needsRefresh = derived(
+		[ isGenerating, modulesInSync, scoreConfigString, scores ],
 		// eslint-disable-next-line no-shadow
-		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString, $scores ] ) => {
+		( [ $isGenerating, $modulesInSync, $scoreConfigString, $scores ] ) => {
 			return (
-				! $criticalCssStatus.generating &&
+				! $isGenerating &&
 				$modulesInSync &&
 				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
 			);
@@ -116,28 +107,19 @@
 	);
 
 	const debouncedRefreshScore = debounce( force => {
-		if ( $needRefresh ) {
+		if ( $needsRefresh ) {
 			refreshScore( force );
 		}
 	}, 2000 );
 
-	// eslint-disable-next-line camelcase
-	const respawnRatingPrompt = writable( Jetpack_Boost.preferences.showRatingPrompt );
+	$: showModal = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
 
-	const showRatingCard = derived(
-		[ scores, respawnRatingPrompt, isLoading ],
-		// eslint-disable-next-line no-shadow
-		( [ $scores, $respawnRatingPrompt, $isLoading ] ) =>
-			didScoresImprove( $scores ) && $respawnRatingPrompt && ! $isLoading && ! $scores.isStale
-	);
-
-	$: if ( $needRefresh ) {
+	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: if ( $showRatingCard ) {
-		improvementPercentage = getScoreImprovementPercentage( $scores );
-		currentPercentage = ( $scores.current.mobile + $scores.current.desktop ) / 2;
+	function dismissModal() {
+		showModal = false;
 	}
 </script>
 
@@ -221,10 +203,14 @@
 		</div>
 	</div>
 </div>
-{#if $showRatingCard}
-	<RatingCard
-		on:dismiss={() => respawnRatingPrompt.set( false )}
-		improvement={improvementPercentage}
-		{currentPercentage}
+
+{#if showModal}
+	<PopOut
+		id={showModal.id}
+		title={showModal.title}
+		on:dismiss={() => dismissModal()}
+		message={showModal.message}
+		ctaLink={showModal.ctaLink}
+		cta={showModal.cta}
 	/>
 {/if}

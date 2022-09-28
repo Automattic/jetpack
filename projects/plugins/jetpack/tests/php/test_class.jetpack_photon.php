@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
-
 /**
  * Class WP_Test_Jetpack_Photon
  */
@@ -78,7 +76,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Restoring global variables.
 		global $content_width, $wp_the_query;
 		$content_width = $this->protected_globals['content_width'];
-		$wp_the_query  = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_the_query  = new WP_Query();
 
 		// ... see ::set_up()
 		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
@@ -116,7 +114,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Helper to get a new image object.
 	 *
 	 * @param string $size Test image size. Accepts 'large' (default) or 'medium'.
-	 * @param bool   $meta Meta data to pass to _create_upload_object.
+	 * @param bool   $meta Meta data to pass to create_upload_object.
 	 *
 	 * @return int Post ID (attachment) of the image.
 	 */
@@ -135,7 +133,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_image_size( 'jetpack_hard_undefined_zero', 700, 0, true );
 		add_image_size( 'jetpack_soft_oversized', 2000, 2000, false );
 
-		$test_image = self::_create_upload_object( $filename, 0, $meta );
+		$test_image = self::create_upload_object( $filename, 0, $meta );
 
 		// add sizes that did not exist when the file was uploaded.
 		// These perfectly match the above and Photon should treat them the same.
@@ -220,7 +218,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$full_filename = __DIR__ . '/modules/photon/sample-content/' . $filename;
 
 		// Local files only.
-		$file_contents = file_get_contents( $full_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$file_contents = file_get_contents( $full_filename );
 
 		return explode( "\n--RESULTS--\n", $file_contents, 2 );
 	}
@@ -1219,7 +1217,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		register_post_type( $post_type, array( 'public' => true ) );
 		Jetpack_AMP_Support::init();
-		$post = $this->factory()->post->create_and_get( compact( 'post_type' ) );
+		$post = self::factory()->post->create_and_get( compact( 'post_type' ) );
 		$this->go_to( get_permalink( $post ) );
 		$this->assertTrue( is_singular( $post_type ) );
 
@@ -1267,6 +1265,47 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests that Photon does not filter the URLs on REST API media requests in the view context from the editor.
+	 *
+	 * @group rest-api
+	 */
+	public function test_photon_cdn_in_rest_response_with_view_context_from_editor() {
+		$test_image = $this->helper_get_image();
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'view' ) );
+		$request->set_header( 'x-wp-api-fetch-from-editor', 'true' );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+
+		// Subsequent ?context=view requests should still be Photonized.
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'view' ) );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+	}
+
+	/**
 	 * Tests Photon does not filter the URL on REST API media requests in the edit context.
 	 *
 	 * @group rest-api
@@ -1274,7 +1313,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function test_photon_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
-		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
@@ -1328,7 +1367,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$request->set_header( 'Content-Type', 'image/jpeg' );
 		$request->set_header( 'Content-Disposition', 'attachment; filename=test-image-large.png' );
 
-		$request->set_body( file_get_contents( $filename ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$request->set_body( file_get_contents( $filename ) );
 		// Make the REST API request.
 		$response = rest_get_server()->dispatch( $request );
 		// Pull the response from the API.
@@ -1430,7 +1469,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$filename      = '2004-07-22-DSC_0007-150x150.jpg';
 		$filepath      = DIR_TESTDATA . '/images/' . $orig_filename;
 		// Local file. Okay to file_get_contents.
-		$contents = file_get_contents( $filepath ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$contents = file_get_contents( $filepath );
 
 		$upload = wp_upload_bits( basename( $filepath ), null, $contents );
 

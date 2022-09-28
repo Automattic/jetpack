@@ -1,19 +1,9 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { getProductGroup } from '../../activation-screen/utils.js';
 
-/**
- * Internal dependencies
- */
-import { getProductGroup } from '../../activation-screen/utils';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**

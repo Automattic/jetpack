@@ -1,27 +1,20 @@
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import {
 	requestGeneration,
 	sendGenerationResult,
 	storeGenerateError,
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
+import { modules, isEnabled } from '../stores/modules';
+import { recordBoostEvent } from './analytics';
+import { castToNumber } from './cast-to-number';
+import { logPreCriticalCSSGeneration } from './console';
+import { isSameOrigin } from './is-same-origin';
+import { loadCriticalCssLibrary } from './load-critical-css-library';
+import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
-import { modules, isEnabled } from '../stores/modules';
-import { loadCriticalCssLibrary } from './load-critical-css-library';
-import { removeShownAdminNotices } from './remove-admin-notices';
-import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
-import { castToNumber } from './cast-to-number';
-import { recordBoostEvent } from './analytics';
-import { isSameOrigin } from './is-same-origin';
-import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
 
 export type ProviderKeyUrls = {
 	[ providerKey: string ]: string[];
@@ -79,7 +72,7 @@ export default async function generateCriticalCss(
 	try {
 		if ( reset ) {
 			await clearDismissedRecommendations();
-			updateGenerateStatus( true, 0 );
+			updateGenerateStatus( { status: 'requesting', progress: 0 } );
 		}
 
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.
@@ -90,9 +83,7 @@ export default async function generateCriticalCss(
 			return;
 		}
 
-		removeShownAdminNotices( 'critical-css' );
-
-		updateGenerateStatus( true, 0 );
+		updateGenerateStatus( { status: 'requesting', progress: 0 } );
 
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
@@ -106,7 +97,7 @@ export default async function generateCriticalCss(
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
 			}
 
-			updateGenerateStatus( true, percent );
+			updateGenerateStatus( { status: 'requesting', progress: percent } );
 		} );
 
 		// Prepare GET parameters to include with each request.
@@ -115,7 +106,8 @@ export default async function generateCriticalCss(
 		};
 
 		// Run generator on each configuration.
-		updateGenerateStatus( true, 0 );
+		updateGenerateStatus( { status: 'requesting', progress: 0 } );
+		logPreCriticalCSSGeneration();
 		await generateForKeys(
 			cssStatus.pending_provider_keys,
 			requestGetParameters,
@@ -133,7 +125,7 @@ export default async function generateCriticalCss(
 		}
 	} finally {
 		// Always update generate status to not generating at the end.
-		updateGenerateStatus( false, 0 );
+		updateGenerateStatus( { status: 'success', progress: 0 } );
 	}
 }
 
@@ -261,7 +253,7 @@ async function generateForKeys(
 					if ( error.type === 'HttpError' ) {
 						eventProps.error_meta = castToNumber( error.meta.code );
 					}
-					recordBoostEvent( 'critical_css_url_error', 'click', eventProps );
+					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
 				await sendGenerationResult( providerKey, 'error', {
@@ -279,7 +271,7 @@ async function generateForKeys(
 					error_message: err.message,
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
-				recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+				recordBoostEvent( 'critical_css_failure', eventProps );
 
 				return;
 			}
@@ -293,7 +285,7 @@ async function generateForKeys(
 			error_message: 'Critical CSS Generation failed for all the provider keys.',
 			error_type: 'allProvidersError',
 		};
-		recordBoostEvent( 'critical_css_failure', 'click', eventProps );
+		recordBoostEvent( 'critical_css_failure', eventProps );
 	} else {
 		const eventProps = {
 			time: Date.now() - startTime,
@@ -303,10 +295,10 @@ async function generateForKeys(
 			max_size: maxSize,
 			provider_keys: Object.keys( providerKeys ).join( ',' ),
 		};
-		recordBoostEvent( 'critical_css_success', 'click', eventProps );
+		recordBoostEvent( 'critical_css_success', eventProps );
 	}
 
-	updateGenerateStatus( false, 0 );
+	updateGenerateStatus( { status: 'success', progress: 0 } );
 }
 
 /**

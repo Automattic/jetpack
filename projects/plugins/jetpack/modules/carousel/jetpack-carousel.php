@@ -110,10 +110,17 @@ class Jetpack_Carousel {
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
-			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
 			add_filter( 'jetpack_tiled_galleries_block_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
+			}
+
+			if (
+				! class_exists( 'Jetpack_AMP_Support' )
+				|| ! Jetpack_AMP_Support::is_amp_request()
+			) {
+				add_filter( 'render_block_core/gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
+				add_filter( 'render_block_jetpack/tiled-gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
 			}
 		}
 
@@ -287,12 +294,15 @@ class Jetpack_Carousel {
 	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
 	 *
 	 * @since 6.8.0
+	 * @deprecated since 11.3 We now hook into the 'block_render_{block_name}' hook to add markup.
 	 *
 	 * @param string $content Post content.
 	 *
 	 * @return string $content Post content.
 	 */
 	public function check_content_for_blocks( $content ) {
+		_deprecated_function( __METHOD__, 'jetpack-11.3' );
+
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -304,7 +314,79 @@ class Jetpack_Carousel {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
+
 		return $content;
+	}
+
+	/**
+	 * Enrich the gallery block content using the render_block_{$this->name} filter.
+	 * This function is triggered after block render to make sure we track galleries within
+	 * reusable blocks.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/render_block_this-name/
+	 *
+	 * @param string $block_content The rendered HTML for the carousel or gallery block.
+	 * @param array  $block         The parsed block details for the block.
+	 * @return string The fully-processed HTML for the carousel or gallery block.
+	 *
+	 * @since 11.3
+	 */
+	public function filter_gallery_block_render( $block_content, $block ) {
+		global $post;
+
+		if ( empty( $block['blockName'] ) || ! in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery' ), true ) ) {
+			return $block_content;
+		}
+
+		$this->enqueue_assets();
+
+		if ( ! isset( $post ) ) {
+			return $block_content;
+		}
+
+		$blog_id = (int) get_current_blog_id();
+
+		$extra_data = array(
+			'data-carousel-extra' => array(
+				'blog_id'   => $blog_id,
+				'permalink' => get_permalink( $post->ID ),
+			),
+		);
+
+		/**
+		 * Filter the data added to the Gallery container.
+		 *
+		 * @module carousel
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param array $extra_data Array of data about the site and the post.
+		 */
+		$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
+		$extra_data = (array) $extra_data;
+
+		if ( empty( $extra_data ) ) {
+			return $block_content;
+		}
+
+		$extra_attributes = implode(
+			' ',
+			array_map(
+				function ( $data_key, $data_values ) {
+					return esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "'";
+				},
+				array_keys( $extra_data ),
+				array_values( $extra_data )
+			)
+		);
+
+		// Add extra attributes to first HTML element (which may have leading whitespace)
+		return preg_replace(
+			'/^(\s*<(div|ul|figure))/',
+			'$1 ' . $extra_attributes . ' ',
+			$block_content,
+			1
+		);
 	}
 
 	/**
@@ -728,6 +810,17 @@ class Jetpack_Carousel {
 		);
 
 		foreach ( $attachments as $attachment ) {
+			/*
+			 * If the item from get_posts isn't an attachment, skip. This can occur when copy-pasta from another WP site.
+			 * For example, if one copies "<img class="wp-image-7 size-full" src="https://twentysixteendemo.files.wordpress.com/2015/11/post.png" alt="post" width="1000" height="563" />"
+			 * then, we're going to look up post 7 below, which making sure it is an attachment.
+			 *
+			 * This is meant as a relatively quick fix, as a better fix is likely to update the get_posts call above to only
+			 * include attachments.
+			 */
+			if ( ! isset( $attachment->ID ) || ! wp_attachment_is_image( $attachment->ID ) ) {
+				continue;
+			}
 			$image_elements = $selected_images[ $attachment->ID ];
 
 			$attributes      = $this->add_data_to_images( array(), $attachment );
@@ -930,12 +1023,10 @@ class Jetpack_Carousel {
 		 */
 		do_action( 'jp_carousel_check_blog_user_privileges' );
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we do not need to verify the nonce for this public request for publicly accessible data (as checked below).
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
-
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
-			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
-		}
+		// phpcs:enable
 
 		if ( ! $attachment_id ) {
 			wp_send_json_error(
@@ -1046,13 +1137,13 @@ class Jetpack_Carousel {
 			header( 'Content-type: text/javascript' );
 		}
 
-		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unslash or sanitize nonces either
 			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 
-		$_blog_id = (int) $_POST['blog_id'];
-		$_post_id = (int) $_POST['id'];
-		$comment  = $_POST['comment'];
+		$_blog_id = isset( $_POST['blog_id'] ) ? (int) $_POST['blog_id'] : 0;
+		$_post_id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+		$comment  = isset( $_POST['comment'] ) ? filter_var( wp_unslash( $_POST['comment'] ) ) : null;
 
 		if ( empty( $_blog_id ) ) {
 			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
@@ -1098,9 +1189,9 @@ class Jetpack_Carousel {
 			}
 		} else {
 			$user_id      = 0;
-			$display_name = $_POST['author'];
-			$email        = $_POST['email'];
-			$url          = $_POST['url'];
+			$display_name = isset( $_POST['author'] ) ? sanitize_text_field( wp_unslash( $_POST['author'] ) ) : null;
+			$email        = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Checked or sanitized below.
+			$url          = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) ) {
@@ -1123,6 +1214,8 @@ class Jetpack_Carousel {
 					}
 					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
+			} else {
+				$email = $email !== null ? sanitize_email( $email ) : null;
 			}
 		}
 

@@ -1,5 +1,5 @@
 // ==========================================================================
-// RNA mixins 
+// RNA mixins
 //
 // See https://jetpackdesignhandbook.wordpress.com/rna-components/
 // ==========================================================================
@@ -9,12 +9,12 @@
 	$hover-shadow: 0 3px 0 0 currentColor;
 
 	color: var( --jp-black );
-		
+
 	text-decoration: none;
 
 	&:not(.dops-external-link) {
 		box-shadow: $resting-shadow;
-		
+
 		&:hover,
 		&:active {
 			box-shadow: $hover-shadow;
@@ -36,7 +36,20 @@
 		&:focus {
 			.dops-external-link__text {
 				box-shadow: none !important;
-			}	
+			}
+		}
+	}
+
+	&.components-external-link {
+		position: relative;
+		margin-right: 1em;
+
+		// Icon is not underlined.
+		.components-external-link__icon {
+			position: absolute;
+			top: 50%;
+			left: 100%;
+			transform: translateY( -0.5em );
 		}
 	}
 

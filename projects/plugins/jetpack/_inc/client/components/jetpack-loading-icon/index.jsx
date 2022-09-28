@@ -1,18 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { imagePath } from 'constants/urls';
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const JetpackLoadingIcon = ( { altText } ) => {

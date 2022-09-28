@@ -1,3 +1,5 @@
+import restApi from '@automattic/jetpack-api';
+
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';
 const FETCH_CONNECTION_STATUS = 'FETCH_CONNECTION_STATUS';
@@ -8,7 +10,11 @@ const CLEAR_REGISTRATION_ERROR = 'CLEAR_REGISTRATION_ERROR';
 const REGISTER_SITE = 'REGISTER_SITE';
 const SET_AUTHORIZATION_URL = 'SET_AUTHORIZATION_URL';
 const CONNECT_USER = 'CONNECT_USER';
+const DISCONNECT_USER_SUCCESS = 'DISCONNECT_USER_SUCCESS';
 const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
+const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
+const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
+const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
 
 const setConnectionStatus = connectionStatus => {
 	return { type: SET_CONNECTION_STATUS, connectionStatus };
@@ -30,6 +36,10 @@ const setUserIsConnecting = isConnecting => {
 	return { type: SET_USER_IS_CONNECTING, isConnecting };
 };
 
+const disconnectUserSuccess = () => {
+	return { type: DISCONNECT_USER_SUCCESS };
+};
+
 const setRegistrationError = registrationError => {
 	return { type: SET_REGISTRATION_ERROR, registrationError };
 };
@@ -44,6 +54,14 @@ const setAuthorizationUrl = authorizationUrl => {
 
 const fetchAuthorizationUrl = redirectUri => {
 	return { type: FETCH_AUTHORIZATION_URL, redirectUri };
+};
+
+const setConnectedPlugins = connectedPlugins => {
+	return { type: SET_CONNECTED_PLUGINS, connectedPlugins };
+};
+
+const setConnectionErrors = connectionErrors => {
+	return { type: SET_CONNECTION_ERRORS, connectionErrors };
 };
 
 /**
@@ -87,6 +105,20 @@ function* registerSite( { registrationNonce, redirectUri } ) {
 	}
 }
 
+/**
+ * Side effect action which will fetch a new list of connectedPlugins from the server
+ *
+ * @returns {Promise} - Promise which resolves when the product status is activated.
+ */
+const refreshConnectedPlugins = () => async ( { dispatch } ) => {
+	return await new Promise( resolve => {
+		return restApi.fetchConnectedPlugins().then( data => {
+			dispatch( setConnectedPlugins( data ) );
+			resolve( data );
+		} );
+	} );
+};
+
 const actions = {
 	setConnectionStatus,
 	setConnectionStatusIsFetching,
@@ -99,6 +131,10 @@ const actions = {
 	setAuthorizationUrl,
 	registerSite,
 	connectUser,
+	disconnectUserSuccess,
+	setConnectedPlugins,
+	refreshConnectedPlugins,
+	setConnectionErrors,
 };
 
 export {
@@ -113,5 +149,9 @@ export {
 	REGISTER_SITE,
 	SET_AUTHORIZATION_URL,
 	CONNECT_USER,
+	DISCONNECT_USER_SUCCESS,
+	SET_CONNECTED_PLUGINS,
+	REFRESH_CONNECTED_PLUGINS,
+	SET_CONNECTION_ERRORS,
 	actions as default,
 };

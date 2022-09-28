@@ -10,7 +10,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_extract_empty_array() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => '',
 			)
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_image() {
 		$img_title = 'title.jpg';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "<img src='$img_title' width='200' height='200'>",
 			)
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$shortcode = 'test_mediaextractor_shortcode';
 		add_shortcode( $shortcode, array( $this, 'shortcode_nop' ) );
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "[$shortcode]",
 			)
@@ -78,7 +78,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$url_link = WP_TESTS_DOMAIN;
 		$url      = "<a href='http://$url_link'>";
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "$url",
 			)
@@ -99,7 +99,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	public function test_mediaextractor_extract_mention() {
 		$mention = 'user';
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "@$mention",
 			)
@@ -121,7 +121,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$embed_link = 'wordpress.tv/embed';
 		$embed      = "\nhttp://$embed_link\n";
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "$embed",
 			)
@@ -212,7 +212,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	}
 
 	private function add_test_post() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_author'           => '1046316',
 				'post_date'             => '2013-03-15 22:55:05',
@@ -311,7 +311,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_mediaextractor_extract_links() {
+	public function test_mediaextractor_extract_links() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -370,7 +370,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_images() {
+	public function test_extract_images() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -393,7 +393,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_mentions() {
+	public function test_extract_mentions() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -416,7 +416,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_shortcodes() {
+	public function test_extract_shortcodes() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -473,7 +473,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::extract
 	 * @since 3.2
 	 */
-	function test_extract_embeds() {
+	public function test_extract_embeds() {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -499,7 +499,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @covers Jetpack_Media_Meta_Extractor::get_images_from_html
 	 * @since 3.2
 	 */
-	function test_extract_image_from_html() {
+	public function test_extract_image_from_html() {
 		$html = <<<EOT
 <p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg"><img class="aligncenter size-full wp-image-1027" alt="Mr Gove Cover" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg" width="612" height="547" /></a></p>
 <p>Mr Gove was extraordinarily arrogant.</p>
@@ -532,7 +532,7 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_exclude_video_links() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_author'           => '23314024',
 				'post_date'             => '2013-10-25 16:43:34',
@@ -586,7 +586,7 @@ EOT;
 	 * @since 3.2
 	 */
 	public function test_mediaextractor_alt_text() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. <img src="https://example.org/assets/test.jpg" alt="red green" /> yellow <img src="https://example.org/assets/test2.jpg" />Nullam in dolor vel nulla pulvinar accumsan facilisis quis lorem.',
 			)

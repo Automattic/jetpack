@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Fetch information about Publicize connections on a site.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Publicize: List Connections
@@ -24,6 +29,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	 */
 	public $wpcom_is_wpcom_only_endpoint = true;
 
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'publicize/connections';
@@ -59,11 +67,11 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	protected function get_connection_schema_properties() {
 		return array(
 			'id'                   => array(
-				'description' => __( 'Unique identifier for the Publicize Connection', 'jetpack' ),
+				'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack' ),
 				'type'        => 'string',
 			),
 			'service_name'         => array(
-				'description' => __( 'Alphanumeric identifier for the Publicize Service', 'jetpack' ),
+				'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack' ),
 				'type'        => 'string',
 			),
 			'display_name'         => array(
@@ -86,6 +94,8 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	}
 
 	/**
+	 * Schema for the endpoint.
+	 *
 	 * @return array
 	 */
 	public function get_item_schema() {
@@ -132,7 +142,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	}
 
 	/**
-	 * @param WP_REST_Request $request
+	 * Get list of connected Publicize connections.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
 	 * @return WP_REST_Response suitable for 1-page collection
 	 */
 	public function get_items( $request ) {
@@ -152,8 +165,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 	/**
 	 * Filters out data based on ?_fields= request parameter
 	 *
-	 * @param array           $connection
-	 * @param WP_REST_Request $request
+	 * @param array           $connection Array of info about a specific Publicize connection.
+	 * @param WP_REST_Request $request    Full details about the request.
+	 *
 	 * @return array filtered $connection
 	 */
 	public function prepare_item_for_response( $connection, $request ) {
@@ -184,7 +198,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 		if ( ! $publicize ) {
 			return new WP_Error(
 				'publicize_not_available',
-				__( 'Sorry, Publicize is not available on your site right now.', 'jetpack' ),
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -195,10 +209,9 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 
 		return new WP_Error(
 			'invalid_user_permission_publicize',
-			__( 'Sorry, you are not allowed to access Publicize data on this site.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to access Jetpack Social data on this site.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections' );

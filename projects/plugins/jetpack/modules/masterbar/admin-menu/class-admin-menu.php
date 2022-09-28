@@ -108,68 +108,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds upsell nudge as a menu.
-	 *
-	 * @param object $nudge The $nudge object containing the content, CTA, link and tracks.
-	 */
-	public function add_upsell_nudge( $nudge ) {
-		$dismiss_button = '';
-		if ( $nudge['dismissible'] ) {
-			$dismiss_button = '<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="%1$s" data-feature_id="%2$s" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>';
-			$dismiss_button = sprintf( $dismiss_button, esc_attr( $nudge['feature_class'] ), esc_attr( $nudge['id'] ) );
-		}
-
-		$message = '
-<div class="upsell_banner">
-	<div class="banner__info">
-		<div class="banner__title">%1$s</div>
-	</div>
-	<div class="banner__action">
-		<button type="button" class="button">%2$s</button>
-	</div>%3$s
-</div>';
-
-		$message = sprintf(
-			$message,
-			wp_kses( $nudge['content'], array() ),
-			wp_kses( $nudge['cta'], array() ),
-			$dismiss_button
-		);
-
-		$menu_slug = $nudge['link'];
-		if ( wp_startswith( $menu_slug, '/' ) ) {
-			$menu_slug = 'https://wordpress.com' . $menu_slug;
-		}
-
-		add_menu_page( 'site-notices', $message, 'read', $menu_slug, null, null, 1 );
-		add_filter( 'add_menu_classes', array( $this, 'set_site_notices_menu_class' ) );
-	}
-
-	/**
-	 * Adds a custom element class and id for Site Notices's menu item.
-	 *
-	 * @param array $menu Associative array of administration menu items.
-	 * @return array
-	 */
-	public function set_site_notices_menu_class( array $menu ) {
-		foreach ( $menu as $key => $menu_item ) {
-			if ( 'site-notices' !== $menu_item[3] ) {
-				continue;
-			}
-
-			$classes = ' toplevel_page_site-notices';
-
-			if ( isset( $menu_item[4] ) ) {
-				$menu[ $key ][4] = $menu_item[4] . $classes;
-				$menu[ $key ][5] = 'toplevel_page_site-notices';
-				break;
-			}
-		}
-
-		return $menu;
-	}
-
-	/**
 	 * Adds Inbox menu.
 	 */
 	public function add_inbox_menu() {
@@ -206,7 +144,8 @@ class Admin_Menu extends Base_Admin_Menu {
 				$site_upgrades = sprintf(
 					$site_upgrades,
 					__( 'Upgrades', 'jetpack' ),
-					$plan
+					// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+					__( $plan, 'jetpack' )
 				);
 			} else {
 				$site_upgrades = __( 'Upgrades', 'jetpack' );
@@ -447,8 +386,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
-		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
 		$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
 		$this->hide_submenu_page( 'jetpack', 'stats' );
@@ -465,7 +402,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Update Site Editor menu item's link and position.
 	 */
 	public function add_gutenberg_menus() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' ) ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'site-editor.php' ) ) {
 			return;
 		}
 
@@ -473,7 +410,10 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		// Gutenberg 11.9 moves the Site Editor to an Appearance submenu as Editor.
 		$submenus_to_update = array(
+			// Keep the old rule in order to Calypsoify the route for GB < 13.7.
 			'gutenberg-edit-site' => 'https://wordpress.com/site-editor/' . $this->domain,
+			// New route: Gutenberg 13.7 changes the site editor menu item slug and url.
+			'site-editor.php'     => 'https://wordpress.com/site-editor/' . $this->domain,
 		);
 		$this->update_submenus( 'themes.php', $submenus_to_update );
 		// Gutenberg 11.9 adds an redundant site editor entry point that requires some calypso work
@@ -507,5 +447,61 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Only show the menu if the user has the capability to activate_plugins.
 			add_menu_page( esc_attr__( 'WooCommerce', 'jetpack' ), esc_attr__( 'WooCommerce', 'jetpack' ), 'activate_plugins', $menu_url, null, $icon_url, 55 );
 		}
+	}
+
+	/**
+	 * AJAX handler for retrieving the upsell nudge.
+	 */
+	public function wp_ajax_upsell_nudge_jitm() {
+		check_ajax_referer( 'upsell_nudge_jitm' );
+
+		$nudge = $this->get_upsell_nudge();
+		if ( ! $nudge ) {
+			wp_die();
+		}
+
+		$link = $nudge['link'];
+		if ( substr( $link, 0, 1 ) === '/' ) {
+			$link = 'https://wordpress.com' . $link;
+		}
+		?>
+		<li class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices" id="toplevel_page_site-notices">
+			<a href="<?php echo esc_url( $link ); ?>" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">
+				<div class="wp-menu-arrow">
+					<div></div>
+				</div>
+				<div class="wp-menu-image dashicons-before dashicons-admin-generic" aria-hidden="true"><br></div>
+				<div class="wp-menu-name">
+					<div class="upsell_banner">
+						<div class="banner__info">
+							<div class="banner__title">
+								<?php echo wp_kses( $nudge['content'], array() ); ?>
+							</div>
+						</div>
+						<div class="banner__action">
+							<button type="button" class="button">
+								<?php echo wp_kses( $nudge['cta'], array() ); ?>
+							</button>
+						</div>
+						<?php if ( $nudge['dismissible'] ) : ?>
+							<svg xmlns="http://www.w3.org/2000/svg" data-feature_class="<?php echo esc_attr( $nudge['feature_class'] ); ?>" data-feature_id="<?php echo esc_attr( $nudge['id'] ); ?>" viewBox="0 0 24 24" class="gridicon gridicons-cross dismissible-card__close-icon" height="24" width="24"><g><path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z"></path></g></svg>
+						<?php endif; ?>
+					</div>
+				</div>
+			</a>
+		</li>
+		<?php
+		wp_die();
+	}
+
+	/**
+	 * Returns the first available upsell nudge.
+	 * Needs to be implemented separately for each child menu class.
+	 * Empty by default.
+	 *
+	 * @return array
+	 */
+	public function get_upsell_nudge() {
+		return array();
 	}
 }

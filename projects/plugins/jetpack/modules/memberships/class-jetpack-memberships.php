@@ -108,8 +108,9 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
-			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
+			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
+			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -312,7 +313,7 @@ class Jetpack_Memberships {
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
+			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
 		}
 
 		return $this->deprecated_render_button_v1( $attributes, $plan_id );
@@ -464,13 +465,14 @@ class Jetpack_Memberships {
 		}
 
 		if ( self::is_enabled_jetpack_recurring_payments() ) {
-			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
-			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback' => array( $this, 'render_button' ),
-					$uses             => array( 'isPremiumContentChild' ),
+					'render_callback'  => array( $this, 'render_button' ),
+					'uses_context'     => array( 'isPremiumContentChild' ),
+					'provides_context' => array(
+						'jetpack/parentBlockWidth' => 'width',
+					),
 				)
 			);
 		} else {

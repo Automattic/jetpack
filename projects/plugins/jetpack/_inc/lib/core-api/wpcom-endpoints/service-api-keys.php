@@ -1,4 +1,10 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Get and save API keys for a site.
+ *
+ * @package automattic/jetpack
+ */
+
 /**
  * Service API Keys: Exposes 3rd party api keys that are used on a site.
  *
@@ -17,13 +23,19 @@
  */
 class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'service-api-keys';
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
+	/**
+	 * Register endpoint routes.
+	 */
 	public function register_routes() {
 		register_rest_route(
 			'wpcom/v2',
@@ -54,6 +66,9 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		);
 	}
 
+	/**
+	 * Permission check.
+	 */
 	public static function edit_others_posts_check() {
 		if ( current_user_can( 'edit_others_posts' ) ) {
 			return true;
@@ -123,7 +138,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		switch ( $service ) {
 			case 'mapbox':
 				if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-					jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 				}
 				$mapbox                 = Jetpack_Mapbox_Helper::get_access_token();
 				$service_api_key        = $mapbox['key'];
@@ -133,7 +148,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 				$option                 = self::key_for_api_service( $service );
 				$service_api_key        = Jetpack_Options::get_option( $option, '' );
 				$service_api_key_source = 'site';
-		};
+		}
 
 		$message = esc_html__( 'API key retrieved successfully.', 'jetpack' );
 
@@ -160,10 +175,10 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		if ( ! $service ) {
 			return self::service_api_invalid_service_response();
 		}
-		$json_params = $request->get_json_params();
-		$params     = ! empty( $json_params ) ? $json_params : $request->get_body_params();
-		$service_api_key    = trim( $params['service_api_key'] );
-		$option     = self::key_for_api_service( $service );
+		$json_params     = $request->get_json_params();
+		$params          = ! empty( $json_params ) ? $json_params : $request->get_body_params();
+		$service_api_key = trim( $params['service_api_key'] );
+		$option          = self::key_for_api_service( $service );
 
 		$validation = self::validate_service_api_key( $service_api_key, $service, $params );
 		if ( ! $validation['status'] ) {
@@ -211,7 +226,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			default:
 				$service_api_key        = Jetpack_Options::get_option( $option, '' );
 				$service_api_key_source = 'site';
-		};
+		}
 
 		return array(
 			'code'                   => 'success',
@@ -317,5 +332,4 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		return $service . '_api_key';
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys' );

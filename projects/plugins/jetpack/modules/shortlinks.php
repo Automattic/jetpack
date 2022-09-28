@@ -131,12 +131,25 @@ function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
  * @uses register_rest_field, wpme_rest_get_shortlink
  */
 function wpme_rest_register_shortlinks() {
+	// Post types that support shortlinks by default.
+	$supported_post_types = array(
+		'attachment',
+		'page',
+		'post',
+	);
+
+	// Add any CPT that may have declared support for shortlinks.
+	foreach ( get_post_types() as $post_type ) {
+		if (
+			post_type_supports( $post_type, 'shortlinks' )
+			&& post_type_supports( $post_type, 'editor' )
+		) {
+			$supported_post_types[] = $post_type;
+		}
+	}
+
 	register_rest_field(
-		array(
-			'attachment',
-			'page',
-			'post',
-		),
+		$supported_post_types,
 		'jetpack_shortlink',
 		array(
 			'get_callback'    => 'wpme_rest_get_shortlink',

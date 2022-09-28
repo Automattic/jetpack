@@ -1,0 +1,30 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/recurring-payments",
+		"isValid": true,
+		"attributes": {
+			"planId": 12,
+			"align": "right",
+			"uniqueId": "id",
+			"url": "#"
+		},
+		"innerBlocks": [
+			{
+				"clientId": "_clientId_0",
+				"name": "jetpack/button",
+				"isValid": true,
+				"attributes": {
+					"element": "a",
+					"saveInPostContent": false,
+					"text": "Payment",
+					"borderRadius": 0,
+					"uniqueId": "recurring-payments-id"
+				},
+				"innerBlocks": [],
+				"originalContent": ""
+			}
+		],
+		"originalContent": "<div class=\"wp-block-jetpack-recurring-payments\"></div>"
+	}
+]

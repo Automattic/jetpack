@@ -82,7 +82,7 @@ class Password_Checker {
 	 * @param mixed $user can be an integer ID, or a WP_User object.
 	 */
 	public function __construct( $user = null ) {
-		if ( is_null( $user ) ) {
+		if ( $user === null ) {
 			$this->user_id = get_current_user_id();
 		} elseif ( is_object( $user ) && isset( $user->ID ) ) {
 			// Existing user, using their ID.

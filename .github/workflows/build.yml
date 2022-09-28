@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - 'master'
+      - 'trunk'
       # The `**/*/` works around the fact that GitHub considers a leading `**/` as meaning "zero or more path components" where we want "one or more".
       - '**/*/branch-**'
   pull_request:
@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   build:
@@ -22,6 +22,8 @@ jobs:
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
+      # This string is used as a unique identifier of test reminder comments on PRs.
+      TEST_COMMENT_INDICATOR: "<!-- wpcom-reminder-comment -->"
     outputs:
       any_plugins: ${{ steps.plugins.outputs.any }}
 
@@ -48,6 +50,19 @@ jobs:
           CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
           echo "::set-output name=projects::${CHANGED}"
 
+      - name: Check if a WordPress.com test reminder comment is needed.
+        id: check-test-reminder-comment
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
+        with:
+          result-encoding: string
+          script: |
+            const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
+            const commentId = await checkTestReminderComment( github, context, core );
+            return commentId;
+
       - name: Build changed projects
         id: build
         env:
@@ -59,7 +74,7 @@ jobs:
             mkdir "$BUILD_BASE"
             touch "$BUILD_BASE/mirrors.txt"
           else
-            pnpx jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
+            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
           fi
 
       - name: Filter mirror list for release branch
@@ -95,6 +110,25 @@ jobs:
           path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
+
+      - name: Update reminder with testing instructions
+        id: update-reminder-comment
+        uses: actions/github-script@v6
+        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          COMMENT_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
+        with:
+          script: |
+            const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
+            const commentBody = `${ TEST_COMMENT_INDICATOR }
+            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. More details: p9dueE-5Nn-p2`;
+            await github.rest.issues.updateComment( {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody,
+              comment_id: +COMMENT_ID,
+            } );
 
   upgrade_test:
     name: Test plugin upgrades
@@ -209,6 +243,9 @@ jobs:
             # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
             sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' "work/${SLUG}-dev"/*.php
 
+            # Remove .github directory.
+            rm -rf "work/${SLUG}-dev/.github"
+
             # Zip the plugin
             ( cd work && zip -9 -r "../zips/${SLUG}-dev.zip" "${SLUG}-dev" )
 
@@ -269,9 +306,7 @@ jobs:
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./monorepo/.github/actions/turnstile
 
       - name: Push changed projects
         uses: ./monorepo/projects/github-actions/push-to-mirrors

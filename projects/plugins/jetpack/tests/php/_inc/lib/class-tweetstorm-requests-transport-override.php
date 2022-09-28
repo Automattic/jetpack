@@ -35,7 +35,7 @@ class Tweetstorm_Requests_Transport_Override implements Requests_Transport {
 		if ( in_array( $url, array( 'https://jetpack.me/', 'https://jetpack.com/' ), true ) ) {
 			$response->status_code = 200;
 			$response->success     = true;
-			$response->body        = file_get_contents( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+			$response->body        = file_get_contents( $url );
 
 			return $response;
 		}

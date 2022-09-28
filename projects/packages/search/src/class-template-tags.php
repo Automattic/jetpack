@@ -24,11 +24,11 @@ class Template_Tags {
 	 * @param array $post_types An array of post types to make filterable.
 	 */
 	public static function render_available_filters( $filters = null, $post_types = null ) {
-		if ( is_null( $filters ) ) {
+		if ( $filters === null ) {
 			$filters = Classic_Search::instance()->get_filters();
 		}
 
-		if ( is_null( $post_types ) ) {
+		if ( $post_types === null ) {
 			$post_types = get_post_types( array( 'exclude_from_search' => false ) );
 		}
 
@@ -77,7 +77,7 @@ class Template_Tags {
 	 * @param array $filters    The available filters for the current query.
 	 */
 	public static function render_instant_filters( $filters = null ) {
-		if ( is_null( $filters ) ) {
+		if ( $filters === null ) {
 			$filters = Classic_Search::instance()->get_filters();
 		}
 
@@ -182,6 +182,9 @@ class Template_Tags {
 			case 'post_type':
 				$data_base = 'data-filter-type="post_types" ';
 				break;
+			case 'author':
+				$data_base = 'data-filter-type="authors" ';
+				break;
 			case 'date_histogram':
 				if ( $filter['buckets'][0]['query_vars']['monthnum'] ) {
 					$data_base = 'data-filter-type="month_post_date" ';
@@ -205,6 +208,9 @@ class Template_Tags {
 						break;
 					case 'post_type':
 						$data_str .= 'data-val="' . esc_attr( $item['query_vars']['post_type'] ) . '"';
+						break;
+					case 'author':
+						$data_str .= 'data-val="' . esc_attr( $item['query_vars']['author'] ) . '"';
 						break;
 					case 'date_histogram':
 						if ( $item['query_vars']['monthnum'] ) {

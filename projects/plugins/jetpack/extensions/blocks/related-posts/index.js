@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { G, Path, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import './style.scss';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'related-posts';
 

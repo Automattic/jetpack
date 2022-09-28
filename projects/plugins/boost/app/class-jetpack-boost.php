@@ -14,15 +14,17 @@ namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Admin\Admin;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Transient;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimizations_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -117,8 +119,8 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
-		Analytics::record_user_event( 'clear_cache' );
-		Admin::clear_dismissed_notices();
+		Regenerate_Admin_Notice::dismiss();
+		Analytics::record_user_event( 'deactivate_plugin' );
 	}
 
 	/**
@@ -126,6 +128,8 @@ class Jetpack_Boost {
 	 */
 	public function init_admin( $modules ) {
 		REST_API::register( Optimization_Status::class );
+		REST_API::register( Optimizations_Status::class );
+		REST_API::register( Config_State::class );
 		$this->connection->ensure_connection();
 		new Admin( $modules );
 	}
@@ -168,8 +172,7 @@ class Jetpack_Boost {
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
 	public function handle_environment_change() {
-		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
-		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
+		Regenerate_Admin_Notice::enable();
 	}
 
 	/**
@@ -186,11 +189,13 @@ class Jetpack_Boost {
 			"
 			DELETE
 			FROM    `$wpdb->options`
-			WHERE   `option_name` LIKE jetpack_boost_%
+			WHERE   `option_name` LIKE 'jetpack_boost_%'
 		"
 		);
 
 		// Delete stored Critical CSS.
 		( new Critical_CSS_Storage() )->clear();
+		// Delete all transients created by boost.
+		Transient::delete_by_prefix( '' );
 	}
 }

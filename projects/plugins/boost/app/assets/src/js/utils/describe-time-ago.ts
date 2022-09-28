@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { _n, __, sprintf } from '@wordpress/i18n';
 
 const second = 1000;

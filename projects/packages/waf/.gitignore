@@ -1,2 +1,5 @@
 vendor/
 node_modules/
+rules/
+coverage
+clover.xml

@@ -1,27 +1,26 @@
 {
 	"private": true,
 	"description": "A cloud-powered replacement for WordPress' search.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://jetpack.com/upgrade/search/",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Search"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/search"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.",
-		"build-js": "echo 'Not implemented.",
-		"build-production": "echo 'Not implemented.",
-		"build-production-js": "echo 'Not implemented.",
+		"build": "echo Success.",
+		"build-js": "echo  Success.",
+		"build-production": "echo  Success.",
+		"build-production-js": "echo  Success.",
 		"clean": "true"
 	},
-	"devDependencies": {},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -1,11 +1,16 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Tools to interact with Jetpack modules via API requests.
+ *
+ * @package automattic/jetpack
+ */
 
+use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
 
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
- *
  */
 class Jetpack_Core_API_Module_Toggle_Endpoint
 	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
@@ -80,10 +85,12 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 		}
 
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
-			return rest_ensure_response( array(
-				'code' 	  => 'success',
-				'message' => esc_html__( 'The requested Jetpack module was activated.', 'jetpack' ),
-			) );
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'The requested Jetpack module was activated.', 'jetpack' ),
+				)
+			);
 		}
 
 		return new WP_Error(
@@ -140,10 +147,12 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 		}
 
 		if ( Jetpack::deactivate_module( $module_slug ) ) {
-			return rest_ensure_response( array(
-				'code' 	  => 'success',
-				'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
-			) );
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'The requested Jetpack module was deactivated.', 'jetpack' ),
+				)
+			);
 		}
 		return new WP_Error(
 			'deactivation_failed',
@@ -164,7 +173,13 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	}
 }
 
+/**
+ * Interact with multiple modules at once (list or activate).
+ *
+ * // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ */
 class Jetpack_Core_API_Module_List_Endpoint {
+	// phpcs:enable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 	/**
 	 * A WordPress REST API callback method that accepts a request object and decides what to do with it.
@@ -191,7 +206,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 	 * @return array Array of Jetpack modules.
 	 */
 	public function get_modules() {
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php' );
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 
 		$modules = Jetpack_Admin::init()->get_modules();
 		foreach ( $modules as $slug => $properties ) {
@@ -238,7 +253,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		}
 
 		$activated = array();
-		$failed = array();
+		$failed    = array();
 
 		foreach ( $request['modules'] as $module ) {
 			if ( Jetpack::activate_module( $module, false, false ) ) {
@@ -249,10 +264,12 @@ class Jetpack_Core_API_Module_List_Endpoint {
 		}
 
 		if ( empty( $failed ) ) {
-			return rest_ensure_response( array(
-				'code' 	  => 'success',
-				'message' => esc_html__( 'All modules activated.', 'jetpack' ),
-			) );
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'All modules activated.', 'jetpack' ),
+				)
+			);
 		}
 
 		$error = '';
@@ -263,12 +280,15 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			$activated_text = $activated_count > 1 ? sprintf(
 				/* Translators: first variable is a list followed by the last item, which is the second variable. Example: dog, cat and bird. */
 				__( '%1$s and %2$s', 'jetpack' ),
-				join( ', ', $activated ), $activated_last ) : $activated_last;
+				join( ', ', $activated ),
+				$activated_last
+			) : $activated_last;
 
 			$error = sprintf(
 				/* Translators: the variable is a module name. */
 				_n( 'The module %s was activated.', 'The modules %s were activated.', $activated_count, 'jetpack' ),
-				$activated_text ) . ' ';
+				$activated_text
+			) . ' ';
 		}
 
 		$failed_count = count( $failed );
@@ -277,12 +297,15 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			$failed_text = $failed_count > 1 ? sprintf(
 				/* Translators: first variable is a list followed by the last item, which is the second variable. Example: dog, cat and bird. */
 				__( '%1$s and %2$s', 'jetpack' ),
-				join( ', ', $failed ), $failed_last ) : $failed_last;
+				join( ', ', $failed ),
+				$failed_last
+			) : $failed_last;
 
 			$error = sprintf(
 				/* Translators: the variable is a module name. */
 				_n( 'The module %s failed to be activated.', 'The modules %s failed to be activated.', $failed_count, 'jetpack' ),
-				$failed_text ) . ' ';
+				$failed_text
+			) . ' ';
 		}
 
 		return new WP_Error(
@@ -319,8 +342,11 @@ class Jetpack_Core_API_Module_List_Endpoint {
  * @since 4.4.0 Renamed Jetpack_Core_API_Module_Endpoint from to Jetpack_Core_API_Data.
  *
  * @author Automattic
+ *
+ * // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
+	// phpcs:enable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 	/**
 	 * Process request by returning the module or updating it.
@@ -328,7 +354,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $request
+	 * @param WP_REST_Request $request WP API request.
 	 *
 	 * @return bool|mixed|void|WP_Error
 	 */
@@ -377,7 +403,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$module['name'] = $i18n['name'];
 			}
 			if ( isset( $module['description'] ) ) {
-				$module['description'] = $i18n['description'];
+				$module['description']       = $i18n['description'];
 				$module['short_description'] = $i18n['description'];
 			}
 
@@ -404,13 +430,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$modules = Jetpack::get_available_modules();
 		if ( is_array( $modules ) && ! empty( $modules ) ) {
 			foreach ( $modules as $module ) {
-				// Add all module options
+				// Add all module options.
 				$options = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $module );
 				foreach ( $options as $option_name => $option ) {
 					$response[ $option_name ] = $option['current_value'];
 				}
 
-				// Add the module activation state
+				// Add the module activation state.
 				$response[ $module ] = Jetpack::is_module_active( $module );
 			}
 		}
@@ -425,7 +451,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			switch ( $setting ) {
 				case 'lang_id':
 					if ( ! current_user_can( 'install_languages' ) ) {
-						// The user doesn't have caps to install language packs, so warn the client
+						// The user doesn't have caps to install language packs, so warn the client.
 						$response[ $setting ] = 'error_cap';
 						break;
 					}
@@ -512,7 +538,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	public function update_data( $request ) {
 
 		// If it's null, we're trying to update many module options from different modules.
-		if ( is_null( $request['slug'] ) ) {
+		if ( $request['slug'] === null ) {
 
 			// Value admitted by Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list that will make it return all module options.
 			// It will not be passed. It's just checked in this method to pass that method a string or array.
@@ -527,13 +553,16 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		// Get parameters to update the module. We can not simply use $request->get_params() because when we registered
-		// this route, we are adding the entire output of Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list() to
-		// the current request object's params. We are interested in body of the actual request.
-		// This may be JSON:
+		/*
+		 * Get parameters to update the module.
+		 * We can not simply use $request->get_params() because when we registered this route,
+		 * we are adding the entire output of Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list()
+		 * to the current request object's params. We are interested in body of the actual request.
+		 * This may be JSON:
+		 */
 		$params = $request->get_json_params();
 		if ( ! is_array( $params ) ) {
-			// Or it may be standard POST key-value pairs:
+			// Or it may be standard POST key-value pairs.
 			$params = $request->get_body_params();
 		}
 
@@ -552,24 +581,25 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		// Get available module options.
-		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $request['slug']
+		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list(
+			'any' === $request['slug']
 			? $params
 			: $request['slug']
 		);
 
-		// Prepare to toggle module if needed
+		// Prepare to toggle module if needed.
 		$toggle_module = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 
 		// Options that are invalid or failed to update.
-		$invalid = array_keys( array_diff_key( $params, $options ) );
+		$invalid     = array_keys( array_diff_key( $params, $options ) );
 		$not_updated = array();
 
-		// Remove invalid options
+		// Remove invalid options.
 		$params = array_intersect_key( $params, $options );
 
 		// Used if response is successful. The message can be overwritten and additional data can be added here.
 		$response = array(
-			'code'	  => 'success',
+			'code'    => 'success',
 			'message' => esc_html__( 'The requested Jetpack data updates were successful.', 'jetpack' ),
 		);
 
@@ -596,7 +626,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						&& 'already_inactive' === $toggle_result->get_error_code()
 					) {
 
-						// If the module is already inactive, we don't fail
+						// If the module is already inactive, we don't fail.
 						$updated = true;
 					} elseif ( is_wp_error( $toggle_result ) ) {
 						$error = $toggle_result->get_error_message();
@@ -604,7 +634,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$updated = true;
 					}
 				} else {
-					$error = Jetpack_Core_Json_Api_Endpoints::$user_permissions_error_msg;
+					$error = REST_Connector::get_user_permissions_error_msg();
 				}
 
 				// The module was not toggled.
@@ -640,7 +670,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					&& ! Jetpack::is_module_active( $option_attrs['jp_group'] )
 				) {
 
-					// We only take note of skipped options when updating one module
+					// We only take note of skipped options when updating one module.
 					$not_updated[ $option ] = esc_html__( 'The requested Jetpack module is inactive.', 'jetpack' );
 					continue;
 				}
@@ -652,26 +682,26 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			switch ( $option ) {
 				case 'lang_id':
 					if ( ! current_user_can( 'install_languages' ) ) {
-						// We can't affect this setting
+						// We can't affect this setting.
 						$updated = false;
 						break;
 					}
 
-					if ( $value === 'en_US' || empty( $value ) ) {
+					if ( 'en_US' === $value || empty( $value ) ) {
 						return delete_option( 'WPLANG' );
 					}
 
 					if ( ! function_exists( 'request_filesystem_credentials' ) ) {
-						require_once( ABSPATH . 'wp-admin/includes/file.php' );
+						require_once ABSPATH . 'wp-admin/includes/file.php';
 					}
 
 					if ( ! function_exists( 'wp_download_language_pack' ) ) {
 						require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 					}
 
-					// `wp_download_language_pack` only tries to download packs if they're not already available
+					// `wp_download_language_pack` only tries to download packs if they're not already available.
 					$language = wp_download_language_pack( $value );
-					if ( $language === false ) {
+					if ( false === $language ) {
 						// The language pack download failed.
 						$updated = false;
 						break;
@@ -691,9 +721,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
 					if ( is_string( $result ) && preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
-						$response[$option] = $result;
-						$updated           = true;
-					} elseif ( 1 == $result ) {
+						$response[ $option ] = $result;
+						$updated             = true;
+					} elseif ( 1 == $result ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 						$updated = true;
 					} elseif ( is_array( $result ) && isset( $result['message'] ) ) {
 						$error = $result['message'];
@@ -702,7 +732,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_protect_key':
 					$protect = Jetpack_Protect_Module::instance();
-					if ( 'create' == $value ) {
+					if ( 'create' === $value ) {
 						$result = $protect->get_protect_key();
 					} else {
 						$result = false;
@@ -710,8 +740,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// If we got one of Protect keys, consider it done.
 					if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
-						$response[$option] = $result;
-						$updated           = true;
+						$response[ $option ] = $result;
+						$updated             = true;
 					}
 					break;
 
@@ -729,11 +759,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'show_headline':
 				case 'show_thumbnails':
-					$grouped_options          = $grouped_options_current = (array) Jetpack_Options::get_option( 'relatedposts' );
-					$grouped_options[$option] = $value;
+					$grouped_options_current    = (array) Jetpack_Options::get_option( 'relatedposts' );
+					$grouped_options            = $grouped_options_current;
+					$grouped_options[ $option ] = $value;
 
 					// If option value was the same, consider it done.
-					$updated = $grouped_options_current != $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
+					$updated = $grouped_options_current !== $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
 					break;
 
 				case 'search_auto_config':
@@ -764,9 +795,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'pinterest':
 				case 'yandex':
 				case 'facebook':
-					$grouped_options = $grouped_options_current = (array) get_option( 'verification_services_codes' );
+					$grouped_options_current = (array) get_option( 'verification_services_codes' );
+					$grouped_options         = $grouped_options_current;
 
-					// Extracts the content attribute from the HTML meta tag if needed
+					// Extracts the content attribute from the HTML meta tag if needed.
 					if ( preg_match( '#.*<meta name="(?:[^"]+)" content="([^"]+)" />.*#i', $value, $matches ) ) {
 						$grouped_options[ $option ] = $matches[1];
 					} else {
@@ -774,56 +806,60 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					// If option value was the same, consider it done.
-					$updated = $grouped_options_current != $grouped_options ? update_option( 'verification_services_codes', $grouped_options ) : true;
+					$updated = $grouped_options_current !== $grouped_options
+						? update_option( 'verification_services_codes', $grouped_options )
+						: true;
 					break;
 
 				case 'sharing_services':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
 					$sharer = new Sharing_Service();
 
 					// If option value was the same, consider it done.
-					$updated = $value != $sharer->get_blog_services() ? $sharer->set_blog_services( $value['visible'], $value['hidden'] ) : true;
+					$updated = $value !== $sharer->get_blog_services()
+						? $sharer->set_blog_services( $value['visible'], $value['hidden'] )
+						: true;
 					break;
 
 				case 'button_style':
 				case 'sharing_label':
 				case 'show':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
-					$sharer = new Sharing_Service();
-					$grouped_options = $sharer->get_global_options();
+					$sharer                     = new Sharing_Service();
+					$grouped_options            = $sharer->get_global_options();
 					$grouped_options[ $option ] = $value;
-					$updated = $sharer->set_global_options( $grouped_options );
+					$updated                    = $sharer->set_global_options( $grouped_options );
 					break;
 
 				case 'custom':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
-					$sharer = new Sharing_Service();
+					$sharer  = new Sharing_Service();
 					$updated = $sharer->new_service( stripslashes( $value['sharing_name'] ), stripslashes( $value['sharing_url'] ), stripslashes( $value['sharing_icon'] ) );
 
-					// Return new custom service
-					$response[$option] = $updated;
+					// Return new custom service.
+					$response[ $option ] = $updated;
 					break;
 
 				case 'sharing_delete_service':
-					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) {
 						break;
 					}
 
-					$sharer = new Sharing_Service();
+					$sharer  = new Sharing_Service();
 					$updated = $sharer->delete_service( $value );
 					break;
 
 				case 'jetpack-twitter-cards-site-tag':
-					$value   = trim( ltrim( strip_tags( $value ), '@' ) );
+					$value   = trim( ltrim( wp_strip_all_tags( $value ), '@' ) );
 					$updated = get_option( $option ) !== $value ? update_option( $option, $value ) : true;
 					break;
 
@@ -834,36 +870,41 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'do_not_track':
 				case 'version':
 				case 'collapse_nudges':
-					$grouped_options          = $grouped_options_current = (array) get_option( 'stats_options' );
-					$grouped_options[$option] = $value;
+					$grouped_options_current    = (array) get_option( 'stats_options' );
+					$grouped_options            = $grouped_options_current;
+					$grouped_options[ $option ] = $value;
 
 					// If option value was the same, consider it done.
-					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
+					$updated = $grouped_options_current !== $grouped_options
+						? update_option( 'stats_options', $grouped_options )
+						: true;
 					break;
 
 				case 'akismet_show_user_comments_approved':
-
-					// Save Akismet option '1' or '0' like it's done in akismet/class.akismet-admin.php
-					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? '1' : '0' ) : true;
+					// Save Akismet option '1' or '0' like it's done in akismet/class.akismet-admin.php.
+					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+						? update_option( $option, $value ? '1' : '0' )
+						: true;
 					break;
 
 				case 'wordpress_api_key':
-
 					if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-						$error = esc_html__( 'Please install Akismet.', 'jetpack' );
+						$error   = esc_html__( 'Please install Akismet.', 'jetpack' );
 						$updated = false;
 						break;
 					}
 
 					if ( ! defined( 'AKISMET_VERSION' ) ) {
-						$error = esc_html__( 'Please activate Akismet.', 'jetpack' );
+						$error   = esc_html__( 'Please activate Akismet.', 'jetpack' );
 						$updated = false;
 						break;
 					}
 
-					// Allow to clear the API key field
+					// Allow to clear the API key field.
 					if ( '' === $value ) {
-						$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+						$updated = get_option( $option ) !== $value
+							? update_option( $option, $value )
+							: true;
 						break;
 					}
 
@@ -874,8 +915,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						if ( Akismet::verify_key( $value ) === 'valid' ) {
 							$akismet_user = Akismet_Admin::get_akismet_user( $value );
 							if ( $akismet_user ) {
-								if ( in_array( $akismet_user->status, array( 'active', 'active-dunning', 'no-sub' ) ) ) {
-									$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+								if ( in_array( $akismet_user->status, array( 'active', 'active-dunning', 'no-sub' ), true ) ) {
+									$updated = get_option( $option ) !== $value
+										? update_option( $option, $value )
+										: true;
 									break;
 								} else {
 									$error = esc_html__( "Akismet user status doesn't allow to update the key", 'jetpack' );
@@ -893,27 +936,38 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'google_analytics_tracking_id':
-					$grouped_options = $grouped_options_current = (array) get_option( 'jetpack_wga' );
-					$grouped_options[ 'code' ] = $value;
+					$grouped_options_current = (array) get_option( 'jetpack_wga' );
+					$grouped_options         = $grouped_options_current;
+					$grouped_options['code'] = $value;
 
 					// If option value was the same, consider it done.
-					$updated = $grouped_options_current != $grouped_options ? update_option( 'jetpack_wga', $grouped_options ) : true;
+					$updated = $grouped_options_current !== $grouped_options
+						? update_option( 'jetpack_wga', $grouped_options )
+						: true;
 					break;
 
 				case 'dismiss_dash_app_card':
 				case 'dismiss_empty_stats_card':
+				case 'dismiss_dash_backup_getting_started':
+				case 'dismiss_dash_agencies_learn_more':
 					// If option value was the same, consider it done.
-					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ) : true;
+					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support bools or strings saved by update_option.
+						? update_option( $option, (bool) $value )
+						: true;
 					break;
 
 				case 'onboarding':
 					jetpack_require_lib( 'widgets' );
 					// Break apart and set Jetpack onboarding options.
-					$result = $this->_process_onboarding( (array) $value );
+					$result = $this->process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
 						$updated = true;
 					} else {
-						$error = sprintf( esc_html__( 'Onboarding failed to process: %s', 'jetpack' ), $result );
+						$error = sprintf(
+							/* Translators: placeholder is a list of error codes. */
+							esc_html__( 'Onboarding failed to process: %s', 'jetpack' ),
+							$result
+						);
 						$updated = false;
 					}
 					break;
@@ -925,9 +979,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
 					break;
 
+				case 'jetpack_blocks_disabled':
+					$updated = (bool) get_option( $option ) !== (bool) $value ? update_option( $option, (bool) $value ) : true;
+					break;
+
 				default:
 					// If option value was the same, consider it done.
-					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support scalars or strings saved by update_option.
+						? update_option( $option, $value )
+						: true;
 					break;
 			}
 
@@ -941,9 +1001,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			// The option was updated.
 			return rest_ensure_response( $response );
 		} else {
-			$invalid_count = count( $invalid );
+			$invalid_count     = count( $invalid );
 			$not_updated_count = count( $not_updated );
-			$error = '';
+			$error             = '';
 			if ( $invalid_count > 0 ) {
 				$error = sprintf(
 				/* Translators: the plural variable is a comma-separated list. Example: dog, cat, bird. */
@@ -958,7 +1018,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$not_updated_messages[] = sprintf(
 							/* Translators: the first variable is a module option or slug, or setting. The second is the error message . */
 							__( '%1$s: %2$s', 'jetpack' ),
-							$not_updated_option, $not_updated_message );
+							$not_updated_option,
+							$not_updated_message
+						);
 					}
 				}
 				if ( ! empty( $error ) ) {
@@ -967,7 +1029,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				if ( ! empty( $not_updated_messages ) ) {
 					$error .= ' ' . join( '. ', $not_updated_messages );
 				}
-
 			}
 			// There was an error because some options were updated but others were invalid or failed to update.
 			return new WP_Error( 'some_updated', esc_html( $error ), array( 'status' => 400 ) );
@@ -984,7 +1045,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @return string Result of onboarding processing and, if there is one, an error message.
 	 */
-	private function _process_onboarding( $data ) {
+	private function process_onboarding( $data ) {
 		if ( isset( $data['end'] ) && $data['end'] ) {
 			return Jetpack::invalidate_onboarding_token()
 				? ''
@@ -995,69 +1056,102 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		if ( ! empty( $data['siteTitle'] ) ) {
 			// If option value was the same, consider it done.
-			if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] ) ) {
+			if ( ! (
+				update_option( 'blogname', $data['siteTitle'] )
+				|| get_option( 'blogname' ) === $data['siteTitle']
+			) ) {
 				$error[] = 'siteTitle';
 			}
 		}
 
 		if ( isset( $data['siteDescription'] ) ) {
 			// If option value was the same, consider it done.
-			if ( ! ( update_option( 'blogdescription', $data['siteDescription'] ) || get_option( 'blogdescription' ) == $data['siteDescription'] ) ) {
+			if ( ! (
+				update_option( 'blogdescription', $data['siteDescription'] )
+				|| get_option( 'blogdescription' ) === $data['siteDescription']
+			) ) {
 				$error[] = 'siteDescription';
 			}
 		}
 
 		$site_title = get_option( 'blogname' );
-		$author = get_current_user_id() || 1;
+		$author     = get_current_user_id() || 1;
 
 		if ( ! empty( $data['siteType'] ) ) {
-			if ( ! ( update_option( 'jpo_site_type', $data['siteType'] ) || get_option( 'jpo_site_type' ) == $data['siteType'] ) ) {
+			if ( ! (
+				update_option( 'jpo_site_type', $data['siteType'] )
+				|| get_option( 'jpo_site_type' ) === $data['siteType']
+			) ) {
 				$error[] = 'siteType';
 			}
 		}
 
 		if ( isset( $data['homepageFormat'] ) ) {
-			// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
-			// if it exists, just update
+			/*
+			 * If $data['homepageFormat'] is 'posts',
+			 * we have nothing to do since it's WordPress' default
+			 * if it exists, just update
+			 */
 			$homepage_format = get_option( 'jpo_homepage_format' );
 			if ( ! $homepage_format || $homepage_format !== $data['homepageFormat'] ) {
 				if ( 'page' === $data['homepageFormat'] ) {
-					if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {
+					if ( ! (
+						update_option( 'show_on_front', 'page' )
+						|| get_option( 'show_on_front' ) === 'page'
+					) ) {
 						$error[] = 'homepageFormat';
 					}
 
-					$home = wp_insert_post( array(
-						'post_type'     => 'page',
-						/* translators: this references the home page of a site, also called front page. */
-						'post_title'    => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
-						'post_content'  => sprintf( esc_html__( 'Welcome to %s.', 'jetpack' ), $site_title ),
-						'post_status'   => 'publish',
-						'post_author'   => $author,
-					) );
-					if ( 0 == $home ) {
+					$home = wp_insert_post(
+						array(
+							'post_type'    => 'page',
+							/* translators: this references the home page of a site, also called front page. */
+							'post_title'   => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
+							'post_content' => sprintf(
+								/* Translators: placeholder is the site title. */
+								esc_html__( 'Welcome to %s.', 'jetpack' ),
+								$site_title
+							),
+							'post_status'  => 'publish',
+							'post_author'  => $author,
+						)
+					);
+					if ( 0 === $home ) {
 						$error[] = 'home insert: 0';
 					} elseif ( is_wp_error( $home ) ) {
-						$error[] = 'home creation: '. $home->get_error_message();
+						$error[] = 'home creation: ' . $home->get_error_message();
 					}
-					if ( ! ( update_option( 'page_on_front', $home ) || get_option( 'page_on_front' ) == $home ) ) {
+					if ( ! (
+						update_option( 'page_on_front', $home )
+						|| get_option( 'page_on_front' ) === $home
+					) ) {
 
 						$error[] = 'home set';
 					}
 
-					$blog = wp_insert_post( array(
-						'post_type'     => 'page',
-						/* translators: this references the page where blog posts are listed. */
-						'post_title'    => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
-						'post_content'  => sprintf( esc_html__( 'These are the latest posts in %s.', 'jetpack' ), $site_title ),
-						'post_status'   => 'publish',
-						'post_author'   => $author,
-					) );
-					if ( 0 == $blog ) {
+					$blog = wp_insert_post(
+						array(
+							'post_type'    => 'page',
+							/* translators: this references the page where blog posts are listed. */
+							'post_title'   => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
+							'post_content' => sprintf(
+								/* Translators: placeholder is the site title. */
+								esc_html__( 'These are the latest posts in %s.', 'jetpack' ),
+								$site_title
+							),
+							'post_status'  => 'publish',
+							'post_author'  => $author,
+						)
+					);
+					if ( 0 === $blog ) {
 						$error[] = 'blog insert: 0';
 					} elseif ( is_wp_error( $blog ) ) {
-						$error[] = 'blog creation: '. $blog->get_error_message();
+						$error[] = 'blog creation: ' . $blog->get_error_message();
 					}
-					if ( ! ( update_option( 'page_for_posts', $blog ) || get_option( 'page_for_posts' ) == $blog ) ) {
+					if ( ! (
+						update_option( 'page_for_posts', $blog )
+						|| get_option( 'page_for_posts' ) === $blog
+					) ) {
 						$error[] = 'blog set';
 					}
 				} else {
@@ -1075,7 +1169,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			update_option( 'jpo_homepage_format', $data['homepageFormat'] );
 		}
 
-		// Setup contact page and add a form and/or business info
+		// Setup contact page and add a form and/or business info.
 		$contact_page = '';
 		if ( ! empty( $data['addContactForm'] ) && ! get_option( 'jpo_contact_page' ) ) {
 			$contact_form_module_active = Jetpack::is_module_active( 'contact-form' );
@@ -1095,18 +1189,20 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( ! empty( $contact_page ) ) {
-			$form = wp_insert_post( array(
-				'post_type'     => 'page',
-				/* translators: this references a page with contact details and possibly a form. */
-				'post_title'    => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
-				'post_content'  => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . $contact_page,
-				'post_status'   => 'publish',
-				'post_author'   => $author,
-			) );
-			if ( 0 == $form ) {
+			$form = wp_insert_post(
+				array(
+					'post_type'    => 'page',
+					/* translators: this references a page with contact details and possibly a form. */
+					'post_title'   => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
+					'post_content' => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . $contact_page,
+					'post_status'  => 'publish',
+					'post_author'  => $author,
+				)
+			);
+			if ( 0 === $form ) {
 				$error[] = 'form insert: 0';
 			} elseif ( is_wp_error( $form ) ) {
-				$error[] = 'form creation: '. $form->get_error_message();
+				$error[] = 'form creation: ' . $form->get_error_message();
 			} else {
 				update_option( 'jpo_contact_page', $form );
 			}
@@ -1121,7 +1217,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
 			$wc_install_result = Plugins_Installer::install_and_activate_plugin( 'woocommerce' );
-			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow
+			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow.
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';
 			}
@@ -1153,8 +1249,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @param array $address Array of business address fields.
 	 *
 	 * @return WP_Error|true True if the data was saved correctly.
-	*/
-	static function handle_business_address( $address ) {
+	 */
+	private static function handle_business_address( $address ) {
 		$first_sidebar = Jetpack_Widgets::get_first_sidebar();
 
 		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
@@ -1166,11 +1262,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( $first_sidebar ) {
-			$title = isset( $address['name'] ) ? sanitize_text_field( $address['name'] ) : '';
-			$street = isset( $address['street'] ) ? sanitize_text_field( $address['street'] ) : '';
-			$city = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
-			$state = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
-			$zip = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
+			$title   = isset( $address['name'] ) ? sanitize_text_field( $address['name'] ) : '';
+			$street  = isset( $address['street'] ) ? sanitize_text_field( $address['street'] ) : '';
+			$city    = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
+			$state   = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
+			$zip     = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
 			$country = isset( $address['country'] ) ? sanitize_text_field( $address['country'] ) : '';
 
 			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip, $country ) ) );
@@ -1181,12 +1277,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				'phone'   => '',
 				'hours'   => '',
 				'showmap' => false,
-				'email' => ''
+				'email'   => '',
 			);
 
 			$widget_updated = '';
 			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
-				$widget_updated  = Jetpack_Widgets::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+				$widget_updated = Jetpack_Widgets::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			} else {
 				$widget_updated = Jetpack_Widgets::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			}
@@ -1195,29 +1291,29 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 
 			$address_save = array(
-				'name' => $title,
-				'street' => $street,
-				'city' => $city,
-				'state' => $state,
-				'zip' => $zip,
-				'country' => $country
+				'name'    => $title,
+				'street'  => $street,
+				'city'    => $city,
+				'state'   => $state,
+				'zip'     => $zip,
+				'country' => $country,
 			);
 			update_option( 'jpo_business_address', $address_save );
 			return true;
 		}
 
-		// No sidebar to place the widget
+		// No sidebar to place the widget.
 		return new WP_Error( 'sidebar_not_found', 'No sidebar.', 400 );
 	}
 
 	/**
 	 * Check whether "Contact Info & Map" widget is present in a given sidebar.
 	 *
-	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
+	 * @param string $sidebar ID of the sidebar to which the widget will be added.
 	 *
 	 * @return bool Whether the widget is present in a given sidebar.
-	*/
-	static function has_business_address_widget( $sidebar ) {
+	 */
+	private static function has_business_address_widget( $sidebar ) {
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
 		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
 			return false;
@@ -1256,7 +1352,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				}
 				$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( $params );
 				foreach ( $options as $option => $definition ) {
-					if ( in_array( $options[ $option ]['jp_group'], array( 'post-by-email' ) ) ) {
+					if ( in_array( $options[ $option ]['jp_group'], array( 'post-by-email' ), true ) ) {
 						$module = $options[ $option ]['jp_group'];
 						break;
 					}
@@ -1271,10 +1367,23 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	}
 }
 
+/**
+ * Get detailed data from a specific module.
+ *
+ * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+ */
 class Jetpack_Core_API_Module_Data_Endpoint {
+	// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
+	/**
+	 * Process request and return different data based on the module we are interested in.
+	 *
+	 * @param WP_REST_Request $request WP API request.
+	 *
+	 * @return WP_REST_Response|WP_Error A REST response if the request was served successfully, otherwise an error.
+	 */
 	public function process( $request ) {
-		switch( $request['slug'] ) {
+		switch ( $request['slug'] ) {
 			case 'protect':
 				return $this->get_protect_data();
 			case 'stats':
@@ -1295,12 +1404,12 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *
 	 * @since 4.8.0
 	 *
-	 * @param WP_REST_Request $request
+	 * @param WP_REST_Request $request WP API request.
 	 *
 	 * @return bool
 	 */
 	public function key_check( $request ) {
-		switch( $request['service'] ) {
+		switch ( $request['service'] ) {
 			case 'akismet':
 				$params = $request->get_json_params();
 				if ( isset( $params['api_key'] ) && ! empty( $params['api_key'] ) ) {
@@ -1340,7 +1449,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	public function get_akismet_data() {
 		$akismet_status = $this->akismet_is_active_and_registered();
 		if ( ! is_wp_error( $akismet_status ) ) {
-			return number_format_i18n( get_option( 'akismet_spam_count', 0 ) );
+			return (int) get_option( 'akismet_spam_count', 0 );
 		} else {
 			return $akismet_status->get_error_code();
 		}
@@ -1358,26 +1467,32 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	public function check_akismet_key( $api_key = '' ) {
 		$akismet_status = $this->akismet_class_exists();
 		if ( is_wp_error( $akismet_status ) ) {
-			return rest_ensure_response( array(
-				'validKey'          => false,
-				'invalidKeyCode'    => $akismet_status->get_error_code(),
-				'invalidKeyMessage' => $akismet_status->get_error_message(),
-			) );
+			return rest_ensure_response(
+				array(
+					'validKey'          => false,
+					'invalidKeyCode'    => $akismet_status->get_error_code(),
+					'invalidKeyMessage' => $akismet_status->get_error_message(),
+				)
+			);
 		}
 
 		$key_status = Akismet::check_key_status( empty( $api_key ) ? Akismet::get_api_key() : $api_key );
 
 		if ( ! $key_status || 'invalid' === $key_status || 'failed' === $key_status ) {
-			return rest_ensure_response( array(
-				'validKey'          => false,
-				'invalidKeyCode'    => 'invalid_key',
-				'invalidKeyMessage' => esc_html__( 'Invalid Akismet key. Please contact support.', 'jetpack' ),
-			) );
+			return rest_ensure_response(
+				array(
+					'validKey'          => false,
+					'invalidKeyCode'    => 'invalid_key',
+					'invalidKeyMessage' => esc_html__( 'Invalid Akismet key. Please contact support.', 'jetpack' ),
+				)
+			);
 		}
 
-		return rest_ensure_response( array(
-			'validKey' => isset( $key_status[1] ) && 'valid' === $key_status[1]
-		) );
+		return rest_ensure_response(
+			array(
+				'validKey' => isset( $key_status[1] ) && 'valid' === $key_status[1],
+			)
+		);
 	}
 
 	/**
@@ -1407,7 +1522,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * @return bool|WP_Error True if Akismet is active and registered. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	private function akismet_is_active_and_registered() {
-		if ( is_wp_error( $akismet_exists = $this->akismet_class_exists() ) ) {
+		$akismet_exists = $this->akismet_class_exists();
+		if ( is_wp_error( $akismet_exists ) ) {
 			return $akismet_exists;
 		}
 
@@ -1442,37 +1558,43 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 
 		// If no parameters were passed.
 		if (
-			empty ( $range )
+			empty( $range )
 			|| ! in_array( $range, array( 'day', 'week', 'month' ), true )
 		) {
 			$range = 'day';
 		}
 
 		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
-			require_once( JETPACK__PLUGIN_DIR . 'modules/stats.php' );
+			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 		}
 
 		switch ( $range ) {
 
-			// This is always called first on page load
+			// This is always called first on page load.
 			case 'day':
 				$initial_stats = stats_get_from_restapi();
-				return rest_ensure_response( array(
-					'general' => $initial_stats,
+				return rest_ensure_response(
+					array(
+						'general' => $initial_stats,
 
-					// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' );
-					'day' => isset( $initial_stats->visits )
-						? $initial_stats->visits
-						: array(),
-				) );
+						// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' ).
+						'day'     => isset( $initial_stats->visits )
+							? $initial_stats->visits
+							: array(),
+					)
+				);
 			case 'week':
-				return rest_ensure_response( array(
-					'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
-				) );
+				return rest_ensure_response(
+					array(
+						'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
+					)
+				);
 			case 'month':
-				return rest_ensure_response( array(
-					'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
-				) );
+				return rest_ensure_response(
+					array(
+						'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+					)
+				);
 		}
 	}
 
@@ -1496,16 +1618,20 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		$last_downtime = $monitor->monitor_get_last_downtime();
 		if ( is_wp_error( $last_downtime ) ) {
 			return $last_downtime;
-		} else if ( false === strtotime( $last_downtime ) ) {
-			return rest_ensure_response( array(
-				'code' => 'success',
-				'date' => null,
-			) );
+		} elseif ( false === strtotime( $last_downtime ) ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+					'date' => null,
+				)
+			);
 		} else {
-			return rest_ensure_response( array(
-				'code' => 'success',
-				'date' => human_time_diff( strtotime( $last_downtime ), strtotime( 'now' ) ),
-			) );
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+					'date' => human_time_diff( strtotime( $last_downtime ), strtotime( 'now' ) ),
+				)
+			);
 		}
 	}
 
@@ -1578,8 +1704,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			);
 		} else {
 			$copy_services = $services;
-			$last = count( $copy_services ) - 1;
-			$last_service = $copy_services[ $last ];
+			$last          = count( $copy_services ) - 1;
+			$last_service  = $copy_services[ $last ];
 			unset( $copy_services[ $last ] );
 			$message = esc_html(
 				sprintf(
@@ -1591,11 +1717,13 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			);
 		}
 
-		return rest_ensure_response( array(
-			'code'     => 'success',
-			'message'  => $message,
-			'services' => $services,
-		) );
+		return rest_ensure_response(
+			array(
+				'code'     => 'success',
+				'message'  => $message,
+				'services' => $services,
+			)
+		);
 	}
 
 	/**
@@ -1616,41 +1744,49 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 
 		$vaultpress = new VaultPress();
 		if ( ! $vaultpress->is_registered() ) {
-			return rest_ensure_response( array(
-				'code'    => 'not_registered',
-				'message' => esc_html__( 'You need to register for VaultPress.', 'jetpack' )
-			) );
+			return rest_ensure_response(
+				array(
+					'code'    => 'not_registered',
+					'message' => esc_html__( 'You need to register for VaultPress.', 'jetpack' ),
+				)
+			);
 		}
 
-		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-		if ( false == $data ) {
-			return rest_ensure_response( array(
-				'code'    => 'not_registered',
-				'message' => esc_html__( 'Could not connect to VaultPress.', 'jetpack' )
-			) );
-		} else if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
+		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		if ( false === $data ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'not_registered',
+					'message' => esc_html__( 'Could not connect to VaultPress.', 'jetpack' ),
+				)
+			);
+		} elseif ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
 			return $data;
-		} else if ( empty( $data->backups->last_backup ) ) {
-			return rest_ensure_response( array(
-				'code'    => 'success',
-				'message' => esc_html__( 'VaultPress is active and will back up your site soon.', 'jetpack' ),
-				'data'    => $data,
-			) );
+		} elseif ( empty( $data->backups->last_backup ) ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'VaultPress is active and will back up your site soon.', 'jetpack' ),
+					'data'    => $data,
+				)
+			);
 		} else {
-			return rest_ensure_response( array(
-				'code'    => 'success',
-				'message' => esc_html(
-					sprintf(
-						/* translators: placeholder is a unit of time (1 hour, 5 days, ...) */
-						esc_html__( 'Your site was successfully backed up %s ago.', 'jetpack' ),
-						human_time_diff(
-							$data->backups->last_backup,
-							current_time( 'timestamp' )
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html(
+						sprintf(
+							/* translators: placeholder is a unit of time (1 hour, 5 days, ...) */
+							esc_html__( 'Your site was successfully backed up %s ago.', 'jetpack' ),
+							human_time_diff(
+								$data->backups->last_backup,
+								current_time( 'timestamp' ) // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- We cannot switch to time() or another "unix" timestamp option as long as $data->backups->last_backup uses WP timestamps.
+							)
 						)
-					)
-				),
-				'data'    => $data,
-			) );
+					),
+					'data'    => $data,
+				)
+			);
 		}
 	}
 

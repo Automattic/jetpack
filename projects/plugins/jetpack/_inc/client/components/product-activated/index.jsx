@@ -1,17 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import Gridicon from 'components/gridicon';
+import React from 'react';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 const ProductActivated = () => {

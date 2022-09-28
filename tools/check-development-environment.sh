@@ -2,6 +2,7 @@
 
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 . tools/includes/chalk-lite.sh
+. tools/includes/version-compare.sh
 . .github/versions.sh
 
 EXIT=0
@@ -10,7 +11,7 @@ EXIT=0
 #
 # @param $1 Anchor.
 function doclink {
-	blue "  See https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#$1"
+	blue "  See https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#$1"
 }
 
 # Print the bullet to start a check.
@@ -61,70 +62,6 @@ function warning {
 	fi
 	if [[ -n "$LINK" ]]; then
 		doclink "$LINK"
-	fi
-}
-
-# Compare two version numbers, semver style.
-#
-# Normally we'd just `pnpx semver`, but when testing if pnpm is even available
-# we can't rely on that.
-#
-# @param $1 First version.
-# @param $2 Second version.
-# @param $3 Pass "1" to test `>` rather than `>=`.
-# @return true if $1 >= $2, false otherwise.
-function version_compare {
-	local -i EQ=${3:0}
-	if [[ "$1" == "$2" ]]; then
-		return $EQ
-	fi
-
-	local A=() B=()
-	IFS='.-' read -r -a A <<<"$1"
-	IFS='.-' read -r -a B <<<"$2"
-
-	while [[ ${#A[@]} -lt 3 ]]; do
-		A+=( '0' )
-	done
-	while [[ ${#B[@]} -lt 3 ]]; do
-		B+=( '0' )
-	done
-
-	local i=0
-	while [[ $i -lt ${#A[@]} && $i -lt ${#B[@]} ]]; do
-		local AA=${A[$i]}
-		local BB=${B[$i]}
-		i=$((i + 1))
-		if [[ "$AA" =~ ^[0-9]+$ ]]; then
-			if ! [[ "$BB" =~ ^[0-9]+$ ]]; then
-				# numeric A < non-numeric B
-				return 1
-			elif [[ $AA -gt $BB ]]; then
-				return 0
-			elif [[ $AA -lt $BB ]]; then
-				return 1
-			fi
-		elif [[ "$BB" =~ ^[0-9]+$ ]]; then
-			# non-numeric A > numeric B
-			return 0
-		elif [[ "$AA" > "$BB" ]]; then
-			return 0
-		elif [[ "$AA" < "$BB" ]]; then
-			return 1
-		fi
-	done
-
-	if [[ ${#A[@]} -eq ${#B[@]} ]]; then
-		return $EQ
-	elif [[ ${#A[@]} -eq 3 ]]; then
-		# Something with no pre-release components > something with
-		return 0
-	elif [[ ${#B[@]} -eq 3 ]]; then
-		# Something with pre-release components < something without
-		return 1
-	else
-		# The thing with more pre-release components is greater.
-		[[ ${#A[@]} -gt ${#B[@]} ]]
 	fi
 }
 
@@ -279,7 +216,7 @@ if [[ -z "$BIN" ]]; then
 else
 	VER="$(composer --version 2>/dev/null | sed -n -E 's/^Composer( version)? ([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.*/\2/p')"
 	VX="$(sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/' <<<"$COMPOSER_VERSION")"
-	version_range 'Composer' "$BIN" 'composer' "$VER" "$VX.0" "$COMPOSER_VERSION" "$VX.9999999" true
+	version_range 'Composer' "$BIN" 'composer' "$VER" "$COMPOSER_VERSION" "$COMPOSER_VERSION" "$VX.9999999" true
 fi
 
 checking 'Required extensions are installed'
@@ -311,7 +248,11 @@ if [[ -z "$BIN" ]]; then
 	failure "no node found" 'nodejs'
 else
 	VER="$(node --version 2>/dev/null | sed -n -E 's/^v([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)$/\1/p')"
-	VM="$(jq -r '.engines.node | sub( "^\\^"; "" )' package.json)"
+	# We have multiple allowed major versions of node. Pick the right one for the version of node installed.
+	VM="$(jq -r --arg ver "${VER%%.*}" '.engines.node | split( " || " )[] | sub( "^\\^"; "" ) | select( sub( "\\..*"; "" ) == $ver )' package.json)"
+	if [[ -z "$VM" ]]; then
+		VM="$(jq -r --arg ver "${NODE_VERSION%%.*}" '.engines.node | split( " || " )[] | sub( "^\\^"; "" ) | select( sub( "\\..*"; "" ) == $ver )' package.json)"
+	fi
 	VX="$(sed -E 's/^([0-9]+)\..*/\1/' <<<"$NODE_VERSION")"
 	version_range 'Node' "$BIN" 'nodejs' "$VER" "$VM" "$NODE_VERSION" "$VX.9999999"
 fi
@@ -320,8 +261,6 @@ checking 'Usable version of pnpm'
 BIN="$(command -v pnpm)"
 if [[ -z "$BIN" ]]; then
 	failure "no pnpm found" 'pnpm'
-elif [[ -z "$(command -v pnpx)" ]]; then
-	failure "no pnpx found" 'pnpm' "You have pnpm but not pnpx. That probably means your installation is broken."
 else
 	VER="$(pnpm --version 2>/dev/null | sed -n -E 's/^([0-9]+\.[0-9]+\.[0-9a-zA-Z.-]+)$/\1/p')"
 	VM="$(jq -r '.engines.pnpm | sub( "^\\^"; "" )' package.json)"
@@ -388,7 +327,7 @@ echo ""
 checking 'Command jetpack is available'
 BIN="$(command -v jetpack)"
 if [[ -z "$BIN" ]]; then
-	warning "no" 'jetpack-cli' "If you don't make the Jetpack CLI available, you'll need to run ${CS}pnpx jetpack${CE} where docs and such say ${CS}jetpack${CE}."
+	warning "no" 'jetpack-cli' "If you don't make the Jetpack CLI available, you'll need to run ${CS}pnpm jetpack${CE} where docs and such say ${CS}jetpack${CE}."
 else
 	success "yes"
 fi

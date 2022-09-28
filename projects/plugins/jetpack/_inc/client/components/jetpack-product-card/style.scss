@@ -77,67 +77,48 @@
 }
 
 .jp-product-card__price {
-	display: flex;
-	flex-wrap: wrap;
-	flex-direction: row;
-	margin-top: auto;
-	color: $black;
-}
+	// Price item
+	> div > p {
+		margin-inline-end: 0.75rem !important;
 
-.jp-product-card__raw-price {
-	display: flex;
-	margin: 0 22px 0 0;
-	font-size: $font-headline-medium;
-}
+		font-size: 3.375rem;
+		font-weight: 700;
+		line-height: 0.7;
 
-.jp-product-card__raw-price--is-old-price {
-	position: relative;
-	color: $studio-gray-20;
+		// Currency symbol
+		sup:first-of-type {
+			font-size: 1.5rem;
+			margin-top: -0.25rem;
+		}
 
-	&::after {
-		content: " ";
-		display: block;
-		width: 100%;
-		height: 3px;
-		background: #c9356e;
-		border-radius: 5px;
-		position: absolute;
-		top: 50%;
-		margin-top: -2px;
-		pointer-events: none;
+		// Fraction
+		sup:last-of-type {
+			font-size: 0.75rem;
+			margin-top: -0.75rem;
+		}
+
+		// Final price
+		&:last-child {
+			color: var( --jp-gray-100 );
+		}
+	}
+
+	// Billing timeframe
+	> p {
+		margin-top: 0.5rem;
+
+		font-size: 0.875rem;
 	}
 }
 
-.jp-product-card__currency-symbol {
-	padding-right: 1px;
-	font-size: .5em;
-	line-height: 1.4;
-}
-
-.jp-product-card__price-integer {
-	font-size: inherit;
-	font-weight: $bold;
-	line-height: 1;
-}
-
-.jp-product-card__price-fraction {
-	padding-left: 1px;
-	font-size: 0.35em;
-	font-weight: $bold;
-	line-height: 1.7;
-}
-
-.jp-product-card__price-description {
-	display: block;
-	font-size: $font-body-small;
-	color: $studio-gray-40;
-	margin-bottom: 32px;
-	letter-spacing: 0.2px;
+.jp-product-card__disclaimer {
+	margin-bottom: 0;
 }
 
 .jp-product-card__checkout {
 	align-self: flex-start;
 	font-size: rem( 16px );
+	margin-top: 2rem;
 	padding-left: 60px;
 	padding-right: 60px;
 	text-align: center;
@@ -154,9 +135,7 @@
 			color: $white;
 		}
 		&:focus {
-			box-shadow:
-				0 0 0 1px $white,
-				0 0 0 3px $black;
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
 		}
 	}
 
@@ -173,9 +152,7 @@
 			color: $white;
 		}
 		&:focus {
-			box-shadow:
-				0 0 0 1px $white,
-				0 0 0 3px $black;
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
 		}
 	}
 }

@@ -100,7 +100,7 @@ class Jetpack_Calypsoify {
 	 * @return string
 	 */
 	private function get_calypso_origin() {
-		$origin  = ! empty( $_GET['origin'] ) ? $_GET['origin'] : 'https://wordpress.com'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$origin  = ! empty( $_GET['origin'] ) ? wp_unslash( $_GET['origin'] ) : 'https://wordpress.com'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$allowed = array(
 			'http://calypso.localhost:3000',
 			'http://127.0.0.1:41050', // Desktop App.
@@ -124,7 +124,7 @@ class Jetpack_Calypsoify {
 		$post_type   = $screen->post_type;
 		$site_suffix = ( new Status() )->get_site_suffix();
 
-		if ( is_null( $post_id ) ) {
+		if ( $post_id === null ) {
 			// E.g. posts or pages have no special suffix. CPTs are in the `types/{cpt}` format.
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
 				? "/${post_type}s/"
@@ -192,25 +192,25 @@ class Jetpack_Calypsoify {
 	public function is_page_gutenberg() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Disabling WordPress.Security.NonceVerification.Recommended because this function fires within admin_init and this is only changing display.
-		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
+		$page = isset( $_SERVER['REQUEST_URI'] ) ? wp_basename( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '';
 
 		if ( false !== strpos( $page, 'post-new.php' ) && empty( $_GET['post_type'] ) ) {
 			return true;
 		}
 
-		if ( false !== strpos( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && $this->is_post_type_gutenberg( $_GET['post_type'] ) ) {
+		if ( false !== strpos( $page, 'post-new.php' ) && isset( $_GET['post_type'] ) && $this->is_post_type_gutenberg( sanitize_key( $_GET['post_type'] ) ) ) {
 			return true;
 		}
 
 		if ( false !== strpos( $page, 'post.php' ) ) {
-			$post = get_post( $_GET['post'] );
+			$post = get_post( isset( $_GET['post'] ) ? intval( $_GET['post'] ) : null );
 			if ( isset( $post ) && isset( $post->post_type ) && $this->is_post_type_gutenberg( $post->post_type ) ) {
 				return true;
 			}
 		}
 
 		if ( false !== strpos( $page, 'revision.php' ) ) {
-			$post   = get_post( $_GET['revision'] );
+			$post   = get_post( isset( $_GET['revision'] ) ? intval( $_GET['revision'] ) : null );
 			$parent = get_post( $post->post_parent );
 			if ( isset( $parent ) && isset( $parent->post_type ) && $this->is_post_type_gutenberg( $parent->post_type ) ) {
 				return true;

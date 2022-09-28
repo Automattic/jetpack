@@ -114,7 +114,7 @@ class Jetpack_Monitor {
 	 * Returns date of the last downtime.
 	 *
 	 * @since 4.0.0
-	 * @return date in YYYY-MM-DD HH:mm:ss format
+	 * @return string date in YYYY-MM-DD HH:mm:ss format
 	 */
 	public function monitor_get_last_downtime() {
 		$xml = new Jetpack_IXR_Client();

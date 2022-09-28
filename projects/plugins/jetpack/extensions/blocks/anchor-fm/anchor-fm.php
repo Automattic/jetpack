@@ -62,7 +62,7 @@ function register_extension() {
 function process_anchor_params() {
 	if (
 		! function_exists( 'get_current_screen' )
-		|| is_null( \get_current_screen() )
+		|| \get_current_screen() === null
 	) {
 		return;
 	}
@@ -80,7 +80,7 @@ function process_anchor_params() {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	$podcast_id  = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
 	$episode_id  = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
-	$spotify_url = isset( $_GET['spotify_url'] ) ? wp_unslash( $_GET['spotify_url'] ) : null;
+	$spotify_url = isset( $_GET['spotify_url'] ) ? esc_url_raw( wp_unslash( $_GET['spotify_url'] ) ) : null;
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	$data = array(

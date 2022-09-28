@@ -66,7 +66,7 @@ if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
 	die "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 fi
 CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN_DIR")
-if pnpx semver --range "<= $("$BASE/tools/plugin-version.sh" -n 3 -v "$CUR_VERSION")" "$("$BASE/tools/plugin-version.sh" -n 3 -v "$NORMALIZED_VERSION")" &>/dev/null; then
+if pnpm semver --range "<= $("$BASE/tools/plugin-version.sh" -n 3 -v "$CUR_VERSION")" "$("$BASE/tools/plugin-version.sh" -n 3 -v "$NORMALIZED_VERSION")" &>/dev/null; then
 	proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
 fi
 
@@ -75,11 +75,11 @@ if [[ "$(git status --porcelain)" ]]; then
 	die "Working directory is not clean. Aborting."
 fi
 
-# Make sure we're on latest master, or at least that the user is fine with it.
+# Make sure we're on latest trunk, or at least that the user is fine with it.
 git fetch
-if [[ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]]; then
-	if proceed_p "Current branch is $(git rev-parse --abbrev-ref HEAD)." "Check out master?"; then
-		git checkout master
+if [[ "$(git rev-parse --abbrev-ref HEAD)" != "trunk" ]]; then
+	if proceed_p "Current branch is $(git rev-parse --abbrev-ref HEAD)." "Check out trunk?"; then
+		git checkout trunk
 	else
 		proceed_p " " "Continue anyway?"
 	fi

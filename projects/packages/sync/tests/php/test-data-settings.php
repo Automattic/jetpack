@@ -50,8 +50,17 @@ class Test_Data_Settings extends BaseTestCase {
 	 */
 	public function test_add_settings_list_modules_inputs( $settings ) {
 		$this->data_settings->add_settings_list( $settings );
-		$this->assertSame( $this->get_all_defaults(), $this->data_settings->get_data_settings() );
-		$this->assertSame( 0, did_action( 'jetpack_sync_add_required_data_settings' ) );
+
+		$result = $this->data_settings->get_data_settings();
+		$this->sort_settings_array( $result );
+
+		$expected = $this->get_all_defaults();
+		$this->sort_settings_array( $expected );
+
+		$this->assertSame( $expected, $result );
+		if ( ! is_array( $settings ) ) {
+			$this->assertSame( 0, did_action( 'jetpack_sync_add_required_data_settings' ) );
+		}
 
 		foreach ( array_keys( $this->get_all_defaults() ) as $key ) {
 			$this->assertFalse( has_action( $key ) );
@@ -65,20 +74,16 @@ class Test_Data_Settings extends BaseTestCase {
 	 */
 	public function data_provider_test_add_settings_list_default_inputs() {
 		return array(
-			'empty array'         => array( array() ),
-			'null'                => array( null ),
-			'string'              => array( 'test' ),
-			'integer'             => array( 1 ),
-			'modules empty array' => array(
-				array( 'jetpack_sync_modules' => array() ),
-			),
-			'modules null'        => array(
+			'null'            => array( null ),
+			'string'          => array( 'test' ),
+			'integer'         => array( 1 ),
+			'modules null'    => array(
 				array( 'jetpack_sync_modules' => null ),
 			),
-			'modules string'      => array(
+			'modules string'  => array(
 				array( 'jetpack_sync_modules' => 'test' ),
 			),
-			'modules integer'     => array(
+			'modules integer' => array(
 				array( 'jetpack_sync_modules' => 1 ),
 			),
 		);
@@ -124,6 +129,9 @@ class Test_Data_Settings extends BaseTestCase {
 			'some modules, no filters set'                 => array(
 				Data_Test_Data_Settings::data_test_1(),
 			),
+			'some modules, no filters set 2'               => array(
+				Data_Test_Data_Settings::data_test_1_2(),
+			),
 			'some modules, some filters set'               => array(
 				Data_Test_Data_Settings::data_test_2(),
 			),
@@ -141,6 +149,12 @@ class Test_Data_Settings extends BaseTestCase {
 			),
 			'some modules, empty array for a filter'       => array(
 				Data_Test_Data_Settings::data_test_7(),
+			),
+			'no modules, empty array for a filter'         => array(
+				Data_Test_Data_Settings::data_test_7_1(),
+			),
+			'empty modules, empty array for a filter'      => array(
+				Data_Test_Data_Settings::data_test_7_2(),
 			),
 		);
 	}
@@ -188,6 +202,9 @@ class Test_Data_Settings extends BaseTestCase {
 			),
 			'first input uses defaults, second uses custom filters' => array(
 				Data_Test_Data_Settings::data_test_9(),
+			),
+			'first input uses custom filters for must-sync module, second uses defaults' => array(
+				Data_Test_Data_Settings::data_test_9_2(),
 			),
 			'both inputs use custom filters' => array(
 				Data_Test_Data_Settings::data_test_10(),

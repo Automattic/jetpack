@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
-import { PostTypeSupportCheck } from '@wordpress/editor';
 import { withDispatch, withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { PostTypeSupportCheck } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import JetpackLikesAndSharingPanel from '../../shared/jetpack-likes-and-sharing-panel';
 
 const LikesCheckbox = ( { areLikesEnabled, editPost } ) => (

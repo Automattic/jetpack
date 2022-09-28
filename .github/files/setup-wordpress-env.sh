@@ -30,30 +30,33 @@ echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
-	master)
-		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	trunk)
+		TAG=trunk
 		;;
 	latest)
-		LATEST=$(php ./tools/get-wp-version.php)
-		git clone --depth=1 --branch "$LATEST" git://develop.git.wordpress.org/ /tmp/wordpress-latest
+		TAG=$(php ./tools/get-wp-version.php)
 		;;
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.8 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		TAG=5.9
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
 		exit 1
 		;;
 esac
+git clone --depth=1 --branch "$TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
+# We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
+rm -rf "/tmp/wordpress-$WP_BRANCH/src"
+git clone --depth=1 --branch "$TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
 echo "::endgroup::"
 
 # Don't symlink, it breaks when copied later.
 export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
-PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-master"] // "dev-master" ) )' projects/packages/*/composer.json)"
+PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"

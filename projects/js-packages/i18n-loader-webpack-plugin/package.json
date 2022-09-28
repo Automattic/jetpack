@@ -1,14 +1,15 @@
 {
 	"name": "@automattic/i18n-loader-webpack-plugin",
-	"version": "2.0.2",
+	"version": "2.0.18",
 	"description": "A Webpack plugin to load WordPress i18n when Webpack lazy-loads a bundle.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/i18n-loader-webpack-plugin/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] I18n Loader Webpack Plugin"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/i18n-loader-webpack-plugin"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -20,17 +21,17 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@wordpress/dependency-extraction-webpack-plugin": "3.3.2",
-		"@wordpress/i18n": "4.3.1",
-		"jest": "27.3.1",
-		"webpack": "5.65.0"
+		"@wordpress/dependency-extraction-webpack-plugin": "4.0.0",
+		"@wordpress/i18n": "4.16.0",
+		"jest": "28.1.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {
 		"webpack": "^5.29.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {

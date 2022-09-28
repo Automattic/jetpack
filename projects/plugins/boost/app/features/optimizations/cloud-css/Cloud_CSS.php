@@ -2,6 +2,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
@@ -43,11 +44,12 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 		REST_API::register( $this->get_endpoints() );
 		Critical_CSS_Invalidator::init();
+		Cloud_CSS_Cron::init();
 
 		return true;
 	}
 
-	public function get_slug() {
+	public static function get_slug() {
 		return 'cloud-css';
 	}
 
@@ -119,8 +121,71 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		}
 		$state->create_request( $source_providers->get_providers() );
 
-		$client = new Cloud_CSS_Request( $state );
-		return $client->request_generate();
+		$client    = new Cloud_CSS_Request();
+		$providers = $state->get_provider_urls();
+		$response  = $client->request_generate( $providers );
+
+		// Set a one off cron job one hour from now. This will resend the request in case it failed.
+		Cloud_CSS_Cron::install( time() + HOUR_IN_SECONDS );
+
+		if ( is_wp_error( $response ) ) {
+			$state->set_as_failed( $response->get_error_message() );
+		}
+		return $response;
+	}
+
+	/**
+	 * Store the Cloud Critical CSS or the error response.
+	 *
+	 * @param  array $params    Request parameters with the Cloud CSS status.
+	 * @return bool[]|\WP_Error Update status response.
+	 */
+	public function update_cloud_css( $params ) {
+		try {
+			$providers = $this->remove_generation_args( $params['providers'] );
+			$state     = new Critical_CSS_State( 'cloud' );
+			$storage   = new Critical_CSS_Storage();
+
+			foreach ( $providers as $provider => $result ) {
+				if ( ! isset( $result['data'] ) ) {
+					$state->set_as_failed( __( 'An unknown error occurred', 'jetpack-boost' ) );
+					continue;
+				}
+				$data = $result['data'];
+				if ( isset( $result['success'] ) && $result['success'] ) {
+					$state->set_source_success( $provider );
+					$storage->store_css( $provider, $data['css'] );
+				} elseif ( isset( $data['show_stopper'] ) && $data['show_stopper'] ) {
+					$state->set_as_failed( $data['error'] );
+				} else {
+					$state->set_source_error( $provider, $data['urls'] );
+				}
+			}
+			$state->maybe_set_status();
+
+			return array( 'success' => true );
+		} catch ( \Exception $e ) {
+			return new \WP_Error( 'invalid_request', $e->getMessage(), array( 'status' => 400 ) );
+		}
+	}
+
+	/**
+	 * Remove jb-generate-critical-css arg from each URL in the provider set.
+	 */
+	private function remove_generation_args( $providers ) {
+		foreach ( $providers as &$provider ) {
+			if ( ! isset( $provider['data'] ) || ! isset( $provider['data']['urls'] ) ) {
+				continue;
+			}
+			$formatted = array();
+			foreach ( $provider['data']['urls'] as $url => $error ) {
+				$url                  = remove_query_arg( 'jb-generate-critical-css', $url );
+				$error['meta']['url'] = $url;
+				$formatted[ $url ]    = $error;
+			}
+			$provider['data']['urls'] = $formatted;
+		}
+		return $providers;
 	}
 
 	/**
@@ -131,7 +196,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 			return;
 		}
 
-		$this->generate_cloud_css( $post );
+		$this->generate_cloud_css();
 	}
 
 	/**
@@ -143,8 +208,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Cloud CSS / generation.
-		$state                       = new Critical_CSS_State( 'cloud' );
-		$constants['cloudCssStatus'] = $state->get_generation_status();
+		$generator                      = new Generator( 'cloud' );
+		$constants['criticalCssStatus'] = $generator->get_critical_css_status();
 
 		return $constants;
 	}

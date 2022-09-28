@@ -1,17 +1,25 @@
 <?php
 /**
- * Our Site Logo class for managing a theme-agnostic logo through the Customizer.
+ * Site Logo class main class file.
  *
  * @package automattic/jetpack
+ */
+
+/**
+ * Site Logo class for managing a theme-agnostic logo through the Customizer.
  */
 class Site_Logo {
 	/**
 	 * Stores our single instance.
+	 *
+	 * @var Site_Logo
 	 */
 	private static $instance;
 
 	/**
 	 * Stores the attachment ID of the site logo.
+	 *
+	 * @var int
 	 */
 	public $logo;
 
@@ -173,7 +181,13 @@ class Site_Logo {
 		// Don't bother passing in header text classes if the theme supports custom headers.
 		if ( ! current_theme_supports( 'custom-header' ) ) {
 			$classes = jetpack_sanitize_header_text_classes( $this->header_text_classes() );
-			wp_enqueue_script( 'site-logo-header-text', plugins_url( '../js/site-logo-header-text.js', __FILE__ ), array( 'media-views' ), '', true );
+			wp_enqueue_script(
+				'site-logo-header-text',
+				plugins_url( '../js/site-logo-header-text.js', __FILE__ ),
+				array( 'media-views' ),
+				JETPACK__VERSION,
+				true
+			);
 			wp_localize_script( 'site-logo-header-text', 'site_logo_header_classes', array( 'classes' => $classes ) );
 		}
 	}
@@ -228,7 +242,7 @@ class Site_Logo {
 			?>
 			<!-- Site Logo: hide header text -->
 			<style type="text/css">
-			<?php echo jetpack_sanitize_header_text_classes( $classes ); ?> {
+			<?php echo jetpack_sanitize_header_text_classes( $classes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> {
 				position: absolute;
 				clip: rect(1px, 1px, 1px, 1px);
 			}
@@ -251,7 +265,7 @@ class Site_Logo {
 		$valid_sizes[] = 'full';
 
 		// If the size declared in add_theme_support is valid, use it; otherwise, just go with 'thumbnail'.
-		$size = ( isset( $args[0]['size'] ) && in_array( $args[0]['size'], $valid_sizes ) ) ? $args[0]['size'] : 'thumbnail';
+		$size = ( isset( $args[0]['size'] ) && in_array( $args[0]['size'], $valid_sizes, true ) ) ? $args[0]['size'] : 'thumbnail';
 
 		return $size;
 	}
@@ -259,7 +273,7 @@ class Site_Logo {
 	/**
 	 * Make custom image sizes available to the media manager.
 	 *
-	 * @param array $sizes
+	 * @param array $sizes List of image sizes.
 	 * @uses get_intermediate_image_sizes()
 	 * @return array All default and registered custom image sizes.
 	 */
@@ -269,7 +283,7 @@ class Site_Logo {
 
 		// Have we got anything fun to work with?
 		if ( is_array( $intermediate ) && ! empty( $intermediate ) ) {
-			foreach ( $intermediate as $key => $size ) {
+			foreach ( $intermediate as $size ) {
 				// If the size isn't already in the $sizes array, add it.
 				if ( ! array_key_exists( $size, $sizes ) ) {
 					$sizes[ $size ] = $size;
@@ -282,6 +296,8 @@ class Site_Logo {
 
 	/**
 	 * Add site logos to media states in the Media Manager.
+	 *
+	 * @param array $media_states An array of media states.
 	 *
 	 * @return array The current attachment's media states.
 	 */
@@ -302,7 +318,7 @@ class Site_Logo {
 	/**
 	 * Reset the site logo if the current logo is deleted in the media manager.
 	 *
-	 * @param int $site_id
+	 * @param int $post_id Attachment ID.
 	 * @uses Site_Logo::remove_site_logo()
 	 */
 	public function reset_on_attachment_delete( $post_id ) {
@@ -334,6 +350,7 @@ class Site_Logo {
 	 * Adds custom classes to the array of body classes.
 	 *
 	 * @uses Site_Logo::has_site_logo()
+	 * @param array $classes Classes for the body element.
 	 * @return array Array of <body> classes
 	 */
 	public function body_classes( $classes ) {
@@ -348,18 +365,18 @@ class Site_Logo {
 	/**
 	 * Sanitize our header text Customizer setting.
 	 *
-	 * @param $input
-	 * @return mixed 1 if checked, empty string if not checked.
+	 * @param any $input The input value to sanitize.
+	 * @return bool|string 1 if checked, empty string if not checked.
 	 */
 	public function sanitize_checkbox( $input ) {
-		return ( 1 == $input ) ? 1 : '';
+		return ( 1 === (int) $input ) ? 1 : '';
 	}
 
 	/**
 	 * Validate and sanitize a new site logo setting.
 	 *
-	 * @param $input
-	 * @return mixed 1 if checked, empty string if not checked.
+	 * @param any $input Logo setting value to sanitize.
+	 * @return int Attachment post ID, or 0 if invalid.
 	 */
 	public function sanitize_logo_setting( $input ) {
 		$input = absint( $input );

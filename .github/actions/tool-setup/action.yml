@@ -4,7 +4,7 @@ inputs:
   php:
     description: "Override the PHP version, or set 'false' to skip setting up PHP."
   coverage:
-    description: "Set the coverage driver, e.g. 'none' or 'pcov'."
+    description: "Set the PHP coverage driver, e.g. 'none' or 'pcov'."
     default: 'none'
   node:
     description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
@@ -18,7 +18,13 @@ runs:
         INPUT_NODE: ${{ inputs.node }}
         INPUT_PHP: ${{ inputs.php }}
       run: |
+        # Read tool versions
         . .github/versions.sh
+
+        if [[ "${INPUT_PHP:-$PHP_VERSION}" == 5.6 || "${INPUT_PHP:-$PHP_VERSION}" == 7.[01] ]]; then
+          printf "Downgrading composer for PHP %s\n\n" "${INPUT_PHP:-$PHP_VERSION}"
+          COMPOSER_VERSION=2.2.12
+        fi
 
         printf "\n\e[1mSelected tool versions\e[0m\n"
         echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
@@ -37,7 +43,7 @@ runs:
         PHP: ${{ steps.versions.outputs.php-version }}
         NODE: ${{ steps.versions.outputs.node-version }}
       run: |
-        printf "\n\e[1mRemoving installed versions of disabled tools\e[0m\n"
+        # Remove disabled tools
         torm=()
         if [[ "$PHP" == "false" ]]; then
           torm+=( php composer )
@@ -51,9 +57,6 @@ runs:
           done
         done
 
-    - run: printf "\n\e[1mSetup PHP\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.php-version != 'false'
     - name: Setup PHP
       if: steps.versions.outputs.php-version != 'false'
       uses: shivammathur/setup-php@v2
@@ -64,53 +67,39 @@ runs:
         extensions: mysql, imagick
         coverage: ${{ inputs.coverage }}
 
-    - run: printf "\n\e[1mSetup Node\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.node-version != 'false'
-    - name: Setup Node
-      if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ steps.versions.outputs.node-version }}
-
-    - run: printf "\n\e[1mSetup Composer cache\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.php-version != 'false'
     - name: Get Composer cache directory
       if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
       shell: bash
       run: |
+        # Get Composer cache directory
         echo "::set-output name=dir::$(composer config cache-files-dir)"
     - name: Use composer cache
       if: steps.versions.outputs.php-version != 'false'
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-composer-
 
-    - run: printf "\n\e[1mSetup pnpm\e[0m\n"
-      shell: bash
-      if: steps.versions.outputs.node-version != 'false'
-    - name: Use pnpm cache
-      if: steps.versions.outputs.node-version != 'false'
-      uses: actions/cache@v2
-      with:
-        path: ~/.pnpm-store
-        key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
-        restore-keys: |
-          ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.2.1
+      uses: pnpm/action-setup@v2.2.2
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
+    - name: Setup Node
+      if: steps.versions.outputs.node-version != 'false'
+      uses: actions/setup-node@v3
+      with:
+        # Prefix the version with a caret as otherwise actions/setup-node will waste API calls finding where to download the exact version.
+        node-version: ^${{ steps.versions.outputs.node-version }}
+        cache: pnpm
 
     - name: Tool versions
       shell: bash
       run: |
+        # Tool versions
         function docmd {
           if [[ -z "$(command -v $1)" ]]; then
             echo "$1 is not available"

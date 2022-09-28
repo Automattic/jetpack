@@ -1,13 +1,13 @@
 const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
+const fetch = require( 'node-fetch' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const shellescape = require( 'shell-escape' );
 const logger = require( '../logger.cjs' );
 const { join } = require( 'path' );
-const WordpressAPI = require( '../api/wp-api.cjs' );
 const { E2E_DEBUG } = process.env;
-const BASE_DOCKER_CMD = 'pnpx jetpack docker --type e2e --name t1';
+const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -42,7 +42,8 @@ function execSyncShellCommand( cmd ) {
 }
 
 async function resetWordpressInstall() {
-	const cmd = 'pnpx e2e-env reset';
+	const cmd = 'pnpm e2e-env reset';
+	await cancelPartnerPlan();
 	execSyncShellCommand( cmd );
 }
 
@@ -80,6 +81,13 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'w
 	return true;
 }
 
+async function cancelPartnerPlan() {
+	logger.step( `Cancelling partner plan` );
+	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const cmd = `sh /usr/local/src/jetpack-monorepo/tools/partner-cancel.sh -- --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;
+	await execContainerShellCommand( cmd );
+}
+
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
@@ -94,12 +102,8 @@ async function activateModule( page, module ) {
 	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
-		throw new Error( `${ module } failed to activate` );
+		throw new Error( `Failed to activate module ${ module }!` );
 	}
-
-	// todo we shouldn't have page references in here. these methods could be called without a browser being opened
-	await page.waitForTimeout( 1000 );
-	await page.reload( { waitUntil: 'domcontentloaded' } );
 
 	return true;
 }
@@ -107,11 +111,17 @@ async function activateModule( page, module ) {
 async function execWpCommand( wpCmd, sendUrl = true ) {
 	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
-	const result = await execShellCommand( cmd );
+	let result = await execShellCommand( cmd );
 
-	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.replace( '#!/usr/bin/env php\n', '' ).trim();
+		// Something in playwright 1.26 has started outputting these warnings. Strip them off.
+		result = result.replace(
+			/^(\(node:\d+\) ExperimentalWarning: Custom ESM Loaders is an experimental feature\. This feature could change at any time\n\(Use `node --trace-warnings \.\.\.` to show where the warning was created\)\n)+/,
+			''
+		);
+
+		// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
+		result = result.replace( '#!/usr/bin/env php\n', '' ).trim();
 	}
 
 	return result;
@@ -152,7 +162,7 @@ async function logDebugLog() {
 }
 
 async function logAccessLog() {
-	// const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
+	// const apacheLog = execSyncShellCommand( 'pnpm wp-env logs tests --watch=false' );
 	const apacheLog = 'EMPTY';
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `access_${ escapedDate }.log`;
@@ -285,8 +295,14 @@ async function logEnvironment() {
 			env = fs.readFileSync( envFilePath );
 		}
 
-		const wpApi = new WordpressAPI( getSiteCredentials(), resolveSiteUrl() );
-		const plugins = await wpApi.getPlugins();
+		const credentials = getSiteCredentials();
+		const plugins = await fetch( resolveSiteUrl() + '/index.php?rest_route=/wp/v2/plugins', {
+			headers: {
+				Authorization:
+					'Basic ' +
+					Buffer.from( credentials.username + ':' + credentials.apiPassword ).toString( 'base64' ),
+			},
+		} ).then( res => res.json() );
 
 		for ( const p of plugins ) {
 			env.plugins.push( {

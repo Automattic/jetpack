@@ -1,15 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
+import { render, screen, within } from 'test/test-utils';
 import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {
@@ -48,11 +39,10 @@ describe( 'SettingsGroup', () => {
 			'comments',
 			'json-api',
 			'photon',
-			'google-fonts',
 		],
-		allGroupsForNonAdmin = [ 'post-by-email' ];
+		allGroupsForNonAdmin = [ 'post-by-email', 'publicize' ];
 
-	let testProps = {
+	const testProps = {
 		info: {
 			text: 'Help text about Protect',
 			link: getRedirectUrl( 'jetpack-support-protect' ),
@@ -64,18 +54,23 @@ describe( 'SettingsGroup', () => {
 		isUnavailableInOfflineMode: () => false,
 	};
 
-	const settingsGroup = shallow( <SettingsGroup support={ testProps.info } hasChild /> );
-
 	it( 'outputs a special CSS class when it has the hasChild property', () => {
-		expect( settingsGroup.find( 'Card' ).props().className ).to.contain( 'jp-form-has-child' );
+		const { container } = render( <SettingsGroup support={ testProps.info } hasChild /> );
+		// eslint-disable-next-line testing-library/no-container
+		expect( container.querySelector( '.dops-card' ) ).toHaveClass( 'jp-form-has-child' );
 	} );
 
 	it( 'the support info icon has an informational tooltip', () => {
-		expect( settingsGroup.find( 'SupportInfo' ) ).to.have.length( 1 );
+		render( <SettingsGroup support={ testProps.info } hasChild /> );
+		const button = screen.getByRole( 'button', { name: 'Learn more' } );
+		const node = within( button ).getByText( 'Learn more' );
+		expect( node ).toBeInTheDocument();
+		expect( node ).toHaveClass( 'screen-reader-text' );
 	} );
 
 	it( 'does not have a support info icon if no link or module was passed', () => {
-		expect( shallow( <SettingsGroup /> ).find( 'SupportInfo' ) ).to.have.length( 0 );
+		render( <SettingsGroup /> );
+		expect( screen.queryByRole( 'button', { name: 'Learn more' } ) ).not.toBeInTheDocument();
 	} );
 
 	describe( 'has a fading layer', () => {
@@ -84,9 +79,9 @@ describe( 'SettingsGroup', () => {
 				disableInOfflineMode: true,
 				isUnavailableInOfflineMode: () => true,
 			};
-			expect(
-				shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' )
-			).to.have.length( 1 );
+			const { container } = render( <SettingsGroup { ...disabled } /> );
+			// eslint-disable-next-line testing-library/no-container
+			expect( container.querySelector( '.jp-form-block-fade' ) ).toBeInTheDocument();
 		} );
 
 		it( 'visible in Post by Email when user is unlinked', () => {
@@ -96,9 +91,9 @@ describe( 'SettingsGroup', () => {
 				},
 				isLinked: false,
 			};
-			expect(
-				shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' )
-			).to.have.length( 1 );
+			const { container } = render( <SettingsGroup { ...disabled } /> );
+			// eslint-disable-next-line testing-library/no-container
+			expect( container.querySelector( '.jp-form-block-fade' ) ).toBeInTheDocument();
 		} );
 
 		it( 'not visible in Post by Email when user is linked', () => {
@@ -108,33 +103,33 @@ describe( 'SettingsGroup', () => {
 				},
 				isLinked: true,
 			};
-			expect(
-				shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' )
-			).to.have.length( 0 );
+			const { container } = render( <SettingsGroup { ...disabled } /> );
+			// eslint-disable-next-line testing-library/no-container
+			expect( container.querySelector( '.jp-form-block-fade' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
 	describe( 'When user is not an admin', () => {
-		Object.assign( testProps, {
-			userCanManageModules: false,
+		it.each( allGroupsNonAdminCantAccess )( 'does not render %s group', item => {
+			const props = {
+				...testProps,
+				userCanManageModules: false,
+				module: item,
+			};
+			const { container } = render( <SettingsGroup module={ props } /> );
+			// eslint-disable-next-line testing-library/no-container
+			expect( container.querySelector( '.jp-form-settings-group' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'does not render groups that are not After the Deadline or Post by Email', () => {
-			allGroupsNonAdminCantAccess.forEach( item => {
-				testProps.module = item;
-				expect(
-					shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' )
-				).to.have.length( 0 );
-			} );
-		} );
-
-		it( 'renders After the Deadline and Post by Email groups', () => {
-			allGroupsForNonAdmin.forEach( item => {
-				testProps.module = item;
-				expect(
-					shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' )
-				).to.have.length( 1 );
-			} );
+		it.each( allGroupsForNonAdmin )( 'renders %s group', item => {
+			const props = {
+				...testProps,
+				userCanManageModules: false,
+				module: item,
+			};
+			const { container } = render( <SettingsGroup module={ props } /> );
+			// eslint-disable-next-line testing-library/no-container
+			expect( container.querySelector( '.jp-form-settings-group' ) ).toBeInTheDocument();
 		} );
 	} );
 } );

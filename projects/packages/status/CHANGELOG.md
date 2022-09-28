@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.3] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.14.2] - 2022-07-19
+### Changed
+- Update logic in `is_woa_site` function for host changes [#25067]
+
+## [1.14.1] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.14.0] - 2022-06-14
+### Fixed
+- Moved the connection_url_redirect action handling to the connection package. [#24529]
+
+## [1.13.6] - 2022-05-24
+### Added
+- Allow plugins to filter the list of available modules. Only activate and consider active modules that are available [#24454]
+
+## [1.13.5] - 2022-05-20
+### Changed
+- Modules: Make activate() method Jetpack plugin agnostic. Allowing standalone plugins to use it without Jetpack.
+
+## [1.13.4] - 2022-05-19
+### Added
+- PHPCS updates. [#24418]
+
+## [1.13.3] - 2022-05-10
+
+## [1.13.2] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.13.1] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
+## [1.13.0] - 2022-04-05
+### Added
+- Created Modules and File modules for managing those resources
+
 ## [1.12.0] - 2022-03-02
 ### Added
 - Cache return values (per blog) from various status methods.
@@ -166,6 +208,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[1.14.3]: https://github.com/Automattic/jetpack-status/compare/v1.14.2...v1.14.3
+[1.14.2]: https://github.com/Automattic/jetpack-status/compare/v1.14.1...v1.14.2
+[1.14.1]: https://github.com/Automattic/jetpack-status/compare/v1.14.0...v1.14.1
+[1.14.0]: https://github.com/Automattic/jetpack-status/compare/v1.13.6...v1.14.0
+[1.13.6]: https://github.com/Automattic/jetpack-status/compare/v1.13.5...v1.13.6
+[1.13.5]: https://github.com/Automattic/jetpack-status/compare/v1.13.4...v1.13.5
+[1.13.4]: https://github.com/Automattic/jetpack-status/compare/v1.13.3...v1.13.4
+[1.13.3]: https://github.com/Automattic/jetpack-status/compare/v1.13.2...v1.13.3
+[1.13.2]: https://github.com/Automattic/jetpack-status/compare/v1.13.1...v1.13.2
+[1.13.1]: https://github.com/Automattic/jetpack-status/compare/v1.13.0...v1.13.1
+[1.13.0]: https://github.com/Automattic/jetpack-status/compare/v1.12.0...v1.13.0
 [1.12.0]: https://github.com/Automattic/jetpack-status/compare/v1.11.2...v1.12.0
 [1.11.2]: https://github.com/Automattic/jetpack-status/compare/v1.11.1...v1.11.2
 [1.11.1]: https://github.com/Automattic/jetpack-status/compare/v1.11.0...v1.11.1

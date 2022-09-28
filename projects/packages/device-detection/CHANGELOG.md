@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.18] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.4.17] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.4.16] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.4.15] - 2022-04-19
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+
+## [1.4.14] - 2022-03-29
+### Changed
+- Microperformance: Use === null instead of is_null
+
 ## [1.4.13] - 2022-02-09
 ### Fixed
 - Fixed some new PHPCS warnings.
@@ -104,6 +124,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[1.4.18]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.17...v1.4.18
+[1.4.17]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.16...v1.4.17
+[1.4.16]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.15...v1.4.16
+[1.4.15]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.14...v1.4.15
+[1.4.14]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.13...v1.4.14
 [1.4.13]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.12...v1.4.13
 [1.4.12]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.11...v1.4.12
 [1.4.11]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.10...v1.4.11

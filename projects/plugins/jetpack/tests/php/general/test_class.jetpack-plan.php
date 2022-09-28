@@ -1,6 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-// phpcs:disable Squiz.Commenting, Generic.Commenting  -- Tests should be self documenting
+<?php
 
 /**
  * Contains the tests for the Jetpack_Plan class.
@@ -27,7 +25,7 @@ class WP_Test_Jetpack_Plan extends WP_UnitTestCase {
 	 * @dataProvider get_update_from_sites_response_data
 	 */
 	public function test_update_from_sites_response( $response, $expected_plan_slug_after, $expected_return, $initial_option = null ) {
-		if ( ! is_null( $initial_option ) ) {
+		if ( $initial_option !== null ) {
 			update_option( 'jetpack_active_plan', $initial_option, true );
 		}
 

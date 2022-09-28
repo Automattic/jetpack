@@ -1,23 +1,16 @@
-/**
- * External dependencies
- */
-import chalk from 'chalk';
 import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
-import simpleGit from 'simple-git';
-
-/**
- * Internal dependencies
- */
-import promptForProject from '../helpers/promptForProject.js';
-import { chalkJetpackGreen } from '../helpers/styling.js';
+import { readComposerJson } from '../helpers/json.js';
 import { normalizeProject } from '../helpers/normalizeArgv.js';
 import { projectTypes, allProjects } from '../helpers/projectHelpers.js';
-import { readComposerJson } from '../helpers/json.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { runCommand } from '../helpers/runCommand.js';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Comand definition for changelog subcommand.
@@ -166,6 +159,10 @@ export function changelogDefine( yargs ) {
 							.option( 'link', {
 								describe: 'Link for the new changelog entry',
 								type: 'string',
+							} )
+							.option( 'add-pr-num', {
+								describe: 'Append the GH PR number to each entry',
+								type: 'boolean',
 							} );
 					},
 					async argv => {
@@ -308,6 +305,16 @@ async function changelogAdd( argv ) {
 
 		const promptType = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
 
+		// Bail if user doesn't want to auto-add.
+		if ( ! promptType.autoAdd && ! promptType.autoPrompt ) {
+			console.log(
+				chalk.green(
+					`Auto changelog cancelled. You can run 'jetpack changelog add [project-type/project]' to add changelogs individually.`
+				)
+			);
+			return;
+		}
+
 		// Auto add the changelog files for the projects that we can:
 		if ( promptType.autoAdd ) {
 			console.log(
@@ -399,9 +406,14 @@ async function changelogArgs( argv ) {
 		argv.args.push( ...argv.pass );
 	}
 
-	// Check for required command specific arguements.
+	// Check for required command specific arguments.
 	switch ( argv.args[ 0 ] ) {
 		case 'add':
+			console.log(
+				"When writing your changelog entry, please use the format 'Subject: change description.'\n" +
+					'Here is an example of a good changelog entry:\n' +
+					'  Sitemaps: ensure that the Home URL is slashed on subdirectory websites.\n'
+			);
 			if ( ( argv.s && argv.t && argv.e ) || argv.auto ) {
 				argv.args.push( '--no-interaction' );
 			} else if ( argv.s || argv.t || argv.e ) {
@@ -460,6 +472,7 @@ async function changeloggerSquash( argv, file ) {
 			console.log( 'Updating readme...' );
 			await runCommand( 'tools/plugin-changelog-to-readme.sh', [ `${ argv.project }` ] );
 		}
+		console.log( chalk.green( 'Squash complete!' ) );
 	} finally {
 		if ( changelogContents !== null ) {
 			fs.writeFileSync( `projects/${ argv.project }/CHANGELOG.md`, changelogContents );
@@ -508,11 +521,19 @@ export async function changeloggerCli( argv ) {
  */
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	for ( const file of gitStatus.not_added ) {
+	const addedFiles = await child_process
+		.spawnSync( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-files',
+			'--others',
+			'--exclude-standard',
+		] )
+		.stdout.toString()
+		.trim();
+	for ( const file of addedFiles.split( '\n' ) ) {
 		if ( path.dirname( file ) === changelogPath ) {
-			git.add( file );
+			await runCommand( 'git', [ 'add', file ] );
 		}
 	}
 }
@@ -544,7 +565,7 @@ async function checkChangelogFiles() {
 		`--no-renames`,
 		`--name-only`,
 		`--merge-base`,
-		`origin/master`,
+		`origin/trunk`,
 	] );
 	touchedFiles = touchedFiles.stdout.toString().trim().split( '\n' );
 
@@ -577,9 +598,9 @@ async function checkChangelogFiles() {
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;
 	for ( const proj of needChangelog ) {
-		const projPath = new URL(
-			`../../../projects/${ proj }/changelog/${ fileName }`,
-			import.meta.url
+		const projPath = path.join(
+			fileURLToPath( new URL( './', import.meta.url ) ),
+			`../../../projects/${ proj }/changelog/${ fileName }`
 		);
 		try {
 			if ( fs.existsSync( projPath ) ) {
@@ -689,15 +710,17 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
 async function promptChangelog( argv, needChangelog ) {
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	const gitBranch = gitStatus.current.replace( /\//g, '-' );
-
+	const gitBranch = child_process
+		.spawnSync( 'git', [ 'branch', '--show-current' ] )
+		.stdout.toString()
+		.trim()
+		.replace( /\//g, '-' );
+	console.log( gitBranch );
 	const commands = await inquirer.prompt( [
 		{
 			type: 'string',
 			name: 'changelogName',
-			message: 'Name your change file:',
+			message: 'Name your changelog file:',
 			default: gitBranch,
 			validate: input => {
 				const fileExists = doesFilenameExist( input, needChangelog );

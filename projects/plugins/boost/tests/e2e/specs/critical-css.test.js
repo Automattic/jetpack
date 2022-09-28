@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/base-test.js';
+import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
@@ -27,7 +27,10 @@ test.describe( 'Critical CSS module', () => {
 	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.isTheCriticalCssMetaInformationVisible() ).toBeFalsy();
+		expect(
+			await jetpackBoostPage.isTheCriticalCssMetaInformationVisible(),
+			'Critical CSS meta information should not be visible'
+		).toBeFalsy();
 	} );
 
 	test( 'No Critical CSS should be available on the frontend when the module is inactive', async () => {
@@ -36,7 +39,8 @@ test.describe( 'Critical CSS module', () => {
 		expect(
 			await page.locator( '#jetpack-boost-critical-css' ).count( {
 				timeout: 5 * 1000,
-			} )
+			} ),
+			'No Critical CSS should be displayed'
 		).toBe( 0 );
 	} );
 
@@ -44,22 +48,29 @@ test.describe( 'Critical CSS module', () => {
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility()
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+			'Critical CSS generation progress indicator should be visible'
 		).toBeTruthy();
-		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
+		expect(
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async () => {
 		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
 		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
-		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
+		expect(
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
 	} );
 
 	test( 'Critical CSS should be available on the frontend when the module is active', async () => {
 		await PostFrontendPage.visit( page );
 		const criticalCss = await page.locator( '#jetpack-boost-critical-css' ).innerText();
-		expect( criticalCss.length ).toBeGreaterThan( 100 );
+		expect( criticalCss.length, 'Critical CSS should be displayed' ).toBeGreaterThan( 100 );
 	} );
 
 	test( 'Critical CSS Admin message should show when the theme is changed', async () => {
@@ -67,16 +78,22 @@ test.describe( 'Critical CSS module', () => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
-		await ( await ThemesPage.init( page ) ).activateTheme( 'twentytwenty' );
-		expect( await page.locator( 'text=Jetpack Boost - Action Required' ).isVisible() ).toBeTruthy();
+		await themesPage.activateTheme( 'twentytwenty' );
+		expect(
+			await themesPage.isElementVisible( 'text=Jetpack Boost - Action Required' )
+		).toBeTruthy();
 		await themesPage.click(
 			'#jetpack-boost-notice-critical-css-regenerate a[href*="jetpack-boost"]'
 		);
 		const jetpackBoostPage = await JetpackBoostPage.init( page );
 		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility()
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+			'Critical CSS generation progress indicator should be visible'
 		).toBeTruthy();
-		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
+		expect(
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
 	} );
 
 	test( 'Critical CSS should be generated with an error (advanced recommendations)', async () => {
@@ -97,10 +114,17 @@ test.describe( 'Critical CSS module', () => {
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
-			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility()
+			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
+			'Critical CSS generation progress indicator should be visible'
 		).toBeTruthy();
-		expect( await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility() ).toBeTruthy();
-		expect( await jetpackBoostPage.isTheCriticalCssFailureMessageVisible() ).toBeTruthy();
+		expect(
+			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
+		expect(
+			await jetpackBoostPage.isTheCriticalCssFailureMessageVisible(),
+			'Critical CSS failure message should be visible'
+		).toBeTruthy();
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
@@ -108,8 +132,14 @@ test.describe( 'Critical CSS module', () => {
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();
-		expect( await jetpackBoostPage.isCriticalCSSAdvancedRecommendationsVisible() ).toBeTruthy();
+		expect(
+			await jetpackBoostPage.isCriticalCSSAdvancedRecommendationsVisible(),
+			'Critical CSS advanced recommendations should be visible'
+		).toBeTruthy();
 		await jetpackBoostPage.navigateToMainSettingsPage();
-		expect( await jetpackBoostPage.isTheCriticalCssMetaInformationVisible() ).toBeTruthy();
+		expect(
+			await jetpackBoostPage.isTheCriticalCssMetaInformationVisible(),
+			'Critical CSS meta information should be visible'
+		).toBeTruthy();
 	} );
 } );

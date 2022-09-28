@@ -411,7 +411,7 @@ class Queue {
 		if ( is_wp_error( $is_valid ) ) {
 			// Always delete ids_to_remove even when buffer is no longer checked-out.
 			// They were processed by WP.com so safe to remove from queue.
-			if ( ! is_null( $ids_to_remove ) ) {
+			if ( $ids_to_remove !== null ) {
 				$this->delete( $ids_to_remove );
 			}
 			return $is_valid;
@@ -420,7 +420,7 @@ class Queue {
 		$this->delete_checkout_id();
 
 		// By default clear all items in the buffer.
-		if ( is_null( $ids_to_remove ) ) {
+		if ( $ids_to_remove === null ) {
 			$ids_to_remove = $buffer->get_item_ids();
 		}
 

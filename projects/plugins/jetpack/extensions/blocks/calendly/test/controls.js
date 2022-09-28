@@ -1,17 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import { CalendlyBlockControls, CalendlyInspectorControls } from '../controls';
 
 describe( 'CalendlyBlockControls', () => {
@@ -30,10 +18,11 @@ describe( 'CalendlyBlockControls', () => {
 		expect( wrapper ).toHaveAttribute( 'type', 'button' );
 	} );
 
-	test( 'triggers onEditClick when user clicks button', () => {
+	test( 'triggers onEditClick when user clicks button', async () => {
+		const user = userEvent.setup();
 		render( <CalendlyBlockControls { ...defaultProps } /> );
 
-		userEvent.click( screen.getByRole( 'button' ) );
+		await user.click( screen.getByRole( 'button' ) );
 		expect( onEditClick ).toHaveBeenCalledWith( true );
 	} );
 } );
@@ -63,22 +52,24 @@ describe( 'CalendlyInspectorControls', () => {
 		setEmbedCode.mockClear();
 	} );
 
-	const renderExpandedSettings = ( props ) => {
+	const renderExpandedSettings = async ( user, props ) => {
 		render( <CalendlyInspectorControls { ...props } /> );
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 	};
 
 	test( 'displays calendar settings panel', () => {
 		render( <CalendlyInspectorControls { ...defaultProps } /> );
 		const panelHeaderButton = screen.getByText( 'Calendar settings' );
+		// eslint-disable-next-line testing-library/no-node-access
 		const panel = panelHeaderButton.closest( '.components-panel__body' );
 
 		expect( panelHeaderButton ).toBeInTheDocument();
 		expect( panel ).not.toHaveClass( 'is-opened' );
 	} );
 
-	test( 'renders embed form when panel is expanded', () => {
-		renderExpandedSettings( defaultProps );
+	test( 'renders embed form when panel is expanded', async () => {
+		const user = userEvent.setup();
+		await renderExpandedSettings( user, defaultProps );
 
 		const input = screen.getByPlaceholderText( 'Calendly web address or embed code…' );
 		const button = screen.getByText( 'Embed' );
@@ -93,28 +84,34 @@ describe( 'CalendlyInspectorControls', () => {
 		expect( button ).toHaveClass( 'is-secondary' );
 	} );
 
-	test( 'updates embedCode as when input value changes', () => {
-		renderExpandedSettings( defaultProps );
+	test( 'updates embedCode as when input value changes', async () => {
+		const user = userEvent.setup();
+		await renderExpandedSettings( user, defaultProps );
 
 		const input = screen.getByPlaceholderText( 'Calendly web address or embed code…' );
 
-		userEvent.paste( input, '/30min' );
+		await user.click( input );
+		await user.paste( '/30min' );
 		expect( setEmbedCode ).toHaveBeenLastCalledWith( `${ defaultProps.embedCode }/30min` );
 	} );
 
 	test( 'parses embed code when form is submitted', async () => {
-		renderExpandedSettings( defaultProps );
+		const user = userEvent.setup();
+
+		// Have parseEmbedCode call preventDefault() to avoid jsdom complaining that it doesn't know how to submit a form.
+		parseEmbedCode.mockImplementation( e => e.preventDefault() );
+
+		await renderExpandedSettings( user, defaultProps );
 
 		const submitButton = await screen.findByText( 'Embed' );
-
-		// fireEvent used as userEvent click on the Embed button fails to trigger submit.
-		await fireEvent.submit( submitButton.closest( 'form' ) );
+		await user.click( submitButton );
 
 		expect( parseEmbedCode ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	test( 'displays toggle control for hiding event details', () => {
-		renderExpandedSettings( defaultProps );
+	test( 'displays toggle control for hiding event details', async () => {
+		const user = userEvent.setup();
+		await renderExpandedSettings( user, defaultProps );
 
 		const label = screen.getByLabelText( 'Hide event type details' );
 		const checkbox = screen.getByRole( 'checkbox' );
@@ -124,44 +121,53 @@ describe( 'CalendlyInspectorControls', () => {
 		expect( checkbox ).not.toBeChecked();
 	} );
 
-	test( 'displays checked toggle control for hiding event details', () => {
+	test( 'displays checked toggle control for hiding event details', async () => {
+		const user = userEvent.setup();
 		const attributes = { ...defaultAttributes, hideEventTypeDetails: true };
 
-		renderExpandedSettings( { ...defaultProps, attributes } );
+		await renderExpandedSettings( user, { ...defaultProps, attributes } );
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
 	} );
 
-	test( 'updates block attributes when hide event details toggled', () => {
-		renderExpandedSettings( defaultProps );
-		userEvent.click( screen.getByLabelText( 'Hide event type details' ) );
+	test( 'updates block attributes when hide event details toggled', async () => {
+		const user = userEvent.setup();
+		await renderExpandedSettings( user, defaultProps );
+		await user.click( screen.getByLabelText( 'Hide event type details' ) );
 
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			hideEventTypeDetails: ! defaultAttributes.hideEventTypeDetails,
 		} );
 	} );
 
-	test( 'displays notice and link when URL present', () => {
-		renderExpandedSettings( defaultProps );
+	test( 'displays notice and link when URL present', async () => {
+		const user = userEvent.setup();
+		await renderExpandedSettings( user, defaultProps );
 
-		const colorHelpUrl = 'https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-';
+		const customizationHelpUrl =
+			'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block';
 		const noticeClass = `${ defaultProps.defaultClassName }-color-notice`;
-		const linkText = 'Follow these instructions to change the colors in this block.';
+		const linkText = 'Explore more customization options.';
 		const link = screen.getByText( linkText );
 
 		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', colorHelpUrl );
+		expect( link ).toHaveAttribute( 'href', customizationHelpUrl );
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( link.closest( '.components-notice' ) ).toHaveClass( noticeClass );
 	} );
 
-	test( 'omits notice when no URL', () => {
+	test( 'omits notice when no URL', async () => {
+		const user = userEvent.setup();
 		const noticeClass = `.${ defaultProps.defaultClassName }-color-notice`;
 		const attributes = { ...defaultAttributes, url: undefined };
-		const { container } = render( <CalendlyInspectorControls { ...{ ...defaultProps, attributes } } /> );
+		const { container } = render(
+			<CalendlyInspectorControls { ...{ ...defaultProps, attributes } } />
+		);
 
-		userEvent.click( screen.getByText( 'Calendar settings' ) );
+		await user.click( screen.getByText( 'Calendar settings' ) );
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.querySelector( noticeClass ) ).not.toBeInTheDocument();
 	} );
 } );

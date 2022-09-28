@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { PanelRow, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import handleDownloadQRCode from '../utils/handle-download-qrcode.js';
 
 /**

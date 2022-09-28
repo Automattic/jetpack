@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
+import { action } from '@storybook/addon-actions';
 import React from 'react';
 import ActionButton from '../index.jsx';
-import { action } from '@storybook/addon-actions';
 
 export default {
 	title: 'JS Packages/Components/Action Button',

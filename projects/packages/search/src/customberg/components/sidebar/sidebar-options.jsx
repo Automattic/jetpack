@@ -1,11 +1,3 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import {
 	Panel,
 	PanelBody,
@@ -14,12 +6,9 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import useSiteLoadingState from 'hooks/use-loading-state';
+import classNames from 'classnames';
 import useEntityRecordState from 'hooks/use-entity-record-state';
+import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
 import ColorControl from './color-control';
 import ExcludedPostTypesControl from './excluded-post-types-control';
@@ -87,7 +76,7 @@ export default function SidebarOptions() {
 				<ColorControl disabled={ isDisabled } onChange={ setColor } value={ color } />
 			</PanelBody>
 
-			<PanelBody title={ __( 'Search options', 'jetpack-search-pkg' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Search settings', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<SelectControl
 					className="jp-search-configure-default-sort-select"
 					disabled={ isDisabled }
@@ -107,16 +96,12 @@ export default function SidebarOptions() {
 					value={ trigger }
 					options={ [
 						{
-							label: __( 'Open when the user starts typing', 'jetpack-search-pkg' ),
-							value: 'immediate',
-						},
-						{
-							label: __( 'Open when results are available', 'jetpack-search-pkg' ),
-							value: 'results',
-						},
-						{
-							label: __( 'Open when user submits the form', 'jetpack-search-pkg' ),
+							label: __( 'Open when user submits the form (recommended)', 'jetpack-search-pkg' ),
 							value: 'submit',
+						},
+						{
+							label: __( 'Open when user starts typing', 'jetpack-search-pkg' ),
+							value: 'immediate',
 						},
 					] }
 					onChange={ setTrigger }

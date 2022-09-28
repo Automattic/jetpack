@@ -1,4 +1,4 @@
-@import '../../styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import "@automattic/color-studio/dist/color-variables";
 
 .jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
@@ -6,7 +6,6 @@
 	justify-content: space-between;
 	align-items: center;
 	font-size: 14px;
-	height: 48px;
 	background: $studio-black;
 	padding: 0 20px;
 	border-radius: 2px;
@@ -33,10 +32,11 @@
 
 .jetpack-upgrade-plan-banner.block-editor-block-list__block {
 	margin-top: 0;
-	margin-bottom: 0; }
+	margin-bottom: 0;
+}
 
-.jetpack-upgrade-plan-banner.wp-block[data-align=right], .jetpack-upgrade-plan-banner.wp-block[data-align=left] {
-	height: 48px; }
-	.jetpack-upgrade-plan-banner.wp-block[data-align=right] .jetpack-upgrade-plan-banner__wrapper, .jetpack-upgrade-plan-banner.wp-block[data-align=left] .jetpack-upgrade-plan-banner__wrapper {
-		max-width: 580px;
-		width: 100%; }
+.jetpack-upgrade-plan-banner.wp-block[data-align=right] .jetpack-upgrade-plan-banner__wrapper,
+.jetpack-upgrade-plan-banner.wp-block[data-align=left] .jetpack-upgrade-plan-banner__wrapper {
+	max-width: 580px;
+	width: 100%;
+}

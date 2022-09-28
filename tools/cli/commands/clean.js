@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
+import child_process from 'child_process';
+import fs from 'fs';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import child_process from 'child_process';
-
-/**
- * Internal dependencies
- */
-import promptForProject, { promptForType } from '../helpers/promptForProject.js';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';
-import fs from 'fs';
+import promptForProject, { promptForType } from '../helpers/promptForProject.js';
 
 /**
  * Command definition for the build subcommand.

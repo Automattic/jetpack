@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 DIR="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
-exec "$DIR"/node_modules/.bin/eslint --no-eslintrc --no-inline-config --config "$DIR"/validate-es.config.js --no-ignore "$@"
+exec pnpm eslint --no-eslintrc --no-inline-config --config "$DIR"/validate-es.config.js --no-ignore "$@"

@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import ProductCard from '../connected-product-card';
 
 const BackupCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } showDeactivate={ false } slug="backup" />;
+	return <ProductCard admin={ admin } slug="backup" />;
 };
 
 BackupCard.propTypes = {

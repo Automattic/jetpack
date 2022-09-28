@@ -45,13 +45,23 @@ class Test_Atomic_Additional_CSS_Manager extends \WP_UnitTestCase {
 		$manager = new Atomic_Additional_CSS_Manager( 'foo.com' );
 
 		$manager->register_nudge( $this->wp_customize );
-		$this->assertEquals(
+
+		$cta_urls = array(
+			'/checkout/foo.com/pro',
 			'/checkout/foo.com/business',
-			$this->wp_customize->controls()['custom_css_control']->cta_url
 		);
-		$this->assertEquals(
+
+		$cta_url = $this->wp_customize->controls()['custom_css_control']->cta_url;
+
+		$this->assertContains( $cta_url, $cta_urls );
+
+		$cta_copys = array(
+			'Purchase a Pro Plan to<br> activate CSS customization',
 			'Purchase a Business Plan to<br> activate CSS customization',
-			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
+
+		$cta_copy = $this->wp_customize->controls()['custom_css_control']->nudge_copy;
+
+		$this->assertContains( $cta_copy, $cta_copys );
 	}
 }

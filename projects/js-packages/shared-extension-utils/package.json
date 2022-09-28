@@ -1,33 +1,33 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.2.0",
+	"version": "0.6.3",
 	"description": "Utility functions used by the block editor extensions",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/issues"
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Shared Extension Utils"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/shared-extension-utils"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.@(jsx|js)'"
-	},
+	"scripts": {},
 	"dependencies": {
-		"@wordpress/compose": "5.1.2",
-		"@wordpress/plugins": "4.1.1"
+		"@wordpress/compose": "5.14.0",
+		"@wordpress/i18n": "4.16.0",
+		"@wordpress/plugins": "4.14.0",
+		"@wordpress/url": "3.17.0",
+		"lodash": "4.17.21"
 	},
 	"devDependencies": {
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"@babel/core": "7.18.13",
+		"@babel/preset-react": "7.18.6",
+		"react": "17.0.2"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {

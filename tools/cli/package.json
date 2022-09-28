@@ -18,11 +18,11 @@
 		"jetpack": "bin/jetpack.js"
 	},
 	"scripts": {
-		"test": "mocha tests/runner.js"
+		"test": "NODE_OPTIONS=--experimental-vm-modules pnpm jest --testMatch='<rootDir>/tests/**/*.test.js'"
 	},
 	"dependencies": {
-		"@octokit/auth-token": "2.4.5",
-		"@octokit/rest": "18.6.7",
+		"@octokit/auth-token": "3.0.1",
+		"@octokit/rest": "19.0.4",
 		"chalk": "4.1.2",
 		"configstore": "5.0.1",
 		"envfile": "6.17.0",
@@ -40,20 +40,15 @@
 		"pluralize": "8.0.0",
 		"process": "0.11.10",
 		"semver": "7.3.5",
-		"simple-git": "2.37.0",
 		"sprintf-js": "1.1.2",
 		"yargs": "16.2.0"
 	},
 	"devDependencies": {
-		"chai": "4.3.4",
-		"chai-as-promised": "7.1.1",
-		"mocha": "8.4.0",
-		"sinon": "9.2.4",
-		"yargs-parser": "20.2.4"
+		"jest": "28.1.0",
+		"jest-extended": "2.0.0"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

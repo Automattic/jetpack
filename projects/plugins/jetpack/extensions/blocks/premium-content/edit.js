@@ -1,33 +1,17 @@
-/**
- * WordPress dependencies
- */
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { Disabled, Placeholder, Spinner } from '@wordpress/components';
-import { BlockControls } from '@wordpress/block-editor';
-import { __, sprintf } from '@wordpress/i18n';
-import { compose, useViewportMatch } from '@wordpress/compose';
-import { select, useSelect, withSelect, withDispatch } from '@wordpress/data';
-import { addQueryArgs, getQueryArg } from '@wordpress/url';
-import formatCurrency from '@automattic/format-currency';
-import apiFetch from '@wordpress/api-fetch';
-
-/**
- * Internal dependencies
- */
+import { useViewportMatch } from '@wordpress/compose';
+import { select, useSelect } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import ProductManagementControls from '../../shared/components/product-management-controls';
+import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
+import { StripeNudge } from '../../shared/components/stripe-nudge';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import Blocks from './_inc/blocks';
-import Controls from './_inc/controls';
-import Inspector from './_inc/inspector';
 import Context from './_inc/context';
-import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
-import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import ViewSelector from './_inc/view-selector';
-import InvalidSubscriptionWarning from './_inc/invalid-subscription-warning';
-import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
-
-/**
- * @typedef { import('./plan').Plan } Plan
- */
 
 /**
  * Tab definitions
@@ -52,21 +36,7 @@ const tabs = [
 
 const CONTENT_TAB = 0;
 const WALL_TAB = 1;
-
-const API_STATE_LOADING = 0;
-const API_STATE_CONNECTED = 1;
-const API_STATE_NOTCONNECTED = 2;
-
-/**
- * @type { Plan[] }
- */
-const emptyProducts = [];
-
-/**
- * @type {?string}
- */
-const defaultString = null;
-
+const BLOCK_NAME = 'premium-content';
 /**
  *
  * @typedef { import('react').MutableRefObject<?object> } ContainerRef
@@ -82,150 +52,21 @@ const defaultString = null;
  * @property { string } clientId
  * @property { Attributes } attributes
  * @property { (attributes: object<Attributes>) => void } setAttributes
- * @property { number } postId
- * @property { () => void } selectBlock
  * @typedef { OwnProps } Props
  * @param { Props } props
  */
 
 function Edit( props ) {
 	const [ selectedTab, selectTab ] = useState( tabs[ WALL_TAB ] );
-	const [ selectedInnerBlock, hasSelectedInnerBlock ] = useState( false );
-	const [ products, setProducts ] = useState( emptyProducts );
-	const [ connectURL, setConnectURL ] = useState( defaultString );
-	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
-	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
-	// @ts-ignore needed in some upgrade flows - depending how we implement this
-	const [ siteSlug, setSiteSlug ] = useState( '' ); // eslint-disable-line
-	const { isPreview } = props.attributes;
-	const { clientId } = props;
+	const { isPreview, selectedPlanId } = props.attributes;
+	const { clientId, isSelected, className, setAttributes } = props;
 
-	/**
-	 * Hook to save a new plan.
-	 *
-	 * @typedef {import('./inspector').PlanAttributes} PlanAttributes
-	 * @param {PlanAttributes} attributes - attributes for new plan
-	 * @param {(isSuccessful: boolean) => void} callback - callback function
-	 */
-	function savePlan( attributes, callback ) {
-		const path = '/wpcom/v2/memberships/product';
-		const method = 'POST';
-		if ( ! attributes.newPlanName || attributes.newPlanName.length === 0 ) {
-			onError( props, __( 'Plan requires a name', 'jetpack' ) );
-			callback( false );
-			return;
-		}
+	const setSelectedProductId = productId => setAttributes( { selectedPlanId: productId } );
 
-		const newPrice = parseFloat( attributes.newPlanPrice );
-		const minPrice = minimumTransactionAmountForCurrency( attributes.newPlanCurrency );
-		const minimumPriceNote = sprintf(
-			// translators: %s: Price
-			__( 'Minimum allowed price is %s.', 'jetpack' ),
-			formatCurrency( minPrice, attributes.newPlanCurrency )
-		);
-
-		if ( newPrice < minPrice ) {
-			onError( props, minimumPriceNote );
-			callback( false );
-			return;
-		}
-
-		if ( ! isPriceValid( attributes.newPlanCurrency, newPrice ) ) {
-			onError( props, __( 'Plan requires a valid price', 'jetpack' ) );
-			callback( false );
-			return;
-		}
-
-		const data = {
-			currency: attributes.newPlanCurrency,
-			price: attributes.newPlanPrice,
-			title: attributes.newPlanName,
-			interval: attributes.newPlanInterval,
-		};
-		const fetch = { path, method, data };
-		apiFetch( fetch ).then(
-			/**
-			 * @param { any } result - Result of fetch query
-			 * @returns { void }
-			 */
-			result => {
-				/**
-				 * @type { Plan }
-				 */
-				const newProduct = {
-					id: result.id,
-					title: result.title,
-					interval: result.interval,
-					price: result.price,
-					currency: result.currency,
-				};
-				setProducts( products.concat( [ newProduct ] ) );
-				// After successful adding of product, we want to select it. Presumably that is the product user wants.
-				selectPlan( newProduct );
-				onSuccess( props, __( 'Successfully created plan', 'jetpack' ) );
-				if ( callback ) {
-					callback( true );
-				}
-			},
-			/**
-			 * @returns { void }
-			 */
-			() => {
-				onError( props, __( 'There was an error when adding the plan.', 'jetpack' ) );
-				if ( callback ) {
-					callback( false );
-				}
-			}
-		);
-	}
-
-	/**
-	 * @param {Plan} plan - plan whose description will be retrieved
-	 * @returns {?string} Plan description with price.
-	 */
-	function getPlanDescription( plan ) {
-		const amount = formatCurrency( parseFloat( plan.price ), plan.currency );
-		if ( plan.interval === '1 month' ) {
-			return sprintf(
-				// translators: %s: amount
-				__( '%s / month', 'jetpack' ),
-				amount
-			);
-		}
-		if ( plan.interval === '1 year' ) {
-			return sprintf(
-				// translators: %s: amount
-				__( '%s / year', 'jetpack' ),
-				amount
-			);
-		}
-		if ( plan.interval === 'one-time' ) {
-			return amount;
-		}
-		return sprintf(
-			// translators: %s: amount, plan interval
-			__( '%1$s / %2$s', 'jetpack' ),
-			amount,
-			plan.interval
-		);
-	}
-
-	/**
-	 * @param {Plan} plan - selected plan
-	 */
-	function selectPlan( plan ) {
-		props.setAttributes( { selectedPlanId: plan.id } );
-	}
-	//We would like to hide the tabs and controls when user clicks outside the premium content block
-	/**
-	 * @type { ContainerRef }
-	 */
-	const wrapperRef = useRef( null );
-	useOutsideAlerter( wrapperRef, hasSelectedInnerBlock );
-
-	const { isSelected, className } = props;
-
-	const selectedBlock = useSelect( selector => selector( 'core/block-editor' ).getSelectedBlock() );
+	const { isApiLoading, selectedBlock } = useSelect( selector => ( {
+		selectedBlock: selector( blockEditorStore ).getSelectedBlock(),
+		isApiLoading: selector( membershipProductsStore ).isApiStateLoading(),
+	} ) );
 
 	useEffect( () => {
 		if ( isSelected ) {
@@ -236,7 +77,7 @@ function Edit( props ) {
 			return; // Sometimes there isn't a block selected, e.g. on page load.
 		}
 
-		const editorStore = select( 'core/block-editor' );
+		const editorStore = select( blockEditorStore );
 
 		// Confirm that the selected block is a descendant of this one.
 		if ( ! editorStore.getBlockParents( selectedBlock.clientId ).includes( clientId ) ) {
@@ -256,204 +97,50 @@ function Edit( props ) {
 		}
 	}, [ clientId, isSelected, selectedBlock ] );
 
-	useEffect( () => {
-		if ( isPreview ) {
-			return;
-		}
-
-		const origin = getQueryArg( window.location.href, 'origin' );
-		const path = addQueryArgs( '/wpcom/v2/memberships/status', {
-			source: origin === 'https://wordpress.com' ? 'gutenberg-wpcom' : 'gutenberg',
-		} );
-		const method = 'GET';
-		const fetch = { path, method };
-		apiFetch( fetch ).then(
-			/**
-			 * @param {any} result - fetch query result
-			 */
-			result => {
-				if ( ! result && typeof result !== 'object' ) {
-					return;
-				}
-				if (
-					result.errors &&
-					Object.values( result.errors ) &&
-					Object.values( result.errors )[ 0 ][ 0 ]
-				) {
-					setApiState( API_STATE_NOTCONNECTED );
-					onError( props, Object.values( result.errors )[ 0 ][ 0 ] );
-					return;
-				}
-
-				setConnectURL( getConnectUrl( props.postId, result.connect_url ) );
-				setShouldUpgrade( result.should_upgrade_to_access_memberships );
-				setSiteSlug( result.site_slug );
-
-				if (
-					result.products &&
-					result.products.length === 0 &&
-					! result.should_upgrade_to_access_memberships &&
-					result.connected_account_id
-				) {
-					// Is ready to use and has no product set up yet. Let's create one!
-					savePlan(
-						{
-							newPlanCurrency: 'USD',
-							newPlanPrice: 5,
-							newPlanName: __( 'Monthly Subscription', 'jetpack' ),
-							newPlanInterval: '1 month',
-						},
-						() => {
-							setApiState(
-								result.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED
-							);
-						}
-					);
-					return;
-				} else if ( result.products && result.products.length > 0 ) {
-					setProducts( result.products );
-					if ( ! props.attributes.selectedPlanId ) {
-						selectPlan( result.products[ 0 ] );
-					}
-				}
-				setApiState( result.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED );
-			},
-			/**
-			 * @param { Error } result - fetch query error result
-			 */
-			result => {
-				setConnectURL( null );
-				setApiState( API_STATE_NOTCONNECTED );
-				onError( props, result.message );
-			}
-		);
-
-		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
-		// (such as the Recurring Payments block)
-		setTimeout( () => props.selectBlock(), 1000 );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
-	const shouldShowConnectButton = () =>
-		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
-
 	const isSmallViewport = useViewportMatch( 'medium', '<' );
 
-	if ( apiState === API_STATE_LOADING && ! isPreview ) {
-		return (
-			<div className={ className } ref={ wrapperRef }>
-				<Placeholder
-					icon="lock"
-					label={ __( 'Premium Content', 'jetpack' ) }
-					instructions={ __( 'Loading data…', 'jetpack' ) }
-				>
-					<Spinner />
-				</Placeholder>
-			</div>
-		);
-	}
-
 	return (
-		<>
-			{ shouldShowConnectButton() && (
-				<BlockControls group="block">
-					<StripeConnectToolbarButton blockName="premium-content" connectUrl={ connectURL } />
-				</BlockControls>
-			) }
-
-			<ViewSelector
-				options={ tabs }
-				selectedOption={ selectedTab }
-				selectAction={ selectTab }
-				contractViewport={ isSmallViewport }
-				label={ __( 'Change view', 'jetpack' ) }
-			/>
-
-			<div className={ className } ref={ wrapperRef }>
-				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
-					<BlockControls group="block">
-						<Controls
-							{ ...props }
-							plans={ products }
-							selectedPlanId={ props.attributes.selectedPlanId }
-							onSelected={ selectPlan }
-							getPlanDescription={ getPlanDescription }
-						/>
-					</BlockControls>
-				) }
-				{ ( isSelected || selectedInnerBlock ) && apiState === API_STATE_CONNECTED && (
-					<Inspector { ...props } savePlan={ savePlan } siteSlug={ siteSlug } />
-				) }
-				{ !! props.attributes.selectedPlanId &&
-					! products.find( plan => plan.id === props.attributes.selectedPlanId ) && (
-						<InvalidSubscriptionWarning />
+		<div className={ className }>
+			{ ! isPreview && (
+				<>
+					{ isApiLoading && (
+						<Placeholder
+							icon="lock"
+							label={ __( 'Premium Content', 'jetpack' ) }
+							instructions={ __( 'Loading data…', 'jetpack' ) }
+						>
+							<Spinner />
+						</Placeholder>
 					) }
-				<Context.Provider
-					value={ {
-						selectedTab,
-					} }
-				>
-					<Blocks />
-				</Context.Provider>
-			</div>
-		</>
+					<ProductManagementControls
+						blockName={ BLOCK_NAME }
+						clientId={ clientId }
+						productType={ PRODUCT_TYPE_SUBSCRIPTION }
+						selectedProductId={ selectedPlanId }
+						setSelectedProductId={ setSelectedProductId }
+					/>
+					<ViewSelector
+						options={ tabs }
+						selectedOption={ selectedTab }
+						selectAction={ selectTab }
+						contractViewport={ isSmallViewport }
+						label={ __( 'Change view', 'jetpack' ) }
+					/>
+				</>
+			) }
+			{ ! isApiLoading && (
+				<>
+					<StripeNudge blockName={ BLOCK_NAME } />
+					<Context.Provider value={ { selectedTab } }>
+						<Blocks />
+					</Context.Provider>
+				</>
+			) }
+		</div>
 	);
 }
 
-/**
- * Hook that alerts clicks outside of the passed ref
- *
- * @param { ContainerRef } ref - container ref
- * @param { (clickedInside: boolean) => void } callback - callback function
- */
-function useOutsideAlerter( ref, callback ) {
-	/**
-	 * Alert if clicked on outside of element
-	 *
-	 * @param {object} event - click event
-	 */
-	function handleClickOutside( event ) {
-		if (
-			ref.current &&
-			event.target &&
-			// eslint-disable-next-line no-undef
-			event.target instanceof Node &&
-			! ref.current.contains( event.target )
-		) {
-			callback( false );
-		} else {
-			callback( true );
-		}
-	}
-
-	useEffect( () => {
-		// Bind the event listener
-		document.addEventListener( 'mousedown', handleClickOutside );
-		return () => {
-			// Unbind the event listener on clean up
-			document.removeEventListener( 'mousedown', handleClickOutside );
-		};
-	} );
-}
-/**
- * @param { Props } props - error properties
- * @param { string } message - error message
- * @returns { void }
- */
-function onError( props, message ) {
-	props.createErrorNotice( message, { type: 'snackbar' } );
-}
-
-/**
- * @param { Props } props - success properties
- * @param { string } message - success message
- * @returns { void }
- */
-function onSuccess( props, message ) {
-	props.createSuccessNotice( message, { type: 'snackbar' } );
-}
-
-function MaybeDisabledEdit( props ) {
+export default function MaybeDisabledEdit( props ) {
 	// The block transformations menu renders a block preview popover using real blocks
 	// for transformation. The block previews do not play nicely with useEffect and
 	// updating content after a resolved API call. To disarm the block preview, we can
@@ -475,24 +162,3 @@ function MaybeDisabledEdit( props ) {
 		</Disabled.Consumer>
 	);
 }
-
-export default compose( [
-	withSelect( selector => {
-		const { getCurrentPostId } = selector( 'core/editor' );
-		return {
-			postId: getCurrentPostId(),
-		};
-	} ),
-	withDispatch( ( dispatch, ownProps ) => {
-		const blockEditor = dispatch( 'core/block-editor' );
-		const notices = dispatch( 'core/notices' );
-		return {
-			selectBlock() {
-				// @ts-ignore difficult to type via JSDoc
-				blockEditor.selectBlock( ownProps.clientId );
-			},
-			createErrorNotice: notices.createErrorNotice,
-			createSuccessNotice: notices.createSuccessNotice,
-		};
-	} ),
-] )( MaybeDisabledEdit );

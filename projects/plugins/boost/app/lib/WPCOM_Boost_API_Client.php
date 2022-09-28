@@ -17,6 +17,13 @@ class WPCOM_Boost_API_Client implements Boost_API_Client {
 		);
 	}
 
+	public function get( $path, $query = array() ) {
+		return Utils::send_wpcom_request(
+			'GET',
+			add_query_arg( $query, $this->get_api_path( $path ) )
+		);
+	}
+
 	private function get_api_path( $path ) {
 		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
 

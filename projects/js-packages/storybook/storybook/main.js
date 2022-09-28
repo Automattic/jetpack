@@ -2,16 +2,12 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
-/**
- * External dependencies
- */
 const path = require( 'path' );
-
 const projects = require( './projects' );
 
 const modulesDir = path.join( __dirname, '../node_modules' );
 
-const storiesSearch = '*.@(js|jsx|mdx)';
+const storiesSearch = '*.@(js|jsx|mdx|ts|tsx)';
 
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
 	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
@@ -65,6 +61,11 @@ module.exports = {
 		} );
 
 		const finalConfig = updateEmotionAliases( config );
+
+		// Conform to Webpack module resolution rule for Search dashboard.
+		finalConfig.resolve.modules.push(
+			path.join( __dirname, '../../../packages/search/src/dashboard/' )
+		);
 
 		return finalConfig;
 	},

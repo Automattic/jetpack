@@ -1,16 +1,18 @@
 name: Gardening
 on:
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
-    types: [opened, reopened, synchronize, edited, labeled, closed]
+    types: [opened, reopened, synchronize, edited, labeled, closed ]
   issues: # For auto-triage of issues.
-    types: [opened, reopened]
+    types: [opened, reopened, edited, closed]
+  issue_comment: # To gather support references in issue comments.
+    types: [created]
   push:
     branches:
-      - master # Every time a PR is merged to master.
+      - trunk # Every time a PR is merged to trunk.
 concurrency:
   # For pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
-  # Don't cancel any for pushes, accomplished by grouping on the unique run_id.
-  group: gardening-${{ github.event_name }}-${{ github.event_name == 'push' && github.run_id || github.event.action }}-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.ref }}
+  # Don't cancel any for other events, accomplished by grouping on the unique run_id.
+  group: gardening-${{ github.event_name }}-${{ github.event.action }}-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -45,7 +47,7 @@ jobs:
 
       - name: Building Action
         env:
-          COMPOSER_ROOT_VERSION: dev-master
+          COMPOSER_ROOT_VERSION: dev-trunk
         run: |
           pnpm install
           composer install
@@ -62,9 +64,7 @@ jobs:
           path: ./pr-checkout
 
       - name: Wait for prior instances of the workflow to finish
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/turnstile
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./projects/github-actions/repo-gardening
@@ -76,3 +76,5 @@ jobs:
           slack_team_channel: ${{ secrets.SLACK_TEAM_CHANNEL }}
           slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}
           slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
+          slack_he_triage_channel: ${{ secrets.SLACK_HE_TRIAGE_CHANNEL }}
+          slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}

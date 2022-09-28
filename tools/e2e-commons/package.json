@@ -20,31 +20,28 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.17.2",
-		"@slack/web-api": "6.5.1",
-		"allure-playwright": "2.0.0-beta.14",
-		"axios": "0.24.0",
-		"chalk": "4.1.2",
+		"@playwright/test": "1.26.0",
+		"@slack/web-api": "6.7.2",
+		"allure-playwright": "2.0.0-beta.19",
+		"axios": "0.27.2",
+		"chalk": "5.0.1",
 		"config": "3.3.7",
-		"eslint-plugin-playwright": "0.8.0",
 		"localtunnel": "2.0.2",
 		"lodash": "4.17.21",
-		"pm2": "5.1.2",
+		"node-fetch": "2.6.7",
+		"pm2": "5.2.0",
 		"shell-escape": "0.2.0",
-		"winston": "3.3.3",
-		"wpapi": "1.2.2",
-		"yargs": "17.3.0"
+		"winston": "3.8.1",
+		"yargs": "17.5.1"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
 		"app-password": "./bin/app-password.sh",
-		"tunnel": "./bin/tunnel.sh",
-		"slack": "./bin/slack.cjs"
+		"tunnel": "./bin/tunnel.sh"
 	}
 }

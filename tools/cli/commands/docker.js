@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
 import { spawnSync } from 'child_process';
+import fs from 'fs';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
-import fs from 'fs';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
 /**
@@ -45,7 +42,7 @@ const getProjectName = argv => {
 		project = argv.name ? argv.name : 'e2e';
 	}
 
-	return project;
+	return 'jetpack_' + project;
 };
 
 /**
@@ -60,7 +57,7 @@ const buildEnv = argv => {
 		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
 	}
 
-	envOpts.COMPOSE_PROJECT_NAME = 'jetpack_' + getProjectName( argv );
+	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
 	return envOpts;
 };
 
@@ -385,6 +382,15 @@ const buildExecCmd = argv => {
 		);
 	} else if ( cmd === 'run-extras' ) {
 		opts.push( '/var/scripts/run-extras.sh' );
+	} else if ( cmd === 'link-plugin' ) {
+		opts.push(
+			'ln',
+			'-s',
+			`/usr/local/src/jetpack-monorepo/projects/plugins/${ argv.plugin_slug }`,
+			`/var/www/html/wp-content/plugins/${ argv.plugin_slug }`
+		);
+	} else if ( cmd === 'unlink-plugin' ) {
+		opts.push( 'rm', `/var/www/html/wp-content/plugins/${ argv.plugin_slug }` );
 	}
 
 	return buildComposeFiles().concat( opts );
@@ -429,6 +435,14 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 		opts.push( 'break' );
 	} else if ( arg === 'jt-up' ) {
+		const dockerPs = spawnSync( 'docker', [ 'ps' ] );
+		if ( dockerPs.status !== 0 ) {
+			console.warn(
+				chalk.yellow( 'Docker status unreachable. Make sure that the Docker service has started.' )
+			);
+			process.exit( dockerPs.status );
+		}
+
 		cmd = jtTunnelFile;
 		console.warn(
 			chalk.yellow(
@@ -438,12 +452,40 @@ const execJtCmdHandler = argv => {
 	}
 
 	const jtResult = executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
+
+	if ( jtResult.status !== 0 ) {
+		// Try to check if the default named Jetpack container is up.
+		const dockerPs = spawnSync(
+			'docker',
+			[
+				"ps --filter 'name=jetpack_dev_wordpress' --filter 'status=running' --format='{{.ID}} {{.Names}}'",
+			],
+			{
+				encoding: 'utf8',
+				shell: true,
+			}
+		);
+
+		if ( dockerPs.status === 0 && dockerPs.stdout.length === 0 ) {
+			console.warn(
+				chalk.yellow(
+					'Unable to establish Jurassic Tube connection. Is your Jetpack Docker container up? If not, try: jetpack docker up -d'
+				)
+			);
+
+			process.exit( jtResult.status );
+		}
+	}
+
 	checkProcessResult( jtResult );
-	console.warn(
-		chalk.yellow(
-			'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
-		)
-	);
+
+	if ( arg !== 'jt-down' ) {
+		console.warn(
+			chalk.yellow(
+				'Remember! This is creating a tunnel to your local machine. Please use jetpack docker jt-down as soon as you are done with your testing.'
+			)
+		);
+	}
 };
 
 /**
@@ -495,12 +537,10 @@ export function dockerDefine( yargs ) {
 								'rm',
 								[
 									'-rf',
-									`${ dockerFolder }/wordpress/*`,
-									`${ dockerFolder }/wordpress/.htaccess`,
+									`${ dockerFolder }/wordpress/`,
 									`${ dockerFolder }/wordpress-develop/*`,
 									`${ dockerFolder }/logs/${ project }/`,
-									`${ dockerFolder }/logs/${ project }_mysql/`,
-									`${ dockerFolder }/data/${ project }_mysql/*`,
+									`${ dockerFolder }/data/${ project }_mysql/`,
 								],
 								{ shell: true }
 							)
@@ -614,6 +654,30 @@ export function dockerDefine( yargs ) {
 					command: 'run-extras',
 					description: 'Run run-extras.sh bin script',
 					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'link-plugin <plugin_slug>',
+					description:
+						'Links a monorepo plugin folder with the plugin folder of your Docker env. Plugin will be considered installed.',
+					builder: yargCmd => {
+						yargCmd.positional( 'plugin_slug', {
+							describe: 'The plugin slug',
+							type: 'string',
+						} );
+					},
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
+				.command( {
+					command: 'unlink-plugin <plugin_slug>',
+					description:
+						'Uninks a monorepo plugin folder from the plugin folder of your Docker env. Plugin will be considered not installed.',
+					builder: yargCmd => {
+						yargCmd.positional( 'plugin_slug', {
+							describe: 'The plugin slug',
+							type: 'string',
+						} );
+					},
 					handler: argv => execDockerCmdHandler( argv ),
 				} )
 				// JT commands

@@ -1,31 +1,23 @@
-/**
- * External dependencies
- */
-import React, { useCallback, useEffect } from 'react';
-import { connect } from 'react-redux';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { __, sprintf } from '@wordpress/i18n';
-import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
-import { PromptLayout } from '../prompt-layout';
-import { CheckboxAnswer } from '../checkbox-answer';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import { useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
 import { getSiteTitle } from 'state/initial-state';
 import {
 	getDataByKey,
 	getNextRoute,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	isProductSuggestionsAvailable,
 } from 'state/recommendations';
+import { DEFAULT_ILLUSTRATION } from '../../constants';
+import DiscountCard from '../../sidebar/discount-card';
+import { CheckboxAnswer } from '../checkbox-answer';
+import { PromptLayout } from '../prompt-layout';
 
-/**
- * Style dependencies
- */
 import './style.scss';
-
 const SiteTypeQuestionComponent = props => {
 	const {
 		answers,
@@ -33,6 +25,7 @@ const SiteTypeQuestionComponent = props => {
 		saveRecommendationsData,
 		siteTitle,
 		updateRecommendationsStep,
+		canShowProductSuggestions,
 	} = props;
 
 	useEffect( () => {
@@ -48,34 +41,26 @@ const SiteTypeQuestionComponent = props => {
 		<div className="jp-recommendations-question__site-type-answer-container">
 			<div className="jp-recommendations-question__site-type-checkboxes">
 				<CheckboxAnswer
-					answerKey={ 'site-type-personal' }
-					title={ __( 'Personal', 'jetpack' ) }
+					answerKey={ 'site-type-agency' }
+					title={ __( 'I build or manage this site for a client', 'jetpack' ) }
 					info={ __(
-						'Personal sites usually include blogs, resume sites, weddings or other events, and hobby sites.',
-						'jetpack'
-					) }
-				/>
-				<CheckboxAnswer
-					answerKey={ 'site-type-business' }
-					title={ __( 'Business', 'jetpack' ) }
-					info={ __(
-						'Business sites usually include shops, services like lawyers, or plumbers, and advertisers or influencers.',
+						'Are you an agency or developer that builds or manages sites for clients?',
 						'jetpack'
 					) }
 				/>
 				<CheckboxAnswer
 					answerKey={ 'site-type-store' }
-					title={ __( 'Store', 'jetpack' ) }
+					title={ __( 'This is an e-commerce site', 'jetpack' ) }
 					info={ __(
-						'Stores typically include online e-commerce stores selling goods, services, or digital downloads.',
+						'E-commerce sites include stores selling goods, services, or digital downloads.',
 						'jetpack'
 					) }
 				/>
 				<CheckboxAnswer
-					answerKey={ 'site-type-other' }
-					title={ __( 'Other', 'jetpack' ) }
+					answerKey={ 'site-type-personal' }
+					title={ __( 'This is my personal site', 'jetpack' ) }
 					info={ __(
-						'Other sites may include non-profits, colleges or schools, apps, real-estate, or others.',
+						'You built this site yourself, nice work! Personal sites include things like blogs, resume sites, wedding sites, and hobby sites.',
 						'jetpack'
 					) }
 				/>
@@ -94,17 +79,19 @@ const SiteTypeQuestionComponent = props => {
 
 	return (
 		<PromptLayout
-			progressBar={ <ProgressBar color={ '#00A32A' } value={ '17' } /> }
+			progressBar={ <ProgressBar color={ '#00A32A' } value={ '14' } /> }
 			question={
 				/* translators: placeholder is the title of the site */
-				sprintf( __( 'What type of site is %s?', 'jetpack' ), siteTitle )
+				sprintf( __( 'Tell us more about %s?', 'jetpack' ), siteTitle )
 			}
 			description={ __(
-				'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.',
+				'To help you get the most from Jetpack, tell us about your site. Check all that apply:',
 				'jetpack'
 			) }
 			answer={ answerSection }
-			illustrationPath="recommendations/site-type-illustration.jpg"
+			sidebarCard={ canShowProductSuggestions ? <DiscountCard /> : null }
+			illustration={ DEFAULT_ILLUSTRATION }
+			illustrationClassName="jp-recommendations-site-type__illustration"
 		/>
 	);
 };
@@ -115,10 +102,10 @@ export const SiteTypeQuestion = connect(
 		siteTitle: getSiteTitle( state ),
 		answers: {
 			personal: getDataByKey( state, 'site-type-personal' ),
-			business: getDataByKey( state, 'site-type-business' ),
+			builder: getDataByKey( state, 'site-type-agency' ),
 			store: getDataByKey( state, 'site-type-store' ),
-			other: getDataByKey( state, 'site-type-other' ),
 		},
+		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),

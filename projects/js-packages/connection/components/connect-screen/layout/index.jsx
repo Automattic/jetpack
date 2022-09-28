@@ -1,16 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
 import { JetpackLogo } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-/**
- * Internal dependencies
- */
+import PropTypes from 'prop-types';
+import React from 'react';
 import ImageSlider from './image-slider';
 import './style.scss';
 

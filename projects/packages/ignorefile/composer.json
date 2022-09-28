@@ -5,8 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0",
-		"wikimedia/at-ease": "^1.2 | ^2.0",
+		"automattic/jetpack-changelogger": "^3.2",
+		"wikimedia/at-ease": "^1.2 || ^2.0",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {
@@ -43,7 +43,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-trunk": "1.0.x-dev"
 		}
 	}
 }

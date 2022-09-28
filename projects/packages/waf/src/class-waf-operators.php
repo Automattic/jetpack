@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Waf;
 
 /**
- * WafOperators class
+ * Waf_Operators class
  */
-class WafOperators {
+class Waf_Operators {
 	/**
 	 * Returns true if the test string is found at the beginning of the input.
 	 *

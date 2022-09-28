@@ -7,11 +7,11 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 
 # This script updates the composer.json file in the specified directory.
-# It will update any monorepo packages their latest stable versions.
+# It will update any monorepo packages to their latest version as declared in their changelog.
 #
 # Probably will be most useful in the release scripts that branch off, since we:
 # a. Want to ship Jetpack with specific versions of packages
-# b. Want to preserve @dev in master branch
+# b. Want to preserve @dev in trunk branch
 
 function usage {
 	cat <<-EOH
@@ -76,38 +76,42 @@ fi
 JSON=$(jq --tab 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$DIR/composer.json")
 echo "$JSON" > "$DIR/composer.json"
 
-# Get the list of package names to update.
-PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' "$BASE"/projects/packages/*/composer.json)
+# Get the list of packages to update, mapped to their target versions.
+PACKAGES='{}'
+CL="$PWD/projects/packages/changelogger/bin/changelogger"
+for PKG in "$BASE"/projects/packages/*/composer.json; do
+	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.[$k] |= $v' <<<"$PACKAGES")
+done
 
-# Get current versions from the package.
-OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) )' "$DIR/composer.json")
+# Get current packages and their versions from the target project.
+OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and $packages[.key] ) )' "$DIR/composer.json")
 
-# Update the packages that appear in composer.json
+# Update the versions in composer.json, without actually updating them yet.
 TO_UPDATE=()
-mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
+mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and $packages[.key] ) | "\(.key)=^\($packages[.key])"' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 fi
 TO_UPDATE=()
-mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
+mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and $packages[.key] ) | "\(.key)=^\($packages[.key])"' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating dev packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
 fi
 
-# Update any indirect dependencies too.
+# Now update all the deps.
 "$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "$DIR"
 
-# Compare new versus old versions to check for downgrades.
+# If there's a lock file, check that the locked versions are as expected too.
 EXIT=0
-while IFS=$'\t' read -r PKG OLDVER NEWVER; do
-	OV=$(sed -e 's/\.x-dev$/.0-alpha/' <<<"$OLDVER")
-	NV=$(sed -e 's/^\^//' -e 's/\.x-dev$/.0-alpha/' <<<"$NEWVER")
-	if ! pnpx semver -c -r ">$OV" "$NV" >/dev/null; then
-		EXIT=1
-		error "$PKG was not upgraded ($NEWVER <= $OLDVER)"
-	fi
-done < <(jq -r --argjson oldver "$OLD_VERSIONS" '( .["require-dev"] // {} ) + ( .require // {} ) | to_entries[] | select( $oldver[.key] ) | [ .key, $oldver[.key], .value ] | @tsv' "$DIR/composer.json")
-
+if [[ -e "$DIR/composer.lock" ]]; then
+	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked[] | select( $packages[.name] ) | [ .name, .version, $packages[.name] ] | @tsv')"
+	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
+		if ! pnpm semver -c --range ">=$EXPECTVER" "$LOCKVER" >/dev/null; then
+			EXIT=1
+			error "$PKG was not upgraded ($LOCKVER < $EXPECTVER)"
+		fi
+	done <<<"$TMP"
+fi
 exit $EXIT

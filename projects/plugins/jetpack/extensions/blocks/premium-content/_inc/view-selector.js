@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, ToolbarButton, ToolbarDropdownMenu } from '@wordpress/components';
 

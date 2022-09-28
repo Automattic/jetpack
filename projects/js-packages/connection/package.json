@@ -1,29 +1,34 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.17.4-alpha",
+	"version": "0.21.1-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:^0.1.8",
-		"@automattic/jetpack-config": "workspace:^0.1.3",
-		"@automattic/jetpack-components": "workspace:^0.10.11-alpha",
-		"@automattic/jetpack-api": "workspace:^0.9.1",
-		"@wordpress/base-styles": "4.1.1",
-		"@wordpress/browserslist-config": "4.1.1",
-		"@wordpress/components": "19.5.0",
-		"@wordpress/data": "6.3.0",
-		"@wordpress/element": "4.1.1",
-		"@wordpress/i18n": "4.3.1",
-		"lodash": "4.17.21",
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
+		"@automattic/jetpack-config": "workspace:* || ^0.1",
+		"@automattic/jetpack-components": "workspace:* || ^0.22",
+		"@automattic/jetpack-api": "workspace:* || ^0.14",
+		"@wordpress/base-styles": "4.7.0",
+		"@wordpress/browserslist-config": "5.0.0",
+		"@wordpress/components": "20.0.0",
+		"@wordpress/data": "7.0.0",
+		"@wordpress/element": "4.14.0",
+		"@wordpress/i18n": "4.16.0",
+		"@wordpress/icons": "9.7.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:^0.1.10",
-		"@babel/core": "7.16.0",
-		"@babel/preset-react": "7.16.0",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0",
+		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@babel/core": "7.18.13",
+		"@babel/preset-react": "7.18.6",
+		"@storybook/addon-actions": "6.5.10",
+		"@testing-library/dom": "8.16.0",
+		"@testing-library/react": "12.1.5",
+		"@testing-library/react-hooks": "8.0.1",
+		"@testing-library/user-event": "14.2.1",
+		"jest": "28.1.0",
+		"jest-environment-jsdom": "28.1.0",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2"
@@ -37,15 +42,16 @@
 		".": "./index.jsx"
 	},
 	"sideEffects": [
+		"./state/store.jsx",
 		"*.css",
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

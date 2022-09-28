@@ -67,7 +67,7 @@ class Jetpack_Modules_Overrides {
 	 * @return array The array of module overrides.
 	 */
 	public function get_overrides( $use_cache = true ) {
-		if ( $use_cache && ! is_null( $this->overrides ) ) {
+		if ( $use_cache && $this->overrides !== null ) {
 			return $this->overrides;
 		}
 
@@ -131,7 +131,7 @@ class Jetpack_Modules_Overrides {
 	 * @return Jetpack_Modules_Overrides
 	 */
 	public static function instance() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Modules_Overrides();
 		}
 

@@ -62,7 +62,11 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 * ### Developing and contributing code to Jetpack from a Windows machine
 
-	When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
+	When working on a Windows machine, you will need to use [Windows Subsystem for Linux version 2](https://docs.microsoft.com/en-us/windows/wsl/install). If you are currently using WSL version 1, you will need to update to version 2 first.
+
+	If you use VS Code, you can use [their Remote Development extension pack](https://code.visualstudio.com/docs/remote/wsl) to develop in WSL.
+
+	You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
 
 ## Get started with development
 
@@ -78,7 +82,11 @@ Before you get started, we recommend that you set up a public SSH key setup with
 
 Fork this repository to your own GitHub account and clone it to your local machine, as explained [in this guide](https://guides.github.com/activities/forking/). **If you are an Automattician, you can clone the repository directly.**
 
-If you use [our Docker setup](../tools/docker/README.md), you can now move on to the next step. If you use a different setup, you'll first need to create symlinks from the plugin directory in your local installation of WordPress to each of the plugins' directories in the monorepo (under `projects/plugins/`).
+If you use [our Docker setup](../tools/docker/README.md), you can now move on to the next step. 
+
+If you are not using a Docker setup, you'll first need to create symlinks from the plugin directory in your local installation of WordPress to each of the plugins' directories in the monorepo (under `projects/plugins/`).
+
+Note that the Monorepo should not be cloned into the WordPress plugins directory (you will see a warning on your plugins page in that case saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). 
 
 ### Install development tools
 
@@ -110,7 +118,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Composer is a PHP package manager and it's used to install packages that are required to run development tools and build projects.
 
-	The monorepo requires version 2.2.x.
+	The monorepo requires version 2.3.x.
 
 	 * ##### Installing Composer on macOS
 
@@ -135,7 +143,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 * #### jetpack CLI
 
-	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md).
+	The `jetpack` CLI tool is used to help with development in the Jetpack monorepo. Find out more and install it by following the instructions on the [Jetpack CLI page](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md).
 
 ### Check if your environment is ready for Jetpack development
 
@@ -159,7 +167,7 @@ Once you have a local copy of Jetpack and all development tools installed, you c
 
 ## Building your project
 
-The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/tools/cli/README.md) will help you with all building steps.
+The Jetpack monorepo is home to different projects, with different needs. Some require that you build PHP, JavaScript, and CSS components. [The Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/tools/cli/README.md) will help you with all building steps.
 
 There are different types of builds:
 
@@ -189,7 +197,7 @@ There are different types of builds:
 # Unit-testing
 
 
-The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
+The Jetpack plugin includes several [unit tests](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/jetpack/tests) that you can run in your local environment before submitting a new Pull Request.
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 
@@ -261,7 +269,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 
 ## JavaScript unit tests
 
-Jetpack includes also several [Mocha](https://mochajs.org/) based unit tests.
+Jetpack includes also several [Jest](https://jestjs.io/) based unit tests.
 To execute them in your local environment, you can use the following commands.
 
 * ### Admin Page unit tests
@@ -301,7 +309,7 @@ To execute them in your local environment, you can use the following commands.
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
-- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root. 
+- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. Depending on your IDE, you can use this path or you may need to use `.phpcs.xml.dist` in the monorepo root.
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
 
 ## Linting
@@ -382,7 +390,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 	`add_filter( 'jetpack_offline_mode', '__return_true' );`
 
-	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Publicize, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
+	While in Offline Mode, some features will not be available at all as they require WordPress.com for all functionality—Related Posts and Jetpack Social, for example. Other features will have reduced functionality to give developers a good-faith representation of the feature. For example, Tiled Galleries requires the WordPress.com Photon CDN; however, in Offline Mode, Jetpack provides a fallback so developers can have a similar experience during development and testing. Find out more in [our support documentation](https://jetpack.com/support/jetpack-for-developers/).
 
 * ### JETPACK__SANDBOX_DOMAIN
 

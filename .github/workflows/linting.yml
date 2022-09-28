@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
 
@@ -251,7 +251,7 @@ jobs:
 
   ### Runs phpcs-changed on PHP files listed in phpcs-excludelist.json.
   # Local equivalent: `composer phpcs:changed -- --git-base=<base> <files...>`
-  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  # `<base>` is the branch this PR is to be merged into, probably `origin/trunk`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
   phpcs_changed:
@@ -306,12 +306,11 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: pnpm run lint-required
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
-  # Local equivalent: `pnpm run lint-changed -- --git-base=<base>`
-  # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
+  # Local equivalent: `pnpm run lint-changed --git-base=<base>`
+  # `<base>` is the branch this PR is to be merged into, probably `origin/trunk`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `pnpm run lint-changed`
   eslint_changed:
@@ -335,12 +334,11 @@ jobs:
 
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
         env:
           SHA: ${{ github.event.pull_request.base.sha }}
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
-        run: pnpm run lint-changed -- --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]')
+        run: pnpm run lint-changed --git-base=$SHA $(jq -rn --argjson files "$FILES" '$files[]')
 
   ### Lints GitHub Actions yaml files.
   # Local equivalent: `./tools/js-tools/lint-gh-actions.js <files>`
@@ -380,7 +378,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.excludelist == 'true'
-    timeout-minutes: 15  # 2021-05-06: The "install --all" step sometimes takes 4+ minutes, then the check itself takes another 4.
+    timeout-minutes: 10  # 2022-05-11: The check itself takes 4 minutes.
     steps:
       - uses: actions/checkout@v3
 
@@ -390,7 +388,6 @@ jobs:
       - run: composer install
       - name: Monorepo pnpm install
         run: pnpm install
-      - run: pnpx jetpack install --all -v # Ensure there are no unresolved import errors.
 
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh
@@ -398,7 +395,7 @@ jobs:
         run: tools/js-tools/check-excludelist-diff.js
 
   ### Checks that changelogger change files are being created.
-  # Local equivalent: Probably `tools/check-changelogger-use.php origin/master HEAD`
+  # Local equivalent: Probably `tools/check-changelogger-use.php origin/trunk HEAD`
   changelogger_used:
     name: Changelogger use
     runs-on: ubuntu-latest
@@ -463,13 +460,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
-    timeout-minutes: 1  # 2021-01-18: Successful runs take just a few seconds
+    timeout-minutes: 5  # 2022-03-25: The pnpm install will probably take a minute or so.
     steps:
       - uses: actions/checkout@v3
       - name: Setup tools
         uses: ./.github/actions/tool-setup
-        with:
-          php: false
+      - run: pnpm install
       - run: tools/check-intra-monorepo-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
 

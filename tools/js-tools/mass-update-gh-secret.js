@@ -2,11 +2,11 @@
 
 /* eslint-disable no-console */
 
-const { Octokit } = require( '@octokit/rest' );
 const { createTokenAuth } = require( '@octokit/auth-token' );
+const { Octokit } = require( '@octokit/rest' );
 const chalk = require( 'chalk' );
 const inquirer = require( 'inquirer' );
-const sodium = require( 'tweetsodium' );
+const sodium = require( 'libsodium-wrappers' );
 
 /**
  * Update a secret.
@@ -28,7 +28,8 @@ async function updateSecret( octokit, slug, name, value ) {
 
 	const messageBytes = Buffer.from( value );
 	const keyBytes = Buffer.from( key.key, 'base64' );
-	const encryptedBytes = sodium.seal( messageBytes, keyBytes );
+	await sodium.ready;
+	const encryptedBytes = sodium.crypto_box_seal( messageBytes, keyBytes );
 	const encrypted = Buffer.from( encryptedBytes ).toString( 'base64' );
 
 	return octokit.rest.actions.createOrUpdateRepoSecret( {

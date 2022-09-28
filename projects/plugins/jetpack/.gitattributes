@@ -27,7 +27,6 @@
 /.phpcsignore                                            production-exclude
 /.phpcs.dir.xml                                          production-exclude
 /.sass-cache/**                                          production-exclude
-/.size-limit.js                                          production-exclude
 /.wp-env.json                                            production-exclude
 /LICENSE.txt                                             production-exclude
 /_inc/build/*.css.map                                    production-exclude
@@ -49,7 +48,6 @@
 /extensions/**/*.scss                                    production-exclude
 /extensions/**/*.svg                                     production-exclude
 /extensions/**/test/**                                   production-exclude
-/gulpfile.babel.js                                       production-exclude
 /jetpack_vendor/automattic/**/README.md                  production-exclude
 /jetpack_vendor/automattic/**/src/css/*.scss             production-exclude
 /jetpack_vendor/automattic/**/composer.json              production-exclude
@@ -62,7 +60,6 @@
 /node_modules/**                                         production-exclude
 /package.json                                            production-exclude
 /phpunit.xml.dist                                        production-exclude
-/postcss.config.js                                       production-exclude
 /readme.md                                               production-exclude
 /scss/**                                                 production-exclude
 /tests/**                                                production-exclude

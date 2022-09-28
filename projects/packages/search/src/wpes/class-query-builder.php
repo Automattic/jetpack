@@ -310,7 +310,7 @@ class Query_Builder {
 			);
 		}
 
-		if ( ! is_null( $this->query_bool_boost ) && isset( $query['bool'] ) ) {
+		if ( $this->query_bool_boost !== null && isset( $query['bool'] ) ) {
 			$query['bool']['boost'] = $this->query_bool_boost;
 		}
 

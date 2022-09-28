@@ -5,9 +5,9 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\Waf\WafOperators;
-use Automattic\Jetpack\Waf\WafRuntime;
-use Automattic\Jetpack\Waf\WafTransforms;
+use Automattic\Jetpack\Waf\Waf_Operators;
+use Automattic\Jetpack\Waf\Waf_Runtime;
+use Automattic\Jetpack\Waf\Waf_Transforms;
 
 /**
  * Runtime test suite.
@@ -16,7 +16,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Instance of the Runtime class
 	 *
-	 * @var WafRuntime
+	 * @var Waf_Runtime
 	 */
 	private $runtime;
 
@@ -26,7 +26,141 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 	 * @before
 	 */
 	protected function before() {
-		$this->runtime = new WafRuntime( new WafTransforms(), new WafOperators() );
+		$this->runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
+	}
+
+	/**
+	 * Test array_flatten
+	 */
+	public function testArrayFlatten() {
+		// get the private array_flatten method
+		$class  = new \ReflectionClass( $this->runtime );
+		$method = $class->getMethod( 'array_flatten' );
+		$method->setAccessible( true );
+
+		// base cases
+		$this->assertEquals(
+			array( 1, 2, 3, 4, 5 ),
+			$method->invoke(
+				$this->runtime,
+				array( 1, 2, 3, 4, 5 )
+			)
+		);
+		$this->assertEquals(
+			'test',
+			$method->invoke(
+				$this->runtime,
+				'test'
+			)
+		);
+
+		// nested case
+		$this->assertEquals(
+			array( 1, 2, 3, 4, 5 ),
+			$method->invoke(
+				$this->runtime,
+				array( 1, array( 2, 3 ), 4, array( array( 5 ) ) )
+			)
+		);
+	}
+
+	/**
+	 * Test normalize_array_targets
+	 */
+	public function testNormalizeArrayTarget() {
+		// get the private normalize_array_targets method
+		// note that because the $results parameter is by reference, we have to use invokeArgs not invoke
+		$class  = new \ReflectionClass( $this->runtime );
+		$method = $class->getMethod( 'normalize_array_target' );
+		$method->setAccessible( true );
+
+		$return = array();
+
+		// standard case
+		$this->assertEquals(
+			array(
+				array(
+					'name'   => 'abc',
+					'value'  => 'onetwothree',
+					'source' => 'testone:abc',
+				),
+				array(
+					'name'   => 'def',
+					'value'  => 'fourfivesix',
+					'source' => 'testone:def',
+				),
+			),
+			$method->invokeArgs(
+				$this->runtime,
+				array(
+					array(
+						'abc' => 'onetwothree',
+						'def' => 'fourfivesix',
+					),
+					array(),
+					array(),
+					'testone',
+					&$return,
+					false,
+				)
+			)
+		);
+
+		$return = array();
+
+		// nested case
+		$this->assertEquals(
+			array(
+				array(
+					'name'   => 'abc',
+					'value'  => 'onetwothree',
+					'source' => 'testtwo:abc',
+				),
+				array(
+					'name'   => '0',
+					'value'  => 'nesting',
+					'source' => 'testtwo:0',
+				),
+				array(
+					'name'   => '0',
+					'value'  => 'more_nesting',
+					'source' => 'testtwo:0',
+				),
+				array(
+					'name'   => '1',
+					'value'  => 'two',
+					'source' => 'testtwo:1',
+				),
+				array(
+					'name'   => '1',
+					'value'  => 'three',
+					'source' => 'testtwo:1',
+				),
+			),
+			$method->invokeArgs(
+				$this->runtime,
+				array(
+					array(
+						'abc' => 'onetwothree',
+						array(
+							'nestone' => 'nesting',
+							'more_nesting',
+						),
+						array(
+							'evenmore' => array(
+								'two',
+								'three',
+							),
+						),
+					),
+					array(),
+					array(),
+					'testtwo',
+					&$return,
+					false,
+				)
+			)
+		);
 	}
 
 	/**
@@ -277,5 +411,37 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 		$this->assertSame( 2.0, $this->runtime->get_var( 'def' ) );
 		$this->runtime->unset_var( 'abc' );
 		$this->assertSame( '', $this->runtime->get_var( 'abc' ) );
+	}
+
+	/**
+	 * Test calling the log function and check if a file is written.
+	 *
+	 * @runInSeparateProcess
+	 */
+	public function testWriteBlocklog() {
+		$tmp_dir      = sys_get_temp_dir();
+		$waf_log_path = $tmp_dir . '/waf-blocklog';
+
+		define( 'JETPACK_WAF_DIR', $tmp_dir );
+		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config.php' );
+		define( 'JETPACK_WAF_SHARE_DATA', true );
+
+		$this->runtime->write_blocklog( 1337, 'test block' );
+		$file_content = file_get_contents( $waf_log_path );
+
+		$this->assertTrue( file_exists( $waf_log_path ) );
+		$this->assertTrue( strpos( $file_content, '{"rule_id":1337,"reason":"test block"' ) !== true );
+
+		unlink( $waf_log_path );
+	}
+
+	/**
+	 * Test the sanitize output method catches odd cases
+	 */
+	public function testSanitizeOutput() {
+		$bad_output = 'a=<svg/onload%0c=alert%601%60>';
+		$result     = $this->runtime->sanitize_output( $bad_output );
+
+		$this->assertSame( 'a=&lt;svg\/onload\b=alert`1`&gt;', $result );
 	}
 }

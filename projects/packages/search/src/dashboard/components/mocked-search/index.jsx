@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import React, { Fragment } from 'react';
-
-/**
- * Internal dependencies
- */
 import MockedInstantSearch from './mocked-instant-search';
 import MockedLegacySearch from './mocked-legacy-search';
 

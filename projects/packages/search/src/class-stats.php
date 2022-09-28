@@ -1,6 +1,6 @@
 <?php
 /**
- * Fetch Search stats from WordPress.com.
+ * Get search stats for use in the wp-admin dashboard.
  *
  * @package automattic/jetpack-search
  */

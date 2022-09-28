@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { Path } from '@wordpress/components';
 import { InnerBlocks } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { Path } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './components/edit';
 import save from './components/save';
 import { CRITERIA_AFTER, DEFAULT_THRESHOLD } from './constants';
-import { getIconColor } from '../../shared/block-icons';
 import './editor.scss';
 
 const v1 = {

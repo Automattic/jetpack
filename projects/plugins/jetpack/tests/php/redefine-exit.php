@@ -8,8 +8,6 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable WordPress.PHP.DevelopmentFunctions
-
 /**
  * Exception to represent the calling of `exit()` or `die()`.
  */

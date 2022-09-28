@@ -125,13 +125,6 @@ class Jetpack_Widget_Authors extends WP_Widget {
 			)
 		);
 
-		// To-do: remove this once Jetpack requires WordPress 5.9.
-		global $wp_version;
-		if ( version_compare( $wp_version, '5.9-alpha', '<' ) ) {
-			$get_author_params['who'] = 'authors';
-			unset( $get_author_params['capability'] );
-		}
-
 		$authors = get_users( $get_author_params );
 
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

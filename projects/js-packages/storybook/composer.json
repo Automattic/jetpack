@@ -6,7 +6,7 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -14,7 +14,9 @@
 		]
 	},
 	"scripts": {
-		"build-development": "pnpm run storybook:build"
+		"build-development": "pnpm run storybook:build",
+		"test-js": "pnpm run test",
+		"test-coverage": "pnpm run test-coverage"
 	},
 	"repositories": [
 		{
@@ -30,11 +32,13 @@
 	"extra": {
 		"dependencies": {
 			"build": [
-				"js-packages/base-styles",
 				"js-packages/components",
 				"js-packages/connection",
 				"js-packages/idc",
-				"packages/my-jetpack"
+				"packages/my-jetpack",
+				"packages/search",
+				"plugins/protect",
+				"packages/videopress"
 			]
 		},
 		"mirror-repo": "Automattic/jetpack-storybook"

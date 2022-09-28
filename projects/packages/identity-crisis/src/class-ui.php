@@ -107,7 +107,7 @@ class UI {
 			'WP_API_nonce'                   => wp_create_nonce( 'wp_rest' ),
 			'wpcomHomeUrl'                   => ( is_array( $idc_urls ) && array_key_exists( 'wpcom_url', $idc_urls ) ) ? $idc_urls['wpcom_url'] : null,
 			'currentUrl'                     => ( is_array( $idc_urls ) && array_key_exists( 'current_url', $idc_urls ) ) ? $idc_urls['current_url'] : null,
-			'redirectUri'                    => str_replace( '/wp-admin/', '/', $_SERVER['REQUEST_URI'] ),
+			'redirectUri'                    => isset( $_SERVER['REQUEST_URI'] ) ? str_replace( '/wp-admin/', '/', filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '',
 			'tracksUserData'                 => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'                => array(
 				'isAdmin'       => $is_admin,
@@ -156,7 +156,7 @@ class UI {
 				continue;
 			}
 
-			if ( 0 === strpos( $_SERVER['REQUEST_URI'], $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
+			if ( isset( $_SERVER['REQUEST_URI'] ) && 0 === strpos( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), $consumer['admin_page'] ) && strlen( $consumer['admin_page'] ) > $consumer_url_length ) {
 				$consumer_chosen     = $consumer;
 				$consumer_url_length = strlen( $consumer['admin_page'] );
 			}

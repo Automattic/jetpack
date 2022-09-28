@@ -1,30 +1,19 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useContext, useEffect, useRef } from '@wordpress/element';
-import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { dispatch, useSelect, useDispatch } from '@wordpress/data';
+import { useContext, useEffect, useRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import './editor.scss';
+import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
+import ConversationContext from '../conversation/components/context';
+import { getParticipantBySlug } from '../conversation/utils';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
 import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
-import ConversationContext from '../conversation/components/context';
-import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
-import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
-import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -40,7 +29,13 @@ export default function DialogueEdit( {
 } ) {
 	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
-	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference, isMultipleSelection } = useSelect( select => {
+	const {
+		mediaSource,
+		mediaCurrentTime,
+		mediaDuration,
+		mediaDomReference,
+		isMultipleSelection,
+	} = useSelect( select => {
 		const {
 			getDefaultMediaSource,
 			getMediaSourceCurrentTime,
@@ -101,14 +96,7 @@ export default function DialogueEdit( {
 		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [
-		conversationParticipant,
-		label,
-		slug,
-		isMultipleSelection,
-		isSelected,
-		setAttributes,
-	] );
+	}, [ conversationParticipant, label, slug, isMultipleSelection, isSelected, setAttributes ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
@@ -166,9 +154,11 @@ export default function DialogueEdit( {
 				</Panel>
 			</InspectorControls>
 
-			<div className={ classnames( `${ BASE_CLASS_NAME }__meta`, {
-				'has-not-media-source': ! mediaSource,
-			} ) }>
+			<div
+				className={ classnames( `${ BASE_CLASS_NAME }__meta`, {
+					'has-not-media-source': ! mediaSource,
+				} ) }
+			>
 				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ label }
@@ -178,7 +168,7 @@ export default function DialogueEdit( {
 					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ ( selectedParticipant ) => {
+					onSelect={ selectedParticipant => {
 						if ( isMultipleSelection ) {
 							return;
 						}
@@ -229,9 +219,7 @@ export default function DialogueEdit( {
 
 					// Copy attrs for the new block
 					// only if content is not empty.
-					const newAttributes = value?.length
-						? attributes
-						: {};
+					const newAttributes = value?.length ? attributes : {};
 
 					return createBlock( blockName, {
 						...newAttributes,
@@ -262,7 +250,6 @@ export default function DialogueEdit( {
 				} }
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
-				keepPlaceholderOnFocus={ true }
 			/>
 		</div>
 	);

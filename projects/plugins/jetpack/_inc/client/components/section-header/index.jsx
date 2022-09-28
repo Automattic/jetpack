@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
+import classNames from 'classnames';
+import Card from 'components/card';
 import PropTypes from 'prop-types';
 import React from 'react';
-import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
 
 import './style.scss';
 

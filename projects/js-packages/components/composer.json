@@ -4,14 +4,20 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "3.0.x-dev"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"scripts": {
+		"build-production": [
+			"pnpm run build"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
 		"test-js": [
 			"pnpm run test"
 		],
 		"test-coverage": [
-			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

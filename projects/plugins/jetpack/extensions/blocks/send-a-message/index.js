@@ -1,21 +1,11 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
+import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './edit';
 import variations from './variations';
-import renderMaterialIcon from '../../shared/render-material-icon';
-import { getIconColor } from '../../shared/block-icons';
 
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 export const name = 'send-a-message';

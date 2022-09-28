@@ -1,33 +1,18 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
+import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
+import { noop } from 'lodash';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { noop } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import DashItem from 'components/dash-item';
-import {
-	getPlanClass,
-	getJetpackProductUpsellByFeature,
-	FEATURE_SEARCH_JETPACK,
-} from 'lib/plans/constants';
-import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import JetpackBanner from 'components/jetpack-banner';
+import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
 const SEARCH_DESCRIPTION = __(
 	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
@@ -95,7 +80,7 @@ class DashSearch extends Component {
 	activateSearch = () => {
 		this.props.updateOptions( {
 			search: true,
-			...( this.props.hasSearchProduct ? { instant_search_enabled: true } : {} ),
+			...( this.props.hasInstantSearch ? { instant_search_enabled: true } : {} ),
 		} );
 	};
 
@@ -116,7 +101,7 @@ class DashSearch extends Component {
 			} );
 		}
 
-		if ( ! this.props.isBusinessPlan && ! this.props.hasSearchProduct ) {
+		if ( ! this.props.hasClassicSearch && ! this.props.hasInstantSearch ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
@@ -169,7 +154,7 @@ class DashSearch extends Component {
 							{ __( 'Jetpack Search is powering search on your site.', 'jetpack' ) }
 						</p>
 					</DashItem>
-					{ this.props.hasSearchProduct ? (
+					{ this.props.hasInstantSearch ? (
 						<Card
 							compact
 							className="jp-search-config-aag"
@@ -211,10 +196,10 @@ class DashSearch extends Component {
 export default connect(
 	state => {
 		return {
-			isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
 			isOfflineMode: isOfflineMode( state ),
 			isFetching: isFetchingSitePurchases( state ),
-			hasSearchProduct: hasActiveSearchPurchase( state ),
+			hasClassicSearch: siteHasFeature( state, 'search' ),
+			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
 			upgradeUrl: getProductDescriptionUrl( state, 'search' ),
 			hasConnectedOwner: hasConnectedOwner( state ),
 		};

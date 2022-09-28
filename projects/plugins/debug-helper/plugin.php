@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic - Jetpack Crew
- * Version: 1.3.1-alpha
+ * Version: 1.5.0-alpha
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -33,12 +33,17 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '1.3.1-alpha' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.5.0-alpha' );
 
 /**
  * Include file names from the modules directory here.
  */
 $jetpack_dev_debug_modules = array(
+	'autoloader'         => array(
+		'file'        => 'class-autoloader-debug-helper.php',
+		'name'        => 'Autoloader Debug Helper',
+		'description' => '',
+	),
 	'broken-token'       => array(
 		'file'        => 'class-broken-token.php',
 		'name'        => 'Broken token Utilities',
@@ -67,6 +72,21 @@ $jetpack_dev_debug_modules = array(
 	'sync-data-settings' => array(
 		'file'        => 'class-sync-data-settings-tester.php',
 		'name'        => 'Sync Data Settings Utility',
+		'description' => '',
+	),
+	'modules-helper'     => array(
+		'file'        => 'class-modules-helper.php',
+		'name'        => 'Jetpack Modules Debug Helper',
+		'description' => '',
+	),
+	'protect-helper'     => array(
+		'file'        => 'class-protect-helper.php',
+		'name'        => 'Jetpack Protect Helper',
+		'description' => 'Allows you to force different results for the Jetpack Protect plugin to make it easier to develop it.',
+	),
+	'scan-helper'        => array(
+		'file'        => 'class-scan-helper.php',
+		'name'        => 'Jetpack Scan Helper',
 		'description' => '',
 	),
 );

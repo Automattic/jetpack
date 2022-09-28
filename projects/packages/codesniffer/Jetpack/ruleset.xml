@@ -3,9 +3,7 @@
 	<description>Jetpack coding standards. Based on the WordPress coding standards, with some additions.</description>
 
 	<rule ref="PHPCompatibilityWP" />
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
+	<rule ref="WordPress"/>
 	<rule ref="VariableAnalysis" />
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
@@ -26,8 +24,8 @@
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
 	<rule ref="MediaWiki.WhiteSpace.SpaceAfterClosure" />
+	<rule ref="MediaWiki.Usage.IsNull" />
 	<!-- Maybe in the future
-	<rule ref="MediaWiki.Usage.IsNull" /> // needs evaluation, and possible upstream change so the cbf can do Yoda conditionals
 	<rule ref="MediaWiki.AlternativeSyntax.UnicodeEscape" /> // syntax it checks requires PHP 7.0+
 	<rule ref="MediaWiki.Usage.NullableType" /> // syntax it enforces requires PHP 7.1+
 	-->
@@ -54,6 +52,26 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+	</rule>
+
+	<!-- Due to conversation within WPCS, we're disabling this rule for now. See https://github.com/WordPress/WordPress-Coding-Standards/issues/1624 -->
+	<rule ref="WordPress.PHP.YodaConditions.NotYoda">
+		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
+	</rule>
+
+	<!-- This rule, requiring a full stop at the end of an inline comment, is not useful for Jetpack. -->
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+	</rule>
+
+	<!-- This rule seems too prone to false-positives and false-negatives to be worthwhile. -->
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<exclude name="WordPress.DB.SlowDBQuery"/>
+	</rule>
+
+	<!-- This rule, while useful, is not one we'd want to run automatically in a pre-commit hook. -->
+	<rule ref="WordPress.WP.CapitalPDangit" phpcbf-only="true">
+		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
 </ruleset>

@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2022-09-27
+### Added
+- Social: Added the option to configure if the plan information should be refreshed as the package is enabled. [#26294]
+
+## [1.9.6] - 2022-08-26
+### Changed
+- Call ensure_options_$feature methods before the initialization
+
+## [1.9.5] - 2022-08-23
+### Changed
+- Initialize VideoPress admin UI from the package [#25692]
+
+## [1.9.4] - 2022-08-09
+### Changed
+- Initialize VideoPress package from the Config pkg [#25385]
+
+## [1.9.3] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.9.2] - 2022-06-29
+
+- Updated package dependencies.
+
+## [1.9.1] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.9.0] - 2022-05-18
+### Added
+- Configuration for waf package [#24153]
+
+## [1.8.0] - 2022-04-26
+### Added
+- Added the publicize package to be configured via the config package.
+
+### Changed
+- Updated package dependencies.
+
+## [1.7.2] - 2022-04-19
+### Added
+- Enable WordAds from Config class
+
+## [1.7.1] - 2022-04-06
+### Removed
+- Removed tracking dependency.
+
+## [1.7.0] - 2022-03-23
+### Added
+- Search: added search initialization
+
 ## [1.6.1] - 2022-02-09
 ### Added
 - Allow sync package consumers to provide custom data settings.
@@ -97,6 +148,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Trying to add deterministic initialization.
 
+[1.10.0]: https://github.com/Automattic/jetpack-config/compare/v1.9.6...v1.10.0
+[1.9.6]: https://github.com/Automattic/jetpack-config/compare/v1.9.5...v1.9.6
+[1.9.5]: https://github.com/Automattic/jetpack-config/compare/v1.9.4...v1.9.5
+[1.9.4]: https://github.com/Automattic/jetpack-config/compare/v1.9.3...v1.9.4
+[1.9.3]: https://github.com/Automattic/jetpack-config/compare/v1.9.2...v1.9.3
+[1.9.2]: https://github.com/Automattic/jetpack-config/compare/v1.9.1...v1.9.2
+[1.9.1]: https://github.com/Automattic/jetpack-config/compare/v1.9.0...v1.9.1
+[1.9.0]: https://github.com/Automattic/jetpack-config/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/Automattic/jetpack-config/compare/v1.7.2...v1.8.0
+[1.7.2]: https://github.com/Automattic/jetpack-config/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Automattic/jetpack-config/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-config/compare/v1.6.1...v1.7.0
 [1.6.1]: https://github.com/Automattic/jetpack-config/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/Automattic/jetpack-config/compare/v1.5.4...v1.6.0
 [1.5.4]: https://github.com/Automattic/jetpack-config/compare/v1.5.3...v1.5.4

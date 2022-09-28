@@ -1,17 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-//import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import MapControls from '../controls';
 
 const API_STATE_SUCCESS = 2;

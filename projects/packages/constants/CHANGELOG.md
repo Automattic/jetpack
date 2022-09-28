@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.18] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.6.17] - 2022-06-21
+### Changed
+- Renaming master to trunk.
+
+## [1.6.16] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
 ## [1.6.15] - 2022-01-25
 ### Changed
 - Updated package dependencies.
@@ -122,6 +134,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Finish the constants package
 
+[1.6.18]: https://github.com/Automattic/jetpack-constants/compare/v1.6.17...v1.6.18
+[1.6.17]: https://github.com/Automattic/jetpack-constants/compare/v1.6.16...v1.6.17
+[1.6.16]: https://github.com/Automattic/jetpack-constants/compare/v1.6.15...v1.6.16
 [1.6.15]: https://github.com/Automattic/jetpack-constants/compare/v1.6.14...v1.6.15
 [1.6.14]: https://github.com/Automattic/jetpack-constants/compare/v1.6.13...v1.6.14
 [1.6.13]: https://github.com/Automattic/jetpack-constants/compare/v1.6.12...v1.6.13

@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
+import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Icon, warning } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Icon, warning } from '@wordpress/icons';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**

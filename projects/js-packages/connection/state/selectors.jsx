@@ -12,6 +12,8 @@ const connectionSelectors = {
 	getRegistrationError: state => state.registrationError || false,
 	getAuthorizationUrl: state => state.authorizationUrl || false,
 	getUserConnectionData: state => state.userConnectionData || false,
+	getConnectedPlugins: state => state.connectedPlugins || [],
+	getConnectionErrors: state => state.connectionErrors || [],
 };
 
 const selectors = {

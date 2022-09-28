@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { useCallback, useState } from 'react';
-import { useDispatch, useSelect } from '@wordpress/data';
 import restApi from '@automattic/jetpack-api';
-
-/**
- * Internal dependencies
- */
-import trackAndBumpMCStats from '../tools/tracking';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useState } from 'react';
 import { STORE_ID } from '../state/store';
+import trackAndBumpMCStats from '../tools/tracking';
 
 /**
  * Custom hook to handle the migration action.

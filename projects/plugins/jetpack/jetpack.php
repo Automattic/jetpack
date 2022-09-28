@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 10.8-a.8
+ * Version: 11.5-a.0
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 5.8
+ * Requires at least: 5.9
  * Requires PHP: 5.6
  *
  * @package automattic/jetpack
@@ -30,9 +30,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '5.8' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '5.9' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '10.8-a.8' );
+define( 'JETPACK__VERSION', '11.5-a.0' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -58,7 +58,7 @@ defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCA
  */
 defined( 'JETPACK_CLIENT__HTTPS' ) || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 
-defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
+defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-compat/lib/locales.php' );
 defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 defined( 'JETPACK_PROTECT__API_HOST' ) || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_BASE' ) || define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
@@ -148,7 +148,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 			sprintf(
 				/* translators: Placeholder is a link to a support document. */
 				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack' ),
-				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md'
 			)
 		);
 	}
@@ -175,7 +175,7 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>

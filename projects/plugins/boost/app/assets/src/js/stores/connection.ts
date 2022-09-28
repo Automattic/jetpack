@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
 import { writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
 import api from '../api/api';
+import { reloadModulesState } from './modules';
 
 export type ConnectionStatus = {
 	isConnecting: boolean;
@@ -27,10 +21,22 @@ function partialUpdate( data: Partial< ConnectionStatus > ) {
 async function refresh(): Promise< void > {
 	partialUpdate( await api.get( '/connection' ) );
 }
+
 async function initialize(): Promise< void > {
 	partialUpdate( { isConnecting: true } );
 	try {
-		partialUpdate( await api.post( '/connection' ) );
+		const connection = await api.post( '/connection' );
+
+		// As a part of connecting (before marking the connection as ready)
+		// refresh the modules state to fetch the latest.
+		// Ideally, we should replace this with a more general server-state update thing.
+		// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
+		if ( connection.connected ) {
+			await reloadModulesState();
+		}
+		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
+
+		partialUpdate( connection );
 	} catch ( e ) {
 		partialUpdate( {
 			isConnecting: false,

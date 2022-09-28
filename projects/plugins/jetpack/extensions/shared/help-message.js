@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
 import GridiconNoticeOutline from 'gridicons/dist/notice-outline';
 import './help-message.scss';
 

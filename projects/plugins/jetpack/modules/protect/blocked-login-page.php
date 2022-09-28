@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore - WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
@@ -10,15 +10,42 @@ use Automattic\Jetpack\Redirect;
  * is available, or during the login_head hook.
  *
  * Class will only be instanciated if Protect has detected a hard blocked IP address.
- *
- *
  */
 class Jetpack_Protect_Blocked_Login_Page {
 
-	private static $__instance = null;
+	/**
+	 * Instance of the class.
+	 *
+	 * @var Jetpack_Protect_Blocked_Login_Page
+	 */
+	private static $instance = null;
+
+	/**
+	 * Can send recovery emails. defaults to true.
+	 *
+	 * @var bool
+	 */
 	public $can_send_recovery_emails;
+
+	/**
+	 * The IP address.
+	 *
+	 * @var string
+	 */
 	public $ip_address;
+
+	/**
+	 * Valid blocked user ID.
+	 *
+	 * @var int
+	 */
 	public $valid_blocked_user_id;
+
+	/**
+	 * The email address.
+	 *
+	 * @var string
+	 */
 	public $email_address;
 
 	/**
@@ -29,24 +56,30 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 *
 	 * @var string string $HELP_URL
 	 */
-	const HELP_URL = 'https://jetpack.com/support/security-features/#unblock';
+	const HELP_URL                           = 'https://jetpack.com/support/security-features/#unblock';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/**
 	 * Singleton implementation
 	 *
+	 * @param string $ip_address - the IP address.
+	 *
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$__instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
-			self::$__instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
+		if ( ! is_a( self::$instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
+			self::$instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
 		}
 
-		return self::$__instance;
+		return self::$instance;
 	}
 
-
-	function __construct( $ip_address ) {
+	/**
+	 * Singleton implementation
+	 *
+	 * @param string $ip_address - the IP address.
+	 */
+	public function __construct( $ip_address ) {
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -81,13 +114,18 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return Redirect::get_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
 	}
 
+	/**
+	 * Add arguments to lost password redirect url.
+	 *
+	 * @param string $url - the URL.
+	 */
 	public function add_args_to_lostpassword_redirect_url( $url ) {
 		if ( $this->valid_blocked_user_id ) {
 			$url = empty( $url ) ? wp_login_url() : $url;
 			$url = add_query_arg(
 				array(
-					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-					'user_id'                           => $_GET['user_id'],
+					'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 					'checkemail'                        => 'confirm',
 				),
 				$url
@@ -97,11 +135,17 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Add arguments to lost password redirect url.
+	 *
+	 * @param string $url - the URL.
+	 * @param string $redirect - where to redirect to.
+	 */
 	public function add_args_to_lostpassword_url( $url, $redirect ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
-				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-				'user_id'                           => $_GET['user_id'],
+				'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 				'action'                            => 'lostpassword',
 			);
 			if ( ! empty( $redirect ) ) {
@@ -113,12 +157,19 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Add arguments to login post url.
+	 *
+	 * @param string $url - the URL.
+	 * @param string $path - the path.
+	 * @param string $scheme -the scheme(?).
+	 */
 	public function add_args_to_login_post_url( $url, $path, $scheme ) {
 		if ( $this->valid_blocked_user_id && ( 'login_post' === $scheme || 'login' === $scheme ) ) {
 			$url = add_query_arg(
 				array(
-					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-					'user_id'                           => $_GET['user_id'],
+					'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+					'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 				),
 				$url
 			);
@@ -128,11 +179,18 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Add arguments to login post url.
+	 *
+	 * @param string $url - the URL.
+	 * @param string $redirect - where we want to redirect to.
+	 * @param string $force_reauth -if we're forcing reauthorization.
+	 */
 	public function add_args_to_login_url( $url, $redirect, $force_reauth ) {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
-				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-				'user_id'                           => $_GET['user_id'],
+				'validate_jetpack_protect_recovery' => isset( $_GET['validate_jetpack_protect_recovery'] ) ? filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ) : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
+				'user_id'                           => isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : null, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 			);
 
 			if ( ! empty( $redirect ) ) {
@@ -148,14 +206,22 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $url;
 	}
 
+	/**
+	 * Check if user is blocked.
+	 *
+	 * @param string $user - the user.
+	 */
 	public function check_valid_blocked_user( $user ) {
-		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) {
+		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack' ) );
 		}
 
 		return $user;
 	}
 
+	/**
+	 * Check if user is valid.
+	 */
 	public function is_blocked_user_valid() {
 		if ( ! $this->can_send_recovery_emails ) {
 			return false;
@@ -165,19 +231,25 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return true;
 		}
 
-		if ( ! isset( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) {
+		if ( ! isset( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
 			return false;
 		}
 
-		if ( ! $this->is_valid_protect_recovery_key( $_GET['validate_jetpack_protect_recovery'], $_GET['user_id'] ) ) {
+		if ( ! $this->is_valid_protect_recovery_key( filter_var( wp_unslash( $_GET['validate_jetpack_protect_recovery'] ) ), (int) $_GET['user_id'] ) ) { // phpcs:ignore: WordPress.Security.NonceVerification.Recommended -- no changes made if this isn't set.
 			return false;
 		}
 
-		$this->valid_blocked_user_id = (int) $_GET['user_id'];
+		$this->valid_blocked_user_id = (int) $_GET['user_id']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nothing on the site is changed in response to this request.
 
 		return true;
 	}
 
+	/**
+	 * Checks if recovery key is valid.
+	 *
+	 * @param string $key - they recovery key.
+	 * @param string $user_id - the User ID.
+	 */
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
 		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack::get_option( 'id' ) );
@@ -185,7 +257,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$path,
 			'1.1',
 			array(
-				'method' => 'post'
+				'method' => 'post',
 			),
 			array(
 				'token'   => $key,
@@ -203,6 +275,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return true;
 	}
 
+	/**
+	 * Check if we should render the recovery form.
+	 */
 	public function render_and_die() {
 		if ( ! $this->can_send_recovery_emails ) {
 			$this->render_blocked_login_message();
@@ -210,7 +285,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return;
 		}
 
-		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) {
+		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && ! empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes, just throws invalid token error.
 			$error = new WP_Error( 'invalid_token', __( "Oops, we couldn't validate the recovery token.", 'jetpack' ) );
 			$this->protect_die( $error );
 
@@ -220,7 +295,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if (
 			isset( $_GET['jetpack-protect-recovery'] ) &&
 			isset( $_POST['_wpnonce'] ) &&
-			wp_verify_nonce( $_POST['_wpnonce'], 'bypass-protect' )
+			wp_verify_nonce( $_POST['_wpnonce'], 'bypass-protect' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unstrip or sanitize nonces either.
 		) {
 			$this->process_recovery_email();
 
@@ -234,25 +309,34 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$this->render_recovery_form();
 	}
 
+	/**
+	 * Render the blocked login message.
+	 */
 	public function render_blocked_login_message() {
 		$this->protect_die( $this->get_html_blocked_login_message() );
 	}
 
-	function process_recovery_email() {
-		$sent = $this->send_recovery_email();
+	/**
+	 * Process sending a recovery email.
+	 */
+	public function process_recovery_email() {
+		$sent               = $this->send_recovery_email();
 		$show_recovery_form = true;
 		if ( is_wp_error( $sent ) ) {
 			if ( 'email_already_sent' === $sent->get_error_code() ) {
 				$show_recovery_form = false;
 			}
-			$this->protect_die( $sent,null,true, $show_recovery_form );
+			$this->protect_die( $sent, null, true, $show_recovery_form );
 		} else {
 			$this->render_recovery_success();
 		}
 	}
 
-	function send_recovery_email() {
-		$email = isset( $_POST['email'] ) ? $_POST['email'] : '';
+	/**
+	 * Send the recovery form.
+	 */
+	public function send_recovery_email() {
+		$email = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only triggered after bypass-protect nonce check is done, and sanitization is checked on the next line.
 		if ( sanitize_email( $email ) !== $email || ! is_email( $email ) ) {
 			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack' ) );
 		}
@@ -264,16 +348,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$this->email_address = $email;
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
 
-
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
 			array(
-				'method' => 'post'
+				'method' => 'post',
 			),
 			array(
 				'user_id' => $user->ID,
-				'ip'      => $this->ip_address
+				'ip'      => $this->ip_address,
 			)
 		);
 
@@ -281,65 +364,87 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$result = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
+			// translators: email address the recovery instructions were sent to.
 			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
-		} else if ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
+		} elseif ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
 			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack' ) );
 		}
 
 		return true;
 	}
 
-	function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
+	/**
+	 * Prevent login by locking the login page.
+	 *
+	 * @param string $content - the content of the page.
+	 * @param string $title - the page title.
+	 * @param string $back_link - the back link.
+	 * @param string $recovery_form - the recovery form.
+	 */
+	public function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
 		if ( empty( $title ) ) {
 			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
 		}
 		if ( is_wp_error( $content ) ) {
-			$svg = '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
-			$content = '<span class="error"> '. $svg . $content->get_error_message() . '</span>';
+			$svg     = '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
+			$content = '<span class="error"> ' . $svg . $content->get_error_message() . '</span>';
 		}
-		$content =  '<p>'. $content .'</p>';
+		$content = '<p>' . $content . '</p>';
 
 		// If for some reason the login pop up box show up in the wp-admin.
-		if ( isset( $_GET['interim-login'] ) ) {
-			$content = "<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
+		if ( isset( $_GET['interim-login'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site itself, just rendering an error message.
+			$content = '<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>' . $content;
 		}
 		$this->display_page( $title, $content, $back_link, $recovery_form );
 
 	}
 
-	function render_recovery_form() {
+	/**
+	 * Render the recovery form.
+	 */
+	public function render_recovery_form() {
 		$content = $this->get_html_blocked_login_message();
 		$this->protect_die( $content, null, null, true );
 	}
 
-	function render_recovery_success() {
+	/**
+	 * Render the recovery instructions.
+	 */
+	public function render_recovery_success() {
+		// translators: the email address the recovery email was sent to.
 		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 	}
 
-
-	function get_html_blocked_login_message() {
+	/**
+	 * Get the HTML for the blocked login message.
+	 */
+	public function get_html_blocked_login_message() {
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
-		$ip = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
+		$ip   = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
 		return sprintf(
-			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
+			// translators: the IP address that was flagged.
+			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
 			$icon,
 			$ip,
 			esc_url( self::get_help_url() )
 		);
 	}
 
-	function get_html_recovery_form() {
+	/**
+	 * Get the HTML recovery form.
+	 */
+	public function get_html_recovery_form() {
 		ob_start(); ?>
-        <div>
-            <form method="post" action="?jetpack-protect-recovery=true">
-				<?php echo wp_nonce_field( 'bypass-protect' ); ?>
-                <p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
-                    <input type="email" name="email" class="text-input"/>
-                    <input type="submit" class="button"
-                           value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
-                </p>
-            </form>
-        </div>
+		<div>
+			<form method="post" action="?jetpack-protect-recovery=true">
+				<?php wp_nonce_field( 'bypass-protect' ); ?> 
+				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
+					<input type="email" name="email" class="text-input"/>
+					<input type="submit" class="button"
+						value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
+				</p>
+			</form>
+		</div>
 
 		<?php
 		$contents = ob_get_contents();
@@ -348,7 +453,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $contents;
 	}
 
-	function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
+	/**
+	 * Display the page.
+	 *
+	 * @param string $title - the page title.
+	 * @param string $message - the message we're sending.
+	 * @param string $back_button - the back button.
+	 * @param string $recovery_form - the recovery form.
+	 */
+	public function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
 
 		if ( ! headers_sent() ) {
 			nocache_headers();
@@ -361,11 +474,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 		?>
 		<!DOCTYPE html>
-		<html xmlns="http://www.w3.org/1999/xhtml" <?php if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
+		<html xmlns="http://www.w3.org/1999/xhtml" 
+		<?php
+		if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
 			language_attributes();
 		} else {
-			echo "dir='$text_direction'";
-		} ?>>
+			echo "dir='$text_direction'"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		?>
+		>
 		<head>
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 			<meta name="viewport" content="width=device-width">
@@ -376,7 +493,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				echo "<meta name='robots' content='noindex,nofollow' />\n";
 			}
 			?>
-			<title><?php echo $title ?></title>
+			<title><?php echo esc_html( $title ); ?></title>
 			<style type="text/css">
 				html {
 					background: #f6f6f6;
@@ -573,14 +690,14 @@ class Jetpack_Protect_Blocked_Login_Page {
 				}
 				<?php
 				$rtl_class = '';
-				if ( 'rtl' == $text_direction ) {
+				if ( 'rtl' === $text_direction ) {
 					$rtl_class = 'class="is-rtl"';
 					echo 'body { font-family: Tahoma, Arial; }';
 				}
 				?>
 			</style>
 		</head>
-		<body id="error-page" <?php echo $rtl_class; ?>>
+		<body id="error-page" <?php echo $rtl_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>> 
 			<h1 id="error-title"><?php echo esc_html( $title ); ?></h1>
 			<div id="error-message">
 				<svg id="image" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 250 134">
@@ -608,10 +725,12 @@ class Jetpack_Protect_Blocked_Login_Page {
 					<path fill="#86A6BD" d="M48.1,121.4l2.9-6.2c0.3-0.6,0.2-1.3-0.3-1.8c-1-1-1.5-2.5-1.2-4c0.3-1.7,1.7-3.1,3.4-3.4 c2.9-0.6,5.4,1.6,5.4,4.4c0,1.2-0.5,2.3-1.3,3.1c-0.5,0.5-0.6,1.2-0.3,1.8l2.9,6.2c0.1,0.2-0.1,0.5-0.3,0.5H48.4 C48.1,121.9,48,121.6,48.1,121.4"/>
 				</svg>
 
-				<?php echo $message; ?>
-				<?php if ( $recovery_form ) {
-					echo $this->get_html_recovery_form();
-				} ?>
+				<?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- message includes HTML that's marked up ourselves. ?>
+				<?php
+				if ( $recovery_form ) {
+					echo $this->get_html_recovery_form(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- content is escaped in the function.
+				}
+				?>
 			</div>
 			<div id="error-footer">
 			<?php
@@ -633,7 +752,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 				</a>
 				<?php
 			} else {
-				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';?>
+				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';
+				?>
 					<a href="<?php echo esc_url( self::get_help_url() ); ?>" rel="noopener noreferrer" target="_blank">
 						<?php
 						printf(

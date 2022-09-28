@@ -1,17 +1,12 @@
-/**
- * WordPress dependencies
- */
+import {
+	useSocialMediaConnections,
+	useSocialMediaMessage,
+} from '@automattic/jetpack-publicize-components';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import useSocialMediaMessage from '../use-social-media-message';
-import useSocialMediaConnections from '../use-social-media-connections';
 
 function getHumanReadableError( result ) {
 	// Errors coming from the API.

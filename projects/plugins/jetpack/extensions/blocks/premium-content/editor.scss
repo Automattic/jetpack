@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-premium-content-container .premium-content-tabs {
 	align-items: center;
@@ -34,44 +34,6 @@
 	margin: 0;
 }
 
-.premium-content-block-nudge .editor-warning {
-	margin-bottom: 0;
-}
-
-.premium-content-block-nudge .editor-warning__message {
-	margin: 13px 0;
-}
-
-.premium-content-block-nudge .editor-warning__actions {
-	line-height: 1;
-}
-
-.premium-content-block-nudge .premium-content-block-nudge__info {
-	font-size: $default-font-size;
-	display: flex;
-	flex-direction: row;
-	line-height: 1.4;
-}
-
-.premium-content-block-nudge .premium-content-block-nudge__text-container {
-	display: flex;
-	flex-direction: column;
-	padding-left: 10px;
-}
-
-.premium-content-block-nudge .premium-content-block-nudge__title {
-	font-size: 14px;
-}
-
-.premium-content-block-nudge__message {
-	color: var( --color-text-subtle );
-}
-
-.editor-styles-wrapper a.premium-content-block-nudge__button {
-	color: #0075af;
-	text-decoration: none;
-}
-
 .membership-button__disclaimer {
 	color: var( --color-gray-200 );
 	flex-basis: 100%;
@@ -82,46 +44,6 @@
 .membership-button__disclaimer a {
 	color: var( --color-gray-400 );
 	line-height: 36px;
-}
-
-.wp-block-premium-content-container---settings-add_plan
-	.components-panel__row.plan-name
-	.components-base-control,
-.wp-block-premium-content-container---settings-add_plan
-	.components-panel__row.plan-interval
-	.components-base-control {
-	width: 100%;
-}
-
-.wp-block-premium-content-container---settings-add_plan
-	.components-panel__row.plan-price
-	.components-base-control {
-	width: 45%;
-	margin: 0;
-}
-
-.wp-block-premium-content-container---settings-add_plan .components-panel__row:last-child {
-	margin-top: 25px;
-}
-
-.wp-block-premium-content-container---settings-add_plan .components-base-control:last-child {
-	margin: 0;
-}
-
-.wp-block-premium-content-container---link-to-earn {
-	margin: 16px;
-	display: block;
-}
-
-.premium-content-toolbar-button .components-dropdown-menu__toggle::after {
-	display: block;
-	content: '';
-	position: absolute;
-	bottom: 1px;
-	right: 0;
-	border-color: transparent currentColor currentColor transparent;
-	border-style: solid;
-	border-width: 4px;
 }
 
 /* Subscribe/Login buttons */
@@ -140,7 +62,7 @@
 
 /* Hide Stripe nudge from Jetpack payments block */
 /* https://github.com/Automattic/wp-calypso/issues/44332 */
-.wp-block-premium-content-container .jetpack-block-nudge {
+.wp-block-premium-content-container .premium-content-wrapper .jetpack-block-nudge {
 	display: none;
 }
 

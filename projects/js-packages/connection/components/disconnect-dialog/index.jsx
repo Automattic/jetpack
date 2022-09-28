@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import React, { useMemo, useEffect, useCallback, useState } from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
-import { Modal } from '@wordpress/components';
-import restApi from '@automattic/jetpack-api';
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import restApi from '@automattic/jetpack-api';
 import { jetpackConfigHas, jetpackConfigGet } from '@automattic/jetpack-config';
-
-/**
- * Internal dependencies
- */
+import { Modal } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React, { useMemo, useEffect, useCallback, useState } from 'react';
 import './style.scss';
 import StepDisconnect from './steps/step-disconnect';
 import StepDisconnectConfirm from './steps/step-disconnect-confirm';
@@ -390,7 +383,7 @@ DisconnectDialog.propTypes = {
 	/** The context in which this component is being used. */
 	context: PropTypes.string,
 	/** Plugins that are using the Jetpack connection. */
-	connectedPlugins: PropTypes.object,
+	connectedPlugins: PropTypes.oneOfType( [ PropTypes.array, PropTypes.object ] ),
 	/** Callback function that is called just before the request to disconnect is made when the context is "plugins". */
 	pluginScreenDisconnectCallback: PropTypes.func,
 	/** A component to render as part of the disconnect step. */

@@ -16,7 +16,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- This is cloning the internal behaviour of Requests.
 		Requests::$transport[ serialize( array() ) ] = 'Tweetstorm_Requests_Transport_Override';
 	}
 
@@ -24,7 +23,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * Tearing down.
 	 */
 	public static function tear_down_after_class() {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- This is cloning the internal behaviour of Requests.
 		unset( Requests::$transport[ serialize( array() ) ] );
 
 		parent::tear_down_after_class();

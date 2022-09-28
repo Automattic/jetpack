@@ -1,11 +1,16 @@
 # Files not needed to be distributed in the package.
 .gitattributes   export-ignore
 .github/         export-ignore
-.gitignore       export-ignore
+package.json     export-ignore
 docs/            export-ignore
 phpunit.xml.dist export-ignore
 tests/           export-ignore
 
+# Files to include in the mirror repo
+/dist/**         production-include
+
 # Files not needed in the production build.
-.phpcs.dir.xml   production-exclude
-/changelog/**    production-exclude
+.phpcs.dir.xml     production-exclude
+/changelog/**      production-exclude
+.gitignore         production-exclude
+webpack.config.js  production-exclude

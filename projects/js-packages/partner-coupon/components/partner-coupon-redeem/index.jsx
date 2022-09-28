@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import RedeemPartnerCouponPostConnection from '../redeem-partner-coupon-post-connection';
 import RedeemPartnerCouponPreConnection from '../redeem-partner-coupon-pre-connection';
 

@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
-import { encode } from 'qss';
-import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
+import { flatten } from 'q-flat';
+import { encode } from 'qss';
 import lru from 'tiny-lru/lib/tiny-lru.esm';
-
-/**
- * Internal dependencies
- */
-import { getFilterKeys } from './filters';
 import {
 	MINUTE_IN_MILLISECONDS,
 	MULTISITE_NO_GROUP_VALUE,
@@ -17,6 +9,7 @@ import {
 	RESULT_FORMAT_PRODUCT,
 	SERVER_OBJECT_NAME,
 } from './constants';
+import { getFilterKeys } from './filters';
 
 let abortController;
 
@@ -93,6 +86,9 @@ function generateAggregation( filter ) {
 		case 'post_type': {
 			return { terms: { field: filter.type, size: filter.count } };
 		}
+		case 'author': {
+			return { terms: { field: 'author_login_slash_name', size: filter.count } };
+		}
 	}
 }
 
@@ -132,6 +128,9 @@ export function generateDateRangeFilter( fieldName, input, type ) {
 const filterKeyToEsFilter = new Map( [
 	// Post type
 	[ 'post_types', postType => ( { term: { post_type: postType } } ) ],
+
+	// Author
+	[ 'authors', author => ( { term: { author_login: author } } ) ],
 
 	// Built-in taxonomies
 	[ 'category', category => ( { term: { 'category.slug': category } } ) ],
@@ -256,6 +255,7 @@ function generateApiQueryString( {
 	postsPerPage = 10,
 	adminQueryFilter,
 	isInCustomizer = false,
+	additionalBlogIds = [],
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -318,6 +318,13 @@ function generateApiQueryString( {
 		page_handle: pageHandle,
 		size: postsPerPage,
 	};
+
+	// Support search through multiple blogs.
+	if ( additionalBlogIds?.length > 0 ) {
+		// `blog_id` is required when additional_blog_ids is set.
+		params.fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url', 'blog_id' ] );
+		params.additional_blog_ids = additionalBlogIds;
+	}
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
 		params = {
@@ -424,7 +431,7 @@ export function search( options, requestId ) {
 	//       "Private" Jetpack sites are not yet supported.
 	const urlForPublicApi = `https://public-api.wordpress.com/rest/v1.3${ pathForPublicApi }`;
 	const urlForWpcomOrigin = `${ homeUrl }/wp-json/wpcom-origin/v1.3${ pathForPublicApi }`;
-	const urlForAtomicOrigin = `${ apiRoot }wpcom/v2/search?${ queryString }`;
+	const urlForAtomicOrigin = `${ apiRoot }jetpack/v4/search?${ queryString }`;
 	let url = urlForPublicApi;
 	if ( isPrivateSite && isWpcom ) {
 		url = urlForWpcomOrigin;
@@ -442,9 +449,9 @@ export function search( options, requestId ) {
 	} )
 		.then( response => {
 			if ( response.status !== 200 ) {
-				return Promise.reject(
-					`Unexpected response from API with status code ${ response.status }.`
-				);
+				return response.json().then( json => {
+					throw new Error( json.error );
+				} );
 			}
 			return response;
 		} )

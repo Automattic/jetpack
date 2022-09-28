@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { SelectControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import {
 	SOURCE_GOOGLE_PHOTOS,
 	PATH_RECENT,
@@ -17,11 +10,11 @@ import {
 } from '../../constants';
 import MediaBrowser from '../../media-browser';
 import { getApiUrl } from '../api';
+import Breadcrumbs from './breadcrumbs';
 import GoogleFilterOption from './filter-option';
+import getFilterRequest from './filter-request';
 import GoogleFilterView from './filter-view';
 import GooglePhotosAccount from './google-photos-account';
-import Breadcrumbs from './breadcrumbs';
-import getFilterRequest from './filter-request';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
 

@@ -12,15 +12,15 @@
  * @returns {string} the redirect URL
  */
 export default function getProductCheckoutUrl( product, isUserConnected ) {
-	const { siteSuffix, redirectUrl } = window?.myJetpackInitialState || {};
+	const { siteSuffix, myJetpackUrl } = window?.myJetpackInitialState || {};
 
 	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
-	const checkoutProductUrl = new URL( `${ siteSuffix }/${ product }`, checkoutUrl );
+	const checkoutProductUrl = new URL( `${ checkoutUrl }${ siteSuffix }/${ product }` );
 
 	// Add redirect_to parameter
-	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl );
+	checkoutProductUrl.searchParams.set( 'redirect_to', myJetpackUrl );
 
-	// Add unlimited when user is not connected to Jetpack.
+	// Add unlinked when user is not connected to Jetpack.
 	if ( ! isUserConnected ) {
 		checkoutProductUrl.searchParams.set( 'unlinked', 1 );
 	}

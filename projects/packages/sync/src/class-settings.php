@@ -199,10 +199,10 @@ class Settings {
 
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
-					update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
+					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
 				}
 			} else {
-				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
+				$updated = update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
 
 			// If we set the disabled option to true, clear the queues.
@@ -210,6 +210,13 @@ class Settings {
 				$listener = Listener::get_instance();
 				$listener->get_sync_queue()->reset();
 				$listener->get_full_sync_queue()->reset();
+			}
+
+			// Do not enable Dedicated Sync if we cannot spawn a Dedicated Sync request.
+			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
+				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
+					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
+				}
 			}
 		}
 	}
@@ -444,7 +451,7 @@ class Settings {
 	 * @return boolean Whether WordPress is currently importing.
 	 */
 	public static function is_importing() {
-		if ( ! is_null( self::$is_importing ) ) {
+		if ( self::$is_importing !== null ) {
 			return self::$is_importing;
 		}
 
@@ -485,7 +492,7 @@ class Settings {
 	 * @return boolean Whether WordPress is currently doing WP cron.
 	 */
 	public static function is_doing_cron() {
-		if ( ! is_null( self::$is_doing_cron ) ) {
+		if ( self::$is_doing_cron !== null ) {
 			return self::$is_doing_cron;
 		}
 

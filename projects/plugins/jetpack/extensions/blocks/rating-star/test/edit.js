@@ -1,17 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
+import userEvent from '@testing-library/user-event';
 import { Rating } from '../edit';
 
 describe( 'Rating', () => {
@@ -19,7 +7,7 @@ describe( 'Rating', () => {
 	const defaultProps = {
 		id: 1,
 		setRating: setRatingMock,
-		children: [ <p key="yo">Things are just fine!</p> ]
+		children: [ <p key="yo">Things are just fine!</p> ],
 	};
 
 	beforeEach( () => {
@@ -31,19 +19,21 @@ describe( 'Rating', () => {
 		expect( screen.getByText( 'Things are just fine!' ) ).toBeInTheDocument();
 	} );
 
-	test( 'fires click event handler callbacks', () => {
+	test( 'fires click event handler callbacks', async () => {
+		const user = userEvent.setup();
 		render( <Rating { ...defaultProps } /> );
-		userEvent.click( screen.getByRole( 'button' ) );
-		expect( setRatingMock ).toBeCalledTimes(1 );
-		expect( setRatingMock ).toBeCalledWith( defaultProps.id );
+		await user.click( screen.getByRole( 'button' ) );
+		expect( setRatingMock ).toHaveBeenCalledTimes( 1 );
+		expect( setRatingMock ).toHaveBeenCalledWith( defaultProps.id );
 	} );
 
-	test( 'fires keydown event handler callbacks', () => {
+	test( 'fires keydown event handler callbacks', async () => {
+		const user = userEvent.setup();
 		render( <Rating { ...defaultProps } /> );
-		userEvent.type( screen.getByRole( 'button' ), '{enter}' );
+		await user.type( screen.getByRole( 'button' ), '{enter}' );
 		// A focused keypress event fires both keydown and click so we expect two executions
-		expect( setRatingMock ).toBeCalledTimes(2 );
-		expect( setRatingMock.mock.calls[0][0] ).toBe( defaultProps.id );
-		expect( setRatingMock.mock.calls[1][0] ).toBe( defaultProps.id );
+		expect( setRatingMock ).toHaveBeenCalledTimes( 2 );
+		expect( setRatingMock.mock.calls[ 0 ][ 0 ] ).toBe( defaultProps.id );
+		expect( setRatingMock.mock.calls[ 1 ][ 0 ] ).toBe( defaultProps.id );
 	} );
 } );

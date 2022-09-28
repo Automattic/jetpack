@@ -1,22 +1,15 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
-import { compose } from '@wordpress/compose';
-import { filter, get, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
-import { withDispatch, withSelect } from '@wordpress/data';
 import { MediaPlaceholder, BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { mediaUpload } from '@wordpress/editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import { icon } from '.';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
+import { mediaUpload } from '@wordpress/editor';
+import { Component, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { filter, get, map, pick } from 'lodash';
 import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
+import { icon } from '.';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image' ];

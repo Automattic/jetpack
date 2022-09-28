@@ -17,7 +17,12 @@ use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
+use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
+use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
+use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
+use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
+use Automattic\Jetpack\WordAds\Initializer as Jetpack_WordAds_Main;
 
 /**
  * The configuration class.
@@ -39,6 +44,11 @@ class Config {
 		'sync'            => false,
 		'post_list'       => false,
 		'identity_crisis' => false,
+		'search'          => false,
+		'publicize'       => false,
+		'wordads'         => false,
+		'waf'             => false,
+		'videopress'      => false,
 	);
 
 	/**
@@ -57,13 +67,14 @@ class Config {
 		 * being constructed on priority 1.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
-
 	}
 
 	/**
 	 * Require a feature to be initialized. It's up to the package consumer to actually add
 	 * the package to their composer project. Declaring a requirement using this method
 	 * instructs the class to initialize it.
+	 *
+	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature the feature slug.
 	 * @param array  $options Additional options, optional.
@@ -72,6 +83,11 @@ class Config {
 		$this->config[ $feature ] = true;
 
 		$this->set_feature_options( $feature, $options );
+
+		$method_options = 'ensure_options_' . $feature;
+		if ( method_exists( $this, $method_options ) ) {
+			$this->{ $method_options }();
+		}
 	}
 
 	/**
@@ -106,6 +122,30 @@ class Config {
 			$this->ensure_class( 'Automattic\Jetpack\Identity_Crisis' )
 				&& $this->ensure_feature( 'identity_crisis' );
 		}
+
+		if ( $this->config['search'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Search\Initializer' )
+				&& $this->ensure_feature( 'search' );
+		}
+
+		if ( $this->config['publicize'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize_UI' ) && $this->ensure_class( 'Automattic\Jetpack\Publicize\Publicize' )
+				&& $this->ensure_feature( 'publicize' );
+		}
+
+		if ( $this->config['wordads'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\WordAds\Initializer' )
+				&& $this->ensure_feature( 'wordads' );
+		}
+
+		if ( $this->config['waf'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Waf\Waf_Initializer' )
+				&& $this->ensure_feature( 'waf' );
+		}
+
+		if ( $this->config['videopress'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\VideoPress\Initializer' ) && $this->ensure_feature( 'videopress' );
+		}
 	}
 
 	/**
@@ -139,7 +179,6 @@ class Config {
 
 	/**
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
-	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature slug of the feature.
 	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
@@ -148,11 +187,6 @@ class Config {
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
 			return self::FEATURE_NOT_AVAILABLE;
-		}
-
-		$method_options = 'ensure_options_' . $feature;
-		if ( method_exists( $this, $method_options ) ) {
-			$this->{ $method_options }();
 		}
 
 		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
@@ -217,6 +251,68 @@ class Config {
 	 */
 	protected function enable_identity_crisis() {
 		Identity_Crisis::init();
+	}
+
+	/**
+	 * Enables the search feature.
+	 */
+	protected function enable_search() {
+		Jetpack_Search_Main::init();
+	}
+
+	/**
+	 * Enables the Publicize feature.
+	 */
+	protected function enable_publicize() {
+		Publicize_Setup::configure();
+
+		return true;
+	}
+
+	/**
+	 * Handles Publicize options.
+	 */
+	protected function ensure_options_publicize() {
+		$options = $this->get_feature_options( 'publicize' );
+
+		if ( ! empty( $options['force_refresh'] ) ) {
+			Publicize_Setup::$refresh_plan_info = true;
+		}
+	}
+
+	/**
+	 * Enables WordAds.
+	 */
+	protected function enable_wordads() {
+		Jetpack_WordAds_Main::init();
+	}
+
+	/**
+	 * Enables Waf.
+	 */
+	protected function enable_waf() {
+		Jetpack_Waf_Main::init();
+
+		return true;
+	}
+
+	/**
+	 * Enables VideoPress.
+	 */
+	protected function enable_videopress() {
+		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
+
+	/**
+	 * Handles VideoPress options
+	 */
+	protected function ensure_options_videopress() {
+		$options = $this->get_feature_options( 'videopress' );
+		if ( ! empty( $options ) ) {
+			VideoPress_Pkg_Initializer::update_init_options( $options );
+		}
+		return true;
 	}
 
 	/**

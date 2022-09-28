@@ -1,21 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * WordPress dependencies
- */
 import { Spinner } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
 import Button from 'components/button';
-
-/**
- * Style dependencies
- */
+import React from 'react';
 import './style.scss';
 
 const InstallButton = props => {

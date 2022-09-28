@@ -14,7 +14,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpx jetpack build plugins/jetpack plugins/boost -v --no-pnpm-install --production",
+		"build": "pnpm jetpack build plugins/jetpack plugins/boost -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
@@ -25,20 +25,17 @@
 		"tunnel:reset": "tunnel reset",
 		"tunnel:down": "tunnel down",
 		"tunnel:write-logs": "tunnel logs output/logs/tunnel.log",
-		"pretest": "pnpm run clean",
-		"test:run": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && playwright install && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results playwright test --config=./playwright.config.cjs",
-		"slack": "NODE_CONFIG_DIR='./config' slack"
+		"pretest:run": "pnpm run clean",
+		"test:run": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && playwright install && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test --config=./playwright.config.cjs"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.17.2",
-		"allure-playwright": "2.0.0-beta.14",
-		"config": "^3.3.7",
-		"eslint-plugin-playwright": "0.8.0",
+		"@playwright/test": "1.26.0",
+		"allure-playwright": "2.0.0-beta.19",
+		"config": "3.3.7",
 		"jetpack-e2e-commons": "*"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.23.6",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
@@ -46,6 +43,8 @@
 		"targets": [
 			"plugins/boost",
 			"tools/e2e-commons"
-		]
+		],
+		"pluginSlug": "boost",
+		"mirrorName": "jetpack-boost-production"
 	}
 }

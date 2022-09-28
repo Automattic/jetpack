@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			return;
 		}
 		// Create a user and set it up as current.
-		$this->master_user_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );
+		$this->master_user_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $this->master_user_id );
 		Jetpack_Options::update_option( 'id', 1234 );
@@ -62,12 +62,12 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 	public static function get_extensions_whitelist() {
 		return array(
-			// Our "Blocks" :)
+			// Our Blocks :)
 			'apple',
 			'banana',
 			'coconut',
 			'grape',
-			// Our "Plugins" :)
+			// Our Plugins :)
 			'onion',
 			'potato',
 			'tomato',
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	/**
 	 * This test will throw an exception/fail if blocks register twice upon repeat calls to get_availability()
 	 */
-	function test_does_calling_get_availability_twice_result_in_notice() {
+	public function test_does_calling_get_availability_twice_result_in_notice() {
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_block' ) );
 		Jetpack_Gutenberg::get_availability();
 		Jetpack_Gutenberg::get_availability();
@@ -85,30 +85,30 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertTrue( $result );
 	}
 
-	function register_block() {
+	public function register_block() {
 		Blocks::jetpack_register_block( 'jetpack/apple' );
 	}
 
-	function test_registered_block_is_available() {
+	public function test_registered_block_is_available() {
 		Blocks::jetpack_register_block( 'jetpack/apple' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertTrue( $availability['apple']['available'] );
 	}
 
-	function test_registered_block_is_not_available() {
+	public function test_registered_block_is_not_available() {
 		Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/banana', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['banana']['available'], 'banana is available!' );
 		$this->assertEquals( 'bar', $availability['banana']['unavailable_reason'], 'unavailable_reason is not "bar"' );
 	}
 
-	function test_registered_block_is_not_available_when_not_defined_in_whitelist() {
+	public function test_registered_block_is_not_available_when_not_defined_in_whitelist() {
 		Blocks::jetpack_register_block( 'jetpack/durian' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertArrayNotHasKey( 'durian', $availability, 'durian is available!' );
 	}
 
-	function test_block_is_not_available_when_not_registered_returns_missing_module() {
+	public function test_block_is_not_available_when_not_registered_returns_missing_module() {
 		$availability = Jetpack_Gutenberg::get_availability();
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
@@ -117,27 +117,27 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	// Plugins
-	function test_registered_plugin_is_available() {
+	public function test_registered_plugin_is_available() {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack/onion' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertTrue( $availability['onion']['available'] );
 	}
 
-	function test_registered_plugin_is_not_available() {
+	public function test_registered_plugin_is_not_available() {
 		Jetpack_Gutenberg::set_extension_unavailable( 'jetpack/potato', 'bar' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertFalse( $availability['potato']['available'], 'potato is available!' );
 		$this->assertEquals( 'bar', $availability['potato']['unavailable_reason'], 'unavailable_reason is not "bar"' );
 	}
 
-	function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
+	public function test_registered_plugin_is_not_available_when_not_defined_in_whitelist() {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack/parsnip' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertArrayNotHasKey( 'parsnip', $availability, 'parsnip is available!' );
 
 	}
 
-	function test_plugin_is_not_available_when_not_registered_returns_missing_module() {
+	public function test_plugin_is_not_available_when_not_registered_returns_missing_module() {
 		$availability = Jetpack_Gutenberg::get_availability();
 
 		// 'unavailable_reason' should be 'missing_module' if the block wasn't registered
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertEquals( 'missing_module', $availability['tomato']['unavailable_reason'], 'unavailable_reason is not "missing_module"' );
 	}
 
-	function test_get_available_extensions() {
+	public function test_get_available_extensions() {
 		$extensions = Jetpack_Gutenberg::get_available_extensions( $this->get_extensions_whitelist() );
 		$this->assertIsArray( $extensions );
 		$this->assertNotEmpty( $extensions );
@@ -159,7 +159,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertNotContains( 'onion', $extensions );
 	}
 
-	function test_returns_false_if_core_wp_version_less_than_minimum() {
+	public function test_returns_false_if_core_wp_version_less_than_minimum() {
 		$version_gated = Jetpack_Gutenberg::is_gutenberg_version_available(
 			array(
 				'wp'        => '999999',

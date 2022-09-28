@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React, { useCallback } from 'react';
-
-/**
- * Internal Dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
@@ -64,7 +57,7 @@ const StepDisconnect = props => {
 		if ( isDisconnecting ) {
 			buttonText = __( 'Disconnecting…', 'jetpack' );
 		} else if ( context === 'plugins' ) {
-			buttonText = __( 'Disconnect and Deactivate', 'jetpack' );
+			buttonText = __( 'Deactivate', 'jetpack' );
 		}
 
 		return (
@@ -157,7 +150,9 @@ const StepDisconnect = props => {
 							onClick={ handleStayConnectedClick }
 							className="jp-connection__disconnect-dialog__btn-dismiss"
 						>
-							{ __( 'Stay connected', 'jetpack' ) }
+							{ context === 'plugins'
+								? __( 'Cancel', 'jetpack' )
+								: __( 'Stay connected', 'jetpack', /* dummy arg to avoid bad minification */ 0 ) }
 						</Button>
 						{ renderDisconnectButton() }
 					</div>
@@ -180,7 +175,7 @@ StepDisconnect.propTypes = {
 	/** An error that occurred during a request to disconnect. */
 	disconnectError: PropTypes.bool,
 	/** A component to be rendered as part of this step */
-	disconnectStepComponent: PropTypes.elementType,
+	disconnectStepComponent: PropTypes.element,
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.array,
 	/** The slug of the plugin that is initiating the disconnection. */
