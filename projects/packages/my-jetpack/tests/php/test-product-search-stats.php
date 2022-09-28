@@ -82,6 +82,11 @@ class Test_Search_Stats extends TestCase {
 				'post_status' => 'publish',
 				'num_posts'   => 10,
 			),
+			array(
+				'post_type'   => 'topic',
+				'post_status' => 'draft',
+				'num_posts'   => 3,
+			),
 		);
 	}
 }
