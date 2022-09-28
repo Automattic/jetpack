@@ -3,19 +3,19 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { withNotices } from '@wordpress/components';
+import { Spinner, withNotices } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useRef } from 'react';
 /**
  * Internal dependencies
  */
-import { useResumableUploader } from '../../hooks/use-uploader.js';
+import { useResumableUploader } from '../../../../../hooks/use-uploader';
+import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
 import UploadError from './uploader-error.js';
 import UploadProgress from './uploader-progress.js';
-
 import './style.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'video' ];
@@ -30,6 +30,7 @@ const VideoPressUploader = ( {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
+	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
 	const tusUploader = useRef( null );
 
 	/*
@@ -212,8 +213,12 @@ const VideoPressUploader = ( {
 		if ( media.id ) {
 			const path = `videopress/v1/upload/${ media.id }`;
 
+			setIsVerifyingLocalMedia( true );
+
 			apiFetch( { path, method: 'GET' } )
 				.then( result => {
+					setIsVerifyingLocalMedia( false );
+
 					if ( 'new' === result.status || 'resume' === result.status ) {
 						setFile( media );
 						// We set it to 100% since the first step (uploading from computer) is already made.
@@ -234,6 +239,7 @@ const VideoPressUploader = ( {
 					}
 				} )
 				.catch( error => {
+					setIsVerifyingLocalMedia( false );
 					setUploadErrorDataState( {
 						data: { message: error.message },
 					} );
@@ -283,6 +289,17 @@ const VideoPressUploader = ( {
 				onDone={ handleDoneUpload }
 				supportPauseOrResume={ Boolean( tusUploader?.current ) }
 			/>
+		);
+	}
+
+	if ( isVerifyingLocalMedia ) {
+		return (
+			<PlaceholderWrapper disableInstructions>
+				<div className="loading-wrapper">
+					<Spinner />
+					<span>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</span>
+				</div>
+			</PlaceholderWrapper>
 		);
 	}
 

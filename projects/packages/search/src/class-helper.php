@@ -24,6 +24,11 @@ class Helper {
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
 	/**
+	 * TODO: remove the lock once the functionalities are finished.
+	 */
+	const NEW_PRICING_202208_READY = false;
+
+	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
 	 * @since 5.8.0
@@ -839,6 +844,11 @@ class Helper {
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
+		// @todo Determine $show_powered_by by real pricing tier
+		// $show_powered_by = get_option( $prefix . 'show_powered_by', '1' ) === '1';
+		//phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$show_powered_by = isset( $_GET['free_tier'] ) && $_GET['free_tier'] === '1';
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'        => get_option( $prefix . 'color_theme', 'light' ),
@@ -847,7 +857,7 @@ class Helper {
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
+				'showPoweredBy'     => $show_powered_by || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
 
 				// These options require kicking off a new search.
 				'defaultSort'       => get_option( $prefix . 'default_sort', 'relevance' ),
@@ -862,6 +872,7 @@ class Helper {
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'isFreeTier'            => ( new Plan() )->is_free_tier(),
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
@@ -943,5 +954,29 @@ class Helper {
 
 		// Returns cache site ID.
 		return \Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Returns true if the free_tier is set to not empty in URL, which is used for testing purpose.
+	 */
+	public static function is_forced_free_tier() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['free_tier'] ) && $_GET['free_tier'];
+	}
+
+	/**
+	 * Returns true if the new_pricing_202210 is set to not empty in URL for testing purpose.
+	 */
+	public static function is_forced_new_pricing_202208() {
+		$referrer = wp_get_referer();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
+	}
+
+	/**
+	 * Return true if the new pricing is finished and ready to be used in production.
+	 */
+	public static function is_new_pricing_202208_ready() {
+		return self::NEW_PRICING_202208_READY;
 	}
 }

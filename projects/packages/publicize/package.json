@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize",
-	"version": "0.12.0",
+	"version": "0.16.0",
 	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/publicize/#readme",
 	"bugs": {
@@ -15,13 +15,21 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
-		"clean": "true"
+		"build": "pnpm run clean && pnpm run build-client",
+		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
+		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
+		"concurrently": "7.4.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
+	},
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"

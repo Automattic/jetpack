@@ -8,7 +8,10 @@ export { default as ConnectionVerify } from './src/components/connection-verify'
 export { default as Form } from './src/components/form';
 export { default as TwitterThreadListener } from './src/components/twitter';
 export { default as TwitterOptions } from './src/components/twitter/options';
+export { default as SocialPreviewsModal } from './src/components/social-previews/modal';
+export { default as SocialPreviewsPanel } from './src/components/social-previews/panel';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';
+export { default as usePublicizeConfig } from './src/hooks/use-publicize-config';
 export * from './src/hooks/use-saving-post';

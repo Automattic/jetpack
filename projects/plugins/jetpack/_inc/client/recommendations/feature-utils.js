@@ -83,8 +83,14 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	}
 };
 
-export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+export const getSummaryResourceProps = resourceSlug => {
 	switch ( resourceSlug ) {
+		case 'agency':
+			return {
+				displayName: __( 'Jetpack for Agencies', 'jetpack' ),
+				ctaLabel: __( 'Sign Up', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+			};
 		case 'backup-plan':
 			return {
 				displayName: __( 'Site Backups', 'jetpack' ),
@@ -98,7 +104,7 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
 			};
 		default:
-			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
 };
 
@@ -138,7 +144,7 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 			return {
 				activateFeature: () => {
 					return restApi.installPlugin( 'jetpack-protect', 'recommendations' ).then( () => {
-						dispatch( fetchPluginsData() );
+						return dispatch( fetchPluginsData() );
 					} );
 				},
 			};
@@ -182,6 +188,20 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 
 export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
+		case 'agency':
+			return {
+				progressValue: '28',
+				question: __( 'Manage your clients’ sites with ease', 'jetpack' ),
+				// eslint-disable-next-line @wordpress/i18n-translator-comments
+				description: __(
+					'Jetpack’s world-class security features are now easier to manage for anyone with at least five WordPress websites.<br/><br/>Purchase and manage licenses, and get a 60% discount with our licensing platform.<br/><br/><ExternalLink>Learn More</ExternalLink>',
+					'jetpack'
+				),
+				descriptionLink: getRedirectUrl( 'jetpack-for-agencies-assistant-recommendation' ),
+				ctaText: __( 'Get Jetpack for Agencies', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+				illustration: 'assistant-agency',
+			};
 		case 'backup-plan':
 			return {
 				question: __( 'Be prepared for auto-updates.', 'jetpack' ),
@@ -189,14 +209,14 @@ export const getStepContent = stepSlug => {
 					'We noticed that you’ve recently enabled auto-updates for one of your plugins. Nice work, keeping plugins updated is vital for a healthy site!<br/><br/>Sometimes auto-updating plugins can cause unexpected changes on your site. Finding an older version of the plugin or learning how to install it to revert the changes can be challenging.<br/><br/>Here at Jetpack, we recommend regular backups of your site so you can go back in time with the click of a button.',
 					'jetpack'
 				),
-				ctaText: __( 'Read More', 'jetpack' ),
+				ctaText: __( 'Learn More About Site Backups', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-backups-101' ),
 			};
 		case 'boost':
 			return {
 				question: __( 'Get more views for your new page.', 'jetpack' ),
 				description: __(
-					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%. Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
+					'Fast websites mean more page visits and conversions. Even a one-second delay in loading times can reduce conversion rates by 20%.<br/><br/> Make your site blazing fast with <ExternalLink>Jetpack Boost’s</ExternalLink> simple dashboard and acceleration tool:',
 					'jetpack'
 				),
 				descriptionList: [
@@ -204,12 +224,12 @@ export const getStepContent = stepSlug => {
 					__( 'Defer non-essential Javascript', 'jetpack' ),
 					__( 'Lazy image loading and site performance scores', 'jetpack' ),
 				],
-				descriptionLink: 'https://jetpack.com/boost/',
+				descriptionLink: getRedirectUrl( 'jetpack-plugin-boost-recommendation' ),
 				ctaText: __( 'Install Jetpack Boost for free', 'jetpack' ),
 			};
 		case 'creative-mail':
 			return {
-				progressValue: '83',
+				progressValue: '86',
 				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
@@ -222,7 +242,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'monitor':
 			return {
-				progressValue: '50',
+				progressValue: '57',
 				question: __(
 					'Would you like Downtime Monitoring to notify you if your site goes offline?',
 					'jetpack'
@@ -237,7 +257,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'related-posts':
 			return {
-				progressValue: '67',
+				progressValue: '71',
 				question: __(
 					'Would you like Related Posts to display at the bottom of your content?',
 					'jetpack'
@@ -310,7 +330,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'woocommerce':
 			return {
-				progressValue: '33',
+				progressValue: '43',
 				question: __( 'Would you like WooCommerce to power your store?', 'jetpack' ),
 				description: __(
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',

@@ -2,6 +2,45 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.21.0 - 2022-09-27
+### Added
+- Added indeterminate progress bar [#26370]
+- Add support for link variant and className to ContextualUpgradeTrigger component [#26115]
+- JS Components: Add body-extra-small-bold variant to Text [#26295]
+
+### Changed
+- Changed design to latest design patterns. [#26253]
+- DonutMeter: Expose DonutMeter to clients of the component library. [#26371]
+- Modify components for usages in Upsell page [#26408]
+
+### Fixed
+- Fixed divider not appearing on small screens [#26443]
+
+## 0.20.0 - 2022-09-20
+### Added
+- Introduce component IconTooltip [#26081]
+
+### Changed
+- JS Components: Use RNA button for ActionButton component [#23936]
+
+### Fixed
+- Fixed bug preventing Pricing Table from building properly. [#26214]
+- JS Components: Add basic a11y support to donut meter. [#26129]
+
+## 0.19.0 - 2022-09-08
+### Added
+- Components: apply Icon Button styles when icon and not-text properties are provided. [#25999]
+- JS Components: add StatCard component. [#26037]
+- JS Components: add title-medium-semi-bold variant to Text. [#26017]
+- RecordMeterDonut: create RecordMeterDonut reusable component. [#25947]
+
+### Changed
+- JS Components: add options to numberFormat and format value as compact form on StatCard component. [#26065]
+
+## 0.18.2 - 2022-08-31
+### Changed
+- Updated package dependencies. [#25856]
+
 ## 0.18.1 - 2022-08-25
 ### Added
 - Components: Support forwardRef at Text [#25798]

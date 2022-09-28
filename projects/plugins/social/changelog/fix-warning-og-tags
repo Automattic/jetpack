@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid PHP warnings when OG description is not set.

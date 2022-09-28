@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use VideoPressUploader\File_Exception;
 use VideoPressUploader\Tus_Client;
@@ -137,28 +135,7 @@ class Uploader {
 	 * @return string
 	 */
 	public function get_upload_token() {
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			throw new Upload_Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
-		}
-		$blog_id  = Jetpack_Options::get_option( 'id' );
-		$endpoint = "sites/{$blog_id}/media/videopress-upload-jwt";
-		$args     = array( 'method' => 'POST' );
-		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', $args, null, 'wpcom' );
-		if ( is_wp_error( $result ) ) {
-			throw new Upload_Exception(
-				__( 'Could not obtain a VideoPress upload JWT. Please try again later.', 'jetpack-videopress-pkg' ) .
-				'(' . $result->get_error_message() . ')'
-			);
-		}
-
-		$response = json_decode( $result['body'], true );
-
-		if ( empty( $response['upload_token'] ) ) {
-			throw new Upload_Exception( __( 'Could not obtain a VideoPress upload JWT. Please try again later. (empty upload token)', 'jetpack-videopress-pkg' ) );
-		}
-
-		return $response['upload_token'];
-
+		return VideoPressToken::videopress_upload_jwt();
 	}
 
 	/**

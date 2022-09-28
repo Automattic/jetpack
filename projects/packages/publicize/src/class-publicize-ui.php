@@ -253,6 +253,7 @@ jQuery( function($) {
 		return false;
 	} );
 
+
 	$('#publicize-form-hide').click( function() {
 		var newList = $.map( $('#publicize-form').slideUp( 'fast' ).find( ':checked' ), function( el ) {
 			return $.trim( $(el).parent( 'label' ).text() );
@@ -397,6 +398,9 @@ jQuery( function($) {
 #publicize ul.not-connected {
 	list-style: square;
 	padding-left: 1em;
+}
+.wpas-disabled {
+	color: #999;
 }
 .publicize__notice-warning {
 	display: block;
@@ -569,6 +573,14 @@ jQuery( function($) {
 			</span>
 			<?php
 			/**
+			 * Fires right before rendering the Publicize form in the Classic
+			 * Editor.
+			 *
+			 * @since 0.14.0
+			 */
+			do_action( 'publicize_classic_editor_form_before' );
+
+			/**
 			 * Filter the Publicize details form.
 			 *
 			 * @since 0.1.0
@@ -577,6 +589,14 @@ jQuery( function($) {
 			 * @param string $publicize_form Publicize Details form appearing above Publish button in the editor.
 			 */
 			echo apply_filters( 'publicize_form', $publicize_form ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Parts of the form are escaped individually in the code above.
+
+			/**
+			 * Fires right after rendering the Publicize form in the Classic
+			 * Editor.
+			 *
+			 * @since 0.14.0
+			 */
+			do_action( 'publicize_classic_editor_form_after' );
 			?>
 		</div>
 		<?php
@@ -620,7 +640,10 @@ jQuery( function($) {
 			?>
 
 			<li>
-				<label for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>">
+				<label
+					for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>"
+					<?php echo ! $connection_data['toggleable'] ? 'class="wpas-disabled"' : ''; ?>
+				>
 					<input
 						type="checkbox"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
