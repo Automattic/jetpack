@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Client;
+use WP_Error;
 use WP_REST_Response;
 
 /**
@@ -56,24 +58,63 @@ class VideoPress_Rest_Api_V1_Stats {
 	 * @return WP_Rest_Response - The response object.
 	 */
 	public static function get_stats() {
-		try {
-			$status = 200;
-			$data   = array(
-				'plays' => array(
-					'today' => 10,
-					'all'   => 123456,
-				),
-			);
-		} catch ( \Exception $e ) {
+		$today_plays = static::get_today_plays();
+
+		if ( is_wp_error( $today_plays ) ) {
 			// TODO: Improve status code.
-			$status = 500;
-			$data   = array(
-				'error' => $e->getMessage(),
-			);
+			return rest_ensure_response( $today_plays );
 		}
 
-		return rest_ensure_response(
-			new WP_REST_Response( $data, $status )
+		$data = array(
+			'plays' => array(
+				'today' => $today_plays,
+			),
 		);
+
+		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Returns the counter of today's plays for all videos.
+	 *
+	 * @return int|WP_Error the total of plays for today, or WP_Error on failure.
+	 */
+	protected static function get_today_plays() {
+		$error = new WP_Error(
+			'videopress_stats_error',
+			__( "Could not fetch today's stats from the service", 'jetpack-videopress-pkg' )
+		);
+
+		$blog_id = VideoPressToken::blog_id();
+
+		$path = sprintf(
+			'sites/%d/stats/video-plays',
+			$blog_id
+		);
+
+		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
+
+		if ( is_wp_error( $response ) ) {
+			return $error;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return $error;
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
+
+		if ( ! $data || ! isset( $data['days'] ) || count( $data['days'] ) === 0 ) {
+			return $error;
+		}
+
+		/*
+		 * The only result here is today's stats
+		 */
+		$today_stats = array_pop( $data['days'] );
+
+		return $today_stats['total_plays'];
 	}
 }
