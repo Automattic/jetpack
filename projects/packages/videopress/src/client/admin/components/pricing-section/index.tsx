@@ -41,7 +41,7 @@ const PricingPage = () => {
 						} ) }
 						fullWidth
 					>
-						{ __( 'Get Social', 'jetpack-videopress-pkg' ) }
+						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem isIncluded={ true } />
