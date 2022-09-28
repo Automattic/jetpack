@@ -50,7 +50,7 @@ async function createMessage( isFailure ) {
 			getTextContextElement( `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }` ),
 			actorBlock
 		);
-		buttons.push( lastRunButtonBlock, getButton( `Commit ${ id.substring( 0, 8 ) }`, url ) );
+		buttons.push( getButton( `Commit ${ id.substring( 0, 8 ) }`, url ) );
 	}
 
 	if ( eventName === 'workflow_run' ) {
