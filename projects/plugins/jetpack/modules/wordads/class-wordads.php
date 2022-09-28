@@ -207,7 +207,7 @@ class WordAds {
 			WordAds_California_Privacy::init();
 		}
 
-		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
 			$ads_txt_transient = get_transient( 'wordads_ads_txt' );
 

@@ -27,8 +27,11 @@
 		<exclude name="Squiz.Commenting.VariableComment.WrongStyle" />
 	</rule>
 
-	<!-- Tests aren't running inside Wordpress, no need to escape output or use WP-specific functions. -->
+	<!-- Tests aren't running inside WordPress, no need to sanitize input, escape output, or use WP-specific functions. -->
 	<rule ref="WordPress.Security.EscapeOutput">
+		<severity>0</severity>
+	</rule>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
 		<severity>0</severity>
 	</rule>
 	<rule ref="WordPress.PHP.DevelopmentFunctions">

@@ -1,44 +1,35 @@
-/**
- * External dependencies
- */
+import { Container, Col, Text, Title, getIconBySlug } from '@automattic/jetpack-components';
+import { dateI18n } from '@wordpress/date';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
-import { Container, Col, Text, Title } from '@automattic/jetpack-components';
-import { Icon, wordpress, plugins, color, shield } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
-import styles from './styles.module.scss';
 import useProtectData from '../../hooks/use-protect-data';
-
-const Cards = ( { name, vulnerabilities, icon } ) => {
-	return (
-		<Col lg={ 2 } className={ styles.card }>
-			{ icon && <Icon icon={ icon } /> }
-			<Text variant="label">{ name }</Text>
-			<Text variant="body-extra-small">Vulnerabilities</Text>
-			<Text variant="headline-small">{ vulnerabilities }</Text>
-		</Col>
-	);
-};
+import styles from './styles.module.scss';
 
 const Summary = () => {
-	const { core, numThemesVulnerabilities, numPluginsVulnerabilities } = useProtectData();
-	const coreCount = core.vulnerabilities?.length || 0;
+	const { numVulnerabilities, lastChecked } = useProtectData();
+	const Icon = getIconBySlug( 'protect' );
+
 	return (
 		<Container fluid>
-			<Col lg={ 6 }>
+			<Col>
 				<Title size="small" className={ styles.title }>
-					<Icon icon={ shield } size={ 32 } className={ styles.icon } />
-					Last check
+					<Icon size={ 32 } className={ styles.icon } />
+					{ sprintf(
+						/* translators: %s: Latest check date  */
+						__( 'Latest results as of %s', 'jetpack-protect' ),
+						dateI18n( 'F jS', lastChecked )
+					) }
 				</Title>
-				<Text variant="headline-small" component="h1">
-					Today, 4:43PM
-				</Text>
+				{ numVulnerabilities > 0 && (
+					<Text variant="headline-small" component="h1">
+						{ sprintf(
+							/* translators: %s: Total number of vulnerabilities  */
+							__( '%s vulnerabilities found', 'jetpack-protect' ),
+							numVulnerabilities
+						) }
+					</Text>
+				) }
 			</Col>
-			<Cards name="WordPress" vulnerabilities={ coreCount } icon={ wordpress } />
-			<Cards name="Plugins" vulnerabilities={ numPluginsVulnerabilities } icon={ plugins } />
-			<Cards name="Themes" vulnerabilities={ numThemesVulnerabilities } icon={ color } />
 		</Container>
 	);
 };

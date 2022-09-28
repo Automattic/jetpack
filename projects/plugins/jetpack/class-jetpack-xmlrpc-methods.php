@@ -97,7 +97,7 @@ class Jetpack_XMLRPC_Methods {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'disconnect' );
-		Jetpack::disconnect();
+		( new Connection_Manager( 'jetpack' ) )->disconnect_site();
 
 		return true;
 	}

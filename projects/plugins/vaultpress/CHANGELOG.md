@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.2.2 - 2022-07-06
+### Changed
+- Build: do not ship PHPCS configuration file. [#22604]
+- Janitorial: require a more recent version of WordPress now that WP 6.0 is coming out. [#24083]
+- Renaming `master` references to `trunk`. [#24712]
+- Updated composer.lock [#22920]
+- Updated package dependencies.
+
 ## 2.2.1 - 2022-02-01
 ### Changed
 - Colors: update colors to match the latest iterations of our brand.
@@ -9,7 +17,6 @@ All notable changes to this project will be documented in this file.
 - Set `convertDeprecationsToExceptions` true in PHPUnit config.
 - Switch to pcov for code coverage.
 - Updated package dependencies.
-
 
 ## 2.2.0 - 2021-10-11
 ### Changed

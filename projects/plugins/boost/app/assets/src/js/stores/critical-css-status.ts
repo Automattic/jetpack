@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
 import { derived, writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
 import api from '../api/api';
-import type { JSONObject } from '../utils/json-types';
-import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
-import type { Viewport } from '../utils/types';
 import { modules } from './modules';
+import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
+import type { JSONObject } from '../utils/json-types';
+import type { Viewport } from '../utils/types';
 
 export type CriticalCssErrorDetails = {
 	message: string;
@@ -193,11 +186,20 @@ export function storeGenerateError( error: Error ): void {
 	} ) );
 }
 
-export function resetGenerateStatus( forceRequest = true ): void {
+export function resetCloudStatus(): void {
 	return update( state => ( {
 		...state,
 		...resetState,
-		status: forceRequest ? REQUESTING : resetState.status,
+		status: REQUESTING,
+	} ) );
+}
+
+export function resetCloudRetryStatus(): void {
+	return update( state => ( {
+		...state,
+		...resetState,
+		status: REQUESTING,
+		retried_show_stopper: true,
 	} ) );
 }
 

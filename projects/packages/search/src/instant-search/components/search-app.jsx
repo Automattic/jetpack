@@ -1,31 +1,20 @@
-/**
- * External dependencies
- */
-import React, { Component, Fragment } from 'react';
-import { createPortal } from 'react-dom';
+import stringify from 'fast-json-stable-stringify';
 // NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
+import React, { Component, Fragment } from 'react';
+import { createPortal } from 'react-dom';
 import { connect } from 'react-redux';
-import stringify from 'fast-json-stable-stringify';
-
-/**
- * Internal dependencies
- */
-import CustomizerEventHandler from './customizer-event-handler';
-import DomEventHandler from './dom-event-handler';
-import Overlay from './overlay';
-import SearchResults from './search-results';
+import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
+import { getAvailableStaticFilters } from '../lib/filters';
+import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	disableAnalytics,
 	identifySite,
 	initializeTracks,
 	resetTrackingCookies,
 } from '../lib/tracks';
-import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
-import { getAvailableStaticFilters } from '../lib/filters';
-import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
 	disableQueryStringIntegration,
@@ -49,6 +38,10 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
+import CustomizerEventHandler from './customizer-event-handler';
+import DomEventHandler from './dom-event-handler';
+import Overlay from './overlay';
+import SearchResults from './search-results';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -86,13 +79,13 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// By debouncing this upon mounting, we avoid making unnecessary requests.
-		//
-		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
-		//      Once our Redux effects have executed, the search query will be updated to "apple" and
-		//      getResults will be invoked once more.
-		this.getResults();
-
+		// This condition can only occur within Customberg or the Customizer.
+		if (
+			( this.props.initialShowResults && this.props.initialIsVisible ) ||
+			this.props.isInCustomizer
+		) {
+			this.getResults();
+		}
 		if ( this.props.hasActiveQuery ) {
 			this.showResults();
 		}
@@ -227,6 +220,7 @@ class SearchApp extends Component {
 			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
 			siteId: this.props.options.siteId,
+			additionalBlogIds: this.props.options.additionalBlogIds,
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
@@ -307,6 +301,7 @@ class SearchApp extends Component {
 							widgets={ this.props.options.widgets }
 							widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
 							hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
+							additionalBlogIds={ this.props.options.additionalBlogIds }
 						/>
 					</Overlay>,
 					document.body

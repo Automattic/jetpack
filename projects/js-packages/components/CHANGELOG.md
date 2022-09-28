@@ -2,6 +2,246 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.21.0 - 2022-09-27
+### Added
+- Added indeterminate progress bar [#26370]
+- Add support for link variant and className to ContextualUpgradeTrigger component [#26115]
+- JS Components: Add body-extra-small-bold variant to Text [#26295]
+
+### Changed
+- Changed design to latest design patterns. [#26253]
+- DonutMeter: Expose DonutMeter to clients of the component library. [#26371]
+- Modify components for usages in Upsell page [#26408]
+
+### Fixed
+- Fixed divider not appearing on small screens [#26443]
+
+## 0.20.0 - 2022-09-20
+### Added
+- Introduce component IconTooltip [#26081]
+
+### Changed
+- JS Components: Use RNA button for ActionButton component [#23936]
+
+### Fixed
+- Fixed bug preventing Pricing Table from building properly. [#26214]
+- JS Components: Add basic a11y support to donut meter. [#26129]
+
+## 0.19.0 - 2022-09-08
+### Added
+- Components: apply Icon Button styles when icon and not-text properties are provided. [#25999]
+- JS Components: add StatCard component. [#26037]
+- JS Components: add title-medium-semi-bold variant to Text. [#26017]
+- RecordMeterDonut: create RecordMeterDonut reusable component. [#25947]
+
+### Changed
+- JS Components: add options to numberFormat and format value as compact form on StatCard component. [#26065]
+
+## 0.18.2 - 2022-08-31
+### Changed
+- Updated package dependencies. [#25856]
+
+## 0.18.1 - 2022-08-25
+### Added
+- Components: Support forwardRef at Text [#25798]
+
+### Changed
+- Components: set background color for Button, secondary variant [#25810]
+- Updated package dependencies. [#25814]
+
+## 0.18.0 - 2022-08-23
+### Added
+- Add new PricingTable component [#25377]
+- Components: add a couple of new black and gray colors [#25730]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25339, #25762, #25764]
+
+## 0.17.3 - 2022-08-09
+### Changed
+- JS Components: Convert AdminPage component to TypeScript [#25352]
+- JS Components: Convert AdminSection and AdminSectionHero components to TypeScript [#25360]
+- JS Components: Converted ThemeProvider component to TypeScript [#25353]
+- JS Components: Convert utility functions to TypeScript [#25361]
+
+## 0.17.2 - 2022-08-03
+### Added
+- JS Components: Add fullWidth prop to Button [#25357]
+- JS Components: Add hidePriceFraction prop to ProductPrice [#25318]
+
+### Changed
+- JS Components: Converted Col and Container components to TypeScript [#25325]
+- JS Components: Convert JetpackFooter component to TypeScript [#25295]
+- JS Components: Convert ProductOffer component to TypeScript [#25294]
+
+### Fixed
+- JS Components: Fix price render on ProductPrice when price is 0 [#25318]
+
+## 0.17.1 - 2022-07-29
+### Changed
+- JS Components: Converted AutomatticBylineLogo component to TypeScript
+- JS Components: Converted DecorativeCard component to TypeScript
+- JS Components: Converted icons to TypeScript
+- JS Components: Convert Gridicon to TypeScript
+
+## 0.17.0 - 2022-07-26
+### Added
+- Added missing color to ThemeProvider [#25147]
+
+### Changed
+- Converted PricingCard component to TypeScript [#24906]
+- Updated package dependencies. [#25158]
+
+## 0.16.8 - 2022-07-19
+### Changed
+- Updated package dependencies. [#24710]
+
+### Fixed
+- Gridicon: Change title to desc [#25081]
+
+## 0.16.7 - 2022-07-12
+### Changed
+- JS Components: Converted ProductPrice component to TypeScript [#24931]
+- Updated package dependencies. [#25048, #25055]
+
+## 0.16.6 - 2022-07-07
+### Removed
+- JS Components: Removed unnecessary React imports in tests after using automatic runtime in jest config
+
+## 0.16.5 - 2022-07-06
+### Added
+- Export Alert component [#24884]
+
+### Changed
+- Updated package dependencies. [#24923]
+
+### Fixed
+- AutomatticBylineLogo & JetpackLogo: Change title tag to desc [#24935]
+
+## 0.16.4 - 2022-06-29
+### Added
+- Components: Introduce CUT component
+
+## 0.16.3 - 2022-06-28
+### Added
+- Components: Add README docs for Layout related components [#24804]
+- RecordMeterBar component: adds accessible content fallback table [#24748]
+
+### Changed
+- JS Components: Fix multiline visual issue in Alert component [#24788]
+- Record meter: format the numbers for each entry. [#24811]
+
+### Fixed
+- Fix missing imports in `button` and `product-offer`. [#24792]
+
+## 0.16.2 - 2022-06-21
+### Changed
+- Convert JetpackLogo component to TypeScript
+- Convert JS Components SplitButton to TypeScript
+- Updated package dependencies.
+
+## 0.16.1 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.16.0 - 2022-06-08
+### Added
+- Add sortByCount prop to RecordMeterBar component [#24518]
+
+### Changed
+- JS Component: move Product offer placeholder above button [#24510]
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24596, #24597, #24598]
+
+### Fixed
+- Fixed lints in TS types for Text component [#24579]
+
+## 0.15.1 - 2022-05-31
+### Added
+- Added an option to display a custom disclaimer below the product add button. [#24523]
+
+## 0.15.0 - 2022-05-30
+### Added
+- added formatting prop to RecordMeterBar component legend
+- JS Components: Add isCard prop to Dialog component
+- JS Components: add isExternalLink button property
+
+### Changed
+- Added TS check to build process
+- Converted QRCode component to TypeScript
+- JS Components: fix ProductOffer icons size
+- JS Components: remove deprecated external-link variant
+- Layout: Support start/end props in Cols and use sass based structure
+- Social: Updated the icon to the final design
+- Updated package dependencies
+
+### Removed
+- JS Components: remove Dialog isCard property
+
+### Fixed
+- Fix styles defined by the ThemeProvider in the storybook stories
+
+## 0.14.0 - 2022-05-24
+### Added
+- Icons: Added the Jetpack Social product icon [#24449]
+
+## 0.13.0 - 2022-05-18
+### Added
+- Components: Add useBreakpointMach hook [#24263]
+- Gridicon: added info-outline gridicon to the available subset of icons [#24328]
+- JS Components: tweak and improve Dialog component [#24280]
+- Replace CSS @media by using useBreakpointsMatch() hook in Dialog component [#24375]
+
+### Changed
+- Convert JS Components Button to TypeScript [#24267]
+- JS Components: iterate over Dialog component [#24374]
+- Moved SocialServiceIcon component from Jetpack Icons.js file to js-package/components. Updated it's ref in the Jetpack plugin directory [#23795]
+- Protect: improve Dialog layout in medium viewport size [#24390]
+- Updated package dependencies [#24361]
+
+## 0.12.0 - 2022-05-10
+### Changed
+- Converted Text component to TypeScript [#24256]
+- JS Components: re-write Alter component with TS [#24204]
+- JS Components: typescriptify Dialog component [#24257]
+- Updated package dependencies [#24276]
+
+### Fixed
+- JS Components: fix Warning when defining AdminPage header prop [#24236]
+
+## 0.11.4 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+- JS Components: add getProductCheckoutUrl helper function [#24113]
+- JS Components: Add Protect Icon [#24139]
+- JS Components: add `weight` prop to Button component [#24219]
+
+### Changed
+- JS Components: Add className prop to Protect icon [#24142]
+- JS Components: Introduce `header` prop to AdminPage component [#24232]
+- Protect: update new version of icon [#24215]
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+### Fixed
+- JS Components: fix weird spinner issue [#24206]
+
+## 0.11.3 - 2022-04-26
+### Added
+- Added RecordMeterBar component with stories and unit tests
+- Expose and use IconsCard component
+- JS Components: add `icon` property to ProductOffer component
+- JS Components: Introduce Alert component. Add error to ProductOffer components
+- JS Components: Update Alter level colors via ThemeProvider
+
+### Changed
+- JS Components: improve box-model composed by dialog and product-offer components
+- Updated package dependencies
+- Updated package dependencies.
+
+### Fixed
+- Components: Avoid reset global text components when usin Text
+
 ## 0.11.2 - 2022-04-19
 ### Added
 - Added Gridicon component

@@ -183,7 +183,7 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
 		) . "\r\n";
 	}
 
-	$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( $_SERVER['SERVER_NAME'] ) );
+	$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( isset( $_SERVER['SERVER_NAME'] ) ? filter_var( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '' ) );
 
 	if ( '' === $comment->comment_author ) {
 		$from = "From: \"$blogname\" <$wp_email>";

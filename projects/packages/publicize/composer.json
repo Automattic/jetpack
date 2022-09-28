@@ -4,14 +4,16 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.39",
-		"automattic/jetpack-options": "^1.15",
+		"automattic/jetpack-connection": "^1.45",
 		"automattic/jetpack-autoloader": "^2.11",
-		"automattic/jetpack-config": "^1.8"
+		"automattic/jetpack-config": "^1.10",
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/wordbless": "^0.4.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -28,8 +30,14 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		]
 	},
 	"repositories": [
 		{
@@ -50,12 +58,14 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-trunk": "0.16.x-dev"
 		}
 	},
 	"config": {
 		"allow-plugins": {
-			"automattic/jetpack-autoloader": true
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
 		}
 	}
 }

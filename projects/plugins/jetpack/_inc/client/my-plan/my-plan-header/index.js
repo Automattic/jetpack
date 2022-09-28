@@ -1,29 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import classnames from 'classnames';
-import { find, isEmpty } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
+import { ProductActivated } from 'components/product-activated';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
+import analytics from 'lib/analytics';
 import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
+import { find, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
 import {
 	getUpgradeUrl,
 	getDateFormat,
@@ -32,10 +22,10 @@ import {
 	showLicensingUi,
 } from 'state/initial-state';
 import { getDetachedLicensesCount } from 'state/licensing';
-import { ProductActivated } from 'components/product-activated';
-import License from './license';
 import MyPlanCard from '../my-plan-card';
+import License from './license';
 
+const TIER_0_BACKUP_STORAGE_GB = 1;
 const TIER_1_BACKUP_STORAGE_GB = 10;
 const TIER_2_BACKUP_STORAGE_TB = 1;
 
@@ -207,6 +197,26 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Complete', 'jetpack' ),
+				};
+
+			case 'is-backup-t0-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: createInterpolateElement(
+						sprintf(
+							/* translators: %1$d is the number of gigabytes of storage space the site has. */
+							_n(
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								'Your data is being securely backed up as you edit. You have <strong>%1$dGB</strong> of storage space.',
+								TIER_0_BACKUP_STORAGE_GB,
+								'jetpack'
+							),
+							TIER_0_BACKUP_STORAGE_GB
+						),
+						{ strong: <strong /> }
+					),
+					title: __( 'Jetpack Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t1-plan':
@@ -415,7 +425,11 @@ class MyPlanHeader extends React.Component {
 						) }
 						{ 'header' === position ? (
 							<Button
-								href={ siteAdminUrl + 'admin.php?page=jetpack#/license/activation' }
+								href={
+									! window.Initial_State?.useMyJetpackLicensingUI
+										? siteAdminUrl + 'admin.php?page=jetpack#/license/activation'
+										: siteAdminUrl + 'admin.php?page=my-jetpack#/add-license'
+								}
 								onClick={ this.trackLicenseActivationClick }
 								primary
 							>

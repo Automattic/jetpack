@@ -5,6 +5,83 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.27 - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+## 0.2.26 - 2022-09-20
+### Changed
+- Updated package dependencies. [#26034]
+
+## 0.2.25 - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## 0.2.24 - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## 0.2.23 - 2022-08-30
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.2.22 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762]
+
+## 0.2.21 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25147]
+
+## 0.2.20 - 2022-07-12
+### Changed
+- Updated package dependencies. [#25048, #25055]
+
+## 0.2.19 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 0.2.18 - 2022-06-28
+### Changed
+- Use jest for tests. No change to the package itself. [#24791]
+
+### Fixed
+- Declare `type: module` in package.json, as `.js` files in the package use `include` rather than `require`. [#24791]
+
+## 0.2.17 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24722]
+
+## 0.2.16 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+- Updated package dependencies. [#24510]
+
+## 0.2.15 - 2022-05-31
+### Changed
+- Updated package dependencies. [#24475] [#24573]
+
+## 0.2.14 - 2022-05-24
+### Changed
+- Updated package dependencies. [#24449]
+
+## 0.2.13 - 2022-05-18
+### Changed
+- Updated package dependencies. [#23795]
+
+## 0.2.12 - 2022-05-10
+### Changed
+- Updated package dependencies. [#24189]
+
+## 0.2.11 - 2022-05-04
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24198]
+
+## 0.2.10 - 2022-04-26
+### Changed
+- Update package.json metadata.
+
 ## 0.2.9 - 2022-04-19
 ### Changed
 - Updated package dependencies.

@@ -1,21 +1,17 @@
-/**
- * External dependencies
- */
-import svelte from 'rollup-plugin-svelte';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import { terser } from 'rollup-plugin-terser';
-import sveltePreprocess from 'svelte-preprocess';
-import typescript from '@rollup/plugin-typescript';
-import postcss from 'rollup-plugin-postcss';
-import builtins from 'rollup-plugin-node-builtins';
-import globals from 'rollup-plugin-node-globals';
-import svelteSVG from 'rollup-plugin-svelte-svg';
-import copy from 'rollup-plugin-copy';
 import path from 'path';
 import { babel } from '@rollup/plugin-babel';
-import replace from '@rollup/plugin-replace';
+import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import typescript from '@rollup/plugin-typescript';
+import copy from 'rollup-plugin-copy';
+import globals from 'rollup-plugin-node-globals';
+import postcss from 'rollup-plugin-postcss';
+import svelte from 'rollup-plugin-svelte';
+import svelteSVG from 'rollup-plugin-svelte-svg';
+import { terser } from 'rollup-plugin-terser';
+import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './rollup-tsconfig.json';
 
 const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
@@ -101,7 +97,6 @@ export default {
 
 		commonjs(),
 		globals(),
-		builtins(),
 		json(),
 
 		babel( {

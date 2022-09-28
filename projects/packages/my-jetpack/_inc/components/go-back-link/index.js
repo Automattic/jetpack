@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import { Icon, arrowLeft } from '@wordpress/icons';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Icon, arrowLeft } from '@wordpress/icons';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import styles from './styles.module.scss';
 
 /**

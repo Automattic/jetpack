@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { PanelBody, RadioControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 

@@ -10,7 +10,7 @@
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -27,7 +27,8 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
@@ -54,7 +55,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "2.1.x-dev"
+			"dev-trunk": "2.1.x-dev"
 		}
 	},
 	"config": {

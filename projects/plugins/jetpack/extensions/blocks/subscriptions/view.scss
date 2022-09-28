@@ -16,7 +16,11 @@
 }
 
 .wp-block-jetpack-subscriptions.wp-block-jetpack-subscriptions__supports-newline {
-	position: relative;
+
+	.wp-block-jetpack-subscriptions__form-container {
+		display: flex;
+		flex-direction: column;	
+	}	
 
 	.wp-block-jetpack-subscriptions__form,
 	form {
@@ -61,16 +65,11 @@
 		}
 	}
 
-	&.wp-block-jetpack-subscriptions__show-subs {
-		padding-bottom: 32px;
-
-		.wp-block-jetpack-subscriptions__subscount,
-		.jetpack-subscribe-count p {
-			position: absolute;
-			bottom: 0;
-			right: 0;
-			margin: 0;
+	&.wp-block-jetpack-subscriptions__show-subs {		
+		.wp-block-jetpack-subscriptions__subscount {
+			margin: 8px 0;
 			font-size: 16px;
+			text-align: right;
 		}
 	}
 
@@ -86,9 +85,8 @@
 			max-width: 100%;
 		}
 
-		.wp-block-jetpack-subscriptions__subscount,
-		.jetpack-subscribe-count p {
-			left: 0;
+		.wp-block-jetpack-subscriptions__subscount {
+			text-align: left;
 		}
 	}
 }

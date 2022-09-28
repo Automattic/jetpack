@@ -53,6 +53,26 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'comment_meta_checksum', $comment_meta );
 	}
 
+	public function test_get_sync_status_with_debug_details() {
+		$with_debug_details = Actions::get_sync_status( 'debug_details' );
+		$this->assertArrayHasKey( 'debug_details', $with_debug_details );
+
+		$debug_details = $with_debug_details['debug_details'];
+		$this->assertArrayHasKey( 'sync_allowed', $debug_details );
+		$this->assertArrayHasKey( 'sync_health', $debug_details );
+		$this->assertArrayHasKey( 'dedicated_sync_enabled', $debug_details );
+		$this->assertArrayHasKey( 'sync_locks', $debug_details );
+
+		$sync_locks = $debug_details['sync_locks'];
+		$this->assertArrayHasKey( 'retry_time_sync', $sync_locks );
+		$this->assertArrayHasKey( 'retry_time_full_sync', $sync_locks );
+		$this->assertArrayHasKey( 'next_sync_time_sync', $sync_locks );
+		$this->assertArrayHasKey( 'next_sync_time_full_sync', $sync_locks );
+		$this->assertArrayHasKey( 'queue_locked_sync', $sync_locks );
+		$this->assertArrayHasKey( 'queue_locked_full_sync', $sync_locks );
+		$this->assertArrayHasKey( 'dedicated_sync_request_lock', $sync_locks );
+	}
+
 	public function test_do_initial_sync_during_full_sync() {
 		$full_sync = Modules::get_module( 'full-sync' );
 		$full_sync->start();

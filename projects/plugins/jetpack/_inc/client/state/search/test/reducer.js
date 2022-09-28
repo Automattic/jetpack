@@ -1,33 +1,28 @@
-import { expect } from 'chai';
-
-import {
-	reducer as searchReducer
-} from '../reducer';
+import { reducer as searchReducer } from '../reducer';
 
 describe( 'Search reducer', () => {
-
 	describe( 'term property', () => {
-		it( 'should get set on the respective event', () => {
+		test( 'should get set on the respective event', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SEARCH_TERM',
-				term: 'Something'
+				term: 'Something',
 			};
-			let stateOut = searchReducer( stateIn, action );
-			expect( stateOut.searchTerm ).to.equal( action.term );
+			const stateOut = searchReducer( stateIn, action );
+			expect( stateOut.searchTerm ).toEqual( action.term );
 		} );
 
-		it( 'should not change on any other events', () => {
+		test( 'should not change on any other events', () => {
 			const stateIn = {
-				searchTerm: 'initial state'
+				searchTerm: 'initial state',
 			};
 
-			const action =  {
+			const action = {
 				type: 'JETPACK_SOME_EVENT',
-				term: 'This should not get in'
+				term: 'This should not get in',
 			};
-			let stateOut = searchReducer( stateIn, action );
-			expect( stateOut.searchTerm ).to.equal( stateIn.searchTerm );
+			const stateOut = searchReducer( stateIn, action );
+			expect( stateOut.searchTerm ).toEqual( stateIn.searchTerm );
 		} );
 	} );
 } );

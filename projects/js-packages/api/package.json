@@ -1,29 +1,29 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.13.0-alpha",
+	"version": "0.14.0",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.7.0",
-		"@automattic/jetpack-config": "workspace:* || ^0.1",
-		"lodash": "4.17.21"
+		"@wordpress/url": "3.17.0",
+		"@automattic/jetpack-config": "workspace:* || ^0.1"
 	},
 	"devDependencies": {
-		"fetch-mock": "9.11.0",
-		"jetpack-js-test-runner": "workspace:*",
-		"nyc": "15.1.0"
+		"fetch-mock-jest": "1.5.1",
+		"jest": "28.1.0",
+		"jest-environment-jsdom": "28.1.0",
+		"node-fetch": "2.6.7"
 	},
 	"type": "module",
 	"exports": {
 		".": "./index.jsx"
 	},
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. js-test-runner --jsdom --initfile=test-main.jsx 'glob:./test/*.jsx'"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

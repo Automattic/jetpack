@@ -68,7 +68,7 @@ for PROJECT in projects/*; do
 	fi
 done
 
-ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines' package.json)"
+ROOT_PACKAGE_JSON_ENGINES="$(jq '.engines | .pnpm |= empty' package.json)"
 
 for PROJECT in projects/*/*; do
 	SLUG="${PROJECT#projects/}"
@@ -101,12 +101,12 @@ for PROJECT in projects/*/*; do
 			LINE=$(jq --stream --arg obj "$PACKAGE_JSON_ENGINES" 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines"] then input_line_number - ( $obj | gsub( "[^\n]"; "" ) | length ) else empty end' "$PROJECT/package.json")
 			if [[ -n "$LINE" ]]; then
 				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must match those in the monorepo root package.json (but omitting \"pnpm\").%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
 				echo "---"
 			else
 				LINE=$(wc -l < "$PROJECT/package.json")
 				echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json.%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
+				echo "::error file=$PROJECT/package.json,line=$LINE::Engines must be specified, matching those in the monorepo root package.json (but omitting \"pnpm\").%0A  \"engines\": ${ROOT_PACKAGE_JSON_ENGINES//$'\n'/%0A  }"
 				echo "---"
 			fi
 		fi
@@ -229,10 +229,10 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
-	# - Packages must have a dev-master branch-alias.
-	if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-master"]' "$PROJECT/composer.json" >/dev/null; then
+	# - Packages must have a dev-trunk branch-alias.
+	if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-trunk"]' "$PROJECT/composer.json" >/dev/null; then
 		EXIT=1
-		echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-master\` in composer.json."
+		echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-trunk\` in composer.json."
 	fi
 
 	SUGGESTION="You might add this with \`composer config autoloader-suffix '$(printf "%s" "$SLUG" | md5sum | sed -e 's/[[:space:]]*-$//')_$(sed -e 's/[^0-9a-zA-Z]/_/g' <<<"${SLUG##*/}")ⓥversion'\` in the appropriate directory."
@@ -243,7 +243,7 @@ for PROJECT in projects/*/*; do
 	then
 		EXIT=1
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-		echo "::error file=$PROJECT/composer.json::Since $SLUG production-includes an autoloader, $PROJECT/composer.json must set .config.autoloader-suffix.%0AThis avoids spurious changes with every build, cf. https://github.com/Automattic/jetpack-production/commits/master/vendor/autoload.php?after=a59e4613559b9822cfc9db88524f09b669f32296+0.%0A${SUGGESTION}"
+		echo "::error file=$PROJECT/composer.json::Since $SLUG production-includes an autoloader, $PROJECT/composer.json must set .config.autoloader-suffix.%0AThis avoids spurious changes with every build, cf. https://github.com/Automattic/jetpack-production/commits/trunk/vendor/autoload.php?after=a59e4613559b9822cfc9db88524f09b669f32296+0.%0A${SUGGESTION}"
 		echo "---"
 	fi
 
@@ -410,13 +410,13 @@ fi
 # - package.json engines should be satisfied by .github/versions.sh.
 debug "Checking .github/versions.sh vs package.json engines"
 RANGE="$(jq -r '.engines.node' package.json)"
-if ! pnpx --no-install semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
+if ! pnpm semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","node"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Node version $NODE_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
 RANGE="$(jq -r '.engines.pnpm' package.json)"
-if ! pnpx --no-install semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	EXIT=1
 	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"

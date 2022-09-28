@@ -3,19 +3,10 @@
 @import 'node_modules/@automattic/jetpack-base-styles/style';
 
 .jp-recommendations-question__site-type-checkboxes {
-	@include breakpoint( '>480px' ) {
-		display: grid;
-		gap: 16px;
-		grid-template-rows: auto auto;
-		grid-template-columns: auto auto;
-	}
+	display: flex;
+	flex-direction: column;
 
-	@include breakpoint( '<480px' ) {
-		display: flex;
-		flex-direction: column;
-	}
-
-	margin-bottom: 40px;
+	margin-bottom: 1rem;
 
 	text-align: left;
 }
@@ -51,6 +42,7 @@
 }
 
 .jp-recommendations-site-type__illustration {
-	height: 200px;
-	padding: 65px;
+	justify-self: flex-end;
+
+	max-width: 100%;
 }

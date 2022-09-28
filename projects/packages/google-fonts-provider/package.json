@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-google-fonts-provider",
-	"version": "0.2.3-alpha",
+	"version": "0.3.4",
 	"description": "WordPress Webfonts provider for Google Fonts",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/google-fonts-provider/#readme",
 	"bugs": {
@@ -23,8 +23,7 @@
 	},
 	"devDependencies": {},
 	"engines": {
-		"node": "^14.18.3 || ^16.13.2",
-		"pnpm": "^6.32.3",
+		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

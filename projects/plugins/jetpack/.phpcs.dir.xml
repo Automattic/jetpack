@@ -21,9 +21,4 @@
 		</properties>
 	</rule>
 
-	<!-- Temporarily disable this until it passes. -->
-	<rule ref="WordPress.Security.ValidatedSanitizedInput">
-		<severity>0</severity>
-	</rule>
-
 </ruleset>

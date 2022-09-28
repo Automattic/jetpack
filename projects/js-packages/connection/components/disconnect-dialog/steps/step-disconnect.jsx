@@ -1,16 +1,9 @@
-/**
- * External Dependencies
- */
-import React, { useCallback } from 'react';
-
-/**
- * Internal Dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
@@ -182,7 +175,7 @@ StepDisconnect.propTypes = {
 	/** An error that occurred during a request to disconnect. */
 	disconnectError: PropTypes.bool,
 	/** A component to be rendered as part of this step */
-	disconnectStepComponent: PropTypes.elementType,
+	disconnectStepComponent: PropTypes.element,
 	/** Plugins that are using the Jetpack connection. */
 	connectedPlugins: PropTypes.array,
 	/** The slug of the plugin that is initiating the disconnection. */

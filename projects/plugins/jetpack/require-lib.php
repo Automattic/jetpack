@@ -1,4 +1,18 @@
 <?php
+/**
+ * File with a single function for loading library files.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
+ * Function for loading library files.
+ *
+ * @deprecated since 11.3 Load libraries directly (from `JETPACK__PLUGIN_DIR . '_inc/lib/'`) instead.
+ *
+ * @param string $slug Library slug.
+ * @return void
+ */
 function jetpack_require_lib( $slug ) {
 	static $loaded = array();
 
@@ -12,6 +26,7 @@ function jetpack_require_lib( $slug ) {
 	 * Filter the location of the library directory.
 	 *
 	 * @since 2.5.0
+	 * @deprecated since 11.3
 	 *
 	 * @param string $lib_dir Path to the library directory.
 	 */

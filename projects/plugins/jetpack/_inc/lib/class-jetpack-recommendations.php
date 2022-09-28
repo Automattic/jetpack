@@ -21,18 +21,21 @@ use Automattic\Jetpack\Status\Host;
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
-
-	const PUBLICIZE_RECOMMENDATION     = 'publicize';
-	const SECURITY_PLAN_RECOMMENDATION = 'security-plan';
-	const ANTI_SPAM_RECOMMENDATION     = 'anti-spam';
-	const VIDEOPRESS_RECOMMENDATION    = 'videopress';
+	const PUBLICIZE_RECOMMENDATION   = 'publicize';
+	const PROTECT_RECOMMENDATION     = 'protect';
+	const ANTI_SPAM_RECOMMENDATION   = 'anti-spam';
+	const VIDEOPRESS_RECOMMENDATION  = 'videopress';
+	const BACKUP_PLAN_RECOMMENDATION = 'backup-plan';
+	const BOOST_RECOMMENDATION       = 'boost';
 
 	const CONDITIONAL_RECOMMENDATIONS_OPTION = 'recommendations_conditional';
 	const CONDITIONAL_RECOMMENDATIONS        = array(
 		self::PUBLICIZE_RECOMMENDATION,
-		self::SECURITY_PLAN_RECOMMENDATION,
+		self::PROTECT_RECOMMENDATION,
 		self::ANTI_SPAM_RECOMMENDATION,
 		self::VIDEOPRESS_RECOMMENDATION,
+		self::BACKUP_PLAN_RECOMMENDATION,
+		self::BOOST_RECOMMENDATION,
 	);
 
 	const VIDEOPRESS_TIMED_ACTION = 'jetpack_recommend_videopress';
@@ -138,6 +141,9 @@ class Jetpack_Recommendations {
 		// Monitor for Jetpack connection success.
 		add_action( 'jetpack_authorize_ending_authorized', array( get_called_class(), 'jetpack_connected' ) );
 		add_action( self::VIDEOPRESS_TIMED_ACTION, array( get_called_class(), 'recommend_videopress' ) );
+
+		// Monitor for changes in plugins that have auto-updates enabled
+		add_action( 'update_site_option_auto_update_plugins', array( get_called_class(), 'plugin_auto_update_settings_changed' ), 10, 3 );
 	}
 
 	/**
@@ -159,8 +165,8 @@ class Jetpack_Recommendations {
 	}
 
 	/**
-	 * Hook for transition_post_status that checks for the publishing of a new post.
-	 * Used to enable the publicize recommendation.
+	 * Hook for transition_post_status that checks for the publishing of a new post or page.
+	 * Used to enable the publicize and boost recommendations.
 	 *
 	 * @param string  $new_status new status of post.
 	 * @param string  $old_status old status of post.
@@ -171,6 +177,18 @@ class Jetpack_Recommendations {
 		if ( 'post' === $post->post_type && 'publish' === $new_status && 'publish' !== $old_status && ! Jetpack::is_module_active( 'publicize' ) ) {
 			// Set the publicize recommendation to have met criteria to be shown.
 			self::enable_conditional_recommendation( self::PUBLICIZE_RECOMMENDATION );
+			return;
+		}
+		// A new page has been published
+		// Check to see if the boost plugin is active
+		if (
+			'page' === $post->post_type &&
+			'publish' === $new_status &&
+			'publish' !== $old_status &&
+			! Plugins_Installer::is_plugin_active( 'boost/jetpack-boost.php' ) &&
+			! Plugins_Installer::is_plugin_active( 'jetpack-boost/jetpack-boost.php' )
+		) {
+			self::enable_conditional_recommendation( self::BOOST_RECOMMENDATION );
 		}
 	}
 
@@ -187,6 +205,7 @@ class Jetpack_Recommendations {
 			'creative-mail.php',
 			'jetpack-backup.php',
 			'jetpack-boost.php',
+			'jetpack-protect.php',
 			'crowdsignal.php',
 			'vaultpress.php',
 			'woocommerce.php',
@@ -196,29 +215,47 @@ class Jetpack_Recommendations {
 		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
 
 		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
-			$has_anti_spam = is_plugin_active( 'akismet/akismet.php' );
+			$products = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 
+			// Check for a plan or product that enables scan.
+			$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
+			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
+			$has_scan           = $plan_supports_scan || $has_scan_product;
+
+			// Check if Jetpack Protect plugin is already active.
+			$has_protect = Plugins_Installer::is_plugin_active( 'jetpack-protect/jetpack-protect.php' ) || Plugins_Installer::is_plugin_active( 'protect/jetpack-protect.php' );
+
+			if ( ! $has_scan && ! $has_protect ) {
+				self::enable_conditional_recommendation( self::PROTECT_RECOMMENDATION );
+			}
+		}
+	}
+
+	/**
+	 * Runs when the auto_update_plugins option has been changed
+	 *
+	 * @param string $option_name - the name of the option updated ( always auto_update_plugins ).
+	 * @param array  $new_auto_update_plugins - plugins that have auto update enabled following the change.
+	 * @param array  $old_auto_update_plugins - plugins that had auto update enabled before the most recent change.
+	 * @return void
+	 */
+	public static function plugin_auto_update_settings_changed( $option_name, $new_auto_update_plugins, $old_auto_update_plugins ) {
+		if (
+			is_multisite() ||
+			self::is_conditional_recommendation_enabled( self::BACKUP_PLAN_RECOMMENDATION )
+		) {
+			return;
+		}
+
+		// Look for plugins that have had auto-update enabled in this most recent update.
+		$enabled_auto_updates = array_diff( $new_auto_update_plugins, $old_auto_update_plugins );
+		if ( ! empty( $enabled_auto_updates ) ) {
 			// Check the backup state.
 			$rewind_state = get_transient( 'jetpack_rewind_state' );
 			$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
 
-			// Check for a plan or product that enables scan.
-			$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
-			$products           = \Jetpack_Plan::get_products();
-			$has_scan_product   = false;
-
-			if ( is_array( $products ) ) {
-				foreach ( $products as $product ) {
-					if ( strpos( $product['product_slug'], 'jetpack_scan' ) === 0 ) {
-						$has_scan_product = true;
-						break;
-					}
-				}
-			}
-			$has_scan = $plan_supports_scan || $has_scan_product;
-
-			if ( ! $has_scan || ! $has_backup || ! $has_anti_spam ) {
-				self::enable_conditional_recommendation( self::SECURITY_PLAN_RECOMMENDATION );
+			if ( ! $has_backup ) {
+				self::enable_conditional_recommendation( self::BACKUP_PLAN_RECOMMENDATION );
 			}
 		}
 	}
@@ -231,7 +268,19 @@ class Jetpack_Recommendations {
 	 * @param array   $commentdata Comment data.
 	 */
 	public static function comment_added( $comment_id, $comment_approved, $commentdata ) {
-		if ( Plugins_Installer::is_plugin_active( 'akismet/akismet.php' ) || self::is_conditional_recommendation_enabled( self::ANTI_SPAM_RECOMMENDATION ) ) {
+		if ( self::is_conditional_recommendation_enabled( self::ANTI_SPAM_RECOMMENDATION ) ) {
+			return;
+		}
+
+		if ( Plugins_Installer::is_plugin_active( 'akismet/akismet.php' ) ) {
+			return;
+		}
+
+		// The site has anti-spam features already.
+		$site_products         = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+		$has_anti_spam_product = count( array_intersect( array( 'jetpack_anti_spam', 'jetpack_anti_spam_monthly' ), $site_products ) ) > 0;
+
+		if ( Jetpack_Plan::supports( 'antispam' ) || $has_anti_spam_product ) {
 			return;
 		}
 
@@ -269,19 +318,43 @@ class Jetpack_Recommendations {
 			return;
 		}
 
+		$site_plan     = Jetpack_Plan::get();
+		$site_products = array_column( Jetpack_Plan::get_products(), 'product_slug' );
+
+		if ( self::should_recommend_videopress( $site_plan, $site_products ) ) {
+			self::enable_conditional_recommendation( self::VIDEOPRESS_RECOMMENDATION );
+		}
+	}
+
+	/**
+	 * Should we provide a recommendation for videopress?
+	 * This method exists to facilitate unit testing
+	 *
+	 * @param array $site_plan A representation of the site's plan.
+	 * @param array $site_products An array of product slugs.
+	 * @return boolean
+	 */
+	public static function should_recommend_videopress( $site_plan, $site_products ) {
 		// Does the site have the VideoPress module enabled?
 		if ( Jetpack::is_module_active( 'videopress' ) ) {
-			return;
+			return false;
+		}
+
+		// Does the site plan have upgraded videopress features?
+		// For now, this just checks to see if the site has a free plan.
+		// Jetpack_Plan::supports('videopress') returns true for all plans, since there is a free tier.
+		$is_free_plan = 'free' === $site_plan['class'];
+		if ( ! $is_free_plan ) {
+			return false;
 		}
 
 		// Does this site already have a VideoPress product?
-		$site_products          = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 		$has_videopress_product = count( array_intersect( array( 'jetpack_videopress', 'jetpack_videopress_monthly' ), $site_products ) ) > 0;
 		if ( $has_videopress_product ) {
-			return;
+			return false;
 		}
 
-		self::enable_conditional_recommendation( self::VIDEOPRESS_RECOMMENDATION );
+		return true;
 	}
 
 	/**
@@ -297,7 +370,7 @@ class Jetpack_Recommendations {
 
 		$conditional_recommendations = Jetpack_Options::get_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, array() );
 		if ( ! in_array( $recommendation_name, $conditional_recommendations, true ) ) {
-			array_push( $conditional_recommendations, $recommendation_name );
+			$conditional_recommendations[] = $recommendation_name;
 			Jetpack_Options::update_option( self::CONDITIONAL_RECOMMENDATIONS_OPTION, $conditional_recommendations );
 		}
 	}

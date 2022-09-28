@@ -363,6 +363,8 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		$error_type = 'xmlrpc';
+
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -373,7 +375,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || (string) $jetpack_api_version !== $version ) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -385,7 +387,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -395,20 +397,20 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( compact( 'signature_details' ) );
+			$token->add_data( compact( 'signature_details', 'error_type' ) );
 			return $token;
 		} elseif ( ! $token ) {
 			return new \WP_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -450,7 +452,7 @@ class Manager {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
 			return $signature;
@@ -466,7 +468,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -480,7 +482,7 @@ class Manager {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -1636,7 +1638,6 @@ class Manager {
 	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
 	 * This is a proxy method to simplify the Connection package API.
 	 *
-	 * @see Manager::disable_plugin()
 	 * @see Manager::disconnect_site()
 	 *
 	 * @param boolean $disconnect_wpcom Should disconnect_site_wpcom be called.
@@ -1645,7 +1646,6 @@ class Manager {
 	 */
 	public function remove_connection( $disconnect_wpcom = true, $ignore_connected_plugins = false ) {
 
-		$this->disable_plugin();
 		$this->disconnect_site( $disconnect_wpcom, $ignore_connected_plugins );
 
 		return true;
@@ -1848,7 +1848,7 @@ class Manager {
 				'scope'                 => $signed_role,
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
-				'is_active'             => $this->is_active(), // TODO Deprecate this.
+				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
 				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
@@ -2317,7 +2317,7 @@ class Manager {
 	 * @return array|WP_Error
 	 */
 	public function get_connected_plugins() {
-		$maybe_plugins = Plugin_Storage::get_all( true );
+		$maybe_plugins = Plugin_Storage::get_all();
 
 		if ( $maybe_plugins instanceof WP_Error ) {
 			return $maybe_plugins;
@@ -2330,14 +2330,11 @@ class Manager {
 	 * Force plugin disconnect. After its called, the plugin will not be allowed to use the connection.
 	 * Note: this method does not remove any access tokens.
 	 *
+	 * @deprecated since 1.39.0
 	 * @return bool
 	 */
 	public function disable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->disable();
+		return null;
 	}
 
 	/**
@@ -2345,28 +2342,23 @@ class Manager {
 	 * After its called, the plugin will be allowed to use the connection again.
 	 * Note: this method does not initialize access tokens.
 	 *
+	 * @deprecated since 1.39.0.
 	 * @return bool
 	 */
 	public function enable_plugin() {
-		if ( ! $this->plugin ) {
-			return false;
-		}
-
-		return $this->plugin->enable();
+		return null;
 	}
 
 	/**
 	 * Whether the plugin is allowed to use the connection, or it's been disconnected by user.
 	 * If no plugin slug was passed into the constructor, always returns true.
 	 *
+	 * @deprecated 1.42.0 This method no longer has a purpose after the removal of the soft disconnect feature.
+	 *
 	 * @return bool
 	 */
 	public function is_plugin_enabled() {
-		if ( ! $this->plugin ) {
-			return true;
-		}
-
-		return $this->plugin->is_enabled();
+		return true;
 	}
 
 	/**

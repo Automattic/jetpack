@@ -24,6 +24,11 @@ class Helper {
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
 	/**
+	 * TODO: remove the lock once the functionalities are finished.
+	 */
+	const NEW_PRICING_202208_READY = false;
+
+	/**
 	 * Create a URL for the current search that doesn't include the "paged" parameter.
 	 *
 	 * @since 5.8.0
@@ -233,6 +238,10 @@ class Helper {
 		switch ( $widget_filter['type'] ) {
 			case 'post_type':
 				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
+			case 'author':
+				$name = _x( 'Authors', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 
 			case 'date_histogram':
@@ -769,8 +778,8 @@ class Helper {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids      = is_active_sidebar( 'jetpack-instant-search-sidebar' ) ?
-			wp_get_sidebars_widgets()['jetpack-instant-search-sidebar'] : array();
+		$overlay_widget_ids      = is_active_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) ?
+			wp_get_sidebars_widgets()[ Instant_Search::INSTANT_SEARCH_SIDEBAR ] : array();
 		$filters                 = self::get_filters_from_widgets();
 		$widgets                 = array();
 		$widgets_outside_overlay = array();
@@ -831,9 +840,14 @@ class Helper {
 			$excluded_post_types = array();
 		}
 
-		$is_wpcom                  = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+		$is_wpcom                  = static::is_wpcom();
 		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
+
+		// @todo Determine $show_powered_by by real pricing tier
+		// $show_powered_by = get_option( $prefix . 'show_powered_by', '1' ) === '1';
+		//phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$show_powered_by = isset( $_GET['free_tier'] ) && $_GET['free_tier'] === '1';
 
 		$options = array(
 			'overlayOptions'        => array(
@@ -841,9 +855,9 @@ class Helper {
 				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', 'immediate' ),
+				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
 				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'     => get_option( $prefix . 'show_powered_by', '1' ) === '1',
+				'showPoweredBy'     => $show_powered_by || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
 
 				// These options require kicking off a new search.
 				'defaultSort'       => get_option( $prefix . 'default_sort', 'relevance' ),
@@ -858,6 +872,7 @@ class Helper {
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '/build/instant-search/', __DIR__ ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
+			'isFreeTier'            => ( new Plan() )->is_free_tier(),
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
@@ -885,13 +900,20 @@ class Helper {
 	}
 
 	/**
+	 * Returns true if the site is a WordPress.com simple site, i.e. the code runs on WPCOM.
+	 */
+	public static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+	}
+
+	/**
 	 * Prints the Instant Search sidebar.
 	 */
 	public static function print_instant_search_sidebar() {
 		?>
 		<div class="jetpack-instant-search__widget-area" style="display: none">
-			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
-				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
+			<?php if ( is_active_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) ) { ?>
+				<?php dynamic_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ); ?>
 			<?php } ?>
 		</div>
 		<?php
@@ -932,5 +954,29 @@ class Helper {
 
 		// Returns cache site ID.
 		return \Jetpack_Options::get_option( 'id' );
+	}
+
+	/**
+	 * Returns true if the free_tier is set to not empty in URL, which is used for testing purpose.
+	 */
+	public static function is_forced_free_tier() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['free_tier'] ) && $_GET['free_tier'];
+	}
+
+	/**
+	 * Returns true if the new_pricing_202210 is set to not empty in URL for testing purpose.
+	 */
+	public static function is_forced_new_pricing_202208() {
+		$referrer = wp_get_referer();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
+	}
+
+	/**
+	 * Return true if the new pricing is finished and ready to be used in production.
+	 */
+	public static function is_new_pricing_202208_ready() {
+		return self::NEW_PRICING_202208_READY;
 	}
 }

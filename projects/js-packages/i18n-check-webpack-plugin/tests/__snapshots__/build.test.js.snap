@@ -138,13 +138,13 @@ Object {
           "message": "string/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "string/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+          "message": "string/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "string/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+          "message": "string/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "string/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+          "message": "string/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
         },
         Object {
           "message": "string/main.js: Optimization seems to have broken the following translation strings:
@@ -161,13 +161,13 @@ Object {
           "message": "regex/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "regex/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+          "message": "regex/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "regex/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+          "message": "regex/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "regex/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+          "message": "regex/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
         },
         Object {
           "message": "regex/main.js: Optimization seems to have broken the following translation strings:
@@ -184,13 +184,13 @@ Object {
           "message": "function/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "function/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+          "message": "function/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "function/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+          "message": "function/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "function/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+          "message": "function/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
         },
         Object {
           "message": "function/main.js: Optimization seems to have broken the following translation strings:
@@ -207,13 +207,13 @@ Object {
           "message": "array/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "array/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+          "message": "array/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "array/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+          "message": "array/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "array/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+          "message": "array/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
         },
         Object {
           "message": "array/main.js: Optimization seems to have broken the following translation strings:
@@ -230,13 +230,13 @@ Object {
           "message": "undefined/main.js:1:77: msgid argument is not a string literal: __(t?\\"arr is set\\":\\"arr is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "undefined/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+          "message": "undefined/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "undefined/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+          "message": "undefined/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
         },
         Object {
-          "message": "undefined/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+          "message": "undefined/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
         },
         Object {
           "message": "undefined/main.js: Optimization seems to have broken the following translation strings:
@@ -261,15 +261,15 @@ Object {
     },
     Object {
       "compilerPath": "string",
-      "message": "string/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+      "message": "string/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "string",
-      "message": "string/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+      "message": "string/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "string",
-      "message": "string/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+      "message": "string/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "string",
@@ -283,15 +283,15 @@ Object {
     },
     Object {
       "compilerPath": "regex",
-      "message": "regex/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+      "message": "regex/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "regex",
-      "message": "regex/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+      "message": "regex/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "regex",
-      "message": "regex/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+      "message": "regex/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "regex",
@@ -305,15 +305,15 @@ Object {
     },
     Object {
       "compilerPath": "function",
-      "message": "function/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+      "message": "function/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "function",
-      "message": "function/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+      "message": "function/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "function",
-      "message": "function/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+      "message": "function/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "function",
@@ -327,15 +327,15 @@ Object {
     },
     Object {
       "compilerPath": "array",
-      "message": "array/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+      "message": "array/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "array",
-      "message": "array/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+      "message": "array/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "array",
-      "message": "array/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+      "message": "array/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "array",
@@ -349,15 +349,15 @@ Object {
     },
     Object {
       "compilerPath": "undefined",
-      "message": "undefined/main.js:1:186: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
+      "message": "undefined/main.js:1:187: msgid argument is not a string literal: __(t?\\"func is set\\":\\"func is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "undefined",
-      "message": "undefined/main.js:1:374: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
+      "message": "undefined/main.js:1:376: msgid argument is not a string literal: __(t?\\"regex is set\\":\\"regex is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "undefined",
-      "message": "undefined/main.js:1:488: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
+      "message": "undefined/main.js:1:490: msgid argument is not a string literal: __(t?\\"string is set\\":\\"string is not set\\",\\"domain\\")",
     },
     Object {
       "compilerPath": "undefined",

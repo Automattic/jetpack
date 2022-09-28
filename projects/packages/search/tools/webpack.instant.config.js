@@ -1,18 +1,12 @@
-/**
- * External dependencies
- */
+const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const {
 	defaultRequestToExternal,
 	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/lib/util' );
-const path = require( 'path' );
-const webpack = jetpackWebpackConfig.webpack;
-
-/**
- * Internal dependencies
- */
 const definePaletteColorsAsStaticVariables = require( './define-palette-colors-as-static-variables' );
+
+const webpack = jetpackWebpackConfig.webpack;
 
 /**
  * Used to determine if the module import request should be externalized.
@@ -43,21 +37,24 @@ module.exports = {
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 		splitChunks: {
-			cacheGroups: {
-				vendors: false,
-			},
+			// Unused keys are prefixed with underscores, as per eslint recommendation.
+			name: ( _module, _chunks, key ) => `jp-search.${ key }`,
 		},
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
-			react: 'preact/compat',
-			'react-dom/test-utils': 'preact/test-utils',
-			'react-dom': 'preact/compat', // Must be aliased after test-utils
+			react: require.resolve( 'preact/compat' ),
+			'react-dom/test-utils': require.resolve( 'preact/test-utils' ),
+			'react-dom': require.resolve( 'preact/compat' ), // Must be aliased after test-utils
 			fs: false,
 		},
-		modules: [ path.resolve( __dirname, '../src/instant-search' ), 'node_modules' ],
+		modules: [
+			path.resolve( __dirname, '../src/instant-search' ),
+			'node_modules',
+			path.resolve( __dirname, '../node_modules' ), // For core-js
+		],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {

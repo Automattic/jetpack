@@ -1,19 +1,9 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
-import React from 'react';
-
-/**
- * WordPress dependencies
- */
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import { STORE_ID, storeConfig } from './store';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import WordAdsDashboard from './components/dashboard';
+import { STORE_ID, storeConfig } from './store';
 
 const store = createReduxStore( STORE_ID, storeConfig );
 register( store );
@@ -28,7 +18,12 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render( <WordAdsDashboard />, container );
+	ReactDOM.render(
+		<ThemeProvider>
+			<WordAdsDashboard />
+		</ThemeProvider>,
+		container
+	);
 }
 
 // Initialize the dashboard when DOMContentLoaded is fired, or immediately if it already has been.

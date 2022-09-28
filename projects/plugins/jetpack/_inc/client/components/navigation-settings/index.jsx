@@ -1,20 +1,22 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import createReactClass from 'create-react-class';
-import { connect } from 'react-redux';
-import { noop } from 'lodash';
-import { withRouter } from 'react-router-dom';
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import QuerySitePlugins from 'components/data/query-site-plugins';
+import Search from 'components/search';
+import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavTabs from 'components/section-nav/tabs';
+import debugFactory from 'debug';
 import analytics from 'lib/analytics';
-import { filterSearch, getSearchTerm } from 'state/search';
+import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
+import {
+	userCanManageModules as _userCanManageModules,
+	userIsSubscriber as _userIsSubscriber,
+	userCanPublish,
+} from 'state/initial-state';
 import {
 	getModules,
 	hasAnyOfTheseModules,
@@ -22,30 +24,54 @@ import {
 	hasAnySecurityFeature,
 	isModuleActivated,
 } from 'state/modules';
+import { filterSearch, getSearchTerm } from 'state/search';
 import { isPluginActive } from 'state/site/plugins';
-import NavTabs from 'components/section-nav/tabs';
-import NavItem from 'components/section-nav/item';
-import QuerySitePlugins from 'components/data/query-site-plugins';
-import Search from 'components/search';
-import SectionNav from 'components/section-nav';
-import UrlSearch from 'mixins/url-search';
-import {
-	userCanManageModules as _userCanManageModules,
-	userIsSubscriber as _userIsSubscriber,
-	userCanPublish,
-} from 'state/initial-state';
 
-export const NavigationSettings = createReactClass( {
-	displayName: 'NavigationSettings',
-	mixins: [ UrlSearch ],
+const debug = debugFactory( 'calypso:url-search' );
+
+export class NavigationSettings extends React.Component {
+	static displayName = 'NavigationSettings';
+
+	state = {
+		searchOpen: false,
+	};
 
 	UNSAFE_componentWillMount() {
 		// We need to handle the search term not only on route update but also on page load in case of some external redirects
 		this.onRouteChange( this.props.location );
 		this.props.history.listen( this.onRouteChange );
-	},
+	}
 
-	onRouteChange( newRoute ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
+		if ( ! nextProps.search ) {
+			this.setState( {
+				searchOpen: false,
+			} );
+		}
+	}
+
+	doSearch = keywords => {
+		this.setState( {
+			searchOpen: false !== keywords,
+		} );
+
+		if ( this.onSearch ) {
+			this.onSearch( keywords );
+			return;
+		}
+
+		const splitUrl = window.location.href.split( '#' ),
+			splitHash = splitUrl[ 1 ].split( '?' );
+
+		this.props.searchForTerm( keywords );
+		const searchURL = '#' + splitHash[ 0 ] + ( keywords ? '?term=' + keywords : '' );
+
+		debug( 'search posts for:', keywords );
+		debug( 'setting URL: ' + searchURL );
+		window.location.href = searchURL;
+	};
+
+	onRouteChange = newRoute => {
 		const search = newRoute.search || '',
 			pairs = search.substr( 1 ).split( '&' ),
 			term = pairs.filter( item => {
@@ -59,7 +85,7 @@ export const NavigationSettings = createReactClass( {
 		}
 
 		this.props.searchForTerm( decodeURIComponent( keyword ) );
-	},
+	};
 
 	maybeShowSearch() {
 		if ( this.props.userCanManageModules ) {
@@ -77,35 +103,20 @@ export const NavigationSettings = createReactClass( {
 				/>
 			);
 		}
-	},
+	}
 
 	trackNavClick( target ) {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: target,
 		} );
-	},
-
-	/**
-	 * The UrlSearch mixin callback to form a new location href string.
-	 *
-	 * @param {string} href - the current location string
-	 * @param {string} keyword - the new search keyword
-	 * @returns {string} href the new location string
-	 */
-	buildUrl: function ( href, keyword ) {
-		const splitUrl = href.split( '#' ),
-			splitHash = splitUrl[ 1 ].split( '?' );
-
-		this.props.searchForTerm( keyword );
-		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
-	},
+	}
 
 	handleClickForTracking( target ) {
 		return () => this.trackNavClick( target );
-	},
+	}
 
-	render: function () {
+	render() {
 		let navItems, sharingTab, writingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (
@@ -241,8 +252,8 @@ export const NavigationSettings = createReactClass( {
 				</SectionNav>
 			</div>
 		);
-	},
-} );
+	}
+}
 
 NavigationSettings.propTypes = {
 	userCanManageModules: PropTypes.bool.isRequired,

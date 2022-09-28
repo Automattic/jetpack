@@ -17,20 +17,16 @@ export default class RecommendationsPage extends WpPage {
 		return '.jp-checkbox-answer__container input#site-type-personal';
 	}
 
-	get siteTypeBusinessCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-business';
+	get siteTypeAgencyCheckboxSel() {
+		return '.jp-checkbox-answer__container input#site-type-agency';
 	}
 
 	get siteTypeStoreCheckboxSel() {
 		return '.jp-checkbox-answer__container input#site-type-store';
 	}
 
-	get siteTypeOtherCheckboxSel() {
-		return '.jp-checkbox-answer__container input#site-type-other';
-	}
-
 	get saveSiteTypeButtonSel() {
-		return 'a[href*="recommendations/product-suggestions"] >> text="Continue"';
+		return 'a[href*="recommendations/monitor"] >> text="Continue"';
 	}
 
 	get skipProductSuggestionsButtonSel() {
@@ -100,20 +96,12 @@ export default class RecommendationsPage extends WpPage {
 		return await this.click( this.siteTypePersonalCheckboxSel );
 	}
 
-	async checkOtherSiteType() {
-		return await this.click( this.siteTypeOtherCheckboxSel );
-	}
-
 	async isPersonalSiteTypeChecked() {
 		return await this.isElementChecked( this.siteTypePersonalCheckboxSel );
 	}
 
-	async isOtherSiteTypeChecked() {
-		return await this.isElementChecked( this.siteTypeOtherCheckboxSel );
-	}
-
-	async isBusinessTypeUnchecked() {
-		return await this.isElementChecked( this.siteTypeBusinessCheckboxSel );
+	async isAgencyTypeUnchecked() {
+		return await this.isElementChecked( this.siteTypeAgencyCheckboxSel );
 	}
 
 	async isStoreTypeUnchecked() {

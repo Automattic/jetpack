@@ -1,0 +1,47 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '../_inc/client/scss/calypso-colors';
+@import '../_inc/client/scss/mixin_breakpoint';
+@import '../_inc/client/recommendations/mixin';
+
+$jp-banner-md-breakpoint: 1152px;
+
+.jp-banner-cta-button {
+	background: $studio-black;
+	border-color: $studio-black;
+	color: $studio-white;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 4px;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0;
+	outline: 0;
+	overflow: hidden;
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	vertical-align: top;
+	box-sizing: border-box;
+	padding: 0.625rem 1.5rem;
+	transition: all 150ms ease-in-out;
+	text-decoration: none;
+
+	@include breakpoint( '<480px' ) {
+		width: 100%;
+		text-align: center;
+	}
+
+	&:hover,
+	&:active {
+		background: var( --jp-gray-80 );
+		border-color: var( --jp-gray-80 );
+		color: var( --jp-white );
+	}
+
+	&:focus {
+		box-shadow: none;
+		outline: solid 1px var( --jp-black );
+		outline-offset: 1px;
+	}
+}

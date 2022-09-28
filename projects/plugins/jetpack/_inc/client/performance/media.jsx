@@ -1,41 +1,30 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { includes } from 'lodash';
-import { __ } from '@wordpress/i18n';
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ProgressBar } from '@automattic/components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import CompactFormToggle from 'components/form/form-toggle/compact';
+import { FormLegend, FormFieldset } from 'components/forms';
+import JetpackBanner from 'components/jetpack-banner';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
 import {
-	isVideoPressLegacySecurityPlan,
-	getPlanClass,
 	getJetpackProductUpsellByFeature,
 	FEATURE_VIDEOPRESS,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 } from 'lib/plans/constants';
-import { FormLegend, FormFieldset } from 'components/forms';
-import JetpackBanner from 'components/jetpack-banner';
-import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import React from 'react';
+import { connect } from 'react-redux';
+import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { hasConnectedOwner as hasConnectedOwnerSelector, isOfflineMode } from 'state/connection';
 import {
 	getSitePlan,
-	getSitePurchases,
 	getVideoPressStorageUsed,
-	hasActiveVideoPressPurchase,
+	siteHasFeature,
 	isFetchingSitePurchases,
 } from 'state/site';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 
 class Media extends React.Component {
 	togglePrivacySetting = () => {
@@ -54,26 +43,21 @@ class Media extends React.Component {
 		}
 
 		const videoPress = this.props.module( 'videopress' );
-		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
-			hasVideoPressLegacySecurityPlan,
-			hasVideoPressPurchase,
+			hasVideoPressFeature,
+			hasVideoPressUnlimitedStorage,
 			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
 		} = this.props;
 
-		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
-
-		const hasUpgrade =
-			includes( [ 'is-premium-plan', 'is-business-plan', 'is-complete-plan' ], planClass ) ||
-			hasVideoPressLegacySecurityPlan ||
-			hasVideoPressPurchase;
+		const shouldDisplayStorage =
+			hasVideoPressFeature && ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
 
 		const bannerText =
-			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+			! hasVideoPressFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
 				? __(
 						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack'
@@ -139,7 +123,7 @@ class Media extends React.Component {
 
 		const videoPressForcedInactive = 'inactive' === this.props.getModuleOverride( 'videopress' );
 		const shouldDisplayBanner =
-			foundVideoPress && ! hasUpgrade && hasConnectedOwner && ! isOffline && ! isFetching;
+			foundVideoPress && ! hasVideoPressFeature && hasConnectedOwner && ! isOffline && ! isFetching;
 
 		return (
 			<SettingsCard
@@ -171,10 +155,11 @@ export default connect( state => {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
-		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
-		hasVideoPressLegacySecurityPlan: getSitePurchases( state ).find(
-			isVideoPressLegacySecurityPlan
-		),
+		hasVideoPressFeature:
+			siteHasFeature( state, 'videopress-1tb-storage' ) ||
+			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
+			siteHasFeature( state, 'videopress' ),
+		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),

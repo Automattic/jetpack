@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-import { assign } from 'lodash';
-import { addQueryArgs } from '@wordpress/url';
 import { jetpackConfigGet, jetpackConfigHas } from '@automattic/jetpack-config';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Helps create new custom error classes to better notify upper layers.
@@ -45,7 +41,7 @@ function JetpackRestApiClient( root, nonce ) {
 		postParams = {
 			method: 'post',
 			credentials: 'same-origin',
-			headers: assign( {}, headers, {
+			headers: Object.assign( {}, headers, {
 				'Content-type': 'application/json',
 			} ),
 		},
@@ -66,7 +62,7 @@ function JetpackRestApiClient( root, nonce ) {
 			postParams = {
 				method: 'post',
 				credentials: 'same-origin',
-				headers: assign( {}, headers, {
+				headers: Object.assign( {}, headers, {
 					'Content-type': 'application/json',
 				} ),
 			};
@@ -408,11 +404,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		sendMobileLoginEmail: () =>
-			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
 		submitSurvey: surveyResponse =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
@@ -503,6 +494,10 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchWafSettings: () =>
+			getRequest( `${ apiRoot }jetpack/v4/waf`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 		fetchWordAdsSettings: () =>
 			getRequest( `${ apiRoot }jetpack/v4/wordads/settings`, getParams )
 				.then( checkStatus )
@@ -553,7 +548,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @returns {Promise<Response>} - the http response promise
 	 */
 	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
+		return fetch( route, Object.assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
 	/**
@@ -588,7 +583,7 @@ function JetpackRestApiClient( root, nonce ) {
 		return responseOk ? statsData : {};
 	}
 
-	assign( this, methods );
+	Object.assign( this, methods );
 }
 
 const restApi = new JetpackRestApiClient();

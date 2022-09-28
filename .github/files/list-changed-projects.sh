@@ -19,7 +19,7 @@ ARGS=( --add-dependents )
 
 if [[ "${GITHUB_EVENT_NAME:?}" == "pull_request" ]]; then
 	[[ -f "${GITHUB_EVENT_PATH:?}" ]] || die "GITHUB_EVENT_PATH file $GITHUB_EVENT_PATH does not exist"
-	DIFF="$(jq -r '"\( .pull_request.base.sha )..\( .pull_request.head.sha )"' "$GITHUB_EVENT_PATH")"
+	DIFF="$(jq -r '"\( .pull_request.base.sha )...\( .pull_request.head.sha )"' "$GITHUB_EVENT_PATH")"
 	debug "GITHUB_EVENT_NAME is pull_request, checking diff from $DIFF"
 	ARGS+=( --verbose "--git-changed=$DIFF" )
 elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
@@ -35,4 +35,4 @@ if [[ -n "$EXTRA" ]]; then
 	fi
 fi
 
-pnpx --no-install jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'
+pnpm jetpack dependencies list "${ARGS[@]}" | jq -ncR 'reduce inputs as $i ({}; .[$i] |= true)'

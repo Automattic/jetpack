@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove `.engines.pnpm` from `package.json`. It's not needed, as pnpm always checks the monorepo root `package.json` anyway. Further, `.engines` is stripped from the mirror repos.
+
+

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix failing tests because of an editor type mismatch caused by imported packages side-effects

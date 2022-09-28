@@ -2,33 +2,42 @@
 @import '../../../scss/mixin_breakpoint';
 @import '../../../scss/typography';
 
-.jp-recommendations-product-suggestion__items {
-	display: flex;
-	flex-direction: column;
+.jp-recommendations-product-suggestion__header {
+	padding: 2rem 2.5rem 1.5rem;
 
-	max-width: 660px;
-	margin: 0.5rem 1rem 1.5rem;
-
-	@include breakpoint( '>960px' ) {
-		display: grid;
-		gap: 1rem;
-		grid-template-rows: auto;
-		grid-template-columns: 1fr 1fr;
-
-		max-width: none;
+	@include breakpoint( '<782px' ) {
+		padding-left: 1rem;
+		padding-right: 1rem;
 	}
+}
 
-	@include breakpoint( '>480px' ) {
-		margin-left: 2rem;
-		margin-right: 2rem;
+.jp-recommendations-product-suggestion__container {
+	padding: 0 2.5rem;
+
+	@include breakpoint( '<782px' ) {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+}
+
+.jp-recommendations-product-suggestion__items {
+	display: grid;
+	gap: 2rem;
+	grid-template-columns: 1fr 1fr;
+
+	@include breakpoint( '<782px' ) {
+		display: block;
+
+		max-width: 360px;
+		margin: 0 auto;
 	}
 }
 
 .jp-recommendations-product-suggestion__item {
-	@include breakpoint( '<960px' ) {
-		margin-bottom: 1rem;
+	@include breakpoint( '<782px' ) {
+		margin-bottom: 2rem;
 
-		&:last-of-type {
+		&:last-child {
 			margin-bottom: 0;
 		}
 	}
@@ -40,24 +49,48 @@
 }
 
 .jp-recommendations-product-suggestion__money-back-guarantee {
-	margin-bottom: 1.5rem;
-}
-
-.jp-recommendations-product-suggestion__skip-container {
-	margin-bottom: 2rem;
-
-	text-align: center;
-}
-
-.jp-recommendations-product-suggestion__skip {
-	font-size: $font-body;
+	margin: 1.25rem 0 1.5rem;
 }
 
 .jp-recommendations-product-suggestion__footer {
-	padding: 1rem 10%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 2rem;
+
+	padding: 1rem 2.5rem;
+	min-height: 3.125rem;
 
 	background: var( --jp-white-off );
 	color: var( --jp-gray-30 );
 
-	text-align: center;
+	font-size: $font-body-small;
+
+	@include breakpoint( '<782px' ) {
+		flex-direction: column;
+		justify-content: flex-start;
+
+		padding-left: 1rem;
+		padding-right: 1rem;
+
+		text-align: center;
+	}
+}
+
+.jp-recommendations-product-suggestion__timer {
+	color: var( --jp-gray-60 );
+
+	@include breakpoint( '<782px' ) {
+		flex-direction: column;
+		justify-content: flex-start;
+	}
+}
+
+.jp-recommendations-product-suggestion__time {
+	display: inline-block;
+
+	width: 140px;
+	margin-inline-start: 0.5rem;
+
+	font-size: 1.125rem;
 }

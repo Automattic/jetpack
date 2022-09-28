@@ -60,6 +60,7 @@ class Jetpack_Plan {
 				'personal-bundle',
 				'personal-bundle-monthly',
 				'personal-bundle-2y',
+				'starter-plan',
 			),
 			'supports' => array(
 				'akismet',

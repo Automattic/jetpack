@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.12 - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## 1.3.11 - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## 1.3.10 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 1.3.9 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25762]
+
+## 1.3.8 - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## 1.3.7 - 2022-07-12
+### Changed
+- Updated package dependencies.
+
+## 1.3.6 - 2022-07-06
+### Changed
+- Updated package dependencies. [#24923]
+
+## 1.3.5 - 2022-06-28
+### Removed
+- Remove unused testing infrastructure.
+
+## 1.3.4 - 2022-06-21
+### Changed
+- Updated package dependencies.
+
+## 1.3.3 - 2022-06-14
+### Changed
+- Updated package dependencies. [#24724]
+
+## 1.3.2 - 2022-06-08
+### Changed
+- Reorder JS imports for `import/order` eslint rule. [#24601]
+
+## 1.3.1 - 2022-05-30
+### Changed
+- Updated package dependencies
+
+## 1.3.0 - 2022-05-18
+### Changed
+- Updated package dependencies [#24372]
+- Update PnpmDeterministicModuleIdsPlugin for Webpack 5.67.0. [#24372]
+
+## 1.2.0 - 2022-05-10
+### Changed
+- Updated package dependencies [#24296]
+
+### Fixed
+- Add a plugin to make module IDs more deterministic with pnpm. [#24302]
+
+## 1.1.10 - 2022-05-04
+### Added
+- Add missing JavaScript dependencies. [#24096]
+
+### Changed
+- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
+- Updated package dependencies [#24208]
+- Use the local copy of `@babel/runtime` rather than any that might be installed in the project. [#24096]
+
+## 1.1.9 - 2022-04-26
+### Changed
+- Update package.json metadata.
+
 ## 1.1.8 - 2022-04-12
 ### Changed
 - Updated package dependencies.

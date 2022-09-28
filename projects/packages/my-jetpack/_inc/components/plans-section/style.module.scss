@@ -8,10 +8,7 @@
 	margin-bottom: calc( var(--spacing-base ) * 3 );
 }
 
-.external-link {
-	font-size: var( --font-body );
-	&:hover {
-		color: var( --jp-black );
-		text-decoration-thickness: var( --jp-underline-thickness );
-	}
+.actions-list-item {
+	line-height: calc( var( --spacing-base ) * 3 );
+	margin: 0 0 var( --spacing-base ) 0;
 }

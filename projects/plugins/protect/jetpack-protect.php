@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Protect
  * Plugin URI: https://wordpress.org/plugins/jetpack-protect
  * Description: Security tools that keep your site safe and sound, from posts to plugins.
- * Version: 0.1.0-alpha
+ * Version: 1.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -33,6 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'JETPACK_PROTECT_VERSION', '1.1.0-alpha' );
 define( 'JETPACK_PROTECT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_PROTECT_ROOT_FILE', __FILE__ );
 define( 'JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
@@ -40,6 +41,7 @@ define( 'JETPACK_PROTECT_SLUG', 'jetpack-protect' );
 define( 'JETPACK_PROTECT_NAME', 'Jetpack Protect' );
 define( 'JETPACK_PROTECT_URI', 'https://jetpack.com/jetpack-protect' );
 define( 'JETPACK_PROTECT_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
+define( 'JETPACK_PROTECT_BASE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_DIR . 'vendor/autoload_packages.php';
@@ -74,7 +76,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 							),
 						)
 					),
-					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#building-your-project'
+					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
 				);
 				?>
 			</p>
@@ -85,6 +87,37 @@ if ( is_readable( $jetpack_autoloader ) ) {
 
 	return;
 }
+
+// Redirect to plugin page when the plugin is activated.
+add_action( 'activated_plugin', 'jetpack_protect_plugin_activation' );
+
+/**
+ * Redirects to plugin page when the plugin is activated
+ *
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ */
+function jetpack_protect_plugin_activation( $plugin ) {
+	if (
+		JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH === $plugin &&
+		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_PROTECT_ROOT_FILE_RELATIVE_PATH )
+	) {
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-protect' ) ) );
+		exit;
+	}
+}
+
+// Add "Settings" link to plugins page.
+add_filter(
+	'plugin_action_links_' . JETPACK_PROTECT_FOLDER . '/jetpack-protect.php',
+	function ( $actions ) {
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-protect' ) ) . '">' . __( 'Dashboard', 'jetpack-protect' ) . '</a>';
+		array_unshift( $actions, $settings_link );
+
+		return $actions;
+	}
+);
+
+register_deactivation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_deactivation' ) );
 
 // Main plugin class.
 new Jetpack_Protect();

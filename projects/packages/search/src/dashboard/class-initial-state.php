@@ -15,6 +15,7 @@ use Jetpack_Options;
  * The React initial state.
  */
 class Initial_State {
+
 	/**
 	 * Connection Manager
 	 *
@@ -57,7 +58,7 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'       => esc_url_raw( rest_url() ),
+				'WP_API_root'       => $this->get_wp_api_root(),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'purchaseToken'     => $this->get_purchase_token(),
@@ -71,6 +72,8 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
+				'postTypes'         => $this->get_post_types_with_labels(),
+				'isWpcom'           => Helper::is_wpcom(),
 			),
 			'userData'        => array(
 				'currentUser' => $this->current_user_data(),
@@ -85,6 +88,19 @@ class Initial_State {
 				isset( $_GET['features'] ) ? explode( ',', wp_unslash( $_GET['features'] ) ) : array()
 			),
 		);
+	}
+
+	/**
+	 * Get API root.
+	 *
+	 * It return first party API root for WPCOM simple sites.
+	 */
+	protected function get_wp_api_root() {
+		if ( ! Helper::is_wpcom() ) {
+			return esc_url_raw( rest_url() );
+		}
+		// First party API prefix for WPCOM.
+		return esc_url_raw( site_url( '/wp-json/wpcom-origin/' ) );
 	}
 
 	/**
@@ -110,6 +126,33 @@ class Initial_State {
 		);
 
 		return $current_user_data;
+	}
+
+	/**
+	 * Gets the post type labels for all of the site's post types (including custom post types)
+	 *
+	 * @return array
+	 */
+	protected function get_post_types_with_labels() {
+
+		$args = array(
+			'public' => true,
+		);
+
+		$post_types_with_labels = array();
+
+		$post_types = get_post_types( $args, 'objects' );
+
+		// We don't need all the additional post_type data, just the slug & label
+		foreach ( $post_types as $post_type ) {
+			$post_type_with_label = array(
+				'slug'  => $post_type->name,
+				'label' => $post_type->label,
+			);
+
+			$post_types_with_labels[ $post_type->name ] = $post_type_with_label;
+		}
+		return $post_types_with_labels;
 	}
 
 	/**

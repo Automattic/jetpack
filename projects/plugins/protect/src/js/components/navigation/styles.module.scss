@@ -3,6 +3,7 @@
 	padding: var(--spacing-base) 0; // 8px
 	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
 	border-radius: var(--jp-border-radius);
+	margin: 0;
 }
 
 .navigation-item {
@@ -10,6 +11,8 @@
 	padding: calc( var(--spacing-base) * 2 ); // 16px;
 	align-items: center;
 	justify-content: space-between;
+	margin: 0;
+	text-align: left;
 
 	// Clickable State
 	&.clickable {
@@ -48,6 +51,15 @@
 	&-label {
 		display: flex;
 		align-items: center;
+		padding-right: var(--spacing-base); // 8px
+		overflow-x: hidden;
+	}
+
+	// .navigation-item-label-content
+	&-label-text {
+		display: block;
+		overflow-x: hidden;
+		text-overflow: ellipsis;
 	}
 
 	// .navigation-item-icon
@@ -65,14 +77,23 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		box-sizing: border-box;
 	}
 
 	&-check-badge {
 		fill: var(--jp-green-50);
 	}
+
+	&-info-badge {
+		fill: var(--jp-gray-20);
+	}
 }
 
 .navigation-group {
+	--icon-size: 28px;
+	--item-spacing: calc( var(--spacing-base) * 2 );
+	--left-spacing: calc( var(--icon-size) + var(--item-spacing) ); // 28px + 16px
+
 	list-style: none;
 
 	&-label {
@@ -80,9 +101,51 @@
 	}
 
 	&-content {
-		--icon-size: 28px;
-		--item-spacing: calc( var(--spacing-base) * 2 );
-		margin-left: calc( var(--icon-size) + var(--item-spacing) ); // 28px + 16px
 		padding: 0;
+	}
+
+	&-list {
+		margin-left: var(--left-spacing) ;
+	}
+
+	&-truncate {
+		padding: calc( var(--spacing-base) * 2 ); // 16px;
+		display: flex;
+		justify-content: flex-start;
+	}
+}
+
+.popover-text {
+	width: 250px;
+	padding: calc( var(--spacing-base) * 2 ); // 16px
+}
+
+.navigation-dropdown {
+	&-button {
+		display: flex;
+		border: 1px solid var(--jp-gray-10);
+		border-radius: var(--jp-border-radius);
+		padding: calc( var(--spacing-base) * 2 ); // 16px;
+		background-color: var(--jp-white);
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+
+	&-label {
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	&-icon {
+		margin-right: var(--spacing-base);
+	}
+
+	&-open {
+		display: block;
+	}
+
+	&-closed {
+		display: none;
 	}
 }

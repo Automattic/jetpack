@@ -1,5 +1,5 @@
 import { Meta, Story, Canvas } from '@storybook/addon-docs';
-import Button from '../index.jsx';
+import Button from '../index';
 
 <Meta
   title="JS Packages/Components/Button"
@@ -15,7 +15,7 @@ Below is the current available props for `Button`.
 
 ### variant
 
-It accepts 4 variants types: `primary`, `secondary`, `link`, `external-link`.
+It accepts 4 variant types: `primary`, `secondary`, `link`, `external-link`.
 
 <Canvas withSource="open">
   <Story id="js-packages-components-button--button-primary" />
@@ -33,11 +33,15 @@ It accepts 2 size types: `normal` and `small`.
   <Button size="small">Jetpack Button</Button>
 </Canvas>
 
+### weight
+
+It accepts 2 weight types: `bold` and `regular`. `bold` as default.
+
 ### icon
 
 It accepts an SVG, Component or string.
 
-You could the ones from [@wordpress/icons](https://github.com/WordPress/gutenberg/blob/trunk/packages/icons/src/index.js).
+You could use the ones from [@wordpress/icons](https://github.com/WordPress/gutenberg/blob/trunk/packages/icons/src/index.js).
 
 <Canvas withSource="open">
   <Story id="js-packages-components-button--icon" />
@@ -45,7 +49,7 @@ You could the ones from [@wordpress/icons](https://github.com/WordPress/gutenber
 
 ### iconSize
 
-It define the size of the icon, it needs to be a number.
+It defines the size of the icon, it needs to be a number.
 
 ### disabled
 
@@ -57,7 +61,7 @@ Disables the button removing cursor-pointer effect.
 
 ### isDestructive
 
-Set button on destructive state, which change the color for red.
+Set button on destructive state, which changes the color to red.
 
 <Canvas withSource="open">
   <Story id="js-packages-components-button--destructive" />
@@ -73,8 +77,16 @@ Set button on loading state, which applies a centered spinner.
 
 ### text
 
-It applies an text before children, it could be use together or alone.
+It applies a text before children, it could be used together or on its own.
 
 <Canvas>
   <Button text="My Text">My Children</Button>
+</Canvas>
+
+### fullWidth
+
+Stretches the button to take up the full width of the container.
+
+<Canvas withSource="open">
+  <Story id="js-packages-components-button--full-width" />
 </Canvas>

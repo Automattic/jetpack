@@ -1,4 +1,4 @@
-FROM ubuntu:21.10
+FROM ubuntu:22.04
 
 VOLUME ["/var/www/html"]
 
@@ -9,6 +9,8 @@ ARG PNPM_VERSION
 
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
+
+WORKDIR /tmp
 
 # Install basic packages, including Apache.
 RUN \
@@ -32,7 +34,8 @@ RUN \
 		unzip \
 		vim \
 		zip \
-	&& rm -rf /var/lib/apt/lists/*
+	&& apt-get remove --purge --auto-remove -y software-properties-common \
+	&& rm -rf /var/lib/apt/lists/* ~/.launchpadlib
 
 # Enable mod_rewrite in Apache.
 RUN a2enmod rewrite
@@ -45,12 +48,10 @@ RUN \
 	&& apt-get install -y \
 		libapache2-mod-php${PHP_VERSION} \
 		php${PHP_VERSION} \
-		php${PHP_VERSION}-apcu \
 		php${PHP_VERSION}-bcmath \
 		php${PHP_VERSION}-cli \
 		php${PHP_VERSION}-curl \
-		php${PHP_VERSION}-gd \
-		php${PHP_VERSION}-imagick \
+		php${PHP_VERSION}-intl \
 		php${PHP_VERSION}-ldap \
 		php${PHP_VERSION}-mbstring \
 		php${PHP_VERSION}-mysql \
@@ -62,6 +63,10 @@ RUN \
 		php${PHP_VERSION}-xml \
 		php${PHP_VERSION}-xsl \
 		php${PHP_VERSION}-zip \
+	&& apt-get install -y --no-install-recommends \
+		php${PHP_VERSION}-apcu \
+		php${PHP_VERSION}-gd \
+		php${PHP_VERSION}-imagick \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Install requested version of Composer.
@@ -84,8 +89,8 @@ RUN \
 # Install requested version of pnpm.
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
-	&& curl -fSL https://get.pnpm.io/v6.14.js | node - add --global pnpm@$PNPM_VERSION \
-	&& pnpm store prune
+	&& npm install --global pnpm@$PNPM_VERSION \
+	&& rm -rf ~/.npm
 
 # Install wp-cli.
 RUN curl -o /usr/local/bin/wp -fSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \
@@ -97,7 +102,7 @@ RUN mkdir /usr/local/src/psysh \
 	&& composer require psy/psysh:@stable \
 	&& mkdir ~/.wp-cli \
 	&& echo "require: /usr/local/src/psysh/vendor/autoload.php" > ~/.wp-cli/config.yml \
-	&& rm -rf ~/.cache ~/.config ~/.local ~/.subversion
+	&& rm -rf ~/.cache ~/.composer ~/.config ~/.local ~/.subversion
 
 # Copy a default config file for an apache host.
 COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf

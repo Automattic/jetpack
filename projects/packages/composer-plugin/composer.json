@@ -7,9 +7,9 @@
 		"composer-plugin-api": "^2.1.0"
 	},
 	"require-dev": {
-		"composer/composer": "2.2.3",
+		"composer/composer": "2.2.12",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -47,7 +47,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-master": "1.1.x-dev"
+			"dev-trunk": "1.1.x-dev"
 		}
 	}
 }

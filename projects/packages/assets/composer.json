@@ -9,7 +9,7 @@
 	"require-dev": {
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0",
+		"automattic/jetpack-changelogger": "^3.2",
 		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0"
 	},
 	"autoload": {
@@ -60,7 +60,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.17.x-dev"
+			"dev-trunk": "1.17.x-dev"
 		}
 	}
 }

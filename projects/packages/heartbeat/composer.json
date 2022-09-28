@@ -4,10 +4,10 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.39"
+		"automattic/jetpack-connection": "^1.45"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -33,7 +33,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-heartbeat/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.5.x-dev"
+			"dev-trunk": "1.5.x-dev"
 		}
 	},
 	"abandoned": "automattic/jetpack-connection"

@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_librarian_constructor() {
-		$librarian = new Jetpack_Sitemap_Librarian();
+		$librarian = new Jetpack_Sitemap_Librarian(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( true );
 	}
 

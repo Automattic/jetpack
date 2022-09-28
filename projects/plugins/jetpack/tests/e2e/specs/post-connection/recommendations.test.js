@@ -30,17 +30,12 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Check Personal and Other checkboxes', async () => {
 		await recommendationsPage.checkPersonalSiteType();
-		await recommendationsPage.checkOtherSiteType();
 		expect(
 			await recommendationsPage.isPersonalSiteTypeChecked(),
 			'Personal site type should be checked'
 		).toBeTruthy();
 		expect(
-			await recommendationsPage.isOtherSiteTypeChecked(),
-			'Other site type should be checked'
-		).toBeTruthy();
-		expect(
-			await recommendationsPage.isBusinessTypeUnchecked(),
+			await recommendationsPage.isAgencyTypeUnchecked(),
 			'Business type should be checked'
 		).toBeFalsy();
 		expect(
@@ -49,31 +44,10 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		).toBeFalsy();
 	} );
 
-	await test.step( 'Save answers and continue to plan recommendations', async () => {
+	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
 		await recommendationsPage.saveSiteTypeAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();
-		const isProductSuggestionsStep = await recommendationsPage.isSkipProductSuggestionsButtonVisible();
-		expect( isProductSuggestionsStep, 'Product Suggestions step should be visible' ).toBeTruthy();
-		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'product-suggestions' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
-	} );
-
-	await test.step( 'Skip plan recommendations and continue to the Monitor step', async () => {
-		await recommendationsPage.skipProductSuggestionsAndContinue();
-		await recommendationsPage.reload();
-		await recommendationsPage.waitForNetworkIdle();
-		const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
-		expect( isMonitorStep, 'Monitor step should be visible' ).toBeTruthy();
-		expect(
-			recommendationsPage.isUrlInSyncWithStepName( 'monitor' ),
-			'URL should be in sync with the step name'
-		).toBeTruthy();
-	} );
-
-	await test.step( 'Enable Monitoring and continue to Related Post step', async () => {
 		await recommendationsPage.enableMonitoringAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();

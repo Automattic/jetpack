@@ -1217,7 +1217,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		register_post_type( $post_type, array( 'public' => true ) );
 		Jetpack_AMP_Support::init();
-		$post = $this->factory()->post->create_and_get( compact( 'post_type' ) );
+		$post = self::factory()->post->create_and_get( compact( 'post_type' ) );
 		$this->go_to( get_permalink( $post ) );
 		$this->assertTrue( is_singular( $post_type ) );
 
@@ -1265,6 +1265,47 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests that Photon does not filter the URLs on REST API media requests in the view context from the editor.
+	 *
+	 * @group rest-api
+	 */
+	public function test_photon_cdn_in_rest_response_with_view_context_from_editor() {
+		$test_image = $this->helper_get_image();
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'view' ) );
+		$request->set_header( 'x-wp-api-fetch-from-editor', 'true' );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringNotContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+
+		// Subsequent ?context=view requests should still be Photonized.
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'view' ) );
+		$response = rest_get_server()->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertStringContainsString( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+	}
+
+	/**
 	 * Tests Photon does not filter the URL on REST API media requests in the edit context.
 	 *
 	 * @group rest-api
@@ -1272,7 +1313,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function test_photon_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
-		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );

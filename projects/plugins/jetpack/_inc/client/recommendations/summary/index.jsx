@@ -1,63 +1,55 @@
-/**
- * External dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
+import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
-import { FeatureSummary } from '../feature-summary';
-import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import { MoneyBackGuarantee } from 'components/money-back-guarantee';
-import { OneClickRestores } from '../sidebar/one-click-restores';
-import { Security } from '../sidebar/security';
-import { MobileApp } from '../sidebar/mobile-app';
-import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
-import { ProductCardUpsell } from '../product-card-upsell';
-import { generateCheckoutLink } from '../utils';
-import { getSiteTitle, getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import { getSiteTitle } from 'state/initial-state';
 import {
+	addViewedRecommendation as addViewedRecommendationAction,
 	getSidebarCardSlug,
+	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
 	getUpsell,
+	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
-
-/**
- * Style dependencies
- */
+import { FeatureSummary } from '../feature-summary';
 import './style.scss';
 import { ResourceSummary } from '../feature-summary/resource';
+import { MobileApp } from '../sidebar/mobile-app';
+import { OneClickRestores } from '../sidebar/one-click-restores';
+import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
+import { Security } from '../sidebar/security';
+import SummaryUpsell from './upsell';
 
 const SummaryComponent = props => {
 	const {
 		isFetchingMainData,
 		isFetchingSidebarData,
-		sidebarCardSlug,
+		isFetchingBottomSectionData,
+		sidebarCardsSlug,
 		siteTitle,
-		siteRawUrl,
-		siteAdminUrl,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
 		updateRecommendationsStep,
+		addViewedRecommendation,
 		upsell,
 		newRecommendations,
+		stateStepSlug,
+		updatingStep,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( 'summary' );
-	}, [ updateRecommendationsStep ] );
-
-	const upgradeUrl = upsell.product_slug
-		? generateCheckoutLink( upsell.product_slug, siteAdminUrl, siteRawUrl )
-		: null;
+		if ( 'summary' !== stateStepSlug ) {
+			updateRecommendationsStep( 'summary' );
+		} else if ( 'summary' === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( 'summary' );
+		}
+	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -118,59 +110,73 @@ const SummaryComponent = props => {
 		</>
 	);
 
-	let sidebarCard;
+	let sidebarCards;
+	let undersideCards;
+
 	if ( isFetchingSidebarData ) {
-		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+		sidebarCards = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
-		switch ( sidebarCardSlug ) {
+		switch ( sidebarCardsSlug ) {
 			case 'loading':
-				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+				sidebarCards = (
+					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
+				);
 				break;
 			case 'upsell':
-				sidebarCard = upsell.hide_upsell ? (
-					<ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />
-				) : (
+				sidebarCards = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
+				undersideCards = <MobileApp slug={ sidebarCardsSlug } underside />;
+				break;
+			case 'one-click-restores':
+				sidebarCards = (
 					<>
-						<ProductCardUpsell { ...upsell } isRecommended upgradeUrl={ upgradeUrl } />
-						<div className="jp-recommendations-summary__footer">
-							<MoneyBackGuarantee text={ __( '14-day money-back guarantee', 'jetpack' ) } />
-							<div className="jp-recommendations-summary__footnote">
-								{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }
-							</div>
-						</div>
+						<OneClickRestores />
+						<MobileApp slug={ sidebarCardsSlug } />
 					</>
 				);
 				break;
-			case 'one-click-restores':
-				sidebarCard = <OneClickRestores />;
-				break;
 			case 'manage-security':
-				sidebarCard = <Security />;
+				sidebarCards = (
+					<>
+						<Security />
+						<MobileApp slug={ sidebarCardsSlug } />
+					</>
+				);
 				break;
 			case 'download-app':
-				sidebarCard = <MobileApp />;
+				sidebarCards = <MobileApp slug={ sidebarCardsSlug } />;
 				break;
 			default:
-				throw `Unknown sidebarCardSlug in SummaryComponent: ${ sidebarCardSlug }`;
+				sidebarCards = <MobileApp slug={ 'unknown' } />;
 		}
 	}
 
 	return (
 		<div className="jp-recommendations-summary">
-			<div
-				className={ classNames( 'jp-recommendations-summary__content', {
-					isLoading: isFetchingMainData,
-				} ) }
-			>
-				{ mainContent }
+			<div className="jp-recommendations-summary__main">
+				<div
+					className={ classNames( 'jp-recommendations-summary__content', {
+						isLoading: isFetchingMainData,
+					} ) }
+				>
+					{ mainContent }
+				</div>
+				<div
+					className={ classNames( 'jp-recommendations-summary__sidebar', {
+						isLoading: isFetchingSidebarData,
+					} ) }
+				>
+					{ sidebarCards }
+				</div>
 			</div>
-			<div
-				className={ classNames( 'jp-recommendations-summary__sidebar', {
-					isLoading: isFetchingSidebarData,
-				} ) }
-			>
-				{ sidebarCard }
-			</div>
+			{ undersideCards && (
+				<div
+					className={ classNames( 'jp-recommendations-summary__underside', {
+						isLoading: isFetchingBottomSectionData,
+					} ) }
+				>
+					{ undersideCards }
+				</div>
+			) }
 		</div>
 	);
 };
@@ -186,21 +192,24 @@ const Summary = connect(
 		const upsell = getUpsell( state );
 		const isFetchingMainData = isEmpty( settings ) || isEmpty( pluginsData );
 		const isFetchingSidebarData = isEmpty( upsell );
+		const isFetchingBottomSectionData = isEmpty( upsell );
 
 		return {
 			isFetchingMainData,
 			isFetchingSidebarData,
-			sidebarCardSlug: getSidebarCardSlug( state ),
+			isFetchingBottomSectionData,
+			sidebarCardsSlug: getSidebarCardSlug( state ),
 			siteTitle: getSiteTitle( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			stateStepSlug: getStep( state ),
+			updatingStep: isUpdatingRecommendationsStep( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );
 

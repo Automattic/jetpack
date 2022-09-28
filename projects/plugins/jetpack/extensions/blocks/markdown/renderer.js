@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
+import { __experimentalGetSpacingClassesAndStyles as getSpacingClassesAndStyles } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { RawHTML } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
-import { RawHTML } from '@wordpress/element';
-import { __experimentalGetSpacingClassesAndStyles as getSpacingClassesAndStyles } from '@wordpress/block-editor';
 
 /**
  * Module variables

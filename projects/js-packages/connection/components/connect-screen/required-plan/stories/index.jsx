@@ -1,13 +1,6 @@
 /* eslint-disable react/react-in-jsx-scope */
-/**
- * External dependencies
- */
-import React from 'react';
 import { action } from '@storybook/addon-actions';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import ConnectScreenRequiredPlanVisual from '../visual';
 
 export default {

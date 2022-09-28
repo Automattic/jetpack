@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { SET_PLAN_DURATION } from 'state/action-types';
 
 export const setPlanDuration = duration => {

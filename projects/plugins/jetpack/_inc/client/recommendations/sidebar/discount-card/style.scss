@@ -1,15 +1,16 @@
 @import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '../../mixin';
 @import '../../../scss/mixins/ui';
 @import '../../../scss/mixin_breakpoint';
 @import '../../../scss/typography';
 
 .jp-recommendations-discount-card {
 	display: flex;
-	justify-content: flex-end;
-	align-items: center;
+	justify-content: center;
+	align-items: flex-start;
 
 	height: 100%;
-	padding: 2rem 3rem 2rem 0;
+	padding: 3rem 0;
 
 	@include breakpoint( '<782px' ) {
 		justify-content: center;
@@ -18,18 +19,20 @@
 	}
 
 	@include breakpoint( '>1040px' ) {
-		background: radial-gradient( circle at 70%, rgba(6, 158, 8, 0.15) 0%, rgba( 255, 255, 255, 0) 56%), radial-gradient( circle at 35% 80%, rgba( 206, 217, 242, 0.5) 5%, rgba(255, 256, 255, 0) 25% );
+		justify-content: flex-end;
+		padding-left: 3rem;
+		padding-right: 3rem;
 	}
 
 	&__container {
 		width: 100%;
-		max-width: 360px;		
+		max-width: 360px;
 	}
 
 	&__card {
 		@include card( $borderless: true );
 
-		box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 0 40px rgba( 0, 0, 0, 0.08 );
 	}
 
 	&__card-header {
@@ -40,36 +43,25 @@
 		height: 112px;
 		padding: 1rem;
 
-		background-image: url("./header-background.jpg");
+		background-image: url( './header-background.jpg' );
 		background-image: -webkit-image-set(
-			url("./header-background.jpg") 1x,
-			url("./header-background-2x.jpg") 2x);
+			url( './header-background.jpg' ) 1x,
+			url( './header-background-2x.jpg' ) 2x
+		);
 		background-image: image-set(
-			url("./header-background.jpg") 1x,
-			url("./header-background-2x.jpg") 2x);
+			url( './header-background.jpg' ) 1x,
+			url( './header-background-2x.jpg' ) 2x
+		);
 		background-repeat: no-repeat;
 		background-position: center center;
 		background-size: cover;
-		background-color: rgba(18, 11, 21);
+		background-color: rgba( 18, 11, 21 );
 		border-top-left-radius: inherit;
 		border-top-right-radius: inherit;
 	}
 
 	&__header-icon {
 		width: 55px;
-	}
-
-	&__discount {
-		padding: 0.375rem 0.75rem;
-
-		background-color: var( --jp-yellow-10 );
-		border-radius: var( --jp-border-radius );
-		color: var( --jp-gray-100 );
-
-		font-size: $font-body-small;
-		font-weight: $bold;
-		line-height: 1;
-		text-align: center;
 	}
 
 	&__card-body {
@@ -84,15 +76,28 @@
 	}
 
 	&__feature-list {
-		@include features-list;	
+		@include features-list;
+	}
+
+	&__disclaimer {
+		margin-top: 0;
+		margin-bottom: 1rem;
+
+		a {
+			white-space: nowrap;
+		}
 	}
 
 	&__button {
 		align-self: center;
-
 		margin-top: 0.25rem;
-
 		font-size: $font-body;
+		display: flex;
+		align-items: center;
+
+		.components-external-link__icon {
+			margin-left: 4px;
+		}
 	}
 
 	&__timer {

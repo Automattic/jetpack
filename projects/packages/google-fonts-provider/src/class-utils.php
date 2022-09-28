@@ -31,4 +31,27 @@ class Utils {
 
 		return $urls;
 	}
+
+	/**
+	 * Check if a font family is registered (verifying that it can be enqueued).
+	 *
+	 * This function will not be needed if/when WP_Webfonts provides this functionality.
+	 *
+	 * @link https://github.com/WordPress/gutenberg/pull/39988
+	 * @link https://github.com/WordPress/gutenberg/blob/e94fffae0684aa5a6dc370ce3eba262cb77071d9/lib/experimental/class-wp-webfonts.php#L217
+	 *
+	 * @param string $font_family_name Name of font family.
+	 * @return boolean|void Whether the font family is registered, or void if WP_Webfonts is not available.
+	 */
+	public static function is_font_family_registered( $font_family_name ) {
+		if ( ! function_exists( 'wp_webfonts' ) || ! method_exists( 'WP_Webfonts', 'get_font_slug' ) ) {
+			return;
+		}
+
+		$wp_webfonts = wp_webfonts();
+
+		$slug = \WP_Webfonts::get_font_slug( $font_family_name );
+
+		return isset( $wp_webfonts->get_registered_webfonts()[ $slug ] );
+	}
 }

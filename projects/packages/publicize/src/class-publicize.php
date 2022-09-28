@@ -91,7 +91,7 @@ class Publicize extends Publicize_Base {
 	 * Show a warning when Publicize does not have a connection.
 	 */
 	public function admin_page_warning() {
-		$jetpack   = Jetpack::init();
+		$jetpack   = \Jetpack::init();
 		$blog_name = get_bloginfo( 'blogname' );
 		if ( empty( $blog_name ) ) {
 			$blog_name = home_url( '/' );
@@ -105,7 +105,7 @@ class Publicize extends Publicize_Base {
 						<?php
 							printf(
 								/* translators: %s is the name of the blog */
-								esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack-publicize-pkg' ) ) ),
+								esc_html( wptexturize( __( "To use Jetpack Social, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack-publicize-pkg' ) ) ),
 								'<strong>' . esc_html( $blog_name ) . '</strong>'
 							);
 						?>
@@ -292,7 +292,7 @@ class Publicize extends Publicize_Base {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if ( $service ) {
-			/* translators: %s is the name of the Publicize service (e.g. Facebook, Twitter) */
+			/* translators: %s is the name of the Jetpack Social service (e.g. Facebook, Twitter) */
 			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack-publicize-pkg' ), self::get_service_label( $service ) );
 		} else {
 			if ( $publicize_error ) {
@@ -305,18 +305,18 @@ class Publicize extends Publicize_Base {
 						$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack-publicize-pkg' );
 						break;
 					case 'empty_blog_id':
-						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack-publicize-pkg' );
+						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Jetpack Social again.', 'jetpack-publicize-pkg' );
 						break;
 					case 'empty_state':
 						/* translators: %s is the URL of the Jetpack admin page */
-						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), Jetpack::admin_url() );
+						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
 						break;
 					default:
 						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
 						break;
 				}
 			} else {
-				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack-publicize-pkg' );
+				$error = __( 'There was a problem connecting with Jetpack Social. Please try again in a moment.', 'jetpack-publicize-pkg' );
 			}
 		}
 		// Using the same formatting/style as Jetpack::admin_notices() error.
@@ -490,8 +490,10 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get social networks, either all available or only those that the site is connected to.
 	 *
-	 * @since 2.0.0
-	 * @since 6.6.0 Removed Path. Service closed October 2018.
+	 * @since 0.1.0
+	 * @since-jetpack 2.0.0
+	 *
+	 * @since-jetpack 6.6.0 Removed Path. Service closed October 2018.
 	 *
 	 * @param string    $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
 	 * @param false|int $_blog_id Get services for a specific blog by ID, or set to false for current blog. Default false.
@@ -553,10 +555,8 @@ class Publicize extends Publicize_Base {
 			 *
 			 * Side-note: Possibly our most alliterative filter name.
 			 *
-			 * @module publicize
-			 *
-			 * @since $$next-version$$ No longer defaults to true. Adds checks to not publicize based on different contexts.
-			 * @since 4.1.0
+			 * @since 0.1.0 No longer defaults to true. Adds checks to not publicize based on different contexts.
+			 * @since-jetpack 4.1.0
 			 *
 			 * @param bool $should_publicize Should the post be publicized? Default to true.
 			 * @param WP_POST $post Current Post object.
@@ -613,7 +613,8 @@ class Publicize extends Publicize_Base {
 	 * 1. A POST_DONE . 'all' postmeta flag, or
 	 * 2. if the post has already been published.
 	 *
-	 * @since 6.7.0
+	 * @since 0.1.0
+	 * @since-jetpack 6.7.0
 	 *
 	 * @param integer $post_id Optional. Post ID to query connection status for: will use current post if missing.
 	 *
@@ -725,8 +726,8 @@ class Publicize extends Publicize_Base {
 			}
 			$page_info_message = sprintf(
 				wp_kses(
-					/* translators: %s is the link to the support page about using Facebook with Publicize */
-					__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack-publicize-pkg' ),
+					/* translators: %s is the link to the support page about using Facebook with Jetpack Social */
+					__( 'Facebook supports Jetpack Social connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Jetpack Social for Facebook</a>', 'jetpack-publicize-pkg' ),
 					array( 'a' => array( 'href' ) )
 				),
 				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
@@ -737,7 +738,7 @@ class Publicize extends Publicize_Base {
 				<p>
 					<?php
 						echo wp_kses(
-							__( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack-publicize-pkg' ),
+							__( 'Share to my <strong>Facebook Page</strong>:', 'jetpack-publicize-pkg' ),
 							array( 'strong' )
 						);
 					?>
@@ -884,7 +885,7 @@ class Publicize extends Publicize_Base {
 			}
 			?>
 
-			<p><?php echo wp_kses( __( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack-publicize-pkg' ), array( 'strong' ) ); ?></p>
+			<p><?php echo wp_kses( __( 'Share to my <strong>Tumblr blog</strong>:', 'jetpack-publicize-pkg' ), array( 'strong' ) ); ?></p>
 
 			<ul id="option-tumblr-blog">
 

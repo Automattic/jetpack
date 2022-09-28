@@ -151,18 +151,47 @@ class Utils {
 	/**
 	 * Get a timestamp for a file.
 	 *
+	 * @deprecated since 3.1.0
 	 * @param string               $file File.
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
 	 * @return string|null
 	 */
 	public static function getTimestamp( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		return self::getRepoData( $file, $output, $formatter )['timestamp'];
+	}
+
+	/**
+	 * Get miscellaneous repo data for a file.
+	 *
+	 * @param string               $file Filepath.
+	 * @param OutputInterface      $output OutputInterface to write debug output to.
+	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
+	 * @return array With keys 'timestamp' and 'pr-num'.
+	 */
+	public static function getRepoData( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		$repo_data = array(
+			'timestamp' => null,
+			'pr-num'    => null,
+		);
+
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%cI', $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
-				$ret = trim( $process->getOutput() );
-				if ( preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $ret ) ) {
-					return $ret;
+				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
+
+				// Timestamp.
+				if ( isset( $cmd_output[0] ) && preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $cmd_output[0] ) ) {
+					$repo_data['timestamp'] = $cmd_output[0];
+				}
+
+				// PR number.
+				if ( isset( $cmd_output[1] ) ) {
+					$matches = array();
+					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
+					if ( isset( $matches[1] ) ) {
+						$repo_data['pr-num'] = $matches[1];
+					}
 				}
 			}
 		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -170,12 +199,14 @@ class Utils {
 			// Don't care.
 		}
 
-		$mtime = quietCall( 'filemtime', $file );
-		if ( false !== $mtime ) {
-			return gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
+		if ( ! $repo_data['timestamp'] ) {
+			$mtime = quietCall( 'filemtime', $file );
+			if ( false !== $mtime ) {
+				$repo_data['timestamp'] = gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
+			}
 		}
 
-		return null;
+		return $repo_data;
 	}
 
 	/**
@@ -187,9 +218,11 @@ class Utils {
 	 * @param OutputInterface $output OutputInterface to write diagnostics too.
 	 * @param mixed           $files Output parameter. An array is written to this parameter, with
 	 *   keys being filenames in `$dir` and values being 0 for success, 1 for warnings, 2 for errors.
+	 * @param array|null      $input_options Options for the extraction.
+	 *   - add-pr-num: (bool) Whether to try to read a `(#12345)`-like PR number from the git commit creating each change entry. Default false.
 	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
-	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null ) {
+	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null, $input_options = null ) {
 		$debugHelper = new DebugFormatterHelper();
 		$files       = array();
 		$ret         = array();
@@ -220,12 +253,13 @@ class Utils {
 				}
 			}
 			try {
+				$repo_data    = self::getRepoData( $path, $output, $debugHelper );
 				$ret[ $name ] = $formatter->newChangeEntry(
 					array(
 						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
 						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
-						'content'      => $data[''],
-						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : self::getTimestamp( $path, $output, $debugHelper ),
+						'content'      => ( ! empty( $input_options['add-pr-num'] ) && $repo_data['pr-num'] && $data[''] ) ? ( $data[''] . " [#{$repo_data['pr-num']}]" ) : $data[''],
+						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : $repo_data['timestamp'],
 					)
 				);
 			} catch ( \InvalidArgumentException $ex ) {

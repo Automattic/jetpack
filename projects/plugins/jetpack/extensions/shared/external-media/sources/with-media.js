@@ -1,23 +1,12 @@
-/**
- * External dependencies
- */
-import { uniqBy } from 'lodash';
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
-import { withSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import classnames from 'classnames';
+import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
 
 export default function withMedia() {

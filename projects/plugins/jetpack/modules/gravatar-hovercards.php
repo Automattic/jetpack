@@ -270,7 +270,7 @@ function grofiles_attach_cards() {
 			$cu      = wp_get_current_user();
 			$my_hash = md5( $cu->user_email );
 		} elseif ( ! empty( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
-			$my_hash = md5( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] );
+			$my_hash = md5( filter_var( wp_unslash( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) );
 		} else {
 			$my_hash = '';
 		}

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules as Jetpack_Modules;
 
 /**
  * Utility functions to generate data synced to wpcom
@@ -632,7 +633,7 @@ class Functions {
 	/**
 	 * Return the list of installed themes
 	 *
-	 * @since $$next-version$$
+	 * @since 1.31.0
 	 *
 	 * @return array
 	 */
@@ -654,10 +655,21 @@ class Functions {
 		/**
 		 * Filters the output of Sync's get_theme callable
 		 *
-		 * @since $$next-version$$
+		 * @since 1.31.0
 		 *
 		 * @param array $themes The list of installed themes formatted in an array with a collection of information extracted from the Theme's headers
 		 */
 		return apply_filters( 'jetpack_sync_get_themes_callable', $themes );
+	}
+
+	/**
+	 * Return the list of active Jetpack modules.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		return ( new Jetpack_Modules() )->get_active();
 	}
 }

@@ -1,32 +1,21 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
+import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import PortalSidecar from './utilities/portal-sidecar';
-import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import {
+	fetchUserConnectionData as actionFetchUserConnectionData,
+	getConnectedWpComUser,
+} from 'state/connection';
 import {
 	fetchConnectedPlugins as actionFetchConnectedPlugins,
 	fetchSiteBenefits as actionFetchSiteBenefits,
 	getConnectedPluginsMap,
 	getSiteBenefits,
 } from 'state/site';
-import {
-	fetchUserConnectionData as actionFetchUserConnectionData,
-	getConnectedWpComUser,
-} from 'state/connection';
-import restApi from '@automattic/jetpack-api';
-import { DisconnectDialog } from '@automattic/jetpack-connection';
 import JetpackBenefits from '../components/jetpack-benefits';
+import { getApiRootUrl, getApiNonce } from '../state/initial-state';
+import PortalSidecar from './utilities/portal-sidecar';
 
 /**
  * Component that loads on the plugins page and manages presenting the disconnection modal.
@@ -57,7 +46,9 @@ const PluginDeactivation = props => {
 	// Modify the deactivation link.
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
 
-	deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
+	if ( deactivationLink !== null ) {
+		deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
+	}
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -81,6 +72,9 @@ const PluginDeactivation = props => {
 	 * The link is set to open the deactivation dialog.
 	 */
 	useEffect( () => {
+		if ( deactivationLink === null ) {
+			return null;
+		}
 		deactivationLink.addEventListener( 'click', handleLinkClick );
 
 		return () => {
@@ -89,6 +83,9 @@ const PluginDeactivation = props => {
 	}, [ deactivationLink, handleLinkClick ] );
 
 	const handleDeactivate = useCallback( () => {
+		if ( deactivationLink === null ) {
+			return null;
+		}
 		window.location.href = deactivationLink.getAttribute( 'href' );
 	}, [ deactivationLink ] );
 

@@ -1,21 +1,26 @@
-/**
- * External dependencies
- */
-import React, { useCallback } from 'react';
-import classnames from 'classnames';
-import { Icon, check, plus } from '@wordpress/icons';
-import { getCurrencyObject } from '@automattic/format-currency';
-import { __, sprintf } from '@wordpress/i18n';
-import { CheckmarkIcon, getIconBySlug, StarIcon, Text, H3 } from '@automattic/jetpack-components';
+// eslint-disable-next-line no-unused-vars
+/* global myJetpackInitialState */
 
-/**
- * Internal dependencies
- */
-import styles from './style.module.scss';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import { getCurrencyObject } from '@automattic/format-currency';
+import {
+	CheckmarkIcon,
+	getIconBySlug,
+	StarIcon,
+	Text,
+	H3,
+	Alert,
+} from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+import { Icon, check, plus } from '@wordpress/icons';
+import classnames from 'classnames';
+import React, { useCallback } from 'react';
+import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import ProductDetailButton from '../product-detail-button';
 import { useProduct } from '../../hooks/use-product';
+import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import ProductDetailButton from '../product-detail-button';
+import styles from './style.module.scss';
 
 /**
  * React component to render the price.
@@ -53,24 +58,31 @@ function Price( { value, currency, isOld } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props                    - Component props.
- * @param {string} props.slug               - Product slug
- * @param {Function} props.onClick          - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick - Function to call for tracking clicks on Call To Action button
- * @param {string} props.className					- A className to be concat with default ones
- * @returns {object}                          ProductDetailCard react component.
+ * @param {object} props                         - Component props.
+ * @param {string} props.slug                    - Product slug
+ * @param {Function} props.onClick               - Callback for Call To Action button click
+ * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
+ * @param {string} props.className               - A className to be concat with default ones
+ * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => {
+const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
+	const fileSystemWriteAccess = window?.myJetpackInitialState?.fileSystemWriteAccess;
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
 		longDescription,
 		features,
+		disclaimers,
 		pricingForUi,
 		isBundle,
 		supportedProducts,
 		hasRequiredPlan,
+		status,
+		pluginSlug,
 	} = detail;
+
+	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
 
 	const {
 		isFree,
@@ -80,6 +92,8 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 		wpcomProductSlug,
 	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
+
+	const { recordEvent } = useAnalytics();
 
 	/*
 	 * Product needs purchase when:
@@ -121,6 +135,16 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 			onClick();
 		}
 	}, [ onClick, trackButtonClick ] );
+
+	const disclaimerClickHandler = useCallback(
+		id => {
+			recordEvent( 'jetpack_myjetpack_product_card_disclaimer_click', {
+				id: id,
+				product: slug,
+			} );
+		},
+		[ slug, recordEvent ]
+	);
 
 	/**
 	 * Temporary ProductIcon component.
@@ -187,11 +211,31 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 
 				{ isFree && <H3>{ __( 'Free', 'jetpack-my-jetpack' ) }</H3> }
 
+				{ cantInstallPlugin && (
+					<Alert>
+						<Text>
+							{ sprintf(
+								// translators: %s is the plugin name.
+								__(
+									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
+									'jetpack-my-jetpack'
+								),
+								title
+							) }
+							&nbsp;
+							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
+								{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+							</ExternalLink>
+						</Text>
+					</Alert>
+				) }
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
 						isLoading={ isFetching }
+						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
 						href={ onClick ? undefined : addProductUrl }
 						className={ styles[ 'checkout-button' ] }
@@ -204,11 +248,43 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className } ) => 
 					</Text>
 				) }
 
+				{ disclaimers.length > 0 && (
+					<div className={ styles.disclaimers }>
+						{ disclaimers.map( ( disclaimer, id ) => {
+							const { text, link_text = null, url = null } = disclaimer;
+
+							return (
+								<Text key={ `disclaimer-${ id }` } component="p" variant="body-small">
+									{ `${ text } ` }
+									{ url && link_text && (
+										<ExternalLink
+											// Ignoring rule so I can pass ID to analytics in order to tell which disclaimer was clicked if there is more than one
+											/* eslint-disable react/jsx-no-bind */
+											onClick={ () => disclaimerClickHandler( id ) }
+											href={ url }
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{ link_text }
+										</ExternalLink>
+									) }
+								</Text>
+							);
+						} ) }
+					</div>
+				) }
+
 				{ isBundle && hasRequiredPlan && (
 					<div className={ styles[ 'product-has-required-plan' ] }>
 						<CheckmarkIcon size={ 36 } />
 						<Text>{ __( 'Active on your site', 'jetpack-my-jetpack' ) }</Text>
 					</div>
+				) }
+
+				{ supportingInfo && (
+					<Text className={ styles[ 'supporting-info' ] } variant="body-extra-small">
+						{ supportingInfo }
+					</Text>
 				) }
 			</div>
 		</div>

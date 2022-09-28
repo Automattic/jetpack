@@ -12,7 +12,7 @@ but using one or more tags rather than the HEAD of the target branch.
 name: PR is up-to-date
 on:
   pull_request_target:
-    branches: [ master ]
+    branches: [ main ]
   push:
     tags: [ latest ]
 

@@ -1,30 +1,12 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
-import { render, screen } from '@testing-library/react';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { GoogleCalendarEdit } from '../edit';
 
-/**
- * WordPress dependencies
- */
-import { SandBox } from '@wordpress/components';
-
-// SandBox is mocked to avoid the runtime JS scripts in includes.
 jest.mock( '@wordpress/components/build/sandbox', () => ( {
 	__esModule: true,
-	default: props => <iframe { ...props } />,
+	default: props => <iframe title="Some title" { ...props } />,
 } ) );
-
-/**
- * Internal dependencies
- */
-import { GoogleCalendarEdit } from '../edit';
 
 // isSimpleSite is mocked simply to check appropriate support link is displayed.
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
@@ -76,14 +58,18 @@ describe( 'GoogleCalendarEdit', () => {
 		const { container } = render( <GoogleCalendarEdit { ...emptyProps } /> );
 
 		// Check block specific CSS classes are applied.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		expect( container.firstChild ).toHaveClass( defaultProps.className );
 		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( `.${ defaultClassName }-placeholder-instructions` )
 		).toBeInTheDocument();
 		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( `.${ defaultClassName }-embed-form-editor` )
 		).toBeInTheDocument();
 		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( `.${ defaultClassName }-placeholder-links` )
 		).toBeInTheDocument();
 
@@ -91,6 +77,7 @@ describe( 'GoogleCalendarEdit', () => {
 		const label = screen.getByText( 'Google Calendar' );
 
 		expect( label ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( label.querySelector( 'svg' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'Enable Permissions for the calendar you want to share' )
@@ -127,14 +114,16 @@ describe( 'GoogleCalendarEdit', () => {
 	} );
 
 	test( 'handles submitted embed codes', async () => {
+		const user = userEvent.setup();
 		const emptyProps = { ...defaultProps, attributes: emptyAttributes };
-		const { container } = render( <GoogleCalendarEdit { ...emptyProps } /> );
+		render( <GoogleCalendarEdit { ...emptyProps } /> );
 
 		const input = screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' );
 		const button = screen.getByRole( 'button', { name: 'Embed' } );
 
-		userEvent.paste( input, 'invalid-url' );
-		userEvent.click( button );
+		await user.click( input );
+		await user.paste( 'invalid-url' );
+		await user.click( button );
 
 		const errorMessage =
 			"Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.";
@@ -142,8 +131,9 @@ describe( 'GoogleCalendarEdit', () => {
 		expect( createErrorNotice ).toHaveBeenCalledWith( errorMessage );
 		expect( removeAllNotices ).toHaveBeenCalledTimes( 1 );
 
-		userEvent.paste( input, 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ' );
-		userEvent.click( button );
+		await user.click( input );
+		await user.paste( 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ' );
+		await user.click( button );
 
 		const parsedEmbedUrl = 'https://calendar.google.com/calendar/embed?src=glen.davies%40a8c.com';
 
@@ -154,23 +144,27 @@ describe( 'GoogleCalendarEdit', () => {
 	test( 'displays embedded calendar', () => {
 		const { container } = render( <GoogleCalendarEdit { ...defaultProps } /> );
 		const html = `<iframe src="${ defaultAttributes.url }" style="border:0" scrolling="no" frameborder="0" height="${ defaultAttributes.height }"></iframe>`;
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const iframe = container.querySelector( 'iframe' );
 
 		expect( iframe ).toBeInTheDocument();
 		expect( iframe ).toHaveAttribute( 'html', html );
 		expect(
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 			container.querySelector( '.block-library-embed__interactive-overlay' )
 		).toBeInTheDocument();
 	} );
 
-	test( 'omits overlay once clicked', () => {
+	test( 'omits overlay once clicked', async () => {
+		const user = userEvent.setup();
 		const deselectedProps = { ...defaultProps, isSelected: false };
 		const { container } = render( <GoogleCalendarEdit { ...deselectedProps } /> );
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const overlay = container.querySelector( '.block-library-embed__interactive-overlay' );
 
 		expect( overlay ).toBeInTheDocument();
 
-		userEvent.click( overlay );
+		await user.click( overlay );
 
 		expect( overlay ).not.toBeInTheDocument();
 	} );

@@ -92,7 +92,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		} else {
 			$error = array();
 			foreach ( $cxntests->list_fails() as $fail ) {
-				$error[] = $fail['name'] . ': ' . $fail['message'];
+				$error[] = $fail['name'] . ( empty( $fail['message'] ) ? '' : ': ' . $fail['message'] );
 			}
 			WP_CLI::error_multi_line( $error );
 
@@ -260,7 +260,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		switch ( $action ) {
 			case 'blog':
 				Jetpack::log( 'disconnect' );
-				Jetpack::disconnect();
+				( new Connection_Manager( 'jetpack' ) )->disconnect_site();
 				WP_CLI::success(
 					sprintf(
 						/* translators: %s is the site URL */
@@ -1712,11 +1712,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function publicize( $args, $named_args ) {
 		if ( ! Jetpack::connection()->has_connected_owner() ) {
-			WP_CLI::error( __( 'Publicize requires a user-level connection to WordPress.com', 'jetpack' ) );
+			WP_CLI::error( __( 'Jetpack Social requires a user-level connection to WordPress.com', 'jetpack' ) );
 		}
 
 		if ( ! Jetpack::is_module_active( 'publicize' ) ) {
-			WP_CLI::error( __( 'The publicize module is not active.', 'jetpack' ) );
+			WP_CLI::error( __( 'The Jetpack Social module is not active.', 'jetpack' ) );
 		}
 
 		if ( ( new Status() )->is_offline_mode() ) {
@@ -1726,14 +1726,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 				! has_filter( 'jetpack_offline_mode' ) &&
 				false === strpos( site_url(), '.' )
 			) {
-				WP_CLI::error( __( "Jetpack is current in offline mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in offline mode, the publicize module will not load.", 'jetpack' ) );
+				WP_CLI::error( __( "Jetpack is current in offline mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in offline mode, the Jetpack Social module will not load.", 'jetpack' ) );
 			}
 
-			WP_CLI::error( __( 'Jetpack is currently in offline mode, so the publicize module will not load.', 'jetpack' ) );
+			WP_CLI::error( __( 'Jetpack is currently in offline mode, so the Jetpack Social module will not load.', 'jetpack' ) );
 		}
 
 		if ( ! class_exists( 'Publicize' ) ) {
-			WP_CLI::error( __( 'The publicize module is not loaded.', 'jetpack' ) );
+			WP_CLI::error( __( 'The Jetpack Social module is not loaded.', 'jetpack' ) );
 		}
 
 		$action        = $args[0];
@@ -1818,10 +1818,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// matches a service, delete all connections for that service.
 				if ( 'all' === $identifier || $id_is_service ) {
 					if ( 'all' === $identifier ) {
-						WP_CLI::log( __( "You're about to delete all publicize connections.", 'jetpack' ) );
+						WP_CLI::log( __( "You're about to delete all Jetpack Social connections.", 'jetpack' ) );
 					} else {
 						/* translators: %s is a lowercase string for a social network. */
-						WP_CLI::log( sprintf( __( "You're about to delete all publicize connections to %s.", 'jetpack' ), $identifier ) );
+						WP_CLI::log( sprintf( __( "You're about to delete all Jetpack Social connections to %s.", 'jetpack' ), $identifier ) );
 					}
 
 					jetpack_cli_are_you_sure();
@@ -1856,7 +1856,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 								WP_CLI::error(
 									sprintf(
 										/* translators: %1$d is a numeric ID and %2$s is a lowercase string for a social network. */
-										__( 'Publicize connection %d could not be disconnected', 'jetpack' ),
+										__( 'Jetpack Social connection %d could not be disconnected', 'jetpack' ),
 										$id
 									)
 								);
@@ -1868,19 +1868,19 @@ class Jetpack_CLI extends WP_CLI_Command {
 						$progress->finish();
 
 						if ( 'all' === $service ) {
-							WP_CLI::success( __( 'All publicize connections were successfully disconnected.', 'jetpack' ) );
+							WP_CLI::success( __( 'All Jetpack Social connections were successfully disconnected.', 'jetpack' ) );
 						} else {
 							/* translators: %s is a lowercase string for a social network. */
-							WP_CLI::success( __( 'All publicize connections to %s were successfully disconnected.', 'jetpack' ), $service );
+							WP_CLI::success( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service );
 						}
 					}
 				} else {
 					if ( false !== $publicize->disconnect( false, $identifier ) ) {
 						/* translators: %d is a numeric ID. Example: 1234. */
-						WP_CLI::success( sprintf( __( 'Publicize connection %d has been disconnected.', 'jetpack' ), $identifier ) );
+						WP_CLI::success( sprintf( __( 'Jetpack Social connection %d has been disconnected.', 'jetpack' ), $identifier ) );
 					} else {
 						/* translators: %d is a numeric ID. Example: 1234. */
-						WP_CLI::error( sprintf( __( 'Publicize connection %d could not be disconnected.', 'jetpack' ), $identifier ) );
+						WP_CLI::error( sprintf( __( 'Jetpack Social connection %d could not be disconnected.', 'jetpack' ), $identifier ) );
 					}
 				}
 				break; // disconnect.
@@ -2126,7 +2126,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					$variation,
 					$block_list_path,
 					$block_constant,
-					'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
+					'https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/extensions/README.md#developing-block-editor-extensions-in-jetpack'
 				) . '--------------------------------------------------------------------------------------------------------------------'
 			);
 		}

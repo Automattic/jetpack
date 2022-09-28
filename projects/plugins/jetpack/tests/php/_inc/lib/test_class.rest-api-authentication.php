@@ -15,7 +15,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	protected $request;
 
-	protected static $SAVE_SERVER_KEYS = array( 'HTTP_HOST', 'REQUEST_URI', 'REQUEST_METHOD' );
+	protected static $SAVE_SERVER_KEYS = array( 'HTTP_HOST', 'REQUEST_URI', 'REQUEST_METHOD' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 	/**
 	 * Server values.
 	 *
@@ -36,7 +36,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 */
 	public function set_up() {
 		parent::set_up();
-		foreach ( self::$SAVE_SERVER_KEYS as $key ) {
+		foreach ( self::$SAVE_SERVER_KEYS as $key ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( isset( $_SERVER[ $key ] ) ) {
 				$this->server_values[ $key ] = $_SERVER[ $key ];
 			} else {
@@ -61,7 +61,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 			$_GET['body-hash'],
 			$_GET['signature']
 		);
-		foreach ( self::$SAVE_SERVER_KEYS as $key ) {
+		foreach ( self::$SAVE_SERVER_KEYS as $key ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( isset( $this->server_values[ $key ] ) ) {
 				$_SERVER[ $key ] = $this->server_values[ $key ];
 			} else {
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		remove_filter( 'rest_pre_dispatch', array( $this, 'rest_pre_dispatch' ), 100, 2 );
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		wp_set_current_user( 0 );
-		$jetpack = Jetpack::init();
+		$jetpack = Jetpack::init(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}
 
 	/**
@@ -465,7 +465,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->assertEquals( self::$admin_id, get_current_user_id() );
 	}
 
-	public function mock_jetpack_private_options( $value, $option_name ) {
+	public function mock_jetpack_private_options( $value, $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$user_tokens                    = array();
 		$user_tokens[ self::$admin_id ] = 'pretend_this_is_valid.secret.' . self::$admin_id;
 		return array(
@@ -481,7 +481,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 */
 	public function rest_pre_dispatch( $result, $server ) {
 		// Reset Jetpack::xmlrpc_verification saved state
-		$jetpack = Jetpack::init();
+		$jetpack = Jetpack::init(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		// Set POST body for Jetpack::verify_xml_rpc_signature
 		$GLOBALS['HTTP_RAW_POST_DATA'] = $this->request->get_body();

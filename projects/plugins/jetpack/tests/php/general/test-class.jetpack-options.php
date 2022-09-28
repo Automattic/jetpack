@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		// Was the option successfully deleted?
 		$this->assertFalse( Jetpack_Options::get_option( 'migrate_for_idc' ) );
 
-		// Did Jetpack_Options::delete_option() properly return true?
+		// Check if Jetpack_Options::delete_option() properly returned true?
 		$this->assertTrue( $deleted );
 	}
 

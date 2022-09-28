@@ -1,4 +1,6 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
+
 /**
  * VideoPress playback module markup generator.
  *
@@ -40,6 +42,8 @@ class VideoPress_Player {
 	/**
 	 * Array of video GUIDs shown and their counts,
 	 * moved from the old VideoPress class.
+	 *
+	 * @var array
 	 */
 	public static $shown = array();
 
@@ -47,9 +51,9 @@ class VideoPress_Player {
 	 * Initiate a player object based on shortcode values and possible blog-level option overrides
 	 *
 	 * @since 1.3
-	 * @var string $guid VideoPress unique identifier
-	 * @var int $maxwidth maximum desired width of the video player if specified
-	 * @var array $options player customizations
+	 * @param string $guid VideoPress unique identifier.
+	 * @param int    $maxwidth Maximum desired width of the video player if specified.
+	 * @param array  $options Player customizations.
 	 */
 	public function __construct( $guid, $maxwidth = 0, $options = array() ) {
 		if ( empty( self::$shown[ $guid ] ) ) {
@@ -116,22 +120,22 @@ class VideoPress_Player {
 					unset( $expires_diff );
 				}
 
-				wp_cache_set( $cache_key, serialize( $this->video ), 'video', $expire );
+				wp_cache_set( $cache_key, serialize( $this->video ), 'video', $expire ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				unset( $expire );
 			}
 		} else {
-			$this->video = unserialize( $cached_video );
+			$this->video = unserialize( $cached_video ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Make sure to unserialize as VideoPress_Video class.
 		}
 		unset( $cache_key );
 		unset( $cached_video );
 	}
 
 	/**
-	 * Wrap output in a VideoPress player container
+	 * Wrap output in a VideoPress player container.
 	 *
 	 * @since 1.3
-	 * @var string $content HTML string
-	 * @return string HTML string or blank string if nothing to wrap
+	 * @param string $content HTML string.
+	 * @return string HTML string or blank string if nothing to wrap.
 	 */
 	private function html_wrapper( $content ) {
 		if ( empty( $content ) ) {
@@ -149,7 +153,7 @@ class VideoPress_Player {
 	 * @since 1.3
 	 * @return string HTML string or empty string if error
 	 */
-	public function asXML() {
+	public function as_xml() {
 		if ( empty( $this->video ) || is_wp_error( $this->video ) ) {
 			return '';
 		}
@@ -170,7 +174,7 @@ class VideoPress_Player {
 	 * @since 1.3
 	 * @return string HTML markup string or empty string if no video property found
 	 */
-	public function asHTML() {
+	public function as_html() {
 		if ( empty( $this->video ) ) {
 			$content = '';
 
@@ -202,8 +206,8 @@ class VideoPress_Player {
 	 * Display an error message to users capable of doing something about the error
 	 *
 	 * @since 1.3
-	 * @uses current_user_can() to test if current user has edit_posts capability
-	 * @var WP_Error $error WordPress error
+	 * @uses current_user_can() to test if current user has edit_posts capability.
+	 * @param WP_Error $error WordPress error.
 	 * @return string HTML string
 	 */
 	private function error_message( $error ) {
@@ -211,7 +215,8 @@ class VideoPress_Player {
 			return '';
 		}
 
-		$html  = '<div class="videopress-error" style="background-color:rgb(255,0,0);color:rgb(255,255,255);font-family:font-family:\'Helvetica Neue\',Arial,Helvetica,\'Nimbus Sans L\',sans-serif;font-size:140%;min-height:10em;padding-top:1.5em;padding-bottom:1.5em">';
+		$html = '<div class="videopress-error" style="background-color:rgb(255,0,0);color:rgb(255,255,255);font-family:font-family:\'Helvetica Neue\',Arial,Helvetica,\'Nimbus Sans L\',sans-serif;font-size:140%;min-height:10em;padding-top:1.5em;padding-bottom:1.5em">';
+		/* translators: %s is 'VideoPress' */
 		$html .= '<h1 style="font-size:180%;font-style:bold;line-height:130%;text-decoration:underline">' . esc_html( sprintf( __( '%s Error', 'jetpack' ), 'VideoPress' ) ) . '</h1>';
 		foreach ( $error->get_error_messages() as $message ) {
 			$html .= $message;
@@ -221,11 +226,11 @@ class VideoPress_Player {
 	}
 
 	/**
-	 * Rating agencies and industry associations require a potential viewer verify his or her age before a video or its poster frame are displayed.
+	 * Rating agencies and industry associations require a potential viewer verify their age before a video or its poster frame are displayed.
 	 * Content rated for audiences 17 years of age or older requires such verification across multiple rating agencies and industry associations
 	 *
 	 * @since 1.3
-	 * @return bool true if video requires the viewer verify he or she is 17 years of age or older
+	 * @return bool true if video requires the viewer verify they are 17 years of age or older
 	 */
 	private function age_gate_required() {
 		if ( isset( $this->video->age_rating ) && $this->video->age_rating >= 17 ) {
@@ -273,7 +278,7 @@ class VideoPress_Player {
 		$html .= '</select>';
 
 		/**
-		 * todo: numdays variance by month
+		 * Todo: numdays variance by month.
 		 */
 		$html .= '<select name="day" style="' . $inputs_style . '">';
 		for ( $i = 1; $i < 32; $i++ ) {
@@ -287,7 +292,7 @@ class VideoPress_Player {
 		 * Default to 13
 		 */
 		$html        .= '<select name="year" style="' . $inputs_style . '">';
-		$start_year   = date( 'Y' ) - 2;
+		$start_year   = gmdate( 'Y' ) - 2;
 		$default_year = $start_year - 11;
 		$end_year     = $start_year - 128;
 		for ( $year = $start_year; $year > $end_year; $year-- ) {
@@ -336,7 +341,10 @@ class VideoPress_Player {
 			$html .= ' lang="' . esc_attr( $this->video->language ) . '"';
 		}
 		$html .= '>';
-		if ( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false ) {
+		if (
+			( ! isset( $this->options['freedom'] ) || $this->options['freedom'] === false )
+			&& isset( $this->video->videos->mp4 )
+		) {
 			$mp4 = $this->video->videos->mp4->url;
 			if ( ! empty( $mp4 ) ) {
 				$html .= '<source src="' . esc_url( $mp4 ) . '" type="video/mp4; codecs=&quot;' . esc_attr( $this->video->videos->mp4->codecs ) . '&quot;" />';
@@ -359,6 +367,7 @@ class VideoPress_Player {
 		}
 		$html .= '" src="' . $thumbnail . '" width="' . $this->video->calculated_width . '" height="' . $this->video->calculated_height . '" /></div>';
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
+			/* translators: %s url to the gnu.org website */
 			$html .= '<p class="robots-nocontent">' . sprintf( __( 'You do not have sufficient <a rel="nofollow noopener noreferrer" href="%s" target="_blank">freedom levels</a> to view this video. Support free software and upgrade.', 'jetpack' ), 'https://www.gnu.org/philosophy/free-sw.html' ) . '</p>';
 		} elseif ( isset( $this->video->title ) ) {
 			$html .= '<p>' . esc_html( $this->video->title ) . '</p>';
@@ -445,6 +454,7 @@ class VideoPress_Player {
 			}
 			$html .= '<img class="videopress-poster" alt="';
 			if ( ! empty( $this->video->title ) ) {
+				/* translators: %s is the video title */
 				$html .= esc_attr( $this->video->title ) . '" title="' . esc_attr( sprintf( _x( 'Watch: %s', 'watch a video title', 'jetpack' ), $this->video->title ) );
 			}
 			$html .= '" src="' . esc_url( $this->video->poster_frame_uri, array( 'http', 'https' ) ) . '" width="' . $width . '" height="' . $height . '" />' . PHP_EOL;
@@ -495,16 +505,16 @@ class VideoPress_Player {
 		unset( $locale );
 
 		$guid    = $this->video->guid;
-		$guid_js = json_encode( $guid );
+		$guid_js = wp_json_encode( $guid );
 		$html   .= '<script type="text/javascript">' . PHP_EOL;
 		$html   .= 'jQuery(document).ready(function() {';
 
-		$html .= 'if ( !jQuery.VideoPress.data[' . json_encode( $guid ) . '] ) { jQuery.VideoPress.data[' . json_encode( $guid ) . '] = new Array(); }' . PHP_EOL;
-		$html .= 'jQuery.VideoPress.data[' . json_encode( $guid ) . '][' . self::$shown[ $guid ] . ']=' . json_encode( $data ) . ';' . PHP_EOL;
+		$html .= 'if ( !jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '] ) { jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '] = new Array(); }' . PHP_EOL;
+		$html .= 'jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '][' . self::$shown[ $guid ] . ']=' . wp_json_encode( $data ) . ';' . PHP_EOL;
 		unset( $data );
 
-		$jq_container   = json_encode( '#' . $this->video_container_id );
-		$jq_placeholder = json_encode( '#' . $video_placeholder_id );
+		$jq_container   = wp_json_encode( '#' . $this->video_container_id );
+		$jq_placeholder = wp_json_encode( '#' . $video_placeholder_id );
 		$player_config  = "{width:{$width},height:{$height},";
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
 			$player_config .= 'freedom:"true",';
@@ -516,15 +526,17 @@ class VideoPress_Player {
 		if ( $age_gate_required ) {
 			$html .= 'if ( jQuery.VideoPress.support.flash() ) {' . PHP_EOL;
 			/**
+			 * Insert alternative content for Flash players.
+			 *
 			 * @link https://github.com/swfobject/swfobject/wiki/SWFObject-API#swfobjectembedswfswfurlstr-replaceelemidstr-widthstr-heightstr-swfversionstr-xiswfurlstr-flashvarsobj-parobj-attobj-callbackfn
 			 */
 			$html .= 'swfobject.embedSWF(' . implode(
 				',',
 				array(
 					'jQuery.VideoPress.video.flash.player_uri',
-					json_encode( $this->video_container_id ),
-					json_encode( $width ),
-					json_encode( $height ),
+					wp_json_encode( $this->video_container_id ),
+					wp_json_encode( $width ),
+					wp_json_encode( $height ),
 					'jQuery.VideoPress.video.flash.min_version',
 					'jQuery.VideoPress.video.flash.expressinstall', // attempt to upgrade the Flash player if less than min_version. requires a 310x137 container or larger but we will always try to include
 					'{guid:' . $guid_js . '}', // FlashVars
@@ -535,9 +547,9 @@ class VideoPress_Player {
 			) . ');';
 			$html .= '} else {' . PHP_EOL;
 			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js},{$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
-			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . json_encode( '#' . $this->video_container_id ) . '));}else{';
-			$html .= 'jQuery(' . $jq_placeholder . ').html(' . json_encode( $this->html_age_date() ) . ');' . PHP_EOL;
-			$html .= 'jQuery(' . json_encode( '#' . $video_placeholder_id . ' input[type=submit]' ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
+			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . wp_json_encode( '#' . $this->video_container_id ) . '));}else{';
+			$html .= 'jQuery(' . $jq_placeholder . ').html(' . wp_json_encode( $this->html_age_date() ) . ');' . PHP_EOL;
+			$html .= 'jQuery(' . wp_json_encode( '#' . $video_placeholder_id . ' input[type=submit]' ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
 			$html .= '}}}' . PHP_EOL;
 		} else {
 			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js}, {$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
@@ -590,16 +602,22 @@ class VideoPress_Player {
 			}
 			unset( $vid_type );
 		}
+		/* translators: %s video title or generic 'this video' string */
 		$html .= '<noscript><p>' . sprintf( _x( 'JavaScript required to play %s.', 'Play as in playback or view a movie', 'jetpack' ), $noun ) . '</p></noscript>';
 
 		return $html;
 	}
 
-	function html5_dynamic_next() {
+	/**
+	 * Output for the non-legacy HTML5 player.
+	 */
+	public function html5_dynamic_next() {
 		$video_container_id = 'v-' . $this->video->guid;
 
+		Jwt_Token_Bridge::enqueue_jwt_token_bridge();
+
 		// Must not use iframes for IE11 due to a fullscreen bug
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( $_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0' ) ) {
+		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'Trident/7.0; rv:11.0' ) ) {
 			$iframe_embed = false;
 		} else {
 
@@ -638,7 +656,7 @@ class VideoPress_Player {
 					}
 					break;
 				case 'autoplay':
-					$option = 'autoPlay';
+					$option = 'autoPlay'; // Fall-through ok.
 				case 'hd':
 				case 'loop':
 				case 'permalink':
@@ -646,11 +664,13 @@ class VideoPress_Player {
 				case 'muted':
 				case 'controls':
 				case 'playsinline':
-					if ( in_array( $value, array( 1, 'true' ) ) ) {
+				case 'useAverageColor':
+					if ( in_array( $value, array( true, 1, 'true' ), true ) ) {
 						$videopress_options[ $option ] = true;
-					} elseif ( in_array( $value, array( 0, 'false' ) ) ) {
+					} elseif ( in_array( $value, array( false, 0, 'false' ), true ) ) {
 						$videopress_options[ $option ] = false;
 					}
+					// phpcs:enable
 					break;
 				case 'defaultlangcode':
 					$option = 'defaultLangCode';
@@ -665,7 +685,7 @@ class VideoPress_Player {
 			$iframe_url = "https://videopress.com/embed/{$this->video->guid}";
 
 			foreach ( $videopress_options as $option => $value ) {
-				if ( ! in_array( $option, array( 'width', 'height' ) ) ) {
+				if ( ! in_array( $option, array( 'width', 'height' ), true ) ) {
 
 					// add_query_arg ignores false as a value, so replacing it with 0
 					$iframe_url = add_query_arg( $option, ( false === $value ) ? 0 : $value, $iframe_url );
@@ -673,24 +693,25 @@ class VideoPress_Player {
 			}
 
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
-
+			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
-				. "' frameborder='0' allowfullscreen></iframe>"
+				. "' frameborder='0' allowfullscreen allow='clipboard-write'></iframe>"
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {
-			$videopress_options = json_encode( $videopress_options );
-			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress.js';
+			$videopress_options = wp_json_encode( $videopress_options );
+			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
 			return "<div id='{$video_container_id}'></div>
 				<script src='{$js_url}'></script>
 				<script>
 					videopress('{$this->video->guid}', document.querySelector('#{$video_container_id}'), {$videopress_options});
 				</script>";
+			// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		}
 	}
 
@@ -703,7 +724,7 @@ class VideoPress_Player {
 	 * @link https://helpx.adobe.com/flash/kb/control-access-scripts-host-web.html allowscriptaccess
 	 * @link https://www.adobe.com/devnet/flashplayer/articles/full_screen_mode.html full screen mode
 	 * @link https://help.adobe.com/en_US/as3/dev/WS1EFE2EDA-026D-4d14-864E-79DFD56F87C6.html allownetworking
-	 * @param array $flash_params Flash parameters expressed in key-value form
+	 * @param array $flash_params Flash parameters expressed in key-value form.
 	 * @return array validated Flash parameters
 	 */
 	public static function esc_flash_params( $flash_params ) {
@@ -736,10 +757,10 @@ class VideoPress_Player {
 				continue;
 			}
 			$param = strtolower( $param );
-			if ( in_array( $param, $allowed_params_keys ) ) {
+			if ( in_array( $param, $allowed_params_keys, true ) ) {
 				if ( isset( $allowed_params[ $param ] ) && is_array( $allowed_params[ $param ] ) ) {
 					$value = strtolower( $value );
-					if ( in_array( $value, $allowed_params[ $param ] ) ) {
+					if ( in_array( $value, $allowed_params[ $param ], true ) ) {
 						$filtered_params[ $param ] = $value;
 					}
 				} else {
@@ -859,6 +880,7 @@ class VideoPress_Player {
 		foreach ( $this->get_flash_parameters() as $attribute => $value ) {
 			$flash_params .= '<param name="' . esc_attr( $attribute ) . '" value="' . esc_attr( $value ) . '" />';
 		}
+		/* translators: %s url to the Adobe Flash Player website */
 		$flash_help       = sprintf( __( 'This video requires <a rel="nofollow noopener noreferrer" href="%s" target="_blank">Adobe Flash</a> for playback.', 'jetpack' ), 'https://get.adobe.com/flashplayer/' );
 		$flash_player_url = esc_url( $this->video->players->swf->url, array( 'http', 'https' ) );
 		$description      = '';

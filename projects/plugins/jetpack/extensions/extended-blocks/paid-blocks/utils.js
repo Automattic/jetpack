@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import analytics from '../../../_inc/client/lib/analytics';
 
 /**

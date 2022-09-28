@@ -4,13 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-options": "^1.15",
-		"automattic/jetpack-connection": "^1.39"
+		"automattic/jetpack-connection": "^1.45"
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "^3.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -21,7 +20,8 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
@@ -48,7 +48,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.7.x-dev"
+			"dev-trunk": "1.7.x-dev"
 		}
 	},
 	"config": {

@@ -67,7 +67,7 @@ class Repeat_Visitor_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 		\Automattic\Jetpack\Extensions\Repeat_Visitor\register_block();
 
 		if ( isset( $_COOKIE['jp-visit-counter'] ) ) {
-			$this->original_visit_counter = $_COOKIE['jp-visit-counter'];
+			$this->original_visit_counter = intval( $_COOKIE['jp-visit-counter'] );
 		}
 	}
 

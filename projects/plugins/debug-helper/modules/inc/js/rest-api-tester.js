@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import loaderButton from './loader.js';
 
 class Jetpack_Debug_REST_API_Tester {

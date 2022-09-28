@@ -1,7 +1,3 @@
-/* eslint-disable wpcalypso/import-docblock */
-/**
- * WordPress dependencies
- */
 import { Path, SVG } from '@wordpress/components';
 
 /**

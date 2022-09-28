@@ -424,6 +424,7 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 
 		define( 'JETPACK_WAF_DIR', $tmp_dir );
 		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config.php' );
+		define( 'JETPACK_WAF_SHARE_DATA', true );
 
 		$this->runtime->write_blocklog( 1337, 'test block' );
 		$file_content = file_get_contents( $waf_log_path );
@@ -432,5 +433,15 @@ final class WafRuntimeTest extends PHPUnit\Framework\TestCase {
 		$this->assertTrue( strpos( $file_content, '{"rule_id":1337,"reason":"test block"' ) !== true );
 
 		unlink( $waf_log_path );
+	}
+
+	/**
+	 * Test the sanitize output method catches odd cases
+	 */
+	public function testSanitizeOutput() {
+		$bad_output = 'a=<svg/onload%0c=alert%601%60>';
+		$result     = $this->runtime->sanitize_output( $bad_output );
+
+		$this->assertSame( 'a=&lt;svg\/onload\b=alert`1`&gt;', $result );
 	}
 }

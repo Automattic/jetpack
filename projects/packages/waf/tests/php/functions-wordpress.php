@@ -49,3 +49,29 @@ if ( ! function_exists( 'get_option' ) ) {
 		$test_options[ $option ] = $value;
 	}
 }
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param string $str String to sanitize.
+	 * @return string Sanitized string.
+	 */
+	function sanitize_text_field( $str ) {
+		return $str;
+	}
+}
+
+if ( ! function_exists( 'wp_unslash' ) ) {
+	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param string|array $value String or array of data to unslash.
+	 * @return string|array Unslashed `$value`.
+	 */
+	function wp_unslash( $value ) {
+		return $value;
+	}
+}
+
+

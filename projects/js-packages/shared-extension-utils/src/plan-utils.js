@@ -1,21 +1,10 @@
-/**
- * External dependencies
- */
-import { compact, get, startsWith, map, filter, head } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { isAtomicSite, isSimpleSite } from './site-type-utils';
+import { addQueryArgs } from '@wordpress/url';
+import { compact, get, startsWith, map, filter, head } from 'lodash';
 import getJetpackData from './get-jetpack-data';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import getSiteFragment from './get-site-fragment';
+import { isAtomicSite, isSimpleSite } from './site-type-utils';
 
 /**
  * Return the checkout URL to upgrade the site plan,
@@ -39,9 +28,8 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 
 				return addQueryArgs(
 					window.location.protocol +
-						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/admin.php`,
+						`//${ getSiteFragment().replace( '::', '/' ) }/wp-admin/site-editor.php`,
 					{
-						page: 'gutenberg-edit-site',
 						postId: queryParams.get( 'postId' ),
 						postType: queryParams.get( 'postType' ),
 						plan_upgraded: 1,

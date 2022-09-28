@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
@@ -29,7 +26,11 @@ module.exports = {
 			fs: false,
 			'instant-search': path.join( __dirname, '../src/instant-search' ),
 		},
-		modules: [ path.resolve( __dirname, '../src/dashboard' ), 'node_modules' ],
+		modules: [
+			path.resolve( __dirname, '../src/dashboard' ),
+			'node_modules',
+			path.resolve( __dirname, '../node_modules' ), // For core-js
+		],
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {

@@ -1,10 +1,12 @@
 const config = require( 'config' );
 const fs = require( 'fs' );
+const path = require( 'path' );
 
 const reporter = [
 	[ 'list' ],
 	[ 'json', { outputFile: `${ config.get( 'dirs.output' ) }/summary.json` } ],
 	[ 'allure-playwright' ],
+	[ `${ path.resolve( __dirname, '../', config.get( 'dirs.reporters' ) ) }/reporter.cjs` ],
 ];
 
 if ( process.env.CI ) {
@@ -31,7 +33,7 @@ const playwrightConfig = {
 	timeout: 300000,
 	retries: 0,
 	workers: 1,
-	outputDir: config.get( 'dirs.output' ),
+	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	use: {
 		browserName: 'chromium',
@@ -45,7 +47,7 @@ const playwrightConfig = {
 		trace: 'retain-on-failure',
 		storageState: config.get( 'temp.storage' ),
 		userAgent:
-			'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/90.0.4392.0 Safari/537.36 wp-e2e-tests',
+			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 wp-e2e-tests',
 	},
 	reportSlowTests: null,
 };

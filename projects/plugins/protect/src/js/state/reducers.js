@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
 import { combineReducers } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
 import {
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
+	SET_SECURITY_BUNDLE,
 } from './actions';
 
 const status = ( state = {}, action ) => {
@@ -54,12 +48,30 @@ const wpVersion = ( state = {}, action ) => {
 	return state;
 };
 
+const securityBundle = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_SECURITY_BUNDLE:
+			return action.bundle;
+	}
+	return state;
+};
+
+const productData = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_SECURITY_BUNDLE:
+			return action.productData;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	status,
 	statusIsFetching,
 	installedPlugins,
 	installedThemes,
 	wpVersion,
+	securityBundle,
+	productData,
 } );
 
 export default reducers;

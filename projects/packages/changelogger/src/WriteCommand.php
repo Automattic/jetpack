@@ -75,6 +75,7 @@ class WriteCommand extends Command {
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
+			->addOption( 'add-pr-num', null, InputOption::VALUE_NONE, 'Try to append the GH PR number to each entry. Commit subject must end like: (#123)' )
 			->setHelp(
 				<<<EOF
 The <info>write</info> command adds a new changelog entry based on the changes files, and removes the changes files.
@@ -277,9 +278,12 @@ EOF
 		}
 
 		$output->writeln( "Reading changes from $dir...", OutputInterface::VERBOSITY_DEBUG );
-		$files   = null; // Make phpcs happy.
-		$changes = Utils::loadAllChanges( $dir, Config::types(), $this->formatter, $output, $files );
-		$max     = $files ? max( $files ) : 0;
+		$files         = null; // Make phpcs happy.
+		$input_options = array(
+			'add-pr-num' => $input->getOption( 'add-pr-num' ),
+		);
+		$changes       = Utils::loadAllChanges( $dir, Config::types(), $this->formatter, $output, $files, $input_options );
+		$max           = $files ? max( $files ) : 0;
 		if ( $max > 0 && ! $this->askToContinue( $input, $output, ( $max > 1 ? 'Errors' : 'Warnings' ) . ' were encountered while reading changes!' ) ) {
 			return array( self::ASKED_EXIT, null, null );
 		}

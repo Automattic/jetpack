@@ -1,23 +1,15 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
-import { isModuleActivated as _isModuleActivated } from 'state/modules';
-import NavTabs from 'components/section-nav/tabs';
-import NavItem from 'components/section-nav/item';
 import SectionNav from 'components/section-nav';
+import NavItem from 'components/section-nav/item';
+import NavTabs from 'components/section-nav/tabs';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
@@ -28,6 +20,7 @@ import {
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
 } from 'state/initial-state';
+import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -35,6 +28,18 @@ export class Navigation extends React.Component {
 			target: 'nav_item',
 			path: target,
 		} );
+	};
+
+	trackNewRecommendations = () => {
+		// Only track this event if the new recommendations bubble is visible and the user is not on the 'Recommendations' tab already
+		if (
+			this.props.newRecommendationsCount > 0 &&
+			! this.props.location.pathname.startsWith( '/recommendations' )
+		) {
+			analytics.tracks.recordEvent( 'jetpack_recommendations_new_recommendation_bubble_visible', {
+				path: this.props.location.pathname,
+			} );
+		}
 	};
 
 	trackDashboardClick = () => {
@@ -50,12 +55,23 @@ export class Navigation extends React.Component {
 	};
 
 	trackRecommendationsClick = () => {
-		this.trackNavClick( 'recommendations' );
+		const isBubbleVisible = this.props.newRecommendationsCount > 0;
+
+		// Track when the recommendations tab is clicked and note whether or not the "new recommendations" bubble is visible.
+		analytics.tracks.recordJetpackClick( {
+			target: 'nav_item',
+			path: 'recommendations',
+			is_new_recommendations_bubble_visible: isBubbleVisible,
+		} );
 	};
 
 	trackMyJetpackClick = () => {
 		this.trackNavClick( 'my-jetpack' );
 	};
+
+	componentDidMount() {
+		this.trackNewRecommendations();
+	}
 
 	render() {
 		let navTabs;

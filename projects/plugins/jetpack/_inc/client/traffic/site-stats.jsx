@@ -1,31 +1,20 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { filter, includes } from 'lodash';
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
+import { imagePath } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
-import { imagePath } from 'constants/urls';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend } from 'components/forms';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import SettingsGroup from 'components/settings-group';
-import SettingsCard from 'components/settings-card';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
+import { filter, includes } from 'lodash';
+import React from 'react';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -49,13 +38,18 @@ class SiteStatsComponent extends React.Component {
 			roles_contributor: includes( roles, 'contributor', false ),
 			roles_subscriber: includes( roles, 'subscriber', false ),
 		};
+
+		if ( roles ) {
+			this.addCustomCountRolesState( countRoles );
+			this.addCustomRolesState( roles );
+		}
 	}
 
 	/**
 	 * Update state so toggles are updated.
 	 *
-	 * @param {string} optionName the slug of the option to update
-	 * @param {string} optionSet  the name of a set of options ?
+	 * @param {string} optionName - the slug of the option to update
+	 * @param {string} optionSet  - the name of a set of options ?
 	 */
 	updateOptions = ( optionName, optionSet ) => {
 		let value = this.props.getOptionValue( optionSet, 'stats' ),
@@ -109,6 +103,38 @@ class SiteStatsComponent extends React.Component {
 	handleRoleToggleChange = ( role, setting ) => {
 		return () => this.updateOptions( role, setting );
 	};
+
+	/**
+	 * Allows for custom roles 'count logged in page views' stats settings to be added to the current state.
+	 *
+	 * @param {Array} countRoles - All roles (including custom) that have 'count logged in page views' enabled.
+	 */
+	addCustomCountRolesState( countRoles ) {
+		countRoles.forEach( role => {
+			if (
+				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes(
+					countRoles
+				)
+			) {
+				this.state[ `count_roles_${ role }` ] = includes( countRoles, role, false );
+			}
+		} );
+	}
+
+	/**
+	 * Allows for custom roles 'allow stats reports' stats settings to be added to the current state.
+	 *
+	 * @param {Array} roles - All roles (including custom) that have 'allow stats reports' enabled.
+	 */
+	addCustomRolesState( roles ) {
+		roles.forEach( role => {
+			if (
+				! [ 'administrator', 'editor', 'author', 'subscriber', 'contributor' ].includes( role )
+			) {
+				this.state[ `roles_${ role }` ] = includes( roles, role, false );
+			}
+		} );
+	}
 
 	handleStatsOptionToggle( option_slug ) {
 		return () => this.props.updateFormStateModuleOption( 'stats', option_slug );

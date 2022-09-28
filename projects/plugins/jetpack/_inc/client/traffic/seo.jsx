@@ -1,27 +1,20 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
-import SocialLogo from 'social-logos';
-import classNames from 'classnames';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
+import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
+import Button from 'components/button';
+import FoldableCard from 'components/foldable-card';
+import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
+import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
-import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
-import FoldableCard from 'components/foldable-card';
-import CustomSeoTitles from './seo/custom-seo-titles.jsx';
-import SimpleNotice from 'components/notice';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import SocialLogo from 'social-logos';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
-import Button from 'components/button';
+import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
 export const conflictingSeoPluginsList = [
 	{
@@ -39,6 +32,22 @@ export const conflictingSeoPluginsList = [
 	{
 		name: 'All in One SEO Pack Pro',
 		slug: 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+	},
+	{
+		name: 'SEOPress',
+		slug: 'wp-seopress/seopress.php',
+	},
+	{
+		name: 'SEOPress Pro',
+		slug: 'wp-seopress-pro/seopress-pro.php',
+	},
+	{
+		name: 'SEOKEY',
+		slug: 'seo-key/seo-key.php',
+	},
+	{
+		name: 'SEOKEY Pro',
+		slug: 'seo-key-pro/seo-key.php',
 	},
 ];
 

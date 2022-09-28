@@ -4,11 +4,14 @@
 		"esModuleInterop": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
+		"lib": [ "DOM", "ESNext" ],
 		"module": "esnext",
 		"moduleResolution": "node",
 		"noEmit": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"strict": false
-	}
+		"strict": false,
+		"target": "ESNext"
+	},
+	"files": [ "./global.d.ts" ]
 }

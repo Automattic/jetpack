@@ -126,7 +126,7 @@ export const scanProductData = {
 export const searchProductData = {
 	slug: 'search',
 	name: 'Search',
-	title: 'Jetpack Site Search',
+	title: 'Jetpack Search',
 	description: 'Help them find what they need',
 	long_description:
 		'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.',

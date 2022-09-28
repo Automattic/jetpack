@@ -164,11 +164,11 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 function jetpack_protect_get_ip() {
 	$trusted_header_data = get_site_option( 'trusted_ip_header' );
 	if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
-		$ip            = $_SERVER[ $trusted_header_data->trusted_header ];
+		$ip            = wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- jetpack_clean_ip does it below.
 		$segments      = $trusted_header_data->segments;
 		$reverse_order = $trusted_header_data->reverse;
 	} else {
-		$ip = $_SERVER['REMOTE_ADDR'];
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- jetpack_clean_ip does it below.
 	}
 
 	if ( ! $ip ) {
@@ -189,7 +189,7 @@ function jetpack_protect_get_ip() {
 		$the_one = $ip_count - $segments;
 		return jetpack_clean_ip( $ips[ $the_one ] );
 	} else {
-		return jetpack_clean_ip( $_SERVER['REMOTE_ADDR'] );
+		return jetpack_clean_ip( isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- jetpack_clean_ip does it.
 	}
 }
 

@@ -149,7 +149,7 @@ if ( is_plugin_active( $plugin->plugin_file() ) ) {
 		}
 		?>
 		<?php
-		$branch = $plugin->source_info( 'master', '' );
+		$branch = $plugin->source_info( 'trunk', '' );
 		if ( $branch && ! is_wp_error( $branch ) ) {
 			require __DIR__ . '/branch-card.template.php';
 		}

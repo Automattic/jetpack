@@ -1,53 +1,84 @@
-/**
- * External dependencies
- */
+import { Dialog, ProductOffer, useBreakpointMatch } from '@automattic/jetpack-components';
+import { ToS } from '@automattic/jetpack-connection';
 import React from 'react';
-import { __ } from '@wordpress/i18n';
-import { Dialog, ProductOffer } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import useProtectData from '../../hooks/use-protect-data';
 import ConnectedProductOffer from '../product-offer';
+import styles from './styles.module.scss';
 
-const SecurityBundle = props => (
-	<ProductOffer
-		slug="security"
-		name={ __( 'Security', 'jetpack-protect' ) }
-		title={ __( 'Security', 'jetpack-protect' ) }
-		description={ __(
-			'Comprehensive site security, including Backup, Scan, and Anti-spam.',
-			'jetpack-protect'
-		) }
-		isBundle={ true }
-		supportedProducts={ [ 'backup', 'scan', 'anti-spam' ] }
-		features={ [
-			__( 'Real time cloud backups with 10GB storage', 'jetpack-protect' ),
-			__( 'Automated real-time malware scan', 'jetpack-protect' ),
-			__( 'One click fixes for most threats', 'jetpack-protect' ),
-			__( 'Comment & form spam protection', 'jetpack-protect' ),
-		] }
-		pricing={ {
-			currency: 'USD',
-			price: 24.92,
-			offPrice: 12.42,
-		} }
-		hasRequiredPlan={ false }
-		{ ...props }
-	/>
-);
+const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
+	const { securityBundle } = useProtectData();
+	const {
+		name,
+		title,
+		longDescription,
+		isBundle,
+		supportedProducts,
+		features,
+		pricingForUi,
+	} = securityBundle;
+
+	// Compute the price per month.
+	const price = pricingForUi.fullPrice
+		? Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100
+		: null;
+	const offPrice = pricingForUi.discountPrice
+		? Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100
+		: null;
+	const { currencyCode: currency = 'USD' } = pricingForUi;
+
+	return (
+		<ProductOffer
+			slug="security"
+			name={ name }
+			title={ title }
+			description={ longDescription }
+			isBundle={ isBundle }
+			supportedProducts={ supportedProducts }
+			features={ features }
+			pricing={ {
+				currency,
+				price,
+				offPrice,
+			} }
+			hasRequiredPlan={ false }
+			onAdd={ onAdd }
+			isLoading={ redirecting }
+			{ ...rest }
+		/>
+	);
+};
 
 /**
  * Intersitial Protect component.
  *
+ * @param {object} props                   - The props passed to Component.
+ * @param {string} props.securityJustAdded - True when the checkout is just added/started.
+ * @param {string} props.onSecurityAdd     - Checkout callback handler.
  * @returns {React.Component} Interstitial react component.
  */
-const Interstitial = () => {
+const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
+	const [ isMediumSize ] = useBreakpointMatch( 'md' );
+	const mediaClassName = `${ styles.section } ${
+		isMediumSize ? styles[ 'is-viewport-medium' ] : ''
+	}`;
+
 	return (
 		<Dialog
-			primary={ <ConnectedProductOffer isCard={ true } /> }
-			secondary={ <SecurityBundle /> }
-			split={ true }
+			primary={
+				<ConnectedProductOffer
+					className={ mediaClassName }
+					isCard={ true }
+					buttonDisclaimer={ <p className={ styles[ 'terms-of-service' ] }>{ ToS }</p> }
+				/>
+			}
+			secondary={
+				<SecurityBundle
+					className={ mediaClassName }
+					onAdd={ onSecurityAdd }
+					redirecting={ securityJustAdded }
+				/>
+			}
+			isTwoSections={ true }
 		/>
 	);
 };

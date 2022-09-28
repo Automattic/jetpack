@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
 import { BlockControls, MediaUpload } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import EditButton from '../../shared/edit-button';
 
 export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia } ) => (

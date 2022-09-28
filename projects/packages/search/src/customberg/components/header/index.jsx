@@ -1,13 +1,6 @@
-/**
- * WordPress dependencies
- */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, cog } from '@wordpress/icons';
-
-/**
- * Internal dependencies
- */
 import SaveButton from 'components/save-button';
 import './styles.scss';
 

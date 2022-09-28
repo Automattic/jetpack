@@ -210,7 +210,7 @@ class Jetpack_Keyring_Service_Helper {
 	public static function admin_page_load() {
 		if ( isset( $_GET['action'] ) ) {
 			if ( isset( $_GET['service'] ) ) {
-				$service_name = $_GET['service']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
+				$service_name = sanitize_text_field( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
 			}
 
 			switch ( $_GET['action'] ) {
@@ -280,7 +280,7 @@ class Jetpack_Keyring_Service_Helper {
 					break;
 
 				case 'delete':
-					$id = $_GET['id'];
+					$id = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( $_GET['id'] ) ) : null;
 
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );

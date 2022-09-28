@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
 import React, { Component, Fragment } from 'react';
 
-/**
- * Style dependencies
- */
 import './product-price.scss';
 
 class ProductPrice extends Component {

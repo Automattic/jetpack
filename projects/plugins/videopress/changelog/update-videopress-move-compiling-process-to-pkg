@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: move client-source files from plugin to package

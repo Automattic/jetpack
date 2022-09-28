@@ -27,7 +27,7 @@
 if ( isset( $_GET['lang'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site, determening language for translations.
 	$l = sanitize_text_field( wp_unslash( $_GET['lang'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes made to the site, determining language for translations.
 } elseif ( isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) {
-	$l = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	$l = filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) );
 	$l = strtolower( substr( $l, 0, 2 ) );
 } else {
 	$l = '';

@@ -27,7 +27,6 @@
 /.phpcsignore                                            production-exclude
 /.phpcs.dir.xml                                          production-exclude
 /.sass-cache/**                                          production-exclude
-/.size-limit.js                                          production-exclude
 /.wp-env.json                                            production-exclude
 /LICENSE.txt                                             production-exclude
 /_inc/build/*.css.map                                    production-exclude

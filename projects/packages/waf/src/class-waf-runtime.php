@@ -240,15 +240,17 @@ class Waf_Runtime {
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
 		if ( ! $reason ) {
 			$reason = "rule $rule_id";
+		} else {
+			$reason = $this->sanitize_output( $reason );
 		}
 
 		$this->write_blocklog( $rule_id, $reason );
 		error_log( "Jetpack WAF Blocked Request\t$action\t$rule_id\t$status_code\t$reason" );
-		header( "X-JetpackWAF-Blocked: $status_code $reason" );
+		header( "X-JetpackWAF-Blocked: $status_code - rule $rule_id" );
 		if ( defined( 'JETPACK_WAF_MODE' ) && 'normal' === JETPACK_WAF_MODE ) {
 			$protocol = isset( $_SERVER['SERVER_PROTOCOL'] ) ? wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) : 'HTTP';
 			header( $protocol . ' 403 Forbidden', true, $status_code );
-			die( "rule $rule_id" );
+			die( "rule $rule_id - reason $reason" );
 		}
 	}
 
@@ -264,17 +266,19 @@ class Waf_Runtime {
 		$log_data['reason']    = $reason;
 		$log_data['timestamp'] = gmdate( 'Y-m-d H:i:s' );
 
-		$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
-		$file_exists = file_exists( $file_path );
+		if ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
+			$file_path   = JETPACK_WAF_DIR . '/waf-blocklog';
+			$file_exists = file_exists( $file_path );
 
-		if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
-			$fp = fopen( $file_path, 'a+' );
+			if ( ! $file_exists || filesize( $file_path ) < ( 100 * 1024 * 1024 ) ) {
+				$fp = fopen( $file_path, 'a+' );
 
-			if ( $fp ) {
-				try {
-					fwrite( $fp, json_encode( $log_data ) . "\n" );
-				} finally {
-					fclose( $fp );
+				if ( $fp ) {
+					try {
+						fwrite( $fp, json_encode( $log_data ) . "\n" );
+					} finally {
+						fclose( $fp );
+					}
 				}
 			}
 		}
@@ -299,6 +303,7 @@ class Waf_Runtime {
 		$statement = $conn->prepare( "INSERT INTO {$table_prefix}jetpack_waf_blocklog(reason,rule_id, timestamp) VALUES (?, ?, ?)" );
 		if ( false !== $statement ) {
 			$statement->bind_param( 'sis', $log_data['reason'], $log_data['rule_id'], $log_data['timestamp'] );
+			$statement->execute();
 
 			if ( $conn->insert_id > 100 ) {
 				$conn->query( "DELETE FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id LIMIT 1" );
@@ -769,5 +774,21 @@ class Waf_Runtime {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Sanitize output generated from the request that was blocked.
+	 *
+	 * @param string $output Output to sanitize.
+	 */
+	public function sanitize_output( $output ) {
+		$url_decoded_output   = rawurldecode( $output );
+		$html_entities_output = htmlentities( $url_decoded_output, ENT_QUOTES, 'UTF-8' );
+		// @phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired
+		$escapers     = array( "\\", "/", "\"", "\n", "\r", "\t", "\x08", "\x0c" );
+		$replacements = array( "\\\\", "\\/", "\\\"", "\\n", "\\r", "\\t", "\\f", "\\b" );
+		// @phpcs:enable Squiz.Strings.DoubleQuoteUsage.NotRequired
+
+		return( str_replace( $escapers, $replacements, $html_entities_output ) );
 	}
 }

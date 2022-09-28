@@ -1,19 +1,17 @@
 .container {
-	// @todo: ask for designer's feedback.
-	--jp-yellow-60: #ff9800;
-	--jp-yellow-80: #a97b35;
-	--jp-blue-60: #03a9f4;
-	--jp-blue-80: #0180bb;
-
 	display: flex;
 	font-size: var( --font-body );
 	line-height: calc( var( --spacing-base ) * 3 );
+	min-height: calc( var( --spacing-base ) * 3 );
 	align-items: center;
 	margin: calc( var( --spacing-base ) * 2 ) 0;
+}
 
-	.icon {
-		margin-right: calc( var( --spacing-base ) / 2 );
-	}
+.icon-wrapper {
+	margin-right: calc( var( --spacing-base ) / 2 );
+	width: calc( var( --spacing-base ) * 3 );
+	height: calc( var( --spacing-base ) * 3 );
+	align-self: flex-start;
 }
 
 .is-error {
@@ -24,22 +22,22 @@
 }
 
 .is-warning {
-	color: var( --jp-yellow-80 );
+	color: var( --jp-yellow-40 );
 	.icon {
-		fill: var( --jp-yellow-60 );
+		fill: var( --jp-yellow-40 );
 	}
 }
 
 .is-info {
-	color: var( --jp-blue-60 );
+	color: var( --jp-blue-40 );
 	.icon {
-		fill: var( --jp-blue-80 );
+		fill: var( --jp-blue-40 );
 	}
 }
 
 .is-success {
 	color: var( --jp-green );
 	.icon {
-		fill: var( --jp-green-50 );
+		fill: var( --jp-green );
 	}
 }

@@ -1,0 +1,26 @@
+.section {
+	height: 100%;
+}
+
+.is-viewport-medium {
+	padding: calc( var( --spacing-base ) * 6 ) calc( var( --spacing-base ) * 4 );
+}
+
+.terms-of-service {
+	margin-top: 28px;
+	max-width: 360px;
+	font-size: 14px;
+}
+
+.terms-of-service a {
+	color: #000000;
+	text-decoration: underline;
+}
+
+.terms-of-service a:hover {
+	text-decoration-thickness: 2px;
+}
+
+.terms-of-service a:focus {
+	box-shadow: none !important;
+}

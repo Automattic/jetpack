@@ -10,7 +10,7 @@ You can also test with the latest development versions like below:
 
 ```json
 "require": {
-    "automattic/jetpack-google-fonts-provider": "dev-master"
+    "automattic/jetpack-google-fonts-provider": "dev-trunk"
 }
 ```
 

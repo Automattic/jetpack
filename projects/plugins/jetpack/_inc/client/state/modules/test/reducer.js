@@ -1,31 +1,29 @@
-import { expect } from 'chai';
-
 import {
 	items as itemsReducer,
 	requests as requestsReducer,
 	initialRequestsState,
-	getModuleOptionValidValues
+	getModuleOptionValidValues,
 } from '../reducer';
 
 describe( 'items reducer', () => {
-	it( 'state should default to empty object', () => {
+	test( 'state should default to empty object', () => {
 		const state = itemsReducer( undefined, {} );
-		expect( state ).to.eql( {} );
+		expect( state ).toEqual( {} );
 	} );
 
-	let modules = {
+	const modules = {
 		'module-a': {
 			module: 'module-a',
-			activated: false
+			activated: false,
 		},
 		'module-b': {
 			module: 'module-b',
 			activated: true,
 			options: {
 				c: {
-					currentValue: 2
-				}
-			}
+					currentValue: 2,
+				},
+			},
 		},
 		'module-c': {
 			module: 'module-c',
@@ -37,204 +35,207 @@ describe( 'items reducer', () => {
 					enum_labels: {
 						black: 'Make it black.',
 						red: 'Make it red.',
-						fuchsia: 'Make it fuchsia, whatever that is.'
-					}
-				}
-			}
+						fuchsia: 'Make it fuchsia, whatever that is.',
+					},
+				},
+			},
 		},
 	};
 
 	describe( 'upon module list receive', () => {
 		let stateOut, action;
 
-		before( () => {
-			const stateIn = {}
+		beforeAll( () => {
+			const stateIn = {};
 			action = {
 				type: 'JETPACK_MODULES_LIST_RECEIVE',
-				modules: modules
+				modules: modules,
 			};
 			stateOut = itemsReducer( stateIn, action );
 		} );
 
 		describe( '#modulesFetch', () => {
-			it( 'should replace .items with the modules list', () => {
-				expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.modules ).length );
+			test( 'should replace .items with the modules list', () => {
+				expect( Object.keys( stateOut ) ).toHaveLength( Object.keys( action.modules ).length );
 			} );
 		} );
 
 		describe( '#getModuleOptionValidValues', () => {
-			it( 'should report valid values from the result data', () => {
-				let state = { jetpack: { modules: { items: stateOut } } };
-				expect( getModuleOptionValidValues( state, 'module-c', 'color' ) )
-					.to.equal( modules['module-c'].options.color.enum_labels );
+			test( 'should report valid values from the result data', () => {
+				const state = { jetpack: { modules: { items: stateOut } } };
+				expect( getModuleOptionValidValues( state, 'module-c', 'color' ) ).toEqual(
+					modules[ 'module-c' ].options.color.enum_labels
+				);
 			} );
 		} );
 	} );
 
 	describe( '#modulesActivation', () => {
-		it( 'should activate a module', () => {
-			const stateIn = {}
+		test( 'should activate a module', () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_ACTIVATE_SUCCESS',
-				module: 'module-a'
+				module: 'module-a',
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut[ 'module-a' ].activated ).to.be.true;
+			const stateOut = itemsReducer( stateIn, action );
+			expect( stateOut[ 'module-a' ].activated ).toBe( true );
 		} );
 
-		it( 'should deactivate a module', () => {
-			const stateIn = {}
+		test( 'should deactivate a module', () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_DEACTIVATE_SUCCESS',
-				module: 'module-b'
+				module: 'module-b',
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut[ 'module-b' ].activated ).to.be.false;
+			const stateOut = itemsReducer( stateIn, action );
+			expect( stateOut[ 'module-b' ].activated ).toBe( false );
 		} );
 	} );
 
 	describe( '#modulesOptionsUpdate', () => {
-		it( 'should update a module\'s option', () => {
+		test( "should update a module's option", () => {
 			const stateIn = modules;
 			const action = {
 				type: 'JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS',
 				module: 'module-b',
 				newOptionValues: {
-					c: 30
-				}
+					c: 30,
+				},
 			};
-			let stateOut = itemsReducer( stateIn, action );
+			const stateOut = itemsReducer( stateIn, action );
 			Object.keys( action.newOptionValues ).forEach( key => {
-				expect( stateOut[ action.module ].options[ key ].current_value ).to.equal( action.newOptionValues[ key ] );
+				expect( stateOut[ action.module ].options[ key ].current_value ).toEqual(
+					action.newOptionValues[ key ]
+				);
 			} );
 		} );
 	} );
 
 	describe( '#initialState', () => {
-		it( 'should replace .items with the initial state\'s modules list', () => {
-			const stateIn = {}
+		test( "should replace .items with the initial state's modules list", () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SET_INITIAL_STATE',
 				initialState: {
-					getModules: modules
-				}
+					getModules: modules,
+				},
 			};
-			let stateOut = itemsReducer( stateIn, action );
-			expect( stateOut ).to.eql( action.initialState.getModules );
+			const stateOut = itemsReducer( stateIn, action );
+			expect( stateOut ).toEqual( action.initialState.getModules );
 		} );
 	} );
 } );
 
 describe( 'requests reducer', () => {
-	it( 'state should default to initialState', () => {
+	test( 'state should default to initialState', () => {
 		const state = requestsReducer( undefined, {} );
-		expect( state ).to.equal( initialRequestsState );
+		expect( state ).toEqual( initialRequestsState );
 	} );
 
 	describe( '#modulesFetch', () => {
-		it( 'should set fetchingModulesList to true when fetching', () => {
-			const stateIn = {}
+		test( 'should set fetchingModulesList to true when fetching', () => {
+			const stateIn = {};
 			const action = {
-				type: 'JETPACK_MODULES_LIST_FETCH'
+				type: 'JETPACK_MODULES_LIST_FETCH',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingModulesList ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingModulesList ).toBe( true );
 		} );
 
-		it( 'should set fetchingModulesList to false when receeiving module list', () => {
-			const stateIn = {}
+		test( 'should set fetchingModulesList to false when receeiving module list', () => {
+			const stateIn = {};
 			const action = {
-				type: 'JETPACK_MODULES_LIST_RECEIVE'
+				type: 'JETPACK_MODULES_LIST_RECEIVE',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingModulesList ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingModulesList ).toBe( false );
 		} );
 
-		it( 'should set fetchingModulesList to false when fetching fails', () => {
-			const stateIn = {}
+		test( 'should set fetchingModulesList to false when fetching fails', () => {
+			const stateIn = {};
 			const action = {
-				type: 'JETPACK_MODULES_LIST_FETCH_FAIL'
+				type: 'JETPACK_MODULES_LIST_FETCH_FAIL',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.fetchingModulesList ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.fetchingModulesList ).toBe( false );
 		} );
 	} );
 
 	describe( '#modulesActivation', () => {
-		it( 'should set activating[ module_slug ] to true when activating a module', () => {
-			const stateIn = {}
+		test( 'should set activating[ module_slug ] to true when activating a module', () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_ACTIVATE',
-				module: 'module_slug'
+				module: 'module_slug',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.activating[ action.module ] ).to.be.true;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.activating[ action.module ] ).toBe( true );
 		} );
 
-		it( 'should set activating[ module_slug ] to false when module has been activated', () => {
-			const stateIn = {}
+		test( 'should set activating[ module_slug ] to false when module has been activated', () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_ACTIVATE_SUCCESS',
-				module: 'module_slug'
+				module: 'module_slug',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.activating[ action.module ] ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.activating[ action.module ] ).toBe( false );
 		} );
 
-		it( 'should set activating[ module_slug ] to false when activating a module fails', () => {
-			const stateIn = {}
+		test( 'should set activating[ module_slug ] to false when activating a module fails', () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_ACTIVATE_FAIL',
-				module: 'module_slug'
+				module: 'module_slug',
 			};
-			let stateOut = requestsReducer( stateIn, action );
-			expect( stateOut.activating[ action.module ] ).to.be.false;
+			const stateOut = requestsReducer( stateIn, action );
+			expect( stateOut.activating[ action.module ] ).toBe( false );
 		} );
 	} );
 
 	describe( '#moduleOptionsUpdate', () => {
-		it( 'should set updatingOption[ module_slug ][ option_name ] to true when updating a module\'s option', () => {
-			const stateIn = {}
+		test( "should set updatingOption[ module_slug ][ option_name ] to true when updating a module's option", () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_UPDATE_OPTIONS',
 				module: 'module_slug',
 				newOptionValues: {
-					option_name: 'option_name'
-				}
+					option_name: 'option_name',
+				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			Object.keys( action.newOptionValues ).forEach( key => {
-				expect( stateOut.updatingOption[ action.module ][ key] ).to.be.true;
+				expect( stateOut.updatingOption[ action.module ][ key ] ).toBe( true );
 			} );
 		} );
 
-		it( 'should set updatingOption[ module_slug ][ option_name ] to false when a module\'s option has been updated', () => {
-			const stateIn = {}
+		test( "should set updatingOption[ module_slug ][ option_name ] to false when a module's option has been updated", () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS',
 				module: 'module_slug',
 				newOptionValues: {
-					option_name: 'option_value'
-				}
+					option_name: 'option_value',
+				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			Object.keys( action.newOptionValues ).forEach( key => {
-				expect( stateOut.updatingOption[ action.module ][ key ] ).to.be.false;
+				expect( stateOut.updatingOption[ action.module ][ key ] ).toBe( false );
 			} );
 		} );
 
-		it( 'should set updatingOption[ module_slug ][ option_name ] to false when updating a module\'s option fails', () => {
-			const stateIn = {}
+		test( "should set updatingOption[ module_slug ][ option_name ] to false when updating a module's option fails", () => {
+			const stateIn = {};
 			const action = {
 				type: 'JETPACK_MODULE_UPDATE_OPTIONS_FAIL',
 				module: 'module_slug',
 				newOptionValues: {
-					option_name: 'option_name'
-				}
+					option_name: 'option_name',
+				},
 			};
-			let stateOut = requestsReducer( stateIn, action );
+			const stateOut = requestsReducer( stateIn, action );
 			Object.keys( action.newOptionValues ).forEach( key => {
-				expect( stateOut.updatingOption[ action.module ][ key ] ).to.be.false;
+				expect( stateOut.updatingOption[ action.module ][ key ] ).toBe( false );
 			} );
 		} );
 	} );

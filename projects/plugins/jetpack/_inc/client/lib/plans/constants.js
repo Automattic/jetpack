@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { includes } from 'lodash';
 
 // plans constants
@@ -16,6 +13,7 @@ export const PLAN_PREMIUM_MONTHLY = 'value_bundle-monthly';
 export const PLAN_PERSONAL = 'personal-bundle';
 export const PLAN_PERSONAL_2_YEARS = 'personal-bundle-2y';
 export const PLAN_PERSONAL_MONTHLY = 'personal-bundle-monthly';
+export const PLAN_STARTER = 'starter-plan';
 export const PLAN_PRO = 'pro-plan';
 export const PLAN_FREE = 'free_plan';
 export const PLAN_JETPACK_FREE = 'jetpack_free';
@@ -25,6 +23,8 @@ export const PLAN_JETPACK_PERSONAL = 'jetpack_personal';
 export const PLAN_JETPACK_PREMIUM_MONTHLY = 'jetpack_premium_monthly';
 export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
+export const PLAN_JETPACK_BACKUP_T0_YEARLY = 'jetpack_backup_t0_yearly';
+export const PLAN_JETPACK_BACKUP_T0_MONTHLY = 'jetpack_backup_t0_monthly';
 export const PLAN_JETPACK_BACKUP_T1_YEARLY = 'jetpack_backup_t1_yearly';
 export const PLAN_JETPACK_BACKUP_T1_MONTHLY = 'jetpack_backup_t1_monthly';
 export const PLAN_JETPACK_BACKUP_T2_YEARLY = 'jetpack_backup_t2_yearly';
@@ -84,6 +84,12 @@ export const JETPACK_LEGACY_PLANS = [
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
 ];
+export const JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES = [
+	PLAN_JETPACK_PREMIUM,
+	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PREMIUM_MONTHLY,
+	PLAN_JETPACK_BUSINESS_MONTHLY,
+];
 export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
@@ -110,6 +116,28 @@ export const JETPACK_PLANS_WITH_BACKUP = [
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
+];
+
+export const JETPACK_PLANS_WITH_ANTI_SPAM = [
+	PLAN_JETPACK_PREMIUM,
+	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PERSONAL,
+	PLAN_JETPACK_PREMIUM_MONTHLY,
+	PLAN_JETPACK_BUSINESS_MONTHLY,
+	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_SECURITY_T1_YEARLY,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+	PLAN_JETPACK_SECURITY_T2_YEARLY,
+	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+	PLAN_JETPACK_COMPLETE,
+	PLAN_JETPACK_COMPLETE_MONTHLY,
+
+	// DEPRECATED: Daily and Real-time variations will soon be retired.
+	// Remove after all customers are migrated to new products.
+	PLAN_JETPACK_SECURITY_DAILY,
+	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
+	PLAN_JETPACK_SECURITY_REALTIME,
+	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
 export const JETPACK_SECURITY_BUNDLES = [
@@ -140,6 +168,8 @@ export const JETPACK_SECURITY_BUNDLES = [
 ];
 
 export const JETPACK_BACKUP_PRODUCTS = [
+	PLAN_JETPACK_BACKUP_T0_YEARLY,
+	PLAN_JETPACK_BACKUP_T0_MONTHLY,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 	PLAN_JETPACK_BACKUP_T1_MONTHLY,
 	PLAN_JETPACK_BACKUP_T2_YEARLY,
@@ -261,10 +291,20 @@ export function isNew( plan ) {
 }
 
 /**
- * Determines if a plan includes Jetpack Backup.
+ * Determines if a plan includes Jetpack Anti-Spam.
  *
  * @param {string} plan - The plan slug
- * @returns {boolean} True if the plan includes Jetpack Backup
+ * @returns {boolean} True if the plan includes Jetpack Anti-Spam
+ */
+export function isJetpackPlanWithAntiSpam( plan ) {
+	return includes( JETPACK_PLANS_WITH_ANTI_SPAM, plan );
+}
+
+/**
+ * Determines if a plan includes backup features.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if the plan contains backup features
  */
 export function isJetpackPlanWithBackup( plan ) {
 	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
@@ -329,6 +369,16 @@ export function isJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS.includes( product );
 }
 
+/**
+ * Identify legacy plans that contain features comparable to a security bundle
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is a legacy Jetpack plan with security features, false otherwise.
+ */
+export function isSecurityComparableJetpackLegacyPlan( product ) {
+	return JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES.includes( product );
+}
+
 export function getJetpackProductUpsellByFeature( feature ) {
 	return JETPACK_FEATURE_PRODUCT_UPSELL_MAP[ feature ];
 }
@@ -341,6 +391,7 @@ export function getPlanClass( plan ) {
 		case PLAN_PERSONAL:
 		case PLAN_PERSONAL_2_YEARS:
 		case PLAN_PERSONAL_MONTHLY:
+		case PLAN_STARTER:
 		case PLAN_JETPACK_PERSONAL:
 		case PLAN_JETPACK_PERSONAL_MONTHLY:
 			return 'is-personal-plan';
@@ -370,6 +421,9 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_COMPLETE_MONTHLY:
 		case PLAN_VIP:
 			return 'is-complete-plan';
+		case PLAN_JETPACK_BACKUP_T0_YEARLY:
+		case PLAN_JETPACK_BACKUP_T0_MONTHLY:
+			return 'is-backup-t0-plan';
 		case PLAN_JETPACK_BACKUP_T1_YEARLY:
 		case PLAN_JETPACK_BACKUP_T1_MONTHLY:
 			return 'is-backup-t1-plan';
@@ -463,6 +517,7 @@ export function containsBackupDaily( planClass ) {
 export function containsBackupRealtime( planClass ) {
 	return [
 		'is-business-plan',
+		'is-backup-t0-plan',
 		'is-backup-t1-plan',
 		'is-backup-t2-plan',
 		'is-security-t1-plan',
@@ -475,23 +530,3 @@ export function containsBackupRealtime( planClass ) {
 		'is-realtime-backup-plan',
 	].includes( planClass );
 }
-
-/**
- * Security Daily/Realtime plan no longer includes VideoPress as of Oct 7 2021 00:00 UTC.
- * This check identifies purchases of Security Daily/Realtime purchased before or after that date.
- *
- * @param {*} purchase - The site purchase object.
- * @returns {boolean} True if legacy plan (VideoPress is included), false otherwise.
- */
-export const isVideoPressLegacySecurityPlan = purchase =>
-	purchase.active &&
-	includes(
-		[
-			PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
-			PLAN_JETPACK_SECURITY_DAILY,
-			PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
-			PLAN_JETPACK_SECURITY_REALTIME,
-		],
-		purchase.product_slug
-	) &&
-	new Date( purchase.subscribed_date ) < new Date( '2021-10-07T00:00:00+00:00' );

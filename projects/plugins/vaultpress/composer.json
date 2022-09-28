@@ -13,7 +13,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.0"
+		"automattic/jetpack-changelogger": "3.2.x-dev"
 	},
 	"scripts": {
 		"phpunit": [
@@ -38,7 +38,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_2_alpha",
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_3_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}

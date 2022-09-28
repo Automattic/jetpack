@@ -1,18 +1,11 @@
-/**
- * WordPress dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
-import deprecatedV1 from './deprecated/v1';
+import { __, _x } from '@wordpress/i18n';
 import icon from './_inc/icon';
 import { blockContainsPremiumBlock, blockHasParentPremiumBlock } from './_inc/premium';
 import { transformToCoreGroup } from './_inc/transform-to-core-group';
+import deprecatedV1 from './deprecated/v1';
+import edit from './edit';
+import save from './save';
 
 /**
  * A list of blocks that should be disallowed to be transformed to Premium content block since they are mostly markup blocks.

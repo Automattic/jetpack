@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Blocks;
 
 /**
  * Alternate Custom CSS source for 4.7 compat.
@@ -20,7 +21,6 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function add_hooks() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
-		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'customize_controls_enqueue_scripts' ) );
 		add_action( 'customize_register', array( __CLASS__, 'customize_register' ) );
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_cap' ), 20, 2 );
@@ -46,7 +46,24 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
 
-		// Stuff?
+		// Remove the Customizer link from the menu to avoid additional confusion if the site is a FSE themed site.
+		if ( wp_is_block_theme() || Blocks::is_fse_theme() ) {
+			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+				add_action(
+					'admin_menu',
+					function () {
+						remove_submenu_page(
+							'themes.php',
+							add_query_arg(
+								'return',
+								rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ),  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+								'customize.php'
+							)
+						);
+					}
+				);
+			}
+		}
 	}
 
 	/**
@@ -130,37 +147,6 @@ class Jetpack_Custom_CSS_Enhancements {
 			$caps = array( 'edit_theme_options' );
 		}
 		return $caps;
-	}
-
-	/**
-	 * Handle our admin menu item and legacy page declaration.
-	 */
-	public static function admin_menu() {
-		// Add in our legacy page to support old bookmarks and such.
-		add_submenu_page( null, __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'admin_page' ) );
-
-		// Add in our new page slug that will redirect to the customizer.
-		$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'admin_page' ) );
-		add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
-	}
-
-	/**
-	 * Handle the redirect for the customizer.  This is necessary because
-	 * we can't directly add customizer links to the admin menu.
-	 *
-	 * There is a core patch in trac that would make this unnecessary.
-	 *
-	 * @link https://core.trac.wordpress.org/ticket/39050
-	 */
-	public static function customizer_redirect() {
-		wp_safe_redirect(
-			self::customizer_link(
-				array(
-					'return_url' => wp_get_referer(),
-				)
-			)
-		);
-		exit;
 	}
 
 	/**
@@ -359,7 +345,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$args = wp_parse_args(
 			$args,
 			array(
-				'return_url' => rawurlencode( wp_unslash( $_SERVER['REQUEST_URI'] ) ),
+				'return_url' => isset( $_SERVER['REQUEST_URI'] ) ? rawurlencode( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : '',
 			)
 		);
 
@@ -383,11 +369,11 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_enqueue_style( 'jetpack-customizer-css' );
 		wp_enqueue_script( 'jetpack-customizer-css' );
 
-		$content_help = __( 'Set a different content width for full size images.', 'jetpack' );
+		$content_help = __( 'Set a different media width for full size images.', 'jetpack' );
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
 				// translators: the theme name and then the default width.
-				_n( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', (int) $GLOBALS['content_width'], 'jetpack' ),
+				_n( ' The default media width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default media width for the <strong>%1$s</strong> theme is %2$d pixels.', (int) $GLOBALS['content_width'], 'jetpack' ),
 				wp_get_theme()->Name,
 				(int) $GLOBALS['content_width']
 			);

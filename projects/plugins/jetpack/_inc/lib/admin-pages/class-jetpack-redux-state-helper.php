@@ -184,6 +184,7 @@ class Jetpack_Redux_State_Helper {
 				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
 				'support'   => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
+					'widgets'         => current_theme_supports( 'widgets' ),
 					'webfonts'        => WP_Theme_JSON_Resolver::theme_has_support() && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
 				),
 			),
@@ -212,6 +213,7 @@ class Jetpack_Redux_State_Helper {
 			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
+			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
 		);
 	}
 

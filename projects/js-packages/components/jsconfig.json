@@ -1,5 +1,0 @@
-{
-	"extends": "../../../tools/js-tools/tsconfig.base.json",
-	// List all sources and source-containing subdirs.
-	"include": [ "./index.jsx", "./components", "./lib", "./tools" ]
-}

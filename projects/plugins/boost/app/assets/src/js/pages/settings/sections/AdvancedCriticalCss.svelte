@@ -1,12 +1,9 @@
 <script>
-	/**
-	 * External dependencies
-	 */
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * Internal dependencies
-	 */
+	import { __, _n, sprintf } from '@wordpress/i18n';
+	import BackButton from '../../../elements/BackButton.svelte';
+	import CloseButton from '../../../elements/CloseButton.svelte';
+	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import {
 		dismissRecommendation,
 		activeRecommendations,
@@ -15,21 +12,13 @@
 		dismissalError,
 		setDismissalError,
 	} from '../../../stores/critical-css-recommendations.ts';
+	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
-	import CloseButton from '../../../elements/CloseButton.svelte';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
-	import { isFinished } from '../../../stores/critical-css-status';
 	import routerHistory from '../../../utils/router-history';
-
-	/**
-	 * WordPress dependencies
-	 */
-	import { __, _n, sprintf } from '@wordpress/i18n';
+	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 
 	const { navigate } = routerHistory;
-	import BackButton from '../../../elements/BackButton.svelte';
 
 	function onRetry() {
 		generateCriticalCss();

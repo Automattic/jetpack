@@ -5,22 +5,12 @@
 	It can include a list of failed URLs, what a user can do, and extra information.
 -->
 <script>
-	/**
-	 * External dependencies
-	 */
+	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
-
-	/**
-	 * WordPress dependencies
-	 */
 	import { __ } from '@wordpress/i18n';
-
-	/**
-	 * Internal dependencies
-	 */
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import MoreList from '../../../elements/MoreList.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var.ts';
 	import {
@@ -30,7 +20,6 @@
 		rawError,
 	} from '../../../utils/describe-critical-css-recommendations';
 	import supportLinkTemplateVar from '../../../utils/support-link-template-var';
-	import NumberedList from '../../../elements/NumberedList.svelte';
 
 	const dispatch = createEventDispatcher();
 

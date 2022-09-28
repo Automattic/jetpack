@@ -1,11 +1,9 @@
-/**
- * Internal dependencies
- */
-import reducer from './reducers';
+import camelize from 'camelize';
 import actions from './actions';
+import reducer from './reducers';
+import resolvers from './resolvers';
 import selectors from './selectors';
 import storeHolder from './store-holder';
-import camelize from 'camelize';
 
 const STORE_ID = 'jetpack-protect';
 
@@ -18,6 +16,7 @@ function initStore() {
 		reducer,
 		actions,
 		selectors,
+		resolvers,
 		initialState: camelize( window.jetpackProtectInitialState ) || {},
 	} );
 }

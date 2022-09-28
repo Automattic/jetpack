@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console, no-process-exit */
-const isJetpackDraftMode = require( './jetpack-draft' );
-const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
 const spawnSync = require( 'child_process' ).spawnSync;
-const chalk = require( 'chalk' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const chalk = require( 'chalk' );
 const glob = require( 'glob' );
+const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
+const isJetpackDraftMode = require( './jetpack-draft' );
+
 let phpcsExcludelist = null;
 let eslintExcludelist = null;
 let eslintIgnore = null;
@@ -96,9 +97,17 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some( extension =>
-		file.endsWith( extension )
-	);
+	return [
+		'.js',
+		'.json',
+		'.json5',
+		'.jsx',
+		'.cjs',
+		'.mjs',
+		'.ts',
+		'.tsx',
+		'.svelte',
+	].some( extension => file.endsWith( extension ) );
 }
 
 /**
@@ -110,6 +119,7 @@ function filterJsFiles( file ) {
 function filterEslintFiles( file ) {
 	return (
 		! file.endsWith( '.json' ) &&
+		! file.endsWith( '.json5' ) &&
 		-1 === loadEslintExcludeList().findIndex( filePath => file === filePath )
 	);
 }
@@ -139,7 +149,7 @@ function checkFailed( before = 'The linter reported some problems. ', after = ''
  */
 function sortPackageJson( jsFiles ) {
 	if ( jsFiles.includes( 'package.json' ) ) {
-		spawnSync( 'pnpx', [ 'sort-package-json' ], { stdio: 'inherit' } );
+		spawnSync( 'pnpm', [ 'sort-package-json' ], { stdio: 'inherit' } );
 	}
 }
 
@@ -148,6 +158,7 @@ const dirtyFiles = parseGitDiffToPathArray( [ '--diff-filter=ACMR' ] ).filter( B
 const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
+const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) );
 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
@@ -234,7 +245,7 @@ function runPrettier( toPrettify ) {
 		const filesByConfig = groupByClosestConfig( '.prettierrc.js', toPrettify );
 
 		for ( const [ config, files ] of Object.entries( filesByConfig ) ) {
-			spawnSync( 'pnpx', [ 'prettier', '--config', config, '--write', ...files ], {
+			spawnSync( 'pnpm', [ 'prettier', '--config', config, '--write', ...files ], {
 				stdio: 'inherit',
 			} );
 		}
@@ -256,7 +267,7 @@ function runEslint( toLintFiles ) {
 
 	const eslintResult = spawnSync(
 		'pnpm',
-		[ 'run', 'lint-file', '--', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
+		[ 'run', 'lint-file', `--max-warnings=${ maxWarnings }`, ...toLintFiles ],
 		{
 			stdio: 'inherit',
 		}
@@ -280,9 +291,15 @@ function runEslintFix( toFixFiles ) {
 		return;
 	}
 
-	spawnSync( 'pnpm', [ 'run', 'lint-file', '--', '--fix', ...toFixFiles ], {
-		stdio: 'inherit',
-	} );
+	const maxWarnings = isJetpackDraftMode() ? 100 : 0;
+
+	const eslintResult = spawnSync(
+		'pnpm',
+		[ 'run', 'lint-file', `--max-warnings=${ maxWarnings }`, '--fix', ...toFixFiles ],
+		{
+			stdio: 'inherit',
+		}
+	);
 
 	// Unlike phpcbf, eslint seems to give no indication as to whether it did anything.
 	// It doesn't even print a summary of what it fixed. Sigh.
@@ -294,6 +311,12 @@ function runEslintFix( toFixFiles ) {
 		runPrettier( newDirty );
 		spawnSync( 'git', [ 'add', '-v', '--', ...newDirty ], { stdio: 'inherit' } );
 		console.log( chalk.yellow( 'JS issues detected and automatically fixed via eslint.' ) );
+	}
+
+	if ( eslintResult && eslintResult.status ) {
+		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
+		checkFailed();
+		exit( exitCode );
 	}
 }
 
@@ -308,7 +331,7 @@ function runEslintChanged( toLintFiles ) {
 		return;
 	}
 
-	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', '--', ...toLintFiles ], {
+	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', ...toLintFiles ], {
 		stdio: 'inherit',
 	} );
 
@@ -467,9 +490,15 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
-const jsOnlyFiles = jsFiles.filter( file => ! file.endsWith( '.json' ) );
+const jsOnlyFiles = jsFiles.filter(
+	file => ! file.endsWith( '.json' ) && ! file.endsWith( '.json5' )
+);
 const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
 const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+const eslintNoFixFiles = eslintFiles.filter(
+	file => ! checkFileAgainstDirtyList( file, dirtyFiles )
+);
+const eslintChangedFiles = jsOnlyFiles.filter( file => ! filterEslintFiles( file ) );
 
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
@@ -482,10 +511,10 @@ if ( toPrettify.length ) {
 // linting should happen after formatting
 if ( eslintFiles.length > 0 ) {
 	runEslintFix( eslintFixFiles );
-	runEslint( eslintFiles );
+	runEslint( eslintNoFixFiles );
 }
-if ( jsOnlyFiles.length > 0 ) {
-	runEslintChanged( jsOnlyFiles );
+if ( eslintChangedFiles.length > 0 ) {
+	runEslintChanged( eslintChangedFiles );
 }
 
 // Start PHP work.
@@ -508,8 +537,8 @@ if ( phpcsFiles.length > 0 ) {
 	runPHPCbf();
 	runPHPCS();
 }
-if ( phpFiles.length > 0 ) {
-	runPHPCSChanged( phpFiles );
+if ( phpcsChangedFiles.length > 0 ) {
+	runPHPCSChanged( phpcsChangedFiles );
 }
 
 exit( exitCode );

@@ -1,6 +1,6 @@
-import { Meta, Source, Story, Canvas } from '@storybook/addon-docs';
+import { Meta, Source, Story } from '@storybook/addon-docs';
 import dedent from 'ts-dedent';
-import Text, { SPACING_VALUES, BOX_MODEL_VALUES, H2, H3, Title } from '../index.jsx';
+import Text, { BOX_MODEL_VALUES, H2, H3, Title } from '../index';
 
 <Meta title="JS Packages/Components/Text/Readme" />
 
@@ -18,7 +18,9 @@ Set of React jetpack-components intended to facilitate when dealing with renderi
 
 #### variant
 
-**Type**: `headline-medium`, `headline-small`, `headline-small-regular`, `title-medium`, `title-small`, `body`, `body-small`, `body-extra-small`, `label`.
+**Type**: `headline-medium`, `headline-small`, `headline-small-regular`, `title-medium`,
+`title-medium-semi-bold`, `title-small`, `body`, `body-small`, `body-extra-small`,
+`body-extra-small-bold`, `label`.
 
 Define the text Typography variant among the options offered by the ThemeProvider component.
 

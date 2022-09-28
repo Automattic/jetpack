@@ -88,7 +88,7 @@ If you're having Webpack minify your bundle, you'll likely also want to do the f
 * Configure Terser to not mangle `__`, `_n`, `_nx`, and `_x`.
 * Use [@automattic/babel-plugin-preserve-i18n](https://www.npmjs.com/package/@automattic/babel-plugin-preserve-i18n) to help further preserve those method names.
 * Configure Terser to preserve comments starting with "Translators" or "translators" in the output.
-* Check your code to avoid [certain constructs](https://github.com/Automattic/jetpack/tree/master/projects/js-packages/webpack-config#minification-and-i18n-translator-comments) that will dissociate translator comments from the i18n method calls when the minifier rearranges the code.
+* Check your code to avoid [certain constructs](https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/i18n-check-webpack-plugin/README.md#known-problematic-code-patterns) that will dissociate translator comments from the i18n method calls when the minifier rearranges the code.
 
 ### Use in Composer packages
 

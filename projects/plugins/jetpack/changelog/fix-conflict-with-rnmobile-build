@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Remove code in native files that was causing the rnmobile build to fail.
