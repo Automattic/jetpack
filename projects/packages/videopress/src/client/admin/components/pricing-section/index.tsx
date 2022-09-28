@@ -10,6 +10,7 @@ import {
 	ProductPrice,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 /**
  * Internal dependencies
  */
@@ -17,9 +18,10 @@ import { __ } from '@wordpress/i18n';
 import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = () => {
-	const { siteSuffix } = window.jetpackVideoPressInitialState;
+	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
 	const { product } = usePlan();
 	const { pricingForUi } = product;
+	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
 
 	const pricingItems = product.features.map( feature => ( { name: feature } ) );
 
@@ -52,7 +54,13 @@ const PricingPage = () => {
 			<PricingTableColumn>
 				<PricingTableHeader>
 					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
-					<Button fullWidth variant="secondary">
+					<Button
+						fullWidth
+						variant="secondary"
+						onClick={ handleRegisterSite }
+						isLoading={ userIsConnecting }
+						disabled={ userIsConnecting }
+					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PricingTableHeader>

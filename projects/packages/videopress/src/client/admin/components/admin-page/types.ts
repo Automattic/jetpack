@@ -16,6 +16,7 @@ declare global {
 			};
 			productData: productOriginalProps;
 			adminUrl: string;
+			adminUri: string;
 			siteSuffix: string;
 		};
 	}
