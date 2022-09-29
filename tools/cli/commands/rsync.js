@@ -5,7 +5,6 @@ import chalk from 'chalk';
 import Configstore from 'configstore';
 import execa from 'execa';
 import inquirer from 'inquirer';
-import watch from 'node-watch';
 import tmp from 'tmp';
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
@@ -48,19 +47,7 @@ export async function rsyncInit( argv ) {
 	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
 	argv.dest = path.join( argv.dest, argv.plugin + '/' );
 
-	if ( true === argv.watch ) {
-		console.log( chalk.yellow( `Watching for changes in ${ argv.plugin } to rsync` ) );
-		watch( sourcePluginPath, { recursive: true }, ( eventType, fileName ) => {
-			if ( fileName && 'update' === eventType ) {
-				if ( argv.v ) {
-					console.log( chalk.yellow( `Changed detected in ${ fileName }...` ) );
-				}
-				rsyncToDest( sourcePluginPath, argv.dest );
-			}
-		} );
-	} else {
-		await rsyncToDest( sourcePluginPath, argv.dest );
-	}
+	await rsyncToDest( sourcePluginPath, argv.dest );
 }
 
 /**
@@ -272,11 +259,6 @@ export function rsyncDefine( yargs ) {
 				.positional( 'dest', {
 					describe: 'Destination path to plugins dir',
 					type: 'string',
-				} )
-				.option( 'watch', {
-					alias: 'w',
-					describe: 'Watch a plugin for changes to auto-push.',
-					type: 'boolean',
 				} );
 		},
 		async argv => {
