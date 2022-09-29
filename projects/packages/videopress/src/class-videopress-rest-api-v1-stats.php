@@ -47,7 +47,7 @@ class VideoPress_Rest_Api_V1_Stats {
 	 * @return boolean
 	 */
 	public static function permissions_callback() {
-		return true; // TODO: decide on the best access level
+		return current_user_can( 'read' ); // TODO: confirm this
 	}
 
 	/**
