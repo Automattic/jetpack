@@ -25,7 +25,7 @@ class Tracking_Pixel {
 	 *
 	 * @var string $array_name The 'stats' array name
 	 */
-	const ARRAY_NAME = 'stats_array';
+	const STATS_ARRAY_TO_STRING_FILTER = 'stats_array';
 
 	/**
 	 * Stats Build View Data.
@@ -162,7 +162,7 @@ END;
 		 *
 		 * @param array $kvs Array of options about the site and page you're on.
 		 */
-		$kvs   = (array) apply_filters( self::ARRAY_NAME, $kvs );
+		$kvs   = (array) apply_filters( self::STATS_ARRAY_TO_STRING_FILTER, $kvs );
 		$kvs   = array_map( 'addslashes', $kvs );
 		$jskvs = array();
 		foreach ( $kvs as $k => $v ) {
