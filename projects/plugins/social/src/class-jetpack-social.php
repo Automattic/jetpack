@@ -177,8 +177,6 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		$shares     = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$show_nudge = ! $publicize->has_paid_plan();
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
@@ -195,8 +193,8 @@ class Jetpack_Social {
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
-			'sharesData'      => ! is_wp_error( $shares ) ? $shares : null,
-			'showNudge'       => $show_nudge,
+			'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+			'showNudge'       => ! $publicize->has_paid_plan( true ),
 		);
 	}
 
@@ -214,6 +212,8 @@ class Jetpack_Social {
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
+		global $publicize;
+
 		if ( ! self::is_publicize_active() || class_exists( 'Jetpack' ) || ! $this->is_supported_post() ) {
 			return;
 		}
@@ -230,15 +230,19 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
-		wp_add_inline_script( 'jetpack-social-editor', $this->render_initial_state(), 'before' );
-
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
-				'siteFragment'            => ( new Status() )->get_site_suffix(),
-				'connectionRefreshPath'   => '/jetpack/v4/publicize/connection-test-results',
-				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
+				'siteFragment' => ( new Status() )->get_site_suffix(),
+				'social'       => array(
+					'sharesData'              => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'connectionRefreshPath'   => '/jetpack/v4/publicize/connections-test-results',
+					'publicizeConnectionsUrl' => esc_url_raw(
+						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
+					),
+					'hasPaidPlan'             => $publicize->has_paid_plan(),
+				),
 			)
 		);
 

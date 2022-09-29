@@ -40,6 +40,7 @@ export const colors = {
 	'--jp-red-80': '#691C1C',
 	'--jp-red': '#d63639',
 	// Yellow
+	'--jp-yellow-10': '#F2CF75',
 	'--jp-yellow-20': '#F0C930',
 	'--jp-yellow-40': '#C08C00',
 	// Blue

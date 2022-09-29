@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
+use Automattic\Jetpack\Status as Status;
 
 /**
  * Initialized the VideoPress package
@@ -127,12 +128,14 @@ class Admin_UI {
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'adminUrl'          => self::get_admin_page_url(),
+			'adminUri'          => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
 			'paidFeatures'      => array(
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
 			'productData'       => My_Jetpack_Products::get_product( 'videopress' ),
+			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 		);
 	}
 

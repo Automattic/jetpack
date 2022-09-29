@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Unit Tests: add check for removing the WAF module from sites hosted on the Atomic platform.

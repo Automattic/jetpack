@@ -163,11 +163,11 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 						) ) }
 					{ children }
 				</div>
-				<div className={ styles[ 'tos-container' ] }>
-					<Text className={ styles.tos } variant="body-small">
-						{ ToS }
-					</Text>
-				</div>
+			</div>
+			<div className={ styles[ 'tos-container' ] }>
+				<Text className={ styles.tos } variant="body-small">
+					{ ToS }
+				</Text>
 			</div>
 		</PricingTableContext.Provider>
 	);

@@ -13,4 +13,9 @@ export type VideoDetailsProps = {
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+
+	/**
+	 * Loading mode
+	 */
+	loading: boolean;
 };

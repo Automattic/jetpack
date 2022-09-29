@@ -31,9 +31,13 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 	if ( ! anchorRef ) {
 		return null;
 	}
+	const popoverProps = {
+		anchorRef,
+		offset: 15,
+	};
 
 	return (
-		<Popover position="top left" offset={ 15 } noArrow={ false } anchorRef={ anchorRef }>
+		<Popover position="top left" noArrow={ false } { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
@@ -208,12 +212,13 @@ const VideoQuickActions = ( {
 
 export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps ) => {
 	const { videoId } = props;
-	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
-	const [ showModal, setShowModal ] = useState( false );
 
-	if ( ! videoId ) {
+	if ( ! Number.isFinite( videoId ) ) {
 		return null;
 	}
+
+	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+	const [ showModal, setShowModal ] = useState( false );
 
 	if ( showModal ) {
 		return (
