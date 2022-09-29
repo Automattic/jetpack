@@ -1,4 +1,4 @@
-import { Text, Button, getRedirectUrl, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -6,19 +6,24 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
 import styles from './styles.module.scss';
 
-const ThreatAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
+const ThreatAccordionItem = ( {
+	id,
+	name,
+	version,
+	title,
+	description,
+	icon,
+	fixedIn,
+	type,
+	source,
+} ) => {
 	const { recordEvent } = useAnalyticsTracks();
 
-	const learnMoreButton = (
-		<Button
-			variant="link"
-			isExternalLink={ true }
-			weight="regular"
-			href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
-		>
+	const learnMoreButton = source ? (
+		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
 			{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
 		</Button>
-	);
+	) : null;
 
 	return (
 		<PaidAccordionItem
@@ -99,7 +104,7 @@ const PaidList = ( { list } ) => {
 				</div>
 			) }
 			<PaidAccordion>
-				{ list.map( ( { id, name, title, description, version, fixedIn, icon, type } ) => (
+				{ list.map( ( { id, name, title, description, version, fixedIn, icon, type, source } ) => (
 					<ThreatAccordionItem
 						key={ id }
 						id={ id }
@@ -110,6 +115,7 @@ const PaidList = ( { list } ) => {
 						icon={ icon }
 						fixedIn={ fixedIn }
 						type={ type }
+						source={ source }
 					/>
 				) ) }
 			</PaidAccordion>
