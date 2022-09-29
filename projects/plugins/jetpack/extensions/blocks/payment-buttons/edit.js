@@ -73,9 +73,15 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 		__experimentalLayout: layout,
 	} );
 
+	// The ID needs to be just on the outermost wrapper - the toolbar and wpcom upgrade nudge
+	// will then be positioned in relation to this.
+	delete innerBlocksProps.id;
+	delete innerBlocksProps[ 'data-block' ];
+	// The class may include flex positioning, this must only be on the inner block wrapper
+	// otherwise the jetpack/wpcom upgrade nudge will be displayed as part of the flex
 	delete blockProps.className;
 	return (
-		<div { ...blockProps }>
+		<div { ...blockProps } className="wp-block">
 			{ showStripeConnectAction && (
 				<BlockControls group="block">
 					<StripeConnectToolbarButton
@@ -104,6 +110,8 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 					</div>
 				</Placeholder>
 			) }
+			{ /* Explicitly position the wpcom upgrade nudge wrapper */ }
+			<div className="jetpack-block-upgrade-banner-container"></div>
 			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
 			<div { ...innerBlocksProps } />
 		</div>
