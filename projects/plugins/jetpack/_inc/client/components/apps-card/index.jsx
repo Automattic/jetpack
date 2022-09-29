@@ -36,7 +36,7 @@ class AppsCard extends React.Component {
 				altText={ __( 'Apple App Store download badge.', 'jetpack' ) }
 				titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
 				storeName="ios"
-				storeLink="https://apps.apple.com/us/app/jetpack-wp-security-speed/id1565481562?pt=299112ct=jpdash&mt=8"
+				storeLink="https://apps.apple.com/us/app/jetpack-website-builder/id1565481562?pt=299112ct=jpdash&mt=8"
 				onBadgeClick={ this.trackDownloadClick }
 			/>
 		</div>
