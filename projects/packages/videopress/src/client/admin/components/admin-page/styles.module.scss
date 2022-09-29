@@ -9,14 +9,25 @@
 		margin-bottom: calc( var(--spacing-base) * 4 );
 	}
 
+	.total-sm {
+		margin-bottom: calc( var(--spacing-base) * 3 );
+	}
+
 	.filter-wrapper {
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-base);
+		flex-grow: 1;
+		justify-content: end;
 	}
 
 	.search-input {
 		width: 262px;
+
+		&.small {
+			width: 100%;
+			max-width: 262px;
+		}
 	}
 
 	.filter-section {
