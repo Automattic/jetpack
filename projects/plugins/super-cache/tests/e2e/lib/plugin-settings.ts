@@ -4,8 +4,8 @@ import HtmlForm from './CheerioForm';
 import { authenticatedRequest, getSiteUrl } from './plugin-tools';
 
 export enum ModRewriteOptions {
-	Simple = '0',
-	Expert = '1',
+	Off = '0',
+	On = '1',
 }
 
 /**

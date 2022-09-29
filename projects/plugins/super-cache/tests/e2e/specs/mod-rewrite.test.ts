@@ -11,7 +11,7 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 		await wpcli( 'plugin', 'activate', 'wp-super-cache' );
 		await updateSettings( await getAuthCookie(), {
 			wp_cache_enabled: true,
-			wp_cache_mod_rewrite: ModRewriteOptions.Expert,
+			wp_cache_mod_rewrite: ModRewriteOptions.On,
 		} );
 	} );
 
@@ -59,5 +59,19 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 		const second = await loadPage();
 
 		expect( first ).not.toBe( second );
+	} );
+
+	test( 'removes mod_rewrite rules when turned off', async () => {
+		await updateSettings( await getAuthCookie(), {
+			wp_cache_mod_rewrite: ModRewriteOptions.Off,
+		} );
+
+		const rules = await readDockerFile( '/var/www/html/.htaccess' );
+		expect( rules ).not.toContain( 'cache/supercache' );
+
+		// Return things to the state other tests expect.
+		await updateSettings( await getAuthCookie(), {
+			wp_cache_mod_rewrite: ModRewriteOptions.On,
+		} );
 	} );
 } );
