@@ -193,7 +193,7 @@ const UpgradeTrigger = () => {
 
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
-		productSlug: product.slug,
+		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
 	} );
 

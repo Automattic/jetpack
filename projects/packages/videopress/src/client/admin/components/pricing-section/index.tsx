@@ -8,9 +8,8 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
@@ -24,6 +23,12 @@ const PricingPage = () => {
 	const { pricingForUi } = siteProduct;
 	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
 	const [ isConnecting, setIsConnection ] = useState( false );
+
+	const { run } = useProductCheckoutWorkflow( {
+		siteSuffix,
+		productSlug: product.productSlug,
+		redirectUrl: adminUri,
+	} );
 
 	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
 
@@ -48,14 +53,7 @@ const PricingPage = () => {
 						leyend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
-					<Button
-						href={ getRedirectUrl( 'videopress-upgrade', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
-						} ) }
-						fullWidth
-						disabled={ isConnecting }
-					>
+					<Button onClick={ run } fullWidth disabled={ isConnecting }>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PricingTableHeader>
