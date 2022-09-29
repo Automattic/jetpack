@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import readline from 'readline';
-
-/**
- * Internal dependencies
- */
 import FilterStream from './filter-stream.js';
 
 /**

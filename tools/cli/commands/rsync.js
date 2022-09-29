@@ -1,16 +1,11 @@
-/**
- * External dependencies
- */
 import fs from 'fs';
+import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
 import execa from 'execa';
 import inquirer from 'inquirer';
 import watch from 'node-watch';
 import tmp from 'tmp';
-/**
- * Internal dependencies
- */
 import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
@@ -24,7 +19,8 @@ import { runCommand } from '../helpers/runCommand.js';
 export async function rsyncInit( argv ) {
 	argv = await promptForPlugin( argv );
 	argv = await promptForDest( argv );
-	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` );
+	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
+	argv.dest = path.join( argv.dest, argv.plugin + '/' );
 
 	if ( true === argv.watch ) {
 		console.log( chalk.yellow( `Watching for changes in ${ argv.plugin } to rsync` ) );
@@ -49,15 +45,26 @@ export async function rsyncInit( argv ) {
  * @returns {Promise<void>}
  */
 async function rsyncToDest( source, dest ) {
-	let includeFiles = [];
-	for await ( const projectFiles of listProjectFiles( source, execa ) ) {
-		includeFiles.push( projectFiles );
+	const filters = new Set();
+
+	// Include just the files that are published to the mirror.
+	for await ( let file of listProjectFiles( source, execa ) ) {
+		// Rsync requires we also list all the directories containing the file.
+		let prev;
+		do {
+			// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
+			// Only patterns use backslash escapes, literal strings do not.
+			filters.add( '+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) );
+			prev = file;
+			file = path.dirname( file ) + '/';
+		} while ( file !== '/' && file !== './' && file !== prev );
 	}
-	includeFiles = includeFiles.map(
-		v => '/' + ( v.match( /[[*?]/ ) ? v.replace( /[[*?\\]/g, '\\$&' ) : v )
-	);
+
+	// Exclude anything not included above.
+	filters.add( '- *' );
+
 	const tmpFileName = tmp.tmpNameSync();
-	fs.writeFileSync( tmpFileName, '+ ' + includeFiles.join( '\r\n+ ' ) );
+	fs.writeFileSync( tmpFileName, [ ...filters ].join( '\r\n' ) );
 	try {
 		await runCommand( 'rsync', [
 			'-azLKPv',
@@ -66,14 +73,6 @@ async function rsyncToDest( source, dest ) {
 			'--delete-after',
 			'--delete-excluded',
 			`--include-from=${ tmpFileName }`,
-			'--exclude=jetpack_vendor/**/vendor',
-			'--exclude=wordpress',
-			'--exclude=jetpack_vendor/**/*/wordpress/',
-			'--exclude=node_modules',
-			'--exclude=vendor/**/vendor',
-			'--exclude=.cache',
-			'--exclude=tests',
-			'--exclude=*.map',
 			source,
 			dest,
 		] );
