@@ -24,8 +24,14 @@ export default function useVideo( id: number | string ) {
 			id,
 		] ),
 		// Is Fetching
+		// @todo: this prop should not be here but in useVideos() hook
 		isFetching: useSelect(
 			select => ( select( STORE_ID ) as VideopressSelectors ).getIsFetching(),
+			[]
+		),
+
+		...useSelect(
+			select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
 			[]
 		),
 
