@@ -73,6 +73,10 @@ class Jetpack_Social {
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
 
+				if ( ! $this->is_connected() ) {
+					return;
+				}
+
 				// Publicize package.
 				$config->ensure(
 					'publicize',

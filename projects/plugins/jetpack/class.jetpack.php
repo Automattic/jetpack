@@ -836,11 +836,6 @@ class Jetpack {
 			$config->ensure( $feature );
 		}
 
-		$modules = new Automattic\Jetpack\Modules();
-		if ( $modules->is_active( 'publicize' ) ) {
-			$config->ensure( 'publicize' );
-		}
-
 		$config->ensure(
 			'connection',
 			array(
@@ -866,6 +861,11 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
+		}
+
+		$modules = new Automattic\Jetpack\Modules();
+		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
+			$config->ensure( 'publicize' );
 		}
 
 		/*
