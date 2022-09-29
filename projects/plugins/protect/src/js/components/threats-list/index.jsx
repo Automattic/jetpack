@@ -7,7 +7,7 @@ import FreeList from './free-list';
 import ThreatsNavigation from './navigation';
 import PaidList from './paid-list';
 import styles from './styles.module.scss';
-import useThreatsList from './use-vuls-list';
+import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
 	const { securityBundle } = useProtectData();
