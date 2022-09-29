@@ -69,7 +69,7 @@ class Admin_UI {
 		$allowed_video_extensions = array();
 
 		foreach ( $allowed_mime_types as $possible_extensions => $mime_type ) {
-			if ( str_contains( $mime_type, 'video/' ) ) {
+			if ( strpos( $mime_type, 'video/' ) !== false ) {
 				$extensions               = explode( '|', $possible_extensions );
 				$allowed_video_extensions = array_merge( $allowed_video_extensions, $extensions );
 			}
