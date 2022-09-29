@@ -34,7 +34,7 @@ export function getDefaultQuery() {
 	};
 }
 
-const videos = ( state = {}, action ) => {
+const videos = ( state = { isFetching: true }, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_VIDEOS: {
 			return {
