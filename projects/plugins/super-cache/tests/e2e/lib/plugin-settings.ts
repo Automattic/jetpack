@@ -8,7 +8,7 @@ export enum ModRewriteOptions {
 	On = '1',
 }
 
-export enum CacheNogLoggedInOptions {
+export enum CacheNotLoggedInOptions {
 	EnableForAllVisitors = '0',
 	DisableForAnyCookie = '1',
 	DisableForLoggedIn = '2',
@@ -30,7 +30,7 @@ const settingsHandlers = {
 		} );
 	},
 
-	wp_cache_not_logged_in: async ( authCookie: string, value: CacheNogLoggedInOptions ) => {
+	wp_cache_not_logged_in: async ( authCookie: string, value: CacheNotLoggedInOptions ) => {
 		await submitSettingsForm( authCookie, 'settings', 'scupdates', form => {
 			form.setValue( 'wp_cache_not_logged_in', value );
 		} );

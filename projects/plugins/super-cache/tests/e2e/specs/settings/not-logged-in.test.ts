@@ -1,5 +1,5 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
-import { CacheNogLoggedInOptions, updateSettings } from '../../lib/plugin-settings';
+import { CacheNotLoggedInOptions, updateSettings } from '../../lib/plugin-settings';
 import { authenticatedRequest, getAuthCookie, getSiteUrl } from '../../lib/plugin-tools';
 import { loadPage } from '../../lib/test-tools';
 import { resetEnvironmnt, wpcli } from '../../lib/wordpress-tools';
@@ -19,7 +19,7 @@ describe( 'wp_cache_not_logged_in settings', () => {
 
 	test( 'logged in users get cached pages when "Enable caching for all visitors"', async () => {
 		await updateSettings( authCookie, {
-			wp_cache_not_logged_in: CacheNogLoggedInOptions.EnableForAllVisitors,
+			wp_cache_not_logged_in: CacheNotLoggedInOptions.EnableForAllVisitors,
 		} );
 
 		const url = getSiteUrl();
@@ -32,7 +32,7 @@ describe( 'wp_cache_not_logged_in settings', () => {
 
 	test( 'wp-admin is never cached, even when "Enable caching for all visitors"', async () => {
 		await updateSettings( authCookie, {
-			wp_cache_not_logged_in: CacheNogLoggedInOptions.EnableForAllVisitors,
+			wp_cache_not_logged_in: CacheNotLoggedInOptions.EnableForAllVisitors,
 		} );
 
 		const url = getSiteUrl( '/wp-admin/' );
@@ -45,7 +45,7 @@ describe( 'wp_cache_not_logged_in settings', () => {
 
 	test( 'users with any cookie do not get cached when "Disable caching for visitors who have a cookie"', async () => {
 		await updateSettings( authCookie, {
-			wp_cache_not_logged_in: CacheNogLoggedInOptions.DisableForAnyCookie,
+			wp_cache_not_logged_in: CacheNotLoggedInOptions.DisableForAnyCookie,
 		} );
 
 		const cookie = 'cooookie: OMNOMNOM';
@@ -59,7 +59,7 @@ describe( 'wp_cache_not_logged_in settings', () => {
 
 	test( 'users with no cookie get cached when "Disable caching for visitors who have a cookie"', async () => {
 		await updateSettings( authCookie, {
-			wp_cache_not_logged_in: CacheNogLoggedInOptions.DisableForAnyCookie,
+			wp_cache_not_logged_in: CacheNotLoggedInOptions.DisableForAnyCookie,
 		} );
 
 		const first = await loadPage();
