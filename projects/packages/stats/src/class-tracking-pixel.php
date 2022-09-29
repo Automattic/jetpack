@@ -155,6 +155,13 @@ END;
 	 */
 	public static function stats_array_to_string( $kvs ) {
 
+		/**
+		 * Filters the options added to the JavaScript Stats tracking code.
+		 *
+		 * @since-jetpack 1.1.0
+		 *
+		 * @param array $kvs Array of options about the site and page you're on.
+		 */
 		$kvs   = (array) apply_filters( self::ARRAY_NAME, $kvs );
 		$kvs   = array_map( 'addslashes', $kvs );
 		$jskvs = array();
