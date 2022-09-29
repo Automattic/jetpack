@@ -19,6 +19,7 @@ import {
 	RECOMMENDATION_WIZARD_STEP,
 	sortByOnboardingPriority,
 	getOnboardingNameByProductSlug,
+	ONBOARDING_SUPPORT_START_TIMESTAMP,
 } from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
@@ -629,6 +630,12 @@ const getInitialStep = state => {
 	return initialStep;
 };
 
+const getProductsEligibleForPostPurchaseOnboarding = state =>
+	getSitePurchases( state ).filter(
+		( { active, subscribed_date } ) =>
+			'1' === active && ONBOARDING_SUPPORT_START_TIMESTAMP < Date.parse( subscribed_date )
+	);
+
 export const getOnboardingData = state => {
 	const onboarding = {
 		active: getDataByKey( state, 'onboardingActive' ) || null,
@@ -642,7 +649,7 @@ export const getOnboardingData = state => {
 		! isFetchingSiteData( state ) &&
 		isRecommendationsDataLoaded( state )
 	) {
-		const newOnboardings = getSitePurchases( state )
+		const newOnboardings = getProductsEligibleForPostPurchaseOnboarding( state )
 			.map( ( { product_slug } ) => getOnboardingNameByProductSlug( product_slug ) )
 			.filter( name => ! onboarding.viewed.includes( name ) );
 
