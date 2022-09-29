@@ -582,7 +582,7 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	 * @return string|false The transient value if set, otherwise false
 	 */
 	private static function get_stats_transient( $endpoint, $args = array() ) {
-		$cache_key      = md5( implode( '|', array( $endpoint, WPCOM_Stats::STATS_REST_API_VERSION, wp_wp_json_encode( $args ) ) ) );
+		$cache_key      = md5( implode( '|', array( $endpoint, WPCOM_Stats::STATS_REST_API_VERSION, wp_json_encode( $args ) ) ) );
 		$transient_name = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = get_transient( $transient_name );
 

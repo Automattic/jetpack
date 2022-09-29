@@ -313,7 +313,7 @@ class WPCOM_Stats {
 	protected function fetch_stats( $args = array() ) {
 		$endpoint       = $this->build_endpoint();
 		$api_version    = self::STATS_REST_API_VERSION;
-		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_wp_json_encode( $args ) ) ) );
+		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = get_transient( $transient_name );
 
