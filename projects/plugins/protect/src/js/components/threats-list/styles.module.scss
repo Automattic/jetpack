@@ -11,3 +11,79 @@
 .threat-section + .threat-section {
 	margin-top: 40px;
 }
+
+.list-title {
+	display: inline-block;
+}
+
+.button-container-top {
+	float: right;
+	
+	>:first-child {
+		margin-right: calc( var( --spacing-base ) * 2 );
+	}
+}
+
+.button-container-bottom {
+	width: 100%;
+	display: flex;
+	justify-content: right;
+	padding-top: calc( var( --spacing-base ) * 4 );
+	border-top: 1px solid var( --jp-gray );
+
+	>:first-child {
+		margin-right: calc( var( --spacing-base ) * 2 );
+	}
+}
+
+.accordion-heading {
+	display: grid;
+	grid-template-columns: repeat( 9, 1fr );
+	background-color: white;
+	padding: calc( var( --spacing-base ) * 2) calc( var( --spacing-base ) * 3 );
+	border: 1px solid var( --jp-gray );
+	border-bottom: none;
+
+	>span:first-child {
+		grid-column: 1 / 7;
+	}
+
+	>span:not( :first-child ) {
+		text-align: center;
+	}
+}
+
+.manual-scan {
+	margin: 40px 65px;
+	text-align: center;
+
+	> a {
+		color: black;
+	}
+}
+
+@media ( max-width: 599px ) {
+	.list-title {
+		display: none;
+	}
+
+	.button-container-top {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		margin-bottom: calc( var(--horizontal-spacing) * 5 );
+
+		>* {
+			width: 50%;
+		}
+	} 
+	
+	.button-container-bottom {
+		justify-content: center;
+
+		>* {
+			width: 50%;
+		}
+	}
+
+}
