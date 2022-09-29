@@ -62,7 +62,6 @@ class Tracking_Pixel {
 		} else {
 			$post = '0';
 		}
-
 		return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
 	}
 
@@ -102,7 +101,6 @@ class Tracking_Pixel {
 			$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
 			self::render_footer( $data );
 		}
-
 	}
 
 	/**
