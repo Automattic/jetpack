@@ -8,6 +8,12 @@ export enum ModRewriteOptions {
 	On = '1',
 }
 
+export enum CacheNogLoggedInOptions {
+	EnableForAllVisitors = '0',
+	DisableForAnyCookie = '1',
+	DisableForLoggedIn = '2',
+}
+
 /**
  * Description of how to write each setting, by name.
  */
@@ -21,6 +27,12 @@ const settingsHandlers = {
 	wp_cache_mod_rewrite: async ( authCookie: string, value: ModRewriteOptions ) => {
 		await submitSettingsForm( authCookie, 'settings', 'scupdates', form => {
 			form.setValue( 'wp_cache_mod_rewrite', value );
+		} );
+	},
+
+	wp_cache_not_logged_in: async ( authCookie: string, value: CacheNogLoggedInOptions ) => {
+		await submitSettingsForm( authCookie, 'settings', 'scupdates', form => {
+			form.setValue( 'wp_cache_not_logged_in', value );
 		} );
 	},
 };

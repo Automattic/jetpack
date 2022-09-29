@@ -15,6 +15,7 @@ function wpsc_test_inject_footer() {
 	echo '<!-- ' . esc_html( $time ) . ' ' . esc_html( $rand ) . ' -->';
 }
 add_action( 'wp_footer', 'wpsc_test_inject_footer' );
+add_action( 'admin_footer', 'wpsc_test_inject_footer' );
 
 /**
  * Allow per-request login via HTTP header for a single request. Makes testing easier.
