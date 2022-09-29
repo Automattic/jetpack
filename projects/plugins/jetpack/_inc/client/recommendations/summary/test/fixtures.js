@@ -105,7 +105,6 @@ function upsellFixture( { hideUpsell } ) {
  * @param {object} options.rewindStatus - – rewind status of the site
  * @param {object} options.enabledRecommendations - Enabled recommendations.
  * @param {object} options.skippedRecommendations - Skipped recommendations.
- * @param options.skippedRecommendations
  * @returns {object} – initial Redux state
  */
 export function buildInitialState( {
