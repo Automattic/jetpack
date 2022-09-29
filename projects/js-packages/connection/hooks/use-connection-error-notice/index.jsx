@@ -1,4 +1,6 @@
-import { ConnectionErrorNotice, useConnection } from '@automattic/jetpack-connection';
+import ConnectionErrorNotice from '../../components/connection-error-notice';
+import useConnection from '../../components/use-connection';
+import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
 
 /**
  * Connection error notice hook.
@@ -11,7 +13,9 @@ export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
 	const connectionErrorList = Object.values( connectionErrors ).shift();
 	const connectionErrorMessage =
-		connectionErrorList && connectionErrorList.length && connectionErrorList[ 0 ].error_message;
+		connectionErrorList &&
+		Object.values( connectionErrorList ).length &&
+		Object.values( connectionErrorList ).shift().error_message;
 
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
@@ -20,6 +24,18 @@ export default function useConnectionErrorNotice() {
 
 export const ConnectionError = () => {
 	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
+	const {
+		restoreConnection,
+		isRestoringConnection,
+		restoreConnectionError,
+	} = useRestoreConnection();
 
-	return hasConnectionError ? <ConnectionErrorNotice message={ connectionErrorMessage } /> : null;
+	return hasConnectionError ? (
+		<ConnectionErrorNotice
+			isRestoringConnection={ isRestoringConnection }
+			restoreConnectionError={ restoreConnectionError }
+			restoreConnectionCallback={ restoreConnection }
+			message={ connectionErrorMessage }
+		/>
+	) : null;
 };

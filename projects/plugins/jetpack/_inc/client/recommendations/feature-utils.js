@@ -385,6 +385,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
+				illustration: 'assistant-woo-commerce',
 			};
 		case 'welcome__backup':
 			return {
