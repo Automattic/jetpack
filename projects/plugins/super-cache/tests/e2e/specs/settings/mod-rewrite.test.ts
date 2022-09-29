@@ -1,15 +1,24 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
-import { readDockerFile } from '../lib/docker-tools';
-import { ModRewriteOptions, updateSettings } from '../lib/plugin-settings';
-import { authenticatedRequest, clearCache, getAuthCookie, getSiteUrl } from '../lib/plugin-tools';
-import { loadPage } from '../lib/test-tools';
-import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
+import { readDockerFile } from '../../lib/docker-tools';
+import { ModRewriteOptions, updateSettings } from '../../lib/plugin-settings';
+import {
+	authenticatedRequest,
+	clearCache,
+	getAuthCookie,
+	getSiteUrl,
+} from '../../lib/plugin-tools';
+import { loadPage } from '../../lib/test-tools';
+import { resetEnvironmnt, wpcli } from '../../lib/wordpress-tools';
+
+let authCookie: string;
 
 describe( 'cache behavior with mod_rewrite enabled', () => {
 	beforeAll( async () => {
 		await resetEnvironmnt();
 		await wpcli( 'plugin', 'activate', 'wp-super-cache' );
-		await updateSettings( await getAuthCookie(), {
+
+		authCookie = await getAuthCookie();
+		await updateSettings( authCookie, {
 			wp_cache_enabled: true,
 			wp_cache_mod_rewrite: ModRewriteOptions.On,
 		} );
@@ -33,11 +42,10 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 	} );
 
 	test( 'logged in users do not get cached pages', async () => {
-		const cookie = await getAuthCookie();
 		const url = getSiteUrl();
 
-		const first = await authenticatedRequest( cookie, 'GET', url );
-		const second = await authenticatedRequest( cookie, 'GET', url );
+		const first = await authenticatedRequest( authCookie, 'GET', url );
+		const second = await authenticatedRequest( authCookie, 'GET', url );
 
 		expect( first ).not.toBe( second );
 	} );
@@ -72,7 +80,7 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 	} );
 
 	test( 'removes mod_rewrite rules when turned off', async () => {
-		await updateSettings( await getAuthCookie(), {
+		await updateSettings( authCookie, {
 			wp_cache_mod_rewrite: ModRewriteOptions.Off,
 		} );
 
@@ -80,7 +88,7 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 		expect( rules ).not.toContain( 'cache/supercache' );
 
 		// Return things to the state other tests expect.
-		await updateSettings( await getAuthCookie(), {
+		await updateSettings( authCookie, {
 			wp_cache_mod_rewrite: ModRewriteOptions.On,
 		} );
 	} );

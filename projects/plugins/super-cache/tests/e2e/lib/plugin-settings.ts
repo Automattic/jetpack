@@ -35,6 +35,12 @@ const settingsHandlers = {
 			form.setValue( 'wp_cache_not_logged_in', value );
 		} );
 	},
+
+	wp_cache_no_cache_for_get: async ( authCookie: string, value: boolean ) => {
+		await submitSettingsForm( authCookie, 'settings', 'scupdates', form => {
+			form.setCheckbox( 'wp_cache_no_cache_for_get', value );
+		} );
+	},
 };
 
 type SettingName = keyof typeof settingsHandlers;

@@ -30,7 +30,14 @@ describe( 'cache behavior with default settings', () => {
 		expect( first ).not.toBe( second );
 	} );
 
-	test( 'GET parameters should affect caching', async () => {
+	test( 'pages with identical GET parameters should cache together', async () => {
+		const first = await loadPage( '/', { s: 'potato' } );
+		const second = await loadPage( '/', { s: 'potato' } );
+
+		expect( first ).toBe( second );
+	} );
+
+	test( 'pages with different GET parameters should not cache together', async () => {
 		const first = await loadPage( '/', { s: 'squid' } );
 		const second = await loadPage( '/', { s: 'potato' } );
 
