@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactor props for structure consistency with JetpackLogo component.
