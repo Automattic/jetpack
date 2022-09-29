@@ -4,19 +4,23 @@ import styles from './styles.module.scss';
 const severityClassNames = severity => {
 	if ( severity >= 5 ) {
 		return 'is-critical';
-	} else if ( severity >= 3 ) {
+	} else if ( severity >= 3 && severity < 5 ) {
 		return 'is-high';
 	}
 	return 'is-low';
 };
 
 const severityText = severity => {
+	const critical = __( 'Critical', 'jetpack-protect' );
+	const high = __( 'High', 'jetpack-protect' );
+	const low = __( 'Low', 'jetpack-protect' );
+
 	if ( severity >= 5 ) {
-		return __( 'Critical', 'jetpack-protect' );
-	} else if ( severity >= 3 ) {
-		return __( 'High', 'jetpack-protect' );
+		return critical;
+	} else if ( severity >= 3 && severity < 5 ) {
+		return high;
 	}
-	return __( 'Low', 'jetpack-protect' );
+	return low;
 };
 
 const ThreatSeverityBadge = ( { severity } ) => {
