@@ -134,11 +134,7 @@ const VideoRow = ( {
 	};
 
 	const editDetailsButton = (
-		<Button
-			size="small"
-			onClick={ handleClickWithStopPropagation( onVideoDetailsClick ) }
-			fullWidth={ isSmall }
-		>
+		<Button size="small" onClick={ handleClickWithStopPropagation( onVideoDetailsClick ) }>
 			{ editVideoLabel }
 		</Button>
 	);
@@ -239,7 +235,12 @@ const VideoRow = ( {
 								isPrivate={ isPrivate }
 							/>
 						) }
-						{ isSmall && showEditButton && editDetailsButton }
+						{ isSmall && (
+							<div className={ styles[ 'mobile-actions' ] }>
+								{ showEditButton && editDetailsButton }
+								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
+							</div>
+						) }
 					</div>
 				) }
 			</div>
