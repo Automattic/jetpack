@@ -50,7 +50,7 @@ class AppsCard extends React.Component {
 				<a className="jp-apps-card__link" href="https://jetpack.com/app">
 					jetpack.com/app
 				</a>
-				{ __( ' or scan this code to download the Jetpack mobile app.', 'jetpack' ) }
+				{ __( ' from your mobile device or scan this code to download the Jetpack mobile app.', 'jetpack' ) }
 			</p>
 		</div>
 	);
