@@ -25,6 +25,7 @@ declare global {
 export type VideoLibraryProps = {
 	videos: Array< VideoPressVideo >;
 	totalVideos?: number;
+	loading?: boolean;
 };
 
 export interface ConnectionStore {

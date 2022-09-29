@@ -117,7 +117,7 @@ const VideoLibraryWrapper = ( {
 	);
 };
 
-export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
 	const disabled = videos?.some?.(
@@ -143,7 +143,11 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
+				<VideoGrid
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					loading={ loading }
+				/>
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
