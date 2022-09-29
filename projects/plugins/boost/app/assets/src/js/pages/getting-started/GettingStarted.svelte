@@ -15,14 +15,15 @@
 			<div class="comparison-table" style="--rows: 11; --columns: 3">
 				<div class="comparison-table__main">
 					<h1>{__( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' )}</h1>
-					<p class="comparison-table__feature-row">Optimize CSS Loading</p>
-					<hr />
-					<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
-					<hr />
-					<p class="comparison-table__feature-row">Lazy image loading</p>
-					<hr />
-					<p class="comparison-table__feature-row">Dedicated email support</p>
-					<hr />
+
+					<p class="visible-md comparison-table__feature-row">Optimize CSS Loading</p>
+					<hr class="visible-md" />
+					<p class="visible-md comparison-table__feature-row">Defer non-essential JavaScript</p>
+					<hr class="visible-md" />
+					<p class="visible-md comparison-table__feature-row">Lazy image loading</p>
+					<hr class="visible-md" />
+					<p class="visible-md comparison-table__feature-row">Dedicated email support</p>
+					<hr class="visible-md" />
 
 					<footer class="comparison-table__spacing" />
 				</div>
@@ -42,13 +43,29 @@
 							Get Boost
 						</button>
 					</div>
-					<p class="comparison-table__feature-row">Optimize CSS Loading</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<strong class="visible-md">Automatically kept up to date</strong>
+						<strong class="hidden-md">CSS optimization automatically kept up to date</strong>
+					</p>
 					<hr />
-					<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<span class="visible-md">Included</span>
+						<span class="hidden-md">Defer non-essential JavaScript</span>
+					</p>
 					<hr />
-					<p class="comparison-table__feature-row">Lazy image loading</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<span class="visible-md">Included</span>
+						<span class="hidden-md">Lazy image loading</span>
+					</p>
 					<hr />
-					<p class="comparison-table__feature-row">Dedicated email support</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<span class="visible-md">Included</span>
+						<span class="hidden-md">Dedicated email support</span>
+					</p>
 					<hr />
 
 					<footer class="comparison-table__spacing" />
@@ -68,13 +85,29 @@
 							Start for free
 						</button>
 					</div>
-					<p class="comparison-table__feature-row">Optimize CSS Loading</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<span class="visible-md">Manual generation</span>
+						<strong class="hidden-md">Optimize CSS loading manually</strong>
+					</p>
 					<hr />
-					<p class="comparison-table__feature-row">Defer non-essential JavaScript</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<span class="visible-md">Included</span>
+						<span class="hidden-md">Defer non-essential JavaScript</span>
+					</p>
 					<hr />
-					<p class="comparison-table__feature-row">Lazy image loading</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--check" />
+						<span class="visible-md">Included</span>
+						<span class="hidden-md">Lazy image loading</span>
+					</p>
 					<hr />
-					<p class="comparison-table__feature-row">Dedicated email support</p>
+					<p class="comparison-table__feature-row">
+						<span class="jb-icon jb-icon--cross" />
+						<span class="visible-md">Not Included</span>
+						<span class="hidden-md">Dedicated email support</span>
+					</p>
 					<hr />
 
 					<footer class="comparison-table__spacing" />

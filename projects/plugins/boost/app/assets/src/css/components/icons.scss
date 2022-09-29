@@ -1,0 +1,17 @@
+.jb-icon {
+    display: inline-block;
+    margin-right: 0.5em;
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    &--check {
+        background-image: url("../static/images/check.svg");
+    }
+
+    &--cross {
+        background-image: url("../static/images/cross.svg");
+    }
+}

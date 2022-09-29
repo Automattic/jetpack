@@ -27,3 +27,18 @@ $definition-combinations: (
 	}
   }
 }
+
+
+.visible-md {
+	display: none !important;
+
+	@include breakpoint( 'md' ) {
+		display: unset !important;
+	}
+}
+
+.hidden-md {
+  @include breakpoint( 'md' ) {
+	display: none !important;
+  }
+}

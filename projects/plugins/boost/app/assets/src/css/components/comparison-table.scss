@@ -2,38 +2,38 @@
 	--gap: 12px;
 	--padding: 32px;
 
-	display: grid;
-	grid-template-columns: 5fr 4fr 4fr;
-	grid-auto-flow: column;
-	grid-template-rows: repeat( var( --rows ), minmax( min-content, max-content ) );
+    > div {
+        > *  {
+            padding-left: var( --padding );
+            padding-right: var( --padding );
+        }
 
-	> div {
-		display: contents;
+        > hr {
+            margin: 0 var( --padding );
+            border-top: 0;
+            border-bottom: 1px solid $gray_5;
+        }
+    }
 
-		> * {
-			margin: 0 var( --gap );
-		}
+	&__feature-row {
+		padding-top: calc( var( --padding ) / 2 );
+		padding-bottom: calc( var( --padding ) / 2 );
+        margin-top: 0;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
 
-		> hr {
-			margin: 0;
-			width: 100%;
-			border-color: $gray_5;
-			border-top-width: 0;
-		}
+        .jb-icon {
+            flex: none;
+        }
 
-        // The last pricing tier should not have any right margin
-        &:last-child > * {
-            margin-right: 0;
+        span + span {
+            display: block;
+            flex: 1;
         }
 	}
 
-	&__feature-row {
-		padding: calc( var( --padding ) / 2 ) var( --padding );
-	}
-
 	&__cta {
-		padding: calc( var( --padding ) / 2 ) var( --padding );
-
 		.jb-button {
 			font-size: 1rem;
 			font-weight: 600;
@@ -65,6 +65,10 @@
 	}
 
     & &__tier {
+        header {
+            overflow: hidden;
+        }
+
 		> :first-child {
 			padding: var( --padding );
 			padding-bottom: 0;
@@ -75,14 +79,12 @@
      * Style for pricing card.
      */
 	&__tier--card {
-		> * {
-			background: white;
-			box-shadow: 0px 4px 24px rgb( 0 0 0 / 5% );
+        background-color: white;
+        box-shadow: 0px 4px 24px rgb( 0 0 0 / 5% );
 
-			// Clip the shadow of the card to visually keep the card as a single unit.
-			-webkit-clip-path: inset( 0px -24px -24px -24px );
-			clip-path: inset( 0px -24px -24px -24px );
-		}
+        // Clip the shadow of the card to visually keep the card as a single unit.
+        -webkit-clip-path: inset( 0px -24px -24px -24px );
+        clip-path: inset( 0px -24px -24px -24px );
 
 		> *:first-child {
 			border-top-left-radius: $border-radius;
@@ -99,8 +101,59 @@
 		}
 	}
 
-	// The last pricing tier should not have any right margin
-	> :last-child > * {
-		margin-right: 0;
-	}
+
+
+    @include breakpoint( 'md' ) {
+        display: grid;
+        grid-template-columns: 5fr 4fr 4fr;
+        grid-auto-flow: column;
+        grid-template-rows: repeat( var( --rows ), minmax( min-content, max-content ) );
+
+        // The last pricing tier should not have any right margin
+        > :last-child > * {
+            margin-right: 0;
+        }
+
+        > div {
+            display: contents;
+    
+            > * {
+                margin: 0 var( --gap );
+            }
+
+            > hr {
+                margin: 0;
+                margin-left: 0;
+                margin-right: 0;
+            }
+    
+            // The last pricing tier should not have any right margin
+            &:last-child > * {
+                margin-right: 0;
+            }
+        }
+
+        &__tier {
+            > * {
+                width: 400px;
+                max-width: 100%;
+            }
+    
+            &--card > * {
+                background-color: inherit;
+                box-shadow: inherit;
+                -webkit-clip-path: inherit;
+                clip-path: inherit;
+            }
+
+            > hr {
+                width: unset;
+                max-width: unset;
+                background-color: unset;
+                box-shadow: unset;
+                -webkit-clip-path: unset;
+                clip-path: unset;
+            }
+        }
+    }
 }
