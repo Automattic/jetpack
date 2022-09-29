@@ -84,7 +84,7 @@ const PaidList = ( { list } ) => {
 			<div className={ styles[ 'button-container-top' ] }>
 				<Button variant="primary">
 					{
-						/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+						/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
 						sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), list.length )
 					}
 				</Button>
