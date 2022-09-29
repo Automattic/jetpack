@@ -23,6 +23,7 @@
 		"test:run": "jest --runInBand"
 	},
 	"devDependencies": {
+		"@jest/globals": "^29.1.1",
 		"axios": "^0.27.2",
 		"cheerio": "1.0.0-rc.12",
 		"dotenv": "16.0.2",
@@ -35,8 +36,5 @@
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
-	},
-	"dependencies": {
-		"@jest/globals": "^29.1.1"
 	}
 }
