@@ -7,7 +7,4 @@ module.exports = {
 	root: true,
 	extends: [ './tools/js-tools/eslintrc/base.js' ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
-	rules: {
-		'@wordpress/i18n-text-domain': 0,
-	},
 };
