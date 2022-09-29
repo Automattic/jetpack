@@ -12,6 +12,6 @@ export const usePlan = (): usePlanProps => {
 
 	return {
 		features: paidFeatures,
-		product: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
+		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 	};
 };

@@ -20,15 +20,15 @@ import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = () => {
 	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
-	const { product } = usePlan();
-	const { pricingForUi } = product;
+	const { siteProduct } = usePlan();
+	const { pricingForUi } = siteProduct;
 	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
-	const pricingItems = product.features.map( feature => ( { name: feature } ) );
+	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
 
 	return (
-		<PricingTable title={ product.description } items={ pricingItems }>
+		<PricingTable title={ siteProduct.description } items={ pricingItems }>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice

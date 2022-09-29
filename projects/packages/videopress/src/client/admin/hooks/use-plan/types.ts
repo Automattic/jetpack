@@ -57,5 +57,5 @@ export type productProps = {
 
 export type usePlanProps = {
 	features?: paidFeaturesProp;
-	product?: productProps;
+	siteProduct?: productProps;
 };
