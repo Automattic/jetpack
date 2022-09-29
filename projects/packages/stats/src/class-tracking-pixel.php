@@ -153,7 +153,7 @@ END;
 	 * @param array $kvs Array of options about the site and page you're on.
 	 * @return string
 	 */
-	public static function stats_array( $kvs ) {
+	public static function stats_array_to_string( $kvs ) {
 
 		$kvs   = (array) apply_filters( self::ARRAY_NAME, $kvs );
 		$kvs   = array_map( 'addslashes', $kvs );

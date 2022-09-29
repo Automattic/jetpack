@@ -108,7 +108,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test for Tracking_Pixel::stats_array
+	 * Test for Tracking_Pixel::stats_array_to_string
 	 *
 	 * @dataProvider statsArrayDataProvider
 	 *
@@ -116,7 +116,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	 * @param  string $stats_array_string The expected string converted from stats array.
 	 */
 	public function test_stats_array( $data, $stats_array_string ) {
-		$this->assertSame( $stats_array_string, Tracking_Pixel::stats_array( $data ) );
+		$this->assertSame( $stats_array_string, Tracking_Pixel::stats_array_to_string( $data ) );
 	}
 
 	/**
@@ -130,9 +130,9 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test for Tracking_Pixel::stats_array to check that stat_array filter is applied
+	 * Test for Tracking_Pixel::stats_array_to_string to check that stat_array filter is applied
 	 */
-	public function test_stats_array_applies_filter() {
+	public function test_stats_array_to_string_applies_filter() {
 		$data = array(
 			'v'    => 'ext',
 			'j'    => '11.4:11.4',
@@ -142,7 +142,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 			'srv'  => 'example.org',
 		);
 		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
-		$stats_array           = Tracking_Pixel::stats_array( $data );
+		$stats_array           = Tracking_Pixel::stats_array_to_string( $data );
 		$stats_array_should_be = "v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'',srv:'example.com'";
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
 
