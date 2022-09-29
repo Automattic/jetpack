@@ -2,7 +2,6 @@
 	"projects/packages/backup/src/class-rest-controller.php",
 	"projects/packages/connection/legacy/class-jetpack-options.php",
 	"projects/packages/connection/src/class-nonce-handler.php",
-	"projects/packages/my-jetpack/src/products/class-search-stats.php",
 	"projects/packages/status/src/class-status.php",
 	"projects/packages/sync/src/class-queue.php",
 	"projects/packages/sync/src/class-replicastore.php",
