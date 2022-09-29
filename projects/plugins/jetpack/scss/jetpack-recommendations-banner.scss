@@ -103,8 +103,6 @@
 	display: flex;
 	flex-direction: column;
 
-	margin-bottom: 1rem;
-
 	text-align: left;
 }
 
@@ -116,6 +114,7 @@
 	border-radius: 2px;
 	cursor: pointer;
 	background: $studio-white;
+	margin-bottom: 1rem;
 
 	&.checked {
 		background: $studio-gray-0;
