@@ -60,6 +60,25 @@ class Admin_UI {
 	}
 
 	/**
+	 * Gets the list of allowed video extensions
+	 *
+	 * @return array
+	 */
+	public static function get_allowed_video_extensions() {
+		$allowed_mime_types       = get_allowed_mime_types();
+		$allowed_video_extensions = array();
+
+		foreach ( $allowed_mime_types as $possible_extensions => $mime_type ) {
+			if ( str_contains( $mime_type, 'video/' ) ) {
+				$extensions               = explode( '|', $possible_extensions );
+				$allowed_video_extensions = array_merge( $allowed_video_extensions, $extensions );
+			}
+		}
+
+		return $allowed_video_extensions;
+	}
+
+	/**
 	 * Initialize the admin resources.
 	 */
 	public static function admin_init() {
@@ -124,18 +143,19 @@ class Admin_UI {
 	 */
 	public static function initial_state() {
 		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'adminUrl'          => self::get_admin_page_url(),
-			'adminUri'          => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
-			'paidFeatures'      => array(
+			'apiRoot'                => esc_url_raw( rest_url() ),
+			'apiNonce'               => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'      => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'adminUrl'               => self::get_admin_page_url(),
+			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
+			'paidFeatures'           => array(
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
-			'productData'       => My_Jetpack_Products::get_product( 'videopress' ),
-			'siteSuffix'        => ( new Status() )->get_site_suffix(),
+			'productData'            => My_Jetpack_Products::get_product( 'videopress' ),
+			'siteSuffix'             => ( new Status() )->get_site_suffix(),
+			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
 		);
 	}
 
