@@ -1,0 +1,40 @@
+.threat {
+    border: 1px solid #DCDCDE;
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    margin-bottom: 24px;
+
+    &__icon {
+        margin-right: 16px;
+        min-width: 24px;
+    }
+
+    &__summary {
+        width: 100%;
+    }
+
+    &__summary__label {
+        font-size: 18px;
+        line-height: 24px;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    &__summary__title {
+        font-size: 14px;
+        line-height: 21px;
+        color: #2C3338;
+    }
+
+    &__severity {
+        align-self: center;
+        margin-left: 16px;
+        margin-right: 8px;
+    }
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+}

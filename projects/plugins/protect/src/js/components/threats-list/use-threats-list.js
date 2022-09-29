@@ -30,65 +30,51 @@ const mergeAllThreats = ( { core, plugins, themes, files, database } ) => [
 
 const useThreatsList = () => {
 	const { plugins, themes, core, files, database } = useProtectData();
-	const [ item, setItem ] = useState( {} );
-	const [ list, setList ] = useState(
-		mergeAllThreats( { core, plugins, themes, files, database } )
-	);
-	const [ selected, setSelected ] = useState( list?.length ? 'all' : null );
 
-	const handleSelected = id => {
-		setSelected( id );
+	let list = mergeAllThreats( { core, plugins, themes, files, database } );
+	let item = {};
 
-		if ( id === selected ) {
-			return;
-		}
+	const [ selected, setSelected ] = useState( list.length ? 'all' : null );
 
-		if ( id === 'all' ) {
-			setList( mergeAllThreats( { core, plugins, themes, files, database } ) );
-			setItem( {} );
-			return;
-		}
+	switch ( selected ) {
+		case 'all':
+			list = mergeAllThreats( { core, plugins, themes, files, database } );
+			break;
+		case 'wordpress':
+			list = flatData( core, coreIcon );
+			item = core;
+			break;
+		case 'files':
+			list = flatData( files, filesIcon );
+			item = files;
+			break;
+		case 'database':
+			list = flatData( database, databaseIcon );
+			item = database;
+			break;
+		default:
+			break;
+	}
 
-		if ( id === 'wordpress' ) {
-			setList( flatData( core, coreIcon ) );
-			setItem( core );
-			return;
-		}
+	const pluginsItem = plugins.find( threat => threat?.name === selected );
 
-		if ( id === 'files' ) {
-			setList( flatData( files, filesIcon ) );
-			setItem( files );
-			return;
-		}
+	if ( pluginsItem ) {
+		list = flatData( pluginsItem, pluginsIcon );
+		item = pluginsItem;
+	}
 
-		if ( id === 'database' ) {
-			setList( flatData( database, databaseIcon ) );
-			setItem( database );
-			return;
-		}
+	const themesItem = themes.find( threat => threat?.name === selected );
 
-		const pluginsItem = plugins.find( threat => threat?.name === id );
-
-		if ( pluginsItem ) {
-			setList( flatData( pluginsItem, pluginsIcon ) );
-			setItem( pluginsItem );
-			return;
-		}
-
-		const themesItem = themes.find( threat => threat?.name === id );
-
-		if ( themesItem ) {
-			setList( flatData( themesItem, themesIcon ) );
-			setItem( themesItem );
-			return;
-		}
-	};
+	if ( themesItem ) {
+		list = flatData( themesItem, themesIcon );
+		item = themesItem;
+	}
 
 	return {
 		item,
 		list,
 		selected,
-		setSelected: handleSelected,
+		setSelected,
 	};
 };
 

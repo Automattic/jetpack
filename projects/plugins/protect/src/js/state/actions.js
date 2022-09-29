@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
 const SET_STATUS = 'SET_STATUS';
@@ -8,6 +9,9 @@ const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
 const SET_SECURITY_BUNDLE = 'SET_SECURITY_BUNDLE';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
+const SET_THREAT_IS_UPDATING = 'SET_THREAT_IS_UPDATING';
+const SET_MODAL = 'SET_MODAL';
+const SET_NOTICE = 'SET_NOTICE';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -60,6 +64,41 @@ const setProductData = productData => {
 	return { type: SET_PRODUCT_DATA, productData };
 };
 
+const setThreatIsUpdating = ( threatId, isUpdating ) => {
+	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
+};
+
+const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } ) => {
+	dispatch( setThreatIsUpdating( threatId, true ) );
+	return await new Promise( ( resolve, reject ) => {
+		return apiFetch( {
+			path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatId }`,
+			method: 'POST',
+		} )
+			.then( () => {
+				return dispatch( refreshStatus() );
+			} )
+			.then( () => {
+				return dispatch( setNotice( __( 'Threat ignored', 'jetpack-protect' ) ) );
+			} )
+			.catch( error => {
+				reject( error );
+			} )
+			.finally( () => {
+				dispatch( setThreatIsUpdating( threatId, false ) );
+				callback();
+			} );
+	} );
+};
+
+const setModal = modal => {
+	return { type: SET_MODAL, payload: modal };
+};
+
+const setNotice = alert => {
+	return { type: SET_NOTICE, alert };
+};
+
 const actions = {
 	setStatus,
 	refreshStatus,
@@ -69,6 +108,9 @@ const actions = {
 	setwpVersion,
 	setSecurityBundle,
 	setProductData,
+	ignoreThreat,
+	setModal,
+	setNotice,
 };
 
 export {
@@ -78,5 +120,8 @@ export {
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
 	SET_SECURITY_BUNDLE,
+	SET_THREAT_IS_UPDATING,
+	SET_MODAL,
+	SET_NOTICE,
 	actions as default,
 };

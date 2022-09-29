@@ -16,3 +16,11 @@
 	background-color: var( --jp-gray-0 );
 	padding: 24px;
 }
+
+.threat-footer {
+	display: flex;
+	justify-content: end;
+	border-top: 1px solid var( --jp-gray );
+	padding-top: 24px;
+	margin-top: 24px;
+}

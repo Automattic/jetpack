@@ -1,0 +1,21 @@
+.notice {
+    background-color: #1D2327;
+    color: #FFFFFF;
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.notice__icon {
+    background-color: #008A20;
+    fill: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+
+.notice__message {
+    font-size: 14px;
+    padding: 14px;
+}

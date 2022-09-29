@@ -1,10 +1,16 @@
-.title {
+.summary {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.summary__title {
 	display: flex;
 	align-items: center;
 	color: var( --jp-black );
 }
 
-.icon {
+.summary__icon {
 	margin-left: -4px; // this fix a blank space on right/left from @wordpress/icons
 	margin-right: var(--spacing-base);
 }

@@ -1,0 +1,40 @@
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    
+    padding-top: 98px;
+    background-color: rgba(0, 0, 0, 0.25);
+    z-index: 999999;
+}
+
+.modal__window {
+    position: relative;
+    background: var( --jp-white );
+    padding: 32px;
+    width: 616px;
+    border: 1px solid #DCDCDE;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+}
+
+.modal__close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+
+    &__icon {
+        display: block;
+    }
+}
