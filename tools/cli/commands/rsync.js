@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
+import Configstore from 'configstore';
 import execa from 'execa';
 import inquirer from 'inquirer';
 import watch from 'node-watch';
@@ -10,6 +11,31 @@ import { projectDir } from '../helpers/install.js';
 import { listProjectFiles } from '../helpers/list-project-files.js';
 import { allProjectsByType, dirs } from '../helpers/projectHelpers.js';
 import { runCommand } from '../helpers/runCommand.js';
+
+const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
+
+/**
+ * Escapes dots in a string. Useful when saving destination as key in Configstore. Otherwise it tries strings with dots
+ * as nested objects.
+ *
+ * @param { string } key - String of the destination key.
+ * @returns { string } - Returns the key with escaped periods.
+ */
+function escapeKey( key ) {
+	return key.replace( /\./g, '\\.' );
+}
+
+/**
+ * Stores the destination in the configstore.
+ * Takes an optional alias arg.
+ *
+ * @param { string } dest - Destination path.
+ * @param { string|false } alias - Alias key, if set.
+ */
+function setRsyncDest( dest, alias = false ) {
+	const key = alias || dest;
+	rsyncConfigStore.set( escapeKey( key ), dest );
+}
 
 /**
  * Entry point for the CLI.
@@ -76,10 +102,47 @@ async function rsyncToDest( source, dest ) {
 			source,
 			dest,
 		] );
+
+		await promptForRsyncConfig( dest );
 	} catch ( e ) {
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 		process.exit( 1 );
 	}
+}
+
+/**
+ * Prompts for config file.
+ *
+ * @param { string } dest - Passthrough of the argv object.
+ */
+async function promptForRsyncConfig( dest ) {
+	if ( rsyncConfigStore.has( escapeKey( dest ) ) ) {
+		return;
+	}
+	const createPrompt = await inquirer.prompt( {
+		name: 'createConfig',
+		type: 'list',
+		message: `No saved entries for ${ dest }. Create one for easier use later?`,
+		choices: [ 'Hell yeah!', 'Nah' ],
+	} );
+	if ( createPrompt.createConfig === 'Hell yeah!' ) {
+		await promptForSetAlias( dest );
+	}
+}
+
+/**
+ * Prompt to set the destination alias.
+ *
+ * @param { string } dest - String to destination path.
+ */
+async function promptForSetAlias( dest ) {
+	const aliasSetPrompt = await inquirer.prompt( {
+		name: 'alias',
+		type: 'input',
+		message: 'Enter an alias for easier reference? (Press enter to skip.)',
+	} );
+	const alias = aliasSetPrompt.alias || dest;
+	setRsyncDest( dest, alias );
 }
 
 /**
@@ -92,12 +155,27 @@ async function promptForDest( argv ) {
 	if ( validateDest( argv.dest ) ) {
 		return argv;
 	}
-	const response = await inquirer.prompt( {
+	const savedDests = Object.keys( rsyncConfigStore.all );
+	savedDests.unshift( 'Create new' );
+	console.log( savedDests );
+	let response = await inquirer.prompt( {
 		name: 'dest',
-		message: 'Input destination path to the plugins dir: ',
+		type: 'list',
+		message: 'Choose destination:',
+		choices: savedDests,
 		validate: input => validateDest( input ),
 	} );
-	argv.dest = response.dest;
+	if ( 'Create new' === response.dest ) {
+		response = await inquirer.prompt( {
+			name: 'dest',
+			type: 'input',
+			message: 'Input destination path to the plugins dir: ',
+			validate: input => validateDest( input ),
+		} );
+		argv.dest = response.dest;
+	} else {
+		argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+	}
 	return argv;
 }
 
@@ -111,8 +189,20 @@ function validateDest( dest ) {
 	if ( undefined === dest ) {
 		return false;
 	}
+	if ( rsyncConfigStore.has( dest ) ) {
+		// eslint-disable-next-line
+		console.log( `Alias found, using source: ${ rsyncConfigStore.get( dest ) }` );
+		return true;
+	}
 
-	if ( dest.length > 0 && ! ( dest.endsWith( 'plugins' ) || dest.endsWith( 'plugins/' ) ) ) {
+	if (
+		dest.length > 0 &&
+		! (
+			dest.endsWith( 'plugins' ) ||
+			dest.endsWith( 'plugins/' ) ||
+			dest.endsWith( 'jetpack-plugin/production' )
+		)
+	) {
 		console.log(
 			chalk.yellow( 'Destination path is expected to end in a /plugins dir. Got: ' + dest )
 		);
