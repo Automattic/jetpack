@@ -110,6 +110,7 @@ describe( 'Recommendations – Summary', () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( {
 					enabledRecommendations: { 'related-posts': true },
+					skippedRecommendations: [ 'monitor', 'site-accelerator', 'creative-mail' ],
 					productSlug: 'jetpack_free',
 				} ),
 			} );

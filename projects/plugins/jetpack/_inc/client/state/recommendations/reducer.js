@@ -666,10 +666,6 @@ export const getStep = state => {
 	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
 	const step = '' !== savedStep ? savedStep : getInitialStep( state );
 
-	if ( ! step ) {
-		throw `Step needs to be defined at this point!`;
-	}
-
 	// These steps are special cases set on the server. There is technically no
 	// UI to display for them so the next eligible step is returned instead.
 	if ( [ 'setup-wizard-completed', 'banner-completed' ].includes( step ) ) {

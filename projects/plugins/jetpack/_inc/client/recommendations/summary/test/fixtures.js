@@ -104,10 +104,13 @@ function upsellFixture( { hideUpsell } ) {
  * @param {string} options.productSlug - – product slug of the site's plan
  * @param {object} options.rewindStatus - – rewind status of the site
  * @param {object} options.enabledRecommendations - Enabled recommendations.
+ * @param {object} options.skippedRecommendations - Skipped recommendations.
+ * @param options.skippedRecommendations
  * @returns {object} – initial Redux state
  */
 export function buildInitialState( {
 	enabledRecommendations = {},
+	skippedRecommendations = [],
 	hideUpsell = false,
 	productSlug,
 	rewindStatus = { state: 'unavailable' },
@@ -141,7 +144,9 @@ export function buildInitialState( {
 			recommendations: {
 				upsell: upsellFixture( { hideUpsell } ),
 				requests: {},
-				data: {},
+				data: {
+					skippedRecommendations,
+				},
 				installing: {},
 			},
 			rewind: rewindFixture( rewindStatus ),
