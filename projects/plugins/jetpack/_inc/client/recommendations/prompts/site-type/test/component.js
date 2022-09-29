@@ -95,7 +95,7 @@ describe( 'Recommendations – Site Type', () => {
 			initialState: buildInitialState(),
 		} );
 
-		const personalCheckbox = screen.getByLabelText( 'This is my a personal site' );
+		const personalCheckbox = screen.getByLabelText( 'This is a personal site' );
 		expect( personalCheckbox.checked ).toBe( false );
 
 		await user.click( personalCheckbox );
