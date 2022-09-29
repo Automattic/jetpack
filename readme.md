@@ -7,7 +7,7 @@ This is the Jetpack Mono repo. It contains source code for the Jetpack plugin, t
 
 ## How to install Jetpack plugin on your site
 
-**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-production#jetpack).
+**If you are not pla nning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-production#jetpack).
 
 ## Developing from the Mon orepo
 
