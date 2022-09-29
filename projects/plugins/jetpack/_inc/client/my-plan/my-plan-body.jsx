@@ -478,7 +478,7 @@ class MyPlanBody extends React.Component {
 											src={ imagePath + '/jetpack-google-analytics.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
-												'Site stats showing an evolution in traffic and engagement',
+												'Jetpack Stats showing an evolution in traffic and engagement',
 												'jetpack'
 											) }
 										/>
@@ -660,7 +660,7 @@ class MyPlanBody extends React.Component {
 									src={ imagePath + '/jetpack-performance-icon.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
-										'Site stats showing an evolution in traffic and engagement',
+										'Jetpack Stats showing an evolution in traffic and engagement',
 										'jetpack'
 									) }
 								/>

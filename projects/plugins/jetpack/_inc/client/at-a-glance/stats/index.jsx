@@ -239,7 +239,7 @@ export class DashStats extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'<a>Activate Jetpack Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'
 								),
 								{
@@ -257,7 +257,7 @@ export class DashStats extends Component {
 				{ ! this.props.isOfflineMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
 						<Button onClick={ this.activateStats } primary>
-							{ __( 'Activate Site Stats', 'jetpack' ) }
+							{ __( 'Activate Jetpack Stats', 'jetpack' ) }
 						</Button>
 					</div>
 				) }
@@ -351,7 +351,7 @@ export class DashStats extends Component {
 			this.props.isModuleAvailable && (
 				<div>
 					<QueryStatsData range={ this.props.activeTab } />
-					<DashSectionHeader label={ __( 'Site Stats', 'jetpack' ) }>
+					<DashSectionHeader label={ __( 'Jetpack Stats', 'jetpack' ) }>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
 					<Card
