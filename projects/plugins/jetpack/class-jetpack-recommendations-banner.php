@@ -208,7 +208,7 @@ class Jetpack_Recommendations_Banner {
 				<h1 class="jp-recommendations-banner__question">
 					<?php
 					/* translators: placeholder is the name of the website */
-					echo sprintf( esc_html__( 'What type of site is %s?', 'jetpack' ), esc_html( $site_name ) );
+					echo sprintf( esc_html__( 'Tell us more about %s?', 'jetpack' ), esc_html( $site_name ) );
 					?>
 				</h1>
 				<p class="jp-recommendations-banner__description">
@@ -217,10 +217,9 @@ class Jetpack_Recommendations_Banner {
 				<div class="jp-recommendations-banner__answer">
 					<form id="jp-recommendations-banner__form" class="jp-recommendations-banner__form">
 						<div class="jp-recommendations-banner__checkboxes">
-							<?php $this->render_checkbox( 'personal', __( 'Personal', 'jetpack' ) ); ?>
-							<?php $this->render_checkbox( 'business', __( 'Business', 'jetpack' ) ); ?>
-							<?php $this->render_checkbox( 'store', __( 'Store', 'jetpack' ) ); ?>
-							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
+							<?php $this->render_checkbox( 'site-type-agency', __( 'I build or manage this site for a client', 'jetpack' ) ); ?>
+							<?php $this->render_checkbox( 'site-type-store', __( 'This is an e-commerce store', 'jetpack' ) ); ?>
+							<?php $this->render_checkbox( 'site-type-personal', __( 'This is a personal site', 'jetpack' ) ); ?>
 						</div>
 					</form>
 					<a id="jp-recommendations-banner__continue-button" class="jp-banner-cta-button">
