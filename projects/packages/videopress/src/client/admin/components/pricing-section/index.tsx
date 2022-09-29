@@ -20,12 +20,22 @@ import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = () => {
 	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
-	const { siteProduct } = usePlan();
+	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
 	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
 	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
+
+	/*
+	 * Fallback to the product price if the site product price is not available.
+	 * This can happen when the site is not connected yet.
+	 */
+	if ( ! pricingForUi?.fullPrice ) {
+		pricingForUi.fullPrice = product.cost;
+		pricingForUi.discountPrice = product.introductoryOffer.costPerInterval;
+		pricingForUi.currencyCode = product.currencyCode;
+	}
 
 	return (
 		<PricingTable title={ siteProduct.description } items={ pricingItems }>
