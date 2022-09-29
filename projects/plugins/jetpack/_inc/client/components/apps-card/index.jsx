@@ -1,5 +1,6 @@
 import { imagePath } from 'constants/urls';
 import { isMobile } from '@automattic/viewport';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import AppsBadge from 'components/apps-badge';
@@ -46,11 +47,15 @@ class AppsCard extends React.Component {
 		<div className="jp-apps-card__apps-qr-code">
 			<img src={ imagePath + 'get-apps-qr-code.svg' } alt="" />
 			<p className="jp-apps-card__caption">
-				{ __( 'Visit', 'jetpack' ) }{ ' ' }
-				<a className="jp-apps-card__link" href="https://jetpack.com/app">
-					jetpack.com/app
-				</a>
-				{ __( ' from your mobile device or scan this code to download the Jetpack mobile app.', 'jetpack' ) }
+				{ createInterpolateElement(
+					__(
+						'Visit <a>jetpack.com/app</a> or scan this code to download the Jetpack mobile app.',
+						'jetpack'
+					),
+					{
+						a: <a className="jp-apps-card__link" href="https://jetpack.com/app" />,
+					}
+				) }
 			</p>
 		</div>
 	);
