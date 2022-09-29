@@ -214,7 +214,12 @@ class Jetpack_Social {
 	public function enqueue_block_editor_scripts() {
 		global $publicize;
 
-		if ( ! self::is_publicize_active() || class_exists( 'Jetpack' ) || ! $this->is_supported_post() ) {
+		if (
+			! $this->is_connected() ||
+			! self::is_publicize_active() ||
+			class_exists( 'Jetpack' ) ||
+			! $this->is_supported_post()
+		) {
 			return;
 		}
 
@@ -270,7 +275,7 @@ class Jetpack_Social {
 	 * Helper to check that we have a Jetpack connection.
 	 */
 	private function is_connected() {
-		return $this->manager->is_connected();
+		return $this->manager->is_connected() && $this->manager->has_connected_user();
 	}
 
 	/**
