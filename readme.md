@@ -9,7 +9,7 @@ This is the Jetpack Mono repo. It contains source code for the Jetpack plugin, t
 
 **If you are not pla nning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-production#jetpack).
 
-## Developing from the Mon orepo
+## Developing from the Mon or epo
 
 If you're interested in developing with the Jetpack monorepo, you can check out the [Quick Start Guide here](./docs/quick-start.md).
 
