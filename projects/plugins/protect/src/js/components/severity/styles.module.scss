@@ -1,0 +1,27 @@
+.threat-severity-badge {
+	border-radius: 32px;
+	flex-shrink: 0;
+	font-size: 12px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: 16px;
+	padding: 4px;
+	position: relative;
+	text-align: center;
+	width: 60px;
+}
+
+.is-critical {
+	background: #facfd2;
+	color: #b32d2e;
+}
+
+.is-high {
+	background: #f5e6b3;
+	color: #7d5600;
+}
+
+.is-low {
+	background: #f6f7f7;
+	color: #646970;
+}

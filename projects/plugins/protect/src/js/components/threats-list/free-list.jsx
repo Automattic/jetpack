@@ -1,31 +1,26 @@
-import { Text, Button } from '@automattic/jetpack-components';
+import { Text, Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import Accordion, { AccordionItem } from '../accordion';
+import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
 import styles from './styles.module.scss';
 
-const ThreatAccordionItem = ( {
-	id,
-	name,
-	version,
-	title,
-	description,
-	icon,
-	fixedIn,
-	type,
-	source,
-} ) => {
+const ThreatAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
 	const { recordEvent } = useAnalyticsTracks();
 
-	const learnMoreButton = source ? (
-		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
-			{ __( 'See more technical details of this threat', 'jetpack-protect' ) }
+	const learnMoreButton = (
+		<Button
+			variant="link"
+			isExternalLink={ true }
+			weight="regular"
+			href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
+		>
+			{ __( 'See more technical details of this vulnerability', 'jetpack-protect' ) }
 		</Button>
-	) : null;
+	);
 
 	return (
-		<AccordionItem
+		<FreeAccordionItem
 			id={ id }
 			label={ `${ name } (${ version })` }
 			title={ title }
@@ -60,14 +55,14 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-		</AccordionItem>
+		</FreeAccordionItem>
 	);
 };
 
-const List = ( { list } ) => {
+const FreeList = ( { list } ) => {
 	return (
-		<Accordion>
-			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type, source } ) => (
+		<FreeAccordion>
+			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type } ) => (
 				<ThreatAccordionItem
 					key={ id }
 					id={ id }
@@ -78,11 +73,10 @@ const List = ( { list } ) => {
 					icon={ icon }
 					fixedIn={ fixedIn }
 					type={ type }
-					source={ source }
 				/>
 			) ) }
-		</Accordion>
+		</FreeAccordion>
 	);
 };
 
-export default List;
+export default FreeList;
