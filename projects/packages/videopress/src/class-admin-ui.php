@@ -134,8 +134,9 @@ class Admin_UI {
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
-			'productData'       => My_Jetpack_Products::get_product( 'videopress' ),
+			'siteProductData'   => My_Jetpack_Products::get_product( 'videopress' ),
 			'siteSuffix'        => ( new Status() )->get_site_suffix(),
+			'productData'       => Plan::get_product(),
 		);
 	}
 
