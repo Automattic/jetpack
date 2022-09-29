@@ -13,7 +13,9 @@ export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
 	const connectionErrorList = Object.values( connectionErrors ).shift();
 	const connectionErrorMessage =
-		connectionErrorList && connectionErrorList.length && connectionErrorList[ 0 ].error_message;
+		connectionErrorList &&
+		Object.values( connectionErrorList ).length &&
+		Object.values( connectionErrorList ).shift().error_message;
 
 	const hasConnectionError = Boolean( connectionErrorMessage );
 
