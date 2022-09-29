@@ -1,7 +1,7 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
 import { readDockerFile } from '../lib/docker-tools';
 import { ModRewriteOptions, updateSettings } from '../lib/plugin-settings';
-import { clearCache, getAuthCookie } from '../lib/plugin-tools';
+import { authenticatedRequest, clearCache, getAuthCookie, getSiteUrl } from '../lib/plugin-tools';
 import { loadPage } from '../lib/test-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
@@ -30,6 +30,16 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 		const second = await loadPage();
 
 		expect( first ).toBe( second );
+	} );
+
+	test( 'logged in users do not get cached pages', async () => {
+		const cookie = await getAuthCookie();
+		const url = getSiteUrl();
+
+		const first = await authenticatedRequest( cookie, 'GET', url );
+		const second = await authenticatedRequest( cookie, 'GET', url );
+
+		expect( first ).not.toBe( second );
 	} );
 
 	test( 'GET parameters should affect caching', async () => {
