@@ -66,7 +66,7 @@ export const VideoCard = ( {
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
-	thumbnail = loading ? <Placeholder width={ 360 } height={ 202 } /> : thumbnail;
+	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
