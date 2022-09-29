@@ -24,7 +24,7 @@ export async function resetEnvironmnt() {
 	await wpcli( 'plugin', 'deactivate', 'wp-super-cache' );
 	await deleteDockerFile( '/var/www/html/wp-content/advanced-cache.php' );
 	await deleteDockerFile( '/var/www/html/wp-content/wp-content/wp-cache-config.php' );
-	await deleteLinesFromDockerFile( '/var/www/html/wp-config.php', '(WP_CACHE|WPCACHEHOME)' );
+	await deleteLinesFromDockerFile( '/var/www/html/wp-config.php', 'WP_CACHE|WPCACHEHOME' );
 	await writeDockerFile(
 		'/var/www/html/.htaccess',
 		await readPluginFile( 'tests/e2e/tools/htaccess.txt' )

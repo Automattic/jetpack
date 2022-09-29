@@ -25,7 +25,7 @@ export async function dockerExec( ...command: string[] ) {
  * @param {string} regex    - A regex (without / / markers) for lines to remove.
  */
 export async function deleteLinesFromDockerFile( filename: string, regex: string ) {
-	await dockerExec( 'sed', '-i', `/^${ regex }/d`, filename );
+	await dockerExec( 'sed', '-i', `/${ regex }/d`, filename );
 }
 
 /**
