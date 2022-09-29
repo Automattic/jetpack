@@ -44,7 +44,7 @@ elif [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
 
   	# atomic scheduled run
   	if [ "$CRON" == "30 */4 * * *" ]; then
-  		PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks", "--grep-invert", "wordads", "--retries=2"]}')
+  		PROJECTS_MATRIX+=('{"project":"Jetpack on Atomic","path":"projects/plugins/jetpack/tests/e2e","testArgs":["blocks","--retries=2"]}')
   		RUN_NAME='atomic'
   	fi
 else

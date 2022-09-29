@@ -1,21 +1,7 @@
 /**
  * Internal dependencies
  */
-import { OriginalVideoPressVideo, VideoPressVideo } from '../types';
-
-export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
-	return {
-		...video,
-		title: video.title,
-		posterImage: video.image?.src,
-		uploadDate: video?.dateFormatted,
-	};
-};
-
-// Probably @deprecated since it was used when hitting the admin-ajax endpoint
-export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
-	return videos.map( mapVideo );
-};
+import { OriginalVideoPressVideo, VideoPressVideo } from '../../admin/types';
 
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
@@ -23,19 +9,20 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	const {
 		media_details: mediaDetails,
 		id,
-		caption,
 		jetpack_videopress: jetpackVideoPress,
 		jetpack_videopress_guid: guid,
+		slug: filename,
 	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
 	const {
-		allow_download: allowDownload,
-		description,
-		privacy_setting: privacySetting,
-		rating,
 		title,
+		description,
+		caption,
+		rating,
+		allow_download: allowDownload,
+		privacy_setting: privacySetting,
 	} = jetpackVideoPress;
 
 	const {
@@ -45,7 +32,12 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		duration,
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
-		files,
+		finished,
+		files = {
+			dvd: {
+				original_img: '',
+			},
+		},
 	} = videoPressMediaDetails;
 
 	const { dvd } = files;
@@ -76,11 +68,13 @@ export const mapVideoFromWPV2MediaEndpoint = (
 			height,
 		},
 		thumbnail,
+		finished,
+		filename,
 	};
 };
 
 export const mapVideosFromWPV2MediaEndpoint = (
 	videos: OriginalVideoPressVideo[]
-): VideoPressVideo => {
+): VideoPressVideo[] => {
 	return videos.map( mapVideoFromWPV2MediaEndpoint );
 };

@@ -2,6 +2,20 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.21.0 - 2022-09-27
+### Added
+- Added indeterminate progress bar [#26370]
+- Add support for link variant and className to ContextualUpgradeTrigger component [#26115]
+- JS Components: Add body-extra-small-bold variant to Text [#26295]
+
+### Changed
+- Changed design to latest design patterns. [#26253]
+- DonutMeter: Expose DonutMeter to clients of the component library. [#26371]
+- Modify components for usages in Upsell page [#26408]
+
+### Fixed
+- Fixed divider not appearing on small screens [#26443]
+
 ## 0.20.0 - 2022-09-20
 ### Added
 - Introduce component IconTooltip [#26081]
