@@ -92,7 +92,7 @@ class VideoPress_Rest_Api_V1_Stats {
 			$blog_id
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $path, '1.1', array(), null, 'rest' );
+		$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', array(), null, 'rest' );
 
 		if ( is_wp_error( $response ) ) {
 			return $error;
