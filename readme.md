@@ -3,7 +3,7 @@
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![codecov](https://codecov.io/gh/Automattic/jetpack/branch/trunk/graph/badge.svg?token=GmiI6Xl10U)](https://codecov.io/gh/Automattic/jetpack)
 
-This is the Jetpack Monorepo. It contains source code for the Jetpack plugin, the Jetpack composer packages, and other things.
+This is the Jetpack Mono repo. It contains source code for the Jetpack plugin, the Jetpack composer packages, and other things.
 
 ## How to install Jetpack plugin on your site
 
