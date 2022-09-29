@@ -9,16 +9,18 @@ import {
 	Container,
 	Col,
 	ThemeProvider,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
+import classnames from 'classnames';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import VideoFrameSelector, { VideoPlayer } from '../../../components/video-frame-selector';
 /**
  * Internal dependencies
  */
+import VideoFrameSelector, { VideoPlayer } from '../../../components/video-frame-selector';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -40,23 +42,29 @@ const Header = ( {
 	saveLoading?: boolean;
 	onSaveChanges: () => void;
 } ) => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const navigate = useNavigate();
+
 	return (
-		<div className={ styles.header }>
-			<div className={ styles.breadcrumb }>
-				<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
-					<Logo />
-				</button>
-				<Icon icon={ chevronRightSmall } />
-				<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
+		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
+			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
+				<Logo />
+			</button>
+			<div className={ styles[ 'header-content' ] }>
+				<div className={ styles.breadcrumb }>
+					{ ! isSm && <Icon icon={ chevronRightSmall } /> }
+					<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
+				</div>
+				<div>
+					<Button
+						disabled={ saveDisabled || saveLoading }
+						onClick={ onSaveChanges }
+						isLoading={ saveLoading }
+					>
+						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
 			</div>
-			<Button
-				disabled={ saveDisabled || saveLoading }
-				onClick={ onSaveChanges }
-				isLoading={ saveLoading }
-			>
-				{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
-			</Button>
 		</div>
 	);
 };
