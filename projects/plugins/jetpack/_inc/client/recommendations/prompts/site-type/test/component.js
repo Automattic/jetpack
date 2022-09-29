@@ -72,7 +72,7 @@ describe( 'Recommendations – Site Type', () => {
 		expect( screen.getByText( 'Tell us more about Test Site?' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'I build or manage this site for a client' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'This is an e-commerce site' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'This is my personal site' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'This is a personal site' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows questions with the right default initial state', () => {
@@ -81,7 +81,7 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 		expect( screen.getByLabelText( 'I build or manage this site for a client' ) ).toBeChecked();
 		expect( screen.getByLabelText( 'This is an e-commerce site' ) ).toBeChecked();
-		expect( screen.getByLabelText( 'This is my personal site' ) ).not.toBeChecked();
+		expect( screen.getByLabelText( 'This is a personal site' ) ).not.toBeChecked();
 	} );
 
 	it( 'updates the state of a question when an answer is clicked', async () => {
@@ -95,7 +95,7 @@ describe( 'Recommendations – Site Type', () => {
 			initialState: buildInitialState(),
 		} );
 
-		const personalCheckbox = screen.getByLabelText( 'This is my personal site' );
+		const personalCheckbox = screen.getByLabelText( 'This is my a personal site' );
 		expect( personalCheckbox.checked ).toBe( false );
 
 		await user.click( personalCheckbox );
