@@ -37,7 +37,7 @@ const ThreatsList = () => {
 										item?.version
 								  ) }
 						</Title>
-						{ ! hasRequiredPlan ? <PaidList list={ list } /> : <FreeList list={ list } /> }
+						{ hasRequiredPlan ? <PaidList list={ list } /> : <FreeList list={ list } /> }
 					</>
 				) : (
 					<EmptyList />
