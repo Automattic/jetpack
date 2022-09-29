@@ -321,7 +321,7 @@ export const getDataByKey = ( state, key ) => {
 const stepToNextStepByPath = {
 	default: {
 		'setup-wizard-completed': 'summary',
-		'banner-completed': 'woocommerce',
+		'banner-completed': 'agency',
 		'not-started': 'site-type-question',
 		'site-type-question': 'agency',
 		agency: 'woocommerce',
