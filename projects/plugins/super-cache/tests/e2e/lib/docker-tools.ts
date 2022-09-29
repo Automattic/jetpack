@@ -24,7 +24,7 @@ export async function dockerExec( ...command: string[] ) {
  * @param {string} filename - The file to be filtered.
  * @param {string} regex    - A regex (without / / markers) for lines to remove.
  */
-export async function deleteLinesFromDockerFile( filename: string, regex: string ) {
+export async function deleteLinesFromContainerFile( filename: string, regex: string ) {
 	await dockerExec( 'sed', '-i', `/${ regex }/d`, filename );
 }
 
@@ -33,7 +33,7 @@ export async function deleteLinesFromDockerFile( filename: string, regex: string
  *
  * @param {string} filename - The file to delete.
  */
-export async function deleteDockerFile( filename: string ) {
+export async function deleteContainerFile( filename: string ) {
 	await dockerExec( 'rm', '-f', filename );
 }
 
@@ -42,7 +42,7 @@ export async function deleteDockerFile( filename: string ) {
  *
  * @param {string} filename - The file to read.
  */
-export async function readDockerFile( filename: string ) {
+export async function readContainerFile( filename: string ) {
 	return dockerExec( 'cat', filename );
 }
 
@@ -52,7 +52,7 @@ export async function readDockerFile( filename: string ) {
  * @param {string}          filename - The file to write.
  * @param {Buffer | string} data     - The file data to write.
  */
-export async function writeDockerFile( filename: string, data: Buffer | string ) {
+export async function writeContainerFile( filename: string, data: Buffer | string ) {
 	const buffer = data instanceof Buffer ? data : Buffer.from( data );
 
 	await dockerExec(

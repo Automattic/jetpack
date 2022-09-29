@@ -1,5 +1,5 @@
 import { describe, beforeAll, expect, test } from '@jest/globals';
-import { readDockerFile, dockerExec } from '../lib/docker-tools';
+import { readContainerFile, dockerExec } from '../lib/docker-tools';
 import { readPluginFile } from '../lib/plugin-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
@@ -10,14 +10,14 @@ describe( 'Plugin Activation', () => {
 	} );
 
 	test( 'Ensure wp-config.php is updated when activated', async () => {
-		const config = await readDockerFile( '/var/www/html/wp-config.php' );
+		const config = await readContainerFile( '/var/www/html/wp-config.php' );
 
 		expect( /define\(\s*'WP_CACHE'/.test( config ) ).toBe( true );
 		expect( /define\(\s*'WPCACHEHOME'/.test( config ) ).toBe( true );
 	} );
 
 	test( 'Ensure advanced-cache is populated correctly.', async () => {
-		const advancedCache = await readDockerFile( '/var/www/html/wp-content/advanced-cache.php' );
+		const advancedCache = await readContainerFile( '/var/www/html/wp-content/advanced-cache.php' );
 		const expectedContents = await readPluginFile( 'advanced-cache.php' );
 
 		expect( advancedCache ).toBe( expectedContents );

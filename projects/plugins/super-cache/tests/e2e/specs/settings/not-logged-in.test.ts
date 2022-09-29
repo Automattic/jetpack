@@ -1,11 +1,6 @@
-import { describe, expect, beforeAll, test, afterAll } from '@jest/globals';
+import { describe, expect, beforeAll, test } from '@jest/globals';
 import { CacheNogLoggedInOptions, updateSettings } from '../../lib/plugin-settings';
-import {
-	authenticatedRequest,
-	clearCache,
-	getAuthCookie,
-	getSiteUrl,
-} from '../../lib/plugin-tools';
+import { authenticatedRequest, getAuthCookie, getSiteUrl } from '../../lib/plugin-tools';
 import { loadPage } from '../../lib/test-tools';
 import { resetEnvironmnt, wpcli } from '../../lib/wordpress-tools';
 

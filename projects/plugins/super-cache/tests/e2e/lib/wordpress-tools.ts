@@ -1,10 +1,10 @@
 import { expect } from '@jest/globals';
 import {
 	dockerExec,
-	deleteLinesFromDockerFile,
-	deleteDockerFile,
-	readDockerFile,
-	writeDockerFile,
+	deleteLinesFromContainerFile,
+	deleteContainerFile,
+	readContainerFile,
+	writeContainerFile,
 } from './docker-tools';
 import { readPluginFile } from './plugin-tools';
 
@@ -22,10 +22,10 @@ export async function wpcli( ...command ) {
  */
 export async function resetEnvironmnt() {
 	await wpcli( 'plugin', 'deactivate', 'wp-super-cache' );
-	await deleteDockerFile( '/var/www/html/wp-content/advanced-cache.php' );
-	await deleteDockerFile( '/var/www/html/wp-content/wp-content/wp-cache-config.php' );
-	await deleteLinesFromDockerFile( '/var/www/html/wp-config.php', 'WP_CACHE|WPCACHEHOME' );
-	await writeDockerFile(
+	await deleteContainerFile( '/var/www/html/wp-content/advanced-cache.php' );
+	await deleteContainerFile( '/var/www/html/wp-content/wp-content/wp-cache-config.php' );
+	await deleteLinesFromContainerFile( '/var/www/html/wp-config.php', 'WP_CACHE|WPCACHEHOME' );
+	await writeContainerFile(
 		'/var/www/html/.htaccess',
 		await readPluginFile( 'tests/e2e/tools/htaccess.txt' )
 	);
@@ -34,10 +34,10 @@ export async function resetEnvironmnt() {
 	const pluginList = await wpcli( 'plugin', 'list' );
 	expect( /wp-super-cache\sinactive/.test( pluginList ) ).toBe( true );
 
-	const config = await readDockerFile( '/var/www/html/wp-config.php' );
+	const config = await readContainerFile( '/var/www/html/wp-config.php' );
 	expect( /define\(\s*'WP_CACHE'/.test( config ) ).toBe( false );
 	expect( /define\(\s*'WPCACHEHOME'/.test( config ) ).toBe( false );
 
-	const htaccess = await readDockerFile( '/var/www/html/.htaccess' );
+	const htaccess = await readContainerFile( '/var/www/html/.htaccess' );
 	expect( htaccess ).not.toContain( 'WPSuperCache' );
 }
