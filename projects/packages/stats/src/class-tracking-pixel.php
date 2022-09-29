@@ -113,7 +113,7 @@ class Tracking_Pixel {
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
 		$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-		$data_stats_array = self::stats_array( $data );
+		$data_stats_array = self::stats_array_to_string( $data );
 
 		$stats_footer = <<<END
 	<script src='{$script}' defer></script>
