@@ -14,7 +14,7 @@ declare global {
 				isVideoPress1TBSupported: boolean;
 				isVideoPressUnlimitedSupported: boolean;
 			};
-			productData: productOriginalProps;
+			siteProductData: productOriginalProps;
 			adminUrl: string;
 			adminUri: string;
 			siteSuffix: string;
