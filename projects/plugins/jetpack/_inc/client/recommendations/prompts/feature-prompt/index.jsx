@@ -227,7 +227,7 @@ const FeaturePromptComponent = props => {
 const FeaturePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
-		...getStepContent( ownProps.stepSlug ),
+		...getStepContent( state, ownProps.stepSlug ),
 		...mapStateToSummaryFeatureProps( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),

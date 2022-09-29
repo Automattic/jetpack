@@ -17,8 +17,8 @@ const PrimarySummaryComponent = props => {
 	);
 };
 
-const PrimarySummary = connect( ( _, ownProps ) => ( {
-	...getSummaryPrimaryProps( ownProps.slug ),
+const PrimarySummary = connect( ( state, ownProps ) => ( {
+	...getSummaryPrimaryProps( state, ownProps.slug ),
 } ) )( PrimarySummaryComponent );
 
 export { PrimarySummary };

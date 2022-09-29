@@ -9,6 +9,12 @@ import {
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
 	ONBOARDING_JETPACK_BACKUP,
+	ONBOARDING_JETPACK_COMPLETE,
+	ONBOARDING_JETPACK_SECURITY,
+	ONBOARDING_JETPACK_ANTI_SPAM,
+	ONBOARDING_JETPACK_VIDEOPRESS,
+	ONBOARDING_JETPACK_SEARCH,
+	ONBOARDING_JETPACK_SCAN,
 	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
 	sortByOnboardingPriority,
@@ -46,7 +52,7 @@ import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
 	getSitePlan,
-	getSiteProducts,
+	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
 	siteHasFeature,
@@ -333,11 +339,50 @@ const stepToNextStepByPath = {
 		summary: 'summary',
 	},
 	onboarding: {
-		[ ONBOARDING_JETPACK_BACKUP ]: {
-			backup__welcome: 'monitor',
+		[ ONBOARDING_JETPACK_COMPLETE ]: {
+			welcome__complete: 'backup-activated',
+			'backup-activated': 'scan-activated',
+			'scan-activated': 'antispam-activated',
+			'antispam-activated': 'videopress-activated',
+			'videopress-activated': 'search-activated',
+			'search-activated': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SECURITY ]: {
+			welcome__security: 'scan-activated',
+			'scan-activated': 'antispam-activated',
+			'antispam-activated': 'monitor',
 			monitor: 'site-accelerator',
 			'site-accelerator': 'server-credentials',
 			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_BACKUP ]: {
+			welcome__backup: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_ANTI_SPAM ]: {
+			welcome__antispam: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+		[ ONBOARDING_JETPACK_VIDEOPRESS ]: {
+			welcome__videopress: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'related-posts',
+			'related-posts': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SEARCH ]: {
+			welcome__search: 'related-posts',
+			'related-posts': 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SCAN ]: {
+			welcome__scan: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
 		},
 	},
 };
@@ -360,7 +405,18 @@ export const stepToRoute = {
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
 	// new steps (September 2022)
-	backup__welcome: '#/recommendations/welcome-backup',
+	welcome__backup: '#/recommendations/welcome-backup',
+	welcome__complete: '#/recommendations/welcome-complete',
+	welcome__security: '#/recommendations/welcome-security',
+	welcome__antispam: '#/recommendations/welcome-antispam',
+	welcome__videopress: '#/recommendations/welcome-videopress',
+	welcome__search: '#/recommendations/welcome-search',
+	welcome__scan: '#/recommendations/welcome-scan',
+	'backup-activated': '#/recommendations/backup-activated',
+	'scan-activated': '#/recommendations/scan-activated',
+	'antispam-activated': '#/recommendations/antispam-activated',
+	'videopress-activated': '#/recommendations/videopress-activated',
+	'search-activated': '#/recommendations/search-activated',
 	'server-credentials': '#/recommendations/server-credentials',
 };
 
@@ -509,10 +565,21 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'welcome__complete':
+		case 'welcome__security':
+		case 'welcome__antispam':
+		case 'welcome__videopress':
+		case 'welcome__search':
+		case 'welcome__scan':
+		case 'backup-activated':
+		case 'scan-activated':
+		case 'antispam-activated':
+		case 'videopress-activated':
+		case 'search-activated':
 		case 'server-credentials':
 			return true; // Can we check if credentials were added?
-		case 'backup__welcome':
-			return getStepsForOnboarding( state ).includes( 'backup__welcome' );
+		case 'welcome__backup':
+			return getStepsForOnboarding( state ).includes( 'welcome__backup' );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -575,7 +642,7 @@ export const getOnboardingData = state => {
 		! isFetchingSiteData( state ) &&
 		isRecommendationsDataLoaded( state )
 	) {
-		const newOnboardings = getSiteProducts( state )
+		const newOnboardings = getSitePurchases( state )
 			.map( ( { product_slug } ) => getOnboardingNameByProductSlug( product_slug ) )
 			.filter( name => ! onboarding.viewed.includes( name ) );
 

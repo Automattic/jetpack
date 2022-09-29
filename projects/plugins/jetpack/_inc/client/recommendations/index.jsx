@@ -93,11 +93,44 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
-		case RECOMMENDATION_WIZARD_STEP.BACKUP__WELCOME:
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__BACKUP:
 			redirectPath = '/welcome-backup';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__COMPLETE:
+			redirectPath = '/welcome-complete';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SECURITY:
+			redirectPath = '/welcome-security';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__ANTISPAM:
+			redirectPath = '/welcome-antispam';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__VIDEOPRESS:
+			redirectPath = '/welcome-videopress';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SEARCH:
+			redirectPath = '/welcome-search';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
+			redirectPath = '/welcome-scan';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
 			redirectPath = '/server-credentials';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.BACKUP_ACTIVATED:
+			redirectPath = '/backup-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SCAN_ACTIVATED:
+			redirectPath = '/scan-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.ANTISPAM_ACTIVATED:
+			redirectPath = '/antispam-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.VIDEOPRESS_ACTIVATED:
+			redirectPath = '/videopress-activated';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.SEARCH_ACTIVATED:
+			redirectPath = '/search-activated';
 			break;
 		default:
 			redirectPath = '/summary';
@@ -113,7 +146,7 @@ const RecommendationsComponent = props => {
 		const { active, hasStarted } = onboardingData;
 		if ( ! isLoading && active && ! hasStarted ) {
 			updateStep( step );
-			updateOnboardingData( { hasStarted: true } );
+			updateOnboardingData( { ...onboardingData, hasStarted: true } );
 		}
 	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep ] );
 
@@ -183,7 +216,40 @@ const RecommendationsComponent = props => {
 						<FeaturePrompt stepSlug="boost" isNew={ isNew( 'boost' ) } />
 					</Route>
 					<Route path="/recommendations/welcome-backup">
-						<ResourcePrompt stepSlug="backup__welcome" />
+						<ResourcePrompt stepSlug="welcome__backup" />
+					</Route>
+					<Route path="/recommendations/welcome-complete">
+						<ResourcePrompt stepSlug="welcome__complete" />
+					</Route>
+					<Route path="/recommendations/welcome-security">
+						<ResourcePrompt stepSlug="welcome__security" />
+					</Route>
+					<Route path="/recommendations/welcome-antispam">
+						<ResourcePrompt stepSlug="welcome__antispam" />
+					</Route>
+					<Route path="/recommendations/welcome-videopress">
+						<ResourcePrompt stepSlug="welcome__videopress" />
+					</Route>
+					<Route path="/recommendations/welcome-search">
+						<ResourcePrompt stepSlug="welcome__search" />
+					</Route>
+					<Route path="/recommendations/welcome-scan">
+						<ResourcePrompt stepSlug="welcome__scan" />
+					</Route>
+					<Route path="/recommendations/backup-activated">
+						<ResourcePrompt stepSlug="backup-activated" />
+					</Route>
+					<Route path="/recommendations/scan-activated">
+						<ResourcePrompt stepSlug="scan-activated" />
+					</Route>
+					<Route path="/recommendations/antispam-activated">
+						<ResourcePrompt stepSlug="antispam-activated" />
+					</Route>
+					<Route path="/recommendations/videopress-activated">
+						<ResourcePrompt stepSlug="videopress-activated" />
+					</Route>
+					<Route path="/recommendations/search-activated">
+						<ResourcePrompt stepSlug="search-activated" />
 					</Route>
 					<Route path="/recommendations/server-credentials">
 						<ResourcePrompt stepSlug="server-credentials" />

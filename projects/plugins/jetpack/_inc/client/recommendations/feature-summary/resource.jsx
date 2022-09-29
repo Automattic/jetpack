@@ -54,8 +54,8 @@ const ResourceSummaryComponent = props => {
 	);
 };
 
-const ResourceSummary = connect( ( _, ownProps ) => ( {
-	...getSummaryResourceProps( ownProps.resourceSlug ),
+const ResourceSummary = connect( ( state, ownProps ) => ( {
+	...getSummaryResourceProps( state, ownProps.resourceSlug ),
 	stepRoute: stepToRoute[ ownProps.resourceSlug ],
 } ) )( ResourceSummaryComponent );
 

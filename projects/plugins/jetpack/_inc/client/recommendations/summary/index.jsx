@@ -88,25 +88,27 @@ const SummaryComponent = props => {
 						) ) }
 					</section>
 				) }
-				<section aria-labelledby="enabled-recommendations">
-					<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
-					<div>
-						{ summaryFeatureSlugs.selected.length > 0 ? (
-							summaryFeatureSlugs.selected.map( slug => (
-								<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
-							) )
-						) : (
-							<p className="jp-recommendations-summary__recommendation-notice">
-								<em>
-									{ __(
-										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
-										'jetpack'
-									) }
-								</em>
-							</p>
-						) }
-					</div>
-				</section>
+				{ ( summaryFeatureSlugs.selected.length > 0 || summaryFeatureSlugs.skipped.length > 0 ) && (
+					<section aria-labelledby="enabled-recommendations">
+						<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
+						<div>
+							{ summaryFeatureSlugs.selected.length > 0 ? (
+								summaryFeatureSlugs.selected.map( slug => (
+									<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
+								) )
+							) : (
+								<p className="jp-recommendations-summary__recommendation-notice">
+									<em>
+										{ __(
+											'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
+											'jetpack'
+										) }
+									</em>
+								</p>
+							) }
+						</div>
+					</section>
+				) }
 				{ summaryFeatureSlugs.skipped.length > 0 && (
 					<section aria-labelledby="skipped-recommendations">
 						<h2 id="skipped-recommendations">{ __( 'Recommendations skipped', 'jetpack' ) }</h2>

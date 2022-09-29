@@ -2,6 +2,7 @@ import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import analytics from 'lib/analytics';
 import React, { useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
@@ -42,6 +43,7 @@ const ResourcePromptComponent = props => {
 		illustration,
 		ctaText,
 		ctaLink,
+		hasNoAction,
 		skipText,
 		stepSlug,
 		stateStepSlug,
@@ -127,27 +129,35 @@ const ResourcePromptComponent = props => {
 			}
 			answer={
 				<div className="jp-recommendations-question__install-section">
-					<ExternalLink
-						type="button"
-						className="dops-button is-rna is-primary"
-						href={ ctaLink }
-						onClick={ onResourceLinkClick }
-					>
-						{ ctaText }
-					</ExternalLink>
-					<div className="jp-recommendations-question__jump-nav">
-						<a href={ nextRoute } onClick={ onResourceSkipClick }>
-							{ skipText || __( 'Not now', 'jetpack' ) }
-						</a>
-						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
-							<>
-								<span className="jp-recommendations-question__jump-nav-separator">|</span>
-								<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
-									{ __( 'View Recommendations', 'jetpack' ) }{ ' ' }
+					{ ! hasNoAction ? (
+						<>
+							<ExternalLink
+								type="button"
+								className="dops-button is-rna is-primary"
+								href={ ctaLink }
+								onClick={ onResourceLinkClick }
+							>
+								{ ctaText }
+							</ExternalLink>
+							<div className="jp-recommendations-question__jump-nav">
+								<a href={ nextRoute } onClick={ onResourceSkipClick }>
+									{ skipText || __( 'Not now', 'jetpack' ) }
 								</a>
-							</>
-						) }
-					</div>
+								{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
+									<>
+										<span className="jp-recommendations-question__jump-nav-separator">|</span>
+										<a onClick={ onBackToSummaryClick } href={ '#/recommendations/summary' }>
+											{ __( 'View Recommendations', 'jetpack' ) }{ ' ' }
+										</a>
+									</>
+								) }
+							</div>
+						</>
+					) : (
+						<Button primary rna href={ nextRoute }>
+							{ ctaText }
+						</Button>
+					) }
 				</div>
 			}
 			sidebarCard={
@@ -163,7 +173,7 @@ const ResourcePromptComponent = props => {
 const ResourcePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
-		...getStepContent( ownProps.stepSlug ),
+		...getStepContent( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
 		summaryViewed: isStepViewed( state, 'summary' ),

@@ -24,7 +24,18 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	ANTI_SPAM: 'anti-spam',
 	VIDEOPRESS: 'videopress',
 	BACKUP_PLAN: 'backup-plan',
-	BACKUP__WELCOME: 'backup__welcome',
+	WELCOME__BACKUP: 'welcome__backup',
+	WELCOME__COMPLETE: 'welcome__complete',
+	WELCOME__SECURITY: 'welcome__security',
+	WELCOME__ANTISPAM: 'welcome__antispam',
+	WELCOME__VIDEOPRESS: 'welcome__videopress',
+	WELCOME__SEARCH: 'welcome__search',
+	WELCOME__SCAN: 'welcome__scan',
+	BACKUP_ACTIVATED: 'backup-activated',
+	SCAN_ACTIVATED: 'scan-activated',
+	ANTISPAM_ACTIVATED: 'antispam-activated',
+	VIDEOPRESS_ACTIVATED: 'videopress-activated',
+	SEARCH_ACTIVATED: 'search-activated',
 	SERVER_CREDENTIALS: 'server-credentials',
 	BOOST: 'boost',
 	SUMMARY: 'summary',
@@ -63,31 +74,37 @@ export const ONBOARDING_NAME_BY_PRODUCT_SLUG = {
 export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 	[ ONBOARDING_JETPACK_COMPLETE ]: {
 		name: 'Complete',
-		slugs: [],
+		slugs: [
+			'backup-activated',
+			'scan-activated',
+			'antispam-activated',
+			'videopress-activated',
+			'search-activated',
+		],
 	},
 	[ ONBOARDING_JETPACK_SECURITY ]: {
 		name: 'Security',
-		slugs: [],
+		slugs: [ 'backup-activated', 'scan-activated', 'antispam-activated' ],
 	},
 	[ ONBOARDING_JETPACK_BACKUP ]: {
 		name: 'Backup',
-		slugs: [ 'backup__welcome' ],
+		slugs: [ 'backup-activated' ],
 	},
 	[ ONBOARDING_JETPACK_ANTI_SPAM ]: {
 		name: 'Anti-Spam',
-		slugs: [],
+		slugs: [ 'antispam-activated' ],
 	},
 	[ ONBOARDING_JETPACK_VIDEOPRESS ]: {
 		name: 'VideoPress',
-		slugs: [],
+		slugs: [ 'videopress-activated' ],
 	},
 	[ ONBOARDING_JETPACK_SEARCH ]: {
 		name: 'Search',
-		slugs: [],
+		slugs: [ 'search-activated' ],
 	},
 	[ ONBOARDING_JETPACK_SCAN ]: {
 		name: 'Scan',
-		slugs: [],
+		slugs: [ 'scan-activated' ],
 	},
 };
 
