@@ -1,3 +1,4 @@
+import { productOriginalProps } from '../../hooks/use-plan/types';
 import { VideoPressVideo } from '../../types';
 
 declare global {
@@ -13,7 +14,10 @@ declare global {
 				isVideoPress1TBSupported: boolean;
 				isVideoPressUnlimitedSupported: boolean;
 			};
+			productData: productOriginalProps;
 			adminUrl: string;
+			adminUri: string;
+			siteSuffix: string;
 		};
 	}
 }
