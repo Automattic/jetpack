@@ -21,6 +21,7 @@ describe( 'Plugin Activation', () => {
 		const expectedContents = await readPluginFile( 'advanced-cache.php' );
 
 		expect( advancedCache ).toBe( expectedContents );
+		expect( advancedCache ).not.toBe( '' );
 	} );
 
 	test( 'Ensure a wp-cache-config.php file has been created and appears valid.', async () => {
