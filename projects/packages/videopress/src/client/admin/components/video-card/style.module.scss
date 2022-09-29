@@ -84,6 +84,10 @@
 	display: flex;
 	justify-content: space-between;
 
+	&.small {
+		margin-bottom: calc( var( --spacing-base ) * 6 );
+	}
+
 	&:not(.small) {
 		opacity: 0;
 		position: relative;

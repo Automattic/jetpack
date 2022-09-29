@@ -9,7 +9,9 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Products\Search as Search_Product;
+use Automattic\Jetpack\My_Jetpack\Products\Search_Stats as Search_Product_Stats;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -151,6 +153,15 @@ class REST_Controller {
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+		register_rest_route(
+			static::$namespace,
+			'/search/local-stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_local_stats' ),
+				'permission_callback' => array( $this, 'require_valid_blog_token_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -172,6 +183,29 @@ class REST_Controller {
 			return true;
 		}
 
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * The corresponding endpoints can only be accessible from WPCOM.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
+	 */
+	public function require_valid_blog_token_callback() {
+		if ( Rest_Authentication::is_signed_with_blog_token() ) {
+			return true;
+		}
+
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Return a WP_Error object with a forbidden error.
+	 */
+	protected function get_forbidden_error() {
 		$error_msg = esc_html__(
 			'You are not allowed to perform this action.',
 			'jetpack-search-pkg'
@@ -370,6 +404,16 @@ class REST_Controller {
 			array(
 				'code' => 'success',
 			)
+		);
+	}
+
+	/**
+	 * Return post type breakdown for the site.
+	 */
+	public function get_local_stats() {
+		return array(
+			'post_count'          => Search_Product_Stats::estimate_count(),
+			'post_type_breakdown' => Search_Product_Stats::get_post_type_breakdown(),
 		);
 	}
 
