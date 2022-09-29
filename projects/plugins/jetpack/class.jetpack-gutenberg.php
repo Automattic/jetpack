@@ -1026,7 +1026,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function upgrade_nudge( $plan ) {
-		jetpack_require_lib( 'components' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
 				'plan' => $plan,
