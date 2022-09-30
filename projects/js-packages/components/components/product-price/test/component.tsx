@@ -17,7 +17,7 @@ describe( 'ProductPrice', () => {
 
 		describe( 'And the fraction is not zero', () => {
 			it( 'renders the price fraction', () => {
-				render( <ProductPrice { ...testProps } hidePriceFraction={ true } price={ 17.1 } /> );
+				render( <ProductPrice { ...testProps } hidePriceFraction={ false } price={ 17.1 } /> );
 
 				expect( screen.getByTestId( 'PriceFraction' ) ).toBeInTheDocument();
 			} );
