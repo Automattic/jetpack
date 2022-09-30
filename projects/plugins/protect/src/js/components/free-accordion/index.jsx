@@ -34,7 +34,7 @@ export const FreeAccordionItem = ( { id, title, label, icon, children, onOpen } 
 						{ label }
 					</Text>
 					<Text
-						className={ styles[ 'accordion-header-text' ] }
+						className={ styles[ 'accordion-header-description' ] }
 						variant={ open ? 'title-small' : 'body' }
 					>
 						{ title }

@@ -13,7 +13,9 @@ const ThreatAccordionItem = ( {
 	title,
 	description,
 	icon,
+	fixable,
 	fixedIn,
+	severity,
 	type,
 	source,
 } ) => {
@@ -31,6 +33,8 @@ const ThreatAccordionItem = ( {
 			label={ `${ name } (${ version })` }
 			title={ title }
 			icon={ icon }
+			fixable={ fixable }
+			severity={ severity }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
 					return;
@@ -104,20 +108,36 @@ const PaidList = ( { list } ) => {
 				</div>
 			) }
 			<PaidAccordion>
-				{ list.map( ( { id, name, title, description, version, fixedIn, icon, type, source } ) => (
-					<ThreatAccordionItem
-						key={ id }
-						id={ id }
-						name={ name }
-						version={ version }
-						title={ title }
-						description={ description }
-						icon={ icon }
-						fixedIn={ fixedIn }
-						type={ type }
-						source={ source }
-					/>
-				) ) }
+				{ list.map(
+					( {
+						id,
+						name,
+						version,
+						title,
+						description,
+						icon,
+						fixedIn,
+						fixable,
+						severity,
+						type,
+						source,
+					} ) => (
+						<ThreatAccordionItem
+							key={ id }
+							id={ id }
+							name={ name }
+							version={ version }
+							title={ title }
+							description={ description }
+							icon={ icon }
+							fixable={ fixable }
+							fixedIn={ fixedIn }
+							severity={ severity }
+							type={ type }
+							source={ source }
+						/>
+					)
+				) }
 			</PaidAccordion>
 			<Text className={ styles[ 'manual-scan' ] } variant="body-small">
 				{ manualScan }

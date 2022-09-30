@@ -24,8 +24,9 @@ const Summary = () => {
 					<Text variant="headline-small" component="h1">
 						{ sprintf(
 							/* translators: %s: Total number of threats  */
-							__( '%s threats found', 'jetpack-protect' ),
-							numThreats
+							__( '%1$s %2$s found', 'jetpack-protect' ),
+							numThreats,
+							numThreats === 1 ? 'threat' : 'threats'
 						) }
 					</Text>
 				) }

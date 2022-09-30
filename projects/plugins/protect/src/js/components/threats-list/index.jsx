@@ -26,13 +26,14 @@ const ThreatsList = () => {
 							{ selected === 'all'
 								? sprintf(
 										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-										__( 'All %s vulnerabilities', 'jetpack-protect' ),
+										__( 'All %s threats', 'jetpack-protect' ),
 										list.length
 								  )
 								: sprintf(
 										/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-										__( '%1$s vulnerabilities in your %2$s %3$s', 'jetpack-protect' ),
+										__( '%1$s %2$s in %3$s %4$s', 'jetpack-protect' ),
 										list.length,
+										list.length === 1 ? 'threat' : 'threats',
 										item?.name,
 										item?.version
 								  ) }

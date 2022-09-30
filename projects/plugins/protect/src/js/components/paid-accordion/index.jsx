@@ -7,7 +7,16 @@ import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
 
-export const PaidAccordionItem = ( { id, title, label, icon, children, onOpen } ) => {
+export const PaidAccordionItem = ( {
+	id,
+	title,
+	label,
+	icon,
+	fixable,
+	severity,
+	children,
+	onOpen,
+} ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
@@ -26,11 +35,6 @@ export const PaidAccordionItem = ( { id, title, label, icon, children, onOpen } 
 		} );
 	}, [ open, onOpen, setOpen, id ] );
 
-	// Rig these up properly if we find its worth it
-	// Update once we have access to severity value
-	// const hasRequiredPlan = true;
-	const isFixable = true;
-
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
 			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
@@ -40,17 +44,17 @@ export const PaidAccordionItem = ( { id, title, label, icon, children, onOpen } 
 						{ label }
 					</Text>
 					<Text
-						className={ styles[ 'accordion-header-text' ] }
+						className={ styles[ 'accordion-header-description' ] }
 						variant={ open ? 'title-small' : 'body' }
 					>
 						{ title }
 					</Text>
 				</div>
 				<div>
-					<ThreatSeverityBadge severity={ 5 } />
+					<ThreatSeverityBadge severity={ severity } />
 				</div>
 				<div>
-					{ isFixable && <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } /> }
+					{ fixable && <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } /> }
 				</div>
 				<div className={ styles[ 'accordion-header-button' ] }>
 					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />

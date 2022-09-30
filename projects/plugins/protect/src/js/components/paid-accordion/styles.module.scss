@@ -1,5 +1,6 @@
 .accordion {
 	display: inline-block;
+	width: 100%;
 	border-radius: var(--jp-border-radius);
 	border: 1px solid var(--jp-gray);
 
@@ -41,7 +42,6 @@
 	&:hover {
 		background: var(--jp-gray-0);
 	}
-
 }
 
 .accordion-header-label {
@@ -55,10 +55,13 @@
 	margin-right: var(--spacing-base); // 8px
 }
 
-.accordion-header-text {
+.accordion-header-description {
 	font-weight: 600;
 	margin-left: 32px;
-	margin-bottom: calc( var( --spacing-base ) * 1 )
+	margin-bottom: calc(var(--spacing-base) * 1);
+	// white-space: nowrap;
+	// overflow: hidden;
+	// text-overflow: ellipsis;
 }
 
 .accordion-header-button {
@@ -118,4 +121,5 @@
 			grid-row: 1/3;
 		}
 	}
+
 }
