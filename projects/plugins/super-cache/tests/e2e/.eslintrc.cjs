@@ -1,9 +1,7 @@
 module.exports = {
 	root: true,
-	extends: [
-		//require.resolve( 'jetpack-js-tools/eslintrc/base' ),
-		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
-	],
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ) ],
+	plugins: [ 'jest', 'typescript' ],
 	parserOptions: {
 		sourceType: 'module',
 		tsconfigRootDir: __dirname,
