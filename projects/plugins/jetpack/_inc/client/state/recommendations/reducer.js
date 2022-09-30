@@ -466,9 +466,7 @@ export const isFeatureActive = ( state, featureSlug ) => {
 		case 'publicize':
 			return !! getSetting( state, 'publicize' );
 		case 'videopress':
-			return !! getSetting( state, 'videopress' );
-		case 'server-credentials':
-			return true;
+			return !! isPluginActive( state, 'videopress/jetpack-videopress.php' );
 		default:
 			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}

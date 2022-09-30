@@ -216,7 +216,9 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'videopress':
 			return {
 				activateFeature: () => {
-					return dispatch( updateSettings( { videopress: true } ) );
+					return restApi.installPlugin( 'videopress', 'recommendations' ).then( () => {
+						return dispatch( fetchPluginsData() );
+					} );
 				},
 			};
 		case 'woocommerce':
