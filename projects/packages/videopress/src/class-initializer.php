@@ -119,6 +119,7 @@ class Initializer {
 		Jwt_Token_Bridge::init();
 		Uploader_Rest_Endpoints::init();
 		VideoPress_Rest_Api_V1_Token::init();
+		VideoPress_Rest_Api_V1_Stats::init();
 		XMLRPC::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {

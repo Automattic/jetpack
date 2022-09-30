@@ -8,9 +8,8 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
@@ -20,15 +19,31 @@ import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = () => {
 	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
-	const { product } = usePlan();
-	const { pricingForUi } = product;
+	const { siteProduct, product } = usePlan();
+	const { pricingForUi } = siteProduct;
 	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
-	const pricingItems = product.features.map( feature => ( { name: feature } ) );
+	const { run } = useProductCheckoutWorkflow( {
+		siteSuffix,
+		productSlug: product.productSlug,
+		redirectUrl: adminUri,
+	} );
+
+	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
+
+	/*
+	 * Fallback to the product price if the site product price is not available.
+	 * This can happen when the site is not connected yet.
+	 */
+	if ( ! pricingForUi?.fullPrice ) {
+		pricingForUi.fullPrice = product.cost;
+		pricingForUi.discountPrice = product.introductoryOffer.costPerInterval;
+		pricingForUi.currencyCode = product.currencyCode;
+	}
 
 	return (
-		<PricingTable title={ product.description } items={ pricingItems }>
+		<PricingTable title={ siteProduct.description } items={ pricingItems }>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
@@ -38,14 +53,7 @@ const PricingPage = () => {
 						leyend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
-					<Button
-						href={ getRedirectUrl( 'videopress-upgrade', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
-						} ) }
-						fullWidth
-						disabled={ isConnecting }
-					>
+					<Button onClick={ run } fullWidth disabled={ isConnecting }>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PricingTableHeader>

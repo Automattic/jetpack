@@ -26,6 +26,7 @@ import useUploader from '../../../hooks/use-uploader';
 import { STORE_ID } from '../../../state';
 import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
 import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
+import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
@@ -185,9 +186,14 @@ const UpgradeTrigger = () => {
 	const {
 		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
 		adminUrl,
+		siteSuffix,
 	} = window.jetpackVideoPressInitialState;
+
+	const { product } = usePlan();
+
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_videopress',
+		siteSuffix,
+		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
 	} );
 
