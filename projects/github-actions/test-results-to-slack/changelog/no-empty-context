@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix empty blocks for unsupported events. Add support for workflow_run event.

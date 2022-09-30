@@ -20,7 +20,7 @@ class Options {
 	 *
 	 * @var string $option_name The 'stats' option name
 	 */
-	public static $option_name = 'stats_options';
+	const OPTION_NAME = 'stats_options';
 
 	/**
 	 * Stats Options.
@@ -40,9 +40,10 @@ class Options {
 			return self::$options;
 		}
 
-		self::$options = get_option( self::$option_name, array() );
+		self::$options = get_option( self::OPTION_NAME, array() );
+		self::$options = array_merge( self::get_defaults(), self::$options );
 
-		if ( ! isset( self::$options['version'] ) || self::$options['version'] < Constants::get_constant( 'STATS_VERSION' ) ) {
+		if ( self::$options['version'] < Constants::get_constant( 'STATS_VERSION' ) ) {
 			self::upgrade_options( self::$options );
 		}
 
@@ -56,12 +57,11 @@ class Options {
 	 * @return mixed|null.
 	 */
 	public static function get_option( $option ) {
-		$options = self::get_options();
-
-		// Why??
 		if ( 'blog_id' === $option ) {
 			return Jetpack_Options::get_option( 'id' );
 		}
+
+		$options = self::get_options();
 
 		if ( isset( $options[ $option ] ) ) {
 			return $options[ $option ];
@@ -96,7 +96,23 @@ class Options {
 		if ( ! is_array( $options ) ) {
 			return false;
 		}
-		$success = update_option( 'stats_options', $options );
+
+		$defaults       = self::get_defaults();
+		$stored_options = get_option( self::OPTION_NAME, array() );
+		$all_options    = array_merge( $defaults, $stored_options );
+		$options        = array_merge( $all_options, $options );
+
+		$allowed_options = array_keys( $defaults );
+		foreach ( $options as $option_name => $option_value ) {
+			if ( ! in_array( $option_name, $allowed_options, true ) ) {
+				unset( $options[ $option_name ] );
+			}
+		}
+
+		$options['blog_id'] = Jetpack_Options::get_option( 'id' );
+		$options['version'] = Constants::get_constant( 'STATS_VERSION' );
+
+		$success = update_option( self::OPTION_NAME, $options );
 
 		if ( true === $success ) {
 			self::$options = $options;
@@ -108,19 +124,14 @@ class Options {
 	/**
 	 * Stats Upgrade Options.
 	 *
+	 * Ideally this should be a protected method but keeping it public
+	 * to maintain backwards compatibility with stats_upgrade_options.
+	 *
 	 * @access public
 	 * @param array $options The stats options.
 	 * @return array|bool
 	 */
 	public static function upgrade_options( $options ) {
-		$defaults = array(
-			'admin_bar'    => true,
-			'roles'        => array( 'administrator' ),
-			'count_roles'  => array(),
-			'blog_id'      => Jetpack_Options::get_option( 'id' ),
-			'do_not_track' => true, // @todo
-		);
-
 		if ( isset( $options['reg_users'] ) ) {
 			if ( ! function_exists( 'get_editable_roles' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -131,19 +142,26 @@ class Options {
 			unset( $options['reg_users'] );
 		}
 
-		if ( is_array( $options ) && ! empty( $options ) ) {
-			$new_options = array_merge( $defaults, $options );
-		} else {
-			$new_options = $defaults;
-		}
-
-		$new_options['version'] = Constants::get_constant( 'STATS_VERSION' );
-
-		if ( ! self::set_options( $new_options ) ) {
+		if ( false === self::set_options( $options ) ) {
 			return false;
 		}
 
-		return $new_options;
+		return self::$options;
 	}
 
+	/**
+	 * Default Stats related options.
+	 *
+	 * @return array
+	 */
+	protected static function get_defaults() {
+		return array(
+			'admin_bar'    => true,
+			'roles'        => array( 'administrator' ),
+			'count_roles'  => array(),
+			'do_not_track' => true, // @todo
+			'blog_id'      => Jetpack_Options::get_option( 'id' ),
+			'version'      => Constants::get_constant( 'STATS_VERSION' ),
+		);
+	}
 }

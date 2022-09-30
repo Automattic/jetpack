@@ -1,4 +1,3 @@
-import { MouseEvent } from 'react';
 import { VideoPressVideo } from '../../types';
 
 type VideoRowBaseProps = {
@@ -11,13 +10,13 @@ type VideoRowBaseProps = {
 	 */
 	checked?: boolean;
 	/**
-	 * Hide edit details button.
+	 * Show edit button
 	 */
-	hideEditButton?: boolean;
+	showEditButton?: boolean;
 	/**
-	 * Hide quick actions section.
+	 * Show quick actions section.
 	 */
-	hideQuickActions?: boolean;
+	showQuickActions?: boolean;
 	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
@@ -25,19 +24,7 @@ type VideoRowBaseProps = {
 	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
-	onClickEdit?: () => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	onVideoDetailsClick?: () => void;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps & VideoPressVideo;

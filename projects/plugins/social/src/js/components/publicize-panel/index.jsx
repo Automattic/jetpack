@@ -8,17 +8,14 @@ import {
 	Form as PublicizeForm,
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
+	usePublicizeConfig,
 } from '@automattic/jetpack-publicize-components';
 import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
-import { useSelect, useDispatch, register, createReduxStore } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID, storeConfig } from '../../store';
 import Description from './description';
-
-const store = createReduxStore( STORE_ID, storeConfig );
-register( store );
 
 const PublicizePanel = ( { prePublish } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
@@ -29,14 +26,7 @@ const PublicizePanel = ( { prePublish } ) => {
 	);
 	const { togglePublicizeFeature } = useDispatch( 'jetpack/publicize' );
 
-	const { isShareLimitEnabled, numberOfSharesRemaining, hasPaidPlan } = useSelect( select => {
-		const socialStore = select( STORE_ID );
-		return {
-			isShareLimitEnabled: socialStore.isShareLimitEnabled(),
-			numberOfSharesRemaining: socialStore.numberOfSharesRemaining(),
-			hasPaidPlan: socialStore.hasPaidPlan(),
-		};
-	} );
+	const { hasPaidPlan, isShareLimitEnabled, numberOfSharesRemaining } = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(

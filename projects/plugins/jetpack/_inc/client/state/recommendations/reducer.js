@@ -1,4 +1,3 @@
-import { _x } from '@wordpress/i18n';
 import {
 	isJetpackPlanWithAntiSpam,
 	isJetpackPlanWithBackup,
@@ -59,6 +58,24 @@ const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_DATA_UPDATE:
+			// Filter out deprecated slugs and convert them to new ones (if the new ones don't already exist)
+			for ( const [ key, value ] of Object.entries( action.data ) ) {
+				const actionData = action.data;
+				if ( key === 'site-type-business' ) {
+					const oldValue = actionData[ 'site-type-agency' ];
+
+					actionData[ 'site-type-agency' ] = oldValue !== undefined ? oldValue : value;
+					delete actionData[ 'site-type-business' ];
+				}
+
+				if ( key === 'site-type-other' ) {
+					const oldValue = actionData[ 'site-type-personal' ];
+
+					actionData[ 'site-type-personal' ] = oldValue !== undefined ? oldValue : value;
+					delete actionData[ 'site-type-other' ];
+				}
+			}
+
 			return assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION: {
 			const selectedState = mergeWith(
@@ -279,9 +296,10 @@ export const getDataByKey = ( state, key ) => {
 
 const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
-	'banner-completed': 'woocommerce',
+	'banner-completed': 'agency',
 	'not-started': 'site-type-question',
-	'site-type-question': 'woocommerce',
+	'site-type-question': 'agency',
+	agency: 'woocommerce',
 	'product-suggestions': 'woocommerce',
 	woocommerce: 'monitor',
 	monitor: 'related-posts',
@@ -301,6 +319,7 @@ export const stepToRoute = {
 	'not-started': '#/recommendations/site-type',
 	'site-type-question': '#/recommendations/site-type',
 	'product-suggestions': '#/recommendations/product-suggestions',
+	agency: '#/recommendations/agency',
 	woocommerce: '#/recommendations/woocommerce',
 	monitor: '#/recommendations/monitor',
 	'related-posts': '#/recommendations/related-posts',
@@ -428,6 +447,8 @@ const isStepEligibleToShow = ( state, step ) => {
 			return true;
 		case 'product-suggestions':
 			return isProductSuggestionsAvailable( state );
+		case 'agency':
+			return !! getDataByKey( state, 'site-type-agency' );
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
 		case 'monitor':
@@ -494,40 +515,14 @@ export const getNextRoute = state => {
 	return stepToRoute[ nextStep ];
 };
 
-export const getSiteTypeDisplayName = state => {
-	const siteTypeKeysInPreferenceOrder = [
-		'site-type-store',
-		'site-type-business',
-		'site-type-personal',
-		'site-type-other',
-	];
-
-	const siteTypeDisplayNamesByKey = {
-		/* translators: A name for a website that sells things */
-		'site-type-store': _x( 'store', 'Site type display name', 'jetpack' ),
-		/* translators: A name for a website for a business */
-		'site-type-business': _x( 'business site', 'Site type display name', 'jetpack' ),
-		/* translators: A name for a website for personal use */
-		'site-type-personal': _x( 'personal site', 'Site type display name', 'jetpack' ),
-		/* translators: A generic name for a website */
-		'site-type-other': _x( 'site', 'Site type display name', 'jetpack' ),
-	};
-
-	for ( const key of siteTypeKeysInPreferenceOrder ) {
-		if ( true === getDataByKey( state, key ) ) {
-			return siteTypeDisplayNamesByKey[ key ];
-		}
-	}
-
-	return siteTypeDisplayNamesByKey[ 'site-type-other' ];
-};
-
 export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
 
 const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	switch ( slug ) {
 		case 'woocommerce':
 			return true === getDataByKey( state, 'site-type-store' );
+		case 'agency':
+			return true === getDataByKey( state, 'site-type-agency' );
 		case 'monitor':
 			return hasConnectedOwner( state );
 		case 'boost':
@@ -580,7 +575,7 @@ export const getSummaryFeatureSlugs = state => {
 };
 
 export const getSummaryResourceSlugs = state => {
-	const resourceSlugs = [ 'anti-spam', 'backup-plan' ];
+	const resourceSlugs = [ 'agency', 'anti-spam', 'backup-plan' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };

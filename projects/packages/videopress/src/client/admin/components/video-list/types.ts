@@ -7,14 +7,7 @@ export type VideoListProps = {
 	videos: Array<
 		Omit<
 			VideoRowProps,
-			| 'checked'
-			| 'hideEditButton'
-			| 'hideQuickActions'
-			| 'onSelect'
-			| 'onClickEdit'
-			| 'onUpdateThumbnailClick'
-			| 'onUpdateUpdatePrivacyClick'
-			| 'onDeleteClick'
+			'checked' | 'showEditButton' | 'showQuickActions' | 'onSelect' | 'onVideoDetailsClick'
 		>
 	>;
 	/**
@@ -30,27 +23,15 @@ export type VideoListProps = {
 	 */
 	hidePlays?: boolean;
 	/**
-	 * Hide edit details button.
+	 * Show edit button.
 	 */
-	hideEditButton?: boolean;
+	showEditButton?: boolean;
 	/**
-	 * Hide quick actions section.
+	 * Show quick actions.
 	 */
-	hideQuickActions?: boolean;
+	showQuickActions?: boolean;
 	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
-	onClickEdit?: ( video: VideoRowProps ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( video: VideoRowProps ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( video: VideoRowProps ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( video: VideoRowProps ) => void;
+	onVideoDetailsClick?: ( video: VideoRowProps ) => void;
 };

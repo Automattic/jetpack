@@ -30,6 +30,12 @@ export default {
 		iconCode: {
 			control: { type: 'text' },
 		},
+		iconSize: {
+			control: { type: 'number' },
+		},
+		offset: {
+			control: { type: 'number' },
+		},
 		title: {
 			control: { type: 'text' },
 		},

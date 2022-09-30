@@ -1,43 +1,43 @@
 /**
- * External dependencies
- */
-import { gmdateI18n } from '@wordpress/date';
-/**
  * Internal dependencies
  */
-import { OriginalVideoPressVideo, VideoPressVideo } from '../types';
-
-export const mapVideo = ( video: OriginalVideoPressVideo ): VideoPressVideo => {
-	return {
-		...video,
-		title: video.title,
-		posterImage: video.image?.src,
-		uploadDate: video?.dateFormatted,
-	};
-};
-
-// priobably @deprecated since it was used when hitting the admin-ajax endpoint
-export const mapVideos = ( videos: OriginalVideoPressVideo[] ): VideoPressVideo[] => {
-	return videos.map( mapVideo );
-};
+import { OriginalVideoPressVideo, VideoPressVideo } from '../../admin/types';
 
 export const mapVideoFromWPV2MediaEndpoint = (
 	video: OriginalVideoPressVideo
 ): VideoPressVideo => {
-	const { media_details: mediaDetails, id, caption, jetpack_videopress_guid: guid } = video;
+	const {
+		media_details: mediaDetails,
+		id,
+		jetpack_videopress: jetpackVideoPress,
+		jetpack_videopress_guid: guid,
+		slug: filename,
+	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
 	const {
 		title,
 		description,
+		caption,
+		rating,
+		allow_download: allowDownload,
+		privacy_setting: privacySetting,
+	} = jetpackVideoPress;
+
+	const {
 		original: url,
 		poster,
-		upload_date: date,
+		upload_date: uploadDate,
 		duration,
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
-		files,
+		finished,
+		files = {
+			dvd: {
+				original_img: '',
+			},
+		},
 	} = videoPressMediaDetails;
 
 	const { dvd } = files;
@@ -46,7 +46,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Define thumbnail picking the image from DVD file type
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
-	const thumbnail = `${ fileURLBase.https }${ dvd.original_img }`;
+	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
 
 	return {
 		id,
@@ -55,22 +55,26 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		description,
 		caption,
 		url,
-		date,
+		uploadDate,
 		duration,
 		isPrivate,
-		dateFormatted: gmdateI18n( 'F j, Y', date ),
 		posterImage: poster,
+		allowDownload,
+		rating,
+		privacySetting,
 		poster: {
 			src: poster,
 			width,
 			height,
 		},
 		thumbnail,
+		finished,
+		filename,
 	};
 };
 
 export const mapVideosFromWPV2MediaEndpoint = (
 	videos: OriginalVideoPressVideo[]
-): VideoPressVideo => {
+): VideoPressVideo[] => {
 	return videos.map( mapVideoFromWPV2MediaEndpoint );
 };
