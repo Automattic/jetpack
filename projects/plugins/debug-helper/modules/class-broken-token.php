@@ -103,6 +103,7 @@ class Broken_Token {
 		add_action( 'admin_post_randomize_master_user', array( $this, 'admin_post_randomize_master_user' ) );
 		add_action( 'admin_post_randomize_master_user_and_token', array( $this, 'admin_post_randomize_master_user_and_token' ) );
 		add_action( 'admin_post_clear_master_user', array( $this, 'admin_post_clear_master_user' ) );
+		add_action( 'admin_post_set_current_master_user', array( $this, 'admin_post_set_current_master_user' ) );
 		add_action( 'admin_post_randomize_blog_id', array( $this, 'admin_post_randomize_blog_id' ) );
 		add_action( 'admin_post_clear_blog_id', array( $this, 'admin_post_clear_blog_id' ) );
 
@@ -266,6 +267,12 @@ class Broken_Token {
 			<input type="hidden" name="action" value="clear_master_user">
 			<?php wp_nonce_field( 'clear-master-user' ); ?>
 			<input type="submit" value="Clear the Primary User" class="button button-primary button-break-it">
+		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="set_current_master_user">
+			<?php wp_nonce_field( 'set-current-master-user' ); ?>
+			<input type="submit" value="Set Current Primary User" class="button button-primary button-break-it">
 		</form>
 
 		<p><strong>Break the blog ID:</strong></p>
@@ -445,6 +452,16 @@ class Broken_Token {
 		check_admin_referer( 'clear-master-user' );
 		$this->notice_type = 'jetpack-broken';
 		Jetpack_Options::delete_option( 'master_user' );
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Set current master user.
+	 */
+	public function admin_post_set_current_master_user() {
+		check_admin_referer( 'set-current-master-user' );
+		$this->notice_type = 'jetpack-broken';
+		Jetpack_Options::update_option( 'master_user', get_current_user_id() );
 		$this->admin_post_redirect_referrer();
 	}
 
