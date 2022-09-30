@@ -106,7 +106,7 @@ class Data {
 
 		return array(
 			'videos' => array(
-				'uploadedVideoCount' => 6, // @todo: pick the total number properly
+				'uploadedVideoCount' => count( $videos ), // @todo: pick the total number properly
 				'items'              => $videos,
 			),
 		);
