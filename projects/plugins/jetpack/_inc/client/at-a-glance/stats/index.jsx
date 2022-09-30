@@ -162,7 +162,7 @@ export class DashStats extends Component {
 					className="jp-at-a-glance__stats-icon"
 				/>
 				<p>
-					{ __( 'Hello there! Your stats have been activated.', 'jetpack' ) }
+					{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
 					<br />
 					{ __(
 						'Just give us a little time to collect data so we can display it for you here.',
