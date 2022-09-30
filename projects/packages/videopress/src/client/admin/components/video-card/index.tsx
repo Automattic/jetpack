@@ -102,7 +102,7 @@ export const VideoCard = ( {
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
-					{ isSm && (
+					{ isSm && ! ( loading || deleting ) && (
 						<div className={ styles.chevron }>
 							{ isOpen && <Icon icon={ chevronUp } /> }
 							{ ! isOpen && <Icon icon={ chevronDown } /> }
