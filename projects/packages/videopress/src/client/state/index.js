@@ -29,7 +29,7 @@ function initStore() {
 		actions,
 		selectors,
 		resolvers,
-		initialState: window.myJetpackInitialState || {},
+		initialState: window.jetpackVideoPressInitialState.initialState || {},
 	} );
 }
 
