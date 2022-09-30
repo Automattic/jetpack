@@ -1,11 +1,11 @@
 import { imagePath } from 'constants/urls';
-import { isMobile } from '@automattic/viewport';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import AppsBadge from 'components/apps-badge';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
+import detectMobileDevice from 'lib/device-detector';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -24,22 +24,40 @@ class AppsCard extends React.Component {
 		} );
 	};
 
-	getAppCards = () => (
+	getAppLinkSection = () => {
+		const device = detectMobileDevice();
+
+		switch ( device ) {
+			case 'ios':
+			case 'android':
+				return this.getAppCards( device );
+			case 'windows':
+			case 'unknown':
+				return this.getQrCode();
+			default:
+				return this.getQrCode();
+		}
+	};
+
+	getAppCards = device => (
 		<div className="jp-apps-card__apps-badges">
-			<AppsBadge
-				altText={ __( 'Google Play Store download badge.', 'jetpack' ) }
-				titleText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
-				storeName="android"
-				storeLink="https://play.google.com/store/apps/details?id=com.jetpack.android&utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
-				onBadgeClick={ this.trackDownloadClick }
-			/>
-			<AppsBadge
-				altText={ __( 'Apple App Store download badge.', 'jetpack' ) }
-				titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
-				storeName="ios"
-				storeLink="https://apps.apple.com/us/app/jetpack-website-builder/id1565481562?pt=299112ct=jpdash&mt=8"
-				onBadgeClick={ this.trackDownloadClick }
-			/>
+			{ device === 'android' ? (
+				<AppsBadge
+					altText={ __( 'Google Play Store download badge.', 'jetpack' ) }
+					titleText={ __( 'Download the Jetpack Android mobile app.', 'jetpack' ) }
+					storeName="android"
+					storeLink="https://play.google.com/store/apps/details?id=com.jetpack.android&utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
+					onBadgeClick={ this.trackDownloadClick }
+				/>
+			) : (
+				<AppsBadge
+					altText={ __( 'Apple App Store download badge.', 'jetpack' ) }
+					titleText={ __( 'Download the Jetpack iOS mobile app.', 'jetpack' ) }
+					storeName="ios"
+					storeLink="https://apps.apple.com/us/app/jetpack-website-builder/id1565481562?pt=299112ct=jpdash&mt=8"
+					onBadgeClick={ this.trackDownloadClick }
+				/>
+			) }
 		</div>
 	);
 
@@ -84,7 +102,7 @@ class AppsCard extends React.Component {
 							) }
 						</p>
 
-						{ isMobile() ? this.getAppCards() : this.getQrCode() }
+						{ this.getAppLinkSection() }
 					</div>
 				</Card>
 			</div>
