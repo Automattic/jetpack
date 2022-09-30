@@ -30,7 +30,6 @@ export const settings = {
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
-				initialOpen
 				id="publicize-title"
 				title={
 					<span id="publicize-defaults" key="publicize-title-span">
