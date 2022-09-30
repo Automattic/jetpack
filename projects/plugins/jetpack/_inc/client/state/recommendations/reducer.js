@@ -592,7 +592,8 @@ const getNextEligibleStep = ( state, step ) => {
 	const stepToNextStep = get( stepToNextStepByPath, active ? `onboarding.${ active }` : 'default' );
 
 	if ( ! stepToNextStep ) {
-		throw 'Next eligible steps: No path found!';
+		// If we cannot find next step due to some reason - we just show the summary
+		return 'summary';
 	}
 
 	let nextStep = stepToNextStep[ step ] || 'summary';

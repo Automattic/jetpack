@@ -132,12 +132,17 @@ export function getOnboardingNameByProductSlug( productSlug ) {
  * Function to get an onboarding priority
  *
  * @param {string} name - onboarding name
- * @returns {number} the onboarding priority or 999 (max priority) if onboarding not found
+ * @returns {number} the onboarding priority
+ * @throws exception when the requested onboarding is not in the ONBOARDING_ORDER array.
  */
 export function getOnboardingPriority( name ) {
 	const index = ONBOARDING_ORDER.indexOf( name );
 
-	return index > -1 ? index : 999;
+	if ( -1 === index ) {
+		throw `The onboarding "${ name }" is not included in the ONBOARDING_ORDER`;
+	}
+
+	return index;
 }
 
 /**
