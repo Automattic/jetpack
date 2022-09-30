@@ -71,18 +71,18 @@ function jetpack_add_google_fonts_provider() {
 	// Note: Ideally wp_webfonts()->get_registered_webfonts() would include the local webfonts registered via theme.json
 	// This does not (currently) seem to be the case, either because they aren't registered yet or they aren't reported
 	// in that collection.
-	$theme_webfonts = wp_get_global_settings( array( 'typography', 'fontFamilies', 'theme' ) );
-	$theme_webfont_families = [];
-	$unregistered_google_fonts = [];
+	$theme_webfonts            = wp_get_global_settings( array( 'typography', 'fontFamilies', 'theme' ) );
+	$theme_webfont_families    = array();
+	$unregistered_google_fonts = array();
 
-	foreach( $theme_webfonts  as $theme_font ) {
+	foreach ( $theme_webfonts  as $theme_font ) {
 		if ( $theme_font[ 'fontFace' ] ) {
 			$theme_webfont_families[] = $theme_font['fontFace'][0]['fontFamily'];
 		}
 	}
 
-	foreach( JETPACK_GOOGLE_FONTS_LIST as $font_family ) {
-		if ( ! in_array( $font_family, $theme_webfont_families ) ) {
+	foreach ( JETPACK_GOOGLE_FONTS_LIST as $font_family ) {
+		if ( ! in_array( $font_family, $theme_webfont_families, true ) ) {
 			$unregistered_google_fonts[] = $font_family;
 		}
 	}
@@ -96,7 +96,7 @@ function jetpack_add_google_fonts_provider() {
 	 *
 	 * @param array $fonts_to_register Array of Google Font names to register.
 	 */
-	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', $unregistered_google_fonts );
 
 	foreach ( $fonts_to_register as $font_family ) {
 		wp_register_webfonts(
