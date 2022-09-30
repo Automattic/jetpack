@@ -1,4 +1,5 @@
 import { DonutMeter, Gridicon } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 
 import './style.scss';
@@ -64,8 +65,6 @@ const InfoPrimary = ( { localizedMessage, iconClickedCallback } ) => {
 };
 
 const InfoSecondary = ( { localizedMessage, linkClickedCallback } ) => {
-	// TODO: Localize linkText.
-	const linkText = 'View details';
 	// Verify callback before usage.
 	const haveCallback = typeof linkClickedCallback === 'function';
 	// Package and forward click event.
@@ -77,7 +76,7 @@ const InfoSecondary = ( { localizedMessage, linkClickedCallback } ) => {
 			{ localizedMessage }{ ' ' }
 			{ haveCallback && (
 				<a href="#" className="info-link" onClick={ onLinkClicked }>
-					{ linkText }
+					{ __( 'View details', 'jetpack-search-pkg' ) }
 				</a>
 			) }
 		</p>
