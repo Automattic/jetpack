@@ -338,6 +338,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
+				illustration: 'assistant-woo-commerce',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
