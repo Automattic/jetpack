@@ -107,8 +107,6 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 					</div>
 				</Placeholder>
 			) }
-			{ /* Explicitly position the wpcom upgrade nudge wrapper */ }
-			<div className="jetpack-block-upgrade-banner-container"></div>
 			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
 			<div { ...innerBlocksProps } />
 		</div>
