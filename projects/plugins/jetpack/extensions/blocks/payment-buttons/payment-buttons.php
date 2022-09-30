@@ -28,7 +28,18 @@ function register_block() {
 	if ( \Jetpack_Memberships::is_enabled_jetpack_recurring_payments() ) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
-			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+			array(
+				'render_callback' => __NAMESPACE__ . '\render_block',
+				'supports'        => array(
+					'__experimentalLayout' => array(
+						'allowSwitching'  => false,
+						'allowInheriting' => false,
+						'default'         => array(
+							'type' => 'flex',
+						),
+					),
+				),
+			)
 		);
 	} else {
 		$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';

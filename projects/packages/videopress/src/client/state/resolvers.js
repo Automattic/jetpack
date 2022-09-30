@@ -14,7 +14,13 @@ import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from '.
 const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
+	isFulfilled: state => {
+		return state?.videos?._meta?.relyOnInitialState;
+	},
+
 	fulfill: () => async ( { dispatch, select } ) => {
+		dispatch.setIsFetchingVideos( true );
+
 		let query = select.getVideosQuery();
 
 		/*
@@ -40,8 +46,6 @@ const getVideos = {
 		if ( typeof query.search === 'string' && query.search.length > 0 ) {
 			wpv2MediaQuery.search = query.search;
 		}
-
-		dispatch.setIsFetchingVideos( true );
 
 		try {
 			const response = await fetch(
@@ -71,6 +75,13 @@ const getVideos = {
 };
 
 const getVideo = {
+	isFulfilled: ( state, id ) => {
+		if ( ! id ) {
+			return true;
+		}
+		const videos = state.videos.items ?? [];
+		return videos?.some( ( { id: videoId } ) => videoId === id );
+	},
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
 		try {
