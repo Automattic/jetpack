@@ -19,7 +19,7 @@ To run the Jetpack plugin from the monorepo, you'll first need to build the JS a
 
 If you're using the [Docker development environment](./docs/development-environment.md#docker-supported-recommended), you should then be all set.
 
-If not, you'll need to create a link to the Jetpack plugin from your WordPress `wp-content/plugins` folder (you cannot clone the monorepo into your WordPress plugins directory - you will see a warning on your plugins page if so saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). You'll need to know the filesystem path to the monorepo checkout and to your WordPress installation. Then, on Linux or Mac OS X, open a terminal and use `ln -s` to create the link, something like
+If not, you'll need to create a link to the Jetpack plugin from your WordPress `wp-content/plugins` folder (you cannot clone the monorepo into your WordPress plugins directory - you will s ee a warning on your plugins page if so saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). You'll need to know the filesystem path to the monorepo checkout and to your WordPress installation. Then, on Linux or Mac OS X, open a terminal and use `ln -s` to create the link, something like
 
 ```
 ln -s /path/to/jetpack-monorepo/projects/plugins/jetpack /path/to/wordpress/wp-content/plugins/jetpack
