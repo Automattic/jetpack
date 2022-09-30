@@ -38,15 +38,9 @@ import styles from './styles.module.scss';
 const useDashboardVideos = () => {
 	const { setVideo } = useDispatch( STORE_ID );
 
-	const {
-		items,
-		total: totalVideoCount,
-		uploadedVideoCount,
-		isFetching = true,
-		isFetchingUploadedVideoCount = true,
-	} = useVideos();
+	const { items, total: totalVideoCount, uploadedVideoCount, isFetching } = useVideos();
 
-	const loading = isFetching || isFetchingUploadedVideoCount;
+	const loading = isFetching;
 
 	const poolingUploadedVideoData = async data => {
 		setVideo( data );
@@ -100,7 +94,6 @@ const useDashboardVideos = () => {
 const Admin = () => {
 	const {
 		videos,
-		totalVideoCount,
 		uploadedVideoCount,
 		uploadStatus,
 		handleFilesUpload,
@@ -165,7 +158,7 @@ const Admin = () => {
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
 									<VideoPressLibrary
 										videos={ videos }
-										totalVideos={ totalVideoCount }
+										totalVideos={ uploadedVideoCount }
 										loading={ loading }
 									/>
 								</Col>
