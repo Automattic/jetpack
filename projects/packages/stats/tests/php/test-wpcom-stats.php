@@ -575,6 +575,33 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test get_stats with arguments.
+	 */
+	public function test_get_stats_with_arguments() {
+		$expected_stats = array(
+			'date'   => '2022-09-29',
+			'visits' => array(),
+		);
+
+		$args = array(
+			'fields' => 'date,visits',
+		);
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->with(
+				$this->equalTo( '/sites/1234/stats/' ),
+				$this->equalTo( $args )
+			)
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_stats( $args );
+		$this->assertSame( $expected_stats, $stats );
+		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/', $args ) );
+	}
+
+	/**
 	 * Helper for fetching the stats transient.
 	 *
 	 * @param  string $endpoint The WPCOM REST API endpoint.
