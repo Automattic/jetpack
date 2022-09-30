@@ -44,6 +44,7 @@ _default.args = {
 	editable: false,
 	duration: ( 34 * 60 + 25 ) * 1000, // 34 minutes and 25 seconds
 	plays: 972,
+	deleting: false,
 	onVideoDetailsClick: action( 'onVideoDetailsClick' ),
 	onUpdateVideoThumbnail: action( 'onUpdateVideoThumbnail' ),
 	onUpdateVideoPrivacy: action( 'onUpdateVideoPrivacy' ),

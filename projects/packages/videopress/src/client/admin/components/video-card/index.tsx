@@ -14,10 +14,10 @@ import classnames from 'classnames';
 import React from 'react';
 import { useState } from 'react';
 import useVideo from '../../hooks/use-video';
-import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
+import Placeholder from '../placeholder';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
@@ -63,10 +63,14 @@ export const VideoCard = ( {
 	editable,
 	showQuickActions = true,
 	loading = false,
+	deleting = false,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
 	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
+
+	// @todo: implement removing video state properly
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
+	thumbnail = deleting ? <Placeholder width={ 360 } /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
@@ -93,8 +97,8 @@ export const VideoCard = ( {
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
-					duration={ loading ? null : duration }
-					editable={ loading ? false : editable }
+					duration={ loading || deleting ? null : duration }
+					editable={ loading || deleting ? false : editable }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -105,7 +109,7 @@ export const VideoCard = ( {
 						</div>
 					) }
 
-					{ loading ? (
+					{ loading || deleting ? (
 						<Placeholder width="60%" height={ 30 } />
 					) : (
 						<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
@@ -113,7 +117,7 @@ export const VideoCard = ( {
 						</Title>
 					) }
 
-					{ loading ? (
+					{ loading || deleting ? (
 						<Placeholder width={ 96 } height={ 24 } />
 					) : (
 						<>
@@ -155,8 +159,8 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting } = useVideo( id );
-	return <VideoCard id={ id } { ...restProps } loading={ isDeleting || restProps?.loading } />;
+	const { deleting } = useVideo( id );
+	return <VideoCard id={ id } { ...restProps } loading={ deleting || restProps?.loading } />;
 };
 
 export default ConnectVideoCard;
