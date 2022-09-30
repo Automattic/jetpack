@@ -89,7 +89,7 @@ export default function DashboardPage( { isLoading = false } ) {
 								}
 							) }
 						</h2>
-						<div className="donut-meter-wrapper">
+						<div className="donut-meter-group">
 							<DonutMeterContainer
 								title={ __( 'Site records', 'jetpack-search-pkg' ) }
 								current={ 1250 }
@@ -100,6 +100,29 @@ export default function DashboardPage( { isLoading = false } ) {
 								current={ 125 }
 								limit={ 500 }
 							/>
+						</div>
+						<div className="upgrade-trigger">
+							<div>
+								{ __(
+									'Do you want to increase your site records and search requests?',
+									'jetpack-search-pkg'
+								) }
+							</div>
+							<strong>
+								{ __( 'Upgrade now and avoid any future interruption!', 'jetpack-search-pkg' ) }
+							</strong>
+							<svg
+								width="19"
+								height="15"
+								viewBox="0 0 19 15"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="M18.2969 7.50391C18.2969 7.11719 18.1328 6.71875 17.8633 6.44922L11.9102 0.519531C11.6055 0.214844 11.2539 0.0625 10.9141 0.0625C10.0703 0.0625 9.49609 0.648438 9.49609 1.42188C9.49609 1.85547 9.68359 2.18359 9.95312 2.45312L11.8164 4.32812L13.8555 6.19141L11.8516 6.07422H1.83203C0.941406 6.07422 0.34375 6.64844 0.34375 7.50391C0.34375 8.35938 0.941406 8.94531 1.83203 8.94531H11.8516L13.8555 8.82812L11.8164 10.6914L9.95312 12.5664C9.68359 12.8242 9.49609 13.1641 9.49609 13.5859C9.49609 14.3594 10.0703 14.9453 10.9141 14.9453C11.2539 14.9453 11.6055 14.793 11.9102 14.5L17.8633 8.57031C18.1328 8.30078 18.2969 7.90234 18.2969 7.50391Z"
+									fill="#069E08"
+								/>
+							</svg>
 						</div>
 					</div>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
