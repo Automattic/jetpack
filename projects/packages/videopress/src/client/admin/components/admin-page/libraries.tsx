@@ -29,7 +29,7 @@ const LibraryType = {
 
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
 
-const ConnectedPagination = ( props: { className: string; disabled: boolean } ) => {
+const ConnectPagination = ( props: { className: string; disabled: boolean } ) => {
 	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
 	return total < itemsPerPage ? (
 		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
@@ -112,7 +112,7 @@ const VideoLibraryWrapper = ( {
 			</div>
 			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectedPagination className={ styles.pagination } disabled={ disabled } />
+			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
