@@ -34,7 +34,7 @@ export function getDefaultQuery() {
 	};
 }
 
-const videos = ( state = { isFetching: true }, action ) => {
+const videos = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_VIDEOS: {
 			return {
@@ -59,6 +59,10 @@ const videos = ( state = { isFetching: true }, action ) => {
 					...state.query,
 					...action.query,
 				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
 			};
 		}
 
@@ -68,6 +72,10 @@ const videos = ( state = { isFetching: true }, action ) => {
 				pagination: {
 					...state.pagination,
 					...action.pagination,
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
 				},
 			};
 		}
