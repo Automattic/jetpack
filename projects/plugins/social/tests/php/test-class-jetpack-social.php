@@ -44,6 +44,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 
 		$connection_manager = $this->createMock( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( true );
+		$connection_manager->method( 'has_connected_user' )->willReturn( true );
 
 		// Publicize global is not available at the moment during these tests
 		$this->social = $this->getMockBuilder( Jetpack_Social::class )
