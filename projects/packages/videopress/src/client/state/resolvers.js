@@ -15,7 +15,7 @@ const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
 	isFulfilled: state => {
-		return !! state?.videos?.items;
+		return state?.videos?._meta?.relyOnInitialState;
 	},
 
 	fulfill: () => async ( { dispatch, select } ) => {
