@@ -15,6 +15,7 @@ import {
 } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
+import { isFeatureActive } from '../state/recommendations';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -119,8 +120,8 @@ export const getSummaryResourceProps = ( state, resourceSlug ) => {
 	}
 };
 
-export const getSummaryPrimaryProps = ( state, primaryProps ) => {
-	switch ( primaryProps ) {
+export const getSummaryPrimaryProps = ( state, primarySlug ) => {
+	switch ( primarySlug ) {
 		case 'backup-activated':
 			return {
 				displayName: __( 'Real-time Backups', 'jetpack' ),
@@ -138,12 +139,18 @@ export const getSummaryPrimaryProps = ( state, primaryProps ) => {
 				displayName: __( 'Automated Spam Protection', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
+				...( ! isFeatureActive( state, primarySlug )
+					? { onInterceptHref: () => restApi.installPlugin( 'akismet', 'recommendations' ) }
+					: {} ),
 			};
 		case 'videopress-activated':
 			return {
 				displayName: __( 'Ad-free, Customizable Video', 'jetpack' ),
 				ctaLabel: __( 'Add a Video', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-videopress',
+				...( ! isFeatureActive( state, primarySlug )
+					? { onInterceptHref: () => restApi.installPlugin( 'videopress', 'recommendations' ) }
+					: {} ),
 			};
 		case 'search-activated':
 			return {
