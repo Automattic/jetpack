@@ -135,6 +135,7 @@ class Admin_UI {
 			),
 			'productData'       => My_Jetpack_Products::get_product( 'videopress' ),
 			'siteSuffix'        => ( new Status() )->get_site_suffix(),
+			'initialState'      => Data::get_initial_state(),
 		);
 	}
 
