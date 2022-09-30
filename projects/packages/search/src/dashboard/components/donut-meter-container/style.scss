@@ -1,3 +1,5 @@
+@import 'scss/_variables.scss';
+
 .donut-meter-container {
 	display: flex;
 	height: fit-content; // or 64px?
@@ -19,9 +21,18 @@
 	}
 
 	.donut-info-secondary {
-		color: gray;
+		color: $studio-gray-60;
 		margin: 0;
 		font-size: 0.7em;
+
+		.info-link {
+			color: $studio-black;
+			text-decoration: underline;
+
+			&:not( a ) {
+				cursor: default;
+			}
+		}
 	}
 
 	.info-icon-wrapper {

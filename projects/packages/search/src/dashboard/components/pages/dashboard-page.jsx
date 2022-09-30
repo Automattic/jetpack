@@ -76,7 +76,10 @@ export default function DashboardPage( { isLoading = false } ) {
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 					<div className="jp-search-record-meter__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 						<h2>DonutMeter layout testing</h2>
-						<DonutMeterContainer />
+						<div className="donut-meter-wrapper">
+							<DonutMeterContainer title={ 'Site records' } current={ 1250 } limit={ 5000 } />
+							<DonutMeterContainer title={ 'Search requests' } current={ 125 } limit={ 500 } />
+						</div>
 					</div>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>

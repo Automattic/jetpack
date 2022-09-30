@@ -3,29 +3,40 @@ import React from 'react';
 
 import './style.scss';
 
+// Tackle numbers with commas.
+const numberWithCommas = x => {
+	return x.toString().replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
+};
+
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
+ * @param {object}prop - props to show usage info.
+ * @param {number}prop.current - totalCount to the DonutMeter.
+ * @param {number}prop.limit - segmentCount to the DonutMeter.
+ * @param {string}prop.title - title to the DonutMeter.
  * @returns {React.Component} DonutMeterContainer component.
  */
-function DonutMeterContainer() {
+const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
 	// TODO: Remove local callback in favour of props.
 	const tempCallback = () => {
 		// eslint-disable-next-line no-console
 		console.log( 'higher level callback...' );
 	};
+
+	const usageInfo = numberWithCommas( current ) + '/' + numberWithCommas( limit );
 	return (
 		<div className="donut-meter-container">
 			<div className="donut-meter-wrapper">
-				<DonutMeter />
+				<DonutMeter segmentCount={ current } totalCount={ limit } />
 			</div>
 			<div className="donut-info-wrapper">
-				<InfoPrimary localizedMessage={ 'Title message' } iconClickedCallback={ tempCallback } />
-				<InfoSecondary localizedMessage={ 'message' } linkClickedCallback={ tempCallback } />
+				<InfoPrimary localizedMessage={ title } iconClickedCallback={ tempCallback } />
+				<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ tempCallback } />
 			</div>
 		</div>
 	);
-}
+};
 
 // Prevents event from firing and forwards to caller.
 const callbackForwarder = ( event, callback ) => {
@@ -54,7 +65,7 @@ const InfoPrimary = ( { localizedMessage, iconClickedCallback } ) => {
 
 const InfoSecondary = ( { localizedMessage, linkClickedCallback } ) => {
 	// TODO: Localize linkText.
-	const linkText = 'Show details';
+	const linkText = 'View details';
 	// Verify callback before usage.
 	const haveCallback = typeof linkClickedCallback === 'function';
 	// Package and forward click event.
@@ -65,7 +76,7 @@ const InfoSecondary = ( { localizedMessage, linkClickedCallback } ) => {
 		<p className="donut-info-secondary">
 			{ localizedMessage }{ ' ' }
 			{ haveCallback && (
-				<a href="#" onClick={ onLinkClicked }>
+				<a href="#" className="info-link" onClick={ onLinkClicked }>
 					{ linkText }
 				</a>
 			) }
