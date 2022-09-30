@@ -69,7 +69,7 @@ const ThreatAccordionItem = ( {
 				<Button isDestructive={ true } variant="secondary">
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
-				<Button>{ __( 'Fix threat', 'jetpack-protect' ) }</Button>
+				{ fixable && <Button>{ __( 'Fix threat', 'jetpack-protect' ) }</Button> }
 			</div>
 		</PaidAccordionItem>
 	);
@@ -87,16 +87,19 @@ const manualScan = createInterpolateElement(
 
 const PaidList = ( { list } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const fixableCount = list.filter( obj => obj.fixable ).length;
 
 	return (
 		<>
 			<div className={ styles[ 'button-container-top' ] }>
-				<Button variant="primary">
-					{
-						/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-						sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), list.length )
-					}
-				</Button>
+				{ fixableCount > 0 && (
+					<Button variant="primary">
+						{
+							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
+							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
+						}
+					</Button>
+				) }
 				<Button variant="secondary">{ __( 'Scan now', 'jetpack-protect' ) }</Button>
 			</div>
 			{ ! isSmall && (
