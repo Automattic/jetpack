@@ -77,11 +77,8 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 	// will then be positioned in relation to this.
 	delete innerBlocksProps.id;
 	delete innerBlocksProps[ 'data-block' ];
-	// The class may include flex positioning, this must only be on the inner block wrapper
-	// otherwise the jetpack/wpcom upgrade nudge will be displayed as part of the flex
-	delete blockProps.className;
 	return (
-		<div { ...blockProps } className="wp-block">
+		<div { ...blockProps }>
 			{ showStripeConnectAction && (
 				<BlockControls group="block">
 					<StripeConnectToolbarButton
