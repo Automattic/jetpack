@@ -17,7 +17,7 @@ export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePri
 	} );
 
 	const { symbol, integer, fraction } = getCurrencyObject( value, currency );
-	const showPriceFraction = ! hidePriceFraction && ! fraction.endsWith( '00' );
+	const showPriceFraction = ! hidePriceFraction || ! fraction.endsWith( '00' );
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
