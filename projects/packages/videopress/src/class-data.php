@@ -110,6 +110,17 @@ class Data {
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
+				'pagination'                   => array(
+					'totalPages' => 2,
+					'total'      => 10,
+				),
+				'query'                        => array(
+					'order'        => 'desc',
+					'orderBy'      => 'date',
+					'itemsPerPage' => 6,
+					'page'         => 1,
+					'type'         => 'video/videopress',
+				),
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
 				),
