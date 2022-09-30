@@ -1,4 +1,5 @@
-import { Text } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import React, { useState, useCallback, useContext } from 'react';
@@ -35,6 +36,8 @@ export const PaidAccordionItem = ( {
 		} );
 	}, [ open, onOpen, setOpen, id ] );
 
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
 			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
@@ -54,7 +57,12 @@ export const PaidAccordionItem = ( {
 					<ThreatSeverityBadge severity={ severity } />
 				</div>
 				<div>
-					{ fixable && <Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } /> }
+					{ fixable && (
+						<>
+							<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
+							{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
+						</>
+					) }
 				</div>
 				<div className={ styles[ 'accordion-header-button' ] }>
 					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />
