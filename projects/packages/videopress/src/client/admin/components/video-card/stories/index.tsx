@@ -49,4 +49,5 @@ _default.args = {
 	onUpdateVideoPrivacy: action( 'onUpdateVideoPrivacy' ),
 	onDeleteVideo: action( 'onDeleteVideo' ),
 	showQuickActions: true,
+	loading: false,
 };

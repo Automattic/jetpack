@@ -20,6 +20,11 @@ export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' | 'id' > &
 		isDeleting?: boolean;
 
 		/**
+		 * True when is in loading mode.
+		 */
+		loading?: boolean;
+
+		/**
 		 * True when the video has been deleted in the server-side.
 		 */
 		hasBeenDeleted?: boolean;

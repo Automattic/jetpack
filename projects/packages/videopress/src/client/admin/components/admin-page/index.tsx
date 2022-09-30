@@ -42,9 +42,11 @@ const useDashboardVideos = () => {
 		items,
 		total: totalVideoCount,
 		uploadedVideoCount,
-		// isFetching = true,
-		// IsFetchingTotalVideosCount = true,
+		isFetching = true,
+		isFetchingUploadedVideoCount = true,
 	} = useVideos();
+
+	const loading = isFetching || isFetchingUploadedVideoCount;
 
 	const poolingUploadedVideoData = async data => {
 		setVideo( data );
@@ -75,10 +77,15 @@ const useDashboardVideos = () => {
 		onSuccess: handleSuccess,
 	} );
 
-	const videos =
+	let videos =
 		status === 'uploading'
 			? [ { id: null, guid: null, uploading: true, title: file.name }, ...items ]
 			: items;
+
+	// Fill with empty videos if loading
+	if ( loading ) {
+		videos = new Array( 6 ).fill( {} );
+	}
 
 	return {
 		videos,
@@ -86,6 +93,7 @@ const useDashboardVideos = () => {
 		uploadedVideoCount,
 		uploadStatus: status,
 		handleFilesUpload,
+		loading,
 	};
 };
 
@@ -96,6 +104,7 @@ const Admin = () => {
 		uploadedVideoCount,
 		uploadStatus,
 		handleFilesUpload,
+		loading,
 	} = useDashboardVideos();
 
 	const { isUserConnected, isRegistered } = useConnection();
@@ -104,7 +113,7 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const localVideos = [];
 	const localTotalVideoCount = 0;
-	const hasVideos = uploadedVideoCount > 0 || uploadStatus === 'uploading';
+	const hasVideos = uploadedVideoCount > 0 || uploadStatus === 'uploading' || loading;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
@@ -141,7 +150,7 @@ const Admin = () => {
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
 									accept="video/*"
 									render={ ( { openFileDialog } ) => (
-										<Button fullWidth={ isSm } onClick={ openFileDialog }>
+										<Button fullWidth={ isSm } onClick={ openFileDialog } isLoading={ loading }>
 											{ addVideoLabel }
 										</Button>
 									) }
@@ -154,7 +163,11 @@ const Admin = () => {
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							{ hasVideos ? (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<VideoPressLibrary videos={ videos } totalVideos={ totalVideoCount } />
+									<VideoPressLibrary
+										videos={ videos }
+										totalVideos={ totalVideoCount }
+										loading={ loading }
+									/>
 								</Col>
 							) : (
 								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
