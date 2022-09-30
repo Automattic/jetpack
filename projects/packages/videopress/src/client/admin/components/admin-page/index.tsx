@@ -38,15 +38,9 @@ import styles from './styles.module.scss';
 const useDashboardVideos = () => {
 	const { setVideo } = useDispatch( STORE_ID );
 
-	const {
-		items,
-		total: totalVideoCount,
-		uploadedVideoCount,
-		isFetching = true,
-		isFetchingUploadedVideoCount = true,
-	} = useVideos();
+	const { items, total: totalVideoCount, uploadedVideoCount, isFetching } = useVideos();
 
-	const loading = isFetching || isFetchingUploadedVideoCount;
+	const loading = isFetching;
 
 	const poolingUploadedVideoData = async data => {
 		setVideo( data );
