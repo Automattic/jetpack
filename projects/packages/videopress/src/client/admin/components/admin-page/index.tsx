@@ -94,7 +94,6 @@ const useDashboardVideos = () => {
 const Admin = () => {
 	const {
 		videos,
-		totalVideoCount,
 		uploadedVideoCount,
 		uploadStatus,
 		handleFilesUpload,
@@ -159,7 +158,7 @@ const Admin = () => {
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
 									<VideoPressLibrary
 										videos={ videos }
-										totalVideos={ totalVideoCount }
+										totalVideos={ uploadedVideoCount }
 										loading={ loading }
 									/>
 								</Col>
