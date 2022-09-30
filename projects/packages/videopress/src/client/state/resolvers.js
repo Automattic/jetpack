@@ -14,6 +14,10 @@ import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from '.
 const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
+	isFulfilled: state => {
+		return !! state?.videos?.items?.length;
+	},
+
 	fulfill: () => async ( { dispatch, select } ) => {
 		dispatch.setIsFetchingVideos( true );
 
