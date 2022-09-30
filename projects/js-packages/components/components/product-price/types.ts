@@ -35,7 +35,12 @@ export type ProductPriceProps = {
 	hidePriceFraction?: boolean;
 
 	/**
-	 * Promo label to show top right of the price.
+	 * Hides discount label
+	 */
+	hideDiscountLabel?: boolean;
+
+	/**
+	 * Custom promo label
 	 */
 	promoLabel?: string;
 

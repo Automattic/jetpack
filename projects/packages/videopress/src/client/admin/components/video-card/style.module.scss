@@ -8,14 +8,14 @@
 			display: none;
 		}
 
-		.thumbnail,
+		.video-card__quick-actions-section,
 		.video-card__title-section,
 		.video-card__quick-actions-section {
 			visibility: hidden;
 		}
 	}
 
-	&:not(.small):hover {
+	&:not(.disabled):hover {
 		.video-card__background {
 			opacity: 1;
 			z-index: 1;
@@ -56,6 +56,7 @@
 	align-items: center;
 	margin-top: calc( var( --spacing-base ) * 2 );
 	margin-bottom: calc( var( --spacing-base ) * 2 );
+	justify-content: space-between;
 }
 
 .video-card__title {
