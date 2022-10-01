@@ -92,7 +92,7 @@ body {
 	position: relative;
 	margin-top: 24px;
 	padding: 16px 43px 16px 24px;
-	border: 2px solid #069e08;
+	border: 2px solid $studio-jetpack-green-40;
 	border-radius: 4px;
 	line-height: 24px;
 	cursor: pointer;
@@ -101,5 +101,14 @@ body {
 		position: absolute;
 		right: 24px;
 		bottom: 32px;
+	}
+}
+
+.record-meter-about {
+	margin-top: 24px;
+	line-height: 24px;
+
+	& u {
+		cursor: pointer;
 	}
 }

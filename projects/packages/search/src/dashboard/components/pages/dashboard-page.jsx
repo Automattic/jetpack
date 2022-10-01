@@ -124,6 +124,17 @@ export default function DashboardPage( { isLoading = false } ) {
 								/>
 							</svg>
 						</div>
+						<div className="record-meter-about">
+							{ createInterpolateElement(
+								__(
+									'Tell me more about <u>record indexing and request limits</u>',
+									'jetpack-search-pkg'
+								),
+								{
+									u: <u />,
+								}
+							) }
+						</div>
 					</div>
 					<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				</div>
