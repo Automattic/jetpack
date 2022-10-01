@@ -4,38 +4,35 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
-import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
+import { JETPACK_SCAN, SeventyFiveLayout } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_footer_get_security_link_click',
-		run
-	);
+	const getJetpackScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
 
-	const { securityBundle } = useProtectData();
-	const { hasRequiredPlan } = securityBundle;
+	const { jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
 
 	if ( hasRequiredPlan ) {
 		const getStartedUrl = getRedirectUrl( 'protect-footer-get-started-scan' );
 
 		return (
 			<div className={ styles[ 'product-section' ] }>
-				<IconsCard products={ [ 'backup', 'scan', 'anti-spam' ] } />
+				<IconsCard products={ [ 'scan' ] } />
 				<Title>
 					{ __( 'Learn how Jetpack Scan increases your site protection', 'jetpack-protect' ) }
 				</Title>
 				<Text mb={ 3 }>
 					{ __(
-						'With your Jetpack Security bundle you have access to Jetpack Scan. Automatically scan your site from the Cloud, get email notifications and perform one-click fixes.',
+						'Keep your site or store ahead of security threats with automated malware scanning; including one-click fixes.',
 						'jetpack-protect'
 					) }
 				</Text>
@@ -50,16 +47,16 @@ const ProductPromotion = () => {
 	return (
 		<div className={ styles[ 'product-section' ] }>
 			<IconsCard products={ [ 'scan' ] } />
-			<Title>{ __( 'Comprehensive Site Security', 'jetpack-protect' ) }</Title>
+			<Title>{ __( 'We guard your site. You run your business.', 'jetpack-protect' ) }</Title>
 			<Text mb={ 3 }>
 				{ __(
-					'Jetpack Security offers advanced scan tools, including one-click fixes for most threats and malware scanning. Plus, with this bundle you also get real-time cloud backups and spam protection.',
+					'Jetpack Scan uses automated scanning and one‑click fixes to keep your site ahead of security threats..',
 					'jetpack-protect'
 				) }
 			</Text>
 
-			<Button variant="secondary" onClick={ getSecurityBundle } isLoading={ hasCheckoutStarted }>
-				{ __( 'Get Jetpack Security', 'jetpack-protect' ) }
+			<Button variant="secondary" onClick={ getJetpackScan } isLoading={ hasCheckoutStarted }>
+				{ __( 'Get Jetpack Scan', 'jetpack-protect' ) }
 			</Button>
 		</div>
 	);

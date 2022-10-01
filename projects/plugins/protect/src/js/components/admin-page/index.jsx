@@ -25,7 +25,7 @@ import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 
-export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
+export const JETPACK_SCAN = 'jetpack_scan';
 
 /**
  * SeventyFive layout meta component
@@ -81,7 +81,7 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col sm={ 4 } md={ 8 } lg={ 12 }>
-					<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
+					<Interstitial onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />
 				</Col>
 			</Container>
 		</AdminPage>
@@ -270,7 +270,7 @@ const Admin = () => {
 	useStatusPolling();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 

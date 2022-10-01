@@ -4,7 +4,7 @@ const selectors = {
 	getStatus: state => state.status || {},
 	getStatusIsFetching: state => state.statusIsFetching || false,
 	getWpVersion: state => state.wpVersion || '',
-	getSecurityBundle: state => state.securityBundle || {},
+	getJetpackScan: state => state.jetpackScan || {},
 	getProductData: state => state.productData || {},
 };
 

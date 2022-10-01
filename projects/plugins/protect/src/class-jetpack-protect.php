@@ -174,7 +174,7 @@ class Jetpack_Protect {
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
-			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
+			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
 	}

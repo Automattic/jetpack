@@ -5,8 +5,8 @@ import useProtectData from '../../hooks/use-protect-data';
 import ConnectedProductOffer from '../product-offer';
 import styles from './styles.module.scss';
 
-const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
-	const { securityBundle } = useProtectData();
+const JetpackScan = ( { onAdd, redirecting, ...rest } ) => {
+	const { jetpackScan } = useProtectData();
 	const {
 		name,
 		title,
@@ -15,7 +15,7 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 		supportedProducts,
 		features,
 		pricingForUi,
-	} = securityBundle;
+	} = jetpackScan;
 
 	// Compute the price per month.
 	const price = pricingForUi.fullPrice
@@ -28,7 +28,7 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 
 	return (
 		<ProductOffer
-			slug="security"
+			slug="scan"
 			name={ name }
 			title={ title }
 			description={ longDescription }
@@ -51,12 +51,12 @@ const SecurityBundle = ( { onAdd, redirecting, ...rest } ) => {
 /**
  * Intersitial Protect component.
  *
- * @param {object} props                   - The props passed to Component.
- * @param {string} props.securityJustAdded - True when the checkout is just added/started.
- * @param {string} props.onSecurityAdd     - Checkout callback handler.
+ * @param {object} props               - The props passed to Component.
+ * @param {string} props.scanJustAdded - True when the checkout is just added/started.
+ * @param {string} props.onScanAdd     - Checkout callback handler.
  * @returns {React.Component} Interstitial react component.
  */
-const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
+const Interstitial = ( { onScanAdd, scanJustAdded } ) => {
 	const [ isMediumSize ] = useBreakpointMatch( 'md' );
 	const mediaClassName = `${ styles.section } ${
 		isMediumSize ? styles[ 'is-viewport-medium' ] : ''
@@ -72,10 +72,10 @@ const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
 				/>
 			}
 			secondary={
-				<SecurityBundle
+				<JetpackScan
 					className={ mediaClassName }
-					onAdd={ onSecurityAdd }
-					redirecting={ securityJustAdded }
+					onAdd={ onScanAdd }
+					redirecting={ scanJustAdded }
 				/>
 			}
 			isTwoSections={ true }
