@@ -53,14 +53,14 @@ const InfoPrimary = ( { localizedMessage, iconClickedCallback } ) => {
 		callbackForwarder( e, iconClickedCallback );
 	};
 	return (
-		<p className="donut-info-primary">
+		<div className="donut-info-primary">
 			{ localizedMessage }{ ' ' }
 			{ haveCallback && (
 				<a href="#" className="info-icon-wrapper" onClick={ onIconClicked }>
 					<Gridicon className="" icon="info-outline" size={ 16 } />
 				</a>
 			) }
-		</p>
+		</div>
 	);
 };
 
@@ -72,14 +72,14 @@ const InfoSecondary = ( { localizedMessage, linkClickedCallback } ) => {
 		callbackForwarder( e, linkClickedCallback );
 	};
 	return (
-		<p className="donut-info-secondary">
+		<div className="donut-info-secondary">
 			{ localizedMessage }{ ' ' }
 			{ haveCallback && (
 				<a href="#" className="info-link" onClick={ onLinkClicked }>
 					{ __( 'View details', 'jetpack-search-pkg' ) }
 				</a>
 			) }
-		</p>
+		</div>
 	);
 };
 

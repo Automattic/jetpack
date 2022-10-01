@@ -51,19 +51,12 @@ ul.jp-search-chart-legend {
 	padding: 64px 0;
 }
 
-.jp-search-record-meter__content h2 {
-	color: $studio-black;
-	font-size: 24px;
-	margin-top: 0;
-
-	& span {
-		color: $studio-gray-80;
-		font-weight: 200;
-	}
-}
-
 .jp-search-record-meter__content {
 	width: 100%; // fixes overflow issues in Firefox
+
+	h2 {
+		margin-top: 0;
+	}
 }
 
 .jp-search-record-meter .record-meter-bar__items div {
