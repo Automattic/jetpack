@@ -2,7 +2,13 @@ import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { getSummaryPrimaryProps } from '../feature-utils';
 
-const SummaryTextLink = ( { href, label, onInterceptHref } ) => {
+type SummaryTextLinkProps = {
+	href: string;
+	label: string;
+	onInterceptHref?: () => Promise< void >;
+};
+
+const SummaryTextLink = ( { href, label, onInterceptHref }: SummaryTextLinkProps ) => {
 	const handleOnClick = useCallback(
 		e => {
 			if ( onInterceptHref ) {
@@ -29,9 +35,20 @@ const SummaryTextLink = ( { href, label, onInterceptHref } ) => {
 	);
 };
 
-const PrimarySummaryComponent = props => {
-	const { displayName, ctaLabel, ctaLink, onInterceptHref } = props;
+type PrimarySummaryComponentProps = {
+	displayName: string;
+	ctaLabel: string;
+	ctaLink: string;
+	onInterceptHref?: () => Promise< void >;
+};
 
+const PrimarySummaryComponent = ( {
+	displayName,
+	ctaLabel,
+	ctaLink,
+	onInterceptHref,
+}: PrimarySummaryComponentProps ) => {
+	// TODO: Add Tracks
 	return (
 		<div className="jp-recommendations-feature-summary is-primary">
 			<span className="jp-recommendations-feature-summary__display-name">{ displayName }</span>
