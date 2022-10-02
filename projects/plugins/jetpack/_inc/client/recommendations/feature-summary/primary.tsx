@@ -56,23 +56,16 @@ const PrimarySummaryComponent = ( {
 	ctaLabel,
 	ctaLink,
 	onInterceptHref,
-}: PrimarySummaryComponentProps ) => {
-	// TODO: Add Tracks
-	return (
-		<div className="jp-recommendations-feature-summary is-primary">
-			<span className="jp-recommendations-feature-summary__display-name">{ displayName }</span>
-			<div className="jp-recommendations-feature-summary__actions">
-				<div className="jp-recommendations-feature-summary__cta">
-					<SummaryTextLink
-						href={ ctaLink }
-						label={ ctaLabel }
-						onInterceptHref={ onInterceptHref }
-					/>
-				</div>
+}: PrimarySummaryComponentProps ) => (
+	<div className="jp-recommendations-feature-summary is-primary">
+		<span className="jp-recommendations-feature-summary__display-name">{ displayName }</span>
+		<div className="jp-recommendations-feature-summary__actions">
+			<div className="jp-recommendations-feature-summary__cta">
+				<SummaryTextLink href={ ctaLink } label={ ctaLabel } onInterceptHref={ onInterceptHref } />
 			</div>
 		</div>
-	);
-};
+	</div>
+);
 
 const PrimarySummary = connect( ( state, ownProps ) => ( {
 	...getSummaryPrimaryProps( state, ownProps.slug ),
