@@ -28,16 +28,19 @@ function escapeKey( key ) {
  * Stores the destination in the configstore.
  * Takes an optional alias arg.
  *
- * @param { string } dest - Destination path.
+ * @param { string } pluginDestPath - Destination path to plugins.
  * @param { string|false } alias - Alias key, if set.
  */
-function setRsyncDest( dest, alias = false ) {
-	const key = alias || dest;
-	rsyncConfigStore.set( escapeKey( key ), dest );
+function setRsyncDest( pluginDestPath, alias = false ) {
+	const key = alias || pluginDestPath;
+	rsyncConfigStore.set( escapeKey( key ), pluginDestPath );
 }
 
 /**
  * Entry point for the CLI.
+ * Prompts for the plugin.
+ * Prompts for the destination.
+ * Finds and uses the real wp plugin slug for dest.
  *
  * @param {object} argv - The argv for the command line.
  */
@@ -45,19 +48,25 @@ export async function rsyncInit( argv ) {
 	argv = await promptForPlugin( argv );
 	argv = await promptForDest( argv );
 	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
-	argv.dest = path.join( argv.dest, argv.plugin + '/' );
+	// Pull the actual plugin slug from composer.json.
+	const pluginComposerJson = fs.readFileSync(
+		projectDir( `plugins/${ argv.plugin }` + '/composer.json' )
+	);
+	const wpPluginSlug = JSON.parse( pluginComposerJson ).extra[ 'wp-plugin-slug' ];
+	const finalDest = path.join( argv.dest, wpPluginSlug + '/' );
 
-	await rsyncToDest( sourcePluginPath, argv.dest );
+	await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
 }
 
 /**
  * Function that does the actual work of rsync.
  *
  * @param {string} source - Source path.
- * @param {string} dest - Destination path.
+ * @param {string} dest - Final destination path, including plugin slug.
+ * @param {string} pluginDestPath - Destination path.
  * @returns {Promise<void>}
  */
-async function rsyncToDest( source, dest ) {
+async function rsyncToDest( source, dest, pluginDestPath ) {
 	const filters = new Set();
 
 	// Include just the files that are published to the mirror.
@@ -90,8 +99,9 @@ async function rsyncToDest( source, dest ) {
 			dest,
 		] );
 
-		await promptForRsyncConfig( dest );
+		await promptForRsyncConfig( pluginDestPath );
 	} catch ( e ) {
+		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 		process.exit( 1 );
 	}
@@ -100,36 +110,39 @@ async function rsyncToDest( source, dest ) {
 /**
  * Prompts for config file.
  *
- * @param { string } dest - Passthrough of the argv object.
+ * @param { string } pluginDestPath - Passthrough of the argv object.
  */
-async function promptForRsyncConfig( dest ) {
-	if ( rsyncConfigStore.has( escapeKey( dest ) ) ) {
+async function promptForRsyncConfig( pluginDestPath ) {
+	const foundValue = Object.keys( rsyncConfigStore.all ).find(
+		key => rsyncConfigStore.all[ key ] === pluginDestPath
+	);
+	if ( foundValue ) {
 		return;
 	}
 	const createPrompt = await inquirer.prompt( {
 		name: 'createConfig',
 		type: 'list',
-		message: `No saved entries for ${ dest }. Create one for easier use later?`,
+		message: `No saved entries for ${ pluginDestPath }. Create one for easier use later?`,
 		choices: [ 'Hell yeah!', 'Nah' ],
 	} );
 	if ( createPrompt.createConfig === 'Hell yeah!' ) {
-		await promptForSetAlias( dest );
+		await promptForSetAlias( pluginDestPath );
 	}
 }
 
 /**
  * Prompt to set the destination alias.
  *
- * @param { string } dest - String to destination path.
+ * @param { string } pluginDestPath - String to destination path.
  */
-async function promptForSetAlias( dest ) {
+async function promptForSetAlias( pluginDestPath ) {
 	const aliasSetPrompt = await inquirer.prompt( {
 		name: 'alias',
 		type: 'input',
 		message: 'Enter an alias for easier reference? (Press enter to skip.)',
 	} );
-	const alias = aliasSetPrompt.alias || dest;
-	setRsyncDest( dest, alias );
+	const alias = aliasSetPrompt.alias || pluginDestPath;
+	setRsyncDest( pluginDestPath, alias );
 }
 
 /**
