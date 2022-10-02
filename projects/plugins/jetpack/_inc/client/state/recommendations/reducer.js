@@ -567,21 +567,23 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'server-credentials':
+			return true; // TODO: Can we check if credentials were added?
+		// Onboarding specific steps (`-activated` and `welcome__`):
+		case 'backup-activated':
+		case 'scan-activated':
+		case 'antispam-activated':
+		case 'videopress-activated':
+		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
 		case 'welcome__antispam':
 		case 'welcome__videopress':
 		case 'welcome__search':
 		case 'welcome__scan':
-		case 'backup-activated':
-		case 'scan-activated':
-		case 'antispam-activated':
-		case 'videopress-activated':
-		case 'search-activated':
-		case 'server-credentials':
-			return true; // Can we check if credentials were added?
 		case 'welcome__backup':
-			return getStepsForOnboarding( state ).includes( 'welcome__backup' );
+			// Ensure that the  step is part of the active onboarding
+			return getStepsForOnboarding( state ).includes( step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
