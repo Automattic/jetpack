@@ -1,3 +1,4 @@
+import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { getSummaryPrimaryProps } from '../feature-utils';
@@ -16,9 +17,17 @@ const SummaryTextLink = ( { href, label, onInterceptHref }: SummaryTextLinkProps
 				onInterceptHref().then( () => {
 					open( href, '_blank' );
 				} );
+
+				analytics.tracks.recordEvent( 'jetpack_recommendations_summary_intercepted_click', {
+					label,
+				} );
 			}
+
+			analytics.tracks.recordEvent( 'jetpack_recommendations_summary_manage_click', {
+				label,
+			} );
 		},
-		[ href, onInterceptHref ]
+		[ href, label, onInterceptHref ]
 	);
 
 	return (
