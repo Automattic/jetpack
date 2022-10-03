@@ -449,7 +449,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Learn how to add videos to your site', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-videopress',
+				ctaLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
 				illustration: 'assistant-videopress',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -521,7 +521,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Learn how to add videos to your site', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-videopress',
+				ctaLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
 				illustration: 'assistant-videopress',
 				skipText: __( 'Next', 'jetpack' ),
 			};
