@@ -33,9 +33,17 @@ class Data {
 			),
 		);
 
+		$args = array(
+			'order'     => $video_data['query']['order'],
+			'orderby'   => $video_data['query']['orderBy'],
+			'per_page'  => $video_data['query']['itemsPerPage'],
+			'page'      => $video_data['query']['page'],
+			'mime_type' => $video_data['query']['type'],
+		);
+
 		// Do an internal request for the media list
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
-		$request->set_query_params( $video_data['query'] );
+		$request->set_query_params( $args );
 		$response = rest_do_request( $request );
 
 		if ( $response->is_error() ) {
