@@ -570,7 +570,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'server-credentials':
-			return true; // TODO: Can we check if credentials were added?
+			return 'awaiting_credentials' === getRewindStatus( state ).state;
 		// Onboarding specific steps (`-activated` and `welcome__`):
 		case 'backup-activated':
 		case 'scan-activated':
