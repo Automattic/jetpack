@@ -68,7 +68,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 
 	const blockProps = useBlockProps( {
 		className: classNames( {
-			'has-custom-font-size': !! fontSize,
+			'has-custom-font-size': !! fontSize || attributes?.style?.typography?.fontSize,
 		} ),
 	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
