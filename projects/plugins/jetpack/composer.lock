@@ -1583,7 +1583,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "98bc90bbe89fd216a28b21d570ae0acff5fd80e3"
+                "reference": "9b43ddf2a296d9df142b83709b55d2587875ec3e"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1594,7 +1594,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
-                "automattic/wordbless": "^0.4.0",
+                "automattic/wordbless": "0.4.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1750,7 +1750,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "6ec32d71a637bb0904941c045bdfc4b9b4d546d6"
+                "reference": "28ced0030ded3a4add36a2cb4a5de7ed081a79e7"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1762,7 +1762,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
-                "automattic/wordbless": "^0.4.0",
+                "automattic/wordbless": "0.4.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
