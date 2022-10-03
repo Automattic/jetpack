@@ -5,6 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -12,7 +13,8 @@ import { icon, title } from '.';
 
 const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
-function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
+function PaymentButtonsEdit( { clientId, attributes } ) {
+	const { layout, fontSize } = attributes;
 	const { connectUrl, isApiConnected, shouldUpgrade, upgradeUrl } = useSelect( select => {
 		const { getConnectUrl, getShouldUpgrade, getUpgradeUrl, isApiStateConnected } = select(
 			membershipProductsStore
@@ -64,7 +66,11 @@ function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 	const showJetpackUpgradeNudge = !! upgradeUrl && ! hasWpcomUpgradeNudge;
 	const showStripeConnectAction = ! shouldUpgrade && ! isApiConnected && !! connectUrl;
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( {
+		className: classNames( {
+			'has-custom-font-size': !! fontSize,
+		} ),
+	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_BLOCKS,
 		orientation: 'horizontal',
