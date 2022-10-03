@@ -181,25 +181,35 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		return array(
-			'siteData'        => array(
+		$state = array(
+			'siteData' => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'siteSuffix'        => ( new Status() )->get_site_suffix(),
 				'pluginVersion'     => $this->get_plugin_version(),
 			),
-			'jetpackSettings' => array(
-				'publicize_active'  => self::is_publicize_active(),
-				'show_pricing_page' => self::should_show_pricing_page(),
-			),
-			'connectionData'  => array(
-				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
-				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
-			),
-			'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-			'showNudge'       => ! $publicize->has_paid_plan( true ),
 		);
+
+		if ( $this->is_connected() ) {
+			$state = array_merge(
+				$state,
+				array(
+					'jetpackSettings' => array(
+						'publicize_active'  => self::is_publicize_active(),
+						'show_pricing_page' => self::should_show_pricing_page(),
+					),
+					'connectionData'  => array(
+						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+					),
+					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'showNudge'       => ! $publicize->has_paid_plan( true ),
+				)
+			);
+		}
+
+		return $state;
 	}
 
 	/**
