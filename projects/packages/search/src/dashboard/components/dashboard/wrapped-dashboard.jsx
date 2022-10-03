@@ -15,6 +15,8 @@ import { STORE_ID } from 'store';
  */
 export default function WrappedDashboard() {
 	const { isFullyConnected } = useConnection();
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
 	const initializeAnalytics = () => {
 		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
@@ -40,8 +42,8 @@ export default function WrappedDashboard() {
 
 	return (
 		<>
-			{ ! isFullyConnected && <SearchConnectionPage /> }
-			{ isFullyConnected && <AfterConnectionPage /> }
+			{ ! isFullyConnected && ! isNewPricing && <SearchConnectionPage /> }
+			{ ( isFullyConnected || isNewPricing ) && <NewWrappedDashboard /> }
 		</>
 	);
 }
@@ -49,23 +51,15 @@ export default function WrappedDashboard() {
 /**
  * Returns SearchDashboard component if supports search otherwise UpsellPage component
  *
- * @returns {React.Component} AfterConnectionPage component.
+ * @returns {React.Component} NewWrappedDashboard component.
  */
-function AfterConnectionPage() {
-	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
-
-	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
-
-	const isLoading = useSelect(
-		select =>
-			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
-			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' )
-	);
+function NewWrappedDashboard() {
+	const { isFullyConnected } = useConnection();
 
 	return (
 		<>
-			{ supportsSearch && <SearchDashboardPage isLoading={ isLoading } /> }
-			{ ! supportsSearch && <UpsellPage isLoading={ isLoading } /> }
+			{ isFullyConnected && <SearchDashboardPage /> }
+			{ ! isFullyConnected && <UpsellPage /> }
 		</>
 	);
 }
