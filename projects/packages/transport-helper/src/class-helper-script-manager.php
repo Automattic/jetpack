@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Transport_Helper;
 class Helper_Script_Manager {
 
 	const TEMP_DIRECTORY = 'jetpack-temp';
-	const HELPER_HEADER  = "<?php /* Jetpack Helper Script */\n";
+	const HELPER_HEADER  = "<?php /* Jetpack Backup Helper Script */\n";
 	const EXPIRY_TIME    = 8 * 3600; // 8 hours
 	const MAX_FILESIZE   = 1024 * 1024; // 1 MiB
 
