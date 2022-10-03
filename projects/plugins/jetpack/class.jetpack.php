@@ -6548,9 +6548,9 @@ endif;
 		if ( ! static::connection()->has_connected_owner() ) {
 			return false;
 		}
-
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
-		if ( false === $rewind_enabled ) {
+		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && 0 === $rewind_enabled;
+		if ( false === $rewind_enabled || $recheck ) {
 			jetpack_require_lib( 'class.core-rest-api-endpoints' );
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
