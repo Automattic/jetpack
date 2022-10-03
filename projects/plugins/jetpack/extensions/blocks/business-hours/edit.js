@@ -1,12 +1,16 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Placeholder } from '@wordpress/components';
-import { getSettings } from '@wordpress/date';
+import wpdate from '@wordpress/date';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 import { icon } from '.';
+
+// @wordpress/date now provides getSettings in preference to __experimentalGetSettings,
+// but we still have to support WP 6.0 that doesn't have that yet.
+const getSettings = wpdate.getSettings || wpdate.__experimentalGetSettings;
 
 export const defaultLocalization = {
 	days: {
