@@ -143,10 +143,12 @@ const RecommendationsComponent = props => {
 	};
 
 	useEffect( () => {
-		const { active, hasStarted } = onboardingData;
-		if ( ! isLoading && active && ! hasStarted ) {
-			updateStep( step );
-			updateOnboardingData( { ...onboardingData, hasStarted: true } );
+		if ( onboardingData ) {
+			const { active, hasStarted } = onboardingData;
+			if ( ! isLoading && active && ! hasStarted ) {
+				updateStep( step );
+				updateOnboardingData( { ...onboardingData, hasStarted: true } );
+			}
 		}
 	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep ] );
 

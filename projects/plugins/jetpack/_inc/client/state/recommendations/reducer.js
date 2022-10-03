@@ -6,7 +6,7 @@ import {
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
-import { assign, difference, get, isArray, isEmpty, mergeWith, union, intersection } from 'lodash';
+import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
 	ONBOARDING_JETPACK_BACKUP,
 	ONBOARDING_JETPACK_COMPLETE,
@@ -621,7 +621,7 @@ const getInitialStep = state => {
 	const initialStep = getInitialRecommendationsStep( state );
 	const onboardingData = getOnboardingData( state );
 
-	if ( onboardingData.active ) {
+	if ( onboardingData && onboardingData.active ) {
 		return onboardingData.hasStarted
 			? initialStep
 			: getInitialStepForOnboarding( onboardingData.active );
@@ -648,19 +648,24 @@ const getEligibleOnboardings = state =>
 	);
 
 export const getOnboardingData = state => {
+	if ( isFetchingSiteData( state ) || ! isRecommendationsDataLoaded( state ) ) {
+		return null;
+	}
+
+	const eligibleOnboardings = getEligibleOnboardings( state );
+
 	const onboarding = {
 		active: getDataByKey( state, 'onboardingActive' ) || null,
-		viewed: getDataByKey( state, 'onboardingViewed' ) || [],
+		viewed:
+			getDataByKey( state, 'onboardingViewed' ).filter( viewedOnboarding =>
+				eligibleOnboardings.includes( viewedOnboarding )
+			) || [],
 		hasStarted: getDataByKey( state, 'onboardingHasStarted' ) || false,
 	};
 
 	// If no onboarding is active, try to find one that can be activated
-	if (
-		null === onboarding.active &&
-		! isFetchingSiteData( state ) &&
-		isRecommendationsDataLoaded( state )
-	) {
-		const newOnboardings = getEligibleOnboardings( state ).filter(
+	if ( null === onboarding.active ) {
+		const newOnboardings = eligibleOnboardings.filter(
 			name => ! onboarding.viewed.includes( name )
 		);
 
@@ -738,10 +743,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 };
 
 const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => {
-	const viewedOnboardings = intersection(
-		getEligibleOnboardings( state ),
-		getOnboardingData( state ).viewed
-	);
+	const onboardingData = getOnboardingData( state );
+	const viewedOnboardings = onboardingData ? onboardingData.viewed : [];
 
 	if ( ! viewedOnboardings.includes( onboardingName ) ) {
 		// If onboarding is not currently active - do not display it
