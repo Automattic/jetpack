@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WP_Post;
 
@@ -41,7 +40,6 @@ class Tracking_Pixel {
 		$v        = 'ext';
 		$blog_url = wp_parse_url( site_url() );
 		$srv      = $blog_url['host'];
-		$j        = sprintf( '%s:%s', Constants::get_constant( 'JETPACK__API_VERSION' ), Constants::get_constant( 'JETPACK__VERSION' ) );
 		if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
 			// Store and reset the queried_object and queried_object_id
 			// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
@@ -62,7 +60,7 @@ class Tracking_Pixel {
 		} else {
 			$post = '0';
 		}
-		return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
+		return compact( 'v', 'blog', 'post', 'tz', 'srv' );
 	}
 
 	/**

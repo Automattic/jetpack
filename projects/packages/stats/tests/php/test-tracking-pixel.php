@@ -40,7 +40,6 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		$view_data                    = Tracking_Pixel::build_view_data();
 		$expected_view_data           = array(
 			'v'    => 'ext',
-			'j'    => '11.4:11.4',
 			'blog' => 1234,
 			'post' => 7,
 			'tz'   => false,
@@ -57,7 +56,6 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		$view_data          = Tracking_Pixel::build_view_data();
 		$expected_view_data = array(
 			'v'    => 'ext',
-			'j'    => '11.4:11.4',
 			'blog' => 1234,
 			'post' => '0',
 			'tz'   => '5',
@@ -73,7 +71,6 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
 		$data          = array(
 			'v'    => 'ext',
-			'j'    => '11.4:11.4',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
@@ -86,7 +83,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	<script src='{$script_url}' defer></script>
 	<script>
 		_stq = window._stq || [];
-		_stq.push([ 'view', {v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'',srv:'example.org'} ]);
+		_stq.push([ 'view', {v:'ext',blog:'1234',post:'0',tz:'',srv:'example.org'} ]);
 		_stq.push([ 'clickTrackerInit', '1234', '0' ]);
 	</script>
 END;
@@ -101,14 +98,13 @@ END;
 		$_SERVER['HTTP_HOST']    = '127.0.0.1';
 		$data                    = array(
 			'v'    => 'ext',
-			'j'    => '11.4:11.4',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
 			'srv'  => 'example.org',
 		);
 		$footer_to_add           = Tracking_Pixel::get_footer_to_add( $data );
-		$footer_to_add_should_be = '<amp-pixel src=\"https://pixel.wp.com/g.gif?v=ext&#038;j=11.4%3A11.4&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER\"></amp-pixel>';
+		$footer_to_add_should_be = '<amp-pixel src=\"https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER\"></amp-pixel>';
 		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
 
@@ -130,7 +126,6 @@ END;
 		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
 		$data          = array(
 			'v'    => 'ext',
-			'j'    => '11.4:11.4',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
@@ -143,7 +138,7 @@ END;
 	<script src='{$script_url}' defer></script>
 	<script>
 		_stq = window._stq || [];
-		_stq.push([ 'view', {v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
+		_stq.push([ 'view', {v:'ext',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
 		_stq.push([ 'clickTrackerInit', '1234', '0' ]);
 	</script>
 END;

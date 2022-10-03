@@ -24,18 +24,6 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 	 */
 	const DEFAULT_STATS_VERSION = '9';
 	/**
-	 * The default value for setting the 'JETPACK__API_VERSION' constant.
-	 *
-	 * @var string
-	 */
-	const DEFAULT_JETPACK__API_VERSION = '11.4';
-	/**
-	 * The default value for setting the 'JETPACK__VERSION' constant.
-	 *
-	 * @var string
-	 */
-	const DEFAULT_JETPACK__VERSION = '11.4';
-	/**
 	 * Set up before each test
 	 *
 	 * @before
@@ -43,8 +31,6 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 	protected function set_up() {
 		parent::setUp();
 		Constants::set_constant( 'STATS_VERSION', self::DEFAULT_STATS_VERSION );
-		Constants::set_constant( 'JETPACK__API_VERSION', self::DEFAULT_JETPACK__API_VERSION );
-		Constants::set_constant( 'JETPACK__VERSION', self::DEFAULT_JETPACK__API_VERSION );
 		Jetpack_Options::update_option( 'id', 1234 );
 	}
 
