@@ -4,9 +4,9 @@ import React from 'react';
 
 import './style.scss';
 
-// Tackle numbers with commas.
-const numberWithCommas = x => {
-	return x.toString().replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
+// Format numbers with separators.
+const formatNumberWithSeparators = x => {
+	return new Intl.NumberFormat().format( x );
 };
 
 /**
@@ -25,7 +25,8 @@ const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
 		console.log( 'higher level callback...' );
 	};
 
-	const usageInfo = numberWithCommas( current ) + '/' + numberWithCommas( limit );
+	const usageInfo =
+		formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	return (
 		<div className="donut-meter-container">
 			<div className="donut-meter-wrapper">
