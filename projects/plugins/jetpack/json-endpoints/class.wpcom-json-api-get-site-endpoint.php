@@ -73,6 +73,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
 		'is_wpcom_atomic'             => '(bool) If the site is a WP.com Atomic one.',
+		'user_interactions'           => '(array) An array of user interactions with a site.',
 	);
 
 	/**
@@ -179,7 +180,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'selected_features',
 		'anchor_podcast',
 		'is_difm_lite_in_progress',
+		'difm_lite_site_options',
 		'site_intent',
+	);
+
+	/**
+	 * List of DIFM Lite options to be displayed
+	 *
+	 * @var array $displayed_difm_lite_site_options
+	 */
+	protected static $displayed_difm_lite_site_options = array(
+		'site_category',
+		'is_website_content_submitted',
+		'selected_page_titles',
 	);
 
 	/**
@@ -521,6 +534,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_wpcom_atomic':
 				$response[ $key ] = $this->site->is_wpcom_atomic();
 				break;
+			case 'user_interactions':
+				$response[ $key ] = $this->site->get_user_interactions();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -759,6 +775,21 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
+					break;
+				case 'difm_lite_site_options':
+					$difm_lite_options          = $site->get_difm_lite_site_options();
+					$visible_options            = self::$displayed_difm_lite_site_options;
+					$filtered_difm_lite_options = new stdClass();
+					if ( $difm_lite_options ) {
+						$filtered_difm_lite_options = array_filter(
+							$difm_lite_options,
+							function ( $key ) use ( $visible_options ) {
+								return in_array( $key, $visible_options, true );
+							},
+							ARRAY_FILTER_USE_KEY
+						);
+					}
+					$options[ $key ] = $filtered_difm_lite_options;
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();

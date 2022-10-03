@@ -1,16 +1,6 @@
-import { MouseEvent } from 'react';
+import { VideoPressVideo } from '../../types';
 
-export type VideoPressVideo = {
-	id: number | string;
-	videoTitle: string;
-	posterImage?: string;
-	uploadDate: string;
-	duration?: number;
-	plays?: number;
-	isPrivate?: boolean;
-};
-
-export type VideoRowProps = VideoPressVideo & {
+type VideoRowBaseProps = {
 	/**
 	 * className to apply to the component
 	 */
@@ -18,15 +8,15 @@ export type VideoRowProps = VideoPressVideo & {
 	/**
 	 * Mark row as checked or not
 	 */
-	checked: boolean;
+	checked?: boolean;
 	/**
-	 * Hide edit details button.
+	 * Show edit button
 	 */
-	hideEditButton?: boolean;
+	showEditButton?: boolean;
 	/**
-	 * Hide quick actions section.
+	 * Show quick actions section.
 	 */
-	hideQuickActions?: boolean;
+	showQuickActions?: boolean;
 	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
@@ -34,17 +24,9 @@ export type VideoRowProps = VideoPressVideo & {
 	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
-	onClickEdit?: () => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	onVideoDetailsClick?: () => void;
 };
+
+type VideoPressVideoProps = VideoRowBaseProps & VideoPressVideo;
+
+export type VideoRowProps = VideoPressVideoProps;

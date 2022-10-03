@@ -2,22 +2,47 @@
 
 $modal-max-width: 1080px;
 $modal-max-width-lg: 95%;
+$colophon-height: 40px;
+
+.jetpack-instant-search__search-results-wrapper {
+	position: relative;
+	max-width: $modal-max-width;
+	height: 100%;
+	margin: 0 auto;
+	border-radius: 4px;
+	overflow: hidden;
+
+	@include break-large-up() {
+		max-width: $modal-max-width-lg;
+	}
+
+	&.has-colophon {
+		padding-bottom: $colophon-height;
+	}
+}
+
+.jetpack-instant-search__jetpack-colophon {
+	position: absolute;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	height: $colophon-height;
+	width: 100%;
+	margin: 0;
+	background-color: $studio-white;
+	border-top: 1px solid $color-layout-borders;
+}
 
 .jetpack-instant-search__search-results {
+	overflow-y: auto;
+	height: 100%;
 	background: $color-modal-background;
-	border-radius: 3px;
 	min-height: 100%;
-	margin: 0 auto;
-	max-width: $modal-max-width;
 	position: relative;
 	z-index: 10;
 
 	@include break-small-down() {
 		border-radius: 0;
-	}
-
-	@include break-large-up() {
-		max-width: $modal-max-width-lg;
 	}
 
 	mark {
@@ -159,14 +184,6 @@ $modal-max-width-lg: 95%;
 
 			@include break( '<s' ) {
 				max-height: 80vh;
-			}
-
-			.jetpack-instant-search__jetpack-colophon {
-				margin-bottom: 1em;
-			}
-
-			.jetpack-instant-search__jetpack-colophon-text {
-				font-size: 0.8em;
 			}
 
 			.jetpack-instant-search__overlay--no-sidebar & {

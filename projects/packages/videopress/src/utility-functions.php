@@ -485,6 +485,9 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->guid            = null;
 	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
 	$video_info->rating          = null;
+	$video_info->description     = $post->post_content;
+	$video_info->title           = $post->post_title;
+	$video_info->caption         = $post->post_excerpt;
 
 	if ( is_wp_error( $post ) ) {
 		return $video_info;
@@ -732,3 +735,27 @@ function videopress_is_valid_video_rating( $rating ) {
 }
 
 add_filter( 'the_content', 'jetpack_videopress_flash_embed_filter', 7 ); // Needs to be priority 7 to allow Core to oEmbed.
+
+if ( ! function_exists( 'wp_startswith' ) ) :
+	/**
+	 * Check whether a string starts with a specific substring.
+	 *
+	 * @param string $haystack String we are filtering.
+	 * @param string $needle The substring we are looking for.
+	 * @return bool
+	 */
+	function wp_startswith( $haystack, $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_starts_with' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_starts_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
+		}
+
+		return 0 === strpos( $haystack, $needle );
+	}
+endif;

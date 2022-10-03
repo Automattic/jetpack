@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ignore reviews with state "COMMENTED" when determining whether a reviewer has approved or not

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Components: fix the positio of TOS component of the PricingTable cmp
