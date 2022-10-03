@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "532460d543d6dd43141eafcf14f90d79",
+    "content-hash": "2d8507356b5f81be84641ea68a62d2f1",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1503,16 +1503,16 @@
         },
         {
             "name": "automattic/jetpack-search",
-            "version": "v0.23.0",
+            "version": "v0.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-search.git",
-                "reference": "23e4cccff7e0d1bd1e337d266bcb5142a9473a6b"
+                "reference": "8358fe8ad131223686b0fe349a13a72d8146f069"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/23e4cccff7e0d1bd1e337d266bcb5142a9473a6b",
-                "reference": "23e4cccff7e0d1bd1e337d266bcb5142a9473a6b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/8358fe8ad131223686b0fe349a13a72d8146f069",
+                "reference": "8358fe8ad131223686b0fe349a13a72d8146f069",
                 "shasum": ""
             },
             "require": {
@@ -1537,7 +1537,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.23.x-dev"
+                    "dev-trunk": "0.24.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1554,9 +1554,9 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-search/tree/v0.23.0"
+                "source": "https://github.com/Automattic/jetpack-search/tree/v0.24.0"
             },
-            "time": "2022-09-27T17:31:44+00:00"
+            "time": "2022-10-03T21:59:49+00:00"
         },
         {
             "name": "automattic/jetpack-status",
