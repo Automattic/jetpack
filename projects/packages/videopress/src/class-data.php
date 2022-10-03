@@ -143,6 +143,7 @@ class Data {
 					'totalPages' => $video_data['totalPages'],
 					'total'      => $video_data['total'],
 				),
+				'uploadedVideoCount'           => $video_data['total'],
 				'query'                        => $video_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
