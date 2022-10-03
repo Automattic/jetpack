@@ -3,9 +3,9 @@ services:
     image: mariadb:latest
     healthcheck:
       test: ["CMD", "mysqladmin", "-pwordpress", "ping", "--silent"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 20
     volumes:
       - db_data:/var/lib/mysql
     environment:
