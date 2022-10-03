@@ -38,7 +38,7 @@
 		"automattic/jetpack-publicize": "^0.16.0",
 		"automattic/jetpack-redirect": "^1.7.18",
 		"automattic/jetpack-roles": "^1.4.17",
-		"automattic/jetpack-search": "^0.23.0",
+		"automattic/jetpack-search": "^0.24.0",
 		"automattic/jetpack-status": "^1.14.3",
 		"automattic/jetpack-sync": "^1.38.4",
 		"automattic/jetpack-videopress": "^0.4.1",
