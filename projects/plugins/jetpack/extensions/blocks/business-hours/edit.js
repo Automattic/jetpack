@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Placeholder } from '@wordpress/components';
-import wpdate from '@wordpress/date';
+import * as wpdate from '@wordpress/date';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';

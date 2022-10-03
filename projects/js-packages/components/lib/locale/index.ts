@@ -1,4 +1,4 @@
-import wpdate from '@wordpress/date';
+import * as wpdate from '@wordpress/date';
 
 // @wordpress/date now provides getSettings in preference to __experimentalGetSettings,
 // but we still have to support WP 6.0 that doesn't have that yet.
