@@ -8,15 +8,12 @@ import { VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
-	hideQuickActions,
 	hidePrivacy = false,
 	hideDuration = false,
 	hidePlays = false,
-	hideEditButton = false,
-	onClickEdit,
-	onUpdateVideoThumbnail,
-	onUpdateVideoPrivacy,
-	onDeleteVideo,
+	showEditButton = true,
+	showQuickActions = true,
+	onVideoDetailsClick,
 }: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
@@ -57,17 +54,14 @@ const VideoList = ( {
 					<VideoRow
 						key={ video?.id }
 						{ ...video }
-						hideEditButton={ hideEditButton }
-						hideQuickActions={ hideQuickActions }
+						showQuickActions={ ! video?.uploading && showQuickActions }
+						showEditButton={ ! video?.uploading && showEditButton }
 						isPrivate={ hidePrivacy ? null : video.isPrivate }
 						duration={ hideDuration ? null : video.duration }
 						plays={ hidePlays ? null : video.plays }
 						className={ styles.row }
 						checked={ selected.includes( index ) }
-						onClickEdit={ handleClickWithIndex( index, onClickEdit ) }
-						onUpdateVideoThumbnail={ handleClickWithIndex( index, onUpdateVideoThumbnail ) }
-						onUpdateVideoPrivacy={ handleClickWithIndex( index, onUpdateVideoPrivacy ) }
-						onDeleteVideo={ handleClickWithIndex( index, onDeleteVideo ) }
+						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );

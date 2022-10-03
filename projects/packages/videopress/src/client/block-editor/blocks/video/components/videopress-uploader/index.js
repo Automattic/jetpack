@@ -10,8 +10,8 @@ import { useRef } from 'react';
 /**
  * Internal dependencies
  */
+import { useResumableUploader } from '../../../../../hooks/use-uploader';
 import { PlaceholderWrapper } from '../../edit.js';
-import { useResumableUploader } from '../../hooks/use-uploader.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
 import UploadError from './uploader-error.js';

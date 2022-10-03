@@ -8,6 +8,8 @@ import filesize from 'filesize';
 /**
  * Internal dependencies
  */
+import { usePlan } from '../../hooks/use-plan';
+import useVideos from '../../hooks/use-videos';
 import ProgressBar from '../progress-bar';
 import styles from './style.module.scss';
 import { VideoStorageMeterProps } from './types';
@@ -19,7 +21,12 @@ import type React from 'react';
  * @param {VideoStorageMeterProps} props - Component props.
  * @returns {React.ReactNode} - VideoStorageMeter react component.
  */
-const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( { className, total, used } ) => {
+const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
+	className,
+	progressBarClassName,
+	total,
+	used,
+} ) => {
 	if ( ! total || used == null ) {
 		return null;
 	}
@@ -38,9 +45,35 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( { className, tot
 					totalLabel
 				) }
 			</Text>
-			<ProgressBar progress={ progress }></ProgressBar>
+			<ProgressBar
+				className={ classnames( styles[ 'progress-bar' ], progressBarClassName ) }
+				progress={ progress }
+			></ProgressBar>
 		</div>
 	);
+};
+
+export const ConnectVideoStorageMeter = props => {
+	const { storageUsed, uploadedVideoCount } = useVideos();
+	const total = 1024 * 1024 * 1024 * 1024;
+
+	const { features } = usePlan();
+
+	// Do not show storage meter for unlimited storage plans.
+	if ( features?.isVideoPressUnlimitedSupported ) {
+		return null;
+	}
+
+	// Do not show storage meter if when no videos have been uploaded.
+	if ( ! uploadedVideoCount ) {
+		return null;
+	}
+
+	if ( ! storageUsed ) {
+		return <VideoStorageMeter { ...props } used={ 0 } total={ 1 } />;
+	}
+
+	return <VideoStorageMeter { ...props } used={ storageUsed } total={ total } />;
 };
 
 export default VideoStorageMeter;

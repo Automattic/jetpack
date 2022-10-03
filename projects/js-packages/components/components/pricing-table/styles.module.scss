@@ -7,7 +7,6 @@
 .table {
 	--gap: calc( var( --spacing-base ) * 3 );
 	position: relative;
-	z-index: 2;
 	padding: var( --padding ) 0;
 
 	.is-viewport-large & {
@@ -75,9 +74,13 @@
 			content: '';
 			position: absolute;
 			top: 0;
+			left: var(--padding);
+			right: var(--padding);
 			height: 1px;
 			.is-viewport-large & {
 				width: 150%;
+				left: unset;
+				right: unset;
 			}
 			z-index: 5;
 			background-color: var( --jp-gray );
@@ -121,8 +124,8 @@
 	}
 }
 
-.popover-icon {
-	fill: var( --fill, var( --jp-gray ) );
+.item .popover-icon {
+	fill: var( --jp-gray-20 );
 	flex-shrink: 0;
 }
 
@@ -144,10 +147,8 @@
 }
 
 .tos-container {
-	.is-viewport-large & {
-		display: grid;
-		grid-template-columns: repeat( var( --columns ), 1fr );
-		grid-auto-flow: column;
-		column-gap: var( --gap );
-	}
+	display: flex;
+	align-items: right;
+	justify-content: right;
+	margin: 0 calc( var( --spacing-base ) * 4 );
 }

@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.4-beta - 2022-09-27
+### Enhancements
+- Editor: update icon sizing in the Jetpack sidebar for consistency. [#26281]
+- Recommendations: update assistant with question for agency managed sites. [#26302]
+
+### Bug fixes
+- Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks. [#26308]
+- Payments block: make filtering patterns used for the payments intro more robust. [#26465]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Account Connection Card: remove magic mobile link [#26311]
+- Disconnect Dialog: fix prop types to avoid warnings from React. [#26340]
+- E2E tests: use CI build artifacts in e2e tests. [#26278]
+- Masterbar: always load CSS from Jetpack, not Fusioned paths, in preparation for de-Fusioning. [#26444]
+- Mock update API response in sync test. [#26389]
+- Register `pcast.pocketcasts.net` for oEmbed even with WordPress 6.1, they only register `pca.st`. [#26324]
+- Removed connection-ui package dependency. [#26381]
+- SEO: refactor editor sidebar panel to share code. [#26288]
+- Site Accelerator: update image used for site accelerator recommendation. [#26335]
+- Social: align Jetpack and Social to use the connection-test-results endpoint in the block editor. [#26274]
+- Social: move the share limits logic to the social package. [#26294]
+- Sync changes to modules/masterbar/nudges/additional-css/ from wpcom. [#26362]
+- Updated package dependencies.
+- WPcom: always disable WAF on WoA sites. [#26401]
+- WPcom: apply Calypso 'Add new site' styles to wp-admin [#26290]
+
 ## 11.4-a.7 - 2022-09-22
 ### Improved compatibility
 - WC Pay: resolves issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+. [#26304]

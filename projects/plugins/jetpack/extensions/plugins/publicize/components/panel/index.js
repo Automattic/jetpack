@@ -12,6 +12,7 @@ import {
 	Form as PublicizeForm,
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
+	usePublicizeConfig,
 } from '@automattic/jetpack-publicize-components';
 import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
@@ -20,7 +21,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { SharePostRow } from '../../components/share-post';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
 import UpsellNotice from '../upsell';
 
 const PublicizePanel = ( { prePublish } ) => {
@@ -33,6 +33,9 @@ const PublicizePanel = ( { prePublish } ) => {
 		togglePublicizeFeature,
 		isPublicizeDisabledBySitePlan,
 		hideRePublicizeFeature,
+		hasPaidPlan,
+		isShareLimitEnabled,
+		numberOfSharesRemaining,
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
@@ -96,6 +99,9 @@ const PublicizePanel = ( { prePublish } ) => {
 						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 						connectionsAdminUrl={ connectionsAdminUrl }
+						numberOfSharesRemaining={
+							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
+						}
 					/>
 					{ isPublicizeEnabled && <PublicizeTwitterOptions prePublish={ prePublish } /> }
 

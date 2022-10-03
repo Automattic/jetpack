@@ -1,9 +1,13 @@
-import { Text, Button } from '@automattic/jetpack-components';
-import { Popover, Dropdown } from '@wordpress/components';
+/**
+ * External dependencies
+ */
+import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
+import { Popover, Dropdown, Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState } from 'react';
+/** */
 import privacy from '../../../components/icons/privacy-icon';
 import {
 	VIDEO_PRIVACY_LEVELS,
@@ -27,9 +31,13 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 	if ( ! anchorRef ) {
 		return null;
 	}
+	const popoverProps = {
+		anchorRef,
+		offset: 15,
+	};
 
 	return (
-		<Popover position="top left" offset={ 15 } noArrow={ false } anchorRef={ anchorRef }>
+		<Popover position="top left" noArrow={ false } { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
@@ -204,17 +212,60 @@ const VideoQuickActions = ( {
 
 export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps ) => {
 	const { videoId } = props;
-	if ( ! videoId ) {
+
+	if ( ! Number.isFinite( videoId ) ) {
 		return null;
 	}
 
-	const { data, updateVideoPrivacy } = useVideo( videoId );
+	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+	const [ showModal, setShowModal ] = useState( false );
+
+	if ( showModal ) {
+		return (
+			<Modal
+				title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+				onRequestClose={ () => setShowModal( false ) }
+				className={ styles[ 'delete-video-modal' ] }
+			>
+				<ThemeProvider>
+					<div>
+						<Text>{ __( 'This action cannot be undone.', 'jetpack-videopress-pkg' ) }</Text>
+						<div className={ styles[ 'modal-actions' ] }>
+							<Button
+								className={ styles[ 'modal-action-button' ] }
+								variant="secondary"
+								weight="bold"
+								onClick={ () => setShowModal( false ) }
+							>
+								{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+							</Button>
+
+							<Button
+								className={ styles[ 'modal-action-button' ] }
+								isDestructive
+								variant="primary"
+								weight="bold"
+								onClick={ () => {
+									setShowModal( false );
+									deleteVideo();
+								} }
+							>
+								{ __( 'Delete', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</div>
+					</div>
+				</ThemeProvider>
+			</Modal>
+		);
+	}
+
 	const { privacySetting } = data;
 
 	return (
 		<VideoQuickActions
 			{ ...props }
 			onUpdateVideoPrivacy={ updateVideoPrivacy }
+			onDeleteVideo={ () => setShowModal( true ) }
 			privacySetting={ privacySetting }
 		/>
 	);

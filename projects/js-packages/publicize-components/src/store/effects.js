@@ -14,7 +14,8 @@ import { SUPPORTED_CONTAINER_BLOCKS } from '../components/twitter';
 export async function refreshConnectionTestResults() {
 	try {
 		const connectionRefreshPath =
-			getJetpackData()?.connectionRefreshPath ?? '/wpcom/v2/publicize/connection-test-results';
+			getJetpackData()?.social?.connectionRefreshPath ??
+			'/wpcom/v2/publicize/connection-test-results';
 		const results = await apiFetch( { path: connectionRefreshPath } );
 
 		// Combine current connections with new connections.
