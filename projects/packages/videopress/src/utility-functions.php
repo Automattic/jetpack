@@ -487,6 +487,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->rating          = null;
 	$video_info->description     = $post->post_content;
 	$video_info->title           = $post->post_title;
+	$video_info->caption         = $post->post_excerpt;
 
 	if ( is_wp_error( $post ) ) {
 		return $video_info;

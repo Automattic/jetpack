@@ -26,10 +26,19 @@ const withVideoChaptersEdit = createHigherOrderComponent( BlockEdit => props => 
 			return;
 		}
 
-		const freshAttributes = {
-			title: videoItem?.title,
-			description: videoItem?.description,
-		};
+		const freshAttributes = {};
+
+		if ( videoItem?.title ) {
+			freshAttributes.title = videoItem.title;
+		}
+
+		if ( videoItem?.description ) {
+			freshAttributes.description = videoItem.description;
+		}
+
+		if ( ! Object.keys( freshAttributes ).length ) {
+			return;
+		}
 
 		setAttributes( freshAttributes );
 		forceInitialState( freshAttributes );

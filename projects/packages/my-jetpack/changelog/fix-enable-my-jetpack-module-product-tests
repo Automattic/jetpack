@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed the tests for the Module_Product class by creating and using a sample, test-only module product class as the test subject instead of relying on Videopress or other concrete products.

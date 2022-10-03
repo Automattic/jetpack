@@ -21,13 +21,13 @@ export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePri
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
-			<Text component="sup" variant="title-medium">
+			<Text className={ styles.symbol } component="sup" variant="title-medium">
 				{ symbol }
 			</Text>
 			{ integer }
 			{ showPriceFraction && (
-				<Text component="sup" variant="title-medium" data-testid="PriceFraction">
-					{ fraction }
+				<Text component="sup" variant="body-small" data-testid="PriceFraction">
+					<strong>{ fraction }</strong>
 				</Text>
 			) }
 		</Text>
