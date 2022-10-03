@@ -23,8 +23,8 @@ class Data {
 	public static function get_video_data() {
 		$video_data = array(
 			'videos'     => array(),
-			'total'      => 10,
-			'totalPages' => 2,
+			'total'      => 0,
+			'totalPages' => 0,
 		);
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -43,7 +43,9 @@ class Data {
 		}
 
 		// load the real values
-		$video_data['videos'] = json_decode( $response['body'], true );
+		$video_data['videos']     = json_decode( $response['body'], true );
+		$video_data['total']      = wp_remote_retrieve_header( 'X-WP-Total', $response );
+		$video_data['totalPages'] = wp_remote_retrieve_header( 'X-WP-TotalPages', $response );
 
 		return $video_data;
 	}
