@@ -24,16 +24,18 @@ class Data {
 			'videos'     => array(),
 			'total'      => 0,
 			'totalPages' => 0,
-		);
-
-		$args = array(
-			'per_page'  => '6',
-			'mime_type' => 'video/videopress',
+			'query'      => array(
+				'order'        => 'desc',
+				'orderBy'      => 'date',
+				'itemsPerPage' => 6,
+				'page'         => 1,
+				'type'         => 'video/videopress',
+			),
 		);
 
 		// Do an internal request for the media list
 		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
-		$request->set_query_params( $args );
+		$request->set_query_params( $video_data['query'] );
 		$response = rest_do_request( $request );
 
 		if ( $response->is_error() ) {
@@ -133,13 +135,7 @@ class Data {
 					'totalPages' => $video_data['totalPages'],
 					'total'      => $video_data['total'],
 				),
-				'query'                        => array(
-					'order'        => 'desc',
-					'orderBy'      => 'date',
-					'itemsPerPage' => 6,
-					'page'         => 1,
-					'type'         => 'video/videopress',
-				),
+				'query'                        => $video_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
 				),
