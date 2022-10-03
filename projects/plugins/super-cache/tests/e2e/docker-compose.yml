@@ -2,7 +2,7 @@ services:
   db:
     image: mariadb:latest
     healthcheck:
-      test: ["CMD", "mysqladmin", "-pwordpress", "ping", "--silent"]
+      test: ["CMD", "mysqladmin", "-P", "3306", "-pwordpress", "ping", "--silent"]
       interval: 5s
       timeout: 5s
       retries: 20
