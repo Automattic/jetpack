@@ -73,10 +73,16 @@ function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
 
+	const isPageLoading = useSelect(
+		select =>
+			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
+			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' )
+	);
+
 	return (
 		<>
-			{ supportsSearch && <SearchDashboardPage /> }
-			{ ! supportsSearch && <UpsellPage /> }
+			{ supportsSearch && <SearchDashboardPage isLoading={ isPageLoading } /> }
+			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }
 		</>
 	);
 }
