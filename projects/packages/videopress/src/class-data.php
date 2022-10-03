@@ -16,11 +16,17 @@ use Jetpack_Options;
  */
 class Data {
 	/**
-	 * Gets the product data
+	 * Gets the video data
 	 *
 	 * @return array
 	 */
-	public static function get_videos() {
+	public static function get_video_data() {
+		$video_data = array(
+			'videos'     => array(),
+			'total'      => 10,
+			'totalPages' => 2,
+		);
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		// @todo: build a proper query string for request.
@@ -33,10 +39,13 @@ class Data {
 		$response = Client::wpcom_json_api_request_as_user( $endpoint, '2', $args, null, 'wp' );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			// @todo: error handling
-			return array();
+			return $video_data;
 		}
 
-		return json_decode( $response['body'], true );
+		// load the real values
+		$video_data['videos'] = json_decode( $response['body'], true );
+
+		return $video_data;
 	}
 
 	/**
@@ -46,6 +55,8 @@ class Data {
 	 * @return array
 	 */
 	public static function get_initial_state() {
+
+		$video_data = self::get_video_data();
 
 		$videos = array_map(
 			function ( $video ) {
@@ -101,7 +112,7 @@ class Data {
 					'finished'       => $finished,
 				);
 			},
-			self::get_videos()
+			$video_data['videos']
 		);
 
 		return array(
