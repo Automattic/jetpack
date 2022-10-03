@@ -6,7 +6,7 @@ import {
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
-import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { assign, difference, get, isArray, isEmpty, mergeWith, union, intersection } from 'lodash';
 import {
 	ONBOARDING_JETPACK_BACKUP,
 	ONBOARDING_JETPACK_COMPLETE,
@@ -640,6 +640,11 @@ const getProductsEligibleForPostPurchaseOnboarding = state =>
 			'1' === active && ONBOARDING_SUPPORT_START_TIMESTAMP < Date.parse( subscribed_date )
 	);
 
+const getEligibleOnboardings = state =>
+	getProductsEligibleForPostPurchaseOnboarding( state ).map( ( { product_slug } ) =>
+		getOnboardingNameByProductSlug( product_slug )
+	);
+
 export const getOnboardingData = state => {
 	const onboarding = {
 		active: getDataByKey( state, 'onboardingActive' ) || null,
@@ -653,9 +658,9 @@ export const getOnboardingData = state => {
 		! isFetchingSiteData( state ) &&
 		isRecommendationsDataLoaded( state )
 	) {
-		const newOnboardings = getProductsEligibleForPostPurchaseOnboarding( state )
-			.map( ( { product_slug } ) => getOnboardingNameByProductSlug( product_slug ) )
-			.filter( name => ! onboarding.viewed.includes( name ) );
+		const newOnboardings = getEligibleOnboardings( state ).filter(
+			name => ! onboarding.viewed.includes( name )
+		);
 
 		const sortedOnboardings = newOnboardings.sort( sortByOnboardingPriority );
 
@@ -730,6 +735,40 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	}
 };
 
+const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => {
+	const viewedOnboardings = intersection(
+		getEligibleOnboardings( state ),
+		getOnboardingData( state ).viewed
+	);
+
+	if ( ! viewedOnboardings.includes( onboardingName ) ) {
+		// If onboarding is not currently active - do not display it
+		return false;
+	}
+
+	switch ( onboardingName ) {
+		case ONBOARDING_JETPACK_COMPLETE:
+			// Always show Complete plan
+			return true;
+		case ONBOARDING_JETPACK_VIDEOPRESS:
+		case ONBOARDING_JETPACK_SEARCH:
+		case ONBOARDING_JETPACK_SECURITY:
+			// Don't show plans that overlap with active plan: Complete
+			return ! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE );
+		case ONBOARDING_JETPACK_BACKUP:
+		case ONBOARDING_JETPACK_ANTI_SPAM:
+		case ONBOARDING_JETPACK_SCAN:
+			// Don't show plans that overlap with either active plans: Complete or Security
+			return (
+				! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE ) &&
+				! viewedOnboardings.includes( ONBOARDING_JETPACK_SECURITY )
+			);
+		default:
+			// Otherwise, show the onboarding in the summary until we create additional rule
+			return true;
+	}
+};
+
 export const getSummaryFeatureSlugs = state => {
 	const featureSlugsInPreferenceOrder = [
 		'woocommerce',
@@ -770,17 +809,11 @@ export const getSummaryResourceSlugs = state => {
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
 
-export const getSummaryPrimarySection = state => {
-	const sortedViewed = getOnboardingData( state ).viewed.sort( sortByOnboardingPriority );
-
-	if ( 0 === sortedViewed.length ) {
-		return null;
-	}
-
-	const mostImportantOnboarding = sortedViewed[ 0 ];
-
-	return SUMMARY_SECTION_BY_ONBOARDING_NAME[ mostImportantOnboarding ];
-};
+export const getSummaryPrimarySections = state =>
+	getOnboardingData( state )
+		.viewed.filter( onboarding => isOnboardingEligibleToShowInSummary( state, onboarding ) )
+		.sort( sortByOnboardingPriority )
+		.map( onboarding => SUMMARY_SECTION_BY_ONBOARDING_NAME[ onboarding ] );
 
 export const getSidebarCardSlug = state => {
 	const sitePlan = getSitePlan( state );

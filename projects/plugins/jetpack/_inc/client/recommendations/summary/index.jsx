@@ -11,7 +11,7 @@ import {
 	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
-	getSummaryPrimarySection,
+	getSummaryPrimarySections,
 	getUpsell,
 	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
@@ -39,7 +39,7 @@ const SummaryComponent = props => {
 		siteTitle,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
-		summaryPrimarySection,
+		summaryPrimarySections,
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		upsell,
@@ -80,14 +80,14 @@ const SummaryComponent = props => {
 						siteTitle
 					) }
 				</h1>
-				{ summaryPrimarySection && (
-					<section>
-						<h2 id="primary-recommendations">Part of your { summaryPrimarySection.name } plan</h2>
-						{ summaryPrimarySection.slugs.map( slug => (
+				{ summaryPrimarySections.map( ( { name, slugs } ) => (
+					<section aria-labelledby={ `primary-onboarding-${ name }` }>
+						<h2 id={ `primary-onboarding-${ name }` }>Part of your { name } plan</h2>
+						{ slugs.map( slug => (
 							<PrimarySummary key={ slug } slug={ slug } />
 						) ) }
 					</section>
-				) }
+				) ) }
 				{ ( summaryFeatureSlugs.selected.length > 0 || summaryFeatureSlugs.skipped.length > 0 ) && (
 					<section aria-labelledby="enabled-recommendations">
 						<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
@@ -225,7 +225,7 @@ const Summary = connect(
 			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
-			summaryPrimarySection: getSummaryPrimarySection( state ),
+			summaryPrimarySections: getSummaryPrimarySections( state ),
 			stateStepSlug: getStep( state ),
 			updatingStep: isUpdatingRecommendationsStep( state ),
 			isOnboardingActive: getIsOnboardingActive( state ),
