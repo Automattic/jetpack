@@ -43,23 +43,40 @@ export default function WrappedDashboard() {
 	return (
 		<>
 			{ ! isFullyConnected && ! isNewPricing && <SearchConnectionPage /> }
-			{ ( isFullyConnected || isNewPricing ) && <NewWrappedDashboard /> }
+			{ ( isFullyConnected || isNewPricing ) && <WrappedDashboard202208 /> }
 		</>
 	);
 }
 
 /**
- * Returns SearchDashboard component if supports search otherwise UpsellPage component
+ * Returns AfterConnectionPage component if site is fully connected otherwise UpsellPage component.
  *
  * @returns {React.Component} NewWrappedDashboard component.
  */
-function NewWrappedDashboard() {
+function WrappedDashboard202208() {
 	const { isFullyConnected } = useConnection();
 
 	return (
 		<>
-			{ isFullyConnected && <SearchDashboardPage /> }
+			{ isFullyConnected && <AfterConnectionPage /> }
 			{ ! isFullyConnected && <UpsellPage /> }
+		</>
+	);
+}
+
+/**
+ * Returns SearchDashboardPage component if supports search otherwise UpsellPage component
+ *
+ * @returns {React.Component} AfterConnectionPage component.
+ */
+function AfterConnectionPage() {
+	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
+	const supportsSearch = useSelect( select => select( STORE_ID ).supportsSearch() );
+
+	return (
+		<>
+			{ supportsSearch && <SearchDashboardPage /> }
+			{ ! supportsSearch && <UpsellPage /> }
 		</>
 	);
 }
