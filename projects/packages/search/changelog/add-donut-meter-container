@@ -1,4 +1,4 @@
 Significance: major
 Type: added
 
-Components: Added DonutMeterContainer JS component.
+Components: Added UsageMeter along with DonutMeterContainer JS component.
