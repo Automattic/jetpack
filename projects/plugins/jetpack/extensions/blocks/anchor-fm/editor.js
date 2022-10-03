@@ -56,7 +56,6 @@ const ConvertToAudio = () => {
 			className="anchor-post-publish-outbound-link"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			title={ __( 'Convert to audio', 'jetpack' ) }
-			initialOpen={ true }
 		>
 			<PanelRow>
 				<p>

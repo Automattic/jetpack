@@ -64,7 +64,7 @@ const VideoLibraryWrapper = ( {
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
@@ -81,13 +81,13 @@ const VideoLibraryWrapper = ( {
 			<Text variant="headline-small" mb={ 1 }>
 				{ title }
 			</Text>
-			{ isSm && <Text className={ styles[ 'total-sm' ] }>{ totalVideosLabel }</Text> }
+			{ ! isLg && <Text className={ styles[ 'total-sm' ] }>{ totalVideosLabel }</Text> }
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				{ ! isSm && <Text>{ totalVideosLabel }</Text> }
+				{ isLg && <Text>{ totalVideosLabel }</Text> }
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: isSm } ) }
+							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
 							onSearch={ setSearch }
 							value={ searchQuery }
 							loading={ isFetching }
@@ -117,7 +117,7 @@ const VideoLibraryWrapper = ( {
 	);
 };
 
-export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
 	const disabled = videos?.some?.(
@@ -143,7 +143,11 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
+				<VideoGrid
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					loading={ loading }
+				/>
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
