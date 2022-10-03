@@ -122,8 +122,8 @@ class Data {
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
 				'pagination'                   => array(
-					'totalPages' => 2,
-					'total'      => 10,
+					'totalPages' => $video_data['totalPages'],
+					'total'      => $video_data['total'],
 				),
 				'query'                        => array(
 					'order'        => 'desc',
