@@ -14,15 +14,14 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
-import useConnection from 'hooks/use-connection';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
-import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 
 import './upsell-page.scss';
 
@@ -37,29 +36,42 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  * @returns {React.Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-	const { isFullyConnected } = useConnection();
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+
+	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
+	const checkSiteHasSearchProduct = useCallback(
+		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
+		[ fetchSearchPlanInfo ]
+	);
+
+	const { run: sendToCartPaid, hasCheckoutStartedPaid } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_search',
+		redirectUrl: `/admin.php?page=jetpack-search`,
+		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+		from: 'jetpack-search',
+		siteSuffix: domain,
+	} );
+
+	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_search_free',
+		redirectUrl: `/admin.php?page=jetpack-search`,
+		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+		from: 'jetpack-search',
+		siteSuffix: domain,
+	} );
 
 	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' ) ||
+			hasCheckoutStartedPaid ||
+			hasCheckoutStartedFree ||
 			isLoading,
-		[ isLoading ]
+		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree ]
 	);
-
-	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
-	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-
-	const sendToCart = useCallback( () => {
-		window.location.href = getProductCheckoutUrl( {
-			siteSuffix: domain,
-			redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
-			isUserConnected: isFullyConnected,
-		} );
-	}, [ domain, adminUrl, isFullyConnected ] );
 
 	return (
 		<>
@@ -74,9 +86,12 @@ export default function UpsellPage( { isLoading = false } ) {
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (
-								<NewPricingComponent sendToCart={ sendToCart } />
+								<NewPricingComponent
+									sendToCartPaid={ sendToCartPaid }
+									sendToCartFree={ sendToCartFree }
+								/>
 							) : (
-								<OldPricingComponent sendToCart={ sendToCart } />
+								<OldPricingComponent sendToCart={ sendToCartPaid } />
 							) }
 						</AdminSectionHero>
 					</AdminPage>
@@ -121,8 +136,12 @@ const OldPricingComponent = ( { sendToCart } ) => {
 	);
 };
 
-const NewPricingComponent = ( { sendToCart } ) => {
+const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
+	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
+	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
+
 	return (
 		<Container horizontalSpacing={ 8 }>
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
@@ -131,11 +150,10 @@ const NewPricingComponent = ( { sendToCart } ) => {
 						<PricingTableColumn primary>
 							<PricingTableHeader>
 								<ProductPrice
-									price={ 9.95 }
-									offPrice={ 4.97 }
-									currency="USD"
+									price={ priceBefore }
+									offPrice={ priceAfter }
+									currency={ priceCurrencyCode }
 									leyend=""
-									promoLabel="50% off"
 								>
 									<div className="price-tip">
 										<span className="price-tip-text">
@@ -162,7 +180,7 @@ const NewPricingComponent = ( { sendToCart } ) => {
 										</IconTooltip>
 									</div>
 								</ProductPrice>
-								<Button onClick={ sendToCart } fullWidth>
+								<Button onClick={ sendToCartPaid } fullWidth>
 									{ __( 'Get Search', 'jetpack-search-pkg' ) }
 								</Button>
 							</PricingTableHeader>
@@ -188,8 +206,13 @@ const NewPricingComponent = ( { sendToCart } ) => {
 						</PricingTableColumn>
 						<PricingTableColumn>
 							<PricingTableHeader>
-								<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
-								<Button onClick={ sendToCart } variant="secondary" fullWidth>
+								<ProductPrice
+									price={ 0 }
+									leyend=""
+									currency={ priceCurrencyCode }
+									hidePriceFraction
+								/>
+								<Button onClick={ sendToCartFree } variant="secondary" fullWidth>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
 								</Button>
 							</PricingTableHeader>
