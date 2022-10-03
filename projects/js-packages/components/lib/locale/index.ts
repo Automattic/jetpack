@@ -1,4 +1,4 @@
-import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { getSettings } from '@wordpress/date';
 
 /**
  * Clean up WP locale so it matches the format expected by browsers.
@@ -35,7 +35,7 @@ declare const global: typeof globalThis;
 export const getUserLocale = () => {
 	const {
 		l10n: { locale },
-	} = __experimentalGetSettings();
+	} = getSettings();
 
 	if ( locale ) {
 		return cleanLocale( locale );

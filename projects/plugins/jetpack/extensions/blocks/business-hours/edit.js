@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Placeholder } from '@wordpress/components';
-import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { getSettings } from '@wordpress/date';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -56,7 +56,7 @@ class BusinessHours extends Component {
 		}
 
 		if ( ! isSelected ) {
-			const settings = __experimentalGetSettings();
+			const settings = getSettings();
 			const {
 				formats: { time },
 			} = settings;
