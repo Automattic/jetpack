@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useDispatch } from '@wordpress/data';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 /**
@@ -144,9 +144,11 @@ export default () => {
 	};
 	// Make sure we have the latest data from the API
 	// Used to update the data when user navigates direct from Media Library
-	useEffect( () => {
-		setData( video );
-	}, [ video ] );
+	// removed -> https://github.com/Automattic/jetpack/issues/26574
+	// @todo: move state login to the redux store
+	// useEffect( () => {
+	// 	setData( video );
+	// }, [ video ] );
 
 	return {
 		...data, // data is the local representation of the video
