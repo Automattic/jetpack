@@ -1,22 +1,38 @@
-.header{
-	display: flex;
-	justify-content: space-between;
-}
+.header-wrapper {
+	&:not( .small ) {
+		display: flex;
+		align-items: start;
+	}
 
-.breadcrumb {
-	display: flex;
-	gap: var(--spacing-base);
-	align-items: center;
-	color: var(--jp-gray-40);
+	&.small .header-content {
+		align-items: end;
+	}
+
+	.logo-button {
+		all: unset;
+		cursor: pointer;
+	}
+
+	.header-content {
+		display: flex;
+		justify-content: space-between;
+		flex-grow: 1;
+	}
+
+	.breadcrumb {
+		display: flex;
+		gap: var( --spacing-base );
+		align-items: center;
+		color: var( --jp-gray-40 );
+
+		&:not( .small ) {
+			margin-left: var( --spacing-base );
+		}
+	}
 }
 
 .input {
-	margin-top: calc( var(--spacing-base) * 3 ); // 24px
-}
-
-.logo-button {
-	all: unset;
-	cursor: pointer;
+	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }
 
 .selector {
@@ -25,7 +41,7 @@
 	.actions {
 		display: flex;
 		justify-content: flex-end;
-		margin-top: calc( var(--spacing-base) * 2); // 16px
-		gap: calc( var(--spacing-base) * 2); // 16px
+		margin-top: calc( var( --spacing-base ) * 2 ); // 16px
+		gap: calc( var( --spacing-base ) * 2 ); // 16px
 	}
 }
