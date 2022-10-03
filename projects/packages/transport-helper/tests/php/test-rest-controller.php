@@ -107,7 +107,7 @@ class Test_REST_Controller extends TestCase {
 	public function test_install_helper_script_success() {
 		$body = array(
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			'helper' => base64_encode( "<?php /* Jetpack Helper Script */\n" ),
+			'helper' => base64_encode( "<?php /* Jetpack Backup Helper Script */\n" ),
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
