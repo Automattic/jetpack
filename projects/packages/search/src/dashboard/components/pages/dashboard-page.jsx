@@ -36,6 +36,8 @@ export default function DashboardPage( { isLoading = false } ) {
 		[ isLoading ]
 	);
 
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
@@ -80,7 +82,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					<UsageMeterSection />
+					{ isNewPricing && <MockUsageMeter /> }
 					<RecordMeter
 						postCount={ postCount }
 						postTypeBreakdown={ postTypeBreakdown }
@@ -116,7 +118,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const UsageMeterSection = () => {
+const MockUsageMeter = () => {
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
