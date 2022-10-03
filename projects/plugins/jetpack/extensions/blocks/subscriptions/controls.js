@@ -158,6 +158,8 @@ export default function SubscriptionControls( {
 							customFontSize: newFontSize,
 						} );
 					} }
+					// This is changing in the future, and we need to do this to silence the deprecation warning.
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
 			<PanelBody
