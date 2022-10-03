@@ -23,6 +23,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-e2e": [
+			"cd tests/e2e && pnpm i && pnpm env:up && pnpm test:run"
+		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
@@ -41,8 +44,7 @@
 		"autorelease": true,
 		"autotagger": true,
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}",
-			"versioning": "wordpress"
+			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}"
 		},
 		"mirror-repo": "Automattic/wp-super-cache",
 		"release-branch-prefix": "super-cache",

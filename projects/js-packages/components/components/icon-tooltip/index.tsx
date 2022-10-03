@@ -1,7 +1,7 @@
 import { Popover } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import Button from '../button';
 import Gridicon from '../gridicon/index';
 import { IconTooltipProps, Placement, Position } from './types';
 
@@ -32,32 +32,17 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = 'info-outline',
+	iconSize = 18,
+	offset = 10,
 	title,
 	children,
 } ) => {
-	const delay = 300;
+	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
-	const delayedSetIsOver = useDebounce( setIsVisible, delay );
-
-	const createToggleIsOver = ( eventName, isDelayed = false ) => {
-		return event => {
-			event.stopPropagation();
-			event.preventDefault();
-			const _isVisible = [ 'focus', 'mouseenter' ].includes( event.type );
-			if ( _isVisible === isVisible ) {
-				return;
-			}
-
-			if ( isDelayed ) {
-				delayedSetIsOver( _isVisible );
-			} else {
-				setIsVisible( _isVisible );
-			}
-		};
-	};
+	const showTooltip = useCallback( () => setIsVisible( true ), [ setIsVisible ] );
+	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 
 	const args = {
-		iconCode,
 		// To be compatible with deprecating prop `position`.
 		position: placementsToPositions( placement ),
 		placement,
@@ -65,22 +50,24 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		noArrow: false,
 		resize: false,
 		flip: false,
-		offset: 10, // The distance (in px) between the anchor and the popover.
+		offset, // The distance (in px) between the anchor and the popover.
+		focusOnMount: 'container' as const,
+		onClose: hideTooltip,
+		className: 'icon-tooltip-container',
 	};
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
+	const iconShiftBySize = {
+		left: -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
+	};
 
 	return (
 		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
-			<span
-				style={ { cursor: 'pointer' } }
-				onMouseEnter={ createToggleIsOver( 'onMouseEnter', true ) }
-				onMouseLeave={ createToggleIsOver( 'onMouseLeave' ) }
-			>
-				<Gridicon className={ iconClassName } icon={ args.iconCode } size={ 18 } />
-			</span>
+			<Button variant="link" onClick={ showTooltip }>
+				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
+			</Button>
 
-			<div className="icon-tooltip-helper">
+			<div className="icon-tooltip-helper" style={ iconShiftBySize }>
 				{ isVisible && (
 					<Popover { ...args }>
 						<div>

@@ -1,36 +1,31 @@
-import { MouseEvent } from 'react';
 import { VideoPressVideo } from '../../types';
+import { VideoQuickActionsProps } from '../video-quick-actions/types';
 import { VideoThumbnailProps } from '../video-thumbnail/types';
 
-export type VideoCardProps = VideoPressVideo &
-	VideoThumbnailProps & {
+export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' | 'id' > &
+	VideoThumbnailProps &
+	VideoQuickActionsProps & {
 		/**
-		 * Whether the card should look "blank" style.
+		 * Should show or not quick actions.
 		 */
-		isBlank?: boolean;
-
-		/**
-		 * True when the card is loading data.
-		 */
-		isLoading?: boolean;
-
+		showQuickActions?: boolean;
 		/**
 		 * Callback to be invoked when clicking on the `Edit video details` button.
 		 */
 		onVideoDetailsClick?: () => void;
 
 		/**
-		 * Callback to be invoked when clicking on the `Update thumbnail` button.
+		 * True when the video is being deleted.
 		 */
-		onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+		isDeleting?: boolean;
 
 		/**
-		 * Callback to be invoked when clicking on the `Update privacy` button.
+		 * True when is in loading mode.
 		 */
-		onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+		loading?: boolean;
 
 		/**
-		 * Callback to be invoked when clicking on the `Delete video` button.
+		 * True when the video has been deleted in the server-side.
 		 */
-		onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+		hasBeenDeleted?: boolean;
 	};

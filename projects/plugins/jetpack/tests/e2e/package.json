@@ -36,7 +36,7 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.25.0",
+		"@playwright/test": "1.26.0",
 		"allure-playwright": "2.0.0-beta.19",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "*"
@@ -47,6 +47,8 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": []
+		"targets": [],
+		"pluginSlug": "jetpack",
+		"mirrorName": "jetpack-production"
 	}
 }

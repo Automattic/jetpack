@@ -14,7 +14,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -23,8 +22,9 @@ use Automattic\Jetpack\Status;
  * Class Jetpack_Social
  */
 class Jetpack_Social {
-	const JETPACK_PUBLICIZE_MODULE_SLUG    = 'publicize';
-	const JETPACK_SOCIAL_ACTIVATION_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
+	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
+	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -53,7 +53,7 @@ class Jetpack_Social {
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -74,7 +74,12 @@ class Jetpack_Social {
 				$config->ensure( 'identity_crisis' );
 
 				// Publicize package.
-				$config->ensure( 'publicize' );
+				$config->ensure(
+					'publicize',
+					array(
+						'force_refresh' => true,
+					)
+				);
 			},
 			1
 		);
@@ -92,7 +97,7 @@ class Jetpack_Social {
 		$this->manager = $connection_manager ? $connection_manager : new Connection_Manager();
 
 		// Add REST routes
-		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Controller(), 'register_rest_routes' ) );
+		add_action( 'rest_api_init', array( new Automattic\Jetpack\Social\REST_Settings_Controller(), 'register_rest_routes' ) );
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
@@ -101,8 +106,6 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
-
-		add_action( 'admin_init', array( $this, 'set_up_sharing_limits' ) );
 	}
 
 	/**
@@ -110,6 +113,30 @@ class Jetpack_Social {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	}
+
+	/**
+	 * Check if we have a paid Jetpack Social plan.
+	 */
+	/**
+	 * Check if the Publicize module is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_publicize_active() {
+		return ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG );
+	}
+
+	/**
+	 * Get the version number of the plugin.
+	 *
+	 * @return string
+	 */
+	public function get_plugin_version() {
+		$plugin_data    = get_plugin_data( JETPACK_SOCIAL_PLUGIN_ROOT_FILE );
+		$plugin_version = $plugin_data['Version'];
+
+		return ! empty( $plugin_version ) ? $plugin_version : '';
 	}
 
 	/**
@@ -150,25 +177,24 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		$shares                  = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-		$refresh_plan_from_wpcom = true;
-		$show_nudge              = ! Current_Plan::supports( 'social-shares-1000', $refresh_plan_from_wpcom );
-
 		return array(
 			'siteData'        => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'siteSuffix'        => ( new Status() )->get_site_suffix(),
+				'pluginVersion'     => $this->get_plugin_version(),
 			),
 			'jetpackSettings' => array(
-				'publicize_active' => ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ),
+				'publicize_active'  => self::is_publicize_active(),
+				'show_pricing_page' => self::should_show_pricing_page(),
 			),
 			'connectionData'  => array(
 				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 			),
-			'sharesData'      => ! is_wp_error( $shares ) ? $shares : null,
-			'showNudge'       => $show_nudge,
+			'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+			'showNudge'       => ! $publicize->has_paid_plan( true ),
 		);
 	}
 
@@ -186,11 +212,9 @@ class Jetpack_Social {
 	 * Enqueue block editor scripts and styles.
 	 */
 	public function enqueue_block_editor_scripts() {
-		if (
-			! ( new Modules() )->is_active( self::JETPACK_PUBLICIZE_MODULE_SLUG ) ||
-			class_exists( 'Jetpack' ) ||
-			! $this->is_supported_post()
-		) {
+		global $publicize;
+
+		if ( ! self::is_publicize_active() || class_exists( 'Jetpack' ) || ! $this->is_supported_post() ) {
 			return;
 		}
 
@@ -206,15 +230,19 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
-		wp_add_inline_script( 'jetpack-social-editor', $this->render_initial_state(), 'before' );
-
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
-				'siteFragment'            => ( new Status() )->get_site_suffix(),
-				'connectionRefreshPath'   => '/jetpack/v4/publicize/connections',
-				'publicizeConnectionsUrl' => esc_url_raw( 'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site=' ),
+				'siteFragment' => ( new Status() )->get_site_suffix(),
+				'social'       => array(
+					'sharesData'              => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'connectionRefreshPath'   => '/jetpack/v4/publicize/connections-test-results',
+					'publicizeConnectionsUrl' => esc_url_raw(
+						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
+					),
+					'hasPaidPlan'             => $publicize->has_paid_plan(),
+				),
 			)
 		);
 
@@ -286,25 +314,11 @@ class Jetpack_Social {
 	}
 
 	/**
-	 * Set up sharing limits.
+	 * Check if the pricing page should be displayed.
+	 *
+	 * @return bool
 	 */
-	public function set_up_sharing_limits() {
-		global $publicize;
-
-		$info = $publicize->get_publicize_shares_info( \Jetpack_Options::get_option( 'id' ) );
-
-		if ( is_wp_error( $info ) ) {
-			return;
-		}
-
-		if ( empty( $info['is_share_limit_enabled'] ) ) {
-			return;
-		}
-
-		$connections      = $publicize->get_filtered_connection_data();
-		$shares_remaining = $info['shares_remaining'];
-
-		$share_limits = new Automattic\Jetpack\Social\Share_Limits( $connections, $shares_remaining );
-		$share_limits->enforce_share_limits();
+	public static function should_show_pricing_page() {
+		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
 	}
 }

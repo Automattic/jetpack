@@ -9,7 +9,7 @@ export const SET_JETPACK_SETTINGS = 'SET_JETPACK_SETTINGS';
 export const TOGGLE_PUBLICIZE_MODULE = 'TOGGLE_PUBLICIZE_MODULE';
 
 /**
- * Yield actions to update Publicize Settings
+ * Yield actions to update settings
  *
  * @param {object} settings - settings to apply.
  * @yields {object} - an action object.
@@ -24,8 +24,8 @@ export function* updateJetpackSettings( settings ) {
 		yield setJetpackSettings( updatedSettings );
 		return true;
 	} catch ( e ) {
-		const oldSettings = select( STORE_ID ).getPublicizeModuleStatus();
-		yield setJetpackSettings( { publicize_active: oldSettings?.publicize_active } );
+		const oldSettings = select( STORE_ID ).getJetpackSettings();
+		yield setJetpackSettings( oldSettings );
 		return false;
 	} finally {
 		yield setUpdatingJetpackSettingsDone();

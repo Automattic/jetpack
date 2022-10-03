@@ -37,6 +37,7 @@ const ResourcePromptComponent = props => {
 		descriptionSecondary,
 		descriptionLink,
 		nextRoute,
+		illustration,
 		ctaText,
 		ctaLink,
 		stepSlug,
@@ -133,7 +134,7 @@ const ResourcePromptComponent = props => {
 					</ExternalLink>
 					<div className="jp-recommendations-question__jump-nav">
 						<a href={ nextRoute } onClick={ onResourceSkipClick }>
-							{ __( 'Read Later', 'jetpack' ) }
+							{ __( 'Not now', 'jetpack' ) }
 						</a>
 						{ summaryViewed && ( // If the summary screen has already been reached, provide a way to get back to it.
 							<>
@@ -151,7 +152,7 @@ const ResourcePromptComponent = props => {
 					<ProductSpotlight productSlug={ spotlightProduct } stepSlug={ stepSlug } />
 				) : null
 			}
-			illustration={ DEFAULT_ILLUSTRATION }
+			illustration={ illustration || DEFAULT_ILLUSTRATION }
 		/>
 	);
 };

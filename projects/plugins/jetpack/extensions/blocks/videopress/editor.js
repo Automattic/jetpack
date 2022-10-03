@@ -22,7 +22,6 @@ import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import addVideoPressVideoChaptersSupport from './video-chapters';
-import withVideoChaptersEdit from './video-chapters/edit';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
 
@@ -393,5 +392,3 @@ addFilter(
 	'videopress/add-wp-chapters-support',
 	addVideoPressVideoChaptersSupport
 );
-
-addFilter( 'editor.BlockEdit', 'videopress/with-video-chapters-edit', withVideoChaptersEdit );
