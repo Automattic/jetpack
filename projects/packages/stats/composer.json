@@ -10,7 +10,8 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "dev-master",
+		"mockery/mockery": "1.5.1"
 	},
 	"autoload": {
 		"classmap": [

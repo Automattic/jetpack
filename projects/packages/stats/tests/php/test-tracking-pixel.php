@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Mockery;
 use WP_Query;
 
 /**
@@ -26,6 +27,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		global $wp_the_query;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_the_query = new WP_Query();
+		Mockery::close();
 	}
 
 	/**
@@ -65,58 +67,49 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Data provider for test_stats_array.
-	 *
-	 * @return array
+	 * Test for Tracking_Pixel::get_footer_to_add
 	 */
-	public function statsArrayDataProvider() {
-		return array(
-			'No TZ'  => array(
-				'data'               => array(
-					'v'    => 'ext',
-					'j'    => '11.4:11.4',
-					'blog' => 1234,
-					'post' => 7,
-					'tz'   => false,
-					'srv'  => 'example.org',
-				),
-				'stats_array_string' => "v:'ext',j:'11.4:11.4',blog:'1234',post:'7',tz:'',srv:'example.org'",
-			),
-			'TZ'     => array(
-				'data'               => array(
-					'v'    => 'ext',
-					'j'    => '11.4:11.4',
-					'blog' => 1234,
-					'post' => 7,
-					'tz'   => 5,
-					'srv'  => 'example.org',
-				),
-				'stats_array_string' => "v:'ext',j:'11.4:11.4',blog:'1234',post:'7',tz:'5',srv:'example.org'",
-			),
-			'Post 0' => array(
-				'data'               => array(
-					'v'    => 'ext',
-					'j'    => '11.4:11.4',
-					'blog' => 1234,
-					'post' => '0',
-					'tz'   => 5,
-					'srv'  => 'example.org',
-				),
-				'stats_array_string' => "v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'5',srv:'example.org'",
-			),
+	public function test_get_footer_to_add() {
+		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
+		$data          = array(
+			'v'    => 'ext',
+			'j'    => '11.4:11.4',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
 		);
+		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$script_url              = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
+		$footer_to_add_should_be = <<<END
+	<script src='{$script_url}' defer></script>
+	<script>
+		_stq = window._stq || [];
+		_stq.push([ 'view', {v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'',srv:'example.org'} ]);
+		_stq.push([ 'clickTrackerInit', '1234', '0' ]);
+	</script>
+END;
+		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
 
 	/**
-	 * Test for Tracking_Pixel::stats_array_to_string
-	 *
-	 * @dataProvider statsArrayDataProvider
-	 *
-	 * @param  array  $data  The Stats data array to be converted to a string.
-	 * @param  string $stats_array_string The expected string converted from stats array.
+	 * Test for Tracking_Pixel::get_footer_to_add
 	 */
-	public function test_stats_array( $data, $stats_array_string ) {
-		$this->assertSame( $stats_array_string, Tracking_Pixel::stats_array_to_string( $data ) );
+	public function test_get_footer_to_add_amp() {
+		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( true );
+		$_SERVER['HTTP_HOST']    = '127.0.0.1';
+		$data                    = array(
+			'v'    => 'ext',
+			'j'    => '11.4:11.4',
+			'blog' => 1234,
+			'post' => 0,
+			'tz'   => false,
+			'srv'  => 'example.org',
+		);
+		$footer_to_add           = Tracking_Pixel::get_footer_to_add( $data );
+		$footer_to_add_should_be = '<amp-pixel src=\"https://pixel.wp.com/g.gif?v=ext&#038;j=11.4%3A11.4&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER\"></amp-pixel>';
+		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
 
 	/**
@@ -125,7 +118,7 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	 * @param array $kvs The stats array in key values.
 	 */
 	public function stats_array_filter_replace_srv( $kvs ) {
-		$kvs['srv'] = 'example.com';
+		$kvs['srv'] = 'replaced.com';
 		return $kvs;
 	}
 
@@ -133,7 +126,9 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	 * Test for Tracking_Pixel::stats_array_to_string to check that stat_array filter is applied
 	 */
 	public function test_stats_array_to_string_applies_filter() {
-		$data = array(
+		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
+		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
+		$data          = array(
 			'v'    => 'ext',
 			'j'    => '11.4:11.4',
 			'blog' => 1234,
@@ -141,11 +136,18 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 			'tz'   => false,
 			'srv'  => 'example.org',
 		);
-		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
-		$stats_array           = Tracking_Pixel::stats_array_to_string( $data );
-		$stats_array_should_be = "v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'',srv:'example.com'";
+		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$script_url              = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
+		$footer_to_add_should_be = <<<END
+	<script src='{$script_url}' defer></script>
+	<script>
+		_stq = window._stq || [];
+		_stq.push([ 'view', {v:'ext',j:'11.4:11.4',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
+		_stq.push([ 'clickTrackerInit', '1234', '0' ]);
+	</script>
+END;
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
-
-		$this->assertSame( $stats_array_should_be, $stats_array );
+		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
 }
