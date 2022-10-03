@@ -1,0 +1,7 @@
+Significance: patch
+Type: added
+
+VideoPress:
+  - Request Product data not tied to the site
+  - Expose that data to the client
+  - Use them to show the price in the UI

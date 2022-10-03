@@ -17,6 +17,7 @@ export default {
 	title: 'Packages/VideoPress/Video Card',
 	component: VideoCardComponent,
 	parameters: {
+		layout: 'centered',
 		docs: {
 			page: Doc,
 		},
@@ -47,4 +48,6 @@ _default.args = {
 	onUpdateVideoThumbnail: action( 'onUpdateVideoThumbnail' ),
 	onUpdateVideoPrivacy: action( 'onUpdateVideoPrivacy' ),
 	onDeleteVideo: action( 'onDeleteVideo' ),
+	showQuickActions: true,
+	loading: false,
 };

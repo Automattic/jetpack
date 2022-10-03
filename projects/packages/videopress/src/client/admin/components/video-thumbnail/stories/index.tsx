@@ -6,7 +6,7 @@ import { action } from '@storybook/addon-actions';
  * Internal dependencies
  */
 import VideoThumbnail, { VideoThumbnailDropdown } from '..';
-import { randomPoster } from '../../../mock';
+import { postersArray, randomPoster } from '../../../mock';
 import styles from './style.module.scss';
 /**
  * Types
@@ -18,6 +18,11 @@ export default {
 	component: VideoThumbnail,
 	parameters: {
 		layout: 'centered',
+	},
+	argTypes: {
+		thumbnail: {
+			control: { type: 'select', options: [ ...postersArray, 'none' ] },
+		},
 	},
 	decorators: [
 		Story => (
@@ -43,6 +48,12 @@ Default.args = {
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
 	editable: true,
+};
+
+export const Placeholder = VideoThumbnailTemplate.bind( {} );
+Placeholder.args = {
+	...Default.args,
+	thumbnail: 'none',
 };
 
 const VideoThumbnailDropdownTemplate: ComponentStory<

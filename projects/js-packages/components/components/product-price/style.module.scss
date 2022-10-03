@@ -1,13 +1,18 @@
 .container {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: flex-end;
-	position: relative;
+	align-items: flex-start;
+	justify-content: flex-end;
+}
+
+.price-container {
+	flex-grow: 2;
 }
 
 .price {
-	position: relative;
 	display: inline-flex;
+	align-items: flex-start;
+	position: relative;
 
 	&:first-child {
 		margin-right: calc( var( --spacing-base ) * 2 );
@@ -34,6 +39,8 @@
 .leyend {
 	color: var( --jp-gray-40 );
 	margin-bottom: calc( var( --spacing-base ) * 3 );
+	font-size: var(--font-body-small);
+	line-height: 20px;
 
 	&::after {
 		content: "\200B"; // Pseudo element to keep height
@@ -41,9 +48,7 @@
 }
 
 .promo-label {
-	position: absolute;
-	top: 0;
-	right: 0;
+	display: inline-flex;
 	background-color:  var( --jp-yellow-10);
 	border-radius: 4px;
 	padding-left: var( --spacing-base );

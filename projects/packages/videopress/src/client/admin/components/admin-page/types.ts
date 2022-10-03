@@ -1,3 +1,4 @@
+import { productOriginalProps, siteProductOriginalProps } from '../../hooks/use-plan/types';
 import { VideoPressVideo } from '../../types';
 
 declare global {
@@ -8,6 +9,16 @@ declare global {
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;
+			paidFeatures: {
+				isVideoPressSupported: boolean;
+				isVideoPress1TBSupported: boolean;
+				isVideoPressUnlimitedSupported: boolean;
+			};
+			siteProductData: siteProductOriginalProps;
+			productData: productOriginalProps;
+			adminUrl: string;
+			adminUri: string;
+			siteSuffix: string;
 		};
 	}
 }
@@ -15,6 +26,7 @@ declare global {
 export type VideoLibraryProps = {
 	videos: Array< VideoPressVideo >;
 	totalVideos?: number;
+	loading?: boolean;
 };
 
 export interface ConnectionStore {

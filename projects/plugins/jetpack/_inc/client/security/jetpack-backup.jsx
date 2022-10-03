@@ -50,10 +50,10 @@ export class JetpackBackup extends Component {
 				};
 			case 'awaiting_credentials':
 				return {
-					title: __( 'Awaiting credentials', 'jetpack' ),
+					title: __( 'Add your server credentials', 'jetpack' ),
 					icon: 'notice',
 					description: __(
-						'You need to enter your server credentials to finish configuring Jetpack Backup.',
+						'Enter your SSH, SFTP or FTP credentials to enable one-click site restores and faster backups',
 						'jetpack'
 					),
 					url: getRedirectUrl( 'jetpack-settings-security-credentials', { site: siteRawUrl } ),

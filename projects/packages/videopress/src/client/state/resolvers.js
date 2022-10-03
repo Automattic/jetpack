@@ -1,19 +1,26 @@
 /**
  * External dependencies
  */
+import restApi from '@automattic/jetpack-api';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT } from './constants';
+import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT, DELETE_VIDEO } from './constants';
 import { getDefaultQuery } from './reducers';
 import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
-const { apiRoot } = window.jetpackVideoPressInitialState;
+const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
+	isFulfilled: state => {
+		return state?.videos?._meta?.relyOnInitialState;
+	},
+
 	fulfill: () => async ( { dispatch, select } ) => {
+		dispatch.setIsFetchingVideos( true );
+
 		let query = select.getVideosQuery();
 
 		/*
@@ -40,8 +47,6 @@ const getVideos = {
 			wpv2MediaQuery.search = query.search;
 		}
 
-		dispatch.setIsFetchingVideos( true );
-
 		try {
 			const response = await fetch(
 				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
@@ -65,19 +70,18 @@ const getVideos = {
 		}
 	},
 	shouldInvalidate: action => {
-		return action.type === SET_VIDEOS_QUERY;
+		return action.type === SET_VIDEOS_QUERY || action.type === DELETE_VIDEO;
 	},
 };
 
 const getVideo = {
 	isFulfilled: ( state, id ) => {
-		const videos = state.videos.items;
-		if ( ! videos?.length ) {
-			return false;
+		if ( ! id ) {
+			return true;
 		}
-		return !! videos.find( ( { id: videoId } ) => videoId === id );
+		const videos = state.videos.items ?? [];
+		return videos?.some( ( { id: videoId } ) => videoId === id );
 	},
-
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
 		try {
@@ -120,8 +124,35 @@ const getUploadedVideoCount = {
 	},
 };
 
+const getStorageUsed = {
+	fulfill: () => async ( { dispatch } ) => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+		try {
+			const response = await restApi.fetchSiteData();
+			if ( ! response?.options?.videopress_storage_used ) {
+				return;
+			}
+
+			/*
+			 * Storage used in megabytes or null if not found.
+			 * Let's compute the value in bytes.
+			 */
+			const storageUsed = response.options.videopress_storage_used
+				? Number( response.options.videopress_storage_used ) * 1024 * 1024
+				: 0;
+
+			dispatch.setVideosStorageUsed( storageUsed );
+		} catch ( error ) {
+			// @todo: handle error
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 export default {
+	getStorageUsed,
+	getUploadedVideoCount,
 	getVideos,
 	getVideo,
-	getUploadedVideoCount,
 };
