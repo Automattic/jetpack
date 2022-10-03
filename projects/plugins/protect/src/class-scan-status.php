@@ -31,21 +31,21 @@ class Scan_Status extends Status {
 	 *
 	 * @var string
 	 */
-	public static $option_name = 'jetpack_scan_status';
+	const OPTION_NAME = 'jetpack_scan_status';
 
 	/**
 	 * Name of the option where the timestamp of the status is stored
 	 *
 	 * @var string
 	 */
-	public static $option_timestamp_name = 'jetpack_scan_status_timestamp';
+	const OPTION_TIMESTAMP_NAME = 'jetpack_scan_status_timestamp';
 
 	/**
 	 * Time in seconds that the cache should last
 	 *
 	 * @var int
 	 */
-	protected static $option_expires_after = 300; // 5 minutes.
+	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
 
 	/**
 	 * Gets the current status of the Jetpack Protect checks

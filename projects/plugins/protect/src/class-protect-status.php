@@ -32,14 +32,14 @@ class Protect_Status extends Status {
 	 *
 	 * @var string
 	 */
-	public static $option_name = 'jetpack_protect_status';
+	const OPTION_NAME = 'jetpack_protect_status';
 
 	/**
 	 * Name of the option where the timestamp of the status is stored
 	 *
 	 * @var string
 	 */
-	public static $option_timestamp_name = 'jetpack_protect_status_time';
+	const OPTION_TIMESTAMP_NAME = 'jetpack_protect_status_time';
 
 	/**
 	 * Gets the current status of the Jetpack Protect checks

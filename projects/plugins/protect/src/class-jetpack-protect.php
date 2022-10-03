@@ -256,8 +256,11 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'clear-scan-cache',
 			array(
-				'methods'  => \WP_REST_SERVER::EDITABLE,
-				'callback' => __CLASS__ . '::api_clear_scan_cache',
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_clear_scan_cache',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
 			)
 		);
 	}
