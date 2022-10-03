@@ -38,7 +38,7 @@
 		"automattic/jetpack-publicize": "0.16.x-dev",
 		"automattic/jetpack-redirect": "1.7.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
-		"automattic/jetpack-search": "0.24.x-dev",
+		"automattic/jetpack-search": "0.25.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
 		"automattic/jetpack-sync": "1.38.x-dev",
 		"automattic/jetpack-videopress": "0.4.x-dev",
