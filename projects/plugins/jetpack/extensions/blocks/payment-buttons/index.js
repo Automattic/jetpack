@@ -61,8 +61,8 @@ export const settings = {
 			allowInheriting: false,
 			default: {
 				type: 'flex',
-            },
-        },
+			},
+		},
 		typography: {
 			fontSize: true,
 			__experimentalFontFamily: true,
