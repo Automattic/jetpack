@@ -14,7 +14,6 @@ import {
 	usePostJustPublished,
 	usePublicizeConfig,
 } from '@automattic/jetpack-publicize-components';
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -36,12 +35,10 @@ const PublicizePanel = ( { prePublish } ) => {
 		hasPaidPlan,
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
+		connectionsAdminUrl,
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
-
-	const connectionsAdminUrl =
-		getJetpackData()?.publicizeConnectionsUrl ?? 'https://wordpress.com/marketing/connections/';
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(

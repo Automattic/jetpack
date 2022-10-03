@@ -2,6 +2,7 @@ import {
 	getJetpackExtensionAvailability,
 	isUpgradable,
 	getJetpackData,
+	getSiteFragment,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -23,7 +24,7 @@ export default function usePublicizeConfig() {
 		republicizeFeatureName
 	);
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const connectionsAdminUrl =
+	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
 
@@ -98,6 +99,6 @@ export default function usePublicizeConfig() {
 		isShareLimitEnabled,
 		numberOfSharesRemaining: sharesData.shares_remaining,
 		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
-		connectionsAdminUrl,
+		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
 	};
 }
