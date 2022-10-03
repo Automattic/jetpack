@@ -73,16 +73,45 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests reregister_menu_items.
+	 * Tests reregister_menu_items when email subscriptions don't exist.
 	 *
 	 * @covers ::reregister_menu_items
 	 */
-	public function test_reregister_menu_items() {
+	public function test_reregister_menu_items_without_email_subscriptions() {
 		global $menu;
 
+		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker->method( 'has_email' )->will( $this->returnValue( false ) ); // always returns false
+
+		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertCount( 1, $menu );
-		$this->assertEquals( 'https://wordpress.com/domains/manage/' . static::$domain, $menu[0][2] );
+		$this->assertCount( 3, $menu );
+
+		$this->assertEquals( 'https://wordpress.com/domains/manage/' . static::$domain . '/edit/' . static::$domain, $menu[0][2] );
+		$this->assertEquals( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $menu[1][2] );
+		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[2][2] );
+	}
+
+	/**
+	 * Tests reregister_menu_items with email subscriptions .
+	 *
+	 * @covers ::reregister_menu_items
+	 */
+	public function test_reregister_menu_items_with_email_subscriptions() {
+		global $menu;
+
+		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker->method( 'has_email' )->will( $this->returnValue( true ) ); // always returns true
+
+		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
+		static::$admin_menu->reregister_menu_items();
+
+		$this->assertCount( 4, $menu );
+
+		$this->assertEquals( 'https://wordpress.com/domains/manage/' . static::$domain . '/edit/' . static::$domain, $menu[0][2] );
+		$this->assertEquals( 'https://wordpress.com/email/' . static::$domain . '/manage/' . static::$domain, $menu[1][2] );
+		$this->assertEquals( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $menu[2][2] );
+		$this->assertEquals( 'https://wordpress.com/inbox/' . static::$domain, $menu[3][2] );
 	}
 }

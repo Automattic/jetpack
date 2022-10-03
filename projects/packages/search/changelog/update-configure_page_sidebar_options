@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Fix styles of Control components on page side to avoid deprecating component styles affecting.

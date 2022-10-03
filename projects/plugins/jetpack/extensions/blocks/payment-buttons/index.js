@@ -48,5 +48,20 @@ export const settings = {
 	save,
 	supports: {
 		__experimentalExposeControlsToChildren: true,
+		align: [ 'wide', 'full' ],
+		spacing: {
+			blockGap: true,
+			margin: [ 'vertical' ],
+			__experimentalDefaultControls: {
+				blockGap: true,
+			},
+		},
+		__experimentalLayout: {
+			allowSwitching: false,
+			allowInheriting: false,
+			default: {
+				type: 'flex',
+			},
+		},
 	},
 };

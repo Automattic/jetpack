@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: fix Maximum update depth exceeded warning triggered from the useVideoDetails() hook
