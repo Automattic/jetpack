@@ -21,7 +21,7 @@ export async function wpcli( ...command ) {
  * Reset the environment; clear out files created by wp-super-cache, and deactivate the plugin.
  */
 export async function resetEnvironmnt() {
-	await wpcli( 'plugin', 'deactivate', 'wp-super-cache' );
+	await wpcli( 'plugin', 'deactivate', 'wp-super-cache', '--skip-themes' );
 	await deleteContainerFile( '/var/www/html/wp-content/advanced-cache.php' );
 	await deleteContainerFile( '/var/www/html/wp-content/wp-content/wp-cache-config.php' );
 	await deleteLinesFromContainerFile( '/var/www/html/wp-config.php', 'WPCACHEHOME' );
@@ -32,9 +32,6 @@ export async function resetEnvironmnt() {
 	);
 
 	// Make sure tests fail if the env isn't clean.
-	const pluginList = await wpcli( 'plugin', 'list' );
-	expect( /wp-super-cache\sinactive/.test( pluginList ) ).toBe( true );
-
 	const config = await readContainerFile( '/var/www/html/wp-config.php' );
 	expect( /define\(\s*'WP_CACHE'/.test( config ) ).toBe( false );
 	expect( /define\(\s*'WPCACHEHOME'/.test( config ) ).toBe( false );
