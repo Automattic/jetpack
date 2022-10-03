@@ -8,8 +8,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
+use WP_REST_Request;
 
 /**
  * The Data class.
@@ -27,25 +26,32 @@ class Data {
 			'totalPages' => 0,
 		);
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// @todo: build a proper query string for request.
-		$endpoint = "/sites/{$blog_id}/media?per_page=6&mime_type=video/videopress";
-
 		$args = array(
-			'method' => 'GET',
+			'per_page'  => '6',
+			'mime_type' => 'video/videopress',
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $endpoint, '2', $args, null, 'wp' );
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		// Do an internal request for the media list
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
 			// @todo: error handling
 			return $video_data;
 		}
 
 		// load the real values
-		$video_data['videos']     = json_decode( $response['body'], true );
-		$video_data['total']      = wp_remote_retrieve_header( 'X-WP-Total', $response );
-		$video_data['totalPages'] = wp_remote_retrieve_header( 'X-WP-TotalPages', $response );
+		$video_data['videos'] = $response->get_data();
+		$headers              = $response->get_headers();
+
+		if ( isset( $headers['X-WP-Total'] ) ) {
+			$video_data['total'] = $headers['X-WP-Total'];
+		}
+
+		if ( isset( $headers['X-WP-TotalPages'] ) ) {
+			$video_data['totalPages'] = $headers['X-WP-TotalPages'];
+		}
 
 		return $video_data;
 	}
