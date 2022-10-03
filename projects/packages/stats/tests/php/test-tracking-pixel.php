@@ -94,7 +94,7 @@ END;
 	}
 
 	/**
-	 * Test for Tracking_Pixel::get_footer_to_add
+	 * Test for Tracking_Pixel::test_get_footer_to_add_amp
 	 */
 	public function test_get_footer_to_add_amp() {
 		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( true );
@@ -123,9 +123,9 @@ END;
 	}
 
 	/**
-	 * Test for Tracking_Pixel::stats_array_to_string to check that stat_array filter is applied
+	 * Test for Tracking_Pixel::get_footer_to_add to check that stat_array filter is applied
 	 */
-	public function test_stats_array_to_string_applies_filter() {
+	public function test_get_footer_to_add_applies_filter() {
 		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
 		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
 		$data          = array(
