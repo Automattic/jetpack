@@ -10,11 +10,14 @@ if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) :
 	 * Add SVG definitions to the footer.
 	 */
 	function jetpack_social_menu_include_svg_icons() {
+		// Return early if Social Menu doesn't exist.
+		if ( ! has_nav_menu( 'jetpack-social-menu' ) ) {
+			return;
+		}
 		// Define SVG sprite file.
 		$svg_icons = __DIR__ . '/social-menu.svg';
-
-		// If it exists, include it.
-		if ( file_exists( $svg_icons ) ) {
+		// If it exists and we use the SVG menu type, include it.
+		if ( file_exists( $svg_icons ) && 'svg' === jetpack_social_menu_get_type() ) {
 			require_once $svg_icons;
 		}
 	}

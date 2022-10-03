@@ -83,7 +83,11 @@ class Initializer {
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 
 		Module_Control::init();
+
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
+		new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
+		new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
 		if ( is_admin() ) {
 			AJAX::init();
 		}
@@ -114,6 +118,8 @@ class Initializer {
 		Attachment_Handler::init();
 		Jwt_Token_Bridge::init();
 		Uploader_Rest_Endpoints::init();
+		VideoPress_Rest_Api_V1_Token::init();
+		VideoPress_Rest_Api_V1_Stats::init();
 		XMLRPC::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {

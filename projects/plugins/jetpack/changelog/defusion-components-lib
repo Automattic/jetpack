@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Require components lib directly instead of using deprecated `jetpack_require_lib()`.

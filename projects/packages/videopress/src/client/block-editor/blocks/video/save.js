@@ -63,9 +63,11 @@ export default function save( { attributes } ) {
 
 	return (
 		<figure { ...blockProps } style={ style }>
-			<div className="jetpack-videopress-player__wrapper">
-				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-			</div>
+			{ videoPressUrl && (
+				<div className="jetpack-videopress-player__wrapper">
+					{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+				</div>
+			) }
 
 			{ ! RichText.isEmpty( caption ) && (
 				<RichText.Content tagName="figcaption" value={ caption } />

@@ -13,6 +13,7 @@
 			display: flex;
 			align-items: center;
 			width: 100%;
+			overflow: hidden;
 		}
 
 		.label {
@@ -33,6 +34,11 @@
 		.label {
 			margin-bottom: calc( var( --spacing-base ) / 2	); // 4px;
 		}
+	}
+
+	.value {
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.icon {

@@ -255,6 +255,7 @@ function generateApiQueryString( {
 	postsPerPage = 10,
 	adminQueryFilter,
 	isInCustomizer = false,
+	additionalBlogIds = [],
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -317,6 +318,13 @@ function generateApiQueryString( {
 		page_handle: pageHandle,
 		size: postsPerPage,
 	};
+
+	// Support search through multiple blogs.
+	if ( additionalBlogIds?.length > 0 ) {
+		// `blog_id` is required when additional_blog_ids is set.
+		params.fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url', 'blog_id' ] );
+		params.additional_blog_ids = additionalBlogIds;
+	}
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
 		params = {

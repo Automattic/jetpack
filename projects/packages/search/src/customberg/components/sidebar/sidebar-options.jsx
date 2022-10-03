@@ -76,7 +76,7 @@ export default function SidebarOptions() {
 				<ColorControl disabled={ isDisabled } onChange={ setColor } value={ color } />
 			</PanelBody>
 
-			<PanelBody title={ __( 'Search options', 'jetpack-search-pkg' ) } initialOpen={ true }>
+			<PanelBody title={ __( 'Search settings', 'jetpack-search-pkg' ) } initialOpen={ true }>
 				<SelectControl
 					className="jp-search-configure-default-sort-select"
 					disabled={ isDisabled }

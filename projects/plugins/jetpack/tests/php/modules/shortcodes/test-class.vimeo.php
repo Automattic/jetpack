@@ -183,7 +183,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		global $post;
 
-		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );
