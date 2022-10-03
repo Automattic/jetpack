@@ -79,8 +79,11 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// The condition can only occur in the Customberg preview context.
-		if ( this.props.initialShowResults && this.props.initialIsVisible ) {
+		// This condition can only occur within Customberg or the Customizer.
+		if (
+			( this.props.initialShowResults && this.props.initialIsVisible ) ||
+			this.props.isInCustomizer
+		) {
 			this.getResults();
 		}
 		if ( this.props.hasActiveQuery ) {
@@ -217,6 +220,7 @@ class SearchApp extends Component {
 			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
 			siteId: this.props.options.siteId,
+			additionalBlogIds: this.props.options.additionalBlogIds,
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
@@ -297,6 +301,7 @@ class SearchApp extends Component {
 							widgets={ this.props.options.widgets }
 							widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
 							hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
+							additionalBlogIds={ this.props.options.additionalBlogIds }
 						/>
 					</Overlay>,
 					document.body

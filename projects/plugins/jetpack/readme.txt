@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.2
+Stable tag: 11.3.2
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.0
@@ -242,48 +242,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.3-beta - 2022-08-30
+### 11.4-beta - 2022-09-27
 #### Enhancements
-- Dashboard: add new card to highlight options available to WordPress agencies.
-- General: enable the Post List package in Jetpack to display extra information alongside each post in wp-admin dashboard Posts screen.
-- Google Analytics: add support for the DNT sent by the browser.
-- GSuite blocks (beta): add blocks for Google document embeds. Currently a JETPACK_BETA_BLOCKS feature.
-- Payments block: add a new `useWidth` hook to control the width settings of a block.
-- Payments block: add new container block to support using multiple inline Payment Button blocks.
-- Payments block: ensure the plan name field will update according to the other options selected, unless it's already been modified.
-- Payments Block: include 'earn' patterns in the block UI.
-- Payments block: use Block API v2 to simplify the overall markup.
-- VideoPress Block (beta): add support to pause/resume upload.
-- VideoPress block (beta): add support to pause/resume video upload.
-
-#### Improved compatibility
-- Backup: add disclaimer text and link to the backup product card that links to an FAQ on the Pricing page.
-- Jetpack: register VideoPress block from its editor.js file.
-- Jetpack: register VideoPress Video block from Jetpack plugin.
-- Notifications: do not attempt to display the Notifications panel when 3rd-party cookies are disabled in the browser.
-- Podcast Player: add support for podcast player to have per-feed cache timeouts.
-- Podcast Player block: set default RSS feed cache timeout for podcasts to 1 hour.
-- Publicize: replace Publicize with Jetpack Social.
-- SEO Tools: avoid conflicts with SEOPress and SEOKEY plugins.
-- VideoPress: minify videopress-token-bridge.
-- VideoPress: rely on videopress package for XMLRPC initialization.
-- VideoPress Block (beta): move VideoPress REST endpoint to package.
+- Editor: update icon sizing in the Jetpack sidebar for consistency.
+- Recommendations: update assistant with question for agency managed sites.
 
 #### Bug fixes
-- Calendly block: update the embed options link.
-- Carousel: ensure that clicks on rounded images in galleries will load a custom URL when it is specified.
-- Carousel: improve the logic for adding carousel data so we can handle reusable blocks correctly.
-- Carousel: remove errant '<' character being displayed.
-- Carousel: resolve a PHP warning when non-attachments are processed.
-- Dashboard: avoid displaying a blank dashboard page for editors when the site owner has an unused license.
-- Dashboard Widget: do not show the stats configuration links when the feature is inactive.
-- Subscribe Block: fix input and submit button coupling for Safari when split style is selected.
-- Subscriptions Block: fix subscriber count display when padding dimension is added.
-- Subscriptions Block: remove inline styles from subscription notification.
-- Tiled Gallery: ensure the link to the original image URL is used when linking to media files.
-- VideoPress: fix a js error when closing a non-VideoPress video modal in the Media Library.
-- VideoPress: remove inclusion of modules/videopress/utility-functions.php from Jetpack shortcodes module to prevent errors.
-- WordPress.com REST API: add missing site owner id to single site REST API response.
+- Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks.
+- Payments block: make filtering patterns used for the payments intro more robust.
 
 --------
 

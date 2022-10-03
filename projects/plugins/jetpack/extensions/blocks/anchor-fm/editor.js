@@ -1,4 +1,5 @@
-import { Button } from '@wordpress/components';
+import { JetpackLogo } from '@automattic/jetpack-components';
+import { Button, PanelRow } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
@@ -51,16 +52,19 @@ const ConvertToAudio = () => {
 		[]
 	);
 	return (
-		<PluginPostPublishPanel className="anchor-post-publish-outbound-link">
-			<p className="post-publish-panel__postpublish-subheader">
-				<strong>{ __( 'Convert to audio', 'jetpack' ) }</strong>
-			</p>
-			<p>
-				{ __(
-					'Seamlessly turn this post into a podcast episode with Anchor - and let readers listen to your post.',
-					'jetpack'
-				) }
-			</p>
+		<PluginPostPublishPanel
+			className="anchor-post-publish-outbound-link"
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			title={ __( 'Convert to audio', 'jetpack' ) }
+		>
+			<PanelRow>
+				<p>
+					{ __(
+						'Seamlessly turn this post into a podcast episode with Anchor - and let readers listen to your post.',
+						'jetpack'
+					) }
+				</p>
+			</PanelRow>
 			<div
 				role="link"
 				className="post-publish-panel__postpublish-buttons"
@@ -68,7 +72,7 @@ const ConvertToAudio = () => {
 				onClick={ handleClick }
 				onKeyDown={ handleClick }
 			>
-				<Button variant="primary" href="https://anchor.fm/wordpressdotcom" target="_top">
+				<Button variant="secondary" href="https://anchor.fm/wordpressdotcom" target="_top">
 					{ __( 'Create a podcast episode', 'jetpack' ) }{ ' ' }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
 				</Button>

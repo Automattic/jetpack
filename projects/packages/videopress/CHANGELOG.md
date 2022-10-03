@@ -5,6 +5,111 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2022-09-27
+### Added
+- VideoPress: add contextual upgrade trigger to dashboard. [#26403]
+- VideoPress: add placeholder component. [#26478]
+- VideoPress: add poster endpoint. [#26291]
+- VideoPress: add sub actions to VideoQuickActions component. [#26378]
+- VideoPress: add updateVideoPrivacy() action. [#26380]
+- VideoPress: add uploaded video count fetch functions. [#26368]
+- VideoPress: add upload jwt endpoint. [#26406]
+- VideoPress: be able to remove video from the UI. [#26439]
+- VideoPress: expose and store more video data. [#26369]
+- VideoPress: included raw video caption on the jetpack_videopress field from the media details endpoint. [#26409]
+- VideoPress: link search input load state to videos fetch state on dashboard. [#26382]
+- VideoPress: set video privacy from Video Grid / dashboard. [#26405]
+- VideoPress: support selecting poster by frame. [#26317]
+- VideoPress: upload video from dashboard. [#26461]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: add file extension filter on file selection. [#26454]
+- VideoPress: add VideoUploadArea component for first use screen. [#26333]
+- VideoPress: hide pagination when there are less than two pages. [#26383]
+- VideoPress: hit wp/v2/media to request videos data. [#26318]
+- VideoPress: make Pagination work with trully data. [#26326]
+- VideoPress: resolve addVideo() selector. [#26331]
+
+### Fixed
+- Set the right mapping for the caption field, relying on the new jetpack_videopress.caption raw information. [#26440]
+- Set the right source for the total of videos counter on the VideoPress library page. [#26365]
+- StoryBook: fix nonexistent pkg bug. [#26407]
+- VideoPress: fix printing the upload video date. [#26332]
+- VideoPress: fix SearchInput clear and initial typing behavior on dashboard. [#26363]
+- VideoPress: fix updating the store when editing video data. [#26352]
+
+## [0.4.0] - 2022-09-20
+### Added
+- VideoPress: implement filter section UI in the dashboard [#26169]
+- VideoPress: Load real data at Edit Details page [#26211]
+- VideoPress: sync video `description` value [#26235]
+- VideoPress: update post title and content via the /videopress/meta endpoint [#26256]
+- VideoPress: Update title, description and caption at backend [#26240]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: expose title and description in jetpack_videopress endpoint response body [#26228]
+- VideoPress: sanitize the videopress description field like a textarea [#26242]
+- VideoPress: Support endAdornment in Input [#26206]
+
+### Removed
+- VideoPress: Remove chapter extraction helper function [#26209]
+
+## [0.3.1] - 2022-09-13
+### Added
+- VideoPress: add onSearch() prop to SearchInput component. [#26128]
+- VideoPress: add video chapters extraction helper function. [#26181]
+- VideoPress: introduce FilterButton component. [#26155]
+- VideoPress: introduce minimal Edit Details page. [#26150]
+- VideoPress: moved jetpack_videopress REST custom field to VideoPress package. [#26140]
+- VideoPress: search videos when typing on the Search component. [#26139]
+- VideoPress: support type, size and label in input. [#26127]
+
+### Changed
+- Updated package dependencies. [#26176]
+- VideoPress: Extract VideoDetails and VideoThumbnail from VideoCard. [#26148, 26149]
+- VideoPress: fix library titles. [#26145]
+- VideoPress: fix styles, add loading state and clear icon to input component. [#26158]
+- VideoPress: handle how the VideoCard looks when no data is provided. [#26124]
+
+### Fixed
+- VideoPress: remove white space in VP Logo. [#26121]
+
+## [0.3.0] - 2022-09-08
+### Added
+- Added for videopress videos in the media selector [#25969]
+- Migrating Media Library UI snippets to pkg [#25877]
+- VideoPress: Add Input and SearchInput components [#25966]
+- VideoPress: add query object to the getVideos() selector [#26074]
+- VideoPress: Add register_videopress_blocks() method to register all VideoPress blocks [#25901]
+- VideoPress: add VideoCard component [#25992]
+- VideoPress: add VideosGrid component. First approach. [#25996]
+- VideoPress: Add VideoStatsGroup component [#25998]
+- VideoPress: Add VideoStorageMeter component [#25936]
+- VideoPress: Alpha admin page [#25905]
+- VideoPress: connect data with the client app [#26073]
+- VideoPress: extend the media endpoint with the jetpack_videopress_guid field [#26043]
+- VideoPress: first approach of data handling [#26067]
+- VideoPress: implement quick actions in the VideoCard component [#26010]
+- VideoPress: Introduce VideoList component [#25898]
+- VideoPress Block: allow editing of some block settings while uploading. [#24556]
+
+### Changed
+- Change VideoPress into a Hybrid product in My Jetpack [#25954]
+- Require user connection to upload video [#25962]
+- Updated package dependencies.
+- VideoPress: Improve feedback for upload/previewing [#25952]
+- VideoPress: Introduce VideoQuickActions [#26016]
+- VideoPress: iterate over VideoThumbnailEdit component [#25956]
+- VideoPress: rename VideosGrid component to VideoGrid [#26008]
+- VideoPress: set VideoThumbnail aspect ratio. Improve stories. [#25981]
+- VideoPress: split up VideoDetailsCard into two new components [#25895]
+- VideoPress: Support enable and disable columns and actions at VideoRow/VideoList [#25968]
+
+### Fixed
+- Ensure passed args are integer in TUS File class [#26026]
+
 ## [0.2.1] - 2022-08-30
 ### Added
 - Upload from Media Library in the block [#25792]
@@ -94,6 +199,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.4.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.1.4...v0.1.5

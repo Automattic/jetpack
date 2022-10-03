@@ -11,6 +11,22 @@ export default {
 			page: Doc,
 		},
 	},
+	argTypes: {
+		variant: {
+			control: { type: 'radio', options: [ 'square', 'horizontal' ] },
+		},
+		label: {
+			control: { type: 'text' },
+		},
+		value: {
+			control: { type: 'number' },
+		},
+		icon: {
+			table: {
+				disable: true,
+			},
+		},
+	},
 } as ComponentMeta< typeof StatCard >;
 
 const defaultArgs = {

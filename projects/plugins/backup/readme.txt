@@ -158,13 +158,12 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.4.0 - 2022-06-28
+### 1.4.1 - 2022-09-08
 #### Added
-- Added Social card to My Jetpack.
+- Include contextual notifications from My Jetpack 
 
 #### Changed
-- Renamed main branch `master` references to `trunk
-- Updated package dependencies.
+- Plugin activation: Only redirect when activating from the Plugins page in the browser
 
 --------
 
