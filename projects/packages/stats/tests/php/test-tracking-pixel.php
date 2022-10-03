@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Mockery;
 use WP_Query;
 
 /**
@@ -27,7 +26,6 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 		global $wp_the_query;
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_the_query = new WP_Query();
-		Mockery::close();
 	}
 
 	/**
@@ -68,7 +66,6 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	 * Test for Tracking_Pixel::get_footer_to_add
 	 */
 	public function test_get_footer_to_add() {
-		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
 		$data          = array(
 			'v'    => 'ext',
 			'blog' => 1234,
@@ -91,19 +88,20 @@ END;
 	}
 
 	/**
-	 * Test for Tracking_Pixel::test_get_footer_to_add_amp
+	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
 	 */
-	public function test_get_footer_to_add_amp() {
-		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( true );
-		$_SERVER['HTTP_HOST']    = '127.0.0.1';
-		$data                    = array(
+	public function test_get_footer_to_add_amp_request() {
+		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+		$data                 = array(
 			'v'    => 'ext',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
 			'srv'  => 'example.org',
 		);
-		$footer_to_add           = Tracking_Pixel::get_footer_to_add( $data );
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
+		remove_filter( 'jetpack_is_amp_request', '__return_true' );
 		$footer_to_add_should_be = '<amp-pixel src=\"https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER\"></amp-pixel>';
 		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
@@ -123,7 +121,6 @@ END;
 	 */
 	public function test_get_footer_to_add_applies_filter() {
 		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
-		Mockery::mock( 'alias:\Jetpack_AMP_Support' )->shouldReceive( 'is_amp_request' )->andReturn( false );
 		$data          = array(
 			'v'    => 'ext',
 			'blog' => 1234,

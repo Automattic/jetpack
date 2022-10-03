@@ -83,7 +83,7 @@ class Tracking_Pixel {
 	 * @return string Returns the footer to add for the Stats tracker.
 	 */
 	public static function get_footer_to_add( $data ) {
-		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
+		if ( self::is_amp_request() ) {
 			/**
 			 * Filter the parameters added to the AMP pixel tracking code.
 			 *
@@ -192,5 +192,23 @@ END;
 			$jskvs[] = "$k:'$v'";
 		}
 		return join( ',', $jskvs );
+	}
+
+	/**
+	 * Does the page return AMP content.
+	 *
+	 * @return bool $is_amp_request Are we on AMP view.
+	 */
+	private static function is_amp_request() {
+		$is_amp_request = ( function_exists( 'amp_is_request' ) && amp_is_request() );
+
+		/**
+		 * Returns true if the current request should return valid AMP content.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
+		 */
+		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
 }
