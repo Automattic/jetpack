@@ -17,10 +17,12 @@ import {
 	ONBOARDING_JETPACK_SCAN,
 	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
-	sortByOnboardingPriority,
-	getOnboardingNameByProductSlug,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
 } from 'recommendations/constants';
+import {
+	sortByOnboardingPriority,
+	getOnboardingNameByProductSlug,
+} from 'recommendations/onboarding-utils';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,

@@ -81,7 +81,7 @@ const SummaryComponent = props => {
 					) }
 				</h1>
 				{ summaryPrimarySections.map( ( { name, slugs } ) => (
-					<section aria-labelledby={ `primary-onboarding-${ name }` }>
+					<section key={ name } aria-labelledby={ `primary-onboarding-${ name }` }>
 						<h2 id={ `primary-onboarding-${ name }` }>Part of your { name } plan</h2>
 						{ slugs.map( slug => (
 							<PrimarySummary key={ slug } slug={ slug } />
