@@ -98,6 +98,10 @@ const getVideo = {
 };
 
 const getUploadedVideoCount = {
+	isFulfilled: state => {
+		return state?.videos?._meta?.relyOnInitialState;
+	},
+
 	fulfill: () => async ( { dispatch } ) => {
 		// Only the minimum necessary data
 		const wpv2MediaQuery = {
