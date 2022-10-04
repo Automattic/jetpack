@@ -151,7 +151,9 @@ export type LocalVideo = {
 };
 
 export type VideopressSelectors = {
-	getVideo: ( id: number ) => VideoPressVideo;
+	getVideo: ( id: number | string ) => VideoPressVideo;
+	getVideoStateMetadata: ( id: number | string ) => object; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
+	getIsFetching: () => boolean;
 };
