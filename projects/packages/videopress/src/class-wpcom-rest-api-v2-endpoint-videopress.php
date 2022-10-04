@@ -146,6 +146,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				),
 			)
 		);
+
+		// Token Route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/upload-jwt',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'videopress_upload_jwt' ),
+				'permission_callback' => function () {
+					return current_user_can( 'upload_files' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -241,6 +254,36 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			$args,
 			null,
 			'metadata_token=' . $jwt
+		);
+	}
+
+	/**
+	 * Endpoint for getting the VideoPress Upload JWT
+	 *
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public static function videopress_upload_jwt() {
+		$blog_id = VideoPressToken::blog_id();
+
+		try {
+			$token  = VideoPressToken::videopress_upload_jwt();
+			$status = 200;
+			$data   = array(
+				'upload_token'   => $token,
+				'upload_url'     => videopress_make_resumable_upload_path( $blog_id ),
+				'upload_blog_id' => $blog_id,
+			);
+		} catch ( \Exception $e ) {
+			// TODO: Improve status code.
+			$status = 500;
+			$data   = array(
+				'error' => $e->getMessage(),
+			);
+
+		}
+
+		return rest_ensure_response(
+			new WP_REST_Response( $data, $status )
 		);
 	}
 
