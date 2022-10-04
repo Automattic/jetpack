@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
@@ -53,7 +53,7 @@ export async function rsyncInit( argv ) {
 	argv = await promptForDest( argv );
 	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
 	// Pull the actual plugin slug from composer.json.
-	const pluginComposerJson = fs.readFileSync(
+	const pluginComposerJson = await fs.readFile(
 		projectDir( `plugins/${ argv.plugin }` + '/composer.json' )
 	);
 	const wpPluginSlug = JSON.parse( pluginComposerJson ).extra[ 'wp-plugin-slug' ];
@@ -141,7 +141,7 @@ async function rsyncToDest( source, dest, pluginDestPath ) {
 	filters.add( '- *' );
 
 	const tmpFileName = tmp.tmpNameSync();
-	fs.writeFileSync( tmpFileName, [ ...filters ].join( '\r\n' ) );
+	await fs.writeFile( tmpFileName, [ ...filters ].join( '\r\n' ) );
 	try {
 		await runCommand( 'rsync', [
 			'-azLKPv',
