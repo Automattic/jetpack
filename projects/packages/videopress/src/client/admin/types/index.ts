@@ -134,8 +134,6 @@ export type VideoPressVideo = {
 	thumbnail?: string;
 	finished: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
 	plays?: number; // Not provided yet
-	// Video is being upload
-	uploading?: boolean;
 	filename: OriginalVideoPressVideo[ 'slug' ];
 };
 

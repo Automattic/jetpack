@@ -93,20 +93,12 @@ const videos = ( state, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { query = getDefaultQuery() } = state;
 			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
-
-			let uploadedVideoCount = state.uploadedVideoCount;
-			const pagination = { ...state.pagination };
 
 			if ( videoIndex === -1 ) {
 				// Add video when not found at beginning of the list.
 				items.unshift( video );
-				// Updating pagination and count
-				uploadedVideoCount += 1;
-				pagination.total += 1;
-				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -117,10 +109,8 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
-				items,
 				isFetching: false,
-				uploadedVideoCount,
-				pagination,
+				items,
 			};
 		}
 
@@ -230,7 +220,6 @@ const videos = ( state, action ) => {
 						[ id ]: {
 							title,
 							uploading: true,
-							processing: false,
 						},
 					},
 				},
@@ -238,23 +227,38 @@ const videos = ( state, action ) => {
 		}
 
 		case PROCESSING_VIDEO: {
-			const { id } = action;
+			const { id, data } = action;
+			const items = [ ...( state?.items ?? [] ) ];
 			const currentMeta = state?._meta || {};
-			const currentMetaItems = currentMeta?.items || {};
-			const currentItem = currentMetaItems[ id ] || {};
+			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
+			const title = currentMetaItems[ id ]?.title || '';
+
+			// Insert new video
+			items.unshift( {
+				id: data.id,
+				guid: data.guid,
+				url: data.src,
+				title,
+				posterImage: null,
+				finished: false,
+			} );
+
+			// Remove video from uploading meta
+			delete currentMetaItems[ id ];
+
+			// Updating pagination and count
+			// const uploadedVideoCount = state.uploadedVideoCount;
+			// const pagination = { ...state.pagination };
+			// uploadedVideoCount += 1;
+			// pagination.total += 1;
+			// pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 
 			return {
 				...state,
+				items,
 				_meta: {
 					...currentMeta,
-					items: {
-						...currentMetaItems,
-						[ id ]: {
-							...currentItem,
-							uploading: false,
-							processing: true,
-						},
-					},
+					items: currentMetaItems,
 				},
 			};
 		}

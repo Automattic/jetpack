@@ -164,7 +164,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		const video = mapVideoFromWPV2MediaEndpoint( response );
 
 		if ( video?.posterImage !== null ) {
-			setVideo( video );
+			dispatch.setVideo( video );
 		} else {
 			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
 		}
@@ -184,7 +184,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		onError: noop,
 		onProgress: noop,
 		onSuccess: data => {
-			dispatch( { type: PROCESSING_VIDEO, id: tempId } );
+			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
 			poolingUploadedVideoData( data );
 		},
 	} );
