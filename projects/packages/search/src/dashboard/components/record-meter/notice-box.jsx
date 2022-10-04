@@ -18,7 +18,7 @@ const getNotices = ( tierMaximumRecords = null ) => {
 	return {
 		1: {
 			id: 1,
-			header: __( 'Search was unable to index your content', 'jetpack-search-pkg' ),
+			header: __( 'We were unable to index your content', 'jetpack-search-pkg' ),
 			message: __(
 				"Jetpack's servers ran into a problem when trying to communicate with your site.",
 				'jetpack-search-pkg'
@@ -27,9 +27,9 @@ const getNotices = ( tierMaximumRecords = null ) => {
 		},
 		2: {
 			id: 2,
-			header: __( "We're gathering your usage data.", 'jetpack-search-pkg' ),
+			header: __( "We're gathering your usage data", 'jetpack-search-pkg' ),
 			message: __(
-				'If you have recently set up Search, please allow a little time for indexing to complete.',
+				'If you have recently set up Jetpack Search, please allow a little time for indexing to complete.',
 				'jetpack-search-pkg'
 			),
 		},

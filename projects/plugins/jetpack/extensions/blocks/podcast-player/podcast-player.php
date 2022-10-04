@@ -17,7 +17,7 @@ const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-	\jetpack_require_lib( 'class-jetpack-podcast-helper' );
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 }
 
 /**

@@ -836,11 +836,6 @@ class Jetpack {
 			$config->ensure( $feature );
 		}
 
-		$modules = new Automattic\Jetpack\Modules();
-		if ( $modules->is_active( 'publicize' ) ) {
-			$config->ensure( 'publicize' );
-		}
-
 		$config->ensure(
 			'connection',
 			array(
@@ -866,6 +861,11 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
+		}
+
+		$modules = new Automattic\Jetpack\Modules();
+		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
+			$config->ensure( 'publicize' );
 		}
 
 		/*
@@ -924,6 +924,9 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
+		if ( $this->should_show_backup() ) {
+			Jetpack_Backup::initialize();
+		}
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -936,6 +939,31 @@ class Jetpack {
 		do_action( 'jetpack_loaded', $this );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 2 );
+	}
+
+	/**
+	 * Checks if Jetpack Backup is active or waiting credentials.
+	 * Will return true if the state of Backup is anything except "unavailable".
+	 *
+	 * @return bool|int|mixed
+	 */
+	public static function should_show_backup() {
+		// Backup is a paid feature, therefore requires a user-level connection.
+		if ( ! static::connection()->has_connected_owner() ) {
+			return false;
+		}
+		$backup_enabled = get_transient( 'jetpack_rewind_state' );
+		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $backup_enabled;
+		if ( false === $backup_enabled || $recheck ) {
+			jetpack_require_lib( 'class.core-rest-api-endpoints' );
+			$backup_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
+			$backup_enabled = ( ! is_wp_error( $backup_data )
+				&& ! empty( $backup_data['state'] )
+				&& 'unavailable' !== $backup_data['state'] )
+				? 1
+				: 0;
+		}
+		return $backup_enabled;
 	}
 
 	/**
@@ -3293,7 +3321,10 @@ p {
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'load-plugins.php', array( $this, 'plugins_page_init_jetpack_state' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
+
+		if ( ! ( is_multisite() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_network_admin() ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
+		}
 
 		if ( isset( $_COOKIE['jetpackState']['display_update_modal'] ) ) {
 			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
@@ -6542,9 +6573,9 @@ endif;
 		if ( ! static::connection()->has_connected_owner() ) {
 			return false;
 		}
-
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
-		if ( false === $rewind_enabled ) {
+		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $rewind_enabled;
+		if ( false === $rewind_enabled || $recheck ) {
 			jetpack_require_lib( 'class.core-rest-api-endpoints' );
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
@@ -6552,7 +6583,6 @@ endif;
 				&& 'active' === $rewind_data['state'] )
 				? 1
 				: 0;
-
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;

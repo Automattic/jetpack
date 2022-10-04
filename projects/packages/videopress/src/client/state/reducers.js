@@ -14,6 +14,9 @@ import {
 	SET_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
+	SET_VIDEOS_STORAGE_USED,
+	REMOVE_VIDEO,
+	DELETE_VIDEO,
 } from './constants';
 
 /**
@@ -31,7 +34,7 @@ export function getDefaultQuery() {
 	};
 }
 
-const videos = ( state = {}, action ) => {
+const videos = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_VIDEOS: {
 			return {
@@ -56,6 +59,10 @@ const videos = ( state = {}, action ) => {
 					...state.query,
 					...action.query,
 				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
 			};
 		}
 
@@ -65,6 +72,10 @@ const videos = ( state = {}, action ) => {
 				pagination: {
 					...state.pagination,
 					...action.pagination,
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
 				},
 			};
 		}
@@ -80,12 +91,20 @@ const videos = ( state = {}, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { items = [] } = state;
+			const { query = getDefaultQuery() } = state;
+			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
+			let uploadedVideoCount = state.uploadedVideoCount;
+			const pagination = { ...state.pagination };
+
 			if ( videoIndex === -1 ) {
-				// Add video when not found
-				items.push( video );
+				// Add video when not found at beginning of the list.
+				items.unshift( video );
+				// Updating pagination and count
+				uploadedVideoCount += 1;
+				pagination.total += 1;
+				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -98,6 +117,86 @@ const videos = ( state = {}, action ) => {
 				...state,
 				items,
 				isFetching: false,
+				uploadedVideoCount,
+				pagination,
+			};
+		}
+
+		/*
+		 * REMOVE_VIDEO is the action trigger
+		 * right after the user tries to remove the video,
+		 * for instance, when the user clicks on the "Remove" button.
+		 * Use it as an oportunity to update the UI and show a loading state,
+		 * while the video is being removed.
+		 */
+		case REMOVE_VIDEO: {
+			const { id } = action;
+			const { items = [] } = state;
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			const _metaItems = {
+				...( state._meta?.items ?? [] ),
+			};
+
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				// Do not remove the video from the list, just update the meta data.
+				// Keep here in caswe we want to do it in the future.
+				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isDeleting: true,
+						},
+					},
+				},
+			};
+		}
+
+		/*
+		 * DELETE_VIDEO is the action trigger
+		 * right after the video is removed from the server,
+		 */
+		case DELETE_VIDEO: {
+			const { id, hasBeenDeleted, video: deletedVideo } = action;
+			const _metaItems = state?._meta?.items || [];
+			const _metaVideo = _metaItems[ id ] || {};
+
+			if ( ! _metaVideo ) {
+				return state;
+			}
+
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isDeleting: false,
+							hasBeenDeleted,
+							deletedVideo,
+						},
+					},
+				},
+			};
+		}
+
+		case SET_VIDEOS_STORAGE_USED: {
+			return {
+				...state,
+				storageUsed: action.used,
 			};
 		}
 

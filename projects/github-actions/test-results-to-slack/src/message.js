@@ -37,7 +37,6 @@ async function createMessage( isFailure ) {
 		msgId = `pr-${ number }`;
 
 		contextElements.push( getTextContextElement( `Title: ${ title }` ), actorBlock );
-
 		buttons.push( getButton( `PR #${ number }`, html_url ) );
 	}
 
@@ -51,8 +50,7 @@ async function createMessage( isFailure ) {
 			getTextContextElement( `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }` ),
 			actorBlock
 		);
-
-		buttons.push( lastRunButtonBlock, getButton( `Commit ${ id.substring( 0, 8 ) }`, url ) );
+		buttons.push( getButton( `Commit ${ id.substring( 0, 8 ) }`, url ) );
 	}
 
 	if ( eventName === 'workflow_run' ) {
@@ -65,8 +63,6 @@ async function createMessage( isFailure ) {
 			getTextContextElement( `Commit: ${ id.substring( 0, 8 ) } ${ truncatedMessage }` ),
 			actorBlock
 		);
-
-		buttons.push( lastRunButtonBlock );
 	}
 
 	if ( eventName === 'schedule' ) {
@@ -77,8 +73,7 @@ async function createMessage( isFailure ) {
 		const commitUrl = `${ serverUrl }/${ repository }/commit/${ sha }`;
 
 		contextElements.push( getTextContextElement( `Last commit: ${ sha.substring( 0, 8 ) }` ) );
-
-		buttons.push( lastRunButtonBlock, getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
+		buttons.push( getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
 	}
 
 	contextElements.push( lastRunBlock );

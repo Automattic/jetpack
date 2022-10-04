@@ -2,12 +2,12 @@ import { setJetpackSettings } from './actions/jetpack-settings';
 import { fetchJetpackSettings } from './controls';
 
 /**
- * Yield actions to get Publicize Module Status
+ * Yield actions to get the Jetpack settings.
  *
  * @yields {object} - an action object.
  * @returns {object} - an action object.
  */
-export function* getPublicizeModuleStatus() {
+export function* getJetpackSettings() {
 	try {
 		const settings = yield fetchJetpackSettings();
 		if ( settings ) {
@@ -19,4 +19,4 @@ export function* getPublicizeModuleStatus() {
 	}
 }
 
-export default { getPublicizeModuleStatus };
+export default { getJetpackSettings };

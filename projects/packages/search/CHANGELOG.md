@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2022-10-03
+### Changed
+- Fix styles of Control components on page side to avoid deprecating component styles affecting. [#26567]
+
+## [0.23.0] - 2022-09-27
+### Added
+- Added stories for the NoticeBox component [#26367]
+- Search: added free_tier and new_pricing_202208 to gate new pricing features [#26338]
+
+### Changed
+- Introduce PricingTable to update Upsell page [#26408]
+- Move JetpackColophon to bottom of SearchResults [#26320]
+- Updated mentions of "Search" with "Jetpack Search" as part of rebranding project [#26410]
+- Updated package dependencies.
+
+### Fixed
+- Fix error message styling in Instant Search overlay. [#26339]
+
 ## [0.22.2] - 2022-09-20
 ### Changed
 - Updated package dependencies.
@@ -485,6 +503,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.24.0]: https://github.com/Automattic/jetpack-search/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-search/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/Automattic/jetpack-search/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/Automattic/jetpack-search/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/Automattic/jetpack-search/compare/v0.21.1...v0.22.0

@@ -26,11 +26,37 @@ export interface PopoverWithAnchorProps {
 	children: React.ReactNode;
 }
 
+/**
+ * Privacy setting of the video.
+ * - 0: `public`
+ * - 1: `private`
+ * - 2: `site default`
+ */
+type privacySetting = 0 | 1 | 2;
+
 export interface VideoQuickActionsProps {
 	/**
 	 * className to apply to the component
 	 */
 	className?: string;
+
+	privacySetting?: privacySetting;
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
+	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+}
+
+export interface ConnectVideoQuickActionsProps {
+	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
+	 * Post ID of the video item.
+	 */
+	videoId: number | string;
 
 	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
@@ -44,5 +70,6 @@ export type ThumbnailActionsDropdownProps = {
 
 export type PrivacyActionsDropdownProps = {
 	onUpdate: ( action: 'site-default' | 'public' | 'private' ) => void;
+	privacySetting?: privacySetting;
 	description: string;
 };
