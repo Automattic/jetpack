@@ -2,7 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import * as tus from 'tus-js-client';
 
 const jwtsForKeys = {};
@@ -158,93 +158,4 @@ export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {
 		} );
 
 	return [ uploaded, data, error ];
-};
-
-export default ( { onStart = null, onSuccess = null, onError = null } ) => {
-	const tusUploader = useRef( null );
-
-	const [ file, setFile ] = useState( null );
-	const [ error, setError ] = useState( null );
-	const [ status, setStatus ] = useState( 'idle' ); // idle | uploading | error | complete
-	const [ progress, setProgress ] = useState( {
-		total: 0,
-		current: 0,
-		percentage: 0,
-	} );
-
-	/*
-	 * Tracking error data
-	 */
-
-	// Define a memoized function to register the error data.
-	const handleUploadError = uploadError => {
-		setStatus( 'error' );
-
-		if ( error?.originalResponse ) {
-			try {
-				// parse failed request response message
-				const body = uploadError?.originalResponse?.getBody?.();
-				const parsedBody = JSON.parse( body );
-				setError( parsedBody );
-				onError?.( parsedBody );
-				return;
-			} catch {}
-		}
-
-		setError( uploadError );
-		onError?.( uploadError );
-	};
-
-	/*
-	 * Handle upload progress.
-	 */
-	const handleUploadProgress = ( bytesUploaded, bytesTotal ) => {
-		const percentage = ( bytesUploaded / bytesTotal ) * 100;
-		setProgress( {
-			total: bytesTotal,
-			current: bytesUploaded,
-			percentage,
-		} );
-	};
-
-	/*
-	 * Handle upload success
-	 */
-	const handleUploadSuccess = ( data, uploadFile ) => {
-		setStatus( 'complete' );
-		onSuccess?.( data, uploadFile );
-	};
-
-	// Helper instance to upload the video to the VideoPress infrastructure.
-	const [ videoPressUploader ] = useResumableUploader( {
-		onError: handleUploadError,
-		onProgress: handleUploadProgress,
-		onSuccess: handleUploadSuccess,
-	} );
-
-	const handleFilesUpload = files => {
-		// TODO: Support uploading multiple files?
-		const uploadFile = files?.length > 0 ? files[ 0 ] : files;
-
-		// reset error
-		if ( error ) {
-			setError( null );
-		}
-
-		setFile( uploadFile );
-		setProgress( { current: 0, total: uploadFile.size, percentage: 0 } );
-		setStatus( 'uploading' );
-
-		// Upload file to VideoPress infrastructure.
-		tusUploader.current = videoPressUploader( uploadFile );
-		onStart?.( uploadFile );
-	};
-
-	return {
-		progress,
-		status,
-		file,
-		error,
-		handleFilesUpload,
-	};
 };
