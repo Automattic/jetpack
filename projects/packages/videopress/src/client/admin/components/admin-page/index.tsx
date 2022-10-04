@@ -12,7 +12,12 @@ import {
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
+import {
+	useProductCheckoutWorkflow,
+	useConnection,
+	useConnectionErrorNotice,
+	ConnectionError,
+} from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -59,6 +64,7 @@ const Admin = () => {
 	const { videos, uploadedVideoCount, handleFilesUpload, loading } = useDashboardVideos();
 
 	const { isUserConnected, isRegistered } = useConnection();
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
@@ -87,6 +93,11 @@ const Admin = () => {
 				<>
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+							{ hasConnectionError && (
+								<Col>
+									<ConnectionError />
+								</Col>
+							) }
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
