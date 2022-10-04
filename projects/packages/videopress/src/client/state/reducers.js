@@ -17,6 +17,7 @@ import {
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
+	UPLOADING_VIDEO,
 } from './constants';
 
 /**
@@ -211,6 +212,27 @@ const videos = ( state, action ) => {
 				...state,
 				uploadedVideoCount: action.uploadedVideoCount,
 				isFetchingUploadedVideoCount: false,
+			};
+		}
+
+		case UPLOADING_VIDEO: {
+			const { id, title } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							title,
+							uploading: true,
+							processing: false,
+						},
+					},
+				},
 			};
 		}
 
