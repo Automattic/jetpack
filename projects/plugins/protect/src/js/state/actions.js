@@ -70,7 +70,7 @@ const setThreatIsUpdating = ( threatId, isUpdating ) => {
 
 const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } ) => {
 	dispatch( setThreatIsUpdating( threatId, true ) );
-	return await new Promise( ( resolve, reject ) => {
+	return await new Promise( () => {
 		return apiFetch( {
 			path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatId }`,
 			method: 'POST',
@@ -79,10 +79,17 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 				return dispatch( refreshStatus() );
 			} )
 			.then( () => {
-				return dispatch( setNotice( __( 'Threat ignored', 'jetpack-protect' ) ) );
+				return dispatch(
+					setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
+				);
 			} )
-			.catch( error => {
-				reject( error );
+			.catch( () => {
+				return dispatch(
+					setNotice( {
+						type: 'error',
+						message: __( 'An error ocurred ignoring the threat.', 'jetpack-protect' ),
+					} )
+				);
 			} )
 			.finally( () => {
 				dispatch( setThreatIsUpdating( threatId, false ) );
@@ -95,8 +102,8 @@ const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };
 };
 
-const setNotice = alert => {
-	return { type: SET_NOTICE, alert };
+const setNotice = notice => {
+	return { type: SET_NOTICE, payload: notice };
 };
 
 const actions = {

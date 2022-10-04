@@ -36,7 +36,9 @@ const Summary = () => {
 							</Text>
 						) }
 					</div>
-					<div>{ notice && <Notice message={ notice } /> }</div>
+					<div className={ styles.summary__notice }>
+						{ notice && notice.message && <Notice { ...notice } /> }
+					</div>
 				</div>
 			</Col>
 		</Container>

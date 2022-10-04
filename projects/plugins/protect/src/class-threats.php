@@ -12,11 +12,15 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use WP_Error;
 
+/**
+ * Class that handles management of individual threats.
+ */
 class Threats {
 	/**
 	 * Gets the Scan API endpoint
 	 *
-	 * @param string $threat_id
+	 * @param string $threat_id The threat ID.
+	 *
 	 * @return WP_Error|string
 	 */
 	private static function get_api_url( $threat_id ) {
@@ -35,22 +39,22 @@ class Threats {
 	/**
 	 * Update Threat
 	 *
-	 * @param string $threat_id
-	 * @param array  $updates
+	 * @param string $threat_id The threat ID.
+	 * @param array  $updates   The keys/values to update.
 	 *
 	 * @return bool
 	 */
 	public static function update_threat( $threat_id, $updates ) {
 		$api_url = self::get_api_url( $threat_id );
 		if ( is_wp_error( $api_url ) ) {
-			return $api_url;
+			return false;
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			self::get_api_url( $threat_id ),
+			$api_url,
 			'2',
 			array( 'method' => 'POST' ),
-			json_encode( $updates ),
+			wp_json_encode( $updates ),
 			'wpcom'
 		);
 
@@ -69,7 +73,7 @@ class Threats {
 	/**
 	 * Ignore Threat
 	 *
-	 * @param string $threat_id
+	 * @param string $threat_id The threat ID.
 	 *
 	 * @return bool
 	 */

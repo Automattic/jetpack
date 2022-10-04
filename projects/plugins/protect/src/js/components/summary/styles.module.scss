@@ -1,7 +1,9 @@
 .summary {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+	@media ( min-width: 960px ) {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
 }
 
 .summary__title {
@@ -13,4 +15,12 @@
 .summary__icon {
 	margin-left: -4px; // this fix a blank space on right/left from @wordpress/icons
 	margin-right: var(--spacing-base);
+}
+
+.summary__notice {
+	margin-top: 24px;
+
+	@media ( min-width: 960px ) {
+		margin-top: 0;
+	}
 }

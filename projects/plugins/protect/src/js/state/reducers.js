@@ -83,10 +83,10 @@ const modal = ( state = {}, action ) => {
 	return state;
 };
 
-const notice = ( state = null, action ) => {
+const notice = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_NOTICE:
-			return action.alert;
+			return { ...state, ...action.payload };
 	}
 	return state;
 };

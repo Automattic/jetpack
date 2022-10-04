@@ -7,12 +7,20 @@
 }
 
 .notice__icon {
-    background-color: #008A20;
+    background-color: #DEB100;
     fill: #FFFFFF;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 12px;
+    
+    .notice--success & {
+        background-color: #008A20;
+    }
+
+    .notice--error & {
+        background-color: var( --jp-red );
+    }
 }
 
 .notice__message {

@@ -3,6 +3,7 @@ import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import Accordion, { AccordionItem } from '../accordion';
 import DiffViewer from '../diff-viewer';
@@ -28,7 +29,8 @@ const ThreatAccordionItem = ( {
 	const { recordEvent } = useAnalyticsTracks();
 	const { setModal } = useDispatch( STORE_ID );
 
-	// const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
+	const { securityBundle } = useProtectData();
+	const { hasRequiredPlan } = securityBundle;
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -122,11 +124,13 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			<div className={ styles[ 'threat-footer' ] }>
-				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
-					{ __( 'Ignore threat', 'jetpack-protect' ) }
-				</Button>
-			</div>
+			{ hasRequiredPlan && (
+				<div className={ styles[ 'threat-footer' ] }>
+					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+						{ __( 'Ignore threat', 'jetpack-protect' ) }
+					</Button>
+				</div>
+			) }
 		</AccordionItem>
 	);
 };
