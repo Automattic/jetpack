@@ -64,6 +64,7 @@ export const VideoCard = ( {
 	showQuickActions = true,
 	loading = false,
 	uploading = false,
+	processing = false,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
@@ -71,6 +72,7 @@ export const VideoCard = ( {
 	// Mapping thumbnail
 	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
 	thumbnail = uploading ? <div>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</div> : thumbnail;
+	thumbnail = processing ? <div>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</div> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
@@ -159,10 +161,18 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading } = useVideo( id );
-	const loading = ( isDeleting || restProps?.loading ) && ! uploading;
+	const { isDeleting, uploading, processing } = useVideo( id );
+	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 
-	return <VideoCard id={ id } { ...restProps } loading={ loading } uploading={ uploading } />;
+	return (
+		<VideoCard
+			id={ id }
+			{ ...restProps }
+			loading={ loading }
+			uploading={ uploading }
+			processing={ processing }
+		/>
+	);
 };
 
 export default ConnectVideoCard;

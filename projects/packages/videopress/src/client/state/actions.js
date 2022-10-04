@@ -24,6 +24,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
 	UPLOADING_VIDEO,
+	PROCESSING_VIDEO,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -169,18 +170,23 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		}
 	};
 
+	// @todo: implement progress and error handler
 	const noop = () => {};
 
 	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.name } );
 
-	const data = await getJWT();
+	// @todo: this should be stored in the state
+	const jwt = await getJWT();
 
 	videoPressUpload( {
-		data,
+		data: jwt,
 		file,
 		onError: noop,
 		onProgress: noop,
-		onSuccess: poolingUploadedVideoData,
+		onSuccess: data => {
+			dispatch( { type: PROCESSING_VIDEO, id: tempId } );
+			poolingUploadedVideoData( data );
+		},
 	} );
 };
 

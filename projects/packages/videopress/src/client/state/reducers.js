@@ -18,6 +18,7 @@ import {
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
 	UPLOADING_VIDEO,
+	PROCESSING_VIDEO,
 } from './constants';
 
 /**
@@ -230,6 +231,28 @@ const videos = ( state, action ) => {
 							title,
 							uploading: true,
 							processing: false,
+						},
+					},
+				},
+			};
+		}
+
+		case PROCESSING_VIDEO: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const currentItem = currentMetaItems[ id ] || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentItem,
+							uploading: false,
+							processing: true,
 						},
 					},
 				},
