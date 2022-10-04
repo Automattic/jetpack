@@ -20,8 +20,8 @@
 .threat-header {
 	float: right;
 	
-	>:first-child {
-		margin-right: calc( var( --spacing-base ) * 2 );
+	>:last-child {
+		margin-left: calc( var( --spacing-base ) * 2 );
 	}
 }
 
@@ -32,8 +32,8 @@
 	padding-top: calc( var( --spacing-base ) * 4 );
 	border-top: 1px solid var( --jp-gray );
 
-	>:first-child {
-		margin-right: calc( var( --spacing-base ) * 2 );
+	>:last-child {
+		margin-left: calc( var( --spacing-base ) * 2 );
 	}
 }
 
