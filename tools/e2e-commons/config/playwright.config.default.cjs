@@ -44,7 +44,7 @@ const playwrightConfig = {
 		actionTimeout: 30000,
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
-		trace: 'retain-on-failure',
+		trace: process.env.CI ? 'off' : 'retain-on-failure',
 		storageState: config.get( 'temp.storage' ),
 		userAgent:
 			'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36 wp-e2e-tests',
