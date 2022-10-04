@@ -45,6 +45,10 @@ export const getVideoStateMetadata = ( state, id ) => {
 	};
 };
 
+export const isFetchingPurchases = state => {
+	return state?.purchases?.isFetching;
+};
+
 export const getPurchases = state => {
 	return state?.purchases?.items || [];
 };
@@ -62,6 +66,7 @@ const selectors = {
 	getVideoStateMetadata,
 
 	getPurchases,
+	isFetchingPurchases,
 };
 
 export default selectors;
