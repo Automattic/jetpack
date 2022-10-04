@@ -45,6 +45,10 @@ export const getVideoStateMetadata = ( state, id ) => {
 	};
 };
 
+export const getPurchases = state => {
+	return state?.purchases?.items || [];
+};
+
 const selectors = {
 	getVideos,
 	getVideosQuery,
@@ -56,6 +60,8 @@ const selectors = {
 
 	getVideo,
 	getVideoStateMetadata,
+
+	getPurchases,
 };
 
 export default selectors;
