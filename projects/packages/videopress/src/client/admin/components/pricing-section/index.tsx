@@ -18,16 +18,16 @@ import { useState } from 'react';
 import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = () => {
-	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
+	const { siteSuffix, adminUrl } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
-	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
+	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUrl } );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
-		redirectUrl: adminUri,
+		redirectUrl: adminUrl,
 	} );
 
 	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
