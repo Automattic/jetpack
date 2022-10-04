@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Jetpack_Options;
+
 /**
  * Class to test the XMLRPC_Provider class.
  *
@@ -16,7 +18,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC_Provider class.
 	 *
-	 * @var XMLRPC_Provider
+	 * @var Automattic\Jetpack\Stats\XMLRPC_Provider
 	 */
 	protected $xmlrpc_instance;
 
@@ -57,8 +59,27 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
 	 * Test XMLRPC_Provider::xmlrpc_methods.
 	 */
-	public function test_xmlrpc_methods() {
+	public function test_xmlrpc_methods_will_not_add_get_blog_without_connection() {
+		Jetpack_Options::delete_option( 'blog_token' );
 		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
+		$this->assertArrayNotHasKey( 'jetpack.getBlog', $xmlrpc_methods );
+	}
+
+	/**
+	 * Test XMLRPC_Provider::xmlrpc_methods.
+	 */
+	public function test_xmlrpc_methods_will_not_add_get_blog_without_active_stats_module() {
+		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
+		$this->assertArrayNotHasKey( 'jetpack.getBlog', $xmlrpc_methods );
+	}
+
+	/**
+	 * Test XMLRPC_Provider::xmlrpc_methods.
+	 */
+	public function test_xmlrpc_methods_with_active_stats_module() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
 		$this->assertArrayHasKey( 'jetpack.getBlog', $xmlrpc_methods );
 	}
 
@@ -91,5 +112,15 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 		);
 
 		$this->assertSame( $expected_stats_blog, $stats_blog );
+	}
+
+	/**
+	 * Adds stats to the list of active modules
+	 *
+	 * @param array $modules Array with modules slugs.
+	 * @return array
+	 */
+	public static function filter_jetpack_active_modules( $modules ) {
+		return array_merge( array( 'stats' ), $modules );
 	}
 }
