@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Move upload-jwt to wpcom/v2 namespace
