@@ -300,8 +300,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			 * but as post_content, post_title and post_excerpt on the attachment's post object.
 			 * We need to update those fields here, too.
 			 */
-			$post_title = isset( $json_params['title'] ) ? sanitize_text_field( $json_params['title'] ) : null;
-			if ( $post_title ) {
+			$post_title = null;
+			if ( isset( $json_params['title'] ) ) {
+				$post_title = sanitize_text_field( $json_params['title'] );
 				wp_update_post(
 					array(
 						'ID'         => $post_id,
@@ -356,7 +357,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta           = true;
 				}
 
-				if ( isset( $post_title ) ) {
+				if ( isset( $json_params['title'] ) ) {
 					$meta['videopress']['title'] = $post_title;
 					$should_update_meta          = true;
 				}
