@@ -135,7 +135,7 @@ class Data {
 
 		return array(
 			'videos' => array(
-				'uploadedVideoCount'           => count( $videos ), // @todo: pick the total number properly
+				'uploadedVideoCount'           => $video_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
@@ -143,7 +143,6 @@ class Data {
 					'totalPages' => $video_data['totalPages'],
 					'total'      => $video_data['total'],
 				),
-				'uploadedVideoCount'           => $video_data['total'],
 				'query'                        => $video_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
