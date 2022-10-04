@@ -29,15 +29,29 @@ export const usePlan = (): usePlanProps => {
 
 	const introductoryOffer = mapObjectKeysToCamel( productData.introductory_offer, true );
 
+	const videoPressProduct = { ...mapObjectKeysToCamel( productData, true ), introductoryOffer };
+
 	const purchases = useSelect(
 		select => ( select( STORE_ID ) as VideopressSelectors ).getPurchases(),
 		[]
 	);
 
+	const purchasesCamelCase = purchases.map( purchase => mapObjectKeysToCamel( purchase, true ) );
+
+	/**
+	 * Check if the user has a plan that includes VideoPress
+	 *
+	 * @param {string} productSlug - wpcom prtoduct slug
+	 * @returns {boolean}            true if the product is owned by the user
+	 */
+	function hasPurchase( productSlug ) {
+		return purchasesCamelCase.some( product => product.productSlug === productSlug );
+	}
+
 	return {
 		features: paidFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
-		product: { ...mapObjectKeysToCamel( productData, true ), introductoryOffer },
-		purchases,
+		product: videoPressProduct,
+		hasVideoPressPurchase: hasPurchase( videoPressProduct?.productSlug ),
 	};
 };

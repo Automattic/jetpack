@@ -108,4 +108,5 @@ export type usePlanProps = {
 	siteProduct?: siteProductProps;
 	product?: productProps;
 	purchases?: Array< object >;
+	hasVideoPressPurchase: boolean;
 };
