@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "72a9c14f2fd6dee3947d6b23279382dc",
+    "content-hash": "37b6f9ed292010ba8e75f8c704784630",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1583,7 +1583,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "98bc90bbe89fd216a28b21d570ae0acff5fd80e3"
+                "reference": "9b43ddf2a296d9df142b83709b55d2587875ec3e"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1594,7 +1594,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
-                "automattic/wordbless": "^0.4.0",
+                "automattic/wordbless": "0.4.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1750,7 +1750,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "6ec32d71a637bb0904941c045bdfc4b9b4d546d6"
+                "reference": "bf8be60e1b3caa7a02e38b024194fd85513e922d"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1762,7 +1762,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
-                "automattic/wordbless": "^0.4.0",
+                "automattic/wordbless": "0.4.0",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "jetpack-library",
@@ -1774,7 +1774,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.24.x-dev"
+                    "dev-trunk": "0.25.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"

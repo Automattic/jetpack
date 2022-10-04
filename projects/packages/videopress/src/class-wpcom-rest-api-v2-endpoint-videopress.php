@@ -310,8 +310,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				);
 			}
 
-			$post_content = isset( $json_params['description'] ) ? sanitize_textarea_field( $json_params['description'] ) : null;
-			if ( $post_content ) {
+			$post_content = null;
+			if ( isset( $json_params['description'] ) ) {
+				$post_content = sanitize_textarea_field( $json_params['description'] );
 				wp_update_post(
 					array(
 						'ID'           => $post_id,
@@ -320,8 +321,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				);
 			}
 
-			$post_excerpt = isset( $json_params['caption'] ) ? sanitize_textarea_field( $json_params['caption'] ) : null;
-			if ( $post_excerpt ) {
+			$post_excerpt = null;
+			if ( isset( $json_params['caption'] ) ) {
+				$post_excerpt = sanitize_textarea_field( $json_params['caption'] );
 				wp_update_post(
 					array(
 						'ID'           => $post_id,
