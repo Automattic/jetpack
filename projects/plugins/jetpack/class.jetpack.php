@@ -924,7 +924,7 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
-		if ( $this->is_rewind_enabled() ) {
+		if ( $this->should_show_backup() ) {
 			Jetpack_Backup::initialize();
 		}
 
@@ -939,6 +939,31 @@ class Jetpack {
 		do_action( 'jetpack_loaded', $this );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 2 );
+	}
+
+	/**
+	 * Checks if Jetpack Backup is active or waiting credentials.
+	 * Will return true if the state of Backup is anything except "unavailable".
+	 *
+	 * @return bool|int|mixed
+	 */
+	public static function should_show_backup() {
+		// Backup is a paid feature, therefore requires a user-level connection.
+		if ( ! static::connection()->has_connected_owner() ) {
+			return false;
+		}
+		$backup_enabled = get_transient( 'jetpack_rewind_state' );
+		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $backup_enabled;
+		if ( false === $backup_enabled || $recheck ) {
+			jetpack_require_lib( 'class.core-rest-api-endpoints' );
+			$backup_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
+			$backup_enabled = ( ! is_wp_error( $backup_data )
+				&& ! empty( $backup_data['state'] )
+				&& 'unavailable' !== $backup_data['state'] )
+				? 1
+				: 0;
+		}
+		return $backup_enabled;
 	}
 
 	/**
@@ -6555,7 +6580,7 @@ endif;
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
 				&& ! empty( $rewind_data['state'] )
-				&& 'unavailable' !== $rewind_data['state'] )
+				&& 'active' === $rewind_data['state'] )
 				? 1
 				: 0;
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
