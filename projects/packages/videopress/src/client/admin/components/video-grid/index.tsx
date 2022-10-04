@@ -35,7 +35,6 @@ const VideoGrid = ( { videos, count = 6, onVideoDetailsClick, loading }: VideoGr
 								thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 								duration={ video.duration }
 								plays={ video.plays }
-								showQuickActions={ ! video?.uploading }
 								onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 								loading={ loading }
 							/>
