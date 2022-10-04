@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.4 - 2022-10-04
+## [11.4] - 2022-10-04
 ### Enhancements
 - Editor: update icon sizing in the Jetpack sidebar for consistency. [#26281]
 - Recommendations: update assistant with question for agency managed sites. [#26302]
@@ -7095,6 +7095,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
 [11.2]: https://wp.me/p1moTy-JYL
 [11.1]: https://wp.me/p1moTy-Juo
