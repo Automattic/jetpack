@@ -33,10 +33,11 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 			'/' . $this->rest_base,
 			array(
 				'args' => array(
-					'event_type'  => array(
+					'event_type'   => array(
 						'description' => 'Subscription event type.',
 						'type'        => 'string',
 						'enum'        => array(
+							'provision_license',
 							'subscription_cancelled',
 							'subscription_created',
 							'subscription_domain_changed',
@@ -45,12 +46,13 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 						),
 						'required'    => true,
 					),
-					'plugin_slug' => array(
-						'description' => 'Slug of the plugin for which webhook was called for.',
+					'product_slug' => array(
+						'description' => 'Slug of the product for which webhook was called for.',
 						'required'    => true,
+						'pattern'     => '[\w\-]+',
 						'type'        => 'string',
 					),
-					'payload'     => array(
+					'payload'      => array(
 						'description' => 'Arbitrary webhook response data.',
 						'required'    => true,
 					),
@@ -75,20 +77,23 @@ class Marketplace_Webhook_Response extends WP_REST_Controller {
 	}
 
 	/**
-	 * Creates one item from the collection.
+	 * Runs a filter and passes licensing payload to enable vendors to set their license.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error WP_REST_Response on success, WP_Error on failure.
 	 */
 	public function create_item( $request ) {
 		$params = $request->get_json_params();
 
 		/**
-		 * Fires when the site receives a response from a marketplace plugin webhook request.
+		 * Fires when the site receives a response from a marketplace product webhook request.
 		 *
-		 * @param mixed  $payload     Arbitrary webhook response data.
-		 * @param string $event_type  Subscription event type.
-		 * @param string $plugin_slug Plugin slug.
+		 * @param bool|WP_Error $result     Result to return. True on success, WP_Error on failure.
+		 * @param mixed         $payload    Arbitrary webhook response data.
+		 * @param string        $event_type Subscription event type.
 		 */
-		do_action( 'wpcom_marketplace_webhook_response', $params['payload'], $params['event_type'], $params['plugin_slug'] );
+		$result = apply_filters( 'wpcom_marketplace_webhook_response_' . $params['product_slug'], true, $params['payload'], $params['event_type'] );
+
+		return rest_ensure_response( $result );
 	}
 }
