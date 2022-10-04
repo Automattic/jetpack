@@ -154,5 +154,5 @@ export type VideopressSelectors = {
 	getVideo: ( id: number ) => VideoPressVideo;
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
-	getPurchases: () => Array< string >;
+	getPurchases: () => Array< object >;
 };
