@@ -6,7 +6,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
-import { VIDEO_PRIVACY_LEVELS } from '../../../state/constants';
+import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PUBLIC } from '../../../state/constants';
 import { VideopressSelectors, VideoPressVideo } from '../../types';
 
 /**
@@ -18,11 +18,15 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
 export default function useVideo( id: number | string ) {
 	const dispatch = useDispatch( STORE_ID );
 
+	const videoData = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getVideo( id ),
+		[ id ]
+	);
+
 	return {
 		// Data
-		data: useSelect( select => ( select( STORE_ID ) as VideopressSelectors ).getVideo( id ), [
-			id,
-		] ),
+		data: { ...videoData, privacySetting: VIDEO_PRIVACY_LEVEL_PUBLIC },
+
 		// Is Fetching
 		// @todo: this prop should not be here but in useVideos() hook
 		isFetching: useSelect(

@@ -28,7 +28,7 @@ body {
 	font-size: 16px;
 	// 32px = wpadminbar height
 	// 65px = wpfooter height
-	min-height: calc(100vh - 65px - 32px);
+	min-height: calc( 100vh - 65px - 32px );
 
 	.jp-search-dashboard-page {
 		width: 100%;
@@ -75,5 +75,40 @@ body {
 
 	@include for-phone-down {
 		font-size: 14px;
+	}
+}
+
+.usage-meter-group {
+	display: flex;
+	align-items: center;
+	height: 64px;
+
+	& > *:not( :first-child ) {
+		margin-left: 183px;
+	}
+}
+
+.upgrade-trigger {
+	position: relative;
+	margin-top: 24px;
+	padding: 16px 43px 16px 24px;
+	border: 2px solid $studio-jetpack-green-40;
+	border-radius: 4px;
+	line-height: 24px;
+	cursor: pointer;
+
+	& svg {
+		position: absolute;
+		right: 24px;
+		bottom: 32px;
+	}
+}
+
+.usage-meter-about {
+	margin-top: 24px;
+	line-height: 24px;
+
+	& u {
+		cursor: pointer;
 	}
 }

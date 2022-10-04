@@ -113,11 +113,18 @@ const VideoThumbnail = ( {
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
+	thumbnail =
+		typeof thumbnail === 'string' && thumbnail !== '' ? (
+			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+		) : (
+			thumbnail
+		);
+
 	return (
 		<div
 			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
 		>
-			{ typeof thumbnail === 'string' && editable && (
+			{ Boolean( thumbnail ) && editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
 					onSelectFromVideo={ onSelectFromVideo }
@@ -134,13 +141,9 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			{ typeof thumbnail === 'string' && thumbnail !== '' ? (
-				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
-			) : (
-				<div className={ styles[ 'thumbnail-placeholder' ] }>
-					{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
-				</div>
-			) }
+			<div className={ styles[ 'thumbnail-placeholder' ] }>
+				{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
+			</div>
 		</div>
 	);
 };
