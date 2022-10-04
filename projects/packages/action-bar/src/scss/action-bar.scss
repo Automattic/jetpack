@@ -224,7 +224,7 @@
 		outline: 1px solid #c3c4c7;
 	}
 }
-.jetpack-action-bar__modal header .site-icon {
+.jetpack-action-bar__modal-site-icon {
 	height: 28px;
 	margin-right: 16px;
 	max-width: 100%;
@@ -291,21 +291,21 @@
 	.jetpack-action-bar__modal .follow-section.show {
 		display: block;
 	} */
-	&.menu a {
+	&.jetpack-action-bar__modal-menu a {
 		color: #2c3338;
 		display: block;
 		margin-bottom: 20px;
 		text-decoration: none;
 	}
-	&.menu a:focus {
+	&.jetpack-action-bar__modal-menu a:focus {
 		border-radius: 2px;
 		outline: 1px solid #c3c4c7;
 		outline-offset: 2px;
 	}
-	&.menu a:hover {
+	&.jetpack-action-bar__modal-menu a:hover {
 		color: #0675c4;
 	}
-	&.menu a:last-child {
+	&.jetpack-action-bar__modal-menu a:last-child {
 		margin-bottom: 0;
 	}
 }
@@ -413,13 +413,6 @@
 }
 .jetpack-action-bar__modal-success .centered p strong {
 	font-weight: 500;
-}
-.jetpack-action-bar__modal-success .close {
-	display: inline-block;
-}
-.jetpack-action-bar__modal-success .close:focus {
-	border-radius: 2px;
-	outline: 1px solid #C3C4C7;
 }
 .jetpack-action-bar__modal-success .follow-box.hidden,
 .jetpack-action-bar__modal-success .follow-btn.hidden {

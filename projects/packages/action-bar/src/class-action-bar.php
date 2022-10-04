@@ -33,7 +33,7 @@ class Action_Bar {
 		);
 		wp_localize_script(
 			'jetpack-action-bar',
-			'actionBarConfig',
+			'jetpackActionBar',
 			array(
 				'like_post_error'     => esc_html__( 'Error liking post', 'jetpack-action-bar' ),
 				'unlike_post_error'   => esc_html__( 'Error un-liking post', 'jetpack-action-bar' ),
@@ -101,17 +101,17 @@ class Action_Bar {
 			<div class="jetpack-action-bar__shade"></div>
 			<div class="jetpack-action-bar__modal">
 				<header>
-					<object data="/favicon.ico" class="site-icon" type="image/x-icon" >
+					<object data="/favicon.ico" class="jetpack-action-bar__modal-site-icon" type="image/x-icon" >
 						<?php globe_icon( __( 'site icon', 'jetpack-action-bar' ) ); ?>
 					</object>
 
 					<a href="<?php echo esc_url( $url ); ?>" class="jetpack-action-bar__modal-title"><strong><?php echo esc_html( $blog_name ? $blog_name : $domain ); ?></strong></a>
-					<a href="#" class="jetpack-action-bar__close close"><?php close_icon( __( 'close', 'jetpack-action-bar' ) ); ?></a>
+					<a href="#" class="jetpack-action-bar__close"><?php close_icon( __( 'close', 'jetpack-action-bar' ) ); ?></a>
 				</header>
-				<section class="menu">
+				<section class="jetpack-action-bar__modal-menu">
 					<a href="https://wordpress.com/abuse/?report_url=<?php echo rawurlencode( $post_url ); ?>"><?php esc_html_e( 'Report this content', 'jetpack-action-bar' ); ?></a>
 					<a href="<?php echo esc_url( $reader_url ); ?>"><?php esc_html_e( 'View site in reader', 'jetpack-action-bar' ); ?></a>
-					<a href="https://wordpress.com/following/manage?s=<?php echo esc_attr( rawurlencode( $domain ) ); ?>" class="subscription-link"><?php esc_html_e( 'Manage subscriptions', 'jetpack-action-bar' ); ?></a>
+					<a href="https://wordpress.com/following/manage?s=<?php echo esc_attr( rawurlencode( $domain ) ); ?>"><?php esc_html_e( 'Manage subscriptions', 'jetpack-action-bar' ); ?></a>
 				</section>
 			</div>
 		</div>

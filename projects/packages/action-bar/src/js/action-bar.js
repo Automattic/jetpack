@@ -30,15 +30,12 @@ function openMoreMenu() {
 	modalTrapFocus();
 }
 
-// -------------------------------------------------------------
-// EVENTS
-// -------------------------------------------------------------
 /**
  * Attach action bar events
  */
-function eventsActionbar() {
+function actionbarEvents() {
 	const moreEl = document.querySelector( '.jetpack-action-bar__more' );
-	_on( moreEl, 'click', function ( e ) {
+	_on( moreEl, 'click', e => {
 		e.preventDefault();
 		// If modal is already showing, remove it
 		if ( isModalActive() ) {
@@ -53,13 +50,12 @@ function eventsActionbar() {
 /**
  * Attach modal header events
  */
-function eventsModalHeader() {
-	// Close
-	_on( document.querySelector( '.jetpack-action-bar__close' ), 'click', function ( e ) {
+function modalHeaderEvents() {
+	_on( document.querySelector( '.jetpack-action-bar__close' ), 'click', e => {
 		e.preventDefault();
 		closeModal();
 	} );
-	_on( document.querySelector( '.jetpack-action-bar__shade' ), 'click', function ( e ) {
+	_on( document.querySelector( '.jetpack-action-bar__shade' ), 'click', e => {
 		e.preventDefault();
 		closeModal();
 	} );
@@ -76,7 +72,7 @@ function modalTrapFocus() {
 	// Move focus inside modal
 	focusableFirst.focus();
 	// Manage focus
-	_on( document.querySelector( 'body' ), 'keydown', function ( e ) {
+	_on( document.querySelector( 'body' ), 'keydown', e => {
 		// Manually keep focus inside modal when tabbing
 		if ( 9 === e.which ) {
 			if ( e.target === focusableLast && ! e.shiftKey ) {
@@ -113,21 +109,21 @@ function showErrorSnackbar( msg ) {
 	// Fade in
 	_fadeInAndActivate( snackbarContainer );
 
-	// Trigger events for this state
-	eventsSnackbar();
+	// Set timer to close the snackbar
+	snackbarEvents();
 }
 
 /**
- * Fade out the snackbar after 4 seconds or on click
+ * Fade out the snackbar after 3 seconds or on click
  */
-function eventsSnackbar() {
+function snackbarEvents() {
 	// Clear any existing timeouts
 	clearTimeout( snackbarTimer );
-	snackbarTimer = setTimeout( function () {
+	snackbarTimer = setTimeout( () => {
 		dismissSnackbar();
 	}, 3000 );
 	// Remove snackbar on click
-	_on( document.querySelector( '.jetpack-action-bar__snackbar' ), 'click', function () {
+	_on( document.querySelector( '.jetpack-action-bar__snackbar' ), 'click', () => {
 		dismissSnackbar();
 	} );
 }
@@ -162,7 +158,7 @@ function errorIconSvg() {
  * Close modal
  */
 function closeModal() {
-	// Fade out shade
+	// Deactivate shade
 	_classRemove( document.querySelector( '.jetpack-action-bar__shade' ), 'active' );
 	// Fade out modal
 	_fadeOutAndDeactivate( document.querySelector( '.jetpack-action-bar__modal' ) );
@@ -175,29 +171,47 @@ function closeModal() {
 }
 
 /**
+ * Parse the data contained in a postMessage event.
+ *
+ * @param {object} event - the event passed from the child iframe
+ * @returns {object | null} parsed data contained in the event or null
+ */
+function getMessageData( event ) {
+	const message = event && event.data;
+	if ( typeof message === 'string' ) {
+		try {
+			return JSON.parse( message );
+		} catch ( err ) {
+			return null;
+		}
+	}
+}
+/**
  * Handles messages from the wp.widgets.com action bar iframe sent using postMessage
  *
  * @param {object} event - the event passed from the action bar iframe
  */
 function handleMessage( event ) {
-	if ( event.data && typeof event.data === 'string' ) {
-		try {
-			const data = JSON.parse( event.data );
-			switch ( data.action ) {
-				case 'postLiked':
-					showErrorSnackbar( window.actionBarConfig?.like_post_error );
-					break;
-				case 'postUnliked':
-					showErrorSnackbar( window.actionBarConfig?.unlike_post_error );
-					break;
-				case 'followSite':
-					showErrorSnackbar( window.actionBarConfig?.follow_site_error );
-					break;
-				case 'unfollowSite':
-					showErrorSnackbar( window.actionBarConfig?.unfollow_site_error );
-					break;
-			}
-		} catch {}
+	const data = getMessageData( event );
+
+	if ( ! data || ! data.action ) {
+		return;
+	}
+
+	if ( data.type === 'error' ) {
+		switch ( data.action ) {
+			case 'postLiked':
+				showErrorSnackbar( window.jetpackActionBar?.like_post_error );
+				break;
+			case 'postUnliked':
+				showErrorSnackbar( window.jetpackActionBar?.unlike_post_error );
+				break;
+			case 'followSite':
+				showErrorSnackbar( window.jetpackActionBar?.follow_site_error );
+				break;
+			case 'unfollowSite':
+				showErrorSnackbar( window.jetpackActionBar?.unfollow_site_error );
+		}
 	}
 }
 
@@ -205,15 +219,15 @@ function handleMessage( event ) {
  * Initialize action bar
  */
 function init() {
-	eventsActionbar();
-	eventsModalHeader();
+	actionbarEvents();
+	modalHeaderEvents();
 	window.addEventListener( 'message', handleMessage );
 }
 
 if ( document.readyState === 'complete' ) {
 	init();
 } else {
-	document.addEventListener( 'DOMContentLoaded', function () {
+	document.addEventListener( 'DOMContentLoaded', () => {
 		init();
 	} );
 }

@@ -116,6 +116,7 @@ function close_icon( $title ) {
 
 /**
  * Prints globe icon.
+ * Implemented as HTML suitable as a fallback for an <object> tag
  *
  * @param string $title translated title.
  */
