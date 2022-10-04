@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: This is an internal change relevent to DIFM
+Comment: This is an internal change relevent to DIFM where the DIFM in progress sticker is checked for atomic sites in persisted data
 
 
