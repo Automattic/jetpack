@@ -114,18 +114,36 @@ async function promptToManageConfig() {
 }
 
 /**
- * Function that does the actual work of rsync.
+ * Collect rsync filter rules based on files at a path.
  *
  * @param {string} source - Source path.
- * @param {string} dest - Final destination path, including plugin slug.
- * @param {string} pluginDestPath - Destination path.
+ * @param {string} prefix - Source path prefix.
+ * @param {Set} filters - Set to add filter rules into.
  * @returns {Promise<void>}
  */
-async function rsyncToDest( source, dest, pluginDestPath ) {
-	const filters = new Set();
-
+async function buildFilterRules( source, prefix, filters ) {
 	// Include just the files that are published to the mirror.
-	for await ( let file of listProjectFiles( source, execa ) ) {
+	for await ( const rfile of listProjectFiles( source, execa ) ) {
+		let file = path.join( prefix, rfile );
+
+		// If the file is a monorepo vendor symlink, we need to follow it.
+		const fullpath = path.join( source, file );
+		if (
+			await fs.lstat( fullpath ).then(
+				dirent => dirent.isSymbolicLink(),
+				() => false
+			)
+		) {
+			const target = path.relative(
+				process.cwd(),
+				path.join( path.dirname( fullpath ), await fs.readlink( fullpath ) )
+			);
+			if ( target.startsWith( 'projects/' ) ) {
+				await buildFilterRules( target, file, filters );
+				continue;
+			}
+		}
+
 		// Rsync requires we also list all the directories containing the file.
 		let prev;
 		do {
@@ -136,6 +154,20 @@ async function rsyncToDest( source, dest, pluginDestPath ) {
 			file = path.dirname( file ) + '/';
 		} while ( file !== '/' && file !== './' && file !== prev );
 	}
+}
+
+/**
+ * Function that does the actual work of rsync.
+ *
+ * @param {string} source - Source path.
+ * @param {string} dest - Final destination path, including plugin slug.
+ * @param {string} pluginDestPath - Destination path.
+ * @returns {Promise<void>}
+ */
+async function rsyncToDest( source, dest, pluginDestPath ) {
+	const filters = new Set();
+
+	await buildFilterRules( source, '', filters );
 
 	// Exclude anything not included above.
 	filters.add( '- *' );
