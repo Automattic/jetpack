@@ -39,6 +39,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback(
@@ -48,7 +49,7 @@ export default function UpsellPage( { isLoading = false } ) {
 
 	const { run: sendToCartPaid, hasCheckoutStartedPaid } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
-		redirectUrl: `/admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
@@ -56,7 +57,7 @@ export default function UpsellPage( { isLoading = false } ) {
 
 	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search_free',
-		redirectUrl: `/admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
