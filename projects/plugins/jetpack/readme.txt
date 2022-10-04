@@ -242,14 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.4-beta - 2022-09-27
+### 11.4 - 2022-10-04
 #### Enhancements
 - Editor: update icon sizing in the Jetpack sidebar for consistency.
 - Recommendations: update assistant with question for agency managed sites.
 
+#### Improved compatibility
+- WC Pay: resolve issue for WooCommerce Payments that could result in a fatal for some sites on PHP 8+.
+
 #### Bug fixes
 - Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks.
+- Backup: update initialization of UI menu.
 - Payments block: make filtering patterns used for the payments intro more robust.
+- Social: prevent the package being initialized without a user connection.
 
 --------
 
