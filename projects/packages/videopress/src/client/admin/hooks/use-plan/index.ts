@@ -26,16 +26,15 @@ const {
 
 export const usePlan = (): usePlanProps => {
 	const pricingForUi = mapObjectKeysToCamel( siteProductData.pricing_for_ui, true );
-
 	const introductoryOffer = mapObjectKeysToCamel( productData.introductory_offer, true );
-
 	const videoPressProduct = { ...mapObjectKeysToCamel( productData, true ), introductoryOffer };
 
-	const purchases = useSelect(
-		select => ( select( STORE_ID ) as VideopressSelectors ).getPurchases(),
-		[]
-	);
-
+	const { purchases, isFetchingPurchases } = useSelect( select => {
+		return {
+			purchases: ( select( STORE_ID ) as VideopressSelectors ).getPurchases(),
+			isFetchingPurchases: ( select( STORE_ID ) as VideopressSelectors ).isFetchingPurchases(),
+		};
+	}, [] );
 	const purchasesCamelCase = purchases.map( purchase => mapObjectKeysToCamel( purchase, true ) );
 
 	/**
@@ -52,6 +51,10 @@ export const usePlan = (): usePlanProps => {
 		features: paidFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 		product: videoPressProduct,
+
+		// Site purchases
+		purchases: purchasesCamelCase,
 		hasVideoPressPurchase: hasPurchase( videoPressProduct?.productSlug ),
+		isFetchingPurchases,
 	};
 };
