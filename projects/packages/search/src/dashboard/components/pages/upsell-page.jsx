@@ -188,13 +188,25 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
-								// translators: Record count for calculating Jetpack Search tier
-								label={ <strong>{ __( '10k records', 'jetpack-search-pkg' ) }</strong> }
+								label={
+									<strong>
+										{
+											// translators: Record count for calculating Jetpack Search tier
+											__( '10k records', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
 							/>
 							<PricingTableItem
 								isIncluded={ true }
-								// translators: Request count for calculating Jetpack Search tier
-								label={ <strong>{ __( '10k requests', 'jetpack-search-pkg' ) }</strong> }
+								label={
+									<strong>
+										{
+											// translators: Request count for calculating Jetpack Search tier
+											__( '10k requests', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
 							/>
 							<PricingTableItem
 								isIncluded={ true }
@@ -220,8 +232,14 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
-								// translators: Record count for calculating Jetpack Search tier
-								label={ <strong>{ __( '5k records', 'jetpack-search-pkg' ) }</strong> }
+								label={
+									<strong>
+										{
+											// translators: Record count for calculating Jetpack Search tier
+											__( '5k records', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
 								tooltipInfo={
 									<>
 										{ __(
@@ -241,8 +259,14 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							/>
 							<PricingTableItem
 								isIncluded={ true }
-								// translators: Request count for calculating Jetpack Search tier
-								label={ <strong>{ __( '500 requests', 'jetpack-search-pkg' ) }</strong> }
+								label={
+									<strong>
+										{
+											// translators: Request count for calculating Jetpack Search tier
+											__( '500 requests', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
 								tooltipInfo={
 									<>
 										{ __(
