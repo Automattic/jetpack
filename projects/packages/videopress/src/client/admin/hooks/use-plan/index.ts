@@ -1,7 +1,16 @@
+/**
+ * External dependencies
+ */
+import { useSelect } from '@wordpress/data';
 /*
+ * Internal dependencies
+ */
+import { STORE_ID } from '../../../state';
+import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
+/**
  * types
  */
-import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import { VideopressSelectors } from '../../types';
 import {
 	paidFeaturesProp,
 	productOriginalProps,
@@ -20,9 +29,15 @@ export const usePlan = (): usePlanProps => {
 
 	const introductoryOffer = mapObjectKeysToCamel( productData.introductory_offer, true );
 
+	const purchases = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getPurchases(),
+		[]
+	);
+
 	return {
 		features: paidFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 		product: { ...mapObjectKeysToCamel( productData, true ), introductoryOffer },
+		purchases,
 	};
 };
