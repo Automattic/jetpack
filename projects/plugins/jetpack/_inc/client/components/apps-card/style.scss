@@ -26,22 +26,20 @@
 }
 
 .jp-apps-card__top {
-	padding: rem( 60px ) 0 0;
-	background: #ffffff;
+	padding: rem( 25px ) 0 0;
+	background: #fff;
 	text-align: center;
 
 	img {
 		max-width: 26%;
-		padding-top: 10px;
 	}
 }
 
 .jp-apps-card__description {
-	max-width: 80%;
 	margin: 0 auto;
 	padding: rem( 10px ) rem( 24px ) rem( 24px );
 	line-height: 1.65;
-	color: $black;
+	color: var( --jp-gray-70 );
 	text-align: center;
 
 	.dops-button {
@@ -50,14 +48,13 @@
 }
 
 .jp-apps-card__paragraph {
-	font-size: $font-body;
+	margin: rem( 5px ) 0 rem( 20px );
 }
 
 .jp-apps-card__header {
 	margin-top: 0;
-	margin-bottom: rem( 5px );
-	font-size: $font-title-small;
-	font-weight: 500;
+	margin-bottom: 0;
+	color: var( --jp-gray-100 );
 }
 
 .jp-apps-card__promo_subhead {
@@ -65,24 +62,40 @@
 	font-style: italic;
 }
 
+.jp-apps-card__apps-qr-code {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	.jp-apps-card__caption {
+		font-size: 11px;
+		margin: rem( 10px ) 0 0;
+		max-width: 220px;
+	}
+
+	a.jp-apps-card__link {
+		color: var( --jp-green-primary );
+		font-style: normal;
+		font-weight: 700;
+	}
+
+	a.jp-apps-card__link:hover {
+		color: var( --jp-green-secondary );
+	}
+}
+
 .jp-apps-card__apps-badges {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 
 	@include breakpoint( '<480px' ) {
-		flex-direction: column;
-
 		.apps-badge:first-child {
 			margin-right: 0;
 		}
-
-		.apps-badge:last-child {
-			margin-top: 1rem;
-		}
 	}
-
 }
 
 .jp-themes-card {

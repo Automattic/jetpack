@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	public function test_shortcodes_songlink( $embed_link, $expected ) {
 		global $post;
 
-		$post = $this->factory()->post->create_and_get( array( 'post_content' => $embed_link ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $embed_link ) );
 
 		setup_postdata( $post );
 
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 		// 'How To Install a WordPress Plugin' example.
 		$embed_id = 'e3dcec661c37487b818b8e3b8225ec27';
 		global $post;
-		$post = $this->factory()->post->create_and_get(
+		$post = self::factory()->post->create_and_get(
 			array(
 				'post_content' => sprintf(
 					'https://www.loom.com/share/%s',

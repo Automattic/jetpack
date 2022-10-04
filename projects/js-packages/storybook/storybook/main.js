@@ -62,6 +62,11 @@ module.exports = {
 
 		const finalConfig = updateEmotionAliases( config );
 
+		// Conform to Webpack module resolution rule for Search dashboard.
+		finalConfig.resolve.modules.push(
+			path.join( __dirname, '../../../packages/search/src/dashboard/' )
+		);
+
 		return finalConfig;
 	},
 	refs: {

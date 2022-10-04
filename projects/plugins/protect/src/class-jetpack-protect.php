@@ -34,7 +34,7 @@ class Jetpack_Protect {
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
 			function () {

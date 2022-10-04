@@ -40,7 +40,6 @@ import {
 	isConnectingUser,
 	resetConnectUser,
 	isReconnectingSite,
-	reconnectSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
@@ -90,6 +89,7 @@ const recommendationsRoutes = [
 	'/recommendations/site-type',
 	'/recommendations/product-suggestions',
 	'/recommendations/product-purchased',
+	'/recommendations/agency',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
 	'/recommendations/related-posts',
@@ -489,6 +489,7 @@ class Main extends React.Component {
 			case '/recommendations/site-type':
 			case '/recommendations/product-suggestions':
 			case '/recommendations/product-purchased':
+			case '/recommendations/agency':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
 			case '/recommendations/related-posts':
@@ -775,9 +776,6 @@ export default connect(
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
-		},
-		reconnectSite: () => {
-			return dispatch( reconnectSite() );
 		},
 		setHasSeenWCConnectionModal: () => {
 			return dispatch( setHasSeenWCConnectionModal() );

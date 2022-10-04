@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Add a check for video url before rendering VideoPress block

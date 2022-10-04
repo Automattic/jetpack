@@ -12,7 +12,7 @@ import { icon, title } from '.';
 
 const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 
-function PaymentButtonsEdit( { clientId } ) {
+function PaymentButtonsEdit( { clientId, attributes: { layout = {} } } ) {
 	const { connectUrl, isApiConnected, shouldUpgrade, upgradeUrl } = useSelect( select => {
 		const { getConnectUrl, getShouldUpgrade, getUpgradeUrl, isApiStateConnected } = select(
 			membershipProductsStore
@@ -65,16 +65,18 @@ function PaymentButtonsEdit( { clientId } ) {
 	const showStripeConnectAction = ! shouldUpgrade && ! isApiConnected && !! connectUrl;
 
 	const blockProps = useBlockProps();
-	const innerBlocksProps = useInnerBlocksProps(
-		{},
-		{
-			allowedBlocks: ALLOWED_BLOCKS,
-			orientation: 'horizontal',
-			template: [ [ 'jetpack/recurring-payments' ] ],
-			templateInsertUpdatesSelection: true,
-		}
-	);
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: ALLOWED_BLOCKS,
+		orientation: 'horizontal',
+		template: [ [ 'jetpack/recurring-payments' ] ],
+		templateInsertUpdatesSelection: true,
+		__experimentalLayout: layout,
+	} );
 
+	// The ID needs to be just on the outermost wrapper - the toolbar and wpcom upgrade nudge
+	// will then be positioned in relation to this.
+	delete innerBlocksProps.id;
+	delete innerBlocksProps[ 'data-block' ];
 	return (
 		<div { ...blockProps }>
 			{ showStripeConnectAction && (

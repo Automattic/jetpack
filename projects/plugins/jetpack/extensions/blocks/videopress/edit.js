@@ -20,21 +20,30 @@ import {
 	ToolbarGroup,
 	Tooltip,
 } from '@wordpress/components';
-import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import {
+	compose,
+	createHigherOrderComponent,
+	usePrevious,
+	withInstanceId,
+} from '@wordpress/compose';
+import { useSelect, withDispatch, withSelect } from '@wordpress/data';
 import { Component, createRef, Fragment } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
+import { useEffect } from 'react';
+import { VideoPressIcon } from '../../shared/icons';
 import { VideoPressBlockProvider } from './components';
 import { VIDEO_PRIVACY } from './constants';
 import Loading from './loading';
 import ResumableUpload from './resumable-upload';
 import SeekbarColorSettings from './seekbar-color-settings';
 import TracksEditor from './tracks-editor';
+import { UploadingEditor } from './uploading-editor';
 import { getVideoPressUrl } from './url';
-import { getClassNames } from './utils';
+import { getClassNames, removeFileNameExtension } from './utils';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -55,6 +64,9 @@ const VideoPressEdit = CoreVideoEdit =>
 				isUpdatingAllowDownload: false,
 				fileForUpload: props.fileForImmediateUpload,
 				isUpdatingIsPrivate: false,
+				isEditingWhileUploading: false,
+				isUploadComplete: false,
+				lastPosterValueSource: '',
 			};
 			this.posterImageButton = createRef();
 			this.previewCacheReloadTimer = null;
@@ -62,14 +74,23 @@ const VideoPressEdit = CoreVideoEdit =>
 		}
 
 		static getDerivedStateFromProps( nextProps, state ) {
+			const newState = {};
 			if ( ! nextProps.isSelected && state.interactive ) {
 				// We only want to change this when the block is not selected, because changing it when
 				// the block becomes selected makes the overlap disappear too early. Hiding the overlay
 				// happens on mouseup when the overlay is clicked.
-				return { interactive: false };
+				newState.interactive = false;
 			}
 
-			return null;
+			if ( state.fileForUpload && ! state.isEditingWhileUploading ) {
+				const isResumableUploading =
+					null !== state.fileForUpload && state.fileForUpload instanceof File;
+				if ( isResumableUploading ) {
+					newState.isEditingWhileUploading = true;
+				}
+			}
+
+			return Object.keys( newState ).length ? newState : null;
 		}
 
 		hideOverlay = () => {
@@ -281,11 +302,13 @@ const VideoPressEdit = CoreVideoEdit =>
 		onSelectPoster = image => {
 			const { setAttributes } = this.props;
 			setAttributes( { poster: image.url } );
+			this.setState( { videoPosterImageData: image } );
 		};
 
 		onRemovePoster = () => {
 			const { setAttributes } = this.props;
 			setAttributes( { poster: '' } );
+			this.setState( { videoPosterImageData: null } );
 
 			// Move focus back to the Media Upload button.
 			this.posterImageButton.current.focus();
@@ -430,6 +453,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				privacySetting,
 				isUpdatingAllowDownload,
 				isUpdatingPrivacySetting,
+				videoPosterImageData,
 			} = this.state;
 
 			const {
@@ -453,6 +477,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
+			const hasPoster = !! ( poster || videoPosterImageData );
 
 			const blockSettings = (
 				<Fragment>
@@ -525,7 +550,7 @@ const VideoPressEdit = CoreVideoEdit =>
 									/* translators: Tooltip describing the "preload" option for the VideoPress player */
 									__( 'Content to dowload before the video is played', 'jetpack' )
 								) }
-								value={ preload }
+								value={ preload ?? '' }
 								onChange={ value => setAttributes( { preload: value } ) }
 								options={ [
 									{ value: 'auto', label: _x( 'Auto', 'VideoPress preload setting', 'jetpack' ) },
@@ -553,7 +578,7 @@ const VideoPressEdit = CoreVideoEdit =>
 												ref={ this.posterImageButton }
 												aria-describedby={ videoPosterDescription }
 											>
-												{ ! poster
+												{ ! hasPoster
 													? __( 'Select Poster Image', 'jetpack' )
 													: __(
 															'Replace image',
@@ -564,15 +589,15 @@ const VideoPressEdit = CoreVideoEdit =>
 										) }
 									/>
 									<p id={ videoPosterDescription } hidden>
-										{ poster
+										{ hasPoster
 											? sprintf(
 													/* translators: Placeholder is an image URL. */
 													__( 'The current poster image url is %s', 'jetpack' ),
-													poster
+													poster ?? videoPosterImageData
 											  )
 											: __( 'There is no poster image currently selected', 'jetpack' ) }
 									</p>
-									{ !! poster && (
+									{ hasPoster && (
 										<Button onClick={ this.onRemovePoster } variant="link" isDestructive>
 											{ __( 'Remove Poster Image', 'jetpack' ) }
 										</Button>
@@ -589,7 +614,7 @@ const VideoPressEdit = CoreVideoEdit =>
 						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
 							<SelectControl
 								label={ _x( 'Rating', 'The age rating for this video.', 'jetpack' ) }
-								value={ rating }
+								value={ rating ?? '' }
 								disabled={ isFetchingMedia || isUpdatingRating }
 								options={ [
 									{
@@ -632,7 +657,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ __( 'Video Privacy', 'jetpack' ) }
 								help={ this.getPrivacySettingHelp( privacySetting ) }
 								onChange={ this.onChangePrivacySetting }
-								value={ privacySetting }
+								value={ privacySetting ?? '' }
 								options={ [
 									{
 										value: VIDEO_PRIVACY.SITE_DEFAULT,
@@ -684,22 +709,159 @@ const VideoPressEdit = CoreVideoEdit =>
 				}
 			};
 
+			/**
+			 * Determines if api requests should be made via the `gutenberg-video-upload` script (Jetpack only).
+			 *
+			 * @returns {boolean} if the upload script should be used or not.
+			 */
+			const shouldUseJetpackVideoFetch = () => {
+				return 'videoPressUploadPoster' in window;
+			};
+
+			const filename = escapeHTML(
+				fileForUpload ? removeFileNameExtension( fileForUpload.name ) : ''
+			);
+
 			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
-				this.setState( { fileForUpload: null } );
+				this.setState( {
+					title: this.state.title ?? filename, // Make sure we store the filename here, as fileForUpload won't exist anymore
+					fileForUpload: null,
+					isUploadComplete: !! mediaId,
+					isEditingWhileUploading: mediaId ? this.state.isEditingWhileUploading : false,
+				} );
+
 				if ( mediaId && videoGuid && videoSrc ) {
 					setAttributes( { id: mediaId, guid: videoGuid, src: videoSrc } );
 				}
 			};
 
+			const onChangeTitle = newTitle => {
+				this.setState( { title: newTitle } );
+			};
+
+			const onVideoFrameSelected = ms => {
+				this.setState( {
+					videoFrameSelectedInMillis: ms,
+					videoPosterImageData: null,
+				} );
+			};
+
+			const sendUpdateTitleRequest = () => {
+				const title = this.state.title;
+				this.updateMetaApiCall(
+					{ title: title },
+					() => this.setState( { isUpdatingTitle: true, title } ),
+					() => this.setState( { title: title } ),
+					() => this.setState( { isUpdatingTitle: false } )
+				);
+			};
+
+			const sendUpdatePosterFromMillisecondsRequest = () => {
+				return __sendUpdatePoster( {
+					at_time: this.state.videoFrameSelectedInMillis,
+					is_millisec: true,
+				} );
+			};
+
+			const sendUpdatePosterRequest = () => {
+				return __sendUpdatePoster( {
+					poster_attachment_id: this.state.videoPosterImageData.id,
+				} );
+			};
+
+			const updatePosterFromApiResult = result => {
+				if ( result.generating ) {
+					startPollingForPosterImage();
+				} else {
+					updatePosterImage( result.poster );
+				}
+			};
+
+			const getPosterImage = () => {
+				if ( shouldUseJetpackVideoFetch() ) {
+					return window.videoPressGetPoster( guid );
+				}
+
+				return apiFetch( {
+					path: `/videos/${ guid }/poster`,
+					apiNamespace: 'rest/v1.1',
+					global: true,
+					method: 'GET',
+				} );
+			};
+
+			const startPollingForPosterImage = () => {
+				setTimeout( () => {
+					getPosterImage().then( result => updatePosterFromApiResult( result ) );
+				}, 2000 );
+			};
+
+			const updatePosterImage = newPosterImage => {
+				if ( newPosterImage ) {
+					setAttributes( { poster: newPosterImage } );
+				}
+			};
+
+			const __sendUpdatePoster = data => {
+				if ( shouldUseJetpackVideoFetch() ) {
+					return window
+						.videoPressUploadPoster( guid, data )
+						.then( result => updatePosterFromApiResult( result ) );
+				}
+
+				apiFetch( {
+					path: `/videos/${ guid }/poster`,
+					apiNamespace: 'rest/v1.1',
+					method: 'POST',
+					global: true,
+					data: data,
+				} ).catch( e => e );
+			};
+
+			const saveEditorData = () => {
+				const { title, videoFrameSelectedInMillis } = this.state;
+
+				if ( title ) {
+					sendUpdateTitleRequest();
+				}
+
+				if ( videoPosterImageData ) {
+					sendUpdatePosterRequest();
+				} else if (
+					// Check if videoFrameSelectedInMillis is not undefined or null instead of bool check to allow 0ms. selection
+					'undefined' !== typeof videoFrameSelectedInMillis &&
+					null !== videoFrameSelectedInMillis
+				) {
+					sendUpdatePosterFromMillisecondsRequest();
+				}
+			};
+
+			const dismissEditor = () => {
+				this.setState( { isEditingWhileUploading: false } );
+				saveEditorData();
+			};
+
 			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
-			if ( isResumableUploading ) {
+
+			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
+				const title = this.state.title ?? filename;
+
 				return (
-					<VideoPressBlockProvider onUploadFinished={ uploadFinished }>
-						<Fragment>
-							{ blockSettings }
-							<ResumableUpload file={ fileForUpload } { ...this.props } />
-						</Fragment>
-					</VideoPressBlockProvider>
+					<UploaderBlock
+						fileForUpload={ fileForUpload }
+						filename={ filename }
+						uploadFinished={ uploadFinished }
+						blockSettings={ blockSettings }
+						onDismissEditor={ dismissEditor }
+						isUploadComplete={ this.state.isUploadComplete }
+						onSelectPoster={ this.onSelectPoster }
+						onRemovePoster={ this.onRemovePoster }
+						onChangeTitle={ onChangeTitle }
+						title={ title }
+						videoPosterImageData={ this.state.videoPosterImageData }
+						onVideoFrameSelected={ onVideoFrameSelected }
+						onSave={ saveEditorData }
+					/>
 				);
 			}
 
@@ -785,6 +947,69 @@ const VideoPressEdit = CoreVideoEdit =>
 			);
 		}
 	};
+
+const UploaderBlock = props => {
+	const blockProps = useBlockProps( {
+		className: 'resumable-upload',
+	} );
+
+	const {
+		onChangeTitle,
+		title,
+		filename,
+		onSelectPoster,
+		onRemovePoster,
+		videoPosterImageData,
+		fileForUpload,
+		isUploadComplete,
+		onDismissEditor,
+		onSave,
+		onVideoFrameSelected,
+	} = props;
+
+	// Avoid triggering save action multiple times
+	const isSaving = useSelect( select => select( 'core/editor' ).isSavingPost(), [] );
+	const wasSaving = usePrevious( isSaving );
+
+	useEffect( () => {
+		if ( isSaving && ! wasSaving ) {
+			onSave();
+		}
+	}, [ isSaving, wasSaving, onSave ] );
+
+	return (
+		<VideoPressBlockProvider onUploadFinished={ props.uploadFinished }>
+			<Fragment>
+				{ props.blockSettings }
+				<div { ...blockProps }>
+					<div className="uploader-block__logo">
+						<Icon icon={ VideoPressIcon } />
+						<div className="uploader-block__logo-text">{ __( 'VideoPress', 'jetpack' ) }</div>
+					</div>
+					<UploadingEditor
+						file={ fileForUpload }
+						filename={ filename }
+						title={ title }
+						onChangeTitle={ onChangeTitle }
+						onSelectPoster={ onSelectPoster }
+						onRemovePoster={ onRemovePoster }
+						videoPosterImageData={ videoPosterImageData }
+						onVideoFrameSelected={ onVideoFrameSelected }
+					/>
+					{ ! isUploadComplete && <ResumableUpload file={ fileForUpload } /> }
+					{ isUploadComplete && (
+						<div className="uploader-block__upload-complete">
+							<span>{ __( 'Upload Complete!', 'jetpack' ) } 🎉</span>
+							<Button variant="primary" onClick={ onDismissEditor }>
+								{ __( 'Done', 'jetpack' ) }
+							</Button>
+						</div>
+					) }
+				</div>
+			</Fragment>
+		</VideoPressBlockProvider>
+	);
+};
 
 // The actual, final rendered video player markup
 // In a separate function component so that `useBlockProps` could be called.
@@ -872,7 +1097,7 @@ export const VpBlock = props => {
 
 export default createHigherOrderComponent(
 	compose( [
-		withSelect( ( select, ownProps ) => {
+		withSelect( ( _select, ownProps ) => {
 			const {
 				autoplay,
 				controls,
@@ -889,7 +1114,7 @@ export default createHigherOrderComponent(
 				src,
 				useAverageColor,
 			} = ownProps.attributes;
-			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
+			const { getEmbedPreview, isRequestingEmbedPreview } = _select( 'core' );
 
 			const url = getVideoPressUrl( guid, {
 				autoplay,

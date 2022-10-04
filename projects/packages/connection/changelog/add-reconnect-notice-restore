@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Clean connection errors after successful blog token restore.

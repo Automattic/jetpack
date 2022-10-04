@@ -120,7 +120,7 @@ function render_stripe_nudge() {
  * @return string Final content to render.
  */
 function stripe_nudge( $checkout_url, $description, $button_text ) {
-	\jetpack_require_lib( 'components' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
 			'checkoutUrl' => $checkout_url,
