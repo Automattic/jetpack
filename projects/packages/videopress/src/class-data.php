@@ -8,35 +8,62 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
+use WP_REST_Request;
 
 /**
  * The Data class.
  */
 class Data {
 	/**
-	 * Gets the product data
+	 * Gets the video data
 	 *
 	 * @return array
 	 */
-	public static function get_videos() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// @todo: build a proper query string for request.
-		$endpoint = "/sites/{$blog_id}/media?per_page=6&mime_type=video/videopress";
-
-		$args = array(
-			'method' => 'GET',
+	public static function get_video_data() {
+		$video_data = array(
+			'videos'     => array(),
+			'total'      => 0,
+			'totalPages' => 0,
+			'query'      => array(
+				'order'        => 'desc',
+				'orderBy'      => 'date',
+				'itemsPerPage' => 6,
+				'page'         => 1,
+				'type'         => 'video/videopress',
+			),
 		);
 
-		$response = Client::wpcom_json_api_request_as_user( $endpoint, '2', $args, null, 'wp' );
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+		$args = array(
+			'order'     => $video_data['query']['order'],
+			'orderby'   => $video_data['query']['orderBy'],
+			'per_page'  => $video_data['query']['itemsPerPage'],
+			'page'      => $video_data['query']['page'],
+			'mime_type' => $video_data['query']['type'],
+		);
+
+		// Do an internal request for the media list
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
 			// @todo: error handling
-			return array();
+			return $video_data;
 		}
 
-		return json_decode( $response['body'], true );
+		// load the real values
+		$video_data['videos'] = $response->get_data();
+		$headers              = $response->get_headers();
+
+		if ( isset( $headers['X-WP-Total'] ) ) {
+			$video_data['total'] = $headers['X-WP-Total'];
+		}
+
+		if ( isset( $headers['X-WP-TotalPages'] ) ) {
+			$video_data['totalPages'] = $headers['X-WP-TotalPages'];
+		}
+
+		return $video_data;
 	}
 
 	/**
@@ -46,6 +73,8 @@ class Data {
 	 * @return array
 	 */
 	public static function get_initial_state() {
+
+		$video_data = self::get_video_data();
 
 		$videos = array_map(
 			function ( $video ) {
@@ -101,7 +130,7 @@ class Data {
 					'finished'       => $finished,
 				);
 			},
-			self::get_videos()
+			$video_data['videos']
 		);
 
 		return array(
@@ -110,6 +139,12 @@ class Data {
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
+				'pagination'                   => array(
+					'totalPages' => $video_data['totalPages'],
+					'total'      => $video_data['total'],
+				),
+				'uploadedVideoCount'           => $video_data['total'],
+				'query'                        => $video_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
 				),
