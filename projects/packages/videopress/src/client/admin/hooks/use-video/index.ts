@@ -28,6 +28,13 @@ export default function useVideo( id: number | string ) {
 		[ id ]
 	);
 
+	// Is Fetching
+	// @todo: this prop should not be here but in useVideos() hook
+	const isFetching = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getIsFetching(),
+		[]
+	);
+
 	const processing = videoData?.posterImage === null && ! videoData?.finished; // Video is processing if it has no poster image and it's not finished.
 
 	return {
@@ -41,6 +48,8 @@ export default function useVideo( id: number | string ) {
 		...metaData,
 
 		processing,
+
+		isFetching,
 
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),
