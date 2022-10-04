@@ -9,7 +9,6 @@
 
 ### Bug fixes
 - Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks. [#26308]
-- Backup: update initialization of UI menu. [#23532]
 - Payments block: make filtering patterns used for the payments intro more robust. [#26465]
 - Social: prevent the package being initialized without a user connection. [#26543]
 

@@ -252,7 +252,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 #### Bug fixes
 - Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks.
-- Backup: update initialization of UI menu.
 - Payments block: make filtering patterns used for the payments intro more robust.
 - Social: prevent the package being initialized without a user connection.
 
