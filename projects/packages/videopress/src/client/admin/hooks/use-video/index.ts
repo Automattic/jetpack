@@ -23,21 +23,17 @@ export default function useVideo( id: number | string ) {
 		[ id ]
 	);
 
+	const metaData = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
+		[ id ]
+	);
+
 	return {
 		// Data
 		data: { ...videoData, privacySetting: VIDEO_PRIVACY_LEVEL_PUBLIC },
 
-		// Is Fetching
-		// @todo: this prop should not be here but in useVideos() hook
-		isFetching: useSelect(
-			select => ( select( STORE_ID ) as VideopressSelectors ).getIsFetching(),
-			[]
-		),
-
-		...useSelect(
-			select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
-			[]
-		),
+		// Video Meta Data
+		...metaData,
 
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),
