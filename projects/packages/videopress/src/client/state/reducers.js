@@ -247,13 +247,6 @@ const videos = ( state, action ) => {
 			// Remove video from uploading meta
 			delete currentMetaItems[ id ];
 
-			// Updating pagination and count
-			// const uploadedVideoCount = state.uploadedVideoCount;
-			// const pagination = { ...state.pagination };
-			// uploadedVideoCount += 1;
-			// pagination.total += 1;
-			// pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
-
 			return {
 				...state,
 				items,
@@ -277,6 +270,7 @@ const videos = ( state, action ) => {
 
 			items[ videoIndex ] = video;
 
+			// Updating pagination and count
 			const total = ( state?.uploadedVideoCount ?? 0 ) + 1;
 			const pagination = { ...state.pagination };
 
