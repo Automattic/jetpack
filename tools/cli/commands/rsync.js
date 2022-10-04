@@ -67,26 +67,18 @@ export async function rsyncInit( argv ) {
  * @returns {Promise<void>}
  */
 async function rsyncToDest( source, dest, pluginDestPath ) {
-	const filters = new Set();
-
-	// Include just the files that are published to the mirror.
-	for await ( let file of listProjectFiles( source, execa ) ) {
-		// Rsync requires we also list all the directories containing the file.
-		let prev;
-		do {
-			// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
-			// Only patterns use backslash escapes, literal strings do not.
-			filters.add( '+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) );
-			prev = file;
-			file = path.dirname( file ) + '/';
-		} while ( file !== '/' && file !== './' && file !== prev );
+	let includeFiles = [];
+	for await ( const file of listProjectFiles( source, execa ) ) {
+		includeFiles.push( file );
 	}
-
-	// Exclude anything not included above.
-	filters.add( '- *' );
+	includeFiles = includeFiles.map(
+		// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
+		// Only patterns use backslash escapes, literal strings do not.
+		v => '/' + ( v.match( /[[*?]/ ) ? v.replace( /[[*?\\]/g, '\\$&' ) : v )
+	);
 
 	const tmpFileName = tmp.tmpNameSync();
-	fs.writeFileSync( tmpFileName, [ ...filters ].join( '\r\n' ) );
+	fs.writeFileSync( tmpFileName, '+ ' + includeFiles.join( '\r\n+ ' ) );
 	try {
 		await runCommand( 'rsync', [
 			'-azLKPv',
@@ -95,6 +87,16 @@ async function rsyncToDest( source, dest, pluginDestPath ) {
 			'--delete-after',
 			'--delete-excluded',
 			`--include-from=${ tmpFileName }`,
+			'--exclude=jetpack_vendor/**/vendor',
+			'--exclude=wordpress',
+			'--exclude=node_modules',
+			'--exclude=vendor/**/vendor',
+			'--exclude=wordbless',
+			'--exclude=.editorconfig',
+			'--exclude=.github',
+			'--exclude=.cache',
+			'--exclude=tests',
+			'--exclude=*.map',
 			source,
 			dest,
 		] );
