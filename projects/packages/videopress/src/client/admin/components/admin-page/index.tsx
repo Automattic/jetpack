@@ -215,7 +215,7 @@ export default Admin;
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
 	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
 
-	const { product, hasVideoPressPurchase } = usePlan();
+	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
@@ -231,7 +231,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		'jetpack-videopress-pkg'
 	);
 
-	if ( hasVideoPressPurchase ) {
+	if ( hasVideoPressPurchase || isFetchingPurchases ) {
 		return null;
 	}
 
