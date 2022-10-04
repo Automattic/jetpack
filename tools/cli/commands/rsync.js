@@ -45,6 +45,10 @@ function setRsyncDest( pluginDestPath, alias = false ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function rsyncInit( argv ) {
+	if ( argv.config ) {
+		await promptToManageConfig();
+		return;
+	}
 	argv = await promptForPlugin( argv );
 	argv = await promptForDest( argv );
 	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
@@ -56,6 +60,57 @@ export async function rsyncInit( argv ) {
 	const finalDest = path.join( argv.dest, wpPluginSlug + '/' );
 
 	await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
+}
+
+/**
+ * Promots to delete, clear or list out the stored destinations.
+ */
+async function promptToManageConfig() {
+	const promptClearAll = async () => {
+		console.log( rsyncConfigStore.all );
+		await inquirer
+			.prompt( {
+				type: 'confirm',
+				name: 'clearAll',
+				message: 'are you sure you want to clear them all?',
+			} )
+			.then( answer => {
+				if ( answer.clearAll ) {
+					rsyncConfigStore.clear();
+					console.log( 'Empty! Cleared them all.' );
+				}
+			} );
+	};
+	const clearOne = key => rsyncConfigStore.delete( escapeKey( key ) );
+	const configManage = await inquirer.prompt( {
+		type: 'list',
+		name: 'manageConfig',
+		message: 'Manage saved destination paths.',
+		choices: [ 'list', 'clear all', 'remove' ],
+	} );
+	if ( configManage.manageConfig === 'list' ) {
+		console.log( "Here's what you have saved:" );
+		console.log( rsyncConfigStore.all );
+	}
+	if ( configManage.manageConfig === 'clear' ) {
+		await promptClearAll();
+	}
+	if ( configManage.manageConfig === 'remove' ) {
+		const configKeys = Object.keys( rsyncConfigStore.all );
+		configKeys.push( 'All of them!' );
+		const removeDest = await inquirer.prompt( {
+			type: 'list',
+			name: 'removeKey',
+			message: 'which would you like to remove?',
+			choices: configKeys,
+		} );
+		if ( removeDest.removeKey === 'All of them!' ) {
+			await promptClearAll();
+		} else {
+			clearOne( removeDest.removeKey );
+			console.log( `Done! Removed ${ removeDest.removeKey }` );
+		}
+	}
 }
 
 /**
@@ -274,6 +329,10 @@ export function rsyncDefine( yargs ) {
 				.positional( 'dest', {
 					describe: 'Destination path to plugins dir',
 					type: 'string',
+				} )
+				.option( 'config', {
+					describe: 'Remove or list saved destinations in the config.',
+					type: 'boolean',
 				} );
 		},
 		async argv => {
