@@ -65,7 +65,7 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			<div className={ styles[ 'button-container-bottom' ] }>
+			<div className={ styles[ 'threat-footer' ] }>
 				<Button isDestructive={ true } variant="secondary">
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
@@ -91,7 +91,7 @@ const PaidList = ( { list } ) => {
 
 	return (
 		<>
-			<div className={ styles[ 'button-container-top' ] }>
+			<div className={ styles[ 'threat-header' ] }>
 				{ fixableCount > 0 && (
 					<Button variant="primary">
 						{
