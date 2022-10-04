@@ -21,7 +21,12 @@ const PricingPage = () => {
 	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
-	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
+	const { registrationNonce } = window.jetpackVideoPressInitialState;
+	const { handleRegisterSite, userIsConnecting } = useConnection( {
+		redirectUri: adminUri,
+		from: 'jetpack-videopress',
+		registrationNonce,
+	} );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
 	const { run } = useProductCheckoutWorkflow( {
