@@ -7,7 +7,12 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT, DELETE_VIDEO } from './constants';
+import {
+	SET_VIDEOS_QUERY,
+	WP_REST_API_MEDIA_ENDPOINT,
+	DELETE_VIDEO,
+	REST_API_SITE_PURCHASES_ENDPOINT,
+} from './constants';
 import { getDefaultQuery } from './reducers';
 import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -128,6 +133,20 @@ const getUploadedVideoCount = {
 	},
 };
 
+const getPurchases = {
+	fulfill: () => async ( { dispatch } ) => {
+		dispatch.setIsFetchingPurchases( true );
+
+		try {
+			const purchases = await apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } );
+			dispatch.setPurchases( purchases );
+		} catch ( error ) {
+			// @todo: handle error
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 const getStorageUsed = {
 	isFulfilled: state => {
 		return state?.videos?._meta?.relyOnInitialState;
@@ -163,4 +182,5 @@ export default {
 	getUploadedVideoCount,
 	getVideos,
 	getVideo,
+	getPurchases,
 };
