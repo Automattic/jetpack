@@ -1,4 +1,5 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
+import { dockerExec } from '../lib/docker-tools';
 import { updateSettings } from '../lib/plugin-settings';
 import { authenticatedRequest, clearCache, getAuthCookie, getSiteUrl } from '../lib/plugin-tools';
 import { loadPage } from '../lib/test-tools';
@@ -20,14 +21,14 @@ describe( 'cache behavior with default settings', () => {
 		expect( first ).toBe( second );
 	} );
 
-	test( 'logged in users do not get cached pages', async () => {
+	test( 'logged in users get cached pages', async () => {
 		const cookie = await getAuthCookie();
 		const url = getSiteUrl();
 
 		const first = await authenticatedRequest( cookie, 'GET', url );
 		const second = await authenticatedRequest( cookie, 'GET', url );
 
-		expect( first ).not.toBe( second );
+		expect( first ).toBe( second );
 	} );
 
 	test( 'pages with identical GET parameters should cache together', async () => {

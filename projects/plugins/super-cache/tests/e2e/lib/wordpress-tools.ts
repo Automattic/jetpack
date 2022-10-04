@@ -24,7 +24,7 @@ export async function wpcli( ...command ) {
 export async function resetEnvironmnt() {
 	await wpcli( 'plugin', 'deactivate', 'wp-super-cache', '--skip-themes' );
 	await deleteContainerFile( '/var/www/html/wp-content/advanced-cache.php' );
-	await deleteContainerFile( '/var/www/html/wp-content/wp-content/wp-cache-config.php' );
+	await deleteContainerFile( '/var/www/html/wp-content/wp-cache-config.php' );
 	await deleteContainerDirectory( '/var/www/html/wp-content/cache' );
 	await deleteLinesFromContainerFile( '/var/www/html/wp-config.php', 'WPCACHEHOME' );
 	await deleteLinesFromContainerFile( '/var/www/html/wp-config.php', 'WP_CACHE' );
