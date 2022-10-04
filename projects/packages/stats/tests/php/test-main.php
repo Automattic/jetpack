@@ -125,10 +125,9 @@ class Test_Main extends StatsBaseTestCase {
 	/**
 	 * Filter the option which decides honor DNT or not.
 	 *
-	 * @param bool $honour_dnt Honors DNT for clients who don't want to be tracked. Defaults to false.
 	 * @return bool
 	 */
-	public static function filter_jetpack_honor_dnt_header_for_stats( $honour_dnt = false ) {
+	public static function filter_jetpack_honor_dnt_header_for_stats() {
 		return true;
 	}
 }
