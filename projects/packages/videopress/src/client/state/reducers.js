@@ -19,6 +19,7 @@ import {
 	DELETE_VIDEO,
 	UPLOADING_VIDEO,
 	PROCESSING_VIDEO,
+	UPLOADED_VIDEO,
 } from './constants';
 
 /**
@@ -260,6 +261,33 @@ const videos = ( state, action ) => {
 					...currentMeta,
 					items: currentMetaItems,
 				},
+			};
+		}
+
+		case UPLOADED_VIDEO: {
+			const { video } = action;
+			const query = state?.query ?? getDefaultQuery();
+			const items = [ ...( state?.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === video.id );
+
+			// Probably user is searching or in another page than first
+			if ( videoIndex === -1 ) {
+				return state;
+			}
+
+			items[ videoIndex ] = video;
+
+			const total = ( state?.uploadedVideoCount ?? 0 ) + 1;
+			const pagination = { ...state.pagination };
+
+			pagination.total = total;
+			pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
+
+			return {
+				...state,
+				items,
+				uploadedVideoCount: total,
+				pagination,
 			};
 		}
 

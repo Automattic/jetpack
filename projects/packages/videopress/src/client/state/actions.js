@@ -25,6 +25,7 @@ import {
 	WP_REST_API_MEDIA_ENDPOINT,
 	UPLOADING_VIDEO,
 	PROCESSING_VIDEO,
+	UPLOADED_VIDEO,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -164,7 +165,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		const video = mapVideoFromWPV2MediaEndpoint( response );
 
 		if ( video?.posterImage !== null ) {
-			dispatch.setVideo( video );
+			dispatch( { type: UPLOADED_VIDEO, video } );
 		} else {
 			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
 		}
