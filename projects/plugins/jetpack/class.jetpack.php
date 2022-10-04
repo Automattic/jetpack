@@ -6555,7 +6555,7 @@ endif;
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
 				&& ! empty( $rewind_data['state'] )
-				&& 'unavailable' !== $rewind_data['state'] )
+				&& 'active' === $rewind_data['state'] )
 				? 1
 				: 0;
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
