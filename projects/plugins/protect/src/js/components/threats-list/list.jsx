@@ -9,19 +9,19 @@ import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Accordion, { AccordionItem } from '../accordion';
-import { SECURITY_BUNDLE } from '../admin-page';
+import { JETPACK_SCAN } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_vulnerability_list_get_security_link_click',
+	const getScan = recordEventHandler(
+		'jetpack_protect_vulnerability_list_get_scan_link_click',
 		run
 	);
 
@@ -75,7 +75,7 @@ const ThreatAccordionItem = ( { id, name, version, title, description, icon, fix
 							'jetpack-protect'
 						) }
 						cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-						onClick={ getSecurityBundle }
+						onClick={ getScan }
 						className={ styles[ 'threat-item-cta' ] }
 					/>
 				</div>
