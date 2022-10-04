@@ -38,12 +38,36 @@ export async function deleteContainerFile( filename: string ) {
 }
 
 /**
+ * Deletes the specified directory (and its contents) from docker.
+ *
+ * @param {string} filename - The file to delete.
+ */
+export async function deleteContainerDirectory( filename: string ) {
+	await dockerExec( 'rm', '-rf', filename );
+}
+
+/**
  * Returns the contents of the specified file from docker.
  *
  * @param {string} filename - The file to read.
  */
-export async function readContainerFile( filename: string ) {
-	return dockerExec( 'cat', filename );
+export async function readContainerFile( filename: string ): Promise< Buffer > {
+	const encoded = await dockerExec( 'bash', '-c', `cat ${ filename } | base64 -w 0` );
+
+	return Buffer.from( encoded, 'base64' );
+}
+
+/**
+ * Returns the contents of the specified file from docker, converted to string.
+ *
+ * @param {string} filename - The file to read.
+ * @param          encoding
+ */
+export async function decodeContainerFile(
+	filename: string,
+	encoding: BufferEncoding = 'utf8'
+): Promise< string > {
+	return ( await readContainerFile( filename ) ).toString( encoding );
 }
 
 /**
@@ -60,4 +84,7 @@ export async function writeContainerFile( filename: string, data: Buffer | strin
 		'-c',
 		`echo '${ buffer.toString( 'base64' ) }' | base64 --decode > ${ filename }`
 	);
+}
+function shellEscape( arg0: string, filename: string, arg2: string, arg3: string ): string {
+	throw new Error( 'Function not implemented.' );
 }
