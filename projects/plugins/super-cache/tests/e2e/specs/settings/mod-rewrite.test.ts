@@ -41,13 +41,13 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 		expect( first ).toBe( second );
 	} );
 
-	test( 'logged in users do not get cached pages', async () => {
+	test( 'logged in users get cached pages by default', async () => {
 		const url = getSiteUrl();
 
 		const first = await authenticatedRequest( authCookie, 'GET', url );
 		const second = await authenticatedRequest( authCookie, 'GET', url );
 
-		expect( first ).not.toBe( second );
+		expect( first ).toBe( second );
 	} );
 
 	test( 'GET parameters should affect caching', async () => {
