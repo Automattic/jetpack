@@ -28,12 +28,16 @@ export default function useVideo( id: number | string ) {
 		[ id ]
 	);
 
+	const processing = videoData?.posterImage === null && ! videoData?.finished; // Video is processing if it has no poster image and it's not finished.
+
 	return {
 		// Data
 		data: { ...videoData, privacySetting: VIDEO_PRIVACY_LEVEL_PUBLIC },
 
 		// Video Meta Data
 		...metaData,
+
+		processing,
 
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),

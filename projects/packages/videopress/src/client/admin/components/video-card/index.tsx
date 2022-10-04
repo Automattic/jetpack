@@ -161,13 +161,8 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const {
-		isDeleting,
-		uploading,
-		data: { posterImage, finished },
-	} = useVideo( id );
+	const { isDeleting, uploading, processing } = useVideo( id );
 
-	const processing = posterImage === null && ! finished; // Video is processing if it has no poster image and it's not finished.
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
 
