@@ -3,13 +3,15 @@
  */
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown, Modal } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 /** */
 import privacy from '../../../components/icons/privacy-icon';
 import usePosterEdit from '../../../hooks/use-poster-edit';
+import { STORE_ID } from '../../../state';
 import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
@@ -219,6 +221,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
+	const dispatch = useDispatch( STORE_ID );
 	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
 	const [ updatingThumbnail, setUpdatingThumbnail ] = useState( false );
@@ -232,17 +235,25 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		updatePosterImage,
 	} = usePosterEdit( { video: data } );
 
-	const updateThumbnail = async () => {
-		handleConfirmFrame();
-		try {
-			setUpdatingThumbnail( true );
-			await updatePosterImage();
-		} catch ( error ) {
-			// TODO: handle errors
-		} finally {
-			setUpdatingThumbnail( false );
+	useEffect( () => {
+		if ( selectedTime == null ) {
+			return;
 		}
-	};
+
+		setUpdatingThumbnail( true );
+		updatePosterImage()
+			.then( result => {
+				const posterImage = result ?? data?.posterImage;
+				const videoData = { ...data, posterImage };
+				dispatch?.setVideo( videoData );
+			} )
+			.catch( () => {
+				// TODO: handle errors
+			} )
+			.finally( () => {
+				setUpdatingThumbnail( false );
+			} );
+	}, [ selectedTime ] );
 
 	if ( showDeleteModal ) {
 		return (
@@ -291,7 +302,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 					url={ data.url }
 					handleVideoFrameSelected={ handleVideoFrameSelected }
 					selectedTime={ selectedTime }
-					handleConfirmFrame={ updateThumbnail }
+					handleConfirmFrame={ handleConfirmFrame }
 				/>
 				<div>{ selectedTime }</div>
 			</>

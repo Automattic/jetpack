@@ -28,7 +28,7 @@ const usePosterEdit = ( { video } ) => {
 
 	const updatePosterImage = () => {
 		return new Promise( ( resolve, reject ) => {
-			if ( videoFrameMs ) {
+			if ( Number.isFinite( videoFrameMs ) ) {
 				posterUpload( { at_time: videoFrameMs, is_millisec: true } )
 					.then( () => {
 						posterImagePooling( resolve );
@@ -55,7 +55,7 @@ const usePosterEdit = ( { video } ) => {
 		handleOpenSelectFrame: () => setFrameSelectorIsOpen( true ),
 		handleVideoFrameSelected,
 		useVideoAsThumbnail: videoFrameMs !== null,
-		selectedTime: videoFrameMs ? videoFrameMs / 1000 : null,
+		selectedTime: Number.isFinite( videoFrameMs ) ? videoFrameMs / 1000 : null,
 		frameSelectorIsOpen,
 		updatePosterImage,
 	};
