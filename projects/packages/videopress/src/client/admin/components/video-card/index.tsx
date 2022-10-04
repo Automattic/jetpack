@@ -8,6 +8,7 @@ import {
 	numberFormat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -48,6 +49,19 @@ const QuickActions = ( {
 	);
 };
 
+const UploadingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Spinner />
+		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
+const ProcessingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
 /**
  * Video Card component
  *
@@ -71,8 +85,8 @@ export const VideoCard = ( {
 
 	// Mapping thumbnail (Ordered by priority)
 	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
-	thumbnail = uploading ? <div>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</div> : thumbnail;
-	thumbnail = processing ? <div>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</div> : thumbnail;
+	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
+	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
@@ -84,13 +98,14 @@ export const VideoCard = ( {
 		: '';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
+	const disabled = isSm || loading || uploading || processing;
 
 	return (
 		<>
 			<div
 				className={ classnames( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
-					[ styles.disabled ]: isSm || loading || uploading,
+					[ styles.disabled ]: disabled,
 				} ) }
 				{ ...( isSm && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
 			>
