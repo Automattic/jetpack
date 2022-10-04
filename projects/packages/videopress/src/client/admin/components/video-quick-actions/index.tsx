@@ -10,7 +10,6 @@ import classNames from 'classnames';
 import { useState, useEffect } from 'react';
 /** */
 import privacy from '../../../components/icons/privacy-icon';
-import usePosterEdit from '../../../hooks/use-poster-edit';
 import { STORE_ID } from '../../../state';
 import {
 	VIDEO_PRIVACY_LEVELS,
@@ -18,6 +17,7 @@ import {
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
+import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
