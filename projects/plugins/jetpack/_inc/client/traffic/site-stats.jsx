@@ -244,6 +244,21 @@ class SiteStatsComponent extends React.Component {
 							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'do_not_track' ) }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'do_not_track' ] ) }
+								onChange={ this.handleStatsOptionToggle( 'do_not_track' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __(
+										'Honor visitors with DNT enabled and not track their activity',
+										'jetpack'
+									) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
+						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
 								<CompactFormToggle

@@ -106,7 +106,7 @@ function jetpack_is_dnt_enabled() {
 	 *
 	 * @param bool false Honors DNT for clients who don't want to be tracked. Defaults to false. Set to true to enable.
 	 */
-	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
+	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) && ! stats_get_option( 'do_not_track' ) ) {
 		return false;
 	}
 
