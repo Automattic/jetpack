@@ -154,6 +154,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									offPrice={ priceAfter }
 									currency={ priceCurrencyCode }
 									leyend=""
+									promoLabel={ __( '50% off', 'jetpack-search-pkg' ) }
 								>
 									<div className="price-tip">
 										<span className="price-tip-text">
@@ -196,7 +197,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							/>
 							<PricingTableItem
 								isIncluded={ true }
-								label={ <strong>{ __( 'Branding removed', 'jetpack-search-pkg' ) }</strong> }
+								label={ __( 'Branding removed', 'jetpack-search-pkg' ) }
 							/>
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -219,7 +220,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem
 								isIncluded={ true }
 								// translators: Record count for calculating Jetpack Search tier
-								label={ __( '5k records', 'jetpack-search-pkg' ) }
+								label={ <strong>{ __( '5k records', 'jetpack-search-pkg' ) }</strong> }
 								tooltipInfo={
 									<>
 										{ __(
@@ -240,7 +241,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableItem
 								isIncluded={ true }
 								// translators: Request count for calculating Jetpack Search tier
-								label={ __( '500 requests', 'jetpack-search-pkg' ) }
+								label={ <strong>{ __( '500 requests', 'jetpack-search-pkg' ) }</strong> }
 								tooltipInfo={
 									<>
 										{ __(
@@ -258,7 +259,10 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									</>
 								}
 							/>
-							<PricingTableItem isIncluded={ false } label="Shows Jetpack logo" />
+							<PricingTableItem
+								isIncluded={ false }
+								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
+							/>
 							<PricingTableItem isIncluded={ false } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
