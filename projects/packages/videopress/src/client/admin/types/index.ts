@@ -150,9 +150,18 @@ export type LocalVideo = {
 	uploadDate: string;
 };
 
+export type MetadataVideo = {
+	id: number | string;
+	deletedVideo?: VideoPressVideo;
+	isDeleting?: boolean;
+	hasBeenDeleted?: boolean;
+	uploading?: boolean;
+	processing?: boolean;
+};
+
 export type VideopressSelectors = {
 	getVideo: ( id: number | string ) => VideoPressVideo;
-	getVideoStateMetadata: ( id: number | string ) => object; // @todo use specific type
+	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
 	getIsFetching: () => boolean;
