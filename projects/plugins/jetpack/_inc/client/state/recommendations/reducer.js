@@ -627,6 +627,10 @@ const getInitialStep = state => {
 			: getInitialStepForOnboarding( onboardingData.active );
 	}
 
+	if ( 'summary' === initialStep && ! isStepViewed( state, 'site-type-question' ) ) {
+		return 'site-type-question';
+	}
+
 	// Jump to a new recommendation if there is one to show.
 	if ( newRecommendations.length > 0 ) {
 		return newRecommendations[ 0 ];
@@ -656,10 +660,9 @@ export const getOnboardingData = state => {
 
 	const onboarding = {
 		active: getDataByKey( state, 'onboardingActive' ) || null,
-		viewed:
-			getDataByKey( state, 'onboardingViewed' ).filter( viewedOnboarding =>
-				eligibleOnboardings.includes( viewedOnboarding )
-			) || [],
+		viewed: ( getDataByKey( state, 'onboardingViewed' ) || [] ).filter( viewedOnboarding =>
+			eligibleOnboardings.includes( viewedOnboarding )
+		),
 		hasStarted: getDataByKey( state, 'onboardingHasStarted' ) || false,
 	};
 
