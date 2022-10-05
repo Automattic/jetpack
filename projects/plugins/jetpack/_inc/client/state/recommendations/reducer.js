@@ -574,8 +574,6 @@ const isStepEligibleToShow = ( state, step ) => {
 		// Onboarding specific steps (`-activated` and `welcome__`):
 		case 'backup-activated':
 		case 'scan-activated':
-		case 'antispam-activated':
-		case 'videopress-activated':
 		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
@@ -584,8 +582,11 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__search':
 		case 'welcome__scan':
 		case 'welcome__backup':
-			// Ensure that the  step is part of the active onboarding
+			// Ensure that the step is part of the active onboarding
 			return getStepsForOnboarding( state ).includes( step );
+		case 'antispam-activated':
+		case 'videopress-activated':
+			return getStepsForOnboarding( state ).includes( step ) && isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}

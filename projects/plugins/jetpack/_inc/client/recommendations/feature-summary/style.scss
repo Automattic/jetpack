@@ -32,6 +32,10 @@
 	align-items: center;
 	color: var( --jp-gray-50 );
 
+	&.is-hidden {
+		visibility: hidden;
+	}
+
 	&__icon {
 		$size: 12px;
 

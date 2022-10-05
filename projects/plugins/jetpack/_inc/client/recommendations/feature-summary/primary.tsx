@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import React, { useCallback } from 'react';
@@ -8,17 +9,18 @@ import { getSummaryPrimaryProps } from '../feature-utils';
 type SummaryTextLinkProps = {
 	href: string;
 	label: string;
+	isHidden?: boolean;
 	onClick: React.MouseEventHandler< HTMLAnchorElement >;
 };
 
-const SummaryTextLink = ( { href, label, onClick }: SummaryTextLinkProps ) => {
+const SummaryTextLink = ( { href, label, isHidden, onClick }: SummaryTextLinkProps ) => {
 	return (
 		<a
 			rel="noreferrer"
 			target="_blank"
 			href={ href }
 			onClick={ onClick }
-			className="jp-summary-text-link"
+			className={ classNames( 'jp-summary-text-link', { [ 'is-hidden' ]: isHidden } ) }
 		>
 			{ label }
 			<span className="jp-summary-text-link__icon dashicons dashicons-arrow-right-alt2"></span>
@@ -32,7 +34,6 @@ type PrimarySummaryComponentProps = {
 	ctaLabel: string;
 	ctaLink: string;
 	stepRoute: string;
-	onInterceptHref?: () => Promise< void >;
 };
 
 const PrimarySummaryComponent = ( {
@@ -41,48 +42,44 @@ const PrimarySummaryComponent = ( {
 	ctaLabel,
 	ctaLink,
 	stepRoute,
-	onInterceptHref,
 }: PrimarySummaryComponentProps ) => {
+	const isActive = !! ctaLink;
+
 	const onStepNameClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_step_name_click', {
 			feature: slug,
 		} );
 	}, [ slug ] );
 
-	const onManageClick = useCallback< React.MouseEventHandler< HTMLAnchorElement > >(
-		e => {
-			if ( onInterceptHref ) {
-				e.preventDefault();
-				onInterceptHref().then( () => {
-					open( ctaLink, '_blank' );
-				} );
-
-				analytics.tracks.recordEvent( 'jetpack_recommendations_summary_intercepted_click', {
-					feature: slug,
-				} );
-			}
-
-			analytics.tracks.recordEvent( 'jetpack_recommendations_summary_manage_click', {
-				feature: slug,
-			} );
-		},
-		[ ctaLink, onInterceptHref, slug ]
-	);
+	const onManageClick = useCallback< React.MouseEventHandler< HTMLAnchorElement > >( () => {
+		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_manage_click', {
+			feature: slug,
+		} );
+	}, [ slug ] );
 	return (
 		<div className="jp-recommendations-feature-summary is-primary">
-			<Button
-				href={ stepRoute }
-				onClick={ onStepNameClick }
-				className="jp-recommendations-feature-summary__display-name"
-				borderless
-			>
-				<span className="jp-recommendations-feature-summary__display-name-text">
-					{ displayName }
-				</span>
-			</Button>
+			{ isActive ? (
+				<Button
+					href={ stepRoute }
+					onClick={ onStepNameClick }
+					className="jp-recommendations-feature-summary__display-name"
+					borderless
+				>
+					<span className="jp-recommendations-feature-summary__display-name-text">
+						{ displayName }
+					</span>
+				</Button>
+			) : (
+				<span className="jp-recommendations-feature-summary__display-name">{ displayName }</span>
+			) }
 			<div className="jp-recommendations-feature-summary__actions">
 				<div className="jp-recommendations-feature-summary__cta">
-					<SummaryTextLink href={ ctaLink } label={ ctaLabel } onClick={ onManageClick } />
+					<SummaryTextLink
+						href={ ctaLink }
+						label={ ctaLabel }
+						onClick={ onManageClick }
+						isHidden={ ! isActive }
+					/>
 				</div>
 			</div>
 		</div>

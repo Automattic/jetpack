@@ -138,19 +138,17 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Automated Spam Protection', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
-				...( ! isFeatureActive( state, primarySlug )
-					? { onInterceptHref: () => restApi.installPlugin( 'akismet', 'recommendations' ) }
-					: {} ),
+				ctaLink: isFeatureActive( state, primarySlug )
+					? getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config'
+					: undefined,
 			};
 		case 'videopress-activated':
 			return {
 				displayName: __( 'Ad-free, Customizable Video', 'jetpack' ),
 				ctaLabel: __( 'Add a Video', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-videopress',
-				...( ! isFeatureActive( state, primarySlug )
-					? { onInterceptHref: () => restApi.installPlugin( 'videopress', 'recommendations' ) }
-					: {} ),
+				ctaLink: isFeatureActive( state, primarySlug )
+					? getSiteAdminUrl( state ) + 'admin.php?page=jetpack-videopress'
+					: undefined,
 			};
 		case 'search-activated':
 			return {
