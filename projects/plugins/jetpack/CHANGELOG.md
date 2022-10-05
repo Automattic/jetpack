@@ -4,18 +4,12 @@
 
 ## 11.5-a.1 - 2022-10-05
 ### Enhancements
-- Add a new illustration for WooCommerce recommendation. [#26492]
-- Anchor FM: Make post-publish panel initially closed. [#26556]
-- Changed mentions of "Site Stats" with "Jetpack Stats". [#26566]
-- Changed the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar. [#26513]
-- Make Payment Button blocks support a wider varity of layout options. Essentially the grid + blockGap options, similar to regular buttons. [#26134]
-- Publicize: Publicize: Make the pre-publish panel initially closed. [#26512]
-- QR code: Make the post-publish panel closed by default [#26558]
-- Seo: Make pre-publish panel initially closed. [#26552]
-- Subscriptions: Display readers number in subscriptions panel bold instead of underlined. [#26507]
-
-### Improved compatibility
-- Unit Tests: add check for removing the WAF module from sites hosted on the Atomic platform. [#26452]
+- Dashboard: add a new illustration for WooCommerce recommendation. [#26492]
+- Stats: change mentions of "Site Stats" with "Jetpack Stats". [#26566]
+- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar. [#26513]
+- Payment Button block: support a wider varity of layout options. [#26134]
+- Publicize: make the pre-publish panel initially closed by default. [#26512]
+- Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined. [#26507]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - masterbar: Remove wpcom-specific references to de-Fusioned stubs. [#26447]
@@ -23,6 +17,7 @@
 - Revert previously added Backup UI initialization. [#26617]
 - Updated package dependencies. [#26457]
 - WordPress.com REST API: Adds difm_lite_site_options key to get site API response. [#26217]
+- Unit Tests: add check for removing the WAF module from sites hosted on the Atomic platform. [#26452]
 
 ## [11.4] - 2022-10-04
 ### Enhancements
