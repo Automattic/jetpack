@@ -84,8 +84,8 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					<FirstRunSection isVisible={ true } />
-					<PlanUsageSection isVisible={ true } />
+					<FirstRunSection isVisible={ false } />
+					<PlanUsageSection isVisible={ false } />
 					{ isNewPricing && <MockUsageMeter /> }
 					<RecordMeter
 						postCount={ postCount }
