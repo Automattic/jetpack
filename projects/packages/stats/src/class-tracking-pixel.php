@@ -71,7 +71,7 @@ class Tracking_Pixel {
 	 */
 	public static function add_to_footer() {
 		$data   = self::build_view_data();
-		$footer = get_footer_to_add( $data );
+		$footer = self::get_footer_to_add( $data );
 		print $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
