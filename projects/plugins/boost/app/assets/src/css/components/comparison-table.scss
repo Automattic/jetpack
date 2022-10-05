@@ -27,11 +27,12 @@
             flex: none;
         }
 
-        span + span {
-            display: block;
-            flex: 1;
-        }
 	}
+
+    &__feature-elaborate {
+        display: block;
+        flex: 1;
+    }
 
 	&__cta {
 		.jb-button {
@@ -55,7 +56,7 @@
             padding: calc( var( --gap ) * 2 );
             padding-left: 0;
             padding-right: var( --padding );
-			font-size: 36 / 16 * 1rem;
+			font-size: calc( 36 / 16 ) * 1rem;
 			font-weight: 700;
 			outline: none;
 
