@@ -157,7 +157,7 @@ END;
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
 		$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
-		return '<amp-pixel src=\"' . esc_url( $pixel_url ) . '\"></amp-pixel>';
+		return '<amp-pixel src="' . esc_url( $pixel_url ) . '"></amp-pixel>';
 	}
 
 	/**
