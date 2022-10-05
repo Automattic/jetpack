@@ -2,6 +2,7 @@
  * External dependencies
  */
 import restApi from '@automattic/jetpack-api';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
@@ -135,7 +136,7 @@ const getUploadedVideoCount = {
 
 const getPurchases = {
 	fulfill: () => async ( { dispatch, registry } ) => {
-		const { currentUser } = registry.select( 'jetpack-connection' ).getUserConnectionData();
+		const { currentUser } = registry.select( CONNECTION_STORE_ID ).getUserConnectionData();
 		if ( ! currentUser?.isConnected ) {
 			return;
 		}
