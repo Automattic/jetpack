@@ -53,12 +53,12 @@ const getVideos = {
 			);
 
 			// pick the pagination data form response header...
-			const pagination = {
-				total: Number( response.headers.get( 'X-WP-Total' ) ),
-				totalPages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
-			};
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
 
-			dispatch.setVideosPagination( pagination );
+			// Update pagination and total uploaded videos count.
+			dispatch.setVideosPagination( { total, totalPages } );
+			dispatch.setUploadedVideoCount( total );
 
 			// ... and the videos data from the response body.
 			const videos = await response.json();
