@@ -154,7 +154,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									price={ priceBefore }
 									offPrice={ priceAfter }
 									currency={ priceCurrencyCode }
-									leyend=""
+									legend=""
 									promoLabel={ __( '50% off', 'jetpack-search-pkg' ) }
 								>
 									<div className="price-tip">
@@ -222,7 +222,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableHeader>
 								<ProductPrice
 									price={ 0 }
-									leyend=""
+									legend=""
 									currency={ priceCurrencyCode }
 									hidePriceFraction
 								/>
