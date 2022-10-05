@@ -14,7 +14,7 @@ import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
-	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState || {};
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: SECURITY_BUNDLE,
@@ -31,8 +31,10 @@ const ProductPromotion = () => {
 	const { securityBundle } = useProtectData();
 	const { hasRequiredPlan } = securityBundle;
 
-	// TODO: Update button links with appropriate Cloud links
 	if ( hasRequiredPlan ) {
+		const learnMoreCloudUrl = '#';
+		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
+
 		return (
 			<div className={ styles[ 'product-section' ] }>
 				<Title>{ __( 'Get access to our Cloud', 'jetpack-protect' ) }</Title>
@@ -41,12 +43,12 @@ const ProductPromotion = () => {
 						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down. ',
 						'jetpack-protect'
 					) }
-					<Button variant="link" weight="regular" href="#">
+					<Button variant="link" weight="regular" href={ learnMoreCloudUrl }>
 						{ __( 'Learn more', 'jetpack-protect' ) }
 					</Button>
 				</Text>
 
-				<Button variant="secondary" weight="regular" href="#">
+				<Button variant="secondary" weight="regular" href={ goToCloudUrl }>
 					{ __( 'Go to Cloud', 'jetpack-protect' ) }
 				</Button>
 			</div>
@@ -80,8 +82,9 @@ const FooterInfo = () => {
 	const { securityBundle } = useProtectData();
 	const { hasRequiredPlan } = securityBundle;
 
-	// TODO: Update button link with learn more link for the paid Protect product
 	if ( hasRequiredPlan ) {
+		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
+
 		return (
 			<div className={ styles[ 'info-section' ] }>
 				<Title>{ __( 'Line-by-line scanning', 'jetpack-protect' ) }</Title>
@@ -90,7 +93,7 @@ const FooterInfo = () => {
 						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time. ',
 						'jetpack-protect'
 					) }
-					<Button variant="link" target="_blank" weight="regular" href="#">
+					<Button variant="link" target="_blank" weight="regular" href={ learnMoreScanUrl }>
 						{ __( 'Learn more', 'jetpack-protect' ) }
 					</Button>
 				</Text>
@@ -98,8 +101,7 @@ const FooterInfo = () => {
 		);
 	}
 
-	// Learn more link for the free Protect product
-	const learnMoreUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
+	const learnMoreProtectUrl = getRedirectUrl( 'jetpack-protect-footer-learn-more' );
 
 	return (
 		<div className={ styles[ 'info-section' ] }>
@@ -111,7 +113,7 @@ const FooterInfo = () => {
 				) }
 			</Text>
 
-			<Button variant="link" isExternalLink={ true } href={ learnMoreUrl } weight="regular">
+			<Button variant="link" isExternalLink={ true } href={ learnMoreProtectUrl } weight="regular">
 				{ __( 'Learn more', 'jetpack-protect' ) }
 			</Button>
 		</div>
