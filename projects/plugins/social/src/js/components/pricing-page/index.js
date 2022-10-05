@@ -42,7 +42,7 @@ const PricingPage = () => {
 						price={ 10 }
 						offPrice={ 1 }
 						promoLabel={ __( '90% off*', 'jetpack-social' ) }
-						leyend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
 						hidePriceFraction={ true }
 					/>
@@ -80,7 +80,7 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+					<ProductPrice price={ 0 } legend="" currency="USD" hidePriceFraction />
 					<Button fullWidth variant="secondary" onClick={ hidePricingPage }>
 						{ __( 'Start for free', 'jetpack-social' ) }
 					</Button>
