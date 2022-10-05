@@ -81,7 +81,7 @@ export const VideoCard = ( {
 	processing = false,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail && ! loading;
 
 	// Mapping thumbnail (Ordered by priority)
 	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
