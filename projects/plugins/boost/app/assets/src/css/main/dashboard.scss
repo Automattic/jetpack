@@ -9,9 +9,6 @@
 	display: flex;
 	flex-direction: column;
   	position: relative;
-
-	// Prevent the rating card from increasing the width of the page when it's doing the animated entrance.
-  	// overflow-x: hidden;
 }
 
 .jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {

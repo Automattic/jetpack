@@ -1,12 +1,17 @@
 .jb-rating-card {
   @include box-shadow();
 
-  width: 300px;
-  position: absolute;
-  top: 40px;
-  right: 0;
+  // Wrapper is necessary to prevent the pop out from affecting the width of the page
+  &__wrapper {
+    width: 300px;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    z-index: 60;
+    overflow: hidden;
+  }
+
   background-color: #ffffff;
-  z-index: 60;
   padding: 24px;
 
   & &__headline {

@@ -37,34 +37,36 @@
 </script>
 
 {#if ! $dismissedPopOuts.includes( id )}
-	<div class="jb-rating-card" transition:slideRightTransition>
-		<CloseButton on:click={() => dispatch( 'dismiss' )} />
-		<h3 class="jb-rating-card__headline">
-			{title}
-		</h3>
-		<p class="jb-rating-card__paragraph">
-			{message}
-		</p>
-		<a
-			class="jb-button--primary"
-			href={ctaLink}
-			target="_blank"
-			on:click={() => {
-				disablePrompt();
-			}}
-		>
-			{cta}
-		</a>
+	<div class="jb-rating-card__wrapper">
+		<div class="jb-rating-card" transition:slideRightTransition>
+			<CloseButton on:click={() => dispatch( 'dismiss' )} />
+			<h3 class="jb-rating-card__headline">
+				{title}
+			</h3>
+			<p class="jb-rating-card__paragraph">
+				{message}
+			</p>
+			<a
+				class="jb-button--primary"
+				href={ctaLink}
+				target="_blank"
+				on:click={() => {
+					disablePrompt();
+				}}
+			>
+				{cta}
+			</a>
 
-		<a
-			class="jb-link"
-			href={ctaLink}
-			target="_blank"
-			on:click|preventDefault={() => {
-				disablePrompt();
-			}}
-		>
-			{__( 'Do not show me again', 'jetpack-boost' )}
-		</a>
+			<a
+				class="jb-link"
+				href={ctaLink}
+				target="_blank"
+				on:click|preventDefault={() => {
+					disablePrompt();
+				}}
+			>
+				{__( 'Do not show me again', 'jetpack-boost' )}
+			</a>
+		</div>
 	</div>
 {/if}

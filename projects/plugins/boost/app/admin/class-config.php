@@ -128,7 +128,7 @@ class Config {
 	 * This now holds an array of modal IDs since we are keeping the option name the same
 	 * earlier versions of Boost would set this to false.
 	 *
-	 * @return bool
+	 * @return string[]
 	 */
 	public function get_dismissed_modals() {
 		// get the option. This will be false, or an empty array
