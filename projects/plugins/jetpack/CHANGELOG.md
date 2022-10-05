@@ -10,7 +10,7 @@
 - Changed the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar. [#26513]
 - Make Payment Button blocks support a wider varity of layout options. Essentially the grid + blockGap options, similar to regular buttons. [#26134]
 - Publicize: Publicize: Make the pre-publish panel initially closed. [#26512]
-- QR code: Make the post-publish panel closed by default. [#26558]
+- QR code: Make the post-publish panel closed by default [#26558]
 - Seo: Make pre-publish panel initially closed. [#26552]
 - Subscriptions: Display readers number in subscriptions panel bold instead of underlined. [#26507]
 
