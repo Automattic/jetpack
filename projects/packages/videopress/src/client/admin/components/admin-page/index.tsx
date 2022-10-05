@@ -33,6 +33,7 @@ import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
 import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
+import { OriginalVideoPressVideo } from '../../types';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -54,7 +55,7 @@ const useDashboardVideos = () => {
 			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
 		} );
 
-		const video = mapVideoFromWPV2MediaEndpoint( response );
+		const video = mapVideoFromWPV2MediaEndpoint( response as OriginalVideoPressVideo );
 
 		if ( video?.posterImage !== null ) {
 			setVideo( video );
@@ -98,6 +99,11 @@ const useDashboardVideos = () => {
 
 const Admin = () => {
 	const {
+		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
+	} = window.jetpackVideoPressInitialState;
+	const hasPaidPlan = isVideoPress1TBSupported || isVideoPressUnlimitedSupported;
+
+	const {
 		videos,
 		uploadedVideoCount,
 		uploadStatus,
@@ -112,8 +118,9 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const localVideos = [];
 	const localTotalVideoCount = 0;
-	const hasVideos = uploadedVideoCount > 0 || uploadStatus === 'uploading' || loading;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
+	// TODO: use count from initial state
+	const hasVideos = uploadedVideoCount > 0 || uploadStatus === 'uploading' || loading;
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
@@ -154,12 +161,18 @@ const Admin = () => {
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
 									accept="video/*"
 									render={ ( { openFileDialog } ) => (
-										<Button fullWidth={ isSm } onClick={ openFileDialog } isLoading={ loading }>
+										<Button
+											fullWidth={ isSm }
+											onClick={ openFileDialog }
+											isLoading={ loading }
+											disabled={ ! hasPaidPlan && hasVideos }
+										>
 											{ addVideoLabel }
 										</Button>
 									) }
 								/>
-								<UpgradeTrigger />
+
+								{ ! hasPaidPlan && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -199,12 +212,8 @@ const Admin = () => {
 
 export default Admin;
 
-const UpgradeTrigger = () => {
-	const {
-		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
-		adminUrl,
-		siteSuffix,
-	} = window.jetpackVideoPressInitialState;
+const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
+	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
 
 	const { product } = usePlan();
 
@@ -214,19 +223,9 @@ const UpgradeTrigger = () => {
 		redirectUrl: adminUrl,
 	} );
 
-	if ( isVideoPress1TBSupported || isVideoPressUnlimitedSupported ) {
-		return null;
-	}
-
-	// TODO: use count from initial state
-	const { uploadedVideoCount } = useVideos();
-	const hasUploadedVideo = uploadedVideoCount > 0;
-	const isUploading = false;
-
-	const description =
-		hasUploadedVideo || isUploading
-			? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
-			: '';
+	const description = hasUsedVideo
+		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
+		: '';
 	const cta = __(
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
 		'jetpack-videopress-pkg'
