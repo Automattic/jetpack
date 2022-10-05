@@ -18,6 +18,7 @@ class Jetpack_Connection_Widget {
 	 * @return void
 	 */
 	public static function init() {
+		// Jetpack_Options::delete_option('dismissed_connection_banner');
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			self::wp_dashboard_setup();
@@ -28,7 +29,8 @@ class Jetpack_Connection_Widget {
 	 * Sets up the Jetpack Connection Widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
-		if ( Jetpack::is_connection_ready() ) {
+		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			! Jetpack::is_connection_ready() ) {
 			$widget_title = sprintf(
 				__( 'Jetpack - Security, Backup, Speed & Growth', 'jetpack' )
 			);
@@ -42,9 +44,25 @@ class Jetpack_Connection_Widget {
 	}
 
 	/**
+	 * Builds the connection url for the widget.
+	 *
+	 * @return string
+	 */
+	public static function build_connect_url() {
+		$url = Jetpack::init()->build_connect_url(
+			true,
+			false,
+			'unconnected-site-widget'
+		);
+
+		return add_query_arg( 'auth_approved', 'true', $url );
+	}
+
+	/**
 	 * Load the widget
 	 */
 	public static function connection_widget() {
+		$connect_url = self::build_connect_url();
 		?>
 			<div class="jp-connection-widget">
 				<img
@@ -54,7 +72,7 @@ class Jetpack_Connection_Widget {
 				<p>
 					<?php esc_html_e( 'You’re missing out on great Jetpack features bundled by your host, sign up to set up.', 'jetpack' ); ?>
 				</p>
-				<a><?php esc_html_e( 'Set up Jetpack for free', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $connect_url ); ?>"><?php esc_html_e( 'Set up Jetpack for free', 'jetpack' ); ?></a>
 			</div>
 		<?php
 	}
