@@ -8,12 +8,12 @@
 namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Stats\Main as Stats;
+use Jetpack_Options;
 
 /**
  * Class to test the Main class.
  *
  * @covers Automattic\Jetpack\Stats\Main
- * @todo Needs more unit tests
  */
 class Test_Main extends StatsBaseTestCase {
 	/**
@@ -120,6 +120,54 @@ class Test_Main extends StatsBaseTestCase {
 		);
 
 		$this->assertTrue( user_can( $dummy_user_id, 'view_stats' ) );
+	}
+
+	/**
+	 * Test Main::should_track
+	 */
+	public function test_should_track_will_return_false_without_connection() {
+		Jetpack_Options::delete_option( 'blog_token' );
+
+		$this->assertFalse( Stats::should_track() );
+	}
+
+	/**
+	 * Test Main::should_track
+	 */
+	public function test_should_track_will_return_false_without_active_stats_module() {
+		$this->assertFalse( Stats::should_track() );
+	}
+
+	/**
+	 * Test Main::should_track
+	 */
+	public function test_should_track_will_return_true_with_active_stats_module() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		$should_track = Stats::should_track();
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		$this->assertTrue( $should_track );
+	}
+
+	/**
+	 * Test Main::template_redirect adds the `wp_footer` hook.
+	 */
+	public function test_template_redirect_adds_wp_footer_hook() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		Stats::template_redirect();
+		$has_action = has_action( 'wp_footer', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_to_footer' ) );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		$this->assertSame( 101, $has_action );
+	}
+
+	/**
+	 * Test Main::template_redirect adds the `web_stories_print_analytics` hook.
+	 */
+	public function test_template_redirect_adds_web_stories_print_analytics_hook() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		Stats::template_redirect();
+		$has_action = has_action( 'web_stories_print_analytics', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_to_footer' ) );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules' ), 10, 2 );
+		$this->assertSame( 101, $has_action );
 	}
 
 	/**

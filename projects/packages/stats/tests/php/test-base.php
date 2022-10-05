@@ -85,4 +85,14 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 
 		return new WP_Post( $post );
 	}
+
+	/**
+	 * Adds stats to the list of active modules
+	 *
+	 * @param array $modules Array with modules slugs.
+	 * @return array
+	 */
+	public static function filter_jetpack_active_modules( $modules ) {
+		return array_merge( array( 'stats' ), $modules );
+	}
 }
