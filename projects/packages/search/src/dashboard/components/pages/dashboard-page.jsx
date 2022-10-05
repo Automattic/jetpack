@@ -10,6 +10,8 @@ import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
 import React from 'react';
 import { STORE_ID } from 'store';
+import FirstRunSection from './sections/first-run-section';
+import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 /**
@@ -82,6 +84,8 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
+					<FirstRunSection isVisible={ true } />
+					<PlanUsageSection isVisible={ true } />
 					{ isNewPricing && <MockUsageMeter /> }
 					<RecordMeter
 						postCount={ postCount }
