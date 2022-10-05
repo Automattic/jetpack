@@ -54,7 +54,8 @@ export const usePlan = (): usePlanProps => {
 
 		// Site purchases
 		purchases: purchasesCamelCase,
-		hasVideoPressPurchase: hasPurchase( videoPressProduct?.productSlug ),
+		hasVideoPressPurchase:
+			hasPurchase( 'jetpack_videopress' ) || hasPurchase( 'jetpack_videopress_monthly' ),
 		isFetchingPurchases,
 	};
 };
