@@ -172,6 +172,7 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
+			const uploadedVideoCount = state.uploadedVideoCount - 1;
 
 			if ( ! _metaVideo ) {
 				return state;
@@ -179,6 +180,7 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
+				uploadedVideoCount,
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
