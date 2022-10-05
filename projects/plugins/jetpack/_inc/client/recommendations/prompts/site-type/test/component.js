@@ -54,15 +54,20 @@ function buildInitialState() {
 describe( 'Recommendations – Site Type', () => {
 	const DUMMY_ACTION = { type: 'dummy' };
 	let updateRecommendationsStepStub;
+	let addViewedRecommendationStub;
 
 	beforeAll( () => {
 		updateRecommendationsStepStub = jest
 			.spyOn( recommendationsActions, 'updateRecommendationsStep' )
 			.mockReturnValue( DUMMY_ACTION );
+		addViewedRecommendationStub = jest
+			.spyOn( recommendationsActions, 'addViewedRecommendation' )
+			.mockReturnValue( DUMMY_ACTION );
 	} );
 
 	afterAll( () => {
 		updateRecommendationsStepStub.mockRestore();
+		addViewedRecommendationStub.mockRestore();
 	} );
 
 	it( 'shows the Site Type Question component', () => {
@@ -145,7 +150,9 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 
 		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
-		expect( recordEventStub ).not.toHaveBeenCalled();
+		expect( recordEventStub ).not.toHaveBeenCalledWith(
+			'jetpack_recommendations_site_type_answered'
+		);
 		await user.click( continueLink );
 		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_recommendations_site_type_answered', {
 			personal: false,

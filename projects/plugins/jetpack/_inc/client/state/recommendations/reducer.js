@@ -686,7 +686,10 @@ export const getOnboardingData = state => {
 	return onboarding;
 };
 
-export const getIsOnboardingActive = state => null !== getOnboardingData( state ).active;
+export const getIsOnboardingActive = state => {
+	const onboardingData = getOnboardingData( state );
+	return null !== onboardingData && null !== onboardingData.active;
+};
 
 export const getStep = state => {
 	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
@@ -704,7 +707,7 @@ export const getStep = state => {
 export const getOnboardingProgressValueIfEligible = state => {
 	const onboardingData = getOnboardingData( state );
 
-	if ( ! onboardingData.active ) {
+	if ( ! onboardingData || ! onboardingData.active ) {
 		return null;
 	}
 
@@ -817,11 +820,18 @@ export const getSummaryResourceSlugs = state => {
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
 };
 
-export const getSummaryPrimarySections = state =>
-	getOnboardingData( state )
-		.viewed.filter( onboarding => isOnboardingEligibleToShowInSummary( state, onboarding ) )
+export const getSummaryPrimarySections = state => {
+	const onboardingData = getOnboardingData( state );
+
+	if ( ! onboardingData ) {
+		return [];
+	}
+
+	return onboardingData.viewed
+		.filter( onboarding => isOnboardingEligibleToShowInSummary( state, onboarding ) )
 		.sort( sortByOnboardingPriority )
 		.map( onboarding => SUMMARY_SECTION_BY_ONBOARDING_NAME[ onboarding ] );
+};
 
 export const getSidebarCardSlug = state => {
 	const sitePlan = getSitePlan( state );
