@@ -1,0 +1,179 @@
+#demosite-activate-wrap, #demosite-activate-wrap * {
+	*zoom: 1;
+}
+/*
+ * Set up Open Sans
+ */
+#demosite-activate-wrap,
+#demosite-activate-wrap h3 {
+	font-family: "Open Sans", "Helvetica Neue", Helvetica, sans-serif !important;
+}
+/*
+ * The main bar
+ */
+#demosite-activate-wrap {
+	background-color: #fff;
+	font-size: 14px;
+	font-weight: normal !important;
+	height: 80px;
+	line-height: 1;
+	padding: 0;
+	z-index: 99998;
+	text-align: center !important;
+	box-shadow: inset 0 -1px 0 rgba( 0, 0, 0, 0.3 ), 0 1px 3px rgba( 0, 0, 0, 0.2 );
+}
+#demosite-activate-wrap.demosite-full-width {
+	text-align: center !important;
+}
+#demosite-activate-wrap a {
+	font-weight: normal;
+}
+/*
+ * Centered wrapper
+ */
+.demosite-header {
+	max-width: 1000px;
+	margin: 20px auto 0;
+	height: 60px;
+}
+/*
+ * The main header title
+ */
+.demosite-tagline {
+	color: #8b8b8b;
+	display: inline-block;
+	font-size: 20px;
+	margin: 0;
+}
+.demosite-activate {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: 0;
+	width: 100%;
+	z-index: 999999;
+}
+body.logged-in .demosite-activate {
+	top: 32px !important;
+}
+/*
+ * Main button
+ */
+#demosite-activate-wrap .demosite-activate-trigger {
+	background: #2ea2cc;
+	border-radius: 2px;
+	color: #fff;
+	display: inline-block;
+	font-size: 18px;
+	font-weight: 400;
+	line-height: 1;
+	margin-left: 40px;
+	margin-top: 0;
+	padding: 10px 30px;
+	text-align: center;
+	text-decoration: none !important;
+}
+#demosite-activate-wrap .demosite-activate-trigger:hover {
+	background: #0074a2;
+	color: #fff;
+}
+/* Open status */
+#demosite-activate-wrap .demosite-activate-trigger.open,
+#demosite-activate-wrap .demosite-activate-trigger:active {
+	background: #555;
+}
+/*
+ * Theme price
+ */
+.demosite-activate .theme-price {
+	display: inline-block;
+	font-size: 16px;
+	font-weight: 500;
+	margin-left: 20px;
+	opacity: 0.8;
+}
+.demosite-activate .theme-price abbr {
+	font-size: 10px;
+	font-weight: 400;
+	position: relative;
+	top: -5px;
+	left: -1px;
+}
+
+@media (max-width: 800px) {
+	.demosite-tagline {
+		font-size: 16px;
+	}
+	#demosite-activate-wrap .demosite-activate-trigger {
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 782px) {
+	body.logged-in .demosite-activate { /* Move the activate bar below the admin bar */
+		top: 46px !important;
+	}
+}
+
+@media (max-width: 700px ) {
+	#demosite-activate-wrap {
+		height: 100px;
+	}
+	#demosite-activate-wrap .demosite-activate-trigger {
+		margin-left: 30px;
+	}
+	.demosite-header {
+		margin: 14px 0 0;
+		height: 86px;
+	}
+	.demosite-tagline {
+		font-size: 18px;
+		margin: 0 0 15px;
+	}
+	#demosite-activate-wrap .demosite-activate-trigger {
+		margin-left: 0;
+		width: 80%;
+	}
+}
+
+@media (max-width: 520px) {
+	#demosite-activate-wrap .demosite-activate-trigger {
+		border-radius: 0;
+		box-shadow: inset 0 -1px 0 rgba( 0, 0, 0, 0.3 ), 0 1px 3px rgba( 0, 0, 0, 0.2 );
+		box-sizing: border-box;
+	}
+}
+
+#infinite-footer {
+	display: none !important;
+}
+
+body.demo-site {
+	margin-top: 80px !important;
+}
+@media screen and (max-width: 620px) {
+	body.demo-site {
+		margin-top: 100px !important;
+	}
+}
+@media screen and (max-width: 600px) {
+	body.demo-site .demosite-activate {
+		position: absolute;
+	}
+}
+
+body.demo-site.logged-in {
+	margin-top: 112px !important;
+}
+
+@media screen and (max-width: 782px) {
+	body.demo-site.logged-in {
+		margin-top: 126px !important;
+	}
+}
+@media screen and (max-width: 620px) {
+	body.demo-site.logged-in {
+		margin-top: 146px !important;
+	}
+}
