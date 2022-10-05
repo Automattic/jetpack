@@ -1,6 +1,6 @@
 import { SET_JETPACK_SETTINGS } from '../actions/jetpack-settings';
 
-const jetpackSettings = ( state = { showNudge: true }, action ) => {
+const jetpackSettings = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_JETPACK_SETTINGS:
 			return {
