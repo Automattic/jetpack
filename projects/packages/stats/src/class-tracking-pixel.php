@@ -141,7 +141,7 @@ END;
 	 * @param array $data Array of data for the JS stats tracker.
 	 */
 	public static function render_footer( $data ) {
-		print get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		print self::get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -167,7 +167,7 @@ END;
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		print get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		print self::get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
