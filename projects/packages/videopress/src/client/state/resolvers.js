@@ -64,7 +64,6 @@ const getVideos = {
 
 			// Update pagination and total uploaded videos count.
 			dispatch.setVideosPagination( { total, totalPages } );
-			dispatch.setUploadedVideoCount( total );
 
 			// ... and the videos data from the response body.
 			const videos = await response.json();
