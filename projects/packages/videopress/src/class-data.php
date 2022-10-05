@@ -106,8 +106,13 @@ class Data {
 
 		return array(
 			'videos' => array(
-				'uploadedVideoCount' => count( $videos ), // @todo: pick the total number properly
-				'items'              => $videos,
+				'uploadedVideoCount'           => count( $videos ), // @todo: pick the total number properly
+				'items'                        => $videos,
+				'isFetching'                   => false,
+				'isFetchingUploadedVideoCount' => false,
+				'_meta'                        => array(
+					'relyOnInitialState' => true,
+				),
 			),
 		);
 	}

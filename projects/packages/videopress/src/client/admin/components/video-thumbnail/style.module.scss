@@ -2,22 +2,30 @@
 	--videopress-video-item-aspect-radio: calc( 16 / 9 );
 	position: relative;
 
-	.thumbnail-placeholder,
-	> img {
-		width: 100%;
-		object-fit: cover;
-		aspect-ratio: var( --videopress-video-item-aspect-radio );
-		height: 100%;
-		display: block;
-	}
-
 	.thumbnail-placeholder {
+		width: 100%;
+		height: 100%;
+		max-width: 360px;
+		max-height: 202px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		background-color: var( --jp-gray-0 );
+		overflow: hidden;
+
 		> svg {
 			fill: var( --jp-gray-50 );
+		}
+
+		> * {
+			width: 100%;
+			aspect-ratio: var( --videopress-video-item-aspect-radio );
+			height: 100%;
+			display: block;
+		}
+
+		> img {
+			object-fit: cover;
 		}
 	}
 

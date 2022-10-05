@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: do not perform async request to get videos in the first rendering

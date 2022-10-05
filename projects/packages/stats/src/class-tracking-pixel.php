@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WP_Post;
 
@@ -21,8 +20,16 @@ use WP_Post;
 class Tracking_Pixel {
 
 	/**
+	 * Array name.
+	 *
+	 * @var string $array_name The 'stats' array name
+	 */
+	const STATS_ARRAY_TO_STRING_FILTER = 'stats_array';
+
+	/**
 	 * Stats Build View Data.
 	 *
+	 * @access public
 	 * @return array.
 	 */
 	public static function build_view_data() {
@@ -33,7 +40,6 @@ class Tracking_Pixel {
 		$v        = 'ext';
 		$blog_url = wp_parse_url( site_url() );
 		$srv      = $blog_url['host'];
-		$j        = sprintf( '%s:%s', Constants::get_constant( 'JETPACK__API_VERSION' ), Constants::get_constant( 'JETPACK__VERSION' ) );
 		if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
 			// Store and reset the queried_object and queried_object_id
 			// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
@@ -54,20 +60,30 @@ class Tracking_Pixel {
 		} else {
 			$post = '0';
 		}
-
-		return compact( 'v', 'j', 'blog', 'post', 'tz', 'srv' );
+		return compact( 'v', 'blog', 'post', 'tz', 'srv' );
 	}
 
 	/**
 	 * Stats Footer.
 	 *
+	 * @access public
 	 * @return void
 	 */
 	public static function add_to_footer() {
-		$data = self::build_view_data();
-		// TODO Is this really needed here?
-		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
+		$data   = self::build_view_data();
+		$footer = get_footer_to_add( $data );
+		print $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 
+	/**
+	 * Gets the footer to add for the Stats tracker.
+	 *
+	 * @access public
+	 * @param array $data Array of data for the JS stats tracker.
+	 * @return string Returns the footer to add for the Stats tracker.
+	 */
+	public static function get_footer_to_add( $data ) {
+		if ( self::is_amp_request() ) {
 			/**
 			 * Filter the parameters added to the AMP pixel tracking code.
 			 *
@@ -78,9 +94,8 @@ class Tracking_Pixel {
 			 * @param array $data Array of options about the site and page you're on.
 			 */
 			$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
-			self::render_amp_footer( $data );
+			return self::get_amp_footer( $data );
 		} else {
-
 			/**
 			 * Filter the parameters added to the JavaScript stats tracking code.
 			 *
@@ -91,23 +106,23 @@ class Tracking_Pixel {
 			 * @param array $data Array of options about the site and page you're on.
 			 */
 			$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
-			self::render_footer( $data );
+			return self::get_footer( $data );
 		}
-
 	}
 
 	/**
-	 * Render the stats footer
+	 * Gets the stats footer
 	 *
+	 * @access private
 	 * @param array $data Array of data for the JS stats tracker.
+	 * @return string Returns the footer to add for the Stats tracker in a non AMP scenario.
 	 */
-	public static function render_footer( $data ) {
+	private static function get_footer( $data ) {
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
 		$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-		$data_stats_array = self::stats_array( $data );
-
-		$stats_footer = <<<END
+		$data_stats_array = self::stats_array_to_string( $data );
+		$stats_footer     = <<<END
 	<script src='{$script}' defer></script>
 	<script>
 		_stq = window._stq || [];
@@ -116,48 +131,84 @@ class Tracking_Pixel {
 	</script>
 END;
 		// phpcs:enable
-		print $stats_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $stats_footer;
 	}
 
 	/**
-	 * Render the stats footer for AMP output.
+	 * Render the stats footer. Kept for backward compatibility
 	 *
-	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @access public
+	 * @param array $data Array of data for the JS stats tracker.
 	 */
-	public static function render_amp_footer( $data ) {
+	public static function render_footer( $data ) {
+		print get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Gets the stats footer for AMP output.
+	 *
+	 * @access private
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @return string Returns the footer to add for the Stats tracker in an AMP scenario.
+	 */
+	private static function get_amp_footer( $data ) {
 		$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
 		$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
+		return '<amp-pixel src=\"' . esc_url( $pixel_url ) . '\"></amp-pixel>';
+	}
 
-		?>
-		<amp-pixel src="<?php echo esc_url( $pixel_url ); ?>"></amp-pixel>
-		<?php
+	/**
+	 * Render the stats footer for AMP output.
+	 *
+	 * @access public
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 */
+	public static function render_amp_footer( $data ) {
+		print get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
 	 * Creates the "array" string used as part of the JS tracker.
 	 *
-	 * @param array $kvs KVS.
+	 * @access private
+	 * @param array $kvs Array of options about the site and page you're on.
 	 * @return string
 	 */
-	public static function stats_array( $kvs ) {
+	private static function stats_array_to_string( $kvs ) {
 		/**
-		 * Filter the options added to the JavaScript Stats tracking code.
-		 *
-		 * @module stats
+		 * Filters the options added to the JavaScript Stats tracking code.
 		 *
 		 * @since-jetpack 1.1.0
 		 *
 		 * @param array $kvs Array of options about the site and page you're on.
 		 */
-		$kvs   = (array) apply_filters( 'stats_array', $kvs );
+		$kvs   = (array) apply_filters( self::STATS_ARRAY_TO_STRING_FILTER, $kvs );
 		$kvs   = array_map( 'addslashes', $kvs );
 		$jskvs = array();
 		foreach ( $kvs as $k => $v ) {
 			$jskvs[] = "$k:'$v'";
 		}
 		return join( ',', $jskvs );
+	}
+
+	/**
+	 * Does the page return AMP content.
+	 *
+	 * @return bool $is_amp_request Are we on AMP view.
+	 */
+	private static function is_amp_request() {
+		$is_amp_request = ( function_exists( 'amp_is_request' ) && amp_is_request() );
+
+		/**
+		 * Returns true if the current request should return valid AMP content.
+		 *
+		 * @since 6.2.0
+		 *
+		 * @param boolean $is_amp_request Is this request supposed to return valid AMP content?
+		 */
+		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
 	}
 }

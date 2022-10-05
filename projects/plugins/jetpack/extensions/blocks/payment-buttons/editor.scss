@@ -1,14 +1,12 @@
 .editor-styles-wrapper .wp-block-jetpack-payment-buttons {
-	> .block-editor-block-list__layout {
-		--jetpack-payment-buttons-gap: 0.5em;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: flex-start;
-		flex-wrap: wrap;
-		gap: var( --jetpack-payment-buttons-gap );
+	--jetpack-payment-buttons-gap: 0.5em;
+	&.is-layout-flex {
+		gap: var(--jetpack-payment-buttons-gap);
+		display: block;
 	}
-
+	&.is-layout-flex .is-layout-flex {
+		display:flex;
+	}
 	.wp-block-jetpack-recurring-payments {
 		width: auto;
 		margin: 0;
@@ -17,8 +15,8 @@
 	.wp-block-button__link {
 		width: 100%;
 	}
+}
 
-	.jetpack-payment-buttons__upgrade-nudge {
-		margin-bottom: 16px;
-	}
+.components-placeholder.jetpack-payment-buttons__upgrade-nudge {
+	margin-bottom: 16px;
 }
