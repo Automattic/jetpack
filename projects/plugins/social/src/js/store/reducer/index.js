@@ -9,7 +9,6 @@ const reducer = combineReducers( {
 	siteData,
 	connectionData,
 	jetpackSettings,
-	showNudge: ( state = true ) => state,
 } );
 
 export default reducer;
