@@ -10,7 +10,7 @@ const jwtsForKeys = {};
 export const getJWT = function () {
 	return new Promise( function ( resolve, reject ) {
 		apiFetch( {
-			path: '/videopress/v1/upload-jwt',
+			path: '/wpcom/v2/videopress/upload-jwt',
 			method: 'POST',
 		} )
 			.then( response => {

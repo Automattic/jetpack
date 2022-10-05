@@ -98,6 +98,10 @@ const getVideo = {
 };
 
 const getUploadedVideoCount = {
+	isFulfilled: state => {
+		return state?.videos?._meta?.relyOnInitialState;
+	},
+
 	fulfill: () => async ( { dispatch } ) => {
 		// Only the minimum necessary data
 		const wpv2MediaQuery = {
@@ -125,6 +129,10 @@ const getUploadedVideoCount = {
 };
 
 const getStorageUsed = {
+	isFulfilled: state => {
+		return state?.videos?._meta?.relyOnInitialState;
+	},
+
 	fulfill: () => async ( { dispatch } ) => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );

@@ -21,7 +21,12 @@ const PricingPage = () => {
 	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
-	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
+	const { registrationNonce } = window.jetpackVideoPressInitialState;
+	const { handleRegisterSite, userIsConnecting } = useConnection( {
+		redirectUri: adminUri,
+		from: 'jetpack-videopress',
+		registrationNonce,
+	} );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
 	const { run } = useProductCheckoutWorkflow( {
@@ -64,7 +69,12 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+					<ProductPrice
+						price={ 0 }
+						leyend=""
+						currency={ pricingForUi.currencyCode }
+						hidePriceFraction
+					/>
 					<Button
 						fullWidth
 						variant="secondary"
