@@ -25,7 +25,10 @@ export default function useVideo( id: number | string ) {
 
 	return {
 		// Data
-		data: { ...videoData, privacySetting: VIDEO_PRIVACY_LEVEL_PUBLIC },
+		data: {
+			privacySetting: VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ),
+			...videoData,
+		},
 
 		// Is Fetching
 		// @todo: this prop should not be here but in useVideos() hook

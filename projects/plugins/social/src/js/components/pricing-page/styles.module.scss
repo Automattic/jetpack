@@ -1,0 +1,5 @@
+// Double selector because otherwise margin gets overruled
+.notice.notice {
+	color: var( --jp-gray-40 );
+	margin-top: calc( var( --spacing-base ) * 2 );
+}
