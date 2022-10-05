@@ -157,17 +157,21 @@ const Admin = () => {
 									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
 								/>
 
-								{ ( hasPaidPlan || ! hasVideos ) && (
-									<FormFileUpload
-										onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
-										accept="video/*"
-										render={ ( { openFileDialog } ) => (
-											<Button fullWidth={ isSm } onClick={ openFileDialog } isLoading={ loading }>
-												{ addVideoLabel }
-											</Button>
-										) }
-									/>
-								) }
+								<FormFileUpload
+									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									accept="video/*"
+									render={ ( { openFileDialog } ) => (
+										<Button
+											fullWidth={ isSm }
+											onClick={ openFileDialog }
+											isLoading={ loading }
+											disabled={ ! hasPaidPlan && hasVideos }
+										>
+											{ addVideoLabel }
+										</Button>
+									) }
+								/>
+
 								{ ! hasPaidPlan && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
