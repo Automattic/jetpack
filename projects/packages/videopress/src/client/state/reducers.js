@@ -179,6 +179,7 @@ const videos = ( state, action ) => {
 				...state,
 				_meta: {
 					...state._meta,
+					relyOnInitialState: false,
 					items: {
 						..._metaItems,
 						[ id ]: {
