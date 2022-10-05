@@ -92,7 +92,7 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 	 * @param array $modules Array with modules slugs.
 	 * @return array
 	 */
-	public static function filter_jetpack_active_modules( $modules ) {
+	public static function filter_jetpack_active_modules_add_stats( $modules ) {
 		return array_merge( array( 'stats' ), $modules );
 	}
 }
