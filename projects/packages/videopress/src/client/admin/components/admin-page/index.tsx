@@ -215,8 +215,7 @@ export default Admin;
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
 	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
 
-	const { product } = usePlan();
-
+	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
@@ -226,10 +225,15 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 	const description = hasUsedVideo
 		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
 		: '';
+
 	const cta = __(
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
 		'jetpack-videopress-pkg'
 	);
+
+	if ( hasVideoPressPurchase || isFetchingPurchases ) {
+		return null;
+	}
 
 	return (
 		<ContextualUpgradeTrigger
