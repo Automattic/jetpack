@@ -32,6 +32,7 @@ const ProductPromotion = () => {
 	const { hasRequiredPlan } = securityBundle;
 
 	if ( hasRequiredPlan ) {
+		// TODO: Update Cloud learn more link when we have docs available
 		const learnMoreCloudUrl = '#';
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
 
