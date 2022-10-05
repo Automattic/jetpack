@@ -85,7 +85,7 @@ const FooterInfo = () => {
 		return (
 			<div className={ styles[ 'info-section' ] }>
 				<Title>{ __( 'Line-by-line scanning', 'jetpack-protect' ) }</Title>
-				<Text mb={ 3 }>
+				<Text mb={ 2 }>
 					{ __(
 						'We actively review line-by-line of your site files to identify threats and vulnerabilities. Jetpack monitors millions of websites to keep your site secure all the time. ',
 						'jetpack-protect'
