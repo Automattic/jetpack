@@ -23,7 +23,7 @@
 	}
 
 	&__container {
-		display: none;
+		visibility: hidden;
 		min-width: 300px;
 		top: 30px;
 		padding: 16px 16px;
@@ -31,7 +31,6 @@
 		font-weight: normal;
 		border-radius: $border-radius;
 		position: absolute;
-		z-index: 1000;
 		text-align: left;
 
 		@include box-shadow();
@@ -56,7 +55,7 @@
 
 	&:hover {
 		.jb-context-info__container {
-			display:block;
+			visibility: visible;
             z-index: 1;
 		}
 
