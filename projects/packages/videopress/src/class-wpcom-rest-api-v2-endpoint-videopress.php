@@ -146,6 +146,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				),
 			)
 		);
+
+		// Token Route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/upload-jwt',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'videopress_upload_jwt' ),
+				'permission_callback' => function () {
+					return current_user_can( 'upload_files' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -245,6 +258,36 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
+	 * Endpoint for getting the VideoPress Upload JWT
+	 *
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public static function videopress_upload_jwt() {
+		$blog_id = VideoPressToken::blog_id();
+
+		try {
+			$token  = VideoPressToken::videopress_upload_jwt();
+			$status = 200;
+			$data   = array(
+				'upload_token'   => $token,
+				'upload_url'     => videopress_make_resumable_upload_path( $blog_id ),
+				'upload_blog_id' => $blog_id,
+			);
+		} catch ( \Exception $e ) {
+			// TODO: Improve status code.
+			$status = 500;
+			$data   = array(
+				'error' => $e->getMessage(),
+			);
+
+		}
+
+		return rest_ensure_response(
+			new WP_REST_Response( $data, $status )
+		);
+	}
+
+	/**
 	 * Updates attachment meta and video metadata via the WPCOM REST API.
 	 *
 	 * @param WP_REST_Request $request the request object.
@@ -300,8 +343,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			 * but as post_content, post_title and post_excerpt on the attachment's post object.
 			 * We need to update those fields here, too.
 			 */
-			$post_title = isset( $json_params['title'] ) ? sanitize_text_field( $json_params['title'] ) : null;
-			if ( $post_title ) {
+			$post_title = null;
+			if ( isset( $json_params['title'] ) ) {
+				$post_title = sanitize_text_field( $json_params['title'] );
 				wp_update_post(
 					array(
 						'ID'         => $post_id,
@@ -310,8 +354,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				);
 			}
 
-			$post_content = isset( $json_params['description'] ) ? sanitize_textarea_field( $json_params['description'] ) : null;
-			if ( $post_content ) {
+			$post_content = null;
+			if ( isset( $json_params['description'] ) ) {
+				$post_content = sanitize_textarea_field( $json_params['description'] );
 				wp_update_post(
 					array(
 						'ID'           => $post_id,
@@ -320,8 +365,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				);
 			}
 
-			$post_excerpt = isset( $json_params['caption'] ) ? sanitize_textarea_field( $json_params['caption'] ) : null;
-			if ( $post_excerpt ) {
+			$post_excerpt = null;
+			if ( isset( $json_params['caption'] ) ) {
+				$post_excerpt = sanitize_textarea_field( $json_params['caption'] );
 				wp_update_post(
 					array(
 						'ID'           => $post_id,
@@ -354,7 +400,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta           = true;
 				}
 
-				if ( isset( $post_title ) ) {
+				if ( isset( $json_params['title'] ) ) {
 					$meta['videopress']['title'] = $post_title;
 					$should_update_meta          = true;
 				}

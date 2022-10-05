@@ -14,14 +14,14 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
-import useConnection from 'hooks/use-connection';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
-import getProductCheckoutUrl from 'utils/get-product-checkout-url';
 
 import './upsell-page.scss';
 
@@ -36,29 +36,43 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  * @returns {React.Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
-	const { isFullyConnected } = useConnection();
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+
+	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
+	const checkSiteHasSearchProduct = useCallback(
+		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
+		[ fetchSearchPlanInfo ]
+	);
+
+	const { run: sendToCartPaid, hasCheckoutStartedPaid } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_search',
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+		from: 'jetpack-search',
+		siteSuffix: domain,
+	} );
+
+	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_search_free',
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+		from: 'jetpack-search',
+		siteSuffix: domain,
+	} );
 
 	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchPricing' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPricing' ) ||
+			hasCheckoutStartedPaid ||
+			hasCheckoutStartedFree ||
 			isLoading,
-		[ isLoading ]
+		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree ]
 	);
-
-	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
-	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
-	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-
-	const sendToCart = useCallback( () => {
-		window.location.href = getProductCheckoutUrl( {
-			siteSuffix: domain,
-			redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
-			isUserConnected: isFullyConnected,
-		} );
-	}, [ domain, adminUrl, isFullyConnected ] );
 
 	return (
 		<>
@@ -73,9 +87,12 @@ export default function UpsellPage( { isLoading = false } ) {
 					>
 						<AdminSectionHero>
 							{ isNewPricing ? (
-								<NewPricingComponent sendToCart={ sendToCart } />
+								<NewPricingComponent
+									sendToCartPaid={ sendToCartPaid }
+									sendToCartFree={ sendToCartFree }
+								/>
 							) : (
-								<OldPricingComponent sendToCart={ sendToCart } />
+								<OldPricingComponent sendToCart={ sendToCartPaid } />
 							) }
 						</AdminSectionHero>
 					</AdminPage>
@@ -120,8 +137,12 @@ const OldPricingComponent = ( { sendToCart } ) => {
 	);
 };
 
-const NewPricingComponent = ( { sendToCart } ) => {
+const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
+	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
+	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
+
 	return (
 		<Container horizontalSpacing={ 8 }>
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
@@ -130,35 +151,67 @@ const NewPricingComponent = ( { sendToCart } ) => {
 						<PricingTableColumn primary>
 							<PricingTableHeader>
 								<ProductPrice
-									price={ 9.95 }
-									offPrice={ 4.97 }
-									currency="USD"
+									price={ priceBefore }
+									offPrice={ priceAfter }
+									currency={ priceCurrencyCode }
 									leyend=""
-									promoLabel="50% off"
+									promoLabel={ __( '50% off', 'jetpack-search-pkg' ) }
 								>
 									<div className="price-tip">
-										<span className="price-tip-text">Starting price per month, billed yearly</span>
+										<span className="price-tip-text">
+											{ __( 'Starting price per month, billed yearly', 'jetpack-search-pkg' ) }
+										</span>
 										<IconTooltip
 											placement={ 'bottom-end' }
 											iconSize={ 14 }
 											iconClassName="price-tip-icon"
 											offset={ 4 }
 										>
-											<>
-												Starting price based on the number of records for <b>{ siteDomain }</b>. For
-												every additional 10k records or requests, an additional $7.50 per month will
-												be charged.
-											</>
+											{ createInterpolateElement(
+												sprintf(
+													// translators: %1$s: site domain
+													__(
+														'Starting price based on the number of records for <b>%1$s</b>.' +
+															'For every additional 10k records or requests, an additional $7.50 per month will be charged.',
+														'jetpack-search-pkg'
+													),
+													siteDomain
+												),
+												{ b: <b /> }
+											) }
 										</IconTooltip>
 									</div>
 								</ProductPrice>
-								<Button onClick={ sendToCart } fullWidth>
+								<Button onClick={ sendToCartPaid } fullWidth>
 									{ __( 'Get Search', 'jetpack-search-pkg' ) }
 								</Button>
 							</PricingTableHeader>
-							<PricingTableItem isIncluded={ true } label={ <strong>10k records</strong> } />
-							<PricingTableItem isIncluded={ true } label={ '10k requests' } />
-							<PricingTableItem isIncluded={ true } label="Branding removed" />
+							<PricingTableItem
+								isIncluded={ true }
+								label={
+									<strong>
+										{
+											// translators: Record count for calculating Jetpack Search tier
+											__( '10k records', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
+							/>
+							<PricingTableItem
+								isIncluded={ true }
+								label={
+									<strong>
+										{
+											// translators: Request count for calculating Jetpack Search tier
+											__( '10k requests', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
+							/>
+							<PricingTableItem
+								isIncluded={ true }
+								label={ __( 'Branding removed', 'jetpack-search-pkg' ) }
+							/>
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -167,46 +220,74 @@ const NewPricingComponent = ( { sendToCart } ) => {
 						</PricingTableColumn>
 						<PricingTableColumn>
 							<PricingTableHeader>
-								<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
-								<Button onClick={ sendToCart } variant="secondary" fullWidth>
+								<ProductPrice
+									price={ 0 }
+									leyend=""
+									currency={ priceCurrencyCode }
+									hidePriceFraction
+								/>
+								<Button onClick={ sendToCartFree } variant="secondary" fullWidth>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
 								</Button>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
-								label="5k records"
+								label={
+									<strong>
+										{
+											// translators: Record count for calculating Jetpack Search tier
+											__( '5k records', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
 								tooltipInfo={
 									<>
-										In the free plan, you can continue using the plugin even if you have more than
-										5k records for three months.{ ' ' }
+										{ __(
+											'In the free plan, you can continue using the plugin even if you have more than 5k records for three months.',
+											'jetpack-search-pkg'
+										) }{ ' ' }
 										<a
 											href="https://jetpack.com/search/"
 											rel="external noopener noreferrer nofollow"
 											target="_blank"
 										>
-											More about indexing and query limits
+											{ /* // translators: Text links to explanation of Jetpack Search billing tiers */ }
+											{ __( 'More about indexing and query limits', 'jetpack-search-pkg' ) }
 										</a>
 									</>
 								}
 							/>
 							<PricingTableItem
 								isIncluded={ true }
-								label="500 requests"
+								label={
+									<strong>
+										{
+											// translators: Request count for calculating Jetpack Search tier
+											__( '500 requests', 'jetpack-search-pkg' )
+										}
+									</strong>
+								}
 								tooltipInfo={
 									<>
-										In the free plan, you can continue using the plugin even if you have more than
-										500 requests for three consecutive months.{ ' ' }
+										{ __(
+											'In the free plan, you can continue using the plugin even if you have more than 500 requests for three consecutive months.',
+											'jetpack-search-pkg'
+										) }{ ' ' }
 										<a
 											href="https://jetpack.com/search/"
 											rel="external noopener noreferrer nofollow"
 											target="_blank"
 										>
-											More about indexing and query limits
+											{ /* // translators: Text links to explanation of Jetpack Search billing tiers */ }
+											{ __( 'More about indexing and query limits', 'jetpack-search-pkg' ) }
 										</a>
 									</>
 								}
 							/>
-							<PricingTableItem isIncluded={ false } label="Shows Jetpack logo" />
+							<PricingTableItem
+								isIncluded={ false }
+								label={ __( 'Shows Jetpack logo', 'jetpack-search-pkg' ) }
+							/>
 							<PricingTableItem isIncluded={ false } />
 							<PricingTableItem isIncluded={ true } />
 							<PricingTableItem isIncluded={ true } />
@@ -222,76 +303,86 @@ const NewPricingComponent = ( { sendToCart } ) => {
 
 // For new pricing table
 const newPricingArgs = {
-	title: 'The best WordPress search experience',
+	title: __( 'The best WordPress search experience', 'jetpack-search-pkg' ),
 	items: [
 		{
-			name: 'Number of records',
+			name: __( 'Number of records', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Records are all posts, pages, custom post types and other types of content indexed by Jetpack Search.',
+				'jetpack-search-pkg'
+			),
+		},
+		{
+			name: __( 'Monthly requests', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'A search request is when someone visiting your site searches for something.',
+				'jetpack-search-pkg'
+			),
+		},
+		{
+			name: __( 'Unbranded search', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Paid customers can remove branding from the search tool.',
+				'jetpack-search-pkg'
+			),
+		},
+		{
+			name: __( 'Priority support', 'jetpack-search-pkg' ),
 			tooltipInfo: (
 				<>
-					Records are all posts, pages, custom post types and other types of content indexed by
-					Jetpack Search.
+					{ __(
+						'Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.',
+						'jetpack-search-pkg'
+					) }
+					<br />
+					<br />
+					{ __(
+						'All other questions are handled by our team as quickly as we are able to through the WordPress support forum.',
+						'jetpack-search-pkg'
+					) }
 				</>
 			),
 		},
 		{
-			name: 'Monthly requests',
-			tooltipInfo: <>A search request is when someone visiting your site searches for something.</>,
-		},
-		{
-			name: 'Unbranded search',
-			tooltipInfo: <>Paid customers can remove branding from the search tool.</>,
-		},
-		{
-			name: 'Priority support',
+			name: __( 'Instant search and indexing', 'jetpack-search-pkg' ),
 			tooltipInfo: (
 				<>
-					Paid customers get dedicated email support from our world-class Happiness Engineers to
-					help with any issue.
+					{ __( 'Instant search and filtering without reloading the page.', 'jetpack-search-pkg' ) }
 					<br />
 					<br />
-					All other questions are handled by our team as quickly as we are able to through the
-					WordPress support forum.
+					{ __(
+						'Real-time indexing, so your search index will update within minutes of changes to your site.',
+						'jetpack-search-pkg'
+					) }
 				</>
 			),
 		},
 		{
-			name: 'Instant search and indexing',
-			tooltipInfo: (
-				<>
-					Instant search and filtering without reloading the page.
-					<br />
-					<br />
-					Real-time indexing, so your search index will update within minutes of changes to your
-					site.
-				</>
+			name: __( 'Powerful filtering', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Filtered and faceted searches by tags, categories, dates, custom taxonomies, and post types.',
+				'jetpack-search-pkg'
 			),
 		},
 		{
-			name: 'Powerful filtering',
+			name: __( 'Supports 38 languages', 'jetpack-search-pkg' ),
 			tooltipInfo: (
 				<>
-					Filtered and faceted searches by tags, categories, dates, custom taxonomies, and post
-					types.
-				</>
-			),
-		},
-		{
-			name: 'Supports 38 languages',
-			tooltipInfo: (
-				<>
-					Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among others.{ ' ' }
+					{ __(
+						'Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among others.',
+						'jetpack-search-pkg'
+					) }{ ' ' }
 					<a href="#" rel="external noopener noreferrer nofollow" target="_blank">
-						See all supported languanges
+						{ __( 'See all supported languanges', 'jetpack-search-pkg' ) }
 					</a>
 				</>
 			),
 		},
 		{
-			name: 'Spelling correction',
-			tooltipInfo: (
-				<>
-					Quick and accurate spelling correction for when your site visitors mistype their search.
-				</>
+			name: __( 'Spelling correction', 'jetpack-search-pkg' ),
+			tooltipInfo: __(
+				'Quick and accurate spelling correction for when your site visitors mistype their search.',
+				'jetpack-search-pkg'
 			),
 		},
 	],

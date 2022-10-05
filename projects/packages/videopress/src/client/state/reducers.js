@@ -17,6 +17,8 @@ import {
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
+	SET_IS_FETCHING_PURCHASES,
+	SET_PURCHASES,
 } from './constants';
 
 /**
@@ -179,6 +181,7 @@ const videos = ( state, action ) => {
 				...state,
 				_meta: {
 					...state._meta,
+					relyOnInitialState: false,
 					items: {
 						..._metaItems,
 						[ id ]: {
@@ -219,8 +222,31 @@ const videos = ( state, action ) => {
 	}
 };
 
+const purchases = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PURCHASES: {
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		}
+
+		case SET_PURCHASES: {
+			return {
+				...state,
+				items: action.purchases,
+				isFetching: false,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	videos,
+	purchases,
 } );
 
 export default reducers;

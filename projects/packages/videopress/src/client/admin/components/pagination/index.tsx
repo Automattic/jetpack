@@ -7,6 +7,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import useVideos from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
 import type React from 'react';
@@ -145,6 +146,22 @@ const Pagination: React.FC< PaginationProps > = ( {
 				<Icon icon={ chevronRight } />
 			</Button>
 		</div>
+	);
+};
+
+export const ConnectPagination = ( props: { className: string; disabled: boolean } ) => {
+	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
+	return total < itemsPerPage ? (
+		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
+	) : (
+		<Pagination
+			{ ...props }
+			perPage={ itemsPerPage }
+			onChangePage={ setPage }
+			currentPage={ page }
+			total={ total }
+			disabled={ isFetching || props.disabled }
+		/>
 	);
 };
 

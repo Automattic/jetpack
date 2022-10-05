@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2022-10-05
+### Added
+- Add the new connection error message to VideoPress. [#26579]
+- VideoPress:
+    - Request Product data not tied to the site
+    - Expose that data to the client
+    - Use them to show the price in the UI [#26538]
+- VideoPress: Add loading state for dashboard [#26542]
+- VideoPress: add PricingSection component [#26514]
+- VideoPress: add storage meter to the Admin page [#26475]
+- VideoPress: add videos stats endpoint. [#26496]
+- VideoPress: connect the user from the Pricing section [#26517]
+- VideoPress: do not perform async request to get videos in the first rendering [#26560]
+- VideoPress: Loding mode in EditVideoDetails [#26493]
+- VideoPress: Provide the list of allowed video extensions on the client initial state, fetching it from the site `get_allowed_mime_types()` list. [#26537]
+- VideoPress: register the deleting video state [#26506]
+- VideoPress: send initial state to the client [#26548]
+
+### Changed
+- Updated package dependencies. [#26457]
+- VideoPress: Add quick actions on VideoRow for mobile [#26534]
+- VideoPress: Adds the caption as a possible field on the video meta update endpoint and set the attachment post_excerpt and meta fields with it's value. [#26455]
+- VideoPress: Fix filters mobile layout on dashboard library [#26518]
+- VideoPress: Fix mobile style on dashboard library [#26515]
+- VideoPress: Fix video edit header on mobile [#26529]
+- VideoPress: Mobile layout for VideoCard component [#26491]
+- VideoPress: Move upload-jwt to wpcom/v2 namespace [#26559]
+- VideoPress: refresh video list right after a video is removed [#26607]
+
+### Fixed
+- Components: fix the positio of TOS component of the PricingTable cmp [#26509]
+- VideoPress: Add a check for video url before rendering VideoPress block [#26578]
+- VideoPress: Add thumbnail selection on video quick actions [#26612]
+- VideoPress: Allows empty caption and description values so it's possible to save empty fields from the frontend. [#26564]
+- VideoPress: Allows empty title value so it's possible to save empty fields from the frontend. [#26615]
+- VideoPress: fix bug when deleting videos [#26553]
+- VideoPress: fix current privavy of the video in the UI [#26591]
+- VideoPress: fix Maximum update depth exceeded warning triggered from the useVideoDetails() hook [#26582]
+- VideoPress: fix showing product price at the very first rendering [#26586]
+- VideoPress: Remove button for adding new video when user cannot upload more videos [#26625]
+- VideoPress: restore pagination section [#26576]
+- VideoPress: Update video count on videos fetch [#26628]
+
 ## [0.4.1] - 2022-09-27
 ### Added
 - VideoPress: add contextual upgrade trigger to dashboard. [#26403]
@@ -199,6 +242,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.5.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.0...v0.3.1
