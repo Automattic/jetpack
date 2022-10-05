@@ -56,6 +56,8 @@ function stats_load() {
 	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
 	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+	// Filter for adding the Jetpack plugin version to tracking stats.
+	add_filter( 'stats_array', 'filter_stats_array_add_jp_version' );
 
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
@@ -1492,4 +1494,16 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 			);
 		}
 	}
+}
+
+/**
+ * Add the Jetpack plugin version to the stats tracking data.
+ *
+ * @param  param array $kvs The stats array in key values.
+ * @return array
+ */
+function filter_stats_array_add_jp_version( $kvs ) {
+	$kvs['j'] = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
+
+	return $kvs;
 }
