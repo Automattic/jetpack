@@ -16,6 +16,8 @@ import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
+import FirstRunSection from './sections/first-run-section';
+import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 /**
@@ -104,6 +106,8 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
+					<FirstRunSection isVisible={ false } />
+					<PlanUsageSection isVisible={ false } />
 					{ isNewPricing && <MockUsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
 					<RecordMeter
 						postCount={ postCount }

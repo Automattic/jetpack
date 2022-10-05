@@ -69,7 +69,12 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+					<ProductPrice
+						price={ 0 }
+						leyend=""
+						currency={ pricingForUi.currencyCode }
+						hidePriceFraction
+					/>
 					<Button
 						fullWidth
 						variant="secondary"
