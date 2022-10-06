@@ -116,6 +116,13 @@ const PrivacyActionsDropdown = ( {
 	const [ anchorRef, setAnchorRef ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
+	let currentPrivacyIcon = siteDefaultPrivacyIcon;
+	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		currentPrivacyIcon = privatePrivacyIcon;
+	} else if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PUBLIC ) {
+		currentPrivacyIcon = publicPrivacyIcon;
+	}
+
 	return (
 		<Dropdown
 			position="bottom left"
@@ -125,7 +132,7 @@ const PrivacyActionsDropdown = ( {
 						ref={ setAnchorRef }
 						size="small"
 						variant="tertiary"
-						icon={ privatePrivacyIcon }
+						icon={ currentPrivacyIcon }
 						onClick={ () => {
 							setShowPopover( false );
 							onToggle();
