@@ -2,6 +2,7 @@
 .notice.notice {
 	color: var( --jp-gray-40 );
 	margin-top: calc( var( --spacing-base ) * 2 );
+	white-space: nowrap;
 }
 
 // Temporary (!) fix to align both buttons
