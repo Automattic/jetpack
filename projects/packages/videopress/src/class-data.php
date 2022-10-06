@@ -77,6 +77,21 @@ class Data {
 	}
 
 	/**
+	 * Gets the VideoPress used storage space in bytes
+	 *
+	 * @return int the used storage space
+	 */
+	public static function get_storage_used() {
+		$site_data = Site::get_site_info();
+
+		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
+			return $site_data['options']['videopress_storage_used'] * 1024 * 1024;
+		} else {
+			return 0;
+		}
+	}
+
+	/**
 	 * Return the initial state of the VideoPress app,
 	 * used to render initially the app in the frontend.
 	 *
@@ -143,12 +158,7 @@ class Data {
 			$video_data['videos']
 		);
 
-		$storage_used = 0;
-		$site_data    = Site::get_site_info();
-
-		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
-			$storage_used = $site_data['options']['videopress_storage_used'] * 1024 * 1024;
-		}
+		$storage_used = self::get_storage_used();
 
 		return array(
 			'videos' => array(
