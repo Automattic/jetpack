@@ -85,6 +85,3 @@ export async function writeContainerFile( filename: string, data: Buffer | strin
 		`echo '${ buffer.toString( 'base64' ) }' | base64 --decode > ${ filename }`
 	);
 }
-function shellEscape( arg0: string, filename: string, arg2: string, arg3: string ): string {
-	throw new Error( 'Function not implemented.' );
-}
