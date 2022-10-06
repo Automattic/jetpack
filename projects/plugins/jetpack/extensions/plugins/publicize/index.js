@@ -11,7 +11,7 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import {
 	TwitterThreadListener,
-	useSocialMediaConnections as useSelectSocialMediaConnections,
+	useSocialMediaConnections,
 } from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -23,7 +23,7 @@ import './editor.scss';
 export const name = 'publicize';
 
 const PublicizeSettings = () => {
-	const { hasEnabledConnections } = useSelectSocialMediaConnections();
+	const { hasEnabledConnections } = useSocialMediaConnections();
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<TwitterThreadListener />
