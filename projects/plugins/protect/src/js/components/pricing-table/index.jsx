@@ -52,32 +52,27 @@ const ConnectedPricingTable = ( { onSecurityAdd, securityJustAdded } ) => {
 		handleRegisterSite
 	);
 
+	// TODO: Add feature item tooltip popover details
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
 		items: [
 			{
 				name: __( 'Scan for threats and vulnerabilities', 'jetpack-protect' ),
-				tooltipInfo: __( 'Default info for Feature A', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Daily automated scans', 'jetpack-protect' ),
-				tooltipInfo: __( 'Default info for Feature B', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Access to scan on Cloud', 'jetpack-protect' ),
-				tooltipInfo: __( 'Default info for Feature C', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'One-click auto fixes', 'jetpack-protect' ),
-				tooltipInfo: __( 'Default info for Feature D', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Notifications', 'jetpack-protect' ),
-				tooltipInfo: __( 'Default info for Feature E', 'jetpack-protect' ),
 			},
 			{
 				name: __( 'Severity labels', 'jetpack-protect' ),
-				tooltipInfo: __( 'Default info for Feature F', 'jetpack-protect' ),
 			},
 		],
 	};
