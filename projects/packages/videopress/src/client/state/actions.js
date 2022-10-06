@@ -13,6 +13,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	ADD_VIDEO,
 	DELETE_VIDEO,
 	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
@@ -100,6 +101,10 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	}
 };
 
+const addVideo = uploadedVideo => {
+	return { type: ADD_VIDEO, uploadedVideo };
+};
+
 /**
  * Regular action to remove a video from the state,
  * used as a primary hint for the UI to update.
@@ -165,6 +170,7 @@ const actions = {
 
 	updateVideoPrivacy,
 
+	addVideo,
 	removeVideo,
 	deleteVideo,
 

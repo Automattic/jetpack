@@ -15,6 +15,7 @@ import {
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	SET_VIDEOS_STORAGE_USED,
+	ADD_VIDEO,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
 	SET_IS_FETCHING_PURCHASES,
@@ -93,22 +94,10 @@ const videos = ( state, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { query = getDefaultQuery() } = state;
 			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
-			let uploadedVideoCount = state.uploadedVideoCount;
-			const pagination = { ...state.pagination };
-
-			if ( videoIndex === -1 ) {
-				// Add video when not found at beginning of the list.
-				items.unshift( video );
-				// Updating pagination and count
-				uploadedVideoCount += 1;
-				pagination.total += 1;
-				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
-			} else {
-				// Update video when found
+			if ( videoIndex !== -1 ) {
 				items[ videoIndex ] = {
 					...items[ videoIndex ],
 					...video,
@@ -119,8 +108,30 @@ const videos = ( state, action ) => {
 				...state,
 				items,
 				isFetching: false,
-				uploadedVideoCount,
+			};
+		}
+
+		case ADD_VIDEO: {
+			const { uploadedVideo } = action;
+			const { query = getDefaultQuery() } = state;
+			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
+			const { total } = { ...state.pagination };
+
+			const pagination = {
+				total: total + 1,
+				totalPages: Math.ceil( total / query?.itemsPerPage ),
+			};
+			// Update the uploaded video count right away, before revalidation
+			const uploadedVideoCount = state.uploadedVideoCount + 1;
+
+			// Add video at beginning of the list when not found.
+			items.unshift( uploadedVideo );
+
+			return {
+				...state,
+				items,
 				pagination,
+				uploadedVideoCount,
 			};
 		}
 
@@ -172,6 +183,7 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
+			// Update the uploaded video count right away, before revalidation
 			const uploadedVideoCount = state.uploadedVideoCount - 1;
 
 			if ( ! _metaVideo ) {

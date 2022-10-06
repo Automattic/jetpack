@@ -12,6 +12,7 @@ import {
 	SET_VIDEOS_QUERY,
 	WP_REST_API_MEDIA_ENDPOINT,
 	DELETE_VIDEO,
+	ADD_VIDEO,
 	REST_API_SITE_PURCHASES_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
@@ -74,6 +75,7 @@ const getVideos = {
 			console.error( error ); // eslint-disable-line no-console
 		}
 	},
+
 	shouldInvalidate: action => {
 		return action.type === SET_VIDEOS_QUERY || action.type === DELETE_VIDEO;
 	},
@@ -103,10 +105,6 @@ const getVideo = {
 };
 
 const getUploadedVideoCount = {
-	isFulfilled: state => {
-		return state?.videos?._meta?.relyOnInitialState;
-	},
-
 	fulfill: () => async ( { dispatch } ) => {
 		// Only the minimum necessary data
 		const wpv2MediaQuery = {
@@ -130,6 +128,10 @@ const getUploadedVideoCount = {
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
+	},
+
+	shouldInvalidate: action => {
+		return action.type === ADD_VIDEO || action.type === DELETE_VIDEO;
 	},
 };
 

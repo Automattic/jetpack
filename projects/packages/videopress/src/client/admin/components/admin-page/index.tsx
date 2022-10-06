@@ -42,15 +42,13 @@ import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
-	const { setVideo } = useDispatch( STORE_ID );
+	const { setVideo, addVideo } = useDispatch( STORE_ID );
 
 	const { items, total: totalVideoCount, uploadedVideoCount, isFetching } = useVideos();
 
 	const loading = isFetching;
 
 	const poolingUploadedVideoData = async data => {
-		setVideo( data );
-
 		const response = await apiFetch( {
 			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
 		} );
@@ -65,12 +63,15 @@ const useDashboardVideos = () => {
 	};
 
 	const handleSuccess = ( data, file ) => {
-		poolingUploadedVideoData( {
+		const uploadedVideo = {
 			id: data?.id,
 			guid: data?.guid,
 			url: data?.src,
 			title: file?.name,
-		} );
+		};
+
+		addVideo( uploadedVideo );
+		poolingUploadedVideoData( uploadedVideo );
 	};
 
 	const { handleFilesUpload, status, file } = useUploader( {
