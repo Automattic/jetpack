@@ -186,6 +186,7 @@ const videos = ( state, action ) => {
 							..._metaVideo,
 							isUpdatingPrivacy: false,
 							hasBeenUpdatedPrivacy: true,
+							prevPrivacySetting: null,
 						},
 					},
 				},
