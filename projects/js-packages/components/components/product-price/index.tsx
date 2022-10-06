@@ -18,7 +18,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = true,
 	hideDiscountLabel = true,
 	promoLabel = '',
-	leyend = __( '/month, paid yearly', 'jetpack' ),
+	legend = __( '/month, paid yearly', 'jetpack' ),
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 	children,
@@ -60,7 +60,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 				{ promoLabel && <Text className={ styles[ 'promo-label' ] }>{ promoLabel }</Text> }
 				{ discountElt && <Text className={ styles[ 'promo-label' ] }>{ discountElt }</Text> }
 			</div>
-			{ children ? children : <Text className={ styles.leyend }>{ leyend }</Text> }
+			{ children ? children : <Text className={ styles.legend }>{ legend }</Text> }
 		</>
 	);
 };
