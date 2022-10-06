@@ -5,7 +5,7 @@ import React from 'react';
 import './style.scss';
 
 interface SectionHeaderProps {
-	label?: string;
+	label: string;
 	children?: React.ReactNode;
 	className?: string;
 	cardBadge?: string | React.ReactNode;
