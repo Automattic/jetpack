@@ -66,7 +66,7 @@ class Protect_Status extends Status {
 				)
 			);
 		} else {
-				$status = self::normalize_protect_report_data( $status );
+			$status = self::normalize_protect_report_data( $status );
 		}
 
 		self::$status = $status;
@@ -217,6 +217,42 @@ class Protect_Status extends Status {
 		$new_list = parent::sort_threats( $new_list );
 
 		return $new_list;
+	}
+
+	/**
+	 * Check if the WordPress version that was checked matches the current installed version.
+	 *
+	 * @param object $core_check The object returned by Protect wpcom endpoint.
+	 * @return object The object representing the current status of core checks.
+	 */
+	protected static function normalize_core_information( $core_check ) {
+		global $wp_version;
+
+		$core = new Extension_Model(
+			array(
+				'type'    => 'core',
+				'name'    => 'WordPress',
+				'version' => $wp_version,
+				'checked' => false,
+			)
+		);
+
+		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
+			if ( is_array( $core_check->vulnerabilities ) ) {
+				$core->checked = true;
+				$core->set_threats(
+					array_map(
+						function ( $vulnerability ) {
+							$vulnerability->source = isset( $vulnerability->id ) ? Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $vulnerability->id ) ) : null;
+							return $vulnerability;
+						},
+						$core_check->vulnerabilities
+					)
+				);
+			}
+		}
+
+		return $core;
 	}
 
 }

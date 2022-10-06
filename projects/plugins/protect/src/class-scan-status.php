@@ -195,7 +195,7 @@ class Scan_Status extends Status {
 								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
 								'severity'            => isset( $threat->severity ) ? $threat->severity : null,
 								'fixable'             => isset( $threat->fixer ) ? $threat->fixer : null,
-								'status'              => isset( $threat->state ) ? $threat->state : null,
+								'status'              => isset( $threat->status ) ? $threat->status : null,
 								'filename'            => isset( $threat->filename ) ? $threat->filename : null,
 								'context'             => isset( $threat->context ) ? $threat->context : null,
 								'source'              => isset( $threat->source ) ? $threat->source : null,
@@ -235,7 +235,7 @@ class Scan_Status extends Status {
 								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
 								'severity'            => isset( $threat->severity ) ? $threat->severity : null,
 								'fixable'             => isset( $threat->fixer ) ? $threat->fixer : null,
-								'status'              => isset( $threat->state ) ? $threat->state : null,
+								'status'              => isset( $threat->status ) ? $threat->status : null,
 								'filename'            => isset( $threat->filename ) ? $threat->filename : null,
 								'context'             => isset( $threat->context ) ? $threat->context : null,
 								'source'              => isset( $threat->source ) ? $threat->source : null,
@@ -268,13 +268,13 @@ class Scan_Status extends Status {
 				}
 
 				if ( ! empty( $threat->filename ) ) {
-					$status->files[] = $threat;
+					$status->files[] = new Threat_Model( $threat );
 					$status->num_threats++;
 					continue;
 				}
 
 				if ( ! empty( $threat->table ) ) {
-					$status->database[] = $threat;
+					$status->database[] = new Threat_Model( $threat );
 					$status->num_threats++;
 					continue;
 				}

@@ -158,7 +158,7 @@ class Status {
 	 * @return integer
 	 */
 	public static function get_total_threats() {
-		$status = self::get_status();
+		$status = static::get_status();
 		return isset( $status->num_threats ) && is_int( $status->num_threats ) ? $status->num_threats : 0;
 	}
 
@@ -171,7 +171,9 @@ class Status {
 		return array_merge(
 			self::get_wordpress_threats(),
 			self::get_themes_threats(),
-			self::get_plugins_threats()
+			self::get_plugins_threats(),
+			self::get_files_threats(),
+			self::get_database_threats()
 		);
 	}
 
@@ -203,6 +205,24 @@ class Status {
 	}
 
 	/**
+	 * Get threats found for files
+	 *
+	 * @return array
+	 */
+	public static function get_files_threats() {
+		return self::get_threats( 'files' );
+	}
+
+	/**
+	 * Get threats found for plugins
+	 *
+	 * @return array
+	 */
+	public static function get_database_threats() {
+		return self::get_threats( 'database' );
+	}
+
+	/**
 	 * Get the threats for one type of extension or core
 	 *
 	 * @param string $type What threats you want to get. Possible values are 'core', 'themes' and 'plugins'.
@@ -210,9 +230,14 @@ class Status {
 	 * @return array
 	 */
 	public static function get_threats( $type ) {
-		$status = self::get_status();
+		$status = static::get_status();
+
 		if ( 'core' === $type ) {
 			return isset( $status->$type ) && ! empty( $status->$type->threats ) ? $status->$type->threats : array();
+		}
+
+		if ( 'files' === $type || 'database' === $type ) {
+			return isset( $status->$type ) && ! empty( $status->$type ) ? $status->$type : array();
 		}
 
 		$threats = array();
