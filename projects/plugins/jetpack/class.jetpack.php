@@ -694,10 +694,6 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-stats-dashboard-widget.php';
 		add_action( 'wp_dashboard_setup', array( new Jetpack_Stats_Dashboard_Widget(), 'init' ) );
 
-		// WordPress connection widget.
-		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-widget.php';
-		add_action( 'wp_dashboard_setup', array( new Jetpack_Connection_Widget(), 'init' ) );
-
 		// Returns HTTPS support status.
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
 
@@ -3282,6 +3278,7 @@ p {
 
 		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
+			Jetpack_Connection_Widget::init();
 		}
 
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {

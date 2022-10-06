@@ -56,6 +56,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 // Used by the API endpoints.
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
