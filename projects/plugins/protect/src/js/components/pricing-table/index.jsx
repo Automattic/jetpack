@@ -31,15 +31,13 @@ const ConnectedPricingTable = ( { onSecurityAdd, securityJustAdded } ) => {
 	// Access paid protect product data
 	const { securityBundle } = useProtectData();
 	const { pricingForUi } = securityBundle;
+	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
 	// Compute the price per month.
-	const price = pricingForUi.fullPrice
-		? Math.ceil( ( pricingForUi.fullPrice / 12 ) * 100 ) / 100
+	const price = pricingForUi.cost ? Math.ceil( ( pricingForUi.cost / 12 ) * 100 ) / 100 : null;
+	const offPrice = introductoryOffer.costPerInterval
+		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
-	const offPrice = pricingForUi.discountPrice
-		? Math.ceil( ( pricingForUi.discountPrice / 12 ) * 100 ) / 100
-		: null;
-	const { currencyCode: currency = 'USD' } = pricingForUi;
 
 	// Track free and paid click events
 	const { recordEventHandler } = useAnalyticsTracks();
