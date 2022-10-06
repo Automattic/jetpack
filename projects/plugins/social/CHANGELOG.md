@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.0 - 2022-10-06
+### Added
+- Add ContextualUpgradeTrigger to Jetpack Social admin page [#26115]
+- Added check to not show the share metre if someone has a paid plan. [#26310]
+- Added Jetpack social redirect urls. [#26135]
+- Add pricing table to Jetpack Social [#26213]
+- Adds ability to autotag, autorelease and autopublish releases [#26156]
+- Enforce sharing limits in the Classic Editor [#26039]
+
+### Changed
+- Changed the values on the pricing table, and fixed a redirect [#26605]
+- Move share limits code to the Publicize package [#26294]
+- Set version to 1.4.0-alpha [#25955]
+- Social: Aligned Jetpack and Social to use the connection-test-results endpoint in the block editor [#26274]
+- Updated package dependencies. [#25934, #25947, #25979, #25999, #26034, #26039, #26072, #26081, #26115, #26165, #26176, #26216, #26253, #26259, #26274, #26294, #26305, #26420, #26457, #26463, #26489, #26568, #26583]
+- Updated style for Jetpack Logo icon shown in pre-publish panels for Jetpack and Jetpack Social plugins [#26101]
+- Update Inspector Panel Jetpack icon color to #1E1E1E [#26162]
+- Use Jetpack logo in Jetpack Social pre-publish screen for Publicize and Social Preview features [#26044]
+
+### Fixed
+- Social: Require a user connection to use the plugin. [#26543]
+- Store: Added the missing showNudge reducer [#26635]
+
 ## 1.3.0 - 2022-09-07
 ### Added
 - Added scheduled post calculation on plugin activation. [#25334]

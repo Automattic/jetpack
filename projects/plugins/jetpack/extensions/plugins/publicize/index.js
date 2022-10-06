@@ -9,19 +9,22 @@
  */
 
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
+import {
+	TwitterThreadListener,
+	useSocialMediaConnections,
+} from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import PublicizePanel from './components/panel';
-
 import './editor.scss';
 
 export const name = 'publicize';
 
-export const settings = {
-	render: () => (
+const PublicizeSettings = () => {
+	const { hasEnabledConnections } = useSocialMediaConnections();
+	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<TwitterThreadListener />
 
@@ -30,6 +33,7 @@ export const settings = {
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
+				initialOpen={ hasEnabledConnections }
 				id="publicize-title"
 				title={
 					<span id="publicize-defaults" key="publicize-title-span">
@@ -41,5 +45,9 @@ export const settings = {
 				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>
 		</PostTypeSupportCheck>
-	),
+	);
+};
+
+export const settings = {
+	render: PublicizeSettings,
 };
