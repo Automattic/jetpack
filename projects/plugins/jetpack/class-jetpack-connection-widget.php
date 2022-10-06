@@ -1,4 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Assets;
+
 /**
  * Jetpack connection dashboard widget.
  *
@@ -6,29 +9,45 @@
  */
 class Jetpack_Connection_Widget {
 	/**
-	 * Indicates whether the class initialized or not.
+	 * Static instance
 	 *
 	 * @var Jetpack_Connection_Widget
 	 */
-	private static $initialized = false;
+	private static $instance = null;
 
 	/**
 	 * Intiialize the class by calling the setup static function.
 	 *
-	 * @return void
+	 * @return Jetpack_Connection_Widget
 	 */
 	public static function init() {
-		// Jetpack_Options::delete_option('dismissed_connection_banner');
-		if ( ! self::$initialized ) {
-			self::$initialized = true;
-			self::wp_dashboard_setup();
+		if ( self::$instance === null ) {
+			self::$instance = new Jetpack_Connection_Widget();
 		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Jetpack_Connection_Widget constructor.
+	 */
+	public function __construct() {
+		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
+	}
+
+	/**
+	 * Will initialize hooks to display the new connection widget.
+	 */
+	public function maybe_initialize_hooks() {
+		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
+
+		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 	}
 
 	/**
 	 * Sets up the Jetpack Connection Widget in the WordPress admin dashboard.
 	 */
-	public static function wp_dashboard_setup() {
+	public function wp_dashboard_setup() {
 		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
 			! Jetpack::is_connection_ready() ) {
 			$widget_title = sprintf(
@@ -41,6 +60,21 @@ class Jetpack_Connection_Widget {
 				array( __CLASS__, 'connection_widget' )
 			);
 		}
+	}
+
+	/**
+	 * Included the needed styles
+	 */
+	public function admin_banner_styles() {
+		wp_enqueue_style(
+			'jetpack-connection-widget',
+			Assets::get_file_url_for_environment(
+				'css/jetpack-connection-widget.min.css',
+				'css/jetpack-connection-widget.css'
+			),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
 	/**
