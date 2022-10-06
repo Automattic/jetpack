@@ -710,10 +710,12 @@ class Jetpack {
 		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
+
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
 		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
 		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2 );
+
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
