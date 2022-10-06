@@ -83,6 +83,9 @@ class Data {
 	 */
 	public static function get_storage_used() {
 		$site_data = Site::get_site_info();
+		if ( is_wp_error( $site_data ) ) {
+			return 0;
+		}
 
 		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
 			return intval( round( $site_data['options']['videopress_storage_used'] * 1024 * 1024 ) );
