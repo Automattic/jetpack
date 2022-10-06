@@ -19,37 +19,7 @@ const fetchCRMData = ( setHasCRMDataError, setCRMData, setIsFetchingCRMData ) =>
 		.finally( () => setIsFetchingCRMData( false ) );
 };
 
-const CRMPluginData = ( {
-	isFetchingCRMData,
-	hasCRMDataError,
-	crmData,
-	setCRMData,
-	jetpackCRM,
-	setAttributes,
-	onCRMPluginClick,
-	isInstalling,
-} ) => {
-	if ( isFetchingCRMData ) {
-		return <Spinner />;
-	}
-	if ( hasCRMDataError ) {
-		// Don`t show anything if the CRM plugin data can't be accessed.
-		return null;
-	}
-
-	return (
-		<CRMPluginState
-			crmData={ crmData }
-			setCRMData={ setCRMData }
-			jetpackCRM={ jetpackCRM }
-			setAttributes={ setAttributes }
-			onCRMPluginClick={ onCRMPluginClick }
-			isInstalling={ isInstalling }
-		/>
-	);
-};
-
-const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
+const CRMPluginData = ( { jetpackCRM, setAttributes } ) => {
 	const [ isFetchingCRMData, setIsFetchingCRMData ] = useState( true );
 	const [ hasCRMDataError, setHasCRMDataError ] = useState( false );
 	const [ crmData, setCRMData ] = useState();
@@ -75,19 +45,30 @@ const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
 		fetchCRMData( setHasCRMDataError, setCRMData, setIsFetchingCRMData );
 	}, [] );
 
+	if ( isFetchingCRMData ) {
+		return <Spinner />;
+	}
+	if ( hasCRMDataError ) {
+		// Don`t show anything if the CRM plugin data can't be accessed.
+		return null;
+	}
+	return (
+		<CRMPluginState
+			crmData={ crmData }
+			setCRMData={ setCRMData }
+			jetpackCRM={ jetpackCRM }
+			setAttributes={ setAttributes }
+			onCRMPluginClick={ onCRMPluginClick }
+			isInstalling={ isInstalling }
+		/>
+	);
+};
+
+const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
 	return (
 		<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
 			<BaseControl>
-				<CRMPluginData
-					isFetchingCRMData={ isFetchingCRMData }
-					hasCRMDataError={ hasCRMDataError }
-					crmData={ crmData }
-					setCRMData={ setCRMData }
-					jetpackCRM={ jetpackCRM }
-					setAttributes={ setAttributes }
-					isInstalling={ isInstalling }
-					onCRMPluginClick={ onCRMPluginClick }
-				/>
+				<CRMPluginData jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 			</BaseControl>
 		</PanelBody>
 	);
