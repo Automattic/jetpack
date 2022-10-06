@@ -29,7 +29,7 @@
 // phpcs:disable WordPress.WP.I18n.TextDomainMismatch
 
 /**
- * Notify the admin that the Jetpack Monorepo is not a plugin,
+ * Notify the admin that ts he Jetpack Mon orepo is not a plugin,
  * if they tried to install it as one.
  */
 function jetpack_monorepo_is_not_a_plugin() {
