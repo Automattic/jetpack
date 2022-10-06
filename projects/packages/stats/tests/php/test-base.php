@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
 use WP_Post;
 
 /**
@@ -31,7 +32,9 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 	protected function set_up() {
 		parent::setUp();
 		Constants::set_constant( 'STATS_VERSION', self::DEFAULT_STATS_VERSION );
+		// Mock Jetpack Connection.
 		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
 	}
 
 	/**
@@ -41,6 +44,7 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
+		WorDBless_Users::init()->clear_all_users();
 		Constants::clear_constants();
 	}
 
@@ -80,5 +84,15 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 		);
 
 		return new WP_Post( $post );
+	}
+
+	/**
+	 * Adds stats to the list of active modules
+	 *
+	 * @param array $modules Array with modules slugs.
+	 * @return array
+	 */
+	public static function filter_jetpack_active_modules_add_stats( $modules ) {
+		return array_merge( array( 'stats' ), $modules );
 	}
 }

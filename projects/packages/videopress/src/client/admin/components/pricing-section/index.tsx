@@ -55,7 +55,7 @@ const PricingPage = () => {
 						price={ pricingForUi.fullPrice }
 						offPrice={ pricingForUi.discountPrice }
 						promoLabel={ __( '50% off', 'jetpack-videopress-pkg' ) }
-						leyend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
+						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
 					<Button onClick={ run } fullWidth disabled={ isConnecting }>
@@ -69,7 +69,12 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+					<ProductPrice
+						price={ 0 }
+						legend=""
+						currency={ pricingForUi.currencyCode }
+						hidePriceFraction
+					/>
 					<Button
 						fullWidth
 						variant="secondary"
