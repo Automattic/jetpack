@@ -85,7 +85,7 @@ class Data {
 		$site_data = Site::get_site_info();
 
 		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
-			return $site_data['options']['videopress_storage_used'] * 1024 * 1024;
+			return intval( round( $site_data['options']['videopress_storage_used'] * 1024 * 1024 ) );
 		} else {
 			return 0;
 		}
