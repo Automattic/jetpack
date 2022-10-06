@@ -1,2 +1,66 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+
+#jetpack_connection_widget * {
+    box-sizing: border-box;
+}
+
+#jetpack_connection_widget.postbox .inside {
+    padding: 0;
+}
+
 .jp-connection-widget {
+    box-sizing: border-box;
+    padding: 0;
+
+    &__logo {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        margin: 1rem 1rem;
+    }
+
+    &__image {
+        width: 100%;
+    }
+
+    &__heading {
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 29px;
+        letter-spacing: -0.02rem;
+        color: $studio-black;
+        margin: 0.5rem 1rem;
+    }
+
+    &__paragraph {
+        font-size: 0.875rem;
+        font-weight: 400;
+        margin: 0.75rem 1rem 1.5rem 1rem;
+    }
+
+    &__button {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 24px;
+        background: $studio-jetpack-green-50;
+        border-color: $studio-jetpack-green-50;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 150ms ease-in-out;
+        color: $studio-white;
+        text-decoration: none;
+        margin: 0 1rem;
+
+        &:hover,
+        &:active {
+            background: $studio-jetpack-green-80;
+            border-color: $studio-jetpack-green-80;
+            color: $studio-white;
+        }
+    }
 }
