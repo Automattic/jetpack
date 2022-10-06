@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking
