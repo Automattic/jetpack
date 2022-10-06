@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
+import AppsCard from 'components/apps-card';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
@@ -124,7 +125,7 @@ const SummaryComponent = props => {
 				break;
 			case 'upsell':
 				sidebarCards = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
-				undersideCards = <MobileApp slug={ sidebarCardsSlug } underside />;
+				undersideCards = <AppsCard />;
 				break;
 			case 'one-click-restores':
 				sidebarCards = (
