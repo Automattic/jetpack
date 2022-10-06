@@ -140,9 +140,23 @@ const videos = ( state, action ) => {
 				privacySetting,
 			};
 
+			// Set metadata about the privacy change.
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			const _metaVideo = _metaItems[ id ] ?? {};
+
 			return {
 				...state,
 				items,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: true,
+						},
+					},
+				},
 			};
 		}
 
