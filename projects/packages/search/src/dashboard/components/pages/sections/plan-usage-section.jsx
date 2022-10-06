@@ -91,8 +91,8 @@ const CUTWrapper = props => {
 		// eslint-disable-next-line no-console
 		console.log( 'CUT clicked...' );
 	};
-	const messages = props.type !== undefined ? getCUTMessages()[ props.type ] : undefined;
-	const trigger = messages !== undefined ? { ...messages, onClick: callbackForwarder } : undefined;
+	const messages = props.type && getCUTMessages()[ props.type ];
+	const trigger = messages && { ...messages, onClick: callbackForwarder };
 	return (
 		<>
 			{ trigger && (
