@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import api from '../api/api';
+import { setGetStarted } from '../api/get-started';
 
 // eslint-disable-next-line camelcase
 const { subscribe, update } = writable( Jetpack_Boost );
@@ -19,6 +20,16 @@ export const dismissedPopOuts = {
 	subscribe: dismissedPopOutStore.subscribe,
 	dismiss: ( name: string ) => {
 		dismissedPopOutStore.update( dismissals => [ ...dismissals, name ] );
+	},
+};
+
+// eslint-disable-next-line camelcase
+const getStartedStore = writable( Jetpack_Boost.site.getStarted );
+export const getStarted = {
+	subscribe: getStartedStore.subscribe,
+	done: async () => {
+		getStartedStore.set( false );
+		await setGetStarted();
 	},
 };
 

@@ -40,10 +40,11 @@ class Config {
 			'optimizations'         => $optimizations,
 			'locale'                => get_locale(),
 			'site'                  => array(
-				'domain'    => ( new Status() )->get_site_suffix(),
-				'url'       => get_home_url(),
-				'online'    => ! ( new Status() )->is_offline_mode(),
-				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+				'domain'     => ( new Status() )->get_site_suffix(),
+				'url'        => get_home_url(),
+				'online'     => ! ( new Status() )->is_offline_mode(),
+				'assetPath'  => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+				'getStarted' => self::is_getting_started(),
 			),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
@@ -148,5 +149,28 @@ class Config {
 	 */
 	public static function clear_show_score_prompt() {
 		\delete_option( self::SHOW_SCORE_PROMPT_OPTION );
+	}
+
+	/**
+	 * Enable of disable getting started page.
+	 *
+	 * If enabled, trying to open boost dashboard will take a user to the getting started page.
+	 */
+	public static function set_getting_started( $value ) {
+		return \update_option( 'jb_get_started', $value, false );
+	}
+
+	/**
+	 * Check if force redirect to getting started page is enabled.
+	 */
+	public static function is_getting_started() {
+		return \get_option( 'jb_get_started', true );
+	}
+
+	/**
+	 * Clear the getting started option.
+	 */
+	public static function clear_getting_started() {
+		\delete_option( 'jb_get_started' );
 	}
 }

@@ -1,10 +1,20 @@
 <script>
+	import { getStarted } from '../../stores/config';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
 	import Score from './sections/Score.svelte';
 	import Support from './sections/Support.svelte';
 	import Tips from './sections/Tips.svelte';
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let location, navigate;
+
+	$: {
+		if ( $getStarted ) {
+			navigate( '/getting-started' );
+		}
+	}
 </script>
 
 <div class="jb-section jb-section--alt jb-section--scores">

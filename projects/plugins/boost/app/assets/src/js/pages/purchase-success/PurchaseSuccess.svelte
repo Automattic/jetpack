@@ -4,6 +4,7 @@
 	import { __ } from '@wordpress/i18n';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import { getStarted } from '../../stores/config';
 	import { updateModuleState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
 	import { requestCloudCss } from '../../utils/cloud-css';
@@ -12,6 +13,9 @@
 	export let location, navigate;
 
 	onMount( async () => {
+		// Disable the get started page
+		getStarted.done();
+
 		// Enable cloud-css on a successful upgrade.
 		await updateModuleState( 'cloud-css', true );
 		await requestCloudCss();

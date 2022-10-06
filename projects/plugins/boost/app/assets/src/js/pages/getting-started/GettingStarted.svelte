@@ -5,7 +5,9 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import Header from '../../sections/Header.svelte';
+	import { getStarted } from '../../stores/config';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
+	import { getUpgradeURL } from '../../utils/upgrade';
 
 	const cssOptimizationContext = __(
 		'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
@@ -28,6 +30,17 @@
 	);
 
 	const webDevLink = 'https://web.dev/';
+
+	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
+	export let navigate;
+	const chooseFreePlan = () => {
+		getStarted.done();
+		navigate( '/' );
+	};
+
+	const choosePaidPlan = () => {
+		window.location.href = getUpgradeURL();
+	};
 </script>
 
 <div id="jb-settings" class="jb-settings jb-settings--main">
@@ -92,7 +105,11 @@
 						/>
 					</header>
 					<div class="comparison-table__cta">
-						<button type="button" class="components-button jb-button jb-button--primary">
+						<button
+							type="button"
+							class="components-button jb-button jb-button--primary"
+							on:click={choosePaidPlan}
+						>
 							Get Boost
 						</button>
 					</div>
@@ -168,7 +185,11 @@
 						/>
 					</header>
 					<div class="comparison-table__cta">
-						<button type="button" class="components-button jb-button jb-button--outline">
+						<button
+							type="button"
+							class="components-button jb-button jb-button--outline"
+							on:click={chooseFreePlan}
+						>
 							Start for free
 						</button>
 					</div>
