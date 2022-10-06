@@ -3,12 +3,15 @@
  */
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown, Modal } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 /** */
 import privacy from '../../../components/icons/privacy-icon';
+import usePosterEdit from '../../../hooks/use-poster-edit';
+import { STORE_ID } from '../../../state';
 import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
@@ -17,6 +20,7 @@ import {
 } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
+import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
 import {
 	ActionItemProps,
@@ -217,14 +221,45 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
+	const dispatch = useDispatch( STORE_ID );
 	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
-	const [ showModal, setShowModal ] = useState( false );
+	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
+	const [ updatingThumbnail, setUpdatingThumbnail ] = useState( false );
+	const {
+		frameSelectorIsOpen,
+		handleCloseSelectFrame,
+		handleOpenSelectFrame,
+		handleVideoFrameSelected,
+		selectedTime,
+		handleConfirmFrame,
+		updatePosterImage,
+	} = usePosterEdit( { video: data } );
 
-	if ( showModal ) {
+	useEffect( () => {
+		if ( selectedTime == null ) {
+			return;
+		}
+
+		setUpdatingThumbnail( true );
+		updatePosterImage()
+			.then( result => {
+				const posterImage = result ?? data?.posterImage;
+				const videoData = { ...data, posterImage };
+				dispatch?.setVideo( videoData );
+			} )
+			.catch( () => {
+				// TODO: handle errors
+			} )
+			.finally( () => {
+				setUpdatingThumbnail( false );
+			} );
+	}, [ selectedTime ] );
+
+	if ( showDeleteModal ) {
 		return (
 			<Modal
 				title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-				onRequestClose={ () => setShowModal( false ) }
+				onRequestClose={ () => setShowDeleteModal( false ) }
 				className={ styles[ 'delete-video-modal' ] }
 			>
 				<ThemeProvider>
@@ -235,7 +270,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 								className={ styles[ 'modal-action-button' ] }
 								variant="secondary"
 								weight="bold"
-								onClick={ () => setShowModal( false ) }
+								onClick={ () => setShowDeleteModal( false ) }
 							>
 								{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 							</Button>
@@ -246,7 +281,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 								variant="primary"
 								weight="bold"
 								onClick={ () => {
-									setShowModal( false );
+									setShowDeleteModal( false );
 									deleteVideo();
 								} }
 							>
@@ -259,15 +294,33 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		);
 	}
 
+	if ( frameSelectorIsOpen ) {
+		return (
+			<>
+				<VideoThumbnailSelectorModal
+					handleCloseSelectFrame={ handleCloseSelectFrame }
+					url={ data.url }
+					handleVideoFrameSelected={ handleVideoFrameSelected }
+					selectedTime={ selectedTime }
+					handleConfirmFrame={ handleConfirmFrame }
+				/>
+				<div>{ selectedTime }</div>
+			</>
+		);
+	}
+
 	const { privacySetting } = data;
 
 	return (
-		<VideoQuickActions
-			{ ...props }
-			onUpdateVideoPrivacy={ updateVideoPrivacy }
-			onDeleteVideo={ () => setShowModal( true ) }
-			privacySetting={ privacySetting }
-		/>
+		! updatingThumbnail && (
+			<VideoQuickActions
+				{ ...props }
+				onUpdateVideoPrivacy={ updateVideoPrivacy }
+				onUpdateVideoThumbnail={ handleOpenSelectFrame }
+				onDeleteVideo={ () => setShowDeleteModal( true ) }
+				privacySetting={ privacySetting }
+			/>
+		)
 	);
 };
 
