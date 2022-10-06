@@ -79,7 +79,6 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	}
 
 	// Let's be optimistic and update the UI right away.
-	// @todo: Add a loading state to the state/UI.
 	dispatch.setVideoPrivacy( {
 		id,
 		privacySetting,
