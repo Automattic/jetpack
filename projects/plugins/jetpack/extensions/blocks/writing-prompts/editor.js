@@ -8,11 +8,7 @@ async function insertTemplate( prompt ) {
 	const { insertBlock } = dispatch( 'core/block-editor' );
 	const writingPromptBlock = createBlock( 'core/paragraph', { placeholder: prompt }, [] );
 
-	// setTimeout( function () {
-	// console.log( 'insert' );
-	// debugger;
 	insertBlock( writingPromptBlock, 0, undefined, false );
-	// }, 5000 );
 }
 
 function initWritingPrompts() {

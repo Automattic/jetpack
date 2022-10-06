@@ -25,7 +25,6 @@ function register_extension() {
  * Checks URL params to determine the Anchor integration action to perform.
  */
 function inject_writing_prompts() {
-	l( 'inject' );
 	if (
 		! function_exists( 'get_current_screen' )
 		|| \get_current_screen() === null
