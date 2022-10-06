@@ -51,7 +51,7 @@
 		"videopress/video",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
+	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue", "writing-prompts" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
