@@ -1,7 +1,7 @@
 .checkbox {
 	&[type="checkbox"] {
 		all: unset;
-		border: 1px solid var(--jp-black);;
+		border: 1px solid var( --jp-black );
 		position: relative;
 		display: flex;
 		align-items: center;
@@ -25,7 +25,7 @@
 		}
 
 		&:checked::before {
-			background: var(--jp-black);
+			background: var( --jp-black );
 		}
 	}
 }

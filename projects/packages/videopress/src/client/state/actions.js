@@ -20,6 +20,8 @@ import {
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
+	SET_IS_FETCHING_PURCHASES,
+	SET_PURCHASES,
 } from './constants';
 
 const setIsFetchingVideos = isFetching => {
@@ -141,6 +143,14 @@ const deleteVideo = id => async ( { dispatch } ) => {
 	}
 };
 
+const setIsFetchingPurchases = isFetching => {
+	return { type: SET_IS_FETCHING_PURCHASES, isFetching };
+};
+
+const setPurchases = purchases => {
+	return { type: SET_PURCHASES, purchases };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -157,6 +167,9 @@ const actions = {
 
 	removeVideo,
 	deleteVideo,
+
+	setIsFetchingPurchases,
+	setPurchases,
 };
 
 export { actions as default };

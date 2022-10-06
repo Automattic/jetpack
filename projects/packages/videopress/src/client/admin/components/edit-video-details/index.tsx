@@ -8,22 +8,22 @@ import {
 	AdminSection,
 	Container,
 	Col,
-	ThemeProvider,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
-import { useState } from 'react';
+import classnames from 'classnames';
 import { useNavigate } from 'react-router-dom';
-import VideoFrameSelector, { VideoPlayer } from '../../../components/video-frame-selector';
 /**
  * Internal dependencies
  */
+import { VideoPlayer } from '../../../components/video-frame-selector';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
+import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
 import useEditDetails from './use-edit-details';
 
@@ -40,23 +40,29 @@ const Header = ( {
 	saveLoading?: boolean;
 	onSaveChanges: () => void;
 } ) => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const navigate = useNavigate();
+
 	return (
-		<div className={ styles.header }>
-			<div className={ styles.breadcrumb }>
-				<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
-					<Logo />
-				</button>
-				<Icon icon={ chevronRightSmall } />
-				<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
+		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
+			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
+				<Logo />
+			</button>
+			<div className={ styles[ 'header-content' ] }>
+				<div className={ styles.breadcrumb }>
+					{ ! isSm && <Icon icon={ chevronRightSmall } /> }
+					<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
+				</div>
+				<div>
+					<Button
+						disabled={ saveDisabled || saveLoading }
+						onClick={ onSaveChanges }
+						isLoading={ saveLoading }
+					>
+						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
 			</div>
-			<Button
-				disabled={ saveDisabled || saveLoading }
-				onClick={ onSaveChanges }
-				isLoading={ saveLoading }
-			>
-				{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
-			</Button>
 		</div>
 	);
 };
@@ -125,7 +131,6 @@ const Infos = ( {
 };
 
 const EditVideoDetails = () => {
-	const [ modalRef, setModalRef ] = useState< HTMLDivElement | null >( null );
 	const {
 		// Video Data
 		duration,
@@ -164,29 +169,13 @@ const EditVideoDetails = () => {
 	return (
 		<>
 			{ frameSelectorIsOpen && (
-				<Modal
-					title={ __( 'Select thumbnail from video', 'jetpack-videopress-pkg' ) }
-					onRequestClose={ handleCloseSelectFrame }
-					isDismissible={ false }
-				>
-					<ThemeProvider targetDom={ modalRef }>
-						<div ref={ setModalRef } className={ styles.selector }>
-							<VideoFrameSelector
-								src={ url }
-								onVideoFrameSelected={ handleVideoFrameSelected }
-								initialCurrentTime={ selectedTime }
-							/>
-							<div className={ styles.actions }>
-								<Button variant="secondary" onClick={ handleCloseSelectFrame }>
-									{ __( 'Close', 'jetpack-videopress-pkg' ) }
-								</Button>
-								<Button variant="primary" onClick={ handleConfirmFrame }>
-									{ __( 'Select this frame', 'jetpack-videopress-pkg' ) }
-								</Button>
-							</div>
-						</div>
-					</ThemeProvider>
-				</Modal>
+				<VideoThumbnailSelectorModal
+					handleCloseSelectFrame={ handleCloseSelectFrame }
+					url={ url }
+					handleVideoFrameSelected={ handleVideoFrameSelected }
+					selectedTime={ selectedTime }
+					handleConfirmFrame={ handleConfirmFrame }
+				/>
 			) }
 
 			<AdminPage

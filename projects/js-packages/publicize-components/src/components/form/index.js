@@ -9,7 +9,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
+import { PanelRow, Disabled } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -70,7 +70,7 @@ export default function PublicizeForm( {
 									),
 									{
 										upgradeLink: (
-											<ExternalLink
+											<a
 												href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
 													site: getSiteFragment(),
 													query: 'redirect_to=' + window.location.href,
