@@ -1,10 +1,9 @@
-import { Button, getRedirectUrl, H2 } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl, H3 } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
-//import './style.scss';
 
 /**
  * The RNA Manage Connection Dialog component.
@@ -29,12 +28,12 @@ const ManageConnectionDialog = props => {
 					isDismissible={ false }
 					className={ 'jp-connection__manage-dialog' }
 				>
-					<H2>
+					<H3>
 						{ __(
 							'At least one user must be connected for your Jetpack products to work properly.',
 							'jetpack'
 						) }
-					</H2>
+					</H3>
 					<Button variant="primary" isExternalLink={ true } fullWidth={ true }>
 						{ __( 'Transfer ownership to another admin', 'jetpack' ) }
 					</Button>
@@ -61,12 +60,12 @@ const HelpFooter = () => {
 					<p>
 						{ createInterpolateElement(
 							__(
-								'<strong>Need help?</strong> Learn more about the <jpConnectionInfoLink>Jetpack connection</jpConnectionInfoLink> or <jpSupportLink>contact Jetpack support</jpSupportLink>.',
+								'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>.',
 								'jetpack'
 							),
 							{
 								strong: <strong></strong>,
-								jpConnectionInfoLink: (
+								connectionInfoLink: (
 									<a
 										href={ getRedirectUrl(
 											'why-the-wordpress-com-connection-is-important-for-jetpack'
@@ -77,7 +76,7 @@ const HelpFooter = () => {
 										// TODO add click track
 									/>
 								),
-								jpSupportLink: (
+								supportLink: (
 									<a
 										href={ getRedirectUrl( 'jetpack-support' ) }
 										rel="noopener noreferrer"
@@ -111,7 +110,7 @@ ManageConnectionDialog.propTypes = {
 };
 
 ManageConnectionDialog.defaultProps = {
-	title: __( 'Are you sure you want to disconnect?', 'jetpack' ),
+	title: __( 'Manage your Jetpack connection', 'jetpack' ),
 	isOpen: false,
 };
 
