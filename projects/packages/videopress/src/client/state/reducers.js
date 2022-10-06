@@ -135,6 +135,9 @@ const videos = ( state, action ) => {
 				return state;
 			}
 
+			// current -> previous value of privacy
+			const current = items[ videoIndex ].privacySetting;
+
 			// Set privacy setting straigh in the state. Let's be optimistic.
 			items[ videoIndex ] = {
 				...items[ videoIndex ],
@@ -156,6 +159,7 @@ const videos = ( state, action ) => {
 							..._metaVideo,
 							isUpdatingPrivacy: true,
 							hasBeenUpdatedPrivacy: false,
+							prevPrivacySetting: current,
 						},
 					},
 				},
