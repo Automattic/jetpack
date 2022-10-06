@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
 
 /**
  * Stats XMLRPC Provider.
@@ -48,13 +50,20 @@ class XMLRPC_Provider {
 	}
 
 	/**
-	 * Adds additional methods to the WordPress xmlrpc API for handling Stats specific features
+	 * Adds additional methods to the WordPress xmlrpc API for handling Stats specific features.
 	 *
 	 * @param array $methods The Jetpack API methods.
 	 *
 	 * @return array
 	 */
 	public function xmlrpc_methods( $methods ) {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return $methods;
+		}
+
+		if ( ! ( new Modules() )->is_active( 'stats' ) ) {
+			return $methods;
+		}
 
 		$methods['jetpack.getBlog'] = array( $this, 'get_blog' );
 
