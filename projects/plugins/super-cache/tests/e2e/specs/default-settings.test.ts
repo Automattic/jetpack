@@ -1,7 +1,13 @@
-import { describe, expect, beforeAll, test } from '@jest/globals';
+import { describe, expect, beforeAll, test, beforeEach } from '@jest/globals';
 import { dockerExec } from '../lib/docker-tools';
 import { updateSettings } from '../lib/plugin-settings';
-import { authenticatedRequest, clearCache, getAuthCookie, getSiteUrl } from '../lib/plugin-tools';
+import {
+	authenticatedRequest,
+	clearCache,
+	getAuthCookie,
+	getSiteUrl,
+	deleteCacheDirectory,
+} from '../lib/plugin-tools';
 import { loadPage } from '../lib/test-tools';
 import { resetEnvironmnt, wpcli } from '../lib/wordpress-tools';
 
@@ -12,6 +18,10 @@ describe( 'cache behavior with default settings', () => {
 		await updateSettings( await getAuthCookie(), {
 			wp_cache_enabled: true,
 		} );
+	} );
+
+	beforeEach( async () => {
+		await deleteCacheDirectory();
 	} );
 
 	test( 'caches URLs with no get parameters', async () => {
@@ -57,6 +67,25 @@ describe( 'cache behavior with default settings', () => {
 		const second = await loadPage( '//' );
 
 		expect( first ).not.toBe( second );
+	} );
+
+	test( 'cached files expire', async () => {
+		const first = await loadPage();
+		const second = await loadPage();
+
+		await dockerExec(
+			'touch',
+			'-d',
+			'1 hour ago',
+			'/var/www/html/wp-content/cache/supercache/localhost/index.html'
+		);
+
+		const third = await loadPage();
+		const fourth = await loadPage();
+
+		expect( first ).toBe( second );
+		expect( third ).toBe( fourth );
+		expect( first ).not.toBe( third );
 	} );
 
 	test( 'clears the cache', async () => {

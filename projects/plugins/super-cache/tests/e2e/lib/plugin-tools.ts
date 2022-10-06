@@ -2,6 +2,7 @@ import fsp from 'fs/promises';
 import pathLib from 'path';
 import { expect } from '@jest/globals';
 import axios, { Method } from 'axios';
+import { deleteContainerDirectory } from './docker-tools';
 import { wpcli } from './wordpress-tools';
 
 /**
@@ -90,4 +91,11 @@ export function getSiteUrl( path = '/', query: Record< string, string > = {} ): 
 	const queryString = new URLSearchParams( query ).toString();
 
 	return domain + path + ( queryString ? '?' + queryString : '' );
+}
+
+/**
+ * Delete the cache directory.
+ */
+export async function deleteCacheDirectory(): Promise< void > {
+	return deleteContainerDirectory( '/var/www/html/wp-content/cache' );
 }
