@@ -1,7 +1,7 @@
 import { Button, ToolbarButton } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.
@@ -29,8 +29,8 @@ export const getPaidPlanLink = () => {
 
 function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
-		? __( 'Manage plans', 'jetpack' )
-		: __( 'Add paid plan', 'jetpack' );
+		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
+		: _x( 'Add paid plan', '', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (
