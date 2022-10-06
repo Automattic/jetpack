@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Apps Card: Ensure card is displayed to users who previously dismissed it
+Apps Card: Ensure card is always displayed, regardless of whether promotions are active.
