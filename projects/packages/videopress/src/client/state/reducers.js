@@ -12,6 +12,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_VIDEO_PRIVACY,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	SET_VIDEOS_STORAGE_USED,
@@ -20,6 +21,9 @@ import {
 	UPLOADING_VIDEO,
 	PROCESSING_VIDEO,
 	UPLOADED_VIDEO,
+	SET_IS_FETCHING_PURCHASES,
+	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
 
 /**
@@ -115,6 +119,73 @@ const videos = ( state, action ) => {
 			};
 		}
 
+		case SET_VIDEO_PRIVACY: {
+			const { id, privacySetting } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			// current -> previous value of privacy
+			const current = items[ videoIndex ].privacySetting;
+
+			// Set privacy setting straigh in the state. Let's be optimistic.
+			items[ videoIndex ] = {
+				...items[ videoIndex ],
+				privacySetting,
+			};
+
+			// Set metadata about the privacy change.
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: true,
+							hasBeenUpdatedPrivacy: false,
+							prevPrivacySetting: current,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_PRIVACY: {
+			const { id } = action;
+
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			if ( ! _metaItems?.[ id ] ) {
+				return state;
+			}
+
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: false,
+							hasBeenUpdatedPrivacy: true,
+							prevPrivacySetting: null,
+						},
+					},
+				},
+			};
+		}
+
 		/*
 		 * REMOVE_VIDEO is the action trigger
 		 * right after the user tries to remove the video,
@@ -163,6 +234,7 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
+			const uploadedVideoCount = state.uploadedVideoCount - 1;
 
 			if ( ! _metaVideo ) {
 				return state;
@@ -170,6 +242,7 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
+				uploadedVideoCount,
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
@@ -291,8 +364,31 @@ const videos = ( state, action ) => {
 	}
 };
 
+const purchases = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PURCHASES: {
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		}
+
+		case SET_PURCHASES: {
+			return {
+				...state,
+				items: action.purchases,
+				isFetching: false,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	videos,
+	purchases,
 } );
 
 export default reducers;

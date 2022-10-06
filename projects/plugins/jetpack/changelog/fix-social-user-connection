@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Social: Prevent the package being initialised without a user connection

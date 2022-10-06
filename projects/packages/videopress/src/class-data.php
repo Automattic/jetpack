@@ -14,6 +14,16 @@ use WP_REST_Request;
  * The Data class.
  */
 class Data {
+
+	/**
+	 * Gets the Jetpack blog ID
+	 *
+	 * @return int The blog ID
+	 */
+	public static function get_blog_id() {
+		return VideoPressToken::blog_id();
+	}
+
 	/**
 	 * Gets the video data
 	 *
@@ -64,6 +74,24 @@ class Data {
 		}
 
 		return $video_data;
+	}
+
+	/**
+	 * Gets the VideoPress used storage space in bytes
+	 *
+	 * @return int the used storage space
+	 */
+	public static function get_storage_used() {
+		$site_data = Site::get_site_info();
+		if ( is_wp_error( $site_data ) ) {
+			return 0;
+		}
+
+		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
+			return intval( round( $site_data['options']['videopress_storage_used'] * 1024 * 1024 ) );
+		} else {
+			return 0;
+		}
 	}
 
 	/**
@@ -135,15 +163,15 @@ class Data {
 
 		return array(
 			'videos' => array(
-				'uploadedVideoCount'           => count( $videos ), // @todo: pick the total number properly
+				'uploadedVideoCount'           => $video_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
+				'storageUsed'                  => self::get_storage_used(),
 				'pagination'                   => array(
 					'totalPages' => $video_data['totalPages'],
 					'total'      => $video_data['total'],
 				),
-				'uploadedVideoCount'           => $video_data['total'],
 				'query'                        => $video_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,

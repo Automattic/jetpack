@@ -48,6 +48,14 @@ export const getVideoStateMetadata = ( state, id ) => {
 	return _metaVideo;
 };
 
+export const isFetchingPurchases = state => {
+	return state?.purchases?.isFetching;
+};
+
+export const getPurchases = state => {
+	return state?.purchases?.items || [];
+};
+
 const selectors = {
 	getVideos,
 	getUploadingVideos,
@@ -60,6 +68,9 @@ const selectors = {
 
 	getVideo,
 	getVideoStateMetadata,
+
+	getPurchases,
+	isFetchingPurchases,
 };
 
 export default selectors;

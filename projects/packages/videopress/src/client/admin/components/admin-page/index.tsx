@@ -62,16 +62,23 @@ const useDashboardVideos = () => {
 
 const Admin = () => {
 	const { videos, uploadedVideoCount, handleFilesUpload, loading } = useDashboardVideos();
+	const {
+		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
+	} = window.jetpackVideoPressInitialState;
+
+	const hasPaidPlan = isVideoPress1TBSupported || isVideoPressUnlimitedSupported;
 
 	const { isUserConnected, isRegistered } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+
 	const localVideos = [];
 	const localTotalVideoCount = 0;
 	const hasVideos = uploadedVideoCount > 0 || loading;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
+
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
@@ -112,12 +119,18 @@ const Admin = () => {
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
 									accept="video/*"
 									render={ ( { openFileDialog } ) => (
-										<Button fullWidth={ isSm } onClick={ openFileDialog } isLoading={ loading }>
+										<Button
+											fullWidth={ isSm }
+											onClick={ openFileDialog }
+											isLoading={ loading }
+											disabled={ ! hasPaidPlan && hasVideos }
+										>
 											{ addVideoLabel }
 										</Button>
 									) }
 								/>
-								<UpgradeTrigger />
+
+								{ ! hasPaidPlan && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -157,38 +170,28 @@ const Admin = () => {
 
 export default Admin;
 
-const UpgradeTrigger = () => {
-	const {
-		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
-		adminUrl,
-		siteSuffix,
-	} = window.jetpackVideoPressInitialState;
+const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
+	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
 
-	const { product } = usePlan();
-
+	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
 	} );
 
-	if ( isVideoPress1TBSupported || isVideoPressUnlimitedSupported ) {
-		return null;
-	}
+	const description = hasUsedVideo
+		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
+		: '';
 
-	// TODO: use count from initial state
-	const { uploadedVideoCount } = useVideos();
-	const hasUploadedVideo = uploadedVideoCount > 0;
-	const isUploading = false;
-
-	const description =
-		hasUploadedVideo || isUploading
-			? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
-			: '';
 	const cta = __(
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
 		'jetpack-videopress-pkg'
 	);
+
+	if ( hasVideoPressPurchase || isFetchingPurchases ) {
+		return null;
+	}
 
 	return (
 		<ContextualUpgradeTrigger

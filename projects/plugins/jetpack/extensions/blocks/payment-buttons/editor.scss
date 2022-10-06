@@ -20,3 +20,9 @@
 .components-placeholder.jetpack-payment-buttons__upgrade-nudge {
 	margin-bottom: 16px;
 }
+
+// Ensure that the contained jetpack buttons that don't have an explicit custom font size set
+// use the font size from this block if a custom font-size has been set on this block.
+.editor-styles-wrapper .wp-block-jetpack-payment-buttons.has-custom-font-size .wp-block-jetpack-button .wp-block-button__link {
+	font-size: inherit;
+}

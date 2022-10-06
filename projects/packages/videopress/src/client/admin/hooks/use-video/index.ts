@@ -23,7 +23,7 @@ export default function useVideo( id: number | string ) {
 		[ id ]
 	);
 
-	const metaData = useSelect(
+	const metadata = useSelect(
 		select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
 		[ id ]
 	);
@@ -45,7 +45,7 @@ export default function useVideo( id: number | string ) {
 		},
 
 		// Video Meta Data
-		...metaData,
+		...metadata,
 
 		processing,
 

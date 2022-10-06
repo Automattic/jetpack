@@ -4,7 +4,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
-import privacy from '../../../components/icons/privacy-icon';
+import privacy from '../../../components/icons/crossed-eye-icon';
 import Checkbox from '../checkbox';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import StatsBase from './stats';
