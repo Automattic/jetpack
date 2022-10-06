@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Create new action ADD_VIDEO and invalidate uploaded count
