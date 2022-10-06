@@ -98,6 +98,44 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 	} );
 };
 
+const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) => {
+	threatIds.forEach( threatId => {
+		dispatch( setThreatIsUpdating( threatId, true ) );
+	} );
+	return await new Promise( () => {
+		return apiFetch( {
+			path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatIds }`,
+			method: 'POST',
+			data: { threatIds },
+		} )
+			.then( () => {
+				return dispatch( refreshStatus() );
+			} )
+			.then( () => {
+				return dispatch(
+					setNotice( {
+						type: 'success',
+						message: __( 'Threat was fixed successfully', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.catch( () => {
+				return dispatch(
+					setNotice( {
+						type: 'error',
+						message: __( 'An error ocurred fixing the threat', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.finally( () => {
+				threatIds.forEach( threatId => {
+					dispatch( setThreatIsUpdating( threatId, false ) );
+				} );
+				callback();
+			} );
+	} );
+};
+
 const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };
 };
@@ -118,6 +156,7 @@ const actions = {
 	ignoreThreat,
 	setModal,
 	setNotice,
+	fixThreats,
 };
 
 export {

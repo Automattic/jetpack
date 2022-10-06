@@ -2,11 +2,13 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { close as closeIcon, Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
+import FixThreatModal from '../fix-threat-modal';
 import IgnoreThreatModal from '../ignore-threat-modal';
 import styles from './styles.module.scss';
 
 const MODAL_COMPONENTS = {
 	IGNORE_THREAT: IgnoreThreatModal,
+	FIX_THREAT: FixThreatModal,
 };
 
 const Modal = () => {

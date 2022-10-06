@@ -83,6 +83,16 @@ const ThreatAccordionItem = ( {
 		};
 	};
 
+	const handleFixThreatClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'FIX_THREAT',
+				props: { id, label: getLabel(), title, icon, severity },
+			} );
+		};
+	};
+
 	return (
 		<AccordionItem
 			id={ id }
@@ -150,6 +160,9 @@ const ThreatAccordionItem = ( {
 				<div className={ styles[ 'threat-footer' ] }>
 					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
 						{ __( 'Ignore threat', 'jetpack-protect' ) }
+					</Button>
+					<Button onClick={ handleFixThreatClick() }>
+						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
 				</div>
 			) }
