@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { arePromotionsActive } from 'state/initial-state';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';
@@ -79,10 +78,6 @@ class AppsCard extends React.Component {
 	);
 
 	render() {
-		if ( ! this.props.arePromotionsActive ) {
-			return null;
-		}
-
 		const classes = classNames( this.props.className, 'jp-apps-card' );
 
 		return (
@@ -114,8 +109,4 @@ AppsCard.propTypes = {
 	className: PropTypes.string,
 };
 
-export default connect( state => {
-	return {
-		arePromotionsActive: arePromotionsActive( state ),
-	};
-} )( withRouter( AppsCard ) );
+export default connect( withRouter( AppsCard ) );
