@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
@@ -13,11 +12,12 @@ import {
 	WP_REST_API_MEDIA_ENDPOINT,
 	DELETE_VIDEO,
 	REST_API_SITE_PURCHASES_ENDPOINT,
+	REST_API_SITE_INFO_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
-const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
+const { apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
 	isFulfilled: state => {
@@ -158,10 +158,8 @@ const getStorageUsed = {
 	},
 
 	fulfill: () => async ( { dispatch } ) => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
 		try {
-			const response = await restApi.fetchSiteData();
+			const response = await apiFetch( { path: REST_API_SITE_INFO_ENDPOINT } );
 			if ( ! response?.options?.videopress_storage_used ) {
 				return;
 			}
