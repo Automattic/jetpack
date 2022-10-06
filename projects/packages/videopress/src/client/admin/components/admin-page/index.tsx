@@ -42,6 +42,11 @@ const useDashboardVideos = () => {
 
 	let videos = [ ...uploading, ...items ];
 
+	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
+	const localVideos = [];
+	const localTotalVideoCount = 0;
+	const hasLocalVideos = localVideos && localVideos.length > 0;
+
 	const handleFilesUpload = ( files: FileList | File[] ) => {
 		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
 		uploadVideo( file );
@@ -54,14 +59,28 @@ const useDashboardVideos = () => {
 
 	return {
 		videos,
+		localVideos,
 		uploadedVideoCount,
+		localTotalVideoCount,
+		hasVideos,
+		hasLocalVideos,
 		handleFilesUpload,
 		loading: isFetching,
 	};
 };
 
 const Admin = () => {
-	const { videos, uploadedVideoCount, handleFilesUpload, loading } = useDashboardVideos();
+	const {
+		videos,
+		localVideos,
+		uploadedVideoCount,
+		localTotalVideoCount,
+		hasVideos,
+		hasLocalVideos,
+		handleFilesUpload,
+		loading,
+	} = useDashboardVideos();
+
 	const {
 		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
 	} = window.jetpackVideoPressInitialState;
@@ -73,11 +92,6 @@ const Admin = () => {
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
-
-	const localVideos = [];
-	const localTotalVideoCount = 0;
-	const hasVideos = uploadedVideoCount > 0 || loading;
-	const hasLocalVideos = localVideos && localVideos.length > 0;
 
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
