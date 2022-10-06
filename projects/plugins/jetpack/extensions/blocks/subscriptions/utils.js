@@ -50,10 +50,10 @@ function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 export default compose( [
 	withSelect( select => {
 		const newsletterPlans = select( 'jetpack/membership-products' )
-			.getProducts()
-			.filter( product => product.subscribe_as_site_subscriber );
+			?.getProducts()
+			?.filter( product => product.subscribe_as_site_subscriber );
 		return {
-			hasNewsletterPlans: newsletterPlans.length !== 0,
+			hasNewsletterPlans: newsletterPlans?.length !== 0,
 		};
 	} ),
 ] )( GetAddPaidPlanButton );
