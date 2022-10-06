@@ -25,6 +25,13 @@ class AppsCard extends React.Component {
 		} );
 	};
 
+	trackAppLinkClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'jetpack-apps-link',
+			page: this.props.location.pathname,
+		} );
+	};
+
 	getAppLinkSection = () => {
 		const device = detectMobileDevice();
 
@@ -76,6 +83,7 @@ class AppsCard extends React.Component {
 							<a
 								className="jp-apps-card__link"
 								href={ getRedirectUrl( 'jetpack-plugin-dashboard-apps-card' ) }
+								onClick={ this.trackAppLinkClick }
 							/>
 						),
 					}
