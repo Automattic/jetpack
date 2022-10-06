@@ -20,6 +20,7 @@ import {
 	DELETE_VIDEO,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
 
 /**
@@ -154,6 +155,33 @@ const videos = ( state, action ) => {
 						[ id ]: {
 							..._metaVideo,
 							isUpdatingPrivacy: true,
+							hasBeenUpdatedPrivacy: false,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_PRIVACY: {
+			const { id } = action;
+
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			if ( ! _metaItems?.[ id ] ) {
+				return state;
+			}
+
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: false,
+							hasBeenUpdatedPrivacy: true,
 						},
 					},
 				},

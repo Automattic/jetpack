@@ -23,6 +23,7 @@ import {
 	WP_REST_API_MEDIA_ENDPOINT,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
 
 const setIsFetchingVideos = isFetching => {
@@ -99,6 +100,8 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 			// @todo: implement error handling / UI
 			return;
 		}
+
+		return dispatch( { type: UPDATE_VIDEO_PRIVACY, id, privacySetting } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
