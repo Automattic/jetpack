@@ -158,15 +158,13 @@ class Data {
 			$video_data['videos']
 		);
 
-		$storage_used = self::get_storage_used();
-
 		return array(
 			'videos' => array(
 				'uploadedVideoCount'           => $video_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
-				'storageUsed'                  => $storage_used,
+				'storageUsed'                  => self::get_storage_used(),
 				'pagination'                   => array(
 					'totalPages' => $video_data['totalPages'],
 					'total'      => $video_data['total'],
