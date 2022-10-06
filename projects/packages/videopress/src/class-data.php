@@ -143,12 +143,20 @@ class Data {
 			$video_data['videos']
 		);
 
+		$storage_used = 0;
+		$site_data    = Site::get_site_info();
+
+		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
+			$storage_used = $site_data['options']['videopress_storage_used'] * 1024 * 1024;
+		}
+
 		return array(
 			'videos' => array(
 				'uploadedVideoCount'           => $video_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
+				'storageUsed'                  => $storage_used,
 				'pagination'                   => array(
 					'totalPages' => $video_data['totalPages'],
 					'total'      => $video_data['total'],
