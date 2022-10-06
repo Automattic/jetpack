@@ -14,6 +14,16 @@ use WP_REST_Request;
  * The Data class.
  */
 class Data {
+
+	/**
+	 * Gets the Jetpack blog ID
+	 *
+	 * @return int The blog ID
+	 */
+	public static function get_blog_id() {
+		return VideoPressToken::blog_id();
+	}
+
 	/**
 	 * Gets the video data
 	 *
