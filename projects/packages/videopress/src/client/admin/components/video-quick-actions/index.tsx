@@ -5,11 +5,12 @@ import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown, Modal } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { image, trash, globe, lock, unlock } from '@wordpress/icons';
+import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useEffect } from 'react';
 /** */
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
+import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import { STORE_ID } from '../../../state';
 import {
 	VIDEO_PRIVACY_LEVELS,
@@ -144,7 +145,7 @@ const PrivacyActionsDropdown = ( {
 						weight="regular"
 						fullWidth
 						variant="tertiary"
-						icon={ globe }
+						icon={ siteDefaultPrivacyIcon }
 						onClick={ () => {
 							onClose();
 							onUpdate( 'site-default' );
@@ -158,7 +159,7 @@ const PrivacyActionsDropdown = ( {
 						weight="regular"
 						fullWidth
 						variant="tertiary"
-						icon={ unlock }
+						icon={ publicPrivacyIcon }
 						onClick={ () => {
 							onClose();
 							onUpdate( 'public' );
@@ -172,7 +173,7 @@ const PrivacyActionsDropdown = ( {
 						weight="regular"
 						fullWidth
 						variant="tertiary"
-						icon={ lock }
+						icon={ privatePrivacyIcon }
 						onClick={ () => {
 							onClose();
 							onUpdate( 'private' );
