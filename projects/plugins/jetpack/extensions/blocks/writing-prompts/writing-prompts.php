@@ -59,7 +59,7 @@ function inject_writing_prompts() {
 		__( 'Describe an item you were incredibly attached to as a child. What became of it?', 'jetpack' ),
 	);
 
-	$random_prompt = $prompts[ random_int( 0, count( $prompts ) - 1 ) ];
+	$random_prompt = $prompts[ wp_rand( 0, count( $prompts ) - 1 ) ];
 
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_WritingPrompts', array( 'prompt' => esc_html( $random_prompt ) ) );
 }
