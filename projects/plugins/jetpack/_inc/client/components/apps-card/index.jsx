@@ -83,6 +83,8 @@ class AppsCard extends React.Component {
 							<a
 								className="jp-apps-card__link"
 								href={ getRedirectUrl( 'jetpack-plugin-dashboard-apps-card' ) }
+								rel="noopener noreferrer"
+								target="_blank"
 								onClick={ this.trackAppLinkClick }
 							/>
 						),
