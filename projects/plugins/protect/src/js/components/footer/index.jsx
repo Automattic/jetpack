@@ -32,8 +32,6 @@ const ProductPromotion = () => {
 	const { hasRequiredPlan } = securityBundle;
 
 	if ( hasRequiredPlan ) {
-		// TODO: Update Cloud learn more link when we have docs available
-		const learnMoreCloudUrl = '#';
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
 
 		return (
@@ -44,9 +42,6 @@ const ProductPromotion = () => {
 						'With your Protect upgrade, you have free access to scan your site on our Cloud, so you can be aware and fix your threats even if your site goes down. ',
 						'jetpack-protect'
 					) }
-					<Button variant="link" weight="regular" href={ learnMoreCloudUrl }>
-						{ __( 'Learn more', 'jetpack-protect' ) }
-					</Button>
 				</Text>
 
 				<Button variant="secondary" weight="regular" href={ goToCloudUrl }>
