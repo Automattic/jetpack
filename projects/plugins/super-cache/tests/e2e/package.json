@@ -24,8 +24,6 @@
 	},
 	"devDependencies": {
 		"@jest/globals": "^28.1.0",
-		"@typescript-eslint/eslint-plugin": "5.36.1",
-		"@typescript-eslint/parser": "5.36.1",
 		"axios": "0.27.2",
 		"cheerio": "1.0.0-rc.12",
 		"dotenv": "16.0.2",
