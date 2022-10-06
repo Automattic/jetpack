@@ -11,4 +11,5 @@ const Template = args => <ManageConnectionDialog { ...args } />;
 export const _default = Template.bind( {} );
 _default.args = {
 	isOpen: true,
+	title: 'Manage your Jetpack connection',
 };
