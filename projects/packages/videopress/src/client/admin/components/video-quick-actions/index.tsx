@@ -9,7 +9,7 @@ import { image, trash, globe, lock, unlock } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useEffect } from 'react';
 /** */
-import privacy from '../../../components/icons/privacy-icon';
+import privacy from '../../../components/icons/crossed-eye-icon';
 import { STORE_ID } from '../../../state';
 import {
 	VIDEO_PRIVACY_LEVELS,
