@@ -17,14 +17,20 @@ function rewindFixture( rewindStatus ) {
  *
  * @param {object} options - Options
  * @param {string} options.productSlug - – product slug of the site's plan
+ * @param {Array} options.sitePurchases - mocked site purchases
  * @returns {object} Fixture.
  */
-function siteDataFixture( { productSlug } ) {
+function siteDataFixture( { productSlug, sitePurchases } ) {
 	return {
 		requests: {
+			isFetchingSiteData: false,
+			isFetchingSiteFeatures: false,
+			isFetchingSitePlans: false,
+			isFetchingSitePurchases: false,
 			isFetchingSiteDiscount: false,
 		},
 		data: {
+			sitePurchases,
 			plan: {
 				product_slug: productSlug,
 			},
@@ -105,6 +111,9 @@ function upsellFixture( { hideUpsell } ) {
  * @param {object} options.rewindStatus - – rewind status of the site
  * @param {object} options.enabledRecommendations - Enabled recommendations.
  * @param {object} options.skippedRecommendations - Skipped recommendations.
+ * @param {string} options.onboardingActive - Active onboarding name.
+ * @param {Array} options.onboardingViewed - Viewed onboarding names.
+ * @param {Array} options.sitePurchases - Mocked Site Purchases.
  * @returns {object} – initial Redux state
  */
 export function buildInitialState( {
@@ -113,6 +122,9 @@ export function buildInitialState( {
 	hideUpsell = false,
 	productSlug,
 	rewindStatus = { state: 'unavailable' },
+	onboardingActive = null,
+	onboardingViewed = [],
+	sitePurchases = [],
 } = {} ) {
 	return {
 		jetpack: {
@@ -142,17 +154,21 @@ export function buildInitialState( {
 			},
 			recommendations: {
 				upsell: upsellFixture( { hideUpsell } ),
-				requests: {},
+				requests: {
+					isRecommendationsDataLoaded: true,
+				},
 				data: {
+					onboardingActive,
+					onboardingViewed,
 					skippedRecommendations,
 				},
 				installing: {},
 			},
 			rewind: rewindFixture( rewindStatus ),
 			settings: {
-				items: enabledRecommendations,
+				items: { foo: 'bar', ...enabledRecommendations },
 			},
-			siteData: siteDataFixture( { productSlug } ),
+			siteData: siteDataFixture( { productSlug, sitePurchases } ),
 			introOffers: introOffersFixture(),
 		},
 	};

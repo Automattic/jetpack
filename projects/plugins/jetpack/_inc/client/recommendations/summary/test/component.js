@@ -2,15 +2,22 @@ import { jest } from '@jest/globals';
 import * as React from 'react';
 import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen, within } from 'test/test-utils';
+import {
+	PLAN_JETPACK_ANTI_SPAM,
+	PLAN_JETPACK_SEARCH,
+	PLAN_JETPACK_SECURITY_T1_MONTHLY,
+} from '../../../lib/plans/constants';
+import { getOnboardingNameByProductSlug } from '../../onboarding-utils';
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
 
 describe( 'Recommendations – Summary', () => {
+	const DUMMY_ACTION = { type: 'dummy' };
+
 	let updateRecommendationsStepStub;
 	let addViewedRecommendationStub;
 
 	beforeAll( () => {
-		const DUMMY_ACTION = { type: 'dummy' };
 		updateRecommendationsStepStub = jest
 			.spyOn( recommendationsActions, 'updateRecommendationsStep' )
 			.mockReturnValue( DUMMY_ACTION );
@@ -121,6 +128,102 @@ describe( 'Recommendations – Summary', () => {
 			expect( within( skippedFeatures ).getByText( 'Downtime Monitoring' ) ).toBeInTheDocument();
 			expect( within( skippedFeatures ).getByText( 'Site Accelerator' ) ).toBeInTheDocument();
 			expect( within( skippedFeatures ).getByText( 'Creative Mail' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Onboardings', () => {
+		let updateOnboardingDataStub;
+
+		beforeEach( () => {
+			updateOnboardingDataStub = jest
+				.spyOn( recommendationsActions, 'updateRecommendationsOnboardingData' )
+				.mockReturnValue( DUMMY_ACTION );
+		} );
+
+		afterEach( () => {
+			updateOnboardingDataStub.mockRestore();
+		} );
+
+		it( 'Ends onboarding on render if one is active', () => {
+			render( <SummaryFeature />, {
+				initialState: buildInitialState( {
+					onboardingActive: 'Foo',
+				} ),
+			} );
+
+			expect( updateOnboardingDataStub ).toHaveBeenCalledWith( { active: null } );
+
+			updateOnboardingDataStub.mockRestore();
+		} );
+
+		it( 'Does not update onboarding data if onboarding is not active', () => {
+			render( <SummaryFeature />, {
+				initialState: buildInitialState( {
+					onboardingActive: null,
+				} ),
+			} );
+
+			expect( updateOnboardingDataStub ).not.toHaveBeenCalled();
+		} );
+
+		it( 'Displays summary of viewed onboardings', () => {
+			const productSlugs = [ PLAN_JETPACK_SEARCH, PLAN_JETPACK_ANTI_SPAM ];
+			const eligiblePurchases = productSlugs.map( slug => ( {
+				product_slug: slug,
+				active: '1',
+				subscribed_date: new Date().toString(),
+			} ) );
+
+			render( <SummaryFeature />, {
+				initialState: buildInitialState( {
+					onboardingViewed: productSlugs.map( getOnboardingNameByProductSlug ),
+					sitePurchases: eligiblePurchases,
+				} ),
+			} );
+
+			const searchSummary = screen.getByRole( 'region', { name: /part of your search plan/i } );
+			expect( searchSummary ).toBeInTheDocument();
+			expect( within( searchSummary ).getByText( 'Custom Site Search' ) ).toBeInTheDocument();
+
+			const antiSpamSummary = screen.getByRole( 'region', {
+				name: /part of your anti-spam plan/i,
+			} );
+			expect( antiSpamSummary ).toBeInTheDocument();
+			expect(
+				within( antiSpamSummary ).getByText( 'Automated Spam Protection' )
+			).toBeInTheDocument();
+		} );
+
+		it( "Doesn't display summaries of onboardings that overlap with more important one", () => {
+			const productSlugs = [ PLAN_JETPACK_SECURITY_T1_MONTHLY, PLAN_JETPACK_ANTI_SPAM ];
+			const eligiblePurchases = productSlugs.map( slug => ( {
+				product_slug: slug,
+				active: '1',
+				subscribed_date: new Date().toString(),
+			} ) );
+
+			render( <SummaryFeature />, {
+				initialState: buildInitialState( {
+					onboardingViewed: productSlugs.map( getOnboardingNameByProductSlug ),
+					sitePurchases: eligiblePurchases,
+				} ),
+			} );
+
+			const securitySummary = screen.getByRole( 'region', { name: /part of your security plan/i } );
+			expect( securitySummary ).toBeInTheDocument();
+			expect( within( securitySummary ).getByText( 'Real-time Backups' ) ).toBeInTheDocument();
+			expect(
+				within( securitySummary ).getByText( 'Real-time Malware Scanning' )
+			).toBeInTheDocument();
+			expect(
+				within( securitySummary ).getByText( 'Automated Spam Protection' )
+			).toBeInTheDocument();
+
+			expect(
+				screen.queryByRole( 'region', {
+					name: /part of your anti-spam plan/i,
+				} )
+			).not.toBeInTheDocument();
 		} );
 	} );
 } );
