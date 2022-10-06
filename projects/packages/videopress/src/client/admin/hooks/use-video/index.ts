@@ -23,6 +23,11 @@ export default function useVideo( id: number | string ) {
 		[ id ]
 	);
 
+	const metadata = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
+		[]
+	);
+
 	return {
 		// Data
 		data: {
@@ -37,10 +42,7 @@ export default function useVideo( id: number | string ) {
 			[]
 		),
 
-		...useSelect(
-			select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
-			[]
-		),
+		...metadata,
 
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),
