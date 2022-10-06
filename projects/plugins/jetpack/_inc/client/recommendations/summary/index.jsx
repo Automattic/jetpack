@@ -21,7 +21,7 @@ import { getPluginsData } from 'state/site/plugins';
 import { FeatureSummary } from '../feature-summary';
 import './style.scss';
 import { ResourceSummary } from '../feature-summary/resource';
-import { MobileApp } from '../sidebar/mobile-app';
+import { SidebarAppsCard } from '../sidebar/mobile-app';
 import { OneClickRestores } from '../sidebar/one-click-restores';
 import { ProductCardUpsellNoPrice } from '../sidebar/product-card-upsell-no-price';
 import { Security } from '../sidebar/security';
@@ -131,7 +131,7 @@ const SummaryComponent = props => {
 				sidebarCards = (
 					<>
 						<OneClickRestores />
-						<MobileApp slug={ sidebarCardsSlug } />
+						<SidebarAppsCard slug={ sidebarCardsSlug } />
 					</>
 				);
 				break;
@@ -139,15 +139,15 @@ const SummaryComponent = props => {
 				sidebarCards = (
 					<>
 						<Security />
-						<MobileApp slug={ sidebarCardsSlug } />
+						<SidebarAppsCard slug={ sidebarCardsSlug } />
 					</>
 				);
 				break;
 			case 'download-app':
-				sidebarCards = <MobileApp slug={ sidebarCardsSlug } />;
+				sidebarCards = <SidebarAppsCard slug={ sidebarCardsSlug } />;
 				break;
 			default:
-				sidebarCards = <MobileApp slug={ 'unknown' } />;
+				sidebarCards = <SidebarAppsCard slug={ 'unknown' } />;
 		}
 	}
 

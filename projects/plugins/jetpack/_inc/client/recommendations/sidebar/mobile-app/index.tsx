@@ -18,7 +18,7 @@ type Props = {
 	underside?: boolean;
 };
 
-const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
+const SidebarAppsCard: FC< Props > = ( { slug, underside = false } ) => {
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
 			type: 'mobile_app',
@@ -190,4 +190,4 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 	);
 };
 
-export { MobileApp };
+export { SidebarAppsCard };
