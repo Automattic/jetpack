@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Change the endpoint used by the client to fetch the site information, so we request the storage usage from the new VideoPress-specific endpoint.
