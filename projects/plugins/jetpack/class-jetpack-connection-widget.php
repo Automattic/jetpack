@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo;
 
 /**
  * Jetpack connection dashboard widget.
@@ -40,7 +41,6 @@ class Jetpack_Connection_Widget {
 	 */
 	public function maybe_initialize_hooks() {
 		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
-
 		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 	}
 
@@ -96,17 +96,23 @@ class Jetpack_Connection_Widget {
 	 * Load the widget
 	 */
 	public static function connection_widget() {
-		$connect_url = self::build_connect_url();
+		$connect_url  = self::build_connect_url();
+		$jetpack_logo = new Logo();
 		?>
 			<div class="jp-connection-widget">
+				<div class="jp-connection-widget__logo">
+					<?php echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
 				<img
-					width="100%"
+					class="jp-connection-widget__image"
 					src="<?php echo esc_url( plugins_url( 'images/dashboard-connection-widget-hero.png', JETPACK__PLUGIN_FILE ) ); ?>" />
-				<h3><?php esc_html_e( 'Finish setting up your site', 'jetpack' ); ?></h3>
-				<p>
+				<p class="jp-connection-widget__heading"><?php esc_html_e( 'Finish setting up your site', 'jetpack' ); ?></p>
+				<p class="jp-connection-widget__paragraph">
 					<?php esc_html_e( 'You’re missing out on great Jetpack features bundled by your host, sign up to set up.', 'jetpack' ); ?>
 				</p>
-				<a href="<?php echo esc_url( $connect_url ); ?>"><?php esc_html_e( 'Set up Jetpack for free', 'jetpack' ); ?></a>
+				<p class="jp-connection_widget__button-container">
+					<a class="jp-connection-widget__button" href="<?php echo esc_url( $connect_url ); ?>"><?php esc_html_e( 'Set up Jetpack for free', 'jetpack' ); ?></a>
+				</p>
 			</div>
 		<?php
 	}
