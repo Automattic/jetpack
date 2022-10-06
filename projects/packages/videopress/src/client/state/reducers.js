@@ -12,6 +12,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_VIDEO_PRIVACY,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	SET_VIDEOS_STORAGE_USED,
@@ -121,6 +122,27 @@ const videos = ( state, action ) => {
 				isFetching: false,
 				uploadedVideoCount,
 				pagination,
+			};
+		}
+
+		case SET_VIDEO_PRIVACY: {
+			const { id, privacySetting } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			// Set privacy setting straigh in the state. Let's be optimistic.
+			items[ videoIndex ] = {
+				...items[ videoIndex ],
+				privacySetting,
+			};
+
+			return {
+				...state,
+				items,
 			};
 		}
 

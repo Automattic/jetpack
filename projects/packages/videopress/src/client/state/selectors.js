@@ -38,6 +38,7 @@ export const getVideo = ( state, id ) => {
 export const getVideoStateMetadata = ( state, id ) => {
 	const _metaItems = state?.videos?._meta?.items || {};
 	const _metaVideo = _metaItems[ id ] || {};
+
 	return {
 		isDeleting: !! _metaVideo.isDeleting,
 		hasBeenDeleted: !! _metaVideo.hasBeenDeleted,
