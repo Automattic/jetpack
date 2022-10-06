@@ -8,17 +8,8 @@
  * @package automattic/jetpack
  */
 
-/*
- * Those references to the social logos location can be updated
- * in other environments such as WordPress.com.
- */
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	define( 'JETPACK_SOCIAL_LOGOS_URL', '/wp-content/mu-plugins/social-logos/' );
-	define( 'JETPACK_SOCIAL_LOGOS_DIR', ABSPATH . JETPACK_SOCIAL_LOGOS_URL );
-} else {
-	define( 'JETPACK_SOCIAL_LOGOS_URL', plugin_dir_url( __FILE__ ) . 'social-logos/' );
-	define( 'JETPACK_SOCIAL_LOGOS_DIR', plugin_dir_path( __FILE__ ) . 'social-logos/' );
-}
+define( 'JETPACK_SOCIAL_LOGOS_URL', plugin_dir_url( __FILE__ ) . 'social-logos/' );
+define( 'JETPACK_SOCIAL_LOGOS_DIR', plugin_dir_path( __FILE__ ) . 'social-logos/' );
 
 /**
  * Globally registers the 'social-logos' style and font.

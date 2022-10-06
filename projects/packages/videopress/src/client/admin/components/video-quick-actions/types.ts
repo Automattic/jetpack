@@ -31,16 +31,37 @@ export interface VideoQuickActionsProps {
 	 * className to apply to the component
 	 */
 	className?: string;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	privacySetting?: number;
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
+	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 }
+
+export interface ConnectVideoQuickActionsProps {
+	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
+	 * Post ID of the video item.
+	 */
+	videoId: number | string;
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
+	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+}
+
+export type ThumbnailActionsDropdownProps = {
+	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	description: string;
+};
+
+export type PrivacyActionsDropdownProps = {
+	onUpdate: ( action: 'site-default' | 'public' | 'private' ) => void;
+	privacySetting?: number;
+	description: string;
+};

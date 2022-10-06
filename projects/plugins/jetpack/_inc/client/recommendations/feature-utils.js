@@ -83,8 +83,14 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	}
 };
 
-export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+export const getSummaryResourceProps = resourceSlug => {
 	switch ( resourceSlug ) {
+		case 'agency':
+			return {
+				displayName: __( 'Jetpack for Agencies', 'jetpack' ),
+				ctaLabel: __( 'Sign Up', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+			};
 		case 'backup-plan':
 			return {
 				displayName: __( 'Site Backups', 'jetpack' ),
@@ -98,7 +104,7 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
 			};
 		default:
-			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
 };
 
@@ -182,6 +188,19 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 
 export const getStepContent = stepSlug => {
 	switch ( stepSlug ) {
+		case 'agency':
+			return {
+				progressValue: '28',
+				question: __( 'Manage your clients’ sites with ease', 'jetpack' ),
+				// eslint-disable-next-line @wordpress/i18n-translator-comments
+				description: __(
+					'Jetpack’s world-class security features are now easier to manage for anyone with at least five WordPress websites.<br/><br/>Purchase and manage licenses, and get a 60% discount with our licensing platform.',
+					'jetpack'
+				),
+				ctaText: __( 'Get Jetpack for Agencies', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+				illustration: 'assistant-agency',
+			};
 		case 'backup-plan':
 			return {
 				question: __( 'Be prepared for auto-updates.', 'jetpack' ),
@@ -209,7 +228,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'creative-mail':
 			return {
-				progressValue: '83',
+				progressValue: '86',
 				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
@@ -222,7 +241,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'monitor':
 			return {
-				progressValue: '50',
+				progressValue: '57',
 				question: __(
 					'Would you like Downtime Monitoring to notify you if your site goes offline?',
 					'jetpack'
@@ -237,7 +256,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'related-posts':
 			return {
-				progressValue: '67',
+				progressValue: '71',
 				question: __(
 					'Would you like Related Posts to display at the bottom of your content?',
 					'jetpack'
@@ -310,7 +329,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'woocommerce':
 			return {
-				progressValue: '33',
+				progressValue: '43',
 				question: __( 'Would you like WooCommerce to power your store?', 'jetpack' ),
 				description: __(
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
@@ -318,6 +337,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
+				illustration: 'assistant-woo-commerce',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;

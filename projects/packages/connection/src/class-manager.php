@@ -2416,6 +2416,8 @@ class Manager {
 			return new WP_Error( 'jetpack_secret', '', $code );
 		}
 
+		Error_Handler::get_instance()->delete_all_errors();
+
 		return $this->get_tokens()->update_blog_token( (string) $json->jetpack_secret );
 	}
 
