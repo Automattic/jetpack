@@ -26,8 +26,7 @@ class Site {
 			__( 'Could not fetch site information from the service', 'jetpack-videopress-pkg' )
 		);
 
-		$blog_id      = VideoPressToken::blog_id();
-		$request_path = sprintf( 'sites/%d?force=wpcom', $blog_id );
+		$request_path = sprintf( 'sites/%d?force=wpcom', Data::get_blog_id() );
 		$response     = Client::wpcom_json_api_request_as_blog( $request_path, '1.1', array(), null, 'rest' );
 
 		if ( is_wp_error( $response ) ) {
