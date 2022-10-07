@@ -49,8 +49,8 @@ export async function rsyncInit( argv ) {
 		await promptToManageConfig();
 		return;
 	}
-	argv = await promptForPlugin( argv );
-	argv = await promptForDest( argv );
+	argv = await maybePromptForPlugin( argv );
+	argv = await maybePromptForDest( argv );
 	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
 	// Pull the actual plugin slug from composer.json.
 	const pluginComposerJson = await fs.readFile(
@@ -233,31 +233,33 @@ async function promptForSetAlias( pluginDestPath ) {
 }
 
 /**
- * Prompts for the destination path.
+ * Maybe prompts for the destination path if not already set or found a saved alias.
  *
  * @param {object} argv - Passthrough of the argv object.
  * @returns {object} argv object with the project property.
  */
-async function promptForDest( argv ) {
-	if ( validateDest( argv.dest ) ) {
+async function maybePromptForDest( argv ) {
+	if ( rsyncConfigStore.has( argv.dest ) ) {
+		console.log( `Alias found, using dest: ${ rsyncConfigStore.get( argv.dest ) }` );
+		argv.dest = rsyncConfigStore.get( argv.dest );
+		return argv;
+	}
+	if ( argv.dest ) {
 		return argv;
 	}
 	const savedDests = Object.keys( rsyncConfigStore.all );
 	savedDests.unshift( 'Create new' );
-	console.log( savedDests );
 	let response = await inquirer.prompt( {
 		name: 'dest',
 		type: 'list',
 		message: 'Choose destination:',
 		choices: savedDests,
-		validate: input => validateDest( input ),
 	} );
 	if ( 'Create new' === response.dest ) {
 		response = await inquirer.prompt( {
 			name: 'dest',
 			type: 'input',
-			message: 'Input destination path to the plugins dir: ',
-			validate: input => validateDest( input ),
+			message: 'Input destination path to the /plugins dir: ',
 		} );
 		argv.dest = response.dest;
 	} else {
@@ -267,46 +269,14 @@ async function promptForDest( argv ) {
 }
 
 /**
- * The destination path for the rsync.
- *
- * @param {string} dest - Destination path.
- * @returns {boolean} - If it's valid.
- */
-function validateDest( dest ) {
-	if ( undefined === dest ) {
-		return false;
-	}
-	if ( rsyncConfigStore.has( dest ) ) {
-		// eslint-disable-next-line
-		console.log( `Alias found, using source: ${ rsyncConfigStore.get( dest ) }` );
-		return true;
-	}
-
-	if (
-		dest.length > 0 &&
-		! (
-			dest.endsWith( 'plugins' ) ||
-			dest.endsWith( 'plugins/' ) ||
-			dest.endsWith( 'jetpack-plugin/production' )
-		)
-	) {
-		console.log(
-			chalk.yellow( 'Destination path is expected to end in a /plugins dir. Got: ' + dest )
-		);
-		return false;
-	}
-	return true;
-}
-
-/**
- * Prompt for plugin.
+ * Maybe prompt for plugin.
  *
  * If no type is passed via `options`, then it will prompt for the plugin.
  *
  * @param {object} argv - Passthrough of an object, meant to accept argv.
  * @returns {object} object with the type property appended.
  */
-export async function promptForPlugin( argv ) {
+export async function maybePromptForPlugin( argv ) {
 	let whichPlugin = argv.plugin;
 	if (
 		! whichPlugin ||
