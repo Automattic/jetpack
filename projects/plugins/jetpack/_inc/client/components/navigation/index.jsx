@@ -15,12 +15,12 @@ import {
 	getSiteRawUrl,
 	showRecommendations,
 	showMyJetpack,
-	getNewRecommendationsCount,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import { getNonViewedRecommendationsCount } from 'state/recommendations';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -187,7 +187,7 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
-		newRecommendationsCount: getNewRecommendationsCount( state ),
+		newRecommendationsCount: getNonViewedRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),

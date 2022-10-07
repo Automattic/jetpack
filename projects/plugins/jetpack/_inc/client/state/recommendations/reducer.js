@@ -50,7 +50,11 @@ import {
 	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE,
 } from 'state/action-types';
 import { hasConnectedOwner } from 'state/connection';
-import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
+import {
+	getNewRecommendations,
+	getInitialRecommendationsStep,
+	getNewRecommendationsCount,
+} from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
@@ -491,6 +495,19 @@ export const isProductSuggestionsAvailable = state => {
 	const suggestionsResult = getProductSuggestions( state );
 
 	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+};
+
+export const getNonViewedRecommendationsCount = state => {
+	const onboarding = getOnboardingData( state );
+
+	if ( onboarding && onboarding.active ) {
+		const step = getStep( state );
+		const steps = getStepsForOnboarding( onboarding.active );
+
+		return steps.length - ( steps.indexOf( step ) + 1 );
+	}
+
+	return getNewRecommendationsCount( state );
 };
 
 export const getProductSlugForStep = ( state, step ) => {
