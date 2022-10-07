@@ -14,12 +14,12 @@ class Get_Started implements Endpoint {
 	/**
 	 * Handler for POST '/get-started'.
 	 *
-	 * @param \WP_REST_Request $request The request object.
+	 * @param \WP_REST_Request $_request The request object.
 	 *
 	 * @return \WP_REST_Response|\WP_Error The response.
 	 * @todo Figure out what to do in the JavaScript when responding with the error status.
 	 */
-	public function response( $request ) {
+	public function response( $_request ) {
 		return rest_ensure_response(
 			Config::set_getting_started( false )
 		);
