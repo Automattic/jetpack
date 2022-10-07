@@ -27,6 +27,10 @@ export const dismissedPopOuts = {
 const getStartedStore = writable( Jetpack_Boost.site.getStarted );
 export const getStarted = {
 	subscribe: getStartedStore.subscribe,
+	setValue: async ( value: boolean ) => {
+		// eslint-disable-next-line no-console
+		getStartedStore.set( value );
+	},
 	done: async () => {
 		getStartedStore.set( false );
 		await setGetStarted();

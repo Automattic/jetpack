@@ -12,7 +12,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;
-
+use Automattic\Jetpack_Boost\Admin\Config;
 /**
  * Class Connection
  *
@@ -138,6 +138,9 @@ class Connection {
 
 		if ( ! is_wp_error( $result ) ) {
 			Analytics::record_user_event( 'connect_site' );
+
+			// Set a flag that the site is getting started with Boost
+			Config::set_getting_started( true );
 		}
 
 		return $result;

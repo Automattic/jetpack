@@ -164,7 +164,7 @@ class Config {
 	 * Check if force redirect to getting started page is enabled.
 	 */
 	public static function is_getting_started() {
-		return \get_option( 'jb_get_started', true );
+		return \get_option( 'jb_get_started', false );
 	}
 
 	/**
