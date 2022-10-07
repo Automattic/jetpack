@@ -6,21 +6,28 @@ export type DonutMeterProps = {
 	 * Total number of items for the donut meter.
 	 */
 	totalCount: number;
+
 	/**
 	 * Count for the given item
 	 */
 	segmentCount: number;
+
 	/**
-	 * Color code for the background color for the item.
-	 * If not provided, defaults to Jetpack Green
+	 * Dictates the segment color of the donut meter. Defaults to 'success' and overrides useAdaptiveColors.
+	 * Possible values:
+	 * - 'info': blue donut
+	 * - 'warning': yellow donut
+	 * - 'error': red donut
+	 * - 'success': green donut
 	 */
-	backgroundColor?: string;
+	type?: string;
 
 	/**
 	 * thickness for the chart border
 	 * If not provided, defaults to 3.5
 	 */
 	thickness?: string;
+
 	/**
 	 * width for the full chart size
 	 * If not provided, defaults to 64px
@@ -40,6 +47,28 @@ export type DonutMeterProps = {
 	 * If not provided, defaults to an empty string.
 	 */
 	description?: string;
+
+	/**
+	 * Changes colors according to  description for meter.
+	 * Not visible. Used for a11y support.
+	 * If not provided, defaults to an empty string.
+	 */
+	useAdaptiveColors?: boolean;
+
+	/**
+	 * Class name to append to the topmost container.
+	 */
+	className?: string;
+};
+
+const getAdaptiveType = ( percentage: number ) => {
+	if ( percentage < 50 ) {
+		return 'success';
+	}
+	if ( percentage < 100 ) {
+		return 'warning';
+	}
+	return 'danger';
 };
 
 /**
@@ -49,18 +78,17 @@ export type DonutMeterProps = {
  * @returns {React.ReactElement} - JSX element
  */
 const DonutMeter: React.FC< DonutMeterProps > = ( {
-	totalCount,
-	segmentCount,
-	backgroundColor = '#00BA37', // jetpack green fallback
-	thickness = '3.5',
-	donutWidth = '64px',
-	title = '',
+	className = '',
 	description = '',
+	donutWidth = '64px',
+	segmentCount,
+	thickness = '3.5',
+	title = '',
+	totalCount,
+	type,
+	useAdaptiveColors,
 } ) => {
-	const count = () => {
-		// get count as a percent value
-		return ( segmentCount / totalCount ) * 100;
-	};
+	const percentage = ( segmentCount / totalCount ) * 100;
 
 	// If we don't have a title or description, hide the meter from screen readers.
 	const isHidden =
@@ -71,11 +99,15 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 			? 'true'
 			: 'false';
 
+	const finalClassName = `donut-meter${ className ? className + ' ' : '' }${
+		type ? 'is-' + type + ' ' : ''
+	} ${ ! type && useAdaptiveColors ? 'is-' + getAdaptiveType( percentage ) + ' ' : '' }`.trim();
+
 	return (
-		<div className="donut-meter" aria-hidden={ isHidden }>
+		<div className={ finalClassName } aria-hidden={ isHidden }>
 			<svg
 				width={ donutWidth }
-				height="auto"
+				height={ donutWidth }
 				viewBox="0 0 40 40"
 				className="donut-meter_svg"
 				data-testid="donut-meter_svg"
@@ -106,9 +138,8 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 					r="15.91549430918954"
 					fill="transparent"
 					transform-origin="center"
-					stroke={ backgroundColor }
 					strokeWidth={ thickness }
-					strokeDasharray={ `${ count() } ${ 100 - count() }` }
+					strokeDasharray={ `${ percentage } ${ 100 - percentage }` }
 					strokeDashoffset="-25" // this ensures the segment begins at the bottom of the donut instead of the top
 				></circle>
 			</svg>
