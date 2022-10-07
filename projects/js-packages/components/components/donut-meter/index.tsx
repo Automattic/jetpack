@@ -15,7 +15,6 @@ export type DonutMeterProps = {
 	/**
 	 * Dictates the segment color of the donut meter. Defaults to 'success' and overrides useAdaptiveColors.
 	 * Possible values:
-	 * - 'info': blue donut
 	 * - 'warning': yellow donut
 	 * - 'error': red donut
 	 * - 'success': green donut
@@ -49,9 +48,7 @@ export type DonutMeterProps = {
 	description?: string;
 
 	/**
-	 * Changes colors according to  description for meter.
-	 * Not visible. Used for a11y support.
-	 * If not provided, defaults to an empty string.
+	 * Changes colors according to the fullness of the meter.
 	 */
 	useAdaptiveColors?: boolean;
 
@@ -62,7 +59,7 @@ export type DonutMeterProps = {
 };
 
 const getAdaptiveType = ( percentage: number ) => {
-	if ( percentage < 50 ) {
+	if ( percentage < 70 ) {
 		return 'success';
 	}
 	if ( percentage < 100 ) {

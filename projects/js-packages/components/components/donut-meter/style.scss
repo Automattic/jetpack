@@ -2,9 +2,6 @@
   .donut-meter-segment {
     stroke: var(--jp-green);
   }
-  &.is-info .donut-meter-segment {
-    stroke: var(--jp-green);
-  }
   &.is-warning .donut-meter-segment {
     stroke: var(--jp-yellow-10);
   }
