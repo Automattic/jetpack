@@ -34,7 +34,14 @@ const ManageConnectionDialog = props => {
 							'jetpack'
 						) }
 					</H3>
-					<Button variant="primary" isExternalLink={ true } fullWidth={ true }>
+					<Button
+						variant="primary"
+						isExternalLink={ true }
+						fullWidth={ true }
+						href={ getRedirectUrl( 'calypso-settings-manage-connection', {
+							site: window?.myJetpackInitialState?.siteSuffix,
+						} ) }
+					>
 						{ __( 'Transfer ownership to another admin', 'jetpack' ) }
 					</Button>
 					<Button
