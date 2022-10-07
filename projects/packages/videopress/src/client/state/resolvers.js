@@ -84,8 +84,12 @@ const getVideo = {
 		if ( ! id ) {
 			return true;
 		}
+
 		const videos = state.videos.items ?? [];
-		return videos?.some( ( { id: videoId } ) => videoId === id );
+		const uploading = state?.videos?._meta?.items ?? {};
+		const isUploading = uploading?.[ id ]?.uploading ?? false;
+
+		return videos?.some( video => video?.id === id ) || isUploading;
 	},
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
