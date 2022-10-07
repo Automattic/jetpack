@@ -167,7 +167,7 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
-		return array(
+		$initial_state = array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
@@ -180,6 +180,10 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
+
+		$initial_state['securityBundle']['pricingForUi'] = Plan::get_product( 'jetpack_security_t1_yearly' );
+
+		return $initial_state;
 	}
 	/**
 	 * Main plugin settings page.

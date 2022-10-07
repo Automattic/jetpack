@@ -74,11 +74,7 @@ export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile 
 
 const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			showHeader={ false }
-			showBackground={ false }
-		>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col sm={ 4 } md={ 8 } lg={ 12 }>
 					<Interstitial onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />
