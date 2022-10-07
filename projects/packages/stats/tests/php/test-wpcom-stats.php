@@ -554,8 +554,8 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats();
 
-		$this->assertArrayHasKey( 'dummy', $stats );
-		$this->assertArrayHasKey( 'cached_at', $stats );
+		$this->assertObjectHasAttribute( 'dummy', $stats );
+		$this->assertObjectHasAttribute( 'cached_at', $stats );
 	}
 
 	/**

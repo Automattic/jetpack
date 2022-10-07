@@ -54,7 +54,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
 	 * @param array $args Optional query parameters.
-	 * @return array| WP_Error
+	 * @return Object| WP_Error
 	 */
 	public function get_stats( $args = array() ) {
 		$this->resource = '';
@@ -67,7 +67,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/summary/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_stats_summary( $args = array() ) {
 		$this->resource = 'summary';
@@ -81,7 +81,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/top-posts/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_top_posts( $args = array() ) {
 		$this->resource = 'top-posts';
@@ -95,7 +95,7 @@ class WPCOM_Stats {
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/
 	 * @param int   $post_id The video's ID.
 	 * @param array $args    Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_video_details( $post_id, $args = array() ) {
 		$this->resource = sprintf( 'video/%d', $post_id );
@@ -108,7 +108,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/referrers/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_referrers( $args = array() ) {
 		$this->resource = 'referrers';
@@ -121,7 +121,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/clicks/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_clicks( $args = array() ) {
 		$this->resource = 'clicks';
@@ -134,7 +134,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/tags/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_tags( $args = array() ) {
 		$this->resource = 'tags';
@@ -147,7 +147,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/top-authors/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_top_authors( $args = array() ) {
 		$this->resource = 'top-authors';
@@ -160,7 +160,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/comments/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_top_comments( $args = array() ) {
 		$this->resource = 'comments';
@@ -173,7 +173,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video-plays/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_video_plays( $args = array() ) {
 		$this->resource = 'video-plays';
@@ -186,7 +186,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/file-downloads/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_file_downloads( $args = array() ) {
 		$this->resource = 'file-downloads';
@@ -200,7 +200,7 @@ class WPCOM_Stats {
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/post/%24post_id/
 	 * @param int   $post_id The video's ID.
 	 * @param array $args    Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_post_views( $post_id, $args = array() ) {
 		$this->resource = sprintf( 'post/%d', $post_id );
@@ -213,7 +213,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/country-views/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_views_by_country( $args = array() ) {
 
@@ -227,7 +227,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/followers/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_followers( $args = array() ) {
 
@@ -241,7 +241,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/comment-followers/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_comment_followers( $args = array() ) {
 
@@ -255,7 +255,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/publicize/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_publicize_followers( $args = array() ) {
 
@@ -269,7 +269,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/search-terms/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_search_terms( $args = array() ) {
 
@@ -283,7 +283,7 @@ class WPCOM_Stats {
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/views/posts/
 	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	public function get_total_post_views( $args = array() ) {
 
@@ -308,7 +308,7 @@ class WPCOM_Stats {
 	 *
 	 * @param array $args Optional query parameters.
 	 *
-	 * @return array|WP_Error
+	 * @return Object|WP_Error
 	 */
 	protected function fetch_stats( $args = array() ) {
 		$endpoint       = $this->build_endpoint();
@@ -321,7 +321,7 @@ class WPCOM_Stats {
 			$time = key( $stats_cache );
 			$data = $stats_cache[ $time ]; // JSON encoded data.
 
-			return array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
+			return (object) array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
 		}
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
@@ -344,7 +344,7 @@ class WPCOM_Stats {
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
 	 * @param string $endpoint The stats endpoint.
 	 * @param array  $args The query arguments.
-	 * @return array|WP_Error.
+	 * @return Object|WP_Error.
 	 */
 	protected function fetch_remote_stats( $endpoint, $args ) {
 		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, $args );
@@ -355,6 +355,6 @@ class WPCOM_Stats {
 			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', 'Failed to fetch Stats from WPCOM' );
 		}
 
-		return json_decode( $response_body, true );
+		return json_decode( $response_body );
 	}
 }
