@@ -160,15 +160,16 @@ const PlanSummary = () => {
 	const startDateText = startDate.toLocaleDateString( undefined, localeOptions );
 	const endDateText = endDate.toLocaleDateString( undefined, localeOptions );
 
-	const planText = tierSlug
-		? __( 'Paid Plan', 'jetpack-search-pkg' )
-		: __( 'Free Plan', 'jetpack-search-pkg' );
+	let planText = __( 'Paid Plan', 'jetpack-search-pkg' );
+	if ( ! tierSlug ) {
+		planText = __( 'Free Plan', 'jetpack-search-pkg' );
+	}
 
 	return (
 		<h2>
 			{ createInterpolateElement(
 				sprintf(
-					// translators: %1$s: usage period, %2$s: plan name
+					// translators: %1$s: Usage period, %2$s: Plan name
 					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
 					`${ startDateText }-${ endDateText }`,
 					planText
