@@ -831,10 +831,15 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
-		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$user_id             = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$connection_owner_id = $this->get_connection_owner_id();
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
+
+		if ( $user_id === $connection_owner_id ) {
+			\Jetpack_Options::delete_option( 'master_user' );
+		}
 
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
@@ -864,15 +869,13 @@ class Manager {
 	/**
 	 * Request to wpcom for a user to be unlinked from their WordPress.com account
 	 *
-	 * @access public
+	 * @param int $user_id The user identifier.
 	 *
-	 * @param Integer $user_id the user identifier.
-	 *
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @return bool Whether the disconnection of the user was successful.
 	 */
 	public function unlink_user_from_wpcom( $user_id ) {
 		// Attempt to disconnect the user from WordPress.com.
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+		$xml = new Jetpack_IXR_Client();
 
 		$xml->query( 'jetpack.unlink_user', $user_id );
 		if ( $xml->isError() ) {
