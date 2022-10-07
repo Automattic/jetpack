@@ -125,9 +125,19 @@ const AboutPlanLimits = () => {
 	return (
 		<div className="usage-meter-about">
 			{ createInterpolateElement(
-				__( 'Tell me more about <u>record indexing and request limits</u>.', 'jetpack-search-pkg' ),
+				__(
+					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>.',
+					'jetpack-search-pkg'
+				),
 				{
-					u: <u />,
+					jpPlanLimits: (
+						<a
+							href="https://jetpack.com/support/search/"
+							rel="noopener noreferrer"
+							target="_blank"
+							className="support-link"
+						/>
+					),
 				}
 			) }
 		</div>
