@@ -7,7 +7,7 @@ import {
 	PLAN_JETPACK_SEARCH,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 } from '../../../lib/plans/constants';
-import { getOnboardingNameByProductSlug } from '../../onboarding-utils';
+import { getOnboardingNameByProductSlug } from '../../../state/recommendations/onboarding-utils';
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
 

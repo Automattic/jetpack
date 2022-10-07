@@ -19,10 +19,6 @@ import {
 	RECOMMENDATION_WIZARD_STEP,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
 } from 'recommendations/constants';
-import {
-	sortByOnboardingPriority,
-	getOnboardingNameByProductSlug,
-} from 'recommendations/onboarding-utils';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
@@ -65,6 +61,7 @@ import {
 	hasActiveBackupPurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
+import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -612,10 +609,10 @@ const getNextEligibleStep = ( state, step ) => {
 const getStepsForOnboarding = onboarding =>
 	Object.keys( get( stepToNextStepByPath, `onboarding.${ onboarding }`, {} ) );
 
-const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( onboarding )[ 0 ];
+export const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( onboarding )[ 0 ];
 
 // Gets the step to show when one has not been set in the state yet.
-const getInitialStep = state => {
+export const getInitialStep = state => {
 	// Gets new recommendations from initial state.
 	const newRecommendations = getNewRecommendations( state );
 	const initialStep = getInitialRecommendationsStep( state );
@@ -748,7 +745,7 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	}
 };
 
-const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => {
+export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => {
 	const onboardingData = getOnboardingData( state );
 	const viewedOnboardings = onboardingData ? onboardingData.viewed : [];
 

@@ -1,4 +1,4 @@
-import { ONBOARDING_NAME_BY_PRODUCT_SLUG, ONBOARDING_ORDER } from './constants';
+import { ONBOARDING_NAME_BY_PRODUCT_SLUG, ONBOARDING_ORDER } from '../../recommendations/constants';
 
 /**
  * Function to get an onboarding for the specific product
