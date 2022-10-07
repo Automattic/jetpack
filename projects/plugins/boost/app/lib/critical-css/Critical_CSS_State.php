@@ -282,7 +282,7 @@ class Critical_CSS_State {
 				// For each URL
 				// Track the state and errors in a state array.
 				$sources[ $key ] = array(
-					'urls'          => $urls,
+					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
 					'status'        => self::REQUESTING,
 					'error'         => null,
 					'success_ratio' => $provider::get_success_ratio(),
