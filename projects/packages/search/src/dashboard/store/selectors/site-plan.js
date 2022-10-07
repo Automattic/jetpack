@@ -9,7 +9,9 @@ const sitePlanSelectors = {
 		state.sitePlan.supports_instant_search || state.sitePlan.supports_only_classic_search,
 	getTierMaximumRecords: state => state.sitePlan.tier_maximum_records,
 	getTierSlug: state => state.sitePlan.tier_slug,
-	getLatestMonthUsage: state => state.sitePlan.plan_usage.num_requests_3m[ 0 ],
+	getLatestMonthRequests: state => state.sitePlan.plan_usage.num_requests_3m[ 0 ],
+	getCurrentPlan: state => state.sitePlan.plan_current,
+	getCurrentUsage: state => state.sitePlan.plan_usage,
 };
 
 export default sitePlanSelectors;

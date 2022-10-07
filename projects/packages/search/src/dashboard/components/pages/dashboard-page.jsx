@@ -108,7 +108,7 @@ export default function DashboardPage( { isLoading = false } ) {
 					/>
 					<FirstRunSection isVisible={ false } />
 					<PlanUsageSection isVisible={ false } />
-					{ isNewPricing && <MockUsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
+					{ isNewPricing && <UsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
 					<RecordMeter
 						postCount={ postCount }
 						postTypeBreakdown={ postTypeBreakdown }
@@ -144,12 +144,11 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanSummary = () => {
+const PlanSummary = ( { latestMonthRequests } ) => {
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
-	const latestMonthUsage = useSelect( select => select( STORE_ID ).getLatestMonthUsage() );
 
-	const startDate = new Date( latestMonthUsage.start_date );
-	const endDate = new Date( latestMonthUsage.end_date );
+	const startDate = new Date( latestMonthRequests.start_date );
+	const endDate = new Date( latestMonthRequests.end_date );
 
 	const localeOptions = {
 		month: 'short',
@@ -182,7 +181,7 @@ const PlanSummary = () => {
 	);
 };
 
-const MockUsageMeter = ( { sendPaidPlanToCart } ) => {
+const UsageMeter = ( { sendPaidPlanToCart } ) => {
 	const upgradeTriggerArgs = {
 		description: __(
 			'Do you want to increase your site records and search requests?',
@@ -192,22 +191,26 @@ const MockUsageMeter = ( { sendPaidPlanToCart } ) => {
 		onClick: sendPaidPlanToCart,
 	};
 
+	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
+	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
+	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
+
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary />
+					<PlanSummary latestMonthRequests={ latestMonthRequests } />
 					<div className="usage-meter-group">
 						<DonutMeterContainer
 							title={ __( 'Site records', 'jetpack-search-pkg' ) }
-							current={ 1250 }
-							limit={ 5000 }
+							current={ currentUsage.num_records }
+							limit={ currentPlan.record_limit }
 						/>
 						<DonutMeterContainer
 							title={ __( 'Search requests', 'jetpack-search-pkg' ) }
-							current={ 125 }
-							limit={ 500 }
+							current={ latestMonthRequests.num_requests }
+							limit={ currentPlan.monthly_search_request_limit }
 						/>
 					</div>
 
