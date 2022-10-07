@@ -12,7 +12,7 @@ import React from 'react';
  * @returns {React.Component} The `ManageConnectionDialog` component.
  */
 const ManageConnectionDialog = props => {
-	const { title, isOpen } = props;
+	const { title, isOpen, openDisconnectDialog, closeManageConnectionDialog } = props;
 
 	return (
 		<>
@@ -49,17 +49,19 @@ const ManageConnectionDialog = props => {
 						isExternalLink={ true }
 						fullWidth={ true }
 						isDestructive={ true }
+						onClick={ openDisconnectDialog }
 					>
 						{ __( 'Disconnect Jetpack', 'jetpack' ) }
 					</Button>
-					<HelpFooter />
+					<HelpFooter closeManageConnectionDialog={ closeManageConnectionDialog } />
 				</Modal>
 			) }
 		</>
 	);
 };
+const HelpFooter = props => {
+	const { closeManageConnectionDialog } = props;
 
-const HelpFooter = () => {
 	return (
 		<div className="jp-connection__disconnect-dialog__actions">
 			<div className="jp-row">
@@ -100,6 +102,7 @@ const HelpFooter = () => {
 					<Button
 						variant="primary"
 						className="jp-connection__disconnect-dialog__btn-dismiss"
+						onClick={ closeManageConnectionDialog }
 						//TODO add cancel function
 					>
 						{ __( 'Cancel', 'jetpack' ) }

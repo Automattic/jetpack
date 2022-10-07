@@ -102,7 +102,7 @@
 			margin-bottom: 0;
 		}
 
-		&::before {
+	/*	&::before {
 			content: '';
 			display: block;
 			width: 100%;
@@ -111,7 +111,7 @@
 			background: linear-gradient(to bottom, rgba( 0,0,0,0 ), var( --jp-white-off ));
 			bottom: calc( 100% + 1px );
 			left: 0;
-		}
+		}*/
 	}
 
 	&__btn-dismiss,
