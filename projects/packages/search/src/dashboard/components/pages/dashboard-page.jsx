@@ -144,6 +144,43 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
+const PlanSummary = () => {
+	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
+	const latestMonthUsage = useSelect( select => select( STORE_ID ).getLatestMonthUsage() );
+
+	const startDate = new Date( latestMonthUsage.start_date );
+	const endDate = new Date( latestMonthUsage.end_date );
+
+	const localeOptions = {
+		month: 'short',
+		day: '2-digit',
+	};
+
+	// Leave the locale as `undefined` to apply the browser host locale.
+	const startDateText = startDate.toLocaleDateString( undefined, localeOptions );
+	const endDateText = endDate.toLocaleDateString( undefined, localeOptions );
+
+	const planText = tierSlug
+		? __( 'Paid Plan', 'jetpack-search-pkg' )
+		: __( 'Free Plan', 'jetpack-search-pkg' );
+
+	return (
+		<h2>
+			{ createInterpolateElement(
+				sprintf(
+					// translators: %1$s: usage period, %2$s: plan name
+					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
+					`${ startDateText }-${ endDateText }`,
+					planText
+				),
+				{
+					s: <span />,
+				}
+			) }
+		</h2>
+	);
+};
+
 const MockUsageMeter = ( { sendPaidPlanToCart } ) => {
 	const upgradeTriggerArgs = {
 		description: __(
@@ -159,19 +196,7 @@ const MockUsageMeter = ( { sendPaidPlanToCart } ) => {
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<h2>
-						{ createInterpolateElement(
-							sprintf(
-								// translators: %1$s: usage period, %2$s: plan name
-								__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
-								'Sep 28-Oct 28',
-								__( 'Free plan', 'jetpack-search-pkg' )
-							),
-							{
-								s: <span />,
-							}
-						) }
-					</h2>
+					<PlanSummary />
 					<div className="usage-meter-group">
 						<DonutMeterContainer
 							title={ __( 'Site records', 'jetpack-search-pkg' ) }
