@@ -52,12 +52,18 @@ export async function rsyncInit( argv ) {
 	argv = await maybePromptForPlugin( argv );
 	argv = await maybePromptForDest( argv );
 	const sourcePluginPath = projectDir( `plugins/${ argv.plugin }` ) + '/';
-	// Pull the actual plugin slug from composer.json.
-	const pluginComposerJson = await fs.readFile(
-		projectDir( `plugins/${ argv.plugin }` + '/composer.json' )
-	);
-	const wpPluginSlug = JSON.parse( pluginComposerJson ).extra[ 'wp-plugin-slug' ];
-	const finalDest = path.join( argv.dest, wpPluginSlug + '/' );
+	// Append plugin slug if we got a "plugins" directory, otherwise just make sure it ends in a slash.
+	let finalDest;
+	if ( argv.dest.match( /\/(?:mu-)?plugins\/?$/ ) ) {
+		// Pull the actual plugin slug from composer.json.
+		const pluginComposerJson = await fs.readFile(
+			projectDir( `plugins/${ argv.plugin }/composer.json` )
+		);
+		const wpPluginSlug = JSON.parse( pluginComposerJson ).extra[ 'wp-plugin-slug' ];
+		finalDest = path.join( argv.dest, wpPluginSlug + '/' );
+	} else {
+		finalDest = path.join( argv.dest, '/' );
+	}
 
 	await rsyncToDest( sourcePluginPath, finalDest, argv.dest );
 }
