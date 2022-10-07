@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Wrap the request for connection-dependent initial state data around a connection check, so we only set it when there is actually an active connection.
