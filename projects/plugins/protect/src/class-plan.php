@@ -55,7 +55,7 @@ class Plan {
 	 * @param string $wpcom_product The product slug.
 	 * @return array
 	 */
-	public static function get_product( $wpcom_product = 'jetpack_security_t1_yearly' ) {
+	public static function get_product( $wpcom_product = 'jetpack_scan' ) {
 		if ( ! self::is_cache_old() ) {
 			return self::get_product_from_cache();
 		}
