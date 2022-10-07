@@ -71,8 +71,8 @@ const ProductPromotion = () => {
 
 const FooterInfo = () => {
 	// TODO: Update with new paid Protect product
-	const { securityBundle } = useProtectData();
-	const { hasRequiredPlan } = securityBundle;
+	const { jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
 
 	if ( hasRequiredPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
