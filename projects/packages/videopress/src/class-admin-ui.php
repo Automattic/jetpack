@@ -160,6 +160,7 @@ class Admin_UI {
 			'siteSuffix'             => ( new Status() )->get_site_suffix(),
 			'productData'            => Plan::get_product(),
 			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
+			'initialState'           => Data::get_initial_state(),
 		);
 	}
 

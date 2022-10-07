@@ -1,13 +1,23 @@
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import {
+	JetpackFooter,
+	JetpackLogo,
+	ThemeProvider,
+	ContextualUpgradeTrigger,
+} from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import DonutMeterContainer from 'components/donut-meter-container';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
+import FirstRunSection from './sections/first-run-section';
+import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 /**
@@ -22,6 +32,23 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+
+	// Prepare Checkout action and loading status
+	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
+	const checkSiteHasSearchProduct = useCallback(
+		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
+		[ fetchSearchPlanInfo ]
+	);
+	const { run: sendPaidPlanToCart, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_search',
+		redirectUrl: `${ siteAdminUrl }admin.php?page=jetpack-search`,
+		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+		from: 'jetpack-search',
+		siteSuffix: domain,
+	} );
+
 	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
@@ -30,18 +57,19 @@ export default function DashboardPage( { isLoading = false } ) {
 			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
 			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			isLoading,
-		[ isLoading ]
+			isLoading ||
+			hasCheckoutStarted,
+		[ isLoading, hasCheckoutStarted ]
 	);
 
-	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
 		select( STORE_ID ).isInstantSearchPromotionActive()
 	);
 
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
 	const supportsOnlyClassicSearch = useSelect( select =>
@@ -78,6 +106,9 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
+					<FirstRunSection isVisible={ false } />
+					<PlanUsageSection isVisible={ false } />
+					{ isNewPricing && <MockUsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
 					<RecordMeter
 						postCount={ postCount }
 						postTypeBreakdown={ postTypeBreakdown }
@@ -112,6 +143,69 @@ export default function DashboardPage( { isLoading = false } ) {
 		</>
 	);
 }
+
+const MockUsageMeter = ( { sendPaidPlanToCart } ) => {
+	const upgradeTriggerArgs = {
+		description: __(
+			'Do you want to increase your site records and search requests?',
+			'jetpack-search-pkg'
+		),
+		cta: __( 'Upgrade now and avoid any future interruption!', 'jetpack-search-pkg' ),
+		onClick: sendPaidPlanToCart,
+	};
+
+	return (
+		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
+			<div className="jp-search-dashboard-row">
+				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
+					<h2>
+						{ createInterpolateElement(
+							sprintf(
+								// translators: %1$s: usage period, %2$s: plan name
+								__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
+								'Sep 28-Oct 28',
+								__( 'Free plan', 'jetpack-search-pkg' )
+							),
+							{
+								s: <span />,
+							}
+						) }
+					</h2>
+					<div className="usage-meter-group">
+						<DonutMeterContainer
+							title={ __( 'Site records', 'jetpack-search-pkg' ) }
+							current={ 1250 }
+							limit={ 5000 }
+						/>
+						<DonutMeterContainer
+							title={ __( 'Search requests', 'jetpack-search-pkg' ) }
+							current={ 125 }
+							limit={ 500 }
+						/>
+					</div>
+
+					<ThemeProvider>
+						<ContextualUpgradeTrigger { ...upgradeTriggerArgs } />
+					</ThemeProvider>
+
+					<div className="usage-meter-about">
+						{ createInterpolateElement(
+							__(
+								'Tell me more about <u>record indexing and request limits</u>',
+								'jetpack-search-pkg'
+							),
+							{
+								u: <u />,
+							}
+						) }
+					</div>
+				</div>
+				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
+			</div>
+		</div>
+	);
+};
 
 const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
 	return (

@@ -1,6 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -177,10 +178,12 @@ class Jetpack_AMP_Support {
 	 * @since 6.2.1
 	 */
 	public static function add_stats_pixel() {
-		if ( ! has_action( 'wp_footer', 'stats_footer' ) ) {
+		if ( ! has_action( 'wp_footer', array( Stats_Tracking_Pixel::class, 'add_to_footer' ) ) ) {
 			return;
 		}
-		stats_render_amp_footer( stats_build_view_data() );
+
+		$stats_data = Stats_Tracking_Pixel::build_view_data();
+		Stats_Tracking_Pixel::render_amp_footer( $stats_data );
 	}
 
 	/**

@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.22.1 - 2022-10-06
+### Changed
+- Do not open upgrade links from Jetpack Social in a new tab [#26649]
+- Update ContextualUpgradeTrigger component styles [#26633]
+
+## 0.22.0 - 2022-10-05
+### Added
+- Improve upon elements used within the PricingTable component [#26364]
+- Introduce JetpackSearchLogo component [#26481]
+- RNA: register jp-yellow-10 color in the ThemePrtovider [#26508]
+
+### Changed
+- Fix ProductPrice layout for long prices [#26595]
+- IconTooltip: Use click instead of mouseover for summoning [#26457]
+- Refactor props for structure consistency with JetpackLogo component. [#26510]
+- Updated package dependencies. [#26568]
+- Updated package dependencies. [#26583]
+
+### Fixed
+- Components: fix the positio of TOS component of the PricingTable cmp [#26509]
+- Fixed color and size per design for Indeterminate Progress Bar [#26458]
+- RNA: Scope global CSS modification on IconTooltip component [#26584]
+
 ## 0.21.0 - 2022-09-27
 ### Added
 - Added indeterminate progress bar [#26370]

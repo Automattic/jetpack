@@ -6,14 +6,14 @@
 	"require": {
 		"automattic/jetpack-connection": "^1.45",
 		"automattic/jetpack-autoloader": "^2.11",
-		"automattic/jetpack-config": "^1.10",
+		"automattic/jetpack-config": "^1.11",
 		"automattic/jetpack-assets": "^1.17",
 		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2",
-		"automattic/wordbless": "^0.4.0"
+		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
 		"classmap": [

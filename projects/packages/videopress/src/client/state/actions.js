@@ -13,6 +13,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_VIDEO_PRIVACY,
 	DELETE_VIDEO,
 	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
@@ -20,6 +21,9 @@ import {
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
+	SET_IS_FETCHING_PURCHASES,
+	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
 
 const setIsFetchingVideos = isFetching => {
@@ -47,6 +51,10 @@ const setVideo = video => {
 	return { type: SET_VIDEO, video };
 };
 
+const setVideoPrivacy = ( { id, privacySetting } ) => {
+	return { type: SET_VIDEO_PRIVACY, id, privacySetting };
+};
+
 const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 	return { type: SET_IS_FETCHING_UPLOADED_VIDEO_COUNT, isFetchingUploadedVideoCount };
 };
@@ -71,8 +79,7 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	}
 
 	// Let's be optimistic and update the UI right away.
-	// @todo: Add a loading state to the state/UI.
-	dispatch.setVideo( {
+	dispatch.setVideoPrivacy( {
 		id,
 		privacySetting,
 	} );
@@ -92,6 +99,8 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 			// @todo: implement error handling / UI
 			return;
 		}
+
+		return dispatch( { type: UPDATE_VIDEO_PRIVACY, id, privacySetting } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
@@ -141,6 +150,14 @@ const deleteVideo = id => async ( { dispatch } ) => {
 	}
 };
 
+const setIsFetchingPurchases = isFetching => {
+	return { type: SET_IS_FETCHING_PURCHASES, isFetching };
+};
+
+const setPurchases = purchases => {
+	return { type: SET_PURCHASES, purchases };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -153,10 +170,14 @@ const actions = {
 	setIsFetchingUploadedVideoCount,
 	setUploadedVideoCount,
 
+	setVideoPrivacy,
 	updateVideoPrivacy,
 
 	removeVideo,
 	deleteVideo,
+
+	setIsFetchingPurchases,
+	setPurchases,
 };
 
 export { actions as default };

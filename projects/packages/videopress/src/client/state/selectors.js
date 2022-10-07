@@ -36,13 +36,18 @@ export const getVideo = ( state, id ) => {
 };
 
 export const getVideoStateMetadata = ( state, id ) => {
-	const _metaItems = state?.videos?._meta?.items || {};
-	const _metaVideo = _metaItems[ id ] || {};
-	return {
-		isDeleting: !! _metaVideo.isDeleting,
-		hasBeenDeleted: !! _metaVideo.hasBeenDeleted,
-		deletedVideo: _metaVideo.deletedVideo,
-	};
+	if ( ! state?.videos?._meta?.items ) {
+		return {};
+	}
+	return state.videos._meta.items?.[ id ] || {};
+};
+
+export const isFetchingPurchases = state => {
+	return state?.purchases?.isFetching;
+};
+
+export const getPurchases = state => {
+	return state?.purchases?.items || [];
 };
 
 const selectors = {
@@ -56,6 +61,9 @@ const selectors = {
 
 	getVideo,
 	getVideoStateMetadata,
+
+	getPurchases,
+	isFetchingPurchases,
 };
 
 export default selectors;

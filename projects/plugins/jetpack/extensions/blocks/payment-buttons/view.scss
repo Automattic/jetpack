@@ -1,13 +1,15 @@
 .wp-block-jetpack-payment-buttons {
 	--jetpack-payment-buttons-gap: 0.5em;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-start;
-	flex-wrap: wrap;
-	gap: var( --jetpack-payment-buttons-gap );
-
+	&.is-layout-flex {
+		gap: var(--jetpack-payment-buttons-gap);
+	}
 	.wp-block-button__link {
 		width: 100%;
 	}
+}
+
+// Ensure that the contained jetpack buttons that don't have an explicit custom font size set
+// use the font size from this block if a custom font-size has been set on this block.
+.wp-block-jetpack-payment-buttons.has-custom-font-size .wp-block-jetpack-button .wp-block-button__link {
+	font-size: inherit;
 }

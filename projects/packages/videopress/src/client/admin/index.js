@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import { initStore } from '../state';
 import AdminPage from './components/admin-page';
 import EditVideoDetails from './components/edit-video-details';
+import './style.module.scss';
 
 initStore();
 

@@ -60,6 +60,12 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
+					'caption'         => array(
+						'description'       => __( 'The caption of the video.', 'jetpack-videopress-pkg' ),
+						'type'              => 'string',
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
 					'rating'          => array(
 						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
@@ -138,6 +144,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						return current_user_can( 'upload_files' );
 					},
 				),
+			)
+		);
+
+		// Token Route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/upload-jwt',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'videopress_upload_jwt' ),
+				'permission_callback' => function () {
+					return current_user_can( 'upload_files' );
+				},
 			)
 		);
 	}
@@ -239,6 +258,36 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
+	 * Endpoint for getting the VideoPress Upload JWT
+	 *
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public static function videopress_upload_jwt() {
+		$blog_id = VideoPressToken::blog_id();
+
+		try {
+			$token  = VideoPressToken::videopress_upload_jwt();
+			$status = 200;
+			$data   = array(
+				'upload_token'   => $token,
+				'upload_url'     => videopress_make_resumable_upload_path( $blog_id ),
+				'upload_blog_id' => $blog_id,
+			);
+		} catch ( \Exception $e ) {
+			// TODO: Improve status code.
+			$status = 500;
+			$data   = array(
+				'error' => $e->getMessage(),
+			);
+
+		}
+
+		return rest_ensure_response(
+			new WP_REST_Response( $data, $status )
+		);
+	}
+
+	/**
 	 * Updates attachment meta and video metadata via the WPCOM REST API.
 	 *
 	 * @param WP_REST_Request $request the request object.
@@ -290,12 +339,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$response_body = json_decode( wp_remote_retrieve_body( $result ) );
 		if ( is_bool( $response_body ) && $response_body ) {
 			/*
-			 * Title and description of the video are not stored as metadata on the attachment,
-			 * but as post_content and post_title on the attachment's post object.
+			 * Title, description and caption of the video are not stored as metadata on the attachment,
+			 * but as post_content, post_title and post_excerpt on the attachment's post object.
 			 * We need to update those fields here, too.
 			 */
-			$post_title = isset( $json_params['title'] ) ? sanitize_text_field( $json_params['title'] ) : null;
-			if ( $post_title ) {
+			$post_title = null;
+			if ( isset( $json_params['title'] ) ) {
+				$post_title = sanitize_text_field( $json_params['title'] );
 				wp_update_post(
 					array(
 						'ID'         => $post_id,
@@ -304,12 +354,24 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				);
 			}
 
-			$post_content = isset( $json_params['description'] ) ? sanitize_textarea_field( $json_params['description'] ) : null;
-			if ( $post_content ) {
+			$post_content = null;
+			if ( isset( $json_params['description'] ) ) {
+				$post_content = sanitize_textarea_field( $json_params['description'] );
 				wp_update_post(
 					array(
 						'ID'           => $post_id,
 						'post_content' => $post_content,
+					)
+				);
+			}
+
+			$post_excerpt = null;
+			if ( isset( $json_params['caption'] ) ) {
+				$post_excerpt = sanitize_textarea_field( $json_params['caption'] );
+				wp_update_post(
+					array(
+						'ID'           => $post_id,
+						'post_excerpt' => $post_excerpt,
 					)
 				);
 			}
@@ -338,7 +400,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$should_update_meta           = true;
 				}
 
-				if ( isset( $post_title ) ) {
+				if ( isset( $json_params['title'] ) ) {
 					$meta['videopress']['title'] = $post_title;
 					$should_update_meta          = true;
 				}
@@ -346,6 +408,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				if ( isset( $json_params['description'] ) ) {
 					$meta['videopress']['description'] = $post_content;
 					$should_update_meta                = true;
+				}
+
+				if ( isset( $json_params['caption'] ) ) {
+					$meta['videopress']['caption'] = $post_excerpt;
+					$should_update_meta            = true;
 				}
 
 				if ( isset( $json_params['allow_download'] ) ) {

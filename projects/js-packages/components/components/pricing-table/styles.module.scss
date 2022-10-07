@@ -7,7 +7,6 @@
 .table {
 	--gap: calc( var( --spacing-base ) * 3 );
 	position: relative;
-	z-index: 2;
 	padding: var( --padding ) 0;
 
 	.is-viewport-large & {
@@ -60,6 +59,9 @@
 
 .header {
 	padding: var( --padding );
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
 .item {

@@ -1,0 +1,48 @@
+@import 'scss/_variables.scss';
+
+.donut-meter-container {
+	display: flex;
+	height: fit-content; // or 64px?
+	width: fit-content;
+
+	.donut-meter-wrapper {
+		height: fit-content;
+	}
+
+	.donut-info-wrapper {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		height: auto;
+		margin: 0 8px;
+		padding: 8px 0;
+	}
+
+	.donut-info-primary {
+		margin: 0 0 8px 0;
+		font-size: 1em;
+		line-height: 1em;
+		font-weight: bold;
+	}
+
+	.donut-info-secondary {
+		color: $studio-gray-60;
+		margin: 0;
+		font-size: 0.7em;
+		line-height: 0.7em;
+
+		.info-link {
+			color: $studio-black;
+			text-decoration: underline;
+
+			&:not( a ) {
+				cursor: default;
+			}
+		}
+	}
+
+	.info-icon-wrapper {
+		color: black;
+		vertical-align: middle;
+	}
+}

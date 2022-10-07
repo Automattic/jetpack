@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Provide the used storage space on the initial state data, using the site information fetched from the WPCOM API.
