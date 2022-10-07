@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed return from array to Object in WPCOM_Stats methods to be consistent with previous behavior in stats module.
