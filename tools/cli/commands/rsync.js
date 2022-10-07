@@ -114,6 +114,24 @@ async function promptToManageConfig() {
 }
 
 /**
+ * Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
+ * Only patterns use backslash escapes, literal strings do not.
+ *
+ * @param {string} file - File to add.
+ * @param {Set} filters - Set to add filter rules into.
+ * @returns {void}
+ */
+async function addFileToFilter( file, filters ) {
+	// Rsync requires we also list all the directories containing the file.
+	let prev;
+	do {
+		filters.add( '+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) );
+		prev = file;
+		file = path.dirname( file ) + '/';
+	} while ( file !== '/' && file !== './' && file !== prev );
+}
+
+/**
  * Collect rsync filter rules based on files at a path.
  *
  * @param {string} source - Source path.
@@ -124,7 +142,7 @@ async function promptToManageConfig() {
 async function buildFilterRules( source, prefix, filters ) {
 	// Include just the files that are published to the mirror.
 	for await ( const rfile of listProjectFiles( source, execa ) ) {
-		let file = path.join( prefix, rfile );
+		const file = path.join( prefix, rfile );
 
 		// If the file is a monorepo vendor symlink, we need to follow it.
 		const fullpath = path.join( source, file );
@@ -144,15 +162,44 @@ async function buildFilterRules( source, prefix, filters ) {
 			}
 		}
 
-		// Rsync requires we also list all the directories containing the file.
-		let prev;
-		do {
-			// Rsync differentiates literal strings vs patterns by looking for `[`, `*`, and `?`.
-			// Only patterns use backslash escapes, literal strings do not.
-			filters.add( '+ /' + ( file.match( /[[*?]/ ) ? file.replace( /[[*?\\]/g, '\\$&' ) : file ) );
-			prev = file;
-			file = path.dirname( file ) + '/';
-		} while ( file !== '/' && file !== './' && file !== prev );
+		await addFileToFilter( file, filters );
+	}
+}
+
+/**
+ * Explicitly add any /vendor files that are otherwise not symlinked.
+ * Necessary when rsyncing development builds.
+ *
+ * @param {string} source - Source path.
+ * @param {Set} filters - Set to add filter rules into.
+ * @returns {void}
+ */
+async function addVendorFilesToFilter( source, filters ) {
+	const dirents = await fs.readdir( source, { withFileTypes: true } );
+	const files = await Promise.all(
+		dirents.map( dirent => {
+			const fileSource = path.resolve( source, dirent.name );
+			return dirent.isDirectory() ? addVendorFilesToFilter( fileSource, filters ) : fileSource;
+		} )
+	);
+
+	for ( const file of files ) {
+		if (
+			await fs.lstat( file ).then(
+				dirent => dirent.isSymbolicLink(),
+				() => false
+			)
+		) {
+			// Skip the symlinks.
+			continue;
+		}
+		if ( file ) {
+			// Relative file path to the project dir.
+			const relativeFilePath = file.substring( file.indexOf( '/vendor' ) + 1 );
+			if ( relativeFilePath.startsWith( 'vendor' ) ) {
+				await addFileToFilter( relativeFilePath, filters );
+			}
+		}
 	}
 }
 
@@ -166,7 +213,8 @@ async function buildFilterRules( source, prefix, filters ) {
  */
 async function rsyncToDest( source, dest, pluginDestPath ) {
 	const filters = new Set();
-
+	// To catch files required in dev builds.
+	await addVendorFilesToFilter( `${ source }/vendor/`, filters );
 	await buildFilterRules( source, '', filters );
 
 	// Exclude anything not included above.
