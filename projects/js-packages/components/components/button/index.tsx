@@ -53,11 +53,18 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 	);
 	const externalTarget = isExternalLink ? '_blank' : undefined;
 
+	// ref https://github.com/WordPress/gutenberg/pull/44198
+	const hasChildren =
+		children?.[ 0 ] &&
+		children[ 0 ] !== null &&
+		// Tooltip should not considered as a child
+		children?.[ 0 ]?.props?.className !== 'components-tooltip';
+
 	return (
 		<WPButton
 			target={ externalTarget }
 			variant={ variant }
-			className={ className }
+			className={ classNames( className, { 'has-text': !! icon && hasChildren } ) }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
 			disabled={ disabled }
