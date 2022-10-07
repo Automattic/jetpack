@@ -20,8 +20,10 @@ use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
+use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+
 /**
  * Class Jetpack_Protect
  */
@@ -174,6 +176,7 @@ class Jetpack_Protect {
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
+			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
