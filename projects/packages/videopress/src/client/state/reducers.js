@@ -12,6 +12,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_VIDEO_PRIVACY,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	SET_VIDEOS_STORAGE_USED,
@@ -19,6 +20,7 @@ import {
 	DELETE_VIDEO,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
 
 /**
@@ -121,6 +123,73 @@ const videos = ( state, action ) => {
 				isFetching: false,
 				uploadedVideoCount,
 				pagination,
+			};
+		}
+
+		case SET_VIDEO_PRIVACY: {
+			const { id, privacySetting } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			// current -> previous value of privacy
+			const current = items[ videoIndex ].privacySetting;
+
+			// Set privacy setting straigh in the state. Let's be optimistic.
+			items[ videoIndex ] = {
+				...items[ videoIndex ],
+				privacySetting,
+			};
+
+			// Set metadata about the privacy change.
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: true,
+							hasBeenUpdatedPrivacy: false,
+							prevPrivacySetting: current,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_PRIVACY: {
+			const { id } = action;
+
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			if ( ! _metaItems?.[ id ] ) {
+				return state;
+			}
+
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: false,
+							hasBeenUpdatedPrivacy: true,
+							prevPrivacySetting: null,
+						},
+					},
+				},
 			};
 		}
 

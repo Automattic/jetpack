@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { RangeControl } from '@wordpress/components';
+import { RangeControl, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -36,12 +36,17 @@ export const VideoPlayer = ( { src, setMaxDuration = null, currentTime } ) => {
 	};
 
 	return (
-		<video
-			ref={ videoPlayer }
-			muted
-			className={ styles.video }
-			onDurationChange={ onDurationChange }
-		/>
+		<div className={ styles[ 'video-player-wrapper' ] }>
+			<div className={ styles[ 'video-player-spinner-wrapper' ] }>
+				<Spinner className={ styles.spinner } />
+			</div>
+			<video
+				ref={ videoPlayer }
+				muted
+				className={ styles.video }
+				onDurationChange={ onDurationChange }
+			/>
+		</div>
 	);
 };
 
