@@ -238,14 +238,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "40689b952f493434b9c01f41d17a38dabeec31d7"
+                "reference": "6280dc112863d6ac3717b85c8fc4996f39c19ce1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-autoloader": "^2.11",
                 "automattic/jetpack-composer-plugin": "^1.1",
-                "automattic/jetpack-config": "^1.10",
+                "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.45",
                 "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-my-jetpack": "^2.2",
@@ -374,7 +374,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "1ac411523b494f83c22ee7e6b62b9bbe636dc5d5"
+                "reference": "a604f3fbfa5c6d96925eebcf4d4240cb5f07fcf1"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2"
@@ -388,7 +388,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.10.x-dev"
+                    "dev-trunk": "1.11.x-dev"
                 }
             },
             "autoload": {
