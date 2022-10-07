@@ -929,7 +929,7 @@ table.wpsc-settings-table {
 	?>
 	<style>
 		.boost-banner {
-			margin: 0.5rem 1.25rem 1.25rem 0;
+			margin: 2px 1.25rem 1.25rem 0;
 			box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
 			border: 1px solid #d5d5d5;
 			position: relative;
