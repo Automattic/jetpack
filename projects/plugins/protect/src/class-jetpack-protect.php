@@ -181,7 +181,7 @@ class Jetpack_Protect {
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
 
-		$initial_state['securityBundle']['pricingForUi'] = Plan::get_product( 'jetpack_security_t1_yearly' );
+		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
 
 		return $initial_state;
 	}
