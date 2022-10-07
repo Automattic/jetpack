@@ -23,35 +23,6 @@
 	gap: var( --spacing-base ); // 8px
 }
 
-.delete-video-modal {
-	// @todo: probably create a Modal component to handle this
-	--spacing-base: 8px;
-	--font-title-small: 20px;
-
-	:global(.components-modal__content) {
-		margin-top: 0;
-		padding: calc( var( --spacing-base ) * 4 );
-
-		:global( .components-modal__header ) {
-			position: unset;
-			height: 30px;
-			padding: 0;
-			margin-bottom: calc( var( --spacing-base ) * 3 );
-
-			h1 {
-				font-size: var( --font-title-small );
-				font-weight: 500;
-				line-height: 30px;
-			}
-	
-			:global( components-modal__header-heading-container ) {
-				height: 24px;
-				line-height: 24px;
-			}
-		}	
-	}
-}
-
 .modal-actions {
 	display: flex;
 	justify-content: right;

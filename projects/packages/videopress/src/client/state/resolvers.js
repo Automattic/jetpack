@@ -1,17 +1,23 @@
 /**
  * External dependencies
  */
-import restApi from '@automattic/jetpack-api';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { SET_VIDEOS_QUERY, WP_REST_API_MEDIA_ENDPOINT, DELETE_VIDEO } from './constants';
+import {
+	SET_VIDEOS_QUERY,
+	WP_REST_API_MEDIA_ENDPOINT,
+	DELETE_VIDEO,
+	REST_API_SITE_PURCHASES_ENDPOINT,
+	REST_API_SITE_INFO_ENDPOINT,
+} from './constants';
 import { getDefaultQuery } from './reducers';
 import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
 
-const { apiNonce, apiRoot } = window?.jetpackVideoPressInitialState || {};
+const { apiRoot } = window?.jetpackVideoPressInitialState || {};
 
 const getVideos = {
 	isFulfilled: state => {
@@ -53,12 +59,11 @@ const getVideos = {
 			);
 
 			// pick the pagination data form response header...
-			const pagination = {
-				total: Number( response.headers.get( 'X-WP-Total' ) ),
-				totalPages: Number( response.headers.get( 'X-WP-TotalPages' ) ),
-			};
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
 
-			dispatch.setVideosPagination( pagination );
+			// Update pagination and total uploaded videos count.
+			dispatch.setVideosPagination( { total, totalPages } );
 
 			// ... and the videos data from the response body.
 			const videos = await response.json();
@@ -79,8 +84,12 @@ const getVideo = {
 		if ( ! id ) {
 			return true;
 		}
+
 		const videos = state.videos.items ?? [];
-		return videos?.some( ( { id: videoId } ) => videoId === id );
+		const uploading = state?.videos?._meta?.items ?? {};
+		const isUploading = uploading?.[ id ]?.uploading ?? false;
+
+		return videos?.some( video => video?.id === id ) || isUploading;
 	},
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
@@ -128,16 +137,33 @@ const getUploadedVideoCount = {
 	},
 };
 
+const getPurchases = {
+	fulfill: () => async ( { dispatch, registry } ) => {
+		const { currentUser } = registry.select( CONNECTION_STORE_ID ).getUserConnectionData();
+		if ( ! currentUser?.isConnected ) {
+			return;
+		}
+
+		dispatch.setIsFetchingPurchases( true );
+
+		try {
+			const purchases = await apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } );
+			dispatch.setPurchases( purchases );
+		} catch ( error ) {
+			// @todo: handle error
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 const getStorageUsed = {
 	isFulfilled: state => {
 		return state?.videos?._meta?.relyOnInitialState;
 	},
 
 	fulfill: () => async ( { dispatch } ) => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
 		try {
-			const response = await restApi.fetchSiteData();
+			const response = await apiFetch( { path: REST_API_SITE_INFO_ENDPOINT } );
 			if ( ! response?.options?.videopress_storage_used ) {
 				return;
 			}
@@ -147,7 +173,7 @@ const getStorageUsed = {
 			 * Let's compute the value in bytes.
 			 */
 			const storageUsed = response.options.videopress_storage_used
-				? Number( response.options.videopress_storage_used ) * 1024 * 1024
+				? Math.round( Number( response.options.videopress_storage_used ) * 1024 * 1024 )
 				: 0;
 
 			dispatch.setVideosStorageUsed( storageUsed );
@@ -163,4 +189,5 @@ export default {
 	getUploadedVideoCount,
 	getVideos,
 	getVideo,
+	getPurchases,
 };

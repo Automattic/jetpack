@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.14.1 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
 ## 0.14.0 - 2022-09-27
 ### Removed
 - Mobile Login Email: Remove unused code [#26311]

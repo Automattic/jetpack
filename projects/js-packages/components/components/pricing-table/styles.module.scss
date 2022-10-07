@@ -59,6 +59,9 @@
 
 .header {
 	padding: var( --padding );
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
 .item {

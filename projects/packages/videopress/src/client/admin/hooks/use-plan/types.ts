@@ -107,4 +107,8 @@ export type usePlanProps = {
 	features?: paidFeaturesProp;
 	siteProduct?: siteProductProps;
 	product?: productProps;
+
+	purchases?: Array< object >;
+	hasVideoPressPurchase: boolean;
+	isFetchingPurchases: boolean;
 };

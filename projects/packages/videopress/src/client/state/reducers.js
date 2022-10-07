@@ -12,11 +12,18 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_VIDEO_PRIVACY,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
 	SET_UPLOADED_VIDEO_COUNT,
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
+	UPLOADING_VIDEO,
+	PROCESSING_VIDEO,
+	UPLOADED_VIDEO,
+	SET_IS_FETCHING_PURCHASES,
+	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
 
 /**
@@ -91,20 +98,12 @@ const videos = ( state, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { query = getDefaultQuery() } = state;
 			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
-
-			let uploadedVideoCount = state.uploadedVideoCount;
-			const pagination = { ...state.pagination };
 
 			if ( videoIndex === -1 ) {
 				// Add video when not found at beginning of the list.
 				items.unshift( video );
-				// Updating pagination and count
-				uploadedVideoCount += 1;
-				pagination.total += 1;
-				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -115,10 +114,75 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
-				items,
 				isFetching: false,
-				uploadedVideoCount,
-				pagination,
+				items,
+			};
+		}
+
+		case SET_VIDEO_PRIVACY: {
+			const { id, privacySetting } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			// current -> previous value of privacy
+			const current = items[ videoIndex ].privacySetting;
+
+			// Set privacy setting straigh in the state. Let's be optimistic.
+			items[ videoIndex ] = {
+				...items[ videoIndex ],
+				privacySetting,
+			};
+
+			// Set metadata about the privacy change.
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: true,
+							hasBeenUpdatedPrivacy: false,
+							prevPrivacySetting: current,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_PRIVACY: {
+			const { id } = action;
+
+			const _metaItems = { ...( state._meta?.items ?? [] ) };
+			if ( ! _metaItems?.[ id ] ) {
+				return state;
+			}
+
+			const _metaVideo = _metaItems[ id ] ?? {};
+
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					items: {
+						..._metaItems,
+						[ id ]: {
+							..._metaVideo,
+							isUpdatingPrivacy: false,
+							hasBeenUpdatedPrivacy: true,
+							prevPrivacySetting: null,
+						},
+					},
+				},
 			};
 		}
 
@@ -170,6 +234,7 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
+			const uploadedVideoCount = state.uploadedVideoCount - 1;
 
 			if ( ! _metaVideo ) {
 				return state;
@@ -177,6 +242,7 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
+				uploadedVideoCount,
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
@@ -215,6 +281,106 @@ const videos = ( state, action ) => {
 			};
 		}
 
+		case UPLOADING_VIDEO: {
+			const { id, title } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							title,
+							uploading: true,
+						},
+					},
+				},
+			};
+		}
+
+		case PROCESSING_VIDEO: {
+			const { id, data } = action;
+			const items = [ ...( state?.items ?? [] ) ];
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
+			const title = currentMetaItems[ id ]?.title || '';
+
+			// Insert new video
+			items.unshift( {
+				id: data.id,
+				guid: data.guid,
+				url: data.src,
+				title,
+				posterImage: null,
+				finished: false,
+			} );
+
+			// Remove video from uploading meta
+			delete currentMetaItems[ id ];
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...currentMeta,
+					items: currentMetaItems,
+				},
+			};
+		}
+
+		case UPLOADED_VIDEO: {
+			const { video } = action;
+			const query = state?.query ?? getDefaultQuery();
+			const items = [ ...( state?.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === video.id );
+
+			// Probably user is searching or in another page than first
+			if ( videoIndex === -1 ) {
+				return state;
+			}
+
+			items[ videoIndex ] = video;
+
+			// Updating pagination and count
+			const total = ( state?.uploadedVideoCount ?? 0 ) + 1;
+			const pagination = { ...state.pagination };
+
+			pagination.total = total;
+			pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
+
+			return {
+				...state,
+				items,
+				uploadedVideoCount: total,
+				pagination,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
+const purchases = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PURCHASES: {
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		}
+
+		case SET_PURCHASES: {
+			return {
+				...state,
+				items: action.purchases,
+				isFetching: false,
+			};
+		}
+
 		default:
 			return state;
 	}
@@ -222,6 +388,7 @@ const videos = ( state, action ) => {
 
 const reducers = combineReducers( {
 	videos,
+	purchases,
 } );
 
 export default reducers;

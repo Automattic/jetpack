@@ -198,13 +198,13 @@ class Jetpack_Social {
 					'jetpackSettings' => array(
 						'publicize_active'  => self::is_publicize_active(),
 						'show_pricing_page' => self::should_show_pricing_page(),
+						'showNudge'         => ! $publicize->has_paid_plan( true ),
 					),
 					'connectionData'  => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
 					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'showNudge'       => ! $publicize->has_paid_plan( true ),
 				)
 			);
 		}

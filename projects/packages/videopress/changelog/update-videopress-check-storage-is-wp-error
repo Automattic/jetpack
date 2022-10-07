@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: check whether the $site_data is a WP_Error instance before to het the storage used data
