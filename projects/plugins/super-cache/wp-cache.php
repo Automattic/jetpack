@@ -1001,7 +1001,7 @@ table.wpsc-settings-table {
 	</style>
 
 	<?php
-		$showing_boost_banner = get_option( 'wpsc_2022_boost_banner', true );
+		$showing_boost_banner = ! class_exists( 'Automattic\Jetpack_Boost\Jetpack_Boost' ) && get_option( 'wpsc_2022_boost_banner', true );
 		$boost_banner_nonce = wp_create_nonce( 'wpsc_2022_boost_banner' );
 	?>
 	
