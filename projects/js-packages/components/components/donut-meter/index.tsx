@@ -88,7 +88,8 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 	type,
 	useAdaptiveColors,
 } ) => {
-	const percentage = ( segmentCount / totalCount ) * 100;
+	const validDivisor = totalCount === 0 ? 1 : totalCount;
+	const percentage = ( segmentCount / validDivisor ) * 100;
 
 	// If we don't have a title or description, hide the meter from screen readers.
 	const isHidden =
