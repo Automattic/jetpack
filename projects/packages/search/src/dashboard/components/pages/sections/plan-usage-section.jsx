@@ -12,7 +12,7 @@ const PlanUsageSection = props => {
 		return null;
 	}
 	// TODO: Add logic for plan limits.
-	const upgradeMessage = undefined;
+	const upgradeMessage = null;
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
@@ -20,7 +20,7 @@ const PlanUsageSection = props => {
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<PlanSummary />
 					<UsageMeters />
-					<CUTWrapper type={ upgradeMessage } />
+					<UpgradeTrigger type={ upgradeMessage } />
 					<AboutPlanLimits />
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
@@ -47,8 +47,8 @@ const PlanSummary = () => {
 	);
 };
 
-const getCUTMessages = () => {
-	const CUTMessages = {
+const getUpgradeMessages = () => {
+	const upgradeMessages = {
 		records: {
 			description: __(
 				"You’re close to exceeding this plan's number of records.",
@@ -80,10 +80,10 @@ const getCUTMessages = () => {
 			),
 		},
 	};
-	return CUTMessages;
+	return upgradeMessages;
 };
 
-const CUTWrapper = props => {
+const UpgradeTrigger = props => {
 	// TODO: Replace this callback with prop.
 	const callbackForwarder = event => {
 		event.preventDefault();
@@ -91,13 +91,13 @@ const CUTWrapper = props => {
 		// eslint-disable-next-line no-console
 		console.log( 'CUT clicked...' );
 	};
-	const messages = props.type && getCUTMessages()[ props.type ];
-	const trigger = messages && { ...messages, onClick: callbackForwarder };
+	const upgradeMessage = props.type && getUpgradeMessages()[ props.type ];
+	const triggerData = upgradeMessage && { ...upgradeMessage, onClick: callbackForwarder };
 	return (
 		<>
-			{ trigger && (
+			{ triggerData && (
 				<ThemeProvider>
-					<ContextualUpgradeTrigger { ...trigger } />
+					<ContextualUpgradeTrigger { ...triggerData } />
 				</ThemeProvider>
 			) }
 		</>
