@@ -947,7 +947,7 @@ table.wpsc-settings-table {
 		.boost-banner-content {
 			display: inline-flex;
 			flex-direction: column;
-			padding: 2rem 3rem 2rem 4rem;
+			padding: 2rem 3rem 2rem 2rem;
 			text-align: left;
 		}
 
@@ -1004,7 +1004,7 @@ table.wpsc-settings-table {
 		$showing_boost_banner = ! class_exists( 'Automattic\Jetpack_Boost\Jetpack_Boost' ) && get_option( 'wpsc_2022_boost_banner', true );
 		$boost_banner_nonce = wp_create_nonce( 'wpsc_2022_boost_banner' );
 	?>
-	
+
 	<table class="wpsc-settings-table"><td valign="top">
 
 	<?php
@@ -1044,7 +1044,7 @@ table.wpsc-settings-table {
 							>
 						</div>
 					</div>
-					
+
 					<span class="boost-dismiss dashicons dashicons-dismiss"></span>
 				</div>
 
