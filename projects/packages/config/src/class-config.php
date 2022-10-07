@@ -19,6 +19,7 @@ use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
+use Automattic\Jetpack\Stats\Main as Stats_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
@@ -49,6 +50,7 @@ class Config {
 		'wordads'         => false,
 		'waf'             => false,
 		'videopress'      => false,
+		'stats'           => false,
 	);
 
 	/**
@@ -145,6 +147,9 @@ class Config {
 
 		if ( $this->config['videopress'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\VideoPress\Initializer' ) && $this->ensure_feature( 'videopress' );
+		}
+		if ( $this->config['stats'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats\Main' ) && $this->ensure_feature( 'stats' );
 		}
 	}
 
@@ -301,6 +306,14 @@ class Config {
 	 */
 	protected function enable_videopress() {
 		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats.
+	 */
+	protected function enable_stats() {
+		Stats_Main::init();
 		return true;
 	}
 

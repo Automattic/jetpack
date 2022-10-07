@@ -111,6 +111,7 @@ const ThumbnailActionsDropdown = ( { description, onUpdate }: ThumbnailActionsDr
 const PrivacyActionsDropdown = ( {
 	description,
 	privacySetting,
+	isUpdatingPrivacy,
 	onUpdate,
 }: PrivacyActionsDropdownProps ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
@@ -140,6 +141,7 @@ const PrivacyActionsDropdown = ( {
 						aria-expanded={ isOpen }
 						onMouseEnter={ () => setShowPopover( true ) }
 						onMouseLeave={ () => setShowPopover( false ) }
+						disabled={ isUpdatingPrivacy }
 					/>
 					{ showPopover && (
 						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
@@ -198,6 +200,7 @@ const PrivacyActionsDropdown = ( {
 const VideoQuickActions = ( {
 	className,
 	privacySetting,
+	isUpdatingPrivacy,
 	onUpdateVideoThumbnail,
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
@@ -212,6 +215,7 @@ const VideoQuickActions = ( {
 			<PrivacyActionsDropdown
 				onUpdate={ onUpdateVideoPrivacy }
 				privacySetting={ privacySetting }
+				isUpdatingPrivacy={ isUpdatingPrivacy }
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
 			/>
 
@@ -230,7 +234,8 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	}
 
 	const dispatch = useDispatch( STORE_ID );
-	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy } = useVideo( videoId );
+
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
 	const [ updatingThumbnail, setUpdatingThumbnail ] = useState( false );
 	const {
@@ -327,6 +332,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 				onUpdateVideoThumbnail={ handleOpenSelectFrame }
 				onDeleteVideo={ () => setShowDeleteModal( true ) }
 				privacySetting={ privacySetting }
+				isUpdatingPrivacy={ isUpdatingPrivacy }
 			/>
 		)
 	);
