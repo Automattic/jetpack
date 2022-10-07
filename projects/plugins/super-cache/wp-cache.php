@@ -1013,10 +1013,10 @@ table.wpsc-settings-table {
 				<div class="boost-banner">
 					<div class="boost-banner-inner">
 						<div class="boost-banner-content">
-							<img src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
+							<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
 
 							<h2>
-								<?php esc_html_e( 'Go faster with Jetpack Boost', 'wp-super-cache' ); ?>
+								<?php esc_html_e( 'Find out how Super Cache speeds up your site', 'wp-super-cache' ); ?>
 							</h2>
 
 							<p>
