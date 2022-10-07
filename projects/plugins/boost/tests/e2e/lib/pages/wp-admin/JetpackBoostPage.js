@@ -26,6 +26,19 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	/**
+	 * Select the free plan from getting started page.
+	 */
+	async chooseFreePlan() {
+		const button = await this.page.$( '.comparison-table__cta .jb-button--outline' );
+		await button.click();
+		await this.page.waitForResponse(
+			response =>
+				response.url().match( /jetpack-boost\/v1\/get-started/ ) && response.status() === 200,
+			{ timeout: 2 * 60 * 1000 }
+		);
+	}
+
+	/**
 	 * Check if the site looks disconnected from WordPress.com based on elements on the dashboard page.
 	 * Specifically checks for a "Connect" button.
 	 *

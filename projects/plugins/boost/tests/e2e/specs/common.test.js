@@ -10,7 +10,7 @@ test.afterAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
-	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
+	await boostPrerequisitesBuilder( page ).withConnection( true ).withGotStarted().build();
 	await page.close();
 } );
 
@@ -40,6 +40,7 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 	await boostPrerequisitesBuilder( page )
 		.withCleanEnv( true )
+		.withGotStarted()
 		.withActiveModules( [ 'critical-css' ] )
 		.build();
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
