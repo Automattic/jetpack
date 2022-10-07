@@ -99,18 +99,17 @@ const DonutMeter: React.FC< DonutMeterProps > = ( {
 			? 'true'
 			: 'false';
 
-	const finalClassName = `donut-meter${ className ? className + ' ' : '' }${
+	const finalClassName = `donut-meter ${ className ? className + ' ' : '' }${
 		type ? 'is-' + type + ' ' : ''
 	} ${ ! type && useAdaptiveColors ? 'is-' + getAdaptiveType( percentage ) + ' ' : '' }`.trim();
 
 	return (
-		<div className={ finalClassName } aria-hidden={ isHidden }>
+		<div className={ finalClassName } aria-hidden={ isHidden } data-testid="donut-meter">
 			<svg
 				width={ donutWidth }
 				height={ donutWidth }
 				viewBox="0 0 40 40"
 				className="donut-meter_svg"
-				data-testid="donut-meter_svg"
 				role="img"
 			>
 				<title id="donut-meter-title">{ title }</title>
