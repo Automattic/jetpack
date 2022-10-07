@@ -223,6 +223,13 @@ class Critical_CSS_State {
 
 		if ( 100 === $this->get_percent_complete() ) {
 			$this->state = self::SUCCESS;
+
+			/**
+			 * Fires when Critical CSS has been generated - whether locally or remotely.
+			 *
+			 * @since 1.5.2
+			 */
+			do_action( 'jetpack_boost_critical_css_generated', $this->state );
 		}
 
 		$this->save();
