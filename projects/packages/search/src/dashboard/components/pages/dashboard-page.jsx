@@ -17,7 +17,7 @@ import RecordMeter from 'components/record-meter';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
-import PlanUsageSection from './sections/plan-usage-section';
+import PlanUsageSection, { getUpgradeMessages } from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 /**
@@ -182,27 +182,23 @@ const PlanSummary = ( { latestMonthRequests } ) => {
 };
 
 const UsageMeter = ( { sendPaidPlanToCart } ) => {
-	const upgradeTriggerArgs = {
-		description: __(
-			'Do you want to increase your site records and search requests?',
-			'jetpack-search-pkg'
-		),
-		cta: __( 'Upgrade now and avoid any future interruption!', 'jetpack-search-pkg' ),
-		onClick: sendPaidPlanToCart,
-	};
-
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 
-	// @TODO Apply the real data `plan_usage.should_upgrade` and `plan_usage.upgrade_reason` after testing
 	let mustUpgradeReason = '';
-	if ( latestMonthRequests.num_requests > currentPlan.monthly_search_request_limit ) {
+	if ( currentUsage.upgrade_reason.requests ) {
 		mustUpgradeReason = 'requests';
 	}
-	if ( currentUsage.num_records > currentPlan.record_limit ) {
+	if ( currentUsage.upgrade_reason.records ) {
 		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
 	}
+
+	const upgradeTriggerArgs = {
+		description: mustUpgradeReason && getUpgradeMessages()[ mustUpgradeReason ].description,
+		cta: mustUpgradeReason && getUpgradeMessages()[ mustUpgradeReason ].cta,
+		onClick: sendPaidPlanToCart,
+	};
 
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
