@@ -1,5 +1,6 @@
 const siteDataSelectors = {
 	getAPIRootUrl: state => state.siteData?.WP_API_root ?? null,
+	getWpcomOriginApiUrl: state => state.siteData?.wpcomOriginApiUrl ?? null,
 	getAPINonce: state => state.siteData?.WP_API_nonce ?? null,
 	getRegistrationNonce: state => state.siteData?.registrationNonce ?? null,
 	getSiteAdminUrl: state => state.siteData?.adminUrl ?? null,
