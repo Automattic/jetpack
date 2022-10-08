@@ -47,7 +47,7 @@ const PlanSummary = () => {
 	);
 };
 
-const getUpgradeMessages = () => {
+export const getUpgradeMessages = () => {
 	const upgradeMessages = {
 		records: {
 			description: __(
