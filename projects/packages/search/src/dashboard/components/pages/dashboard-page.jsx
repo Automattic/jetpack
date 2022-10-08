@@ -195,6 +195,15 @@ const UsageMeter = ( { sendPaidPlanToCart } ) => {
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 
+	// @TODO Apply the real data `plan_usage.should_upgrade` and `plan_usage.upgrade_reason` after testing
+	let mustUpgradeReason = '';
+	if ( latestMonthRequests.num_requests > currentPlan.monthly_search_request_limit ) {
+		mustUpgradeReason = 'requests';
+	}
+	if ( currentUsage.num_records > currentPlan.record_limit ) {
+		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
+	}
+
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
@@ -214,9 +223,11 @@ const UsageMeter = ( { sendPaidPlanToCart } ) => {
 						/>
 					</div>
 
-					<ThemeProvider>
-						<ContextualUpgradeTrigger { ...upgradeTriggerArgs } />
-					</ThemeProvider>
+					{ mustUpgradeReason && (
+						<ThemeProvider>
+							<ContextualUpgradeTrigger { ...upgradeTriggerArgs } />
+						</ThemeProvider>
+					) }
 
 					<div className="usage-meter-about">
 						{ createInterpolateElement(
