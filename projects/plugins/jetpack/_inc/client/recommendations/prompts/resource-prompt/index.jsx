@@ -4,13 +4,13 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { ProductSpotlight } from 'recommendations/sidebar/product-spotlight';
 import {
 	addViewedRecommendation as addViewedRecommendationAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
-	getOnboardingProgressValueIfEligible,
+	getOnboardingStepProgressValueIfEligible,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -20,6 +20,7 @@ import {
 } from 'state/recommendations';
 import { DEFAULT_ILLUSTRATION } from '../../constants';
 import { getStepContent } from '../../feature-utils';
+import { StepProgressBar } from '../../step-progress-bar';
 import { PromptLayout } from '../prompt-layout';
 
 /**
@@ -34,6 +35,7 @@ const ResourcePromptComponent = props => {
 	const {
 		isNew,
 		progressValue,
+		stepProgressValue,
 		question,
 		description,
 		descriptionList,
@@ -99,11 +101,21 @@ const ResourcePromptComponent = props => {
 		} );
 	}, [ stepSlug ] );
 
+	const progressBarComponent = useMemo( () => {
+		if ( stepProgressValue ) {
+			return <StepProgressBar { ...stepProgressValue } />;
+		}
+
+		if ( progressValue ) {
+			return <ProgressBar color={ '#00A32A' } value={ progressValue } />;
+		}
+
+		return null;
+	}, [ stepProgressValue, progressValue ] );
+
 	return (
 		<PromptLayout
-			progressBar={
-				progressValue ? <ProgressBar color={ '#00A32A' } value={ progressValue } /> : null
-			}
+			progressBar={ progressBarComponent }
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
@@ -180,7 +192,8 @@ const ResourcePrompt = connect(
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 		...( getIsOnboardingActive( state )
 			? {
-					progressValue: getOnboardingProgressValueIfEligible( state ),
+					stepProgressValue: getOnboardingStepProgressValueIfEligible( state ),
+					progressValue: null,
 					summaryViewed: false,
 			  }
 			: {} ),

@@ -721,7 +721,7 @@ export const getStep = state => {
 	return step;
 };
 
-export const getOnboardingProgressValueIfEligible = state => {
+export const getOnboardingStepProgressValueIfEligible = state => {
 	const onboardingData = getOnboardingData( state );
 
 	if ( ! onboardingData || ! onboardingData.active ) {
@@ -731,7 +731,10 @@ export const getOnboardingProgressValueIfEligible = state => {
 	const step = getStep( state );
 	const steps = getStepsForOnboarding( onboardingData.active );
 
-	return `${ ( steps.indexOf( step ) / steps.length ) * 100 }`;
+	return {
+		currentStepIndex: steps.indexOf( step ),
+		totalSteps: steps.length,
+	};
 };
 
 export const getNextRoute = state => {
