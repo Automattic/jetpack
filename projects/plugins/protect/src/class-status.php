@@ -18,28 +18,28 @@ class Status {
 	 *
 	 * @var string
 	 */
-	protected static $option_name;
+	const OPTION_NAME = '';
 
 	/**
 	 * Name of the option where the timestamp of the status is stored
 	 *
 	 * @var string
 	 */
-	protected static $option_timestamp_name;
+	const OPTION_TIMESTAMP_NAME = '';
 
 	/**
 	 * Time in seconds that the cache should last
 	 *
 	 * @var int
 	 */
-	protected static $option_expires_after = 3600; // 1 hour.
+	const OPTION_EXPIRES_AFTER = 3600; // 1 hour.
 
 	/**
 	 * Time in seconds that the cache for the initial empty response should last
 	 *
 	 * @var int
 	 */
-	protected static $initial_option_expires_after = 1 * MINUTE_IN_SECONDS;
+	const INITIAL_OPTION_EXPIRES_AFTER = 1 * MINUTE_IN_SECONDS;
 
 	/**
 	 * Memoization for the current status
@@ -76,7 +76,7 @@ class Status {
 	 * @return boolean
 	 */
 	public static function is_cache_expired() {
-		$option_timestamp = get_option( static::$option_timestamp_name );
+		$option_timestamp = get_option( static::OPTION_TIMESTAMP_NAME );
 
 		if ( ! $option_timestamp ) {
 			return true;
@@ -100,7 +100,7 @@ class Status {
 	 * @return bool|array False if value is not found. Array with values if cache is found.
 	 */
 	public static function get_from_options() {
-		return get_option( static::$option_name );
+		return maybe_unserialize( get_option( static::OPTION_NAME ) );
 	}
 
 	/**
@@ -111,9 +111,9 @@ class Status {
 	 */
 	public static function update_option( $status ) {
 		// TODO: Sanitize $status.
-		update_option( static::$option_name, $status );
+		update_option( static::OPTION_NAME, $status );
 		$end_date = self::get_cache_end_date_by_status( $status );
-		update_option( static::$option_timestamp_name, $end_date );
+		update_option( static::OPTION_TIMESTAMP_NAME, $end_date );
 	}
 
 	/**
@@ -126,9 +126,9 @@ class Status {
 	 */
 	public static function get_cache_end_date_by_status( $status ) {
 		if ( ! is_object( $status ) || empty( $status->last_checked ) ) {
-			return time() + static::$initial_option_expires_after;
+			return time() + static::INITIAL_OPTION_EXPIRES_AFTER;
 		}
-		return time() + static::$option_expires_after;
+		return time() + static::OPTION_EXPIRES_AFTER;
 	}
 
 	/**
@@ -137,8 +137,8 @@ class Status {
 	 * @return bool Whether all related status options were successfully deleted.
 	 */
 	public static function delete_option() {
-		$option_deleted           = delete_option( static::$option_name );
-		$option_timestamp_deleted = delete_option( static::$option_timestamp_name );
+		$option_deleted           = delete_option( static::OPTION_NAME );
+		$option_timestamp_deleted = delete_option( static::OPTION_TIMESTAMP_NAME );
 
 		return $option_deleted && $option_timestamp_deleted;
 	}
@@ -158,7 +158,7 @@ class Status {
 	 * @return integer
 	 */
 	public static function get_total_threats() {
-		$status = self::get_status();
+		$status = static::get_status();
 		return isset( $status->num_threats ) && is_int( $status->num_threats ) ? $status->num_threats : 0;
 	}
 
@@ -171,7 +171,9 @@ class Status {
 		return array_merge(
 			self::get_wordpress_threats(),
 			self::get_themes_threats(),
-			self::get_plugins_threats()
+			self::get_plugins_threats(),
+			self::get_files_threats(),
+			self::get_database_threats()
 		);
 	}
 
@@ -203,6 +205,24 @@ class Status {
 	}
 
 	/**
+	 * Get threats found for files
+	 *
+	 * @return array
+	 */
+	public static function get_files_threats() {
+		return self::get_threats( 'files' );
+	}
+
+	/**
+	 * Get threats found for plugins
+	 *
+	 * @return array
+	 */
+	public static function get_database_threats() {
+		return self::get_threats( 'database' );
+	}
+
+	/**
 	 * Get the threats for one type of extension or core
 	 *
 	 * @param string $type What threats you want to get. Possible values are 'core', 'themes' and 'plugins'.
@@ -210,9 +230,14 @@ class Status {
 	 * @return array
 	 */
 	public static function get_threats( $type ) {
-		$status = self::get_status();
+		$status = static::get_status();
+
 		if ( 'core' === $type ) {
 			return isset( $status->$type ) && ! empty( $status->$type->threats ) ? $status->$type->threats : array();
+		}
+
+		if ( 'files' === $type || 'database' === $type ) {
+			return isset( $status->$type ) && ! empty( $status->$type ) ? $status->$type : array();
 		}
 
 		$threats = array();

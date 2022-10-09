@@ -22,6 +22,8 @@ const DefaultArgs = {
 	showNotOffPrice: true,
 	isNotConvenientPrice: false,
 	hidePriceFraction: false,
+	hideDiscountLabel: false,
+	promoLabel: 'NEW',
 };
 
 // Export Default story

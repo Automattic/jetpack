@@ -13,7 +13,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	 * @todo find a better way to test this large function
 	 */
 	public function test_mediasummary_get() {
-		$post_id = $this->factory->post->create( array() );
+		$post_id = self::factory()->post->create( array() );
 
 		$get_obj = Jetpack_Media_Summary::get( $post_id );
 

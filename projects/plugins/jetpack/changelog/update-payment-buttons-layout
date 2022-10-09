@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Make Payment Button blocks support a wider varity of layout options. Essentially the grid + blockGap options, similar to regular buttons.

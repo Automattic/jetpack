@@ -4,145 +4,46 @@
 import {
 	Text,
 	Button,
-	useBreakpointMatch,
 	Title,
 	numberFormat,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { Icon } from '@wordpress/components';
-import { Dropdown } from '@wordpress/components';
-import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
-import { edit, cloud, image, media } from '@wordpress/icons';
+import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
+import React from 'react';
+import { useState } from 'react';
+import useVideo from '../../hooks/use-video';
+import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
-import ClipboardButtonInput from '../clipboard-button-input';
-import VideoQuickActions from '../video-quick-actions';
+import { ConnectVideoQuickActions } from '../video-quick-actions';
+import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
-import {
-	VideoDetailsProps,
-	VideoThumbnailProps,
-	VideoThumbnailDropdownProps,
-	VideoCardProps,
-} from './types';
-import type React from 'react';
+import { VideoCardProps } from './types';
 
-export const VideoThumbnailDropdown: React.FC< VideoThumbnailDropdownProps > = ( {
-	onUseDefaultThumbnail,
-	onSelectFromVideo,
-	onUploadImage,
-} ) => {
-	return (
-		<div className={ styles[ 'video-thumbnail-edit' ] }>
-			<Dropdown
-				position="bottom left"
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					<Button
-						variant="secondary"
-						className={ styles[ 'thumbnail__edit-button' ] }
-						icon={ edit }
-						onClick={ onToggle }
-						aria-expanded={ isOpen }
-					/>
-				) }
-				renderContent={ () => (
-					<>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ image }
-							onClick={ onUseDefaultThumbnail }
-						>
-							{ __( 'Use default thumbnail', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ media }
-							onClick={ onSelectFromVideo }
-						>
-							{ __( 'Select from video', 'jetpack-videopress-pkg' ) }
-						</Button>
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ cloud }
-							onClick={ onUploadImage }
-						>
-							{ __( 'Upload image', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</>
-				) }
-			/>
-		</div>
-	);
-};
-
-/**
- * React component to display video thumbnail.
- *
- * @param {VideoThumbnailProps} props - Component props.
- * @returns {React.ReactNode} - VideoThumbnail react component.
- */
-export const VideoThumbnail: React.FC< VideoThumbnailProps & VideoThumbnailDropdownProps > = ( {
+const QuickActions = ( {
+	id,
+	onVideoDetailsClick,
 	className,
-	thumbnail,
-	duration,
-	editable,
-	onUseDefaultThumbnail,
-	onSelectFromVideo,
-	onUploadImage,
+}: {
+	id: VideoCardProps[ 'id' ];
+	onVideoDetailsClick: VideoCardProps[ 'onVideoDetailsClick' ];
+	className?: VideoCardProps[ 'className' ];
 } ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
-
 	return (
-		<div
-			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
-		>
-			{ editable && (
-				<VideoThumbnailDropdown
-					onUseDefaultThumbnail={ onUseDefaultThumbnail }
-					onSelectFromVideo={ onSelectFromVideo }
-					onUploadImage={ onUploadImage }
-				/>
-			) }
-			{ duration && (
-				<div className={ styles[ 'video-thumbnail-duration' ] }>
-					<Text variant="body-small" component="div">
-						{ duration >= 3600 * 1000
-							? gmdateI18n( 'H:i:s', duration )
-							: gmdateI18n( 'i:s', duration ) }
-					</Text>
-				</div>
-			) }
+		<div className={ classnames( styles[ 'video-card__quick-actions-section' ], className ) }>
+			<Button
+				variant="primary"
+				size="small"
+				onClick={ onVideoDetailsClick }
+				className={ styles[ 'video-card__quick-actions__edit-button' ] }
+			>
+				{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
+			</Button>
 
-			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
-		</div>
-	);
-};
-
-export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, uploadDate } ) => {
-	return (
-		<div className={ styles.details }>
-			<div className={ styles[ 'detail-row' ] }>
-				<Text variant="body-small">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
-				<ClipboardButtonInput value={ src } />
-			</div>
-
-			<div>
-				<Text variant="body-small">{ __( 'File name', 'jetpack-videopress-pkg' ) }</Text>
-				<Text variant="body">{ filename }</Text>
-			</div>
-
-			<div>
-				<Text variant="body-small">{ __( 'Upload date', 'jetpack-videopress-pkg' ) }</Text>
-				<Text variant="body">{ gmdateI18n( 'F j, Y', uploadDate ) }</Text>
-			</div>
+			{ id && <ConnectVideoQuickActions videoId={ id } /> }
 		</div>
 	);
 };
@@ -150,67 +51,112 @@ export const VideoDetails: React.FC< VideoDetailsProps > = ( { filename, src, up
 /**
  * Video Card component
  *
- * @param {VideoThumbnailProps} props - Component props.
+ * @param {VideoCardProps} props - Component props.
  * @returns {React.ReactNode} - VideoCard react component.
  */
-export const VideoCard: React.FC< VideoCardProps & VideoThumbnailProps > = ( {
+export const VideoCard = ( {
 	title,
+	id,
 	duration,
 	plays,
 	thumbnail,
 	editable,
+	showQuickActions = true,
+	loading = false,
 	onVideoDetailsClick,
-	onUpdateThumbnailClick,
-	onUpdateUpdatePrivacyClick,
-	onDeleteClick,
-} ) => {
-	const playsCount = sprintf(
-		/* translators: placeholder is a product name */
-		__( '%s plays', 'jetpack-videopress-pkg' ),
-		numberFormat( plays )
-	);
+}: VideoCardProps ) => {
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
+	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
+
+	const hasPlays = typeof plays !== 'undefined';
+	const playsCount = hasPlays
+		? sprintf(
+				/* translators: placeholder is a product name */
+				__( '%s plays', 'jetpack-videopress-pkg' ),
+				numberFormat( plays )
+		  )
+		: '';
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const [ isOpen, setIsOpen ] = useState( false );
 
 	return (
-		<div className={ styles[ 'video-card__wrapper' ] }>
-			<div className={ styles[ 'video-card__background' ] } />
-			<VideoThumbnail
-				className={ styles[ 'video-card__thumbnail' ] }
-				thumbnail={ thumbnail }
-				duration={ duration }
-				editable={ editable }
-			/>
-			<div className={ styles[ 'video-card__title-section' ] }>
-				<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
-					{ title }
-				</Title>
-				<Text
-					weight="regular"
-					size="small"
-					component="div"
-					className={ styles[ 'video-card__video-plays-counter' ] }
-				>
-					<Icon icon={ chartBar } />
-					{ playsCount }
-				</Text>
-			</div>
-			<div className={ styles[ 'video-card__quick-actions-section' ] }>
-				<Button
-					variant="primary"
-					size="small"
-					onClick={ onVideoDetailsClick }
-					className={ styles[ 'video-card__quick-actions__edit-button' ] }
-				>
-					{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
-				</Button>
+		<>
+			<div
+				className={ classnames( styles[ 'video-card__wrapper' ], {
+					[ styles[ 'is-blank' ] ]: isBlank,
+					[ styles.disabled ]: isSm || loading,
+				} ) }
+				{ ...( isSm && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
+			>
+				{ ! isSm && <div className={ styles[ 'video-card__background' ] } /> }
 
-				<VideoQuickActions
-					onUpdateThumbnailClick={ onUpdateThumbnailClick }
-					onUpdateUpdatePrivacyClick={ onUpdateUpdatePrivacyClick }
-					onDeleteClick={ onDeleteClick }
+				<VideoThumbnail
+					className={ styles[ 'video-card__thumbnail' ] }
+					thumbnail={ thumbnail }
+					duration={ loading ? null : duration }
+					editable={ loading ? false : editable }
 				/>
+
+				<div className={ styles[ 'video-card__title-section' ] }>
+					{ isSm && (
+						<div className={ styles.chevron }>
+							{ isOpen && <Icon icon={ chevronUp } /> }
+							{ ! isOpen && <Icon icon={ chevronDown } /> }
+						</div>
+					) }
+
+					{ loading ? (
+						<Placeholder width="60%" height={ 30 } />
+					) : (
+						<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
+							{ title }
+						</Title>
+					) }
+
+					{ loading ? (
+						<Placeholder width={ 96 } height={ 24 } />
+					) : (
+						<>
+							{ hasPlays && (
+								<Text
+									weight="regular"
+									size="small"
+									component="div"
+									className={ styles[ 'video-card__video-plays-counter' ] }
+								>
+									<Icon icon={ chartBar } />
+									{ playsCount }
+								</Text>
+							) }
+						</>
+					) }
+				</div>
+
+				{ showQuickActions && ! isSm && (
+					<QuickActions
+						id={ id }
+						onVideoDetailsClick={ onVideoDetailsClick }
+						className={ classnames( {
+							[ styles[ 'is-blank' ] ]: loading,
+						} ) }
+					/>
+				) }
 			</div>
-		</div>
+
+			{ showQuickActions && isSm && isOpen && (
+				<QuickActions
+					id={ id }
+					onVideoDetailsClick={ onVideoDetailsClick }
+					className={ styles.small }
+				/>
+			) }
+		</>
 	);
 };
 
-export default VideoCard;
+export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
+	const { isDeleting } = useVideo( id );
+	return <VideoCard id={ id } { ...restProps } loading={ isDeleting || restProps?.loading } />;
+};
+
+export default ConnectVideoCard;

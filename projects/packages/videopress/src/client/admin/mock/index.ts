@@ -49,6 +49,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 2,
@@ -58,6 +59,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 3,
@@ -67,6 +69,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 4,
@@ -76,6 +79,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 5,
@@ -85,6 +89,7 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
 	},
 	{
 		id: 6,
@@ -94,5 +99,29 @@ export const videos = [
 		plays: 200,
 		uploadDate: '2022-08-15T21:16:59+0000',
 		isPrivate: true,
+		url: 'https://videos.files.wordpress.com/uz1Bk7rV/protect-navigation-9.mp4',
+	},
+];
+
+export const localVideos = [
+	{
+		id: 1,
+		videoTitle: 'time-clock-v2-05.mp4',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+	{
+		id: 2,
+		videoTitle: 'Barcelona Tour',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+	{
+		id: 3,
+		videoTitle: 'Mountain Dew Creative',
+		uploadDate: '2022-08-15T21:16:59+0000',
+	},
+	{
+		id: 4,
+		videoTitle: '2021 Reel',
+		uploadDate: '2022-08-15T21:16:59+0000',
 	},
 ];
