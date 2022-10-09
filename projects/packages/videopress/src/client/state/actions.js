@@ -2,9 +2,12 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { uploadVideo as videoPressUpload, getJWT } from '../hooks/use-uploader';
+import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
 	SET_VIDEOS_STORAGE_USED,
@@ -21,10 +24,14 @@ import {
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
+	UPLOADING_VIDEO,
+	PROCESSING_VIDEO,
+	UPLOADED_VIDEO,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
 } from './constants';
+import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
 const setIsFetchingVideos = isFetching => {
 	return { type: SET_IS_FETCHING_VIDEOS, isFetching };
@@ -150,6 +157,49 @@ const deleteVideo = id => async ( { dispatch } ) => {
 	}
 };
 
+/**
+ * Thunk action to fetch upload videos for VideoPress.
+ *
+ * @param {File} file - File to upload
+ * @returns {Function} Thunk action
+ */
+const uploadVideo = file => async ( { dispatch } ) => {
+	const tempId = uid();
+
+	const poolingUploadedVideoData = async data => {
+		const response = await apiFetch( {
+			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+		} );
+
+		const video = mapVideoFromWPV2MediaEndpoint( response );
+
+		if ( video?.posterImage !== null ) {
+			dispatch( { type: UPLOADED_VIDEO, video } );
+		} else {
+			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
+		}
+	};
+
+	// @todo: implement progress and error handler
+	const noop = () => {};
+
+	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.name } );
+
+	// @todo: this should be stored in the state
+	const jwt = await getJWT();
+
+	videoPressUpload( {
+		data: jwt,
+		file,
+		onError: noop,
+		onProgress: noop,
+		onSuccess: data => {
+			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+			poolingUploadedVideoData( data );
+		},
+	} );
+};
+
 const setIsFetchingPurchases = isFetching => {
 	return { type: SET_IS_FETCHING_PURCHASES, isFetching };
 };
@@ -176,6 +226,7 @@ const actions = {
 	removeVideo,
 	deleteVideo,
 
+	uploadVideo,
 	setIsFetchingPurchases,
 	setPurchases,
 };

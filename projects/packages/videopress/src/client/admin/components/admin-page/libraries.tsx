@@ -104,9 +104,7 @@ const VideoLibraryWrapper = ( {
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
-	const disabled = videos?.some?.(
-		video => video.uploading || ( ! video.finished && video.posterImage === null )
-	);
+	const disabled = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
 		setLibraryType( current =>

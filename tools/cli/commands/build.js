@@ -1,7 +1,6 @@
 import { constants as fsconstants } from 'fs';
 import fs from 'fs/promises';
 import npath from 'path';
-import readline from 'readline';
 import chalk from 'chalk';
 import execa from 'execa';
 import inquirer from 'inquirer';
@@ -11,9 +10,9 @@ import UpdateRenderer from 'listr-update-renderer';
 import ListrState from 'listr/lib/state.js';
 import pLimit from 'p-limit';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
-import FilterStream from '../helpers/filter-stream.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { listProjectFiles } from '../helpers/list-project-files.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
@@ -841,63 +840,4 @@ async function buildProject( t ) {
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
 	} );
-}
-
-/**
- * List project files to be mirrored.
- *
- * @param {string} src - Source directory.
- * @param {Function} spawn - `execa` spawn function.
- * @yields {string} File name.
- */
-async function* listProjectFiles( src, spawn ) {
-	// Lots of process plumbing going on here.
-	//  {
-	//    ls-files
-	//    ls-files --ignored | check-attr production-include | filter
-	//  } | check-attr production-exclude | filter
-
-	const lsFiles = spawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
-		cwd: src,
-		stdio: [ 'ignore', 'pipe', null ],
-	} );
-	const lsIgnoredFiles = spawn(
-		'git',
-		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-		{ cwd: src, stdio: [ 'ignore', 'pipe', null ] }
-	);
-	const checkAttrInclude = spawn(
-		'git',
-		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
-		{ cwd: src, stdio: [ lsIgnoredFiles.stdout, 'pipe', null ] }
-	);
-	const checkAttrExclude = spawn(
-		'git',
-		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
-		{ cwd: src, stdio: [ 'pipe', 'pipe', null ] }
-	);
-	const filterProductionInclude = new FilterStream(
-		s => s.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ]
-	);
-	const filterProductionExclude = new FilterStream(
-		s => s.match( /^(.*): production-exclude: (?:unspecified|unset)/ )?.[ 1 ]
-	);
-
-	// Pipe lsFiles to checkAttrExclude first, then lsIgnoredFiles+checkAttrInclude+filterProductionInclude after that.
-	lsFiles.stdout.on( 'end', () => {
-		// prettier-ignore
-		checkAttrInclude.stdout
-			.pipe( filterProductionInclude )
-			.pipe( checkAttrExclude.stdin, { end: true } );
-	} );
-	lsFiles.stdout.pipe( checkAttrExclude.stdin, { end: false } );
-
-	const rl = readline.createInterface( {
-		input: checkAttrExclude.stdout.pipe( filterProductionExclude ),
-		crlfDelay: Infinity,
-	} );
-
-	yield* rl;
-
-	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
 }

@@ -142,7 +142,13 @@ const VideoThumbnail = ( {
 			) }
 
 			<div className={ styles[ 'thumbnail-placeholder' ] }>
-				{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
+				{ thumbnail ? (
+					thumbnail
+				) : (
+					<div className={ styles[ 'thumbnail-blank' ] }>
+						<Icon icon={ video } size={ 96 } />
+					</div>
+				) }
 			</div>
 		</div>
 	);

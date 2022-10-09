@@ -15,7 +15,6 @@ test.describe.parallel( 'Free blocks', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page )
-			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Free )
