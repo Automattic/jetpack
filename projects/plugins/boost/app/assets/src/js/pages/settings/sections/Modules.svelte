@@ -23,6 +23,7 @@
 </script>
 
 <div class="jb-container--narrow">
+	<PremiumCTA />
 	<Module
 		slug={'critical-css'}
 		on:enabled={maybeGenerateCriticalCss}
@@ -43,7 +44,6 @@
 
 		<div slot="meta">
 			<CriticalCssMeta />
-			<PremiumCTA />
 		</div>
 	</Module>
 
