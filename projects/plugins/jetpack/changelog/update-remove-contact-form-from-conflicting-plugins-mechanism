@@ -1,0 +1,4 @@
+Significance: major
+Type: compat
+
+Removed compatibility checks involving automatic deactivation of contact form functionality
