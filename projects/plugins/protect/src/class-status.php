@@ -100,7 +100,7 @@ class Status {
 	 * @return bool|array False if value is not found. Array with values if cache is found.
 	 */
 	public static function get_from_options() {
-		return get_option( static::OPTION_NAME );
+		return maybe_unserialize( get_option( static::OPTION_NAME ) );
 	}
 
 	/**
