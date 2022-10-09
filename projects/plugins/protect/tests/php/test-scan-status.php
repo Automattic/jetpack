@@ -47,8 +47,6 @@ class Test_Scan_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_response() {
-		// global $wp_version;
-
 		return (object) array(
 			'state'       => 'idle',
 			'threats'     => array(
