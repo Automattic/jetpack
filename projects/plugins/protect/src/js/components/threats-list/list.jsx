@@ -1,9 +1,4 @@
-import {
-	Text,
-	Button,
-	getRedirectUrl,
-	ContextualUpgradeTrigger,
-} from '@automattic/jetpack-components';
+import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -11,7 +6,6 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Accordion, { AccordionItem } from '../accordion';
 import { SECURITY_BUNDLE } from '../admin-page';
 import styles from './styles.module.scss';
-
 
 const ThreatAccordionItem = ( {
 	id,
@@ -24,7 +18,6 @@ const ThreatAccordionItem = ( {
 	type,
 	source,
 } ) => {
-	const { recordEvent } = useAnalyticsTracks();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: SECURITY_BUNDLE,
@@ -36,7 +29,6 @@ const ThreatAccordionItem = ( {
 		'jetpack_protect_vulnerability_list_get_security_link_click',
 		run
 	);
-
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
