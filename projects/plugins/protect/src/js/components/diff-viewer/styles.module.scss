@@ -6,6 +6,7 @@
 .diff-viewer__filename {
 	padding: 4px 8px;
 	background-color: var( --jp-gray-10 );
+	overflow-x: scroll;
 	font-weight: 600;
 }
 
