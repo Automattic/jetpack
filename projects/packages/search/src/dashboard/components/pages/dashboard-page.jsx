@@ -65,8 +65,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
-	const hasActiveSearchPurchase = useSelect( select =>
-		select( STORE_ID ).hasActiveSearchPurchase()
+	const isDisabledFromOverLimit = useSelect( select =>
+		select( STORE_ID ).getDisabledFromOverLimit()
 	);
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
@@ -124,7 +124,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							siteAdminUrl={ siteAdminUrl }
 							updateOptions={ updateOptions }
 							domain={ domain }
-							hasActiveSearchPurchase={ hasActiveSearchPurchase }
+							isDisabledFromOverLimit={ isDisabledFromOverLimit }
 							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
 							upgradeBillPeriod={ upgradeBillPeriod }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }

@@ -32,7 +32,7 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {string} props.siteAdminUrl - site admin URL.
  * @param {string} props.upgradeBillPeriod - billing cycle for upgrades.
  * @param {Function} props.updateOptions - function to update settings.
- * @param {boolean} props.hasActiveSearchPurchase - true if the subscription is valid to manipulate controls.
+ * @param {boolean} props.isDisabledFromOverLimit - true if the subscription is invalid to manipulate controls.
  * @param {boolean} props.isSavingEitherOption - true if Saving options.
  * @param {boolean} props.isModuleEnabled - true if Search module is enabled.
  * @param {boolean} props.isInstantSearchEnabled - true if Instant Search is enabled.
@@ -48,7 +48,7 @@ export default function SearchModuleControl( {
 	siteAdminUrl,
 	updateOptions,
 	domain,
-	hasActiveSearchPurchase,
+	isDisabledFromOverLimit,
 	isSavingEitherOption,
 	isModuleEnabled,
 	isInstantSearchEnabled,
@@ -66,7 +66,7 @@ export default function SearchModuleControl( {
 	);
 
 	const toggleSearchModule = useCallback( () => {
-		if ( ! hasActiveSearchPurchase ) {
+		if ( isDisabledFromOverLimit ) {
 			return;
 		}
 
@@ -83,11 +83,11 @@ export default function SearchModuleControl( {
 		isModuleEnabled,
 		updateOptions,
 		isInstantSearchEnabled,
-		hasActiveSearchPurchase,
+		isDisabledFromOverLimit,
 	] );
 
 	const toggleInstantSearch = useCallback( () => {
-		if ( ! hasActiveSearchPurchase ) {
+		if ( isDisabledFromOverLimit ) {
 			return;
 		}
 
@@ -99,13 +99,13 @@ export default function SearchModuleControl( {
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
-	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions, hasActiveSearchPurchase ] );
+	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions, isDisabledFromOverLimit ] );
 
 	return (
 		<div
 			className={ classNames( {
 				'jp-form-settings-group jp-form-search-settings-group': true,
-				'jp-form-search-settings-group--disabled': ! hasActiveSearchPurchase,
+				'jp-form-search-settings-group--disabled': isDisabledFromOverLimit,
 			} ) }
 		>
 			<Card
@@ -120,7 +120,7 @@ export default function SearchModuleControl( {
 						isTogglingModule={ isTogglingModule }
 						supportsSearch={ supportsSearch }
 						toggleSearchModule={ toggleSearchModule }
-						hasActiveSearchPurchase={ hasActiveSearchPurchase }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
 
 					<InstantSearchToggle
@@ -134,7 +134,7 @@ export default function SearchModuleControl( {
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
-						hasActiveSearchPurchase={ hasActiveSearchPurchase }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
 				</div>
 			</Card>
@@ -153,21 +153,21 @@ const InstantSearchToggle = ( {
 	supportsOnlyClassicSearch,
 	toggleInstantSearch,
 	upgradeUrl,
-	hasActiveSearchPurchase,
+	isDisabledFromOverLimit,
 } ) => {
 	const isInstantSearchToggleChecked =
-		isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch && hasActiveSearchPurchase;
+		isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch && ! isDisabledFromOverLimit;
 	const isInstantSearchToggleDisabled =
-		isSavingEitherOption || ! supportsInstantSearch || ! hasActiveSearchPurchase;
+		isSavingEitherOption || ! supportsInstantSearch || isDisabledFromOverLimit;
 
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
 		! supportsInstantSearch ||
-		! hasActiveSearchPurchase;
+		isDisabledFromOverLimit;
 	const isWidgetsEditorButtonDisabled =
-		isSavingEitherOption || ! isModuleEnabled || ! hasActiveSearchPurchase;
+		isSavingEitherOption || ! isModuleEnabled || isDisabledFromOverLimit;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
@@ -266,11 +266,11 @@ const SearchToggle = ( {
 	isTogglingModule,
 	supportsSearch,
 	toggleSearchModule,
-	hasActiveSearchPurchase,
+	isDisabledFromOverLimit,
 } ) => {
-	const isSearchToggleChecked = isModuleEnabled && supportsSearch && hasActiveSearchPurchase;
+	const isSearchToggleChecked = isModuleEnabled && supportsSearch && ! isDisabledFromOverLimit;
 	const isSearchToggleDisabled =
-		isSavingEitherOption || ! supportsSearch || ! hasActiveSearchPurchase;
+		isSavingEitherOption || ! supportsSearch || isDisabledFromOverLimit;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
