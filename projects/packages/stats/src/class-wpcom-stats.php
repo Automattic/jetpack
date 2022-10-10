@@ -26,7 +26,7 @@ class WPCOM_Stats {
 	 *
 	 * @var string
 	 */
-	const STATS_CACHE_TRANSIENT_PREFIX = 'jetpack_restapi_stats_cache_';
+	const STATS_CACHE_TRANSIENT_PREFIX = 'jetpack_restapi_cached_stats_';
 
 	/**
 	 * Time, in minutes, to cache stats results from the REST API.
