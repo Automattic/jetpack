@@ -58,7 +58,8 @@ class Initial_State {
 	public function get_initial_state() {
 		return array(
 			'siteData'        => array(
-				'WP_API_root'       => $this->get_wp_api_root(),
+				'WP_API_root'       => esc_url_raw( rest_url() ),
+				'wpcomOriginApiUrl' => $this->get_wp_api_root(),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'purchaseToken'     => $this->get_purchase_token(),
