@@ -1015,9 +1015,9 @@ table.wpsc-settings-table {
 						<div class="boost-banner-content">
 							<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
 
-							<h2>
+							<h3>
 								<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
-							</h2>
+							</h3>
 
 							<p>
 								<?php esc_html_e( 'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.', 'wp-super-cache' ); ?>
