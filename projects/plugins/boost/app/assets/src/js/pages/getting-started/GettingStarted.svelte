@@ -1,12 +1,16 @@
 <script>
+	import { derived } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import ContextInfo from '../../elements/ContextInfo.svelte';
 	import ProductPrice from '../../elements/ProductPrice.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import Header from '../../sections/Header.svelte';
 	import { getStarted } from '../../stores/config';
+	import config from '../../stores/config';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { getUpgradeURL } from '../../utils/upgrade';
+
+	const pricing = derived( config, $config => $config.pricing );
 
 	const cssOptimizationContext = __(
 		'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
@@ -95,12 +99,12 @@
 				<div class="comparison-table__tier comparison-table__tier--card">
 					<header>
 						<ProductPrice
-							price={18}
-							offPrice={9}
+							currency={$pricing.yearly.currencyCode}
+							price={$pricing.yearly.priceBefore / 12}
+							offPrice={$pricing.yearly.priceAfter / 12}
 							priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 							showNotOffPrice={true}
-							currency="USD"
-							promoLabel="50% off"
+							promoLabel={__( '50% off', 'jetpack-boost' )}
 						/>
 					</header>
 					<div class="comparison-table__cta">
@@ -177,7 +181,7 @@
 					<header>
 						<ProductPrice
 							price={0}
-							currency="USD"
+							currency={$pricing.yearly.currencyCode}
 							hidePriceFraction={true}
 							showNotOffPrice={false}
 							leyend=""
