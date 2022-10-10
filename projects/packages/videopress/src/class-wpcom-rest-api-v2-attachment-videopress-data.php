@@ -40,7 +40,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
-		add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
+
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
+		}
 
 		// do this again later to collect any CPTs that get registered later.
 		add_action( 'restapi_theme_init', array( $this, 'register_fields' ), 20 );
