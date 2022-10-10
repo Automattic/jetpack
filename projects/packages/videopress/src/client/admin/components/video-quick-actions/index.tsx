@@ -42,7 +42,7 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 	};
 
 	return (
-		<Popover position="top left" noArrow={ false } { ...popoverProps }>
+		<Popover position="top center" noArrow { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
