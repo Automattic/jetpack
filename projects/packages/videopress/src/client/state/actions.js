@@ -2,9 +2,12 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { uploadVideo as videoPressUpload, getJWT } from '../hooks/use-uploader';
+import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
 	SET_VIDEOS_STORAGE_USED,
@@ -13,6 +16,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEO,
+	SET_VIDEO_PRIVACY,
 	DELETE_VIDEO,
 	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
@@ -20,7 +24,14 @@ import {
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
+	UPLOADING_VIDEO,
+	PROCESSING_VIDEO,
+	UPLOADED_VIDEO,
+	SET_IS_FETCHING_PURCHASES,
+	SET_PURCHASES,
+	UPDATE_VIDEO_PRIVACY,
 } from './constants';
+import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
 const setIsFetchingVideos = isFetching => {
 	return { type: SET_IS_FETCHING_VIDEOS, isFetching };
@@ -47,6 +58,10 @@ const setVideo = video => {
 	return { type: SET_VIDEO, video };
 };
 
+const setVideoPrivacy = ( { id, privacySetting } ) => {
+	return { type: SET_VIDEO_PRIVACY, id, privacySetting };
+};
+
 const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 	return { type: SET_IS_FETCHING_UPLOADED_VIDEO_COUNT, isFetchingUploadedVideoCount };
 };
@@ -71,8 +86,7 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	}
 
 	// Let's be optimistic and update the UI right away.
-	// @todo: Add a loading state to the state/UI.
-	dispatch.setVideo( {
+	dispatch.setVideoPrivacy( {
 		id,
 		privacySetting,
 	} );
@@ -92,6 +106,8 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 			// @todo: implement error handling / UI
 			return;
 		}
+
+		return dispatch( { type: UPDATE_VIDEO_PRIVACY, id, privacySetting } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
@@ -141,6 +157,57 @@ const deleteVideo = id => async ( { dispatch } ) => {
 	}
 };
 
+/**
+ * Thunk action to fetch upload videos for VideoPress.
+ *
+ * @param {File} file - File to upload
+ * @returns {Function} Thunk action
+ */
+const uploadVideo = file => async ( { dispatch } ) => {
+	const tempId = uid();
+
+	const poolingUploadedVideoData = async data => {
+		const response = await apiFetch( {
+			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+		} );
+
+		const video = mapVideoFromWPV2MediaEndpoint( response );
+
+		if ( video?.posterImage !== null ) {
+			dispatch( { type: UPLOADED_VIDEO, video } );
+		} else {
+			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
+		}
+	};
+
+	// @todo: implement progress and error handler
+	const noop = () => {};
+
+	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.name } );
+
+	// @todo: this should be stored in the state
+	const jwt = await getJWT();
+
+	videoPressUpload( {
+		data: jwt,
+		file,
+		onError: noop,
+		onProgress: noop,
+		onSuccess: data => {
+			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+			poolingUploadedVideoData( data );
+		},
+	} );
+};
+
+const setIsFetchingPurchases = isFetching => {
+	return { type: SET_IS_FETCHING_PURCHASES, isFetching };
+};
+
+const setPurchases = purchases => {
+	return { type: SET_PURCHASES, purchases };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -153,10 +220,15 @@ const actions = {
 	setIsFetchingUploadedVideoCount,
 	setUploadedVideoCount,
 
+	setVideoPrivacy,
 	updateVideoPrivacy,
 
 	removeVideo,
 	deleteVideo,
+
+	uploadVideo,
+	setIsFetchingPurchases,
+	setPurchases,
 };
 
 export { actions as default };

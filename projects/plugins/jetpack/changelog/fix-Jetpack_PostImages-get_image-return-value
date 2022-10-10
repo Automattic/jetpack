@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack_PostImages::get_image now returns null, not empty array, on failure to find an image.

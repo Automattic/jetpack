@@ -89,27 +89,26 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.3.0 - 2022-09-07
+### 1.4.0 - 2022-10-06
 #### Added
-- Added scheduled post calculation on plugin activation.
-- Added Social Previews.
-- Added support for JITMs.
-- Enforce sharing limits in the block editor, if it is enabled for a site.
+- Add ContextualUpgradeTrigger to Jetpack Social admin page
+- Added check to not show the share metre if someone has a paid plan.
+- Added Jetpack social redirect urls.
+- Add pricing table to Jetpack Social
+- Adds ability to autotag, autorelease and autopublish releases
+- Enforce sharing limits in the Classic Editor
 
 #### Changed
-- Updated package dependencies. [#24477, #25265, #25300, #25315, #25334, #25338, #25339, #25377, #25406, #25628, #25661, #25665, #25694, #25762, #25769, #25787, #25814, #25931]
-
-#### Removed
-- Packages: remove deprecated package.
+- Changed the values on the pricing table, and fixed a redirect
+- Move share limits code to the Publicize package
+- Set version to 1.4.0-alpha
+- Social: Aligned Jetpack and Social to use the connection-test-results endpoint in the block editor
+- Updated package dependencies.
+- Updated style for Jetpack Logo icon shown in pre-publish panels for Jetpack and Jetpack Social plugins
+- Update Inspector Panel Jetpack icon color to #1E1E1E
+- Use Jetpack logo in Jetpack Social pre-publish screen for Publicize and Social Preview features
 
 #### Fixed
-- Avoid PHP warnings when OG description is not set.
+- Social: Require a user connection to use the plugin.
+- Store: Added the missing showNudge reducer
 
-#### Other
-- My Jetpack includes JITMs
-- Post release tasks.
-- Start a new release cycle.
-- Support section for paid users
-- Tweaked the supports method of the plans package to refresh the plan data.
-- Updated Readme.txt for the jetpack-social-1.2.0-beta
-- Enables autotag, autorelease, and autosvn actions
