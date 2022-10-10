@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
  * This is the endpoint class for `/site` endpoints.
@@ -149,10 +150,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		 * - Followers (only if subs module is active)
 		 * - Sharing counts (not currently supported in Jetpack -- https://github.com/Automattic/jetpack/issues/844 )
 		 */
-		$stats = null;
-		if ( function_exists( 'stats_get_from_restapi' ) ) {
-			$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
-		}
+		$stats = (object) ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) );
 
 		$has_stats = null !== $stats && ! is_wp_error( $stats );
 
