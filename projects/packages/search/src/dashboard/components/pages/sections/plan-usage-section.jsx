@@ -19,9 +19,25 @@ const usageInfoFromAPIData = apiData => {
 	};
 };
 
+const upgradeTypeFromAPIData = apiData => {
+	// Determine if upgrade message is needed.
+	if ( ! apiData.currentUsage.must_upgrade ) {
+		return null;
+	}
+	// Determine appropriate upgrade message.
+	let mustUpgradeReason = '';
+	if ( apiData.currentUsage.upgrade_reason.requests ) {
+		mustUpgradeReason = 'requests';
+	}
+	if ( apiData.currentUsage.upgrade_reason.records ) {
+		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
+	}
+	return mustUpgradeReason;
+};
+
 const PlanUsageSection = props => {
 	// TODO: Add logic for plan limits.
-	const upgradeMessage = null;
+	const upgradeType = upgradeTypeFromAPIData( props.planInfo );
 	const usageInfo = usageInfoFromAPIData( props.planInfo );
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
@@ -30,7 +46,7 @@ const PlanUsageSection = props => {
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<PlanSummary planInfo={ props.planInfo } />
 					<UsageMeters usageInfo={ usageInfo } />
-					<UpgradeTrigger type={ upgradeMessage } />
+					<UpgradeTrigger type={ upgradeType } />
 					<AboutPlanLimits />
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
