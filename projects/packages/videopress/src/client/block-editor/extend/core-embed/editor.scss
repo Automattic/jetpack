@@ -1,5 +1,9 @@
 .videopress-embed-warning {
 	margin-bottom: 8px;
+
+	.block-editor-warning__actions {
+		flex-wrap: wrap;
+	}
 }
 
 .wp-block-core-embed-wrapper {
