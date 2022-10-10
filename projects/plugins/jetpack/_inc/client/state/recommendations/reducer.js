@@ -647,9 +647,9 @@ const getProductsEligibleForPostPurchaseOnboarding = state =>
 	);
 
 const getEligibleOnboardings = state =>
-	getProductsEligibleForPostPurchaseOnboarding( state ).map( ( { product_slug } ) =>
-		getOnboardingNameByProductSlug( product_slug )
-	);
+	getProductsEligibleForPostPurchaseOnboarding( state )
+		.map( ( { product_slug } ) => getOnboardingNameByProductSlug( product_slug ) )
+		.filter( name => null !== name );
 
 export const getOnboardingData = state => {
 	if ( isFetchingSiteData( state ) || ! isRecommendationsDataLoaded( state ) ) {
