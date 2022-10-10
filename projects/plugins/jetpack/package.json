@@ -81,7 +81,7 @@
 		"component-uid": "0.0.2",
 		"cookie": "0.4.1",
 		"copy-webpack-plugin": "11.0.0",
-		"debug": "4.3.3",
+		"debug": "4.3.4",
 		"email-validator": "2.0.4",
 		"events": "3.3.0",
 		"filesize": "8.0.6",
