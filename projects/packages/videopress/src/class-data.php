@@ -129,8 +129,7 @@ class Data {
 	 * @return array
 	 */
 	public static function get_initial_state() {
-
-		$video_data = self::get_video_data();
+		$videopress_data = self::get_video_data();
 
 		$videos = array_map(
 			function ( $video ) {
@@ -186,20 +185,20 @@ class Data {
 					'finished'       => $finished,
 				);
 			},
-			$video_data['videos']
+			$videopress_data['videos']
 		);
 
 		$initial_state = array(
 			'videos' => array(
-				'uploadedVideoCount'           => $video_data['total'],
+				'uploadedVideoCount'           => $videopress_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
 				'pagination'                   => array(
-					'totalPages' => $video_data['totalPages'],
-					'total'      => $video_data['total'],
+					'totalPages' => $videopress_data['totalPages'],
+					'total'      => $videopress_data['total'],
 				),
-				'query'                        => $video_data['query'],
+				'query'                        => $videopress_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
 				),
