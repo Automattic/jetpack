@@ -8,9 +8,6 @@ import React from 'react';
 
 // TODO: Replace local PlanSummary component with new component when ready.
 const FirstRunSection = props => {
-	if ( ! props.isVisible ) {
-		return null;
-	}
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">

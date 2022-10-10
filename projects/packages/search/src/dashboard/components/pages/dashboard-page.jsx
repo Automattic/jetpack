@@ -96,6 +96,15 @@ export default function DashboardPage( { isLoading = false } ) {
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
+	// Plan Info data
+	const recordMeterInfo = {
+		lastIndexedDate,
+		postCount,
+		postTypeBreakdown,
+		postTypes,
+		tierMaximumRecords,
+	};
+
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
@@ -106,16 +115,19 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					<FirstRunSection isVisible={ false } />
-					<PlanUsageSection isVisible={ false } />
-					{ isNewPricing && <UsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
-					<RecordMeter
-						postCount={ postCount }
-						postTypeBreakdown={ postTypeBreakdown }
-						tierMaximumRecords={ tierMaximumRecords }
-						lastIndexedDate={ lastIndexedDate }
-						postTypes={ postTypes }
-					/>
+					{ isNewPricing && (
+						<PlanInfo hasIndex={ postCount !== 0 } recordMeterInfo={ recordMeterInfo } />
+					) }
+					{ false && <UsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
+					{ ! isNewPricing && (
+						<RecordMeter
+							postCount={ postCount }
+							postTypeBreakdown={ postTypeBreakdown }
+							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
+							postTypes={ postTypes }
+						/>
+					) }
 					<div className="jp-search-dashboard-bottom">
 						<ModuleControl
 							siteAdminUrl={ siteAdminUrl }
@@ -143,6 +155,26 @@ export default function DashboardPage( { isLoading = false } ) {
 		</>
 	);
 }
+
+const PlanInfo = props => {
+	const hasIndex = props.hasIndex;
+	const info = props.recordMeterInfo;
+	return (
+		<>
+			{ ! hasIndex && <FirstRunSection /> }
+			{ hasIndex && <PlanUsageSection /> }
+			{ hasIndex && (
+				<RecordMeter
+					postCount={ info.postCount }
+					postTypeBreakdown={ info.postTypeBreakdown }
+					tierMaximumRecords={ info.tierMaximumRecords }
+					lastIndexedDate={ info.lastIndexedDate }
+					postTypes={ info.postTypes }
+				/>
+			) }
+		</>
+	);
+};
 
 const PlanSummary = ( { latestMonthRequests } ) => {
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );

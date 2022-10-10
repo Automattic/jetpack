@@ -8,9 +8,6 @@ import DonutMeterContainer from '../../donut-meter-container';
 
 // TODO: Replace local PlanSummary component with new component when ready.
 const PlanUsageSection = props => {
-	if ( ! props.isVisible ) {
-		return null;
-	}
 	// TODO: Add logic for plan limits.
 	const upgradeMessage = null;
 	return (
