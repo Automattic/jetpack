@@ -1,4 +1,10 @@
-import { plugins as pluginsIcon, wordpress, color } from '@wordpress/icons';
+import {
+	plugins as pluginsIcon,
+	wordpress as coreIcon,
+	color as themesIcon,
+	code as filesIcon,
+	grid as databaseIcon,
+} from '@wordpress/icons';
 import { useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
@@ -14,16 +20,20 @@ const flatData = ( data, icon ) => {
 	} ) );
 };
 
-const mergeAllThreats = ( { core, plugins, themes } ) => [
-	...flatData( core, wordpress ),
+const mergeAllThreats = ( { core, plugins, themes, files, database } ) => [
+	...flatData( core, coreIcon ),
 	...flatData( plugins, pluginsIcon ),
-	...flatData( themes, color ),
+	...flatData( themes, themesIcon ),
+	...flatData( files, filesIcon ),
+	...flatData( database, databaseIcon ),
 ];
 
 const useThreatsList = () => {
-	const { plugins, themes, core } = useProtectData();
+	const { plugins, themes, core, files, database } = useProtectData();
 	const [ item, setItem ] = useState( {} );
-	const [ list, setList ] = useState( mergeAllThreats( { core, plugins, themes } ) );
+	const [ list, setList ] = useState(
+		mergeAllThreats( { core, plugins, themes, files, database } )
+	);
 	const [ selected, setSelected ] = useState( list?.length ? 'all' : null );
 
 	const handleSelected = id => {
@@ -34,14 +44,26 @@ const useThreatsList = () => {
 		}
 
 		if ( id === 'all' ) {
-			setList( mergeAllThreats( { core, plugins, themes } ) );
+			setList( mergeAllThreats( { core, plugins, themes, files, database } ) );
 			setItem( {} );
 			return;
 		}
 
 		if ( id === 'wordpress' ) {
-			setList( flatData( core, wordpress ) );
+			setList( flatData( core, coreIcon ) );
 			setItem( core );
+			return;
+		}
+
+		if ( id === 'files' ) {
+			setList( flatData( files, filesIcon ) );
+			setItem( files );
+			return;
+		}
+
+		if ( id === 'database' ) {
+			setList( flatData( database, databaseIcon ) );
+			setItem( database );
 			return;
 		}
 
@@ -56,7 +78,7 @@ const useThreatsList = () => {
 		const themesItem = themes.find( threat => threat?.name === id );
 
 		if ( themesItem ) {
-			setList( flatData( themesItem, color ) );
+			setList( flatData( themesItem, themesIcon ) );
 			setItem( themesItem );
 			return;
 		}

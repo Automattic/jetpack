@@ -1,13 +1,29 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { wordpress, plugins as pluginsIcon, warning, color } from '@wordpress/icons';
+import {
+	wordpress as coreIcon,
+	plugins as pluginsIcon,
+	warning as warningIcon,
+	color as themesIcon,
+	code as filesIcon,
+	grid as databaseIcon,
+} from '@wordpress/icons';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect } ) => {
-	const { plugins, themes, numThreats, numCoreThreats } = useProtectData();
+	const {
+		plugins,
+		themes,
+		numThreats,
+		numCoreThreats,
+		numFilesThreats,
+		numDatabaseThreats,
+		securityBundle,
+	} = useProtectData();
+	const { hasRequiredPlan } = securityBundle;
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
@@ -27,6 +43,14 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		recordEvent( 'jetpack_protect_navigation_theme_click' );
 	}, [ recordEvent ] );
 
+	const trackNavigationClickFiles = useCallback( () => {
+		recordEvent( 'jetpack_protect_navigation_file_click' );
+	}, [ recordEvent ] );
+
+	const trackNavigationClickDatabase = useCallback( () => {
+		recordEvent( 'jetpack_protect_navigation_database_click' );
+	}, [ recordEvent ] );
+
 	return (
 		<Navigation
 			selected={ selected }
@@ -37,7 +61,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 				initial
 				id="all"
 				label={ __( 'All threats', 'jetpack-protect' ) }
-				icon={ warning }
+				icon={ warningIcon }
 				badge={ numThreats }
 				disabled={ numThreats <= 0 }
 				onClick={ trackNavigationClickAll }
@@ -46,7 +70,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 			<NavigationItem
 				id="wordpress"
 				label={ __( 'WordPress', 'jetpack-protect' ) }
-				icon={ wordpress }
+				icon={ coreIcon }
 				badge={ numCoreThreats }
 				disabled={ numCoreThreats <= 0 }
 				onClick={ trackNavigationClickCore }
@@ -65,7 +89,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 					/>
 				) ) }
 			</NavigationGroup>
-			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ color }>
+			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ themesIcon }>
 				{ themes.map( ( { name, threats, checked } ) => (
 					<NavigationItem
 						key={ name }
@@ -78,6 +102,28 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 					/>
 				) ) }
 			</NavigationGroup>
+			{ hasRequiredPlan && (
+				<>
+					<NavigationItem
+						id="files"
+						label={ __( 'Files', 'jetpack-protect' ) }
+						icon={ filesIcon }
+						badge={ numFilesThreats }
+						disabled={ numFilesThreats <= 0 }
+						onClick={ trackNavigationClickFiles }
+						checked={ true }
+					/>
+					<NavigationItem
+						id="database"
+						label={ __( 'Database', 'jetpack-protect' ) }
+						icon={ databaseIcon }
+						badge={ numDatabaseThreats }
+						disabled={ numDatabaseThreats <= 0 }
+						onClick={ trackNavigationClickDatabase }
+						checked={ true }
+					/>
+				</>
+			) }
 		</Navigation>
 	);
 };
