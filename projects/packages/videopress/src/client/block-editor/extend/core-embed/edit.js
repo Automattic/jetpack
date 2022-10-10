@@ -67,14 +67,14 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 							variant="primary"
 							onClick={ () => setAttributes( { keepUsingOEmbedVariation: false } ) }
 						>
-							{ __( 'Use the new VideoPress Video block', 'jetpack-videopress-pkg' ) }
+							{ __( 'Use VideoPress Video block', 'jetpack-videopress-pkg' ) }
 						</Button>,
 						<Button
 							key="convert"
 							variant="tertiary"
 							onClick={ () => setAttributes( { keepUsingOEmbedVariation: true } ) }
 						>
-							{ __( 'Keep using the VideoPress Embed block variation', 'jetpack-videopress-pkg' ) }
+							{ __( 'Keep using VideoPress Embed block', 'jetpack-videopress-pkg' ) }
 						</Button>,
 					] }
 				>
