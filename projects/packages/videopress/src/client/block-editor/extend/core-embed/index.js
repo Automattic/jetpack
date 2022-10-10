@@ -16,6 +16,12 @@ const extendCoreEmbedVideoPressBlock = ( settings, name ) => {
 
 	return {
 		...settings,
+		attributes: {
+			...settings.attributes,
+			keepUsingOEmbedVariation: {
+				type: 'boolean',
+			},
+		},
 		edit: withCoreEmbedVideoPressBlock( settings.edit ),
 	};
 };
