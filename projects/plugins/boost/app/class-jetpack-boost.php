@@ -100,6 +100,8 @@ class Jetpack_Boost {
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ) );
 
+		add_action( 'plugins_loaded', array( $this, 'init_sync' ) );
+
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
@@ -121,6 +123,12 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_deactivate' );
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
+	}
+
+	public function init_sync() {
+		$config = new \Automattic\Jetpack\Config();
+		// Sync package.
+		$config->ensure( 'sync' );
 	}
 
 	/**
