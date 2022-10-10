@@ -21,6 +21,11 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 			return <CoreEmbedBlockEdit { ...props } />;
 		}
 
+		const { keepUsingOEmbedVariation } = attributes;
+		if ( keepUsingOEmbedVariation === true ) {
+			return <CoreEmbedBlockEdit { ...props } />;
+		}
+
 		return (
 			<div>
 				<Warning
