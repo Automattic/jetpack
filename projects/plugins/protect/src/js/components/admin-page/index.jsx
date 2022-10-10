@@ -74,16 +74,14 @@ export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile 
 
 const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			showHeader={ false }
-			showBackground={ false }
-		>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col sm={ 4 } md={ 8 } lg={ 12 }>
-					<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
-				</Col>
-			</Container>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<AdminSectionHero>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col sm={ 4 } md={ 8 } lg={ 12 }>
+						<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
+					</Col>
+				</Container>
+			</AdminSectionHero>
 		</AdminPage>
 	);
 };
