@@ -1,16 +1,17 @@
 import classNames from 'classnames';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { stepToRoute } from 'state/recommendations';
 import { getSummaryPrimaryProps } from '../feature-utils';
+import type { MouseEventHandler } from 'react';
 
 type SummaryTextLinkProps = {
 	href: string;
 	label: string;
 	isHidden?: boolean;
-	onClick: React.MouseEventHandler< HTMLAnchorElement >;
+	onClick: MouseEventHandler< HTMLAnchorElement >;
 };
 
 const SummaryTextLink = ( { href, label, isHidden, onClick }: SummaryTextLinkProps ) => {
@@ -51,7 +52,7 @@ const PrimarySummaryComponent = ( {
 		} );
 	}, [ slug ] );
 
-	const onManageClick = useCallback< React.MouseEventHandler< HTMLAnchorElement > >( () => {
+	const onManageClick = useCallback< MouseEventHandler< HTMLAnchorElement > >( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_manage_click', {
 			feature: slug,
 		} );
