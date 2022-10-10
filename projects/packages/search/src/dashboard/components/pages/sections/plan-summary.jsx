@@ -1,15 +1,14 @@
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 
 // import './plan-summary.scss';
 
 const planNameFromAPIData = apiData => {
 	// Determine plan name for display.
+	const paidText = __( 'Paid Plan', 'jetpack-search-pkg' );
+	const freeText = __( 'Free Plan', 'jetpack-search-pkg' );
 	const planType = apiData?.tierSlug;
-	const planName = planType
-		? __( 'Paid Plan', 'jetpack-search-pkg' )
-		: __( 'Free Plan', 'jetpack-search-pkg' );
+	const planName = planType ? paidText : freeText;
 	return planName;
 };
 
@@ -36,17 +35,13 @@ const PlanSummary = ( { planInfo } ) => {
 	const displayPeriod = displayPeriodFromAPIData( planInfo );
 	return (
 		<h2>
-			{ createInterpolateElement(
-				sprintf(
-					// translators: %1$s: usage period, %2$s: plan name
-					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
-					displayPeriod,
-					planName
-				),
-				{
-					s: <span />,
-				}
-			) }
+			{
+				// translators: Header for section showing search records and requests usage.
+				__( 'Your usage', 'jetpack-search-pkg' )
+			}{ ' ' }
+			<span>
+				{ displayPeriod } ({ planName })
+			</span>
 		</h2>
 	);
 };
