@@ -73,7 +73,7 @@ async function createMessage( isFailure ) {
 		const commitUrl = `${ serverUrl }/${ repository }/commit/${ sha }`;
 
 		contextElements.push( getTextContextElement( `Last commit: ${ sha.substring( 0, 8 ) }` ) );
-		buttons.push( lastRunButtonBlock, getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
+		buttons.push( getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
 	}
 
 	contextElements.push( lastRunBlock );

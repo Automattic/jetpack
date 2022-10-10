@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-action-bar",
-	"version": "0.1.2-alpha",
+	"version": "0.1.2",
 	"description": "An easy way for visitors to follow, like, and comment on your WordPress site.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/action-bar/#readme",
 	"bugs": {

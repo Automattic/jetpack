@@ -1,0 +1,11 @@
+// Double selector because otherwise margin gets overruled
+.notice.notice {
+	color: var( --jp-gray-40 );
+	margin-top: calc( var( --spacing-base ) * 2 );
+	white-space: nowrap;
+}
+
+// Temporary (!) fix to align both buttons
+.button {
+	margin-bottom: calc( 20px + var( --spacing-base ) * 2 );
+}
