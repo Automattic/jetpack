@@ -32,6 +32,7 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {string} props.siteAdminUrl - site admin URL.
  * @param {string} props.upgradeBillPeriod - billing cycle for upgrades.
  * @param {Function} props.updateOptions - function to update settings.
+ * @param {boolean} props.hasActiveSearchPurchase - true if the subscription is valid to manipulate controls.
  * @param {boolean} props.isSavingEitherOption - true if Saving options.
  * @param {boolean} props.isModuleEnabled - true if Search module is enabled.
  * @param {boolean} props.isInstantSearchEnabled - true if Instant Search is enabled.
@@ -47,6 +48,7 @@ export default function SearchModuleControl( {
 	siteAdminUrl,
 	updateOptions,
 	domain,
+	hasActiveSearchPurchase,
 	isSavingEitherOption,
 	isModuleEnabled,
 	isInstantSearchEnabled,
@@ -64,6 +66,10 @@ export default function SearchModuleControl( {
 	);
 
 	const toggleSearchModule = useCallback( () => {
+		if ( ! hasActiveSearchPurchase ) {
+			return;
+		}
+
 		const newOption = {
 			module_active: ! isModuleEnabled,
 		};
@@ -72,9 +78,19 @@ export default function SearchModuleControl( {
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
-	}, [ supportsInstantSearch, isModuleEnabled, updateOptions, isInstantSearchEnabled ] );
+	}, [
+		supportsInstantSearch,
+		isModuleEnabled,
+		updateOptions,
+		isInstantSearchEnabled,
+		hasActiveSearchPurchase,
+	] );
 
 	const toggleInstantSearch = useCallback( () => {
+		if ( ! hasActiveSearchPurchase ) {
+			return;
+		}
+
 		const newOption = {
 			instant_search_enabled: supportsInstantSearch && ! isInstantSearchEnabled,
 		};
@@ -83,14 +99,18 @@ export default function SearchModuleControl( {
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
-	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions ] );
+	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions, hasActiveSearchPurchase ] );
 
 	return (
-		<div className="jp-form-settings-group jp-form-search-settings-group">
+		<div
+			className={ classNames( {
+				'jp-form-settings-group jp-form-search-settings-group': true,
+				'jp-form-search-settings-group--disabled': ! hasActiveSearchPurchase,
+			} ) }
+		>
 			<Card
 				className={ classNames( {
 					'jp-form-has-child': true,
-					'jp-form-settings-disable': false,
 				} ) }
 			>
 				<div className="jp-form-search-settings-group-inside">
@@ -100,6 +120,7 @@ export default function SearchModuleControl( {
 						isTogglingModule={ isTogglingModule }
 						supportsSearch={ supportsSearch }
 						toggleSearchModule={ toggleSearchModule }
+						hasActiveSearchPurchase={ hasActiveSearchPurchase }
 					/>
 
 					<InstantSearchToggle
@@ -113,6 +134,7 @@ export default function SearchModuleControl( {
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
+						hasActiveSearchPurchase={ hasActiveSearchPurchase }
 					/>
 				</div>
 			</Card>
@@ -131,7 +153,13 @@ const InstantSearchToggle = ( {
 	supportsOnlyClassicSearch,
 	toggleInstantSearch,
 	upgradeUrl,
+	hasActiveSearchPurchase,
 } ) => {
+	const isInstantSearchToggleChecked =
+		isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch && hasActiveSearchPurchase;
+	const isInstantSearchToggleDisabled =
+		isSavingEitherOption || ! supportsInstantSearch || ! hasActiveSearchPurchase;
+
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
@@ -144,8 +172,8 @@ const InstantSearchToggle = ( {
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<CompactFormToggle
-					checked={ isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch }
-					disabled={ isSavingEitherOption || ! supportsInstantSearch }
+					checked={ isInstantSearchToggleChecked }
+					disabled={ isInstantSearchToggleDisabled }
 					onChange={ toggleInstantSearch }
 					toggling={ isTogglingInstantSearch }
 					className="is-search-admin"
@@ -236,14 +264,19 @@ const SearchToggle = ( {
 	isTogglingModule,
 	supportsSearch,
 	toggleSearchModule,
+	hasActiveSearchPurchase,
 } ) => {
+	const isSearchToggleChecked = isModuleEnabled && supportsSearch && hasActiveSearchPurchase;
+	const isSearchToggleDisabled =
+		isSavingEitherOption || ! supportsSearch || ! hasActiveSearchPurchase;
+
 	return (
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<CompactFormToggle
-					checked={ isModuleEnabled && supportsSearch }
-					disabled={ isSavingEitherOption || ! supportsSearch }
+					checked={ isSearchToggleChecked }
+					disabled={ isSearchToggleDisabled }
 					onChange={ toggleSearchModule }
 					toggling={ isTogglingModule }
 					className="is-search-admin"
