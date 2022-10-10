@@ -6,6 +6,7 @@ import {
 	Col,
 	Text,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning, info } from '@wordpress/icons';
@@ -45,6 +46,7 @@ const GlobalNotice = ( { message, options, clean } ) => {
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const { recordEvent } = useAnalytics();
 
@@ -73,6 +75,11 @@ export default function MyJetpackScreen() {
 							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
+					{ hasConnectionError && (
+						<Col>
+							<ConnectionError />
+						</Col>
+					) }
 					{ message && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />

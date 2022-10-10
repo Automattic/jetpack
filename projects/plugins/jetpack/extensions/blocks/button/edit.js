@@ -24,7 +24,7 @@ export function ButtonEdit( props ) {
 		setAttributes,
 		textColor,
 	} = props;
-	const { borderRadius, element, placeholder, text, width } = attributes;
+	const { borderRadius, element, placeholder, text, width, fontSize } = attributes;
 	const isWidthSetOnParentBlock = 'jetpack/parentBlockWidth' in context;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
@@ -53,12 +53,14 @@ export function ButtonEdit( props ) {
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
 		'has-custom-width': !! width,
+		[ `has-${ fontSize }-font-size` ]: !! fontSize,
 	} );
 
 	const buttonStyles = {
 		...( ! backgroundColor.color && gradientValue
 			? { background: gradientValue }
 			: { backgroundColor: backgroundColor.color } ),
+		fontSize: attributes.style?.typography?.fontSize,
 		color: textColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 		width,

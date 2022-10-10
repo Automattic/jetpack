@@ -1,4 +1,5 @@
 name: CI Results
+run-name: ${{ github.event.workflow.name }} on ${{ github.event.workflow_run.head_branch }}
 on:
   workflow_run:
     types: [ 'completed' ]

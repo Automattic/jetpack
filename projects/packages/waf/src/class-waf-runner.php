@@ -29,6 +29,45 @@ class Waf_Runner {
 	const SHARE_DATA_OPTION_NAME        = 'jetpack_waf_share_data';
 
 	/**
+	 * Run the WAF
+	 */
+	public static function initialize() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		self::define_mode();
+		self::define_share_data();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+		// Don't run if in standalone mode
+		if ( function_exists( 'add_action' ) ) {
+			self::add_hooks();
+		}
+		if ( ! self::did_run() ) {
+			self::run();
+		}
+	}
+
+	/**
+	 * Set action hooks
+	 *
+	 * @return void
+	 */
+	public static function add_hooks() {
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, 'activate', 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, 'activate', 10, 0 );
+		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, 'activate', 10, 0 );
+		add_action( 'jetpack_waf_rules_update_cron', 'update_rules_cron' );
+		// TODO: This doesn't exactly fit here - may need to find another home
+		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+		}
+		// Register REST routes.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+	}
+
+	/**
 	 * Set the mode definition if it has not been set.
 	 *
 	 * @return void
@@ -239,7 +278,7 @@ class Waf_Runner {
 			PRIMARY KEY (log_id),
 			KEY timestamp (timestamp)
 		)
-	";
+		";
 
 		dbDelta( $sql );
 	}
@@ -293,6 +332,16 @@ class Waf_Runner {
 			update_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 			self::generate_rules();
 		}
+	}
+
+	/**
+	 * Handle updates to the WAF
+	 */
+	public static function update_waf() {
+		self::update_rules_if_changed();
+		// Re-generate the standalone bootstrap file on every update
+		// TODO: We may consider only doing this when the WAF version changes
+		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
 	/**

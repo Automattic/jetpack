@@ -122,7 +122,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 0, $menu );
 
 		// Give user a second site.
-		$blog_id = $this->factory->blog->create();
+		$blog_id = self::factory()->blog->create();
 		add_user_to_blog( $blog_id, get_current_user_id(), 'editor' );
 
 		static::$admin_menu->add_browse_sites_link();

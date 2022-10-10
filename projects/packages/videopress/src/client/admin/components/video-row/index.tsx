@@ -6,10 +6,10 @@ import classNames from 'classnames';
 import { useState, useRef } from 'react';
 import privacy from '../../../components/icons/privacy-icon';
 import Checkbox from '../checkbox';
-import VideoQuickActions from '../video-quick-actions';
+import { ConnectVideoQuickActions } from '../video-quick-actions';
 import StatsBase from './stats';
 import styles from './style.module.scss';
-import { VideoPressVideo, VideoRowProps } from './types';
+import { VideoRowProps } from './types';
 
 const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
 	if ( milliseconds ) {
@@ -34,15 +34,13 @@ const Stats = ( {
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
 	const playsLabel = __( 'Plays', 'jetpack-videopress-pkg' );
 	const privacyLabel = __( 'Privacy', 'jetpack-videopress-pkg' );
+	const privateLabel = __( 'Private', 'jetpack-videopress-pkg' );
+	const publicLabel = __( 'Public', 'jetpack-videopress-pkg' );
 
 	const privacyElement = isSmall ? (
 		<>
 			<span>{ privacyLabel }</span>
-			<span>
-				{ isPrivate
-					? __( 'Private', 'jetpack-videopress-pkg' )
-					: __( 'Public', 'jetpack-videopress-pkg' ) }
-			</span>
+			<span>{ isPrivate ? privateLabel : publicLabel }</span>
 		</>
 	) : (
 		<>{ isPrivate && <Icon icon={ privacy } /> }</>
@@ -81,23 +79,19 @@ const Stats = ( {
 };
 
 const VideoRow = ( {
+	id,
 	className = '',
 	checked = false,
-	videoTitle,
+	title,
 	posterImage,
 	duration,
 	uploadDate,
 	plays,
 	isPrivate,
-	onClickEdit,
+	onVideoDetailsClick,
 	onSelect,
-	hideEditButton,
-	// Hiding it based on Design request:
-	// https://github.com/Automattic/jetpack/issues/25742#issuecomment-1223123815
-	hideQuickActions = true,
-	onUpdateThumbnailClick,
-	onUpdateUpdatePrivacyClick,
-	onDeleteClick,
+	showEditButton = true,
+	showQuickActions = true,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -115,7 +109,7 @@ const VideoRow = ( {
 	const showBottom = ! isSmall || ( isSmall && expanded );
 	const canExpand =
 		isSmall &&
-		( ! hideEditButton ||
+		( showEditButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
 			typeof isPrivate === 'boolean' );
@@ -129,7 +123,7 @@ const VideoRow = ( {
 			'Video: %1$s, Duration: %2$s, Upload Date: %3$s. Click to edit details.',
 			'jetpack-videopress-pkg'
 		),
-		videoTitle,
+		title,
 		durationInMinutesAndSeconds,
 		uploadDateFormatted
 	);
@@ -140,11 +134,7 @@ const VideoRow = ( {
 	};
 
 	const editDetailsButton = (
-		<Button
-			size="small"
-			onClick={ handleClickWithStopPropagation( onClickEdit ) }
-			fullWidth={ isSmall }
-		>
+		<Button size="small" onClick={ handleClickWithStopPropagation( onVideoDetailsClick ) }>
 			{ editVideoLabel }
 		</Button>
 	);
@@ -219,11 +209,11 @@ const VideoRow = ( {
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
-								{ videoTitle }
+								{ title }
 							</Text>
 						) }
 						<Text variant="title-small" className={ styles.title } ref={ textRef }>
-							{ videoTitle }
+							{ title }
 						</Text>
 						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
 					</div>
@@ -231,20 +221,10 @@ const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && ( ! hideEditButton || ! hideQuickActions ) && (
+						{ showActions && ( showEditButton || showQuickActions ) && (
 							<div className={ styles.actions }>
-								{ ! hideEditButton && editDetailsButton }
-								{ ! hideQuickActions && (
-									<VideoQuickActions
-										onUpdateThumbnailClick={ handleClickWithStopPropagation(
-											onUpdateThumbnailClick
-										) }
-										onUpdateUpdatePrivacyClick={ handleClickWithStopPropagation(
-											onUpdateUpdatePrivacyClick
-										) }
-										onDeleteClick={ handleClickWithStopPropagation( onDeleteClick ) }
-									/>
-								) }
+								{ showEditButton && editDetailsButton }
+								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }
 						{ showStats && (
@@ -255,7 +235,12 @@ const VideoRow = ( {
 								isPrivate={ isPrivate }
 							/>
 						) }
-						{ isSmall && ! hideEditButton && editDetailsButton }
+						{ isSmall && (
+							<div className={ styles[ 'mobile-actions' ] }>
+								{ showEditButton && editDetailsButton }
+								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
+							</div>
+						) }
 					</div>
 				) }
 			</div>
@@ -263,6 +248,6 @@ const VideoRow = ( {
 	);
 };
 
-export type { VideoPressVideo };
+export type { VideoRowProps };
 export { StatsBase as Stats };
 export default VideoRow;

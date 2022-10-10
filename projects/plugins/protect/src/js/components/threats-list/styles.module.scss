@@ -15,6 +15,7 @@
 .threat-filename {
 	background-color: var( --jp-gray-0 );
 	padding: 24px;
+	overflow-x: scroll;
 }
 
 .threat-footer {
@@ -23,4 +24,7 @@
 	border-top: 1px solid var( --jp-gray );
 	padding-top: 24px;
 	margin-top: 24px;
+}
+.threat-item-cta {
+	margin-top: 36px;
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Use glob pattern to define refs in notification rules

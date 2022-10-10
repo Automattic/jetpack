@@ -28,13 +28,7 @@ describe( 'ReconnectModal', () => {
 				const user = userEvent.setup();
 				const closeModal = jest.fn();
 
-				class ReconnectModalMock extends ReconnectModal {
-					constructor( props ) {
-						super( props );
-						this.closeModal = closeModal;
-					}
-				}
-				render( <ReconnectModalMock { ...defaultTestProps } /> );
+				render( <ReconnectModal { ...defaultTestProps } onHide={ closeModal } /> );
 				await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 				expect( closeModal ).toHaveBeenCalledTimes( 1 );
 			} );
@@ -50,14 +44,9 @@ describe( 'ReconnectModal', () => {
 				const user = userEvent.setup();
 				const clickReconnectSite = jest.fn();
 
-				class ReconnectModalMock extends ReconnectModal {
-					constructor( props ) {
-						super( props );
-						this.clickReconnectSite = clickReconnectSite;
-					}
-				}
-
-				render( <ReconnectModalMock { ...defaultTestProps } /> );
+				render(
+					<ReconnectModal { ...defaultTestProps } clickReconnectSite={ clickReconnectSite } />
+				);
 				await user.click( screen.getByRole( 'button', { name: 'Reconnect Jetpack' } ) );
 				expect( clickReconnectSite ).toHaveBeenCalledTimes( 1 );
 			} );

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.3.0-beta - 2022-08-31
+## 1.3.0 - 2022-09-07
 ### Added
 - Added scheduled post calculation on plugin activation. [#25334]
 - Added Social Previews. [#25931]
@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support section for paid users [#25633]
 - Tweaked the supports method of the plans package to refresh the plan data. [#25347]
 - Updated Readme.txt for the jetpack-social-1.2.0-beta [#25286]
+- Enables autotag, autorelease, and autosvn actions
 
 ## 1.2.0 - 2022-08-03
 ### Added

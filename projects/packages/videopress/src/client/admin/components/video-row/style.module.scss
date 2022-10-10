@@ -148,6 +148,11 @@
 	margin-right: calc( var(--spacing-base) * 3 ); // 24px
 }
 
+.mobile-actions {
+	display: flex;
+	justify-content: space-between;
+}
+
 // STORYBOOK
 
 .storybook-wrapper {

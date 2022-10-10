@@ -70,7 +70,7 @@ apiFetch.use( ( options, next ) => {
  * @param {string} name - Block name
  * @returns {boolean}     Whether the extension is a beta extension
  */
-function isBetaExtension( name ) {
+export function isBetaExtension( name ) {
 	if ( ! extensionList ) {
 		return;
 	}

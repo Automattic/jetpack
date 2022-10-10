@@ -1,4 +1,5 @@
-import { Text, Button } from '@automattic/jetpack-components';
+import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -6,6 +7,7 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import Accordion, { AccordionItem } from '../accordion';
+import { SECURITY_BUNDLE } from '../admin-page';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
 import styles from './styles.module.scss';
@@ -26,11 +28,22 @@ const ThreatAccordionItem = ( {
 	version,
 	severity,
 } ) => {
-	const { recordEvent } = useAnalyticsTracks();
 	const { setModal } = useDispatch( STORE_ID );
 
 	const { securityBundle } = useProtectData();
 	const { hasRequiredPlan } = securityBundle;
+
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: SECURITY_BUNDLE,
+		redirectUrl: adminUrl,
+	} );
+
+	const { recordEventHandler } = useAnalyticsTracks();
+	const getSecurityBundle = recordEventHandler(
+		'jetpack_protect_vulnerability_list_get_security_link_click',
+		run
+	);
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -80,8 +93,8 @@ const ThreatAccordionItem = ( {
 				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
 					return;
 				}
-				recordEvent( `jetpack_protect_${ type }_vulnerability_open` );
-			}, [ recordEvent, type ] ) }
+				recordEventHandler( `jetpack_protect_${ type }_vulnerability_open` );
+			}, [ recordEventHandler, type ] ) }
 		>
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -121,6 +134,15 @@ const ThreatAccordionItem = ( {
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
+					<ContextualUpgradeTrigger
+						description={ __(
+							'Looking for advanced scan results and one-click fixes?',
+							'jetpack-protect'
+						) }
+						cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
+						onClick={ getSecurityBundle }
+						className={ styles[ 'threat-item-cta' ] }
+					/>
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
