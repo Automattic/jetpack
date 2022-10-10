@@ -33,7 +33,7 @@ class Jetpack_Search_Plugin {
 		 * In case the Jetpack plugin is deactivated, make sure to re-activate the Stats module, as the
 		 * module toggle, available in the Jetpack plugin no longer needs to be respected.
 		 *
-		 * @todo Condider removing this action if a Stats module toggle is implemented in the Jetpack Search Plugin.
+		 * @todo Consider removing this action if a Stats module toggle is implemented in the Jetpack Search Plugin.
 		 */
 		add_action( 'deactivate_jetpack/jetpack.php', array( self::class, 'activate_stats_module_on_deactivate_jetpack' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH, array( self::class, 'plugin_page_add_links' ) );
@@ -151,7 +151,7 @@ class Jetpack_Search_Plugin {
 	/**
 	 * Fires on the `deactivate_jetpack` action and activates stats module.
 	 *
-	 * @todo Condider removing this action if a Stats module toggle is implemented in the Jetpack Search Plugin.
+	 * @todo Consider removing this action if a Stats module toggle is implemented in the Jetpack Search Plugin.
 	 */
 	public static function activate_stats_module_on_deactivate_jetpack() {
 		( new Modules() )->activate( 'stats', false, false );
