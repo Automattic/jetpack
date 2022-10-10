@@ -22,6 +22,9 @@ const FirstRunSection = props => {
 	);
 };
 
+// TODO: Move this back inline.
+// Per Jason's feedback, doesn't think we should break this out.
+// https://github.com/Automattic/jetpack/pull/26639#discussion_r989592860
 const ProgressWrapper = props => {
 	return (
 		<div>
@@ -39,6 +42,9 @@ const ProgressWrapper = props => {
 	);
 };
 
+// TODO: Remove const variables.
+// Per Jason's feedback, thinks we should put these inline.
+// https://github.com/Automattic/jetpack/pull/26639#discussion_r989593312
 const NoticeWrapper = () => {
 	const noticeBoxClassName = 'jp-search-notice-box';
 	const header = __( "We're gathering your usage data.", 'jetpack-search-pkg' );
