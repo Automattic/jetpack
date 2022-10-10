@@ -93,7 +93,8 @@ body {
 	margin-top: 24px;
 	line-height: 24px;
 
-	& u {
+	.support-link {
+		color: $studio-black;
 		cursor: pointer;
 	}
 }
