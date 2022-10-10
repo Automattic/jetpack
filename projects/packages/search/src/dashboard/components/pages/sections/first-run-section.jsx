@@ -1,12 +1,11 @@
 import { IndeterminateProgressBar } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import React from 'react';
+import PlanSummary from './plan-summary';
 
 // import './first-run-section.scss';
 
-// TODO: Replace local PlanSummary component with new component when ready.
 const FirstRunSection = props => {
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
@@ -20,24 +19,6 @@ const FirstRunSection = props => {
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
 		</div>
-	);
-};
-
-const PlanSummary = () => {
-	return (
-		<h2>
-			{ createInterpolateElement(
-				sprintf(
-					// translators: %1$s: usage period, %2$s: plan name
-					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
-					'Sep 28-Oct 28',
-					__( 'Free plan', 'jetpack-search-pkg' )
-				),
-				{
-					s: <span />,
-				}
-			) }
-		</h2>
 	);
 };
 
