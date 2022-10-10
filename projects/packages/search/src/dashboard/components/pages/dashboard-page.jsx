@@ -159,13 +159,16 @@ export default function DashboardPage( { isLoading = false } ) {
 const PlanInfo = props => {
 	const hasIndex = props.hasIndex;
 	const info = props.recordMeterInfo;
+	// Site Info
+	// TODO: Investigate why this isn't returning anything useful.
+	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
 	// Plan Info data
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 	const planInfo = { latestMonthRequests, tierSlug };
 	return (
 		<>
-			{ ! hasIndex && <FirstRunSection planInfo={ planInfo } /> }
+			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && <PlanUsageSection planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<RecordMeter

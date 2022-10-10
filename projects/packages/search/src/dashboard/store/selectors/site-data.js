@@ -8,6 +8,7 @@ const siteDataSelectors = {
 	getVersion: state => state.siteData?.version ?? 'development',
 	getCalypsoSlug: state => state.siteData?.calypsoSlug,
 	getPostTypes: state => state.siteData?.postTypes,
+	getSiteTitle: state => state.siteData?.title || '',
 	isWpcom: state => state.siteData?.isWpcom ?? false,
 };
 
