@@ -164,8 +164,10 @@ const InstantSearchToggle = ( {
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
-		! supportsInstantSearch;
-	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
+		! supportsInstantSearch ||
+		! hasActiveSearchPurchase;
+	const isWidgetsEditorButtonDisabled =
+		isSavingEitherOption || ! isModuleEnabled || ! hasActiveSearchPurchase;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
