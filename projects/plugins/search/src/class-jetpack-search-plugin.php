@@ -28,7 +28,6 @@ class Jetpack_Search_Plugin {
 		add_action( 'plugins_loaded', array( self::class, 'configure_packages' ), 1 );
 		add_action( 'plugins_loaded', array( self::class, 'initialize_other_packages' ) );
 		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
-		add_action( 'activated_plugin', array( self::class, 'handle_plugin_activation' ) );
 		add_action( 'jetpack_site_registered', array( self::class, 'activate_stats_module_on_site_register' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH, array( self::class, 'plugin_page_add_links' ) );
 		add_filter( 'jetpack_get_available_standalone_modules', array( self::class, 'filter_available_modules_add_stats' ), 10, 1 );
