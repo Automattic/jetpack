@@ -16,7 +16,7 @@ const PlanUsageSection = props => {
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary />
+					<PlanSummary planInfo={ props.planInfo } />
 					<UsageMeters />
 					<UpgradeTrigger type={ upgradeMessage } />
 					<AboutPlanLimits />
