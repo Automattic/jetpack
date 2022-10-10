@@ -163,9 +163,11 @@ const PlanInfo = props => {
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
 	// Plan Info data
+	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
+	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
-	const planInfo = { latestMonthRequests, tierSlug };
+	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
 	return (
 		<>
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }

@@ -7,17 +7,29 @@ import PlanSummary from './plan-summary';
 
 // import './plan-usage-section.scss';
 
-// TODO: Replace local PlanSummary component with new component when ready.
+const usageInfoFromAPIData = apiData => {
+	// Transform the data as necessary.
+	// Are there better defaults for the Max values?
+	// Should we recored, log, or otherwise surface potential errors here?
+	return {
+		recordCount: apiData?.currentUsage?.num_records || 0,
+		recordMax: apiData?.currentPlan?.record_limit || 0,
+		requestCount: apiData?.latestMonthRequests?.num_requests || 0,
+		requestMax: apiData?.currentPlan.monthly_search_request_limit || 0,
+	};
+};
+
 const PlanUsageSection = props => {
 	// TODO: Add logic for plan limits.
 	const upgradeMessage = null;
+	const usageInfo = usageInfoFromAPIData( props.planInfo );
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<PlanSummary planInfo={ props.planInfo } />
-					<UsageMeters />
+					<UsageMeters usageInfo={ usageInfo } />
 					<UpgradeTrigger type={ upgradeMessage } />
 					<AboutPlanLimits />
 				</div>
@@ -84,18 +96,18 @@ const UpgradeTrigger = props => {
 	);
 };
 
-const UsageMeters = () => {
+const UsageMeters = ( { usageInfo } ) => {
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
 				title={ __( 'Site records', 'jetpack-search-pkg' ) }
-				current={ 1250 }
-				limit={ 5000 }
+				current={ usageInfo.recordCount }
+				limit={ usageInfo.recordMax }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
-				current={ 125 }
-				limit={ 500 }
+				current={ usageInfo.requestCount }
+				limit={ usageInfo.requestMax }
 			/>
 		</div>
 	);
