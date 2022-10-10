@@ -1,8 +1,7 @@
 <script>
-	import { ProductPrice } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ContextInfo from '../../elements/ContextInfo.svelte';
-	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import ProductPrice from '../../elements/ProductPrice.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import Header from '../../sections/Header.svelte';
 	import { getStarted } from '../../stores/config';
@@ -95,13 +94,13 @@
 				</div>
 				<div class="comparison-table__tier comparison-table__tier--card">
 					<header>
-						<ReactComponent
-							this={ProductPrice}
+						<ProductPrice
 							price={18}
 							offPrice={9}
 							priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 							showNotOffPrice={true}
 							currency="USD"
+							promoLabel="50% off"
 						/>
 					</header>
 					<div class="comparison-table__cta">
@@ -176,11 +175,11 @@
 				</div>
 				<div class="comparison-table__tier">
 					<header>
-						<ReactComponent
-							this={ProductPrice}
+						<ProductPrice
 							price={0}
 							currency="USD"
 							hidePriceFraction={true}
+							showNotOffPrice={false}
 							leyend=""
 						/>
 					</header>

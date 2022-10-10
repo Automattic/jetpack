@@ -6,6 +6,7 @@
 		"test": "tests"
 	},
 	"dependencies": {
+		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@wordpress/components": "20.0.0",
 		"@wordpress/element": "4.14.0",
