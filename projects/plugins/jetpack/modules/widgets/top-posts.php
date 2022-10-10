@@ -683,7 +683,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			'summarize' => 1,
 			'num'       => (int) $days,
 		);
-		$post_view_posts = (object) ( new WPCOM_Stats() )->get_top_posts( $query_args );
+		$post_view_posts = json_decode( wp_json_encode( ( new WPCOM_Stats() )->get_top_posts( $query_args ) ) );
 
 		if ( ! isset( $post_view_posts->summary ) || empty( $post_view_posts->summary->postviews ) ) {
 			return array();

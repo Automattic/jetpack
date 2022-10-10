@@ -150,7 +150,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		 * - Followers (only if subs module is active)
 		 * - Sharing counts (not currently supported in Jetpack -- https://github.com/Automattic/jetpack/issues/844 )
 		 */
-		$stats = (object) ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) );
+		$stats = json_decode( wp_json_encode( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) ) );
 
 		$has_stats = null !== $stats && ! is_wp_error( $stats );
 

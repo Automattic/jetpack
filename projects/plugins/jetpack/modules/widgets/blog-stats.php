@@ -67,7 +67,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 */
 	public function get_stats() {
 		// Get data from the WordPress.com Stats REST API endpoint.
-		$stats = (object) ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) );
+		$stats = json_decode( wp_json_encode( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) ) );
 
 		if ( isset( $stats->stats->views ) ) {
 			return $stats->stats->views;
