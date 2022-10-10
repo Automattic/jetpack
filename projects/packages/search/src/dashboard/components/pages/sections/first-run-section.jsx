@@ -1,4 +1,4 @@
-import { IndeterminateProgressBar } from '@automattic/jetpack-components';
+import { IndeterminateProgressBar, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import React from 'react';
@@ -32,7 +32,9 @@ const ProgressWrapper = props => {
 					props.siteTitle
 				) }
 			</h3>
-			<IndeterminateProgressBar />
+			<ThemeProvider>
+				<IndeterminateProgressBar />
+			</ThemeProvider>
 		</div>
 	);
 };
