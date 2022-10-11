@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Warning, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -57,6 +58,18 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 			return <CoreEmbedBlockEdit { ...props } />;
 		}
 
+		const moreAboutVideoPress = createInterpolateElement(
+			__(
+				'Convert this embed to a VideoPress video block to unlock advanced video player options. <moreAboutVideoPressLink>More about the VideoPress block</moreAboutVideoPressLink>',
+				'jetpack-videopress-pkg'
+			),
+			{
+				moreAboutVideoPressLink: (
+					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
+				),
+			}
+		);
+
 		return (
 			<div>
 				<Warning
@@ -74,14 +87,11 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 							variant="tertiary"
 							onClick={ () => setAttributes( { keepUsingOEmbedVariation: true } ) }
 						>
-							{ __( 'Keep using VideoPress Embed block', 'jetpack-videopress-pkg' ) }
+							{ __( 'Keep using the Embed block', 'jetpack-videopress-pkg' ) }
 						</Button>,
 					] }
 				>
-					{ __(
-						'Your site currently supports the VideoPress Video block.',
-						'jetpack-videopress-pkg'
-					) }
+					{ moreAboutVideoPress }
 				</Warning>
 
 				<div className="wp-block-core-embed-wrapper is-disabled">
