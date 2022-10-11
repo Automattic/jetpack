@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Visitor;
@@ -54,9 +55,14 @@ class Main {
 	 * @return void
 	 */
 	private function __construct() {
-		// Assuming an older versions of the Jetpack plugin is active, make sure we don't register
-		// these hooks twice.
-		if ( defined( 'STATS_VERSION' ) ) {
+		/**
+		 * This avoids conflicts when running Stats package with older versions of the Jetpack plugin.
+		 *
+		 * On JP version 11.5-a.2 the hooks below were removed from the Jetpack plugin and it is safe
+		 * to register them in the Stats package.
+		 */
+		$jp_plugin_version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( $jp_plugin_version && version_compare( $jp_plugin_version, '11.5-a.2', '<' ) ) {
 			return;
 		}
 		// Generate the tracking code after wp() has queried for posts.
