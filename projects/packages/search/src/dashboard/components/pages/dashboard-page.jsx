@@ -3,8 +3,14 @@ import {
 	JetpackLogo,
 	ThemeProvider,
 	ContextualUpgradeTrigger,
+	Col,
+	Container,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import {
+	useProductCheckoutWorkflow,
+	useConnectionErrorNotice,
+	ConnectionError,
+} from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -34,6 +40,7 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	// Prepare Checkout action and loading status
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
@@ -114,6 +121,13 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<Header />
+					{ hasConnectionError && (
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col lg={ 12 } md={ 12 } sm={ 12 }>
+								<ConnectionError />
+							</Col>
+						</Container>
+					) }
 					<MockedSearchInterface
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
