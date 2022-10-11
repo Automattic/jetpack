@@ -10,26 +10,22 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
-import { SECURITY_BUNDLE, SeventyFiveLayout } from '../admin-page';
+import { JETPACK_SCAN, SeventyFiveLayout } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
 	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState || {};
 
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_footer_get_security_link_click',
-		run
-	);
+	const getJetpackScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
 
-	// TODO: Update with new paid Protect product
-	const { securityBundle } = useProtectData();
-	const { hasRequiredPlan } = securityBundle;
+	const { jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
 
 	if ( hasRequiredPlan ) {
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
@@ -67,7 +63,7 @@ const ProductPromotion = () => {
 					'jetpack-protect'
 				) }
 				cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-				onClick={ getSecurityBundle }
+				onClick={ getJetpackScan }
 			/>
 		</div>
 	);
@@ -75,8 +71,8 @@ const ProductPromotion = () => {
 
 const FooterInfo = () => {
 	// TODO: Update with new paid Protect product
-	const { securityBundle } = useProtectData();
-	const { hasRequiredPlan } = securityBundle;
+	const { jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
 
 	if ( hasRequiredPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );

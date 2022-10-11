@@ -19,7 +19,6 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Plan;
-use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
 use Automattic\Jetpack\Protect\Threats;
@@ -180,11 +179,11 @@ class Jetpack_Protect {
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 			'siteSuffix'        => ( new Status() )->get_site_suffix(),
-			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
+			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
 
-		$initial_state['securityBundle']['pricingForUi'] = Plan::get_product( 'jetpack_security_t1_yearly' );
+		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
 
 		return $initial_state;
 	}

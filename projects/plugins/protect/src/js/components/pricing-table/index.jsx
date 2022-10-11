@@ -18,19 +18,19 @@ import useProtectData from '../../hooks/use-protect-data';
 /**
  * Product Detail component.
  *
- * @param {object} props                     - Component props
- * @param {Function} props.onSecurityAdd     - Callback when adding paid protect product successfully
- * @param {Function} props.securityJustAdded - Callback when adding paid protect product was recently added
+ * @param {object} props                 - Component props
+ * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
+ * @param {Function} props.scanJustAdded - Callback when adding paid protect product was recently added
  * @returns {object}                ConnectedPricingTable react component.
  */
-const ConnectedPricingTable = ( { onSecurityAdd, securityJustAdded } ) => {
+const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
 
 	// Access paid protect product data
-	const { securityBundle } = useProtectData();
-	const { pricingForUi } = securityBundle;
+	const { jetpackScan } = useProtectData();
+	const { pricingForUi } = jetpackScan;
 	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
 	// Compute the price per month.
@@ -41,9 +41,9 @@ const ConnectedPricingTable = ( { onSecurityAdd, securityJustAdded } ) => {
 
 	// Track free and paid click events
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_pricing_table_get_security_link_click',
-		onSecurityAdd
+	const getScan = recordEventHandler(
+		'jetpack_protect_pricing_table_get_scan_link_click',
+		onScanAdd
 	);
 	const getProtectFree = recordEventHandler(
 		'jetpack_protect_connected_product_activated',
@@ -87,7 +87,7 @@ const ConnectedPricingTable = ( { onSecurityAdd, securityJustAdded } ) => {
 							currency={ currency }
 							hideDiscountLabel={ false }
 						/>
-						<Button fullWidth onClick={ getSecurityBundle } isLoading={ securityJustAdded }>
+						<Button fullWidth onClick={ getScan } isLoading={ scanJustAdded }>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
 					</PricingTableHeader>

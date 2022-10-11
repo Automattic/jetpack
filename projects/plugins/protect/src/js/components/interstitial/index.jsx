@@ -4,18 +4,13 @@ import ConnectedPricingTable from '../pricing-table';
 /**
  * Intersitial Protect component.
  *
- * @param {object} props                     - Component props
- * @param {Function} props.onSecurityAdd     - Callback when adding paid protect product successfully
- * @param {Function} props.securityJustAdded - Callback when adding paid protect product was recently added
+ * @param {object} props                 - Component props
+ * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
+ * @param {Function} props.scanJustAdded - Callback when adding paid protect product was recently added
  * @returns {React.Component}                  Interstitial react component.
  */
-const Interstitial = ( { onSecurityAdd, securityJustAdded } ) => {
-	return (
-		<ConnectedPricingTable
-			onSecurityAdd={ onSecurityAdd }
-			securityJustAdded={ securityJustAdded }
-		/>
-	);
+const Interstitial = ( { onScanAdd, scanJustAdded } ) => {
+	return <ConnectedPricingTable onScanAdd={ onScanAdd } scanJustAdded={ scanJustAdded } />;
 };
 
 export default Interstitial;
