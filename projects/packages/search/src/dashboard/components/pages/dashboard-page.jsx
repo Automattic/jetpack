@@ -3,6 +3,7 @@ import {
 	JetpackSearchLogo,
 	ThemeProvider,
 	ContextualUpgradeTrigger,
+	Button,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -113,7 +114,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
-					<Header />
+					<Header sendPaidPlanToCart={ sendPaidPlanToCart } />
 					<MockedSearchInterface
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -338,13 +339,20 @@ const Footer = () => {
 	);
 };
 
-const Header = () => {
+const Header = ( { sendPaidPlanToCart } ) => {
+	const buttonLinkArgs = {
+		children: __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ),
+		variant: 'link',
+		onClick: sendPaidPlanToCart,
+	};
+
 	return (
 		<div className="jp-search-dashboard-header jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<div className="jp-search-dashboard-header__logo-container">
 						<JetpackSearchLogo className="jp-search-dashboard-header__masthead" />
+						<Button { ...buttonLinkArgs } />
 					</div>
 				</div>
 			</div>
