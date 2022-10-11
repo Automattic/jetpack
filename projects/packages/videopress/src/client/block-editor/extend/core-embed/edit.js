@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './editor.scss';
+import '../editor.scss';
 import { pickGUIDFromUrl } from '../../../utils/url/index.js';
 
 const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockEdit => {
@@ -73,7 +73,7 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 		return (
 			<div>
 				<Warning
-					className="videopress-embed-warning"
+					className="extended-block-warning"
 					actions={ [
 						<Button
 							key="convert"
@@ -94,8 +94,8 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 					{ moreAboutVideoPress }
 				</Warning>
 
-				<div className="wp-block-core-embed-wrapper is-disabled">
-					<div className="core-embed-videopress-player__overlay" />
+				<div className="wp-extended-block-wrapper is-disabled">
+					<div className="extended-block-player__overlay" />
 					<CoreEmbedBlockEdit { ...props } />
 				</div>
 			</div>

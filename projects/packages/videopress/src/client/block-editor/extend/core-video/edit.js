@@ -9,6 +9,10 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import '../editor.scss';
 
 const withJetpackVideoPressBlockEdit = createHigherOrderComponent( JetpackCoreVideoBlockEdit => {
 	return props => {
@@ -61,7 +65,7 @@ const withJetpackVideoPressBlockEdit = createHigherOrderComponent( JetpackCoreVi
 		return (
 			<div>
 				<Warning
-					className="videopress-video-warning"
+					className="extended-block-warning"
 					actions={ [
 						<Button
 							key="convert"
@@ -75,15 +79,15 @@ const withJetpackVideoPressBlockEdit = createHigherOrderComponent( JetpackCoreVi
 							variant="tertiary"
 							onClick={ () => setAttributes( { keepUsingCoreVideoVideoPressBlock: true } ) }
 						>
-							{ __( 'Keep using the current VideoPress block', 'jetpack-videopress-pkg' ) }
+							{ __( 'Keep using current version of VideoPress', 'jetpack-videopress-pkg' ) }
 						</Button>,
 					] }
 				>
 					{ moreAboutVideoPress }
 				</Warning>
 
-				<div className="wp-block-core-video-wrapper is-disabled">
-					<div className="core-video-videopress-player__overlay" />
+				<div className="wp-extended-block-wrapper is-disabled">
+					<div className="extended-block-player__overlay" />
 					<JetpackCoreVideoBlockEdit { ...props } />
 				</div>
 			</div>
