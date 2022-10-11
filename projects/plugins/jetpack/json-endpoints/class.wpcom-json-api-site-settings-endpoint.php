@@ -576,7 +576,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'launchpad_screen':
-					if ( in_array( $value, array( 'full', 'off', 'minimized' ) ) ) {
+					if ( in_array( $value, array( 'full', 'off', 'minimized' ), true ) ) {
 						if ( update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
 						}
