@@ -25,7 +25,7 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 		const guid = pickGUIDFromUrl( url );
 
 		useEffect( () => {
-			if ( ! guid ) {
+			if ( keepUsingOEmbedVariation !== false ) {
 				return;
 			}
 
