@@ -9,6 +9,7 @@ import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
+import withVideoPressSave from './save';
 
 const handleJetpackCoreVideoBlock = ( settings, name ) => {
 	if ( name !== 'core/video' ) {
@@ -102,6 +103,7 @@ const handleJetpackCoreVideoBlock = ( settings, name ) => {
 			...settings.attributes,
 			...jetpackCoreVideoBlockAttributes,
 		},
+		save: withVideoPressSave( settings.save ),
 		deprecated: [
 			...( settings.deprecated || [] ),
 			deprecatedV4,
