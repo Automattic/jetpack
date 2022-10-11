@@ -41,6 +41,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
 
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
+		}
+
 		// do this again later to collect any CPTs that get registered later.
 		add_action( 'restapi_theme_init', array( $this, 'register_fields' ), 20 );
 	}
@@ -66,6 +70,40 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		);
 
 		add_filter( 'rest_prepare_attachment', array( $this, 'remove_field_for_non_videos' ), 10, 2 );
+	}
+
+	/**
+	 * Adds the custom query filters
+	 */
+	public function add_jetpack_videopress_custom_query_filters() {
+		add_filter( 'rest_attachment_query', array( $this, 'filter_attachments_by_jetpack_videopress_fields' ), 999, 2 );
+	}
+
+	/**
+	 * Filter request args to handle the custom VideoPress query filters
+	 *
+	 * Possible filters:
+	 *
+	 * `no_videopress`: the returned attachments should not have a videopress_guid
+	 *
+	 * @param array      $args The original list of args before the filtering.
+	 * @param WP_Request $request The original request data.
+	 */
+	public function filter_attachments_by_jetpack_videopress_fields( $args, $request ) {
+
+		if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+			$args['meta_query'] = array();
+		}
+
+		/* To ignore all VideoPress videos, select only attachments without videopress_guid meta field */
+		if ( isset( $request['no_videopress'] ) ) {
+			$args['meta_query'][] = array(
+				'key'     => 'videopress_guid',
+				'compare' => 'NOT EXISTS',
+			);
+		}
+
+		return $args;
 	}
 
 	/**
