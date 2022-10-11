@@ -18,10 +18,12 @@ use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Rewind;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
 use Automattic\Jetpack\Protect\Threats;
+use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
 /**
@@ -178,6 +180,7 @@ class Jetpack_Protect {
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
 			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
+			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 		);
 	}
 	/**
@@ -288,6 +291,18 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'check-credentials',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_check_credentials',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -355,5 +370,20 @@ class Jetpack_Protect {
 		}
 
 		return new WP_REST_Response( 'Threats fixed.' );
+	}
+
+	/**
+	 * Checks if the site has credentials configured
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_check_credentials() {
+		$rewind_state = Rewind::get_rewind_state();
+
+		if ( ! $rewind_state ) {
+			return new WP_REST_Response( 'An error occured while attempting to fetch the rewind state', 500 );
+		}
+
+		return new WP_REST_Response( array( 'state' => $rewind_state ) );
 	}
 }

@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
+const SET_CREDENTIAL_STATE = 'SET_CREDENTIAL_STATE';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
@@ -38,6 +39,31 @@ const refreshStatus = () => async ( { dispatch } ) => {
 				reject( error );
 			} );
 	} );
+};
+
+/**
+ * Side effect action which will fetch the credential status from the server
+ *
+ * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
+ */
+const checkCredentialsState = () => async ( { dispatch } ) => {
+	return await new Promise( ( resolve, reject ) => {
+		return apiFetch( {
+			path: 'jetpack-protect/v1/check-credentials',
+			method: 'POST',
+		} )
+			.then( state => {
+				dispatch( setCredentialState( state ) );
+				resolve( state );
+			} )
+			.catch( error => {
+				reject( error );
+			} );
+	} );
+};
+
+const setCredentialState = credentialState => {
+	return { type: SET_CREDENTIAL_STATE, credentialState };
 };
 
 const setStatusIsFetching = status => {
@@ -145,6 +171,8 @@ const setNotice = notice => {
 };
 
 const actions = {
+	checkCredentialsState,
+	setCredentialState,
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,
@@ -160,6 +188,7 @@ const actions = {
 };
 
 export {
+	SET_CREDENTIAL_STATE,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_INSTALLED_PLUGINS,

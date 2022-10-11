@@ -5,7 +5,7 @@ import { Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
 import styles from './styles.module.scss';
 
-const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
+const FixThreatModal = ( { id, title, label, icon, severity } ) => {
 	const { setModal, fixThreats } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
 
@@ -64,4 +64,4 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	);
 };
 
-export default IgnoreThreatModal;
+export default FixThreatModal;

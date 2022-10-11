@@ -1,5 +1,6 @@
 import { combineReducers } from '@wordpress/data';
 import {
+	SET_CREDENTIAL_STATE,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_INSTALLED_PLUGINS,
@@ -10,6 +11,14 @@ import {
 	SET_MODAL,
 	SET_NOTICE,
 } from './actions';
+
+const credentialState = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_CREDENTIAL_STATE:
+			return action.credentialState;
+	}
+	return state;
+};
 
 const status = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -92,6 +101,7 @@ const notice = ( state = {}, action ) => {
 };
 
 const reducers = combineReducers( {
+	credentialState,
 	status,
 	statusIsFetching,
 	installedPlugins,

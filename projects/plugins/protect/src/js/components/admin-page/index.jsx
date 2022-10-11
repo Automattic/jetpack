@@ -215,6 +215,17 @@ const ProtectAdminPage = () => {
 	);
 };
 
+const useCredentialState = () => {
+	const { checkCredentialsState } = useDispatch( STORE_ID );
+	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
+
+	useEffect( () => {
+		if ( ! credentialState.state ) {
+			checkCredentialsState();
+		}
+	} );
+};
+
 const useRegistrationWatcher = () => {
 	const { isRegistered } = useConnection();
 	const { refreshStatus } = useDispatch( STORE_ID );
@@ -267,6 +278,7 @@ const useStatusPolling = () => {
 
 const Admin = () => {
 	useRegistrationWatcher();
+	useCredentialState();
 	useStatusPolling();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {

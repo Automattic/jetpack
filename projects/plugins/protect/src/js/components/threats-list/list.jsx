@@ -1,6 +1,6 @@
 import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -32,6 +32,8 @@ const ThreatAccordionItem = ( {
 
 	const { securityBundle } = useProtectData();
 	const { hasRequiredPlan } = securityBundle;
+
+	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
 
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
@@ -86,10 +88,17 @@ const ThreatAccordionItem = ( {
 	const handleFixThreatClick = () => {
 		return event => {
 			event.preventDefault();
-			setModal( {
-				type: 'FIX_THREAT',
-				props: { id, label: getLabel(), title, icon, severity },
-			} );
+			if ( credentialState.state === 'awaiting_credentials' ) {
+				setModal( {
+					type: 'CREDENTIALS_NEEDED',
+					props: { id, label: getLabel(), title, icon, severity },
+				} );
+			} else {
+				setModal( {
+					type: 'FIX_THREAT',
+					props: { id, label: getLabel(), title, icon, severity },
+				} );
+			}
 		};
 	};
 
