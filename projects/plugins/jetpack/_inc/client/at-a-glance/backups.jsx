@@ -18,7 +18,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getPartnerCoupon, showBackups } from 'state/initial-state';
+import { isAtomicSite, getPartnerCoupon, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
@@ -312,9 +312,15 @@ class DashBackups extends Component {
 						<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
 							<div className="jp-dash-item__action-links">
 								<a
-									href={ getRedirectUrl( 'my-jetpack-manage-backup', {
-										site: siteRawUrl,
-									} ) }
+									href={
+										isAtomicSite
+											? getRedirectUrl( 'calypso-backups', {
+													site: siteRawUrl,
+											  } )
+											: getRedirectUrl( 'my-jetpack-manage-backup', {
+													site: siteRawUrl,
+											  } )
+									}
 									target="_blank"
 									rel="noopener noreferrer"
 									onClick={ this.trackBackupsClick( 'backups-link' ) }
