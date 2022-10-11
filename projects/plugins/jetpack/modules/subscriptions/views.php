@@ -601,7 +601,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function fetch_subscriber_count( $include_publicize_subscribers = true ) {
 		$subs_count = 0;
 		if ( self::is_jetpack() ) {
-			$cache_key = $include_publicize_subscribers ? 'wpcom_subscribers_total_with_publicize' : 'wpcom_subscribers_total';
+			$cache_key = $include_publicize_subscribers ? 'wpcom_subscribers_total' : 'wpcom_subscribers_total_no_publicize';
 			$subs_count = get_transient( $cache_key );
 			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 				$xml = new Jetpack_IXR_Client();
