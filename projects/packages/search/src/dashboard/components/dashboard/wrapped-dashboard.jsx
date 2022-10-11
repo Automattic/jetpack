@@ -31,8 +31,10 @@ export default function WrappedDashboard() {
 
 	useMemo( () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
+		const wpcomOriginApiUrl = syncSelect( STORE_ID ).getWpcomOriginApiUrl();
 		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
+		wpcomOriginApiUrl && restApi.setWpcomOriginApiUrl( wpcomOriginApiUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
 		initializeAnalytics();
 		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
