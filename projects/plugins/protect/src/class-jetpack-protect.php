@@ -281,8 +281,11 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'fix-threats',
 			array(
-				'methods'  => \WP_REST_SERVER::EDITABLE,
-				'callback' => __CLASS__ . '::api_fix_threats',
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_fix_threats',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
 			)
 		);
 	}
