@@ -56,7 +56,7 @@ class Main {
 	private function __construct() {
 		// Assuming an older versions of the Jetpack plugin is active, make sure we don't register
 		// these hooks twice.
-		if ( defined( STATS_VERSION ) ) {
+		if ( defined( 'STATS_VERSION' ) ) {
 			return;
 		}
 		// Generate the tracking code after wp() has queried for posts.
