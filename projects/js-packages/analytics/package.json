@@ -1,12 +1,12 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "0.1.18",
+	"version": "0.1.19-alpha",
 	"description": "Jetpack Analytics Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {},
 	"devDependencies": {
-		"debug": "4.3.3",
+		"debug": "4.3.4",
 		"jest": "28.1.0",
 		"jest-environment-jsdom": "28.1.0"
 	},
