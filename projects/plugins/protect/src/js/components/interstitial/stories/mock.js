@@ -559,6 +559,7 @@ export const jetpackProtectInitialState = {
 	},
 	wpVersion: '5.9.3',
 	adminUrl: 'http://localhost/wp-admin/admin.php?page=jetpack-protect',
+	siteSuffix: 'localhost',
 	securityBundle: {
 		slug: 'security',
 		name: 'Security',

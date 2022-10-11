@@ -10,11 +10,12 @@
 	background: none;
 	width: 100%;
 	position: relative;
+	color: var(--jp-gray-80);
 
 	button,
 	a {
 		all: unset;
-		color: var( --jp-black );
+		color: var(--jp-gray-80);
 		cursor: pointer;
 
 		&::after {
@@ -42,10 +43,15 @@
 			text-decoration-thickness: 2px;
 		}
 	}
+
+	// Overwrite styles in Text component
+	.cta {
+		font-weight: bold;
+	}
 }
 
 .cta {
-	font-weight: 600;
+	font-weight: bold;
 }
 
 .icon {

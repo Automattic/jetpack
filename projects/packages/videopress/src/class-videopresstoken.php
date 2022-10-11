@@ -21,6 +21,9 @@ class VideoPressToken {
 	 * @throws Upload_Exception - If user is not connected.
 	 */
 	private static function check_connection() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
 		if ( ! ( new Connection_Manager() )->has_connected_owner() ) {
 			throw new Upload_Exception( __( 'You need to connect Jetpack before being able to upload a video to VideoPress.', 'jetpack-videopress-pkg' ) );
 		}

@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.22.0 - 2022-10-05
+### Added
+- Trigger restore connection flow. [#26489]
+
+### Changed
+- Updated package dependencies. [#26457]
+
 ## 0.21.0 - 2022-09-27
 ### Added
 - Added connection hook useConnectionErrorNotice to more-easily integrate the ConnectionErrorNotice component with minimal processing logic at the point of integration. [#26400]

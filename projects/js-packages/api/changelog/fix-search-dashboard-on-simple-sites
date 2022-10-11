@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Jetpack Search dashboard for WPCOM simple sites by allowing using different API root for search endpoints.
