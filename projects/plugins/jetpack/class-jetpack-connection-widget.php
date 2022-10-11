@@ -108,7 +108,7 @@ class Jetpack_Connection_Widget {
 					src="<?php echo esc_url( plugins_url( 'images/dashboard-connection-widget-hero.png', JETPACK__PLUGIN_FILE ) ); ?>" />
 				<p class="jp-connection-widget__heading"><?php esc_html_e( 'Finish setting up your site', 'jetpack' ); ?></p>
 				<p class="jp-connection-widget__paragraph">
-					<?php esc_html_e( 'You’re missing out on great Jetpack features bundled by your host, sign up to set up.', 'jetpack' ); ?>
+					<?php esc_html_e( 'You’re missing out on great Jetpack features, sign up to set up.', 'jetpack' ); ?>
 				</p>
 				<p class="jp-connection_widget__button-container">
 					<a class="jp-connection-widget__button" href="<?php echo esc_url( $connect_url ); ?>"><?php esc_html_e( 'Set up Jetpack for free', 'jetpack' ); ?></a>
