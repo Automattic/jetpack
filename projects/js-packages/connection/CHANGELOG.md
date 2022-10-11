@@ -2,6 +2,9 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.22.1 - 2022-10-11
+- Updated package dependencies.
+
 ## 0.22.0 - 2022-10-05
 ### Added
 - Trigger restore connection flow. [#26489]
