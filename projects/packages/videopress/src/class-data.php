@@ -171,7 +171,7 @@ class Data {
 			$local_videos_data['videos']
 		);
 
-		// Tweak local videos data.
+		// Tweak VideoPress videos data.
 		$videos = array_map(
 			function ( $video ) {
 				$id                 = $video['id'];
