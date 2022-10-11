@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: use register_videopress_blocks() to register VideoPress video block
