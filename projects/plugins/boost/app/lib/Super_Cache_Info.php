@@ -35,7 +35,7 @@ class Super_Cache_Info {
 		}
 
 		$constants['superCache'] = array(
-			'cachePageSecret' => $cache_page_secret,
+			'disableCacheKey' => $cache_page_secret,
 		);
 
 		return $constants;

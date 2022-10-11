@@ -18,7 +18,7 @@
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
-	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
+	import SuperCacheInfo from '../elements/SuperCacheSpeed.svelte';
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;

@@ -1,3 +1,3 @@
 export function isSuperCacheActive() {
-	return !! Jetpack_Boost?.superCache?.cachePageSecret;
+	return !! Jetpack_Boost?.superCache?.disableCacheKey;
 }

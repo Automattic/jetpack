@@ -36,7 +36,7 @@ declare global {
 		criticalCssDismissedRecommendations: string[];
 		dismissedScorePrompts: string[];
 		superCache?: {
-			cachePageSecret: string;
+			disableCacheKey: string;
 		};
 		site: {
 			domain: string;
