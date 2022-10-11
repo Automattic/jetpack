@@ -8,12 +8,22 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use WP_REST_Request;
-
 /**
  * The Data class.
  */
 class Data {
+
+	/**
+	 * Gets the Jetpack blog ID
+	 *
+	 * @return int The blog ID
+	 */
+	public static function get_blog_id() {
+		return VideoPressToken::blog_id();
+	}
+
 	/**
 	 * Gets the video data
 	 *
@@ -64,6 +74,52 @@ class Data {
 		}
 
 		return $video_data;
+	}
+
+	/**
+	 * Gets the VideoPress used storage space in bytes
+	 *
+	 * @return int the used storage space
+	 */
+	public static function get_storage_used() {
+		$site_data = Site::get_site_info();
+		if ( is_wp_error( $site_data ) ) {
+			return 0;
+		}
+
+		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
+			return intval( round( $site_data['options']['videopress_storage_used'] * 1024 * 1024 ) );
+		} else {
+			return 0;
+		}
+	}
+
+	/**
+	 * Return all the initial state that depends on a valid site connection
+	 *
+	 * @return array
+	 */
+	public static function get_connected_initial_state() {
+		return array(
+			'videos' => array(
+				'storageUsed' => self::get_storage_used(),
+			),
+		);
+	}
+
+	/**
+	 * Checks if the site has as connected owner
+	 */
+	public static function has_connected_owner() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
+		if ( ( new Connection_Manager() )->has_connected_owner() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -133,7 +189,7 @@ class Data {
 			$video_data['videos']
 		);
 
-		return array(
+		$initial_state = array(
 			'videos' => array(
 				'uploadedVideoCount'           => $video_data['total'],
 				'items'                        => $videos,
@@ -149,5 +205,11 @@ class Data {
 				),
 			),
 		);
+
+		if ( self::has_connected_owner() ) {
+			return array_merge_recursive( $initial_state, self::get_connected_initial_state() );
+		}
+
+		return $initial_state;
 	}
 }

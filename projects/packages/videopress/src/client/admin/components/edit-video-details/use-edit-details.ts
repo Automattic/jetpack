@@ -2,15 +2,15 @@
  * External dependencies
  */
 import { useDispatch } from '@wordpress/data';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
-import usePosterEdit from '../../../hooks/use-poster-edit';
 import { STORE_ID } from '../../../state';
+import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 
 const useMetaEdit = ( { videoId, data, video, updateData } ) => {
@@ -61,47 +61,79 @@ export default () => {
 	const { data: video, isFetching } = useVideo( Number( videoId ) );
 
 	const [ updating, setUpdating ] = useState( false );
-	const [ data, setData ] = useState( video );
+
+	const [ data, setData ] = useState( {
+		title: video?.title,
+		description: video?.description,
+		caption: video?.caption,
+	} );
 
 	const updateData = newData => {
 		setData( current => ( { ...current, ...newData } ) );
 	};
 
-	const posterEditData = usePosterEdit( { video } );
-	const metaEditData = useMetaEdit( { videoId, video, data, updateData } );
+	const { selectedTime, updatePosterImage, ...posterEditData } = usePosterEdit( { video } );
+	const { metaChanged, handleMetaUpdate, ...metaEditData } = useMetaEdit( {
+		videoId,
+		video,
+		data,
+		updateData,
+	} );
 
-	const saveDisabled = metaEditData.metaChanged === false && posterEditData.selectedTime === null;
+	const saveDisabled = metaChanged === false && selectedTime === null;
 
 	const handleSaveChanges = () => {
 		setUpdating( true );
 
-		const promises = [ posterEditData.updatePosterImage(), metaEditData.handleMetaUpdate() ];
+		const promises = [ updatePosterImage(), handleMetaUpdate() ];
 
 		// TODO: handle errors
 		Promise.allSettled( promises ).then( results => {
 			const [ posterResult ] = results;
-			const posterImage = posterResult?.value ?? data?.posterImage;
-			const videoData = { ...data, posterImage };
+			const posterImage = posterResult?.value ?? video?.posterImage;
+			const videoData = { ...video, ...data, posterImage };
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
 			navigate( '/' );
 		} );
 	};
-	// Make sure we have the latest data from the API
-	// Used to update the data when user navigates direct from Media Library
-	// removed -> https://github.com/Automattic/jetpack/issues/26574
-	// @todo: move state login to the redux store
-	// useEffect( () => {
-	// 	setData( video );
-	// }, [ video ] );
+
+	// Update the data when user enter directly to the edit page
+	// This moment we fetch the video data and update after fetching
+
+	const initialLoading =
+		isFetching &&
+		data?.title === undefined &&
+		data?.description === undefined &&
+		data?.caption === undefined;
+
+	useEffect( () => {
+		let mounted = true;
+
+		if ( ! initialLoading && mounted ) {
+			setData( {
+				title: video?.title,
+				description: video?.description,
+				caption: video?.caption,
+			} );
+		}
+
+		// Avoid updating state if component is unmounted
+		// From: https://reactjs.org/docs/hooks-faq.html#is-it-safe-to-omit-functions-from-the-list-of-dependencies
+		return () => {
+			mounted = false;
+		};
+	}, [ initialLoading ] );
 
 	return {
+		...video,
 		...data, // data is the local representation of the video
 		saveDisabled,
 		handleSaveChanges,
 		isFetching,
 		updating,
+		selectedTime,
 		...metaEditData,
 		...posterEditData,
 	};

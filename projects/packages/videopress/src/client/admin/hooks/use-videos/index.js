@@ -15,6 +15,7 @@ import { STORE_ID } from '../../../state/constants';
 export default function useVideos() {
 	// Data
 	const items = useSelect( select => select( STORE_ID ).getVideos() );
+	const uploading = useSelect( select => select( STORE_ID ).getUploadingVideos() );
 	const search = '';
 	const uploadedVideoCount = useSelect( select => select( STORE_ID ).getUploadedVideoCount() );
 	const isFetching = useSelect( select => select( STORE_ID ).getIsFetching() );
@@ -27,6 +28,7 @@ export default function useVideos() {
 
 	return {
 		items,
+		uploading,
 		search,
 		uploadedVideoCount,
 		isFetching,

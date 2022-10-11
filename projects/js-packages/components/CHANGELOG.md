@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.22.1 - 2022-10-06
+### Changed
+- Do not open upgrade links from Jetpack Social in a new tab [#26649]
+- Update ContextualUpgradeTrigger component styles [#26633]
+
 ## 0.22.0 - 2022-10-05
 ### Added
 - Improve upon elements used within the PricingTable component [#26364]

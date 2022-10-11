@@ -2,6 +2,13 @@ export const getVideos = state => {
 	return state?.videos?.items || [];
 };
 
+export const getUploadingVideos = state => {
+	const items = state?.videos?._meta?.items || {};
+	return Object.keys( items || {} )
+		.map( id => ( { ...items[ id ], id } ) )
+		.filter( item => item.uploading );
+};
+
 export const getVideosQuery = state => {
 	return state?.videos?.query;
 };
@@ -38,11 +45,7 @@ export const getVideo = ( state, id ) => {
 export const getVideoStateMetadata = ( state, id ) => {
 	const _metaItems = state?.videos?._meta?.items || {};
 	const _metaVideo = _metaItems[ id ] || {};
-	return {
-		isDeleting: !! _metaVideo.isDeleting,
-		hasBeenDeleted: !! _metaVideo.hasBeenDeleted,
-		deletedVideo: _metaVideo.deletedVideo,
-	};
+	return _metaVideo;
 };
 
 export const isFetchingPurchases = state => {
@@ -55,6 +58,7 @@ export const getPurchases = state => {
 
 const selectors = {
 	getVideos,
+	getUploadingVideos,
 	getVideosQuery,
 	getPagination,
 	getUploadedVideoCount,

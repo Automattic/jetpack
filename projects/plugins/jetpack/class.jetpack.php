@@ -830,6 +830,7 @@ class Jetpack {
 				'sync',
 				'waf',
 				'videopress',
+				'stats',
 			)
 			as $feature
 		) {

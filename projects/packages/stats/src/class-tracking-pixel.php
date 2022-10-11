@@ -71,7 +71,7 @@ class Tracking_Pixel {
 	 */
 	public static function add_to_footer() {
 		$data   = self::build_view_data();
-		$footer = get_footer_to_add( $data );
+		$footer = self::get_footer_to_add( $data );
 		print $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
@@ -141,7 +141,7 @@ END;
 	 * @param array $data Array of data for the JS stats tracker.
 	 */
 	public static function render_footer( $data ) {
-		print get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		print self::get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -157,7 +157,7 @@ END;
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
 		$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
-		return '<amp-pixel src=\"' . esc_url( $pixel_url ) . '\"></amp-pixel>';
+		return '<amp-pixel src="' . esc_url( $pixel_url ) . '"></amp-pixel>';
 	}
 
 	/**
@@ -167,7 +167,7 @@ END;
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		print get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		print self::get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
