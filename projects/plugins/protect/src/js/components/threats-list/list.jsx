@@ -134,15 +134,17 @@ const ThreatAccordionItem = ( {
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
-					<ContextualUpgradeTrigger
-						description={ __(
-							'Looking for advanced scan results and one-click fixes?',
-							'jetpack-protect'
-						) }
-						cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-						onClick={ getScan }
-						className={ styles[ 'threat-item-cta' ] }
-					/>
+					{ ! hasRequiredPlan && (
+						<ContextualUpgradeTrigger
+							description={ __(
+								'Looking for advanced scan results and one-click fixes?',
+								'jetpack-protect'
+							) }
+							cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
+							onClick={ getScan }
+							className={ styles[ 'threat-item-cta' ] }
+						/>
+					) }
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
