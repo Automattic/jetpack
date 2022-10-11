@@ -19,7 +19,6 @@ class Super_Cache_Info {
 			return;
 		}
 
-		add_action( 'rest_api_init', array( static::class, 'register_rest_routes' ) );
 		add_filter( 'jetpack_boost_js_constants', array( static::class, 'add_critical_css_constants' ), 10, 1 );
 	}
 
