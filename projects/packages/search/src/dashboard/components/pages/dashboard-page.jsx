@@ -1,6 +1,6 @@
 import {
 	JetpackFooter,
-	JetpackLogo,
+	JetpackSearchLogo,
 	ThemeProvider,
 	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
@@ -344,7 +344,7 @@ const Header = () => {
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<div className="jp-search-dashboard-header__logo-container">
-						<JetpackLogo className="jp-search-dashboard-header__masthead" />
+						<JetpackSearchLogo className="jp-search-dashboard-header__masthead" />
 					</div>
 				</div>
 			</div>
