@@ -104,7 +104,7 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 	} );
 	return await new Promise( () => {
 		return apiFetch( {
-			path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatIds }`,
+			path: `jetpack-protect/v1/fix-threats?threat_ids=${ threatIds }`,
 			method: 'POST',
 			data: { threatIds },
 		} )
