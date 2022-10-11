@@ -54,11 +54,11 @@ function wpsc_init() {
 
 	// Centralise the promotional links to other products
 	$wpsc_promo_links = array(
-		'boost'       => 'https://jetpack.com/boost/', 
-		'photon'      => 'https://jetpack.com/features/design/content-delivery-network/',
-		'videopress'  => 'https://jetpack.com/videopress/',
-		'crowdsignal' => 'https://crowdsignal.com/',
-		'jetpack'     => 'https://jetpack.com/'
+		'boost'       => 'https://jetpack.com/boost/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'photon'      => 'https://jetpack.com/features/design/content-delivery-network/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'videopress'  => 'https://jetpack.com/videopress/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'crowdsignal' => 'https://crowdsignal.com/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'jetpack'     => 'https://jetpack.com/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
 	);
 
 	if ( !defined( 'WPCACHEHOME' ) ) {
