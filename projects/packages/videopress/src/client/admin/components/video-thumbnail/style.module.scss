@@ -51,7 +51,7 @@
 	position: absolute;
 	top: var( --spacing-base );
 	right: var( --spacing-base );
-	z-index: 2;
+	z-index: 3;
 
 	.thumbnail__edit-button:global(.components-button) {
 		padding: var( --spacing-base );
