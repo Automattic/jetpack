@@ -1,15 +1,7 @@
-import {
-	JetpackFooter,
-	JetpackSearchLogo,
-	ThemeProvider,
-	ContextualUpgradeTrigger,
-	Button,
-} from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackSearchLogo, Button } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import DonutMeterContainer from 'components/donut-meter-container';
+import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
@@ -18,7 +10,7 @@ import RecordMeter from 'components/record-meter';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
-import PlanUsageSection, { getUpgradeMessages } from './sections/plan-usage-section';
+import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 /**
@@ -126,7 +118,6 @@ export default function DashboardPage( { isLoading = false } ) {
 							sendPaidPlanToCart={ sendPaidPlanToCart }
 						/>
 					) }
-					{ false && <UsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
 					{ ! isNewPricing && (
 						<RecordMeter
 							postCount={ postCount }
@@ -175,128 +166,23 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, sendPaidPlanToCart } ) => {
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
+
 	return (
 		<>
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
-				<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
-			) }
-			{ hasIndex && (
-				<RecordMeter
-					postCount={ recordMeterInfo.postCount }
-					postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }
-					tierMaximumRecords={ recordMeterInfo.tierMaximumRecords }
-					lastIndexedDate={ recordMeterInfo.lastIndexedDate }
-					postTypes={ recordMeterInfo.postTypes }
-				/>
+				<>
+					<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
+					<RecordMeter
+						postCount={ recordMeterInfo.postCount }
+						postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }
+						tierMaximumRecords={ recordMeterInfo.tierMaximumRecords }
+						lastIndexedDate={ recordMeterInfo.lastIndexedDate }
+						postTypes={ recordMeterInfo.postTypes }
+					/>
+				</>
 			) }
 		</>
-	);
-};
-
-const PlanSummary = ( { latestMonthRequests } ) => {
-	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
-
-	const startDate = new Date( latestMonthRequests.start_date );
-	const endDate = new Date( latestMonthRequests.end_date );
-
-	const localeOptions = {
-		month: 'short',
-		day: '2-digit',
-	};
-
-	// Leave the locale as `undefined` to apply the browser host locale.
-	const startDateText = startDate.toLocaleDateString( undefined, localeOptions );
-	const endDateText = endDate.toLocaleDateString( undefined, localeOptions );
-
-	let planText = __( 'Paid Plan', 'jetpack-search-pkg' );
-	if ( ! tierSlug ) {
-		planText = __( 'Free Plan', 'jetpack-search-pkg' );
-	}
-
-	return (
-		<h2>
-			{ createInterpolateElement(
-				sprintf(
-					// translators: %1$s: Usage period, %2$s: Plan name
-					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
-					`${ startDateText }-${ endDateText }`,
-					planText
-				),
-				{
-					s: <span />,
-				}
-			) }
-		</h2>
-	);
-};
-
-const UsageMeter = ( { sendPaidPlanToCart } ) => {
-	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
-	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
-	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
-
-	let mustUpgradeReason = '';
-	if ( currentUsage.upgrade_reason.requests ) {
-		mustUpgradeReason = 'requests';
-	}
-	if ( currentUsage.upgrade_reason.records ) {
-		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
-	}
-
-	const upgradeTriggerArgs = {
-		description: mustUpgradeReason && getUpgradeMessages()[ mustUpgradeReason ].description,
-		cta: mustUpgradeReason && getUpgradeMessages()[ mustUpgradeReason ].cta,
-		onClick: sendPaidPlanToCart,
-	};
-
-	return (
-		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
-			<div className="jp-search-dashboard-row">
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary latestMonthRequests={ latestMonthRequests } />
-					<div className="usage-meter-group">
-						<DonutMeterContainer
-							title={ __( 'Site records', 'jetpack-search-pkg' ) }
-							current={ currentUsage.num_records }
-							limit={ currentPlan.record_limit }
-						/>
-						<DonutMeterContainer
-							title={ __( 'Search requests', 'jetpack-search-pkg' ) }
-							current={ latestMonthRequests.num_requests }
-							limit={ currentPlan.monthly_search_request_limit }
-						/>
-					</div>
-
-					{ mustUpgradeReason && (
-						<ThemeProvider>
-							<ContextualUpgradeTrigger { ...upgradeTriggerArgs } />
-						</ThemeProvider>
-					) }
-
-					<div className="usage-meter-about">
-						{ createInterpolateElement(
-							__(
-								'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>.',
-								'jetpack-search-pkg'
-							),
-							{
-								jpPlanLimits: (
-									<a
-										href="https://jetpack.com/support/search/"
-										rel="noopener noreferrer"
-										target="_blank"
-										className="support-link"
-									/>
-								),
-							}
-						) }
-					</div>
-				</div>
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-			</div>
-		</div>
 	);
 };
 
