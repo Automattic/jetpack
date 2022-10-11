@@ -4,6 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
+import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
 const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
@@ -44,7 +45,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				</div>
 				<div className={ styles.threat__severity }>
 					{ /* to do: implement severity badge component once available */ }
-					{ severity }
+					<ThreatSeverityBadge severity={ severity } />
 				</div>
 			</div>
 
