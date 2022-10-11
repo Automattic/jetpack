@@ -79,7 +79,7 @@ const withJetpackVideoPressBlockEdit = createHigherOrderComponent( JetpackCoreVi
 							variant="tertiary"
 							onClick={ () => setAttributes( { keepUsingCoreVideoVideoPressBlock: true } ) }
 						>
-							{ __( 'Keep using current version of VideoPress', 'jetpack-videopress-pkg' ) }
+							{ __( 'Keep using the current version', 'jetpack-videopress-pkg' ) }
 						</Button>,
 					] }
 				>
