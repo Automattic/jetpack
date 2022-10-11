@@ -62,6 +62,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 		// Get the most up to date subscriber count when request is not a test.
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
 			delete_transient( 'wpcom_subscribers_total' );
+			delete_transient( 'wpcom_subscribers_total_with_publicize' );
 		}
 
 		$subscriber_info  = Jetpack_Subscriptions_Widget::fetch_subscriber_count();
