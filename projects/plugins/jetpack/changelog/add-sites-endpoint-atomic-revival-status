@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordPress.com REST API: included `atomic_revival_status` on the sites API response
