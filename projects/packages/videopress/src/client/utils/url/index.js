@@ -51,7 +51,13 @@ export const pickGUIDFromUrl = url => {
 		return null;
 	}
 
-	const urlParts = url.split( 'https://videopress.com/v/' );
-	const guid = urlParts[ urlParts.length - 1 ];
-	return guid;
+	const urlParts = url.match(
+		/^https?:\/\/(?<host>video(?:\.word)?press\.com)\/(?:v|embed)\/(?<guid>[a-zA-Z\d]{8})/
+	);
+
+	if ( ! urlParts?.groups?.guid ) {
+		return null;
+	}
+
+	return urlParts.groups.guid;
 };
