@@ -1,7 +1,3 @@
-.product-section {
+.product-section, .info-section {
 	margin-top: calc( var( --spacing-base ) * 7 );
-}
-
-.info-section {
-	margin-top: calc( var( --spacing-base ) * 14 );
 }

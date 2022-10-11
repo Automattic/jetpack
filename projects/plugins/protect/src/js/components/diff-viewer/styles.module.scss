@@ -1,0 +1,52 @@
+.diff-viewer {
+	font-size: var( --font-body );
+	line-height: 1.5;
+}
+
+.diff-viewer__filename {
+	padding: 4px 8px;
+	background-color: var( --jp-gray-10 );
+	font-weight: 600;
+}
+
+.diff-viewer__file {
+	background-color: var( --jp-gray-0 );
+	display: flex;
+	font-family: "Courier 10 Pitch", Courier, monospace;
+	flex-direction: row;
+	overflow-x: scroll;
+	white-space: pre;
+}
+
+.diff-viewer__line-numbers {
+	padding: 0 8px;
+	display: flex;
+	flex-direction: column;
+	text-align: right;
+	background-color: var( --jp-gray-10 );
+	color: var( --jp-gray-50 );
+}
+
+.diff-viewer__lines {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	overflow-x: visible;
+
+	& div,
+	& del,
+	& ins {
+		padding: 0 8px;
+		text-decoration: none;
+	}
+
+	& del {
+		background-color: var( --jp-red-0 );
+		color: var( --jp-red-60 );
+	}
+
+	& ins {
+		background-color: var( --jp-green-5 );
+		color: var( --jp-green-60 );
+	}
+}

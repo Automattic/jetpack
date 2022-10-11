@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
 const SET_STATUS = 'SET_STATUS';
@@ -6,8 +7,11 @@ const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
-const SET_SECURITY_BUNDLE = 'SET_SECURITY_BUNDLE';
+const SET_JETPACK_SCAN = 'SET_JETPACK_SCAN';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
+const SET_THREAT_IS_UPDATING = 'SET_THREAT_IS_UPDATING';
+const SET_MODAL = 'SET_MODAL';
+const SET_NOTICE = 'SET_NOTICE';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -52,12 +56,54 @@ const setwpVersion = version => {
 	return { type: SET_WP_VERSION, version };
 };
 
-const setSecurityBundle = bundle => {
-	return { type: SET_SECURITY_BUNDLE, bundle };
+const setJetpackScan = scan => {
+	return { type: SET_JETPACK_SCAN, scan };
 };
 
 const setProductData = productData => {
 	return { type: SET_PRODUCT_DATA, productData };
+};
+
+const setThreatIsUpdating = ( threatId, isUpdating ) => {
+	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
+};
+
+const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } ) => {
+	dispatch( setThreatIsUpdating( threatId, true ) );
+	return await new Promise( () => {
+		return apiFetch( {
+			path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatId }`,
+			method: 'POST',
+		} )
+			.then( () => {
+				return dispatch( refreshStatus() );
+			} )
+			.then( () => {
+				return dispatch(
+					setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
+				);
+			} )
+			.catch( () => {
+				return dispatch(
+					setNotice( {
+						type: 'error',
+						message: __( 'An error ocurred ignoring the threat.', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.finally( () => {
+				dispatch( setThreatIsUpdating( threatId, false ) );
+				callback();
+			} );
+	} );
+};
+
+const setModal = modal => {
+	return { type: SET_MODAL, payload: modal };
+};
+
+const setNotice = notice => {
+	return { type: SET_NOTICE, payload: notice };
 };
 
 const actions = {
@@ -67,8 +113,11 @@ const actions = {
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
-	setSecurityBundle,
+	setJetpackScan,
 	setProductData,
+	ignoreThreat,
+	setModal,
+	setNotice,
 };
 
 export {
@@ -77,6 +126,9 @@ export {
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
-	SET_SECURITY_BUNDLE,
+	SET_JETPACK_SCAN,
+	SET_THREAT_IS_UPDATING,
+	SET_MODAL,
+	SET_NOTICE,
 	actions as default,
 };

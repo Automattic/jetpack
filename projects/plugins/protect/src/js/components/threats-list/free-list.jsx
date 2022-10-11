@@ -1,45 +1,66 @@
-import {
-	Text,
-	Button,
-	getRedirectUrl,
-	ContextualUpgradeTrigger,
-} from '@automattic/jetpack-components';
+import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { SECURITY_BUNDLE } from '../admin-page';
+import { JETPACK_SCAN } from '../admin-page';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
 import styles from './styles.module.scss';
 
-const ThreatAccordionItem = ( { id, name, version, title, description, icon, fixedIn, type } ) => {
+const ThreatAccordionItem = ( {
+	description,
+	filename,
+	fixedIn,
+	icon,
+	id,
+	name,
+	source,
+	table,
+	title,
+	type,
+	version,
+} ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_threat_list_get_security_link_click',
-		run
-	);
+	const getScan = recordEventHandler( 'jetpack_protect_threat_list_get_scan_link_click', run );
 
-	const learnMoreButton = (
-		<Button
-			variant="link"
-			isExternalLink={ true }
-			weight="regular"
-			href={ getRedirectUrl( 'jetpack-protect-vul-info', { path: id } ) }
-		>
+	const learnMoreButton = source ? (
+		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
 			{ __( 'See more technical details of this threat', 'jetpack-protect' ) }
 		</Button>
-	);
+	) : null;
+
+	/**
+	 * Get Label
+	 *
+	 * @returns {string} Threat label based on the assumed threat type (extension, file, database, etc).
+	 */
+	const getLabel = useCallback( () => {
+		if ( name && version ) {
+			// Extension threat i.e. "Woocommerce (3.0.0)"
+			return `${ name } (${ version })`;
+		}
+
+		if ( filename ) {
+			// File threat i.e. "index.php"
+			return filename.split( '/' ).pop();
+		}
+
+		if ( table ) {
+			// Database threat i.e. "wp_posts"
+			return table;
+		}
+	}, [ filename, name, table, version ] );
 
 	return (
 		<FreeAccordionItem
 			id={ id }
-			label={ `${ name } (${ version })` }
+			label={ getLabel() }
 			title={ title }
 			icon={ icon }
 			onOpen={ useCallback( () => {
@@ -75,7 +96,7 @@ const ThreatAccordionItem = ( { id, name, version, title, description, icon, fix
 							'jetpack-protect'
 						) }
 						cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-						onClick={ getSecurityBundle }
+						onClick={ getScan }
 						className={ styles[ 'threat-item-cta' ] }
 					/>
 				</div>
@@ -88,19 +109,23 @@ const ThreatAccordionItem = ( { id, name, version, title, description, icon, fix
 const FreeList = ( { list } ) => {
 	return (
 		<FreeAccordion>
-			{ list.map( ( { id, name, title, description, version, fixedIn, icon, type } ) => (
-				<ThreatAccordionItem
-					key={ id }
-					id={ id }
-					name={ name }
-					version={ version }
-					title={ title }
-					description={ description }
-					icon={ icon }
-					fixedIn={ fixedIn }
-					type={ type }
-				/>
-			) ) }
+			{ list.map(
+				( { description, fixedIn, icon, id, name, source, table, title, type, version } ) => (
+					<ThreatAccordionItem
+						description={ description }
+						fixedIn={ fixedIn }
+						icon={ icon }
+						id={ id }
+						key={ id }
+						name={ name }
+						source={ source }
+						table={ table }
+						title={ title }
+						type={ type }
+						version={ version }
+					/>
+				)
+			) }
 		</FreeAccordion>
 	);
 };

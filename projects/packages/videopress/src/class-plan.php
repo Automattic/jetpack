@@ -72,7 +72,9 @@ class Plan {
 
 			// ... and store it into the cache.
 			update_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, time() );
-			return update_user_meta( get_current_user_id(), self::CACHE_META_NAME, $product );
+			update_user_meta( get_current_user_id(), self::CACHE_META_NAME, $product );
+
+			return $product;
 		}
 
 		return new \WP_Error(

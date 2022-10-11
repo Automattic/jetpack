@@ -1,4 +1,4 @@
-import { DonutMeter, Gridicon } from '@automattic/jetpack-components';
+import { DonutMeter, Gridicon, numberFormat } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 
@@ -6,7 +6,7 @@ import './style.scss';
 
 // Format numbers with separators.
 const formatNumberWithSeparators = x => {
-	return new Intl.NumberFormat().format( x );
+	return numberFormat( x );
 };
 
 /**
