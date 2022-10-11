@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
@@ -25,7 +26,7 @@ class Test_Status extends BaseTestCase {
 	 */
 	protected function set_up() {
 		parent::setUp();
-		Status::$status = null;
+		Protect_Status::$status = null;
 	}
 
 	/**
@@ -114,11 +115,14 @@ class Test_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_threat() {
+		$id = 'asdasdasd-123123-asdasd';
+
 		return new Threat_Model(
 			array(
-				'id'       => 'asdasdasd-123123-asdasd',
+				'id'       => $id,
 				'title'    => 'Sample Vul',
 				'fixed_in' => '2.0.0',
+				'source'   => Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $id ) ),
 			)
 		);
 	}
@@ -190,13 +194,14 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Get a sample result of Status::get_status().
+	 * Get a sample result of Protect_Status::get_status().
 	 *
 	 * @return object
 	 */
 	public function get_sample_status() {
 		return new Status_Model(
 			array(
+				'data_source'         => 'protect_report',
 				'plugins'             => array(
 					new Extension_Model( $this->get_sample_plugin( '1' ) ),
 					new Extension_Model( $this->get_sample_plugin( '2', false ) ),
@@ -299,6 +304,7 @@ class Test_Status extends BaseTestCase {
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		// to do - mock a scan plan
 	}
 
 	/**
@@ -308,7 +314,7 @@ class Test_Status extends BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_status();
+		$status = Protect_Status::get_status();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
@@ -316,7 +322,7 @@ class Test_Status extends BaseTestCase {
 		$this->assertSame( 'site_not_connected', $status->error_code );
 
 		// Make sure this was not cached
-		$this->assertFalse( Status::get_from_options() );
+		$this->assertFalse( Protect_Status::get_from_options() );
 	}
 
 	/**
@@ -328,7 +334,7 @@ class Test_Status extends BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_status();
+		$status = Protect_Status::get_status();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
@@ -336,7 +342,8 @@ class Test_Status extends BaseTestCase {
 		$this->assertEquals( $this->get_sample_status(), $status );
 
 		// Make sure this was cached
-		$this->assertEquals( $this->get_sample_response(), Status::get_from_options() );
+		$this->assertEquals( $this->get_sample_response(), Protect_Status::get_from_options() );
+
 	}
 
 	/**
@@ -346,7 +353,7 @@ class Test_Status extends BaseTestCase {
 		$this->mock_connection();
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		$status = Status::get_total_threats();
+		$status = Protect_Status::get_total_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
 		$this->assertSame( 3, $status );
@@ -368,7 +375,7 @@ class Test_Status extends BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_all_threats();
+		$status = Protect_Status::get_all_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
@@ -396,8 +403,8 @@ class Test_Status extends BaseTestCase {
 	 * @dataProvider is_cache_expired_data
 	 */
 	public function test_is_cache_expired( $expected, $cache_timestamp ) {
-		update_option( Status::OPTION_TIMESTAMP_NAME, $cache_timestamp );
-		$this->assertSame( $expected, Status::is_cache_expired() );
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, $cache_timestamp );
+		$this->assertSame( $expected, Protect_Status::is_cache_expired() );
 	}
 
 	/**
@@ -428,12 +435,12 @@ class Test_Status extends BaseTestCase {
 	 * @dataProvider get_cache_end_date_by_status_data
 	 */
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
-		$timestamp = Status::get_cache_end_date_by_status( $status );
+		$timestamp = Protect_Status::get_cache_end_date_by_status( $status );
 		if ( 'initial' === $check_type ) {
-			$this->assertSame( time() + Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
+			$this->assertSame( time() + Protect_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
 		}
 		if ( 'full' === $check_type ) {
-			$this->assertSame( time() + Status::OPTION_EXPIRES_AFTER, $timestamp );
+			$this->assertSame( time() + Protect_Status::OPTION_EXPIRES_AFTER, $timestamp );
 		}
 	}
 }

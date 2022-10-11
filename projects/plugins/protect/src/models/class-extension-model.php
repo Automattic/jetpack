@@ -15,21 +15,21 @@ class Extension_Model {
 	/**
 	 * The extension name.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $name;
 
 	/**
 	 * The extension slug.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $slug;
 
 	/**
 	 * The extension version.
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $version;
 
@@ -43,14 +43,14 @@ class Extension_Model {
 	/**
 	 * Whether the extension has been checked for threats.
 	 *
-	 * @var bool
+	 * @var null|bool
 	 */
 	public $checked;
 
 	/**
 	 * The type of extension ("plugins", "themes", or "core").
 	 *
-	 * @var string
+	 * @var null|string
 	 */
 	public $type;
 
