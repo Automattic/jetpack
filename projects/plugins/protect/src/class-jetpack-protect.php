@@ -21,6 +21,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
+use Automattic\Jetpack\Protect\Threats;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
 /**
@@ -263,6 +264,18 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'ignore-threat',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_ignore_threat',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -288,5 +301,26 @@ class Jetpack_Protect {
 		}
 
 		return new WP_REST_Response( 'Jetpack Scan cache cleared.' );
+	}
+
+	/**
+	 * Ignores a threat for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_ignore_threat( $request ) {
+		if ( ! $request['threat_id'] ) {
+			return new WP_REST_RESPONSE( 'Missing threat ID.', 400 );
+		}
+
+		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
+
+		if ( ! $threat_ignored ) {
+			return new WP_REST_Response( 'An error occured while attempting to ignore the threat.', 500 );
+		}
+
+		return new WP_REST_Response( 'Threat ignored.' );
 	}
 }

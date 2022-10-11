@@ -1,12 +1,15 @@
 import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
+import { STORE_ID } from '../../state/store';
 import Accordion, { AccordionItem } from '../accordion';
+import { SECURITY_BUNDLE } from '../admin-page';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
-import { SECURITY_BUNDLE } from '../admin-page';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -23,7 +26,13 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 	version,
+	severity,
 } ) => {
+	const { setModal } = useDispatch( STORE_ID );
+
+	const { securityBundle } = useProtectData();
+	const { hasRequiredPlan } = securityBundle;
+
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: SECURITY_BUNDLE,
@@ -63,6 +72,16 @@ const ThreatAccordionItem = ( {
 			return table;
 		}
 	}, [ filename, name, table, version ] );
+
+	const handleIgnoreThreatClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'IGNORE_THREAT',
+				props: { id, label: getLabel(), title, icon, severity },
+			} );
+		};
+	};
 
 	return (
 		<AccordionItem
@@ -127,6 +146,13 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
+			{ hasRequiredPlan && (
+				<div className={ styles[ 'threat-footer' ] }>
+					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+						{ __( 'Ignore threat', 'jetpack-protect' ) }
+					</Button>
+				</div>
+			) }
 		</AccordionItem>
 	);
 };
@@ -144,6 +170,7 @@ const List = ( { list } ) => {
 					icon,
 					id,
 					name,
+					severity,
 					source,
 					table,
 					title,
@@ -160,6 +187,7 @@ const List = ( { list } ) => {
 						id={ id }
 						key={ id }
 						name={ name }
+						severity={ severity }
 						source={ source }
 						table={ table }
 						title={ title }
