@@ -398,6 +398,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				if ( isset( $json_params['rating'] ) && isset( $meta['videopress']['rating'] ) && videopress_is_valid_video_rating( $json_params['rating'] ) ) {
 					$meta['videopress']['rating'] = $json_params['rating'];
 					$should_update_meta           = true;
+
+					/** Set a new meta field so we can filter using it directly */
+					update_post_meta( $post_id, 'videopress_rating', $json_params['rating'] );
 				}
 
 				if ( isset( $json_params['title'] ) ) {
