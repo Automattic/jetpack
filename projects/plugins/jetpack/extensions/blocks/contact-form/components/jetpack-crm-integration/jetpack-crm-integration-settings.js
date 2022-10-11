@@ -49,7 +49,7 @@ const CRMPluginData = ( { jetpackCRM, setAttributes } ) => {
 		return <Spinner />;
 	}
 	if ( hasCRMDataError ) {
-		// Don`t show anything if the CRM plugin data can't be accessed.
+		// Don't show anything if the CRM plugin data can't be accessed.
 		return null;
 	}
 	return (
