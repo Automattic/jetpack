@@ -400,6 +400,15 @@ abstract class SAL_Site {
 	abstract protected function is_a8c_publication( $post_id );
 
 	/**
+	 * Determine the Atomic Revival status. Not used in Jetpack
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 *
+	 * @return null
+	 */
+	abstract public function get_atomic_revival_status();
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.

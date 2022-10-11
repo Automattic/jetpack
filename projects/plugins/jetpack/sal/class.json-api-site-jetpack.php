@@ -632,6 +632,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Determine the Atomic Revival status. Not used in Jetpack
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function get_atomic_revival_status() {
+		return null;
+	}
+
+	/**
 	 * Get user interactions with a site. Not used in Jetpack.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
