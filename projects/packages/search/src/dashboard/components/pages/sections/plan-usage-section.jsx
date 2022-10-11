@@ -57,7 +57,7 @@ const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
 	);
 };
 
-export const getUpgradeMessages = () => {
+const getUpgradeMessages = () => {
 	const upgradeMessages = {
 		records: {
 			description: __(
