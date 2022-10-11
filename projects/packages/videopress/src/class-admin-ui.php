@@ -125,6 +125,8 @@ class Admin_UI {
 		);
 		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
 
+		wp_enqueue_media();
+
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_initial_state(), 'before' );
