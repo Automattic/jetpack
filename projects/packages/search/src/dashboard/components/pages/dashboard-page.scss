@@ -30,6 +30,10 @@ body {
 	// 65px = wpfooter height
 	min-height: calc( 100vh - 65px - 32px );
 
+	@include for-phone-down {
+		font-size: 14px;
+	}
+
 	.jp-search-dashboard-page {
 		width: 100%;
 	}
@@ -73,8 +77,10 @@ body {
 		background-color: $white;
 	}
 
-	@include for-phone-down {
-		font-size: 14px;
+	.jp-search-dashboard-header__logo-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
 }
 
