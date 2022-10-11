@@ -36,7 +36,6 @@ class Status {
 	}
 
 	public function update( $new_status ) {
-
 		if ( update_option( $this->get_option_name( $this->slug ), (bool) $new_status ) ) {
 			$this->update_mapped_modules( $new_status );
 			// Only record analytics event if the config update succeeds.

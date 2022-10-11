@@ -46,5 +46,12 @@ module.exports = {
 		],
 
 		'prettier/prettier': 0,
+
+		camelcase: [
+			'error',
+			{
+				allow: [ 'Jetpack_Boost' ],
+			},
+		],
 	},
 };

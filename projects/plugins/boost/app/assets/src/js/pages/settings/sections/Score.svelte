@@ -14,9 +14,11 @@
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import debounce from '../../../utils/debounce';
+	import { isSuperCacheActive } from '../../../utils/super-cache';
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
+	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
 	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -201,6 +203,10 @@
 				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
+
+		{#if isSuperCacheActive()}
+			<SuperCacheInfo />
+		{/if}
 	</div>
 </div>
 
