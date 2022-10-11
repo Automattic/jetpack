@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2022-10-11
+### Added
+- VideoPress: Create new videopress/v1/site endpoint to fetch site data regardless of having the Jetpack plugin active on the target site. [#26652]
+- VideoPress: handle core/oembed videopress block variation [#26735]
+- VideoPress: improve UI when loading video in the frame selector modal [#26684]
+- VideoPress: Include a new `no_videopress` query string parameter to remove from the list all VideoPress related media. [#26734]
+- VideoPress: Provide the used storage space on the initial state data, using the site information fetched from the WPCOM API. [#26672]
+- VideoPress: request site purchases to check VideoPress is supported by the site [#26630]
+- VideoPress: switch privacy icon according to video privacy [#26667]
+
+### Changed
+- VideoPress: disable privacy button when updating video privacy [#26673]
+- VideoPress: hide spinner in frame selector when video is loaded [#26689]
+- VideoPress: Move upload data to store [#26627]
+- VideoPress: Remove arrows from video quick action popovers [#26724]
+- VideorPress: change the dialog message to convert from core/oembed to VideoPress video block [#26744]
+
+### Fixed
+- VideoPress: Change the endpoint used by the client to fetch the site information, so we request the storage usage from the new VideoPress-specific endpoint. [#26677]
+- VideoPress: check whether the $site_data is a WP_Error instance before to het the storage used data [#26679]
+- VideoPress: Fix modal layout with core gutenberg version [#26674]
+- VideoPress: Fix uploaded video count update [#26651]
+- VideoPress: Load data when user enter directly on edit page [#26631]
+- VideoPress: Wrap the request for connection-dependent initial state data around a connection check, so we only set it when there is actually an active connection. [#26685]
+
 ## [0.5.0] - 2022-10-05
 ### Added
 - Add the new connection error message to VideoPress. [#26579]
@@ -242,6 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.5.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.3.1...v0.4.0

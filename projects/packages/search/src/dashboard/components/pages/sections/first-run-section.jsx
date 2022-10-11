@@ -1,23 +1,19 @@
-import { IndeterminateProgressBar } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
+import { IndeterminateProgressBar, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
 import React from 'react';
+import PlanSummary from './plan-summary';
 
 // import './first-run-section.scss';
 
-// TODO: Replace local PlanSummary component with new component when ready.
 const FirstRunSection = props => {
-	if ( ! props.isVisible ) {
-		return null;
-	}
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary />
-					<ProgressWrapper siteTitle="YOUR-FUNNY-SITE" />
+					<PlanSummary planInfo={ props.planInfo } />
+					<ProgressWrapper siteTitle={ props.siteTitle } />
 					<NoticeWrapper />
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
@@ -26,24 +22,9 @@ const FirstRunSection = props => {
 	);
 };
 
-const PlanSummary = () => {
-	return (
-		<h2>
-			{ createInterpolateElement(
-				sprintf(
-					// translators: %1$s: usage period, %2$s: plan name
-					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
-					'Sep 28-Oct 28',
-					__( 'Free plan', 'jetpack-search-pkg' )
-				),
-				{
-					s: <span />,
-				}
-			) }
-		</h2>
-	);
-};
-
+// TODO: Move this back inline.
+// Per Jason's feedback, doesn't think we should break this out.
+// https://github.com/Automattic/jetpack/pull/26639#discussion_r989592860
 const ProgressWrapper = props => {
 	return (
 		<div>
@@ -54,11 +35,16 @@ const ProgressWrapper = props => {
 					props.siteTitle
 				) }
 			</h3>
-			<IndeterminateProgressBar />
+			<ThemeProvider>
+				<IndeterminateProgressBar />
+			</ThemeProvider>
 		</div>
 	);
 };
 
+// TODO: Remove const variables.
+// Per Jason's feedback, thinks we should put these inline.
+// https://github.com/Automattic/jetpack/pull/26639#discussion_r989593312
 const NoticeWrapper = () => {
 	const noticeBoxClassName = 'jp-search-notice-box';
 	const header = __( "We're gathering your usage data.", 'jetpack-search-pkg' );
