@@ -31,7 +31,9 @@ class Test_Main extends StatsBaseTestCase {
 	 */
 	protected function set_up() {
 		parent::set_up();
-
+		echo $this->getName() . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$pos = strpos( $this->getName(), 'jp_version_lt_11_5_a_2' );
+		echo 'jp_version_lt_11_5_a_2 strpos: ' . $pos; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( strpos( $this->getName(), 'jp_version_lt_11_5_a_2' ) ) {
 			Constants::set_constant( 'JETPACK__VERSION', '11.5-a.1' );
 		}
