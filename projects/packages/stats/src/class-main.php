@@ -54,6 +54,11 @@ class Main {
 	 * @return void
 	 */
 	private function __construct() {
+		// Assuming an older versions of the Jetpack plugin is active, make sure we don't register
+		// these hooks twice.
+		if ( defined( STATS_VERSION ) ) {
+			return;
+		}
 		// Generate the tracking code after wp() has queried for posts.
 		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ), 1 );
 
