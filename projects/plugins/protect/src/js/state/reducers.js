@@ -6,6 +6,9 @@ import {
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
 	SET_JETPACK_SCAN,
+	SET_THREAT_IS_UPDATING,
+	SET_MODAL,
+	SET_NOTICE,
 } from './actions';
 
 const status = ( state = {}, action ) => {
@@ -64,6 +67,30 @@ const productData = ( state = {}, action ) => {
 	return state;
 };
 
+const threatsUpdating = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_THREAT_IS_UPDATING:
+			return { ...state, [ action.payload.threatId ]: action.payload.isUpdating };
+	}
+	return state;
+};
+
+const modal = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_MODAL:
+			return { ...state, ...action.payload };
+	}
+	return state;
+};
+
+const notice = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_NOTICE:
+			return { ...state, ...action.payload };
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	status,
 	statusIsFetching,
@@ -72,6 +99,9 @@ const reducers = combineReducers( {
 	wpVersion,
 	jetpackScan,
 	productData,
+	threatsUpdating,
+	modal,
+	notice,
 } );
 
 export default reducers;

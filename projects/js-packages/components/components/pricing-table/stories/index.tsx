@@ -17,7 +17,7 @@ const Template: ComponentStory< typeof PricingTable > = args => {
 					<ProductPrice
 						price={ 9.95 }
 						offPrice={ 4.98 }
-						leyend="/month, billed yearly"
+						legend="/month, billed yearly"
 						currency="USD"
 						hideDiscountLabel={ args?.hideDiscountLabel }
 					/>
@@ -35,7 +35,7 @@ const Template: ComponentStory< typeof PricingTable > = args => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="Free forever" currency="USD" hidePriceFraction />
+					<ProductPrice price={ 0 } legend="Free forever" currency="USD" hidePriceFraction />
 					<Button fullWidth variant="secondary">
 						Start for free
 					</Button>

@@ -21,6 +21,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Plan;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
+use Automattic\Jetpack\Protect\Threats;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -258,6 +259,30 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'clear-scan-cache',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_clear_scan_cache',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'ignore-threat',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_ignore_threat',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -268,5 +293,41 @@ class Jetpack_Protect {
 	public static function api_get_status() {
 		$status = Protect_Status::get_status();
 		return rest_ensure_response( $status, 200 );
+	}
+
+	/**
+	 * Clear the Scan_Status cache for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_clear_scan_cache() {
+		$cache_cleared = Scan_Status::delete_option();
+
+		if ( ! $cache_cleared ) {
+			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan cache.', 500 );
+		}
+
+		return new WP_REST_Response( 'Jetpack Scan cache cleared.' );
+	}
+
+	/**
+	 * Ignores a threat for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_ignore_threat( $request ) {
+		if ( ! $request['threat_id'] ) {
+			return new WP_REST_RESPONSE( 'Missing threat ID.', 400 );
+		}
+
+		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
+
+		if ( ! $threat_ignored ) {
+			return new WP_REST_Response( 'An error occured while attempting to ignore the threat.', 500 );
+		}
+
+		return new WP_REST_Response( 'Threat ignored.' );
 	}
 }

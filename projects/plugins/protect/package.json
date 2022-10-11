@@ -25,6 +25,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.22",
 		"@automattic/jetpack-connection": "workspace:* || ^0.22",
@@ -38,6 +39,7 @@
 		"@wordpress/icons": "9.9.0",
 		"camelize": "1.0.0",
 		"classnames": "2.3.1",
+		"diff": "^4.0.2",
 		"prop-types": "15.8.1",
 		"react": "17.0.2",
 		"react-dom": "17.0.2"

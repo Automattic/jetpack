@@ -1,0 +1,48 @@
+.marked-lines {
+	padding: 0;
+	background-color: var( --jp-gray-0 );
+	font-family: monospace;
+	display: flex;
+	flex-direction: row;
+	overflow-x: scroll;
+}
+
+.marked-lines__marked-line {
+	background-color: var( --jp-red-0 );
+}
+
+.marked-lines__line-numbers {
+	display: flex;
+	flex-direction: column;
+	text-align: right;
+}
+
+.marked-lines__line-number {
+	padding: 0 4px;
+	background-color: var( --jp-gray-10 );
+	color: var( --font-body );
+
+	&.marked-lines__marked-line {
+		background-color: var( --jp-red-50 );
+		color: var( --jp-white );
+	}
+}
+
+.marked-lines__lines {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	white-space: pre;
+	overflow-x: visible;
+}
+
+.marked-lines__line {
+	padding-left: 8px;
+}
+
+.marked-lines__mark {
+	background-color: var( --jp-red );
+	color: var( --jp-white );
+	border-radius: 2px;
+	padding: 2px 4px;
+}
