@@ -628,7 +628,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_wpcom() ) {
 			if ( $include_publicize_subscribers && function_exists( 'wpcom_reach_total_for_blog' ) ) {
 				$subs_count = wpcom_reach_total_for_blog();
-			} else if ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
+			} elseif ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
 				$subs_count = wpcom_subs_total_for_blog();
 			}
 		}
