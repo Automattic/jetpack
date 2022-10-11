@@ -58,6 +58,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
+	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
+
 	const isDisabledFromOverLimit = useSelect( select =>
 		select( STORE_ID ).getDisabledFromOverLimit()
 	);
@@ -106,7 +108,10 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
-					<Header sendPaidPlanToCart={ sendPaidPlanToCart } />
+					<Header
+						isUpgradable={ isNewPricing && ! tierSlug }
+						sendPaidPlanToCart={ sendPaidPlanToCart }
+					/>
 					<MockedSearchInterface
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -115,6 +120,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						<PlanInfo
 							hasIndex={ postCount !== 0 }
 							recordMeterInfo={ recordMeterInfo }
+							tierSlug={ tierSlug }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
 						/>
 					) }
@@ -156,7 +162,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( { hasIndex, recordMeterInfo, sendPaidPlanToCart } ) => {
+const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -164,7 +170,6 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, sendPaidPlanToCart } ) => {
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
-	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
 
 	return (
@@ -229,7 +234,7 @@ const Footer = () => {
 	);
 };
 
-const Header = ( { sendPaidPlanToCart } ) => {
+const Header = ( { isUpgradable, sendPaidPlanToCart } ) => {
 	const buttonLinkArgs = {
 		children: __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ),
 		variant: 'link',
@@ -242,7 +247,7 @@ const Header = ( { sendPaidPlanToCart } ) => {
 				<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<div className="jp-search-dashboard-header__logo-container">
 						<JetpackSearchLogo className="jp-search-dashboard-header__masthead" />
-						<Button { ...buttonLinkArgs } />
+						{ isUpgradable && <Button { ...buttonLinkArgs } /> }
 					</div>
 				</div>
 			</div>
