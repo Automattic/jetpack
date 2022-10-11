@@ -595,13 +595,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	/**
 	 * Determine the amount of folks currently subscribed to the blog.
 	 *
-	 * @param bool $include_publicize_subscribers Include followers through Publicize
+	 * @param bool $include_publicize_subscribers Include followers through Publicize.
 	 * @return int|array
 	 */
 	public static function fetch_subscriber_count( $include_publicize_subscribers = true ) {
 		$subs_count = 0;
 		if ( self::is_jetpack() ) {
-			$cache_key = $include_publicize_subscribers ? 'wpcom_subscribers_total' : 'wpcom_subscribers_total_no_publicize';
+			$cache_key  = $include_publicize_subscribers ? 'wpcom_subscribers_total' : 'wpcom_subscribers_total_no_publicize';
 			$subs_count = get_transient( $cache_key );
 			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 				$xml = new Jetpack_IXR_Client();
@@ -626,9 +626,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		}
 
 		if ( self::is_wpcom() ) {
-			if ( $include_publicize_subscribers && function_exists( "wpcom_reach_total_for_blog" ) ) {
+			if ( $include_publicize_subscribers && function_exists( 'wpcom_reach_total_for_blog' ) ) {
 				$subs_count = wpcom_reach_total_for_blog();
-			} else if ( function_exists("wpcom_subs_total_for_blog") ) {
+			} else if ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
 				$subs_count = wpcom_subs_total_for_blog();
 			}
 		}
