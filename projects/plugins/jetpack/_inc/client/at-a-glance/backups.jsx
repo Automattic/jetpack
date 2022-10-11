@@ -18,7 +18,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { isAtomicSite, getPartnerCoupon, showBackups } from 'state/initial-state';
+import { isWoASite, getPartnerCoupon, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
@@ -64,6 +64,7 @@ class DashBackups extends Component {
 		hasRealTimeBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
+		isWoASite: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
@@ -74,6 +75,7 @@ class DashBackups extends Component {
 		vaultPressData: '',
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
+		isWoASite: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
 	};
@@ -239,7 +241,7 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { hasRealTimeBackups, rewindStatus, siteRawUrl } = this.props;
+		const { hasRealTimeBackups, isWoASite, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
@@ -313,7 +315,7 @@ class DashBackups extends Component {
 							<div className="jp-dash-item__action-links">
 								<a
 									href={
-										isAtomicSite
+										isWoASite
 											? getRedirectUrl( 'calypso-backups', {
 													site: siteRawUrl,
 											  } )
@@ -429,6 +431,7 @@ export default connect(
 			hasBackups: siteHasFeature( state, 'backups' ),
 			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
+			isWoASite: isWoASite( state ),
 		};
 	},
 	dispatch => ( {
