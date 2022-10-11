@@ -112,6 +112,15 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			);
 		}
 
+		/* Filter using rating meta key */
+		if ( isset( $request['videopress_rating'] ) ) {
+			$videopress_rating    = sanitize_text_field( $request['videopress_rating'] );
+			$args['meta_query'][] = array(
+				'key'   => 'videopress_rating',
+				'value' => $videopress_rating,
+			);
+		}
+
 		return $args;
 	}
 
