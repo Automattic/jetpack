@@ -31,12 +31,9 @@ class Test_Main extends StatsBaseTestCase {
 	 */
 	protected function set_up() {
 		parent::set_up();
-		echo $this->getName() . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		$pos = strpos( $this->getName(), 'jp_version_lt_11_5_a_2' );
-		echo 'jp_version_lt_11_5_a_2 strpos: ' . $pos . PHP_EOL;// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		if ( strpos( $this->getName(), 'jp_version_lt_11_5_a_2' ) ) {
 			Constants::set_constant( 'JETPACK__VERSION', '11.5-a.1' );
-			echo 'JETPACK__VERSION is: ' . Constants::get_constant( 'JETPACK__VERSION' ) . PHP_EOL;// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		$this->stats = Stats::init();
@@ -64,6 +61,15 @@ class Test_Main extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test Main::init does not add the `template_redirect` hook if an older version of the
+	 * Jetpack plugin is active.
+	 */
+	public function test_template_redirect_hook_not_added_with_jp_version_lt_11_5_a_2() {
+		$has_action = has_action( 'template_redirect', array( 'Automattic\Jetpack\Stats\Main', 'template_redirect' ) );
+		$this->assertFalse( $has_action );
+	}
+
+	/**
 	 * Test Main::init adds the `template_redirect` hook.
 	 */
 	public function test_template_redirect_hook() {
@@ -72,11 +78,11 @@ class Test_Main extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test Main::init does not add the `template_redirect` hook if an older version of the
+	 * Test Main::init does not add the `wp_head` hook if an older version of the
 	 * Jetpack plugin is active.
 	 */
-	public function test_template_redirect_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'template_redirect', array( 'Automattic\Jetpack\Stats\Main', 'template_redirect' ) );
+	public function test_wp_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
+		$has_action = has_action( 'wp_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
 		$this->assertFalse( $has_action );
 	}
 
@@ -92,8 +98,8 @@ class Test_Main extends StatsBaseTestCase {
 	 * Test Main::init does not add the `wp_head` hook if an older version of the
 	 * Jetpack plugin is active.
 	 */
-	public function test_wp_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'wp_head', array( 'Automattic\Jetpack\Stats\Main', 'template_redirect' ) );
+	public function test_embed_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
+		$has_action = has_action( 'embed_head', array( 'Automattic\Jetpack\Stats\Main', 'hide_smile_css' ) );
 		$this->assertFalse( $has_action );
 	}
 
@@ -106,30 +112,20 @@ class Test_Main extends StatsBaseTestCase {
 	}
 
 	/**
-	 * Test Main::init does not add the `wp_head` hook if an older version of the
-	 * Jetpack plugin is active.
-	 */
-	public function test_embed_head_hook_not_added_with_jp_version_lt_11_5_a_2() {
-		$has_action = has_action( 'embed_head', array( 'Automattic\Jetpack\Stats\Main', 'template_redirect' ) );
-		$this->assertFalse( $has_action );
-	}
-
-	/**
-	 * Test Main::init adds the 'map_meta_cap' filter.
-	 */
-	public function test_map_meta_cap_filter() {
-
-		$has_filter = has_filter( 'map_meta_cap', array( 'Automattic\Jetpack\Stats\Main', 'map_meta_caps' ) );
-		$this->assertEquals( 10, $has_filter );
-	}
-
-	/**
 	 * Test Main::init does not add the `map_meta_cap` filter if an older version of the
 	 * Jetpack plugin is active.
 	 */
 	public function test_map_meta_cap_filter_not_added_with_jp_version_lt_11_5_a_2() {
 		$has_filter = has_filter( 'map_meta_cap', array( 'Automattic\Jetpack\Stats\Main', 'map_meta_caps' ) );
 		$this->assertFalse( $has_filter );
+	}
+
+	/**
+	 * Test Main::init adds the 'map_meta_cap' filter.
+	 */
+	public function test_map_meta_cap_filter() {
+		$has_filter = has_filter( 'map_meta_cap', array( 'Automattic\Jetpack\Stats\Main', 'map_meta_caps' ) );
+		$this->assertEquals( 10, $has_filter );
 	}
 
 	/**
