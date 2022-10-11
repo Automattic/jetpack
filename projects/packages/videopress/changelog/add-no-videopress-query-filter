@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Include a new `no_videopress` query string parameter to remove from the list all VideoPress related media.
