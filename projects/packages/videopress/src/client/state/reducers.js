@@ -18,6 +18,9 @@ import {
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
+	UPLOADING_VIDEO,
+	PROCESSING_VIDEO,
+	UPLOADED_VIDEO,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
@@ -95,20 +98,12 @@ const videos = ( state, action ) => {
 
 		case SET_VIDEO: {
 			const { video } = action;
-			const { query = getDefaultQuery() } = state;
 			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
-
-			let uploadedVideoCount = state.uploadedVideoCount;
-			const pagination = { ...state.pagination };
 
 			if ( videoIndex === -1 ) {
 				// Add video when not found at beginning of the list.
 				items.unshift( video );
-				// Updating pagination and count
-				uploadedVideoCount += 1;
-				pagination.total += 1;
-				pagination.totalPages = Math.ceil( pagination.total / query?.itemsPerPage );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -119,10 +114,8 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
-				items,
 				isFetching: false,
-				uploadedVideoCount,
-				pagination,
+				items,
 			};
 		}
 
@@ -285,6 +278,84 @@ const videos = ( state, action ) => {
 				...state,
 				uploadedVideoCount: action.uploadedVideoCount,
 				isFetchingUploadedVideoCount: false,
+			};
+		}
+
+		case UPLOADING_VIDEO: {
+			const { id, title } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							title,
+							uploading: true,
+						},
+					},
+				},
+			};
+		}
+
+		case PROCESSING_VIDEO: {
+			const { id, data } = action;
+			const items = [ ...( state?.items ?? [] ) ];
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
+			const title = currentMetaItems[ id ]?.title || '';
+
+			// Insert new video
+			items.unshift( {
+				id: data.id,
+				guid: data.guid,
+				url: data.src,
+				title,
+				posterImage: null,
+				finished: false,
+			} );
+
+			// Remove video from uploading meta
+			delete currentMetaItems[ id ];
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...currentMeta,
+					items: currentMetaItems,
+				},
+			};
+		}
+
+		case UPLOADED_VIDEO: {
+			const { video } = action;
+			const query = state?.query ?? getDefaultQuery();
+			const items = [ ...( state?.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === video.id );
+
+			// Probably user is searching or in another page than first
+			if ( videoIndex === -1 ) {
+				return state;
+			}
+
+			items[ videoIndex ] = video;
+
+			// Updating pagination and count
+			const total = ( state?.uploadedVideoCount ?? 0 ) + 1;
+			const pagination = { ...state.pagination };
+
+			pagination.total = total;
+			pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
+
+			return {
+				...state,
+				items,
+				uploadedVideoCount: total,
+				pagination,
 			};
 		}
 

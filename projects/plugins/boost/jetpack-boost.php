@@ -146,6 +146,10 @@ function include_compatibility_files() {
 	if ( function_exists( 'amp_is_request' ) ) {
 		require_once __DIR__ . '/compatibility/amp.php';
 	}
+
+	if ( function_exists( 'wp_cache_is_enabled' ) ) {
+		require_once __DIR__ . '/compatibility/wp-super-cache.php';
+	}
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
