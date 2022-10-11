@@ -75,6 +75,7 @@
 	margin-top: calc( var( --spacing-base ) * 2 );
 	margin-bottom: calc( var( --spacing-base ) * 2 );
 	justify-content: space-between;
+	gap: var(--spacing-base);
 }
 
 .video-card__title {
@@ -122,8 +123,6 @@
 	// Change spinner color
 	--wp-admin-theme-color: var( --jp-green-50 );
 
-	width: 360px;
-	height: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
