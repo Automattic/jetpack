@@ -21,6 +21,11 @@ use WP_User;
  * @since $$next-version$$
  */
 class Main {
+	/**
+	 * Stats version.
+	 * Mostly needed for backwards compatibility.
+	 */
+	const STATS_VERSION = '9';
 
 	/**
 	 * Singleton Main instance.
@@ -49,8 +54,6 @@ class Main {
 	 * @return void
 	 */
 	private function __construct() {
-		defined( 'STATS_VERSION' ) || define( 'STATS_VERSION', '9' );
-
 		// Generate the tracking code after wp() has queried for posts.
 		add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ), 1 );
 

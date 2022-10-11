@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Stats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 
 /**
@@ -85,7 +84,7 @@ class XMLRPC_Provider {
 			'siteurl'             => get_option( 'siteurl' ),
 			'gmt_offset'          => get_option( 'gmt_offset' ),
 			'timezone_string'     => get_option( 'timezone_string' ),
-			'stats_version'       => Constants::get_constant( 'STATS_VERSION' ),
+			'stats_version'       => Main::STATS_VERSION,
 			'stats_api'           => 'jetpack',
 			'page_on_front'       => get_option( 'page_on_front' ),
 			'permalink_structure' => get_option( 'permalink_structure' ),

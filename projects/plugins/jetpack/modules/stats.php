@@ -29,7 +29,6 @@ if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 }
 
 define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
-defined( 'STATS_VERSION' ) || define( 'STATS_VERSION', '9' );
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
