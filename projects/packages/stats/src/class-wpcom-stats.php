@@ -18,7 +18,7 @@ use WP_Error;
  *
  * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class WPCOM_Stats {
 	/**
