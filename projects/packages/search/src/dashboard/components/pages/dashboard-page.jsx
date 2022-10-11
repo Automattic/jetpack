@@ -120,7 +120,11 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
 					{ isNewPricing && (
-						<PlanInfo hasIndex={ postCount !== 0 } recordMeterInfo={ recordMeterInfo } />
+						<PlanInfo
+							hasIndex={ postCount !== 0 }
+							recordMeterInfo={ recordMeterInfo }
+							sendPaidPlanToCart={ sendPaidPlanToCart }
+						/>
 					) }
 					{ false && <UsageMeter sendPaidPlanToCart={ sendPaidPlanToCart } /> }
 					{ ! isNewPricing && (
@@ -161,9 +165,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = props => {
-	const hasIndex = props.hasIndex;
-	const info = props.recordMeterInfo;
+const PlanInfo = ( { hasIndex, recordMeterInfo, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -176,14 +178,16 @@ const PlanInfo = props => {
 	return (
 		<>
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
-			{ hasIndex && <PlanUsageSection planInfo={ planInfo } /> }
+			{ hasIndex && (
+				<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
+			) }
 			{ hasIndex && (
 				<RecordMeter
-					postCount={ info.postCount }
-					postTypeBreakdown={ info.postTypeBreakdown }
-					tierMaximumRecords={ info.tierMaximumRecords }
-					lastIndexedDate={ info.lastIndexedDate }
-					postTypes={ info.postTypes }
+					postCount={ recordMeterInfo.postCount }
+					postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }
+					tierMaximumRecords={ recordMeterInfo.tierMaximumRecords }
+					lastIndexedDate={ recordMeterInfo.lastIndexedDate }
+					postTypes={ recordMeterInfo.postTypes }
 				/>
 			) }
 		</>

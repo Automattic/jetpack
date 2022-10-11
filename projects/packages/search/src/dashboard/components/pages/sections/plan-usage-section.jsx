@@ -24,6 +24,7 @@ const upgradeTypeFromAPIData = apiData => {
 	if ( ! apiData.currentUsage.must_upgrade ) {
 		return null;
 	}
+
 	// Determine appropriate upgrade message.
 	let mustUpgradeReason = '';
 	if ( apiData.currentUsage.upgrade_reason.requests ) {
@@ -32,21 +33,22 @@ const upgradeTypeFromAPIData = apiData => {
 	if ( apiData.currentUsage.upgrade_reason.records ) {
 		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
 	}
+
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = props => {
+const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
 	// TODO: Add logic for plan limits.
-	const upgradeType = upgradeTypeFromAPIData( props.planInfo );
-	const usageInfo = usageInfoFromAPIData( props.planInfo );
+	const upgradeType = upgradeTypeFromAPIData( planInfo );
+	const usageInfo = usageInfoFromAPIData( planInfo );
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary planInfo={ props.planInfo } />
+					<PlanSummary planInfo={ planInfo } />
 					<UsageMeters usageInfo={ usageInfo } />
-					<UpgradeTrigger type={ upgradeType } />
+					<UpgradeTrigger type={ upgradeType } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
@@ -91,16 +93,10 @@ export const getUpgradeMessages = () => {
 	return upgradeMessages;
 };
 
-const UpgradeTrigger = props => {
-	// TODO: Replace this callback with prop.
-	const callbackForwarder = event => {
-		event.preventDefault();
-		// callback();
-		// eslint-disable-next-line no-console
-		console.log( 'CUT clicked...' );
-	};
-	const upgradeMessage = props.type && getUpgradeMessages()[ props.type ];
-	const triggerData = upgradeMessage && { ...upgradeMessage, onClick: callbackForwarder };
+const UpgradeTrigger = ( { type, ctaCallback } ) => {
+	const upgradeMessage = type && getUpgradeMessages()[ type ];
+	const triggerData = upgradeMessage && { ...upgradeMessage, onClick: ctaCallback };
+
 	return (
 		<>
 			{ triggerData && (
