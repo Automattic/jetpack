@@ -5,8 +5,8 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import usePosterImage from '../../hooks/use-poster-image';
-import usePosterUpload from '../../hooks/use-poster-upload';
+import usePosterImage from '../../../hooks/use-poster-image';
+import usePosterUpload from '../../../hooks/use-poster-upload';
 
 const usePosterEdit = ( { video } ) => {
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
