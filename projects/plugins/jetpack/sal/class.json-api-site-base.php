@@ -1388,6 +1388,9 @@ abstract class SAL_Site {
 	public function is_difm_lite_in_progress() {
 		if ( function_exists( 'has_blog_sticker' ) ) {
 			return has_blog_sticker( 'difm-lite-in-progress' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		}
 		return false;
 	}

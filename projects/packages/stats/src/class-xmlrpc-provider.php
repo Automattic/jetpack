@@ -16,7 +16,7 @@ use Automattic\Jetpack\Modules;
  *
  * Adds additional methods to the WordPress XML-RPC API for handling Stats specific features.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class XMLRPC_Provider {
 
