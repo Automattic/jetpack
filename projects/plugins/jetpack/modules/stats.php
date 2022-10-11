@@ -88,11 +88,11 @@ function stats_enqueue_dashboard_head() {
 /**
  * Checks if filter is set and dnt is enabled.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @return bool
  */
 function jetpack_is_dnt_enabled() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::jetpack_is_dnt_enabled' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::jetpack_is_dnt_enabled' );
 	return Stats::jetpack_is_dnt_enabled();
 }
 
@@ -119,7 +119,7 @@ function stats_ignore_db_version( $version ) {
 /**
  * Maps view_stats cap to read cap as needed.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $caps Caps.
@@ -128,19 +128,19 @@ function stats_ignore_db_version( $version ) {
  * @return array Possibly mapped capabilities for meta capability.
  */
 function stats_map_meta_caps( $caps, $cap, $user_id ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::map_meta_caps' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::map_meta_caps' );
 	return Stats::map_meta_caps( $caps, $cap, $user_id );
 }
 
 /**
  * Stats Template Redirect.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @access public
  * @return void
  */
 function stats_template_redirect() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::template_redirect' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::template_redirect' );
 	Stats::template_redirect();
 
 }
@@ -148,24 +148,24 @@ function stats_template_redirect() {
 /**
  * Stats Build View Data.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @access public
  * @return array.
  */
 function stats_build_view_data() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
 	return Stats_Tracking_Pixel::build_view_data();
 }
 
 /**
  * Stats Footer.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @access public
  * @return void
  */
 function stats_footer() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
 	Stats_Tracking_Pixel::add_to_footer();
 
 }
@@ -173,58 +173,58 @@ function stats_footer() {
 /**
  * Render the stats footer
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @param array $data Array of data for the JS stats tracker.
  */
 function stats_render_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
 	Stats_Tracking_Pixel::render_footer( $data );
 }
 
 /**
  * Render the stats footer for AMP output.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @param array $data Array of data for the AMP pixel tracker.
  */
 function stats_render_amp_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
 	Stats_Tracking_Pixel::render_amp_footer( $data );
 }
 
 /**
  * Stats Get Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @return array.
  */
 function stats_get_options() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::get_options' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_options' );
 	return Stats_Options::get_options();
 }
 
 /**
  * Get Stats Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $option Option.
  * @return mixed|null.
  */
 function stats_get_option( $option ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::get_option' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_option' );
 	return Stats_Options::get_option( $option );
 }
 
 /**
  * Stats Set Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $option Option.
@@ -232,35 +232,35 @@ function stats_get_option( $option ) {
  * @return bool.
  */
 function stats_set_option( $option, $value ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::set_option' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_option' );
 	return Stats_Options::set_option( $option, $value );
 }
 
 /**
  * Stats Set Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $options Options.
  * @return bool
  */
 function stats_set_options( $options ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::set_options' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_options' );
 	return Stats_Options::set_options( $options );
 }
 
 /**
  * Stats Upgrade Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $options Options.
  * @return array|bool
  */
 function stats_upgrade_options( $options ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::upgrade_options' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::upgrade_options' );
 	return Stats_Options::upgrade_options( $options );
 }
 
@@ -800,13 +800,13 @@ function stats_update_blog() {
 /**
  * Stats Get Blog.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @return string
  */
 function stats_get_blog() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5' );
 	return Stats_XMLRPC::init()->get_blog();
 }
 

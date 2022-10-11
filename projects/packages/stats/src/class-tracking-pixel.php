@@ -15,7 +15,7 @@ use WP_Post;
  *
  * Responsible for embedding the Stats tracking pixel.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Tracking_Pixel {
 

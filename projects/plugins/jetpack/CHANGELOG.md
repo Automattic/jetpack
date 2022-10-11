@@ -2,6 +2,24 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.5-a.3 - 2022-10-11
+### Enhancements
+- Add typography controls to the payments-button block [#26580]
+- Show Publicize pre-publish panel if the site has connections enabled [#26663]
+
+### Improved compatibility
+- Removed compatibility checks involving automatic deactivation of contact form functionality [#26714]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bump version to 11.5-a.2 [#26646]
+- Changelog [#26647]
+- Fixed versions [#26750]
+- Integrate Stats package in Jetpack plugin [#26640]
+- Jetpack_PostImages::get_image now returns null, not empty array, on failure to find an image. [#26670]
+- shortcodes: Fix wufoo shortcode output [#26671]
+- Updated package dependencies. [#26633, #26640, #26683, #26726]
+- Update js-packages/licensing dependency version [#25973]
+
 ## 11.5-a.1 - 2022-10-05
 ### Enhancements
 - Dashboard: add a new illustration for WooCommerce recommendation. [#26492]
