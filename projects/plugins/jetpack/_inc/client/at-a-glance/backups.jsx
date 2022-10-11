@@ -64,7 +64,7 @@ class DashBackups extends Component {
 		hasRealTimeBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
-		isWoASite: PropTypes.bool.isRequired,
+		isWoA: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
@@ -75,7 +75,7 @@ class DashBackups extends Component {
 		vaultPressData: '',
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
-		isWoASite: false,
+		isWoA: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
 	};
@@ -241,7 +241,7 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { hasRealTimeBackups, isWoASite, rewindStatus, siteRawUrl } = this.props;
+		const { hasRealTimeBackups, isWoA, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
@@ -315,7 +315,7 @@ class DashBackups extends Component {
 							<div className="jp-dash-item__action-links">
 								<a
 									href={
-										isWoASite
+										isWoA
 											? getRedirectUrl( 'calypso-backups', {
 													site: siteRawUrl,
 											  } )
@@ -431,7 +431,7 @@ export default connect(
 			hasBackups: siteHasFeature( state, 'backups' ),
 			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
-			isWoASite: isWoASite( state ),
+			isWoA: isWoASite( state ),
 		};
 	},
 	dispatch => ( {
