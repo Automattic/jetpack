@@ -1,4 +1,6 @@
 <script>
+	import Footer from '../../sections/Footer.svelte';
+	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
@@ -17,17 +19,25 @@
 	}
 </script>
 
-<div class="jb-section jb-section--alt jb-section--scores">
-	<Score />
-</div>
-
-<Router>
-	<div class="jb-section jb-section--main">
-		<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
-		<Route path="/" component={Modules} />
+<div id="jb-settings" class="jb-settings jb-settings--main">
+	<div class="jb-container">
+		<Header />
 	</div>
-</Router>
 
-<Tips />
+	<div class="jb-section jb-section--alt jb-section--scores">
+		<Score />
+	</div>
 
-<Support />
+	<Router>
+		<div class="jb-section jb-section--main">
+			<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
+			<Route path="/" component={Modules} />
+		</div>
+	</Router>
+
+	<Tips />
+
+	<Support />
+
+	<Footer />
+</div>
