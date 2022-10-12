@@ -56,7 +56,7 @@
 	&:hover {
 		.jb-context-info__container {
 			visibility: visible;
-            z-index: 1;
+            z-index: 9990;
 		}
 
 		&::before {
@@ -70,9 +70,22 @@
             height:12px;
             transform:translate(-50%,50%) rotate(45deg);
             background-color:$primary-white;
-            z-index: 2;
+            z-index: 9991;
             
             @include box-shadow();
+		}
+
+		/* Add this invisible element to prevent the hover effect from going away while moving the mouse from icon to tooltip */
+		&::after {
+            content:'';
+			position: absolute;
+			top: 50%;
+			left: -3px;
+			overflow: hidden;
+			text-align: center;
+            width:24px;
+            height:24px;
+            z-index: 9991;
 		}
 	}
 
