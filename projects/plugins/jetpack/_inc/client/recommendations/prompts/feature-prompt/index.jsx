@@ -14,7 +14,7 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 	startFeatureInstall as startFeatureInstallAction,
 	endFeatureInstall as endFeatureInstallAction,
-	getOnboardingProgressValueIfEligible,
+	getOnboardingStepProgressValueIfEligible,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -33,7 +33,9 @@ import {
 } from '../../feature-utils';
 import DiscountCard from '../../sidebar/discount-card';
 import { ProductSpotlight } from '../../sidebar/product-spotlight';
+import { StepProgressBar } from '../../step-progress-bar';
 import { PromptLayout } from '../prompt-layout';
+
 const FeaturePromptComponent = props => {
 	const {
 		activateFeature,
@@ -50,6 +52,7 @@ const FeaturePromptComponent = props => {
 		illustration,
 		nextRoute,
 		progressValue,
+		stepProgressValue,
 		question,
 		stepSlug,
 		stateStepSlug,
@@ -141,11 +144,21 @@ const FeaturePromptComponent = props => {
 		sidebarCard = <DiscountCard />;
 	}
 
+	const progressBarComponent = useMemo( () => {
+		if ( stepProgressValue ) {
+			return <StepProgressBar { ...stepProgressValue } />;
+		}
+
+		if ( progressValue ) {
+			return <ProgressBar color={ '#00A32A' } value={ progressValue } />;
+		}
+
+		return null;
+	}, [ stepProgressValue, progressValue ] );
+
 	return (
 		<PromptLayout
-			progressBar={
-				progressValue ? <ProgressBar color={ '#00A32A' } value={ progressValue } /> : null
-			}
+			progressBar={ progressBarComponent }
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
@@ -238,7 +251,7 @@ const FeaturePrompt = connect(
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
 		...( getIsOnboardingActive( state )
 			? {
-					progressValue: getOnboardingProgressValueIfEligible( state ),
+					stepProgressValue: getOnboardingStepProgressValueIfEligible( state ),
 					summaryViewed: false,
 			  }
 			: {} ),

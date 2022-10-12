@@ -46,7 +46,11 @@ import {
 	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE,
 } from 'state/action-types';
 import { hasConnectedOwner } from 'state/connection';
-import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
+import {
+	getNewRecommendations,
+	getInitialRecommendationsStep,
+	getNewRecommendationsCount,
+} from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
@@ -491,6 +495,19 @@ export const isProductSuggestionsAvailable = state => {
 	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
 };
 
+export const getNonViewedRecommendationsCount = state => {
+	const onboarding = getOnboardingData( state );
+
+	if ( onboarding && onboarding.active ) {
+		const step = getStep( state );
+		const steps = getStepsForOnboarding( onboarding.active );
+
+		return steps.length - ( steps.indexOf( step ) + 1 );
+	}
+
+	return getNewRecommendationsCount( state );
+};
+
 export const getProductSlugForStep = ( state, step ) => {
 	switch ( step ) {
 		case 'publicize':
@@ -702,7 +719,7 @@ export const getStep = state => {
 	return step;
 };
 
-export const getOnboardingProgressValueIfEligible = state => {
+export const getOnboardingStepProgressValueIfEligible = state => {
 	const onboardingData = getOnboardingData( state );
 
 	if ( ! onboardingData || ! onboardingData.active ) {
@@ -712,7 +729,10 @@ export const getOnboardingProgressValueIfEligible = state => {
 	const step = getStep( state );
 	const steps = getStepsForOnboarding( onboardingData.active );
 
-	return `${ ( steps.indexOf( step ) / steps.length ) * 100 }`;
+	return {
+		currentStepIndex: steps.indexOf( step ),
+		totalSteps: steps.length,
+	};
 };
 
 export const getNextRoute = state => {
