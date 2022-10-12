@@ -12,19 +12,21 @@ const formatNumberWithSeparators = x => {
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
- * @param {object}prop - props to show usage info.
- * @param {number}prop.current - totalCount to the DonutMeter.
- * @param {number}prop.limit - segmentCount to the DonutMeter.
- * @param {string}prop.title - title to the DonutMeter.
- * @returns {React.Component} DonutMeterContainer component.
+ * @param {object} props - Props
+ * @param {number} props.current - totalCount to the DonutMeter
+ * @param {number} props.limit - segmentCount to the DonutMeter
+ * @param {string} props.title - title to the DonutMeter
+ * @param {Function} props.iconClickedCallback - handler for click on "info" icon
+ * @param {Function} props.linkClickedCallback - handler for click on "details" link
+ * @returns {React.Component} DonutMeterContainer component
  */
-const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
-	// TODO: Remove local callback in favour of props.
-	const tempCallback = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'higher level callback...' );
-	};
-
+const DonutMeterContainer = ( {
+	current = 0,
+	limit = 1,
+	title,
+	iconClickedCallback,
+	linkClickedCallback,
+} ) => {
 	const usageInfo =
 		formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	return (
@@ -33,8 +35,8 @@ const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
 				<DonutMeter segmentCount={ current } totalCount={ limit } />
 			</div>
 			<div className="donut-info-wrapper">
-				<InfoPrimary localizedMessage={ title } iconClickedCallback={ tempCallback } />
-				<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ tempCallback } />
+				<InfoPrimary localizedMessage={ title } iconClickedCallback={ iconClickedCallback } />
+				<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ linkClickedCallback } />
 			</div>
 		</div>
 	);
