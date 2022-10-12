@@ -1,6 +1,6 @@
 # Stats
 
-A package that can be consumed by standalone plugins and an API that they can use.
+Collect valuable traffic stats and insights.
 
 ## How to consume Stats package
 
