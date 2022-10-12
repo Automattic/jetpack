@@ -11,7 +11,7 @@ import PlanSummary from './plan-summary';
 const usageInfoFromAPIData = apiData => {
 	// Transform the data as necessary.
 	// Are there better defaults for the Max values?
-	// Should we recored, log, or otherwise surface potential errors here?
+	// Should we record, log, or otherwise surface potential errors here?
 	return {
 		recordCount: apiData?.currentUsage?.num_records || 0,
 		recordMax: apiData?.currentPlan?.record_limit || 0,
