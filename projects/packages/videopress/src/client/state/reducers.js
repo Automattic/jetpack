@@ -364,6 +364,10 @@ const videos = ( state, action ) => {
 	}
 };
 
+const localVideos = state => {
+	return state;
+};
+
 const purchases = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_PURCHASES: {
@@ -388,6 +392,7 @@ const purchases = ( state, action ) => {
 
 const reducers = combineReducers( {
 	videos,
+	localVideos,
 	purchases,
 } );
 

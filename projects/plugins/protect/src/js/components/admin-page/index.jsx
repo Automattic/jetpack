@@ -7,7 +7,12 @@ import {
 	Text,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
+import {
+	useProductCheckoutWorkflow,
+	useConnection,
+	useConnectionErrorNotice,
+	ConnectionError,
+} from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -90,6 +95,7 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	let currentScanStatus;
 	if ( 'error' === currentStatus ) {
@@ -119,6 +125,11 @@ const ProtectAdminPage = () => {
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 0 }>
+						{ hasConnectionError && (
+							<Col className={ styles[ 'connection-error-col' ] }>
+								<ConnectionError />
+							</Col>
+						) }
 						<Col>
 							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 						</Col>
@@ -150,6 +161,11 @@ const ProtectAdminPage = () => {
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 0 }>
+						{ hasConnectionError && (
+							<Col className={ styles[ 'connection-error-col' ] }>
+								<ConnectionError />
+							</Col>
+						) }
 						<Col>
 							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 						</Col>
@@ -197,6 +213,11 @@ const ProtectAdminPage = () => {
 		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 0 }>
+					{ hasConnectionError && (
+						<Col className={ styles[ 'connection-error-col' ] }>
+							<ConnectionError />
+						</Col>
+					) }
 					<Col>
 						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 					</Col>

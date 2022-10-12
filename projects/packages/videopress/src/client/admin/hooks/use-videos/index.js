@@ -42,3 +42,12 @@ export default function useVideos() {
 			dispatch( STORE_ID ).setVideosQuery( { search: querySearch, page: 1 } ),
 	};
 }
+
+export const useLocalVideos = () => {
+	// Data
+	const items = useSelect( select => select( STORE_ID ).getLocalVideos() );
+
+	return {
+		items,
+	};
+};
