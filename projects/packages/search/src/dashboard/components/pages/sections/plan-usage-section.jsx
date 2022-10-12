@@ -41,7 +41,7 @@ const upgradeTypeFromAPIData = apiData => {
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
+const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isJustUpgraded } ) => {
 	// TODO: Add logic for plan limits.
 	const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const usageInfo = usageInfoFromAPIData( planInfo );
@@ -51,7 +51,7 @@ const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<PlanSummary planInfo={ planInfo } />
-					<UsageMeters usageInfo={ usageInfo } />
+					<UsageMeters usageInfo={ usageInfo } isJustUpgraded={ isJustUpgraded } />
 					<UpgradeTrigger type={ upgradeType } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
 				</div>
@@ -112,8 +112,8 @@ const UpgradeTrigger = ( { type, ctaCallback } ) => {
 	);
 };
 
-const UsageMeters = ( { usageInfo } ) => {
-	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( 1 );
+const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
+	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( isJustUpgraded ? 1 : 0 );
 	const goToNext = useCallback( () => setCurrentTooltipIndex( idx => idx + 1 ), [
 		setCurrentTooltipIndex,
 	] );
