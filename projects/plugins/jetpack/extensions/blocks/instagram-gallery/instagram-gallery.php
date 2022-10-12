@@ -66,8 +66,8 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 		$spacing
 	);
 
-	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
-		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
+	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) && defined( 'JETPACK__PLUGIN_DIR' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-instagram-gallery-helper.php';
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 

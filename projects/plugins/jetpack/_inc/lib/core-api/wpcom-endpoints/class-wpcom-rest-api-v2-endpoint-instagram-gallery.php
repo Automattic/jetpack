@@ -30,8 +30,8 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			}
 		}
 
-		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
-			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
+		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) && defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-instagram-gallery-helper.php';
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
