@@ -25,6 +25,7 @@ const Header = () => {
 		postsCount,
 		isShareLimitEnabled,
 		hasPaidPlan,
+		siteSuffix,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -35,6 +36,7 @@ const Header = () => {
 			postsCount: select( STORE_ID ).getPostsCount(),
 			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
 			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
+			siteSuffix: select( STORE_ID ).getSiteSuffix(),
 		};
 	} );
 
@@ -75,7 +77,10 @@ const Header = () => {
 									'jetpack-social'
 								) }
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
-								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell' ) }
+								href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
+									site: siteSuffix,
+									query: 'redirect_to=' + window.location.href,
+								} ) }
 							/>
 						</>
 					) : (

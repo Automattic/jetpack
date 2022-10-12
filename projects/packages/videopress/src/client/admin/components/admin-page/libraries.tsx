@@ -10,9 +10,9 @@ import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useVideos from '../../hooks/use-videos';
+import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { SearchInput } from '../input';
-import Pagination from '../pagination';
+import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, FilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
@@ -28,22 +28,6 @@ const LibraryType = {
 } as const;
 
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
-
-const ConnectedPagination = ( props: { className: string; disabled: boolean } ) => {
-	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
-	return total < itemsPerPage ? (
-		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
-	) : (
-		<Pagination
-			{ ...props }
-			perPage={ itemsPerPage }
-			onChangePage={ setPage }
-			currentPage={ page }
-			total={ total }
-			disabled={ isFetching || props.disabled }
-		/>
-	);
-};
 
 const VideoLibraryWrapper = ( {
 	children,
@@ -112,17 +96,14 @@ const VideoLibraryWrapper = ( {
 			</div>
 			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectedPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
 
-export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
-	const disabled = videos?.some?.(
-		video => video.uploading || ( ! video.finished && video.posterImage === null )
-	);
+	const disabled = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
 		setLibraryType( current =>
@@ -143,10 +124,15 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
+				<VideoGrid
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					loading={ loading }
+				/>
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
+			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</VideoLibraryWrapper>
 	);
 };
@@ -166,6 +152,13 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 				showQuickActions={ false }
 				videos={ videos }
 			/>
+			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
+};
+
+export const ConnectLocalLibrary = () => {
+	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
+
+	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
 };

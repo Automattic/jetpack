@@ -8,11 +8,14 @@ import {
 	numberFormat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import useVideo from '../../hooks/use-video';
+import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
@@ -46,6 +49,19 @@ const QuickActions = ( {
 	);
 };
 
+const UploadingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Spinner />
+		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
+const ProcessingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
 /**
  * Video Card component
  *
@@ -57,15 +73,20 @@ export const VideoCard = ( {
 	id,
 	duration,
 	plays,
-	thumbnail,
+	thumbnail: defaultThumbnail,
 	editable,
 	showQuickActions = true,
-	isDeleting,
+	loading = false,
+	uploading = false,
+	processing = false,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	// @todo: implement removing video state properly
-	const isBlank = ( ! title && ! duration && ! plays && ! thumbnail ) || isDeleting;
-	thumbnail = isDeleting ? null : thumbnail;
+	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
+
+	// Mapping thumbnail (Ordered by priority)
+	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
+	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
+	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
@@ -77,13 +98,14 @@ export const VideoCard = ( {
 		: '';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
+	const disabled = isSm || loading || uploading || processing;
 
 	return (
 		<>
 			<div
 				className={ classnames( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
-					[ styles.small ]: isSm,
+					[ styles.disabled ]: disabled,
 				} ) }
 				{ ...( isSm && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
 			>
@@ -92,8 +114,8 @@ export const VideoCard = ( {
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
-					duration={ duration }
-					editable={ editable }
+					duration={ loading ? null : duration }
+					editable={ loading ? false : editable }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -103,24 +125,42 @@ export const VideoCard = ( {
 							{ ! isOpen && <Icon icon={ chevronDown } /> }
 						</div>
 					) }
-					<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
-						{ title }
-					</Title>
-					{ hasPlays && (
-						<Text
-							weight="regular"
-							size="small"
-							component="div"
-							className={ styles[ 'video-card__video-plays-counter' ] }
-						>
-							<Icon icon={ chartBar } />
-							{ playsCount }
-						</Text>
+
+					{ loading ? (
+						<Placeholder width="60%" height={ 30 } />
+					) : (
+						<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
+							{ title }
+						</Title>
+					) }
+
+					{ loading ? (
+						<Placeholder width={ 96 } height={ 24 } />
+					) : (
+						<>
+							{ hasPlays && (
+								<Text
+									weight="regular"
+									size="small"
+									component="div"
+									className={ styles[ 'video-card__video-plays-counter' ] }
+								>
+									<Icon icon={ chartBar } />
+									{ playsCount }
+								</Text>
+							) }
+						</>
 					) }
 				</div>
 
 				{ showQuickActions && ! isSm && (
-					<QuickActions id={ id } onVideoDetailsClick={ onVideoDetailsClick } />
+					<QuickActions
+						id={ id }
+						onVideoDetailsClick={ onVideoDetailsClick }
+						className={ classnames( {
+							[ styles[ 'is-blank' ] ]: loading,
+						} ) }
+					/>
 				) }
 			</div>
 
@@ -136,20 +176,21 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { data: video, isDeleting, hasBeenDeleted } = useVideo( id );
-	if ( ! id || ! video ) {
-		return null;
-	}
+	const { isDeleting, uploading, processing } = useVideo( id );
+
+	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
+	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
 
 	return (
 		<VideoCard
 			id={ id }
-			{ ...video }
 			{ ...restProps }
-			isDeleting={ isDeleting }
-			hasBeenDeleted={ hasBeenDeleted }
+			loading={ loading }
+			uploading={ uploading }
+			processing={ processing }
+			editable={ editable }
 		/>
 	);
 };
 
-export default VideoCard;
+export default ConnectVideoCard;

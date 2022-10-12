@@ -15,9 +15,9 @@ export type ProductPriceProps = {
 	currency?: string;
 
 	/**
-	 * Product leytend.
+	 * Product legend.
 	 */
-	leyend?: string;
+	legend?: string;
 
 	/**
 	 * Show the not off price.
@@ -35,12 +35,17 @@ export type ProductPriceProps = {
 	hidePriceFraction?: boolean;
 
 	/**
-	 * Promo label to show top right of the price.
+	 * Hides discount label
+	 */
+	hideDiscountLabel?: boolean;
+
+	/**
+	 * Custom promo label
 	 */
 	promoLabel?: string;
 
 	/**
-	 * Alternative leyend with HTML syntax
+	 * Alternative legend with HTML syntax
 	 */
 	children?: React.ReactNode;
 };

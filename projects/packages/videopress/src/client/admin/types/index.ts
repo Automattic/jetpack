@@ -113,6 +113,7 @@ export type OriginalVideoPressVideo = {
 };
 
 export type VideoPressVideo = {
+	uploading: boolean;
 	id: OriginalVideoPressVideo[ 'id' ];
 	guid: OriginalVideoPressVideo[ 'jetpack_videopress_guid' ];
 	title: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'title' ];
@@ -134,8 +135,6 @@ export type VideoPressVideo = {
 	thumbnail?: string;
 	finished: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
 	plays?: number; // Not provided yet
-	// Video is being upload
-	uploading?: boolean;
 	filename: OriginalVideoPressVideo[ 'slug' ];
 };
 
@@ -150,8 +149,22 @@ export type LocalVideo = {
 	uploadDate: string;
 };
 
+export type MetadataVideo = {
+	id: number | string;
+	deletedVideo?: VideoPressVideo;
+	isDeleting?: boolean;
+	hasBeenDeleted?: boolean;
+	uploading?: boolean;
+	processing?: boolean;
+};
+
 export type VideopressSelectors = {
-	getVideo: ( id: number ) => VideoPressVideo;
+	getVideo: ( id: number | string ) => VideoPressVideo;
+	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
+	getIsFetching: () => boolean;
+	getPurchases: () => Array< object >;
+
+	getUploadedLocalVideoCount: () => number;
 };
