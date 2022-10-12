@@ -43,7 +43,7 @@ When that tracking pixel is loaded by the browser, it effectively sends informat
 
 #### Default parameters
 The default parameters being tracked are built with the `Automattic\Jetpack\Stats\TrackingPixel::build_view_data` function.
-- **v**: 
+- **v**: (internal) Used to distinguish self-hosted sites from the ones hosted on WordPress.com. Enum: `ext, wpcom`
 - **blog**: The blog ID of the site
 - **post**: The id of the post for the site. 0 if it is not a post.
 - **tz**: The GMT offset
