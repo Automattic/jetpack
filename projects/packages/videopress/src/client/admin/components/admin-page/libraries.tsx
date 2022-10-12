@@ -152,7 +152,7 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 				showQuickActions={ false }
 				videos={ videos }
 			/>
-			<ConnectLocalPagination />
+			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
