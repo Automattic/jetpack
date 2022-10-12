@@ -52,8 +52,17 @@ export const useLocalVideos = () => {
 		select( STORE_ID ).getUploadedLocalVideoCount()
 	);
 
+	const query = useSelect( select => select( STORE_ID ).getLocalVideosQuery() || {} );
+	const pagination = useSelect( select => select( STORE_ID ).getLocalPagination() );
+
 	return {
+		// Data
 		items,
 		uploadedLocalVideoCount,
+		...query,
+		...pagination,
+
+		// Handlers
+		setPage: page => dispatch( STORE_ID ).setLocalVideosQuery( { page } ),
 	};
 };
