@@ -84,7 +84,7 @@ export const VideoCard = ( {
 	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
 
 	// Mapping thumbnail (Ordered by priority)
-	let thumbnail = loading ? <Placeholder width={ 360 } /> : defaultThumbnail;
+	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
 	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 

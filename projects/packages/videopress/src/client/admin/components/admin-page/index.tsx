@@ -27,7 +27,7 @@ import classnames from 'classnames';
  */
 import { STORE_ID } from '../../../state';
 import { usePlan } from '../../hooks/use-plan';
-import useVideos from '../../hooks/use-videos';
+import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -39,11 +39,11 @@ const useDashboardVideos = () => {
 	const { uploadVideo } = useDispatch( STORE_ID );
 
 	const { items, uploading, uploadedVideoCount, isFetching } = useVideos();
+	const { items: localVideos } = useLocalVideos();
 
 	let videos = [ ...uploading, ...items ];
 
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
-	const localVideos = [];
 	const localTotalVideoCount = 0;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
 
