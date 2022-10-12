@@ -1,4 +1,4 @@
-.videopress-embed-warning {
+.extended-block-warning {
 	margin-bottom: 8px;
 
 	.block-editor-warning__actions {
@@ -6,14 +6,14 @@
 	}
 }
 
-.wp-block-core-embed-wrapper {
+.wp-extended-block-wrapper {
 	position: relative;
 
 	&.is-disabled {
 		opacity: 0.5;
 	}
 
-	.core-embed-videopress-player__overlay {
+	.extended-block-player__overlay {
 		position: absolute;
 		top: 0;
 		left: 0;

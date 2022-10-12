@@ -13,19 +13,16 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import '../editor.scss';
-import { pickGUIDFromUrl } from '../../../utils/url/index.js';
 
-const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockEdit => {
+const withJetpackVideoPressBlockEdit = createHigherOrderComponent( JetpackCoreVideoBlockEdit => {
 	return props => {
 		const { clientId } = props;
 		const { attributes, setAttributes } = props;
-		const { url, keepUsingOEmbedVariation } = attributes;
+		const { guid, keepUsingCoreVideoVideoPressBlock } = attributes;
 		const { replaceBlock } = useDispatch( blockEditorStore );
 
-		const guid = pickGUIDFromUrl( url );
-
 		useEffect( () => {
-			if ( keepUsingOEmbedVariation !== false ) {
+			if ( keepUsingCoreVideoVideoPressBlock !== false ) {
 				return;
 			}
 
@@ -36,31 +33,26 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 					guid,
 				} )
 			);
-		}, [ keepUsingOEmbedVariation, guid ] );
+		}, [ keepUsingCoreVideoVideoPressBlock, guid ] );
 
-		// Check if the block is a core/embed block.
-		if ( props.name !== 'core/embed' ) {
-			return <CoreEmbedBlockEdit { ...props } />;
+		// Check if the block is a core/video block.
+		if ( props.name !== 'core/video' ) {
+			return <JetpackCoreVideoBlockEdit { ...props } />;
 		}
 
-		// ...and if it's a `videopress` variation.
-		if ( ! attributes?.providerNameSlug || attributes.providerNameSlug !== 'videopress' ) {
-			return <CoreEmbedBlockEdit { ...props } />;
-		}
-
-		// ... and if was possible to pick the GUID from the URL.
+		// ... and if it contains `guid` attribute...
 		if ( ! guid ) {
-			return <CoreEmbedBlockEdit { ...props } />;
+			return <JetpackCoreVideoBlockEdit { ...props } />;
 		}
 
-		// ... and if the user has already decided to keep using the oEmbed variation.
-		if ( keepUsingOEmbedVariation === true ) {
-			return <CoreEmbedBlockEdit { ...props } />;
+		// ... and if the user has already decided to keep using the core/video variation.
+		if ( keepUsingCoreVideoVideoPressBlock === true ) {
+			return <JetpackCoreVideoBlockEdit { ...props } />;
 		}
 
 		const moreAboutVideoPress = createInterpolateElement(
 			__(
-				'Convert this embed to a VideoPress video block to unlock advanced video player options. <moreAboutVideoPressLink>More about the VideoPress block</moreAboutVideoPressLink>',
+				'There is <moreAboutVideoPressLink>a new VideoPress video block</moreAboutVideoPressLink> available',
 				'jetpack-videopress-pkg'
 			),
 			{
@@ -78,16 +70,16 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 						<Button
 							key="convert"
 							variant="primary"
-							onClick={ () => setAttributes( { keepUsingOEmbedVariation: false } ) }
+							onClick={ () => setAttributes( { keepUsingCoreVideoVideoPressBlock: false } ) }
 						>
 							{ __( 'Use VideoPress Video block', 'jetpack-videopress-pkg' ) }
 						</Button>,
 						<Button
 							key="convert"
 							variant="tertiary"
-							onClick={ () => setAttributes( { keepUsingOEmbedVariation: true } ) }
+							onClick={ () => setAttributes( { keepUsingCoreVideoVideoPressBlock: true } ) }
 						>
-							{ __( 'Keep using the Embed block', 'jetpack-videopress-pkg' ) }
+							{ __( 'Keep using the current version', 'jetpack-videopress-pkg' ) }
 						</Button>,
 					] }
 				>
@@ -96,11 +88,11 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 
 				<div className="wp-extended-block-wrapper is-disabled">
 					<div className="extended-block-player__overlay" />
-					<CoreEmbedBlockEdit { ...props } />
+					<JetpackCoreVideoBlockEdit { ...props } />
 				</div>
 			</div>
 		);
 	};
-}, 'withCoreEmbedVideoPressBlock' );
+}, 'withJetpackVideoPressBlockEdit' );
 
-export default withCoreEmbedVideoPressBlock;
+export default withJetpackVideoPressBlockEdit;
