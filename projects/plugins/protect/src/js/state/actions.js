@@ -8,7 +8,7 @@ const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
-const SET_SECURITY_BUNDLE = 'SET_SECURITY_BUNDLE';
+const SET_JETPACK_SCAN = 'SET_JETPACK_SCAN';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
 const SET_THREAT_IS_UPDATING = 'SET_THREAT_IS_UPDATING';
 const SET_MODAL = 'SET_MODAL';
@@ -82,8 +82,8 @@ const setwpVersion = version => {
 	return { type: SET_WP_VERSION, version };
 };
 
-const setSecurityBundle = bundle => {
-	return { type: SET_SECURITY_BUNDLE, bundle };
+const setJetpackScan = scan => {
+	return { type: SET_JETPACK_SCAN, scan };
 };
 
 const setProductData = productData => {
@@ -179,7 +179,7 @@ const actions = {
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
-	setSecurityBundle,
+	setJetpackScan,
 	setProductData,
 	ignoreThreat,
 	setModal,
@@ -194,7 +194,7 @@ export {
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
-	SET_SECURITY_BUNDLE,
+	SET_JETPACK_SCAN,
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,

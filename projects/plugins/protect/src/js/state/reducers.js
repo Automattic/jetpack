@@ -6,7 +6,7 @@ import {
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
-	SET_SECURITY_BUNDLE,
+	SET_JETPACK_SCAN,
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
@@ -60,17 +60,17 @@ const wpVersion = ( state = {}, action ) => {
 	return state;
 };
 
-const securityBundle = ( state = {}, action ) => {
+const jetpackScan = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_SECURITY_BUNDLE:
-			return action.bundle;
+		case SET_JETPACK_SCAN:
+			return action.scan;
 	}
 	return state;
 };
 
 const productData = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_SECURITY_BUNDLE:
+		case SET_JETPACK_SCAN:
 			return action.productData;
 	}
 	return state;
@@ -107,7 +107,7 @@ const reducers = combineReducers( {
 	installedPlugins,
 	installedThemes,
 	wpVersion,
-	securityBundle,
+	jetpackScan,
 	productData,
 	threatsUpdating,
 	modal,

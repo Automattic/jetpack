@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Create new videopress/v1/site endpoint to fetch site data regardless of having the Jetpack plugin active on the target site.

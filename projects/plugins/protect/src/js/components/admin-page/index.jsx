@@ -25,7 +25,7 @@ import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 
-export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
+export const JETPACK_SCAN = 'jetpack_scan';
 
 /**
  * SeventyFive layout meta component
@@ -74,16 +74,14 @@ export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile 
 
 const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			showHeader={ false }
-			showBackground={ false }
-		>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col sm={ 4 } md={ 8 } lg={ 12 }>
-					<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
-				</Col>
-			</Container>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<AdminSectionHero>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col sm={ 4 } md={ 8 } lg={ 12 }>
+						<Interstitial onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />
+					</Col>
+				</Container>
+			</AdminSectionHero>
 		</AdminPage>
 	);
 };
@@ -282,7 +280,7 @@ const Admin = () => {
 	useStatusPolling();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 

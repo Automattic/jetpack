@@ -115,5 +115,4 @@ class Threats {
 
 		return true;
 	}
-
 }

@@ -23,21 +23,33 @@ export default function useVideo( id: number | string ) {
 		[ id ]
 	);
 
+	const metadata = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
+		[ id ]
+	);
+
+	// Is Fetching
+	// @todo: this prop should not be here but in useVideos() hook
+	const isFetching = useSelect(
+		select => ( select( STORE_ID ) as VideopressSelectors ).getIsFetching(),
+		[]
+	);
+
+	const processing = videoData?.posterImage === null && ! videoData?.finished; // Video is processing if it has no poster image and it's not finished.
+
 	return {
 		// Data
-		data: { ...videoData, privacySetting: VIDEO_PRIVACY_LEVEL_PUBLIC },
+		data: {
+			privacySetting: VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ),
+			...videoData,
+		},
 
-		// Is Fetching
-		// @todo: this prop should not be here but in useVideos() hook
-		isFetching: useSelect(
-			select => ( select( STORE_ID ) as VideopressSelectors ).getIsFetching(),
-			[]
-		),
+		// Video Meta Data
+		...metadata,
 
-		...useSelect(
-			select => ( select( STORE_ID ) as VideopressSelectors ).getVideoStateMetadata( id ),
-			[]
-		),
+		processing,
+
+		isFetching,
 
 		// Handlers
 		setVideo: ( video: VideoPressVideo ) => dispatch.setVideo( video ),

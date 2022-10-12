@@ -7,7 +7,7 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import Accordion, { AccordionItem } from '../accordion';
-import { SECURITY_BUNDLE } from '../admin-page';
+import { JETPACK_SCAN } from '../admin-page';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
 import styles from './styles.module.scss';
@@ -30,20 +30,20 @@ const ThreatAccordionItem = ( {
 } ) => {
 	const { setModal } = useDispatch( STORE_ID );
 
-	const { securityBundle } = useProtectData();
-	const { hasRequiredPlan } = securityBundle;
-
-	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
+	const { jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
+  
+  const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
 
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
+		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getSecurityBundle = recordEventHandler(
-		'jetpack_protect_vulnerability_list_get_security_link_click',
+	const getScan = recordEventHandler(
+		'jetpack_protect_vulnerability_list_get_scan_link_click',
 		run
 	);
 
@@ -153,15 +153,17 @@ const ThreatAccordionItem = ( {
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
-					<ContextualUpgradeTrigger
-						description={ __(
-							'Looking for advanced scan results and one-click fixes?',
-							'jetpack-protect'
-						) }
-						cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-						onClick={ getSecurityBundle }
-						className={ styles[ 'threat-item-cta' ] }
-					/>
+					{ ! hasRequiredPlan && (
+						<ContextualUpgradeTrigger
+							description={ __(
+								'Looking for advanced scan results and one-click fixes?',
+								'jetpack-protect'
+							) }
+							cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
+							onClick={ getScan }
+							className={ styles[ 'threat-item-cta' ] }
+						/>
+					) }
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }

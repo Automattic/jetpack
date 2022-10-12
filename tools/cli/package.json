@@ -27,6 +27,7 @@
 		"configstore": "5.0.1",
 		"envfile": "6.17.0",
 		"execa": "5.0.0",
+		"tmp": "0.2.1",
 		"glob": "7.1.6",
 		"ignore": "5.1.8",
 		"inquirer": "7.3.3",
