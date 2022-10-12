@@ -27,6 +27,7 @@ import {
 	SET_LOCAL_VIDEOS,
 	SET_LOCAL_VIDEOS_QUERY,
 	SET_LOCAL_VIDEOS_PAGINATION,
+	SET_IS_FETCHING_LOCAL_VIDEOS,
 } from './constants';
 
 /**
@@ -375,6 +376,13 @@ const localVideos = ( state, action ) => {
 				...state,
 				items,
 				isFetching: false,
+			};
+		}
+
+		case SET_IS_FETCHING_LOCAL_VIDEOS: {
+			return {
+				...state,
+				isFetching: action.isFetching,
 			};
 		}
 
