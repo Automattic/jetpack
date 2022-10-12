@@ -29,7 +29,7 @@ const PricingPage = () => {
 	} );
 	const [ isConnecting, setIsConnection ] = useState( false );
 
-	const { run } = useProductCheckoutWorkflow( {
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUri,
@@ -58,7 +58,12 @@ const PricingPage = () => {
 						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
-					<Button onClick={ run } fullWidth disabled={ isConnecting }>
+					<Button
+						onClick={ run }
+						isLoading={ hasCheckoutStarted }
+						fullWidth
+						disabled={ isConnecting || hasCheckoutStarted }
+					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PricingTableHeader>
@@ -82,8 +87,8 @@ const PricingPage = () => {
 							setIsConnection( true );
 							handleRegisterSite();
 						} }
-						isLoading={ userIsConnecting || isConnecting }
-						disabled={ userIsConnecting || isConnecting }
+						isLoading={ userIsConnecting }
+						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
 					</Button>
