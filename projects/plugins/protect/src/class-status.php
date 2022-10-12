@@ -54,7 +54,6 @@ class Status {
 	 * @return Status_Model
 	 */
 	public static function get_status() {
-
 		$use_scan_status = Scan::has_required_plan();
 
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {

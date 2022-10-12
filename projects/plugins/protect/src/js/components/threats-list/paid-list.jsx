@@ -1,15 +1,13 @@
-import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useDispatch } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
-import Accordion, { AccordionItem } from '../accordion';
-import { JETPACK_SCAN } from '../admin-page';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
+import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -19,6 +17,7 @@ const ThreatAccordionItem = ( {
 	filename,
 	fixedIn,
 	icon,
+	fixable,
 	id,
 	name,
 	source,
@@ -30,22 +29,7 @@ const ThreatAccordionItem = ( {
 } ) => {
 	const { setModal } = useDispatch( STORE_ID );
 
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
-  
-  const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
-
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
-		redirectUrl: adminUrl,
-	} );
-
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler(
-		'jetpack_protect_vulnerability_list_get_scan_link_click',
-		run
-	);
+	const { recordEvent } = useAnalyticsTracks();
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -103,17 +87,19 @@ const ThreatAccordionItem = ( {
 	};
 
 	return (
-		<AccordionItem
+		<PaidAccordionItem
 			id={ id }
 			label={ getLabel() }
 			title={ title }
 			icon={ icon }
+			fixable={ fixable }
+			severity={ severity }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
 					return;
 				}
-				recordEventHandler( `jetpack_protect_${ type }_vulnerability_open` );
-			}, [ recordEventHandler, type ] ) }
+				recordEvent( `jetpack_protect_${ type }_threat_open` );
+			}, [ recordEvent, type ] ) }
 		>
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -153,75 +139,99 @@ const ThreatAccordionItem = ( {
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
-					{ ! hasRequiredPlan && (
-						<ContextualUpgradeTrigger
-							description={ __(
-								'Looking for advanced scan results and one-click fixes?',
-								'jetpack-protect'
-							) }
-							cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-							onClick={ getScan }
-							className={ styles[ 'threat-item-cta' ] }
-						/>
-					) }
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			{ hasRequiredPlan && (
-				<div className={ styles[ 'threat-footer' ] }>
-					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
-						{ __( 'Ignore threat', 'jetpack-protect' ) }
+			<div className={ styles[ 'threat-footer' ] }>
+				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+					{ __( 'Ignore threat', 'jetpack-protect' ) }
+				</Button>
+				{ fixable && <Button>{ __( 'Fix threat', 'jetpack-protect' ) }</Button> }
+			</div>
+		</PaidAccordionItem>
+	);
+};
+
+const manualScan = createInterpolateElement(
+	__(
+		'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
+		'jetpack-protect'
+	),
+	{
+		manualScanLink: <a href="#" />,
+	}
+);
+
+const PaidList = ( { list } ) => {
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const fixableCount = list.filter( obj => obj.fixable ).length;
+
+	return (
+		<>
+			<div className={ styles[ 'threat-header' ] }>
+				{ fixableCount > 0 && (
+					<Button variant="primary">
+						{
+							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
+							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
+						}
 					</Button>
-					<Button onClick={ handleFixThreatClick() }>
-						{ __( 'Fix threat', 'jetpack-protect' ) }
-					</Button>
+				) }
+				<Button variant="secondary">{ __( 'Scan now', 'jetpack-protect' ) }</Button>
+			</div>
+			{ ! isSmall && (
+				<div className={ styles[ 'accordion-heading' ] }>
+					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
+					<span>{ __( 'Severity', 'jetpack-protect' ) }</span>
+					<span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span>
+					<span></span>
 				</div>
 			) }
-		</AccordionItem>
+			<PaidAccordion>
+				{ list.map(
+					( {
+						context,
+						description,
+						diff,
+						filename,
+						fixedIn,
+						icon,
+						fixable,
+						id,
+						name,
+						severity,
+						source,
+						table,
+						title,
+						type,
+						version,
+					} ) => (
+						<ThreatAccordionItem
+							context={ context }
+							description={ description }
+							diff={ diff }
+							filename={ filename }
+							fixedIn={ fixedIn }
+							icon={ icon }
+							fixable={ fixable }
+							id={ id }
+							key={ id }
+							name={ name }
+							severity={ severity }
+							source={ source }
+							table={ table }
+							title={ title }
+							type={ type }
+							version={ version }
+						/>
+					)
+				) }
+			</PaidAccordion>
+			<Text className={ styles[ 'manual-scan' ] } variant="body-small">
+				{ manualScan }
+			</Text>
+		</>
 	);
 };
 
-const List = ( { list } ) => {
-	return (
-		<Accordion>
-			{ list.map(
-				( {
-					context,
-					description,
-					diff,
-					filename,
-					fixedIn,
-					icon,
-					id,
-					name,
-					severity,
-					source,
-					table,
-					title,
-					type,
-					version,
-				} ) => (
-					<ThreatAccordionItem
-						context={ context }
-						description={ description }
-						diff={ diff }
-						filename={ filename }
-						fixedIn={ fixedIn }
-						icon={ icon }
-						id={ id }
-						key={ id }
-						name={ name }
-						severity={ severity }
-						source={ source }
-						table={ table }
-						title={ title }
-						type={ type }
-						version={ version }
-					/>
-				)
-			) }
-		</Accordion>
-	);
-};
-
-export default List;
+export default PaidList;

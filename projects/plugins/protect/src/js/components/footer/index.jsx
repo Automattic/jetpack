@@ -22,7 +22,7 @@ const ProductPromotion = () => {
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getJetpackScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
+	const getScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
 
 	const { jetpackScan } = useProtectData();
 	const { hasRequiredPlan } = jetpackScan;
@@ -63,7 +63,7 @@ const ProductPromotion = () => {
 					'jetpack-protect'
 				) }
 				cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-				onClick={ getJetpackScan }
+				onClick={ getScan }
 			/>
 		</div>
 	);
