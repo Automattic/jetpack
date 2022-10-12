@@ -26,10 +26,6 @@ export default function useVideos() {
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
 
-	const uploadedLocalVideoCount = useSelect( select =>
-		select( STORE_ID ).getUploadedLocalVideoCount()
-	);
-
 	return {
 		items,
 		uploading,
@@ -41,7 +37,6 @@ export default function useVideos() {
 		...pagination,
 		...storageUsed,
 
-		uploadedLocalVideoCount,
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
 		setSearch: querySearch =>
@@ -53,7 +48,12 @@ export const useLocalVideos = () => {
 	// Data
 	const items = useSelect( select => select( STORE_ID ).getLocalVideos() );
 
+	const uploadedLocalVideoCount = useSelect( select =>
+		select( STORE_ID ).getUploadedLocalVideoCount()
+	);
+
 	return {
 		items,
+		uploadedLocalVideoCount,
 	};
 };
