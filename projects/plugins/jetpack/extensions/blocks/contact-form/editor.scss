@@ -26,9 +26,8 @@
 
 		.wp-block {
 			flex: 0 0 100%;
-			margin: 0;
+			margin: 0 0 var(--wp--style--block-gap, 1.5rem);
 			border-right: 15px solid transparent;
-			border-bottom: 15px solid transparent;
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,
@@ -162,6 +161,19 @@ input.components-text-control__input {
 	line-height: 16px;
 }
 
+/*
+	Gutenberg adds some default styling to the TextControl component
+	(https://github.com/WordPress/gutenberg/blob/trunk/packages/base-styles/_mixins.scss#L130)
+	For the TextareaControl, since the base styles are added to the StyledComponent,
+	(https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/textarea-control/styles/textarea-control-styles.ts#L13)
+	The output CSS has a lower specificity and it's being overridden on themes like
+	Twenty Twenty-One and Twenty Twenty-Two.
+	Adding this to normalize the styles between the TextControl and TextareaControl
+ */
+textarea.components-textarea-control__input {
+	border: 1px solid #757575;
+}
+
 .jetpack-field {
 	// done to increase elevate specificity in order to overwrite calypso styles
 	.components-text-control__input.components-text-control__input {
@@ -173,6 +185,10 @@ input.components-text-control__input {
 		padding: 12px 8px;
 		box-shadow: unset;
 		width: 100%;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
 	}
 
 	textarea.components-textarea-control__input {
