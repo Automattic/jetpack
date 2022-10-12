@@ -2,6 +2,7 @@
 	export let placement = 'center';
 </script>
 
+&nbsp;&nbsp;
 <div class="jb-context-info">
 	<span class="jb-context-info__icon">i</span>
 	<div class="jb-context-info__container jb-context-info__container--placement-{placement}">

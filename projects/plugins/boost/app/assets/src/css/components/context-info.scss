@@ -6,8 +6,6 @@
 	
     --icon-size: 18px;
 
-	margin-left: calc(12 / 18 * var( --icon-size ));
-
 	&__icon{
 		display: block;
 		width: var( --icon-size );
