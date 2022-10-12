@@ -1,7 +1,11 @@
-import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
+import {
+	ContextualUpgradeTrigger,
+	ThemeProvider,
+	numberFormat,
+} from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import React, { useState, useCallback } from 'react';
 import DonutMeterContainer from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
 
@@ -109,17 +113,59 @@ const UpgradeTrigger = ( { type, ctaCallback } ) => {
 };
 
 const UsageMeters = ( { usageInfo } ) => {
+	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( 1 );
+	const goToNext = useCallback( () => setCurrentTooltipIndex( idx => idx + 1 ), [
+		setCurrentTooltipIndex,
+	] );
+
+	const tooltips = {
+		record: {
+			index: 1,
+			title: __( 'Site records increased', 'jetpack-search-pkg' ),
+			content: sprintf(
+				// translators: %1$s: records limit
+				__(
+					'Thank you for upgrading! Now your visitors can search up to %1$s records.',
+					'jetpack-search-pkg'
+				),
+				numberFormat( usageInfo.recordMax )
+			),
+			section: __( '1 of 2', 'jetpack-search-pkg' ),
+			next: __( 'Next', 'jetpack-search-pkg' ),
+			forceShow: currentTooltipIndex === 1,
+			goToNext,
+		},
+		request: {
+			index: 2,
+			title: __( 'More search requests', 'jetpack-search-pkg' ),
+			content: sprintf(
+				// translators: %1$s: requests limit
+				__(
+					'Your search plugin now supports up to %1$s search requests per month.',
+					'jetpack-search-pkg'
+				),
+				numberFormat( usageInfo.requestMax )
+			),
+			section: __( '2 of 2', 'jetpack-search-pkg' ),
+			next: __( 'Finish', 'jetpack-search-pkg' ),
+			forceShow: currentTooltipIndex === 2,
+			goToNext,
+		},
+	};
+
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
 				title={ __( 'Site records', 'jetpack-search-pkg' ) }
 				current={ usageInfo.recordCount }
 				limit={ usageInfo.recordMax }
+				tooltip={ tooltips.record }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
 				current={ usageInfo.requestCount }
 				limit={ usageInfo.requestMax }
+				tooltip={ tooltips.request }
 			/>
 		</div>
 	);
