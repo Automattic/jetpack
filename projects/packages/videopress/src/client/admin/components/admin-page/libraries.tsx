@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
  */
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { SearchInput } from '../input';
-import { ConnectPagination } from '../pagination';
+import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, FilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
@@ -152,6 +152,7 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 				showQuickActions={ false }
 				videos={ videos }
 			/>
+			<ConnectLocalPagination />
 		</VideoLibraryWrapper>
 	);
 };
