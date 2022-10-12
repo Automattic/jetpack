@@ -96,7 +96,6 @@ const VideoLibraryWrapper = ( {
 			</div>
 			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
@@ -133,6 +132,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
+			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</VideoLibraryWrapper>
 	);
 };
