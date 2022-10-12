@@ -1,4 +1,5 @@
 import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
@@ -144,12 +145,20 @@ const AboutPlanLimits = () => {
 		<div className="usage-meter-about">
 			{ createInterpolateElement(
 				__(
-					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>.',
+					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>. <jpExternalIcon></jpExternalIcon>',
 					'jetpack-search-pkg'
 				),
 				{
 					jpPlanLimits: (
 						<a
+							href="https://jetpack.com/support/search/"
+							rel="noopener noreferrer"
+							target="_blank"
+							className="support-link"
+						/>
+					),
+					jpExternalIcon: (
+						<ExternalLink
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
 							target="_blank"
