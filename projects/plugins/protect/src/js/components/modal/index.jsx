@@ -3,10 +3,12 @@ import { __ } from '@wordpress/i18n';
 import { close as closeIcon, Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
 import IgnoreThreatModal from '../ignore-threat-modal';
+import ScanModal from '../scan-modal';
 import styles from './styles.module.scss';
 
 const MODAL_COMPONENTS = {
 	IGNORE_THREAT: IgnoreThreatModal,
+	SCAN: ScanModal,
 };
 
 const Modal = () => {

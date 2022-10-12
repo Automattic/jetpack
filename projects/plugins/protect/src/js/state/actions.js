@@ -98,6 +98,37 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 	} );
 };
 
+const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
+	return await new Promise( () => {
+		return apiFetch( {
+			path: `jetpack-protect/v1/scan`,
+			method: 'POST',
+		} )
+			.then( () => {
+				return dispatch( refreshStatus() );
+			} )
+			.then( () => {
+				return dispatch(
+					setNotice( {
+						type: 'success',
+						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.catch( () => {
+				return dispatch(
+					setNotice( {
+						type: 'error',
+						message: __( 'An error ocurred enqueuing the scan', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.finally( () => {
+				callback();
+			} );
+	} );
+};
+
 const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };
 };
@@ -118,6 +149,7 @@ const actions = {
 	ignoreThreat,
 	setModal,
 	setNotice,
+	scan,
 };
 
 export {

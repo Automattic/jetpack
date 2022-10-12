@@ -75,8 +75,9 @@
 	margin: 32px 64px;
 	text-align: center;
 
-	> a {
-		color: black;
+	> button span {
+		font-size: var( --font-body-small );
+		font-weight: normal;
 	}
 }
 

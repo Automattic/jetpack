@@ -81,4 +81,43 @@ class Threats {
 		return self::update_threat( $threat_id, array( 'ignore' => true ) );
 	}
 
+		/**
+		 * Scan enqueue
+		 *
+		 * @return bool
+		 */
+	public static function scan() {
+		$blog_id      = Jetpack_Options::get_option( 'id' );
+		$is_connected = ( new Connection_Manager() )->is_connected();
+
+		if ( ! $blog_id || ! $is_connected ) {
+			return new WP_Error( 'site_not_connected' );
+		}
+
+		$api_base = sprintf( '/sites/%d/scan', $blog_id );
+
+		if ( is_wp_error( $api_base ) ) {
+			return false;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			"$api_base/enqueue",
+			'2',
+			array( 'method' => 'POST' ),
+			wp_json_encode( 'test' ),
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code ) {
+			return false;
+		}
+
+		// clear the now out-of-date cache
+		Scan_Status::delete_option();
+
+		return true;
+	}
+
 }

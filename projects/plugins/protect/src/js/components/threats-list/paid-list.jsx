@@ -135,32 +135,45 @@ const ThreatAccordionItem = ( {
 	);
 };
 
-const manualScan = createInterpolateElement(
-	__(
-		'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
-		'jetpack-protect'
-	),
-	{
-		manualScanLink: <a href="#" />,
-	}
-);
-
 const PaidList = ( { list } ) => {
+	const { setModal } = useDispatch( STORE_ID );
+
+	const handleScanClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'SCAN',
+			} );
+		};
+	};
+
+	const manualScan = createInterpolateElement(
+		__(
+			'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
+			'jetpack-protect'
+		),
+		{
+			manualScanLink: <Button variant="link" onClick={ handleScanClick() } />,
+		}
+	);
+
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const fixableCount = list.filter( obj => obj.fixable ).length;
+	const fixableList = list.filter( obj => obj.fixable );
 
 	return (
 		<>
 			<div className={ styles[ 'threat-header' ] }>
-				{ fixableCount > 0 && (
+				{ fixableList.length > 0 && (
 					<Button variant="primary">
 						{
 							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
+							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableList.length )
 						}
 					</Button>
 				) }
-				<Button variant="secondary">{ __( 'Scan now', 'jetpack-protect' ) }</Button>
+				<Button variant="secondary" onClick={ handleScanClick() }>
+					{ __( 'Scan now', 'jetpack-protect' ) }
+				</Button>
 			</div>
 			{ ! isSmall && (
 				<div className={ styles[ 'accordion-heading' ] }>

@@ -284,6 +284,18 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'scan',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_scan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -330,5 +342,20 @@ class Jetpack_Protect {
 		}
 
 		return new WP_REST_Response( 'Threat ignored.' );
+	}
+
+	/**
+	 * Enqueues a scan for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_scan() {
+		$scan_enqueued = Threats::scan();
+
+		if ( ! $scan_enqueued ) {
+			return new WP_REST_Response( 'An error occured while attempting to enqueue the scan.', 500 );
+		}
+
+		return new WP_REST_Response( 'Scan enqueued.' );
 	}
 }
