@@ -157,7 +157,7 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 };
 
 export const ConnectLocalLibrary = () => {
-	const { items: videos, totalVideos } = useLocalVideos();
+	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
 
-	return <LocalLibrary videos={ videos } totalVideos={ totalVideos } />;
+	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
 };
