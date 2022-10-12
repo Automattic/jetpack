@@ -16,7 +16,11 @@ import {
 	SET_LOCAL_VIDEOS_QUERY,
 } from './constants';
 import { getDefaultQuery } from './reducers';
-import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
+import {
+	mapLocalVideosFromWPV2MediaEndpoint,
+	mapVideoFromWPV2MediaEndpoint,
+	mapVideosFromWPV2MediaEndpoint,
+} from './utils/map-videos';
 
 const { apiRoot } = window?.jetpackVideoPressInitialState || {};
 
@@ -191,9 +195,7 @@ const getLocalVideos = {
 	},
 
 	fulfill: () => async ( { dispatch, select } ) => {
-		dispatch.setIsFetchingVideos( true );
-
-		let query = select.getVideosQuery();
+		let query = select.getLocalVideosQuery();
 
 		/*
 		 * If there is no query:
@@ -230,6 +232,7 @@ const getLocalVideos = {
 			dispatch.setLocalVideosPagination( { total, totalPages } );
 
 			const localVideos = await response.json();
+			dispatch.setLocalVideos( mapLocalVideosFromWPV2MediaEndpoint( localVideos ) );
 			return localVideos;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console

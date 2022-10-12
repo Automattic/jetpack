@@ -24,6 +24,7 @@ import {
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
+	SET_LOCAL_VIDEOS,
 	SET_LOCAL_VIDEOS_QUERY,
 	SET_LOCAL_VIDEOS_PAGINATION,
 } from './constants';
@@ -368,6 +369,15 @@ const videos = ( state, action ) => {
 
 const localVideos = ( state, action ) => {
 	switch ( action.type ) {
+		case SET_LOCAL_VIDEOS: {
+			const { videos: items } = action;
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
 		case SET_LOCAL_VIDEOS_QUERY:
 			return {
 				...state,
