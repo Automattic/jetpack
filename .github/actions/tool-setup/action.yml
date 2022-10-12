@@ -67,6 +67,13 @@ runs:
         extensions: mysql, imagick
         coverage: ${{ inputs.coverage }}
 
+    - name: Configure composer
+      if: steps.versions.outputs.php-version != 'false'
+      shell: bash
+      run: |
+        composer config --global github-protocols https
+        composer config --global use-github-api false
+
     - name: Get Composer cache directory
       if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
