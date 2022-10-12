@@ -109,17 +109,31 @@ const UpgradeTrigger = ( { type, ctaCallback } ) => {
 };
 
 const UsageMeters = ( { usageInfo } ) => {
+	// TODO: Implement icon callbacks.
+	const recordsIconClickedCallback = () => {
+		// eslint-disable-next-line no-console
+		console.log( 'Icon clicked for records meter' );
+	};
+	const requestsIconClickedCallback = () => {
+		// eslint-disable-next-line no-console
+		console.log( 'Icon clicked for requests meter' );
+	};
+	// TODO: Implement callback for the toggle details link.
+	// No callback, no toggle.
+
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
 				title={ __( 'Site records', 'jetpack-search-pkg' ) }
 				current={ usageInfo.recordCount }
 				limit={ usageInfo.recordMax }
+				iconClickedCallback={ recordsIconClickedCallback }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
 				current={ usageInfo.requestCount }
 				limit={ usageInfo.requestMax }
+				iconClickedCallback={ requestsIconClickedCallback }
 			/>
 		</div>
 	);
