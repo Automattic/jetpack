@@ -25,6 +25,7 @@ import {
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
 	SET_LOCAL_VIDEOS_QUERY,
+	SET_LOCAL_VIDEOS_PAGINATION,
 } from './constants';
 
 /**
@@ -379,6 +380,20 @@ const localVideos = ( state, action ) => {
 					relyOnInitialState: false,
 				},
 			};
+
+		case SET_LOCAL_VIDEOS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					...action.pagination,
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
+			};
+		}
 	}
 
 	return state;

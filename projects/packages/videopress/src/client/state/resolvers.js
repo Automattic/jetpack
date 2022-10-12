@@ -224,6 +224,11 @@ const getLocalVideos = {
 				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
 			);
 
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+
+			dispatch.setLocalVideosPagination( { total, totalPages } );
+
 			const localVideos = await response.json();
 			return localVideos;
 		} catch ( error ) {
