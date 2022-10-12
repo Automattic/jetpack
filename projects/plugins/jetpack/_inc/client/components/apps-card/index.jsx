@@ -8,6 +8,7 @@ import analytics from 'lib/analytics';
 import detectMobileDevice from 'lib/device-detector';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';
@@ -107,4 +108,4 @@ AppsCard.propTypes = {
 	className: PropTypes.string,
 };
 
-export default AppsCard;
+export default withRouter( AppsCard );
