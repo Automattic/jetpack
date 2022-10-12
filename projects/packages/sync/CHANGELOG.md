@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.39.0] - 2022-10-11
+### Added
+- Added some taxonomies to be indexed by Search. [#26683]
+
 ## [1.38.4] - 2022-09-20
 ### Added
 - Gutenberg Support: add additional theme_supports items to our synced allowlist. [#26239]
@@ -723,6 +727,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.39.0]: https://github.com/Automattic/jetpack-sync/compare/v1.38.4...v1.39.0
 [1.38.4]: https://github.com/Automattic/jetpack-sync/compare/v1.38.3...v1.38.4
 [1.38.3]: https://github.com/Automattic/jetpack-sync/compare/v1.38.2...v1.38.3
 [1.38.2]: https://github.com/Automattic/jetpack-sync/compare/v1.38.1...v1.38.2

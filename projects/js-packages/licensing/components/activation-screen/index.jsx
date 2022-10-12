@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -75,6 +76,9 @@ const ActivationScreen = props => {
 
 		setLicenseError( null );
 		setIsSaving( true );
+
+		jetpackAnalytics.tracks.recordJetpackClick( { target: 'license_activation_button' } );
+
 		// returning our promise chain makes testing a bit easier ( see ./test/components.jsx - "should render an error from API" )
 		return restApi
 			.attachLicenses( [ license ] )
@@ -82,9 +86,11 @@ const ActivationScreen = props => {
 				const activatedProductId = parseAttachLicensesResult( result );
 				setActivatedProduct( activatedProductId );
 				onActivationSuccess( activatedProductId );
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_success' );
 			} )
 			.catch( error => {
 				setLicenseError( error.message );
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_error' );
 			} )
 			.finally( () => {
 				setIsSaving( false );

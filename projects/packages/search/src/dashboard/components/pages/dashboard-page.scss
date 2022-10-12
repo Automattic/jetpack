@@ -30,6 +30,10 @@ body {
 	// 65px = wpfooter height
 	min-height: calc( 100vh - 65px - 32px );
 
+	@include for-phone-down {
+		font-size: 14px;
+	}
+
 	.jp-search-dashboard-page {
 		width: 100%;
 	}
@@ -73,8 +77,10 @@ body {
 		background-color: $white;
 	}
 
-	@include for-phone-down {
-		font-size: 14px;
+	.jp-search-dashboard-header__logo-container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
 }
 
@@ -82,25 +88,10 @@ body {
 	display: flex;
 	align-items: center;
 	height: 64px;
+	margin-bottom: 24px;
 
 	& > *:not( :first-child ) {
 		margin-left: 183px;
-	}
-}
-
-.upgrade-trigger {
-	position: relative;
-	margin-top: 24px;
-	padding: 16px 43px 16px 24px;
-	border: 2px solid $studio-jetpack-green-40;
-	border-radius: 4px;
-	line-height: 24px;
-	cursor: pointer;
-
-	& svg {
-		position: absolute;
-		right: 24px;
-		bottom: 32px;
 	}
 }
 
@@ -108,7 +99,8 @@ body {
 	margin-top: 24px;
 	line-height: 24px;
 
-	& u {
+	.support-link {
+		color: $studio-black;
 		cursor: pointer;
 	}
 }

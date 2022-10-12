@@ -6,6 +6,7 @@ import {
 	PricingTableItem,
 	ProductPrice,
 	getRedirectUrl,
+	useBreakpointMatch,
 	Text,
 } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -17,6 +18,8 @@ import styles from './styles.module.scss';
 const PricingPage = () => {
 	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
+
+	const [ isLarge ] = useBreakpointMatch( 'lg' );
 
 	const hidePricingPage = useCallback( () => {
 		const newOption = {
@@ -42,7 +45,7 @@ const PricingPage = () => {
 						price={ 10 }
 						offPrice={ 1 }
 						promoLabel={ __( '90% off*', 'jetpack-social' ) }
-						leyend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
 						hidePriceFraction={ true }
 					/>
@@ -80,8 +83,13 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
-					<Button fullWidth variant="secondary" onClick={ hidePricingPage }>
+					<ProductPrice price={ 0 } legend="" currency="USD" hidePriceFraction />
+					<Button
+						fullWidth
+						variant="secondary"
+						onClick={ hidePricingPage }
+						className={ isLarge && styles.button }
+					>
 						{ __( 'Start for free', 'jetpack-social' ) }
 					</Button>
 				</PricingTableHeader>

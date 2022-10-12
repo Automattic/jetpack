@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { Button, ThemeProvider } from '@automattic/jetpack-components';
+import { Button, ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import { useState } from 'react';
 import { ReactNode } from 'react';
 /**
@@ -27,6 +28,7 @@ const VideoThumbnailSelectorModal = ( {
 	handleConfirmFrame,
 }: VideoThumbnailSelectorModalProps ) => {
 	const [ modalRef, setModalRef ] = useState< HTMLDivElement | null >( null );
+	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	return (
 		<Modal
@@ -35,7 +37,12 @@ const VideoThumbnailSelectorModal = ( {
 			isDismissible={ false }
 		>
 			<ThemeProvider targetDom={ modalRef }>
-				<div ref={ setModalRef } className={ styles.selector }>
+				<div
+					ref={ setModalRef }
+					className={ classnames( styles.selector, {
+						[ styles[ 'is-small' ] ]: isSm,
+					} ) }
+				>
 					<VideoFrameSelector
 						src={ url }
 						onVideoFrameSelected={ handleVideoFrameSelected }
