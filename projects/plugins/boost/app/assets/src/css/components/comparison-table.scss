@@ -2,37 +2,37 @@
 	--gap: 12px;
 	--padding: 32px;
 
-    > div {
-        > *  {
-            padding-left: var( --padding );
-            padding-right: var( --padding );
-        }
+	> div {
+		> *  {
+			padding-left: var( --padding );
+			padding-right: var( --padding );
+		}
 
-        > hr {
-            margin: 0 var( --padding );
-            border-top: 0;
-            border-bottom: 1px solid $gray_5;
-        }
-    }
+		> hr {
+			margin: 0 var( --padding );
+			border-top: 0;
+			border-bottom: 1px solid $gray_5;
+		}
+	}
 
 	&__feature-row {
 		padding-top: calc( var( --padding ) / 2 );
 		padding-bottom: calc( var( --padding ) / 2 );
-        margin-top: 0;
-        margin-bottom: 0;
-        display: flex;
-        align-items: center;
+		margin-top: 0;
+		margin-bottom: 0;
+		display: flex;
+		align-items: center;
 
-        .jb-icon {
-            flex: none;
-        }
+		.jb-icon {
+			flex: none;
+		}
 
 	}
 
-    &__feature-elaborate {
-        display: block;
-        flex: 1;
-    }
+	&__feature-elaborate {
+		display: block;
+		flex: 1;
+	}
 
 	&__cta {
 		.jb-button {
@@ -45,7 +45,7 @@
 		}
 	}
 
-    // & & for specificity
+	// & & for specificity
 	& &__main {
 		> * {
 			padding-left: 0;
@@ -53,9 +53,9 @@
 		}
 
 		> h1 {
-            padding: calc( var( --gap ) * 2 );
-            padding-left: 0;
-            padding-right: var( --padding );
+			padding: calc( var( --gap ) * 2 );
+			padding-left: 0;
+			padding-right: var( --padding );
 			font-size: calc( 36 / 16 ) * 1rem;
 			font-weight: 700;
 			outline: none;
@@ -65,27 +65,27 @@
 		}
 	}
 
-    & &__tier {
-        header {
-            overflow: hidden;
-        }
+	& &__tier {
+		header {
+			overflow: hidden;
+		}
 
 		> :first-child {
 			padding: var( --padding );
 			padding-bottom: 0;
 		}
-    }
+	}
 
 	/*
-     * Style for pricing card.
-     */
+	 * Style for pricing card.
+	 */
 	&__tier--card {
-        background-color: white;
-        box-shadow: 0px 4px 24px rgb( 0 0 0 / 5% );
+		background-color: white;
+		box-shadow: 0px 4px 24px rgb( 0 0 0 / 5% );
 
-        // Clip the shadow of the card to visually keep the card as a single unit.
-        -webkit-clip-path: inset( 0px -24px -24px -24px );
-        clip-path: inset( 0px -24px -24px -24px );
+		// Clip the shadow of the card to visually keep the card as a single unit.
+		-webkit-clip-path: inset( 0px -24px -24px -24px );
+		clip-path: inset( 0px -24px -24px -24px );
 
 		> *:first-child {
 			border-top-left-radius: $border-radius;
@@ -104,57 +104,57 @@
 
 
 
-    @include breakpoint( 'md' ) {
-        display: grid;
-        grid-template-columns: 5fr 4fr 4fr;
-        grid-auto-flow: column;
-        grid-template-rows: repeat( var( --rows ), minmax( min-content, max-content ) );
+	@include breakpoint( 'md' ) {
+		display: grid;
+		grid-template-columns: 5fr 4fr 4fr;
+		grid-auto-flow: column;
+		grid-template-rows: repeat( var( --rows ), minmax( min-content, max-content ) );
 
-        // The last pricing tier should not have any right margin
-        > :last-child > * {
-            margin-right: 0;
-        }
+		// The last pricing tier should not have any right margin
+		> :last-child > * {
+			margin-right: 0;
+		}
 
-        > div {
-            display: contents;
-    
-            > * {
-                margin: 0 var( --gap );
-            }
+		> div {
+			display: contents;
+	
+			> * {
+				margin: 0 var( --gap );
+			}
 
-            > hr {
-                margin: 0;
-                margin-left: 0;
-                margin-right: 0;
-            }
-    
-            // The last pricing tier should not have any right margin
-            &:last-child > * {
-                margin-right: 0;
-            }
-        }
+			> hr {
+				margin: 0;
+				margin-left: 0;
+				margin-right: 0;
+			}
+	
+			// The last pricing tier should not have any right margin
+			&:last-child > * {
+				margin-right: 0;
+			}
+		}
 
-        &__tier {
-            > * {
-                width: 400px;
-                max-width: 100%;
-            }
-    
-            &--card > * {
-                background-color: inherit;
-                box-shadow: inherit;
-                -webkit-clip-path: inherit;
-                clip-path: inherit;
-            }
+		&__tier {
+			> * {
+				width: 400px;
+				max-width: 100%;
+			}
+	
+			&--card > * {
+				background-color: inherit;
+				box-shadow: inherit;
+				-webkit-clip-path: inherit;
+				clip-path: inherit;
+			}
 
-            > hr {
-                width: unset;
-                max-width: unset;
-                background-color: unset;
-                box-shadow: unset;
-                -webkit-clip-path: unset;
-                clip-path: unset;
-            }
-        }
-    }
+			> hr {
+				width: unset;
+				max-width: unset;
+				background-color: unset;
+				box-shadow: unset;
+				-webkit-clip-path: unset;
+				clip-path: unset;
+			}
+		}
+	}
 }

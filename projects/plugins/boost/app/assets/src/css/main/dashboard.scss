@@ -1,7 +1,7 @@
 .jb-settings {
 	font-size: 16px;
 
-  	&--main {
+	&--main {
 	  background-color: $primary-white;
 	}
 
@@ -31,7 +31,7 @@
 }
 
 .jb-section--scores {
-  	position: relative;
+	position: relative;
 }
 
 .jb-container {
@@ -44,11 +44,11 @@
 		max-width: 744px;
 	}
 
-  	&--fixed {
-	  max-width: 1080px;
-	  width: auto;
-	  padding-left: $spacing-unit * 2;
-	  padding-right: $spacing-unit * 2;
+	&--fixed {
+		max-width: 1080px;
+		width: auto;
+		padding-left: $spacing-unit * 2;
+		padding-right: $spacing-unit * 2;
 	}
 }
 
@@ -119,24 +119,24 @@
 		display: flex;
 		justify-content: flex-end;
 
-	  	> div {
-		  	display: flex;
+		> div {
+			display: flex;
 			flex-direction: column;
 
-		  	> div {
+			> div {
 				display: flex;
 			}
 		}
 
-	  	button {
-		  	margin-left: auto;
+		button {
+			margin-left: auto;
 
-		  	&.confirm {
+			&.confirm {
 				margin-left: 10px;
 			}
 		}
 
-	  	.checkbox {
+		.checkbox {
 			font-size: 12px;
 			margin-top: 10px;
 		}

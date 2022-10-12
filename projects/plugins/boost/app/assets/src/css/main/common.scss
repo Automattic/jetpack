@@ -38,7 +38,7 @@ $definition-combinations: (
 }
 
 .hidden-md {
-  @include breakpoint( 'md' ) {
-	display: none !important;
-  }
+	@include breakpoint( 'md' ) {
+		display: none !important;
+	}
 }
