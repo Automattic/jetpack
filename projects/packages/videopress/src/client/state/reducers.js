@@ -24,6 +24,7 @@ import {
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
+	SET_LOCAL_VIDEOS_QUERY,
 } from './constants';
 
 /**
@@ -364,7 +365,22 @@ const videos = ( state, action ) => {
 	}
 };
 
-const localVideos = state => {
+const localVideos = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_LOCAL_VIDEOS_QUERY:
+			return {
+				...state,
+				query: {
+					...state.query,
+					...action.query,
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
+			};
+	}
+
 	return state;
 };
 
