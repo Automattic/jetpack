@@ -164,4 +164,6 @@ export type VideopressSelectors = {
 	getUploadedVideoCount: () => number;
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
+
+	getUploadedLocalVideoCount: () => number;
 };
