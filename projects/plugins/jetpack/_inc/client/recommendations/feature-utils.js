@@ -433,7 +433,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Automated spam protection is now active for comments and forms. We’ll flag anything that looks suspicious and comments will now be available to moderate.',
 					'jetpack'
 				),
-				ctaText: __( 'Moderate Comments', 'jetpack' ),
+				ctaText: __( 'Configure Anti-spam', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
 				illustration: 'assistant-antispam',
 				skipText: __( 'Next', 'jetpack' ),
@@ -505,7 +505,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Automated spam protection is now active for comments and forms. We’ll flag anything that looks suspicious and comments will now be available to moderate.',
 					'jetpack'
 				),
-				ctaText: __( 'Moderate Comments', 'jetpack' ),
+				ctaText: __( 'Configure Anti-spam', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
 				illustration: 'assistant-antispam',
 				skipText: __( 'Next', 'jetpack' ),

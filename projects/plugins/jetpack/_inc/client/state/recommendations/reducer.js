@@ -352,7 +352,8 @@ const stepToNextStepByPath = {
 			'server-credentials': 'summary',
 		},
 		[ ONBOARDING_JETPACK_SECURITY ]: {
-			welcome__security: 'scan-activated',
+			welcome__security: 'backup-activated',
+			'backup-activated': 'scan-activated',
 			'scan-activated': 'antispam-activated',
 			'antispam-activated': 'monitor',
 			monitor: 'site-accelerator',
