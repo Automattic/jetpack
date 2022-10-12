@@ -347,7 +347,10 @@ class WPCOM_Stats {
 	 * @return array|WP_Error.
 	 */
 	protected function fetch_remote_stats( $endpoint, $args ) {
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, $args );
+		if ( is_array( $args ) && ! empty( $args ) ) {
+			$endpoint .= '?' . http_build_query( $args );
+		}
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 
