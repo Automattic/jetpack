@@ -37,9 +37,8 @@ async function initialize(): Promise< void > {
 		}
 		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
-		partialUpdate( connection );
-
 		await onConnectionComplete();
+		partialUpdate( connection );
 	} catch ( e ) {
 		partialUpdate( {
 			isConnecting: false,

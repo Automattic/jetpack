@@ -1,16 +1,14 @@
 <script>
-	import { derived } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import ContextInfo from '../../elements/ContextInfo.svelte';
 	import ProductPrice from '../../elements/ProductPrice.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import Header from '../../sections/Header.svelte';
-	import { getStarted } from '../../stores/config';
-	import config from '../../stores/config';
+	import config, { getStarted } from '../../stores/config';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
-	const pricing = derived( config, $config => $config.pricing );
+	$: pricing = $config.pricing;
 
 	const cssOptimizationContext = __(
 		'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
@@ -35,9 +33,9 @@
 	const webDevLink = 'https://web.dev/';
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
-	export let navigate;
+	export let navigate, location;
 	const chooseFreePlan = () => {
-		getStarted.done();
+		getStarted();
 		navigate( '/' );
 	};
 
@@ -99,9 +97,9 @@
 				<div class="comparison-table__tier comparison-table__tier--card">
 					<header>
 						<ProductPrice
-							currency={$pricing.yearly.currencyCode}
-							price={$pricing.yearly.priceBefore / 12}
-							offPrice={$pricing.yearly.priceAfter / 12}
+							currency={pricing.yearly.currencyCode}
+							price={pricing.yearly.priceBefore / 12}
+							offPrice={pricing.yearly.priceAfter / 12}
 							priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 							showNotOffPrice={true}
 							promoLabel={__( '50% off', 'jetpack-boost' )}
@@ -181,7 +179,7 @@
 					<header>
 						<ProductPrice
 							price={0}
-							currency={$pricing.yearly.currencyCode}
+							currency={pricing.yearly.currencyCode}
 							hidePriceFraction={true}
 							showNotOffPrice={false}
 							leyend=""

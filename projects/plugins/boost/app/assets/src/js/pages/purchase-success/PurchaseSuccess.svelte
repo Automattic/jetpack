@@ -13,8 +13,8 @@
 	export let location, navigate;
 
 	onMount( async () => {
-		// Disable the get started page
-		getStarted.done();
+		// Disable the getting started page
+		getStarted();
 
 		// Enable cloud-css on a successful upgrade.
 		await updateModuleState( 'cloud-css', true );

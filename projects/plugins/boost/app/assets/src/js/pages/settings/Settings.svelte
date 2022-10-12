@@ -1,5 +1,5 @@
 <script>
-	import { getStarted } from '../../stores/config';
+	import config from '../../stores/config';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -11,7 +11,7 @@
 	export let location, navigate;
 
 	$: {
-		if ( $getStarted ) {
+		if ( $config.site.getStarted ) {
 			navigate( '/getting-started' );
 		}
 	}
