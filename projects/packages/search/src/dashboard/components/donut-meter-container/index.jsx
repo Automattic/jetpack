@@ -1,4 +1,11 @@
-import { DonutMeter, Gridicon, numberFormat } from '@automattic/jetpack-components';
+import {
+	DonutMeter,
+	Gridicon,
+	numberFormat,
+	IconTooltip,
+	Button,
+	ThemeProvider,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 
@@ -16,9 +23,10 @@ const formatNumberWithSeparators = x => {
  * @param {number}prop.current - totalCount to the DonutMeter.
  * @param {number}prop.limit - segmentCount to the DonutMeter.
  * @param {string}prop.title - title to the DonutMeter.
+ * @param {object}prop.tooltip - tooltip data
  * @returns {React.Component} DonutMeterContainer component.
  */
-const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
+const DonutMeterContainer = ( { current = 0, limit = 1, title, tooltip } ) => {
 	// TODO: Remove local callback in favour of props.
 	const tempCallback = () => {
 		// eslint-disable-next-line no-console
@@ -27,16 +35,37 @@ const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
 
 	const usageInfo =
 		formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+
+	const tooltipArgs = {
+		shadowAnchor: true,
+		title: tooltip.title,
+		placement: 'top',
+		forceShow: tooltip.forceShow,
+	};
+
 	return (
-		<div className="donut-meter-container">
-			<div className="donut-meter-wrapper">
-				<DonutMeter segmentCount={ current } totalCount={ limit } />
+		<ThemeProvider>
+			<div className="donut-meter-container">
+				<div className="donut-meter-wrapper">
+					<DonutMeter segmentCount={ current } totalCount={ limit } />
+					<div className="upgrade-tooltip-shadow-anchor">
+						<IconTooltip { ...tooltipArgs }>
+							<>
+								<div>{ tooltip.content }</div>
+								<div className="upgrade-tooltip-actions">
+									<span>{ tooltip.section }</span>
+									<Button onClick={ tooltip.goToNext }>{ tooltip.next }</Button>
+								</div>
+							</>
+						</IconTooltip>
+					</div>
+				</div>
+				<div className="donut-info-wrapper">
+					<InfoPrimary localizedMessage={ title } iconClickedCallback={ tempCallback } />
+					<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ tempCallback } />
+				</div>
 			</div>
-			<div className="donut-info-wrapper">
-				<InfoPrimary localizedMessage={ title } iconClickedCallback={ tempCallback } />
-				<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ tempCallback } />
-			</div>
-		</div>
+		</ThemeProvider>
 	);
 };
 

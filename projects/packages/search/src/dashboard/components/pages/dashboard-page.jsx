@@ -57,6 +57,10 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
+	const isJustUpgraded = useSelect(
+		select => select( STORE_ID ).isFeatureEnabled( 'just_upgraded' ),
+		[]
+	);
 
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 
@@ -122,6 +126,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							recordMeterInfo={ recordMeterInfo }
 							tierSlug={ tierSlug }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
+							isJustUpgraded={ isJustUpgraded }
 						/>
 					) }
 					{ ! isNewPricing && (
@@ -162,7 +167,13 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
+const PlanInfo = ( {
+	hasIndex,
+	recordMeterInfo,
+	tierSlug,
+	sendPaidPlanToCart,
+	isJustUpgraded,
+} ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -177,7 +188,11 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } )
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<>
-					<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
+					<PlanUsageSection
+						planInfo={ planInfo }
+						sendPaidPlanToCart={ sendPaidPlanToCart }
+						isJustUpgraded={ isJustUpgraded }
+					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }
 						postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }
