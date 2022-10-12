@@ -113,6 +113,7 @@ export type OriginalVideoPressVideo = {
 };
 
 export type VideoPressVideo = {
+	uploading: boolean;
 	id: OriginalVideoPressVideo[ 'id' ];
 	guid: OriginalVideoPressVideo[ 'jetpack_videopress_guid' ];
 	title: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'title' ];
@@ -164,4 +165,6 @@ export type VideopressSelectors = {
 	getUploadedVideoCount: () => number;
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
+
+	getUploadedLocalVideoCount: () => number;
 };
