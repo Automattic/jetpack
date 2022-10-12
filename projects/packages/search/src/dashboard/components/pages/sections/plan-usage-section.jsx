@@ -39,7 +39,6 @@ const upgradeTypeFromAPIData = apiData => {
 };
 
 const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
-	// TODO: Add logic for plan limits.
 	const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const usageInfo = usageInfoFromAPIData( planInfo );
 	return (
@@ -121,7 +120,6 @@ const UsageMeters = ( { usageInfo } ) => {
 	};
 	// TODO: Implement callback for the toggle details link.
 	// No callback, no toggle.
-
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
