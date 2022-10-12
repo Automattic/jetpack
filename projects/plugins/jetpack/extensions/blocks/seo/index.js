@@ -19,7 +19,6 @@ export const settings = {
 
 		const prePublishPanelProps = {
 			...generalPanelProps,
-			initialOpen: true,
 			id: 'seo-title',
 		};
 

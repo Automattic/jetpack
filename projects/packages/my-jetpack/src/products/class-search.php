@@ -130,6 +130,8 @@ class Search extends Hybrid_Product {
 			return $pricing;
 		}
 
+		$pricing['estimated_record_count'] = $record_count;
+
 		return array_merge( $pricing, $search_pricing );
 	}
 

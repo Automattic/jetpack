@@ -56,7 +56,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.38.x-dev"
+			"dev-trunk": "1.39.x-dev"
 		}
 	},
 	"config": {

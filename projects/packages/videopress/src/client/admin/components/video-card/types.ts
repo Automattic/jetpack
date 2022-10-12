@@ -13,4 +13,29 @@ export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' | 'id' > &
 		 * Callback to be invoked when clicking on the `Edit video details` button.
 		 */
 		onVideoDetailsClick?: () => void;
+
+		/**
+		 * True when the video is being deleted.
+		 */
+		isDeleting?: boolean;
+
+		/**
+		 * True when is in loading mode.
+		 */
+		loading?: boolean;
+
+		/**
+		 * True when is in uploading mode.
+		 */
+		uploading?: boolean;
+
+		/**
+		 * True when is in processing mode.
+		 */
+		processing?: boolean;
+
+		/**
+		 * True when the video has been deleted in the server-side.
+		 */
+		hasBeenDeleted?: boolean;
 	};

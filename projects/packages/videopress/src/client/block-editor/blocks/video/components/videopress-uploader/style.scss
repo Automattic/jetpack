@@ -113,3 +113,27 @@
 		transition: opacity 0.3s ease-out;
 	}
 }
+
+// Notices and errors
+
+.wp-block-videopress-video .components-notice {
+	padding-left: 15px;
+
+	.components-notice__content {
+		margin-top: 4px;
+		margin-bottom: 4px;
+		line-height: 1.8;
+
+	}
+
+	&.is-error {
+		background-color: $gray-100;
+		border-left-color: $alert-red;
+		border-radius: 2px;
+		position: relative;
+	}
+
+	&.is-dismissible {
+		padding-right: 12px;
+	}
+}

@@ -1,4 +1,5 @@
-import { JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
+import { JetpackFooter, JetpackSearchLogo, Button } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -6,8 +7,10 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
+import FirstRunSection from './sections/first-run-section';
+import PlanUsageSection from './sections/plan-usage-section';
 import './dashboard-page.scss';
 
 /**
@@ -22,6 +25,23 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+
+	// Prepare Checkout action and loading status
+	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
+	const checkSiteHasSearchProduct = useCallback(
+		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
+		[ fetchSearchPlanInfo ]
+	);
+	const { run: sendPaidPlanToCart, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		productSlug: 'jetpack_search',
+		redirectUrl: `${ siteAdminUrl }admin.php?page=jetpack-search`,
+		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+		from: 'jetpack-search',
+		siteSuffix: domain,
+	} );
+
 	const isPageLoading = useSelect(
 		select =>
 			select( STORE_ID ).isResolving( 'getSearchModuleStatus' ) ||
@@ -30,18 +50,24 @@ export default function DashboardPage( { isLoading = false } ) {
 			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
 			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			isLoading,
-		[ isLoading ]
+			isLoading ||
+			hasCheckoutStarted,
+		[ isLoading, hasCheckoutStarted ]
 	);
 
-	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
+	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
+	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
+
+	const isDisabledFromOverLimit = useSelect( select =>
+		select( STORE_ID ).getDisabledFromOverLimit()
+	);
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
 		select( STORE_ID ).isInstantSearchPromotionActive()
 	);
 
-	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
 	const supportsOnlyClassicSearch = useSelect( select =>
@@ -68,28 +94,51 @@ export default function DashboardPage( { isLoading = false } ) {
 	const handleLocalNoticeDismissClick = useDispatch( STORE_ID ).removeNotice;
 	const notices = useSelect( select => select( STORE_ID ).getNotices(), [] );
 
+	// Plan Info data
+	const recordMeterInfo = {
+		lastIndexedDate,
+		postCount,
+		postTypeBreakdown,
+		postTypes,
+		tierMaximumRecords,
+	};
+
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
-					<Header />
+					<Header
+						isUpgradable={ isNewPricing && ! tierSlug }
+						sendPaidPlanToCart={ sendPaidPlanToCart }
+					/>
 					<MockedSearchInterface
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					<RecordMeter
-						postCount={ postCount }
-						postTypeBreakdown={ postTypeBreakdown }
-						tierMaximumRecords={ tierMaximumRecords }
-						lastIndexedDate={ lastIndexedDate }
-						postTypes={ postTypes }
-					/>
+					{ isNewPricing && (
+						<PlanInfo
+							hasIndex={ postCount !== 0 }
+							recordMeterInfo={ recordMeterInfo }
+							tierSlug={ tierSlug }
+							sendPaidPlanToCart={ sendPaidPlanToCart }
+						/>
+					) }
+					{ ! isNewPricing && (
+						<RecordMeter
+							postCount={ postCount }
+							postTypeBreakdown={ postTypeBreakdown }
+							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
+							postTypes={ postTypes }
+						/>
+					) }
 					<div className="jp-search-dashboard-bottom">
 						<ModuleControl
 							siteAdminUrl={ siteAdminUrl }
 							updateOptions={ updateOptions }
 							domain={ domain }
+							isDisabledFromOverLimit={ isDisabledFromOverLimit }
 							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
 							upgradeBillPeriod={ upgradeBillPeriod }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -112,6 +161,35 @@ export default function DashboardPage( { isLoading = false } ) {
 		</>
 	);
 }
+
+const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
+	// Site Info
+	// TODO: Investigate why this isn't returning anything useful.
+	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
+	// Plan Info data
+	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
+	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
+	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
+	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
+
+	return (
+		<>
+			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
+			{ hasIndex && (
+				<>
+					<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
+					<RecordMeter
+						postCount={ recordMeterInfo.postCount }
+						postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }
+						tierMaximumRecords={ recordMeterInfo.tierMaximumRecords }
+						lastIndexedDate={ recordMeterInfo.lastIndexedDate }
+						postTypes={ recordMeterInfo.postTypes }
+					/>
+				</>
+			) }
+		</>
+	);
+};
 
 const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
 	return (
@@ -156,13 +234,20 @@ const Footer = () => {
 	);
 };
 
-const Header = () => {
+const Header = ( { isUpgradable, sendPaidPlanToCart } ) => {
+	const buttonLinkArgs = {
+		children: __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ),
+		variant: 'link',
+		onClick: sendPaidPlanToCart,
+	};
+
 	return (
 		<div className="jp-search-dashboard-header jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<div className="jp-search-dashboard-header__logo-container">
-						<JetpackLogo className="jp-search-dashboard-header__masthead" />
+						<JetpackSearchLogo className="jp-search-dashboard-header__masthead" />
+						{ isUpgradable && <Button { ...buttonLinkArgs } /> }
 					</div>
 				</div>
 			</div>

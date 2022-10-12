@@ -58,7 +58,7 @@ const SiteTypeQuestionComponent = props => {
 				/>
 				<CheckboxAnswer
 					answerKey={ 'site-type-personal' }
-					title={ __( 'This is my personal site', 'jetpack' ) }
+					title={ __( 'This is a personal site', 'jetpack' ) }
 					info={ __(
 						'You built this site yourself, nice work! Personal sites include things like blogs, resume sites, wedding sites, and hobby sites.',
 						'jetpack'

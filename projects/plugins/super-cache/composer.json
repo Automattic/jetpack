@@ -23,6 +23,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-e2e": [
+			"cd tests/e2e && pnpm i && pnpm env:up && pnpm test:run"
+		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},

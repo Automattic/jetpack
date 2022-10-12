@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 /**
@@ -47,27 +47,21 @@ export const CheckboxCheckmark = ( props: { label?: string; for: string } ): JSX
 };
 
 export const FilterSection = ( props ): JSX.Element => {
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
 	return (
 		<div className={ classnames( styles[ 'filters-section' ], props.className ) }>
-			<Container horizontalSpacing={ 4 } horizontalGap={ 1 }>
+			<Container horizontalSpacing={ isSm ? 2 : 4 } horizontalGap={ 2 }>
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
-					<Text variant="body-small" weight="bold">
+					<Text variant="body-extra-small-bold" weight="bold">
 						{ __( 'Uploader', 'jetpack-videopress-pkg' ) }
 					</Text>
 				</Col>
+
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
-					<Text variant="body-small" weight="bold">
+					<Text variant="body-extra-small-bold" weight="bold">
 						{ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 					</Text>
-				</Col>
-				<Col sm={ 4 } md={ 4 } lg={ 4 }>
-					<Text variant="body-small" weight="bold">
-						{ __( 'Rating', 'jetpack-videopress-pkg' ) }
-					</Text>
-				</Col>
-
-				<Col sm={ 4 } md={ 4 } lg={ 4 } />
-				<Col sm={ 4 } md={ 4 } lg={ 4 }>
 					<CheckboxCheckmark
 						for="filter-public"
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
@@ -79,6 +73,9 @@ export const FilterSection = ( props ): JSX.Element => {
 				</Col>
 
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
+					<Text variant="body-extra-small-bold" weight="bold">
+						{ __( 'Rating', 'jetpack-videopress-pkg' ) }
+					</Text>
 					<CheckboxCheckmark for="filter-g" label={ __( 'G', 'jetpack-videopress-pkg' ) } />
 					<CheckboxCheckmark for="filter-pg-13" label={ __( 'PG-13', 'jetpack-videopress-pkg' ) } />
 					<CheckboxCheckmark for="filter-r" label={ __( 'R', 'jetpack-videopress-pkg' ) } />

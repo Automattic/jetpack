@@ -13,7 +13,7 @@ There have been updates for the Jetpack Recommendations Assistant. In particular
 
 - With the Jetpack Beta Tester [plugin](https://jetpack.com/download-jetpack-beta/) activated, and the 11.4-beta branch active, on the main dashboard page `/wp-admin/admin.php?page=jetpack#/dashboard` there is an option in the footer to "Reset Options (dev only)" which can be used to reset the recommendation steps if they have already been completed.
 - Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- Select "This is my personal site".
+- Select "This is a personal site".
 - Then select "Continue", it should skip straight to the Downtime Monitoring recommendation.
 - Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
 - This time, select the "I build or manage this site for a client" option.
