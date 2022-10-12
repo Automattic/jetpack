@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.0] - 2022-10-11
+### Added
+- Search Dashboard: Add support for conditional CUTs. [#26656]
+
+### Changed
+- Apply ContextualUpgradeTrigger with checkout CTA [#26633]
+- Apply tier and latest month usage to plan summary [#26695]
+- Apply upgrade trigger displaying conditions and messages from API data [#26712]
+- Stop controls when usage over plan limit months. [#26732]
+- Updated package dependencies. [#26640]
+
+### Fixed
+- Fixed search dashboard for simple sites. [#26713]
+- Search Dashboard: Add support link for plan limits. [#26694]
+- Search Dashboard: Refactoring of new UI components. [#26723]
+- Search Dashboard: Rename variables to avoid jargon. [#26691]
+
+## [0.25.0] - 2022-10-05
+### Added
+- Added string translations used for the new pricing table [#26595]
+- Components: Added UsageMeter along with DonutMeterContainer JS component. [#26344]
+- Search: add post type breakdown endpoint [#26463]
+
+### Changed
+- Apply JetpackSearchLogo and replace footer link to upsell page [#26481]
+- Search: add connection support for new pricing page [#26573]
+- Search Dashboard: Added first run and usage section components. [#26639]
+- Updated package dependencies. [#26457]
+- Use library method for number formatting. [#26636]
+
+### Fixed
+- Search: fix redirection after purchase [#26598]
+
+## [0.24.0] - 2022-10-03
+### Changed
+- Fix styles of Control components on page side to avoid deprecating component styles affecting. [#26567]
+
 ## [0.23.0] - 2022-09-27
 ### Added
 - Added stories for the NoticeBox component [#26367]
@@ -499,6 +536,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.26.0]: https://github.com/Automattic/jetpack-search/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/jetpack-search/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/jetpack-search/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/Automattic/jetpack-search/compare/v0.22.2...v0.23.0
 [0.22.2]: https://github.com/Automattic/jetpack-search/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/Automattic/jetpack-search/compare/v0.22.0...v0.22.1

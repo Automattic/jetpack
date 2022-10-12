@@ -194,10 +194,9 @@ export const getStepContent = stepSlug => {
 				question: __( 'Manage your clients’ sites with ease', 'jetpack' ),
 				// eslint-disable-next-line @wordpress/i18n-translator-comments
 				description: __(
-					'Jetpack’s world-class security features are now easier to manage for anyone with at least five WordPress websites.<br/><br/>Purchase and manage licenses, and get a 60% discount with our licensing platform.<br/><br/><ExternalLink>Learn More</ExternalLink>',
+					'Jetpack’s world-class security features are now easier to manage for anyone with at least five WordPress websites.<br/><br/>Purchase and manage licenses, and get a 60% discount with our licensing platform.',
 					'jetpack'
 				),
-				descriptionLink: getRedirectUrl( 'jetpack-for-agencies-assistant-recommendation' ),
 				ctaText: __( 'Get Jetpack for Agencies', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
 				illustration: 'assistant-agency',

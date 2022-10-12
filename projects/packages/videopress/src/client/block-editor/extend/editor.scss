@@ -1,0 +1,25 @@
+.extended-block-warning {
+	margin-bottom: 8px;
+
+	.block-editor-warning__actions {
+		flex-wrap: wrap;
+	}
+}
+
+.wp-extended-block-wrapper {
+	position: relative;
+
+	&.is-disabled {
+		opacity: 0.5;
+	}
+
+	.extended-block-player__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		z-index: 2;
+	}
+}

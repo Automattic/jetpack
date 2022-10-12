@@ -7,6 +7,7 @@
 
 .price-container {
 	flex-grow: 2;
+	flex-basis: 0;
 }
 
 .price {
@@ -36,7 +37,7 @@
 	}
 }
 
-.leyend {
+.legend {
 	color: var( --jp-gray-40 );
 	margin-bottom: calc( var( --spacing-base ) * 3 );
 	font-size: var(--font-body-small);

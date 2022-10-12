@@ -74,7 +74,7 @@ export default function PublicizeForm( {
 									),
 									{
 										upgradeLink: (
-											<ExternalLink
+											<a
 												href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
 													site: getSiteFragment(),
 													query: 'redirect_to=' + window.location.href,
