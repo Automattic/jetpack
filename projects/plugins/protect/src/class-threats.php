@@ -81,11 +81,11 @@ class Threats {
 		return self::update_threat( $threat_id, array( 'ignore' => true ) );
 	}
 
-		/**
-		 * Scan enqueue
-		 *
-		 * @return bool
-		 */
+	/**
+	 * Scan enqueue
+	 *
+	 * @return bool
+	 */
 	public static function scan() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$is_connected = ( new Connection_Manager() )->is_connected();
@@ -100,11 +100,11 @@ class Threats {
 			return false;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			"$api_base/enqueue",
 			'2',
 			array( 'method' => 'POST' ),
-			wp_json_encode( 'test' ),
+			null,
 			'wpcom'
 		);
 

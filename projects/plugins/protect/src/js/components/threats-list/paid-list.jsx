@@ -136,14 +136,12 @@ const ThreatAccordionItem = ( {
 };
 
 const PaidList = ( { list } ) => {
-	const { setModal } = useDispatch( STORE_ID );
+	const { scan } = useDispatch( STORE_ID );
 
 	const handleScanClick = () => {
 		return event => {
 			event.preventDefault();
-			setModal( {
-				type: 'SCAN',
-			} );
+			scan();
 		};
 	};
 
