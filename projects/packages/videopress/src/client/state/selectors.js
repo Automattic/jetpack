@@ -21,6 +21,10 @@ export const getUploadedVideoCount = state => {
 	return state?.videos?.uploadedVideoCount;
 };
 
+export const getUploadedLocalVideoCount = state => {
+	return state?.localVideos?.uploadedVideoCount;
+};
+
 export const getIsFetching = state => {
 	return state?.videos?.isFetching;
 };
@@ -61,6 +65,7 @@ export const getLocalVideos = state => {
 };
 
 const selectors = {
+	// VideoPress videos
 	getVideos,
 	getUploadingVideos,
 	getVideosQuery,
@@ -69,6 +74,9 @@ const selectors = {
 	getIsFetching,
 	getIsFetchingUploadedVideoCount,
 	getStorageUsed,
+
+	// Local videos
+	getUploadedLocalVideoCount,
 
 	getVideo,
 	getVideoStateMetadata,
