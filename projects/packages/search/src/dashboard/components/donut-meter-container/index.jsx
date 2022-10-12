@@ -29,8 +29,9 @@ const DonutMeterContainer = ( {
 } ) => {
 	// Special case for "unlimited" requests.
 	const isUnlimitedRequests = limit === 9223372036854776000;
+	// const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
 	const usageInfo = isUnlimitedRequests
-		? '0/Unlimited'
+		? `0/${ __( 'Unlimited', 'jetpack-search-pkg' ) }`
 		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	const displayCurrent = isUnlimitedRequests ? 1 : current;
 	const displayLimit = isUnlimitedRequests ? 1 : limit;
