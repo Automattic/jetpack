@@ -56,6 +56,10 @@ export const getPurchases = state => {
 	return state?.purchases?.items || [];
 };
 
+export const getLocalVideos = state => {
+	return state?.localVideos?.items || [];
+};
+
 const selectors = {
 	getVideos,
 	getUploadingVideos,
@@ -71,6 +75,8 @@ const selectors = {
 
 	getPurchases,
 	isFetchingPurchases,
+
+	getLocalVideos,
 };
 
 export default selectors;

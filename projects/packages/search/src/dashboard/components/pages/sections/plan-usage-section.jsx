@@ -1,26 +1,54 @@
 import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import DonutMeterContainer from '../../donut-meter-container';
+import PlanSummary from './plan-summary';
 
 // import './plan-usage-section.scss';
 
-// TODO: Replace local PlanSummary component with new component when ready.
-const PlanUsageSection = props => {
-	if ( ! props.isVisible ) {
+const usageInfoFromAPIData = apiData => {
+	// Transform the data as necessary.
+	// Are there better defaults for the Max values?
+	// Should we recored, log, or otherwise surface potential errors here?
+	return {
+		recordCount: apiData?.currentUsage?.num_records || 0,
+		recordMax: apiData?.currentPlan?.record_limit || 0,
+		requestCount: apiData?.latestMonthRequests?.num_requests || 0,
+		requestMax: apiData?.currentPlan.monthly_search_request_limit || 0,
+	};
+};
+
+const upgradeTypeFromAPIData = apiData => {
+	// Determine if upgrade message is needed.
+	if ( ! apiData.currentUsage.must_upgrade ) {
 		return null;
 	}
+
+	// Determine appropriate upgrade message.
+	let mustUpgradeReason = '';
+	if ( apiData.currentUsage.upgrade_reason.requests ) {
+		mustUpgradeReason = 'requests';
+	}
+	if ( apiData.currentUsage.upgrade_reason.records ) {
+		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
+	}
+
+	return mustUpgradeReason;
+};
+
+const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
 	// TODO: Add logic for plan limits.
-	const upgradeMessage = null;
+	const upgradeType = upgradeTypeFromAPIData( planInfo );
+	const usageInfo = usageInfoFromAPIData( planInfo );
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary />
-					<UsageMeters />
-					<UpgradeTrigger type={ upgradeMessage } />
+					<PlanSummary planInfo={ planInfo } />
+					<UsageMeters usageInfo={ usageInfo } />
+					<UpgradeTrigger type={ upgradeType } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
@@ -29,25 +57,7 @@ const PlanUsageSection = props => {
 	);
 };
 
-const PlanSummary = () => {
-	return (
-		<h2>
-			{ createInterpolateElement(
-				sprintf(
-					// translators: %1$s: usage period, %2$s: plan name
-					__( 'Your usage <s>%1$s (%2$s)</s>', 'jetpack-search-pkg' ),
-					'Sep 28-Oct 28',
-					__( 'Free plan', 'jetpack-search-pkg' )
-				),
-				{
-					s: <span />,
-				}
-			) }
-		</h2>
-	);
-};
-
-export const getUpgradeMessages = () => {
+const getUpgradeMessages = () => {
 	const upgradeMessages = {
 		records: {
 			description: __(
@@ -83,16 +93,10 @@ export const getUpgradeMessages = () => {
 	return upgradeMessages;
 };
 
-const UpgradeTrigger = props => {
-	// TODO: Replace this callback with prop.
-	const callbackForwarder = event => {
-		event.preventDefault();
-		// callback();
-		// eslint-disable-next-line no-console
-		console.log( 'CUT clicked...' );
-	};
-	const upgradeMessage = props.type && getUpgradeMessages()[ props.type ];
-	const triggerData = upgradeMessage && { ...upgradeMessage, onClick: callbackForwarder };
+const UpgradeTrigger = ( { type, ctaCallback } ) => {
+	const upgradeMessage = type && getUpgradeMessages()[ type ];
+	const triggerData = upgradeMessage && { ...upgradeMessage, onClick: ctaCallback };
+
 	return (
 		<>
 			{ triggerData && (
@@ -104,18 +108,18 @@ const UpgradeTrigger = props => {
 	);
 };
 
-const UsageMeters = () => {
+const UsageMeters = ( { usageInfo } ) => {
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
 				title={ __( 'Site records', 'jetpack-search-pkg' ) }
-				current={ 1250 }
-				limit={ 5000 }
+				current={ usageInfo.recordCount }
+				limit={ usageInfo.recordMax }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
-				current={ 125 }
-				limit={ 500 }
+				current={ usageInfo.requestCount }
+				limit={ usageInfo.requestMax }
 			/>
 		</div>
 	);

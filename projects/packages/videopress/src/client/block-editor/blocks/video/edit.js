@@ -12,12 +12,12 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { getVideoPressUrl } from '../../../utils/url/index.js';
 import { VideoPressIcon } from './components/icons';
 import VideoPressInspectorControls from './components/inspector-controls';
 import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
-import { getVideoPressUrl } from './utils/url';
 import { description, title } from '.';
 
 import './editor.scss';
