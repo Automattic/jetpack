@@ -196,6 +196,7 @@ const getLocalVideos = {
 
 	fulfill: () => async ( { dispatch, select } ) => {
 		let query = select.getLocalVideosQuery();
+		dispatch.setIsFetchingLocalVideos( true );
 
 		/*
 		 * If there is no query:
