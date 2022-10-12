@@ -27,12 +27,17 @@ const DonutMeterContainer = ( {
 	iconClickedCallback,
 	linkClickedCallback,
 } ) => {
-	const usageInfo =
-		formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+	// Special case for "unlimited" requests.
+	const isUnlimitedRequests = limit === 9223372036854776000;
+	const usageInfo = isUnlimitedRequests
+		? '0/Unlimited'
+		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+	const displayCurrent = isUnlimitedRequests ? 1 : current;
+	const displayLimit = isUnlimitedRequests ? 1 : limit;
 	return (
 		<div className="donut-meter-container">
 			<div className="donut-meter-wrapper">
-				<DonutMeter segmentCount={ current } totalCount={ limit } />
+				<DonutMeter segmentCount={ displayCurrent } totalCount={ displayLimit } />
 			</div>
 			<div className="donut-info-wrapper">
 				<InfoPrimary localizedMessage={ title } iconClickedCallback={ iconClickedCallback } />
