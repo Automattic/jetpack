@@ -18,6 +18,7 @@ import {
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
+import useLibraryPosterImage from '../../hooks/use-library-poster-image';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
@@ -42,7 +43,7 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 	};
 
 	return (
-		<Popover position="top left" noArrow={ false } { ...popoverProps }>
+		<Popover position="top center" noArrow { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
@@ -111,6 +112,7 @@ const ThumbnailActionsDropdown = ( { description, onUpdate }: ThumbnailActionsDr
 const PrivacyActionsDropdown = ( {
 	description,
 	privacySetting,
+	isUpdatingPrivacy,
 	onUpdate,
 }: PrivacyActionsDropdownProps ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
@@ -140,6 +142,7 @@ const PrivacyActionsDropdown = ( {
 						aria-expanded={ isOpen }
 						onMouseEnter={ () => setShowPopover( true ) }
 						onMouseLeave={ () => setShowPopover( false ) }
+						disabled={ isUpdatingPrivacy }
 					/>
 					{ showPopover && (
 						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
@@ -198,6 +201,7 @@ const PrivacyActionsDropdown = ( {
 const VideoQuickActions = ( {
 	className,
 	privacySetting,
+	isUpdatingPrivacy,
 	onUpdateVideoThumbnail,
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
@@ -212,6 +216,7 @@ const VideoQuickActions = ( {
 			<PrivacyActionsDropdown
 				onUpdate={ onUpdateVideoPrivacy }
 				privacySetting={ privacySetting }
+				isUpdatingPrivacy={ isUpdatingPrivacy }
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
 			/>
 
@@ -230,9 +235,10 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	}
 
 	const dispatch = useDispatch( STORE_ID );
-	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy } = useVideo( videoId );
+
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
-	const [ updatingThumbnail, setUpdatingThumbnail ] = useState( false );
+	const [ updatingPosterImage, setUpdatingPosterImage ] = useState( false );
 	const {
 		frameSelectorIsOpen,
 		handleCloseSelectFrame,
@@ -240,27 +246,45 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		handleVideoFrameSelected,
 		selectedTime,
 		handleConfirmFrame,
-		updatePosterImage,
+		updatePosterImage: updatePosterImageFromFrame,
 	} = usePosterEdit( { video: data } );
+	const { updatePosterImage: updatePosterImageFromLibrary } = useLibraryPosterImage( {
+		video: data,
+	} );
+
+	const updatePosterImage = async updateRequest => {
+		try {
+			setUpdatingPosterImage( true );
+			const posterImage = await updateRequest();
+
+			if ( posterImage == null ) {
+				return;
+			}
+
+			const videoData = { ...data, posterImage };
+			dispatch?.setVideo( videoData );
+		} catch ( error ) {
+			// @todo: error handling
+		} finally {
+			setUpdatingPosterImage( false );
+		}
+	};
+
+	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] = async action => {
+		switch ( action ) {
+			case 'select-from-video':
+				return handleOpenSelectFrame();
+			case 'upload-image':
+				return updatePosterImage( updatePosterImageFromLibrary );
+		}
+	};
 
 	useEffect( () => {
 		if ( selectedTime == null ) {
 			return;
 		}
 
-		setUpdatingThumbnail( true );
-		updatePosterImage()
-			.then( result => {
-				const posterImage = result ?? data?.posterImage;
-				const videoData = { ...data, posterImage };
-				dispatch?.setVideo( videoData );
-			} )
-			.catch( () => {
-				// TODO: handle errors
-			} )
-			.finally( () => {
-				setUpdatingThumbnail( false );
-			} );
+		updatePosterImage( updatePosterImageFromFrame );
 	}, [ selectedTime ] );
 
 	if ( showDeleteModal ) {
@@ -312,7 +336,6 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
 				/>
-				<div>{ selectedTime }</div>
 			</>
 		);
 	}
@@ -320,13 +343,14 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	const { privacySetting } = data;
 
 	return (
-		! updatingThumbnail && (
+		! updatingPosterImage && (
 			<VideoQuickActions
 				{ ...props }
 				onUpdateVideoPrivacy={ updateVideoPrivacy }
-				onUpdateVideoThumbnail={ handleOpenSelectFrame }
+				onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
 				onDeleteVideo={ () => setShowDeleteModal( true ) }
 				privacySetting={ privacySetting }
+				isUpdatingPrivacy={ isUpdatingPrivacy }
 			/>
 		)
 	);
