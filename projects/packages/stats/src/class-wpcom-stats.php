@@ -293,6 +293,21 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the number of visits for the site.
+	 *
+	 * @todo Update link below
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/visits/
+	 * @param array $args Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_visits( $args = array() ) {
+
+		$this->resource = 'visits';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Build WPCOM REST API endpoint.
 	 *
 	 * @return string
