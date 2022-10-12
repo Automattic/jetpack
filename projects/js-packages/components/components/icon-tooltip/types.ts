@@ -19,4 +19,6 @@ export type IconTooltipProps = {
 	children?: React.ReactNode;
 	iconSize?: number;
 	offset?: number;
+	shadowAnchor?: boolean;
+	forceShow?: boolean;
 };
