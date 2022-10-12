@@ -1,9 +1,9 @@
 === Jetpack Backup ===
 Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
-Requires at least: 5.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
+Tested up to: 6.1
 Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -160,7 +160,7 @@ No, Jetpack Backup does not currently support split site or split home URLs.
 == Changelog ==
 ### 1.4.1 - 2022-09-08
 #### Added
-- Include contextual notifications from My Jetpack 
+- Include contextual notifications from My Jetpack
 
 #### Changed
 - Plugin activation: Only redirect when activating from the Plugins page in the browser
