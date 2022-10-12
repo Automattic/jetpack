@@ -975,7 +975,7 @@
             "version": "3.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Automattic/PHP_CodeSniffer.git",
+                "url": "https://github.com/Automattic/PHP_CodeSniffer",
                 "reference": "ea57e56ab3b5e23fe543c6a47154e2a17728a03f"
             },
             "dist": {
@@ -1023,14 +1023,14 @@
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki",
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
-            "time": "2022-03-23T15:14:42+00:00"
+            "time": "2021-05-24T17:35:41+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
             "version": "2022-02-07",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Automattic/WordPress-Coding-Standards.git",
+                "url": "https://github.com/Automattic/WordPress-Coding-Standards",
                 "reference": "7b39722c38cbf2fe64c55be7154ee6f1807d304c"
             },
             "dist": {
