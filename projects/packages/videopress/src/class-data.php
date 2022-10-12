@@ -224,7 +224,7 @@ class Data {
 						'width'  => $width,
 						'height' => $height,
 					),
-					'thumnbail'      => $thumbnail,
+					'thumbnail'      => $thumbnail,
 					'finished'       => $finished,
 				);
 			},
