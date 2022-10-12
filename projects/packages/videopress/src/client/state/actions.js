@@ -15,6 +15,7 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
+	SET_LOCAL_VIDEOS_QUERY,
 	SET_VIDEO,
 	SET_VIDEO_PRIVACY,
 	DELETE_VIDEO,
@@ -68,6 +69,10 @@ const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 
 const setUploadedVideoCount = uploadedVideoCount => {
 	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
+};
+
+const setLocalVideosQuery = query => {
+	return { type: SET_LOCAL_VIDEOS_QUERY, query };
 };
 
 const setVideosStorageUsed = used => {
@@ -214,6 +219,9 @@ const actions = {
 	setVideosQuery,
 	setVideosPagination,
 	setVideos,
+
+	setLocalVideosQuery,
+
 	setVideosStorageUsed,
 	setVideo,
 
