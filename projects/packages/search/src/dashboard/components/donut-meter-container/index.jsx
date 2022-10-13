@@ -16,6 +16,23 @@ const formatNumberWithSeparators = x => {
 	return numberFormat( x );
 };
 
+const usageInfoMessage = ( current, limit ) => {
+	const isUnlimitedRequests = limit > 1e18;
+	// Standard case of current/limit.
+	if ( ! isUnlimitedRequests ) {
+		return formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+	}
+	// Special case for "unlimited" requests. API returning 64-bit PHP_INT_MAX.
+	// Return "Unlimited" if the current count is zero.
+	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
+	if ( current === 0 ) {
+		return localizedUnlimited;
+	}
+	// We have a request count so include it in the info string.
+	// ie: "123/Unlimited"
+	return `${ formatNumberWithSeparators( current ) }/${ localizedUnlimited }`;
+};
+
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
@@ -36,14 +53,10 @@ const DonutMeterContainer = ( {
 	iconClickedCallback,
 	linkClickedCallback,
 } ) => {
-	// Special case for "unlimited" requests, which has a limit of 64-bit PHP_INT_MAX.
 	const isUnlimitedRequests = limit > 1e18;
-	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
-	const usageInfo = isUnlimitedRequests
-		? `0/${ localizedUnlimited }`
-		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	const displayCurrent = isUnlimitedRequests ? 1 : current;
 	const displayLimit = isUnlimitedRequests ? 1 : limit;
+	const usageInfo = usageInfoMessage( current, limit );
 
 	const tooltipArgs = {
 		shadowAnchor: true,
