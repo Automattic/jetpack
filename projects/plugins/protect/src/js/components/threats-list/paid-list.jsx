@@ -1,5 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -19,17 +19,17 @@ const ThreatAccordionItem = ( {
 	icon,
 	fixable,
 	id,
+	label,
 	name,
 	source,
-	table,
 	title,
 	type,
-	version,
 	severity,
 } ) => {
 	const { setModal } = useDispatch( STORE_ID );
 
 	const { recordEvent } = useAnalyticsTracks();
+	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -37,34 +37,12 @@ const ThreatAccordionItem = ( {
 		</Button>
 	) : null;
 
-	/**
-	 * Get Label
-	 *
-	 * @returns {string} Threat label based on the assumed threat type (extension, file, database, etc).
-	 */
-	const getLabel = useCallback( () => {
-		if ( name && version ) {
-			// Extension threat i.e. "Woocommerce (3.0.0)"
-			return `${ name } (${ version })`;
-		}
-
-		if ( filename ) {
-			// File threat i.e. "index.php"
-			return filename.split( '/' ).pop();
-		}
-
-		if ( table ) {
-			// Database threat i.e. "wp_posts"
-			return table;
-		}
-	}, [ filename, name, table, version ] );
-
 	const handleIgnoreThreatClick = () => {
 		return event => {
 			event.preventDefault();
 			setModal( {
 				type: 'IGNORE_THREAT',
-				props: { id, label: getLabel(), title, icon, severity },
+				props: { id, label, title, icon, severity },
 			} );
 		};
 	};
@@ -72,15 +50,15 @@ const ThreatAccordionItem = ( {
 	const handleFixThreatClick = () => {
 		return event => {
 			event.preventDefault();
+
 			if ( credentialState.state === 'awaiting_credentials' ) {
 				setModal( {
 					type: 'CREDENTIALS_NEEDED',
-					props: { id, label: getLabel(), title, icon, severity },
 				} );
 			} else {
 				setModal( {
 					type: 'FIX_THREAT',
-					props: { id, label: getLabel(), title, icon, severity },
+					props: { id, label, title, icon, severity, fixable },
 				} );
 			}
 		};
@@ -89,7 +67,7 @@ const ThreatAccordionItem = ( {
 	return (
 		<PaidAccordionItem
 			id={ id }
-			label={ getLabel() }
+			label={ label }
 			title={ title }
 			icon={ icon }
 			fixable={ fixable }
@@ -146,7 +124,11 @@ const ThreatAccordionItem = ( {
 				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
-				{ fixable && <Button>{ __( 'Fix threat', 'jetpack-protect' ) }</Button> }
+				{ fixable && (
+					<Button onClick={ handleFixThreatClick() }>
+						{ __( 'Fix threat', 'jetpack-protect' ) }
+					</Button>
+				) }
 			</div>
 		</PaidAccordionItem>
 	);
@@ -163,14 +145,54 @@ const manualScan = createInterpolateElement(
 );
 
 const PaidList = ( { list } ) => {
+	const { setModal } = useDispatch( STORE_ID );
+	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
+
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const fixableCount = list.filter( obj => obj.fixable ).length;
+
+	const getLabel = threat => {
+		if ( threat.name && threat.version ) {
+			// Extension threat i.e. "Woocommerce (3.0.0)"
+			return `${ threat.name } (${ threat.version })`;
+		}
+
+		if ( threat.filename ) {
+			// File threat i.e. "index.php"
+			return threat.filename.split( '/' ).pop();
+		}
+
+		if ( threat.table ) {
+			// Database threat i.e. "wp_posts"
+			return threat.table;
+		}
+	};
+
+	list = list.map( threat => ( { label: getLabel( threat ), ...threat } ) );
+
+	const fixableList = list.filter( obj => obj.fixable );
+	const fixableCount = fixableList.length;
+
+	const handleFixAllThreatsClick = threatList => {
+		return event => {
+			event.preventDefault();
+			if ( credentialState.state === 'awaiting_credentials' ) {
+				setModal( {
+					type: 'CREDENTIALS_NEEDED',
+				} );
+			} else {
+				setModal( {
+					type: 'FIX_ALL_THREATS',
+					props: threatList,
+				} );
+			}
+		};
+	};
 
 	return (
 		<>
 			<div className={ styles[ 'threat-header' ] }>
 				{ fixableCount > 0 && (
-					<Button variant="primary">
+					<Button variant="primary" onClick={ handleFixAllThreatsClick( fixableList ) }>
 						{
 							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
 							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
@@ -198,6 +220,7 @@ const PaidList = ( { list } ) => {
 						icon,
 						fixable,
 						id,
+						label,
 						name,
 						severity,
 						source,
@@ -216,6 +239,7 @@ const PaidList = ( { list } ) => {
 							fixable={ fixable }
 							id={ id }
 							key={ id }
+							label={ label }
 							name={ name }
 							severity={ severity }
 							source={ source }

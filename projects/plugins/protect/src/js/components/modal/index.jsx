@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { close as closeIcon, Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
 import CredentialsNeededModal from '../credentials-needed-modal';
+import FixAllThreatsModal from '../fix-all-threats-modal';
 import FixThreatModal from '../fix-threat-modal';
 import IgnoreThreatModal from '../ignore-threat-modal';
 import styles from './styles.module.scss';
@@ -10,6 +11,7 @@ import styles from './styles.module.scss';
 const MODAL_COMPONENTS = {
 	IGNORE_THREAT: IgnoreThreatModal,
 	FIX_THREAT: FixThreatModal,
+	FIX_ALL_THREATS: FixAllThreatsModal,
 	CREDENTIALS_NEEDED: CredentialsNeededModal,
 };
 

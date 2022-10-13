@@ -31,10 +31,12 @@ class Rewind {
 
 		$api_url = sprintf( '/sites/%d/rewind', $blog_id );
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$api_url,
 			'2',
-			array( 'method' => 'GET' )
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $response );
