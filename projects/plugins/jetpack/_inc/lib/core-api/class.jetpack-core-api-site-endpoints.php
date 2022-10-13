@@ -152,7 +152,9 @@ class Jetpack_Core_API_Site_Endpoint {
 		 */
 		$stats = null;
 		if ( function_exists( 'convert_stats_array_to_object' ) ) {
-				$stats = ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) );
+				$stats = convert_stats_array_to_object(
+					( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
+				);
 		}
 		$has_stats = null !== $stats && ! is_wp_error( $stats );
 
