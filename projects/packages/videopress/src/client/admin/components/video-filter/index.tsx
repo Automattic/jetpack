@@ -36,17 +36,24 @@ export const FilterButton = ( props: {
 	);
 };
 
-export const CheckboxCheckmark = ( props: { label?: string; for: string } ): JSX.Element => {
+export const CheckboxCheckmark = ( props: {
+	label?: string;
+	for: string;
+	onChange?: ( checked: boolean ) => void;
+} ): JSX.Element => {
 	return (
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
-			<Checkbox id={ props.for } className={ styles.checkbox } />
+			<Checkbox id={ props.for } className={ styles.checkbox } onChange={ props.onChange } />
 			<span className={ styles[ 'checkbox-checkmark' ] } />
 			<Text variant="body-small">{ props.label }</Text>
 		</label>
 	);
 };
 
-export const FilterSection = ( props ): JSX.Element => {
+export const FilterSection = ( props: {
+	onChange?: ( filter: string, checked: boolean ) => void;
+	className?: string;
+} ): JSX.Element => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	return (
@@ -76,9 +83,23 @@ export const FilterSection = ( props ): JSX.Element => {
 					<Text variant="body-extra-small-bold" weight="bold">
 						{ __( 'Rating', 'jetpack-videopress-pkg' ) }
 					</Text>
-					<CheckboxCheckmark for="filter-g" label={ __( 'G', 'jetpack-videopress-pkg' ) } />
-					<CheckboxCheckmark for="filter-pg-13" label={ __( 'PG-13', 'jetpack-videopress-pkg' ) } />
-					<CheckboxCheckmark for="filter-r" label={ __( 'R', 'jetpack-videopress-pkg' ) } />
+					<CheckboxCheckmark
+						for="filter-g"
+						label={ __( 'G', 'jetpack-videopress-pkg' ) }
+						onChange={ filterByRatingG => props.onChange?.( 'privacy-g', filterByRatingG ) }
+					/>
+					<CheckboxCheckmark
+						for="filter-pg-13"
+						label={ __( 'PG-13', 'jetpack-videopress-pkg' ) }
+						onChange={ filterByRatingPG13 =>
+							props.onChange?.( 'privacy-pg-13', filterByRatingPG13 )
+						}
+					/>
+					<CheckboxCheckmark
+						for="filter-r"
+						label={ __( 'R', 'jetpack-videopress-pkg' ) }
+						onChange={ filterByRatingR => props.onChange?.( 'privacy-r', filterByRatingR ) }
+					/>
 				</Col>
 			</Container>
 		</div>
