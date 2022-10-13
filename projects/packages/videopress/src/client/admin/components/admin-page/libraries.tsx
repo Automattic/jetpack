@@ -22,6 +22,8 @@ import styles from './styles.module.scss';
  */
 import { VideoLibraryProps } from './types';
 
+const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
+
 const LibraryType = {
 	List: 'list',
 	Grid: 'grid',
@@ -102,13 +104,23 @@ const VideoLibraryWrapper = ( {
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
-	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
+
+	const libraryTypeFromLocalStorage = localStorage.getItem(
+		LIBRARY_TYPE_LOCALSORAGE_KEY
+	) as LibraryType;
+
+	const [ libraryType, setLibraryType ] = useState< LibraryType >(
+		libraryTypeFromLocalStorage ?? LibraryType.Grid
+	);
+
 	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
-		setLibraryType( current =>
-			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
-		);
+		setLibraryType( current => {
+			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
+			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			return next;
+		} );
 	};
 
 	const handleClickEditDetails = video => {
