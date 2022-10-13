@@ -38,8 +38,9 @@ const DonutMeterContainer = ( {
 } ) => {
 	// Special case for "unlimited" requests, which has a limit of 64-bit PHP_INT_MAX.
 	const isUnlimitedRequests = limit > 1e18;
+	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
 	const usageInfo = isUnlimitedRequests
-		? `0/${ __( 'Unlimited', 'jetpack-search-pkg' ) }`
+		? `0/${ localizedUnlimited }`
 		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	const displayCurrent = isUnlimitedRequests ? 1 : current;
 	const displayLimit = isUnlimitedRequests ? 1 : limit;
