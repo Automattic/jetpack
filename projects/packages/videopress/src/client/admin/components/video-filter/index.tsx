@@ -12,6 +12,7 @@ import { MouseEvent } from 'react';
  * Internal dependencies
  */
 import filterIcon from '../../../components/icons/filter-icon';
+import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import styles from './style.module.scss';
 
@@ -109,5 +110,6 @@ export const FilterSection = ( props: {
 };
 
 export const ConnectFilterSection = props => {
-	return <FilterSection { ...props } />;
+	const { setFilter } = useVideos();
+	return <FilterSection { ...props } onChange={ setFilter } />;
 };
