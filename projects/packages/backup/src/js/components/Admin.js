@@ -49,7 +49,7 @@ const Admin = () => {
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 0 }>
 							{ hasConnectionError && (
-								<Col>
+								<Col className="jetpack-connection-verified-error">
 									<ConnectionError />
 								</Col>
 							) }
