@@ -13,6 +13,7 @@ import {
 	DELETE_VIDEO,
 	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_INFO_ENDPOINT,
+	PROCESSING_VIDEO,
 	SET_LOCAL_VIDEOS_QUERY,
 } from './constants';
 import { getDefaultQuery } from './reducers';
@@ -86,18 +87,17 @@ const getVideos = {
 
 const getVideo = {
 	isFulfilled: ( state, id ) => {
-		if ( ! id ) {
+		// String ID is the generated ID, not the WP ID.
+		if ( ! id || typeof id === 'string' ) {
 			return true;
 		}
 
 		const videos = state.videos.items ?? [];
-		const uploading = state?.videos?._meta?.items ?? {};
-		const isUploading = uploading?.[ id ]?.uploading ?? false;
-
-		return videos?.some( video => video?.id === id ) || isUploading;
+		return videos?.some( video => video?.id === id );
 	},
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
+
 		try {
 			const video = await apiFetch( {
 				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
@@ -139,6 +139,10 @@ const getUploadedVideoCount = {
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
+	},
+
+	shouldInvalidate: action => {
+		return action.type === PROCESSING_VIDEO || action.type === DELETE_VIDEO;
 	},
 };
 
