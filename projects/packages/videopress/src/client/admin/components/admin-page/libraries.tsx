@@ -132,7 +132,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
-			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
+			<ConnectPagination className={ styles.pagination } disabled={ loading } />
 		</VideoLibraryWrapper>
 	);
 };
