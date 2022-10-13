@@ -55,6 +55,7 @@
 	min-width: 0; // Allows flex to be smaller than the content
 	position: relative;
 	height: var(--content-height);
+	width: 100%;
 
 	&.small {
 		cursor: pointer;

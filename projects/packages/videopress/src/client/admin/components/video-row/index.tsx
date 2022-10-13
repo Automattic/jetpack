@@ -233,10 +233,24 @@ export const VideoRow = ( {
 								{ title }
 							</Text>
 						) }
-						<Text variant="title-small" className={ styles.title } ref={ textRef }>
-							{ title }
-						</Text>
-						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
+
+						{ loading ? (
+							<Placeholder width="100%" height={ 30 } />
+						) : (
+							<Text variant="title-small" className={ styles.title } ref={ textRef }>
+								{ title }
+							</Text>
+						) }
+
+						{ isSmall && (
+							<>
+								{ loading ? (
+									<Placeholder height={ 20 } width="80%" />
+								) : (
+									<Text component="div">{ uploadDateFormatted }</Text>
+								) }
+							</>
+						) }
 					</div>
 					{ canExpand && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
