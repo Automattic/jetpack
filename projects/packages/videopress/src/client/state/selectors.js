@@ -17,6 +17,10 @@ export const getPagination = state => {
 	return state?.videos?.pagination;
 };
 
+export const getVideosFilter = state => {
+	return state?.videos?.filter;
+};
+
 export const getUploadedVideoCount = state => {
 	return state?.videos?.uploadedVideoCount;
 };
@@ -82,6 +86,7 @@ const selectors = {
 	getUploadingVideos,
 	getVideosQuery,
 	getPagination,
+	getVideosFilter,
 	getUploadedVideoCount,
 	getIsFetching,
 	getIsFetchingUploadedVideoCount,
