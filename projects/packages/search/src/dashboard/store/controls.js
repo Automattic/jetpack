@@ -1,10 +1,13 @@
-import restApi from '@automattic/jetpack-api';
+import { JetpackRestApiClient } from '@automattic/jetpack-api';
 
 export const FETCH_JETPACK_SETTINGS = 'FETCH_JETPACK_SETTINGS';
 export const UPDATE_JETPACK_SETTINGS = 'UPDATE_JETPACK_SETTINGS';
 export const FETCH_SEARCH_PLAN_INFO = 'FETCH_SEARCH_PLAN_INFO';
 export const FETCH_SEARCH_STATS = 'FETCH_SEARCH_STATS';
 export const FETCH_SEARCH_PRICING = 'FETCH_SEARCH_PRICING';
+
+// Instantiates an API singleton for the Search Dashboard.
+export const restApi = new JetpackRestApiClient();
 
 /**
  * fetchJetpackSettings action

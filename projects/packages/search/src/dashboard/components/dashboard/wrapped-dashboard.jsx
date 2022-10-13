@@ -1,5 +1,4 @@
 import analytics from '@automattic/jetpack-analytics';
-import restApi from '@automattic/jetpack-api';
 import { useSelect, select as syncSelect } from '@wordpress/data';
 import SearchConnectionPage from 'components/pages/connection-page';
 import SearchDashboardPage from 'components/pages/dashboard-page';
@@ -7,6 +6,7 @@ import UpsellPage from 'components/pages/upsell-page';
 import useConnection from 'hooks/use-connection';
 import React, { useMemo } from 'react';
 import { STORE_ID } from 'store';
+import { restApi } from 'store/controls';
 
 /**
  * Return appropriate components.
@@ -29,11 +29,15 @@ export default function WrappedDashboard() {
 		}
 	};
 
-	useMemo( () => {
+	const initializeApi = () => {
 		const apiRootUrl = syncSelect( STORE_ID ).getAPIRootUrl();
 		const apiNonce = syncSelect( STORE_ID ).getAPINonce();
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
 		apiNonce && restApi.setApiNonce( apiNonce );
+	};
+
+	useMemo( () => {
+		initializeApi();
 		initializeAnalytics();
 		analytics.tracks.recordEvent( 'jetpack_search_admin_page_view', {
 			current_version: syncSelect( STORE_ID ).getVersion(),
