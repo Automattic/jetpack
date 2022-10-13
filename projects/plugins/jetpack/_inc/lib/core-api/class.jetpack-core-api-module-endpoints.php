@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
 
 /**
@@ -1564,20 +1565,21 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			$range = 'day';
 		}
 
-		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
+		if ( ! function_exists( 'convert_stats_array_to_object' ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 		}
 
+		$wpcom_stats = new WPCOM_Stats();
 		switch ( $range ) {
 
 			// This is always called first on page load.
 			case 'day':
-				$initial_stats = stats_get_from_restapi();
+				$initial_stats = convert_stats_array_to_object( $wpcom_stats->get_stats() );
 				return rest_ensure_response(
 					array(
 						'general' => $initial_stats,
 
-						// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' ).
+						// Build data for 'day' as if it was $wpcom_stats ->get_visits( array( 'unit' => 'day, 'quantity' => 30).
 						'day'     => isset( $initial_stats->visits )
 							? $initial_stats->visits
 							: array(),
@@ -1586,13 +1588,27 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'week':
 				return rest_ensure_response(
 					array(
-						'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
+						'week' => convert_stats_array_to_object(
+							$wpcom_stats->get_visits(
+								array(
+									'unit'     => 'week',
+									'quantity' => 14,
+								)
+							)
+						),
 					)
 				);
 			case 'month':
 				return rest_ensure_response(
 					array(
-						'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+						'month' => convert_stats_array_to_object(
+							$wpcom_stats->get_visits(
+								array(
+									'unit'     => 'month',
+									'quantity' => 12,
+								)
+							)
+						),
 					)
 				);
 		}
