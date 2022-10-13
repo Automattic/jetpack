@@ -113,7 +113,7 @@ export const VideoRow = ( {
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
+	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
 
 	let thumbnail = defaultThumbnail;
@@ -242,7 +242,7 @@ export const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && ( showEditButton || showQuickActions ) && (
+						{ showActions && ( showEditButton || showQuickActions ) && ! loading && (
 							<div className={ styles.actions }>
 								{ showEditButton && editDetailsButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
