@@ -1,4 +1,5 @@
 import { VideoPressVideo } from '../../types';
+import { VideoThumbnailProps } from '../video-thumbnail/types';
 
 type VideoRowBaseProps = {
 	/**
@@ -18,6 +19,10 @@ type VideoRowBaseProps = {
 	 */
 	showQuickActions?: boolean;
 	/**
+	 * Loading mode.
+	 */
+	loading?: boolean;
+	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
 	onSelect?: ( check: boolean ) => void;
@@ -27,6 +32,8 @@ type VideoRowBaseProps = {
 	onVideoDetailsClick?: () => void;
 };
 
-type VideoPressVideoProps = VideoRowBaseProps & VideoPressVideo;
+type VideoPressVideoProps = VideoRowBaseProps &
+	Pick< VideoPressVideo, 'id' | 'title' | 'duration' | 'uploadDate' | 'plays' | 'isPrivate' > &
+	Pick< VideoThumbnailProps, 'thumbnail' >;
 
 export type VideoRowProps = VideoPressVideoProps;

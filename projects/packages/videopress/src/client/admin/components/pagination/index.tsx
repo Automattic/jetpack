@@ -149,9 +149,9 @@ const Pagination: React.FC< PaginationProps > = ( {
 	);
 };
 
-export const ConnectPagination = ( props: { className: string; disabled: boolean } ) => {
+export const ConnectPagination = ( props: { className: string; disabled?: boolean } ) => {
 	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
-	return total < itemsPerPage ? (
+	return total <= itemsPerPage ? (
 		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
 	) : (
 		<Pagination
