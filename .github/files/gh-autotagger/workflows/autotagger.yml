@@ -38,13 +38,13 @@ jobs:
             exit 1
           elif [[ -n "$PREFIX" && "$GITHUB_REF" == "refs/heads/trunk" ]]; then
             echo "::notice::Ignoring push to trunk, as this project has a release branch prefix set (\"$PREFIX\")"
-            echo "::set-output name=run::false"
+            echo "run=false" >> "$GITHUB_OUTPUT"
           elif [[ -n "$PREFIX" && "$GITHUB_REF" != "refs/heads/$PREFIX/branch-"* ]]; then
             echo "::error::Expected to be called for \"refs/heads/$PREFIX/branch-*\", not \"$GITHUB_REF\""
             exit 1
           else
             echo "Push to \"$GITHUB_REF\" ok"
-            echo "::set-output name=run::true"
+            echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Tag

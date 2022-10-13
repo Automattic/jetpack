@@ -309,20 +309,33 @@ const videos = ( state, action ) => {
 
 		case PROCESSING_VIDEO: {
 			const { id, data } = action;
+			const query = state?.query ?? getDefaultQuery();
+			const pagination = { ...state.pagination };
+
 			const items = [ ...( state?.items ?? [] ) ];
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
 			const title = currentMetaItems[ id ]?.title || '';
 
-			// Insert new video
-			items.unshift( {
-				id: data.id,
-				guid: data.guid,
-				url: data.src,
-				title,
-				posterImage: null,
-				finished: false,
-			} );
+			let total = state?.uploadedVideoCount ?? 0;
+
+			// Not update total and pagination if user is searching or not in the first page.
+			if ( query?.page === 1 && ! query?.search ) {
+				// Updating pagination and count
+				total = ( state?.uploadedVideoCount ?? 0 ) + 1;
+				pagination.total = total;
+				pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
+
+				// Insert new video
+				items.unshift( {
+					id: data.id,
+					guid: data.guid,
+					url: data.src,
+					title,
+					posterImage: null,
+					finished: false,
+				} );
+			}
 
 			// Remove video from uploading meta
 			delete currentMetaItems[ id ];
@@ -330,6 +343,8 @@ const videos = ( state, action ) => {
 			return {
 				...state,
 				items,
+				uploadedVideoCount: total,
+				pagination,
 				_meta: {
 					...currentMeta,
 					items: currentMetaItems,
@@ -339,7 +354,6 @@ const videos = ( state, action ) => {
 
 		case UPLOADED_VIDEO: {
 			const { video } = action;
-			const query = state?.query ?? getDefaultQuery();
 			const items = [ ...( state?.items ?? [] ) ];
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
@@ -350,18 +364,9 @@ const videos = ( state, action ) => {
 
 			items[ videoIndex ] = video;
 
-			// Updating pagination and count
-			const total = ( state?.uploadedVideoCount ?? 0 ) + 1;
-			const pagination = { ...state.pagination };
-
-			pagination.total = total;
-			pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
-
 			return {
 				...state,
 				items,
-				uploadedVideoCount: total,
-				pagination,
 			};
 		}
 
