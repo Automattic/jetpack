@@ -111,15 +111,15 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 			method: 'POST',
 		} )
 			.then( () => {
-				return dispatch( refreshStatus() );
-			} )
-			.then( () => {
 				return dispatch(
 					setNotice( {
 						type: 'success',
 						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
 					} )
 				);
+			} )
+			.then( () => {
+				return dispatch( refreshStatus() );
 			} )
 			.catch( () => {
 				return dispatch(
