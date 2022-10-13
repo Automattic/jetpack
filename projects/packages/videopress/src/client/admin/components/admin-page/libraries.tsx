@@ -103,7 +103,7 @@ const VideoLibraryWrapper = ( {
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
-	const disabled = videos?.some?.( video => video.uploading );
+	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
 		setLibraryType( current =>
@@ -121,13 +121,13 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
-			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
 				<VideoGrid
 					videos={ videos }
 					onVideoDetailsClick={ handleClickEditDetails }
 					loading={ loading }
+					count={ uploading ? videos.length : 6 }
 				/>
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
