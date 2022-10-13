@@ -8,35 +8,124 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
-
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use WP_REST_Request;
 /**
  * The Data class.
  */
 class Data {
+
 	/**
-	 * Gets the product data
+	 * Gets the Jetpack blog ID
+	 *
+	 * @return int The blog ID
+	 */
+	public static function get_blog_id() {
+		return VideoPressToken::blog_id();
+	}
+
+	/**
+	 * Gets the video data
+	 *
+	 * @param boolean $is_videopress - True when getting VideoPress data.
+	 * @return array
+	 */
+	public static function get_video_data( $is_videopress = true ) {
+		$video_data = array(
+			'videos'     => array(),
+			'total'      => 0,
+			'totalPages' => 0,
+			'query'      => array(
+				'order'        => 'desc',
+				'orderBy'      => 'date',
+				'itemsPerPage' => 6,
+				'page'         => 1,
+			),
+		);
+
+		$args = array(
+			'order'      => $video_data['query']['order'],
+			'orderby'    => $video_data['query']['orderBy'],
+			'per_page'   => $video_data['query']['itemsPerPage'],
+			'page'       => $video_data['query']['page'],
+			'media_type' => 'video',
+		);
+
+		if ( $is_videopress ) {
+			$args['mime_type'] = 'video/videopress';
+		} else {
+			$args['no_videopress'] = true;
+		}
+
+		// Do an internal request for the media list
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			// @todo: error handling
+			return $video_data;
+		}
+
+		// load the real values
+		$video_data['videos'] = $response->get_data();
+		$headers              = $response->get_headers();
+
+		if ( isset( $headers['X-WP-Total'] ) ) {
+			$video_data['total'] = $headers['X-WP-Total'];
+		}
+
+		if ( isset( $headers['X-WP-TotalPages'] ) ) {
+			$video_data['totalPages'] = $headers['X-WP-TotalPages'];
+		}
+
+		return $video_data;
+	}
+
+	/**
+	 * Gets the VideoPress used storage space in bytes
+	 *
+	 * @return int the used storage space
+	 */
+	public static function get_storage_used() {
+		$site_data = Site::get_site_info();
+		if ( is_wp_error( $site_data ) ) {
+			return 0;
+		}
+
+		if ( isset( $site_data['options'] ) && isset( $site_data['options']['videopress_storage_used'] ) ) {
+			return intval( round( $site_data['options']['videopress_storage_used'] * 1024 * 1024 ) );
+		} else {
+			return 0;
+		}
+	}
+
+	/**
+	 * Return all the initial state that depends on a valid site connection
 	 *
 	 * @return array
 	 */
-	public static function get_videos() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		// @todo: build a proper query string for request.
-		$endpoint = "/sites/{$blog_id}/media?per_page=6&mime_type=video/videopress";
-
-		$args = array(
-			'method' => 'GET',
+	public static function get_connected_initial_state() {
+		return array(
+			'videos' => array(
+				'storageUsed' => self::get_storage_used(),
+			),
 		);
+	}
 
-		$response = Client::wpcom_json_api_request_as_user( $endpoint, '2', $args, null, 'wp' );
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			// @todo: error handling
-			return array();
+	/**
+	 * Checks if the site has as connected owner
+	 */
+	public static function has_connected_owner() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
 		}
 
-		return json_decode( $response['body'], true );
+		if ( ( new Connection_Manager() )->has_connected_owner() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -46,7 +135,43 @@ class Data {
 	 * @return array
 	 */
 	public static function get_initial_state() {
+		$videopress_data   = self::get_video_data();
+		$local_videos_data = self::get_video_data( false );
 
+		// Tweak local videos data.
+		$local_videos = array_map(
+			function ( $video ) {
+				$id                 = $video['id'];
+				$media_details      = $video['media_details'];
+				$jetpack_videopress = $video['jetpack_videopress'];
+
+				$upload_date = $video['date'];
+				$url         = $video['source_url'];
+
+				$title       = $jetpack_videopress['title'];
+				$description = $jetpack_videopress['description'];
+				$caption     = $jetpack_videopress['caption'];
+
+				$width    = $media_details['width'];
+				$height   = $media_details['height'];
+				$duration = $media_details['length'];
+
+				return array(
+					'id'          => $id,
+					'title'       => $title,
+					'description' => $description,
+					'caption'     => $caption,
+					'width'       => $width,
+					'height'      => $height,
+					'url'         => $url,
+					'uploadDate'  => $upload_date,
+					'duration'    => $duration,
+				);
+			},
+			$local_videos_data['videos']
+		);
+
+		// Tweak VideoPress videos data.
 		$videos = array_map(
 			function ( $video ) {
 				$id                 = $video['id'];
@@ -76,6 +201,8 @@ class Data {
 
 				if ( isset( $files['dvd']['original_img'] ) ) {
 					$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
+				} else {
+					$thumbnail = null;
 				}
 
 				return array(
@@ -97,23 +224,49 @@ class Data {
 						'width'  => $width,
 						'height' => $height,
 					),
-					'thumnbail'      => $thumbnail,
+					'thumbnail'      => $thumbnail,
 					'finished'       => $finished,
 				);
 			},
-			self::get_videos()
+			$videopress_data['videos']
 		);
 
-		return array(
-			'videos' => array(
-				'uploadedVideoCount'           => count( $videos ), // @todo: pick the total number properly
+		$initial_state = array(
+			'videos'      => array(
+				'uploadedVideoCount'           => $videopress_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
+				'pagination'                   => array(
+					'totalPages' => $videopress_data['totalPages'],
+					'total'      => $videopress_data['total'],
+				),
+				'query'                        => $videopress_data['query'],
+				'_meta'                        => array(
+					'relyOnInitialState' => true,
+				),
+			),
+
+			'localVideos' => array(
+				'uploadedVideoCount'           => $local_videos_data['total'],
+				'items'                        => $local_videos,
+				'isFetching'                   => false,
+				'isFetchingUploadedVideoCount' => false,
+				'pagination'                   => array(
+					'totalPages' => $local_videos_data['totalPages'],
+					'total'      => $local_videos_data['total'],
+				),
+				'query'                        => $local_videos_data['query'],
 				'_meta'                        => array(
 					'relyOnInitialState' => true,
 				),
 			),
 		);
+
+		if ( self::has_connected_owner() ) {
+			return array_merge_recursive( $initial_state, self::get_connected_initial_state() );
+		}
+
+		return $initial_state;
 	}
 }

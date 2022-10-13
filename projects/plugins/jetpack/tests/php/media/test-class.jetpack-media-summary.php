@@ -1,7 +1,7 @@
 <?php
 
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-	jetpack_require_lib( 'class.media-summary' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }
 
 class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {

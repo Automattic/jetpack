@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: Provide the list of allowed video extensions on the client initial state, fetching it from the site `get_allowed_mime_types()` list.

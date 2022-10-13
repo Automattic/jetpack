@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tweak jest versions to match the rest of the monorepo

@@ -172,7 +172,7 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'<a>Activate Jetpack Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 											'jetpack'
 										),
 										{
@@ -190,7 +190,7 @@ class SiteStatsComponent extends React.Component {
 						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
 								<Button onClick={ this.activateStats } primary={ true }>
-									{ __( 'Activate Site Stats', 'jetpack' ) }
+									{ __( 'Activate Jetpack Stats', 'jetpack' ) }
 								</Button>
 							</div>
 						) }
@@ -202,7 +202,7 @@ class SiteStatsComponent extends React.Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ _x( 'Site stats', 'Settings header', 'jetpack' ) }
+				header={ _x( 'Jetpack Stats', 'Settings header', 'jetpack' ) }
 				hideButton
 				module="site-stats"
 			>
