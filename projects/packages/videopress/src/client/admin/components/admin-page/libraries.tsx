@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
-import { FilterButton, FilterSection } from '../video-filter';
+import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
@@ -94,7 +94,7 @@ const VideoLibraryWrapper = ( {
 					</div>
 				) }
 			</div>
-			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
+			{ isFilterActive && <ConnectFilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
 		</div>
 	);
