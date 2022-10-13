@@ -1564,6 +1564,11 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		) {
 			$range = 'day';
 		}
+
+		if ( ! function_exists( 'convert_stats_array_to_object' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
+		}
+
 		$wpcom_stats = new WPCOM_Stats();
 		switch ( $range ) {
 

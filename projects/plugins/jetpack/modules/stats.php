@@ -1498,11 +1498,29 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 /**
  * Add the Jetpack plugin version to the stats tracking data.
  *
- * @param  param array $kvs The stats array in key values.
+ * @param  array $kvs The stats array in key values.
  * @return array
  */
 function filter_stats_array_add_jp_version( $kvs ) {
 	$kvs['j'] = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
 
 	return $kvs;
+}
+
+/**
+ * Convert stats array to object after sanity checking the array is valid.
+ *
+ * @param  array $stats_array The stats array.
+ * @return WP_Error|Object
+ */
+function convert_stats_array_to_object( $stats_array ) {
+
+	if ( is_wp_error( $stats_array ) ) {
+		return $stats_array;
+	}
+	$encoded_array = wp_json_encode( $stats_array );
+	if ( ! $encoded_array ) {
+		return new WP_Error( 'stats_error' );
+	}
+	return json_decode( $encoded_array );
 }
