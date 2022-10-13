@@ -4,7 +4,7 @@
 	import ProductPrice from '../../elements/ProductPrice.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import Header from '../../sections/Header.svelte';
-	import config, { getStarted } from '../../stores/config';
+	import config, { markGetStartedComplete } from '../../stores/config';
 	import { updateModuleState } from '../../stores/modules';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { getUpgradeURL } from '../../utils/upgrade';
@@ -36,7 +36,11 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
 	const chooseFreePlan = async () => {
-		await Promise.all( [ getStarted(), updateModuleState( 'critical-css', true ) ] );
+		// Not awaiting for the promise to resolve, as we don't want to block the navigation.
+		markGetStartedComplete();
+
+		// Need to await in this case because the generation request needs to go after the backend has enabled the module.
+		await updateModuleState( 'critical-css', true );
 
 		navigate( '/' );
 	};

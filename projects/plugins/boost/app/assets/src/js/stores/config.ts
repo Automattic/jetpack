@@ -23,7 +23,7 @@ export const dismissedPopOuts = {
 	},
 };
 
-export const getStarted = () => {
+export const markGetStartedComplete = () => {
 	update( store => ( {
 		...store,
 		site: {
