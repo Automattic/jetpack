@@ -4,16 +4,17 @@
 	import { derived } from 'svelte/store';
 	import { createInterpolateElement } from '@wordpress/element';
 	import { __ } from '@wordpress/i18n';
-	import { recordBoostEvent } from '../../../js/utils/analytics';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import config from '../../stores/config';
 	import Logo from '../../svg/jetpack-green.svg';
+	import { recordBoostEvent } from '../../utils/analytics';
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
 	function goToCheckout() {
-		recordBoostEvent( 'upsell_from_settings_page' );
+		const eventProps = {};
+		recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
 		window.location.href = getUpgradeURL();
 	}
 
