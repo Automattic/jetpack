@@ -26,7 +26,7 @@ class WPCOM_Stats {
 	 *
 	 * @var string
 	 */
-	const STATS_CACHE_TRANSIENT_PREFIX = 'jetpack_restapi_stats_cache_';
+	const STATS_CACHE_TRANSIENT_PREFIX = 'jetpack_restapi_cached_stats_';
 
 	/**
 	 * Time, in minutes, to cache stats results from the REST API.
@@ -293,6 +293,19 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the number of visits for the site.
+	 *
+	 * @param array $args Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_visits( $args = array() ) {
+
+		$this->resource = 'visits';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Build WPCOM REST API endpoint.
 	 *
 	 * @return string
@@ -347,7 +360,10 @@ class WPCOM_Stats {
 	 * @return array|WP_Error.
 	 */
 	protected function fetch_remote_stats( $endpoint, $args ) {
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, $args );
+		if ( is_array( $args ) && ! empty( $args ) ) {
+			$endpoint .= '?' . http_build_query( $args );
+		}
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 

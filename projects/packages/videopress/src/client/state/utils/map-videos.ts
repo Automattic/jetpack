@@ -38,7 +38,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 				original_img: '',
 			},
 		},
-	} = videoPressMediaDetails;
+	} = videoPressMediaDetails || {};
 
 	const { dvd } = files;
 
@@ -76,7 +76,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 export const mapVideosFromWPV2MediaEndpoint = (
 	videos: OriginalVideoPressVideo[]
 ): VideoPressVideo[] => {
-	return videos.map( mapVideoFromWPV2MediaEndpoint );
+	return videos?.map?.( mapVideoFromWPV2MediaEndpoint );
 };
 
 export const mapLocalVideoFromWPV2MediaEndpoint = (

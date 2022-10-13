@@ -1,15 +1,10 @@
-import type { VideoRowProps } from '../video-row';
+import { VideoPressVideo } from '../../types';
 
 export type VideoListProps = {
 	/**
 	 * List of videos.
 	 */
-	videos: Array<
-		Omit<
-			VideoRowProps,
-			'checked' | 'showEditButton' | 'showQuickActions' | 'onSelect' | 'onVideoDetailsClick'
-		>
-	>;
+	videos: Array< VideoPressVideo >;
 	/**
 	 * Hide privacy column.
 	 */
@@ -31,7 +26,11 @@ export type VideoListProps = {
 	 */
 	showQuickActions?: boolean;
 	/**
+	 * Loading mode.
+	 */
+	loading?: boolean;
+	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
-	onVideoDetailsClick?: ( video: VideoRowProps ) => void;
+	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;
 };
