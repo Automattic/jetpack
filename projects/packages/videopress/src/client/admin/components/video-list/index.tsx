@@ -22,6 +22,7 @@ const VideoList = ( {
 	hidePlays = false,
 	showEditButton = true,
 	showQuickActions = true,
+	loading = false,
 	onVideoDetailsClick,
 }: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
@@ -74,6 +75,7 @@ const VideoList = ( {
 						showEditButton={ ! video?.uploading && showEditButton }
 						className={ styles.row }
 						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );
