@@ -1,0 +1,36 @@
+.upgrade-tooltip-shadow-anchor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 64px;
+	height: 64px;
+
+	.icon-tooltip-wrapper {
+		width: 100%;
+		height: 100%;
+
+		// To overwrite `margin-bottom`
+		.icon-tooltip-title {
+			font-size: var( --font-title-small );
+			font-weight: 500;
+			margin-bottom: 16px;
+		}
+	}
+
+	.icon-tooltip-helper {
+		width: 100%;
+		height: 100%;
+	}
+
+	.icon-tooltip-content {
+		font-size: var( --font-body );
+	}
+
+	.upgrade-tooltip-actions {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: var( --jp-gray-60 );
+		margin-top: 24px;
+	}
+}

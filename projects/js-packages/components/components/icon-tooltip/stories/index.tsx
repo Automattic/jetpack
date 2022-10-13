@@ -1,4 +1,7 @@
+import Button from '../../button';
+import DonutMeter from '../../donut-meter';
 import IconTooltip from '../index';
+import './style.scss';
 import type { Placement } from '../types';
 
 const AVAILABLE_PLACEMENTS: Placement[] = [
@@ -51,6 +54,25 @@ const Template = args => (
 	</div>
 );
 
+const NewTemplate = args => (
+	<div style={ { position: 'absolute', height: '1000px', left: '300px', top: '300px' } }>
+		<div className="donut-meter-wrapper">
+			<DonutMeter segmentCount={ 100 } totalCount={ 500 } />
+			<div className="upgrade-tooltip-shadow-anchor">
+				<IconTooltip { ...args }>
+					<>
+						<div>Thank you for upgrading! Now your visitors can search up to 500 records.</div>
+						<div className="upgrade-tooltip-actions">
+							<span>1 of 2</span>
+							<Button>Next</Button>
+						</div>
+					</>
+				</IconTooltip>
+			</div>
+		</div>
+	</div>
+);
+
 // Export Default story
 export const _default = Template.bind( {} );
 
@@ -63,4 +85,12 @@ HasContent.args = {
 			<br></br>Break Line!
 		</div>
 	),
+};
+
+export const ShadowAnchor = NewTemplate.bind( {} );
+ShadowAnchor.args = {
+	shadowAnchor: true,
+	title: 'Site records increased',
+	placement: 'top',
+	forceShow: true,
 };

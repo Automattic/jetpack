@@ -64,6 +64,10 @@ export const getLocalVideos = state => {
 	return state?.localVideos?.items || [];
 };
 
+export const getIsFetchingLocalVideos = state => {
+	return state?.localVideos?.isFetching;
+};
+
 export const getLocalVideosQuery = state => {
 	return state?.localVideos?.query;
 };
@@ -85,6 +89,7 @@ const selectors = {
 
 	// Local videos
 	getLocalVideos,
+	getIsFetchingLocalVideos,
 	getLocalVideosQuery,
 	getLocalPagination,
 	getUploadedLocalVideoCount,

@@ -8,7 +8,7 @@
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.14",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.22",
+		"@automattic/jetpack-components": "workspace:* || ^0.23",
 		"@wordpress/base-styles": "4.10.0",
 		"@wordpress/components": "21.2.0",
 		"@wordpress/compose": "5.17.0",
