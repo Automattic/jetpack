@@ -107,6 +107,7 @@ const VideoThumbnail = ( {
 	thumbnail,
 	duration,
 	editable,
+	blankIconSize = 96,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
@@ -146,7 +147,7 @@ const VideoThumbnail = ( {
 					thumbnail
 				) : (
 					<div className={ styles[ 'thumbnail-blank' ] }>
-						<Icon icon={ video } size={ 96 } />
+						<Icon icon={ video } size={ blankIconSize } />
 					</div>
 				) }
 			</div>

@@ -14,12 +14,13 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
+import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
@@ -41,6 +42,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback(
@@ -54,6 +56,7 @@ export default function UpsellPage( { isLoading = false } ) {
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
 	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
@@ -62,6 +65,7 @@ export default function UpsellPage( { isLoading = false } ) {
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
 	const isPageLoading = useSelect(
@@ -112,9 +116,15 @@ const OldPricingComponent = ( { sendToCart } ) => {
 		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 		'jetpack-search-pkg'
 	);
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+			{ hasConnectionError && (
+				<Col lg={ 12 } md={ 12 } sm={ 12 }>
+					<ConnectionError />
+				</Col>
+			) }
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
 				<h1>{ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }</h1>
 				<SearchPromotionBlock />
@@ -142,9 +152,16 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
 		<Container horizontalSpacing={ 8 }>
+			{ hasConnectionError && (
+				<Col lg={ 12 } md={ 12 } sm={ 12 }>
+					<ConnectionError />
+				</Col>
+			) }
+
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
 				<ThemeProvider>
 					<PricingTable { ...newPricingArgs }>
