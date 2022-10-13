@@ -27,6 +27,7 @@ class Test_Modules extends TestCase {
 
 		// Resetting the static property to avoid using PHPUnit's serialization of properties.
 		$reflection = new \ReflectionProperty( '\Automattic\Jetpack\Modules', 'enforced_modules' );
+		$reflection->setAccessible( true );
 		$reflection->setValue( array() );
 
 		Functions\when( 'is_multisite' )->justReturn( false );
