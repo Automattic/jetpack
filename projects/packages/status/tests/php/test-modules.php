@@ -23,7 +23,7 @@ class Test_Modules extends TestCase {
 	 *
 	 * @before
 	 */
-	public function setUp(): void { //phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+	public function set_up() {
 		parent::setUp();
 		Monkey\setUp();
 
@@ -35,7 +35,7 @@ class Test_Modules extends TestCase {
 	 *
 	 * @after
 	 */
-	public function tearDown(): void { //phpcs:ignore PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations.voidFound
+	public function tear_down() {
 		parent::tearDown();
 
 		$container = \Mockery::getContainer();
