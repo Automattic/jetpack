@@ -1,9 +1,18 @@
+/**
+ * External dependencies
+ */
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import Checkbox from '../checkbox';
 import VideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import { VideoListProps } from './types';
 
 const VideoList = ( {
