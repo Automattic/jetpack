@@ -13,8 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Status test suite.
- *
- * @backupStaticAttributes enabled
  */
 class Test_Modules extends TestCase {
 
@@ -26,6 +24,10 @@ class Test_Modules extends TestCase {
 	public function set_up() {
 		parent::setUp();
 		Monkey\setUp();
+
+		// Resetting the static property to avoid using PHPUnit's serialization of properties.
+		$reflection = new \ReflectionProperty( '\Automattic\Jetpack\Modules', 'enforced_modules' );
+		$reflection->setValue( array() );
 
 		Functions\when( 'is_multisite' )->justReturn( false );
 	}
