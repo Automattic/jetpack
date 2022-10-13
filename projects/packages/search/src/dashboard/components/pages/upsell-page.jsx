@@ -14,7 +14,11 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import {
+	ConnectionError,
+	useConnectionErrorNotice,
+	useProductCheckoutWorkflow,
+} from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -112,9 +116,15 @@ const OldPricingComponent = ( { sendToCart } ) => {
 		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 		'jetpack-search-pkg'
 	);
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+			{ hasConnectionError && (
+				<Col lg={ 12 } md={ 12 } sm={ 12 }>
+					<ConnectionError />
+				</Col>
+			) }
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
 				<h1>{ __( 'The best WordPress search experience', 'jetpack-search-pkg' ) }</h1>
 				<SearchPromotionBlock />
@@ -142,9 +152,16 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	return (
 		<Container horizontalSpacing={ 8 }>
+			{ hasConnectionError && (
+				<Col lg={ 12 } md={ 12 } sm={ 12 }>
+					<ConnectionError />
+				</Col>
+			) }
+
 			<Col lg={ 12 } md={ 12 } sm={ 12 }>
 				<ThemeProvider>
 					<PricingTable { ...newPricingArgs }>
