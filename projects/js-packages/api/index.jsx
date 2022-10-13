@@ -29,7 +29,7 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
  * @param {string} root - The API root
  * @param {string} nonce - The API Nonce
  */
-function JetpackRestApiClient( root, nonce ) {
+export function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
 		headers = {
 			'X-WP-Nonce': nonce,
