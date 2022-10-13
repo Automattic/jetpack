@@ -1,4 +1,4 @@
-import { get, writable } from 'svelte/store';
+import { get, writable, derived } from 'svelte/store';
 import api from '../api/api';
 import { setModuleState } from '../api/modules';
 import config from './config';
@@ -48,12 +48,8 @@ export async function reloadModulesState() {
 	set( buildModuleState( await api.get( '/optimizations/status' ) ) );
 }
 
-export function isEnabled( slug: string ): boolean {
-	return currentState[ slug ] && currentState[ slug ].enabled;
-}
-
 export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
-	const originalState = isEnabled( slug );
+	const originalState = currentState[ slug ] && currentState[ slug ].enabled;
 	let finalState = state;
 
 	// Tentatively set requested state, undo if the API fails or denies it.
@@ -87,3 +83,8 @@ export const modules = {
 	subscribe,
 	updateModuleState,
 };
+
+export const isModuleEnabledStore = ( slug: string ) =>
+	derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
+export const isModuleAvailableStore = ( slug: string ) =>
+	derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );

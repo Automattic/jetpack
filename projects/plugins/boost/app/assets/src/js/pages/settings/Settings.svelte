@@ -2,6 +2,7 @@
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
+	import { isModuleAvailableStore } from '../../stores/modules';
 	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
@@ -12,8 +13,11 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
+	const hasCloudCSS = isModuleAvailableStore( 'cloud-css' );
+
 	$: {
-		if ( $config.site.getStarted ) {
+		// If the user has Cloud CSS, assume they already got started.
+		if ( $config.site.getStarted && ! $hasCloudCSS ) {
 			navigate( '/getting-started' );
 		}
 	}
