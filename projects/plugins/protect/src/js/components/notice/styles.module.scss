@@ -7,6 +7,7 @@
 
     &.notice--info {
         border-left: 4px solid #F0C930;
+        margin-bottom: calc( var( --spacing-base ) * 3 );
     }
 }
 

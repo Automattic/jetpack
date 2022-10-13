@@ -34,7 +34,9 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 				{ __( 'Jetpack will be fixing the selected threat:', 'jetpack-protect' ) }
 			</Text>
 
-			<ThreatFixHeader threat={ { id, fixable, label, icon, severity } } fixAllDialog={ false } />
+			<div className={ styles.list }>
+				<ThreatFixHeader threat={ { id, fixable, label, icon, severity } } fixAllDialog={ false } />
+			</div>
 
 			<div className={ styles.footer }>
 				<Button variant="secondary" onClick={ handleCancelClick() }>
