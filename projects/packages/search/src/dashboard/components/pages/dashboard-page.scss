@@ -87,12 +87,8 @@ body {
 .usage-meter-group {
 	display: flex;
 	align-items: center;
-	height: 64px;
+	flex-wrap: wrap;
 	margin-bottom: 24px;
-
-	& > *:not( :first-child ) {
-		margin-left: 183px;
-	}
 }
 
 .usage-meter-about {
