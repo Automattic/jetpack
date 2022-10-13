@@ -5,8 +5,8 @@ import React from 'react';
 
 const planNameFromAPIData = apiData => {
 	// Determine plan name for display.
-	const paidText = __( 'Paid Plan', 'jetpack-search-pkg' );
-	const freeText = __( 'Free Plan', 'jetpack-search-pkg' );
+	const paidText = __( 'Upgraded', 'jetpack-search-pkg' );
+	const freeText = __( 'Free plan', 'jetpack-search-pkg' );
 	const planType = apiData?.tierSlug;
 	const planName = planType ? paidText : freeText;
 	return planName;

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Stats package: STATS_VERSION constant to class constant to support older JP plugin versions
+
+
