@@ -72,10 +72,12 @@ export const FilterSection = ( props: {
 					<CheckboxCheckmark
 						for="filter-public"
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
+						onChange={ privacyPublic => props.onChange?.( 'privacy-public', privacyPublic ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-private"
 						label={ __( 'Private', 'jetpack-videopress-pkg' ) }
+						onChange={ privacyPrivate => props.onChange?.( 'privacy-private', privacyPrivate ) }
 					/>
 				</Col>
 
@@ -86,19 +88,19 @@ export const FilterSection = ( props: {
 					<CheckboxCheckmark
 						for="filter-g"
 						label={ __( 'G', 'jetpack-videopress-pkg' ) }
-						onChange={ filterByRatingG => props.onChange?.( 'privacy-g', filterByRatingG ) }
+						onChange={ filterByRatingG => props.onChange?.( 'rating-g', filterByRatingG ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-pg-13"
 						label={ __( 'PG-13', 'jetpack-videopress-pkg' ) }
 						onChange={ filterByRatingPG13 =>
-							props.onChange?.( 'privacy-pg-13', filterByRatingPG13 )
+							props.onChange?.( 'rating-pg-13', filterByRatingPG13 )
 						}
 					/>
 					<CheckboxCheckmark
 						for="filter-r"
 						label={ __( 'R', 'jetpack-videopress-pkg' ) }
-						onChange={ filterByRatingR => props.onChange?.( 'privacy-r', filterByRatingR ) }
+						onChange={ filterByRatingR => props.onChange?.( 'rating-r', filterByRatingR ) }
 					/>
 				</Col>
 			</Container>
