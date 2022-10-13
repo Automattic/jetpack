@@ -21,6 +21,10 @@ export const getUploadedVideoCount = state => {
 	return state?.videos?.uploadedVideoCount;
 };
 
+export const getUploadedLocalVideoCount = state => {
+	return state?.localVideos?.uploadedVideoCount;
+};
+
 export const getIsFetching = state => {
 	return state?.videos?.isFetching;
 };
@@ -60,7 +64,20 @@ export const getLocalVideos = state => {
 	return state?.localVideos?.items || [];
 };
 
+export const getIsFetchingLocalVideos = state => {
+	return state?.localVideos?.isFetching;
+};
+
+export const getLocalVideosQuery = state => {
+	return state?.localVideos?.query;
+};
+
+export const getLocalPagination = state => {
+	return state?.localVideos?.pagination;
+};
+
 const selectors = {
+	// VideoPress videos
 	getVideos,
 	getUploadingVideos,
 	getVideosQuery,
@@ -70,13 +87,18 @@ const selectors = {
 	getIsFetchingUploadedVideoCount,
 	getStorageUsed,
 
+	// Local videos
+	getLocalVideos,
+	getIsFetchingLocalVideos,
+	getLocalVideosQuery,
+	getLocalPagination,
+	getUploadedLocalVideoCount,
+
 	getVideo,
 	getVideoStateMetadata,
 
 	getPurchases,
 	isFetchingPurchases,
-
-	getLocalVideos,
 };
 
 export default selectors;

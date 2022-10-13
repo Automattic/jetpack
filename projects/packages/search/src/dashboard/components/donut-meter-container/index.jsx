@@ -1,4 +1,11 @@
-import { DonutMeter, Gridicon, numberFormat } from '@automattic/jetpack-components';
+import {
+	DonutMeter,
+	Gridicon,
+	numberFormat,
+	IconTooltip,
+	Button,
+	ThemeProvider,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 
@@ -18,12 +25,14 @@ const formatNumberWithSeparators = x => {
  * @param {string} props.title - title to the DonutMeter
  * @param {Function} props.iconClickedCallback - handler for click on "info" icon
  * @param {Function} props.linkClickedCallback - handler for click on "details" link
+ * @param {object} props.tooltip - tooltip data
  * @returns {React.Component} DonutMeterContainer component
  */
 const DonutMeterContainer = ( {
 	current = 0,
 	limit = 1,
 	title,
+	tooltip,
 	iconClickedCallback,
 	linkClickedCallback,
 } ) => {
@@ -35,16 +44,40 @@ const DonutMeterContainer = ( {
 		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	const displayCurrent = isUnlimitedRequests ? 1 : current;
 	const displayLimit = isUnlimitedRequests ? 1 : limit;
+
+	const tooltipArgs = {
+		shadowAnchor: true,
+		title: tooltip.title,
+		placement: 'top',
+		forceShow: tooltip.forceShow,
+	};
+
 	return (
-		<div className="donut-meter-container">
-			<div className="donut-meter-wrapper">
-				<DonutMeter segmentCount={ displayCurrent } totalCount={ displayLimit } />
+		<ThemeProvider>
+			<div className="donut-meter-container">
+				<div className="donut-meter-wrapper">
+					<DonutMeter segmentCount={ displayCurrent } totalCount={ displayLimit } />
+					<div className="upgrade-tooltip-shadow-anchor">
+						<IconTooltip { ...tooltipArgs }>
+							<>
+								<div>{ tooltip.content }</div>
+								<div className="upgrade-tooltip-actions">
+									<span>{ tooltip.section }</span>
+									<Button onClick={ tooltip.goToNext }>{ tooltip.next }</Button>
+								</div>
+							</>
+						</IconTooltip>
+					</div>
+				</div>
+				<div className="donut-info-wrapper">
+					<InfoPrimary localizedMessage={ title } iconClickedCallback={ iconClickedCallback } />
+					<InfoSecondary
+						localizedMessage={ usageInfo }
+						linkClickedCallback={ linkClickedCallback }
+					/>
+				</div>
 			</div>
-			<div className="donut-info-wrapper">
-				<InfoPrimary localizedMessage={ title } iconClickedCallback={ iconClickedCallback } />
-				<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ linkClickedCallback } />
-			</div>
-		</div>
+		</ThemeProvider>
 	);
 };
 
