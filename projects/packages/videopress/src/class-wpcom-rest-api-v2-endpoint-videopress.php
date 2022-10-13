@@ -263,7 +263,26 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return WP_Rest_Response - The response object.
 	 */
 	public static function videopress_upload_jwt() {
-		$blog_id = VideoPressToken::blog_id();
+		$has_connected_owner = Data::has_connected_owner();
+		if ( ! $has_connected_owner ) {
+			return rest_ensure_response(
+				new WP_Error(
+					'owner_not_connected',
+					'User not connected.',
+					array(
+						'code'        => 503,
+						'connect_url' => Admin_UI::get_admin_page_url(),
+					)
+				)
+			);
+		}
+
+		$blog_id = Data::get_blog_id();
+		if ( ! $blog_id ) {
+			return rest_ensure_response(
+				new WP_Error( 'site_not_registered', 'Site not registered.', 503 )
+			);
+		}
 
 		try {
 			$token  = VideoPressToken::videopress_upload_jwt();
@@ -274,7 +293,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'upload_blog_id' => $blog_id,
 			);
 		} catch ( \Exception $e ) {
-			// TODO: Improve status code.
 			$status = 500;
 			$data   = array(
 				'error' => $e->getMessage(),
