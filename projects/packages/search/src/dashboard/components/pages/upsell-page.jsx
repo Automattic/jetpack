@@ -57,7 +57,7 @@ export default function UpsellPage( { isLoading = false } ) {
 		hasCheckoutStarted: hasCheckoutStartedPaid,
 	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
-		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
