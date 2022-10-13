@@ -3,6 +3,7 @@ import {
 	ThemeProvider,
 	numberFormat,
 } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState, useCallback } from 'react';
@@ -14,7 +15,7 @@ import PlanSummary from './plan-summary';
 const usageInfoFromAPIData = apiData => {
 	// Transform the data as necessary.
 	// Are there better defaults for the Max values?
-	// Should we recored, log, or otherwise surface potential errors here?
+	// Should we record, log, or otherwise surface potential errors here?
 	return {
 		recordCount: apiData?.currentUsage?.num_records || 0,
 		recordMax: apiData?.currentPlan?.record_limit || 0,
@@ -42,7 +43,6 @@ const upgradeTypeFromAPIData = apiData => {
 };
 
 const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isJustUpgraded } ) => {
-	// TODO: Add logic for plan limits.
 	const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const usageInfo = usageInfoFromAPIData( planInfo );
 	return (
@@ -153,6 +153,17 @@ const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
 		},
 	};
 
+	// TODO: Implement icon callbacks.
+	const recordsIconClickedCallback = () => {
+		// eslint-disable-next-line no-console
+		console.log( 'Icon clicked for records meter' );
+	};
+	const requestsIconClickedCallback = () => {
+		// eslint-disable-next-line no-console
+		console.log( 'Icon clicked for requests meter' );
+	};
+	// TODO: Implement callback for the toggle details link.
+	// No callback, no toggle.
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
@@ -160,12 +171,14 @@ const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
 				current={ usageInfo.recordCount }
 				limit={ usageInfo.recordMax }
 				tooltip={ tooltips.record }
+				iconClickedCallback={ recordsIconClickedCallback }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
 				current={ usageInfo.requestCount }
 				limit={ usageInfo.requestMax }
 				tooltip={ tooltips.request }
+				iconClickedCallback={ requestsIconClickedCallback }
 			/>
 		</div>
 	);
@@ -176,12 +189,20 @@ const AboutPlanLimits = () => {
 		<div className="usage-meter-about">
 			{ createInterpolateElement(
 				__(
-					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>.',
+					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>. <jpExternalIcon></jpExternalIcon>',
 					'jetpack-search-pkg'
 				),
 				{
 					jpPlanLimits: (
 						<a
+							href="https://jetpack.com/support/search/"
+							rel="noopener noreferrer"
+							target="_blank"
+							className="support-link"
+						/>
+					),
+					jpExternalIcon: (
+						<ExternalLink
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
 							target="_blank"

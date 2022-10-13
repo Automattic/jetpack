@@ -19,22 +19,31 @@ const formatNumberWithSeparators = x => {
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
- * @param {object}prop - props to show usage info.
- * @param {number}prop.current - totalCount to the DonutMeter.
- * @param {number}prop.limit - segmentCount to the DonutMeter.
- * @param {string}prop.title - title to the DonutMeter.
- * @param {object}prop.tooltip - tooltip data
- * @returns {React.Component} DonutMeterContainer component.
+ * @param {object} props - Props
+ * @param {number} props.current - totalCount to the DonutMeter
+ * @param {number} props.limit - segmentCount to the DonutMeter
+ * @param {string} props.title - title to the DonutMeter
+ * @param {Function} props.iconClickedCallback - handler for click on "info" icon
+ * @param {Function} props.linkClickedCallback - handler for click on "details" link
+ * @param {object} props.tooltip - tooltip data
+ * @returns {React.Component} DonutMeterContainer component
  */
-const DonutMeterContainer = ( { current = 0, limit = 1, title, tooltip } ) => {
-	// TODO: Remove local callback in favour of props.
-	const tempCallback = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'higher level callback...' );
-	};
-
-	const usageInfo =
-		formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+const DonutMeterContainer = ( {
+	current = 0,
+	limit = 1,
+	title,
+	tooltip,
+	iconClickedCallback,
+	linkClickedCallback,
+} ) => {
+	// Special case for "unlimited" requests, which has a limit of 64-bit PHP_INT_MAX.
+	const isUnlimitedRequests = limit > 1e18;
+	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
+	const usageInfo = isUnlimitedRequests
+		? `0/${ localizedUnlimited }`
+		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+	const displayCurrent = isUnlimitedRequests ? 1 : current;
+	const displayLimit = isUnlimitedRequests ? 1 : limit;
 
 	const tooltipArgs = {
 		shadowAnchor: true,
@@ -47,7 +56,7 @@ const DonutMeterContainer = ( { current = 0, limit = 1, title, tooltip } ) => {
 		<ThemeProvider>
 			<div className="donut-meter-container">
 				<div className="donut-meter-wrapper">
-					<DonutMeter segmentCount={ current } totalCount={ limit } />
+					<DonutMeter segmentCount={ displayCurrent } totalCount={ displayLimit } />
 					<div className="upgrade-tooltip-shadow-anchor">
 						<IconTooltip { ...tooltipArgs }>
 							<>
@@ -61,8 +70,11 @@ const DonutMeterContainer = ( { current = 0, limit = 1, title, tooltip } ) => {
 					</div>
 				</div>
 				<div className="donut-info-wrapper">
-					<InfoPrimary localizedMessage={ title } iconClickedCallback={ tempCallback } />
-					<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ tempCallback } />
+					<InfoPrimary localizedMessage={ title } iconClickedCallback={ iconClickedCallback } />
+					<InfoSecondary
+						localizedMessage={ usageInfo }
+						linkClickedCallback={ linkClickedCallback }
+					/>
 				</div>
 			</div>
 		</ThemeProvider>
