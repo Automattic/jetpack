@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 
 /**
@@ -43,7 +42,7 @@ class Options {
 		self::$options = get_option( self::OPTION_NAME, array() );
 		self::$options = array_merge( self::get_defaults(), self::$options );
 
-		if ( self::$options['version'] < Constants::get_constant( 'STATS_VERSION' ) ) {
+		if ( self::$options['version'] < Main::STATS_VERSION ) {
 			self::upgrade_options( self::$options );
 		}
 
@@ -110,7 +109,7 @@ class Options {
 		}
 
 		$options['blog_id'] = Jetpack_Options::get_option( 'id' );
-		$options['version'] = Constants::get_constant( 'STATS_VERSION' );
+		$options['version'] = Main::STATS_VERSION;
 
 		$success = update_option( self::OPTION_NAME, $options );
 
@@ -161,7 +160,7 @@ class Options {
 			'count_roles'  => array(),
 			'do_not_track' => true, // @todo
 			'blog_id'      => Jetpack_Options::get_option( 'id' ),
-			'version'      => Constants::get_constant( 'STATS_VERSION' ),
+			'version'      => Main::STATS_VERSION,
 		);
 	}
 }
