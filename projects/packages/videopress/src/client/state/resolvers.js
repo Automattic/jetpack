@@ -9,6 +9,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import {
 	SET_VIDEOS_QUERY,
+	SET_VIDEOS_FILTER,
 	WP_REST_API_MEDIA_ENDPOINT,
 	DELETE_VIDEO,
 	REST_API_SITE_PURCHASES_ENDPOINT,
@@ -59,6 +60,16 @@ const getVideos = {
 			wpv2MediaQuery.search = query.search;
 		}
 
+		// Filter -> Rating
+		const filter = select.getVideosFilter();
+		const rating = Object.keys( filter.rating )
+			.filter( key => filter.rating[ key ] )
+			.join( ',' );
+
+		if ( rating?.length ) {
+			wpv2MediaQuery.videopress_rating = rating;
+		}
+
 		try {
 			const response = await fetch(
 				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
@@ -80,8 +91,8 @@ const getVideos = {
 			console.error( error ); // eslint-disable-line no-console
 		}
 	},
-	shouldInvalidate: action => {
-		return action.type === SET_VIDEOS_QUERY || action.type === DELETE_VIDEO;
+	shouldInvalidate: ( { type } ) => {
+		return type === SET_VIDEOS_QUERY || type === DELETE_VIDEO || type === SET_VIDEOS_FILTER;
 	},
 };
 
