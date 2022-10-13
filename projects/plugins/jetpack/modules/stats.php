@@ -1367,11 +1367,13 @@ function jetpack_stats_api_path( $resource = '' ) {
  *
  * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  * @access public
+ * @deprecated $$next-version$$ Use WPCOM_Stats->get_stats instead.
  * @param array  $args (default: array())  The args that are passed to the endpoint.
  * @param string $resource (default: '') Optional sub-endpoint following /stats/.
  * @return array|WP_Error.
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
+	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\WPCOM_Stats->get_stats' );
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
