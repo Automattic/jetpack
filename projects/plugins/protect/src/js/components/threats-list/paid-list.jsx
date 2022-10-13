@@ -1,5 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -137,6 +137,7 @@ const ThreatAccordionItem = ( {
 
 const PaidList = ( { list } ) => {
 	const { scan } = useDispatch( STORE_ID );
+	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 
 	const handleScanClick = () => {
 		return event => {
@@ -169,7 +170,11 @@ const PaidList = ( { list } ) => {
 						}
 					</Button>
 				) }
-				<Button variant="secondary" onClick={ handleScanClick() }>
+				<Button
+					variant="secondary"
+					isLoading={ Boolean( scanIsEnqueuing && scanIsEnqueuing === true ) }
+					onClick={ handleScanClick() }
+				>
 					{ __( 'Scan now', 'jetpack-protect' ) }
 				</Button>
 			</div>

@@ -4,6 +4,7 @@ import camelize from 'camelize';
 
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
+const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
@@ -42,6 +43,10 @@ const refreshStatus = () => async ( { dispatch } ) => {
 
 const setStatusIsFetching = status => {
 	return { type: SET_STATUS_IS_FETCHING, status };
+};
+
+const setScanIsEnqueuing = isEnqueuing => {
+	return { type: SET_SCAN_IS_ENQUEUING, isEnqueuing };
 };
 
 const setInstalledPlugins = plugins => {
@@ -99,6 +104,7 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 };
 
 const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
+	dispatch( setScanIsEnqueuing( true ) );
 	return await new Promise( () => {
 		return apiFetch( {
 			path: `jetpack-protect/v1/scan`,
@@ -124,6 +130,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 				);
 			} )
 			.finally( () => {
+				dispatch( setScanIsEnqueuing( false ) );
 				callback();
 			} );
 	} );
@@ -141,6 +148,7 @@ const actions = {
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,
+	setScanIsEnqueuing,
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
@@ -155,6 +163,7 @@ const actions = {
 export {
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
