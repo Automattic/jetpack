@@ -253,7 +253,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					</Text>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && wpcomFreeProductSlug && (
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && addFreeProductUrl && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
