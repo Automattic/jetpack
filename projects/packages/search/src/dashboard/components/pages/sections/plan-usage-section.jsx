@@ -189,19 +189,11 @@ const AboutPlanLimits = () => {
 		<div className="usage-meter-about">
 			{ createInterpolateElement(
 				__(
-					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>. <jpExternalIcon></jpExternalIcon>',
+					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>',
 					'jetpack-search-pkg'
 				),
 				{
 					jpPlanLimits: (
-						<a
-							href="https://jetpack.com/support/search/"
-							rel="noopener noreferrer"
-							target="_blank"
-							className="support-link"
-						/>
-					),
-					jpExternalIcon: (
 						<ExternalLink
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
