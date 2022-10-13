@@ -1574,7 +1574,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 
 			// This is always called first on page load.
 			case 'day':
-				$initial_stats = json_decode( wp_json_encode( $wpcom_stats->get_stats() ) );
+				$initial_stats = convert_stats_array_to_object( $wpcom_stats->get_stats() );
 				return rest_ensure_response(
 					array(
 						'general' => $initial_stats,
@@ -1588,13 +1588,11 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'week':
 				return rest_ensure_response(
 					array(
-						'week' => json_decode(
-							wp_json_encode(
-								$wpcom_stats->get_visits(
-									array(
-										'unit'     => 'week',
-										'quantity' => 14,
-									)
+						'week' => convert_stats_array_to_object(
+							$wpcom_stats->get_visits(
+								array(
+									'unit'     => 'week',
+									'quantity' => 14,
 								)
 							)
 						),
@@ -1603,13 +1601,11 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'month':
 				return rest_ensure_response(
 					array(
-						'month' => json_decode(
-							wp_json_encode(
-								$wpcom_stats->get_visits(
-									array(
-										'unit'     => 'month',
-										'quantity' => 12,
-									)
+						'month' => convert_stats_array_to_object(
+							$wpcom_stats->get_visits(
+								array(
+									'unit'     => 'month',
+									'quantity' => 12,
 								)
 							)
 						),
