@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2022-10-13
+### Added
+- VideoPress: add dialog to convert core/video to videopress/video [#26768]
+- VideoPress: Add poster image upload to video quick actions [#26762]
+- VideoPress: Add support to `videopress_privacy_setting` and `videopress_rating` query filters to filter media attachments using the respectives meta keys. [#26777]
+- VideoPress: connect videos Filter UI with the data handling [#26825]
+- VideoPress: expose local videos in the initial state [#26743]
+- VideoPress: first pagination approach for Local videos [#26794]
+- VideoPress: implement a custom VideoPress video block recovery [#26787]
+- VideoPress: reduxify local videos. first approach [#26746]
+- VideoPress: reorganize and improve URL helpers [#26740]
+- VideoPress: show total videos in the Local videos section [#26789]
+- VideoPress: start to handle loading state for local videos [#26797]
+- VideoPress: style checkout button when checking out [#26798]
+- VideoPress: Surface filtering-relevant VideoPress meta keys, copying it from the attachment `videopress` metadata object to searcheable new meta key. [#26769]
+
+### Changed
+- Updated package dependencies. [#26790]
+- VideoPress: move v6 core/video transfrom from VideoPress to Jetpack plugin [#26799]
+- VideoPress: Pagination and search while uploading [#26780]
+
+### Fixed
+- VideoPress: Make sure the thumbnail var is set before using it to prevent "Undefined variable" notice [#26801]
+- VideoPress: Thumbnail z-index [#26771]
+- VideoPress: Uploading states responsive behavior [#26770]
+
 ## [0.5.1] - 2022-10-11
 ### Added
 - VideoPress: Create new videopress/v1/site endpoint to fetch site data regardless of having the Jetpack plugin active on the target site. [#26652]
@@ -267,6 +293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.6.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.4.0...v0.4.1
