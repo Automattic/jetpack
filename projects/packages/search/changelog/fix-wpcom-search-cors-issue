@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the restApi client constructor for creating an exclusive singleton for the Search dashboard.

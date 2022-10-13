@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Made API client exportable and removed now-unused wpcomOriginApi.
