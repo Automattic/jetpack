@@ -105,3 +105,7 @@ export const FilterSection = ( props: {
 		</div>
 	);
 };
+
+export const ConnectFilterSection = props => {
+	return <FilterSection { ...props } />;
+};
