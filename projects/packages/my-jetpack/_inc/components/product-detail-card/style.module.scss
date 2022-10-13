@@ -56,7 +56,7 @@
 
 .checkout-button {
 	display: inline-block;
-	padding: 8px 60px;
+	padding: 8px 40px;
 	text-align: center;
 	width: 100%;
 	min-height: 42px;
@@ -70,6 +70,10 @@
 		color: var( --jp-white );
 	}
 
+}
+
+.free-product-checkout-button {
+	margin-top: calc( var( --spacing-base ) * 2 );
 }
 
 .features {
