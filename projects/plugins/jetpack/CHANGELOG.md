@@ -7,7 +7,7 @@
 - VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin [#26799]
 
 ### Bug fixes
-- Fix unmounted state updates in Form CRM integration [#26688]
+- CRM: Fix unmounted state updates in Form CRM integration [#26688]
 - Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking [#26668]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
