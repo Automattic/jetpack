@@ -55,8 +55,8 @@ const setVideosPagination = pagination => {
 	return { type: SET_VIDEOS_PAGINATION, pagination };
 };
 
-const setVideosFilter = ( filter, value ) => {
-	return { type: SET_VIDEOS_FILTER, filter, value };
+const setVideosFilter = ( filter, value, isActive ) => {
+	return { type: SET_VIDEOS_FILTER, filter, value, isActive };
 };
 
 const setVideos = videos => {

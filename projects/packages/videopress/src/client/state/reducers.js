@@ -93,11 +93,15 @@ const videos = ( state, action ) => {
 		}
 
 		case SET_VIDEOS_FILTER: {
+			const { filter, value, isActive } = action;
 			return {
 				...state,
 				filter: {
 					...state.filter,
-					[ action.filter ]: action.value,
+					[ filter ]: {
+						...( state.filter?.[ filter ] || {} ),
+						[ value ]: isActive,
+					},
 				},
 			};
 		}

@@ -52,7 +52,11 @@ export const CheckboxCheckmark = ( props: {
 };
 
 export const FilterSection = ( props: {
-	onChange?: ( filter: string, checked: boolean ) => void;
+	onChange?: (
+		filter: 'privacy' | 'rating',
+		value: 0 | 1 | 'PG-13' | 'G' | 'R-17',
+		checked: boolean
+	) => void;
 	className?: string;
 } ): JSX.Element => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -73,12 +77,12 @@ export const FilterSection = ( props: {
 					<CheckboxCheckmark
 						for="filter-public"
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
-						onChange={ privacyPublic => props.onChange?.( 'privacy-public', privacyPublic ) }
+						onChange={ privacyPublic => props.onChange?.( 'privacy', 0, privacyPublic ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-private"
 						label={ __( 'Private', 'jetpack-videopress-pkg' ) }
-						onChange={ privacyPrivate => props.onChange?.( 'privacy-private', privacyPrivate ) }
+						onChange={ privacyPrivate => props.onChange?.( 'privacy', 1, privacyPrivate ) }
 					/>
 				</Col>
 
@@ -89,19 +93,19 @@ export const FilterSection = ( props: {
 					<CheckboxCheckmark
 						for="filter-g"
 						label={ __( 'G', 'jetpack-videopress-pkg' ) }
-						onChange={ filterByRatingG => props.onChange?.( 'rating-g', filterByRatingG ) }
+						onChange={ filterByRatingG => props.onChange?.( 'rating', 'G', filterByRatingG ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-pg-13"
 						label={ __( 'PG-13', 'jetpack-videopress-pkg' ) }
 						onChange={ filterByRatingPG13 =>
-							props.onChange?.( 'rating-pg-13', filterByRatingPG13 )
+							props.onChange?.( 'rating', 'PG-13', filterByRatingPG13 )
 						}
 					/>
 					<CheckboxCheckmark
 						for="filter-r"
 						label={ __( 'R', 'jetpack-videopress-pkg' ) }
-						onChange={ filterByRatingR => props.onChange?.( 'rating-r', filterByRatingR ) }
+						onChange={ filterByRatingR => props.onChange?.( 'rating', 'R-17', filterByRatingR ) }
 					/>
 				</Col>
 			</Container>
