@@ -295,8 +295,6 @@ class WPCOM_Stats {
 	/**
 	 * Get the number of visits for the site.
 	 *
-	 * @todo Update link below
-	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/visits/
 	 * @param array $args Optional query parameters.
 	 * @return array|WP_Error
 	 */
