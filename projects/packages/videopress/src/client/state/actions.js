@@ -15,6 +15,7 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
+	SET_VIDEOS_FILTER,
 	SET_LOCAL_VIDEOS,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
 	SET_LOCAL_VIDEOS_QUERY,
@@ -55,6 +56,10 @@ const setVideosQuery = query => {
 
 const setVideosPagination = pagination => {
 	return { type: SET_VIDEOS_PAGINATION, pagination };
+};
+
+const setVideosFilter = ( filter, value, isActive ) => {
+	return { type: SET_VIDEOS_FILTER, filter, value, isActive };
 };
 
 const setVideos = videos => {
@@ -275,6 +280,7 @@ const actions = {
 	setFetchVideosError,
 	setVideosQuery,
 	setVideosPagination,
+	setVideosFilter,
 	setVideos,
 
 	setLocalVideos,
