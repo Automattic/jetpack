@@ -103,6 +103,10 @@ const videos = ( state, action ) => {
 						[ value ]: isActive,
 					},
 				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
 			};
 		}
 
