@@ -27,11 +27,13 @@ const Stats = ( {
 	uploadDate,
 	plays,
 	isPrivate,
+	loading = false,
 }: {
 	duration?: string;
 	uploadDate?: string;
 	plays?: number;
 	isPrivate?: boolean;
+	loading?: boolean;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
@@ -77,6 +79,7 @@ const Stats = ( {
 			duration={ durationElement }
 			plays={ playsElement }
 			upload={ uploadElement }
+			loading={ loading }
 		/>
 	);
 };
@@ -251,6 +254,7 @@ export const VideoRow = ( {
 								uploadDate={ uploadDateFormatted }
 								plays={ plays }
 								isPrivate={ isPrivate }
+								loading={ loading }
 							/>
 						) }
 						{ isSmall && (
