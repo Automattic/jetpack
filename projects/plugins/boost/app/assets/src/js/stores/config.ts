@@ -23,7 +23,6 @@ export const dismissedPopOuts = {
 	},
 };
 
-// eslint-disable-next-line camelcase
 export const getStarted = () => {
 	update( store => ( {
 		...store,
