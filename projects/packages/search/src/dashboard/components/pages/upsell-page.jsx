@@ -52,7 +52,10 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ fetchSearchPlanInfo ]
 	);
 
-	const { run: sendToCartPaid, hasCheckoutStartedPaid } = useProductCheckoutWorkflow( {
+	const {
+		run: sendToCartPaid,
+		hasCheckoutStarted: hasCheckoutStartedPaid,
+	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
 		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
@@ -60,7 +63,10 @@ export default function UpsellPage( { isLoading = false } ) {
 		siteSuffix: domain,
 	} );
 
-	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
+	const {
+		run: sendToCartFree,
+		hasCheckoutStarted: hasCheckoutStartedFree,
+	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search_free',
 		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
