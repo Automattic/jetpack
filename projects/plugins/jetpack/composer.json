@@ -42,7 +42,7 @@
 		"automattic/jetpack-stats": "0.2.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
 		"automattic/jetpack-sync": "1.39.x-dev",
-		"automattic/jetpack-videopress": "0.5.x-dev",
+		"automattic/jetpack-videopress": "0.6.x-dev",
 		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-wordads": "0.2.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
