@@ -121,6 +121,7 @@ export const VideoRow = ( {
 
 	const canExpand =
 		isSmall &&
+		! loading &&
 		( showEditButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
@@ -221,7 +222,7 @@ export const VideoRow = ( {
 			>
 				<div
 					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-					onClick={ isSmall ? handleInfoWrapperClick : null }
+					onClick={ isSmall && ! loading ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
 					<div className={ styles.poster }>
@@ -235,7 +236,7 @@ export const VideoRow = ( {
 						) }
 
 						{ loading ? (
-							<Placeholder width="100%" height={ 30 } />
+							<Placeholder height={ 30 } />
 						) : (
 							<Text variant="title-small" className={ styles.title } ref={ textRef }>
 								{ title }
