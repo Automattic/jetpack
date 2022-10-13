@@ -68,7 +68,19 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
-	const isJustUpgraded = useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] );
+
+	const myStorage = window.localStorage;
+	const isTooltipRead = myStorage.getItem( 'upgrade_tooltip_finished' );
+	const setTooltipRead = () => {
+		myStorage.setItem( 'upgrade_tooltip_finished', 1 );
+	};
+	const isPlanJustUpgraded =
+		useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] ) && ! isTooltipRead;
+
+	const tooltipHelper = {
+		isPlanJustUpgraded,
+		setTooltipRead,
+	};
 
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 
@@ -141,7 +153,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							recordMeterInfo={ recordMeterInfo }
 							tierSlug={ tierSlug }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
-							isJustUpgraded={ isJustUpgraded }
+							tooltipHelper={ tooltipHelper }
 						/>
 					) }
 					{ ! isNewPricing && (
@@ -182,13 +194,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( {
-	hasIndex,
-	recordMeterInfo,
-	tierSlug,
-	sendPaidPlanToCart,
-	isJustUpgraded,
-} ) => {
+const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart, tooltipHelper } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -206,7 +212,7 @@ const PlanInfo = ( {
 					<PlanUsageSection
 						planInfo={ planInfo }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
-						isJustUpgraded={ isJustUpgraded }
+						tooltipHelper={ tooltipHelper }
 					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }
