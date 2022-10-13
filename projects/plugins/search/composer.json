@@ -11,6 +11,7 @@
 		"automattic/jetpack-identity-crisis": "0.8.x-dev",
 		"automattic/jetpack-my-jetpack": "2.2.x-dev",
 		"automattic/jetpack-search": "0.27.x-dev",
+		"automattic/jetpack-stats": "0.2.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
 		"automattic/jetpack-sync": "1.39.x-dev",
 		"automattic/jetpack-plugins-installer": "0.2.x-dev"

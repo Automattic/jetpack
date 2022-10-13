@@ -201,6 +201,8 @@ class Data {
 
 				if ( isset( $files['dvd']['original_img'] ) ) {
 					$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
+				} else {
+					$thumbnail = null;
 				}
 
 				return array(
@@ -222,7 +224,7 @@ class Data {
 						'width'  => $width,
 						'height' => $height,
 					),
-					'thumnbail'      => $thumbnail,
+					'thumbnail'      => $thumbnail,
 					'finished'       => $finished,
 				);
 			},
