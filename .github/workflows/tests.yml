@@ -23,7 +23,7 @@ jobs:
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
-          echo "::set-output name=matrix::$MATRIX"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tests:
     name: ${{ matrix.name }}
@@ -82,8 +82,8 @@ jobs:
         run: |
           CHANGED="$(EXTRA=test .github/files/list-changed-projects.sh)"
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
-          echo "::set-output name=projects::${CHANGED}"
-          echo "::set-output name=any-plugins::${ANY_PLUGINS}"
+          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
+          echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
       - name: Setup WordPress environment for plugin tests
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
@@ -180,9 +180,9 @@ jobs:
         run: |
           [[ -d artifacts ]] && find artifacts -type d -empty -delete
           if [[ -d artifacts ]]; then
-            echo "::set-output name=any::true"
+            echo "any=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::set-output name=any::false"
+            echo "any=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'

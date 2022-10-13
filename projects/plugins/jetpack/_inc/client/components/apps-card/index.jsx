@@ -1,4 +1,5 @@
 import { imagePath } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -21,6 +22,13 @@ class AppsCard extends React.Component {
 			button: 'apps-download',
 			page: this.props.location.pathname,
 			store: storeName,
+		} );
+	};
+
+	trackAppLinkClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'jetpack-apps-link',
+			page: this.props.location.pathname,
 		} );
 	};
 
@@ -71,7 +79,15 @@ class AppsCard extends React.Component {
 						'jetpack'
 					),
 					{
-						a: <a className="jp-apps-card__link" href="https://jetpack.com/app" />,
+						a: (
+							<a
+								className="jp-apps-card__link"
+								href={ getRedirectUrl( 'jetpack-plugin-dashboard-apps-card' ) }
+								rel="noopener noreferrer"
+								target="_blank"
+								onClick={ this.trackAppLinkClick }
+							/>
+						),
 					}
 				) }
 			</p>
