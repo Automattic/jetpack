@@ -79,6 +79,14 @@
 		font-size: var( --font-body-small );
 		font-weight: normal;
 	}
+
+	button:hover:not(:disabled) {
+		text-decoration-line: none;
+	}
+
+	button:focus:not(:disabled) {
+		box-shadow: none;
+	}
 }
 
 @media ( max-width: 599px ) {
