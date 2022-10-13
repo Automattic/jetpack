@@ -233,7 +233,7 @@ export const SettingsCard = props => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ __( 'Start for free', 'jetpack' ) }
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'

@@ -14,6 +14,10 @@ import { productDescriptionRoutes } from './constants';
 export const getProductDescriptionUrl = ( state, productKey ) => {
 	const baseUrl = `${ getSiteAdminUrl( state ) }admin.php?page=jetpack#`;
 
+	if ( productKey === 'search' ) {
+		return `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-search`;
+	}
+
 	if ( productDescriptionRoutes.includes( `/product/${ productKey }` ) ) {
 		return `${ baseUrl }/product/${ productKey }`;
 	}

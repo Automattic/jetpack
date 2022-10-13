@@ -108,7 +108,7 @@ class DashSearch extends Component {
 				pro_inactive: true,
 				overrideContent: this.props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ __( 'Start for free', 'jetpack' ) }
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
