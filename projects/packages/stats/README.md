@@ -90,6 +90,7 @@ Inside `Automattic\Jetpack\Stats\WPCOM_Stats` class you can find the following m
 - `get_publicize_followers`: Get site's publicize follower counts.
 - `get_search_terms`: Get search terms used to find the site.
 - `get_total_post_views`: Get the total number of views for each post.
+- `get_visits`: Get the number of visits for the site.
 
 
 ## Security

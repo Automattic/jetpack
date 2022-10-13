@@ -11,6 +11,7 @@
  */
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -25,7 +26,7 @@ function jetpack_top_posts_widget_init() {
 	if (
 		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
 	&&
-		! function_exists( 'stats_get_from_restapi' )
+		! Jetpack::is_module_active( 'stats' )
 	) {
 		return;
 	}
@@ -677,7 +678,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$days = 2;
 		}
 
-		$post_view_posts = stats_get_from_restapi( array(), 'top-posts?max=11&summarize=1&num=' . (int) $days );
+		$query_args      = array(
+			'max'       => 11,
+			'summarize' => 1,
+			'num'       => (int) $days,
+		);
+		$post_view_posts = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_top_posts( $query_args ) );
 
 		if ( ! isset( $post_view_posts->summary ) || empty( $post_view_posts->summary->postviews ) ) {
 			return array();
