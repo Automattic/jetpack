@@ -11,7 +11,7 @@ export const title = __( 'Amazon', 'jetpack' );
 export const settings = {
 	attributes,
 	title,
-	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
+	description: __( 'Promote Amazon products and earn a commission from sales!!', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
