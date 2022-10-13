@@ -28,6 +28,7 @@ import {
 	SET_LOCAL_VIDEOS_QUERY,
 	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
+	SET_VIDEOS_FILTER,
 } from './constants';
 
 /**
@@ -87,6 +88,16 @@ const videos = ( state, action ) => {
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
+				},
+			};
+		}
+
+		case SET_VIDEOS_FILTER: {
+			return {
+				...state,
+				filter: {
+					...state.filter,
+					[ action.filter ]: action.value,
 				},
 			};
 		}
