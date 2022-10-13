@@ -5,11 +5,7 @@ import {
 	Container,
 	Col,
 } from '@automattic/jetpack-components';
-import {
-	useProductCheckoutWorkflow,
-	useConnectionErrorNotice,
-	ConnectionError,
-} from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -17,6 +13,7 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
+import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -35,6 +32,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -51,6 +49,7 @@ export default function DashboardPage( { isLoading = false } ) {
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
 	const isPageLoading = useSelect(
