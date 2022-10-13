@@ -78,3 +78,37 @@ export const mapVideosFromWPV2MediaEndpoint = (
 ): VideoPressVideo[] => {
 	return videos.map( mapVideoFromWPV2MediaEndpoint );
 };
+
+export const mapLocalVideoFromWPV2MediaEndpoint = (
+	video: OriginalVideoPressVideo
+): VideoPressVideo => {
+	const {
+		media_details: mediaDetails,
+		id,
+		jetpack_videopress: jetpackVideoPress,
+		source_url: url,
+		date: uploadDate,
+	} = video;
+
+	const { width, height, length: duration } = mediaDetails;
+
+	const { title, description, caption } = jetpackVideoPress;
+
+	return {
+		id,
+		title,
+		description,
+		caption,
+		width,
+		height,
+		url,
+		uploadDate,
+		duration,
+	};
+};
+
+export const mapLocalVideosFromWPV2MediaEndpoint = (
+	videos: OriginalVideoPressVideo[]
+): VideoPressVideo[] => {
+	return videos.map( mapLocalVideoFromWPV2MediaEndpoint );
+};

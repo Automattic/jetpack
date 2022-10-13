@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
  */
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { SearchInput } from '../input';
-import { ConnectPagination } from '../pagination';
+import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, FilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
@@ -96,7 +96,6 @@ const VideoLibraryWrapper = ( {
 			</div>
 			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
@@ -133,6 +132,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			) : (
 				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
 			) }
+			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</VideoLibraryWrapper>
 	);
 };
@@ -152,6 +152,7 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 				showQuickActions={ false }
 				videos={ videos }
 			/>
+			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };

@@ -19,25 +19,15 @@ __.not( 'foo', 'srcdomain' );
       ↓ ↓ ↓ ↓ ↓ ↓
 
 __('foo', 'srcdomain');
-
 _x('foo', 'context', 'srcdomain');
-
 _n('foo', 'foos', n, 'srcdomain');
-
 _nx('foo', 'foos', n, 'context', 'srcdomain');
-
 i18n.__('foo', 'srcdomain');
-
 i18n._x('foo', 'context', 'srcdomain');
-
 i18n._n('foo', 'foos', n, 'srcdomain');
-
 i18n._nx('foo', 'foos', n, 'context', 'srcdomain');
-
 _not('foo', 'foos', n, 'new-domain');
-
 i18n._not('foo', 'foos', n, 'new-domain');
-
 __.not('foo', 'srcdomain');
 
 
@@ -182,25 +172,15 @@ __.not( 'foo', 'c' );
       ↓ ↓ ↓ ↓ ↓ ↓
 
 __('foo', 'new-domain');
-
 _x('foo', 'context', 'new-domain');
-
 _n('foo', 'foos', n, 'new-domain');
-
 _nx('foo', 'foos', n, 'context', 'new-domain');
-
 i18n.__('foo', 'new-domain');
-
 i18n._x('foo', 'context', 'new-domain');
-
 i18n._n('foo', 'foos', n, 'new-domain');
-
 i18n._nx('foo', 'foos', n, 'context', 'new-domain');
-
 _not('foo', 'foos', n, 'a');
-
 i18n._not('foo', 'foos', n, 'b');
-
 __.not('foo', 'c');
 
 
@@ -227,25 +207,15 @@ __.not( 'foo', 'c' );
       ↓ ↓ ↓ ↓ ↓ ↓
 
 __('foo', 'A');
-
 _x('foo', 'context', 'B');
-
 _n('foo', 'foos', n, 'C');
-
 _nx('foo', 'foos', n, 'context', 'D');
-
 i18n.__('foo', 'A');
-
 i18n._x('foo', 'context', 'B');
-
 i18n._n('foo', 'foos', n, 'C');
-
 i18n._nx('foo', 'foos', n, 'context', 'D');
-
 _not('foo', 'foos', n, 'a');
-
 i18n._not('foo', 'foos', n, 'b');
-
 __.not('foo', 'c');
 
 
@@ -272,25 +242,15 @@ __.not( 'foo', 'c' );
       ↓ ↓ ↓ ↓ ↓ ↓
 
 __('foo', 'AAA');
-
 _x('foo', 'context', 'b');
-
 _n('foo', 'foos', n, 'CCC');
-
 _nx('foo', 'foos', n, 'context', 'd');
-
 i18n.__('foo', 'AAA');
-
 i18n._x('foo', 'context', 'b');
-
 i18n._n('foo', 'foos', n, 'CCC');
-
 i18n._nx('foo', 'foos', n, 'context', 'd');
-
 _not('foo', 'foos', n, 'a');
-
 i18n._not('foo', 'foos', n, 'b');
-
 __.not('foo', 'c');
 
 
@@ -360,25 +320,15 @@ __.not( 'foo', 'srcdomain' );
       ↓ ↓ ↓ ↓ ↓ ↓
 
 __('foo', 'new-domain');
-
 _x('foo', 'context', 'new-domain');
-
 _n('foo', 'foos', n, 'new-domain');
-
 _nx('foo', 'foos', n, 'context', 'new-domain');
-
 i18n.__('foo', 'new-domain');
-
 i18n._x('foo', 'context', 'new-domain');
-
 i18n._n('foo', 'foos', n, 'new-domain');
-
 i18n._nx('foo', 'foos', n, 'context', 'new-domain');
-
 _not('foo', 'foos', n, 'srcdomain');
-
 i18n._not('foo', 'foos', n, 'srcdomain');
-
 __.not('foo', 'srcdomain');
 
 

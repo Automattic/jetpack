@@ -64,6 +64,18 @@ export const getLocalVideos = state => {
 	return state?.localVideos?.items || [];
 };
 
+export const getIsFetchingLocalVideos = state => {
+	return state?.localVideos?.isFetching;
+};
+
+export const getLocalVideosQuery = state => {
+	return state?.localVideos?.query;
+};
+
+export const getLocalPagination = state => {
+	return state?.localVideos?.pagination;
+};
+
 const selectors = {
 	// VideoPress videos
 	getVideos,
@@ -76,6 +88,10 @@ const selectors = {
 	getStorageUsed,
 
 	// Local videos
+	getLocalVideos,
+	getIsFetchingLocalVideos,
+	getLocalVideosQuery,
+	getLocalPagination,
 	getUploadedLocalVideoCount,
 
 	getVideo,
@@ -83,8 +99,6 @@ const selectors = {
 
 	getPurchases,
 	isFetchingPurchases,
-
-	getLocalVideos,
 };
 
 export default selectors;
