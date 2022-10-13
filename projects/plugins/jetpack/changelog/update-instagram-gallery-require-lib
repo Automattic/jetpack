@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Updated jetpack_require_lib to require_once for Instagram class
