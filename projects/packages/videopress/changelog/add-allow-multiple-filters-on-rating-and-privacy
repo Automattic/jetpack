@@ -1,0 +1,4 @@
+Significance: patch
+Type: add
+
+VideoPress: Allow the use of multiple values on the `videopress_rating` and `videopress_privacy_setting` filters, using comma as the separator for the values.
