@@ -60,14 +60,15 @@ const getVideos = {
 			wpv2MediaQuery.search = query.search;
 		}
 
-		// Filter -> Rating
 		const filter = select.getVideosFilter();
-		const rating = Object.keys( filter.rating )
+
+		// Filter -> Rating
+		const videoPressRating = Object.keys( filter?.rating || {} )
 			.filter( key => filter.rating[ key ] )
 			.join( ',' );
 
-		if ( rating?.length ) {
-			wpv2MediaQuery.videopress_rating = rating;
+		if ( videoPressRating?.length ) {
+			wpv2MediaQuery.videopress_rating = videoPressRating;
 		}
 
 		try {
