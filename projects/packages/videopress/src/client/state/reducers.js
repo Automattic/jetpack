@@ -28,6 +28,8 @@ import {
 	SET_LOCAL_VIDEOS_QUERY,
 	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
 } from './constants';
 
 /**
@@ -360,6 +362,54 @@ const videos = ( state, action ) => {
 				items,
 				uploadedVideoCount: total,
 				pagination,
+			};
+		}
+
+		case SET_UPDATING_VIDEO_POSTER: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							isUpdatingPoster: true,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_POSTER: {
+			const { id, poster } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex >= 0 ) {
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					posterImage: poster,
+				};
+			}
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							isUpdatingPoster: false,
+						},
+					},
+				},
 			};
 		}
 
