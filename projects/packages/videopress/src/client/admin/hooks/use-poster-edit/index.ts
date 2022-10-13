@@ -9,13 +9,6 @@ import { useState } from 'react';
  */
 import { STORE_ID } from '../../../state';
 
-interface MediaWindow extends Window {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	wp: { media: any };
-}
-
-declare let window: MediaWindow;
-
 const usePosterEdit = ( { video } ) => {
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ currentTime, setCurrentTime ] = useState( null );

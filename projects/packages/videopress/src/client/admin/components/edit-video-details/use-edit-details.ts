@@ -101,7 +101,7 @@ export default () => {
 		setPosterImageSource( 'video' );
 	}, [ selectedTime ] );
 
-	const saveDisabled = metaChanged === false && selectedTime === null;
+	const saveDisabled = metaChanged === false && selectedTime === null && ! libraryAttachment;
 
 	const selectPosterImageFromLibrary = async () => {
 		const attachment = await selectAttachmentFromLibrary();

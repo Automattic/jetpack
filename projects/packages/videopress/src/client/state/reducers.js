@@ -374,6 +374,7 @@ const videos = ( state, action ) => {
 			const { id } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
+			const currentVideoMeta = currentMetaItems[ id ] || {};
 
 			return {
 				...state,
@@ -382,6 +383,7 @@ const videos = ( state, action ) => {
 					items: {
 						...currentMetaItems,
 						[ id ]: {
+							...currentVideoMeta,
 							isUpdatingPoster: true,
 						},
 					},

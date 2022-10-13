@@ -178,14 +178,15 @@ export const VideoCard = ( {
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
 
-	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
+	const loading =
+		( isDeleting || restProps?.loading || isUpdatingPoster ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
 
 	return (
 		<VideoCard
 			id={ id }
 			{ ...restProps }
-			loading={ loading || isUpdatingPoster }
+			loading={ loading }
 			uploading={ uploading }
 			processing={ processing }
 			editable={ editable }

@@ -234,18 +234,20 @@ const setPurchases = purchases => {
 const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
 
-	const pollPoster = ( resolve, reject ) => {
+	const pollPoster = () => {
 		setTimeout( async () => {
 			try {
 				const resp = await apiFetch( { path, method: 'GET' } );
 
 				if ( resp?.data?.generating ) {
-					pollPoster( resolve, reject );
+					pollPoster();
 				} else {
-					resolve( resp?.data?.poster );
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
 				}
 			} catch ( error ) {
-				reject( error );
+				// @todo implement error handling / UI
+				// eslint-disable-next-line no-console
+				console.error( error );
 			}
 		}, 2000 );
 	};
@@ -254,18 +256,14 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 		dispatch( { type: SET_UPDATING_VIDEO_POSTER, id } );
 
 		const resp = await apiFetch( { method: 'POST', path, data } );
-		let poster;
 
 		if ( resp?.data?.generating ) {
 			// Poll the poster image until generated
-			poster = await new Promise( ( resolve, reject ) => {
-				pollPoster( resolve, reject );
-			} );
-		} else {
-			poster = resp?.data?.poster;
+			pollPoster();
+			return;
 		}
 
-		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
+		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
