@@ -1511,7 +1511,7 @@ function filter_stats_array_add_jp_version( $kvs ) {
  * Convert stats array to object after sanity checking the array is valid.
  *
  * @param  array $stats_array The stats array.
- * @return WP_Error|Object
+ * @return WP_Error|Object|null
  */
 function convert_stats_array_to_object( $stats_array ) {
 
@@ -1520,7 +1520,7 @@ function convert_stats_array_to_object( $stats_array ) {
 	}
 	$encoded_array = wp_json_encode( $stats_array );
 	if ( ! $encoded_array ) {
-		return new WP_Error( 'stats_error' );
+		return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
 	}
 	return json_decode( $encoded_array );
 }
