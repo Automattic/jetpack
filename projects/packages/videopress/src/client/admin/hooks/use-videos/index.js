@@ -52,8 +52,19 @@ export const useLocalVideos = () => {
 		select( STORE_ID ).getUploadedLocalVideoCount()
 	);
 
+	const isFetching = useSelect( select => select( STORE_ID ).getIsFetchingLocalVideos() );
+	const query = useSelect( select => select( STORE_ID ).getLocalVideosQuery() || {} );
+	const pagination = useSelect( select => select( STORE_ID ).getLocalPagination() );
+
 	return {
+		// Data
 		items,
 		uploadedLocalVideoCount,
+		isFetching,
+		...query,
+		...pagination,
+
+		// Handlers
+		setPage: page => dispatch( STORE_ID ).setLocalVideosQuery( { page } ),
 	};
 };

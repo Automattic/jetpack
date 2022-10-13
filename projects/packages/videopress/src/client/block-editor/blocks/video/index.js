@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { createBlock, registerBlockType } from '@wordpress/blocks';
+import { registerBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
@@ -17,20 +17,4 @@ registerBlockType( name, {
 	edit: Edit,
 	save,
 	icon,
-	transforms: {
-		from: [
-			{
-				type: 'block',
-				blocks: [ 'core/video' ],
-				transform: attrs => createBlock( 'videopress/video', attrs ),
-			},
-		],
-		to: [
-			{
-				type: 'block',
-				blocks: [ 'core/video' ],
-				transform: attrs => createBlock( 'core/video', attrs ),
-			},
-		],
-	},
 } );
