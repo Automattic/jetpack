@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0] - 2022-10-13
+### Added
+- Add connection error notice to the Search plugin. [#26778]
+- Introduce shadowed IconTooltips to tooltips for highlighting upgraded usage limits. [#26790]
+
+### Changed
+- Add upgrade button link with applying upgrade actions. [#26737]
+- Search Dashboard: Update Plan Usage section to more closely match design. [#26783]
+- Updated package dependencies. [#26790]
+
+### Fixed
+- Search: wpcom sites should not be considered as connected [#26835]
+
 ## [0.26.0] - 2022-10-11
 ### Added
 - Search Dashboard: Add support for conditional CUTs. [#26656]
@@ -536,6 +549,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.27.0]: https://github.com/Automattic/jetpack-search/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/Automattic/jetpack-search/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/Automattic/jetpack-search/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/Automattic/jetpack-search/compare/v0.23.0...v0.24.0

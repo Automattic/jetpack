@@ -55,6 +55,7 @@
 	min-width: 0; // Allows flex to be smaller than the content
 	position: relative;
 	height: var(--content-height);
+	width: 100%;
 
 	&.small {
 		cursor: pointer;
@@ -62,9 +63,13 @@
 }
 
 .poster {
-	width: 90px;
-	height: 50px;
-	object-fit: cover;
+	--width: 90px;
+	--height: 50px;
+
+	max-width: var(--width);
+	min-width: var(--width);
+	max-height: var(--height);
+	min-height: var(--height);
 	border-radius: var(--jp-border-radius);
 }
 

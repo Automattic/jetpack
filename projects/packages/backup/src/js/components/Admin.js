@@ -7,6 +7,7 @@ import {
 	getRedirectUrl,
 	PricingCard,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -25,6 +26,7 @@ import './masthead/masthead-style.scss';
 const Admin = () => {
 	const [ connectionStatus ] = useConnection();
 	const { tracks } = useAnalytics();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
 	const isFullyConnected =
 		connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
@@ -46,6 +48,11 @@ const Admin = () => {
 				<div className="content">
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 0 }>
+							{ hasConnectionError && (
+								<Col className="jetpack-connection-verified-error">
+									<ConnectionError />
+								</Col>
+							) }
 							<Col>
 								<div id="jp-admin-notices" className="jetpack-backup-jitm-card" />
 							</Col>

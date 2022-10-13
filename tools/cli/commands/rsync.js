@@ -313,7 +313,9 @@ async function maybePromptForDest( argv ) {
 		response = await inquirer.prompt( {
 			name: 'dest',
 			type: 'input',
-			message: 'Input destination path to the /plugins dir: ',
+			message:
+				"Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir: ",
+			validate: v => ( v === '' ? 'Please enter a host:path' : true ),
 		} );
 		argv.dest = response.dest;
 	} else {

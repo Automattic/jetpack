@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
-import { Spinner, withNotices } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
+import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useRef } from 'react';
 /**
@@ -80,14 +81,17 @@ const VideoPressUploader = ( {
 	};
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
-	const [ videoPressUploader ] = useResumableUploader( {
+	// eslint-disable-next-line no-unused-vars
+	const [ videoPressUploader, jwtData, jwtError ] = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: handleUploadSuccess,
 	} );
 
-	// Returns true if the object represents a valid host for a VideoPress video.
-	// Private vidoes are hosted under video.wordpress.com
+	/*
+	 * Returns true if the object represents a valid host for a VideoPress video.
+	 * Private vidoes are hosted under video.wordpress.com
+	 */
 	const isValidVideoPressUrl = urlObject => {
 		const validHosts = [ 'videopress.com', 'video.wordpress.com' ];
 		return urlObject.protocol === 'https:' && validHosts.includes( urlObject.host );
@@ -256,6 +260,33 @@ const VideoPressUploader = ( {
 				),
 			},
 		} );
+	}
+
+	if ( jwtError?.code === 'owner_not_connected' ) {
+		const connectUserDescription = createInterpolateElement(
+			__(
+				'<connectLink>Connect</connectLink> your site to use the <moreAboutVideoPressLink>VideoPress</moreAboutVideoPressLink> video block.',
+				'jetpack-videopress-pkg'
+			),
+			{
+				connectLink: <a href={ jwtError?.data?.connect_url } rel="noreferrer noopener" />,
+				moreAboutVideoPressLink: (
+					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
+				),
+			}
+		);
+
+		return (
+			<PlaceholderWrapper errorMessage={ connectUserDescription }>
+				<Button
+					key="videopress-connect-user"
+					variant="primary"
+					href={ jwtError?.data?.connect_url }
+				>
+					{ __( 'Connect', 'jetpack-videopress-pkg' ) }
+				</Button>
+			</PlaceholderWrapper>
+		);
 	}
 
 	// Showing error if upload fails
