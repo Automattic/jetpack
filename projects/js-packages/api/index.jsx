@@ -31,7 +31,6 @@ export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
  */
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
-		wpcomOriginApiUrl = root,
 		headers = {
 			'X-WP-Nonce': nonce,
 		},
@@ -51,17 +50,6 @@ function JetpackRestApiClient( root, nonce ) {
 	const methods = {
 		setApiRoot( newRoot ) {
 			apiRoot = newRoot;
-		},
-		/**
-		 * Sets API root for search endpoints.
-		 * They are routed through wpcom API for wpcom simple sites,
-		 * so we add `/wp-json/wpcom-origin/` to this path on wpcom.
-		 * For non-wpcom sites, this is the same as apiRoot.
-		 *
-		 * @param {string} newRoot - API root for search endpoints.
-		 */
-		setWpcomOriginApiUrl( newRoot ) {
-			wpcomOriginApiUrl = newRoot;
 		},
 		setApiNonce( newNonce ) {
 			headers = {
@@ -489,21 +477,21 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchPlanInfo: () =>
-			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan`, getParams )
+			getRequest( `${ apiRoot }jetpack/v4/search/plan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchSettings: () =>
-			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, getParams )
+			getRequest( `${ apiRoot }jetpack/v4/search/settings`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		updateSearchSettings: newSettings =>
-			postRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, postParams, {
+			postRequest( `${ apiRoot }jetpack/v4/search/settings`, postParams, {
 				body: JSON.stringify( newSettings ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchSearchStats: () =>
-			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/stats`, getParams )
+			getRequest( `${ apiRoot }jetpack/v4/search/stats`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 		fetchWafSettings: () =>
@@ -519,7 +507,7 @@ function JetpackRestApiClient( root, nonce ) {
 				body: JSON.stringify( newSettings ),
 			} ),
 		fetchSearchPricing: () =>
-			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/pricing`, getParams )
+			getRequest( `${ apiRoot }jetpack/v4/search/pricing`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};
