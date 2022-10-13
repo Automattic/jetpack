@@ -130,7 +130,12 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 					count={ uploading ? videos.length : 6 }
 				/>
 			) : (
-				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
+				<VideoList
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					hidePlays
+					loading={ loading }
+				/>
 			) }
 			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
