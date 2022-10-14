@@ -24,6 +24,13 @@ import {
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
+	SET_LOCAL_VIDEOS,
+	SET_LOCAL_VIDEOS_QUERY,
+	SET_LOCAL_VIDEOS_PAGINATION,
+	SET_IS_FETCHING_LOCAL_VIDEOS,
+	SET_VIDEOS_FILTER,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
 } from './constants';
 
 /**
@@ -83,6 +90,20 @@ const videos = ( state, action ) => {
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
+				},
+			};
+		}
+
+		case SET_VIDEOS_FILTER: {
+			const { filter, value, isActive } = action;
+			return {
+				...state,
+				filter: {
+					...state.filter,
+					[ filter ]: {
+						...( state.filter?.[ filter ] || {} ),
+						[ value ]: isActive,
+					},
 				},
 			};
 		}
@@ -303,20 +324,33 @@ const videos = ( state, action ) => {
 
 		case PROCESSING_VIDEO: {
 			const { id, data } = action;
+			const query = state?.query ?? getDefaultQuery();
+			const pagination = { ...state.pagination };
+
 			const items = [ ...( state?.items ?? [] ) ];
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
 			const title = currentMetaItems[ id ]?.title || '';
 
-			// Insert new video
-			items.unshift( {
-				id: data.id,
-				guid: data.guid,
-				url: data.src,
-				title,
-				posterImage: null,
-				finished: false,
-			} );
+			let total = state?.uploadedVideoCount ?? 0;
+
+			// Not update total and pagination if user is searching or not in the first page.
+			if ( query?.page === 1 && ! query?.search ) {
+				// Updating pagination and count
+				total = ( state?.uploadedVideoCount ?? 0 ) + 1;
+				pagination.total = total;
+				pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
+
+				// Insert new video
+				items.unshift( {
+					id: data.id,
+					guid: data.guid,
+					url: data.src,
+					title,
+					posterImage: null,
+					finished: false,
+				} );
+			}
 
 			// Remove video from uploading meta
 			delete currentMetaItems[ id ];
@@ -324,6 +358,8 @@ const videos = ( state, action ) => {
 			return {
 				...state,
 				items,
+				uploadedVideoCount: total,
+				pagination,
 				_meta: {
 					...currentMeta,
 					items: currentMetaItems,
@@ -333,7 +369,6 @@ const videos = ( state, action ) => {
 
 		case UPLOADED_VIDEO: {
 			const { video } = action;
-			const query = state?.query ?? getDefaultQuery();
 			const items = [ ...( state?.items ?? [] ) ];
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
@@ -344,18 +379,59 @@ const videos = ( state, action ) => {
 
 			items[ videoIndex ] = video;
 
-			// Updating pagination and count
-			const total = ( state?.uploadedVideoCount ?? 0 ) + 1;
-			const pagination = { ...state.pagination };
+			return {
+				...state,
+				items,
+			};
+		}
 
-			pagination.total = total;
-			pagination.totalPages = Math.ceil( total / query?.itemsPerPage );
+		case SET_UPDATING_VIDEO_POSTER: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const currentVideoMeta = currentMetaItems[ id ] || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentVideoMeta,
+							isUpdatingPoster: true,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_POSTER: {
+			const { id, poster } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex >= 0 ) {
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					posterImage: poster,
+				};
+			}
 
 			return {
 				...state,
 				items,
-				uploadedVideoCount: total,
-				pagination,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							isUpdatingPoster: false,
+						},
+					},
+				},
 			};
 		}
 
@@ -364,7 +440,52 @@ const videos = ( state, action ) => {
 	}
 };
 
-const localVideos = state => {
+const localVideos = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_LOCAL_VIDEOS: {
+			const { videos: items } = action;
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		case SET_IS_FETCHING_LOCAL_VIDEOS: {
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		}
+
+		case SET_LOCAL_VIDEOS_QUERY:
+			return {
+				...state,
+				query: {
+					...state.query,
+					...action.query,
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
+			};
+
+		case SET_LOCAL_VIDEOS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...state.pagination,
+					...action.pagination,
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
+			};
+		}
+	}
+
 	return state;
 };
 

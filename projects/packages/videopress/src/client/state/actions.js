@@ -15,6 +15,11 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
+	SET_VIDEOS_FILTER,
+	SET_LOCAL_VIDEOS,
+	SET_IS_FETCHING_LOCAL_VIDEOS,
+	SET_LOCAL_VIDEOS_QUERY,
+	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_VIDEO,
 	SET_VIDEO_PRIVACY,
 	DELETE_VIDEO,
@@ -30,6 +35,9 @@ import {
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
+	WP_REST_API_VIDEOPRESS_ENDPOINT,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -50,6 +58,10 @@ const setVideosPagination = pagination => {
 	return { type: SET_VIDEOS_PAGINATION, pagination };
 };
 
+const setVideosFilter = ( filter, value, isActive ) => {
+	return { type: SET_VIDEOS_FILTER, filter, value, isActive };
+};
+
 const setVideos = videos => {
 	return { type: SET_VIDEOS, videos };
 };
@@ -68,6 +80,22 @@ const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 
 const setUploadedVideoCount = uploadedVideoCount => {
 	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
+};
+
+const setLocalVideos = videos => {
+	return { type: SET_LOCAL_VIDEOS, videos };
+};
+
+const setIsFetchingLocalVideos = isFetching => {
+	return { type: SET_IS_FETCHING_LOCAL_VIDEOS, isFetching };
+};
+
+const setLocalVideosQuery = query => {
+	return { type: SET_LOCAL_VIDEOS_QUERY, query };
+};
+
+const setLocalVideosPagination = pagination => {
+	return { type: SET_LOCAL_VIDEOS_PAGINATION, pagination };
 };
 
 const setVideosStorageUsed = used => {
@@ -166,7 +194,7 @@ const deleteVideo = id => async ( { dispatch } ) => {
 const uploadVideo = file => async ( { dispatch } ) => {
 	const tempId = uid();
 
-	const poolingUploadedVideoData = async data => {
+	const pollingUploadedVideoData = async data => {
 		const response = await apiFetch( {
 			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
 		} );
@@ -176,7 +204,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		if ( video?.posterImage !== null ) {
 			dispatch( { type: UPLOADED_VIDEO, video } );
 		} else {
-			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
+			setTimeout( () => pollingUploadedVideoData( video ), 2000 );
 		}
 	};
 
@@ -195,7 +223,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		onProgress: noop,
 		onSuccess: data => {
 			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
-			poolingUploadedVideoData( data );
+			pollingUploadedVideoData( data );
 		},
 	} );
 };
@@ -208,12 +236,58 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
+const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
+	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
+
+	const pollPoster = () => {
+		setTimeout( async () => {
+			try {
+				const resp = await apiFetch( { path, method: 'GET' } );
+
+				if ( resp?.data?.generating ) {
+					pollPoster();
+				} else {
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+				}
+			} catch ( error ) {
+				// @todo implement error handling / UI
+				// eslint-disable-next-line no-console
+				console.error( error );
+			}
+		}, 2000 );
+	};
+
+	try {
+		dispatch( { type: SET_UPDATING_VIDEO_POSTER, id } );
+
+		const resp = await apiFetch( { method: 'POST', path, data } );
+
+		if ( resp?.data?.generating ) {
+			// Poll the poster image until generated
+			pollPoster();
+			return;
+		}
+
+		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+	} catch ( error ) {
+		// @todo: implement error handling / UI
+		console.error( error ); // eslint-disable-line no-console
+	}
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
 	setVideosQuery,
 	setVideosPagination,
+	setVideosFilter,
 	setVideos,
+
+	setLocalVideos,
+	setIsFetchingLocalVideos,
+	setLocalVideosQuery,
+	setLocalVideosPagination,
+
 	setVideosStorageUsed,
 	setVideo,
 
@@ -229,6 +303,8 @@ const actions = {
 	uploadVideo,
 	setIsFetchingPurchases,
 	setPurchases,
+
+	updateVideoPoster,
 };
 
 export { actions as default };
