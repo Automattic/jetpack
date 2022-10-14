@@ -49,6 +49,11 @@ export async function reloadModulesState() {
 }
 
 export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
+	// Do not enable a module that isn't available.
+	if ( typeof currentState[ slug ] === 'undefined' ) {
+		return false;
+	}
+
 	const originalState = currentState[ slug ] && currentState[ slug ].enabled;
 	let finalState = state;
 
