@@ -56,7 +56,7 @@ export const FilterSection = ( props: {
 	uploaders: Array< { id: number; name: string } >;
 	onChange?: (
 		filter: 'uploader' | 'privacy' | 'rating',
-		value: 0 | 1 | 'PG-13' | 'G' | 'R-17',
+		value: number | 'PG-13' | 'G' | 'R-17',
 		checked: boolean
 	) => void;
 	className?: string;
