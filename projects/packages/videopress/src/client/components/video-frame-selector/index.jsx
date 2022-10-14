@@ -5,7 +5,6 @@ import { RangeControl, Spinner } from '@wordpress/components';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -14,6 +13,7 @@ import styles from './style.module.scss';
 
 export const VideoPlayer = ( { src, setMaxDuration = null, currentTime } ) => {
 	const videoPlayer = useRef( null );
+	const [ isVideoLoading, setIsVideoLoading ] = useState( true );
 
 	useEffect( () => {
 		videoPlayer.current.src = src;
@@ -37,10 +37,13 @@ export const VideoPlayer = ( { src, setMaxDuration = null, currentTime } ) => {
 
 	return (
 		<div className={ styles[ 'video-player-wrapper' ] }>
-			<div className={ styles[ 'video-player-spinner-wrapper' ] }>
-				<Spinner className={ styles.spinner } />
-			</div>
+			{ isVideoLoading && (
+				<div className={ styles[ 'video-player-spinner-wrapper' ] }>
+					<Spinner className={ styles.spinner } />
+				</div>
+			) }
 			<video
+				onLoadedData={ () => setIsVideoLoading( false ) }
 				ref={ videoPlayer }
 				muted
 				className={ styles.video }

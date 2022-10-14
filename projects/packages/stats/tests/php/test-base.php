@@ -19,19 +19,12 @@ use WP_Post;
  */
 abstract class StatsBaseTestCase extends BaseTestCase {
 	/**
-	 * The default value for setting the 'STATS_VERSION' constant.
-	 *
-	 * @var string
-	 */
-	const DEFAULT_STATS_VERSION = '9';
-	/**
 	 * Set up before each test
 	 *
 	 * @before
 	 */
 	protected function set_up() {
 		parent::setUp();
-		Constants::set_constant( 'STATS_VERSION', self::DEFAULT_STATS_VERSION );
 		// Mock Jetpack Connection.
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );

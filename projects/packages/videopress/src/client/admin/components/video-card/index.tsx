@@ -8,6 +8,7 @@ import {
 	numberFormat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -48,6 +49,19 @@ const QuickActions = ( {
 	);
 };
 
+const UploadingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Spinner />
+		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
+const ProcessingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
 /**
  * Video Card component
  *
@@ -59,14 +73,21 @@ export const VideoCard = ( {
 	id,
 	duration,
 	plays,
-	thumbnail,
+	thumbnail: defaultThumbnail,
 	editable,
 	showQuickActions = true,
 	loading = false,
+	isUploadingPoster = false,
+	uploading = false,
+	processing = false,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
-	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
+	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
+
+	// Mapping thumbnail (Ordered by priority)
+	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
+	thumbnail = uploading || isUploadingPoster ? <UploadingThumbnail /> : thumbnail;
+	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
@@ -78,19 +99,21 @@ export const VideoCard = ( {
 		: '';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
+	const disabled = isSm || loading || uploading || processing;
 
 	return (
 		<>
 			<div
 				className={ classnames( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
-					[ styles.disabled ]: isSm || loading,
+					[ styles.disabled ]: disabled,
 				} ) }
 				{ ...( isSm && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
 			>
 				{ ! isSm && <div className={ styles[ 'video-card__background' ] } /> }
 
 				<VideoThumbnail
+					videoId={ id }
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
 					duration={ loading ? null : duration }
@@ -155,8 +178,22 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting } = useVideo( id );
-	return <VideoCard id={ id } { ...restProps } loading={ isDeleting || restProps?.loading } />;
+	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
+
+	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
+	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
+
+	return (
+		<VideoCard
+			id={ id }
+			{ ...restProps }
+			loading={ loading }
+			uploading={ uploading }
+			isUploadingPoster={ isUpdatingPoster }
+			processing={ processing }
+			editable={ editable }
+		/>
+	);
 };
 
 export default ConnectVideoCard;
