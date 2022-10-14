@@ -37,4 +37,9 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	 * Whether is possible to edit the thumbnail
 	 */
 	editable?: boolean;
+
+	/**
+	 * Blank icon size
+	 */
+	blankIconSize?: number;
 };
