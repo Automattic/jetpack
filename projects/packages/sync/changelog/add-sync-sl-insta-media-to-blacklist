@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adding the `sl-insta-media` post type to the Sync blacklist as the post type data isn't relevant to Sync and takes up non-trivial resources.

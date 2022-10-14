@@ -54,11 +54,11 @@ jobs:
 
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
           echo "$MATRIX"
-          echo "::set-output name=matrix::$MATRIX"
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
           RUN_NAME=$(jq -r -c ".run" <<<"$TEST_PLAN")
           echo "$RUN_NAME"
-          echo "::set-output name=runName::$RUN_NAME"
+          echo "runName=$RUN_NAME" >> "$GITHUB_OUTPUT"
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
