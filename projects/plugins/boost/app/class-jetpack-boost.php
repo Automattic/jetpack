@@ -117,6 +117,14 @@ class Jetpack_Boost {
 	}
 
 	/**
+	 * Plugin activation handler.
+	 */
+	public static function activate() {
+		// Make sure user sees the "Get Started" when first time opening.
+		Config::set_getting_started( true );
+	}
+
+	/**
 	 * Plugin deactivation handler. Clear cache, and reset admin notices.
 	 */
 	public function deactivate() {
