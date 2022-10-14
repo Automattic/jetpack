@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -2794,15 +2795,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			// Apps card on dashboard.
-			'dismiss_dash_app_card'                => array(
-				'description'       => '',
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'settings',
-			),
-
 			// Empty stats card dismiss.
 			'dismiss_empty_stats_card'             => array(
 				'description'       => '',
@@ -3608,10 +3600,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'stats':
 				// It's local, but it must be broken apart since it's saved as an array.
-				if ( ! function_exists( 'stats_get_options' ) ) {
-					include_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
-				}
-				$options = self::split_options( $options, stats_get_options() );
+				$options = self::split_options( $options, Stats_Options::get_options() );
 				break;
 			default:
 				// These option are just stored as plain WordPress options.

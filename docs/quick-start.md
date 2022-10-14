@@ -12,7 +12,7 @@ This guide assumes you are using MacOS or a Linux machine and are an Automattici
 
 To speed up the installation process, you may use our monorepo installation script. To do so:
  - clone the Jetpack repo using one of these two methods: 
- 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/Jetpack.git` 
+ 	- A public SSH key ([recommended](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#clone-the-repository)): `git clone git@github.com:Automattic/jetpack.git` 
 	- HTTPS: `git clone https://github.com/Automattic/jetpack.git` 
  - `cd` into the cloned `jetpack` folder.
  - run `tools/install-monorepo.sh` from the monorepo root.

@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.23.0 - 2022-10-13
+### Changed
+- Add shadowAnchor and forceShow for pure Popover displaying within parent wrapper. [#26790]
+- Updated package dependencies. [#26791]
+
+## 0.22.2 - 2022-10-11
+### Changed
+- Added types and adaptive coloring for the donut meter component [#26690]
+
+### Fixed
+- RNA: Fix styling issue on Button component due to Gutenberg component update [#26704]
+
 ## 0.22.1 - 2022-10-06
 ### Changed
 - Do not open upgrade links from Jetpack Social in a new tab [#26649]
