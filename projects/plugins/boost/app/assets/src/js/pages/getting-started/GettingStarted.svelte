@@ -110,7 +110,6 @@
 							offPrice={pricing.yearly.priceAfter / 12}
 							priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 							showNotOffPrice={true}
-							promoLabel={__( '50% off', 'jetpack-boost' )}
 						/>
 					</header>
 					<div class="comparison-table__cta">
