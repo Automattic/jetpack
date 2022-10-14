@@ -734,6 +734,7 @@ function wp_cache_manager_updates() {
 if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
 
+// hides the boost promo banner on dismiss
 add_action( 'wp_ajax_wpsc-hide-boost-banner', 'wpsc_hide_boost_banner' );
 function wpsc_hide_boost_banner() {
 	check_ajax_referer( 'wpsc_2022_boost_banner', 'nonce' );
