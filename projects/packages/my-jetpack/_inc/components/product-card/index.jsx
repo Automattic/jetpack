@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import isSearchNewPricingLaunched202208 from '../../utils/is-search-new-pricing-202208';
 import styles from './style.module.scss';
 
 export const PRODUCT_STATUSES = {
@@ -71,9 +70,7 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ isSearchNewPricingLaunched202208()
-						? __( 'Start for free', 'jetpack-my-jetpack' )
-						: __( 'Purchase', 'jetpack-my-jetpack' ) }
+					{ __( 'Try for free', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
