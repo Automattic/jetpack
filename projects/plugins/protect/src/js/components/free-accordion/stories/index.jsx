@@ -1,11 +1,11 @@
 import { Text } from '@automattic/jetpack-components';
 import { wordpress, plugins } from '@wordpress/icons';
 import React from 'react';
-import Accordion, { AccordionItem } from '..';
+import FreeAccordion, { FreeAccordionItem } from '..';
 
 export default {
-	title: 'Plugins/Protect/Accordion',
-	component: Accordion,
+	title: 'Plugins/Protect/Free Accordion',
+	component: FreeAccordion,
 	parameters: {
 		layout: 'centered',
 	},
@@ -19,8 +19,8 @@ export default {
 };
 
 export const Default = () => (
-	<Accordion>
-		<AccordionItem
+	<FreeAccordion>
+		<FreeAccordionItem
 			id="wordpress"
 			label="WordPress (5.9-5.9.1)"
 			title="Contributor+ Stored Cross-Site Scripting"
@@ -38,8 +38,8 @@ export const Default = () => (
 				How to fix it?
 			</Text>
 			<Text>Update to WordPress 5.9.2</Text>
-		</AccordionItem>
-		<AccordionItem
+		</FreeAccordionItem>
+		<FreeAccordionItem
 			id="jetpack"
 			label="Jetpack < 9.8"
 			title="Carousel Module Non-Published Page/Post Attachment Comment Leak"
@@ -57,8 +57,8 @@ export const Default = () => (
 				How to fix it?
 			</Text>
 			<Text>Update to WordPress 5.9.2</Text>
-		</AccordionItem>
-		<AccordionItem
+		</FreeAccordionItem>
+		<FreeAccordionItem
 			id="jetpack-2"
 			label="Jetpack < 9.8"
 			title="Carousel Module Non-Published Page/Post Attachment Comment Leak"
@@ -76,8 +76,8 @@ export const Default = () => (
 				How to fix it?
 			</Text>
 			<Text>Update to WordPress 5.9.2</Text>
-		</AccordionItem>
-		<AccordionItem
+		</FreeAccordionItem>
+		<FreeAccordionItem
 			id="jetpack-3"
 			label="Jetpack < 9.8"
 			title="Carousel Module Non-Published Page/Post Attachment Comment Leak"
@@ -95,8 +95,8 @@ export const Default = () => (
 				How to fix it?
 			</Text>
 			<Text>Update to WordPress 5.9.2</Text>
-		</AccordionItem>
-		<AccordionItem
+		</FreeAccordionItem>
+		<FreeAccordionItem
 			id="jetpack-4"
 			label="Jetpack < 9.8"
 			title="Carousel Module Non-Published Page/Post Attachment Comment Leak"
@@ -114,6 +114,6 @@ export const Default = () => (
 				How to fix it?
 			</Text>
 			<Text>Update to WordPress 5.9.2</Text>
-		</AccordionItem>
-	</Accordion>
+		</FreeAccordionItem>
+	</FreeAccordion>
 );

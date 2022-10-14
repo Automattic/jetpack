@@ -1,21 +1,14 @@
 import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
-import { STORE_ID } from '../../state/store';
-import Accordion, { AccordionItem } from '../accordion';
 import { JETPACK_SCAN } from '../admin-page';
-import DiffViewer from '../diff-viewer';
-import MarkedLines from '../marked-lines';
+import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
-	context,
 	description,
-	diff,
 	filename,
 	fixedIn,
 	icon,
@@ -26,13 +19,7 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 	version,
-	severity,
 } ) => {
-	const { setModal } = useDispatch( STORE_ID );
-
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
-
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
@@ -40,10 +27,7 @@ const ThreatAccordionItem = ( {
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler(
-		'jetpack_protect_vulnerability_list_get_scan_link_click',
-		run
-	);
+	const getScan = recordEventHandler( 'jetpack_protect_threat_list_get_scan_link_click', run );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -73,18 +57,8 @@ const ThreatAccordionItem = ( {
 		}
 	}, [ filename, name, table, version ] );
 
-	const handleIgnoreThreatClick = () => {
-		return event => {
-			event.preventDefault();
-			setModal( {
-				type: 'IGNORE_THREAT',
-				props: { id, label: getLabel(), title, icon, severity },
-			} );
-		};
-	};
-
 	return (
-		<AccordionItem
+		<FreeAccordionItem
 			id={ id }
 			label={ getLabel() }
 			title={ title }
@@ -93,7 +67,7 @@ const ThreatAccordionItem = ( {
 				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
 					return;
 				}
-				recordEventHandler( `jetpack_protect_${ type }_vulnerability_open` );
+				recordEventHandler( `jetpack_protect_${ type }_threat_open` );
 			}, [ recordEventHandler, type ] ) }
 		>
 			{ description && (
@@ -105,24 +79,6 @@ const ThreatAccordionItem = ( {
 					{ learnMoreButton }
 				</div>
 			) }
-			{ ( filename || context || diff ) && (
-				<Text variant="title-small" mb={ 2 }>
-					{ __( 'The technical details', 'jetpack-protect' ) }
-				</Text>
-			) }
-			{ filename && (
-				<>
-					<Text mb={ 2 }>
-						{
-							/* translators: filename follows in separate line; e.g. "PHP.Injection.5 in: `post.php`" */
-							__( 'Threat found in file:', 'jetpack-protect' )
-						}
-						<pre className={ styles[ 'threat-filename' ] }>{ filename }</pre>
-					</Text>
-				</>
-			) }
-			{ context && <MarkedLines context={ context } /> }
-			{ diff && <DiffViewer diff={ diff } /> }
 			{ fixedIn && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
@@ -134,62 +90,34 @@ const ThreatAccordionItem = ( {
 							sprintf( __( 'Update to %1$s %2$s', 'jetpack-protect' ), name, fixedIn )
 						}
 					</Text>
-					{ ! hasRequiredPlan && (
-						<ContextualUpgradeTrigger
-							description={ __(
-								'Looking for advanced scan results and one-click fixes?',
-								'jetpack-protect'
-							) }
-							cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
-							onClick={ getScan }
-							className={ styles[ 'threat-item-cta' ] }
-						/>
-					) }
+					<ContextualUpgradeTrigger
+						description={ __(
+							'Looking for advanced scan results and one-click fixes?',
+							'jetpack-protect'
+						) }
+						cta={ __( 'Upgrade Jetpack Protect now', 'jetpack-protect' ) }
+						onClick={ getScan }
+						className={ styles[ 'threat-item-cta' ] }
+					/>
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			{ hasRequiredPlan && (
-				<div className={ styles[ 'threat-footer' ] }>
-					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
-						{ __( 'Ignore threat', 'jetpack-protect' ) }
-					</Button>
-				</div>
-			) }
-		</AccordionItem>
+		</FreeAccordionItem>
 	);
 };
 
-const List = ( { list } ) => {
+const FreeList = ( { list } ) => {
 	return (
-		<Accordion>
+		<FreeAccordion>
 			{ list.map(
-				( {
-					context,
-					description,
-					diff,
-					filename,
-					fixedIn,
-					icon,
-					id,
-					name,
-					severity,
-					source,
-					table,
-					title,
-					type,
-					version,
-				} ) => (
+				( { description, fixedIn, icon, id, name, source, table, title, type, version } ) => (
 					<ThreatAccordionItem
-						context={ context }
 						description={ description }
-						diff={ diff }
-						filename={ filename }
 						fixedIn={ fixedIn }
 						icon={ icon }
 						id={ id }
 						key={ id }
 						name={ name }
-						severity={ severity }
 						source={ source }
 						table={ table }
 						title={ title }
@@ -198,8 +126,8 @@ const List = ( { list } ) => {
 					/>
 				)
 			) }
-		</Accordion>
+		</FreeAccordion>
 	);
 };
 
-export default List;
+export default FreeList;

@@ -1,13 +1,19 @@
-import { Container, Col, Title } from '@automattic/jetpack-components';
+import { Container, Col, Title, Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
+import useProtectData from '../../hooks/use-protect-data';
 import EmptyList from './empty';
-import List from './list';
+import FreeList from './free-list';
 import ThreatsNavigation from './navigation';
+import PaidList from './paid-list';
+import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
+	const { jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
 	const { item, list, selected, setSelected } = useThreatsList();
+	const fixableCount = list.filter( obj => obj.fixable ).length;
 
 	const getTitle = useCallback( () => {
 		switch ( selected ) {
@@ -20,20 +26,23 @@ const ThreatsList = () => {
 			case 'files':
 				return sprintf(
 					/* translators: placeholder is the amount of file threats found on the site. */
-					__( '%s file threats', 'jetpack-protect' ),
-					list.length
+					__( '%1$s file %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
 				);
 			case 'database':
 				return sprintf(
 					/* translators: placeholder is the amount of database threats found on the site. */
-					__( '%s database threats', 'jetpack-protect' ),
-					list.length
+					__( '%1$s database %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
 				);
 			default:
 				return sprintf(
 					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-					__( '%1$s threats in your %2$s %3$s', 'jetpack-protect' ),
+					__( '%1$s %2$s in your %3$s %4$s', 'jetpack-protect' ),
 					list.length,
+					list.length === 1 ? 'threat' : 'threats',
 					item?.name,
 					item?.version
 				);
@@ -41,15 +50,32 @@ const ThreatsList = () => {
 	}, [ selected, list, item ] );
 
 	return (
-		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 5 }>
+		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col lg={ 4 }>
 				<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
 				{ list?.length > 0 ? (
 					<>
-						<Title mb={ 3 }>{ getTitle() }</Title>
-						<List list={ list } />
+						<div className={ styles[ 'list-header' ] }>
+							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
+							{ hasRequiredPlan && (
+								<>
+									{ fixableCount > 0 && (
+										<Button variant="primary" className={ styles[ 'list-header-button' ] }>
+											{
+												/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
+												sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
+											}
+										</Button>
+									) }
+									<Button variant="secondary" className={ styles[ 'list-header-button' ] }>
+										{ __( 'Scan now', 'jetpack-protect' ) }
+									</Button>
+								</>
+							) }
+						</div>
+						{ hasRequiredPlan ? <PaidList list={ list } /> : <FreeList list={ list } /> }
 					</>
 				) : (
 					<EmptyList />

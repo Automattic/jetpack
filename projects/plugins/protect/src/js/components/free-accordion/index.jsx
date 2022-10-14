@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import React, { useState, useCallback, useContext } from 'react';
 import styles from './styles.module.scss';
 
-const AccordionContext = React.createContext();
+const FreeAccordionContext = React.createContext();
 
-export const AccordionItem = ( { id, title, label, icon, children, onOpen } ) => {
-	const accordionData = useContext( AccordionContext );
+export const FreeAccordionItem = ( { id, title, label, icon, children, onOpen } ) => {
+	const accordionData = useContext( FreeAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
 
@@ -33,7 +33,12 @@ export const AccordionItem = ( { id, title, label, icon, children, onOpen } ) =>
 						<Icon icon={ icon } className={ styles[ 'accordion-header-label-icon' ] } />
 						{ label }
 					</Text>
-					<Text variant={ open ? 'title-small' : 'body' }>{ title }</Text>
+					<Text
+						className={ styles[ 'accordion-header-description' ] }
+						variant={ open ? 'title-small' : 'body' }
+					>
+						{ title }
+					</Text>
 				</div>
 				<div className={ styles[ 'accordion-header-button' ] }>
 					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />
@@ -46,14 +51,14 @@ export const AccordionItem = ( { id, title, label, icon, children, onOpen } ) =>
 	);
 };
 
-const Accordion = ( { children } ) => {
+const FreeAccordion = ( { children } ) => {
 	const [ open, setOpen ] = useState();
 
 	return (
-		<AccordionContext.Provider value={ { open, setOpen } }>
+		<FreeAccordionContext.Provider value={ { open, setOpen } }>
 			<div className={ styles.accordion }>{ children }</div>
-		</AccordionContext.Provider>
+		</FreeAccordionContext.Provider>
 	);
 };
 
-export default Accordion;
+export default FreeAccordion;
