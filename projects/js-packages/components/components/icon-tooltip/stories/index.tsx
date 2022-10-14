@@ -1,5 +1,3 @@
-import Button from '../../button';
-import DonutMeter from '../../donut-meter';
 import IconTooltip from '../index';
 import './style.scss';
 import type { Placement } from '../types';
@@ -54,17 +52,15 @@ const Template = args => (
 	</div>
 );
 
-const NewTemplate = args => (
+const WrapperAnchorTemplate = args => (
 	<div style={ { position: 'absolute', height: '1000px', left: '300px', top: '300px' } }>
-		<div className="donut-meter-wrapper">
-			<DonutMeter segmentCount={ 100 } totalCount={ 500 } />
-			<div className="upgrade-tooltip-shadow-anchor">
+		<div className="tooltip-wrapper">
+			<div className="tooltip-wrapper-anchor">
 				<IconTooltip { ...args }>
 					<>
 						<div>Thank you for upgrading! Now your visitors can search up to 500 records.</div>
-						<div className="upgrade-tooltip-actions">
+						<div className="tooltip-actions">
 							<span>1 of 2</span>
-							<Button>Next</Button>
 						</div>
 					</>
 				</IconTooltip>
@@ -87,9 +83,9 @@ HasContent.args = {
 	),
 };
 
-export const ShadowAnchor = NewTemplate.bind( {} );
-ShadowAnchor.args = {
-	shadowAnchor: true,
+export const WrapperAnchor = WrapperAnchorTemplate.bind( {} );
+WrapperAnchor.args = {
+	popoverAnchorStyle: 'wrapper',
 	title: 'Site records increased',
 	placement: 'top',
 	forceShow: true,
