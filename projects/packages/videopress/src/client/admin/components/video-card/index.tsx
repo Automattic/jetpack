@@ -77,7 +77,7 @@ export const VideoCard = ( {
 	editable,
 	showQuickActions = true,
 	loading = false,
-	isUploadingPoster = false,
+	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
 	onVideoDetailsClick,
@@ -86,7 +86,7 @@ export const VideoCard = ( {
 
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = uploading || isUploadingPoster ? <UploadingThumbnail /> : thumbnail;
+	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
@@ -189,7 +189,7 @@ export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 			{ ...restProps }
 			loading={ loading }
 			uploading={ uploading }
-			isUploadingPoster={ isUpdatingPoster }
+			isUpdatingPoster={ isUpdatingPoster }
 			processing={ processing }
 			editable={ editable }
 		/>
