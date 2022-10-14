@@ -22,6 +22,7 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
+import Forms from 'forms';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
@@ -508,6 +509,10 @@ class Main extends React.Component {
 					this.props.history.replace( '/dashboard' );
 					pageComponent = this.getAtAGlance();
 				}
+				break;
+			case '/forms':
+				navComponent = null;
+				pageComponent = <Forms />;
 				break;
 			default:
 				if ( productDescriptionRoutes.includes( route ) ) {

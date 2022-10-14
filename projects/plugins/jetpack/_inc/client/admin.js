@@ -132,6 +132,8 @@ export function getRouteName( path ) {
 			return _x( 'Sharing', 'Navigation item.', 'jetpack' );
 		case '/license/activation':
 			return _x( 'License', 'Navigation item.', 'jetpack' );
+		case '/forms':
+			return _x( 'Forms', 'Navigation item.', 'jetpack' );
 		default:
 			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
 	}
