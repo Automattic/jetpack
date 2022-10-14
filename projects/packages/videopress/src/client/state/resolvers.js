@@ -16,6 +16,7 @@ import {
 	REST_API_SITE_INFO_ENDPOINT,
 	PROCESSING_VIDEO,
 	SET_LOCAL_VIDEOS_QUERY,
+	WP_REST_API_USERS_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -269,6 +270,31 @@ const getLocalVideos = {
 	},
 };
 
+const getUploaders = {
+	isFulfilled: state => {
+		return state?.users?._meta?.relyOnInitialState;
+	},
+
+	fulfill: () => async ( { dispatch } ) => {
+		dispatch.setIsFetchingLocalVideos( true );
+
+		try {
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+
+			const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
+
+			dispatch.setUploadersPagination( { total, totalPages } );
+
+			const uploaders = await response.json();
+			dispatch.setUploaders( uploaders );
+			return uploaders;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 export default {
 	getStorageUsed,
 	getUploadedVideoCount,
@@ -276,6 +302,8 @@ export default {
 	getVideo,
 
 	getLocalVideos,
+
+	getUploaders,
 
 	getPurchases,
 };

@@ -7,6 +7,7 @@ export const STORE_ID = 'videopress/media';
  * API
  */
 export const WP_ADMIN_AJAX_API_URL = '/wp-admin/admin-ajax.php';
+export const WP_REST_API_USERS_ENDPOINT = 'wp/v2/users';
 export const WP_REST_API_MEDIA_ENDPOINT = 'wp/v2/media';
 export const WP_REST_API_VIDEOPRESS_ENDPOINT = 'wpcom/v2/videopress';
 export const WP_REST_API_VIDEOPRESS_META_ENDPOINT = 'wpcom/v2/videopress/meta';
