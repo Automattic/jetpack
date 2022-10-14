@@ -15,7 +15,7 @@ import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
-import VideoList from '../video-list';
+import VideoList, { LocalVideoList } from '../video-list';
 import styles from './styles.module.scss';
 /**
  * Types
@@ -142,28 +142,27 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList
-				hidePrivacy
-				hideDuration
-				hidePlays
-				showEditButton={ false }
-				showQuickActions={ false }
-				videos={ videos }
-			/>
+			<LocalVideoList videos={ videos } loading={ loading } />
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
 export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
+	const { items: videos, uploadedLocalVideoCount, isFetching } = useLocalVideos();
 
-	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
+	return (
+		<LocalLibrary
+			videos={ videos }
+			totalVideos={ uploadedLocalVideoCount }
+			loading={ isFetching }
+		/>
+	);
 };
