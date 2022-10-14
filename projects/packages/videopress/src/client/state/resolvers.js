@@ -71,7 +71,7 @@ const getVideos = {
 			wpv2MediaQuery.videopress_rating = videoPressRatingFilter;
 		}
 
-		// Filter -> Rating
+		// Filter -> Privacy
 		const videoPressPrivacyFilter = Object.keys( filter?.privacy || {} )
 			.filter( key => filter.privacy[ key ] )
 			.join( ',' );
