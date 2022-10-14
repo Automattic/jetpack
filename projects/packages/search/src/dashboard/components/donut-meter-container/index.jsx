@@ -1,4 +1,11 @@
-import { DonutMeter, Gridicon, numberFormat } from '@automattic/jetpack-components';
+import {
+	DonutMeter,
+	Gridicon,
+	numberFormat,
+	IconTooltip,
+	Button,
+	ThemeProvider,
+} from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 
@@ -9,34 +16,81 @@ const formatNumberWithSeparators = x => {
 	return numberFormat( x );
 };
 
+const usageInfoMessage = ( current, limit ) => {
+	const isUnlimitedRequests = limit > 1e18;
+	// Standard case of current/limit.
+	if ( ! isUnlimitedRequests ) {
+		return formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+	}
+	// Special case for "unlimited" requests. API returning 64-bit PHP_INT_MAX.
+	// Return "Unlimited" if the current count is zero.
+	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
+	if ( current === 0 ) {
+		return localizedUnlimited;
+	}
+	// We have a request count so include it in the info string.
+	// ie: "123/Unlimited"
+	return `${ formatNumberWithSeparators( current ) }/${ localizedUnlimited }`;
+};
+
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
- * @param {object}prop - props to show usage info.
- * @param {number}prop.current - totalCount to the DonutMeter.
- * @param {number}prop.limit - segmentCount to the DonutMeter.
- * @param {string}prop.title - title to the DonutMeter.
- * @returns {React.Component} DonutMeterContainer component.
+ * @param {object} props - Props
+ * @param {number} props.current - totalCount to the DonutMeter
+ * @param {number} props.limit - segmentCount to the DonutMeter
+ * @param {string} props.title - title to the DonutMeter
+ * @param {Function} props.iconClickedCallback - handler for click on "info" icon
+ * @param {Function} props.linkClickedCallback - handler for click on "details" link
+ * @param {object} props.tooltip - tooltip data
+ * @returns {React.Component} DonutMeterContainer component
  */
-const DonutMeterContainer = ( { current = 0, limit = 1, title } ) => {
-	// TODO: Remove local callback in favour of props.
-	const tempCallback = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'higher level callback...' );
+const DonutMeterContainer = ( {
+	current = 0,
+	limit = 1,
+	title,
+	tooltip,
+	iconClickedCallback,
+	linkClickedCallback,
+} ) => {
+	const isUnlimitedRequests = limit > 1e18;
+	const displayCurrent = isUnlimitedRequests ? 1 : current;
+	const displayLimit = isUnlimitedRequests ? 1 : limit;
+	const usageInfo = usageInfoMessage( current, limit );
+
+	const tooltipArgs = {
+		shadowAnchor: true,
+		title: tooltip.title,
+		placement: 'top',
+		forceShow: tooltip.forceShow,
 	};
 
-	const usageInfo =
-		formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	return (
-		<div className="donut-meter-container">
-			<div className="donut-meter-wrapper">
-				<DonutMeter segmentCount={ current } totalCount={ limit } />
+		<ThemeProvider>
+			<div className="donut-meter-container">
+				<div className="donut-meter-wrapper">
+					<DonutMeter segmentCount={ displayCurrent } totalCount={ displayLimit } />
+					<div className="upgrade-tooltip-shadow-anchor">
+						<IconTooltip { ...tooltipArgs }>
+							<>
+								<div>{ tooltip.content }</div>
+								<div className="upgrade-tooltip-actions">
+									<span>{ tooltip.section }</span>
+									<Button onClick={ tooltip.goToNext }>{ tooltip.next }</Button>
+								</div>
+							</>
+						</IconTooltip>
+					</div>
+				</div>
+				<div className="donut-info-wrapper">
+					<InfoPrimary localizedMessage={ title } iconClickedCallback={ iconClickedCallback } />
+					<InfoSecondary
+						localizedMessage={ usageInfo }
+						linkClickedCallback={ linkClickedCallback }
+					/>
+				</div>
 			</div>
-			<div className="donut-info-wrapper">
-				<InfoPrimary localizedMessage={ title } iconClickedCallback={ tempCallback } />
-				<InfoSecondary localizedMessage={ usageInfo } linkClickedCallback={ tempCallback } />
-			</div>
-		</div>
+		</ThemeProvider>
 	);
 };
 

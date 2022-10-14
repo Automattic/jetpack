@@ -1,5 +1,11 @@
-import { JetpackFooter, JetpackSearchLogo, Button } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import {
+	JetpackFooter,
+	JetpackSearchLogo,
+	Button,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -7,6 +13,7 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
+import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -25,8 +32,10 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	// Prepare Checkout action and loading status
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
@@ -40,6 +49,7 @@ export default function DashboardPage( { isLoading = false } ) {
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
 	const isPageLoading = useSelect(
@@ -57,6 +67,10 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
+	const isJustUpgraded = useSelect(
+		select => select( STORE_ID ).isFeatureEnabled( 'just_upgraded' ),
+		[]
+	);
 
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 
@@ -112,6 +126,13 @@ export default function DashboardPage( { isLoading = false } ) {
 						isUpgradable={ isNewPricing && ! tierSlug }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
 					/>
+					{ hasConnectionError && (
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col lg={ 12 } md={ 12 } sm={ 12 }>
+								<ConnectionError />
+							</Col>
+						</Container>
+					) }
 					<MockedSearchInterface
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -122,6 +143,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							recordMeterInfo={ recordMeterInfo }
 							tierSlug={ tierSlug }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
+							isJustUpgraded={ isJustUpgraded }
 						/>
 					) }
 					{ ! isNewPricing && (
@@ -162,7 +184,13 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
+const PlanInfo = ( {
+	hasIndex,
+	recordMeterInfo,
+	tierSlug,
+	sendPaidPlanToCart,
+	isJustUpgraded,
+} ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -177,7 +205,11 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } )
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<>
-					<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
+					<PlanUsageSection
+						planInfo={ planInfo }
+						sendPaidPlanToCart={ sendPaidPlanToCart }
+						isJustUpgraded={ isJustUpgraded }
+					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }
 						postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }

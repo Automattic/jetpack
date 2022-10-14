@@ -13,9 +13,15 @@ import {
 	DELETE_VIDEO,
 	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_INFO_ENDPOINT,
+	PROCESSING_VIDEO,
+	SET_LOCAL_VIDEOS_QUERY,
 } from './constants';
 import { getDefaultQuery } from './reducers';
-import { mapVideoFromWPV2MediaEndpoint, mapVideosFromWPV2MediaEndpoint } from './utils/map-videos';
+import {
+	mapLocalVideosFromWPV2MediaEndpoint,
+	mapVideoFromWPV2MediaEndpoint,
+	mapVideosFromWPV2MediaEndpoint,
+} from './utils/map-videos';
 
 const { apiRoot } = window?.jetpackVideoPressInitialState || {};
 
@@ -81,18 +87,17 @@ const getVideos = {
 
 const getVideo = {
 	isFulfilled: ( state, id ) => {
-		if ( ! id ) {
+		// String ID is the generated ID, not the WP ID.
+		if ( ! id || typeof id === 'string' ) {
 			return true;
 		}
 
 		const videos = state.videos.items ?? [];
-		const uploading = state?.videos?._meta?.items ?? {};
-		const isUploading = uploading?.[ id ]?.uploading ?? false;
-
-		return videos?.some( video => video?.id === id ) || isUploading;
+		return videos?.some( video => video?.id === id );
 	},
 	fulfill: id => async ( { dispatch } ) => {
 		dispatch.setIsFetchingVideos( true );
+
 		try {
 			const video = await apiFetch( {
 				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
@@ -134,6 +139,10 @@ const getUploadedVideoCount = {
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
+	},
+
+	shouldInvalidate: action => {
+		return action.type === PROCESSING_VIDEO || action.type === DELETE_VIDEO;
 	},
 };
 
@@ -184,10 +193,68 @@ const getStorageUsed = {
 	},
 };
 
+const getLocalVideos = {
+	isFulfilled: state => {
+		return state?.localVideos?._meta?.relyOnInitialState;
+	},
+
+	fulfill: () => async ( { dispatch, select } ) => {
+		let query = select.getLocalVideosQuery();
+		dispatch.setIsFetchingLocalVideos( true );
+
+		/*
+		 * If there is no query:
+		 * - set the default query (dispatch)
+		 * - and use it to fetch the videos.
+		 */
+		if ( ! query ) {
+			query = getDefaultQuery();
+			dispatch.setVideosQuery( query );
+		}
+
+		// Map query to the format expected by the API.
+		const wpv2MediaQuery = {
+			order: query.order,
+			orderby: query.orderBy,
+			page: query.page,
+			per_page: query.itemsPerPage,
+			media_type: 'video',
+			no_videopress: true,
+		};
+
+		if ( typeof query.search === 'string' && query.search.length > 0 ) {
+			wpv2MediaQuery.search = query.search;
+		}
+
+		try {
+			const response = await fetch(
+				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+			);
+
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+
+			dispatch.setLocalVideosPagination( { total, totalPages } );
+
+			const localVideos = await response.json();
+			dispatch.setLocalVideos( mapLocalVideosFromWPV2MediaEndpoint( localVideos ) );
+			return localVideos;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+	shouldInvalidate: action => {
+		return action.type === SET_LOCAL_VIDEOS_QUERY;
+	},
+};
+
 export default {
 	getStorageUsed,
 	getUploadedVideoCount,
 	getVideos,
 	getVideo,
+
+	getLocalVideos,
+
 	getPurchases,
 };

@@ -73,6 +73,7 @@ class Initial_State {
 				'blogId'            => Jetpack_Options::get_option( 'id', 0 ),
 				'version'           => Package::VERSION,
 				'calypsoSlug'       => ( new Status() )->get_site_suffix(),
+				'title'             => get_bloginfo( 'name' ),
 				'postTypes'         => $this->get_post_types_with_labels(),
 				'isWpcom'           => Helper::is_wpcom(),
 			),

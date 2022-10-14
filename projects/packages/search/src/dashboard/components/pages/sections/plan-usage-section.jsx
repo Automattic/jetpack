@@ -1,7 +1,12 @@
-import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
+import {
+	ContextualUpgradeTrigger,
+	ThemeProvider,
+	numberFormat,
+} from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import React, { useState, useCallback } from 'react';
 import DonutMeterContainer from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
 
@@ -10,7 +15,7 @@ import PlanSummary from './plan-summary';
 const usageInfoFromAPIData = apiData => {
 	// Transform the data as necessary.
 	// Are there better defaults for the Max values?
-	// Should we recored, log, or otherwise surface potential errors here?
+	// Should we record, log, or otherwise surface potential errors here?
 	return {
 		recordCount: apiData?.currentUsage?.num_records || 0,
 		recordMax: apiData?.currentPlan?.record_limit || 0,
@@ -37,8 +42,7 @@ const upgradeTypeFromAPIData = apiData => {
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
-	// TODO: Add logic for plan limits.
+const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isJustUpgraded } ) => {
 	const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const usageInfo = usageInfoFromAPIData( planInfo );
 	return (
@@ -47,7 +51,7 @@ const PlanUsageSection = ( { planInfo, sendPaidPlanToCart } ) => {
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<PlanSummary planInfo={ planInfo } />
-					<UsageMeters usageInfo={ usageInfo } />
+					<UsageMeters usageInfo={ usageInfo } isJustUpgraded={ isJustUpgraded } />
 					<UpgradeTrigger type={ upgradeType } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
 				</div>
@@ -108,18 +112,67 @@ const UpgradeTrigger = ( { type, ctaCallback } ) => {
 	);
 };
 
-const UsageMeters = ( { usageInfo } ) => {
+const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
+	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( isJustUpgraded ? 1 : 0 );
+	const goToNext = useCallback( () => setCurrentTooltipIndex( idx => idx + 1 ), [
+		setCurrentTooltipIndex,
+	] );
+
+	const tooltips = {
+		record: {
+			index: 1,
+			title: __( 'Site records increased', 'jetpack-search-pkg' ),
+			content: sprintf(
+				// translators: %1$s: records limit
+				__(
+					'Thank you for upgrading! Now your visitors can search up to %1$s records.',
+					'jetpack-search-pkg'
+				),
+				numberFormat( usageInfo.recordMax )
+			),
+			section: __( '1 of 2', 'jetpack-search-pkg' ),
+			next: __( 'Next', 'jetpack-search-pkg' ),
+			forceShow: currentTooltipIndex === 1,
+			goToNext,
+		},
+		request: {
+			index: 2,
+			title: __( 'More search requests', 'jetpack-search-pkg' ),
+			content: sprintf(
+				// translators: %1$s: requests limit
+				__(
+					'Your search plugin now supports up to %1$s search requests per month.',
+					'jetpack-search-pkg'
+				),
+				numberFormat( usageInfo.requestMax )
+			),
+			section: __( '2 of 2', 'jetpack-search-pkg' ),
+			next: __( 'Finish', 'jetpack-search-pkg' ),
+			forceShow: currentTooltipIndex === 2,
+			goToNext,
+		},
+	};
+
+	// TODO: Implement info icon callbacks.
+	// Not clear if these are needed yet so for now, they're hidden.
+	// const recordsIconClickedCallback = () => {};
+	// const requestsIconClickedCallback = () => {};
+	// TODO: Implement callback for the toggle details link.
+	// No callback, no toggle.
+	// const toggleDetailsClickedCallback = () => {};
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
 				title={ __( 'Site records', 'jetpack-search-pkg' ) }
 				current={ usageInfo.recordCount }
 				limit={ usageInfo.recordMax }
+				tooltip={ tooltips.record }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
 				current={ usageInfo.requestCount }
 				limit={ usageInfo.requestMax }
+				tooltip={ tooltips.request }
 			/>
 		</div>
 	);
@@ -130,12 +183,12 @@ const AboutPlanLimits = () => {
 		<div className="usage-meter-about">
 			{ createInterpolateElement(
 				__(
-					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>.',
+					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>',
 					'jetpack-search-pkg'
 				),
 				{
 					jpPlanLimits: (
-						<a
+						<ExternalLink
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
 							target="_blank"
