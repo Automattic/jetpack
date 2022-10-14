@@ -1,5 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -137,7 +137,6 @@ const ThreatAccordionItem = ( {
 
 const PaidList = ( { list } ) => {
 	const { scan } = useDispatch( STORE_ID );
-	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 
 	const handleScanClick = () => {
 		return event => {
@@ -157,27 +156,9 @@ const PaidList = ( { list } ) => {
 	);
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const fixableList = list.filter( obj => obj.fixable );
 
 	return (
 		<>
-			<div className={ styles[ 'threat-header' ] }>
-				{ fixableList.length > 0 && (
-					<Button variant="primary">
-						{
-							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableList.length )
-						}
-					</Button>
-				) }
-				<Button
-					variant="secondary"
-					isLoading={ Boolean( scanIsEnqueuing && scanIsEnqueuing === true ) }
-					onClick={ handleScanClick() }
-				>
-					{ __( 'Scan now', 'jetpack-protect' ) }
-				</Button>
-			</div>
 			{ ! isSmall && (
 				<div className={ styles[ 'accordion-heading' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>

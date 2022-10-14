@@ -29,17 +29,18 @@
 	margin-top: 36px;
 }
 
-.list-title {
-	display: inline-block;
-	width: 50%;
+.list-header {
+	display: flex;
+	margin-bottom: calc( var( --spacing-base ) * 2.25 );
 }
 
-.threat-header {
-	float: right;
+.list-title {
+	flex: 1;
+	margin-bottom: 0;
+}
 
-	> :last-child {
-		margin-left: calc( var( --spacing-base ) * 2 );
-	}
+.list-header-button {
+	margin-left: calc( var( --spacing-base ) * 2 );
 }
 
 .threat-footer {
@@ -93,19 +94,20 @@
 }
 
 @media ( max-width: 599px ) {
-	.list-title {
-		width: 100%;
-		margin-bottom: calc( var( --horizontal-spacing ) * 5 );
+
+	.list-header {
+		margin-bottom: calc( var( --spacing-base ) * 3 );
 	}
 
-	.threat-header {
-		width: 100%;
-		display: flex;
-		justify-content: center;
-		margin-bottom: calc( var( --horizontal-spacing ) * 5 );
+	.list-title {
+		display: none;
+	}
 
-		> * {
-			width: 50%;
+	.list-header-button {
+		flex: 1;
+
+		&:first-of-type {
+			margin-left: 0;
 		}
 	}
 
