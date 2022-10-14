@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Backup;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '1.9.0';
+	const PACKAGE_VERSION = '1.9.1-alpha';
 
 	const PACKAGE_SLUG = 'backup';
 

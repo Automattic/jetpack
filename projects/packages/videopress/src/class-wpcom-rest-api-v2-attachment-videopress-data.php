@@ -106,18 +106,28 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		/* Filter using privacy setting meta key */
 		if ( isset( $request['videopress_privacy_setting'] ) ) {
 			$videopress_privacy_setting = sanitize_text_field( $request['videopress_privacy_setting'] );
-			$args['meta_query'][]       = array(
-				'key'   => 'videopress_privacy_setting',
-				'value' => $videopress_privacy_setting,
+
+			/* Allows the filtering to happens using a list of privacy settings separated by comma */
+			$videopress_privacy_setting_list = explode( ',', $videopress_privacy_setting );
+
+			$args['meta_query'][] = array(
+				'key'     => 'videopress_privacy_setting',
+				'value'   => $videopress_privacy_setting_list,
+				'compare' => 'IN',
 			);
 		}
 
 		/* Filter using rating meta key */
 		if ( isset( $request['videopress_rating'] ) ) {
-			$videopress_rating    = sanitize_text_field( $request['videopress_rating'] );
+			$videopress_rating = sanitize_text_field( $request['videopress_rating'] );
+
+			/* Allows the filtering to happens using a list of ratings separated by comma */
+			$videopress_rating_list = explode( ',', $videopress_rating );
+
 			$args['meta_query'][] = array(
-				'key'   => 'videopress_rating',
-				'value' => $videopress_rating,
+				'key'     => 'videopress_rating',
+				'value'   => $videopress_rating_list,
+				'compare' => 'IN',
 			);
 		}
 

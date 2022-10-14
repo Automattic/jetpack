@@ -22,6 +22,7 @@ export const VideoThumbnailDropdownButtons = ( {
 	onSelectFromVideo,
 	onUploadImage,
 	onClose,
+	isUpdatingPoster = false,
 } ) => {
 	return (
 		<>
@@ -54,6 +55,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				fullWidth
 				variant="tertiary"
 				icon={ cloud }
+				disabled={ isUpdatingPoster }
 				onClick={ () => {
 					onClose();
 					onUploadImage?.();

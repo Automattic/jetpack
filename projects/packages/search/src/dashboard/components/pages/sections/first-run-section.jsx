@@ -6,14 +6,14 @@ import PlanSummary from './plan-summary';
 
 // import './first-run-section.scss';
 
-const FirstRunSection = props => {
+const FirstRunSection = ( { planInfo, siteTitle } ) => {
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary planInfo={ props.planInfo } />
-					<ProgressWrapper siteTitle={ props.siteTitle } />
+					<PlanSummary planInfo={ planInfo } />
+					<ProgressWrapper siteTitle={ siteTitle } />
 					<NoticeWrapper />
 				</div>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
@@ -25,14 +25,14 @@ const FirstRunSection = props => {
 // TODO: Move this back inline.
 // Per Jason's feedback, doesn't think we should break this out.
 // https://github.com/Automattic/jetpack/pull/26639#discussion_r989592860
-const ProgressWrapper = props => {
+const ProgressWrapper = ( { siteTitle } ) => {
 	return (
 		<div>
 			<h3>
 				{ sprintf(
 					// translators: %1$s: site name (not translated)
 					__( 'Indexing %1$s', 'jetpack-search-pkg' ),
-					props.siteTitle
+					siteTitle
 				) }
 			</h3>
 			<ThemeProvider>
