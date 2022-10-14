@@ -190,9 +190,10 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 			{ hasIndex && (
 				<>
 					<PlanUsageSection
+						isFreePlan={ isFreePlan }
+						isPlanJustUpgraded={ isPlanJustUpgraded }
 						planInfo={ planInfo }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
-						isPlanJustUpgraded={ isPlanJustUpgraded }
 					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }

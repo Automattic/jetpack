@@ -243,9 +243,9 @@ const upgradeTypeFromAPIData = apiData => {
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
+const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
 	// const upgradeType = upgradeTypeFromAPIData( planInfo );
-	const upgradeMessage = upgradeMessageFromAPIData( planInfo );
+	const upgradeMessage = isFreePlan ? upgradeMessageFromAPIData( planInfo ) : null;
 	const usageInfo = usageInfoFromAPIData( planInfo );
 
 	return (
