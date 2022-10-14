@@ -210,10 +210,14 @@ export function SearchInterstitial() {
 		<ProductInterstitial
 			slug="search"
 			installsPlugin={ true }
-			supportingInfo={ __(
-				"Jetpack Search Free supports up to 5,000 records and 500 search requests per month for free. Pricing will automatically adjust based on the number of records in your search index. If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
-				'jetpack-my-jetpack'
-			) }
+			supportingInfo={
+				__(
+					'Jetpack Search Free supports up to 5,000 records and 500 search requests per month for free. Pricing will automatically adjust based on the number of records in your search index.',
+					'jetpack-my-jetpack'
+				) +
+				( "If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
+				'jetpack-my-jetpack' )
+			}
 		>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
