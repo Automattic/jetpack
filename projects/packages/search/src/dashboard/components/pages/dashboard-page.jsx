@@ -4,6 +4,7 @@ import {
 	Button,
 	Container,
 	Col,
+	getProductCheckoutUrl,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -13,8 +14,7 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
-import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -32,25 +32,20 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
-	// Prepare Checkout action and loading status
-	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const checkSiteHasSearchProduct = useCallback(
-		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
-		[ fetchSearchPlanInfo ]
-	);
-	const { run: sendPaidPlanToCart, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_search',
-		redirectUrl: `${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
-		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
-		from: 'jetpack-search',
-		siteSuffix: domain,
-		isWpcom,
-	} );
+	const sendPaidPlanToCart = () => {
+		const checkoutProductUrl = getProductCheckoutUrl(
+			'jetpack_search',
+			domain,
+			`${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
+			true
+		);
+
+		window.location.href = checkoutProductUrl;
+	};
 
 	const isPageLoading = useSelect(
 		select =>
@@ -60,9 +55,8 @@ export default function DashboardPage( { isLoading = false } ) {
 			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
 			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			isLoading ||
-			hasCheckoutStarted,
-		[ isLoading, hasCheckoutStarted ]
+			isLoading,
+		[ isLoading ]
 	);
 
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
