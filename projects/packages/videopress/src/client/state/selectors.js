@@ -80,6 +80,10 @@ export const getLocalPagination = state => {
 	return state?.localVideos?.pagination;
 };
 
+export const getUploaders = state => {
+	return state?.uploaders || [];
+};
+
 const selectors = {
 	// VideoPress videos
 	getVideos,
@@ -101,6 +105,8 @@ const selectors = {
 
 	getVideo,
 	getVideoStateMetadata,
+
+	getUploaders,
 
 	getPurchases,
 	isFetchingPurchases,
