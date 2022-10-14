@@ -89,8 +89,12 @@ class Data {
 	 */
 	public static function get_user_data() {
 		$user_data = array(
-			'items' => array(),
-			'query' => array(
+			'items'      => array(),
+			'pagination' => array(
+				'total'      => 0,
+				'totalPages' => 1,
+			),
+			'query'      => array(
 				'order'   => 'asc',
 				'orderBy' => 'name',
 			),
@@ -113,6 +117,15 @@ class Data {
 
 		// load the real values
 		$user_data['items'] = $response->get_data();
+		$headers            = $response->get_headers();
+
+		if ( isset( $headers['X-WP-Total'] ) ) {
+			$user_data['pagination']['total'] = $headers['X-WP-Total'];
+		}
+
+		if ( isset( $headers['X-WP-TotalPages'] ) ) {
+			$user_data['pagination']['totalPages'] = $headers['X-WP-TotalPages'];
+		}
 
 		return $user_data;
 	}
