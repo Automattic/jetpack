@@ -67,7 +67,7 @@ const DonutMeterContainer = ( {
 	const usageInfo = usageInfoMessage( current, limit );
 
 	const tooltipArgs = {
-		shadowAnchor: true,
+		popoverAnchorStyle: 'wrapper',
 		title: tooltip.title,
 		placement: 'top',
 		forceShow: tooltip.forceShow,
