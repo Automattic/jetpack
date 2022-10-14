@@ -238,7 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "84595f9ad0abf2722568e2d64036efa46b73b610"
+                "reference": "22a654727735023d34e8368c6a1d3b5e14bceb4b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -248,7 +248,7 @@
                 "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.45",
                 "automattic/jetpack-identity-crisis": "^0.8",
-                "automattic/jetpack-my-jetpack": "^2.2",
+                "automattic/jetpack-my-jetpack": "^2.3",
                 "automattic/jetpack-status": "^1.14",
                 "automattic/jetpack-sync": "^1.39"
             },
@@ -828,7 +828,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "44f6a3765bedab8892264689713153b7f35f65d7"
+                "reference": "ff9e4c9840a005493770e7a45fd8af700c1c9a6e"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -854,7 +854,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
