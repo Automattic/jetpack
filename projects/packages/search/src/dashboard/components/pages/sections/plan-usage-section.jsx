@@ -153,17 +153,13 @@ const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
 		},
 	};
 
-	// TODO: Implement icon callbacks.
-	const recordsIconClickedCallback = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'Icon clicked for records meter' );
-	};
-	const requestsIconClickedCallback = () => {
-		// eslint-disable-next-line no-console
-		console.log( 'Icon clicked for requests meter' );
-	};
+	// TODO: Implement info icon callbacks.
+	// Not clear if these are needed yet so for now, they're hidden.
+	// const recordsIconClickedCallback = () => {};
+	// const requestsIconClickedCallback = () => {};
 	// TODO: Implement callback for the toggle details link.
 	// No callback, no toggle.
+	// const toggleDetailsClickedCallback = () => {};
 	return (
 		<div className="usage-meter-group">
 			<DonutMeterContainer
@@ -171,14 +167,12 @@ const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
 				current={ usageInfo.recordCount }
 				limit={ usageInfo.recordMax }
 				tooltip={ tooltips.record }
-				iconClickedCallback={ recordsIconClickedCallback }
 			/>
 			<DonutMeterContainer
 				title={ __( 'Search requests', 'jetpack-search-pkg' ) }
 				current={ usageInfo.requestCount }
 				limit={ usageInfo.requestMax }
 				tooltip={ tooltips.request }
-				iconClickedCallback={ requestsIconClickedCallback }
 			/>
 		</div>
 	);
@@ -189,19 +183,11 @@ const AboutPlanLimits = () => {
 		<div className="usage-meter-about">
 			{ createInterpolateElement(
 				__(
-					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>. <jpExternalIcon></jpExternalIcon>',
+					'Tell me more about <jpPlanLimits>record indexing and request limits</jpPlanLimits>',
 					'jetpack-search-pkg'
 				),
 				{
 					jpPlanLimits: (
-						<a
-							href="https://jetpack.com/support/search/"
-							rel="noopener noreferrer"
-							target="_blank"
-							className="support-link"
-						/>
-					),
-					jpExternalIcon: (
 						<ExternalLink
 							href="https://jetpack.com/support/search/"
 							rel="noopener noreferrer"
