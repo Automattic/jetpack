@@ -98,6 +98,9 @@ class Data {
 				'order'   => 'asc',
 				'orderBy' => 'name',
 			),
+			'_meta'      => array(
+				'relyOnInitialState' => true,
+			),
 		);
 
 		$args = array(
