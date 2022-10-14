@@ -1,6 +1,6 @@
 <?php
 /**
- * Class to handle Credentials
+ * Class to handle Rewind
  *
  * @package automattic/jetpack-protect-plugin
  */
