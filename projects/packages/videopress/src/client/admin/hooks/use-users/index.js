@@ -14,9 +14,11 @@ import { STORE_ID } from '../../../state/constants';
  */
 export default function useUsers() {
 	// Data
-	const uploaders = useSelect( select => select( STORE_ID ).getUploaders() );
+	const users = useSelect( select => select( STORE_ID ).getUsers() );
+	const pagination = useSelect( select => select( STORE_ID ).getUsersPagination() );
 
 	return {
-		uploaders,
+		users,
+		...pagination,
 	};
 }

@@ -84,6 +84,10 @@ export const getUsers = state => {
 	return state?.users || [];
 };
 
+export const getUsersPagination = state => {
+	return state?.users?.pagination;
+};
+
 const selectors = {
 	// VideoPress videos
 	getVideos,
@@ -107,6 +111,7 @@ const selectors = {
 	getVideoStateMetadata,
 
 	getUsers,
+	getUsersPagination,
 
 	getPurchases,
 	isFetchingPurchases,
