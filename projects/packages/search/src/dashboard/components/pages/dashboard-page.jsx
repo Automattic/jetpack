@@ -69,10 +69,9 @@ export default function DashboardPage( { isLoading = false } ) {
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan() );
+	const isOverLimit = useSelect( select => select( STORE_ID ).isOverLimit() );
+	const isDisabledFromOverLimitOnFreePlan = isOverLimit && isFreePlan;
 
-	const isDisabledFromOverLimit = useSelect( select =>
-		select( STORE_ID ).getDisabledFromOverLimit()
-	);
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
 		select( STORE_ID ).isInstantSearchPromotionActive()
@@ -155,7 +154,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							siteAdminUrl={ siteAdminUrl }
 							updateOptions={ updateOptions }
 							domain={ domain }
-							isDisabledFromOverLimit={ isDisabledFromOverLimit }
+							isDisabledFromOverLimit={ isDisabledFromOverLimitOnFreePlan }
 							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
 							upgradeBillPeriod={ upgradeBillPeriod }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
