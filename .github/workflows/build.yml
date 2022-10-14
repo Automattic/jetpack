@@ -48,7 +48,7 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
-          echo "::set-output name=projects::${CHANGED}"
+          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
@@ -91,10 +91,10 @@ jobs:
           done > "$BUILD_BASE/plugins.tsv"
           if [[ -s "$BUILD_BASE/plugins.tsv" ]]; then
             cat "$BUILD_BASE/plugins.tsv"
-            echo "::set-output name=any::true"
+            echo "any=true" >> "$GITHUB_OUTPUT"
           else
             echo "No plugins were built"
-            echo "::set-output name=any::false"
+            echo "any=false" >> "$GITHUB_OUTPUT"
           fi
 
       # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
@@ -277,7 +277,7 @@ jobs:
           if [[ "$PLUGIN_DATA" == "{}" ]]; then
             echo "No plugins were built"
           fi
-          echo "::set-output name=plugin-data::$PLUGIN_DATA"
+          echo "plugin-data=$PLUGIN_DATA" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
         uses: actions/upload-artifact@v3

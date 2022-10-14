@@ -102,7 +102,7 @@ END;
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$footer_to_add = Tracking_Pixel::get_footer_to_add( $data );
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
-		$footer_to_add_should_be = '<amp-pixel src=\"https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER\"></amp-pixel>';
+		$footer_to_add_should_be = '<amp-pixel src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>';
 		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
 

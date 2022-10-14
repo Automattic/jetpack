@@ -3,14 +3,13 @@
  */
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown, Modal } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { image, trash, globe, lock, unlock } from '@wordpress/icons';
+import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useEffect } from 'react';
 /** */
-import privacy from '../../../components/icons/privacy-icon';
-import { STORE_ID } from '../../../state';
+import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
+import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
@@ -41,7 +40,7 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 	};
 
 	return (
-		<Popover position="top left" noArrow={ false } { ...popoverProps }>
+		<Popover position="top center" noArrow { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
@@ -68,7 +67,11 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 	);
 };
 
-const ThumbnailActionsDropdown = ( { description, onUpdate }: ThumbnailActionsDropdownProps ) => {
+const ThumbnailActionsDropdown = ( {
+	description,
+	onUpdate,
+	isUpdatingPoster,
+}: ThumbnailActionsDropdownProps ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
@@ -97,6 +100,7 @@ const ThumbnailActionsDropdown = ( { description, onUpdate }: ThumbnailActionsDr
 			) }
 			renderContent={ ( { onClose } ) => (
 				<VideoThumbnailDropdownButtons
+					isUpdatingPoster={ isUpdatingPoster }
 					onClose={ onClose }
 					onUseDefaultThumbnail={ () => onUpdate( 'default' ) }
 					onSelectFromVideo={ () => onUpdate( 'select-from-video' ) }
@@ -110,10 +114,18 @@ const ThumbnailActionsDropdown = ( { description, onUpdate }: ThumbnailActionsDr
 const PrivacyActionsDropdown = ( {
 	description,
 	privacySetting,
+	isUpdatingPrivacy,
 	onUpdate,
 }: PrivacyActionsDropdownProps ) => {
 	const [ anchorRef, setAnchorRef ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
+
+	let currentPrivacyIcon = siteDefaultPrivacyIcon;
+	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		currentPrivacyIcon = privatePrivacyIcon;
+	} else if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PUBLIC ) {
+		currentPrivacyIcon = publicPrivacyIcon;
+	}
 
 	return (
 		<Dropdown
@@ -124,7 +136,7 @@ const PrivacyActionsDropdown = ( {
 						ref={ setAnchorRef }
 						size="small"
 						variant="tertiary"
-						icon={ privacy }
+						icon={ currentPrivacyIcon }
 						onClick={ () => {
 							setShowPopover( false );
 							onToggle();
@@ -132,6 +144,7 @@ const PrivacyActionsDropdown = ( {
 						aria-expanded={ isOpen }
 						onMouseEnter={ () => setShowPopover( true ) }
 						onMouseLeave={ () => setShowPopover( false ) }
+						disabled={ isUpdatingPrivacy }
 					/>
 					{ showPopover && (
 						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
@@ -144,7 +157,7 @@ const PrivacyActionsDropdown = ( {
 						weight="regular"
 						fullWidth
 						variant="tertiary"
-						icon={ globe }
+						icon={ siteDefaultPrivacyIcon }
 						onClick={ () => {
 							onClose();
 							onUpdate( 'site-default' );
@@ -158,7 +171,7 @@ const PrivacyActionsDropdown = ( {
 						weight="regular"
 						fullWidth
 						variant="tertiary"
-						icon={ unlock }
+						icon={ publicPrivacyIcon }
 						onClick={ () => {
 							onClose();
 							onUpdate( 'public' );
@@ -172,7 +185,7 @@ const PrivacyActionsDropdown = ( {
 						weight="regular"
 						fullWidth
 						variant="tertiary"
-						icon={ lock }
+						icon={ privatePrivacyIcon }
 						onClick={ () => {
 							onClose();
 							onUpdate( 'private' );
@@ -190,6 +203,8 @@ const PrivacyActionsDropdown = ( {
 const VideoQuickActions = ( {
 	className,
 	privacySetting,
+	isUpdatingPrivacy,
+	isUpdatingPoster,
 	onUpdateVideoThumbnail,
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
@@ -199,11 +214,13 @@ const VideoQuickActions = ( {
 			<ThumbnailActionsDropdown
 				onUpdate={ onUpdateVideoThumbnail }
 				description={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
+				isUpdatingPoster={ isUpdatingPoster }
 			/>
 
 			<PrivacyActionsDropdown
 				onUpdate={ onUpdateVideoPrivacy }
 				privacySetting={ privacySetting }
+				isUpdatingPrivacy={ isUpdatingPrivacy }
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
 			/>
 
@@ -221,10 +238,11 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
-	const dispatch = useDispatch( STORE_ID );
-	const { data, updateVideoPrivacy, deleteVideo } = useVideo( videoId );
+	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy, isUpdatingPoster } = useVideo(
+		videoId
+	);
+
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
-	const [ updatingThumbnail, setUpdatingThumbnail ] = useState( false );
 	const {
 		frameSelectorIsOpen,
 		handleCloseSelectFrame,
@@ -232,27 +250,25 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		handleVideoFrameSelected,
 		selectedTime,
 		handleConfirmFrame,
-		updatePosterImage,
+		updatePosterImageFromFrame,
+		selectAndUpdatePosterImageFromLibrary,
 	} = usePosterEdit( { video: data } );
+
+	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] = async action => {
+		switch ( action ) {
+			case 'select-from-video':
+				return handleOpenSelectFrame();
+			case 'upload-image':
+				return selectAndUpdatePosterImageFromLibrary();
+		}
+	};
 
 	useEffect( () => {
 		if ( selectedTime == null ) {
 			return;
 		}
 
-		setUpdatingThumbnail( true );
-		updatePosterImage()
-			.then( result => {
-				const posterImage = result ?? data?.posterImage;
-				const videoData = { ...data, posterImage };
-				dispatch?.setVideo( videoData );
-			} )
-			.catch( () => {
-				// TODO: handle errors
-			} )
-			.finally( () => {
-				setUpdatingThumbnail( false );
-			} );
+		updatePosterImageFromFrame();
 	}, [ selectedTime ] );
 
 	if ( showDeleteModal ) {
@@ -304,7 +320,6 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
 				/>
-				<div>{ selectedTime }</div>
 			</>
 		);
 	}
@@ -312,15 +327,15 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	const { privacySetting } = data;
 
 	return (
-		! updatingThumbnail && (
-			<VideoQuickActions
-				{ ...props }
-				onUpdateVideoPrivacy={ updateVideoPrivacy }
-				onUpdateVideoThumbnail={ handleOpenSelectFrame }
-				onDeleteVideo={ () => setShowDeleteModal( true ) }
-				privacySetting={ privacySetting }
-			/>
-		)
+		<VideoQuickActions
+			{ ...props }
+			onUpdateVideoPrivacy={ updateVideoPrivacy }
+			onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
+			onDeleteVideo={ () => setShowDeleteModal( true ) }
+			privacySetting={ privacySetting }
+			isUpdatingPrivacy={ isUpdatingPrivacy }
+			isUpdatingPoster={ isUpdatingPoster }
+		/>
 	);
 };
 
