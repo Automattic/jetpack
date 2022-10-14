@@ -837,12 +837,12 @@ class Manager {
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
 
-		if ( $user_id === $connection_owner_id ) {
-			\Jetpack_Options::delete_option( 'master_user' );
-		}
-
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
+			if ( $user_id === $connection_owner_id ) {
+				\Jetpack_Options::delete_option( 'master_user' );
+			}
+
 			// Disconnect the user locally.
 			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
 
