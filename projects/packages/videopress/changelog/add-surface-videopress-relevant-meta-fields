@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: Surface filtering-relevant VideoPress meta keys, copying it from the attachment `videopress` metadata object to searcheable new meta key.

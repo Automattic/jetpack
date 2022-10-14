@@ -14,16 +14,13 @@ import {
 	Button,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
-import {
-	ConnectionError,
-	useConnectionErrorNotice,
-	useProductCheckoutWorkflow,
-} from '@automattic/jetpack-connection';
+import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
+import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
@@ -45,6 +42,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback(
@@ -52,20 +50,28 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ fetchSearchPlanInfo ]
 	);
 
-	const { run: sendToCartPaid, hasCheckoutStartedPaid } = useProductCheckoutWorkflow( {
+	const {
+		run: sendToCartPaid,
+		hasCheckoutStarted: hasCheckoutStartedPaid,
+	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
-		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
-	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
+	const {
+		run: sendToCartFree,
+		hasCheckoutStarted: hasCheckoutStartedFree,
+	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search_free',
-		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
 	const isPageLoading = useSelect(

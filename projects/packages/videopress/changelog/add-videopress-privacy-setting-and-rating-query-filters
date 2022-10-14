@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: Add support to `videopress_privacy_setting` and `videopress_rating` query filters to filter media attachments using the respectives meta keys.

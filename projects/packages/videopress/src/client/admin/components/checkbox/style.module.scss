@@ -27,5 +27,9 @@
 		&:checked::before {
 			background: var( --jp-black );
 		}
+
+		&:disabled {
+			border: 1px solid var(--jp-gray-10);
+		}
 	}
 }
