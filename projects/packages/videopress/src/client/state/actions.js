@@ -276,7 +276,7 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 	}
 };
 
-const setUploaders = users => {
+const setUsers = users => {
 	return { type: SET_USERS, users };
 };
 
@@ -310,7 +310,7 @@ const actions = {
 	setPurchases,
 
 	updateVideoPoster,
-	setUploaders,
+	setUsers,
 };
 
 export { actions as default };

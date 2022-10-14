@@ -270,7 +270,7 @@ const getLocalVideos = {
 	},
 };
 
-const getUploaders = {
+const getUsers = {
 	isFulfilled: state => {
 		return state?.users?._meta?.relyOnInitialState;
 	},
@@ -281,12 +281,12 @@ const getUploaders = {
 		try {
 			const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
 
-			const uploaders = await response.json();
-			if ( ! uploaders?.length ) {
+			const users = await response.json();
+			if ( ! users?.length ) {
 				return;
 			}
-			dispatch.setUploaders(
-				uploaders.map( user => {
+			dispatch.setUsers(
+				users.map( user => {
 					return {
 						id: user.id,
 						name: user.name,
@@ -297,7 +297,7 @@ const getUploaders = {
 					};
 				} )
 			);
-			return uploaders;
+			return users;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
@@ -312,7 +312,7 @@ export default {
 
 	getLocalVideos,
 
-	getUploaders,
+	getUsers,
 
 	getPurchases,
 };
