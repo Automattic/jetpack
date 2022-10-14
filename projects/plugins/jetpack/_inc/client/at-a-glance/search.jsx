@@ -112,7 +112,7 @@ class DashSearch extends Component {
 				overrideContent: this.props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={
-							isSearchNewPricingLaunched202208
+							isSearchNewPricingLaunched202208()
 								? __( 'Start for free', 'jetpack' )
 								: __( 'Upgrade', 'jetpack' )
 						}
