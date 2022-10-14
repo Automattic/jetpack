@@ -19,7 +19,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
-import isSearchNewPricingLaunched202208 from '../../utils/is-search-new-pricing-202208';
+import { PRODUCT_STATUSES } from '../product-card';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -110,7 +110,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 			: null;
 
 	const addFreeProductUrl =
-		isSearchNewPricingLaunched202208() && needsPurchase && wpcomFreeProductSlug
+		needsPurchase && wpcomFreeProductSlug && status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE
 			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
 
