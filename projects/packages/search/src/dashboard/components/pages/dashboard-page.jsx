@@ -68,19 +68,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
-	const myStorage = window.localStorage;
-	const isTooltipRead = myStorage.getItem( 'upgrade_tooltip_finished' );
-	const setTooltipRead = () => {
-		myStorage.setItem( 'upgrade_tooltip_finished', 1 );
-	};
-	const isPlanJustUpgraded =
-		useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] ) && ! isTooltipRead;
-
-	const tooltipHelper = {
-		isPlanJustUpgraded,
-		setTooltipRead,
-	};
-
 	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
 
 	const isDisabledFromOverLimit = useSelect( select =>
@@ -152,7 +139,6 @@ export default function DashboardPage( { isLoading = false } ) {
 							recordMeterInfo={ recordMeterInfo }
 							tierSlug={ tierSlug }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
-							tooltipHelper={ tooltipHelper }
 						/>
 					) }
 					{ ! isNewPricing && (
@@ -193,7 +179,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart, tooltipHelper } ) => {
+const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -203,6 +189,8 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart, to
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
 
+	const isPlanJustUpgraded = useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] );
+
 	return (
 		<>
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
@@ -211,7 +199,7 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart, to
 					<PlanUsageSection
 						planInfo={ planInfo }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
-						tooltipHelper={ tooltipHelper }
+						isPlanJustUpgraded={ isPlanJustUpgraded }
 					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }
