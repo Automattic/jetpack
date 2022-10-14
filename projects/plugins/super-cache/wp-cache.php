@@ -1009,57 +1009,66 @@ table.wpsc-settings-table {
 	<table class="wpsc-settings-table"><td valign="top">
 
 	<?php
-		if ( $showing_boost_banner ) {
-			?>
-				<div class="boost-banner">
-					<div class="boost-banner-inner">
-						<div class="boost-banner-content">
-							<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
+	if ( $showing_boost_banner ) {
+		?>
+			<div class="boost-banner">
+				<div class="boost-banner-inner">
+					<div class="boost-banner-content">
+						<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
 
-							<h3>
-								<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
-							</h3>
+						<h3>
+							<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
+						</h3>
 
-							<p>
-								<?php esc_html_e( 'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.', 'wp-super-cache' ); ?>
-							</p>
+						<p>
+							<?php esc_html_e( 'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.', 'wp-super-cache' ); ?>
+						</p>
 
-							<a href="<?php echo wp_nonce_url( add_query_arg(
+						<a href="
+						<?php
+						// phpcs:disable
+						wp_nonce_url(
+							add_query_arg(
 								array(
 									'action' => 'install-plugin',
 									'plugin' => 'jetpack-boost',
 								),
 								admin_url( 'update.php' )
-							), 'install-plugin_jetpack-boost' ); ?>" class="button button-primary">
-								Install Jetpack Boost
-							</a>
-						</div>
-
-						<div class="boost-banner-image-container">
-							<img
-								src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
-								title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
-								alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
-								srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
-								sizes="(max-width: 782px) 654px, 1306px"
-							>
-						</div>
+							),
+							'install-plugin_jetpack-boost'
+						);
+						// phpcs:enable
+						?>
+						" class="button button-primary">
+						<?php esc_html_e( 'Install Jetpack Boost', 'wp-super-cache' ); ?>
+						</a>
 					</div>
 
-					<span class="boost-dismiss dashicons dashicons-dismiss"></span>
+					<div class="boost-banner-image-container">
+						<img
+							src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
+							title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
+							alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
+							srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
+							sizes="(max-width: 782px) 654px, 1306px"
+						>
+					</div>
 				</div>
 
-				<script>
-					jQuery( '.boost-dismiss' ).on( 'click', function() {
-						jQuery( '.boost-banner' ).fadeOut( 'slow' );
-						jQuery.post( ajaxurl, {
-							action: 'wpsc-hide-boost-banner',
-							nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
-						} );
+				<span class="boost-dismiss dashicons dashicons-dismiss"></span>
+			</div>
+
+			<script>
+				jQuery( '.boost-dismiss' ).on( 'click', function() {
+					jQuery( '.boost-banner' ).fadeOut( 'slow' );
+					jQuery.post( ajaxurl, {
+						action: 'wpsc-hide-boost-banner',
+						nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
 					} );
-				</script>
-			<?php
-		}
+				} );
+			</script>
+		<?php
+	}
 	?>
 
 
