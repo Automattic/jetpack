@@ -83,6 +83,41 @@ class Data {
 	}
 
 	/**
+	 * Gets the user data
+	 *
+	 * @return array
+	 */
+	public static function get_user_data() {
+		$user_data = array(
+			'items' => array(),
+			'query' => array(
+				'order'   => 'asc',
+				'orderBy' => 'name',
+			),
+		);
+
+		$args = array(
+			'order'   => $user_data['query']['order'],
+			'orderby' => $user_data['query']['orderBy'],
+		);
+
+		// Do an internal request for the user list
+		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			// @todo: error handling
+			return $user_data;
+		}
+
+		// load the real values
+		$user_data['items'] = $response->get_data();
+
+		return $user_data;
+	}
+
+	/**
 	 * Gets the VideoPress used storage space in bytes
 	 *
 	 * @return int the used storage space
