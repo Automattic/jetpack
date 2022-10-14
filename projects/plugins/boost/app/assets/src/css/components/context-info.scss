@@ -71,6 +71,8 @@
 			z-index: 9991;
 			
 			@include box-shadow();
+			// Remove the shadow from the bottom of the triangle
+			clip-path: inset(-20px 0 0 -20px);
 		}
 
 		/* Add this invisible element to prevent the hover effect from going away while moving the mouse from icon to tooltip */
