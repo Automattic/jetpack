@@ -8,7 +8,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import Checkbox from '../checkbox';
-import VideoRow, { Stats } from '../video-row';
+import ConnectVideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
 /**
  * Types
@@ -61,7 +61,7 @@ const VideoList = ( {
 			</div>
 			{ videos.map( ( video, index ) => {
 				return (
-					<VideoRow
+					<ConnectVideoRow
 						key={ video?.guid ?? video?.id }
 						id={ video?.id }
 						checked={ selected.includes( index ) }
