@@ -38,6 +38,7 @@ import {
 	WP_REST_API_VIDEOPRESS_ENDPOINT,
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -275,6 +276,10 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 	}
 };
 
+const setUploaders = users => {
+	return { type: SET_USERS, users };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -305,6 +310,7 @@ const actions = {
 	setPurchases,
 
 	updateVideoPoster,
+	setUploaders,
 };
 
 export { actions as default };

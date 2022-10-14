@@ -279,15 +279,24 @@ const getUploaders = {
 		dispatch.setIsFetchingLocalVideos( true );
 
 		try {
-			const total = Number( response.headers.get( 'X-WP-Total' ) );
-			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
-
 			const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
 
-			dispatch.setUploadersPagination( { total, totalPages } );
-
 			const uploaders = await response.json();
-			dispatch.setUploaders( uploaders );
+			if ( ! uploaders?.length ) {
+				return;
+			}
+			dispatch.setUploaders(
+				uploaders.map( user => {
+					return {
+						id: user.id,
+						name: user.name,
+						slug: user.slug,
+						description: user.description,
+						link: user.link,
+						avatar: user.avatar_urls,
+					};
+				} )
+			);
 			return uploaders;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console

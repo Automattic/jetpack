@@ -31,6 +31,7 @@ import {
 	SET_VIDEOS_FILTER,
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
 } from './constants';
 
 /**
@@ -493,8 +494,18 @@ const localVideos = ( state, action ) => {
 	return state;
 };
 
-const users = state => {
-	return state;
+const users = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_USERS: {
+			return {
+				...state,
+				items: action.users,
+			};
+		}
+
+		default:
+			return state;
+	}
 };
 
 const purchases = ( state, action ) => {
