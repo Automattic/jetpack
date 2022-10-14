@@ -77,5 +77,12 @@ add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\
 function lazy_images_sync_with_jetpack() {
 	update_option( 'jetpack_boost_status_lazy-images', \Jetpack::is_module_active( 'lazy-images' ) );
 }
+
 add_action( 'jetpack_deactivate_module_lazy-images', __NAMESPACE__ . '\lazy_images_sync_with_jetpack', 10, 2 );
 add_action( 'jetpack_activate_module_lazy-images', __NAMESPACE__ . '\lazy_images_sync_with_jetpack', 10, 2 );
+
+/**
+ * Update the Jetpack Boost option to match the Jetpack option,
+ * in case the options are out of sync when the page is loaded.
+ */
+add_action( 'load-jetpack_page_jetpack-boost', __NAMESPACE__ . '\lazy_images_sync_with_jetpack' );
