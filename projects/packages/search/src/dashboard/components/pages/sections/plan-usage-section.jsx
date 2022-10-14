@@ -6,7 +6,7 @@ import {
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import DonutMeterContainer from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
 
@@ -42,7 +42,7 @@ const upgradeTypeFromAPIData = apiData => {
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isJustUpgraded } ) => {
+const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
 	const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const usageInfo = usageInfoFromAPIData( planInfo );
 	return (
@@ -51,7 +51,7 @@ const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isJustUpgraded } ) =>
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
 					<PlanSummary planInfo={ planInfo } />
-					<UsageMeters usageInfo={ usageInfo } isJustUpgraded={ isJustUpgraded } />
+					<UsageMeters usageInfo={ usageInfo } isPlanJustUpgraded={ isPlanJustUpgraded } />
 					<UpgradeTrigger type={ upgradeType } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
 				</div>
@@ -112,11 +112,28 @@ const UpgradeTrigger = ( { type, ctaCallback } ) => {
 	);
 };
 
-const UsageMeters = ( { usageInfo, isJustUpgraded } ) => {
-	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( isJustUpgraded ? 1 : 0 );
-	const goToNext = useCallback( () => setCurrentTooltipIndex( idx => idx + 1 ), [
-		setCurrentTooltipIndex,
+const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
+	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( 0 );
+	const myStorage = window.localStorage;
+	useMemo(
+		() =>
+			setCurrentTooltipIndex(
+				myStorage.getItem( 'upgrade_tooltip_finished' ) ? 0 : +isPlanJustUpgraded
+			),
+		[ setCurrentTooltipIndex, myStorage, isPlanJustUpgraded ]
+	);
+	const setTooltipRead = useCallback( () => myStorage.setItem( 'upgrade_tooltip_finished', 1 ), [
+		myStorage,
 	] );
+	const goToNext = useCallback( () => {
+		setCurrentTooltipIndex( idx => {
+			if ( idx >= 2 ) {
+				setTooltipRead();
+			}
+
+			return idx + 1;
+		} );
+	}, [ setCurrentTooltipIndex, setTooltipRead ] );
 
 	const tooltips = {
 		record: {

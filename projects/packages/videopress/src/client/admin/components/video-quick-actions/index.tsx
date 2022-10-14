@@ -3,7 +3,6 @@
  */
 import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown, Modal } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -11,14 +10,12 @@ import { useState, useEffect } from 'react';
 /** */
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
-import { STORE_ID } from '../../../state';
 import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
-import useLibraryPosterImage from '../../hooks/use-library-poster-image';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
@@ -234,11 +231,9 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
-	const dispatch = useDispatch( STORE_ID );
 	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy } = useVideo( videoId );
 
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
-	const [ updatingPosterImage, setUpdatingPosterImage ] = useState( false );
 	const {
 		frameSelectorIsOpen,
 		handleCloseSelectFrame,
@@ -246,36 +241,16 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		handleVideoFrameSelected,
 		selectedTime,
 		handleConfirmFrame,
-		updatePosterImage: updatePosterImageFromFrame,
+		updatePosterImageFromFrame,
+		selectAndUpdatePosterImageFromLibrary,
 	} = usePosterEdit( { video: data } );
-	const { updatePosterImage: updatePosterImageFromLibrary } = useLibraryPosterImage( {
-		video: data,
-	} );
-
-	const updatePosterImage = async updateRequest => {
-		try {
-			setUpdatingPosterImage( true );
-			const posterImage = await updateRequest();
-
-			if ( posterImage == null ) {
-				return;
-			}
-
-			const videoData = { ...data, posterImage };
-			dispatch?.setVideo( videoData );
-		} catch ( error ) {
-			// @todo: error handling
-		} finally {
-			setUpdatingPosterImage( false );
-		}
-	};
 
 	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] = async action => {
 		switch ( action ) {
 			case 'select-from-video':
 				return handleOpenSelectFrame();
 			case 'upload-image':
-				return updatePosterImage( updatePosterImageFromLibrary );
+				return selectAndUpdatePosterImageFromLibrary();
 		}
 	};
 
@@ -284,7 +259,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 			return;
 		}
 
-		updatePosterImage( updatePosterImageFromFrame );
+		updatePosterImageFromFrame();
 	}, [ selectedTime ] );
 
 	if ( showDeleteModal ) {
@@ -343,16 +318,14 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	const { privacySetting } = data;
 
 	return (
-		! updatingPosterImage && (
-			<VideoQuickActions
-				{ ...props }
-				onUpdateVideoPrivacy={ updateVideoPrivacy }
-				onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
-				onDeleteVideo={ () => setShowDeleteModal( true ) }
-				privacySetting={ privacySetting }
-				isUpdatingPrivacy={ isUpdatingPrivacy }
-			/>
-		)
+		<VideoQuickActions
+			{ ...props }
+			onUpdateVideoPrivacy={ updateVideoPrivacy }
+			onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
+			onDeleteVideo={ () => setShowDeleteModal( true ) }
+			privacySetting={ privacySetting }
+			isUpdatingPrivacy={ isUpdatingPrivacy }
+		/>
 	);
 };
 
