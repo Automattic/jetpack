@@ -1,5 +1,5 @@
 import { productOriginalProps, siteProductOriginalProps } from '../../hooks/use-plan/types';
-import { VideoPressVideo } from '../../types';
+import { MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
 	interface Window {
@@ -24,7 +24,7 @@ declare global {
 }
 
 export type VideoLibraryProps = {
-	videos: Array< VideoPressVideo >;
+	videos: Array< VideoPressVideo & MetadataVideo >;
 	totalVideos?: number;
 	loading?: boolean;
 };
