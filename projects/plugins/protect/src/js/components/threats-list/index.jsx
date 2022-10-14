@@ -1,4 +1,4 @@
-import { Container, Col, Title } from '@automattic/jetpack-components';
+import { Container, Col, Title, Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
@@ -13,6 +13,7 @@ const ThreatsList = () => {
 	const { jetpackScan } = useProtectData();
 	const { hasRequiredPlan } = jetpackScan;
 	const { item, list, selected, setSelected } = useThreatsList();
+	const fixableCount = list.filter( obj => obj.fixable ).length;
 
 	const getTitle = useCallback( () => {
 		switch ( selected ) {
@@ -49,16 +50,31 @@ const ThreatsList = () => {
 	}, [ selected, list, item ] );
 
 	return (
-		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 5 }>
+		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col lg={ 4 }>
 				<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 			</Col>
 			<Col lg={ 8 }>
 				{ list?.length > 0 ? (
 					<>
-						<Title className={ styles[ 'list-title' ] } mb={ 3 }>
-							{ getTitle() }
-						</Title>
+						<div className={ styles[ 'list-header' ] }>
+							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
+							{ hasRequiredPlan && (
+								<>
+									{ fixableCount > 0 && (
+										<Button variant="primary" className={ styles[ 'list-header-button' ] }>
+											{
+												/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
+												sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
+											}
+										</Button>
+									) }
+									<Button variant="secondary" className={ styles[ 'list-header-button' ] }>
+										{ __( 'Scan now', 'jetpack-protect' ) }
+									</Button>
+								</>
+							) }
+						</div>
 						{ hasRequiredPlan ? <PaidList list={ list } /> : <FreeList list={ list } /> }
 					</>
 				) : (

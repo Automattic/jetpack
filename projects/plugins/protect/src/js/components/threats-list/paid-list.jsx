@@ -147,21 +147,9 @@ const manualScan = createInterpolateElement(
 
 const PaidList = ( { list } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const fixableCount = list.filter( obj => obj.fixable ).length;
 
 	return (
 		<>
-			<div className={ styles[ 'threat-header' ] }>
-				{ fixableCount > 0 && (
-					<Button variant="primary">
-						{
-							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
-						}
-					</Button>
-				) }
-				<Button variant="secondary">{ __( 'Scan now', 'jetpack-protect' ) }</Button>
-			</div>
 			{ ! isSmall && (
 				<div className={ styles[ 'accordion-heading' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
