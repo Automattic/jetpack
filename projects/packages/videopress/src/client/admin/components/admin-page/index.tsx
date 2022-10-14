@@ -26,6 +26,7 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
+import uid from '../../../utils/uid';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import Logo from '../logo';
@@ -38,10 +39,11 @@ import styles from './styles.module.scss';
 const useDashboardVideos = () => {
 	const { uploadVideo } = useDispatch( STORE_ID );
 
-	const { items, uploading, uploadedVideoCount, isFetching } = useVideos();
+	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos } = useLocalVideos();
 
-	let videos = [ ...uploading, ...items ];
+	// Do not show uploading videos if not in the first page or searching
+	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
 
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 	const localTotalVideoCount = 0;
@@ -54,7 +56,8 @@ const useDashboardVideos = () => {
 
 	// Fill with empty videos if loading
 	if ( isFetching ) {
-		videos = new Array( 6 ).fill( {} );
+		// Use generated ID to work with React Key
+		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
 	}
 
 	return {
