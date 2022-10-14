@@ -154,7 +154,7 @@ const upgradeMessageRequests = apiData => {
 	return { description: message, cta: cta };
 };
 
-const upgradeMessageNoOverage = apiData => {
+const upgradeMessageNoOverage = () => {
 	// Always returns a valid message.
 	const message = __(
 		'Do you want to increase your site records and search requests?.',
