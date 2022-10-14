@@ -1,4 +1,5 @@
 <script>
+	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ContextInfo from '../../elements/ContextInfo.svelte';
 	import ProductPrice from '../../elements/ProductPrice.svelte';
@@ -31,7 +32,8 @@
 		'jetpack-boost'
 	);
 
-	const webDevLink = 'https://web.dev/';
+	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
+	const lazyLoadlink = getRedirectUrl( 'jetpack-boost-lazy-load' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
@@ -72,7 +74,7 @@
 							<TemplatedString
 								template={deferJSContext}
 								vars={{
-									...externalLinkTemplateVar( webDevLink ),
+									...externalLinkTemplateVar( deferJsLink ),
 								}}
 							/>
 						</ContextInfo>
@@ -84,7 +86,7 @@
 							<TemplatedString
 								template={lazyLoadingContext}
 								vars={{
-									...externalLinkTemplateVar( webDevLink ),
+									...externalLinkTemplateVar( lazyLoadlink ),
 								}}
 							/>
 						</ContextInfo>
@@ -142,7 +144,7 @@
 								<TemplatedString
 									template={deferJSContext}
 									vars={{
-										...externalLinkTemplateVar( webDevLink ),
+										...externalLinkTemplateVar( deferJsLink ),
 									}}
 								/>
 							</ContextInfo>
@@ -158,7 +160,7 @@
 								<TemplatedString
 									template={lazyLoadingContext}
 									vars={{
-										...externalLinkTemplateVar( webDevLink ),
+										...externalLinkTemplateVar( lazyLoadlink ),
 									}}
 								/>
 							</ContextInfo>
