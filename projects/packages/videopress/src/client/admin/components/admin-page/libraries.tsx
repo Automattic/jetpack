@@ -142,21 +142,27 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<LocalVideoList videos={ videos } />
+			<LocalVideoList videos={ videos } loading={ loading } />
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
 export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
+	const { items: videos, uploadedLocalVideoCount, isFetching } = useLocalVideos();
 
-	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
+	return (
+		<LocalLibrary
+			videos={ videos }
+			totalVideos={ uploadedLocalVideoCount }
+			loading={ isFetching }
+		/>
+	);
 };
