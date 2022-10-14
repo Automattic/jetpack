@@ -31,11 +31,7 @@ export default class JetpackBoostPage extends WpPage {
 	async chooseFreePlan() {
 		const button = await this.page.$( '.comparison-table__cta .jb-button--outline' );
 		await button.click();
-		await this.page.waitForResponse(
-			response =>
-				response.url().match( /jetpack-boost\/v1\/get-started/ ) && response.status() === 200,
-			{ timeout: 2 * 60 * 1000 }
-		);
+		await this.page.waitForElementToBeVisible( '.jb-section--scores' );
 	}
 
 	/**
