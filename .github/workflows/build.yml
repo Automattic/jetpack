@@ -131,6 +131,7 @@ jobs:
             } );
 
       - name: Trigger TeamCity build
+        if: ${{ steps.changed.outputs.projects["plugins/jetpack"] == true }}
         env:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PR: ${{ github.event.number }}
