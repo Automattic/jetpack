@@ -100,6 +100,7 @@ export const VideoRow = ( {
 	showEditButton = true,
 	showQuickActions = true,
 	loading = false,
+	isUploadingPoster = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -118,7 +119,7 @@ export const VideoRow = ( {
 	const showBottom = ! isSmall || ( isSmall && expanded );
 
 	let thumbnail = defaultThumbnail;
-	thumbnail = loading ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
+	thumbnail = loading || isUploadingPoster ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
 
 	const canExpand =
 		isSmall &&
@@ -289,9 +290,17 @@ export const VideoRow = ( {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
-	return <VideoRow id={ id } { ...restProps } loading={ loading } />;
+	return (
+		<VideoRow
+			id={ id }
+			{ ...restProps }
+			loading={ loading }
+			isUploadingPoster={ isUpdatingPoster }
+			showThumbnail
+		/>
+	);
 };
 
 export type { VideoRowProps };
