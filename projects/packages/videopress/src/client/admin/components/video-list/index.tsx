@@ -96,4 +96,64 @@ const VideoList = ( {
 	);
 };
 
+export const LocalVideoList = ( {
+	videos,
+	showEditButton = true,
+	showQuickActions = false,
+	onVideoDetailsClick,
+}: VideoListProps ) => {
+	const [ selected, setSelected ] = useState( [] );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const allSelected = selected?.length === videos?.length;
+
+	const handleAll = checked => {
+		if ( checked ) {
+			setSelected( videos.map( ( _, i ) => i ) );
+		} else {
+			setSelected( [] );
+		}
+	};
+
+	const handleClickWithIndex = index => () => {
+		onVideoDetailsClick?.( videos[ index ] );
+	};
+
+	return (
+		<div className={ styles.list }>
+			<div className={ styles.header }>
+				<div className={ styles[ 'title-wrapper' ] }>
+					<Checkbox checked={ allSelected } onChange={ handleAll } />
+					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
+				</div>
+				{ ! isSmall && (
+					<div className={ styles[ 'data-wrapper' ] }>
+						<Stats
+							privacy=""
+							duration=""
+							plays=""
+							upload={ __( 'Upload date', 'jetpack-videopress-pkg' ) }
+						/>
+					</div>
+				) }
+			</div>
+			{ videos.map( ( video, index ) => {
+				if ( ! video?.id ) {
+					return null;
+				}
+				return (
+					<VideoRow
+						key={ `local-video-${ video.id }` }
+						id={ video.id }
+						title={ video.title }
+						showEditButton={ showEditButton }
+						showQuickActions={ showQuickActions }
+						uploadDate={ video.uploadDate }
+						onVideoDetailsClick={ handleClickWithIndex( index ) }
+					/>
+				);
+			} ) }
+		</div>
+	);
+};
+
 export default VideoList;
