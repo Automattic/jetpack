@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Form block selection: improve parent block selection when inner block is already selected
