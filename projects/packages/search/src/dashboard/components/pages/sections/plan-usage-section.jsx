@@ -243,16 +243,17 @@ const upgradeTypeFromAPIData = apiData => {
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
+const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
 	// const upgradeType = upgradeTypeFromAPIData( planInfo );
-	const upgradeMessage = upgradeMessageFromAPIData( planInfo );
+	const upgradeMessage = isFreePlan ? upgradeMessageFromAPIData( planInfo ) : null;
 	const usageInfo = usageInfoFromAPIData( planInfo );
+
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary planInfo={ planInfo } />
+					<PlanSummary isFreePlan={ isFreePlan } planInfo={ planInfo } />
 					<UsageMeters usageInfo={ usageInfo } isPlanJustUpgraded={ isPlanJustUpgraded } />
 					<UpgradeTrigger upgradeMessage={ upgradeMessage } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
@@ -299,6 +300,7 @@ const getUpgradeMessages = () => {
 			),
 		},
 	};
+
 	return upgradeMessages;
 };
 
