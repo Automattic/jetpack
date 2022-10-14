@@ -359,7 +359,9 @@ export function JetpackContactFormEdit( {
 
 			<div className={ formClassnames }>
 				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
-				{ ! isSelected && ! selectedInnerBlock && <div className="idle-block-overlay"></div> }
+				{ ! isSelected && ! selectedInnerBlock && (
+					<div className="wp-block-jetpack-contact-form__overlay"></div>
+				) }
 			</div>
 		</>
 	);
