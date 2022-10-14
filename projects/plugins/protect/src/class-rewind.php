@@ -46,6 +46,10 @@ class Rewind {
 		}
 
 		$parsed_response = json_decode( $response['body'] );
+		
+		if ( ! $parsed_response ) {
+			return false;
+		}
 
 		return $parsed_response->state;
 	}
