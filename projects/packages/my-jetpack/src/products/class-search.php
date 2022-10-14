@@ -155,11 +155,20 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
+	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose.
+	 */
+	public static function is_new_pricing_202208() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'];
+	}
+
+	/**
 	 * Override status to `needs_purchase_or_free` when status is `needs_purchase`.
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-		if ( $status === 'needs_purchase' ) {
+
+		if ( $status === 'needs_purchase' && self::is_new_pricing_202208() ) {
 			$status = 'needs_purchase_or_free';
 		}
 		return $status;
