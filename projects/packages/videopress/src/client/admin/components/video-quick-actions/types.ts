@@ -42,6 +42,7 @@ export interface VideoQuickActionsProps {
 
 	privacySetting?: privacySetting;
 	isUpdatingPrivacy?: boolean;
+	isUpdatingPoster?: boolean;
 
 	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
@@ -67,6 +68,7 @@ export interface ConnectVideoQuickActionsProps {
 export type ThumbnailActionsDropdownProps = {
 	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	description: string;
+	isUpdatingPoster?: boolean;
 };
 
 export type PrivacyActionsDropdownProps = {

@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Fixing static method which was called without self reference.

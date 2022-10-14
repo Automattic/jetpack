@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.5-a.5 - 2022-10-13
+### Enhancements
+- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin [#26799]
+
+### Bug fixes
+- CRM: Fix unmounted state updates in Form CRM integration [#26688]
+- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking [#26668]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- init cycle [#26754]
+- Dashboard: fix dashboard backup link for Atomic sites. [#26766]
+- Replace usages of stats_get_from_restapi with corresponding methods from Stats package, WPCOM_Stats [#26719]
+- Updated jetpack_require_lib to require_once for Instagram class [#26802]
+- Updated package dependencies. [#26545]
+- Update to Typescript to reap the benefits (such as added safety and automation) [#26644]
+- Updating changelog and readme [#26755]
+
+## 11.5-a.3 - 2022-10-11
+### Enhancements
+- Payment Buttons block: add typography controls. [#26580]
+- Social: show pre-publish panel if the site has connections enabled. [#26663]
+
+### Improved compatibility
+- Contact Form Block: removed compatibility checks involving automatic deactivation of contact form functionality. [#26714]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bump version to 11.5-a.2 [#26646]
+- Changelog [#26647]
+- Fixed versions [#26750]
+- Integrate Stats package in Jetpack plugin. [#26640]
+- Jetpack_PostImages::get_image now returns null, not empty array, on failure to find an image. [#26670]
+- Shortcodes: fix wufoo shortcode output. [#26671]
+- Updated package dependencies. [#26633, #26640, #26683, #26726]
+- Update js-packages/licensing dependency version. [#25973]
+
 ## 11.5-a.1 - 2022-10-05
 ### Enhancements
 - Dashboard: add a new illustration for WooCommerce recommendation. [#26492]
