@@ -16,7 +16,10 @@ import {
 } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
 import ProStatus from 'pro-status';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import {
+	getProductDescriptionUrl,
+	isSearchNewPricingLaunched202208,
+} from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -233,7 +236,11 @@ export const SettingsCard = props => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ __( 'Start for free', 'jetpack' ) }
+						callToAction={
+							isSearchNewPricingLaunched202208()
+								? __( 'Start for free', 'jetpack' )
+								: __( 'Upgrade', 'jetpack' )
+						}
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'
