@@ -156,6 +156,8 @@ export type MetadataVideo = {
 	hasBeenDeleted?: boolean;
 	uploading?: boolean;
 	processing?: boolean;
+	isUpdatingPrivacy?: boolean;
+	isUpdatingPoster?: boolean;
 };
 
 export type VideopressSelectors = {

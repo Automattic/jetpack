@@ -30,6 +30,11 @@ export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' | 'id' > &
 		uploading?: boolean;
 
 		/**
+		 * True when is uploading a poster image.
+		 */
+		isUploadingPoster?: boolean;
+
+		/**
 		 * True when is in processing mode.
 		 */
 		processing?: boolean;

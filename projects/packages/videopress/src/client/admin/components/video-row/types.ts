@@ -36,4 +36,6 @@ type VideoPressVideoProps = VideoRowBaseProps &
 	Pick< VideoPressVideo, 'id' | 'title' | 'duration' | 'uploadDate' | 'plays' | 'isPrivate' > &
 	Pick< VideoThumbnailProps, 'thumbnail' >;
 
-export type VideoRowProps = VideoPressVideoProps;
+export type VideoRowProps = VideoPressVideoProps & {
+	showThumbnail?: boolean;
+};
