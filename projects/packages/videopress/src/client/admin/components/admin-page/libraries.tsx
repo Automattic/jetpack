@@ -10,10 +10,10 @@ import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useVideos from '../../hooks/use-videos';
+import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { SearchInput } from '../input';
-import { ConnectPagination } from '../pagination';
-import { FilterButton, FilterSection } from '../video-filter';
+import { ConnectLocalPagination, ConnectPagination } from '../pagination';
+import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList from '../video-list';
 import styles from './styles.module.scss';
@@ -94,9 +94,8 @@ const VideoLibraryWrapper = ( {
 					</div>
 				) }
 			</div>
-			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
+			{ isFilterActive && <ConnectFilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
@@ -104,7 +103,7 @@ const VideoLibraryWrapper = ( {
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
 	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
-	const disabled = videos?.some?.( video => video.uploading );
+	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
 		setLibraryType( current =>
@@ -122,17 +121,23 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
-			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
 				<VideoGrid
 					videos={ videos }
 					onVideoDetailsClick={ handleClickEditDetails }
 					loading={ loading }
+					count={ uploading ? videos.length : 6 }
 				/>
 			) : (
-				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
+				<VideoList
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					hidePlays
+					loading={ loading }
+				/>
 			) }
+			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
@@ -152,6 +157,13 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 				showQuickActions={ false }
 				videos={ videos }
 			/>
+			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
+};
+
+export const ConnectLocalLibrary = () => {
+	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
+
+	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
 };

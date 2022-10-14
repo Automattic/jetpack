@@ -1,9 +1,18 @@
+/**
+ * External dependencies
+ */
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import Checkbox from '../checkbox';
 import VideoRow, { Stats } from '../video-row';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import { VideoListProps } from './types';
 
 const VideoList = ( {
@@ -13,6 +22,7 @@ const VideoList = ( {
 	hidePlays = false,
 	showEditButton = true,
 	showQuickActions = true,
+	loading = false,
 	onVideoDetailsClick,
 }: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
@@ -52,16 +62,20 @@ const VideoList = ( {
 			{ videos.map( ( video, index ) => {
 				return (
 					<VideoRow
-						key={ video?.id }
-						{ ...video }
-						showQuickActions={ ! video?.uploading && showQuickActions }
-						showEditButton={ ! video?.uploading && showEditButton }
-						isPrivate={ hidePrivacy ? null : video.isPrivate }
+						key={ video?.guid ?? video?.id }
+						id={ video?.id }
+						checked={ selected.includes( index ) }
+						title={ video.title }
+						thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 						duration={ hideDuration ? null : video.duration }
 						plays={ hidePlays ? null : video.plays }
+						isPrivate={ hidePrivacy ? null : video.isPrivate }
+						uploadDate={ video.uploadDate }
+						showQuickActions={ ! video?.uploading && showQuickActions }
+						showEditButton={ ! video?.uploading && showEditButton }
 						className={ styles.row }
-						checked={ selected.includes( index ) }
 						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );
