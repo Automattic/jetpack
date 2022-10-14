@@ -84,7 +84,7 @@ const ThreatsList = () => {
 									<Button
 										variant="secondary"
 										className={ styles[ 'list-header-button' ] }
-										isLoading={ Boolean( scanIsEnqueuing && scanIsEnqueuing === true ) }
+										isLoading={ scanIsEnqueuing }
 										onClick={ handleScanClick() }
 									>
 										{ __( 'Scan now', 'jetpack-protect' ) }

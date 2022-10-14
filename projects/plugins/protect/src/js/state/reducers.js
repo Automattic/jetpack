@@ -20,7 +20,7 @@ const status = ( state = {}, action ) => {
 	return state;
 };
 
-const statusIsFetching = ( state = {}, action ) => {
+const statusIsFetching = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_STATUS_IS_FETCHING:
 			return action.status;
@@ -28,7 +28,7 @@ const statusIsFetching = ( state = {}, action ) => {
 	return state;
 };
 
-const scanIsEnqueuing = ( state = {}, action ) => {
+const scanIsEnqueuing = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_SCAN_IS_ENQUEUING:
 			return action.isEnqueuing;

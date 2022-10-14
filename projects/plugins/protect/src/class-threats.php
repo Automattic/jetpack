@@ -91,7 +91,7 @@ class Threats {
 		$is_connected = ( new Connection_Manager() )->is_connected();
 
 		if ( ! $blog_id || ! $is_connected ) {
-			return new WP_Error( 'site_not_connected' );
+			return false;
 		}
 
 		$api_base = sprintf( '/sites/%d/scan', $blog_id );
