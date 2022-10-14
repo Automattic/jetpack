@@ -131,24 +131,17 @@ jobs:
             } );
 
       - name: Trigger TeamCity build
-        if: ${{ steps.changed.outputs.projects["plugins/jetpack"] == true }}
+        if: ${{ steps.changed.outputs.projects['plugins/jetpack'] == true }}
         env:
-          SECRET: ${{ secrets.JPBETA_SECRET }}
+          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
           PR: ${{ github.event.number }}
-          CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
-          # curl -v --fail -L \
-          #   --url "gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
-          #   --form-string "repo=$GITHUB_REPOSITORY" \
-          #   --form-string "branch=${GITHUB_REF#refs/heads/}" \
-          #   --form-string "plugins=$PLUGIN_DATA" \
-          #   --form-string "secret=$SECRET"
-
-          echo
-          echo
-          echo $CHANGED
           echo
           echo "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger&pr-number=$PR&sha=$GITHUB_SHA"
+
+          # curl -v --fail -L \
+          #   --url "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger&pr-number=$PR&sha=$GITHUB_SHA" \
+          #   --form-string "secret=$SECRET"
 
   upgrade_test:
     name: Test plugin upgrades
