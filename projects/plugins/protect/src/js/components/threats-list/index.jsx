@@ -1,7 +1,9 @@
 import { Container, Col, Title, Button } from '@automattic/jetpack-components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import { STORE_ID } from '../../state/store';
 import EmptyList from './empty';
 import FreeList from './free-list';
 import ThreatsNavigation from './navigation';
@@ -13,7 +15,17 @@ const ThreatsList = () => {
 	const { jetpackScan } = useProtectData();
 	const { hasRequiredPlan } = jetpackScan;
 	const { item, list, selected, setSelected } = useThreatsList();
-	const fixableCount = list.filter( obj => obj.fixable ).length;
+	const fixableList = list.filter( obj => obj.fixable );
+
+	const { scan } = useDispatch( STORE_ID );
+	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
+
+	const handleScanClick = () => {
+		return event => {
+			event.preventDefault();
+			scan();
+		};
+	};
 
 	const getTitle = useCallback( () => {
 		switch ( selected ) {
@@ -61,15 +73,20 @@ const ThreatsList = () => {
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
 							{ hasRequiredPlan && (
 								<>
-									{ fixableCount > 0 && (
+									{ fixableList.length > 0 && (
 										<Button variant="primary" className={ styles[ 'list-header-button' ] }>
 											{
 												/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-												sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
+												sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableList.length )
 											}
 										</Button>
 									) }
-									<Button variant="secondary" className={ styles[ 'list-header-button' ] }>
+									<Button
+										variant="secondary"
+										className={ styles[ 'list-header-button' ] }
+										isLoading={ scanIsEnqueuing }
+										onClick={ handleScanClick() }
+									>
 										{ __( 'Scan now', 'jetpack-protect' ) }
 									</Button>
 								</>

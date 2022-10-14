@@ -135,17 +135,26 @@ const ThreatAccordionItem = ( {
 	);
 };
 
-const manualScan = createInterpolateElement(
-	__(
-		'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
-		'jetpack-protect'
-	),
-	{
-		manualScanLink: <a href="#" />,
-	}
-);
-
 const PaidList = ( { list } ) => {
+	const { scan } = useDispatch( STORE_ID );
+
+	const handleScanClick = () => {
+		return event => {
+			event.preventDefault();
+			scan();
+		};
+	};
+
+	const manualScan = createInterpolateElement(
+		__(
+			'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
+			'jetpack-protect'
+		),
+		{
+			manualScanLink: <Button variant="link" onClick={ handleScanClick() } />,
+		}
+	);
+
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	return (

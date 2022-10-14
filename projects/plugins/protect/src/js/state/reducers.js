@@ -2,6 +2,7 @@ import { combineReducers } from '@wordpress/data';
 import {
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
@@ -19,10 +20,18 @@ const status = ( state = {}, action ) => {
 	return state;
 };
 
-const statusIsFetching = ( state = {}, action ) => {
+const statusIsFetching = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_STATUS_IS_FETCHING:
 			return action.status;
+	}
+	return state;
+};
+
+const scanIsEnqueuing = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_SCAN_IS_ENQUEUING:
+			return action.isEnqueuing;
 	}
 	return state;
 };
@@ -94,6 +103,7 @@ const notice = ( state = {}, action ) => {
 const reducers = combineReducers( {
 	status,
 	statusIsFetching,
+	scanIsEnqueuing,
 	installedPlugins,
 	installedThemes,
 	wpVersion,

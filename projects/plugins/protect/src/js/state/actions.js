@@ -4,6 +4,7 @@ import camelize from 'camelize';
 
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
+const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
@@ -42,6 +43,10 @@ const refreshStatus = () => async ( { dispatch } ) => {
 
 const setStatusIsFetching = status => {
 	return { type: SET_STATUS_IS_FETCHING, status };
+};
+
+const setScanIsEnqueuing = isEnqueuing => {
+	return { type: SET_SCAN_IS_ENQUEUING, isEnqueuing };
 };
 
 const setInstalledPlugins = plugins => {
@@ -98,6 +103,39 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 	} );
 };
 
+const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
+	dispatch( setScanIsEnqueuing( true ) );
+	return await new Promise( () => {
+		return apiFetch( {
+			path: `jetpack-protect/v1/scan`,
+			method: 'POST',
+		} )
+			.then( () => {
+				return dispatch(
+					setNotice( {
+						type: 'success',
+						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.then( () => {
+				return dispatch( refreshStatus() );
+			} )
+			.catch( () => {
+				return dispatch(
+					setNotice( {
+						type: 'error',
+						message: __( 'An error ocurred enqueuing the scan', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.finally( () => {
+				dispatch( setScanIsEnqueuing( false ) );
+				callback();
+			} );
+	} );
+};
+
 const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };
 };
@@ -110,6 +148,7 @@ const actions = {
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,
+	setScanIsEnqueuing,
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
@@ -118,11 +157,13 @@ const actions = {
 	ignoreThreat,
 	setModal,
 	setNotice,
+	scan,
 };
 
 export {
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
