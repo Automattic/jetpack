@@ -32,6 +32,7 @@ import {
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
+	SET_USERS_PAGINATION,
 } from './constants';
 
 /**
@@ -500,6 +501,16 @@ const users = ( state, action ) => {
 			return {
 				...state,
 				items: action.users,
+			};
+		}
+
+		case SET_USERS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...( state?.pagination || {} ),
+					...action.pagination,
+				},
 			};
 		}
 

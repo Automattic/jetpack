@@ -39,6 +39,7 @@ import {
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
+	SET_USERS_PAGINATION,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -280,6 +281,10 @@ const setUsers = users => {
 	return { type: SET_USERS, users };
 };
 
+const setUsersPagination = pagination => {
+	return { type: SET_USERS_PAGINATION, pagination };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -310,7 +315,9 @@ const actions = {
 	setPurchases,
 
 	updateVideoPoster,
+
 	setUsers,
+	setUsersPagination,
 };
 
 export { actions as default };

@@ -281,6 +281,10 @@ const getUsers = {
 		try {
 			const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
 
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+			dispatch.setUsersPagination( { total, totalPages } );
+
 			const users = await response.json();
 			if ( ! users?.length ) {
 				return;
