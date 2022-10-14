@@ -15,6 +15,11 @@ import {
 	SET_VIDEOS_FETCH_ERROR,
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
+	SET_VIDEOS_FILTER,
+	SET_LOCAL_VIDEOS,
+	SET_IS_FETCHING_LOCAL_VIDEOS,
+	SET_LOCAL_VIDEOS_QUERY,
+	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_VIDEO,
 	SET_VIDEO_PRIVACY,
 	DELETE_VIDEO,
@@ -50,6 +55,10 @@ const setVideosPagination = pagination => {
 	return { type: SET_VIDEOS_PAGINATION, pagination };
 };
 
+const setVideosFilter = ( filter, value, isActive ) => {
+	return { type: SET_VIDEOS_FILTER, filter, value, isActive };
+};
+
 const setVideos = videos => {
 	return { type: SET_VIDEOS, videos };
 };
@@ -68,6 +77,22 @@ const setIsFetchingUploadedVideoCount = isFetchingUploadedVideoCount => {
 
 const setUploadedVideoCount = uploadedVideoCount => {
 	return { type: SET_UPLOADED_VIDEO_COUNT, uploadedVideoCount };
+};
+
+const setLocalVideos = videos => {
+	return { type: SET_LOCAL_VIDEOS, videos };
+};
+
+const setIsFetchingLocalVideos = isFetching => {
+	return { type: SET_IS_FETCHING_LOCAL_VIDEOS, isFetching };
+};
+
+const setLocalVideosQuery = query => {
+	return { type: SET_LOCAL_VIDEOS_QUERY, query };
+};
+
+const setLocalVideosPagination = pagination => {
+	return { type: SET_LOCAL_VIDEOS_PAGINATION, pagination };
 };
 
 const setVideosStorageUsed = used => {
@@ -213,7 +238,14 @@ const actions = {
 	setFetchVideosError,
 	setVideosQuery,
 	setVideosPagination,
+	setVideosFilter,
 	setVideos,
+
+	setLocalVideos,
+	setIsFetchingLocalVideos,
+	setLocalVideosQuery,
+	setLocalVideosPagination,
+
 	setVideosStorageUsed,
 	setVideo,
 

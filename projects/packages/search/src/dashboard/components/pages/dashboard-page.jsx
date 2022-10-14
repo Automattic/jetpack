@@ -1,5 +1,11 @@
-import { JetpackFooter, JetpackSearchLogo, Button } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import {
+	JetpackFooter,
+	JetpackSearchLogo,
+	Button,
+	Container,
+	Col,
+} from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -7,6 +13,7 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
+import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
@@ -25,8 +32,10 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	// Prepare Checkout action and loading status
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
@@ -36,10 +45,11 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 	const { run: sendPaidPlanToCart, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
-		redirectUrl: `${ siteAdminUrl }admin.php?page=jetpack-search`,
+		redirectUrl: `${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
+		isWpcom,
 	} );
 
 	const isPageLoading = useSelect(
@@ -112,6 +122,13 @@ export default function DashboardPage( { isLoading = false } ) {
 						isUpgradable={ isNewPricing && ! tierSlug }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
 					/>
+					{ hasConnectionError && (
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col lg={ 12 } md={ 12 } sm={ 12 }>
+								<ConnectionError />
+							</Col>
+						</Container>
+					) }
 					<MockedSearchInterface
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -172,12 +189,18 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } )
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
 	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
 
+	const isPlanJustUpgraded = useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] );
+
 	return (
 		<>
 			{ ! hasIndex && <FirstRunSection siteTitle={ siteTitle } planInfo={ planInfo } /> }
 			{ hasIndex && (
 				<>
-					<PlanUsageSection planInfo={ planInfo } sendPaidPlanToCart={ sendPaidPlanToCart } />
+					<PlanUsageSection
+						planInfo={ planInfo }
+						sendPaidPlanToCart={ sendPaidPlanToCart }
+						isPlanJustUpgraded={ isPlanJustUpgraded }
+					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }
 						postTypeBreakdown={ recordMeterInfo.postTypeBreakdown }
