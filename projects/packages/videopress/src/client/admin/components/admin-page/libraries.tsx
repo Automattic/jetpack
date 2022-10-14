@@ -15,7 +15,7 @@ import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
-import VideoList from '../video-list';
+import VideoList, { LocalVideoList } from '../video-list';
 import styles from './styles.module.scss';
 /**
  * Types
@@ -149,14 +149,7 @@ export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList
-				hidePrivacy
-				hideDuration
-				hidePlays
-				showEditButton={ false }
-				showQuickActions={ false }
-				videos={ videos }
-			/>
+			<LocalVideoList videos={ videos } />
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);

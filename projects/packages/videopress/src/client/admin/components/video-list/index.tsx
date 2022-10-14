@@ -8,7 +8,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import Checkbox from '../checkbox';
-import ConnectVideoRow, { Stats } from '../video-row';
+import ConnectVideoRow, { VideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
 /**
  * Types
