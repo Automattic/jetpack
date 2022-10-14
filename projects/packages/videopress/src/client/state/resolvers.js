@@ -81,6 +81,15 @@ const getVideos = {
 			wpv2MediaQuery.videopress_privacy_setting = videoPressPrivacyFilter;
 		}
 
+		// Filter -> Uploader
+		const videoPressUploaderFilter = Object.keys( filter?.uploader || {} )
+			.filter( key => filter.uploader[ key ] )
+			.join( ',' );
+
+		if ( videoPressUploaderFilter?.length ) {
+			wpv2MediaQuery.author = videoPressUploaderFilter;
+		}
+
 		try {
 			const response = await fetch(
 				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
