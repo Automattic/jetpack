@@ -1,6 +1,4 @@
 .accordion {
-	display: inline-block;
-	width: 100%;
 	border-radius: var(--jp-border-radius);
 	border: 1px solid var(--jp-gray);
 
@@ -28,15 +26,11 @@
 	text-align: start;
 
 	>:first-of-type {
-		grid-column: 1/7;
+		grid-column: 1/8;
 	}
 
 	>:last-of-type {
 		grid-column: 9;
-	}
-
-	>:not( :first-child ) {
-		margin: auto;
 	}
 
 	&:hover {
@@ -59,9 +53,6 @@
 	font-weight: 600;
 	margin-left: 32px;
 	margin-bottom: calc(var(--spacing-base) * 1);
-	// white-space: nowrap;
-	// overflow: hidden;
-	// text-overflow: ellipsis;
 }
 
 .accordion-header-button {
@@ -85,40 +76,4 @@
 		max-height: 1000px;
 		transform: scaleY(1);
 	}
-}
-
-.icon-check {
-	fill: var( --jp-green-40 );
-}
-
-@media ( max-width: 599px ) {
-	.accordion-header {
-		display: grid;
-		grid-auto-rows: minmax( auto, auto );
-
-		>:first-child {
-			grid-column: 1/8;
-		 	grid-row: 1;
-		}
-
-		>:nth-child( 2 ) {
-			padding-left: 32px;
-			grid-row: 2;
-		}
-
-		>:nth-child( 3 ) {
-			grid-row: 2;
-		}
-
-		>:nth-child( 3 ) span {
-			position: absolute;
-			margin-top: calc( var( --spacing-base ) * 1 );
-		}
-
-		>:last-child {
-			grid-column: 10;
-			grid-row: 1/3;
-		}
-	}
-
 }
