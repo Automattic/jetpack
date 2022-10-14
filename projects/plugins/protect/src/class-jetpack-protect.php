@@ -183,7 +183,6 @@ class Jetpack_Protect {
 			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
-			'siteSuffix'        => ( new Status() )->get_site_suffix(),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
