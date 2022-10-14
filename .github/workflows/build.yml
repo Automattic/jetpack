@@ -130,6 +130,25 @@ jobs:
               comment_id: +COMMENT_ID,
             } );
 
+      - name: Trigger TeamCity build
+        env:
+          SECRET: ${{ secrets.JPBETA_SECRET }}
+          PR: ${{ github.event.number }}
+          CHANGED: ${{ steps.changed.outputs.projects }}
+        run: |
+          # curl -v --fail -L \
+          #   --url "gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
+          #   --form-string "repo=$GITHUB_REPOSITORY" \
+          #   --form-string "branch=${GITHUB_REF#refs/heads/}" \
+          #   --form-string "plugins=$PLUGIN_DATA" \
+          #   --form-string "secret=$SECRET"
+
+          echo
+          echo
+          echo $CHANGED
+          echo
+          echo "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger&pr-number=$PR&sha=$GITHUB_SHA"
+
   upgrade_test:
     name: Test plugin upgrades
     runs-on: ubuntu-latest
