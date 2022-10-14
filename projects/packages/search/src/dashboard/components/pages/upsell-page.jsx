@@ -50,18 +50,24 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ fetchSearchPlanInfo ]
 	);
 
-	const { run: sendToCartPaid, hasCheckoutStartedPaid } = useProductCheckoutWorkflow( {
+	const {
+		run: sendToCartPaid,
+		hasCheckoutStarted: hasCheckoutStartedPaid,
+	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
-		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
 		isWpcom,
 	} );
 
-	const { run: sendToCartFree, hasCheckoutStartedFree } = useProductCheckoutWorkflow( {
+	const {
+		run: sendToCartFree,
+		hasCheckoutStarted: hasCheckoutStartedFree,
+	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search_free',
-		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,

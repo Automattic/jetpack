@@ -7,7 +7,10 @@ import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
 import { noop } from 'lodash';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import {
+	getProductDescriptionUrl,
+	isSearchNewPricingLaunched202208,
+} from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -108,7 +111,11 @@ class DashSearch extends Component {
 				pro_inactive: true,
 				overrideContent: this.props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={
+							isSearchNewPricingLaunched202208()
+								? __( 'Start for free', 'jetpack' )
+								: __( 'Upgrade', 'jetpack' )
+						}
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
