@@ -23,6 +23,10 @@ type VideoRowBaseProps = {
 	 */
 	loading?: boolean;
 	/**
+	 * True when is uploading a poster image.
+	 */
+	isUpdatingPoster?: boolean;
+	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
 	onSelect?: ( check: boolean ) => void;
@@ -36,4 +40,6 @@ type VideoPressVideoProps = VideoRowBaseProps &
 	Pick< VideoPressVideo, 'id' | 'title' | 'duration' | 'uploadDate' | 'plays' | 'isPrivate' > &
 	Pick< VideoThumbnailProps, 'thumbnail' >;
 
-export type VideoRowProps = VideoPressVideoProps;
+export type VideoRowProps = VideoPressVideoProps & {
+	showThumbnail?: boolean;
+};

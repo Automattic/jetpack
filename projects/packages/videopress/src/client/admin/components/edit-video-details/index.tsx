@@ -158,13 +158,17 @@ const EditVideoDetails = () => {
 		handleOpenSelectFrame,
 		handleVideoFrameSelected,
 		frameSelectorIsOpen,
+		selectPosterImageFromLibrary,
+		posterImageSource,
+		libraryAttachment,
 	} = useEditDetails();
 
-	const thumbnail = useVideoAsThumbnail ? (
-		<VideoPlayer src={ url } currentTime={ selectedTime } />
-	) : (
-		posterImage
-	);
+	let thumbnail: string | JSX.Element = posterImage;
+	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+	} else if ( posterImageSource === 'upload' ) {
+		thumbnail = libraryAttachment.url;
+	}
 
 	return (
 		<>
@@ -207,6 +211,7 @@ const EditVideoDetails = () => {
 								duration={ duration }
 								editable
 								onSelectFromVideo={ handleOpenSelectFrame }
+								onUploadImage={ selectPosterImageFromLibrary }
 							/>
 							<VideoDetails
 								filename={ filename ?? '' }

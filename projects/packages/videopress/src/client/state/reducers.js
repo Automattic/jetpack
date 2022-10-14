@@ -29,6 +29,10 @@ import {
 	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
 	SET_VIDEOS_FILTER,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
+	SET_USERS_PAGINATION,
 } from './constants';
 
 /**
@@ -102,6 +106,10 @@ const videos = ( state, action ) => {
 						...( state.filter?.[ filter ] || {} ),
 						[ value ]: isActive,
 					},
+				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
 				},
 			};
 		}
@@ -383,6 +391,56 @@ const videos = ( state, action ) => {
 			};
 		}
 
+		case SET_UPDATING_VIDEO_POSTER: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const currentVideoMeta = currentMetaItems[ id ] || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentVideoMeta,
+							isUpdatingPoster: true,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_POSTER: {
+			const { id, poster } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex >= 0 ) {
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					posterImage: poster,
+				};
+			}
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							isUpdatingPoster: false,
+						},
+					},
+				},
+			};
+		}
+
 		default:
 			return state;
 	}
@@ -437,6 +495,30 @@ const localVideos = ( state, action ) => {
 	return state;
 };
 
+const users = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_USERS: {
+			return {
+				...state,
+				items: action.users,
+			};
+		}
+
+		case SET_USERS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...( state?.pagination || {} ),
+					...action.pagination,
+				},
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const purchases = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_PURCHASES: {
@@ -463,6 +545,7 @@ const reducers = combineReducers( {
 	videos,
 	localVideos,
 	purchases,
+	users,
 } );
 
 export default reducers;
