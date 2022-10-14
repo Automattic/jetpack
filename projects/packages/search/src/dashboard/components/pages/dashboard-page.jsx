@@ -68,7 +68,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
-	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
+	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan() );
 
 	const isDisabledFromOverLimit = useSelect( select =>
 		select( STORE_ID ).getDisabledFromOverLimit()
@@ -119,7 +119,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<Header
-						isUpgradable={ isNewPricing && ! tierSlug }
+						isUpgradable={ isNewPricing && isFreePlan }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
 					/>
 					{ hasConnectionError && (
@@ -137,7 +137,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						<PlanInfo
 							hasIndex={ postCount !== 0 }
 							recordMeterInfo={ recordMeterInfo }
-							tierSlug={ tierSlug }
+							isFreePlan={ isFreePlan }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
 						/>
 					) }
@@ -179,7 +179,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
+const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -187,7 +187,7 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } )
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
-	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
+	const planInfo = { currentPlan, currentUsage, latestMonthRequests, isFreePlan };
 
 	const isPlanJustUpgraded = useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] );
 

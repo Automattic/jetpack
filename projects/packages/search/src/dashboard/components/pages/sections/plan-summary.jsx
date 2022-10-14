@@ -7,8 +7,9 @@ const planNameFromAPIData = apiData => {
 	// Determine plan name for display.
 	const paidText = __( 'Upgraded', 'jetpack-search-pkg' );
 	const freeText = __( 'Free plan', 'jetpack-search-pkg' );
-	const planType = apiData?.tierSlug;
-	const planName = planType ? paidText : freeText;
+	const isFreePlan = apiData?.isFreePlan;
+	const planName = isFreePlan ? freeText : paidText;
+
 	return planName;
 };
 
@@ -33,6 +34,7 @@ const displayPeriodFromAPIData = apiData => {
 const PlanSummary = ( { planInfo } ) => {
 	const planName = planNameFromAPIData( planInfo );
 	const displayPeriod = displayPeriodFromAPIData( planInfo );
+
 	return (
 		<h2>
 			{

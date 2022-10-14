@@ -45,6 +45,7 @@ const upgradeTypeFromAPIData = apiData => {
 const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
 	const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const usageInfo = usageInfoFromAPIData( planInfo );
+
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
@@ -94,6 +95,7 @@ const getUpgradeMessages = () => {
 			),
 		},
 	};
+
 	return upgradeMessages;
 };
 
