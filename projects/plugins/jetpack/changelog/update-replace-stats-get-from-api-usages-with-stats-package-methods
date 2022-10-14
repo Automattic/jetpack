@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Replace usages of stats_get_from_restapi with corresponding methods from Stats package, WPCOM_Stats

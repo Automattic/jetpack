@@ -13,14 +13,16 @@ import { useNavigate } from 'react-router-dom';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
-import { FilterButton, FilterSection } from '../video-filter';
+import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
-import VideoList from '../video-list';
+import VideoList, { LocalVideoList } from '../video-list';
 import styles from './styles.module.scss';
 /**
  * Types
  */
 import { VideoLibraryProps } from './types';
+
+const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
 const LibraryType = {
 	List: 'list',
@@ -94,7 +96,7 @@ const VideoLibraryWrapper = ( {
 					</div>
 				) }
 			</div>
-			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
+			{ isFilterActive && <ConnectFilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
 		</div>
 	);
@@ -102,13 +104,23 @@ const VideoLibraryWrapper = ( {
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const navigate = useNavigate();
-	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
+
+	const libraryTypeFromLocalStorage = localStorage.getItem(
+		LIBRARY_TYPE_LOCALSORAGE_KEY
+	) as LibraryType;
+
+	const [ libraryType, setLibraryType ] = useState< LibraryType >(
+		libraryTypeFromLocalStorage ?? LibraryType.Grid
+	);
+
 	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
-		setLibraryType( current =>
-			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
-		);
+		setLibraryType( current => {
+			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
+			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			return next;
+		} );
 	};
 
 	const handleClickEditDetails = video => {
@@ -130,35 +142,39 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 					count={ uploading ? videos.length : 6 }
 				/>
 			) : (
-				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
+				<VideoList
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					hidePlays
+					loading={ loading }
+				/>
 			) }
-			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
+			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList
-				hidePrivacy
-				hideDuration
-				hidePlays
-				showEditButton={ false }
-				showQuickActions={ false }
-				videos={ videos }
-			/>
+			<LocalVideoList videos={ videos } loading={ loading } />
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
 export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
+	const { items: videos, uploadedLocalVideoCount, isFetching } = useLocalVideos();
 
-	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
+	return (
+		<LocalLibrary
+			videos={ videos }
+			totalVideos={ uploadedLocalVideoCount }
+			loading={ isFetching }
+		/>
+	);
 };
