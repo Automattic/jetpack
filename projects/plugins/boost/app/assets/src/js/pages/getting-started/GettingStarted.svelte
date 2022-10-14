@@ -7,6 +7,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { updateModuleState } from '../../stores/modules';
+	import { recordBoostEvent } from '../../utils/analytics';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
@@ -47,7 +48,8 @@
 		navigate( '/' );
 	};
 
-	const choosePaidPlan = () => {
+	const choosePaidPlan = async () => {
+		await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 		window.location.href = getUpgradeURL();
 	};
 </script>
