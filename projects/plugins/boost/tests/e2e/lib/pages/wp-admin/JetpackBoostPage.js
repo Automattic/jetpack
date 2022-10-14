@@ -22,7 +22,7 @@ export default class JetpackBoostPage extends WpPage {
 		const button = await this.page.$( '.jb-connection button' );
 		await button.click();
 		await this.waitForApiResponse( 'connection' );
-		await this.waitForApiResponse( 'optimizations/status' );
+		await this.waitForElementToBeDetached( '.jb-connection button' );
 	}
 
 	/**
@@ -31,7 +31,7 @@ export default class JetpackBoostPage extends WpPage {
 	async chooseFreePlan() {
 		const button = await this.page.$( '.comparison-table__cta .jb-button--outline' );
 		await button.click();
-		await this.page.waitForElementToBeVisible( '.jb-section--scores' );
+		await this.waitForElementToBeVisible( '.jb-section--scores' );
 	}
 
 	/**
