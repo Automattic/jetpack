@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Fetch checkoutProductUrl for upgrade flow redirection.
