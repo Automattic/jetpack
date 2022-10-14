@@ -7,7 +7,9 @@ export const STORE_ID = 'videopress/media';
  * API
  */
 export const WP_ADMIN_AJAX_API_URL = '/wp-admin/admin-ajax.php';
+export const WP_REST_API_USERS_ENDPOINT = 'wp/v2/users';
 export const WP_REST_API_MEDIA_ENDPOINT = 'wp/v2/media';
+export const WP_REST_API_VIDEOPRESS_ENDPOINT = 'wpcom/v2/videopress';
 export const WP_REST_API_VIDEOPRESS_META_ENDPOINT = 'wpcom/v2/videopress/meta';
 export const REST_API_SITE_PURCHASES_ENDPOINT = 'my-jetpack/v1/site/purchases';
 export const REST_API_SITE_INFO_ENDPOINT = 'videopress/v1/site';
@@ -40,6 +42,12 @@ export const PROCESSING_VIDEO = 'PROCESSING_VIDEO';
 export const UPLOADED_VIDEO = 'UPLOADED_VIDEO';
 export const SET_IS_FETCHING_PURCHASES = 'SET_IS_FETCHING_PURCHASES';
 export const SET_PURCHASES = 'SET_PURCHASES';
+
+export const SET_USERS = 'SET_USERS';
+export const SET_USERS_PAGINATION = 'SET_USERS_PAGINATION';
+
+export const SET_UPDATING_VIDEO_POSTER = 'SET_UPDATING_VIDEO_POSTER';
+export const UPDATE_VIDEO_POSTER = 'UPDATE_VIDEO_POSTER';
 
 /*
  * Accepted file extensions

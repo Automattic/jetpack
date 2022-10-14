@@ -72,7 +72,7 @@ const DonutMeterContainer = ( {
 					<DonutMeter
 						segmentCount={ displayCurrent }
 						totalCount={ displayLimit }
-						useAdaptiveColors
+						useAdaptiveColors={ ! isUnlimitedRequests }
 					/>
 					<div className="upgrade-tooltip-shadow-anchor">
 						<IconTooltip { ...tooltipArgs }>

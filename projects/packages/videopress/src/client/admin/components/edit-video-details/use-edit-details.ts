@@ -60,6 +60,11 @@ export default () => {
 	const videoId = Number( videoIdFromParams );
 	const { data: video, isFetching } = useVideo( Number( videoId ) );
 
+	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
+	const [ posterImageSource, setPosterImageSource ] = useState<
+		'default' | 'video' | 'upload' | null
+	>( null );
+
 	const [ updating, setUpdating ] = useState( false );
 
 	const [ data, setData ] = useState( {
@@ -72,7 +77,15 @@ export default () => {
 		setData( current => ( { ...current, ...newData } ) );
 	};
 
-	const { selectedTime, updatePosterImage, ...posterEditData } = usePosterEdit( { video } );
+	const {
+		selectedTime,
+
+		updatePosterImageFromFrame,
+
+		selectAttachmentFromLibrary,
+		updatePosterImageFromLibrary,
+		...posterEditData
+	} = usePosterEdit( { video } );
 	const { metaChanged, handleMetaUpdate, ...metaEditData } = useMetaEdit( {
 		videoId,
 		video,
@@ -80,18 +93,41 @@ export default () => {
 		updateData,
 	} );
 
-	const saveDisabled = metaChanged === false && selectedTime === null;
+	useEffect( () => {
+		if ( selectedTime == null ) {
+			return;
+		}
+
+		setPosterImageSource( 'video' );
+	}, [ selectedTime ] );
+
+	const saveDisabled = metaChanged === false && selectedTime === null && ! libraryAttachment;
+
+	const selectPosterImageFromLibrary = async () => {
+		const attachment = await selectAttachmentFromLibrary();
+
+		if ( attachment ) {
+			setLibraryAttachment( attachment );
+			setPosterImageSource( 'upload' );
+		}
+	};
 
 	const handleSaveChanges = () => {
 		setUpdating( true );
 
-		const promises = [ updatePosterImage(), handleMetaUpdate() ];
+		const promises = [ handleMetaUpdate() ];
+
+		if ( posterImageSource === 'video' ) {
+			promises.push( updatePosterImageFromFrame() );
+		} else if ( posterImageSource === 'upload' ) {
+			promises.push( updatePosterImageFromLibrary( libraryAttachment.id ) );
+		}
 
 		// TODO: handle errors
-		Promise.allSettled( promises ).then( results => {
-			const [ posterResult ] = results;
-			const posterImage = posterResult?.value ?? video?.posterImage;
-			const videoData = { ...video, ...data, posterImage };
+		Promise.allSettled( promises ).then( () => {
+			const videoData = { ...video, ...data };
+			// posterImage already set by the action
+			delete videoData.posterImage;
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
@@ -130,6 +166,9 @@ export default () => {
 		...video,
 		...data, // data is the local representation of the video
 		saveDisabled,
+		posterImageSource,
+		libraryAttachment,
+		selectPosterImageFromLibrary,
 		handleSaveChanges,
 		isFetching,
 		updating,
