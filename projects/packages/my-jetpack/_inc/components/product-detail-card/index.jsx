@@ -19,6 +19,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import isSearchNewPricingLaunched202208 from '../../utils/is-search-new-pricing-202208';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -107,13 +108,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		needsPurchase && wpcomProductSlug
 			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
-	// TODO: remove isSearchNewPricingLaunched202208() on Search new pricing launch.
 
-	const isSearchNewPricingLaunched202208 =
-		URLSearchParams &&
-		!! new URLSearchParams( window.location?.search ).get( 'new_pricing_202208' );
 	const addFreeProductUrl =
-		isSearchNewPricingLaunched202208 && needsPurchase && wpcomFreeProductSlug
+		isSearchNewPricingLaunched202208() && needsPurchase && wpcomFreeProductSlug
 			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
 
