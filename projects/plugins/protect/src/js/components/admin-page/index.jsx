@@ -222,6 +222,7 @@ const useCredentialState = () => {
 			checkCredentialsState();
 		}
 	} );
+	}, [ checkCredentialsState, credentialState.state ] );
 };
 
 const useRegistrationWatcher = () => {
