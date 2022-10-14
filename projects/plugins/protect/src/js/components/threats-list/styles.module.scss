@@ -61,6 +61,8 @@
 	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 );
 	border: 1px solid var( --jp-gray );
 	border-bottom: none;
+	color: #646970;
+	width: 100%;
 
 	> span:first-child {
 		grid-column: 1 / 7;

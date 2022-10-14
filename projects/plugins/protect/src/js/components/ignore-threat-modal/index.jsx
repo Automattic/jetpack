@@ -44,7 +44,6 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 					<Text className={ styles.threat__summary__title }>{ title }</Text>
 				</div>
 				<div className={ styles.threat__severity }>
-					{ /* to do: implement severity badge component once available */ }
 					<ThreatSeverityBadge severity={ severity } />
 				</div>
 			</div>
