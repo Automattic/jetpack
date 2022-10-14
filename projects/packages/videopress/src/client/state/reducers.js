@@ -29,6 +29,8 @@ import {
 	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
 	SET_VIDEOS_FILTER,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
 } from './constants';
 
 /**
@@ -380,6 +382,56 @@ const videos = ( state, action ) => {
 			return {
 				...state,
 				items,
+			};
+		}
+
+		case SET_UPDATING_VIDEO_POSTER: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const currentVideoMeta = currentMetaItems[ id ] || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentVideoMeta,
+							isUpdatingPoster: true,
+						},
+					},
+				},
+			};
+		}
+
+		case UPDATE_VIDEO_POSTER: {
+			const { id, poster } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex >= 0 ) {
+				items[ videoIndex ] = {
+					...items[ videoIndex ],
+					posterImage: poster,
+				};
+			}
+
+			return {
+				...state,
+				items,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							isUpdatingPoster: false,
+						},
+					},
+				},
 			};
 		}
 
