@@ -111,6 +111,7 @@ const UpgradeTrigger = ( { type, ctaCallback } ) => {
 const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( 0 );
 	const myStorage = window.localStorage;
+
 	useMemo(
 		() =>
 			setCurrentTooltipIndex(
@@ -118,6 +119,7 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 			),
 		[ setCurrentTooltipIndex, myStorage, isPlanJustUpgraded ]
 	);
+
 	const setTooltipRead = useCallback( () => myStorage.setItem( 'upgrade_tooltip_finished', 1 ), [
 		myStorage,
 	] );
