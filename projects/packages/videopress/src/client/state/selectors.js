@@ -81,7 +81,7 @@ export const getLocalPagination = state => {
 };
 
 export const getUsers = state => {
-	return state?.users || [];
+	return state?.users?.items || [];
 };
 
 export const getUsersPagination = state => {
