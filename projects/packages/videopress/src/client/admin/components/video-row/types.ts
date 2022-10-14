@@ -25,7 +25,7 @@ type VideoRowBaseProps = {
 	/**
 	 * True when is uploading a poster image.
 	 */
-	isUploadingPoster?: boolean;
+	isUpdatingPoster?: boolean;
 	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
