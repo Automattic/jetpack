@@ -182,7 +182,7 @@ const PaidList = ( { list } ) => {
 			} else {
 				setModal( {
 					type: 'FIX_ALL_THREATS',
-					props: threatList,
+					props: { threatList },
 				} );
 			}
 		};

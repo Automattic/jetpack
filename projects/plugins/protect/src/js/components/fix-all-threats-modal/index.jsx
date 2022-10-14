@@ -6,12 +6,9 @@ import { STORE_ID } from '../../state/store';
 import ThreatFixHeader from '../threat-fix-header';
 import styles from './styles.module.scss';
 
-const FixAllThreatsModal = threatList => {
+const FixAllThreatsModal = ( { threatList = [] } ) => {
 	const { setModal, fixThreats } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
-
-	threatList = Object.values( threatList );
-
 	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => id ) );
 
 	const handleCancelClick = () => {

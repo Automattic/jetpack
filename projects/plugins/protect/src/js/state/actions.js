@@ -162,6 +162,14 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 	} );
 };
 
+/**
+ * Set Modal
+ *
+ * @param {object}      modal       - The modal payload to set in state.
+ * @param {null|string} modal.type  - The modal slug, or null to display no modal.
+ * @param {object}      modal.props - The props to pass to the modal component.
+ * @returns {object} The modal action object.
+ */
 const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };
 };
