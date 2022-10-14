@@ -107,8 +107,13 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		needsPurchase && wpcomProductSlug
 			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
+	// TODO: remove isSearchNewPricingLaunched202208() on Search new pricing launch.
+
+	const isSearchNewPricingLaunched202208 =
+		URLSearchParams &&
+		!! new URLSearchParams( window.location?.search ).get( 'new_pricing_202208' );
 	const addFreeProductUrl =
-		needsPurchase && wpcomFreeProductSlug
+		isSearchNewPricingLaunched202208 && needsPurchase && wpcomFreeProductSlug
 			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
 
