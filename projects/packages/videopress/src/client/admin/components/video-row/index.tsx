@@ -90,6 +90,7 @@ export const VideoRow = ( {
 	checked = false,
 	title,
 	thumbnail: defaultThumbnail,
+	showThumbnail = false,
 	duration,
 	uploadDate,
 	plays,
@@ -225,9 +226,11 @@ export const VideoRow = ( {
 					onClick={ isSmall && ! loading ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
-					<div className={ styles.poster }>
-						<VideoThumbnail thumbnail={ thumbnail } blankIconSize={ 28 } />
-					</div>
+					{ showThumbnail && (
+						<div className={ styles.poster }>
+							<VideoThumbnail thumbnail={ thumbnail } blankIconSize={ 28 } />
+						</div>
+					) }
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
