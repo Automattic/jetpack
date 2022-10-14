@@ -63,12 +63,21 @@ const getVideos = {
 		const filter = select.getVideosFilter();
 
 		// Filter -> Rating
-		const videoPressRating = Object.keys( filter?.rating || {} )
+		const videoPressRatingFilter = Object.keys( filter?.rating || {} )
 			.filter( key => filter.rating[ key ] )
 			.join( ',' );
 
-		if ( videoPressRating?.length ) {
-			wpv2MediaQuery.videopress_rating = videoPressRating;
+		if ( videoPressRatingFilter?.length ) {
+			wpv2MediaQuery.videopress_rating = videoPressRatingFilter;
+		}
+
+		// Filter -> Rating
+		const videoPressPrivacyFilter = Object.keys( filter?.privacy || {} )
+			.filter( key => filter.privacy[ key ] )
+			.join( ',' );
+
+		if ( videoPressPrivacyFilter?.length ) {
+			wpv2MediaQuery.videopress_privacy_setting = videoPressPrivacyFilter;
 		}
 
 		try {
