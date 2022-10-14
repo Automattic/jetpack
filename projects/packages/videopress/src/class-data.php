@@ -267,6 +267,7 @@ class Data {
 		);
 
 		$initial_state = array(
+			'users'       => self::get_user_data(),
 			'videos'      => array(
 				'uploadedVideoCount'           => $videopress_data['total'],
 				'items'                        => $videos,
