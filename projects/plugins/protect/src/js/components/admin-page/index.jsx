@@ -221,7 +221,6 @@ const useCredentialState = () => {
 		if ( ! credentialState.state ) {
 			checkCredentialsState();
 		}
-	} );
 	}, [ checkCredentialsState, credentialState.state ] );
 };
 
