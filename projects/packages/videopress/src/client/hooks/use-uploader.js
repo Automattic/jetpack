@@ -145,7 +145,12 @@ export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {
 
 	// collect the jwt for the key
 	useEffect( () => {
-		getJWT().then( setData ).catch( setError );
+		getJWT()
+			.then( setData )
+			.catch( jwtError => {
+				setError( jwtError );
+				onError?.( jwtError );
+			} );
 	}, [] );
 
 	const uploaded = file =>

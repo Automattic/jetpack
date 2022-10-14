@@ -28,13 +28,13 @@ runs:
 
         printf "\n\e[1mSelected tool versions\e[0m\n"
         echo " PHP: ${INPUT_PHP:-$PHP_VERSION}"
-        echo "::set-output name=php-version::${INPUT_PHP:-$PHP_VERSION}"
+        echo "php-version=${INPUT_PHP:-$PHP_VERSION}" >> "$GITHUB_OUTPUT"
         echo " Composer: $COMPOSER_VERSION"
-        echo "::set-output name=composer-version::$COMPOSER_VERSION"
+        echo "composer-version=$COMPOSER_VERSION" >> "$GITHUB_OUTPUT"
         echo " Node: ${INPUT_NODE:-$NODE_VERSION}"
-        echo "::set-output name=node-version::${INPUT_NODE:-$NODE_VERSION}"
+        echo "node-version=${INPUT_NODE:-$NODE_VERSION}" >> "$GITHUB_OUTPUT"
         echo " Pnpm: $PNPM_VERSION"
-        echo "::set-output name=pnpm-version::$PNPM_VERSION"
+        echo "pnpm-version=$PNPM_VERSION" >> "$GITHUB_OUTPUT"
 
     - name: Remove disabled tools
       shell: bash
@@ -67,13 +67,20 @@ runs:
         extensions: mysql, imagick
         coverage: ${{ inputs.coverage }}
 
+    - name: Configure composer
+      if: steps.versions.outputs.php-version != 'false'
+      shell: bash
+      run: |
+        composer config --global github-protocols https
+        composer config --global use-github-api false
+
     - name: Get Composer cache directory
       if: steps.versions.outputs.php-version != 'false'
       id: composer-cache
       shell: bash
       run: |
         # Get Composer cache directory
-        echo "::set-output name=dir::$(composer config cache-files-dir)"
+        echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
     - name: Use composer cache
       if: steps.versions.outputs.php-version != 'false'
       uses: actions/cache@v3
@@ -85,7 +92,7 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v2.2.2
+      uses: pnpm/action-setup@v2.2.3
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node

@@ -5,6 +5,7 @@ packages:
   - 'projects/plugins/search/tests/e2e'
   - 'projects/plugins/starter-plugin/tests/e2e'
   - 'projects/plugins/videopress/tests/e2e'
+  - 'projects/plugins/super-cache/tests/e2e'
   - 'tools/cli'
   - 'tools/e2e-commons'
   - 'tools/js-tools'

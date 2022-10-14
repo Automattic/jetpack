@@ -17,8 +17,16 @@ export const getPagination = state => {
 	return state?.videos?.pagination;
 };
 
+export const getVideosFilter = state => {
+	return state?.videos?.filter;
+};
+
 export const getUploadedVideoCount = state => {
 	return state?.videos?.uploadedVideoCount;
+};
+
+export const getUploadedLocalVideoCount = state => {
+	return state?.localVideos?.uploadedVideoCount;
 };
 
 export const getIsFetching = state => {
@@ -56,18 +64,54 @@ export const getPurchases = state => {
 	return state?.purchases?.items || [];
 };
 
+export const getLocalVideos = state => {
+	return state?.localVideos?.items || [];
+};
+
+export const getIsFetchingLocalVideos = state => {
+	return state?.localVideos?.isFetching;
+};
+
+export const getLocalVideosQuery = state => {
+	return state?.localVideos?.query;
+};
+
+export const getLocalPagination = state => {
+	return state?.localVideos?.pagination;
+};
+
+export const getUsers = state => {
+	return state?.users?.items || [];
+};
+
+export const getUsersPagination = state => {
+	return state?.users?.pagination;
+};
+
 const selectors = {
+	// VideoPress videos
 	getVideos,
 	getUploadingVideos,
 	getVideosQuery,
 	getPagination,
+	getVideosFilter,
 	getUploadedVideoCount,
 	getIsFetching,
 	getIsFetchingUploadedVideoCount,
 	getStorageUsed,
 
+	// Local videos
+	getLocalVideos,
+	getIsFetchingLocalVideos,
+	getLocalVideosQuery,
+	getLocalPagination,
+	getUploadedLocalVideoCount,
+
 	getVideo,
 	getVideoStateMetadata,
+
+	getUsers,
+	getUsersPagination,
 
 	getPurchases,
 	isFetchingPurchases,
