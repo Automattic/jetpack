@@ -144,16 +144,23 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 		method: 'GET',
 		data: { threatIds },
 	} )
-		.then( response => {
+		.then( async response => {
 			const threatArray = Object.values( response.threats );
 			const inProgressThreats = threatArray.filter( threat => 'in_progress' === threat.status );
+
 			if ( inProgressThreats.length > 0 ) {
 				// fix still in progress - try again in another second
-				setTimeout( () => getFixThreatsStatus( threatIds ), 1000 );
-			} else {
-				// threats fixed - refresh the status
-				dispatch( refreshStatus() );
+				return await new Promise( resolve => {
+					setTimeout( () => {
+						dispatch( getFixThreatsStatus( threatIds ) );
+						resolve();
+					}, 1000 );
+				} );
 			}
+		} )
+		.then( () => {
+			// threats fixed - refresh the status
+			dispatch( refreshStatus() );
 		} )
 		.catch( () => {
 			dispatch(
