@@ -113,7 +113,13 @@ class Threats {
 		// clear the now out-of-date cache
 		Scan_Status::delete_option();
 
-		return $response;
+		$parsed_response = json_decode( $response['body'] );
+
+		if ( ! $parsed_response ) {
+			return false;
+		}
+
+		return $parsed_response;
 	}
 
 	/**
