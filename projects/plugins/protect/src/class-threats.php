@@ -84,7 +84,7 @@ class Threats {
 	 *
 	 * @param array<string> $threat_ids Threat IDs.
 	 *
-	 * @return bool
+	 * @return bool|array
 	 */
 	public static function fix_threats( $threat_ids ) {
 		$api_base = self::get_api_base();
@@ -113,10 +113,10 @@ class Threats {
 		// clear the now out-of-date cache
 		Scan_Status::delete_option();
 
-		return true;
+		return $response;
 	}
-      
-  /**
+
+	/**
 	 * Scan enqueue
 	 *
 	 * @return bool

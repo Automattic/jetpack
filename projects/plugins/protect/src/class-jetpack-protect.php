@@ -387,7 +387,7 @@ class Jetpack_Protect {
 			return new WP_REST_Response( 'An error occured while attempting to fix the threat.', 500 );
 		}
 
-		return new WP_REST_Response( 'Threats fixed.' );
+		return new WP_REST_Response( $threats_fixed );
 	}
 
 	/**

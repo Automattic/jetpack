@@ -138,6 +138,36 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 	} );
 };
 
+const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
+	return await apiFetch( {
+		path: `jetpack-protect/v1/fix-threats?threat_ids=${ threatIds }`,
+		method: 'GET',
+		data: { threatIds },
+	} )
+		.then( response => {
+			const threatArray = Object.values( response.threats );
+			const inProgressThreats = threatArray.filter( threat => 'in_progress' === threat.status );
+			if ( inProgressThreats.length > 0 ) {
+				// fix still in progress - try again in another second
+				setTimeout( () => getFixThreatsStatus( threatIds ), 1000 );
+			} else {
+				// threats fixed - refresh the status
+				dispatch( refreshStatus() );
+			}
+		} )
+		.catch( () => {
+			dispatch(
+				setNotice( {
+					type: 'error',
+					message: __(
+						'Not all threats could be fixed. Please contact our support.',
+						'jetpack-protect'
+					),
+				} )
+			);
+		} );
+};
+
 const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) => {
 	threatIds.forEach( threatId => {
 		dispatch( setThreatIsUpdating( threatId, true ) );
@@ -149,21 +179,25 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 			data: { threatIds },
 		} )
 			.then( () => {
-				return dispatch( refreshStatus() );
-			} )
-			.then( () => {
 				return dispatch(
 					setNotice( {
 						type: 'success',
-						message: __( 'Threat was fixed successfully', 'jetpack-protect' ),
+						message: __(
+							"We're hard at work fixing this threat in the background. Please check back shortly.",
+							'jetpack-protect'
+						),
 					} )
 				);
+			} )
+			.then( () => {
+				// wait one second, then start checking if the threats have been fixed
+				setTimeout( () => getFixThreatsStatus( threatIds ), 1000 );
 			} )
 			.catch( () => {
 				return dispatch(
 					setNotice( {
 						type: 'error',
-						message: __( 'An error ocurred fixing the threat', 'jetpack-protect' ),
+						message: __( 'Error fixing threats. Please contact support.', 'jetpack-protect' ),
 					} )
 				);
 			} )
