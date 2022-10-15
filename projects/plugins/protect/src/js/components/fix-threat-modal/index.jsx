@@ -2,6 +2,7 @@ import { Button, Text } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../state/store';
+import CredentialsGate from '../credentials-gate';
 import ThreatFixHeader from '../threat-fix-header';
 import styles from './styles.module.scss';
 
@@ -26,7 +27,7 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 	};
 
 	return (
-		<>
+		<CredentialsGate>
 			<Text variant="title-medium" mb={ 2 }>
 				{ __( 'Fix Threat', 'jetpack-protect' ) }
 			</Text>
@@ -49,7 +50,7 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 					{ __( 'Fix threat', 'jetpack-protect' ) }
 				</Button>
 			</div>
-		</>
+		</CredentialsGate>
 	);
 };
 

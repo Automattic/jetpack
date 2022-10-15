@@ -1,5 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -29,7 +29,6 @@ const ThreatAccordionItem = ( {
 	const { setModal } = useDispatch( STORE_ID );
 
 	const { recordEvent } = useAnalyticsTracks();
-	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -50,17 +49,10 @@ const ThreatAccordionItem = ( {
 	const handleFixThreatClick = () => {
 		return event => {
 			event.preventDefault();
-
-			if ( credentialState.state === 'awaiting_credentials' ) {
-				setModal( {
-					type: 'CREDENTIALS_NEEDED',
-				} );
-			} else {
-				setModal( {
-					type: 'FIX_THREAT',
-					props: { id, label, title, icon, severity, fixable },
-				} );
-			}
+			setModal( {
+				type: 'FIX_THREAT',
+				props: { id, label, title, icon, severity, fixable },
+			} );
 		};
 	};
 

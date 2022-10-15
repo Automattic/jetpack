@@ -25,16 +25,10 @@ const ThreatsList = () => {
 	const handleFixAllThreatsClick = threatList => {
 		return event => {
 			event.preventDefault();
-			// if ( credentialState.state === 'awaiting_credentials' ) {
-			// 	setModal( {
-			// 		type: 'CREDENTIALS_NEEDED',
-			// 	} );
-			// } else {
 			setModal( {
 				type: 'FIX_ALL_THREATS',
 				props: { threatList },
 			} );
-			// }
 		};
 	};
 
