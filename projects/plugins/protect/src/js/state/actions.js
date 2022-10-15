@@ -198,7 +198,7 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 			} )
 			.then( () => {
 				// wait one second, then start checking if the threats have been fixed
-				setTimeout( () => getFixThreatsStatus( threatIds ), 1000 );
+				setTimeout( () => dispatch( getFixThreatsStatus( threatIds ) ), 1000 );
 			} )
 			.catch( () => {
 				return dispatch(
