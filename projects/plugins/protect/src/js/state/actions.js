@@ -5,6 +5,7 @@ import camelize from 'camelize';
 const SET_CREDENTIAL_STATE = 'SET_CREDENTIAL_STATE';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
+const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
@@ -68,6 +69,10 @@ const setCredentialState = credentialState => {
 
 const setStatusIsFetching = status => {
 	return { type: SET_STATUS_IS_FETCHING, status };
+};
+
+const setScanIsEnqueuing = isEnqueuing => {
+	return { type: SET_SCAN_IS_ENQUEUING, isEnqueuing };
 };
 
 const setInstalledPlugins = plugins => {
@@ -145,7 +150,7 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 					} )
 				);
 			} )
-			.catch( () => {
+      .catch( () => {
 				return dispatch(
 					setNotice( {
 						type: 'error',
@@ -157,6 +162,39 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 				threatIds.forEach( threatId => {
 					dispatch( setThreatIsUpdating( threatId, false ) );
 				} );
+				callback();
+			} );
+  } );
+};
+
+const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
+	dispatch( setScanIsEnqueuing( true ) );
+	return await new Promise( () => {
+		return apiFetch( {
+			path: `jetpack-protect/v1/scan`,
+			method: 'POST',
+		} )
+			.then( () => {
+				return dispatch(
+					setNotice( {
+						type: 'success',
+						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.then( () => {
+				return dispatch( refreshStatus() );
+			} )
+			.catch( () => {
+				return dispatch(
+					setNotice( {
+						type: 'error',
+						message: __( 'An error ocurred enqueuing the scan', 'jetpack-protect' ),
+					} )
+				);
+			} )
+			.finally( () => {
+				dispatch( setScanIsEnqueuing( false ) );
 				callback();
 			} );
 	} );
@@ -184,6 +222,7 @@ const actions = {
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,
+	setScanIsEnqueuing,
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
@@ -193,12 +232,14 @@ const actions = {
 	setModal,
 	setNotice,
 	fixThreats,
+	scan,
 };
 
 export {
 	SET_CREDENTIAL_STATE,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,

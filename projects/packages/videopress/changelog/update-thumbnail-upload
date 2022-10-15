@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Extract poster image update to actions with loading meta state

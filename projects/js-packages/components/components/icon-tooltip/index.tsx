@@ -36,6 +36,8 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 	offset = 10,
 	title,
 	children,
+	shadowAnchor = false,
+	forceShow = false,
 } ) => {
 	const POPOVER_HELPER_WIDTH = 124;
 	const [ isVisible, setIsVisible ] = useState( false );
@@ -58,17 +60,21 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
 	const iconShiftBySize = {
-		left: -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
+		left: shadowAnchor ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
+
+	const isForcedToShow = shadowAnchor && forceShow;
 
 	return (
 		<div className={ wrapperClassNames } data-testid="icon-tooltip_wrapper">
-			<Button variant="link" onClick={ showTooltip }>
-				<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
-			</Button>
+			{ ! shadowAnchor && (
+				<Button variant="link" onClick={ showTooltip }>
+					<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
+				</Button>
+			) }
 
 			<div className="icon-tooltip-helper" style={ iconShiftBySize }>
-				{ isVisible && (
+				{ ( isForcedToShow || isVisible ) && (
 					<Popover { ...args }>
 						<div>
 							{ title && <div className="icon-tooltip-title">{ title }</div> }

@@ -78,8 +78,18 @@
 	margin: 32px 64px;
 	text-align: center;
 
-	> a {
-		color: black;
+	> button span {
+		font-size: var( --font-body-small );
+		font-weight: normal;
+		color: #3c434a;
+	}
+
+	button:hover:not(:disabled) {
+		text-decoration-line: none;
+	}
+
+	button:focus:not(:disabled) {
+		box-shadow: none;
 	}
 }
 

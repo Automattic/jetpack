@@ -135,7 +135,7 @@ jobs:
           PHP_FILES: ${{ steps.filter.outputs.php_files }}
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
-          echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
+          echo "php_excluded_files=$EXCLUDED_FILES" >> "$GITHUB_OUTPUT"
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
@@ -145,7 +145,7 @@ jobs:
           JS_FILES: ${{ steps.filter.outputs.js_files }}
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
-          echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
+          echo "js_excluded_files=$EXCLUDED_FILES" >> "$GITHUB_OUTPUT"
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
@@ -155,7 +155,7 @@ jobs:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/eslint-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
-          echo "::set-output name=excluded_files::$EXCLUDED_FILES"
+          echo "excluded_files=$EXCLUDED_FILES" >> "$GITHUB_OUTPUT"
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 

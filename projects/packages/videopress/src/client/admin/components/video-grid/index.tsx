@@ -28,7 +28,7 @@ const VideoGrid = ( { videos, count = 6, onVideoDetailsClick, loading }: VideoGr
 			<Container fluid horizontalSpacing={ 0 } horizontalGap={ 0 }>
 				{ gridVideos.map( ( video, index ) => {
 					return (
-						<Col key={ index } sm={ 4 } md={ 4 } lg={ 4 }>
+						<Col key={ video?.guid ?? video?.id } sm={ 4 } md={ 4 } lg={ 4 }>
 							<VideoCard
 								id={ video?.id }
 								title={ video.title }

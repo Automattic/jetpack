@@ -26,24 +26,26 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
+import uid from '../../../utils/uid';
 import { usePlan } from '../../hooks/use-plan';
-import useVideos from '../../hooks/use-videos';
+import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
-import { LocalLibrary, VideoPressLibrary } from './libraries';
+import { ConnectLocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
 	const { uploadVideo } = useDispatch( STORE_ID );
 
-	const { items, uploading, uploadedVideoCount, isFetching } = useVideos();
+	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
+	const { items: localVideos } = useLocalVideos();
 
-	let videos = [ ...uploading, ...items ];
+	// Do not show uploading videos if not in the first page or searching
+	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
 
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
-	const localVideos = [];
 	const localTotalVideoCount = 0;
 	const hasLocalVideos = localVideos && localVideos.length > 0;
 
@@ -54,7 +56,8 @@ const useDashboardVideos = () => {
 
 	// Fill with empty videos if loading
 	if ( isFetching ) {
-		videos = new Array( 6 ).fill( {} );
+		// Use generated ID to work with React Key
+		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
 	}
 
 	return {
@@ -72,9 +75,7 @@ const useDashboardVideos = () => {
 const Admin = () => {
 	const {
 		videos,
-		localVideos,
 		uploadedVideoCount,
-		localTotalVideoCount,
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
@@ -171,7 +172,7 @@ const Admin = () => {
 							) }
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<LocalLibrary videos={ localVideos } totalVideos={ localTotalVideoCount } />
+									<ConnectLocalLibrary />
 								</Col>
 							) }
 						</Container>

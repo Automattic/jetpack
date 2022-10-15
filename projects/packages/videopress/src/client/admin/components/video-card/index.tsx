@@ -77,6 +77,7 @@ export const VideoCard = ( {
 	editable,
 	showQuickActions = true,
 	loading = false,
+	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
 	onVideoDetailsClick,
@@ -84,8 +85,8 @@ export const VideoCard = ( {
 	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
 
 	// Mapping thumbnail (Ordered by priority)
-	let thumbnail = loading ? <Placeholder width={ 360 } /> : defaultThumbnail;
-	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
+	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
+	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
@@ -112,6 +113,7 @@ export const VideoCard = ( {
 				{ ! isSm && <div className={ styles[ 'video-card__background' ] } /> }
 
 				<VideoThumbnail
+					videoId={ id }
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
 					duration={ loading ? null : duration }
@@ -176,7 +178,7 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading, processing } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
 
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
@@ -187,6 +189,7 @@ export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 			{ ...restProps }
 			loading={ loading }
 			uploading={ uploading }
+			isUpdatingPoster={ isUpdatingPoster }
 			processing={ processing }
 			editable={ editable }
 		/>
