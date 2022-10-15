@@ -18,7 +18,6 @@ const ThreatsList = () => {
 	const fixableList = list.filter( obj => obj.fixable );
 
 	const { setModal } = useDispatch( STORE_ID );
-	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
 
 	const { scan } = useDispatch( STORE_ID );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
@@ -26,16 +25,16 @@ const ThreatsList = () => {
 	const handleFixAllThreatsClick = threatList => {
 		return event => {
 			event.preventDefault();
-			if ( credentialState.state === 'awaiting_credentials' ) {
-				setModal( {
-					type: 'CREDENTIALS_NEEDED',
-				} );
-			} else {
-				setModal( {
-					type: 'FIX_ALL_THREATS',
-					props: { threatList },
-				} );
-			}
+			// if ( credentialState.state === 'awaiting_credentials' ) {
+			// 	setModal( {
+			// 		type: 'CREDENTIALS_NEEDED',
+			// 	} );
+			// } else {
+			setModal( {
+				type: 'FIX_ALL_THREATS',
+				props: { threatList },
+			} );
+			// }
 		};
 	};
 

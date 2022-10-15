@@ -1,14 +1,21 @@
-import { Button, Text } from '@automattic/jetpack-components';
+import { Button, Spinner, Text } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
 import { STORE_ID } from '../../state/store';
+import CredentialsNeededModal from '../credentials-needed-modal';
 import ThreatFixHeader from '../threat-fix-header';
 import styles from './styles.module.scss';
 
 const FixAllThreatsModal = ( { threatList = [] } ) => {
-	const { setModal, fixThreats } = useDispatch( STORE_ID );
-	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
+	const { checkCredentialsState, setModal, fixThreats } = useDispatch( STORE_ID );
+
+	const { credentialState, credentialStateIsFetching, threatsUpdating } = useSelect( select => ( {
+		credentialState: select( STORE_ID ).getCredentialState(),
+		credentialStateIsFetching: select( STORE_ID ).getCredentialStateIsFetching(),
+		threatsUpdating: select( STORE_ID ).getThreatsUpdating(),
+	} ) );
+
 	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => id ) );
 
 	const handleCancelClick = () => {
@@ -37,6 +44,32 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 		},
 		[ threatIds ]
 	);
+
+	if ( ! credentialState.state && ! credentialStateIsFetching ) {
+		checkCredentialsState();
+	}
+
+	if ( ! credentialState.state ) {
+		return (
+			<div className={ styles.loading }>
+				<Spinner
+					color="black"
+					style={ {
+						color: 'black',
+						marginTop: 0,
+						marginLeft: 0,
+					} }
+				/>
+				<p className={ styles.loading__message }>
+					{ __( 'Checking credentials…', 'jetpack-protect' ) }
+				</p>
+			</div>
+		);
+	}
+
+	if ( 'awaiting_credentials' === credentialState.state ) {
+		return <CredentialsNeededModal />;
+	}
 
 	return (
 		<>

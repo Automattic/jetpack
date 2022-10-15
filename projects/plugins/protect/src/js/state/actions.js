@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
+const SET_CREDENTIAL_STATE_IS_FETCHING = 'SET_CREDENTIAL_STATE_IS_FETCHING';
 const SET_CREDENTIAL_STATE = 'SET_CREDENTIAL_STATE';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
@@ -49,6 +50,7 @@ const refreshStatus = () => async ( { dispatch } ) => {
  */
 const checkCredentialsState = () => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
+		dispatch( setCredentialStateIsFetching( true ) );
 		return apiFetch( {
 			path: 'jetpack-protect/v1/check-credentials',
 			method: 'POST',
@@ -59,8 +61,15 @@ const checkCredentialsState = () => async ( { dispatch } ) => {
 			} )
 			.catch( error => {
 				reject( error );
+			} )
+			.finally( () => {
+				dispatch( setCredentialStateIsFetching( false ) );
 			} );
 	} );
+};
+
+const setCredentialStateIsFetching = isFetching => {
+	return { type: SET_CREDENTIAL_STATE_IS_FETCHING, isFetching };
 };
 
 const setCredentialState = credentialState => {
@@ -150,7 +159,7 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 					} )
 				);
 			} )
-      .catch( () => {
+			.catch( () => {
 				return dispatch(
 					setNotice( {
 						type: 'error',
@@ -164,7 +173,7 @@ const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) 
 				} );
 				callback();
 			} );
-  } );
+	} );
 };
 
 const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
@@ -219,6 +228,7 @@ const setNotice = notice => {
 const actions = {
 	checkCredentialsState,
 	setCredentialState,
+	setCredentialStateIsFetching,
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,
@@ -237,6 +247,7 @@ const actions = {
 
 export {
 	SET_CREDENTIAL_STATE,
+	SET_CREDENTIAL_STATE_IS_FETCHING,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
