@@ -403,6 +403,7 @@ class Jetpack_Protect {
 		}
 
 		return new WP_REST_Response( array( 'state' => $rewind_state ) );
+	}
 
 	/**
 	 * Enqueues a scan for the API endpoint
