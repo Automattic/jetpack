@@ -135,8 +135,6 @@ const ThreatAccordionItem = ( {
 };
 
 const PaidList = ( { list } ) => {
-	const { setModal } = useDispatch( STORE_ID );
-	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
 	const { scan } = useDispatch( STORE_ID );
 
 	const handleScanClick = () => {
@@ -177,38 +175,8 @@ const PaidList = ( { list } ) => {
 
 	list = list.map( threat => ( { label: getLabel( threat ), ...threat } ) );
 
-	const fixableList = list.filter( obj => obj.fixable );
-	const fixableCount = fixableList.length;
-
-	const handleFixAllThreatsClick = threatList => {
-		return event => {
-			event.preventDefault();
-			if ( credentialState.state === 'awaiting_credentials' ) {
-				setModal( {
-					type: 'CREDENTIALS_NEEDED',
-				} );
-			} else {
-				setModal( {
-					type: 'FIX_ALL_THREATS',
-					props: { threatList },
-				} );
-			}
-		};
-	};
-
 	return (
 		<>
-			<div className={ styles[ 'threat-header' ] }>
-				{ fixableCount > 0 && (
-					<Button variant="primary" onClick={ handleFixAllThreatsClick( fixableList ) }>
-						{
-							/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
-							sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableCount )
-						}
-					</Button>
-				) }
-				<Button variant="secondary">{ __( 'Scan now', 'jetpack-protect' ) }</Button>
-			</div>
 			{ ! isSmall && (
 				<div className={ styles[ 'accordion-heading' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
