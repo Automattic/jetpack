@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Subscription block: don't include Publicize connections in subscriber count.
