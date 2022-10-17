@@ -136,14 +136,10 @@ class Threats {
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			"$api_base/fix",
+			add_query_arg( 'threat_ids', $threat_ids, "$api_base/fix" ),
 			'2',
 			array( 'method' => 'GET' ),
-			wp_json_encode(
-				array(
-					'threat_ids' => $threat_ids,
-				)
-			),
+			null,
 			'wpcom'
 		);
 
