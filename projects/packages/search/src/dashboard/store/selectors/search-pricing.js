@@ -1,7 +1,10 @@
 const searchPricingSelectors = {
 	getSearchPricing: state => state.searchPricing,
 	getPriceBefore: state => state.searchPricing.full_price ?? 0,
-	getPriceAfter: state => state.searchPricing.discount_price ?? 0,
+	getPriceAfter: state =>
+		Number.isFinite( state.searchPricing.discount_price )
+			? state.searchPricing.discount_price
+			: state.searchPricing.full_price,
 	getPricingDiscountPercentage: state => {
 		const before = this.getPriceBefore( state );
 		const after = this.getPriceAfter( state );
