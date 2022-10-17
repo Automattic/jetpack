@@ -10,7 +10,7 @@ import QuerySite from 'components/data/query-site';
 import QuerySiteDiscount from 'components/data/query-site-discount';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { getNewRecommendations } from 'state/initial-state';
@@ -31,15 +31,33 @@ import { ResourcePrompt } from './prompts/resource-prompt';
 import { SiteTypeQuestion } from './prompts/site-type';
 import { Summary } from './summary';
 
+const useInitOnboarding = ( {
+	step,
+	isLoading,
+	onboardingData,
+	updateOnboardingData,
+	updateStep,
+} ) => {
+	const isInitialized = useState( false );
+	useEffect( () => {
+		if ( ! isInitialized && onboardingData && ! isLoading ) {
+			const { active, hasStarted, viewed } = onboardingData;
+
+			isInitialized( true );
+
+			if ( active && ! hasStarted ) {
+				updateStep( step );
+				updateOnboardingData( { ...onboardingData, hasStarted: true } );
+			} else if ( null === active ) {
+				// If no onboarding active, sync only viewed onboardings
+				updateOnboardingData( { viewed } );
+			}
+		}
+	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep, isInitialized ] );
+};
+
 const RecommendationsComponent = props => {
-	const {
-		isLoading,
-		step,
-		newRecommendations,
-		onboardingData,
-		updateOnboardingData,
-		updateStep,
-	} = props;
+	const { isLoading, step, newRecommendations } = props;
 
 	let redirectPath;
 
@@ -142,15 +160,7 @@ const RecommendationsComponent = props => {
 		return newRecommendations && newRecommendations.includes( stepSlug );
 	};
 
-	useEffect( () => {
-		if ( onboardingData ) {
-			const { active, hasStarted } = onboardingData;
-			if ( ! isLoading && active && ! hasStarted ) {
-				updateStep( step );
-				updateOnboardingData( { ...onboardingData, hasStarted: true } );
-			}
-		}
-	}, [ isLoading, onboardingData, updateOnboardingData, step, updateStep ] );
+	useInitOnboarding( props );
 
 	return (
 		<>
