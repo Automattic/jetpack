@@ -180,7 +180,7 @@ input.components-text-control__input {
 	Twenty Twenty-One and Twenty Twenty-Two.
 	Adding this to normalize the styles between the TextControl and TextareaControl
  */
-textarea.components-textarea-control__input {
+:where(.jetpack-field) textarea.components-textarea-control__input {
 	border: 1px solid #757575;
 }
 
