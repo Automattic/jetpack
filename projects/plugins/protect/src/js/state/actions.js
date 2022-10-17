@@ -23,14 +23,13 @@ const setStatus = status => {
 /**
  * Side effect action which will fetch the status from the server
  *
- * @param {boolean} hardRefresh - Clears the cache prior to fetching the status when enabled.
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
+const refreshStatus = () => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
 		return apiFetch( {
-			path: `jetpack-protect/v1/status${ hardRefresh ? '?hard-refresh' : '' }`,
+			path: 'jetpack-protect/v1/status',
 			method: 'GET',
 		} )
 			.then( status => {
@@ -163,7 +162,7 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 		} )
 		.then( () => {
 			// threats fixed - refresh the status
-			dispatch( refreshStatus( true ) );
+			dispatch( refreshStatus() );
 			dispatch(
 				setNotice( {
 					type: 'success',
