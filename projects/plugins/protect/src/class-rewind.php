@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Protect;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
-use WP_Error;
 
 /**
  * Class that handles the rewind api call.
@@ -46,7 +45,7 @@ class Rewind {
 		}
 
 		$parsed_response = json_decode( $response['body'] );
-		
+
 		if ( ! $parsed_response ) {
 			return false;
 		}
