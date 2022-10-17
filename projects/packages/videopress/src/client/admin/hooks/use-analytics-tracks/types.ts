@@ -1,5 +1,5 @@
 export type useAnalyticsTracksProps = {
-	pageViewEventName: string;
+	pageViewEventName?: string;
 	pageViewNamespace?: string;
 	pageViewSuffix?: string;
 	pageViewEventProperties?: object;

@@ -122,13 +122,15 @@ import useAnalyticsTracks from './hooks/use-analytics-tracks';
 function MyAdminApp() {
 	const { recordEventHandler } = useAnalyticsTracks();
 
-	const addProduct = recordEventHandler(
-		'jetpack_product_add_click',
-		onContinueHere
+	const onButtonClickHandler = recordEventHandler(
+		'jetpack_videopress_button_click',
+		function() {
+			// Continue here...
+		}
 	);
 
 	return (
-		<Button onClick={ addProduct }>Get the product!</Button>
+		<Button onClick={ onButtonClickHandler }>On click!</Button>
 	);
 }
 ```
