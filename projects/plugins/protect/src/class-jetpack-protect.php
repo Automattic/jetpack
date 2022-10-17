@@ -338,9 +338,15 @@ class Jetpack_Protect {
 	/**
 	 * Return Protect Status for the API endpoint
 	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_get_status() {
+	public static function api_get_status( $request ) {
+		if ( $request['hard-refresh'] ) {
+			Protect_Status::delete_option();
+		}
+
 		$status = Protect_Status::get_status();
 		return rest_ensure_response( $status, 200 );
 	}
