@@ -31,6 +31,7 @@
 
 .list-header {
 	display: flex;
+	align-items: flex-end;
 	margin-bottom: calc( var( --spacing-base ) * 2.25 );
 }
 
