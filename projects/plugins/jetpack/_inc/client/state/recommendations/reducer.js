@@ -143,11 +143,12 @@ const data = ( state = {}, action ) => {
 			return viewedState;
 		}
 		case JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE: {
-			const { active, viewed, hasStarted } = action.onboardingData;
+			const { active, viewed, hasStarted, totalSteps } = action.onboardingData;
 			return mergeWith( {}, state, {
 				...( active !== undefined ? { onboardingActive: active } : {} ),
 				...( viewed !== undefined ? { onboardingViewed: viewed } : {} ),
 				...( hasStarted !== undefined ? { onboardingHasStarted: hasStarted } : {} ),
+				...( totalSteps !== undefined ? { onboardingTotalSteps: totalSteps } : {} ),
 			} );
 		}
 		default:
@@ -499,8 +500,8 @@ export const getNonViewedRecommendationsCount = state => {
 	const onboarding = getOnboardingData( state );
 
 	if ( onboarding && onboarding.active ) {
+		const { totalSteps: steps } = onboarding;
 		const step = getStep( state );
-		const steps = getStepsForOnboarding( onboarding.active );
 
 		return steps.length - ( steps.indexOf( step ) + 1 );
 	}
@@ -678,6 +679,7 @@ export const getOnboardingData = state => {
 		viewed: ( getDataByKey( state, 'onboardingViewed' ) || [] ).filter( viewedOnboarding =>
 			eligibleOnboardings.includes( viewedOnboarding )
 		),
+		totalSteps: getDataByKey( state, 'onboardingTotalSteps' ) || [],
 		hasStarted: getDataByKey( state, 'onboardingHasStarted' ) || false,
 	};
 
@@ -692,6 +694,9 @@ export const getOnboardingData = state => {
 		if ( sortedOnboardings.length > 0 ) {
 			return {
 				active: sortedOnboardings[ 0 ],
+				totalSteps: getStepsForOnboarding( sortedOnboardings[ 0 ] ).filter( step =>
+					isStepEligibleToShow( state, step )
+				),
 				viewed: union( onboarding.viewed, sortedOnboardings ),
 				hasStarted: false,
 			};
@@ -726,8 +731,8 @@ export const getOnboardingStepProgressValueIfEligible = state => {
 		return null;
 	}
 
+	const { totalSteps: steps } = onboardingData;
 	const step = getStep( state );
-	const steps = getStepsForOnboarding( onboardingData.active );
 
 	return {
 		currentStepIndex: steps.indexOf( step ),
