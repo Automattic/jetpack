@@ -242,14 +242,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.5-a.1 - 2022-10-05
+### 11.5-a.5 - 2022-10-13
 #### Enhancements
-- Dashboard: add a new illustration for WooCommerce recommendation.
-- Stats: change mentions of "Site Stats" with "Jetpack Stats".
-- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar.
-- Payment Button block: support a wider varity of layout options.
-- Publicize: make the pre-publish panel initially closed by default.
-- Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined.
+- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin
+
+#### Bug fixes
+- CRM:Fix unmounted state updates in Form CRM integration
+- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking
 
 --------
 
