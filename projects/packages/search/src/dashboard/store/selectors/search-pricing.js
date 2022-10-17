@@ -2,9 +2,10 @@ const searchPricingSelectors = {
 	getSearchPricing: state => state.searchPricing,
 	getPriceBefore: state => state.searchPricing.full_price ?? 0,
 	getPriceAfter: state =>
+		// If discounted price is unavailable, use the full price.
 		Number.isFinite( state.searchPricing.discount_price )
 			? state.searchPricing.discount_price
-			: state.searchPricing.full_price,
+			: this.getPriceBefore( state ),
 	getPricingDiscountPercentage: state => {
 		const before = this.getPriceBefore( state );
 		const after = this.getPriceAfter( state );
