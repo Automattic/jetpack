@@ -1388,6 +1388,9 @@ abstract class SAL_Site {
 	public function is_difm_lite_in_progress() {
 		if ( function_exists( 'has_blog_sticker' ) ) {
 			return has_blog_sticker( 'difm-lite-in-progress' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		}
 		return false;
 	}
@@ -1409,5 +1412,28 @@ abstract class SAL_Site {
 	public function get_site_intent() {
 		return get_option( 'site_intent', '' );
 	}
-}
 
+	/**
+	 * Get site option to determine if and how to display launchpad onboarding
+	 *
+	 * @return string
+	 */
+	public function get_launchpad_screen() {
+		return get_option( 'launchpad_screen' );
+	}
+
+	/**
+	 * Get site option for completed launchpad checklist tasks
+	 *
+	 * @return string
+	 */
+	public function get_launchpad_checklist_tasks_statuses() {
+		$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
+
+		if ( is_array( $launchpad_checklist_tasks_statuses_option ) ) {
+			return $launchpad_checklist_tasks_statuses_option;
+		}
+
+		return array();
+	}
+}

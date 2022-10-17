@@ -83,6 +83,57 @@ class Data {
 	}
 
 	/**
+	 * Gets the user data
+	 *
+	 * @return array
+	 */
+	public static function get_user_data() {
+		$user_data = array(
+			'items'      => array(),
+			'pagination' => array(
+				'total'      => 0,
+				'totalPages' => 1,
+			),
+			'query'      => array(
+				'order'   => 'asc',
+				'orderBy' => 'name',
+			),
+			'_meta'      => array(
+				'relyOnInitialState' => true,
+			),
+		);
+
+		$args = array(
+			'order'   => $user_data['query']['order'],
+			'orderby' => $user_data['query']['orderBy'],
+		);
+
+		// Do an internal request for the user list
+		$request = new WP_REST_Request( 'GET', '/wp/v2/users' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			// @todo: error handling
+			return $user_data;
+		}
+
+		// load the real values
+		$user_data['items'] = $response->get_data();
+		$headers            = $response->get_headers();
+
+		if ( isset( $headers['X-WP-Total'] ) ) {
+			$user_data['pagination']['total'] = $headers['X-WP-Total'];
+		}
+
+		if ( isset( $headers['X-WP-TotalPages'] ) ) {
+			$user_data['pagination']['totalPages'] = $headers['X-WP-TotalPages'];
+		}
+
+		return $user_data;
+	}
+
+	/**
 	 * Gets the VideoPress used storage space in bytes
 	 *
 	 * @return int the used storage space
@@ -201,6 +252,8 @@ class Data {
 
 				if ( isset( $files['dvd']['original_img'] ) ) {
 					$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
+				} else {
+					$thumbnail = null;
 				}
 
 				return array(
@@ -222,7 +275,7 @@ class Data {
 						'width'  => $width,
 						'height' => $height,
 					),
-					'thumnbail'      => $thumbnail,
+					'thumbnail'      => $thumbnail,
 					'finished'       => $finished,
 				);
 			},
@@ -230,6 +283,7 @@ class Data {
 		);
 
 		$initial_state = array(
+			'users'       => self::get_user_data(),
 			'videos'      => array(
 				'uploadedVideoCount'           => $videopress_data['total'],
 				'items'                        => $videos,

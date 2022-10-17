@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Check free plan by product_slug and disable Module Control only on free plan.

@@ -1,6 +1,9 @@
 import { getSiteAdminUrl } from 'state/initial-state';
 import { productDescriptionRoutes } from './constants';
 
+export const isSearchNewPricingLaunched202208 = () =>
+	URLSearchParams && !! new URLSearchParams( window.location?.search ).get( 'new_pricing_202208' );
+
 /**
  * Get product description URL by product key.
  *
@@ -13,6 +16,11 @@ import { productDescriptionRoutes } from './constants';
  */
 export const getProductDescriptionUrl = ( state, productKey ) => {
 	const baseUrl = `${ getSiteAdminUrl( state ) }admin.php?page=jetpack#`;
+
+	// TODO: remove the && condition on Search new pricing launch.
+	if ( productKey === 'search' && isSearchNewPricingLaunched202208() ) {
+		return `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-search`;
+	}
 
 	if ( productDescriptionRoutes.includes( `/product/${ productKey }` ) ) {
 		return `${ baseUrl }/product/${ productKey }`;

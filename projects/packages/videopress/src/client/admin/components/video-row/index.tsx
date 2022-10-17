@@ -5,8 +5,11 @@ import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
 import privacy from '../../../components/icons/crossed-eye-icon';
+import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
+import Placeholder from '../placeholder';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
+import VideoThumbnail from '../video-thumbnail';
 import StatsBase from './stats';
 import styles from './style.module.scss';
 import { VideoRowProps } from './types';
@@ -24,11 +27,13 @@ const Stats = ( {
 	uploadDate,
 	plays,
 	isPrivate,
+	loading = false,
 }: {
 	duration?: string;
 	uploadDate?: string;
 	plays?: number;
 	isPrivate?: boolean;
+	loading?: boolean;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const durationLabel = __( 'Duration', 'jetpack-videopress-pkg' );
@@ -74,16 +79,18 @@ const Stats = ( {
 			duration={ durationElement }
 			plays={ playsElement }
 			upload={ uploadElement }
+			loading={ loading }
 		/>
 	);
 };
 
-const VideoRow = ( {
+export const VideoRow = ( {
 	id,
 	className = '',
 	checked = false,
 	title,
-	posterImage,
+	thumbnail: defaultThumbnail,
+	showThumbnail = false,
 	duration,
 	uploadDate,
 	plays,
@@ -92,6 +99,8 @@ const VideoRow = ( {
 	onSelect,
 	showEditButton = true,
 	showQuickActions = true,
+	loading = false,
+	isUpdatingPoster = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -104,11 +113,17 @@ const VideoRow = ( {
 	const durationInMinutesAndSeconds = millisecondsToMinutesAndSeconds( duration );
 	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
+
 	const showTitleLabel = ! isSmall && isEllipsisActive;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded );
+	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
+
+	let thumbnail = defaultThumbnail;
+	thumbnail = loading || isUpdatingPoster ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
+
 	const canExpand =
 		isSmall &&
+		! loading &&
 		( showEditButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
@@ -117,6 +132,7 @@ const VideoRow = ( {
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
 	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
+
 	const wrapperAriaLabel = sprintf(
 		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */
 		__(
@@ -180,8 +196,8 @@ const VideoRow = ( {
 			tabIndex={ 0 }
 			onKeyDown={ isSmall ? null : handleKeyDown }
 			onKeyUp={ isSmall ? null : handleKeyUp }
-			onMouseOver={ isSmall ? null : handleOver }
-			onMouseLeave={ isSmall ? null : handleLeave }
+			onMouseOver={ isSmall || loading ? null : handleOver }
+			onMouseLeave={ isSmall || loading ? null : handleLeave }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
 			className={ classNames(
@@ -193,7 +209,13 @@ const VideoRow = ( {
 			) }
 		>
 			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
-				<Checkbox ref={ checkboxRef } checked={ checked } tabIndex={ -1 } onChange={ onSelect } />
+				<Checkbox
+					ref={ checkboxRef }
+					checked={ checked && ! loading }
+					tabIndex={ -1 }
+					onChange={ onSelect }
+					disabled={ loading }
+				/>
 			</div>
 			<div
 				className={ classNames( styles[ 'video-data-wrapper' ], {
@@ -202,26 +224,44 @@ const VideoRow = ( {
 			>
 				<div
 					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
-					onClick={ isSmall ? handleInfoWrapperClick : null }
+					onClick={ isSmall && ! loading ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
-					{ posterImage && <img className={ styles.poster } alt="" src={ posterImage } /> }
+					{ showThumbnail && (
+						<div className={ styles.poster }>
+							<VideoThumbnail thumbnail={ thumbnail } blankIconSize={ 28 } />
+						</div>
+					) }
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
 								{ title }
 							</Text>
 						) }
-						<Text variant="title-small" className={ styles.title } ref={ textRef }>
-							{ title }
-						</Text>
-						{ isSmall && <Text component="div">{ uploadDateFormatted }</Text> }
+
+						{ loading ? (
+							<Placeholder height={ 30 } />
+						) : (
+							<Text variant="title-small" className={ styles.title } ref={ textRef }>
+								{ title }
+							</Text>
+						) }
+
+						{ isSmall && (
+							<>
+								{ loading ? (
+									<Placeholder height={ 20 } width="80%" />
+								) : (
+									<Text component="div">{ uploadDateFormatted }</Text>
+								) }
+							</>
+						) }
 					</div>
 					{ canExpand && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && ( showEditButton || showQuickActions ) && (
+						{ showActions && ( showEditButton || showQuickActions ) && ! loading && (
 							<div className={ styles.actions }>
 								{ showEditButton && editDetailsButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
@@ -233,6 +273,7 @@ const VideoRow = ( {
 								uploadDate={ uploadDateFormatted }
 								plays={ plays }
 								isPrivate={ isPrivate }
+								loading={ loading }
 							/>
 						) }
 						{ isSmall && (
@@ -248,6 +289,20 @@ const VideoRow = ( {
 	);
 };
 
+export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
+	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
+	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
+	return (
+		<VideoRow
+			id={ id }
+			{ ...restProps }
+			loading={ loading }
+			isUpdatingPoster={ isUpdatingPoster }
+			showThumbnail
+		/>
+	);
+};
+
 export type { VideoRowProps };
 export { StatsBase as Stats };
-export default VideoRow;
+export default ConnectVideoRow;
