@@ -7,7 +7,7 @@ const getPriceAfter = state =>
 const getPricingDiscountPercentage = state => {
 	const before = getPriceBefore( state );
 	const after = getPriceAfter( state );
-	// Original price is less than or greater than the sale price. No discount!
+	// Original price is less than or equal to the discounted price. No discount!
 	if ( before <= after ) {
 		return 0;
 	}
