@@ -155,6 +155,9 @@ class Threats {
 			return false;
 		}
 
+		// clear the potentially out-of-date cache
+		Scan_Status::delete_option();
+
 		return $parsed_response;
 	}
 
