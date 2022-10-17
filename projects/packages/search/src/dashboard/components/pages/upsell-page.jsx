@@ -176,6 +176,13 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 				compactDisplay: 'short',
 		  } ).format( paidRequestsLimitRaw );
 
+	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
+	const unitQuantity = new Intl.NumberFormat( 'en-US', {
+		notation: 'compact',
+		compactDisplay: 'short',
+	} ).format( unitQuantityRaw );
+	const unitFee = useSelect( select => select( STORE_ID ).getAdditionalUnitFee(), [] );
+
 	return (
 		<Container horizontalSpacing={ 8 }>
 			{ hasConnectionError && (
@@ -217,25 +224,17 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 												),
 												{ b: <b /> }
 											) }{ ' ' }
-											{ hasUnlimitedRequests
-												? sprintf(
-														// translators: %1$s: Number of records allowance
-														__(
-															'For every additional %1$s records, an additional $7.50 per month will be charged.',
-															'jetpack-search-pkg'
-														),
-														paidRecordsLimit,
-														paidRequestsLimit
-												  )
-												: sprintf(
-														// translators: %1$s: Number of records allowance, %2$s: Number of requests allowance
-														__(
-															'For every additional %1$s records or %2$s requests, an additional $7.50 per month will be charged.',
-															'jetpack-search-pkg'
-														),
-														paidRecordsLimit,
-														paidRequestsLimit
-												  ) }
+											{ ! hasUnlimitedRequests &&
+												sprintf(
+													// translators: %1$s: Records or requests count, %2$s: Additional charge.
+													__(
+														'For every additional %1$s records or requests, an additional %2$s per month will be charged.',
+														'jetpack-search-pkg'
+													),
+													unitQuantity,
+
+													`${ priceCurrencyCode }${ unitFee }`
+												) }
 										</IconTooltip>
 									</div>
 								</ProductPrice>
