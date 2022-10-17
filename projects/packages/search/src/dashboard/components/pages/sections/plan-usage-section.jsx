@@ -1,13 +1,9 @@
-import {
-	ContextualUpgradeTrigger,
-	ThemeProvider,
-	numberFormat,
-} from '@automattic/jetpack-components';
+import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState, useCallback, useMemo } from 'react';
-import DonutMeterContainer from '../../donut-meter-container';
+import DonutMeterContainer, { formatNumber } from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
 
 // import './plan-usage-section.scss';
@@ -243,16 +239,17 @@ const upgradeTypeFromAPIData = apiData => {
 	return mustUpgradeReason;
 };
 
-const PlanUsageSection = ( { planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
+const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
 	// const upgradeType = upgradeTypeFromAPIData( planInfo );
-	const upgradeMessage = upgradeMessageFromAPIData( planInfo );
+	const upgradeMessage = isFreePlan ? upgradeMessageFromAPIData( planInfo ) : null;
 	const usageInfo = usageInfoFromAPIData( planInfo );
+
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
-					<PlanSummary planInfo={ planInfo } />
+					<PlanSummary isFreePlan={ isFreePlan } planInfo={ planInfo } />
 					<UsageMeters usageInfo={ usageInfo } isPlanJustUpgraded={ isPlanJustUpgraded } />
 					<UpgradeTrigger upgradeMessage={ upgradeMessage } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
@@ -299,6 +296,7 @@ const getUpgradeMessages = () => {
 			),
 		},
 	};
+
 	return upgradeMessages;
 };
 
@@ -320,6 +318,7 @@ const UpgradeTrigger = ( { upgradeMessage, ctaCallback } ) => {
 const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 	const [ currentTooltipIndex, setCurrentTooltipIndex ] = useState( 0 );
 	const myStorage = window.localStorage;
+
 	useMemo(
 		() =>
 			setCurrentTooltipIndex(
@@ -327,6 +326,7 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 			),
 		[ setCurrentTooltipIndex, myStorage, isPlanJustUpgraded ]
 	);
+
 	const setTooltipRead = useCallback( () => myStorage.setItem( 'upgrade_tooltip_finished', 1 ), [
 		myStorage,
 	] );
@@ -350,7 +350,7 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 					'Thank you for upgrading! Now your visitors can search up to %1$s records.',
 					'jetpack-search-pkg'
 				),
-				numberFormat( usageInfo.recordMax )
+				formatNumber( usageInfo.recordMax )
 			),
 			section: __( '1 of 2', 'jetpack-search-pkg' ),
 			next: __( 'Next', 'jetpack-search-pkg' ),
@@ -366,7 +366,7 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 					'Your search plugin now supports up to %1$s search requests per month.',
 					'jetpack-search-pkg'
 				),
-				numberFormat( usageInfo.requestMax )
+				formatNumber( usageInfo.requestMax )
 			),
 			section: __( '2 of 2', 'jetpack-search-pkg' ),
 			next: __( 'Finish', 'jetpack-search-pkg' ),
