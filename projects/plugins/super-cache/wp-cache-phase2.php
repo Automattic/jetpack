@@ -1296,6 +1296,9 @@ function is_writeable_ACLSafe( $path ) {
 	return true;
 }
 
+/**
+ * sets a setting field => value
+ */
 function wp_cache_setting( $field, $value ) {
 	global $wp_cache_config_file;
 

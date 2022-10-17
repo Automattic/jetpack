@@ -1,0 +1,726 @@
+@font-face {
+    font-family:'Corbel';
+    src: url("corbel.ttf") format("truetype");
+}
+@font-face {
+    font-family:'Inter';
+    src: url("inter-light.ttf") format("truetype");
+}
+@font-face {
+    font-family:'SF Pro Display';
+    src: url("sfprobold.otf") format("opentype");
+}
+
+#wpcontent{
+    padding-left:0px;
+    background:white;
+}
+.wpsc-wrapper{
+    padding:20px;
+    .headline{
+        position:relative;
+        background:white;
+        padding:20px;
+        min-height:50px;
+        padding-left:75px;
+        margin-left:-20px;
+        .wpsc-icon{
+            border-radius: 7px;
+            width: 41px;
+            height: 41px;
+        }
+        .wpsc-name{
+            position: absolute;
+            width: 193px;
+            height: 35px;
+            left: 127px;
+            top: 23px;
+            font-family: 'Corbel';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 29.2808px;
+            line-height: 35px;
+            letter-spacing: -0.015em;
+            /* Black & White / Black */
+
+            color: #000000;
+        }
+    }
+    .hero{
+        background: #F9F9F6;
+        padding:75px;
+        padding-top:64px;
+        padding-bottom:76px;
+        margin-left:-20px;
+        margin-right:-20px;
+        position:relative;
+        .powered{
+            width: 250px;
+            height: 15px;
+            left: 22px;
+            top: 0px;
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 15px;
+            /* identical to box height */
+    
+            display: flex;
+            align-items: center;
+    
+            /* Gray / Gray 60 */
+    
+            color: #50575E;
+            img{
+                padding-right:5px;
+            }
+        }
+        h1{
+            font-size:36px;
+            line-height:40px;
+            font-size:700;
+            font-family: 'SF Pro Display';
+        }
+        p{
+            max-width:435px;
+            height: 48px;
+            font-family: 'SF Pro Text';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 24px;
+            a{
+                color:#2C3338;
+            }
+        }
+        .info-box{
+            position:absolute;
+            height:168px;
+            width:168px;
+            padding:16px 24px 16px 24px;
+            background: #FFFFFF;
+            box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            top: 76px;
+            right:98px;
+            .key-info{
+                position:absolute;
+                bottom:16px;
+                .what{
+                    font-style: normal;
+                    font-weight: 400;
+                    font-size: 16px;
+                    line-height: 24px;
+                    letter-spacing: -0.02em;
+                    color: #000000;
+                }
+                .count{
+                    width: 47px;
+                    height: 40px;
+                    font-family: 'SF Pro Display';
+                    font-style: normal;
+                    font-weight: 700;
+                    font-size: 36px;
+                    line-height: 40px;
+                    color: #000000;
+                    flex: none;
+                    order: 1;
+                    flex-grow: 0;
+                }
+            }
+        }
+    }
+    .bg-green-section{
+        background: #F9F9F6;
+        padding:75px;
+        padding-top:64px;
+        padding-bottom:76px;
+        margin-left:-20px;
+        margin-right:-20px;
+        position:relative;     
+    }
+    .container-narrow{
+        max-width:774px;
+        margin:auto;
+        padding-top:64px;
+        padding-bottom:64px;
+    }
+    .did-you-know{
+        max-width:774px;
+        margin:auto;
+        h3{
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 28px;
+        }
+        p{
+            font-family: 'SF Pro Text';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 24px;
+            margin-top:0px;
+            a{
+                color:#2C3338;
+            }          
+        }
+    }
+
+
+
+    .settings-inner{
+        padding-left:55px;
+    }
+}
+
+.wpsc-container{
+    display:flex;
+    column-gap: 30px;
+    .item{
+        flex:1;
+        .item-rate{
+            flex: 1;
+            font-size: 36px;
+            line-height: 43px;
+            width:15%;
+            float:left;
+            height:150px;
+        }
+        .item-description{
+            flex: 1;
+            width:85%;
+            float:left;
+        }
+    }
+}
+
+.footer{
+    display:flex;
+    .wp-super-cache-version{
+        flex: 1;
+        font-family: 'SF Pro Display';
+        font-style: normal;
+        font-weight: 400;
+        margin-left:75px;
+        position:relative;
+        .wpsc-icon{
+            border-radius: 2px;
+            width: 16px;
+            height: 16px;
+            left: 75px;
+            display: inline;
+            margin-top: 13px;
+        }
+        .wp-super-cache-plugin-info{
+            display: inline;
+            line-height: 16px;
+            margin-top: 3px;
+            position: absolute;
+            top: 10px;
+            left: 21px;
+            span{
+                font-family: 'SF Pro Text';
+            }
+        }
+    }
+    .automattic-airline{
+        flex: 1;
+        text-align:right;
+        margin-right:95px;
+        padding-bottom:20px;
+        img{
+            width:190px;
+            height:auto;
+        }
+    }
+}
+
+/* Responsive layout - makes a one column layout instead of a two-column layout */
+@media (max-width: 800px) {
+    #wpcontent{
+        padding-left:0px !important;
+    }
+    .wpsc-wrapper{
+        padding-top:24px;
+        .headline{
+            padding-left: 16px;
+            padding-right:16px;
+            padding-top:0px;
+            padding-bottom:22px;
+            min-height: 36px;
+            .wpsc-name{
+                left: 65px;
+                top: 6px;
+            }
+        }
+        .hero{
+            padding-left:16px;
+            padding-right:16px;
+            padding-top:40px;
+            padding-bottom:40px;
+            h1{
+                font-size: 30px;
+                line-height: 35px;
+            }
+            .info-box{
+                display: flex;
+                position: relative;
+                height: auto;
+                width: 100%;
+                top: 0;
+                right: 0;
+                margin-top: 30px;
+                padding: 0px;
+                border-radius: 8px;
+                .icon{
+                    margin-top:5px;
+                    margin-left:5px;
+                }
+                .key-info{
+                    position: relative;
+                    width: 100%;
+                    line-height: 34px;
+                    bottom:0px;
+                    padding-top:5px;
+                    padding-bottom:5px;
+                    .what{
+                        display:inline;
+                        margin-left:10px;
+                    }
+                    .count{
+                        display: inline;
+                        font-size: 20px;
+                        line-height: 24px;
+                        position: absolute;
+                        right: 25px;
+                        top: 10px;
+                        width: auto;
+                        height: auto;
+                    }
+                }
+            }
+        }
+        .did-you-know{
+            .item:nth-child(2) {
+                margin-top:20px;
+             };
+        }
+        .bg-green-section{
+            padding-left: 16px;
+            padding-right: 16px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .wpsc-toggle{
+            flex-direction: column;
+            position:relative;
+            .toggle{
+                margin-top: -2px;
+                position: absolute;
+                right: 20px;
+                top: 0px;
+            }
+        }
+    }
+    .wpsc-container {
+      flex-direction: column;
+    }
+    .item{
+        flex:1;
+        .item-rate{
+            flex: 1;
+            font-size: 36px;
+            line-height: 43px;
+            width:20% !important;
+            float:left;
+            height:150px;
+        }
+        .item-description{
+            flex: 1;
+            width:80% !important;
+            float:left;
+        }
+    }
+    .footer{
+        flex-direction: column;
+        .wp-super-cache-version{
+            text-align: center;
+            margin-left:0px;
+            .wpsc-icon{
+                display:none;
+            }
+            .wp-super-cache-plugin-info{
+                position:relative;
+                top: 0px;
+                left: 0px;
+            }
+        }
+        .automattic-airline{
+            margin-right: 0px;
+            text-align: center;
+        }
+    }
+
+    .settings-inner{
+        padding-left:0px !important;
+    }
+
+    .wpsc-boost-banner{
+        .learn-more{
+            flex-basis:50%;
+        }
+    }
+
+  }
+
+
+
+
+.boost-backdrop{
+    background: white;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 1;
+    opacity: 0.8;
+}
+
+.boost-banner {
+    margin: 2px 1.25rem 1.25rem 0;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+    border: 1px solid #d5d5d5;
+    position: absolute;
+    max-width:900px;
+    margin:auto;
+    margin-top:50px;
+    left: calc(50% - 450px);
+    top: 10px;
+    z-index:1;
+    backdrop-filter: blur(10px);
+}
+
+.boost-banner-inner {
+    display: flex;
+    grid-template-columns: minmax(auto, 750px) 500px;
+    justify-content: space-between;
+    min-height: 300px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.boost-banner-content {
+    display: inline-flex;
+    flex-direction: column;
+    padding: 2rem 3rem 2rem 2rem;
+    text-align: left;
+}
+
+.boost-banner-image-container {
+    position: relative;
+    background-image: url(  '../assets/jetpack-colors.svg'  );
+    background-size: cover;
+    max-width: 40%;
+    overflow: hidden;
+}
+
+.boost-banner-image-container img {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.boost-banner p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 1rem 0 2rem;
+}
+
+.boost-banner .boost-dismiss {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: black;
+    cursor:pointer;
+}
+
+.boost-banner .button-primary {
+    background: black;
+    border-color: black;
+    color: #fff;
+    width: fit-content;
+    padding: 0.4rem 1rem;
+    font-size: 16px;
+}
+
+.boost-banner .button-primary:hover {
+    background-color: #333;
+}
+
+.boost-banner .button-primary:visited {
+    background-color: black;
+    border-color: black;
+}
+
+
+//toggle stuff in HTML. This would be nice if it was HTML ready without react
+.wpsc-toggle{
+    display:flex;
+    column-gap:30px;
+    a{
+        color:#2C3338;
+    }  
+    .toggle{
+        margin-top:-2px;
+    }
+    .title{
+        font-family: 'SF Pro Display';
+        font-size:24px;
+    }
+    .description{
+        font-family: 'SF Pro Text';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        p{
+            font-family: 'SF Pro Text';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 24px;
+        }
+        ul{
+            list-style:disc;
+            margin-left:20px;
+        }
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 18px;
+      }
+      
+      .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider{
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius:12px;
+      }
+      
+      .toggle-off {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #fff;
+        border:1px solid #1e1e1e;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius:12px;
+      }
+
+      .toggle-on:before{
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 2px;
+        bottom: 2px;
+        border-radius: 50%;
+      }
+      
+      .toggle-off:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 2px;
+        bottom: 2px;
+        background-color: #000;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 50%;
+      }
+
+
+      
+      .toggle-on {
+        background-color: #008710;
+        border: 1px solid #008710;
+      }
+      
+      input:focus + .slider {
+        box-shadow: 0 0 1px #008710;
+        border: 1px solid #008710;
+      }
+
+      .toggle-on:before {
+        -webkit-transform: translateX(18px);
+        -ms-transform: translateX(18px);
+        transform: translateX(18px);
+        background-color: #fff;
+      }
+      .toggle-off:before {
+        -webkit-transform: translateX(0px);
+        -ms-transform: translateX(0px);
+        transform: translateX(0px);
+        background-color: #000;
+      }
+      
+}
+
+//slimline boost banner
+.wpsc-boost-banner{
+    margin-top:40px;
+    display: flex;
+    padding: 0px;
+    gap: 20px;
+    max-width: 744px;
+    border-radius: 4px;
+    border: 1px solid #DCDCDE;
+    border-left: 5px solid black;
+    padding:24px;
+    .icon{
+        margin-top:2px;
+    }
+    .info{
+        display:block;
+    }
+    .check{
+        display:none;
+    }
+    .alert{
+        display:none;
+    }
+    .close{
+        margin-top:-5px;
+        cursor:pointer;
+    }
+    .item{
+        flex-basis:auto;
+    }
+    .body{
+        font-family: 'SF Pro Text';
+        font-style: normal;
+        font-size: 16px;
+        line-height: 22px;
+        letter-spacing: -0.02em;
+        color: #2C3338;
+        font-weight: 400;
+        flex-grow:10;
+        .lead{
+            font-weight: 600;
+            margin-bottom:12px;
+        }
+        .button-wrap{
+            display:flex;
+            margin-top:20px;
+            gap:20px;
+            .learn-more{
+                position:relative;
+                line-height:40px;
+                .wpsc-icon{
+                    position: absolute;
+                    margin-left: 5px;
+                    margin-top: 12px;
+                    width: 16px;
+                    height: auto;
+                }
+            }
+            .button{
+                color:white;
+                background:black;
+                width:131px;
+                height:40px;
+                font-size:16px;
+                line-height: 40px;
+                text-align: center;
+                position:relative;
+                a{
+                    color:white;
+                    text-decoration: none;
+                    &:hover{
+                        text-decoration:none;
+                    }
+                }
+            }
+            .loader {
+                display:none;
+                border: 4px solid #b5b1b1;
+                border-radius: 50%;
+                border-top: 4px solid #dcdcde;
+                width: 5px;
+                height: 5px;
+                -webkit-animation: spin 2s linear infinite;
+                animation: spin 2s linear infinite;
+                position: absolute;
+                top: 13px;
+              }
+              
+              /* Safari */
+              @-webkit-keyframes spin {
+                0% { -webkit-transform: rotate(0deg); }
+                100% { -webkit-transform: rotate(360deg); }
+              }
+              
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            .button-install{
+                color:white;
+                background:#000;
+                border: 1px solid #000;
+            }
+            .activate-boost, .set-up-boost{
+                width:auto !important;
+            }
+            .button-installing{
+                color:#A7AAAD;
+                background: #DCDCDE;
+                border: 1px solid #DCDCDE;
+            }
+            a{
+                color:#2C3338;
+            }   
+        }
+    }
+}
+
+.wpsc-admin-message{
+    margin-top:0px;
+    padding:10px;
+    .lead{
+        margin-bottom: 0px !important;
+        font-family: 'SF Pro Text';
+    }
+}
+
+.wpsc-jpcdn{
+    margin-top: 0;
+    padding: 10px;
+    max-width: 100%;
+    padding:20px;
+    padding-bottom: 35px;
+    margin-top:0px;
+    .icon{
+        margin-top:18px;
+        margin-left:5px;
+    }
+}
+

@@ -1,0 +1,51 @@
+## WP Super Cache - Top Level Menu
+
+This keeps track of what is left to do before this is ready to send to PR
+
+---- Known issues left to fix ---
+* Debug settings do not seem to save anymore
+* Plugins list does not seem to populate
+* CSS Stick footer to the bottom of the page on shorter pages
+* Delete Cache button from "Easy" sub menu page does not work
+  - There's an admin bar delete cache button so we could just remove it from "Easy".
+-------------------------------------
+
+Final checks:-
+* Final check through all settings to make sure they work
+
+Janitorial / Going to be hellish.
+* Put strings through translation esc_e_html etc. There's some jQuery (banner install button text)
+* PHPCS loads of errors coming up. Going to `no-verify` just to get this PR in the cloud.
+
+Multi-site:-
+* Test it all works on multi-site.
+
+
+Done so far:-
+ - BRANCHED from Mark's modal PR not TRUNK. It wouldn't let me merge Mark's into trunk (failing tests)
+
+ - registered menu and sub menus for the settings tabs from Super Cache
+ - tracked through all the code globals and a single admin url to make tabs work
+   - this was quite hellish. I started so might as well see it through still some issues
+   - found an unusual edge case where turning caching ON and OFF via "easy" mode woudld change advanded settings too.
+   - No major design changes to the sub-menus
+     - Added a top menu item (logo)
+     - Added a "Settings Saved" 
+
+ - since a menu and sub menus it opens the door for a landing page 
+   - quickly built in the design landing page
+   - built CSS for desktop and mobile for new page
+   - added an AJAX on / off save routine for caching JUST FOR caching
+   - made a dynamic formatted pages cached counter.
+   - added another install Boost Modal installing and activating via AJAX
+   - The current way to save settings was hooked to `admin_init` 
+     - Oddly the "easy" action from the form, then reset the action.
+
+- Firmed up Mark's Boost banner cta to install and activate using AJAX
+  - Refined it so it shows different messages depending on the status of Boost (none, installed but not active, active).
+
+- Redirected the activation hook notice to send to the landing page
+  - this way it's not as massive in your face boost advert this way.
+
+- Renamed "Contents" to "Cached Files"
+  - Can delete the cache from here, so in theory the "Delte Cache" from "Easy" we can remove.

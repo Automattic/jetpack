@@ -1,6 +1,9 @@
+<div class='settings-inner'>
 <?php
-echo '<form name="wp_manager" action="' . esc_url_raw( add_query_arg( 'tab', 'easy', $admin_url ) ) . '" method="post">';
+wpsc_settings_admin_message();
+echo '<form name="wp_manager" action="' . esc_url_raw(  $admin_url  ) . '" method="post">';
 echo '<input type="hidden" name="action" value="easysetup" />';
+echo '<input type="hidden" name="wpsc-admin-settings" value="1" />';
 wp_nonce_field( 'wp-cache' );
 ?>
 <table class="form-table">
@@ -134,4 +137,4 @@ if ( is_multisite() && wpsupercache_site_admin() ) {
 <li><?php printf( __( '<a href="%s">WP Crontrol</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'https://wordpress.org/plugins/wp-crontrol/' ); ?></li>
 </ul>
 <p><?php _e( "* The links above (apart from Jetpack) go to websites outside the author's control. Caution is advised when testing any new software.", 'wp-super-cache' ); ?></p>
-
+</div>

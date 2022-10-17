@@ -1,6 +1,7 @@
+<div class='settings-inner'>
 <?php
-extract( wpsc_update_debug_settings() ); // $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $wp_super_cache_comments, $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug, $wp_cache_debug_username
-$admin_url = admin_url( 'options-general.php?page=wpsupercache' );
+wpsc_settings_admin_message();
+extract( wpsc_update_debug_settings() ); // $admin_url, $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $wp_super_cache_comments, $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug, $wp_cache_debug_username
 
 echo '<a name="debug"></a>';
 echo '<fieldset class="options">';
@@ -8,6 +9,9 @@ echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It will log
 if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
 	extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
 }
+
+global $wp_cache_slugs;
+$admin_url   = admin_url( 'admin.php?page=' . $wp_cache_slugs['debug'] );
 
 $log_file_link = "<a href='" . home_url( str_replace( $_SERVER['DOCUMENT_ROOT'], '', "{$cache_path}view_{$wp_cache_debug_log}?wp-admin=1&wp-json=1&filter=" ) ) . "'>$wp_cache_debug_log</a>";
 
@@ -39,6 +43,7 @@ echo "</form>";
 
 echo '<form name="wp_cache_debug" action="' . esc_url_raw( add_query_arg( 'tab', 'debug', $admin_url ) ) . '" method="post">';
 echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
+echo '<input type="hidden" name="wpsc-admin-settings" value="1" />';
 echo "<table class='form-table'>";
 echo "<tr><th>" . __( 'IP Address', 'wp-super-cache' ) . "</th><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> " . sprintf( __( '(only log requests from this IP address. Your IP is %s)', 'wp-super-cache' ), $_SERVER[ 'REMOTE_ADDR' ] ) . "</td></tr>";
 echo "<tr><th valign='top'>" . __( 'Cache Status Messages', 'wp-super-cache' ) . "</th><td><input type='checkbox' name='wp_super_cache_comments' value='1' " . checked( 1, $wp_super_cache_comments, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "<br />";
@@ -62,3 +67,4 @@ echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMIT
 wp_nonce_field('wp-cache');
 echo "</form>\n";
 echo '</fieldset>';
+echo '</div>';

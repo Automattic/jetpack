@@ -1,10 +1,13 @@
+<div class='settings-inner'>
 <?php
+wpsc_settings_admin_message();
 if ( isset( $wp_cache_front_page_checks ) == false ) {
 	$wp_cache_front_page_checks = true;
 }
 echo '<form name="wp_manager" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) ) . '" method="post">';
 wp_nonce_field( 'wp-cache' );
 echo '<input type="hidden" name="action" value="scupdates" />';
+echo '<input type="hidden" name="wpsc-admin-settings" value="1" />';
 ?>
 <table class="form-table">
 <tr valign="top">
@@ -317,3 +320,4 @@ wp_nonce_field('wp-cache');
 echo "</form>\n";
 
 echo '</fieldset>';
+echo '</div>';

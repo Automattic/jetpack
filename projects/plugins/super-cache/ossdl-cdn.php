@@ -278,6 +278,12 @@ function scossdl_off_options() {
 	$example_cdn_uri .= '/wp-includes/js/jquery/jquery-migrate.js';
 	$example_cdn_uri  = esc_url( $example_cdn_uri );
 	?>
+	<div class='settings-inner'>
+		<div class='wpsc-admin-message wpsc-boost-banner wpsc-jpcdn'>
+			<div class='icon item'>
+				<img class='wpsc-icon info' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/info-icon.png' ); ?>" />
+			</div>
+			<div>
 		<h3><?php _e( 'Jetpack CDN' ); ?></h3>
 		<p><?php printf(
 			__( 'The free %1$sJetpack plugin%2$s has a %3$sSite Accelerator%2$s feature that is easier to use than the CDN functionality in this plugin. However files will be cached "forever" and will not update if you update the local file. Files will need to be renamed to refresh them. The %3$sJetpack documentation%2$s explains more about this.', 'wp-super-cache' ),
@@ -309,10 +315,15 @@ function scossdl_off_options() {
 				'<a href="' . admin_url( 'plugin-install.php?s=jetpack&tab=search&type=term' ) . '">'
 			); ?></strong></p><?php
 	}
+	?>
+	</div>
+	<?php
 	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'photon' ) ) {
 		return;
 	}
 	?>
+	</div> <!-- end of banner promoting CDN -->
+
 		<h3><?php _e( 'Simple CDN' ); ?></h3>
 		<p><?php _e( 'Your website probably uses lots of static files. Image, Javascript and CSS files are usually static files that could just as easily be served from another site or CDN. Therefore, this plugin replaces any links in the <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) on your site with the URL you provide below. That way you can either copy all the static content to a dedicated host or mirror the files to a CDN by <a href="https://www.google.com/search?q=cdn+origin+pull" target="_blank">origin pull</a>.', 'wp-super-cache' ); ?></p>
 		<p><?php printf( __( '<strong style="color: red">WARNING:</strong> Test some static urls e.g., %s  to ensure your CDN service is fully working before saving changes.', 'wp-super-cache' ), '<code>' . esc_html( $example_cdn_uri ) . '</code>' ); ?></p>
@@ -373,5 +384,6 @@ function scossdl_off_options() {
 		<p class="submit"><input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'wp-super-cache' ); ?>" /></p>
 		</form></p>
 		<p><?php _e( 'CDN functionality provided by <a href="https://wordpress.org/plugins/ossdl-cdn-off-linker/">OSSDL CDN Off Linker</a> by <a href="http://mark.ossdl.de/">Mark Kubacki</a>', 'wp-super-cache' ); ?></p>
+	</div>
 	<?php
 }
