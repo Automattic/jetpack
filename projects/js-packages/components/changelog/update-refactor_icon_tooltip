@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Refactor IconTooltip with prop popoverAnchorStyle for alignment with Popover anchor.
