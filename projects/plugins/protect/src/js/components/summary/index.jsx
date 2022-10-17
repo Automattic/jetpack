@@ -53,7 +53,7 @@ const Summary = () => {
 					{ hasRequiredPlan && numThreats === 0 && (
 						<Button
 							variant="secondary"
-							className={ styles[ 'list-header-button' ] }
+							className={ styles[ 'summary__scan-button' ] }
 							isLoading={ scanIsEnqueuing }
 							onClick={ handleScanClick() }
 						>
