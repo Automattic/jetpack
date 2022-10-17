@@ -212,7 +212,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 													siteDomain
 												),
 												{ b: <b /> }
-											) }
+											) }{ ' ' }
 											{ sprintf(
 												// translators: %1$s: Number of records allowance, %2$s: Number of requests allowance
 												__(
