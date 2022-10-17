@@ -1106,7 +1106,7 @@ importers:
   projects/packages/videopress:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
-      '@automattic/jetpack-analytics': workspace:0.1.19
+      '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.24
