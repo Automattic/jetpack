@@ -136,12 +136,11 @@ jobs:
           SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
           PR: ${{ github.event.number }}
         run: |
-          echo
-          echo "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger&pr-number=$PR&sha=$GITHUB_SHA"
-
-          # curl -v --fail -L \
-          #   --url "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger&pr-number=$PR&sha=$GITHUB_SHA" \
-          #   --form-string "secret=$SECRET"
+          curl -v --fail -L \
+            --url "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger" \
+            --form-string "pr-number=$PR" \
+            --form-string "sha=$GITHUB_SHA" \
+            --form-string "secret=$SECRET"
 
   upgrade_test:
     name: Test plugin upgrades
