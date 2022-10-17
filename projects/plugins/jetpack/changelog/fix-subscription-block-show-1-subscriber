@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscription block: subscriber count was not being shown in the panel when you only have 1 subscriber.
