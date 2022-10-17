@@ -17,6 +17,9 @@
 }
 .wpsc-wrapper{
     padding:20px;
+    .restore-notice{
+        margin-left: 55px;
+    }
     .headline{
         position:relative;
         background:white;
@@ -243,6 +246,9 @@
     }
     .wpsc-wrapper{
         padding-top:24px;
+        .restore-notice{
+            margin-left: 16px;
+        }
         .headline{
             padding-left: 16px;
             padding-right:16px;

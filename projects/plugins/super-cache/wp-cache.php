@@ -236,7 +236,7 @@ function wpsupercache_site_admin() {
 function wp_cache_add_pages() {
 	if ( wpsupercache_site_admin() ) {
 		// In single or MS mode add this menu item too, but only for superadmins in MS mode.
-		add_options_page( 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
+		//add_options_page( 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 		wp_cache_menu_setup();
 	}
 }
@@ -978,7 +978,22 @@ function wp_cache_advanced_menu(){
 	}
 
 
+
+
+
 	wpsc_render_header();
+
+	if ( isset( $_REQUEST['wp_restore_config'] ) && $valid_nonce ) {
+		unlink( $wp_cache_config_file );
+		echo "<div class='wpsc-boost-banner wpsc-admin-message restore-notice'>";
+		?>
+		<div class='icon item'>
+			<img class='wpsc-icon info' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/info-icon.png' ); ?>" />
+		</div>
+		<?php
+			echo '<div>' . esc_html__( 'Configuration file changed, some values might be wrong. Reload the page again to reset them.', 'wp-super-cache' ) . '</div>';
+		echo "</div>";
+	}
 
 	if ( !defined( 'SUBMITDISABLED' ) )
 	define( "SUBMITDISABLED", '' );
@@ -1171,6 +1186,15 @@ function wp_cache_plugins_menu(){
 	wpsc_render_footer();
 }
 function wp_cache_debug_menu(){
+
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
+	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_no_cache_for_get;
+	global $wp_cache_not_logged_in, $wp_cache_make_known_anon, $wp_supercache_cache_list, $cache_page_secret;
+	global $wp_super_cache_front_page_check, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
+	global $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
+	global $wp_super_cache_comments, $wp_cache_home_path, $wpsc_save_headers, $is_nginx;
+
+
 	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $wp_cache_debug_ip;
 	global $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification;
 	global $wp_super_cache_advanced_debug, $wp_cache_debug_username, $wp_super_cache_front_page_clear;

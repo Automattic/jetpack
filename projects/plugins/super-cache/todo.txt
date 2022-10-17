@@ -5,6 +5,8 @@ This keeps track of what is left to do before this is ready to send to PR
 ---- Known issues left to fix ---
 * Debug settings do not seem to save anymore
 * Plugins list does not seem to populate
+* Restore default configuration not working from Advanced tab.
+
 * CSS Stick footer to the bottom of the page on shorter pages
 * Delete Cache button from "Easy" sub menu page does not work
   - There's an admin bar delete cache button so we could just remove it from "Easy".
@@ -12,16 +14,36 @@ This keeps track of what is left to do before this is ready to send to PR
 
 Final checks:-
 * Final check through all settings to make sure they work
+* REMOVE old Settings -> WP Super Cache page
 
 Janitorial / Going to be hellish.
 * Put strings through translation esc_e_html etc. There's some jQuery (banner install button text)
 * PHPCS loads of errors coming up. Going to `no-verify` just to get this PR in the cloud.
 
+-----------------------------------------------------------------------------------------------
+FOUND 446 ERRORS AND 135 WARNINGS AFFECTING 581 LINES
+-----------------------------------------------------------------------------------------------
+
+Jetpack Docker Tail 
+====================
+
+[17-Oct-2022 17:13:34 UTC] PHP Warning:  compact(): Undefined variable $cache_path in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/wp-cache.php on line 1185
+
+
+[17-Oct-2022 17:13:34 UTC] PHP Warning:  compact(): Undefined variable $valid_nonce in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/wp-cache.php on line 1185
+[17-Oct-2022 17:13:34 UTC] PHP Warning:  compact(): Undefined variable $wp_cache_config_file in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/wp-cache.php on line 1185
+[17-Oct-2022 17:13:34 UTC] PHP Warning:  compact(): Undefined variable $wp_super_cache_comments in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/wp-cache.php on line 1185
+[17-Oct-2022 17:13:34 UTC] PHP Warning:  compact(): Undefined variable $wp_super_cache_front_page_check in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/wp-cache.php on line 1185
+[17-Oct-2022 17:13:34 UTC] PHP Warning:  Undefined variable $cache_path in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/partials/debug.php on line 16
+
+====================
+
+
 Multi-site:-
 * Test it all works on multi-site.
 
 
-Done so far:-
+Change log:-
  - BRANCHED from Mark's modal PR not TRUNK. It wouldn't let me merge Mark's into trunk (failing tests)
 
  - registered menu and sub menus for the settings tabs from Super Cache

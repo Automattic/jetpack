@@ -13,6 +13,8 @@
 
 .wpsc-wrapper {
   padding: 20px; }
+  .wpsc-wrapper .restore-notice {
+    margin-left: 55px; }
   .wpsc-wrapper .headline {
     position: relative;
     background: white;
@@ -200,6 +202,8 @@
 
   .wpsc-wrapper {
     padding-top: 24px; }
+    .wpsc-wrapper .restore-notice {
+      margin-left: 16px; }
     .wpsc-wrapper .headline {
       padding-left: 16px;
       padding-right: 16px;
