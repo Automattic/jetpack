@@ -11,7 +11,7 @@ import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
-import { _n, sprintf, __ } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import MessageBoxControl from '../message-box-control';
@@ -49,7 +49,7 @@ export default function PublicizeForm( {
 		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const hasBrokenConnection = connections.some( connection => ! connection.is_healthy );
+	const brokenConnections = connections.filter( connection => ! connection.is_healthy );
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -86,11 +86,13 @@ export default function PublicizeForm( {
 							</Notice>
 						</PanelRow>
 					) }
-					{ hasBrokenConnection && (
+					{ brokenConnections.length > 0 && (
 						<Notice type={ 'error' }>
 							{ createInterpolateElement(
-								__(
+								_n(
+									'One of your social connections is broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
 									'Some of your social connections are broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
+									brokenConnections.length,
 									'jetpack'
 								),
 								{

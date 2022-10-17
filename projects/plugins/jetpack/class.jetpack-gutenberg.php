@@ -711,11 +711,8 @@ class Jetpack_Gutenberg {
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
 			$initial_state['social'] = array(
-				'sharesData'              => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'             => $publicize->has_paid_plan(),
-				'publicizeConnectionsUrl' => esc_url_raw(
-					'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
-				),
+				'sharesData'  => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan' => $publicize->has_paid_plan(),
 			);
 		}
 

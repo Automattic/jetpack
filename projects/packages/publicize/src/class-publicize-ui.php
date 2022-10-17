@@ -627,7 +627,7 @@ jQuery( function($) {
 
 		$all_done             = $this->publicize->post_is_done_sharing();
 		$all_connections_done = true;
-		$all_healthy          = true;
+		$broken_connections   = array();
 
 		ob_start();
 
@@ -639,7 +639,7 @@ jQuery( function($) {
 		foreach ( $connections_data as $connection_data ) {
 			$all_connections_done = $all_connections_done && $connection_data['done'];
 			if ( ! $connection_data['is_healthy'] ) {
-				$all_healthy = false;
+				$broken_connections[] = $connection_data;
 			}
 			?>
 
@@ -696,13 +696,18 @@ jQuery( function($) {
 			<div id="pub-connection-tests"></div>
 		<?php endif; ?>
 
-		<?php if ( ! $all_healthy ) : ?>
+		<?php if ( $broken_connections ) : ?>
 			<div class="error below-h2 publicize-token-refresh-message">
 				<?php
 					printf(
 						wp_kses(
 							/* translators: %s is the link to the connections page in Calypso */
-							__( 'Some of your social connections are broken! Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page..', 'jetpack-publicize-pkg' ),
+							_n(
+								'One of your social connections is broken. Reconnect it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+								'Some of your social connections are broken. Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+								count( $broken_connections ),
+								'jetpack-publicize-pkg'
+							),
 							array(
 								'a' => array(
 									'href'   => array(),
