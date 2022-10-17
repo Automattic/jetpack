@@ -201,10 +201,17 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableHeader>
 								<ProductPrice
 									price={ priceBefore }
-									offPrice={ priceAfter }
+									offPrice={ discountPercentage > 0 ? priceAfter : null }
 									currency={ priceCurrencyCode }
 									legend=""
-									promoLabel={ __( '50% off', 'jetpack-search-pkg' ) }
+									promoLabel={
+										discountPercentage > 0 &&
+										sprintf(
+											// translators: Discount percentage (e.g. 50%).
+											__( '%s off', 'jetpack-search-pkg' ),
+											`${ discountPercentage }%`
+										)
+									}
 								>
 									<div className="price-tip">
 										<span className="price-tip-text">
