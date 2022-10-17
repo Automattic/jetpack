@@ -83,11 +83,7 @@ const Admin = () => {
 		loading,
 	} = useDashboardVideos();
 
-	const {
-		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
-	} = window.jetpackVideoPressInitialState;
-
-	const hasPaidPlan = isVideoPress1TBSupported || isVideoPressUnlimitedSupported;
+	const { hasVideoPressPurchase } = usePlan();
 
 	const { isUserConnected, isRegistered } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -139,14 +135,14 @@ const Admin = () => {
 											fullWidth={ isSm }
 											onClick={ openFileDialog }
 											isLoading={ loading }
-											disabled={ ! hasPaidPlan && hasVideos }
+											disabled={ ! hasVideoPressPurchase && hasVideos }
 										>
 											{ addVideoLabel }
 										</Button>
 									) }
 								/>
 
-								{ ! hasPaidPlan && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
+								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
