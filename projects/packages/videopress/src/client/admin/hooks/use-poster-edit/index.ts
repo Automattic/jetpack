@@ -1,43 +1,77 @@
 /**
  * External dependencies
  */
+import { useDispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import usePosterImage from '../../../hooks/use-poster-image';
-import usePosterUpload from '../../../hooks/use-poster-upload';
+import { STORE_ID } from '../../../state';
 
 const usePosterEdit = ( { video } ) => {
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ currentTime, setCurrentTime ] = useState( null );
 	const [ frameSelectorIsOpen, setFrameSelectorIsOpen ] = useState( false );
+	const dispatch = useDispatch( STORE_ID );
 
-	const posterUpload = usePosterUpload( video?.guid );
-	const posterImage = usePosterImage( video?.guid );
+	const updatePosterImageFromFrame = () => {
+		if ( ! Number.isFinite( videoFrameMs ) ) {
+			return;
+		}
 
-	const posterImagePooling = ( onGenerate = null ) => {
-		posterImage().then( ( { data: result } ) => {
-			if ( result?.generating ) {
-				setTimeout( () => posterImagePooling( onGenerate ), 2000 );
-			} else if ( result?.poster ) {
-				onGenerate?.( result?.poster );
-			}
+		return dispatch?.updateVideoPoster( video.id, video.guid, {
+			at_time: videoFrameMs,
+			is_millisec: true,
 		} );
 	};
 
-	const updatePosterImage = () => {
-		return new Promise( ( resolve, reject ) => {
-			if ( Number.isFinite( videoFrameMs ) ) {
-				posterUpload( { at_time: videoFrameMs, is_millisec: true } )
-					.then( () => {
-						posterImagePooling( resolve );
-					} )
-					.catch( reject );
-			} else {
-				resolve( null );
-			}
+	const selectAttachmentFromLibrary = (): Promise< { id: number; url: string } | null > => {
+		return new Promise( resolve => {
+			const mediaFrame = window.wp.media( {
+				title: __( 'Select Thumbnail', 'jetpack-videopress-pkg' ),
+				multiple: false,
+				library: {
+					type: 'image',
+				},
+				button: {
+					text: __( 'Use this image as thumbnail', 'jetpack-videopress-pkg' ),
+				},
+			} );
+
+			mediaFrame.on( 'select', function () {
+				const selected = mediaFrame?.state()?.get( 'selection' )?.first()?.toJSON();
+				resolve( { id: selected?.id, url: selected?.url } );
+			} );
+
+			mediaFrame.on( 'close', function () {
+				// 'close' is emitted before 'select'
+				setTimeout( () => {
+					resolve( null );
+				}, 0 );
+			} );
+
+			mediaFrame.open();
 		} );
+	};
+
+	const updatePosterImageFromLibrary = async attachmentId => {
+		if ( attachmentId == null ) {
+			return;
+		}
+
+		return dispatch?.updateVideoPoster( video.id, video.guid, {
+			poster_attachment_id: attachmentId,
+		} );
+	};
+
+	const selectAndUpdatePosterImageFromLibrary = async () => {
+		const attachment = await selectAttachmentFromLibrary();
+		if ( ! attachment ) {
+			return;
+		}
+
+		return updatePosterImageFromLibrary( attachment.id );
 	};
 
 	const handleConfirmFrame = () => {
@@ -57,7 +91,10 @@ const usePosterEdit = ( { video } ) => {
 		useVideoAsThumbnail: videoFrameMs !== null,
 		selectedTime: Number.isFinite( videoFrameMs ) ? videoFrameMs / 1000 : null,
 		frameSelectorIsOpen,
-		updatePosterImage,
+		updatePosterImageFromFrame,
+		selectAttachmentFromLibrary,
+		updatePosterImageFromLibrary,
+		selectAndUpdatePosterImageFromLibrary,
 	};
 };
 

@@ -22,6 +22,7 @@ export const VideoThumbnailDropdownButtons = ( {
 	onSelectFromVideo,
 	onUploadImage,
 	onClose,
+	isUpdatingPoster = false,
 } ) => {
 	return (
 		<>
@@ -54,6 +55,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				fullWidth
 				variant="tertiary"
 				icon={ cloud }
+				disabled={ isUpdatingPoster }
 				onClick={ () => {
 					onClose();
 					onUploadImage?.();
@@ -107,6 +109,7 @@ const VideoThumbnail = ( {
 	thumbnail,
 	duration,
 	editable,
+	blankIconSize = 96,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
@@ -146,7 +149,7 @@ const VideoThumbnail = ( {
 					thumbnail
 				) : (
 					<div className={ styles[ 'thumbnail-blank' ] }>
-						<Icon icon={ video } size={ 96 } />
+						<Icon icon={ video } size={ blankIconSize } />
 					</div>
 				) }
 			</div>

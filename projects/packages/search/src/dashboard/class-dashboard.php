@@ -93,23 +93,33 @@ class Dashboard {
 	 * The page to be added to submenu
 	 */
 	public function add_wp_admin_submenu() {
-		if ( ! $this->should_add_search_submenu() ) {
-			return;
-		}
-
 		// Jetpack of version <= 10.5 would register `jetpack-search` submenu with its built-in search module.
 		$this->remove_search_submenu_if_exists();
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Search', 'jetpack-search-pkg' ),
-			_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
-			'manage_options',
-			'jetpack-search',
-			array( $this, 'render' ),
-			100
-		);
+		if ( $this->should_add_search_submenu() ) {
+			$page_suffix = Admin_Menu::add_menu(
+				__( 'Jetpack Search', 'jetpack-search-pkg' ),
+				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+				'manage_options',
+				'jetpack-search',
+				array( $this, 'render' ),
+				100
+			);
+		} else {
+			// always add the page, but hide it from the menu.
+			$page_suffix = add_submenu_page(
+				null,
+				__( 'Jetpack Search', 'jetpack-search-pkg' ),
+				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+				'manage_options',
+				'jetpack-search',
+				array( $this, 'render' )
+			);
+		}
 
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		}
 	}
 
 	/**
