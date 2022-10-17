@@ -36,7 +36,6 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, data } ) =>
 		autoRetry: true,
 		overridePatchMethod: false,
 		chunkSize: 10000000, // 10 Mb.
-		allowedFileTypes: [ 'video/*' ],
 		metadata: {
 			filename: file.name,
 			filetype: file.type,
@@ -145,7 +144,12 @@ export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {
 
 	// collect the jwt for the key
 	useEffect( () => {
-		getJWT().then( setData ).catch( setError );
+		getJWT()
+			.then( setData )
+			.catch( jwtError => {
+				setError( jwtError );
+				onError?.( jwtError );
+			} );
 	}, [] );
 
 	const uploaded = file =>

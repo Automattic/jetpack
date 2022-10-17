@@ -11,6 +11,7 @@ const siteDataSelectors = {
 	getPostTypes: state => state.siteData?.postTypes,
 	getSiteTitle: state => state.siteData?.title || '',
 	isWpcom: state => state.siteData?.isWpcom ?? false,
+	isPlanJustUpgraded: state => state.siteData?.isPlanJustUpgraded ?? false,
 };
 
 export default siteDataSelectors;

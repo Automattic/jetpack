@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.24.0 - 2022-10-17
+### Changed
+- Refactor IconTooltip with prop popoverAnchorStyle for alignment with Popover anchor. [#26851]
+
+## 0.23.0 - 2022-10-13
+### Changed
+- Add shadowAnchor and forceShow for pure Popover displaying within parent wrapper. [#26790]
+- Updated package dependencies. [#26791]
+
 ## 0.22.2 - 2022-10-11
 ### Changed
 - Added types and adaptive coloring for the donut meter component [#26690]

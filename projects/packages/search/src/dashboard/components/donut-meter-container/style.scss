@@ -4,6 +4,7 @@
 	display: flex;
 	height: fit-content; // or 64px?
 	width: fit-content;
+	min-width: 320px;
 
 	.donut-meter-wrapper {
 		height: fit-content;
@@ -17,6 +18,7 @@
 		height: auto;
 		margin: 0 8px;
 		padding: 8px 0;
+		white-space: nowrap;
 	}
 
 	.donut-info-primary {

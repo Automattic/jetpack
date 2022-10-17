@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5154a14cd187b5f00efabb4bf153b087",
+    "content-hash": "e0e254f813eaf34fba14577a2c456346",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1096,7 +1096,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "8b2ba04a496f91adf158d9c4b34d485f6b1c6012"
+                "reference": "6341c358e303ad3cab10862feb02a181ac2fe160"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
@@ -1120,7 +1120,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.27.x-dev"
+                    "dev-trunk": "0.28.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1169,6 +1169,66 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-stats",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/stats",
+                "reference": "d24b02912091655053d60afac4c2220ccc2b4669"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.45",
+                "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-status": "^1.14"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.2",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-stats",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "textdomain": "jetpack-stats"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Collect valuable traffic stats and insights.",
             "transport-options": {
                 "relative": true
             }
@@ -1230,7 +1290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "e10213aee125e3509bb58dd62ac550f0b6de36c9"
+                "reference": "51ce2fc7796c00360a750383b567584cfb5cf116"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.45",
@@ -1257,7 +1317,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.39.x-dev"
+                    "dev-trunk": "1.40.x-dev"
                 }
             },
             "autoload": {
@@ -3927,6 +3987,7 @@
         "automattic/jetpack-identity-crisis": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-search": 20,
+        "automattic/jetpack-stats": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-plugins-installer": 20,
