@@ -150,10 +150,9 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 
 			if ( inProgressThreats.length > 0 ) {
 				// fix still in progress - try again in another second
-				return await new Promise( resolve => {
+				return await new Promise( () => {
 					setTimeout( () => {
 						dispatch( getFixThreatsStatus( threatIds ) );
-						resolve();
 					}, 1000 );
 				} );
 			}
