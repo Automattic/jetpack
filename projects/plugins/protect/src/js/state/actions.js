@@ -163,6 +163,13 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 		.then( () => {
 			// threats fixed - refresh the status
 			dispatch( refreshStatus() );
+			dispatch(
+				setNotice( {
+					type: 'success',
+					// to do: include amount of fixed threats
+					message: __( 'Threats were fixed successfully', 'jetpack-protect' ),
+				} )
+			);
 		} )
 		.catch( () => {
 			dispatch(
