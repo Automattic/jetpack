@@ -123,6 +123,46 @@ class Threats {
 	}
 
 	/**
+	 * Fix Threats Status
+	 *
+	 * @param array<string> $threat_ids Threat IDs.
+	 *
+	 * @return bool|array
+	 */
+	public static function fix_threats_status( $threat_ids ) {
+		$api_base = self::get_api_base();
+		if ( is_wp_error( $api_base ) ) {
+			return false;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			"$api_base/fix",
+			'2',
+			array( 'method' => 'GET' ),
+			wp_json_encode(
+				array(
+					'threat_ids' => $threat_ids,
+				)
+			),
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code ) {
+			return false;
+		}
+
+		$parsed_response = json_decode( $response['body'] );
+
+		if ( ! $parsed_response ) {
+			return false;
+		}
+
+		return $parsed_response;
+	}
+
+	/**
 	 * Scan enqueue
 	 *
 	 * @return bool
