@@ -20,7 +20,7 @@ const searchPricingSelectors = {
 	getPaidRequestsLimit: state => state.searchPricing.monthly_search_request_limit ?? 10000,
 	getPaidRecordsLimit: state => state.searchPricing.record_limit ?? 10000,
 	getAdditionalUnitQuantity: state => state.searchPricing.quantity_per_unit,
-	getAdditionalUnitPrice: state => state.searchPricing.per_unit_fee,
+	getAdditionalUnitPrice: state => state.searchPricing.per_unit_fee / 12,
 };
 
 export default searchPricingSelectors;
