@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Fix issue where payment-buttons font sizes could take precedence over the font sizes of contained button blocks
