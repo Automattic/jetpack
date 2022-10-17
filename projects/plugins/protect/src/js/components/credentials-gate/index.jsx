@@ -35,7 +35,7 @@ const CredentialsGate = ( { children } ) => {
 		);
 	}
 
-	if ( 'awaiting_credentials' === credentialState.state ) {
+	if ( [ 'awaiting_credentials', 'unavailable' ].indexOf( credentialState.state ) >= 0 ) {
 		return <CredentialsNeededModal />;
 	}
 
