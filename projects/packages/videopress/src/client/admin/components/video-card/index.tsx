@@ -10,10 +10,11 @@ import {
 } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
+import { Icon, chartBar, chevronDown, chevronUp, captureVideo } from '@wordpress/icons';
 import classnames from 'classnames';
 import React from 'react';
 import { useState } from 'react';
+import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import Placeholder from '../placeholder';
 /**
@@ -62,6 +63,12 @@ const ProcessingThumbnail = () => (
 	</div>
 );
 
+const PrivateThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Icon icon={ captureVideo } size={ 96 } />
+	</div>
+);
+
 /**
  * Video Card component
  *
@@ -80,12 +87,17 @@ export const VideoCard = ( {
 	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
+	privacySetting,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
 
+	const privacyIsPrivate = privacySetting
+		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
+		: false;
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
+	thumbnail = privacyIsPrivate ? <PrivateThumbnail /> : thumbnail;
 	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
