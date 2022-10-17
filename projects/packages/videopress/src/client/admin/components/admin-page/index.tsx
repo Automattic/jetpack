@@ -28,6 +28,7 @@ import classnames from 'classnames';
 import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import Logo from '../logo';
@@ -94,6 +95,8 @@ const Admin = () => {
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
+
+	useAnalyticsTracks( { pageViewEventName: 'admin' } );
 
 	return (
 		<AdminPage
