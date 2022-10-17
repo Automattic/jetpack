@@ -983,6 +983,7 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-api': workspace:* || ^0.14
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
@@ -1042,6 +1043,7 @@ importers:
     dependencies:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles

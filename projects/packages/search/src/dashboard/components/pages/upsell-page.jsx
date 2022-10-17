@@ -19,6 +19,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Loading from 'components/loading';
+import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
@@ -176,12 +177,12 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 				compactDisplay: 'short',
 		  } ).format( paidRequestsLimitRaw );
 
+	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
 	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
 	const unitQuantity = new Intl.NumberFormat( 'en-US', {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} ).format( unitQuantityRaw );
-	const unitFee = useSelect( select => select( STORE_ID ).getAdditionalUnitFee(), [] );
 
 	return (
 		<Container horizontalSpacing={ 8 }>
@@ -225,15 +226,18 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 												{ b: <b /> }
 											) }{ ' ' }
 											{ ! hasUnlimitedRequests &&
-												sprintf(
-													// translators: %1$s: Records or requests count, %2$s: Additional charge.
-													__(
-														'For every additional %1$s records or requests, an additional %2$s per month will be charged.',
-														'jetpack-search-pkg'
+												createInterpolateElement(
+													sprintf(
+														// translators: %1$s: Records or requests count, <Price>: Additional charge.
+														__(
+															'For every additional %1$s records or requests, an additional <Price></Price> per month will be charged.',
+															'jetpack-search-pkg'
+														),
+														unitQuantity
 													),
-													unitQuantity,
-
-													`${ priceCurrencyCode }${ unitFee }`
+													{
+														Price: <Price amount={ unitPrice } currency={ priceCurrencyCode } />,
+													}
 												) }
 										</IconTooltip>
 									</div>
