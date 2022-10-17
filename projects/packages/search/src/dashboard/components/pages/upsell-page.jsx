@@ -160,17 +160,21 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
-	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRequestsLimit(), [] );
+	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
 	const paidRecordsLimit = new Intl.NumberFormat( 'en-US', {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} ).format( paidRecordsLimitRaw );
 
-	const paidRequestsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
-	const paidRequestsLimit = new Intl.NumberFormat( 'en-US', {
-		notation: 'compact',
-		compactDisplay: 'short',
-	} ).format( paidRequestsLimitRaw );
+	const paidRequestsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRequestsLimit(), [] );
+	const hasUnlimitedRequests = paidRequestsLimitRaw > 1e18;
+	const unlimitedText = __( 'Unlimited', 'jetpack-search-pkg' );
+	const paidRequestsLimit = hasUnlimitedRequests
+		? unlimitedText
+		: new Intl.NumberFormat( 'en-US', {
+				notation: 'compact',
+				compactDisplay: 'short',
+		  } ).format( paidRequestsLimitRaw );
 
 	return (
 		<Container horizontalSpacing={ 8 }>
@@ -213,15 +217,25 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 												),
 												{ b: <b /> }
 											) }{ ' ' }
-											{ sprintf(
-												// translators: %1$s: Number of records allowance, %2$s: Number of requests allowance
-												__(
-													'For every additional %1$s records or %2$s requests, an additional $7.50 per month will be charged.',
-													'jetpack-search-pkg'
-												),
-												paidRecordsLimit,
-												paidRequestsLimit
-											) }
+											{ hasUnlimitedRequests
+												? sprintf(
+														// translators: %1$s: Number of records allowance
+														__(
+															'For every additional %1$s records, an additional $7.50 per month will be charged.',
+															'jetpack-search-pkg'
+														),
+														paidRecordsLimit,
+														paidRequestsLimit
+												  )
+												: sprintf(
+														// translators: %1$s: Number of records allowance, %2$s: Number of requests allowance
+														__(
+															'For every additional %1$s records or %2$s requests, an additional $7.50 per month will be charged.',
+															'jetpack-search-pkg'
+														),
+														paidRecordsLimit,
+														paidRequestsLimit
+												  ) }
 										</IconTooltip>
 									</div>
 								</ProductPrice>
