@@ -13,6 +13,11 @@ const getPricingDiscountPercentage = state => {
 	}
 	return Math.round( ( ( before - after ) / before ) * 100 );
 };
+const getAdditionalUnitPrice = state => {
+	return Number.isFinite( +state.searchPricing.per_unit_fee )
+		? +state.searchPricing.per_unit_fee / 12
+		: null;
+};
 
 const searchPricingSelectors = {
 	getSearchPricing: state => state.searchPricing,
@@ -24,7 +29,7 @@ const searchPricingSelectors = {
 	getPaidRequestsLimit: state => state.searchPricing.monthly_search_request_limit ?? 10000,
 	getPaidRecordsLimit: state => state.searchPricing.record_limit ?? 10000,
 	getAdditionalUnitQuantity: state => state.searchPricing.quantity_per_unit,
-	getAdditionalUnitPrice: state => state.searchPricing.per_unit_fee / 12,
+	getAdditionalUnitPrice,
 };
 
 export default searchPricingSelectors;
