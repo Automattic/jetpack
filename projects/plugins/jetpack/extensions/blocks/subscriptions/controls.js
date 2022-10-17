@@ -53,7 +53,7 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			{ subscriberCount > 1 && (
+			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
