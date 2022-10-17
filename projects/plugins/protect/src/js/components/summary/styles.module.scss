@@ -30,11 +30,11 @@
 
 .summary__scan-button {
 	margin-top: 16px;
-	width: auto;
+	width: 100%;
 
 	@media ( min-width: 960px ) {
 		margin-top: 0;
 		margin-left: 16px;
-		width: 100%;
+		width: auto;
 	}
 }
