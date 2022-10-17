@@ -140,7 +140,7 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 
 const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 	return await apiFetch( {
-		path: `jetpack-protect/v1/fix-threats?threat_ids=${ threatIds }`,
+		path: `jetpack-protect/v1/fix-threats-status?threat_ids=${ threatIds }`,
 		method: 'GET',
 		data: { threatIds },
 	} )
