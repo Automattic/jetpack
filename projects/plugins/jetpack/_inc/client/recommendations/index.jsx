@@ -38,12 +38,12 @@ const useInitOnboarding = ( {
 	updateOnboardingData,
 	updateStep,
 } ) => {
-	const isInitialized = useState( false );
+	const [ isInitialized, setIsInitialized ] = useState( false );
 	useEffect( () => {
 		if ( ! isInitialized && onboardingData && ! isLoading ) {
 			const { active, hasStarted, viewed } = onboardingData;
 
-			isInitialized( true );
+			setIsInitialized( true );
 
 			if ( active && ! hasStarted ) {
 				updateStep( step );
