@@ -70,7 +70,7 @@ const ActionButton = ( {
 		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ __( 'Try for free', 'jetpack-my-jetpack' ) }
+					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
