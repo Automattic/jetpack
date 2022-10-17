@@ -270,9 +270,7 @@ const VideoPressUploader = ( {
 			),
 			{
 				connectLink: <a href={ jwtError?.data?.connect_url } rel="noreferrer noopener" />,
-				moreAboutVideoPressLink: (
-					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
-				),
+				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
 			}
 		);
 

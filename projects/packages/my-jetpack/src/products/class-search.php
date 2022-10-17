@@ -117,8 +117,9 @@ class Search extends Hybrid_Product {
 		// Basic pricing info.
 		$pricing = array_merge(
 			array(
-				'available'          => true,
-				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'available'               => true,
+				'wpcom_product_slug'      => static::get_wpcom_product_slug(),
+				'wpcom_free_product_slug' => static::get_wpcom_free_product_slug(),
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
@@ -142,6 +143,35 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_wpcom_product_slug() {
 		return 'jetpack_search';
+	}
+
+	/**
+	 * Get the WPCOM free product slug
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_free_product_slug() {
+		return 'jetpack_search_free';
+	}
+
+	/**
+	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose.
+	 */
+	public static function is_new_pricing_202208() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'];
+	}
+
+	/**
+	 * Override status to `needs_purchase_or_free` when status is `needs_purchase`.
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+
+		if ( $status === 'needs_purchase' && self::is_new_pricing_202208() ) {
+			$status = 'needs_purchase_or_free';
+		}
+		return $status;
 	}
 
 	/**
