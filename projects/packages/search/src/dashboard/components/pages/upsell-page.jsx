@@ -160,6 +160,18 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
+	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRequestsLimit(), [] );
+	const paidRecordsLimit = new Intl.NumberFormat( 'en-US', {
+		notation: 'compact',
+		compactDisplay: 'short',
+	} ).format( paidRecordsLimitRaw );
+
+	const paidRequestsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
+	const paidRequestsLimit = new Intl.NumberFormat( 'en-US', {
+		notation: 'compact',
+		compactDisplay: 'short',
+	} ).format( paidRequestsLimitRaw );
+
 	return (
 		<Container horizontalSpacing={ 8 }>
 			{ hasConnectionError && (
@@ -194,13 +206,21 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 												sprintf(
 													// translators: %1$s: site domain
 													__(
-														'Starting price based on the number of records for <b>%1$s</b>.' +
-															'For every additional 10k records or requests, an additional $7.50 per month will be charged.',
+														'Starting price based on the number of records for <b>%1$s</b>.',
 														'jetpack-search-pkg'
 													),
 													siteDomain
 												),
 												{ b: <b /> }
+											) }
+											{ sprintf(
+												// translators: %1$s: Number of records allowance, %2$s: Number of requests allowance
+												__(
+													'For every additional %1$s records or %2$s requests, an additional $7.50 per month will be charged.',
+													'jetpack-search-pkg'
+												),
+												paidRecordsLimit,
+												paidRequestsLimit
 											) }
 										</IconTooltip>
 									</div>
@@ -213,10 +233,11 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={
 									<strong>
-										{
-											// translators: Record count for calculating Jetpack Search tier
-											__( '10k records', 'jetpack-search-pkg' )
-										}
+										{ sprintf(
+											// translators: %1$s: Number of records allowed before being charged extra.
+											__( '%1$s records', 'jetpack-search-pkg' ),
+											paidRecordsLimit
+										) }
 									</strong>
 								}
 							/>
@@ -224,10 +245,11 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={
 									<strong>
-										{
-											// translators: Request count for calculating Jetpack Search tier
-											__( '10k requests', 'jetpack-search-pkg' )
-										}
+										{ sprintf(
+											// translators: %1$s: Number of requests allowed before being charged extra.
+											__( '%1$s requests', 'jetpack-search-pkg' ),
+											paidRequestsLimit
+										) }
 									</strong>
 								}
 							/>
