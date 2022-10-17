@@ -139,10 +139,13 @@ const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } )
 };
 
 const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
+	const path = threatIds.reduce( ( carryPath, threatId ) => {
+		return `${ carryPath }threat_ids[]=${ threatId }&`;
+	}, 'jetpack-protect/v1/fix-threats-status?' );
+
 	return await apiFetch( {
-		path: `jetpack-protect/v1/fix-threats-status?threat_ids=${ threatIds }`,
+		path,
 		method: 'GET',
-		data: { threatIds },
 	} )
 		.then( async response => {
 			const threatArray = Object.values( response.threats );
