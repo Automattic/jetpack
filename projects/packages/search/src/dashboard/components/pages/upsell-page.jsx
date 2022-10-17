@@ -160,7 +160,10 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
-	const discountPercentage = Math.round( ( ( priceBefore - priceAfter ) / priceBefore ) * 100 );
+	const discountPercentage = useSelect(
+		select => select( STORE_ID ).getPricingDiscountPercentage(),
+		[]
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
