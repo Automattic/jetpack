@@ -23,6 +23,10 @@ type VideoRowBaseProps = {
 	 */
 	loading?: boolean;
 	/**
+	 * True when is uploading a poster image.
+	 */
+	isUpdatingPoster?: boolean;
+	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
 	onSelect?: ( check: boolean ) => void;

@@ -16,6 +16,7 @@ import {
 	REST_API_SITE_INFO_ENDPOINT,
 	PROCESSING_VIDEO,
 	SET_LOCAL_VIDEOS_QUERY,
+	WP_REST_API_USERS_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -78,6 +79,15 @@ const getVideos = {
 
 		if ( videoPressPrivacyFilter?.length ) {
 			wpv2MediaQuery.videopress_privacy_setting = videoPressPrivacyFilter;
+		}
+
+		// Filter -> Uploader
+		const videoPressUploaderFilter = Object.keys( filter?.uploader || {} )
+			.filter( key => filter.uploader[ key ] )
+			.join( ',' );
+
+		if ( videoPressUploaderFilter?.length ) {
+			wpv2MediaQuery.author = videoPressUploaderFilter;
 		}
 
 		try {
@@ -269,6 +279,44 @@ const getLocalVideos = {
 	},
 };
 
+const getUsers = {
+	isFulfilled: state => {
+		return state?.users?._meta?.relyOnInitialState;
+	},
+
+	fulfill: () => async ( { dispatch } ) => {
+		dispatch.setIsFetchingLocalVideos( true );
+
+		try {
+			const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
+
+			const total = Number( response.headers.get( 'X-WP-Total' ) );
+			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+			dispatch.setUsersPagination( { total, totalPages } );
+
+			const users = await response.json();
+			if ( ! users?.length ) {
+				return;
+			}
+			dispatch.setUsers(
+				users.map( user => {
+					return {
+						id: user.id,
+						name: user.name,
+						slug: user.slug,
+						description: user.description,
+						link: user.link,
+						avatar: user.avatar_urls,
+					};
+				} )
+			);
+			return users;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 export default {
 	getStorageUsed,
 	getUploadedVideoCount,
@@ -276,6 +324,8 @@ export default {
 	getVideo,
 
 	getLocalVideos,
+
+	getUsers,
 
 	getPurchases,
 };

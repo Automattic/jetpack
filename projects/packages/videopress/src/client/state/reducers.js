@@ -31,6 +31,8 @@ import {
 	SET_VIDEOS_FILTER,
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
+	SET_USERS_PAGINATION,
 } from './constants';
 
 /**
@@ -493,6 +495,30 @@ const localVideos = ( state, action ) => {
 	return state;
 };
 
+const users = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_USERS: {
+			return {
+				...state,
+				items: action.users,
+			};
+		}
+
+		case SET_USERS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...( state?.pagination || {} ),
+					...action.pagination,
+				},
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const purchases = ( state, action ) => {
 	switch ( action.type ) {
 		case SET_IS_FETCHING_PURCHASES: {
@@ -519,6 +545,7 @@ const reducers = combineReducers( {
 	videos,
 	localVideos,
 	purchases,
+	users,
 } );
 
 export default reducers;
