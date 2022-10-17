@@ -1,18 +1,13 @@
-export type SuperCacheSpeed = {
-	cached: number;
-	uncached: number;
-};
-
 /**
  * Measures the speed of pageloads using Super Cache, and bypassing Super Cache.
  *
- * @return {SuperCacheSpeed} speed of cached and uncached requests in milliseconds.
+ * @return {number} milliseconds difference between cached and uncached pageload.
  */
-export async function compareSuperCacheSpeed(): Promise< SuperCacheSpeed > {
+export async function measureSuperCacheSaving(): Promise< number > {
 	const uncached = await measureUncachedFetch();
 	const cached = await measureCachedFetch();
 
-	return { cached, uncached };
+	return Math.max( 0, Math.round( uncached - cached ) );
 }
 
 /**
