@@ -190,10 +190,22 @@ class Search extends Hybrid_Product {
 			return $pricings[ $record_count ];
 		}
 
-		$response = wp_remote_get(
-			sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
-			array( 'timeout' => 5 )
-		);
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// For simple sites fetch the response directly.
+			$response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+				'2',
+				array( 'timeout' => 5 ),
+				null,
+				'wpcom'
+			);
+		} else {
+			// For non-simple sites we have to use the wp_remote_get, as connection might not be available.
+			$response = wp_remote_get(
+				sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+				array( 'timeout' => 5 )
+			);
+		}
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'search_pricing_fetch_failed' );
