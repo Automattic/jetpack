@@ -1,13 +1,22 @@
+import { recordBoostEvent } from './analytics';
+
 /**
  * Measures the speed of pageloads using Super Cache, and bypassing Super Cache.
  *
  * @return {number} milliseconds difference between cached and uncached pageload.
  */
 export async function measureSuperCacheSaving(): Promise< number > {
+	recordBoostEvent( 'super_cache_test_started', {} );
+
 	const uncached = await measureUncachedFetch();
 	const cached = await measureCachedFetch();
+	const result = Math.max( 0, Math.round( uncached - cached ) );
 
-	return Math.max( 0, Math.round( uncached - cached ) );
+	recordBoostEvent( 'super_cache_test_results', {
+		difference: result,
+	} );
+
+	return result;
 }
 
 /**
