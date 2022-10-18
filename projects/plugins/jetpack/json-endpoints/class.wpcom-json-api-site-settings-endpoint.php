@@ -435,6 +435,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
+						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
