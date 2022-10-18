@@ -18,6 +18,7 @@ import { useHistory, Prompt } from 'react-router-dom';
  * Internal dependencies
  */
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -163,6 +164,16 @@ const EditVideoDetails = () => {
 		libraryAttachment,
 	} = useEditDetails();
 
+	const unsavedChangesMessage = __(
+		'There are unsaved changed. Are you sure you want to exit?',
+		'jetpack-videopress-pkg'
+	);
+
+	useUnloadPrevent( {
+		shouldPrevent: hasChanges,
+		message: unsavedChangesMessage,
+	} );
+
 	let thumbnail: string | JSX.Element = posterImage;
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
@@ -172,13 +183,7 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			<Prompt
-				when={ hasChanges }
-				message={ __(
-					'There are unsaved changed. Are you sure you want to exit?',
-					'jetpack-videopress-pkg'
-				) }
-			/>
+			<Prompt when={ hasChanges } message={ unsavedChangesMessage } />
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
