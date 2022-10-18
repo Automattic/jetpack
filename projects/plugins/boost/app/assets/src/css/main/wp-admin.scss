@@ -15,11 +15,16 @@
 		color: var(--wp-admin-theme-link-color)
 	}
 
-	.components-button.is-primary, {
-		background-color: $jetpack_green;
+	.components-button.is-primary {
+		background-color: #000;
 		border-radius: $border-radius;
 		font-weight: 600;
-		margin-bottom: 1.5rem;
+		color: white;
+		padding: 8px 24px;
+
+		&:hover {
+			background-color: $primary-black;
+		}
 	}
 
 	.components-button.is-link {
