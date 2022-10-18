@@ -91,9 +91,21 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	);
 };
 
+const useCredentialState = () => {
+	const { checkCredentialsState } = useDispatch( STORE_ID );
+	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
+
+	useEffect( () => {
+		if ( ! credentialState.state ) {
+			checkCredentialsState();
+		}
+	}, [ checkCredentialsState, credentialState.state ] );
+};
+
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	useCredentialState();
 
 	let currentScanStatus;
 	if ( 'error' === currentStatus ) {
@@ -234,17 +246,6 @@ const ProtectAdminPage = () => {
 	);
 };
 
-const useCredentialState = () => {
-	const { checkCredentialsState } = useDispatch( STORE_ID );
-	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
-
-	useEffect( () => {
-		if ( ! credentialState.state ) {
-			checkCredentialsState();
-		}
-	}, [ checkCredentialsState, credentialState.state ] );
-};
-
 const useRegistrationWatcher = () => {
 	const { isRegistered } = useConnection();
 	const { refreshStatus } = useDispatch( STORE_ID );
@@ -273,7 +274,7 @@ const useStatusPolling = () => {
 		let pollTimeout;
 
 		const pollStatus = () => {
-			refreshStatus()
+			refreshStatus( true )
 				.then( latestStatus => {
 					if ( [ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ) {
 						clearTimeout( pollTimeout );
@@ -297,7 +298,6 @@ const useStatusPolling = () => {
 
 const Admin = () => {
 	useRegistrationWatcher();
-	useCredentialState();
 	useStatusPolling();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {

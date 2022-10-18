@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
 const SET_CREDENTIAL_STATE_IS_FETCHING = 'SET_CREDENTIAL_STATE_IS_FETCHING';
@@ -13,6 +13,7 @@ const SET_WP_VERSION = 'SET_WP_VERSION';
 const SET_JETPACK_SCAN = 'SET_JETPACK_SCAN';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
 const SET_THREAT_IS_UPDATING = 'SET_THREAT_IS_UPDATING';
+const SET_THREATS_ARE_FIXING = 'SET_THREATS_ARE_FIXING';
 const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 
@@ -23,13 +24,14 @@ const setStatus = status => {
 /**
  * Side effect action which will fetch the status from the server
  *
+ * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const refreshStatus = () => async ( { dispatch } ) => {
+const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
 		return apiFetch( {
-			path: 'jetpack-protect/v1/status',
+			path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
 			method: 'GET',
 		} )
 			.then( status => {
@@ -45,9 +47,9 @@ const refreshStatus = () => async ( { dispatch } ) => {
 
 const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
-		dispatch( refreshStatus() )
+		dispatch( refreshStatus( true ) )
 			.then( async response => {
-				if ( [ 'in_progress', 'scanning' ].indexOf( response.status ) === -1 ) {
+				if ( 'scanning' !== response.status ) {
 					return await new Promise( () => {
 						setTimeout( () => {
 							dispatch( refreshStatusUntilScanning() );
@@ -127,6 +129,10 @@ const setThreatIsUpdating = ( threatId, isUpdating ) => {
 	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
 };
 
+const setThreatsAreFixing = threatIds => {
+	return { type: SET_THREATS_ARE_FIXING, threatIds };
+};
+
 const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } ) => {
 	dispatch( setThreatIsUpdating( threatId, true ) );
 	return await new Promise( () => {
@@ -162,6 +168,8 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 		return `${ carryPath }threat_ids[]=${ threatId }&`;
 	}, 'jetpack-protect/v1/fix-threats-status?' );
 
+	dispatch( setThreatsAreFixing( threatIds ) );
+
 	return await apiFetch( {
 		path,
 		method: 'GET',
@@ -178,6 +186,12 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 					}, 1000 );
 				} );
 			}
+
+			// throw an error if not all threats were fixed
+			const fixedThreats = threatArray.filter( threat => threat.status === 'fixed' );
+			if ( ! fixedThreats.length === threatIds.length ) {
+				throw 'Not all threats could be fixed.';
+			}
 		} )
 		.then( () => {
 			// threats fixed - refresh the status
@@ -185,8 +199,11 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 			dispatch(
 				setNotice( {
 					type: 'success',
-					// to do: include amount of fixed threats
-					message: __( 'Threats were fixed successfully', 'jetpack-protect' ),
+					message: sprintf(
+						// translators: placeholder is the number amount of fixed threats.
+						__( '%s threats were fixed successfully', 'jetpack-protect' ),
+						threatIds.length
+					),
 				} )
 			);
 		} )
@@ -200,6 +217,9 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 					),
 				} )
 			);
+		} )
+		.finally( () => {
+			dispatch( setThreatsAreFixing( [] ) );
 		} );
 };
 
@@ -312,6 +332,7 @@ const actions = {
 	setNotice,
 	fixThreats,
 	scan,
+	setThreatsAreFixing,
 };
 
 export {
@@ -327,5 +348,6 @@ export {
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
+	SET_THREATS_ARE_FIXING,
 	actions as default,
 };
