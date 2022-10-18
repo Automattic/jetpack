@@ -23,13 +23,14 @@ const setStatus = status => {
 /**
  * Side effect action which will fetch the status from the server
  *
+ * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const refreshStatus = () => async ( { dispatch } ) => {
+const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
 		return apiFetch( {
-			path: 'jetpack-protect/v1/status',
+			path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
 			method: 'GET',
 		} )
 			.then( status => {
@@ -45,7 +46,7 @@ const refreshStatus = () => async ( { dispatch } ) => {
 
 const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
-		dispatch( refreshStatus() )
+		dispatch( refreshStatus( true ) )
 			.then( async response => {
 				if ( [ 'in_progress', 'scanning' ].indexOf( response.status ) === -1 ) {
 					return await new Promise( () => {
