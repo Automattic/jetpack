@@ -457,6 +457,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get details used to render a thumbnail of the site. P2020 themed sites only.
+	 *
+	 * @return ?array
+	 */
+	public function get_p2_thumbnail_elements() {
+		return null;
+	}
+
+	/**
 	 * Detect whether a site is a WordPress.com on Atomic site.
 	 *
 	 * @return bool
