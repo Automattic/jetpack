@@ -165,7 +165,7 @@ const EditVideoDetails = () => {
 	} = useEditDetails();
 
 	const unsavedChangesMessage = __(
-		'There are unsaved changed. Are you sure you want to exit?',
+		'There are unsaved changes. Are you sure you want to exit?',
 		'jetpack-videopress-pkg'
 	);
 
