@@ -256,7 +256,7 @@ class Jetpack_Social {
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
 					'sharesData'              => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'   => '/jetpack/v4/publicize/connections-test-results',
+					'connectionRefreshPath'   => '/jetpack/v4/publicize/connection-test-results',
 					'publicizeConnectionsUrl' => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
