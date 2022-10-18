@@ -196,12 +196,16 @@ const VideoPressUploader = ( {
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
-		const isFileUploading = null !== media && media instanceof FileList;
+		/*
+		 * Allow uploading only (the first) one file
+		 * @todo: Allow uploading multiple files
+		 */
+		media = media?.[ 0 ] ? media[ 0 ] : media;
 
+		const isFileUploading = media instanceof File;
 		// Handle upload by selecting a File
 		if ( isFileUploading ) {
-			const file = media[ 0 ];
-			startUpload( file );
+			startUpload( media );
 			return;
 		}
 
