@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
 const SET_CREDENTIAL_STATE_IS_FETCHING = 'SET_CREDENTIAL_STATE_IS_FETCHING';
@@ -178,6 +178,12 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 					}, 1000 );
 				} );
 			}
+
+			// throw an error if not all threats were fixed
+			const fixedThreats = threatArray.filter( threat => threat.status === 'fixed' );
+			if ( ! fixedThreats.length === threatIds.length ) {
+				throw 'Not all threats could be fixed.';
+			}
 		} )
 		.then( () => {
 			// threats fixed - refresh the status
@@ -185,8 +191,11 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 			dispatch(
 				setNotice( {
 					type: 'success',
-					// to do: include amount of fixed threats
-					message: __( 'Threats were fixed successfully', 'jetpack-protect' ),
+					message: sprintf(
+						// translators: placeholder is the number amount of fixed threats.
+						__( '%s threats were fixed successfully', 'jetpack-protect' ),
+						threatIds.length
+					),
 				} )
 			);
 		} )
