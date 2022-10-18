@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
@@ -11,7 +12,8 @@ import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { initStore } from '../state';
 import AdminPage from './components/admin-page';
 import EditVideoDetails from './components/edit-video-details';
-import useUploadUnloadCheck from './hooks/use-upload-unload-check';
+import useUnloadPrevent from './hooks/use-unload-prevent';
+import useVideos from './hooks/use-videos';
 import './style.module.scss';
 
 initStore();
@@ -29,7 +31,15 @@ function ScrollToTop() {
 }
 
 const VideoPress = () => {
-	useUploadUnloadCheck();
+	const { isUploading } = useVideos();
+
+	useUnloadPrevent( {
+		shouldPrevent: isUploading,
+		message: __(
+			'Leaving will cancel the upload. Are you sure you want to exit?',
+			'jetpack-videopress-pkg'
+		),
+	} );
 
 	return (
 		<ThemeProvider>
