@@ -100,7 +100,7 @@ export default () => {
 		setPosterImageSource( 'video' );
 	}, [ selectedTime ] );
 
-	const saveDisabled = metaChanged === false && selectedTime === null && ! libraryAttachment;
+	const hasChanges = metaChanged || selectedTime != null || libraryAttachment != null;
 
 	const selectPosterImageFromLibrary = async () => {
 		const attachment = await selectAttachmentFromLibrary();
@@ -164,7 +164,7 @@ export default () => {
 	return {
 		...video,
 		...data, // data is the local representation of the video
-		saveDisabled,
+		hasChanges,
 		posterImageSource,
 		libraryAttachment,
 		selectPosterImageFromLibrary,

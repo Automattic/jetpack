@@ -13,7 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import classnames from 'classnames';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -142,7 +142,7 @@ const EditVideoDetails = () => {
 		description,
 		caption,
 		// Page State/Actions
-		saveDisabled,
+		hasChanges,
 		updating,
 		isFetching,
 		handleSaveChanges,
@@ -172,6 +172,14 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
+			<Prompt
+				when={ hasChanges }
+				message={ __(
+					'There are unsaved changed. Are you sure you want to exit?',
+					'jetpack-videopress-pkg'
+				) }
+			/>
+
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
@@ -187,7 +195,7 @@ const EditVideoDetails = () => {
 				header={
 					<Header
 						onSaveChanges={ handleSaveChanges }
-						saveDisabled={ saveDisabled }
+						saveDisabled={ ! hasChanges }
 						saveLoading={ updating }
 					/>
 				}
