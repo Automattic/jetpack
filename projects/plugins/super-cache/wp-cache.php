@@ -443,6 +443,9 @@ function wpsc_render_header(){
 		</div>
 	<?php
 	wpsc_show_boost_modal();
+	
+	//this is the home for the other parts of code which were on that page. 
+	wpsc_settings_pre_init();
 }
 
 /** 
@@ -483,6 +486,8 @@ function wpsc_key_info_boxes(){
  * it can also render the An Automattic Airline
  */
 function wpsc_render_footer(){
+	// the chunks of code after the render partials
+	wpsc_settings_post_init();
 	?>
 	</div>
 	<div class='footer'>
@@ -921,10 +926,6 @@ function wp_cache_advanced_menu(){
 
 	$admin_url   = admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] );
 
-
-	if ( !wpsupercache_site_admin() )
-		return false;
-
 	// used by mod_rewrite rules and config file
 	if ( function_exists( "cfmobi_default_browsers" ) ) {
 		$wp_cache_mobile_browsers = cfmobi_default_browsers( "mobile" );
@@ -1194,16 +1195,29 @@ function wp_cache_debug_menu(){
 	global $wp_super_cache_advanced_debug, $wp_cache_debug_username, $wp_super_cache_front_page_clear;
 
 	wpsc_render_header();
-
 	if ( !defined( 'SUBMITDISABLED' ) )
 	define( "SUBMITDISABLED", '' );
-	
 	wpsc_render_partial(
 		'debug',
 		compact('wp_super_cache_debug', 'wp_cache_debug_log', 'wp_cache_debug_ip', 'cache_path', 'valid_nonce', 'wp_cache_config_file', 'wp_super_cache_comments', 'wp_super_cache_front_page_check', 'wp_super_cache_front_page_clear', 'wp_super_cache_front_page_text', 'wp_super_cache_front_page_notification', 'wp_super_cache_advanced_debug', 'wp_cache_debug_username' )
 	);
-
 	wpsc_render_footer();
+}
+
+/**
+ * This function holds the parts of the code which were just littered on the
+ * single Super Cache Admin page. Once everything has been moved out of that
+ * function, everything should work and we can trace and piece these back
+ * together onto which submenu page they actually need to live on
+ */
+function wpsc_settings_pre_init(){
+	//require the settings blocks of code which were BEFORE the render_partials
+	require_once( __DIR__. '/inc/settings-pre-init.php');
+}
+
+function wpsc_settings_post_init(){
+	//require the settings blocks of code which were AFTER the render_partials
+	require_once( __DIR__. '/inc/settings-post-init.php');
 }
 
 /**
@@ -1232,7 +1246,6 @@ function wp_cache_debug_menu(){
 		$n_format = number_format($n / 1000000000000, $precision);
 		$suffix = 'T';
 	}
-
 	echo $n_format . $suffix;
  }
 
@@ -1803,44 +1816,6 @@ function wp_cache_manager() {
 	global $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
 	global $wp_super_cache_comments, $wp_cache_home_path, $wpsc_save_headers, $is_nginx;
 
-	if ( !wpsupercache_site_admin() )
-		return false;
-
-	// used by mod_rewrite rules and config file
-	if ( function_exists( "cfmobi_default_browsers" ) ) {
-		$wp_cache_mobile_browsers = cfmobi_default_browsers( "mobile" );
-		$wp_cache_mobile_browsers = array_merge( $wp_cache_mobile_browsers, cfmobi_default_browsers( "touch" ) );
-	} elseif ( function_exists( 'lite_detection_ua_contains' ) ) {
-		$wp_cache_mobile_browsers = explode( '|', lite_detection_ua_contains() );
-	} else {
-		$wp_cache_mobile_browsers = array( '2.0 MMP', '240x320', '400X240', 'AvantGo', 'BlackBerry', 'Blazer', 'Cellphone', 'Danger', 'DoCoMo', 'Elaine/3.0', 'EudoraWeb', 'Googlebot-Mobile', 'hiptop', 'IEMobile', 'KYOCERA/WX310K', 'LG/U990', 'MIDP-2.', 'MMEF20', 'MOT-V', 'NetFront', 'Newt', 'Nintendo Wii', 'Nitro', 'Nokia', 'Opera Mini', 'Palm', 'PlayStation Portable', 'portalmmm', 'Proxinet', 'ProxiNet', 'SHARP-TQ-GX10', 'SHG-i900', 'Small', 'SonyEricsson', 'Symbian OS', 'SymbianOS', 'TS21i-10', 'UP.Browser', 'UP.Link', 'webOS', 'Windows CE', 'WinWAP', 'YahooSeeker/M1A1-R2D2', 'iPhone', 'iPod', 'iPad', 'Android', 'BlackBerry9530', 'LG-TU915 Obigo', 'LGE VX', 'webOS', 'Nokia5800' );
-	}
-	if ( function_exists( "lite_detection_ua_prefixes" ) ) {
-		$wp_cache_mobile_prefixes = lite_detection_ua_prefixes();
-	} else {
-		$wp_cache_mobile_prefixes = array( 'w3c ', 'w3c-', 'acs-', 'alav', 'alca', 'amoi', 'audi', 'avan', 'benq', 'bird', 'blac', 'blaz', 'brew', 'cell', 'cldc', 'cmd-', 'dang', 'doco', 'eric', 'hipt', 'htc_', 'inno', 'ipaq', 'ipod', 'jigs', 'kddi', 'keji', 'leno', 'lg-c', 'lg-d', 'lg-g', 'lge-', 'lg/u', 'maui', 'maxo', 'midp', 'mits', 'mmef', 'mobi', 'mot-', 'moto', 'mwbp', 'nec-', 'newt', 'noki', 'palm', 'pana', 'pant', 'phil', 'play', 'port', 'prox', 'qwap', 'sage', 'sams', 'sany', 'sch-', 'sec-', 'send', 'seri', 'sgh-', 'shar', 'sie-', 'siem', 'smal', 'smar', 'sony', 'sph-', 'symb', 't-mo', 'teli', 'tim-', 'tosh', 'tsm-', 'upg1', 'upsi', 'vk-v', 'voda', 'wap-', 'wapa', 'wapi', 'wapp', 'wapr', 'webc', 'winw', 'winw', 'xda ', 'xda-' ); // from http://svn.wp-plugins.org/wordpress-mobile-pack/trunk/plugins/wpmp_switcher/lite_detection.php
-	}
-	$wp_cache_mobile_browsers = apply_filters( 'cached_mobile_browsers', $wp_cache_mobile_browsers ); // Allow mobile plugins access to modify the mobile UA list
-	$wp_cache_mobile_prefixes = apply_filters( 'cached_mobile_prefixes', $wp_cache_mobile_prefixes ); // Allow mobile plugins access to modify the mobile UA prefix list
-	if ( function_exists( 'do_cacheaction' ) ) {
-		$wp_cache_mobile_browsers = do_cacheaction( 'wp_super_cache_mobile_browsers', $wp_cache_mobile_browsers );
-		$wp_cache_mobile_prefixes = do_cacheaction( 'wp_super_cache_mobile_prefixes', $wp_cache_mobile_prefixes );
-	}
-	$mobile_groups = apply_filters( 'cached_mobile_groups', array() ); // Group mobile user agents by capabilities. Lump them all together by default
-	// mobile_groups = array( 'apple' => array( 'ipod', 'iphone' ), 'nokia' => array( 'nokia5800', 'symbianos' ) );
-
-	$wp_cache_mobile_browsers = implode( ', ', $wp_cache_mobile_browsers );
-	$wp_cache_mobile_prefixes = implode( ', ', $wp_cache_mobile_prefixes );
-
-	if ( false == apply_filters( 'wp_super_cache_error_checking', true ) )
-		return false;
-
-	if ( function_exists( 'get_supercache_dir' ) )
-		$supercachedir = get_supercache_dir();
-	if( get_option( 'gzipcompression' ) == 1 )
-		update_option( 'gzipcompression', 0 );
-	if( !isset( $cache_rebuild_files ) )
-		$cache_rebuild_files = 0;
 
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	/* http://www.netlobo.com/div_hiding.html */
@@ -1881,29 +1856,6 @@ function wp_cache_manager() {
 		}
 	</style>
 	<?php
-	echo '<a name="top"></a>';
-	echo '<div class="wrap">';
-	echo '<h3>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h3>';
-
-	// Set a default.
-	if ( false === $cache_enabled && ! isset( $wp_cache_mod_rewrite ) ) {
-		$wp_cache_mod_rewrite = 0;
-	} elseif ( ! isset( $wp_cache_mod_rewrite ) && $cache_enabled && $super_cache_enabled ) {
-		$wp_cache_mod_rewrite = 1;
-	}
-
-	/**
-	 * The tabbing of the current settings page
-	 */
-	$admin_url = admin_url( 'options-general.php?page=wpsupercache' );
-	$curr_tab  = ! empty( $_GET['tab'] ) ? sanitize_text_field( stripslashes( $_GET['tab'] ) ) : ''; // WPCS: sanitization ok.
-	if ( empty( $curr_tab ) ) {
-		$curr_tab = 'easy';
-		if ( $wp_cache_mod_rewrite ) {
-			$curr_tab = 'settings';
-			echo '<div class="notice notice-info is-dismissible"><p>' .  __( 'Notice: <em>Expert mode caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
-		}
-	}
 
 	/**
 	 * if the current tab is preload - set some extra stuff.
@@ -1957,182 +1909,7 @@ function wp_cache_manager() {
 
 	wpsc_admin_tabs( $curr_tab );
 
-	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && ! wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
-		wp_schedule_single_event( time() + 360, 'wp_cache_check_site_hook' );
-		wp_cache_debug( 'scheduled wp_cache_check_site_hook for 360 seconds time.', 2 );
-	}
 
-	if ( isset( $_REQUEST['wp_restore_config'] ) && $valid_nonce ) {
-		unlink( $wp_cache_config_file );
-		echo '<strong>' . esc_html__( 'Configuration file changed, some values might be wrong. Load the page again from the "Settings" menu to reset them.', 'wp-super-cache' ) . '</strong>';
-	}
-
-	if ( substr( get_option( 'permalink_structure' ), -1 ) == '/' ) {
-		wp_cache_replace_line( '^ *\$wp_cache_slash_check', "\$wp_cache_slash_check = 1;", $wp_cache_config_file );
-	} else {
-		wp_cache_replace_line( '^ *\$wp_cache_slash_check', "\$wp_cache_slash_check = 0;", $wp_cache_config_file );
-	}
-	$home_path = parse_url( site_url() );
-	$home_path = trailingslashit( array_key_exists( 'path', $home_path ) ? $home_path['path'] : '' );
-	if ( ! isset( $wp_cache_home_path ) ) {
-		$wp_cache_home_path = '/';
-		wp_cache_setting( 'wp_cache_home_path', '/' );
-	}
-	if ( "$home_path" != "$wp_cache_home_path" ) {
-		wp_cache_setting( 'wp_cache_home_path', $home_path );
-	}
-
-	if ( $wp_cache_mobile_enabled == 1 ) {
-		update_cached_mobile_ua_list( $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $mobile_groups );
-	}
-
-	// styles for the boost banner. Inline. Can move out to a global style
-	?>
-	<style>
-		.boost-banner {
-			margin: 2px 1.25rem 1.25rem 0;
-			box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
-			border: 1px solid #d5d5d5;
-			position: relative;
-		}
-
-		.boost-banner-inner {
-			display: flex;
-			grid-template-columns: minmax(auto, 750px) 500px;
-			justify-content: space-between;
-			min-height: 300px;
-			background: #fff;
-			overflow: hidden;
-		}
-
-		.boost-banner-content {
-			display: inline-flex;
-			flex-direction: column;
-			padding: 2rem 3rem 2rem 2rem;
-			text-align: left;
-		}
-
-		.boost-banner-image-container {
-			position: relative;
-			background-image: url( <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-colors.svg' ); ?> );
-			background-size: cover;
-			max-width: 40%;
-			overflow: hidden;
-		}
-
-		.boost-banner-image-container img {
-			position: relative;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%, -50%);
-			width: 100%;
-		}
-
-		.boost-banner p {
-			font-size: 16px;
-			line-height: 1.5;
-			margin: 1rem 0 2rem;
-		}
-
-		.boost-banner .boost-dismiss {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			color: black;
-			cursor:pointer;
-		}
-
-		.boost-banner .button-primary {
-			background: black;
-			border-color: black;
-			color: #fff;
-			width: fit-content;
-			padding: 0.4rem 1rem;
-			font-size: 16px;
-		}
-
-		.boost-banner .button-primary:hover {
-			background-color: #333;
-		}
-
-		.boost-banner .button-primary:visited {
-			background-color: black;
-			border-color: black;
-		}
-	</style>
-
-	<?php
-		$showing_boost_banner = ! class_exists( 'Automattic\Jetpack_Boost\Jetpack_Boost' ) && get_option( 'wpsc_2022_boost_banner', true );
-		$boost_banner_nonce   = wp_create_nonce( 'wpsc_2022_boost_banner' );
-	?>
-
-	<table class="wpsc-settings-table"><td valign="top">
-
-	<?php
-	if ( $showing_boost_banner ) {
-		?>
-			<div class="boost-banner">
-				<div class="boost-banner-inner">
-					<div class="boost-banner-content">
-						<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
-
-						<h3>
-							<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
-						</h3>
-
-						<p>
-							<?php esc_html_e( 'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.', 'wp-super-cache' ); ?>
-						</p>
-
-						<a href="
-						<?php
-						// phpcs:disable
-						wp_nonce_url(
-							add_query_arg(
-								array(
-									'action' => 'install-plugin',
-									'plugin' => 'jetpack-boost',
-								),
-								admin_url( 'update.php' )
-							),
-							'install-plugin_jetpack-boost'
-						);
-						// phpcs:enable
-						?>
-						" class="button button-primary">
-						<?php esc_html_e( 'Install Jetpack Boost', 'wp-super-cache' ); ?>
-						</a>
-					</div>
-
-					<div class="boost-banner-image-container">
-						<img
-							src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
-							title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
-							alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
-							srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
-							sizes="(max-width: 782px) 654px, 1306px"
-						>
-					</div>
-				</div>
-
-				<span class="boost-dismiss dashicons dashicons-dismiss"></span>
-			</div>
-
-			<script>
-				jQuery( '.boost-dismiss' ).on( 'click', function() {
-					jQuery( '.boost-banner' ).fadeOut( 'slow' );
-					jQuery.post( ajaxurl, {
-						action: 'wpsc-hide-boost-banner',
-						nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
-					} );
-				} );
-			</script>
-		<?php
-	}
-	?>
-
-
-	<?php
 	// The current switcher for the settings pages
 	switch ( $curr_tab ) {
 		case 'cdn':
@@ -2275,27 +2052,7 @@ function wp_cache_manager() {
 	<p><?php printf( __( 'Please <a href="%s">rate us</a> and give feedback.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache/reviews?rate=5#new-post' ); ?></p>
 
 	<?php
-	if ( isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) {
-		$start_date = get_option( 'wpsupercache_start' );
-		if ( ! $start_date ) {
-			$start_date = time();
-		}
-		?>
-		<p><?php printf( __( 'Cached pages since %1$s : <strong>%2$s</strong>', 'wp-super-cache' ), date( 'M j, Y', $start_date ), number_format( get_option( 'wpsupercache_count' ) ) ); ?></p>
-		<p><?php _e( 'Newest Cached Pages:', 'wp-super-cache' ); ?><ol>
-			<?php
-			foreach ( array_reverse( (array) get_option( 'supercache_last_cached' ) ) as $url ) {
-				$since = time() - strtotime( $url['date'] );
-				echo "<li><a title='" . sprintf( esc_html__( 'Cached %s seconds ago', 'wp-super-cache' ), (int) $since ) . "' href='" . site_url( $url['url'] ) . "'>" . substr( $url['url'], 0, 20 ) . "</a></li>\n";
-			}
-			?>
-			</ol>
-			<small><?php esc_html_e( '(may not always be accurate on busy sites)', 'wp-super-cache' ); ?></small>
-		</p><?php
-	} elseif ( false == get_option( 'wpsupercache_start' ) ) {
-			update_option( 'wpsupercache_start', time() );
-			update_option( 'wpsupercache_count', 0 );
-	}
+
 	?>
 	</div>
 	</td></table>
@@ -2744,8 +2501,12 @@ function wpsc_update_debug_settings() {
 		wp_cache_setting( 'wp_super_cache_comments', $wp_super_cache_comments );
 		if ( isset( $_POST[ 'wp_cache_debug_ip' ] ) && filter_var( $_POST[ 'wp_cache_debug_ip' ], FILTER_VALIDATE_IP ) ) {
 			$wp_cache_debug_ip = esc_html( preg_replace( '/[ <>\'\"\r\n\t\(\)\$\[\];#]/', '', $_POST[ 'wp_cache_debug_ip' ] ) );
+			echo "valid IP";
+			die();
 		} else {
 			$wp_cache_debug_ip = '';
+			echo "not valid IP";
+			die();
 		}
 		wp_cache_setting( 'wp_cache_debug_ip', $wp_cache_debug_ip );
 		$wp_super_cache_front_page_check = isset( $_POST[ 'wp_super_cache_front_page_check' ] ) ? 1 : 0;
