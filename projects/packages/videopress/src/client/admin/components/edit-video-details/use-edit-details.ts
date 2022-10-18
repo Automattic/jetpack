@@ -3,7 +3,7 @@
  */
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -52,7 +52,7 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 };
 
 export default () => {
-	const navigate = useNavigate();
+	const history = useHistory();
 	const dispatch = useDispatch( STORE_ID );
 
 	const { videoId: videoIdFromParams } = useParams();
@@ -130,7 +130,7 @@ export default () => {
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
-			navigate( '/' );
+			history.push( '/' );
 		} );
 	};
 

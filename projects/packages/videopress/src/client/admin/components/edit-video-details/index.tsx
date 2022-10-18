@@ -13,7 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import classnames from 'classnames';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -41,11 +41,11 @@ const Header = ( {
 	onSaveChanges: () => void;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const navigate = useNavigate();
+	const history = useHistory();
 
 	return (
 		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
-			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
+			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
 				<Logo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>

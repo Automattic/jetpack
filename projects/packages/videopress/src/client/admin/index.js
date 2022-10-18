@@ -4,7 +4,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -35,12 +35,14 @@ const VideoPress = () => {
 		<ThemeProvider>
 			<HashRouter>
 				<ScrollToTop />
-				<Routes>
-					<Route path="/" element={ <AdminPage /> } />
-					<Route path="video">
-						<Route path=":videoId/edit" element={ <EditVideoDetails /> } />
+				<Switch>
+					<Route exact path="/">
+						<AdminPage />
 					</Route>
-				</Routes>
+					<Route path="/video/:videoId/edit">
+						<EditVideoDetails />
+					</Route>
+				</Switch>
 			</HashRouter>
 		</ThemeProvider>
 	);
