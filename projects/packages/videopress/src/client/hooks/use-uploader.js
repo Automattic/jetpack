@@ -36,7 +36,6 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, data } ) =>
 		autoRetry: true,
 		overridePatchMethod: false,
 		chunkSize: 10000000, // 10 Mb.
-		allowedFileTypes: [ 'video/*' ],
 		metadata: {
 			filename: file.name,
 			filetype: file.type,

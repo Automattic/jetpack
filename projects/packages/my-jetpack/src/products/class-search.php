@@ -117,8 +117,9 @@ class Search extends Hybrid_Product {
 		// Basic pricing info.
 		$pricing = array_merge(
 			array(
-				'available'          => true,
-				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				'available'               => true,
+				'wpcom_product_slug'      => static::get_wpcom_product_slug(),
+				'wpcom_free_product_slug' => static::get_wpcom_free_product_slug(),
 			),
 			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
 		);
@@ -145,6 +146,35 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the WPCOM free product slug
+	 *
+	 * @return ?string
+	 */
+	public static function get_wpcom_free_product_slug() {
+		return 'jetpack_search_free';
+	}
+
+	/**
+	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose.
+	 */
+	public static function is_new_pricing_202208() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'];
+	}
+
+	/**
+	 * Override status to `needs_purchase_or_free` when status is `needs_purchase`.
+	 */
+	public static function get_status() {
+		$status = parent::get_status();
+
+		if ( $status === 'needs_purchase' && self::is_new_pricing_202208() ) {
+			$status = 'needs_purchase_or_free';
+		}
+		return $status;
+	}
+
+	/**
 	 * Use centralized Search pricing API.
 	 *
 	 * The function is also used by the search package, as a result it could be called before site connection - i.e. blog token might not be available.
@@ -160,10 +190,22 @@ class Search extends Hybrid_Product {
 			return $pricings[ $record_count ];
 		}
 
-		$response = wp_remote_get(
-			sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
-			array( 'timeout' => 5 )
-		);
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// For simple sites fetch the response directly.
+			$response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+				'2',
+				array( 'timeout' => 5 ),
+				null,
+				'wpcom'
+			);
+		} else {
+			// For non-simple sites we have to use the wp_remote_get, as connection might not be available.
+			$response = wp_remote_get(
+				sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+				array( 'timeout' => 5 )
+			);
+		}
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'search_pricing_fetch_failed' );

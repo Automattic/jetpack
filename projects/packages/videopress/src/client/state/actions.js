@@ -35,6 +35,11 @@ import {
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
+	WP_REST_API_VIDEOPRESS_ENDPOINT,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
+	SET_USERS_PAGINATION,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -191,7 +196,7 @@ const deleteVideo = id => async ( { dispatch } ) => {
 const uploadVideo = file => async ( { dispatch } ) => {
 	const tempId = uid();
 
-	const poolingUploadedVideoData = async data => {
+	const pollingUploadedVideoData = async data => {
 		const response = await apiFetch( {
 			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
 		} );
@@ -201,7 +206,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		if ( video?.posterImage !== null ) {
 			dispatch( { type: UPLOADED_VIDEO, video } );
 		} else {
-			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
+			setTimeout( () => pollingUploadedVideoData( video ), 2000 );
 		}
 	};
 
@@ -220,7 +225,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		onProgress: noop,
 		onSuccess: data => {
 			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
-			poolingUploadedVideoData( data );
+			pollingUploadedVideoData( data );
 		},
 	} );
 };
@@ -231,6 +236,53 @@ const setIsFetchingPurchases = isFetching => {
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
+	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
+
+	const pollPoster = () => {
+		setTimeout( async () => {
+			try {
+				const resp = await apiFetch( { path, method: 'GET' } );
+
+				if ( resp?.data?.generating ) {
+					pollPoster();
+				} else {
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+				}
+			} catch ( error ) {
+				// @todo implement error handling / UI
+				// eslint-disable-next-line no-console
+				console.error( error );
+			}
+		}, 2000 );
+	};
+
+	try {
+		dispatch( { type: SET_UPDATING_VIDEO_POSTER, id } );
+
+		const resp = await apiFetch( { method: 'POST', path, data } );
+
+		if ( resp?.data?.generating ) {
+			// Poll the poster image until generated
+			pollPoster();
+			return;
+		}
+
+		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+	} catch ( error ) {
+		// @todo: implement error handling / UI
+		console.error( error ); // eslint-disable-line no-console
+	}
+};
+
+const setUsers = users => {
+	return { type: SET_USERS, users };
+};
+
+const setUsersPagination = pagination => {
+	return { type: SET_USERS_PAGINATION, pagination };
 };
 
 const actions = {
@@ -261,6 +313,11 @@ const actions = {
 	uploadVideo,
 	setIsFetchingPurchases,
 	setPurchases,
+
+	updateVideoPoster,
+
+	setUsers,
+	setUsersPagination,
 };
 
 export { actions as default };
