@@ -54,7 +54,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 				<div className={ styles.list }>
 					{ threatList.map( threat => (
 						<ThreatFixHeader
-							key="{threat}"
+							key={ threat.id }
 							threat={ threat }
 							fixAllDialog={ true }
 							onCheckFix={ handleCheckboxClick }
