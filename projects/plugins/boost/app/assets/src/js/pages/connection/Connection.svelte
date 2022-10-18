@@ -58,7 +58,7 @@
 
 			<button
 				type="button"
-				class="components-button is-primary"
+				class="components-button is-jb-primary"
 				on:click={connection.initialize}
 				disabled={$connection.isConnecting}
 			>

@@ -24,7 +24,7 @@ p {
 		color: var( --wp-admin-theme-link-color );
 	}
 
-	.components-button.is-primary {
+	.components-button.is-jb-primary {
 		background-color: $jetpack_green;
 		border-radius: $border-radius;
 		font-weight: 600;
@@ -46,6 +46,7 @@ p {
 		line-height: 1.3;
 		font-weight: 500;
 		outline-color: transparent;
+		outline-style: none;
 	}
 
 	h2 {
