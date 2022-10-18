@@ -63,12 +63,6 @@ const ProcessingThumbnail = () => (
 	</div>
 );
 
-const PrivateThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Icon icon={ captureVideo } size={ 96 } />
-	</div>
-);
-
 /**
  * Video Card component
  *
@@ -97,7 +91,13 @@ export const VideoCard = ( {
 		: false;
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = privacyIsPrivate ? <PrivateThumbnail /> : thumbnail;
+	thumbnail = privacyIsPrivate ? (
+		<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+			<Icon icon={ captureVideo } size={ 96 } />
+		</div>
+	) : (
+		thumbnail
+	);
 	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
