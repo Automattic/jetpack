@@ -123,6 +123,15 @@ const VideoThumbnail = ( {
 			thumbnail
 		);
 
+	/** If the thumbnail is not set, use the placeholder with an icon */
+	thumbnail = thumbnail ? (
+		thumbnail
+	) : (
+		<div className={ styles[ 'thumbnail-blank' ] }>
+			<Icon icon={ video } size={ blankIconSize } />
+		</div>
+	);
+
 	return (
 		<div
 			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
@@ -144,15 +153,7 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			<div className={ styles[ 'thumbnail-placeholder' ] }>
-				{ thumbnail ? (
-					thumbnail
-				) : (
-					<div className={ styles[ 'thumbnail-blank' ] }>
-						<Icon icon={ video } size={ blankIconSize } />
-					</div>
-				) }
-			</div>
+			<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
 		</div>
 	);
 };
