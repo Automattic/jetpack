@@ -13,6 +13,7 @@ const SET_WP_VERSION = 'SET_WP_VERSION';
 const SET_JETPACK_SCAN = 'SET_JETPACK_SCAN';
 const SET_PRODUCT_DATA = 'SET_PRODUCT_DATA';
 const SET_THREAT_IS_UPDATING = 'SET_THREAT_IS_UPDATING';
+const SET_THREATS_ARE_FIXING = 'SET_THREATS_ARE_FIXING';
 const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 
@@ -128,6 +129,10 @@ const setThreatIsUpdating = ( threatId, isUpdating ) => {
 	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
 };
 
+const setThreatsAreFixing = threatIds => {
+	return { type: SET_THREATS_ARE_FIXING, threatIds };
+};
+
 const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } ) => {
 	dispatch( setThreatIsUpdating( threatId, true ) );
 	return await new Promise( () => {
@@ -162,6 +167,8 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 	const path = threatIds.reduce( ( carryPath, threatId ) => {
 		return `${ carryPath }threat_ids[]=${ threatId }&`;
 	}, 'jetpack-protect/v1/fix-threats-status?' );
+
+	dispatch( setThreatsAreFixing( threatIds ) );
 
 	return await apiFetch( {
 		path,
@@ -210,6 +217,9 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 					),
 				} )
 			);
+		} )
+		.finally( () => {
+			dispatch( setThreatsAreFixing( [] ) );
 		} );
 };
 
@@ -322,6 +332,7 @@ const actions = {
 	setNotice,
 	fixThreats,
 	scan,
+	setThreatsAreFixing,
 };
 
 export {
@@ -337,5 +348,6 @@ export {
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
+	SET_THREATS_ARE_FIXING,
 	actions as default,
 };

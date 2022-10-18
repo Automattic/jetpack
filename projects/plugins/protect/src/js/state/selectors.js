@@ -13,6 +13,7 @@ const selectors = {
 	getModalType: state => state.modal?.type || null,
 	getModalProps: state => state.modal?.props || {},
 	getNotice: state => state.notice || null,
+	getThreatsAreFixing: state => state.threatsAreFixing || [],
 };
 
 export default selectors;

@@ -12,6 +12,7 @@ import {
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
+	SET_THREATS_ARE_FIXING,
 } from './actions';
 
 const credentialState = ( state = {}, action ) => {
@@ -102,6 +103,14 @@ const threatsUpdating = ( state = {}, action ) => {
 	return state;
 };
 
+const setThreatsFixing = ( state = [], action ) => {
+	switch ( action.type ) {
+		case SET_THREATS_ARE_FIXING:
+			return action.threatIds;
+	}
+	return state;
+};
+
 const modal = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_MODAL:
@@ -132,6 +141,7 @@ const reducers = combineReducers( {
 	threatsUpdating,
 	modal,
 	notice,
+	setThreatsFixing,
 } );
 
 export default reducers;
