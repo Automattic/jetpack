@@ -879,6 +879,9 @@ function wpsc_did_you_know(){
 function wp_cache_easy_menu(){
 
 	global $wp_cache_slugs, $cache_enabled, $is_nginx, $wp_cache_mod_rewrite,$valid_nonce,$cache_path,$wp_super_cache_comments;
+
+	wpsc_render_header();
+	
 	$admin_url   = admin_url( 'admin.php?page=' . $wp_cache_slugs['easy'] );
 
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
@@ -888,13 +891,9 @@ function wp_cache_easy_menu(){
 		$wp_cache_mod_rewrite = 1;
 	}
 
-	if ( !wpsupercache_site_admin() )
-		return false;
-
 	if ( !defined( 'SUBMITDISABLED' ) )
 	define( "SUBMITDISABLED", '' );
-
-	wpsc_render_header();
+	
 	wpsc_render_partial(
 		'easy',
 		array(
@@ -1171,6 +1170,11 @@ function wp_cache_preload_menu(){
 }
 
 function wp_cache_plugins_menu(){
+	global $cache_jetpack, $wp_cache_config_file, $valid_nonce;
+
+	//put the nonce here again.
+	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
+
 	wpsc_render_header();
 
 	if ( !defined( 'SUBMITDISABLED' ) )
@@ -1193,6 +1197,8 @@ function wp_cache_debug_menu(){
 	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $wp_cache_debug_ip;
 	global $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification;
 	global $wp_super_cache_advanced_debug, $wp_cache_debug_username, $wp_super_cache_front_page_clear;
+
+	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 
 	wpsc_render_header();
 	if ( !defined( 'SUBMITDISABLED' ) )
@@ -2501,12 +2507,8 @@ function wpsc_update_debug_settings() {
 		wp_cache_setting( 'wp_super_cache_comments', $wp_super_cache_comments );
 		if ( isset( $_POST[ 'wp_cache_debug_ip' ] ) && filter_var( $_POST[ 'wp_cache_debug_ip' ], FILTER_VALIDATE_IP ) ) {
 			$wp_cache_debug_ip = esc_html( preg_replace( '/[ <>\'\"\r\n\t\(\)\$\[\];#]/', '', $_POST[ 'wp_cache_debug_ip' ] ) );
-			echo "valid IP";
-			die();
 		} else {
 			$wp_cache_debug_ip = '';
-			echo "not valid IP";
-			die();
 		}
 		wp_cache_setting( 'wp_cache_debug_ip', $wp_cache_debug_ip );
 		$wp_super_cache_front_page_check = isset( $_POST[ 'wp_super_cache_front_page_check' ] ) ? 1 : 0;

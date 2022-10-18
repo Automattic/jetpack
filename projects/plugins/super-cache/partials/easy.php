@@ -1,5 +1,6 @@
 <div class='settings-inner'>
 <?php
+global $wp_cache_slugs;
 wpsc_settings_admin_message();
 echo '<form name="wp_manager" action="' . esc_url_raw(  $admin_url  ) . '" method="post">';
 echo '<input type="hidden" name="action" value="easysetup" />';
@@ -111,14 +112,14 @@ if ( $cache_enabled ) {
 }
 echo '<h4>' . esc_html__( 'Delete Cached Pages', 'wp-super-cache' ) . '</h4>';
 echo '<p>' . esc_html__( 'Cached pages are stored on your server as html and PHP files. If you need to delete them, use the button below.', 'wp-super-cache' ) . '</p>';
-echo '<form name="wp_cache_content_delete" action="' . esc_url_raw( add_query_arg( 'tab', 'contents', $admin_url ) ) . '" method="post">';
+echo '<form name="wp_cache_content_delete" action="' . esc_url_raw( admin_url('admin.php?page='. $wp_cache_slugs['contents']) ) . '#listfiles" method="post">';
 echo '<input type="hidden" name="wp_delete_cache" />';
 echo '<div class="submit"><input id="deletepost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . esc_html__( 'Delete Cache', 'wp-super-cache' ) . ' " /></div>';
 wp_nonce_field( 'wp-cache' );
 echo "</form>\n";
 
 if ( is_multisite() && wpsupercache_site_admin() ) {
-	echo '<form name="wp_cache_content_delete" action="' . esc_url_raw( add_query_arg( 'tab', 'contents', $admin_url ) . '#listfiles' ) . '" method="post">';
+	echo '<form name="wp_cache_content_delete" action="' . esc_url_raw( admin_url('admin.php?page='. $wp_cache_slugs['contents'])  ) . '#listfiles" method="post">';
 	echo '<input type="hidden" name="wp_delete_all_cache" />';
 	echo '<div class="submit"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . esc_html__( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field( 'wp-cache' );

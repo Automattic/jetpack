@@ -9,6 +9,8 @@ if ( ! wpsupercache_site_admin() ) {
 	return false;
 }
 
+$valid_nonce = isset( $_REQUEST['_wpnonce'] ) ? wp_verify_nonce( $_REQUEST['_wpnonce'], 'wp-cache' ) : false;
+
 // used by mod_rewrite rules and config file
 if ( function_exists( 'cfmobi_default_browsers' ) ) {
 	$wp_cache_mobile_browsers = cfmobi_default_browsers( 'mobile' );

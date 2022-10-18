@@ -4,7 +4,6 @@ function wp_super_cache_jetpack_admin() {
 	global $cache_jetpack, $wp_cache_config_file, $valid_nonce;
 
 	$cache_jetpack = '' === $cache_jetpack ? '0' : $cache_jetpack;
-
 	if ( isset( $_POST['cache_jetpack'] ) && $valid_nonce ) {
 		if ( $cache_jetpack === (int) $_POST['cache_jetpack'] ) {
 			$changed = false;
