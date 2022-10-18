@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Remove contact-form overlay (used to improve form block selection) as it's messing with the inserter hover behavior
