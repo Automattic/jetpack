@@ -48,7 +48,7 @@ const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
 		dispatch( refreshStatus( true ) )
 			.then( async response => {
-				if ( [ 'in_progress', 'scanning' ].indexOf( response.status ) === -1 ) {
+				if ( 'scanning' !== response.status ) {
 					return await new Promise( () => {
 						setTimeout( () => {
 							dispatch( refreshStatusUntilScanning() );
