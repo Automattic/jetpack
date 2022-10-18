@@ -43,6 +43,25 @@ const refreshStatus = () => async ( { dispatch } ) => {
 	} );
 };
 
+const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
+	return await new Promise( ( resolve, reject ) => {
+		dispatch( refreshStatus() )
+			.then( async response => {
+				if ( [ 'in_progress', 'scanning' ].indexOf( response.status ) === -1 ) {
+					return await new Promise( () => {
+						setTimeout( () => {
+							dispatch( refreshStatusUntilScanning() );
+						}, 1000 );
+					} );
+				}
+				resolve();
+			} )
+			.catch( error => {
+				reject( error );
+			} );
+	} );
+};
+
 /**
  * Side effect action which will fetch the credential status from the server
  *
@@ -242,7 +261,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 				);
 			} )
 			.then( () => {
-				return dispatch( refreshStatus() );
+				return dispatch( refreshStatusUntilScanning() );
 			} )
 			.catch( () => {
 				return dispatch(
