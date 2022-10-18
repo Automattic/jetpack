@@ -14,9 +14,9 @@ This keeps track of what is left to do before this is ready to send to PR
 
 Final checks:-
 * Final check through all settings to make sure they work
-* REMOVE old Settings -> WP Super Cache page
 
 Janitorial / Going to be hellish.
+* Localise the JS translation strings 
 * Put strings through translation esc_e_html etc. There's some jQuery (banner install button text)
 * PHPCS loads of errors coming up. Going to `no-verify` just to get this PR in the cloud.
 
@@ -37,10 +37,6 @@ Jetpack Docker Tail
 [17-Oct-2022 17:13:34 UTC] PHP Warning:  Undefined variable $cache_path in /usr/local/src/jetpack-monorepo/projects/plugins/super-cache/partials/debug.php on line 16
 
 ====================
-
-
-Multi-site:-
-* Test it all works on multi-site.
 
 
 Change log:-

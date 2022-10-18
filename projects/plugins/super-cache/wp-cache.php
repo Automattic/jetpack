@@ -321,7 +321,7 @@ function wpsc_show_boost_modal(){
 
 	if( $showing_boost_banner ){
 		?>
-			<div class="boost-backdrop"></div>
+			<div class="boost-backdrop" style="display:none;"></div>
 			<div class="boost-banner">
 				<div class="boost-banner-inner">
 					<div class="boost-banner-content">
@@ -381,7 +381,6 @@ function wpsc_show_boost_modal(){
 					}
 					jQuery(this).addClass('blocker');
 					e.preventDefault();
-					console.log("Install and activate via jQuery...");
 					button = jQuery(this);
 					button.html("Installing...");
 					var data = {
@@ -412,7 +411,6 @@ function wpsc_show_boost_modal(){
 				//activate boost
 				jQuery('.activate-boost').on('click', function(e){
 					e.preventDefault();
-					console.log("Activate via jQuery...");
 					button = jQuery(this);
 					button.html("Activating...");
 					var data = {
@@ -437,7 +435,6 @@ function wpsc_show_boost_modal(){
  * Wraps the pages in the logo and does all the global stuff
  */
 function wpsc_render_header(){
-	wpsc_show_boost_modal();
 	?>
 	<div class='wpsc-wrapper'>
 		<div class='headline'>
@@ -445,6 +442,7 @@ function wpsc_render_header(){
 			<span class='wpsc-name'>WP Super Cache</span>
 		</div>
 	<?php
+	wpsc_show_boost_modal();
 }
 
 /** 
@@ -683,7 +681,7 @@ function wpsc_boost_slimline_promo(){
 			</div>
 			<div class='body item'>
 				<?php if( ! $is_boost_installed ){ ?>
-					<div class='lead'>Further improve your site performance with Boost</div>
+					<div class='lead'>Further improve your site performance with Jetpack Boost</div>
 					<div class='info'>Jetpack Boost helps speed up your website by generating critical CSS, defering Javascript, optimizing images, and much more.</div>
 				<?php } ?>
 
@@ -717,7 +715,6 @@ function wpsc_boost_slimline_promo(){
 		</div>
 		<script>
 			bindActivateClick();
-
 			jQuery( '.wpsc-boost-banner .close' ).on( 'click', function() {
 					jQuery( '.wpsc-boost-banner' ).fadeOut( 'slow' );
 					jQuery.post( ajaxurl, {
@@ -725,17 +722,14 @@ function wpsc_boost_slimline_promo(){
 						nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
 					} );
 			} );
-
 			jQuery( '.install-boost' ).on( 'click', function(el) {
 				//this is frustrating where clicking the same button
 				//to activate would re-call the trying to install code.
 				if(jQuery(this).hasClass('blocker')){
 					return;
 				};
-
 				jQuery(this).addClass('blocker');
 				jQuery('.learn-more').hide();
-
 				jQuery(this).removeClass('install-boost');
 				jQuery('span', this).html('Installing...');
 				jQuery(this).removeClass('button-install').addClass('button-installing');
@@ -782,13 +776,9 @@ function wpsc_boost_slimline_promo(){
 			} );
 
 		function bindActivateClick(){
-			//unbind the origiginal click which was binded to this  UI elements.
-
 			//proceed to install boost. 
 			jQuery( '.activate-boost').on('click', function(){
-			jQuery('.loader').show();
-			ActivateBoost();
-
+				ActivateBoost();
 			});
 		}
 
@@ -800,6 +790,10 @@ function wpsc_boost_slimline_promo(){
 		}
 
 		function ActivateBoost(){
+			if(jQuery(this).hasClass('blocker')){
+					return;
+				};
+			jQuery(this).addClass('blocker');
 			jQuery('.activate-boost').addClass('button-installing');
 			var data = {
 				action: 'wpsc_ajax_activate_boost',
