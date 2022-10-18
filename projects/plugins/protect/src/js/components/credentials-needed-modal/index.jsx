@@ -34,7 +34,7 @@ const CredentialsNeededModal = () => {
 		}, 3000 );
 
 		return () => clearInterval( interval );
-	}, [ checkCredentialsState ] );
+	}, [ checkCredentialsState, credentialState.state ] );
 
 	return (
 		<>
