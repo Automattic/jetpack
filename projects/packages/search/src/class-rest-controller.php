@@ -422,7 +422,7 @@ class REST_Controller {
 	 */
 	public function product_pricing() {
 		$tier_pricing = Search_Product::get_pricing_for_ui();
-		// we can force the plugin to use the new pricing by appending `pricing_version=202208` to URL.
+		// we can force the plugin to use the new pricing by appending `new_pricing_202208=1` to URL.
 		if ( Helper::is_forced_new_pricing_202208() ) {
 			$tier_pricing['pricing_version'] = Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
 		}
