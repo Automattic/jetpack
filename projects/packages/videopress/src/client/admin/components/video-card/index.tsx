@@ -10,7 +10,7 @@ import {
 } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, chartBar, chevronDown, chevronUp, captureVideo } from '@wordpress/icons';
+import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
 import React from 'react';
 import { useState } from 'react';
@@ -92,13 +92,6 @@ export const VideoCard = ( {
 
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = privacyIsSetToPrivate ? (
-		<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-			<Icon icon={ captureVideo } size={ 96 } />
-		</div>
-	) : (
-		thumbnail
-	);
 	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
@@ -131,6 +124,7 @@ export const VideoCard = ( {
 					thumbnail={ thumbnail }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
+					isPrivate={ privacyIsSetToPrivate }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
