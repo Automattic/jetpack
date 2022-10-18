@@ -24,22 +24,17 @@ const CredentialsNeededModal = () => {
 	 * Poll credentials as long as the modal is open.
 	 */
 	useEffect( () => {
-		const checkCredentialsStateRecursively = () => {
+		const interval = setInterval( () => {
 			if (
 				! credentialState.state ||
-				[ 'awaiting_credentials', 'unavailable' ].indexOf( credentialState.state ) >= 0
+				[ 'in_progress', 'scanning' ].indexOf( credentialState.state ) >= 0
 			) {
-				checkCredentialsState().then( () => {
-					return setTimeout( () => {
-						checkCredentialsStateRecursively();
-					}, 3000 );
-				} );
+				checkCredentialsState();
 			}
-		};
-		const timeout = checkCredentialsStateRecursively();
+		}, 3000 );
 
-		return () => clearTimeout( timeout );
-	}, [ checkCredentialsState, credentialState.state ] );
+		return () => clearInterval( interval );
+	}, [ checkCredentialsState ] );
 
 	return (
 		<>
