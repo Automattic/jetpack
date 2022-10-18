@@ -8,6 +8,7 @@ import {
 	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -39,6 +40,7 @@ const Header = () => {
 			siteSuffix: select( STORE_ID ).getSiteSuffix(),
 		};
 	} );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
@@ -48,6 +50,11 @@ const Header = () => {
 	return (
 		<>
 			<Container horizontalSpacing={ 0 }>
+				{ hasConnectionError && (
+					<Col className={ styles[ 'connection-error-col' ] }>
+						<ConnectionError />
+					</Col>
+				) }
 				<Col>
 					<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
 				</Col>
