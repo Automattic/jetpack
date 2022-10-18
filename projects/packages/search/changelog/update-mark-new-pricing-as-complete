@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Search: enable new pricing if pricing_version is set to 202208 from API
