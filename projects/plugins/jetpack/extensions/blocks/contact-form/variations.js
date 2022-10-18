@@ -32,6 +32,18 @@ const variations = compact( [
 				},
 			],
 		],
+		attributes: {
+			style: {
+				spacing: {
+					padding: {
+						top: '16px',
+						right: '16px',
+						bottom: '16px',
+						left: '16px',
+					},
+				},
+			},
+		},
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
@@ -62,6 +74,18 @@ const variations = compact( [
 				},
 			],
 		],
+		attributes: {
+			style: {
+				spacing: {
+					padding: {
+						top: '16px',
+						right: '16px',
+						bottom: '16px',
+						left: '16px',
+					},
+				},
+			},
+		},
 	},
 	{
 		name: 'rsvp-form',
@@ -99,6 +123,16 @@ const variations = compact( [
 		],
 		attributes: {
 			subject: __( 'A new RSVP from your website', 'jetpack' ),
+			style: {
+				spacing: {
+					padding: {
+						top: '16px',
+						right: '16px',
+						bottom: '16px',
+						left: '16px',
+					},
+				},
+			},
 		},
 	},
 	{
@@ -143,6 +177,16 @@ const variations = compact( [
 		],
 		attributes: {
 			subject: __( 'A new registration from your website', 'jetpack' ),
+			style: {
+				spacing: {
+					padding: {
+						top: '16px',
+						right: '16px',
+						bottom: '16px',
+						left: '16px',
+					},
+				},
+			},
 		},
 	},
 	{
@@ -183,6 +227,16 @@ const variations = compact( [
 		],
 		attributes: {
 			subject: __( 'A new appointment booked from your website', 'jetpack' ),
+			style: {
+				spacing: {
+					padding: {
+						top: '16px',
+						right: '16px',
+						bottom: '16px',
+						left: '16px',
+					},
+				},
+			},
 		},
 	},
 	{
@@ -227,6 +281,16 @@ const variations = compact( [
 		],
 		attributes: {
 			subject: __( 'New feedback received from your website', 'jetpack' ),
+			style: {
+				spacing: {
+					padding: {
+						top: '16px',
+						right: '16px',
+						bottom: '16px',
+						left: '16px',
+					},
+				},
+			},
 		},
 	},
 ] );
