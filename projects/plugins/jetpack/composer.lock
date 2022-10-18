@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "60b5807cacbc064ba7a2cc7476b04889",
+    "content-hash": "c06e2779d4e766dda4511d803b344173",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -361,7 +361,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "dcae17199f924c438b1b91c4b9865155e3f40582"
+                "reference": "a6bdd530a04cb55547eb65eb6d0f308de105859f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -371,7 +371,7 @@
                 "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.46",
                 "automattic/jetpack-identity-crisis": "^0.8",
-                "automattic/jetpack-my-jetpack": "^2.2",
+                "automattic/jetpack-my-jetpack": "^2.3",
                 "automattic/jetpack-status": "^1.14",
                 "automattic/jetpack-sync": "^1.40"
             },
@@ -1206,7 +1206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "30a274af1a3b8e26c9540f4561efb3653a8213cf"
+                "reference": "2dde4b0b1e42b49923897d0ec6f327623992a7da"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1232,7 +1232,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1750,14 +1750,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "5b2c161ee56733571294b7435719a1d41ebe3fa0"
+                "reference": "7a1f41484258465d8522543310f05349d8443171"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.46",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-my-jetpack": "^2.2",
+                "automattic/jetpack-my-jetpack": "^2.3",
                 "automattic/jetpack-status": "^1.14"
             },
             "require-dev": {
@@ -2529,16 +2529,16 @@
         },
         {
             "name": "johnkary/phpunit-speedtrap",
-            "version": "v4.0.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnkary/phpunit-speedtrap.git",
-                "reference": "5f9b160eac87e975f1c6ca9faee5125f0616fba3"
+                "reference": "d6600d2218396b78856c335f83479503957a5fa9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnkary/phpunit-speedtrap/zipball/5f9b160eac87e975f1c6ca9faee5125f0616fba3",
-                "reference": "5f9b160eac87e975f1c6ca9faee5125f0616fba3",
+                "url": "https://api.github.com/repos/johnkary/phpunit-speedtrap/zipball/d6600d2218396b78856c335f83479503957a5fa9",
+                "reference": "d6600d2218396b78856c335f83479503957a5fa9",
                 "shasum": ""
             },
             "require": {
@@ -2575,9 +2575,9 @@
             ],
             "support": {
                 "issues": "https://github.com/johnkary/phpunit-speedtrap/issues",
-                "source": "https://github.com/johnkary/phpunit-speedtrap/tree/v4.0.0"
+                "source": "https://github.com/johnkary/phpunit-speedtrap/tree/v4.0.1"
             },
-            "time": "2021-05-03T02:37:05+00:00"
+            "time": "2022-10-17T00:56:56+00:00"
         },
         {
             "name": "myclabs/deep-copy",

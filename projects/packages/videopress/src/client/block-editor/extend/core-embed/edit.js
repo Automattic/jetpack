@@ -64,9 +64,7 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 				'jetpack-videopress-pkg'
 			),
 			{
-				moreAboutVideoPressLink: (
-					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
-				),
+				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
 			}
 		);
 

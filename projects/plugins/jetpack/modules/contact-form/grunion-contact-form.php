@@ -3122,6 +3122,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			// 'textarea' => field_id,
 		);
 
+		// Initialize marketing consent
+		$field_ids['email_marketing_consent'] = null;
+
 		foreach ( $this->fields as $id => $field ) {
 			$field_ids['all'][] = $id;
 
@@ -3142,8 +3145,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				case 'url':
 				case 'subject':
 				case 'textarea':
-				case 'consent':
 					$field_ids[ $type ] = $id;
+					break;
+				case 'consent':
+					// Set email marketing consent for the first Consent type field
+					if ( null === $field_ids['email_marketing_consent'] ) {
+						if ( $field->value ) {
+							$field_ids['email_marketing_consent'] = true;
+						} else {
+							$field_ids['email_marketing_consent'] = false;
+						}
+					}
+					$field_ids['extra'][] = $id;
 					break;
 				default:
 					// Put everything else in extra
@@ -3169,8 +3182,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$block_template      = $this->get_attribute( 'block_template' );
 		$block_template_part = $this->get_attribute( 'block_template_part' );
 
-		$contact_form_subject    = $this->get_attribute( 'subject' );
-		$email_marketing_consent = false;
+		$contact_form_subject = $this->get_attribute( 'subject' );
 
 		$to     = str_replace( ' ', '', $to );
 		$emails = explode( ',', $to );
@@ -3275,11 +3287,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 		}
 
-		if ( isset( $field_ids['consent'] ) ) {
-			$field = $this->fields[ $field_ids['consent'] ];
-			if ( $field->value ) {
-				$email_marketing_consent = true;
-			}
+		// Set marketing consent
+		$email_marketing_consent = $field_ids['email_marketing_consent'];
+
+		if ( null === $email_marketing_consent ) {
+			$email_marketing_consent = false;
 		}
 
 		$all_values   = array();
