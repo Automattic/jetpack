@@ -29,6 +29,11 @@ p {
 		border-radius: $border-radius;
 		font-weight: 600;
 		margin-bottom: 1.5rem;
+		white-space: nowrap;
+		color: #fff;
+		text-decoration: none;
+		text-shadow: none;
+		outline: 1px solid transparent;
 	}
 
 	.components-button.is-link {
