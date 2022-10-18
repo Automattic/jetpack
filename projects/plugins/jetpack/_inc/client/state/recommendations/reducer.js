@@ -144,7 +144,7 @@ const data = ( state = {}, action ) => {
 		}
 		case JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE: {
 			const { active, viewed, hasStarted, totalSteps } = action.onboardingData;
-			return mergeWith( {}, state, {
+			return Object.assign( {}, state, {
 				...( active !== undefined ? { onboardingActive: active } : {} ),
 				...( viewed !== undefined ? { onboardingViewed: viewed } : {} ),
 				...( hasStarted !== undefined ? { onboardingHasStarted: hasStarted } : {} ),
