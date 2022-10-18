@@ -23,7 +23,7 @@
 		flex-wrap: wrap;
 		justify-content: flex-start;
 		flex-direction: row;
-		gap: var(--wp--style--block-gap);
+		gap: var(--wp--style--block-gap, 1.5rem);
 
 		.wp-block {
 			flex: 0 0 100%;
@@ -36,7 +36,7 @@
 			}
 
 			&.jetpack-field__width-25 {
-				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap) * 3) );
+				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 3) );
 				max-width: 25%;
 
 				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
@@ -45,12 +45,12 @@
 			}
 
 			&.jetpack-field__width-50 {
-				flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap) * 1) );
+				flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 				max-width: 50%;
 			}
 
 			&.jetpack-field__width-75 {
-				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap) * 1) );
+				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 				max-width: 75%;
 			}
 

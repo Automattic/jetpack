@@ -128,7 +128,7 @@
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	flex-direction: row;
-	gap: var(--wp--style--block-gap);
+	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap,
@@ -147,17 +147,17 @@
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
-	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap) * 3) );
+	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 3) );
 	max-width: 25%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
-	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap) * 1) );
+	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 	max-width: 50%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
-	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap) * 1) );
+	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 	max-width: 75%;
 }
 
