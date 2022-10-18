@@ -28,6 +28,7 @@ import classnames from 'classnames';
 import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import Logo from '../logo';
@@ -94,6 +95,8 @@ const Admin = () => {
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
+
+	useAnalyticsTracks( { pageViewEventName: 'admin' } );
 
 	return (
 		<AdminPage
@@ -190,7 +193,14 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
+		isFetchingPurchases,
 	} );
+
+	const { recordEventHandler } = useAnalyticsTracks( {} );
+	const onButtonClickHandler = recordEventHandler(
+		'jetpack_videopress_upgrade_trigger_link_click',
+		run
+	);
 
 	const description = hasUsedVideo
 		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
@@ -210,7 +220,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 			description={ description }
 			cta={ cta }
 			className={ styles[ 'upgrade-trigger' ] }
-			onClick={ run }
+			onClick={ onButtonClickHandler }
 		/>
 	);
 };
