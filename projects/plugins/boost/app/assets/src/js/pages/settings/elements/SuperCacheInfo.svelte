@@ -27,7 +27,6 @@
 				title={__( 'Measuring Super Cache Speed', 'jetpack-boost' )}
 				message="{__( 'Jetpack Boost is testing the speed of your cache.', 'jetpack-boost' )},"
 				actions={[ { label: runLabel, isLoading: true, disabled: true } ]}
-				hideCloseButton={true}
 			/>
 		{:then testResult}
 			<Notice
@@ -38,7 +37,6 @@
 					testResult
 				)}
 				actions={[ { label: runLabel, onClick: runTest } ]}
-				hideCloseButton={true}
 			/>
 		{:catch testError}
 			<Notice
@@ -50,7 +48,6 @@
 					testError.message
 				)}
 				actions={[ { label: runLabel, onClick: runTest } ]}
-				hideCloseButton={true}
 			/>
 		{/await}
 	{:else}
@@ -58,7 +55,6 @@
 			title={__( 'Super Cache detected', 'jetpack-boost' )}
 			message={__( 'Find out how much difference it makes for your users.', 'jetpack-boost' )}
 			actions={[ { label: runLabel, onClick: runTest } ]}
-			hideCloseButton={true}
 		/>
 	{/if}
 {:else if isSuperCachePluginActive()}
@@ -67,5 +63,6 @@
 		title={__( 'Super Cache is installed but not enabled', 'jetpack-boost' )}
 		message={__( 'Enable Super Cache to speed your site up further.', 'jetpack-boost' )}
 		actions={[ { label: __( 'Set up', 'jetpack-boost' ), onClick: navToSuperCacheSettings } ]}
+		dismissalKey={'super-cache-not-enabled'}
 	/>
 {/if}

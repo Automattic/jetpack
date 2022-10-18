@@ -6,7 +6,6 @@
 	import { __ } from '@wordpress/i18n/';
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import { dismissedPopOuts } from '../../../stores/config';
-	import { makeAdminAjaxRequest } from '../../../utils/make-admin-ajax-request';
 	import slideRightTransition from '../../../utils/slide-right-transition';
 
 	export let id = '';
@@ -15,23 +14,10 @@
 	export let ctaLink = '';
 	export let cta = '';
 
-	let data = '';
-
 	const dispatch = createEventDispatcher();
 
 	async function disablePrompt() {
-		// Send a request to back-end to permanently disable the rating prompt.
-		data = {
-			action: 'set_show_score_prompt',
-			id,
-			value: false,
-			// eslint-disable-next-line camelcase
-			nonce: Jetpack_Boost.showScorePromptNonce,
-		};
-
-		await makeAdminAjaxRequest( data );
-
-		dismissedPopOuts.dismiss( id );
+		await dismissedPopOuts.dismiss( id );
 		dispatch( 'dismiss' );
 	}
 </script>

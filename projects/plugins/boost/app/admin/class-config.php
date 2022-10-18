@@ -92,6 +92,7 @@ class Config {
 				$allowed_modals  = array(
 					'score-increase',
 					'score-decrease',
+					'super-cache-not-enabled',
 				);
 				if ( ! in_array( $modal_to_banish, $allowed_modals, true ) ) {
 					$error = new \WP_Error( 'authorization', __( 'This modal is not dismissable.', 'jetpack-boost' ) );
