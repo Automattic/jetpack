@@ -497,8 +497,12 @@ class Tokens {
 			return false;
 		}
 
-		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
-			return false;
+		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id ) {
+			if ( ! $can_overwrite_primary_user ) {
+				return false;
+			}
+
+			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
 		if ( ! isset( $tokens[ $user_id ] ) ) {

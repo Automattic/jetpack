@@ -831,18 +831,13 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
-		$user_id             = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
-		$connection_owner_id = $this->get_connection_owner_id();
+		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
 
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
-			if ( $user_id === $connection_owner_id ) {
-				\Jetpack_Options::delete_option( 'master_user' );
-			}
-
 			// Disconnect the user locally.
 			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
 
