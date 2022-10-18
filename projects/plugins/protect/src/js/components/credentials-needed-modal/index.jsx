@@ -1,6 +1,7 @@
 import { Button, Text, getRedirectUrl } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 import Notice from '../notice';
 import styles from './styles.module.scss';
@@ -9,12 +10,36 @@ const CredentialsNeededModal = () => {
 	const { setModal } = useDispatch( STORE_ID );
 	const { siteSuffix } = window.jetpackProtectInitialState;
 
+	const { checkCredentialsState } = useDispatch( STORE_ID );
+	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
+
 	const handleCancelClick = () => {
 		return event => {
 			event.preventDefault();
 			setModal( { type: null } );
 		};
 	};
+
+	/**
+	 * Poll credentials as long as the modal is open.
+	 */
+	useEffect( () => {
+		const checkCredentialsStateRecursively = () => {
+			if (
+				! credentialState.state ||
+				[ 'awaiting_credentials', 'unavailable' ].indexOf( credentialState.state ) >= 0
+			) {
+				checkCredentialsState().then( () => {
+					return setTimeout( () => {
+						checkCredentialsStateRecursively();
+					}, 3000 );
+				} );
+			}
+		};
+		const timeout = checkCredentialsStateRecursively();
+
+		return () => clearTimeout( timeout );
+	}, [ checkCredentialsState, credentialState.state ] );
 
 	return (
 		<>
