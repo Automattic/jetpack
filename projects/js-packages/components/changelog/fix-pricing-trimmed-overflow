@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed the tooltips being cut of on PricingTable
