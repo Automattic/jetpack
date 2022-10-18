@@ -37,6 +37,8 @@ const getMockedState = ( {
 	viewedRecommendations = [],
 } ) => ( {
 	jetpack: {
+		connection: { status: {} },
+		settings: { items: {} },
 		initialState: {
 			recommendationsStep: initialStep,
 		},
