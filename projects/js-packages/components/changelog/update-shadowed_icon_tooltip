@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Add shadowAnchor and forceShow for pure Popover displaying within parent wrapper.

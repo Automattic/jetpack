@@ -11,9 +11,34 @@ import React from 'react';
 
 import './style.scss';
 
-// Format numbers with separators.
-const formatNumberWithSeparators = x => {
+const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
+
+// Format numbers with separators or convert to `Unlimited`.
+export const formatNumber = x => {
+	if ( x > 1e18 ) {
+		return localizedUnlimited;
+	}
+
 	return numberFormat( x );
+};
+
+const usageInfoMessage = ( current, limit ) => {
+	const isUnlimitedRequests = limit > 1e18;
+
+	// Standard case of current/limit.
+	if ( ! isUnlimitedRequests ) {
+		return `${ formatNumber( current ) } / ${ formatNumber( limit ) }`;
+	}
+
+	// Special case for "unlimited" requests. API returning 64-bit PHP_INT_MAX.
+	// Return "Unlimited" if the current count is zero.
+	if ( current === 0 ) {
+		return localizedUnlimited;
+	}
+
+	// We have a request count so include it in the info string.
+	// ie: "123/Unlimited"
+	return `${ formatNumber( current ) } / ${ localizedUnlimited }`;
 };
 
 /**
@@ -36,17 +61,13 @@ const DonutMeterContainer = ( {
 	iconClickedCallback,
 	linkClickedCallback,
 } ) => {
-	// Special case for "unlimited" requests, which has a limit of 64-bit PHP_INT_MAX.
 	const isUnlimitedRequests = limit > 1e18;
-	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
-	const usageInfo = isUnlimitedRequests
-		? `0/${ localizedUnlimited }`
-		: formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
 	const displayCurrent = isUnlimitedRequests ? 1 : current;
 	const displayLimit = isUnlimitedRequests ? 1 : limit;
+	const usageInfo = usageInfoMessage( current, limit );
 
 	const tooltipArgs = {
-		shadowAnchor: true,
+		popoverAnchorStyle: 'wrapper',
 		title: tooltip.title,
 		placement: 'top',
 		forceShow: tooltip.forceShow,
@@ -56,7 +77,11 @@ const DonutMeterContainer = ( {
 		<ThemeProvider>
 			<div className="donut-meter-container">
 				<div className="donut-meter-wrapper">
-					<DonutMeter segmentCount={ displayCurrent } totalCount={ displayLimit } />
+					<DonutMeter
+						segmentCount={ displayCurrent }
+						totalCount={ displayLimit }
+						useAdaptiveColors={ ! isUnlimitedRequests }
+					/>
 					<div className="upgrade-tooltip-shadow-anchor">
 						<IconTooltip { ...tooltipArgs }>
 							<>
