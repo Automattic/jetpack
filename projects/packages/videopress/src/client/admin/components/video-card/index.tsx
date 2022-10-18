@@ -86,12 +86,13 @@ export const VideoCard = ( {
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
 
-	const privacyIsPrivate = privacySetting
+	const privacyIsSetToPrivate = privacySetting
 		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
 		: false;
+
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = privacyIsPrivate ? (
+	thumbnail = privacyIsSetToPrivate ? (
 		<div className={ styles[ 'video-card__custom-thumbnail' ] }>
 			<Icon icon={ captureVideo } size={ 96 } />
 		</div>
@@ -190,7 +191,7 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
 
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
@@ -204,6 +205,7 @@ export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 			isUpdatingPoster={ isUpdatingPoster }
 			processing={ processing }
 			editable={ editable }
+			privacySetting={ data.privacySetting }
 		/>
 	);
 };
