@@ -1,8 +1,10 @@
-import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import React, { useState, useCallback, useContext } from 'react';
+import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
@@ -21,6 +23,7 @@ export const PaidAccordionItem = ( {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
+	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 
 	const bodyClassNames = classNames( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
@@ -59,7 +62,11 @@ export const PaidAccordionItem = ( {
 				<div>
 					{ fixable && (
 						<>
-							<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
+							{ threatsAreFixing.indexOf( id ) >= 0 ? (
+								<Spinner color="black" />
+							) : (
+								<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
+							) }
 							{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 						</>
 					) }

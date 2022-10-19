@@ -1,7 +1,10 @@
 .summary {
+	> :first-child {
+		flex: 1;
+	}
+
 	@media ( min-width: 960px ) {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
 	}
 }
@@ -22,5 +25,16 @@
 
 	@media ( min-width: 960px ) {
 		margin-top: 0;
+	}
+}
+
+.summary__scan-button {
+	margin-top: 16px;
+	width: 100%;
+
+	@media ( min-width: 960px ) {
+		margin-top: 0;
+		margin-left: 16px;
+		width: auto;
 	}
 }

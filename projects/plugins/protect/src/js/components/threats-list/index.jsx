@@ -17,8 +17,20 @@ const ThreatsList = () => {
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 
+	const { setModal } = useDispatch( STORE_ID );
+
 	const { scan } = useDispatch( STORE_ID );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
+
+	const handleFixAllThreatsClick = threatList => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'FIX_ALL_THREATS',
+				props: { threatList },
+			} );
+		};
+	};
 
 	const handleScanClick = () => {
 		return event => {
@@ -74,7 +86,11 @@ const ThreatsList = () => {
 							{ hasRequiredPlan && (
 								<>
 									{ fixableList.length > 0 && (
-										<Button variant="primary" className={ styles[ 'list-header-button' ] }>
+										<Button
+											variant="primary"
+											className={ styles[ 'list-header-button' ] }
+											onClick={ handleFixAllThreatsClick( fixableList ) }
+										>
 											{
 												/* translators: Translates to Auto fix all. $s: Number of fixable threats. */
 												sprintf( __( 'Auto fix all (%s)', 'jetpack-protect' ), fixableList.length )

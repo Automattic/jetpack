@@ -4,6 +4,11 @@
     display: flex;
     border-radius: 4px;
     overflow: hidden;
+
+    &.notice--info {
+        border-left: 4px solid #F0C930;
+        margin-bottom: calc( var( --spacing-base ) * 3 );
+    }
 }
 
 .notice__icon {
@@ -21,9 +26,19 @@
     .notice--error & {
         background-color: var( --jp-red );
     }
+    
+    .notice--info & {
+        fill: #9D6E00;
+        background-color: #F5E6B3;
+    }
 }
 
 .notice__message {
     font-size: 14px;
     padding: 14px;
+
+    .notice--info & {
+        color: #1D2327;
+        background-color: #F5E6B3;
+    }
 }

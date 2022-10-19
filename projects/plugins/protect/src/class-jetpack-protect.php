@@ -19,6 +19,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Plan;
+use Automattic\Jetpack\Protect\Rewind;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status as Protect_Status;
@@ -287,6 +288,42 @@ class Jetpack_Protect {
 
 		register_rest_route(
 			'jetpack-protect/v1',
+			'fix-threats',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_fix_threats',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'fix-threats-status',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::api_fix_threats_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'check-credentials',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_check_credentials',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
 			'scan',
 			array(
 				'methods'             => \WP_REST_SERVER::EDITABLE,
@@ -301,9 +338,14 @@ class Jetpack_Protect {
 	/**
 	 * Return Protect Status for the API endpoint
 	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_get_status() {
+	public static function api_get_status( $request ) {
+		if ( $request['hard_refresh'] ) {
+			Protect_Status::delete_option();
+		}
 		$status = Protect_Status::get_status();
 		return rest_ensure_response( $status, 200 );
 	}
@@ -342,6 +384,63 @@ class Jetpack_Protect {
 		}
 
 		return new WP_REST_Response( 'Threat ignored.' );
+	}
+
+	/**
+	 * Fixes threats for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_fix_threats( $request ) {
+		if ( empty( $request['threat_ids'] ) ) {
+			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+		}
+
+		$threats_fixed = Threats::fix_threats( $request['threat_ids'] );
+
+		if ( ! $threats_fixed ) {
+			return new WP_REST_Response( 'An error occured while attempting to fix the threat.', 500 );
+		}
+
+		return new WP_REST_Response( $threats_fixed );
+	}
+
+	/**
+	 * Fixes threats for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_fix_threats_status( $request ) {
+		if ( empty( $request['threat_ids'] ) ) {
+			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+		}
+
+		$threats_fixed = Threats::fix_threats_status( $request['threat_ids'] );
+
+		if ( ! $threats_fixed ) {
+			return new WP_REST_Response( 'An error occured while attempting to get the fixer status of the threats.', 500 );
+		}
+
+		return new WP_REST_Response( $threats_fixed );
+	}
+
+	/**
+	 * Checks if the site has credentials configured
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_check_credentials() {
+		$rewind_state = Rewind::get_rewind_state();
+
+		if ( ! $rewind_state ) {
+			return new WP_REST_Response( 'An error occured while attempting to fetch the rewind state', 500 );
+		}
+
+		return new WP_REST_Response( array( 'state' => $rewind_state ) );
 	}
 
 	/**

@@ -1,4 +1,6 @@
 const selectors = {
+	getCredentialState: state => state.credentialState || {},
+	getCredentialStateIsFetching: state => state.credentialStateIsFetching || false,
 	getInstalledPlugins: state => state.installedPlugins || {},
 	getInstalledThemes: state => state.installedThemes || {},
 	getStatus: state => state.status || {},
@@ -11,6 +13,7 @@ const selectors = {
 	getModalType: state => state.modal?.type || null,
 	getModalProps: state => state.modal?.props || {},
 	getNotice: state => state.notice || null,
+	getThreatsAreFixing: state => state.threatsAreFixing || [],
 };
 
 export default selectors;

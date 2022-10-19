@@ -19,12 +19,11 @@ const ThreatAccordionItem = ( {
 	icon,
 	fixable,
 	id,
+	label,
 	name,
 	source,
-	table,
 	title,
 	type,
-	version,
 	severity,
 } ) => {
 	const { setModal } = useDispatch( STORE_ID );
@@ -37,34 +36,22 @@ const ThreatAccordionItem = ( {
 		</Button>
 	) : null;
 
-	/**
-	 * Get Label
-	 *
-	 * @returns {string} Threat label based on the assumed threat type (extension, file, database, etc).
-	 */
-	const getLabel = useCallback( () => {
-		if ( name && version ) {
-			// Extension threat i.e. "Woocommerce (3.0.0)"
-			return `${ name } (${ version })`;
-		}
-
-		if ( filename ) {
-			// File threat i.e. "index.php"
-			return filename.split( '/' ).pop();
-		}
-
-		if ( table ) {
-			// Database threat i.e. "wp_posts"
-			return table;
-		}
-	}, [ filename, name, table, version ] );
-
 	const handleIgnoreThreatClick = () => {
 		return event => {
 			event.preventDefault();
 			setModal( {
 				type: 'IGNORE_THREAT',
-				props: { id, label: getLabel(), title, icon, severity },
+				props: { id, label, title, icon, severity },
+			} );
+		};
+	};
+
+	const handleFixThreatClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'FIX_THREAT',
+				props: { id, label, title, icon, severity, fixable },
 			} );
 		};
 	};
@@ -72,7 +59,7 @@ const ThreatAccordionItem = ( {
 	return (
 		<PaidAccordionItem
 			id={ id }
-			label={ getLabel() }
+			label={ label }
 			title={ title }
 			icon={ icon }
 			fixable={ fixable }
@@ -129,7 +116,11 @@ const ThreatAccordionItem = ( {
 				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
-				{ fixable && <Button>{ __( 'Fix threat', 'jetpack-protect' ) }</Button> }
+				{ fixable && (
+					<Button onClick={ handleFixThreatClick() }>
+						{ __( 'Fix threat', 'jetpack-protect' ) }
+					</Button>
+				) }
 			</div>
 		</PaidAccordionItem>
 	);
@@ -157,6 +148,25 @@ const PaidList = ( { list } ) => {
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
+	const getLabel = threat => {
+		if ( threat.name && threat.version ) {
+			// Extension threat i.e. "Woocommerce (3.0.0)"
+			return `${ threat.name } (${ threat.version })`;
+		}
+
+		if ( threat.filename ) {
+			// File threat i.e. "index.php"
+			return threat.filename.split( '/' ).pop();
+		}
+
+		if ( threat.table ) {
+			// Database threat i.e. "wp_posts"
+			return threat.table;
+		}
+	};
+
+	list = list.map( threat => ( { label: getLabel( threat ), ...threat } ) );
+
 	return (
 		<>
 			{ ! isSmall && (
@@ -178,6 +188,7 @@ const PaidList = ( { list } ) => {
 						icon,
 						fixable,
 						id,
+						label,
 						name,
 						severity,
 						source,
@@ -196,6 +207,7 @@ const PaidList = ( { list } ) => {
 							fixable={ fixable }
 							id={ id }
 							key={ id }
+							label={ label }
 							name={ name }
 							severity={ severity }
 							source={ source }

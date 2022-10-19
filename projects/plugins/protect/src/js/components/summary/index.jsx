@@ -1,5 +1,5 @@
-import { Container, Col, Text, Title, getIconBySlug } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
+import { Container, Col, Text, Title, getIconBySlug, Button } from '@automattic/jetpack-components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
@@ -9,9 +9,19 @@ import Notice from '../notice';
 import styles from './styles.module.scss';
 
 const Summary = () => {
-	const { numThreats, lastChecked } = useProtectData();
+	const { numThreats, lastChecked, jetpackScan } = useProtectData();
+	const { hasRequiredPlan } = jetpackScan;
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
+	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
+	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
+
+	const handleScanClick = () => {
+		return event => {
+			event.preventDefault();
+			scan();
+		};
+	};
 
 	return (
 		<Container fluid>
@@ -40,6 +50,16 @@ const Summary = () => {
 					<div className={ styles.summary__notice }>
 						{ notice && notice.message && <Notice { ...notice } /> }
 					</div>
+					{ hasRequiredPlan && numThreats === 0 && (
+						<Button
+							variant="secondary"
+							className={ styles[ 'summary__scan-button' ] }
+							isLoading={ scanIsEnqueuing }
+							onClick={ handleScanClick() }
+						>
+							{ __( 'Scan now', 'jetpack-protect' ) }
+						</Button>
+					) }
 				</div>
 			</Col>
 		</Container>

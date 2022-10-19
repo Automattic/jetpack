@@ -17,13 +17,11 @@ use WP_Error;
  */
 class Threats {
 	/**
-	 * Gets the Scan API endpoint
-	 *
-	 * @param string $threat_id The threat ID.
+	 * Gets the base "Alerts" (Threats) endpoint.
 	 *
 	 * @return WP_Error|string
 	 */
-	private static function get_api_url( $threat_id ) {
+	private static function get_api_base() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$is_connected = ( new Connection_Manager() )->is_connected();
 
@@ -31,7 +29,7 @@ class Threats {
 			return new WP_Error( 'site_not_connected' );
 		}
 
-		$api_url = sprintf( '/sites/%d/alerts/%d', $blog_id, $threat_id );
+		$api_url = sprintf( '/sites/%d/alerts', $blog_id );
 
 		return $api_url;
 	}
@@ -45,13 +43,13 @@ class Threats {
 	 * @return bool
 	 */
 	public static function update_threat( $threat_id, $updates ) {
-		$api_url = self::get_api_url( $threat_id );
-		if ( is_wp_error( $api_url ) ) {
+		$api_base = self::get_api_base( $threat_id );
+		if ( is_wp_error( $api_base ) ) {
 			return false;
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			$api_url,
+			"$api_base/$threat_id",
 			'2',
 			array( 'method' => 'POST' ),
 			wp_json_encode( $updates ),
@@ -79,6 +77,88 @@ class Threats {
 	 */
 	public static function ignore_threat( $threat_id ) {
 		return self::update_threat( $threat_id, array( 'ignore' => true ) );
+	}
+
+	/**
+	 * Fix Threats
+	 *
+	 * @param array<string> $threat_ids Threat IDs.
+	 *
+	 * @return bool|array
+	 */
+	public static function fix_threats( $threat_ids ) {
+		$api_base = self::get_api_base();
+		if ( is_wp_error( $api_base ) ) {
+			return false;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			"$api_base/fix",
+			'2',
+			array( 'method' => 'POST' ),
+			wp_json_encode(
+				array(
+					'threat_ids' => $threat_ids,
+				)
+			),
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code ) {
+			return false;
+		}
+
+		// clear the now out-of-date cache
+		Scan_Status::delete_option();
+
+		$parsed_response = json_decode( $response['body'] );
+
+		if ( ! $parsed_response ) {
+			return false;
+		}
+
+		return $parsed_response;
+	}
+
+	/**
+	 * Fix Threats Status
+	 *
+	 * @param array<string> $threat_ids Threat IDs.
+	 *
+	 * @return bool|array
+	 */
+	public static function fix_threats_status( $threat_ids ) {
+		$api_base = self::get_api_base();
+		if ( is_wp_error( $api_base ) ) {
+			return false;
+		}
+
+		$response = Client::wpcom_json_api_request_as_user(
+			add_query_arg( 'threat_ids', $threat_ids, "$api_base/fix" ),
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code ) {
+			return false;
+		}
+
+		$parsed_response = json_decode( $response['body'] );
+
+		if ( ! $parsed_response ) {
+			return false;
+		}
+
+		// clear the potentially out-of-date cache
+		Scan_Status::delete_option();
+
+		return $parsed_response;
 	}
 
 	/**

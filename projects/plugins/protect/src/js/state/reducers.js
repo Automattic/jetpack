@@ -1,5 +1,7 @@
 import { combineReducers } from '@wordpress/data';
 import {
+	SET_CREDENTIAL_STATE,
+	SET_CREDENTIAL_STATE_IS_FETCHING,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
@@ -10,7 +12,24 @@ import {
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
+	SET_THREATS_ARE_FIXING,
 } from './actions';
+
+const credentialState = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_CREDENTIAL_STATE:
+			return action.credentialState;
+	}
+	return state;
+};
+
+const credentialStateIsFetching = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_CREDENTIAL_STATE_IS_FETCHING:
+			return action.isFetching;
+	}
+	return state;
+};
 
 const status = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -84,6 +103,14 @@ const threatsUpdating = ( state = {}, action ) => {
 	return state;
 };
 
+const setThreatsFixing = ( state = [], action ) => {
+	switch ( action.type ) {
+		case SET_THREATS_ARE_FIXING:
+			return action.threatIds;
+	}
+	return state;
+};
+
 const modal = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_MODAL:
@@ -101,6 +128,8 @@ const notice = ( state = {}, action ) => {
 };
 
 const reducers = combineReducers( {
+	credentialState,
+	credentialStateIsFetching,
 	status,
 	statusIsFetching,
 	scanIsEnqueuing,
@@ -112,6 +141,7 @@ const reducers = combineReducers( {
 	threatsUpdating,
 	modal,
 	notice,
+	setThreatsFixing,
 } );
 
 export default reducers;
