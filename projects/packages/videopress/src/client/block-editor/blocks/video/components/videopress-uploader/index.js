@@ -152,11 +152,7 @@ const VideoPressUploader = ( {
 	const startUploadFromLibrary = attachmentId => {
 		uploadFromLibrary( attachmentId )
 			.then( result => {
-				handleUploadSuccess( {
-					guid: result.uploaded_details.guid,
-					id: result.uploaded_details.media_id,
-					src: result.uploaded_details.src,
-				} );
+				handleUploadSuccess( result );
 			} )
 			.catch( error => {
 				setUploadErrorDataState( error );
