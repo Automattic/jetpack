@@ -244,8 +244,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 11.5-a.9 - 2022-10-19
 #### Bug fixes
-- Consent Form Field: add field to success page, email ,and feedback view.
-- Contact Form: remove contact-form overlay as it's impacting inserter hover behavior
+- Contact Form: display consent form field result in notification emails and feedback views.
+- Contact Form: remove overlay causing issues with the block inserter hover behavior.
 
 --------
 
