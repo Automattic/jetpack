@@ -8,16 +8,16 @@ import styles from './styles.module.scss';
 const CredentialsGate = ( { children } ) => {
 	const { checkCredentials } = useDispatch( STORE_ID );
 
-	const { Credential, CredentialIsFetching } = useSelect( select => ( {
+	const { credential, CredentialIsFetching } = useSelect( select => ( {
 		Credential: select( STORE_ID ).getCredential(),
 		CredentialIsFetching: select( STORE_ID ).getCredentialIsFetching(),
 	} ) );
 
-	if ( ! Credential.credentials && ! CredentialIsFetching ) {
+	if ( ! credential.credentials && ! CredentialIsFetching ) {
 		checkCredentials();
 	}
 
-	if ( ! Credential.credentials ) {
+	if ( ! credential.credentials ) {
 		return (
 			<div className={ styles.loading }>
 				<Spinner
@@ -35,7 +35,7 @@ const CredentialsGate = ( { children } ) => {
 		);
 	}
 
-	if ( Credential.credentials.length === 0 ) {
+	if ( credential.credentials.length === 0 ) {
 		return <CredentialsNeededModal />;
 	}
 
