@@ -79,7 +79,7 @@
    - jetpack-approvers
    - '@donnchawp'
 
-# The Search team reviews changes to the Search plugin, and the Search package.
+# The Red team reviews changes to the Search plugin, and the Search package.
 - name: Search
   paths:
    - 'projects/plugins/search/**'
