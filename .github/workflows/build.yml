@@ -130,6 +130,22 @@ jobs:
               comment_id: +COMMENT_ID,
             } );
 
+      - name: Trigger TeamCity build
+        if: ${{ fromJSON(steps.changed.outputs.projects)['plugins/jetpack'] == true }}
+        env:
+          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
+          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
+          PR: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          response=$(curl --fail -L \
+            --url "$URL" \
+            --form-string "pr-number=$PR" \
+            --form-string "sha=$SHA" \
+            --form-string "secret=$SECRET")
+
+            echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
+
   upgrade_test:
     name: Test plugin upgrades
     runs-on: ubuntu-latest
