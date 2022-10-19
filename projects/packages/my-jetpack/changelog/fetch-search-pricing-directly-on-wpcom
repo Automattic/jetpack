@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fetch search pricing on wpcom without making an additional external request
