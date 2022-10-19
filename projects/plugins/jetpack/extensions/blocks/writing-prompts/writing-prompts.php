@@ -59,19 +59,15 @@ function get_daily_writing_prompt() {
  * Checks URL params to determine if we should load a writing prompt.
  */
 function inject_writing_prompts() {
+	global $current_screen;
+
 	// Return early if we are not in the block editor.
-	if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+	if ( ! $current_screen instanceof \WP_Screen || ! wp_should_load_block_editor_scripts_and_styles() ) {
 		return;
 	}
 
 	// Or if we aren't creating a new post.
-	if ( 'post-new.php' !== $GLOBALS['pagenow'] ) {
-		return;
-	}
-
-	// Or if we don't have a post.
-	$post = get_post();
-	if ( ! $post || ! $post->ID ) {
+	if ( 'add' !== $current_screen->action || 'post' !== $current_screen->post_type ) {
 		return;
 	}
 
