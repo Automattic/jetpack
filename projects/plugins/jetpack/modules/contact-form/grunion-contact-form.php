@@ -3406,8 +3406,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @since 1.3.1
 		 *
 		 * @param string|array $to Array of valid email addresses, or single email address.
+		 * @param array $all_values Contact form fields
 		 */
-		$to            = (array) apply_filters( 'contact_form_to', $to );
+		$to            = (array) apply_filters( 'contact_form_to', $to, $all_values );
 		$reply_to_addr = $to[0]; // get just the address part before the name part is added
 
 		foreach ( $to as $to_key => $to_value ) {
