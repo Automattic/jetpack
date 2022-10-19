@@ -48,8 +48,8 @@ const useInitOnboarding = ( {
 			if ( active && ! hasStarted ) {
 				updateStep( step );
 				updateOnboardingData( { ...onboardingData, hasStarted: true } );
-			} else if ( null === active ) {
-				// If no onboarding active, sync only viewed onboardings
+			} else {
+				// If no onboarding to start, sync only viewed onboardings
 				updateOnboardingData( { viewed } );
 			}
 		}

@@ -683,24 +683,19 @@ export const getOnboardingData = state => {
 		hasStarted: getDataByKey( state, 'onboardingHasStarted' ) || false,
 	};
 
-	// If no onboarding is active, try to find one that can be activated
-	if ( null === onboarding.active ) {
-		const newOnboardings = eligibleOnboardings.filter(
-			name => ! onboarding.viewed.includes( name )
-		);
+	const newOnboardings = eligibleOnboardings.filter( name => ! onboarding.viewed.includes( name ) );
 
+	// Start the new onboarding if one is found
+	if ( newOnboardings.length > 0 ) {
 		const sortedOnboardings = newOnboardings.sort( sortByOnboardingPriority );
-
-		if ( sortedOnboardings.length > 0 ) {
-			return {
-				active: sortedOnboardings[ 0 ],
-				totalSteps: getStepsForOnboarding( sortedOnboardings[ 0 ] ).filter( step =>
-					isStepEligibleToShow( state, step )
-				),
-				viewed: union( onboarding.viewed, sortedOnboardings ),
-				hasStarted: false,
-			};
-		}
+		return {
+			active: sortedOnboardings[ 0 ],
+			totalSteps: getStepsForOnboarding( sortedOnboardings[ 0 ] ).filter( step =>
+				isStepEligibleToShow( state, step )
+			),
+			viewed: union( onboarding.viewed, sortedOnboardings ),
+			hasStarted: false,
+		};
 	}
 
 	return onboarding;
