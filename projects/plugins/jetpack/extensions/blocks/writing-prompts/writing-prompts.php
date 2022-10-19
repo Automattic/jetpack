@@ -1,8 +1,8 @@
 <?php
 /**
- * Anchor.fm integration.
+ * Writing prompts.
  *
- * @since 9.3.0
+ * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
@@ -15,39 +15,33 @@ const FEATURE_NAME = 'writing-prompts';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
- * Registers Anchor.fm integration for the block editor.
+ * Registers the writing prompt integration for the block editor.
  */
 function register_extension() {
 	Blocks::jetpack_register_block( BLOCK_NAME );
 }
 
 /**
- * Checks URL params to determine the Anchor integration action to perform.
+ * Checks URL params to determine if we should load a writing prompt.
  */
 function inject_writing_prompts() {
-	if (
-		! function_exists( 'get_current_screen' )
-		|| \get_current_screen() === null
-	) {
-		return;
-	}
-
 	// Return early if we are not in the block editor.
 	if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
 		return;
 	}
 
+	// Or if we aren't creating a new post.
+	if ( 'post-new.php' !== $GLOBALS['pagenow'] ) {
+		return;
+	}
+
+	// Or if we don't have a post.
 	$post = get_post();
 	if ( ! $post || ! $post->ID ) {
 		return;
 	}
 
 	$prompts = array(
-		__(
-			'What’s the most time you’ve ever spent apart from your
-		favorite person? Tell us about it',
-			'jetpack'
-		),
 		__( 'What’s the most time you’ve ever spent apart from your favorite person? Tell us about it', 'jetpack' ),
 		__( 'You need to make a major change in your life. Do you make it all at once, cold turkey style, or incrementally?', 'jetpack' ),
 		__( 'Your home is on fire. Grab five items (assume all people and animals are safe). What did you grab?', 'jetpack' ),
@@ -60,8 +54,9 @@ function inject_writing_prompts() {
 	);
 
 	$random_prompt = $prompts[ wp_rand( 0, count( $prompts ) - 1 ) ];
+	$data          = array( 'prompt' => $random_prompt );
 
-	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_WritingPrompts', array( 'prompt' => esc_html( $random_prompt ) ) );
+	wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_WritingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( wp_json_encode( $data ) ) . '" ) );', 'before' );
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
