@@ -62,6 +62,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'                => '(bool) If the current user is subscribed to this site in the reader',
 		'organization_id'             => '(int) P2 Organization identifier.',
 		'options'                     => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
+		'p2_thumbnail_elements'       => '(array) Details used to render a thumbnail of the site. P2020 themed sites only.',
 		'plan'                        => '(array) Details of the current plan for this site.',
 		'updates'                     => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'jetpack_modules'             => '(array) A list of active Jetpack modules.',
@@ -537,6 +538,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'user_interactions':
 				$response[ $key ] = $this->site->get_user_interactions();
 				break;
+			case 'p2_thumbnail_elements':
+				$response[ $key ] = $this->site->get_p2_thumbnail_elements();
 		}
 
 		do_action( 'post_render_site_response_key', $key );

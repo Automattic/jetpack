@@ -5,7 +5,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
+import { Icon, edit, captureVideo, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -110,11 +110,15 @@ const VideoThumbnail = ( {
 	duration,
 	editable,
 	blankIconSize = 96,
+	isPrivate,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	/** If the thumbnail is private, do not try to show it */
+	thumbnail = isPrivate ? null : thumbnail;
 
 	thumbnail =
 		typeof thumbnail === 'string' && thumbnail !== '' ? (
@@ -122,6 +126,18 @@ const VideoThumbnail = ( {
 		) : (
 			thumbnail
 		);
+
+	/** Use a different icon for private videos */
+	const blankIcon = isPrivate ? captureVideo : video;
+
+	/** If the thumbnail is not set, use the placeholder with an icon */
+	thumbnail = thumbnail ? (
+		thumbnail
+	) : (
+		<div className={ styles[ 'thumbnail-blank' ] }>
+			<Icon icon={ blankIcon } size={ blankIconSize } />
+		</div>
+	);
 
 	return (
 		<div
@@ -144,15 +160,7 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			<div className={ styles[ 'thumbnail-placeholder' ] }>
-				{ thumbnail ? (
-					thumbnail
-				) : (
-					<div className={ styles[ 'thumbnail-blank' ] }>
-						<Icon icon={ video } size={ blankIconSize } />
-					</div>
-				) }
-			</div>
+			<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
 		</div>
 	);
 };

@@ -37,7 +37,10 @@ type VideoRowBaseProps = {
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &
-	Pick< VideoPressVideo, 'id' | 'title' | 'duration' | 'uploadDate' | 'plays' | 'isPrivate' > &
+	Pick<
+		VideoPressVideo,
+		'id' | 'title' | 'duration' | 'uploadDate' | 'plays' | 'isPrivate' | 'privacySetting'
+	> &
 	Pick< VideoThumbnailProps, 'thumbnail' >;
 
 export type VideoRowProps = VideoPressVideoProps & {
