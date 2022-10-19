@@ -87,7 +87,7 @@ const PricingPage = () => {
 							setIsConnecting( true );
 							handleRegisterSite();
 						} }
-						isLoading={ userIsConnecting }
+						isLoading={ userIsConnecting || isConnecting }
 						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
