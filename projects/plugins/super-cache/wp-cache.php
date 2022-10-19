@@ -287,20 +287,27 @@ function wp_cache_menu_setup(){
 
 /** Enqueue Stylesheets **/
 function wpsc_add_admin_scripts($hook) {
-
 	global $wp_cache_slugs;
-
-    // global $parent_file defined on admin-header.php line 27
-    // https://core.trac.wordpress.org/browser/tags/5.9/src/wp-admin/admin-header.php#L27
     global $parent_file;
     if ($wp_cache_slugs['home'] != $parent_file) {
         return;
     }
-
 	wp_enqueue_style('wpsc_styles', plugins_url('css/super-cache-admin.min.css',__FILE__ ));
-    // For example we load sweetalert on your menu page and all sub-menu below your menu page.
-    // wp_enqueue_script('sweetalert-js', 'https://unpkg.com/sweetalert/dist/sweetalert.min.js');
 
+	// see https://make.wordpress.org/core/2018/11/09/new-javascript-i18n-support-in-wordpress/
+	wp_register_script( 'wpsc-scripts', plugins_url( '/js/wpsc-admin.js', __FILE__ ), array('jquery', 'wp-i18n'), '1.0', 1 );
+	wp_enqueue_script( 'wpsc-scripts' );
+
+	// updates nonce is used for installing a plugin so do not change this.
+	$nonce = array(
+		'updates'   =>  wp_create_nonce( 'updates' ),
+		'activate'  => wp_create_nonce('activate-boost'),
+		'banner'	=> wp_create_nonce( 'wpsc_2022_boost_banner' ),
+		'toggle'	=> wp_create_nonce( 'wpsc_toggle_caching_easy' ),
+	);
+	wp_localize_script( 'wpsc-scripts', 'wpscjs', array( 'lang' => $language, 'nonce' => $nonce ) );
+	wp_set_script_translations( 'wpsc-scripts', 'wp-super-cache' );
+	
 }
 add_action('admin_enqueue_scripts', 'wpsc_add_admin_scripts');
 
@@ -317,11 +324,8 @@ function wpsc_show_boost_modal(){
 	$showing_boost_banner = ! $is_boost_active && get_option( 'wpsc_2022_boost_banner', true );
 	$boost_banner_nonce   = wp_create_nonce( 'wpsc_2022_boost_banner' );
 
-
-
 	if( $showing_boost_banner ){
 		?>
-			<div class="boost-backdrop" style="display:none;"></div>
 			<div class="boost-banner">
 				<div class="boost-banner-inner">
 					<div class="boost-banner-content">
@@ -363,70 +367,6 @@ function wpsc_show_boost_modal(){
 
 				<span class="boost-dismiss dashicons dashicons-dismiss"></span>
 			</div>
-
-			<script>
-				jQuery( '.boost-dismiss' ).on( 'click', function() {
-					jQuery('.boost-backdrop').fadeOut('slow');
-					jQuery( '.boost-banner' ).fadeOut( 'slow' );
-					jQuery.post( ajaxurl, {
-						action: 'wpsc-hide-boost-banner',
-						nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
-					} );
-				} );
-
-				//install and activate Boost through AJAX :-) you're welcome, Mark.
-				jQuery('.install-and-activate-boost').on('click', function(e){
-					if(jQuery(this).hasClass('blocker')){
-						return;
-					}
-					jQuery(this).addClass('blocker');
-					e.preventDefault();
-					button = jQuery(this);
-					button.html("Installing...");
-					var data = {
-						action: 'wpsc_ajax_install_plugin',
-						_ajax_nonce: '<?php echo wp_create_nonce( 'updates' ); ?>', // nonce
-						slug: 'jetpack-boost', // e.g. woocommerce
-					};
-
-					jQuery.post( '<?php echo admin_url( 'admin-ajax.php' ); ?>', data, function(response) {
-						if(response.success){
-							button.html("Activating...");
-							var data = {
-								action: 'wpsc_ajax_activate_boost',
-								_ajax_nonce: '<?php echo wp_create_nonce( 'activate-boost' ); ?>', // nonce
-							};
-
-							jQuery.post( '<?php echo admin_url( 'admin-ajax.php' ); ?>', data, function(response) {
-								if(response.success){
-									button.removeClass('install-and-activate-boost');
-									button.html("Set up Jetpack Boost");
-									button.attr("href", response.data.setupURL);
-								}
-							});
-						} 
-					});
-				});
-
-				//activate boost
-				jQuery('.activate-boost').on('click', function(e){
-					e.preventDefault();
-					button = jQuery(this);
-					button.html("Activating...");
-					var data = {
-							action: 'wpsc_ajax_activate_boost',
-							_ajax_nonce: '<?php echo wp_create_nonce( 'activate-boost' ); ?>', // nonce
-						};
-					jQuery.post(ajaxurl, data, function(response) {
-						if(response.success){
-							button.removeClass('activate-boost');
-							button.html("Set up Jetpack Boost");
-							button.attr("href", response.data.setupURL);
-						}
-					});
-				});
-
-			</script>
 		<?php
 	} // end showing boost banner.
 }
@@ -582,47 +522,6 @@ function wpsc_feature_toggle(){
 			</div>
 		</div>
 	</div>
-	<script>
-		// This controls the slider on the main page. 
-		jQuery( '.slider' ).on( 'click', function(el) {
-			if(jQuery(this).hasClass('blocker')){
-				//stop it being toggled loads before the setting has updated
-				return;
-			}
-			jQuery(this).addClass('blocker');
-			//get the status of the checkbox
-			if(jQuery(this).hasClass('toggle-on')){
-				//if we already have the class of checked we are turning it off
-				jQuery(this).addClass('toggle-off');
-				jQuery(this).removeClass('toggle-on');
-				mode = 'off';
-				wpsc_toggle_caching_mode( mode, jQuery(this) );
-			}else{
-				jQuery(this).addClass('toggle-on');
-				jQuery(this).removeClass('toggle-off');
-				mode = 'on';
-				wpsc_toggle_caching_mode( mode, jQuery(this) );
-			}
-		});
-
-		function wpsc_toggle_caching_mode( mode, elem ){
-			var data = {
-					action: 'wpsc_ajax_toggle_caching_easy',
-					_ajax_nonce: '<?php echo wp_create_nonce( 'wpsc_toggle_caching_easy' ); ?>', // nonce
-					cache: mode,
-				};
-
-			jQuery.post( ajaxurl, data, function(response) {
-					if(response.success){
-						elem.removeClass('blocker');
-					}else{
-						//show it to the console.
-						console.log(response);
-					}
-				});
-		}
-		
-	</script>
 	<?php
 }
 
@@ -668,14 +567,12 @@ function wpsc_ajax_toggle_caching_easy(){
  */
 function wpsc_boost_slimline_promo(){
 
-	$showing_boost_banner = ! class_exists( 'Automattic\Jetpack_Boost\Jetpack_Boost' ) && get_option( 'wpsc_2022_boost_banner', true );
-	$boost_banner_nonce   = wp_create_nonce( 'wpsc_2022_boost_banner' );
-
 	// is Boost installed and is Boost active;
 	$pathpluginurl = WP_PLUGIN_DIR . '/jetpack-boost/jetpack-boost.php';
 	$is_boost_installed = file_exists( $pathpluginurl );
 	$is_boost_active = is_plugin_active( 'jetpack-boost/jetpack-boost.php' );
 
+	$showing_boost_banner = ! $is_boost_active && get_option( 'wpsc_2022_boost_banner', true );
 
 	if ( $showing_boost_banner ) { ?>
 		<div class='wpsc-boost-banner'>
@@ -694,7 +591,6 @@ function wpsc_boost_slimline_promo(){
 					<div class='lead'>Activate Jetpack Boost for access to all its performance features</div>
 					<div class='info'>Jetpack Boost is installed but not activated. Please activate Jetpack Boost to see your site speed scores and much more.</div>
 				<?php } ?>
-
 				<div class='button-wrap'>
 					<?php if( ! $is_boost_installed ){ ?>
 					<div class='button install-boost button-install'>
@@ -710,120 +606,12 @@ function wpsc_boost_slimline_promo(){
 						<span>Activate Jetpack Boost</span>
 					</div>
 					<?php } ?>
-
 				</div>
-			
 			</div>
 			<div class='item'>
 				<img class='wpsc-icon close' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/close-small.png' ); ?>" />
 			</div>
 		</div>
-		<script>
-			bindActivateClick();
-			jQuery( '.wpsc-boost-banner .close' ).on( 'click', function() {
-					jQuery( '.wpsc-boost-banner' ).fadeOut( 'slow' );
-					jQuery.post( ajaxurl, {
-						action: 'wpsc-hide-boost-banner',
-						nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
-					} );
-			} );
-			jQuery( '.install-boost' ).on( 'click', function(el) {
-				//this is frustrating where clicking the same button
-				//to activate would re-call the trying to install code.
-				if(jQuery(this).hasClass('blocker')){
-					return;
-				};
-				jQuery(this).addClass('blocker');
-				jQuery('.learn-more').hide();
-				jQuery(this).removeClass('install-boost');
-				jQuery('span', this).html('Installing...');
-				jQuery(this).removeClass('button-install').addClass('button-installing');
-				jQuery('.wpsc-boost-banner .loading').show();
-				jQuery('.loader').show();
-
-				var data = {
-					action: 'wpsc_ajax_install_plugin',
-					_ajax_nonce: '<?php echo wp_create_nonce( 'updates' ); ?>', // nonce
-					slug: 'jetpack-boost', // e.g. woocommerce
-				};
-
-				jQuery.post( '<?php echo admin_url( 'admin-ajax.php' ); ?>', data, function(response) {
-					if(response.success){
-						//first handle a success
-						jQuery('.loader').hide();
-						jQuery('.icon .info').hide();
-						jQuery('.button-installing span').html('Activating Jetpack Boost..');
-						jQuery('.button-installing').removeClass('button-installing').addClass('activate-boost').removeClass('install-boost');
-						jQuery('.wpsc-boost-banner .loading').hide();
-						jQuery('.lead').html('Jetpack Boost was sucessfully installed!');
-						jQuery('.info').html('Jetpack Boost is now being activated.');
-						jQuery('.learn-more').remove();
-						jQuery('.wpsc-boost-banner').css('border-left', '5px solid #079E08');
-						jQuery('.icon .check').show();
-						// if the install was a success, proceed to activate
-						ActivateBoost();
-					}else{
-						//then an error
-						jQuery('.loader').hide();
-						jQuery('.icon .info').hide();
-						jQuery('span', this).html('<a href="'+response.data.activateUrl+'">Activate</a>');
-						jQuery(this).removeClass('button-installing').addClass('activate-boost').removeClass('install-boost');
-						jQuery('.wpsc-boost-banner .loading').hide();
-						jQuery('.lead').html('There was an error when trying to install Jetpack Boost!');
-						jQuery('.info').html(response.data.errorMessage);
-						jQuery('.learn-more').remove();
-						jQuery('.wpsc-boost-banner').css('border-left', '5px solid #D63639');
-						jQuery('.icon .alert').show();
-						jQuery('.button-wrap').remove();
-					}
-				});
-
-			} );
-
-		function bindActivateClick(){
-			//proceed to install boost. 
-			jQuery( '.activate-boost').on('click', function(){
-				ActivateBoost();
-			});
-		}
-
-		function bindSetupClick(){
-			jQuery('.set-up-boost').on( 'click', function(){
-				link = jQuery("a", this).attr('href');
-				window.location.href = link;
-			});
-		}
-
-		function ActivateBoost(){
-			if(jQuery(this).hasClass('blocker')){
-					return;
-				};
-			jQuery(this).addClass('blocker');
-			jQuery('.activate-boost').addClass('button-installing');
-			var data = {
-				action: 'wpsc_ajax_activate_boost',
-				_ajax_nonce: '<?php echo wp_create_nonce( 'activate-boost' ); ?>', // nonce
-			};
-
-			jQuery.post( '<?php echo admin_url( 'admin-ajax.php' ); ?>', data, function(response) {
-				if(response.success){
-					//first handle a success
-					jQuery('.loader').hide();
-					jQuery('.icon .info').hide();
-					jQuery('.activate-boost span').html('<a href="'+ response.data.setupURL +'">Set up Jetpack Boost</a>');
-					jQuery('.activate-boost').removeClass('button-installing').removeClass('activate-boost').addClass('set-up-boost');
-					jQuery('.wpsc-boost-banner .loading').hide();
-					jQuery('.lead').html('Jetpack Boost was sucessfully activated!');
-					jQuery('.info').html('There are a few items to set up in order to improve your site’s performance.');
-					jQuery('.learn-more').remove();
-					jQuery('.wpsc-boost-banner').css('border-left', '5px solid #079E08');
-					jQuery('.icon .check').show();
-					bindSetupClick();
-				}
-			});
-		}
-
-		</script>
 	<?php
 	}
 }

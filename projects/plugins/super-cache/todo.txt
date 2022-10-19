@@ -3,13 +3,7 @@
 This keeps track of what is left to do before this is ready to send to PR
 
 ---- Known issues left to fix ---
-* Debug settings do not seem to save anymore
-* Plugins list does not seem to populate
-* Restore default configuration not working from Advanced tab.
-
 * CSS Stick footer to the bottom of the page on shorter pages
-* Delete Cache button from "Easy" sub menu page does not work
-  - There's an admin bar delete cache button so we could just remove it from "Easy".
 -------------------------------------
 
 Final checks:-
