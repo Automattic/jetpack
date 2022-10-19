@@ -36,7 +36,7 @@
 			}
 
 			&.jetpack-field__width-25 {
-				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 3) );
+				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 				max-width: 25%;
 
 				.jetpack-option__input.jetpack-option__input.jetpack-option__input {

@@ -21,13 +21,11 @@
 .contact-form input[type='tel'],
 .contact-form input[type='url'] {
 	box-sizing: border-box;
-	margin-bottom: 1.5em;
 	width: 100%;
 	padding: 14px 7px;
 }
 
 .contact-form select {
-	margin-bottom: 1.5em;
 	padding: 14px 7px;
 	min-width: 150px;
 }
@@ -36,7 +34,6 @@
 	box-sizing: border-box;
 	float: none;
 	height: 200px;
-	margin-bottom: 1.5em;
 	width: 100%;
 	padding: 7px;
 	font: inherit;
@@ -140,14 +137,8 @@
 	float: right;
 }
 
-.wp-block-jetpack-contact-form .grunion-field-wrap {
-	/* Use transparent border to maintain consistent
-	 * space between elements with flexbox. Not anymore -- cg */
-	/* border-right: 15px solid transparent; */
-}
-
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
-	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 3) );
+	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
 	max-width: 25%;
 }
 
