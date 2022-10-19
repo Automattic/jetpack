@@ -414,7 +414,7 @@ function wpsc_key_info_boxes(){
 			<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-pages-icon.png' ); ?>" />
 		</div>
 		<div class='key-info'>
-			<div class='what'>Pages cached</div>
+			<div class='what'><?php esc_html_e('Pages cached','wp-super-cache');?>-</div>
 			<div class='count'><?php  wpsc_pages_cached_format($cached_pages); ?></div>
 		</div>
 	</div>
@@ -459,11 +459,11 @@ function wp_cache_home_menu(){
 		<div class='hero'>
 			<div class='powered'>
 				<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-icon.png' ); ?>" />
-				<span class='wpsc-powered'>Powered by Jetpack</span>
+				<span class='wpsc-powered'><?php esc_html_e('Powered by','wp-super-cache');?> Jetpack</span>
 			</div>
-			<h1>Improve your site’s speed<br/> with cached static pages</h1>
+			<h1><?php esc_html_e("Improve your site’s speed",'wp-super-cache'); ?><br/> <?php esc_html_e('with cached static pages','wp-super-cache');?></h1>
 			<p>
-			Keep caching switched on, and you’re all set. For more advanced options, go to the <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] ) );?>">Settings page</a>.
+			<?php esc_html_e("Keep caching switched on, and you’re all set. For more advanced options, go to the", 'wp-super-cache');?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] ) );?>"><?php esc_html_e('Settings page','wp-super-cache');?></a>.
 			</p>
 			<?php
 				wpsc_key_info_boxes();

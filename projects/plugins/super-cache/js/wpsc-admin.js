@@ -1,10 +1,6 @@
 jQuery( document ).ready( function () {
 
     const { __, _x, _n, _nx } = wp.i18n;
-
-    //the jQuery for the wpsc admin pages rather than inline.
-    console.log("WPSC admin JS enabled");
-
     bindActivateClick();
 
     /**
