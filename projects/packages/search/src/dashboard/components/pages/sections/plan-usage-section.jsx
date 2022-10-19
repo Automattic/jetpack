@@ -340,40 +340,77 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 		} );
 	}, [ setCurrentTooltipIndex, setTooltipRead ] );
 
-	const tooltips = {
-		record: {
-			index: 1,
-			title: __( 'Site records increased', 'jetpack-search-pkg' ),
-			content: sprintf(
-				// translators: %1$s: records limit
-				__(
-					'Thank you for upgrading! Now your visitors can search up to %1$s records.',
-					'jetpack-search-pkg'
+	if ( isFreePlan ) {
+		const tooltips = {
+			record: {
+				index: 1,
+				title: __( 'Site records', 'jetpack-search-pkg' ),
+				content: sprintf(
+					// translators: %1$s: records limit
+					__(
+						'Thank you for trying out the Jetpack Search free plan! Your visitors can search up to %1$s records.',
+						'jetpack-search-pkg'
+					),
+					formatNumber( usageInfo.recordMax )
 				),
-				formatNumber( usageInfo.recordMax )
-			),
-			section: __( '1 of 2', 'jetpack-search-pkg' ),
-			next: __( 'Next', 'jetpack-search-pkg' ),
-			forceShow: currentTooltipIndex === 1,
-			goToNext,
-		},
-		request: {
-			index: 2,
-			title: __( 'More search requests', 'jetpack-search-pkg' ),
-			content: sprintf(
-				// translators: %1$s: requests limit
-				__(
-					'Your search plugin now supports up to %1$s search requests per month.',
-					'jetpack-search-pkg'
+				section: __( '1 of 2', 'jetpack-search-pkg' ),
+				next: __( 'Next', 'jetpack-search-pkg' ),
+				forceShow: currentTooltipIndex === 1,
+				goToNext,
+			},
+			request: {
+				index: 2,
+				title: __( 'Search requests', 'jetpack-search-pkg' ),
+				content: sprintf(
+					// translators: %1$s: requests limit
+					__(
+						'The free version of Jetpack Search supports up to %1$s search requests per month.',
+						'jetpack-search-pkg'
+					),
+					formatNumber( usageInfo.requestMax )
 				),
-				formatNumber( usageInfo.requestMax )
-			),
-			section: __( '2 of 2', 'jetpack-search-pkg' ),
-			next: __( 'Finish', 'jetpack-search-pkg' ),
-			forceShow: currentTooltipIndex === 2,
-			goToNext,
-		},
-	};
+				section: __( '2 of 2', 'jetpack-search-pkg' ),
+				next: __( 'Finish', 'jetpack-search-pkg' ),
+				forceShow: currentTooltipIndex === 2,
+				goToNext,
+			},
+		};
+	} else {
+		const tooltips = {
+			record: {
+				index: 1,
+				title: __( 'Site records increased', 'jetpack-search-pkg' ),
+				content: sprintf(
+					// translators: %1$s: records limit
+					__(
+						'Thank you for upgrading! Now your visitors can search up to %1$s records.',
+						'jetpack-search-pkg'
+					),
+					formatNumber( usageInfo.recordMax )
+				),
+				section: __( '1 of 2', 'jetpack-search-pkg' ),
+				next: __( 'Next', 'jetpack-search-pkg' ),
+				forceShow: currentTooltipIndex === 1,
+				goToNext,
+			},
+			request: {
+				index: 2,
+				title: __( 'More search requests', 'jetpack-search-pkg' ),
+				content: sprintf(
+					// translators: %1$s: requests limit
+					__(
+						'Your search plugin now supports up to %1$s search requests per month.',
+						'jetpack-search-pkg'
+					),
+					formatNumber( usageInfo.requestMax )
+				),
+				section: __( '2 of 2', 'jetpack-search-pkg' ),
+				next: __( 'Finish', 'jetpack-search-pkg' ),
+				forceShow: currentTooltipIndex === 2,
+				goToNext,
+			},
+		};
+	}
 
 	// TODO: Implement info icon callbacks.
 	// Not clear if these are needed yet so for now, they're hidden.
