@@ -15,6 +15,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -831,7 +832,12 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
-		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$user_id         = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$is_primary_user = Jetpack_Options::get_option( 'master_user' ) === $user_id;
+
+		if ( $is_primary_user && ! $can_overwrite_primary_user ) {
+			return false;
+		}
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
@@ -855,6 +861,10 @@ class Manager {
 				 * @param int $user_id The current user's ID.
 				 */
 				do_action( 'jetpack_unlinked_user', $user_id );
+
+				if ( $is_primary_user ) {
+					Jetpack_Options::delete_option( 'master_user' );
+				}
 			}
 		}
 
