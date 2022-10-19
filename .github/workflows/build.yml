@@ -138,11 +138,13 @@ jobs:
           PR: ${{ github.event.number }}
           SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          curl --fail -L \
+          response=$(curl --fail -L \
             --url "$URL" \
             --form-string "pr-number=$PR" \
             --form-string "sha=$SHA" \
-            --form-string "secret=$SECRET"
+            --form-string "secret=$SECRET")
+
+            echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
 
   upgrade_test:
     name: Test plugin upgrades
