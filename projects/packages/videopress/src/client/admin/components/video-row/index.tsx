@@ -103,6 +103,7 @@ export const VideoRow = ( {
 	showQuickActions = true,
 	loading = false,
 	isUpdatingPoster = false,
+	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -136,8 +137,6 @@ export const VideoRow = ( {
 			typeof isPrivate === 'boolean' );
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
-
-	const actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
 
 	const wrapperAriaLabel = sprintf(
 		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */

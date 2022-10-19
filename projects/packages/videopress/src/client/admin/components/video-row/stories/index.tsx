@@ -63,6 +63,7 @@ export const _default = Template.bind( {} );
 _default.args = {
 	id: 1,
 	thumbnail: randomPoster(),
+	actionButtonLabel: undefined,
 	showThumbnail: true,
 	title: 'videopress-upload-demo-7-mp4',
 	duration: 158633,

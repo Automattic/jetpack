@@ -34,6 +34,10 @@ type VideoRowBaseProps = {
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
 	onVideoDetailsClick?: () => void;
+	/**
+	 * Text to be used inside action button. Default to `Edit details`.
+	 */
+	actionButtonLabel?: string;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &
