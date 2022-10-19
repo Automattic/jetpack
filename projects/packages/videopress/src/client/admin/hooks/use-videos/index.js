@@ -16,6 +16,7 @@ export default function useVideos() {
 	// Data
 	const items = useSelect( select => select( STORE_ID ).getVideos() );
 	const uploading = useSelect( select => select( STORE_ID ).getUploadingVideos() );
+	const isUploading = uploading.length > 0;
 	const search = '';
 	const uploadedVideoCount = useSelect( select => select( STORE_ID ).getUploadedVideoCount() );
 	const isFetching = useSelect( select => select( STORE_ID ).getIsFetching() );
@@ -29,6 +30,7 @@ export default function useVideos() {
 	return {
 		items,
 		uploading,
+		isUploading,
 		search,
 		uploadedVideoCount,
 		isFetching,

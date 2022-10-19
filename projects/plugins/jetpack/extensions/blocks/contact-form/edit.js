@@ -63,8 +63,6 @@ export function JetpackContactFormEdit( {
 	variations,
 	defaultVariation,
 	canUserInstallPlugins,
-	isSelected,
-	selectedInnerBlock,
 } ) {
 	const {
 		to,
@@ -314,9 +312,6 @@ export function JetpackContactFormEdit( {
 
 			<div className={ formClassnames }>
 				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
-				{ ! isSelected && ! selectedInnerBlock && (
-					<div className="wp-block-jetpack-contact-form__overlay"></div>
-				) }
 			</div>
 		</>
 	);
@@ -325,7 +320,7 @@ export function JetpackContactFormEdit( {
 export default compose( [
 	withSelect( ( select, props ) => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
-		const { getBlocks, hasSelectedInnerBlock } = select( 'core/block-editor' );
+		const { getBlocks } = select( 'core/block-editor' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
 		const { getSite, getUser, canUser } = select( 'core' );
 		const innerBlocks = getBlocks( props.clientId );
@@ -349,7 +344,6 @@ export default compose( [
 
 			innerBlocks,
 			hasInnerBlocks: innerBlocks.length > 0,
-			selectedInnerBlock: hasSelectedInnerBlock( props.clientId ),
 			siteTitle: get( getSite && getSite(), [ 'title' ] ),
 			postTitle: postTitle,
 			postAuthorEmail: authorEmail,
