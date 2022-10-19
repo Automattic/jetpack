@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Caching errors when fetching stats and revered cache prefix.
