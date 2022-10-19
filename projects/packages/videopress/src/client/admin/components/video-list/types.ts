@@ -18,9 +18,9 @@ export type VideoListProps = {
 	 */
 	hidePlays?: boolean;
 	/**
-	 * Show edit button.
+	 * Show action button.
 	 */
-	showEditButton?: boolean;
+	showActionButton?: boolean;
 	/**
 	 * Show quick actions.
 	 */

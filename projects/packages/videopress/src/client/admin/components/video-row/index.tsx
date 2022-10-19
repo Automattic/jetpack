@@ -99,7 +99,7 @@ export const VideoRow = ( {
 	privacySetting,
 	onVideoDetailsClick,
 	onSelect,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = true,
 	loading = false,
 	isUpdatingPoster = false,
@@ -130,14 +130,14 @@ export const VideoRow = ( {
 	const canExpand =
 		isSmall &&
 		! loading &&
-		( showEditButton ||
+		( showActionButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
 			typeof isPrivate === 'boolean' );
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
-	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
+	const actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
 
 	const wrapperAriaLabel = sprintf(
 		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */
@@ -155,9 +155,9 @@ export const VideoRow = ( {
 		callback?.( event );
 	};
 
-	const editDetailsButton = (
+	const actionButton = (
 		<Button size="small" onClick={ handleClickWithStopPropagation( onVideoDetailsClick ) }>
-			{ editVideoLabel }
+			{ actionButtonLabel }
 		</Button>
 	);
 
@@ -271,9 +271,9 @@ export const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && ( showEditButton || showQuickActions ) && ! loading && (
+						{ showActions && ( showActionButton || showQuickActions ) && ! loading && (
 							<div className={ styles.actions }>
-								{ showEditButton && editDetailsButton }
+								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }
@@ -288,7 +288,7 @@ export const VideoRow = ( {
 						) }
 						{ isSmall && (
 							<div className={ styles[ 'mobile-actions' ] }>
-								{ showEditButton && editDetailsButton }
+								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }

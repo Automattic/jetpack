@@ -20,7 +20,7 @@ const VideoList = ( {
 	hidePrivacy = false,
 	hideDuration = false,
 	hidePlays = false,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = true,
 	loading = false,
 	onVideoDetailsClick,
@@ -72,7 +72,7 @@ const VideoList = ( {
 						isPrivate={ hidePrivacy ? null : video.isPrivate }
 						uploadDate={ video.uploadDate }
 						showQuickActions={ ! video?.uploading && showQuickActions }
-						showEditButton={ ! video?.uploading && showEditButton }
+						showActionButton={ ! video?.uploading && showActionButton }
 						className={ styles.row }
 						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						loading={ loading }
@@ -98,7 +98,7 @@ const VideoList = ( {
 
 export const LocalVideoList = ( {
 	videos,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = false,
 	onVideoDetailsClick,
 }: VideoListProps ) => {
@@ -145,7 +145,7 @@ export const LocalVideoList = ( {
 						key={ `local-video-${ video.id }` }
 						id={ video.id }
 						title={ video.title }
-						showEditButton={ showEditButton }
+						showActionButton={ showActionButton }
 						showQuickActions={ showQuickActions }
 						uploadDate={ video.uploadDate }
 						onVideoDetailsClick={ handleClickWithIndex( index ) }

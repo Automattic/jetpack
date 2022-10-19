@@ -11,9 +11,9 @@ type VideoRowBaseProps = {
 	 */
 	checked?: boolean;
 	/**
-	 * Show edit button
+	 * Show action button
 	 */
-	showEditButton?: boolean;
+	showActionButton?: boolean;
 	/**
 	 * Show quick actions section.
 	 */
@@ -37,9 +37,9 @@ type VideoRowBaseProps = {
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &
-	Pick<
-		VideoPressVideo,
-		'id' | 'title' | 'duration' | 'uploadDate' | 'plays' | 'isPrivate' | 'privacySetting'
+	Pick< VideoPressVideo, 'id' | 'title' > &
+	Partial<
+		Pick< VideoPressVideo, 'duration' | 'uploadDate' | 'plays' | 'isPrivate' | 'privacySetting' > // Optional
 	> &
 	Pick< VideoThumbnailProps, 'thumbnail' >;
 
