@@ -242,13 +242,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.5-a.5 - 2022-10-13
-#### Enhancements
-- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin
-
+### 11.5-a.9 - 2022-10-19
 #### Bug fixes
-- CRM:Fix unmounted state updates in Form CRM integration
-- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking
+- Contact Form: display consent form field result in notification emails and feedback views.
+- Contact Form: remove overlay causing issues with the block inserter hover behavior.
 
 --------
 
