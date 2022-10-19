@@ -21,6 +21,13 @@
     .restore-notice{
         margin-left: 55px;
     }
+    .button{
+        a{
+            &:focus{
+                box-shadow:none !important;
+            }
+        }
+    }
     .headline{
         position:relative;
         background:white;
@@ -380,7 +387,6 @@
     }
 
   }
-
 
 
 

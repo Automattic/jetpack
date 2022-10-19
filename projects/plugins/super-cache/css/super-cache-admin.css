@@ -16,6 +16,8 @@
   padding-top: 10px; }
   .wpsc-wrapper .restore-notice {
     margin-left: 55px; }
+  .wpsc-wrapper .button a:focus {
+    box-shadow: none !important; }
   .wpsc-wrapper .headline {
     position: relative;
     background: white;
