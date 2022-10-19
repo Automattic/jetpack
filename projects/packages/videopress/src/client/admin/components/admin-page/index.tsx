@@ -39,7 +39,7 @@ import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
-	const { uploadVideo } = useDispatch( STORE_ID );
+	const { uploadVideo, uploadVideoFromLibrary } = useDispatch( STORE_ID );
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos } = useLocalVideos();
@@ -56,6 +56,10 @@ const useDashboardVideos = () => {
 		uploadVideo( file );
 	};
 
+	const handleLocalVideoUpload = file => {
+		uploadVideoFromLibrary( file );
+	};
+
 	// Fill with empty videos if loading
 	if ( isFetching ) {
 		// Use generated ID to work with React Key
@@ -70,6 +74,7 @@ const useDashboardVideos = () => {
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
+		handleLocalVideoUpload,
 		loading: isFetching,
 	};
 };
@@ -83,6 +88,7 @@ const Admin = () => {
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
+		handleLocalVideoUpload,
 		loading,
 	} = useDashboardVideos();
 
@@ -174,7 +180,11 @@ const Admin = () => {
 							) }
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<LocalLibrary videos={ localVideos } totalVideos={ localTotalVideoCount } />
+									<LocalLibrary
+										videos={ localVideos }
+										totalVideos={ localTotalVideoCount }
+										onUploadClick={ handleLocalVideoUpload }
+									/>
 								</Col>
 							) }
 						</Container>

@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { uploadVideo as videoPressUpload, getJWT } from '../hooks/use-uploader';
+import { uploadVideo as videoPressUpload, getJWT, uploadFromLibrary } from '../hooks/use-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -230,6 +230,34 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	} );
 };
 
+/**
+ * Thunk action to upload local videos for VideoPress.
+ *
+ * @param {object} file - File data
+ * @returns {Function} Thunk action
+ */
+const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
+	const pollingUploadedVideoData = async data => {
+		const response = await apiFetch( {
+			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+		} );
+
+		const video = mapVideoFromWPV2MediaEndpoint( response );
+
+		if ( video?.posterImage !== null ) {
+			dispatch( { type: UPLOADED_VIDEO, video } );
+		} else {
+			setTimeout( () => pollingUploadedVideoData( video ), 2000 );
+		}
+	};
+
+	dispatch( { type: UPLOADING_VIDEO, id: file?.id, title: file?.title } );
+
+	const data = await uploadFromLibrary( file?.id );
+	dispatch( { type: PROCESSING_VIDEO, id: file?.id, data } );
+	pollingUploadedVideoData( data );
+};
+
 const setIsFetchingPurchases = isFetching => {
 	return { type: SET_IS_FETCHING_PURCHASES, isFetching };
 };
@@ -311,6 +339,8 @@ const actions = {
 	deleteVideo,
 
 	uploadVideo,
+	uploadVideoFromLibrary,
+
 	setIsFetchingPurchases,
 	setPurchases,
 

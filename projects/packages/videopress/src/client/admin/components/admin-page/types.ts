@@ -28,6 +28,7 @@ export type VideoLibraryProps = {
 	videos: Array< VideoPressVideo & MetadataVideo >;
 	totalVideos?: number;
 	loading?: boolean;
+	onUploadClick?: ( video: VideoPressVideo ) => void;
 };
 
 export interface ConnectionStore {
