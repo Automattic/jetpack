@@ -539,3 +539,14 @@ export function getFeatureEnableState() {
 	const meta = getEditedPostAttribute( 'meta' );
 	return get( meta, [ 'jetpack_publicize_feature_enabled' ], true );
 }
+
+/**
+ * Get a list of all attached media.
+ *
+ * @returns {Array} An array of media IDs.
+ */
+export function getAttachedMedia() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_publicize_attached_media' ], [] );
+}
