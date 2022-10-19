@@ -305,7 +305,7 @@ function wpsc_add_admin_scripts($hook) {
 		'banner'	=> wp_create_nonce( 'wpsc_2022_boost_banner' ),
 		'toggle'	=> wp_create_nonce( 'wpsc_toggle_caching_easy' ),
 	);
-	wp_localize_script( 'wpsc-scripts', 'wpscjs', array( 'lang' => $language, 'nonce' => $nonce ) );
+	wp_localize_script( 'wpsc-scripts', 'wpscjs', array( 'nonce' => $nonce ) );
 	wp_set_script_translations( 'wpsc-scripts', 'wp-super-cache' );
 	
 }
