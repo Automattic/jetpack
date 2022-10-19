@@ -14,6 +14,9 @@
 .wpsc-wrapper {
   padding: 20px;
   padding-top: 10px; }
+  .wpsc-wrapper .wpsc-box-container {
+    width: 80%;
+    margin: auto; }
   .wpsc-wrapper .restore-notice {
     margin-left: 55px; }
   .wpsc-wrapper .button a:focus {

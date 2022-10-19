@@ -414,7 +414,7 @@ function wpsc_key_info_boxes(){
 			<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-pages-icon.png' ); ?>" />
 		</div>
 		<div class='key-info'>
-			<div class='what'><?php esc_html_e( 'Pages cached', 'wp-super-cache' ); ?>-</div>
+			<div class='what'><?php esc_html_e( 'Pages cached', 'wp-super-cache' ); ?></div>
 			<div class='count'><?php  wpsc_pages_cached_format($cached_pages); ?></div>
 		</div>
 	</div>
@@ -429,7 +429,7 @@ function wpsc_render_footer(){
 	// the chunks of code after the render partials
 	wpsc_settings_post_init();
 	?>
-	</div>
+	</div> 
 	<div class='footer'>
 		<div class='wp-super-cache-version'>
 			<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-icon.png' ); ?>" />
