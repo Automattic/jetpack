@@ -4,6 +4,7 @@
  * Adding as a file which we can include to the wpsc_header_render()
  *
  */
+global $wp_cache_config_file, $wp_cache_mobile_enabled, $cache_enabled, $super_cache_enabled;
 
 if ( ! wpsupercache_site_admin() ) {
 	return false;

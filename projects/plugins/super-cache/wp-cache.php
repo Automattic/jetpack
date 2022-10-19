@@ -668,6 +668,8 @@ function wp_cache_easy_menu(){
 
 	global $wp_cache_slugs, $cache_enabled, $is_nginx, $wp_cache_mod_rewrite,$valid_nonce,$cache_path,$wp_super_cache_comments;
 
+	global $wp_cache_config_file;
+
 	wpsc_render_header();
 	
 	$admin_url   = admin_url( 'admin.php?page=' . $wp_cache_slugs['easy'] );
