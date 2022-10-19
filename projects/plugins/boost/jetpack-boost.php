@@ -166,6 +166,18 @@ function jetpack_boost_uninstall() {
 }
 
 /**
+ * Connection prompt
+ */
+add_action(
+	'after_plugin_row_' . JETPACK_BOOST_PLUGIN_BASE,
+	function () {
+		// translators: to put in the link of the admin page for Boost
+		esc_html( '<div class="notice notice-info"><p><strong>' . sprintf( __( '<a href="%s">Set up Jetpack Boost</a> to improve your website performance.', 'jetpack-boost' ), admin_url( 'admin.php?page=jetpack-boost' ) ) . '</strong></p></div>' );
+	},
+	10,
+	3
+);
+/**
  * Previous version compatibility files
  */
 require_once __DIR__ . '/compatibility/boost-1.3.1.php';
