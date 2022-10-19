@@ -21,6 +21,7 @@ class Plan {
 
 	// The pricing update starting from August 2022.
 	const JETPACK_SEARCH_NEW_PRICING_VERSION = '202208';
+	const JETPACK_SEARCH_FREE_PRODUCT_SLUG   = 'jetpack_search_free';
 
 	/**
 	 * Whether we have hooked the actions.
@@ -119,9 +120,9 @@ class Plan {
 	/**
 	 * Returns true if the site is on free plan.
 	 */
-	public function is_free_tier() {
+	public function is_free_plan() {
 		$plan_info = $this->get_plan_info();
-		return Helper::is_forced_free_tier() || ( isset( $plan_info['is_free_tier'] ) && $plan_info['is_free_tier'] );
+		return Helper::is_forced_free_plan() || ( isset( $plan_info['effective_subscription']['product_slug'] ) && $plan_info['effective_subscription']['product_slug'] === self::JETPACK_SEARCH_FREE_PRODUCT_SLUG );
 	}
 
 	/**
