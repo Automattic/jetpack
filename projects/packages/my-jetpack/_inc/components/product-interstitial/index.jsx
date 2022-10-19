@@ -8,6 +8,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import { STORE_ID } from '../../state/store';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import isSearchNewPricingLaunched202208 from '../../utils/is-search-new-pricing-202208';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import boostImage from './boost.png';
@@ -210,10 +211,18 @@ export function SearchInterstitial() {
 		<ProductInterstitial
 			slug="search"
 			installsPlugin={ true }
-			supportingInfo={ __(
-				"Pricing will automatically adjust based on the number of records in your search index. If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
-				'jetpack-my-jetpack'
-			) }
+			supportingInfo={
+				( isSearchNewPricingLaunched202208()
+					? __(
+							'Jetpack Search Free supports up to 5,000 records and 500 search requests per month for free. You will be asked to upgrade to a paid plan if you exceed these limits for three continuous months.',
+							'jetpack-my-jetpack'
+					  )
+					: '' ) +
+				__(
+					"For the paid plan, pricing will automatically adjust based on the number of records in your search index. If you grow into a new pricing tier, we'll let you know before your next billing cycle.",
+					'jetpack-my-jetpack'
+				)
+			}
 		>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>

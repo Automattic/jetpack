@@ -161,6 +161,7 @@ export type MetadataVideo = {
 };
 
 export type VideopressSelectors = {
+	isFetchingPurchases: () => boolean;
 	getVideo: ( id: number | string ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];

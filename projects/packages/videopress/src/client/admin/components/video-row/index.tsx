@@ -5,6 +5,7 @@ import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
 import privacy from '../../../components/icons/crossed-eye-icon';
+import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
@@ -95,6 +96,7 @@ export const VideoRow = ( {
 	uploadDate,
 	plays,
 	isPrivate,
+	privacySetting,
 	onVideoDetailsClick,
 	onSelect,
 	showEditButton = true,
@@ -117,6 +119,10 @@ export const VideoRow = ( {
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
+
+	const privacyIsSetToPrivate = privacySetting
+		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
+		: false;
 
 	let thumbnail = defaultThumbnail;
 	thumbnail = loading || isUpdatingPoster ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
@@ -229,7 +235,11 @@ export const VideoRow = ( {
 				>
 					{ showThumbnail && (
 						<div className={ styles.poster }>
-							<VideoThumbnail thumbnail={ thumbnail } blankIconSize={ 28 } />
+							<VideoThumbnail
+								isPrivate={ privacyIsSetToPrivate }
+								thumbnail={ thumbnail }
+								blankIconSize={ 28 }
+							/>
 						</div>
 					) }
 					<div className={ styles[ 'title-wrapper' ] }>
@@ -290,7 +300,7 @@ export const VideoRow = ( {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	return (
 		<VideoRow
@@ -299,6 +309,7 @@ export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
 			loading={ loading }
 			isUpdatingPoster={ isUpdatingPoster }
 			showThumbnail
+			privacySetting={ data.privacySetting }
 		/>
 	);
 };
