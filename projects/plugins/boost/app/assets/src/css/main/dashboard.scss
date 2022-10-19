@@ -18,6 +18,7 @@
 .jb-section {
 	padding-top: $padding;
 	padding-bottom: $padding;
+	isolation: isolate;
 }
 
 .jb-link{
