@@ -34,6 +34,7 @@ class Tiled_Gallery {
 	 * Register the block
 	 */
 	public static function register() {
+		undefined_function();
 		if (
 			( defined( 'IS_WPCOM' ) && IS_WPCOM )
 			|| Jetpack::is_connection_ready()
