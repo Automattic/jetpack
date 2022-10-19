@@ -2,23 +2,26 @@ import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { waitForEditor } from '../../shared/wait-for-editor';
 
-async function insertTemplate( prompt ) {
+async function insertTemplate( prompt, embedPrompt = false ) {
 	await waitForEditor();
 
-	const { insertBlock } = dispatch( 'core/block-editor' );
-	const writingPromptBlock = createBlock( 'core/paragraph', { placeholder: prompt }, [] );
+	const { insertBlocks } = dispatch( 'core/block-editor' );
+	const writingPromptBlocks = embedPrompt
+		? [ createBlock( 'core/pullquote', { value: prompt.text } ), createBlock( 'core/paragraph' ) ]
+		: createBlock( 'core/paragraph', { placeholder: prompt.text }, [] );
 
-	insertBlock( writingPromptBlock, 0, undefined, false );
+	insertBlocks( writingPromptBlocks, 0, undefined, false );
 }
 
 function initWritingPrompts() {
 	const data = window.Jetpack_WritingPrompts;
-
-	if ( typeof data !== 'object' || ! data.prompt ) {
+	const urlQuery = new URLSearchParams( document.location.search );
+	const embedPrompt = !! urlQuery.get( 'embed_prompt' );
+	if ( typeof data !== 'object' || ! data.prompts || data.prompts.length < 1 ) {
 		return;
 	}
 
-	insertTemplate( data.prompt );
+	insertTemplate( data.prompts[ 0 ], embedPrompt );
 }
 
 initWritingPrompts();
