@@ -504,16 +504,16 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "v2.2.28",
+            "version": "v2.2.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "0146c81e1acbb82a5dd5690e02432efe3f052d32"
+                "reference": "2165bebeb6f4fd1217ee76659e9fc52fe68d6233"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/0146c81e1acbb82a5dd5690e02432efe3f052d32",
-                "reference": "0146c81e1acbb82a5dd5690e02432efe3f052d32",
+                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/2165bebeb6f4fd1217ee76659e9fc52fe68d6233",
+                "reference": "2165bebeb6f4fd1217ee76659e9fc52fe68d6233",
                 "shasum": ""
             },
             "require": {
@@ -557,9 +557,9 @@
             ],
             "description": "Just in time messages for Jetpack",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-jitm/tree/v2.2.28"
+                "source": "https://github.com/Automattic/jetpack-jitm/tree/v2.2.29"
             },
-            "time": "2022-10-05T17:58:09+00:00"
+            "time": "2022-10-13T21:46:26+00:00"
         },
         {
             "name": "automattic/jetpack-licensing",
