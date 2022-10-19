@@ -145,12 +145,12 @@ export const uploadFromLibrary = attachmentId => {
 		apiFetch( { path, method: 'POST' } )
 			.then( result => {
 				if ( 'uploading' === result.status ) {
-					uploadFromLibrary( attachmentId );
+					uploadFromLibrary( attachmentId ).then( resolve ).catch( reject );
 				} else if ( 'complete' === result.status ) {
 					resolve( {
 						guid: result.uploaded_details.guid,
 						id: result.uploaded_details.media_id,
-						src: result.uploaded_details.src,
+						src: result.uploaded_details.upload_src,
 					} );
 				} else if ( 'error' === result.status ) {
 					reject( {
