@@ -273,7 +273,7 @@ class Template_First_Themes {
 	}
 
 	/**
-	 * Retrieves the homepage for a speficic theme in the selected locale.
+	 * Retrieves the homepage for a specific theme in the selected locale.
 	 *
 	 * @param string $theme_name The name of the theme.
 	 * @param string $locale The preferred locale.
@@ -283,63 +283,14 @@ class Template_First_Themes {
 	 * false if it doesn't exist.
 	 */
 	protected function get_homepage( $theme_name, $locale, $fallback_locale ) {
-		if ( ! in_array( $locale, array( 'pt-br', 'zh-cn', 'zh-tw' ), true ) ) {
-			$locale = strtok( $locale, '-' );
-		}
+		$annotation = wpcomsh_headstart_get_annotation( $theme_name, $locale, $fallback_locale );
 
-		$themes_dir     = WP_CONTENT_DIR . '/themes';
-		$annotation_dir = 'inc/headstart';
-		// 1. Check valid theme.
-		$theme = wp_get_theme( $theme_name );
-		if ( is_wp_error( $theme->errors() ) ) {
-			return false;
-		}
-
-		// 2. Get annotation file path
-		$annotation_uri = $themes_dir . "/$theme_name/$annotation_dir/$locale.json";
-		// 3. Check annotation URI.
-		if ( ! is_readable( $annotation_uri ) ) {
-			// 3.1. Try with fallback locale.
-			$annotation_uri = $themes_dir . "/$theme_name/$annotation_dir/$fallback_locale.json";
-			if ( ! is_readable( $annotation_uri ) ) {
-				// 3.2 Try with wp-content/lib/headstart/class-headstart-annotations.php?r=6bba545e#171.
-				$annotation_uri = WP_CONTENT_DIR . '/lib/headstart/annotations/' . $locale . '.json';
-				if ( ! is_readable( $annotation_uri ) ) {
-					return false;
-				}
-			}
-		}
-		// 4. Get annotation content.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$annotation_string = file_get_contents( $annotation_uri );
-		// 5. Check for content.
-		if ( false === $annotation_string ) {
-			return false;
-		}
-
-		// 6. Decode content.
-		$annotation = json_decode( $annotation_string, true );
-		// 7. Check decoded content.
-		if (
-			empty( $annotation ) ||
-			! is_array( $annotation ) ||
-			! array_key_exists( 'content', $annotation ) ||
-			! is_array( $annotation['content'] )
-		) {
-			return false;
-		}
-		// 8. maybe_filter_annotation_for_non_gutenberg_users in headstart/class-headstart-annotations.php.
-		$is_gutenberg_user = ! \Jetpack_User_Agent_Info::is_mobile_app();
-		if ( $is_gutenberg_user ) {
-			$annotation = apply_filters( 'headstart_gutenberg_annotation_filter', $annotation, $theme_name, false, false, $locale );
-		}
-
-		// 9. Bail if there isn't a static front page.
+		// 1. Bail if there isn't a static front page.
 		if ( ! isset( $annotation['settings']['options']['show_on_front'] ) ) {
 			return false;
 		}
 
-		// 10. Find the actual content.
+		// 2. Find the actual content.
 		foreach ( $annotation['content'] as $el ) {
 			if ( isset( $el['hs_custom_meta'] ) && $el['hs_custom_meta'] === '_hs_front_page' ) {
 				return $el;
