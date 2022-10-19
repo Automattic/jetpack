@@ -372,14 +372,14 @@ function wpsc_show_boost_modal(){
 }
 
 /** 
- * Wraps the pages in the logo and does all the global stuff
+ * Wraps the pages in the logo and does all the global stuff. Do not wrap the brand name in translation
  */
 function wpsc_render_header(){
 	?>
 	<div class='wpsc-wrapper'>
 		<div class='headline'>
 			<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-icon.png' ); ?>" />
-			<span class='wpsc-name'>WP Super Cache</span>
+			<span class='wpsc-name'><?php echo esc_html( 'WP Super Cache' ); ?></span>
 		</div>
 	<?php
 	wpsc_show_boost_modal();
@@ -414,7 +414,7 @@ function wpsc_key_info_boxes(){
 			<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-pages-icon.png' ); ?>" />
 		</div>
 		<div class='key-info'>
-			<div class='what'><?php esc_html_e('Pages cached','wp-super-cache');?>-</div>
+			<div class='what'><?php esc_html_e( 'Pages cached', 'wp-super-cache' ); ?>-</div>
 			<div class='count'><?php  wpsc_pages_cached_format($cached_pages); ?></div>
 		</div>
 	</div>
@@ -454,16 +454,16 @@ function wp_cache_home_menu(){
 	<div class='wpsc-wrapper'>
 		<div class='headline'>
 			<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/super-cache-icon.png' ); ?>" />
-			<span class='wpsc-name'>WP Super Cache</span>
+			<span class='wpsc-name'><?php echo esc_html_e( 'WP Super Cache', 'wp-super-cache' ); ?></span>
 		</div>
 		<div class='hero'>
 			<div class='powered'>
 				<img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-icon.png' ); ?>" />
-				<span class='wpsc-powered'><?php esc_html_e('Powered by','wp-super-cache');?> Jetpack</span>
+				<span class='wpsc-powered'><?php esc_html_e( 'Powered by', 'wp-super-cache' ); ?> <?php echo esc_html_e( 'Jetpack', 'wp-super-cache' ); ?></span>
 			</div>
-			<h1><?php esc_html_e("Improve your site’s speed",'wp-super-cache'); ?><br/> <?php esc_html_e('with cached static pages','wp-super-cache');?></h1>
+			<h1><?php esc_html_e( 'Improve your site’s speed', 'wp-super-cache' ); ?><br/> <?php esc_html_e( 'with cached static pages', 'wp-super-cache' ); ?></h1>
 			<p>
-			<?php esc_html_e("Keep caching switched on, and you’re all set. For more advanced options, go to the", 'wp-super-cache');?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] ) );?>"><?php esc_html_e('Settings page','wp-super-cache');?></a>.
+			<?php esc_html_e( 'Keep caching switched on, and you’re all set. For more advanced options, go to the', 'wp-super-cache' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] ) ); ?>"><?php esc_html_e( 'Settings page', 'wp-super-cache' ); ?></a>.
 			</p>
 			<?php
 				wpsc_key_info_boxes();
@@ -510,15 +510,15 @@ function wpsc_feature_toggle(){
 			<div class='title'>Caching</div>
 			<div class='description'>
 				<p>
-				Speeds up your site by serving static copies of your website’s content.
+				<?php esc_html_e( 'Speeds up your site by serving static copies of your website’s content.', 'wp-super-cache' ); ?>
 				</p>
-				<p><strong>The following additional settings are enabled by default:</strong></p>
+				<p><strong><?php esc_html_e( 'The following additional settings are enabled by default:', 'wp-super-cache' ); ?></strong></p>
 				<ul>
-					<li>Caching for logged out visitors.</li>
-					<li>Simple caching mode.</li>
-					<li>Refresh cached pages every 30 minutes.</li>
+					<li><?php esc_html_e( 'Caching for logged out visitors.', 'wp-super-cache' ); ?></li>
+					<li><?php esc_html_e( 'Simple caching mode.', 'wp-super-cache' ); ?></li>
+					<li><?php esc_html_e( 'Refresh cached pages every 30 minutes.', 'wp-super-cache' ); ?></li>
 				</ul>
-				<p>You can change these in <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] ) );?>">advanced settings</a>.</p>
+				<p><?php esc_html_e( 'You can change these in', 'wp-super-cache' ); ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $wp_cache_slugs['advanced'] ) ); ?>"><?php esc_html_e( 'advanced settings', 'wp-super-cache' ); ?></a>.</p>
 			</div>
 		</div>
 	</div>
@@ -583,27 +583,27 @@ function wpsc_boost_slimline_promo(){
 			</div>
 			<div class='body item'>
 				<?php if( ! $is_boost_installed ){ ?>
-					<div class='lead'>Further improve your site performance with Jetpack Boost</div>
-					<div class='info'>Jetpack Boost helps speed up your website by generating critical CSS, defering Javascript, optimizing images, and much more.</div>
+					<div class='lead'><?php esc_html_e( 'Further improve your site performance with Jetpack Boost', 'wp-super-cache' ); ?></div>
+					<div class='info'><?php esc_html_e( 'Jetpack Boost helps speed up your website by generating critical CSS, defering Javascript, optimizing images, and much more.', 'wp-super-cache' ); ?></div>
 				<?php } ?>
 
 				<?php if( $is_boost_installed && ! $is_boost_active ){  ?>
-					<div class='lead'>Activate Jetpack Boost for access to all its performance features</div>
-					<div class='info'>Jetpack Boost is installed but not activated. Please activate Jetpack Boost to see your site speed scores and much more.</div>
+					<div class='lead'><?php esc_html_e( 'Activate Jetpack Boost for access to all its performance features', 'wp-super-cache' ); ?></div>
+					<div class='info'><?php esc_html_e( 'Jetpack Boost is installed but not activated. Please activate Jetpack Boost to see your site speed scores and much more.', 'wp-super-cache' ); ?></div>
 				<?php } ?>
 				<div class='button-wrap'>
 					<?php if( ! $is_boost_installed ){ ?>
 					<div class='button install-boost button-install'>
 						<div class='loader'></div>
-						<span>Install now</span>
+						<span><?php esc_html_e( 'Install now', 'wp-super-cache' ); ?></span>
 					</div>
 					<div class='learn-more'>
-						<a href="https://jetpack.com/boost/?utm_source=landing-page&utm_medium=plugin&utm_campaign=boost&utm_id=wp-super-cache" target="_blank">Learn More</a><img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/learn-more.png' ); ?>" />
+						<a href="https://jetpack.com/boost/?utm_source=landing-page&utm_medium=plugin&utm_campaign=boost&utm_id=wp-super-cache" target="_blank"><?php esc_html_e( 'Learn More', 'wp-super-cache' ); ?></a><img class='wpsc-icon' src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/learn-more.png' ); ?>" />
 					</div>
 					<?php }else if( $is_boost_installed && ! $is_boost_active ){  ?>
 						<div class='button activate-boost button-install'>
 						<div class='loader'></div>
-						<span>Activate Jetpack Boost</span>
+						<span><?php esc_html_e( 'Activate Jetpack Boost', 'wp-super-cache' ); ?></span>
 					</div>
 					<?php } ?>
 				</div>
@@ -637,16 +637,16 @@ function wpsc_did_you_know(){
 	?>
 	<div class='bg-green-section'>
 		<div class='did-you-know'>
-			<h3>Did you know?</h3>
+			<h3><?php esc_html_e( 'Did you know?', 'wp-super-cache' ); ?></h3>
 			<div class='wpsc-container'>
 				<div class='item'>
 						<div class='item-rate'>6</div>
 						<div class='item-description'>
 							<p>
-								There are 6 metrics that Google measures for performance. Caching is only one part of making a website faster. 
+								<?php esc_html_e( 'There are 6 metrics that Google measures for performance. Caching is only one part of making a website faster.', 'wp-super-cache' ); ?>
 							</p>
 							<p>
-								<a href="https://jetpack.com/boost/?utm_source=landing-page&utm_medium=plugin&utm_campaign=boost&utm_id=wp-super-cache" target="_blank">Jetpack Boost</a> can help improve overall performance.
+								<a href="https://jetpack.com/boost/?utm_source=landing-page&utm_medium=plugin&utm_campaign=boost&utm_id=wp-super-cache" target="_blank"><?php esc_html_e( 'Jetpack Boost', 'wp-super-cache' ); ?></a> <?php esc_html_e( 'can help improve overall performance.', 'wp-super-cache' ); ?>
 							</p>
 						</div>
 				</div>
@@ -654,7 +654,7 @@ function wpsc_did_you_know(){
 						<div class='item-rate'>4x</div>
 						<div class='item-decription'>
 							<p>
-							Pages that take over 3 seconds to load have 4x the bounce rate of pages that load in 2 seconds or less. (source: <a href="https://www.pingdom.com/blog/page-load-time-really-affect-bounce-rate/" target="_blank">Pingdom</a>)	
+							<?php esc_html_e( 'Pages that take over 3 seconds to load have 4x the bounce rate of pages that load in 2 seconds or less. (source:', 'wp-super-cache' ); ?> <a href="https://www.pingdom.com/blog/page-load-time-really-affect-bounce-rate/" target="_blank"><?php esc_html_e( 'Pingdom', 'wp-super-cache' ); ?></a>)	
 							</p>
 						</div>
 				</div>
@@ -4407,9 +4407,9 @@ function wpsc_delete_cookie( $name ) {
 	if (
 		isset( $wpsc_cookies ) &&
 		is_array( $wpsc_cookies ) &&
-		in_array( $name, $wpsc_cookies )
+		in_array( $name, $wpsc_cookies, true )
 	) {
-		unset( $wpsc_cookies[ array_search( $name, $wpsc_cookies ) ] );
+		unset( $wpsc_cookies[ array_search( $name, $wpsc_cookies, true ) ] );
 		wp_cache_setting( 'wpsc_cookies', $wpsc_cookies );
 	}
 	return $name;
@@ -4438,15 +4438,19 @@ function wpsc_update_check() {
 
 	if (
 		! isset( $wpsc_version ) ||
-		$wpsc_version != 169
+		$wpsc_version !== 169
 	) {
 		wp_cache_setting( 'wpsc_version', 169 );
 		global $wp_cache_debug_log, $cache_path;
-		$log_file = $cache_path . str_replace('/', '', str_replace('..', '', $wp_cache_debug_log));
+		$log_file = $cache_path . str_replace( '/', '', str_replace( '..', '', $wp_cache_debug_log ) );
 		if ( ! file_exists( $log_file ) ) {
 			return false;
 		}
-		@unlink( $log_file );
+		try {
+			unlink( $log_file );
+		} catch ( \Exception $ex ) {
+			wp_cache_debug( 'wpsc_update_check: Could not delete old log file on plugin update.' );
+		}
 		wp_cache_debug( 'wpsc_update_check: Deleted old log file on plugin update.' );
 	}
 }
@@ -4477,6 +4481,5 @@ function wpsc_render_partial( $partial, array $page_vars = array() ) {
 	foreach ( $page_vars as $key => $val ) {
 		$$key = $val;
 	}
-	global $current_user;
 	include $path;
 }
