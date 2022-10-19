@@ -15,15 +15,15 @@ import {
 	SET_THREATS_ARE_FIXING,
 } from './actions';
 
-const credentialState = ( state = {}, action ) => {
+const Credential = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CREDENTIAL_STATE:
-			return action.credentialState;
+			return action.Credential;
 	}
 	return state;
 };
 
-const credentialStateIsFetching = ( state = false, action ) => {
+const CredentialIsFetching = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_CREDENTIAL_STATE_IS_FETCHING:
 			return action.isFetching;
@@ -128,8 +128,8 @@ const notice = ( state = {}, action ) => {
 };
 
 const reducers = combineReducers( {
-	credentialState,
-	credentialStateIsFetching,
+	Credential,
+	CredentialIsFetching,
 	status,
 	statusIsFetching,
 	scanIsEnqueuing,

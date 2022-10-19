@@ -14,13 +14,13 @@ use Jetpack_Options;
 /**
  * Class that handles the rewind api call.
  */
-class Rewind {
+class Credentials {
 	/**
 	 * Get the rewind state, if no creds are set the state will be 'awaiting_for_credentials'
 	 *
 	 * @return bool
 	 */
-	public static function get_rewind_state() {
+	public static function get_credential_array() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$is_connected = ( new Connection_Manager() )->is_connected();
 
@@ -28,7 +28,7 @@ class Rewind {
 			return false;
 		}
 
-		$api_url = sprintf( '/sites/%d/rewind', $blog_id );
+		$api_url = sprintf( '/sites/%d/scan', $blog_id );
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			$api_url,
@@ -50,7 +50,7 @@ class Rewind {
 			return false;
 		}
 
-		return $parsed_response->state;
+		return $parsed_response->credentials ? $parsed_response->credentials : array();
 	}
 
 }

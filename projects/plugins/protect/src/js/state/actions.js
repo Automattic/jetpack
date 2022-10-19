@@ -69,32 +69,32 @@ const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
  *
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const checkCredentialsState = () => async ( { dispatch } ) => {
+const checkCredentials = () => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
-		dispatch( setCredentialStateIsFetching( true ) );
+		dispatch( setCredentialIsFetching( true ) );
 		return apiFetch( {
 			path: 'jetpack-protect/v1/check-credentials',
 			method: 'POST',
 		} )
-			.then( state => {
-				dispatch( setCredentialState( state ) );
-				resolve( state );
+			.then( credentials => {
+				dispatch( setCredential( credentials ) );
+				resolve( credentials );
 			} )
 			.catch( error => {
 				reject( error );
 			} )
 			.finally( () => {
-				dispatch( setCredentialStateIsFetching( false ) );
+				dispatch( setCredentialIsFetching( false ) );
 			} );
 	} );
 };
 
-const setCredentialStateIsFetching = isFetching => {
+const setCredentialIsFetching = isFetching => {
 	return { type: SET_CREDENTIAL_STATE_IS_FETCHING, isFetching };
 };
 
-const setCredentialState = credentialState => {
-	return { type: SET_CREDENTIAL_STATE, credentialState };
+const setCredential = Credential => {
+	return { type: SET_CREDENTIAL_STATE, Credential };
 };
 
 const setStatusIsFetching = status => {
@@ -315,9 +315,9 @@ const setNotice = notice => {
 };
 
 const actions = {
-	checkCredentialsState,
-	setCredentialState,
-	setCredentialStateIsFetching,
+	checkCredentials,
+	setCredential,
+	setCredentialIsFetching,
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,

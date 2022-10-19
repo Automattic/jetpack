@@ -18,9 +18,9 @@ use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Credentials;
 use Automattic\Jetpack\Protect\Plan;
 use Automattic\Jetpack\Protect\Protect_Status;
-use Automattic\Jetpack\Protect\Rewind;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status;
@@ -436,13 +436,13 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_check_credentials() {
-		$rewind_state = Rewind::get_rewind_state();
+		$credential_array = Credentials::get_credential_array();
 
-		if ( ! $rewind_state ) {
-			return new WP_REST_Response( 'An error occured while attempting to fetch the rewind state', 500 );
+		if ( ! isset( $credential_array ) ) {
+			return new WP_REST_Response( 'An error occured while attempting to fetch the credentials array', 500 );
 		}
 
-		return new WP_REST_Response( array( 'state' => $rewind_state ) );
+		return new WP_REST_Response( array( 'credentials' => $credential_array ) );
 	}
 
 	/**

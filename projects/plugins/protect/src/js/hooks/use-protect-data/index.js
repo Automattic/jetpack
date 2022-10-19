@@ -7,13 +7,13 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { statusIsFetching, status, jetpackScan, productData, credentialState } = useSelect(
+	const { statusIsFetching, status, jetpackScan, productData, Credential } = useSelect(
 		select => ( {
 			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
 			status: select( STORE_ID ).getStatus(),
 			jetpackScan: select( STORE_ID ).getJetpackScan(),
 			productData: select( STORE_ID ).getProductData(),
-			credentialState: select( STORE_ID ).getCredentialState(),
+			Credential: select( STORE_ID ).getCredential(),
 		} )
 	);
 
@@ -43,6 +43,6 @@ export default function useProtectData() {
 		hasUncheckedItems: status.hasUncheckedItems,
 		jetpackScan,
 		productData,
-		credentialState,
+		Credential,
 	};
 }

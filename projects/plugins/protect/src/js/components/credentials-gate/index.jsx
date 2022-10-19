@@ -6,18 +6,18 @@ import CredentialsNeededModal from '../credentials-needed-modal';
 import styles from './styles.module.scss';
 
 const CredentialsGate = ( { children } ) => {
-	const { checkCredentialsState } = useDispatch( STORE_ID );
+	const { checkCredentials } = useDispatch( STORE_ID );
 
-	const { credentialState, credentialStateIsFetching } = useSelect( select => ( {
-		credentialState: select( STORE_ID ).getCredentialState(),
-		credentialStateIsFetching: select( STORE_ID ).getCredentialStateIsFetching(),
+	const { Credential, CredentialIsFetching } = useSelect( select => ( {
+		Credential: select( STORE_ID ).getCredential(),
+		CredentialIsFetching: select( STORE_ID ).getCredentialIsFetching(),
 	} ) );
 
-	if ( ! credentialState.state && ! credentialStateIsFetching ) {
-		checkCredentialsState();
+	if ( ! Credential.credentials && ! CredentialIsFetching ) {
+		checkCredentials();
 	}
 
-	if ( ! credentialState.state ) {
+	if ( ! Credential.credentials ) {
 		return (
 			<div className={ styles.loading }>
 				<Spinner
@@ -35,7 +35,7 @@ const CredentialsGate = ( { children } ) => {
 		);
 	}
 
-	if ( [ 'awaiting_credentials', 'unavailable' ].indexOf( credentialState.state ) >= 0 ) {
+	if ( Credential.credentials.length === 0 ) {
 		return <CredentialsNeededModal />;
 	}
 
