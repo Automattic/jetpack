@@ -1329,7 +1329,6 @@ importers:
 
   projects/plugins/boost:
     specifiers:
-      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.24
       '@babel/core': 7.19.3
@@ -1368,7 +1367,6 @@ importers:
       tslib: 2.3.1
       typescript: 4.8.2
     dependencies:
-      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@wordpress/components': 21.2.0_7zkbjz6d46tpcbbta4lk5n6n6i
       '@wordpress/element': 4.17.0
