@@ -134,12 +134,14 @@ jobs:
         if: ${{ fromJSON(steps.changed.outputs.projects)['plugins/jetpack'] == true }}
         env:
           SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
+          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
           PR: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          curl -v --fail -L \
-            --url "https://mc.a8c.com/github-post-push-callback.php?jetpack-tc-trigger" \
+          curl --fail -L \
+            --url "$URL" \
             --form-string "pr-number=$PR" \
-            --form-string "sha=$GITHUB_SHA" \
+            --form-string "sha=$SHA" \
             --form-string "secret=$SECRET"
 
   upgrade_test:
