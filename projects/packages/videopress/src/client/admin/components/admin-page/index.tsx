@@ -26,6 +26,9 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
+import uid from '../../../utils/uid';
+import { fileInputExtensions } from '../../../utils/video-extensions';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import Logo from '../logo';
@@ -38,10 +41,11 @@ import styles from './styles.module.scss';
 const useDashboardVideos = () => {
 	const { uploadVideo } = useDispatch( STORE_ID );
 
-	const { items, uploading, uploadedVideoCount, isFetching } = useVideos();
+	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos } = useLocalVideos();
 
-	let videos = [ ...uploading, ...items ];
+	// Do not show uploading videos if not in the first page or searching
+	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
 
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 	const localTotalVideoCount = 0;
@@ -54,7 +58,8 @@ const useDashboardVideos = () => {
 
 	// Fill with empty videos if loading
 	if ( isFetching ) {
-		videos = new Array( 6 ).fill( {} );
+		// Use generated ID to work with React Key
+		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
 	}
 
 	return {
@@ -79,11 +84,7 @@ const Admin = () => {
 		loading,
 	} = useDashboardVideos();
 
-	const {
-		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
-	} = window.jetpackVideoPressInitialState;
-
-	const hasPaidPlan = isVideoPress1TBSupported || isVideoPressUnlimitedSupported;
+	const { hasVideoPressPurchase } = usePlan();
 
 	const { isUserConnected, isRegistered } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -94,6 +95,8 @@ const Admin = () => {
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
+
+	useAnalyticsTracks( { pageViewEventName: 'admin' } );
 
 	return (
 		<AdminPage
@@ -129,20 +132,20 @@ const Admin = () => {
 
 								<FormFileUpload
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
-									accept="video/*"
+									accept={ fileInputExtensions }
 									render={ ( { openFileDialog } ) => (
 										<Button
 											fullWidth={ isSm }
 											onClick={ openFileDialog }
 											isLoading={ loading }
-											disabled={ ! hasPaidPlan && hasVideos }
+											disabled={ ! hasVideoPressPurchase && hasVideos }
 										>
 											{ addVideoLabel }
 										</Button>
 									) }
 								/>
 
-								{ ! hasPaidPlan && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
+								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -190,7 +193,14 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
+		isFetchingPurchases,
 	} );
+
+	const { recordEventHandler } = useAnalyticsTracks( {} );
+	const onButtonClickHandler = recordEventHandler(
+		'jetpack_videopress_upgrade_trigger_link_click',
+		run
+	);
 
 	const description = hasUsedVideo
 		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
@@ -210,7 +220,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 			description={ description }
 			cta={ cta }
 			className={ styles[ 'upgrade-trigger' ] }
-			onClick={ run }
+			onClick={ onButtonClickHandler }
 		/>
 	);
 };

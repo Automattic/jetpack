@@ -8,10 +8,13 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import config from '../../stores/config';
 	import Logo from '../../svg/jetpack-green.svg';
+	import { recordBoostEvent } from '../../utils/analytics';
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
-	function goToCheckout() {
+	async function goToCheckout() {
+		const eventProps = {};
+		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
 		window.location.href = getUpgradeURL();
 	}
 

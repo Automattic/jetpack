@@ -389,7 +389,6 @@ export default compose( [
 
 			innerBlocks,
 			hasInnerBlocks: innerBlocks.length > 0,
-
 			siteTitle: get( getSite && getSite(), [ 'title' ] ),
 			postTitle: postTitle,
 			postAuthorEmail: authorEmail,

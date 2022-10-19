@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.5-a.7 - 2022-10-17
+### Enhancements
+- Dashboard: ensure Apps card is always displayed, regardless of whether promotions are active. [#26659]
+- Form block: improve parent block selection when inner block is already selected. [#26687]
+- Subscription block: don't include Jetpack Social connections in subscriber count. [#26751]
+
+### Bug fixes
+- Payment Buttons block: fix payment-buttons font sizes taking precedence over the font sizes of contained button blocks. [#26839]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Manually sync site settings endpoint files with their WPCOM counterparts [#26747]
+- Search: changed Search CTA link to Search upsell page of the search package [#26807]
+- Updated package dependencies. [#26826, #26828, #26851]
+
+## 11.5-a.5 - 2022-10-13
+### Enhancements
+- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin [#26799]
+
+### Bug fixes
+- CRM: Fix unmounted state updates in Form CRM integration [#26688]
+- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking [#26668]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- init cycle [#26754]
+- Dashboard: fix dashboard backup link for Atomic sites. [#26766]
+- Replace usages of stats_get_from_restapi with corresponding methods from Stats package, WPCOM_Stats [#26719]
+- Updated jetpack_require_lib to require_once for Instagram class [#26802]
+- Updated package dependencies. [#26545]
+- Update to Typescript to reap the benefits (such as added safety and automation) [#26644]
+- Updating changelog and readme [#26755]
+
 ## 11.5-a.3 - 2022-10-11
 ### Enhancements
 - Payment Buttons block: add typography controls. [#26580]

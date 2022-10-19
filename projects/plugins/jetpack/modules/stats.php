@@ -29,7 +29,6 @@ if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 }
 
 define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
-defined( 'STATS_VERSION' ) || define( 'STATS_VERSION', '9' );
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
@@ -1368,11 +1367,13 @@ function jetpack_stats_api_path( $resource = '' ) {
  *
  * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  * @access public
+ * @deprecated 11.5 Use WPCOM_Stats available methodsinstead.
  * @param array  $args (default: array())  The args that are passed to the endpoint.
  * @param string $resource (default: '') Optional sub-endpoint following /stats/.
  * @return array|WP_Error.
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Please checkout the methods available in Automattic\Jetpack\Stats\WPCOM_Stats' );
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
@@ -1499,11 +1500,29 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 /**
  * Add the Jetpack plugin version to the stats tracking data.
  *
- * @param  param array $kvs The stats array in key values.
+ * @param  array $kvs The stats array in key values.
  * @return array
  */
 function filter_stats_array_add_jp_version( $kvs ) {
 	$kvs['j'] = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
 
 	return $kvs;
+}
+
+/**
+ * Convert stats array to object after sanity checking the array is valid.
+ *
+ * @param  array $stats_array The stats array.
+ * @return WP_Error|Object|null
+ */
+function convert_stats_array_to_object( $stats_array ) {
+
+	if ( is_wp_error( $stats_array ) ) {
+		return $stats_array;
+	}
+	$encoded_array = wp_json_encode( $stats_array );
+	if ( ! $encoded_array ) {
+		return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
+	}
+	return json_decode( $encoded_array );
 }

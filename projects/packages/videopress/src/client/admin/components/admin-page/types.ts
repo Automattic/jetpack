@@ -1,11 +1,12 @@
 import { productOriginalProps, siteProductOriginalProps } from '../../hooks/use-plan/types';
-import { VideoPressVideo } from '../../types';
+import { MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
 	interface Window {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
 		jetpackVideoPressInitialState: {
+			allowedVideoExtensions: Record< string, string >;
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;
@@ -24,7 +25,7 @@ declare global {
 }
 
 export type VideoLibraryProps = {
-	videos: Array< VideoPressVideo >;
+	videos: Array< VideoPressVideo & MetadataVideo >;
 	totalVideos?: number;
 	loading?: boolean;
 };

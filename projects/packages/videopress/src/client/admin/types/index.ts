@@ -156,9 +156,12 @@ export type MetadataVideo = {
 	hasBeenDeleted?: boolean;
 	uploading?: boolean;
 	processing?: boolean;
+	isUpdatingPrivacy?: boolean;
+	isUpdatingPoster?: boolean;
 };
 
 export type VideopressSelectors = {
+	isFetchingPurchases: () => boolean;
 	getVideo: ( id: number | string ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];

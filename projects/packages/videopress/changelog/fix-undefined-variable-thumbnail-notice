@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: Make sure the thumbnail var is set before using it to prevent "Undefined variable" notice
