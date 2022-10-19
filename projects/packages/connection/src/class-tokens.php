@@ -499,10 +499,10 @@ class Tokens {
 		}
 
 		if ( false !== $can_overwrite_primary_user ) {
-			_doing_it_wrong(
+			_deprecated_argument(
 				__CLASS__ . '::' . __FUNCTION__,
-				'Parameter $can_overwrite_primary_user is deprecated',
-				'$$next-version$$'
+				'$$next-version$$',
+				'Parameter $can_overwrite_primary_user is deprecated'
 			);
 		}
 
