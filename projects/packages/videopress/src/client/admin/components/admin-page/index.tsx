@@ -35,7 +35,7 @@ import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
-import { ConnectLocalLibrary, VideoPressLibrary } from './libraries';
+import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
@@ -78,6 +78,8 @@ const Admin = () => {
 	const {
 		videos,
 		uploadedVideoCount,
+		localVideos,
+		localTotalVideoCount,
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
@@ -172,7 +174,7 @@ const Admin = () => {
 							) }
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<ConnectLocalLibrary />
+									<LocalLibrary videos={ localVideos } totalVideos={ localTotalVideoCount } />
 								</Col>
 							) }
 						</Container>

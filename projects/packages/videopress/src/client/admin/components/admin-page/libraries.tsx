@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
@@ -164,17 +164,5 @@ export const LocalLibrary = ( { videos, totalVideos, loading }: VideoLibraryProp
 			<LocalVideoList videos={ videos } loading={ loading } />
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
-	);
-};
-
-export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount, isFetching } = useLocalVideos();
-
-	return (
-		<LocalLibrary
-			videos={ videos }
-			totalVideos={ uploadedLocalVideoCount }
-			loading={ isFetching }
-		/>
 	);
 };
