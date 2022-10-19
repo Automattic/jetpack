@@ -149,6 +149,7 @@ export const LocalVideoList = ( {
 						showQuickActions={ showQuickActions }
 						uploadDate={ video.uploadDate }
 						onActionClick={ handleClickWithIndex( index ) }
+						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 					/>
 				);
 			} ) }
