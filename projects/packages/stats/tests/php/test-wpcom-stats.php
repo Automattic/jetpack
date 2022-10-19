@@ -612,7 +612,7 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats();
 		$this->assertSame( $expected_error, $stats );
-		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+		$this->assertSame( $expected_error, self::get_stats_transient( '/sites/1234/stats/' ) );
 	}
 
 	/**
