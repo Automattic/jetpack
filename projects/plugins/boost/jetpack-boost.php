@@ -123,6 +123,8 @@ function run_jetpack_boost() {
 
 add_action( 'plugins_loaded', '\Automattic\Jetpack_Boost\run_jetpack_boost', 1 );
 
+register_activation_hook( __FILE__, array( 'Automattic\Jetpack_Boost\Jetpack_Boost', 'activate' ) );
+
 /**
  * Extra tweaks to make Jetpack Boost work better with others.
  */
