@@ -600,6 +600,24 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test get_stats with cached error.
+	 */
+	public function test_get_stats_with_cached_error() {
+		$expected_error = new WP_Error( 'dummy' );
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->wpcom_stats->get_stats();
+
+		$stats = $this->wpcom_stats->get_stats();
+		$this->assertSame( $expected_error, $stats );
+		$this->assertSame( $expected_error, self::get_stats_transient( '/sites/1234/stats/' ) );
+	}
+
+	/**
 	 * Test get_stats with error.
 	 */
 	public function test_get_stats_with_error() {
@@ -612,7 +630,7 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats();
 		$this->assertSame( $expected_error, $stats );
-		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+		$this->assertSame( $expected_error, self::get_stats_transient( '/sites/1234/stats/' ) );
 	}
 
 	/**
