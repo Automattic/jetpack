@@ -3,14 +3,16 @@
 
 	// Wrapper is necessary to prevent the pop out from affecting the width of the page
 	&__wrapper {
-		width: 300px;
+		width: 340px;
 		position: absolute;
 		top: 40px;
 		right: 0;
 		z-index: 60;
 		overflow: hidden;
+		padding: 20px 0 20px 20px;
 	}
 
+	position: relative;
 	background-color: #ffffff;
 	padding: 24px;
 
