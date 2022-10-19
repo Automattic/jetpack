@@ -4,7 +4,7 @@
 
 ## 11.5-a.9 - 2022-10-19
 ### Bug fixes
-- Consent Form Field: add field to success page, email ,and feedback view. [#26878]
+- Contact Form: display consent form field result in notification emails and feedback views. [#26878]
 - Contact Form: remove overlay causing issues with the block inserter hover behavior. [#26910]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
