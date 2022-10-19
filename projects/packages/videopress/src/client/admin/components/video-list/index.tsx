@@ -13,7 +13,7 @@ import styles from './style.module.scss';
 /**
  * Types
  */
-import { VideoListProps } from './types';
+import { LocalVideoListProps, VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
@@ -74,7 +74,7 @@ const VideoList = ( {
 						showQuickActions={ ! video?.uploading && showQuickActions }
 						showActionButton={ ! video?.uploading && showActionButton }
 						className={ styles.row }
-						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+						onActionClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
@@ -100,8 +100,8 @@ export const LocalVideoList = ( {
 	videos,
 	showActionButton = true,
 	showQuickActions = false,
-	onVideoDetailsClick,
-}: VideoListProps ) => {
+	onActionClick,
+}: LocalVideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
@@ -115,7 +115,7 @@ export const LocalVideoList = ( {
 	};
 
 	const handleClickWithIndex = index => () => {
-		onVideoDetailsClick?.( videos[ index ] );
+		onActionClick?.( videos[ index ] );
 	};
 
 	return (
@@ -148,7 +148,7 @@ export const LocalVideoList = ( {
 						showActionButton={ showActionButton }
 						showQuickActions={ showQuickActions }
 						uploadDate={ video.uploadDate }
-						onVideoDetailsClick={ handleClickWithIndex( index ) }
+						onActionClick={ handleClickWithIndex( index ) }
 					/>
 				);
 			} ) }

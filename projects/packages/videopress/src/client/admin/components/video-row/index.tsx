@@ -97,7 +97,7 @@ export const VideoRow = ( {
 	plays,
 	isPrivate,
 	privacySetting,
-	onVideoDetailsClick,
+	onActionClick,
 	onSelect,
 	showActionButton = true,
 	showQuickActions = true,
@@ -155,7 +155,7 @@ export const VideoRow = ( {
 	};
 
 	const actionButton = (
-		<Button size="small" onClick={ handleClickWithStopPropagation( onVideoDetailsClick ) }>
+		<Button size="small" onClick={ handleClickWithStopPropagation( onActionClick ) }>
 			{ actionButtonLabel }
 		</Button>
 	);

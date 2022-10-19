@@ -31,9 +31,9 @@ type VideoRowBaseProps = {
 	 */
 	onSelect?: ( check: boolean ) => void;
 	/**
-	 * Callback to be invoked when clicking on the `Edit details` button.
+	 * Callback to be invoked when clicking on action button.
 	 */
-	onVideoDetailsClick?: () => void;
+	onActionClick?: () => void;
 	/**
 	 * Text to be used inside action button. Default to `Edit details`.
 	 */

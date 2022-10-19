@@ -34,3 +34,7 @@ export type VideoListProps = {
 	 */
 	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;
 };
+
+export type LocalVideoListProps = Omit< VideoListProps, 'onVideoDetailsClick' > & {
+	onActionClick?: ( video: VideoPressVideo ) => void;
+};
