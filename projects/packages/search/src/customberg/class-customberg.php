@@ -44,7 +44,7 @@ class Customberg {
 	 */
 	public function init_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
-		add_action( 'pre_option_jetpack_search_show_powered_by', array( $this, 'get_show_powered_by' ) );
+		add_filter( 'pre_option_jetpack_search_show_powered_by', array( $this, 'get_show_powered_by' ) );
 		$this->plan = new Plan();
 	}
 
