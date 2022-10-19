@@ -1,6 +1,6 @@
 <script>
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { BoostPricingTable } from '../../react-components/BoostPricingTable.jsx';
+	import { BoostPricingTable } from '../../react-components/BoostPricingTable.tsx';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { updateModuleState } from '../../stores/modules';
