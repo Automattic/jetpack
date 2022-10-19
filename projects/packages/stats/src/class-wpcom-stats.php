@@ -26,7 +26,7 @@ class WPCOM_Stats {
 	 *
 	 * @var string
 	 */
-	const STATS_CACHE_TRANSIENT_PREFIX = 'jetpack_restapi_cached_stats_';
+	const STATS_CACHE_TRANSIENT_PREFIX = 'jetpack_restapi_stats_cache_';
 
 	/**
 	 * Time, in minutes, to cache stats results from the REST API.
@@ -332,19 +332,19 @@ class WPCOM_Stats {
 
 		if ( $stats_cache ) {
 			$time = key( $stats_cache );
-			$data = $stats_cache[ $time ]; // JSON encoded data.
+			$data = $stats_cache[ $time ]; // WP_Error or string (JSON encoded object).
+
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
 
 			return array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
 		}
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
-		if ( is_wp_error( $wpcom_stats ) ) {
-			return $wpcom_stats;
-		}
-
 		// To reduce size in storage: store with time as key, store JSON encoded data.
-		$cached_value = wp_json_encode( $wpcom_stats );
+		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
 		$expiration   = self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS;
 		set_transient( $transient_name, array( time() => $cached_value ), $expiration );
 
