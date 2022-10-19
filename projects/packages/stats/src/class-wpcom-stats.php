@@ -332,7 +332,11 @@ class WPCOM_Stats {
 
 		if ( $stats_cache ) {
 			$time = key( $stats_cache );
-			$data = $stats_cache[ $time ]; // JSON encoded data.
+			$data = $stats_cache[ $time ]; // WP_Error or string (JSON encoded object).
+
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
 
 			return array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
 		}
