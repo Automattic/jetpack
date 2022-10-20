@@ -22,6 +22,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -95,11 +96,12 @@ const Admin = () => {
 
 	const { hasVideoPressPurchase } = usePlan();
 
-	const { isRegistered, siteIsRegistering, userIsConnecting } = useConnection();
+	const { isRegistered } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
+	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
+
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const showPricingSection = ! isRegistered || siteIsRegistering || userIsConnecting;
 
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
@@ -116,7 +118,7 @@ const Admin = () => {
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<PricingSection />
+							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
 						</Col>
 					</Container>
 				</AdminSectionHero>
