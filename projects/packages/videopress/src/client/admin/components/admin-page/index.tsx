@@ -99,7 +99,7 @@ const Admin = () => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const showConnectionCard = ! isRegistered || siteIsRegistering || userIsConnecting;
+	const showPricingSection = ! isRegistered || siteIsRegistering || userIsConnecting;
 
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
@@ -112,7 +112,7 @@ const Admin = () => {
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <Logo /> }
 		>
-			{ showConnectionCard ? (
+			{ showPricingSection ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
