@@ -22,7 +22,7 @@ const Template = args => <GlobalNotice { ...args } />;
 
 export const _default = Template.bind( {} );
 _default.args = {
-	children: 'Tipical error message',
+	children: 'Typical error message',
 	addConnectUserLink: true,
 	isDismissible: true,
 	status: 'error',
