@@ -27,7 +27,7 @@ const PricingPage = () => {
 		from: 'jetpack-videopress',
 		registrationNonce,
 	} );
-	const [ isConnecting, setIsConnection ] = useState( false );
+	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		siteSuffix,
@@ -84,10 +84,10 @@ const PricingPage = () => {
 						fullWidth
 						variant="secondary"
 						onClick={ () => {
-							setIsConnection( true );
+							setIsConnecting( true );
 							handleRegisterSite();
 						} }
-						isLoading={ userIsConnecting }
+						isLoading={ userIsConnecting || isConnecting }
 						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }

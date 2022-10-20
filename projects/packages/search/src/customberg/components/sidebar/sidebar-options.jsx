@@ -10,9 +10,12 @@ import classNames from 'classnames';
 import useEntityRecordState from 'hooks/use-entity-record-state';
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
+import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import ColorControl from './color-control';
 import ExcludedPostTypesControl from './excluded-post-types-control';
 import ThemeControl from './theme-control';
+
+const { isFreePlan = false } = window[ SERVER_OBJECT_NAME ];
 
 /* eslint-disable react/jsx-no-bind */
 
@@ -128,13 +131,15 @@ export default function SidebarOptions() {
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
 				/>
-				<ToggleControl
-					className="jp-search-configure-show-logo-toggle"
-					checked={ showLogo }
-					disabled={ isDisabled }
-					label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
-					onChange={ setShowLogo }
-				/>
+				{ ! isFreePlan && (
+					<ToggleControl
+						className="jp-search-configure-show-logo-toggle"
+						checked={ showLogo }
+						disabled={ isDisabled }
+						label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
+						onChange={ setShowLogo }
+					/>
+				) }
 			</PanelBody>
 		</Panel>
 	);
