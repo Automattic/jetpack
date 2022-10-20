@@ -59,7 +59,7 @@ const CredentialsNeededModal = () => {
 
 			<Text mb={ 3 }>
 				{ __(
-					'Once you’ve entered server credentials, Jetpack Protect will be fixing the three selected threats.',
+					'Once you’ve entered server credentials, Jetpack Protect will be fixing the selected threats.',
 					'jetpack-protect'
 				) }
 			</Text>
