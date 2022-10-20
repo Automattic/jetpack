@@ -43,6 +43,28 @@ import {
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
+/**
+ * Utility function to pool the video data until poster is ready.
+ */
+
+const pollingUploadedVideoData = async data => {
+	const response = await apiFetch( {
+		path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+	} );
+
+	const video = mapVideoFromWPV2MediaEndpoint( response );
+
+	if ( video?.posterImage !== null ) {
+		return Promise.resolve( video );
+	}
+
+	return pollingUploadedVideoData( video );
+};
+
+/**
+ * ACTIONS
+ */
+
 const setIsFetchingVideos = isFetching => {
 	return { type: SET_IS_FETCHING_VIDEOS, isFetching };
 };
@@ -196,20 +218,6 @@ const deleteVideo = id => async ( { dispatch } ) => {
 const uploadVideo = file => async ( { dispatch } ) => {
 	const tempId = uid();
 
-	const pollingUploadedVideoData = async data => {
-		const response = await apiFetch( {
-			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
-		} );
-
-		const video = mapVideoFromWPV2MediaEndpoint( response );
-
-		if ( video?.posterImage !== null ) {
-			dispatch( { type: UPLOADED_VIDEO, video } );
-		} else {
-			setTimeout( () => pollingUploadedVideoData( video ), 2000 );
-		}
-	};
-
 	// @todo: implement progress and error handler
 	const noop = () => {};
 
@@ -218,15 +226,18 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	// @todo: this should be stored in the state
 	const jwt = await getJWT();
 
+	const onSuccess = async data => {
+		dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+		const video = await pollingUploadedVideoData( data );
+		dispatch( { type: UPLOADED_VIDEO, video } );
+	};
+
 	videoPressUpload( {
 		data: jwt,
 		file,
 		onError: noop,
 		onProgress: noop,
-		onSuccess: data => {
-			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
-			pollingUploadedVideoData( data );
-		},
+		onSuccess,
 	} );
 };
 
@@ -237,25 +248,12 @@ const uploadVideo = file => async ( { dispatch } ) => {
  * @returns {Function} Thunk action
  */
 const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
-	const pollingUploadedVideoData = async data => {
-		const response = await apiFetch( {
-			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
-		} );
-
-		const video = mapVideoFromWPV2MediaEndpoint( response );
-
-		if ( video?.posterImage !== null ) {
-			dispatch( { type: UPLOADED_VIDEO, video } );
-		} else {
-			setTimeout( () => pollingUploadedVideoData( video ), 2000 );
-		}
-	};
-
-	dispatch( { type: UPLOADING_VIDEO, id: file?.id, title: file?.title } );
-
+	const tempId = uid();
+	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.title } );
 	const data = await uploadFromLibrary( file?.id );
-	dispatch( { type: PROCESSING_VIDEO, id: file?.id, data } );
-	pollingUploadedVideoData( data );
+	dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+	const video = await pollingUploadedVideoData( data );
+	dispatch( { type: UPLOADED_VIDEO, video } );
 };
 
 const setIsFetchingPurchases = isFetching => {
