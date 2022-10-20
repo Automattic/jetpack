@@ -499,11 +499,7 @@ class Tokens {
 		}
 
 		if ( false !== $can_overwrite_primary_user ) {
-			_deprecated_argument(
-				__CLASS__ . '::' . __FUNCTION__,
-				'$$next-version$$',
-				'Parameter $can_overwrite_primary_user is deprecated'
-			);
+			_deprecated_argument( __METHOD__, '$$next-version$$', 'Parameter $can_overwrite_primary_user is deprecated' );
 		}
 
 		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
