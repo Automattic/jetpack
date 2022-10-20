@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { STORE_ID } from '../../state/store';
 import CredentialsGate from '../credentials-gate';
 import ThreatFixHeader from '../threat-fix-header';
+import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const FixAllThreatsModal = ( { threatList = [] } ) => {
@@ -41,37 +42,39 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 	);
 
 	return (
-		<CredentialsGate>
-			<Text variant="title-medium" mb={ 2 }>
-				{ __( 'Fix all threats', 'jetpack-protect' ) }
-			</Text>
-			<Text mb={ 3 }>
-				{ __( 'Jetpack will be fixing the selected threats:', 'jetpack-protect' ) }
-			</Text>
-
-			<div className={ styles.list }>
-				{ threatList.map( threat => (
-					<ThreatFixHeader
-						key={ threat.id }
-						threat={ threat }
-						fixAllDialog={ true }
-						onCheckFix={ handleCheckboxClick }
-					/>
-				) ) }
-			</div>
-
-			<div className={ styles.footer }>
-				<Button variant="secondary" onClick={ handleCancelClick() }>
-					{ __( 'Cancel', 'jetpack-protect' ) }
-				</Button>
-				<Button
-					isLoading={ Boolean( threatsUpdating ) && threatsUpdating[ threatIds[ 0 ] ] }
-					onClick={ handleFixClick() }
-				>
+		<UserConnectionGate>
+			<CredentialsGate>
+				<Text variant="title-medium" mb={ 2 }>
 					{ __( 'Fix all threats', 'jetpack-protect' ) }
-				</Button>
-			</div>
-		</CredentialsGate>
+				</Text>
+				<Text mb={ 3 }>
+					{ __( 'Jetpack will be fixing the selected threats:', 'jetpack-protect' ) }
+				</Text>
+
+				<div className={ styles.list }>
+					{ threatList.map( threat => (
+						<ThreatFixHeader
+							key={ threat.id }
+							threat={ threat }
+							fixAllDialog={ true }
+							onCheckFix={ handleCheckboxClick }
+						/>
+					) ) }
+				</div>
+
+				<div className={ styles.footer }>
+					<Button variant="secondary" onClick={ handleCancelClick() }>
+						{ __( 'Cancel', 'jetpack-protect' ) }
+					</Button>
+					<Button
+						isLoading={ Boolean( threatsUpdating ) && threatsUpdating[ threatIds[ 0 ] ] }
+						onClick={ handleFixClick() }
+					>
+						{ __( 'Fix all threats', 'jetpack-protect' ) }
+					</Button>
+				</div>
+			</CredentialsGate>
+		</UserConnectionGate>
 	);
 };
 

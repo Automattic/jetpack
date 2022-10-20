@@ -1,0 +1,9 @@
+.loading {
+    text-align: center;
+    padding-top: calc( var( --spacing-base ) * 6 );
+    padding-bottom: calc( var( --spacing-base ) * 6 );
+
+    &__message {
+        margin-bottom: 0;
+    }
+}
