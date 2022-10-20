@@ -244,7 +244,7 @@ function get_element_styles_from_attributes( $attributes ) {
  *
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 
 	$subscribe_email = '';
