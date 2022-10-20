@@ -36,32 +36,47 @@ const timeSince = date => {
 
 	let interval = seconds / 31536000; // 364 days
 	if ( interval > 1 ) {
-		// translators: placeholder is a number amount of years i.e. "5 years ago".
-		return sprintf( __( '%s years ago', 'jetpack-protect' ), Math.floor( interval ) );
+		return sprintf(
+			// translators: placeholder is a number amount of years i.e. "5 years ago".
+			__( '%s years ago', 'jetpack-protect' ),
+			Math.floor( interval )
+		);
 	}
 
 	interval = seconds / 2592000; // 30 days
 	if ( interval > 1 ) {
-		// translators: placeholder is a number amount of months i.e. "5 months ago".
-		return sprintf( __( '%s months ago', 'jetpack-protect' ), Math.floor( interval ) );
+		return sprintf(
+			// translators: placeholder is a number amount of months i.e. "5 months ago".
+			__( '%s months ago', 'jetpack-protect' ),
+			Math.floor( interval )
+		);
 	}
 
 	interval = seconds / 86400; // 1 day
 	if ( interval > 1 ) {
-		// translators: placeholder is a number amount of days i.e. "5 days ago".
-		return sprintf( __( '%s days ago', 'jetpack-protect' ), Math.floor( interval ) );
+		return sprintf(
+			// translators: placeholder is a number amount of days i.e. "5 days ago".
+			__( '%s days ago', 'jetpack-protect' ),
+			Math.floor( interval )
+		);
 	}
 
 	interval = seconds / 3600; // 1 hour
 	if ( interval > 1 ) {
-		// translators: placeholder is a number amount of hours i.e. "5 hours ago".
-		return sprintf( __( '%s hours ago', 'jetpack-protect' ), Math.floor( interval ) );
+		return sprintf(
+			// translators: placeholder is a number amount of hours i.e. "5 hours ago".
+			__( '%s hours ago', 'jetpack-protect' ),
+			Math.floor( interval )
+		);
 	}
 
 	interval = seconds / 60; // 1 minute
 	if ( interval > 1 ) {
-		// translators: placeholder is a number amount of minutes i.e. "5 minutes ago".
-		return sprintf( __( '%s minutes ago', 'jetpack-protect' ), Math.floor( interval ) );
+		return sprintf(
+			// translators: placeholder is a number amount of minutes i.e. "5 minutes ago".
+			__( '%s minutes ago', 'jetpack-protect' ),
+			Math.floor( interval )
+		);
 	}
 
 	return __( 'a few seconds ago', 'jetpack-protect' );
