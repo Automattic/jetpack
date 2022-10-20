@@ -6,6 +6,7 @@ declare global {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
 		jetpackVideoPressInitialState: {
+			allowedVideoExtensions: Record< string, string >;
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;

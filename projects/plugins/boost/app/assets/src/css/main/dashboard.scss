@@ -1,13 +1,7 @@
 .jb-settings {
-	&, p {
-		font-size: 16px;
-	}
+	font-size: 16px;
 
-  	p {
-	  	margin: 1em 0;
-	}
-
-  	&--main {
+	&--main {
 	  background-color: $primary-white;
 	}
 
@@ -15,7 +9,6 @@
 	display: flex;
 	flex-direction: column;
   	position: relative;
-  	overflow-x: hidden;
 }
 
 .jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
@@ -25,6 +18,7 @@
 .jb-section {
 	padding-top: $padding;
 	padding-bottom: $padding;
+	isolation: isolate;
 }
 
 .jb-link{
@@ -38,7 +32,7 @@
 }
 
 .jb-section--scores {
-  	position: relative;
+	position: relative;
 }
 
 .jb-container {
@@ -51,11 +45,11 @@
 		max-width: 744px;
 	}
 
-  	&--fixed {
-	  max-width: 1080px;
-	  width: auto;
-	  padding-left: $spacing-unit * 2;
-	  padding-right: $spacing-unit * 2;
+	&--fixed {
+		max-width: 1080px;
+		width: auto;
+		padding-left: $spacing-unit * 2;
+		padding-right: $spacing-unit * 2;
 	}
 }
 
@@ -126,24 +120,24 @@
 		display: flex;
 		justify-content: flex-end;
 
-	  	> div {
-		  	display: flex;
+		> div {
+			display: flex;
 			flex-direction: column;
 
-		  	> div {
+			> div {
 				display: flex;
 			}
 		}
 
-	  	button {
-		  	margin-left: auto;
+		button {
+			margin-left: auto;
 
-		  	&.confirm {
+			&.confirm {
 				margin-left: 10px;
 			}
 		}
 
-	  	.checkbox {
+		.checkbox {
 			font-size: 12px;
 			margin-top: 10px;
 		}
