@@ -1,3 +1,4 @@
+import React from 'react';
 import { VideoPressVideo } from '../../types';
 import { VideoThumbnailProps } from '../video-thumbnail/types';
 
@@ -42,6 +43,10 @@ type VideoRowBaseProps = {
 	 * Make row disabled.
 	 */
 	disabled?: boolean;
+	/**
+	 * Adornment to be showed after title.
+	 */
+	titleAdornment?: React.ReactNode;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &

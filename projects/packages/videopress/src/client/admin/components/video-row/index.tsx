@@ -90,6 +90,7 @@ export const VideoRow = ( {
 	className = '',
 	checked = false,
 	title,
+	titleAdornment = null,
 	thumbnail: defaultThumbnail,
 	showThumbnail = false,
 	duration,
@@ -255,8 +256,13 @@ export const VideoRow = ( {
 						{ loading ? (
 							<Placeholder height={ 30 } />
 						) : (
-							<Text variant="title-small" className={ styles.title } ref={ textRef }>
+							<Text
+								variant="title-small"
+								className={ classNames( styles.title, { [ styles.disabled ]: disabled } ) }
+								ref={ textRef }
+							>
 								{ title }
+								{ titleAdornment }
 							</Text>
 						) }
 
