@@ -147,10 +147,10 @@ export const LocalVideoList = ( {
 						title={ video.title }
 						showActionButton={ showActionButton }
 						showQuickActions={ showQuickActions }
-						hoverable={ ! video?.isUploadedToVideoPress }
 						uploadDate={ video.uploadDate }
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+						disabled={ video?.isUploadedToVideoPress }
 					/>
 				);
 			} ) }

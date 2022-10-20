@@ -104,7 +104,7 @@ export const VideoRow = ( {
 	loading = false,
 	isUpdatingPoster = false,
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
-	hoverable = true,
+	disabled = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -136,6 +136,8 @@ export const VideoRow = ( {
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
 			typeof isPrivate === 'boolean' );
+
+	const hoverDisabled = isSmall || loading || disabled;
 
 	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
@@ -202,14 +204,15 @@ export const VideoRow = ( {
 			tabIndex={ 0 }
 			onKeyDown={ isSmall ? null : handleKeyDown }
 			onKeyUp={ isSmall ? null : handleKeyUp }
-			onMouseOver={ isSmall || loading || ! hoverable ? null : handleOver }
-			onMouseLeave={ isSmall || loading || ! hoverable ? null : handleLeave }
+			onMouseOver={ hoverDisabled ? null : handleOver }
+			onMouseLeave={ hoverDisabled ? null : handleLeave }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
 			className={ classNames(
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
+					[ styles.disabled ]: hoverDisabled,
 				},
 				className
 			) }

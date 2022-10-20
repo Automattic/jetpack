@@ -39,9 +39,9 @@ type VideoRowBaseProps = {
 	 */
 	actionButtonLabel?: string;
 	/**
-	 * Make row hoverable or not.
+	 * Make row disabled.
 	 */
-	hoverable?: boolean;
+	disabled?: boolean;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &
