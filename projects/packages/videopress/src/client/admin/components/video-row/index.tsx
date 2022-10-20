@@ -112,7 +112,7 @@ export const VideoRow = ( {
 	const checkboxRef = useRef( null );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const [ showActions, setShowActions ] = useState( false );
+	const [ showActionsState, setShowActions ] = useState( false );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
 
@@ -121,8 +121,10 @@ export const VideoRow = ( {
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
+	const showStats = ( ! showActionsState && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
+	const showActions =
+		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
 
 	const privacyIsSetToPrivate = privacySetting
 		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
@@ -283,7 +285,7 @@ export const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && ( showActionButton || showQuickActions ) && ! loading && (
+						{ showActions && (
 							<div className={ styles.actions }>
 								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
