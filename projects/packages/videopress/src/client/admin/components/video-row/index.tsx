@@ -102,6 +102,7 @@ export const VideoRow = ( {
 	onSelect,
 	showActionButton = true,
 	showQuickActions = true,
+	showCheckbox = true,
 	loading = false,
 	isUpdatingPoster = false,
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
@@ -218,15 +219,17 @@ export const VideoRow = ( {
 				className
 			) }
 		>
-			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
-				<Checkbox
-					ref={ checkboxRef }
-					checked={ checked && ! loading }
-					tabIndex={ -1 }
-					onChange={ onSelect }
-					disabled={ loading }
-				/>
-			</div>
+			{ showCheckbox && (
+				<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
+					<Checkbox
+						ref={ checkboxRef }
+						checked={ checked && ! loading }
+						tabIndex={ -1 }
+						onChange={ onSelect }
+						disabled={ loading }
+					/>
+				</div>
+			) }
 			<div
 				className={ classNames( styles[ 'video-data-wrapper' ], {
 					[ styles.small ]: isSmall,

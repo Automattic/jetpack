@@ -20,6 +20,10 @@ type VideoRowBaseProps = {
 	 */
 	showQuickActions?: boolean;
 	/**
+	 * Show checkbox.
+	 */
+	showCheckbox?: boolean;
+	/**
 	 * Loading mode.
 	 */
 	loading?: boolean;

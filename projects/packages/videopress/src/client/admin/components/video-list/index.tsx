@@ -30,6 +30,7 @@ const VideoList = ( {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
+	const showCheckbox = false; // TODO: implement bulk actions
 
 	const handleAll = checked => {
 		if ( checked ) {
@@ -47,7 +48,7 @@ const VideoList = ( {
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					<Checkbox checked={ allSelected } onChange={ handleAll } />
+					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -75,6 +76,7 @@ const VideoList = ( {
 						uploadDate={ video.uploadDate }
 						showQuickActions={ ! video?.uploading && showQuickActions }
 						showActionButton={ ! video?.uploading && showActionButton }
+						showCheckbox={ showCheckbox }
 						className={ styles.row }
 						onActionClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						loading={ loading }
@@ -107,6 +109,7 @@ export const LocalVideoList = ( {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
+	const showCheckbox = false; // TODO: implement bulk actions
 
 	const handleAll = checked => {
 		if ( checked ) {
@@ -124,7 +127,7 @@ export const LocalVideoList = ( {
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					<Checkbox checked={ allSelected } onChange={ handleAll } />
+					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -149,6 +152,7 @@ export const LocalVideoList = ( {
 						title={ video.title }
 						showActionButton={ showActionButton }
 						showQuickActions={ showQuickActions }
+						showCheckbox={ showCheckbox }
 						uploadDate={ video.uploadDate }
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
