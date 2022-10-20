@@ -62,6 +62,7 @@ export function JetpackContactFormEdit( {
 		customThankyouMessage,
 		customThankyouRedirect,
 		jetpackCRM,
+		formTitle,
 	} = attributes;
 
 	const [ emailErrors, setEmailErrors ] = useState( false );
@@ -177,12 +178,26 @@ export function JetpackContactFormEdit( {
 		setAttributes( { to: email.trim() } );
 	};
 
-	const renderFormSettings = () => {
+	const SectionDescription = ( { children } ) => (
+		<p
+			style={ {
+				color: 'rgba( 117, 117, 117, 1 )',
+				marginBottom: '24px',
+			} }
+		>
+			{ children }
+		</p>
+	);
+
+	const renderEmailConnection = () => {
 		const emailAddr = to !== undefined ? to : '';
 		const emailSubject = subject !== undefined ? subject : '';
 
 		return (
 			<>
+				<SectionDescription>
+					{ __( 'Get incoming form responses sent to your email inbox:', 'jetpack' ) }
+				</SectionDescription>
 				<TextControl
 					aria-describedby={ `contact-form-${ instanceId }-email-${
 						hasEmailErrors() ? 'error' : 'help'
@@ -215,49 +230,6 @@ export function JetpackContactFormEdit( {
 						'jetpack'
 					) }
 				/>
-
-				<SelectControl
-					label={ __( 'On Submission', 'jetpack' ) }
-					value={ customThankyou }
-					options={ [
-						{ label: __( 'Show a summary of submitted fields', 'jetpack' ), value: '' },
-						{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
-						{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
-					] }
-					onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
-				/>
-
-				{ 'redirect' !== customThankyou && (
-					<TextControl
-						label={ __( 'Message Heading', 'jetpack' ) }
-						value={ customThankyouHeading }
-						placeholder={ __( 'Message Sent', 'jetpack' ) }
-						onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
-					/>
-				) }
-
-				{ 'message' === customThankyou && (
-					<TextareaControl
-						label={ __( 'Message Text', 'jetpack' ) }
-						value={ customThankyouMessage }
-						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
-						onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
-					/>
-				) }
-
-				{ 'redirect' === customThankyou && (
-					<BaseControl
-						label={ __( 'Redirect Address', 'jetpack' ) }
-						id={ `contact-form-${ instanceId }-thankyou-url` }
-					>
-						<URLInput
-							id={ `contact-form-${ instanceId }-thankyou-url` }
-							value={ customThankyouRedirect }
-							className="jetpack-contact-form__thankyou-redirect-url"
-							onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
-						/>
-					</BaseControl>
-				) }
 			</>
 		);
 	};
@@ -289,7 +261,74 @@ export function JetpackContactFormEdit( {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+					<SectionDescription>
+						{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack' ) }
+					</SectionDescription>
+					<Button
+						variant="secondary"
+						href="/wp-admin/edit.php?post_type=feedback"
+						target="_blank"
+						style={ { marginBottom: '24px' } }
+					>
+						{ __( 'View Form Responses', 'jetpack' ) }
+					</Button>
+					<TextControl
+						label={ __( 'Title of the Form', 'jetpack' ) }
+						value={ formTitle }
+						onChange={ value => setAttributes( { formTitle: value } ) }
+					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
+					<SectionDescription>
+						{ __( 'Customize the view after form submission:', 'jetpack' ) }
+					</SectionDescription>
+					<SelectControl
+						label={ __( 'On Submission', 'jetpack' ) }
+						value={ customThankyou }
+						options={ [
+							{ label: __( 'Show a summary of submitted fields', 'jetpack' ), value: '' },
+							{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
+							{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
+						] }
+						onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
+					/>
+
+					{ 'redirect' !== customThankyou && (
+						<TextControl
+							label={ __( 'Message Heading', 'jetpack' ) }
+							value={ customThankyouHeading }
+							placeholder={ __( 'Message Sent', 'jetpack' ) }
+							onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
+						/>
+					) }
+
+					{ 'message' === customThankyou && (
+						<TextareaControl
+							label={ __( 'Message Text', 'jetpack' ) }
+							value={ customThankyouMessage }
+							placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
+							onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
+						/>
+					) }
+
+					{ 'redirect' === customThankyou && (
+						<BaseControl
+							label={ __( 'Redirect Address', 'jetpack' ) }
+							id={ `contact-form-${ instanceId }-thankyou-url` }
+						>
+							<URLInput
+								id={ `contact-form-${ instanceId }-thankyou-url` }
+								value={ customThankyouRedirect }
+								className="jetpack-contact-form__thankyou-redirect-url"
+								onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
+							/>
+						</BaseControl>
+					) }
+				</PanelBody>
+				<PanelBody title={ __( 'Email Connection', 'jetpack' ) }>
+					{ renderEmailConnection() }
+				</PanelBody>
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (
