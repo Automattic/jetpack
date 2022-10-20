@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, info } from '@wordpress/icons';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -151,6 +153,18 @@ export const LocalVideoList = ( {
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 						disabled={ video?.isUploadedToVideoPress }
+						titleAdornment={
+							video?.isUploadedToVideoPress && (
+								<Tooltip
+									position="top center"
+									text={ __( 'Video already uploaded to VideoPress', 'jetpack-videopress-pkg' ) }
+								>
+									<div className={ styles[ 'title-adornment' ] }>
+										<Icon icon={ info } />
+									</div>
+								</Tooltip>
+							)
+						}
 					/>
 				);
 			} ) }
