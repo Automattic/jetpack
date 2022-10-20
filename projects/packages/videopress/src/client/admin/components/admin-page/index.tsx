@@ -86,11 +86,11 @@ const Admin = () => {
 
 	const { hasVideoPressPurchase } = usePlan();
 
-	const { isRegistered, siteIsRegistering } = useConnection();
+	const { isRegistered, siteIsRegistering, userIsConnecting } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const showConnectionCard = ! isRegistered || siteIsRegistering;
+	const showConnectionCard = ! isRegistered || siteIsRegistering || userIsConnecting;
 
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
