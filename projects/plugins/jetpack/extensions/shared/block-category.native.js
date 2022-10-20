@@ -30,3 +30,15 @@ setCategories( [
 		icon: <JetpackLogo />,
 	},
 ] );
+
+setCategories( [
+	// Create a different category for the Contact Form fields
+	// to allow showing them first in the Block Library when a
+	// Form block is selected
+	{
+		slug: 'contact-form-fields',
+		title: __( 'Forms', 'jetpack' ),
+		icon: <JetpackLogo />,
+	},
+	...getCategories().filter( ( { slug } ) => slug !== 'contact-form-fields' ),
+] );
