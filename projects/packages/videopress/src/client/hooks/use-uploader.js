@@ -144,7 +144,11 @@ export const uploadFromLibrary = attachmentId => {
 	return new Promise( ( resolve, reject ) => {
 		apiFetch( { path, method: 'POST' } )
 			.then( result => {
-				if ( 'uploading' === result.status ) {
+				if (
+					'uploading' === result.status ||
+					'new' === result.status ||
+					'resume' === result.status
+				) {
 					uploadFromLibrary( attachmentId ).then( resolve ).catch( reject );
 				} else if ( 'complete' === result.status ) {
 					resolve( {
