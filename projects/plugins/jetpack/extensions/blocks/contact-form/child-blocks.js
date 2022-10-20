@@ -11,7 +11,7 @@ import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 
 const FieldDefaults = {
-	category: 'grow',
+	category: 'contact-form-fields',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,
