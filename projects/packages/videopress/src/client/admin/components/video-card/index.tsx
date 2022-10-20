@@ -119,7 +119,6 @@ export const VideoCard = ( {
 				{ ! isSm && <div className={ styles[ 'video-card__background' ] } /> }
 
 				<VideoThumbnail
-					videoId={ id }
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
 					duration={ loading ? null : duration }

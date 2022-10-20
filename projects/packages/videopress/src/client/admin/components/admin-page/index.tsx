@@ -35,25 +35,28 @@ import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
-import { ConnectLocalLibrary, VideoPressLibrary } from './libraries';
+import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
-	const { uploadVideo } = useDispatch( STORE_ID );
+	const { uploadVideo, uploadVideoFromLibrary } = useDispatch( STORE_ID );
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
-	const { items: localVideos } = useLocalVideos();
+	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
 
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
-	const localTotalVideoCount = 0;
-	const hasLocalVideos = localVideos && localVideos.length > 0;
+	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
 	const handleFilesUpload = ( files: FileList | File[] ) => {
 		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
 		uploadVideo( file );
+	};
+
+	const handleLocalVideoUpload = file => {
+		uploadVideoFromLibrary( file );
 	};
 
 	// Fill with empty videos if loading
@@ -66,11 +69,13 @@ const useDashboardVideos = () => {
 		videos,
 		localVideos,
 		uploadedVideoCount,
-		localTotalVideoCount,
+		uploadedLocalVideoCount,
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
+		handleLocalVideoUpload,
 		loading: isFetching,
+		uploading: uploading?.length > 0,
 	};
 };
 
@@ -78,10 +83,14 @@ const Admin = () => {
 	const {
 		videos,
 		uploadedVideoCount,
+		localVideos,
+		uploadedLocalVideoCount,
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
+		handleLocalVideoUpload,
 		loading,
+		uploading,
 	} = useDashboardVideos();
 
 	const { hasVideoPressPurchase } = usePlan();
@@ -172,7 +181,12 @@ const Admin = () => {
 							) }
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<ConnectLocalLibrary />
+									<LocalLibrary
+										videos={ localVideos }
+										totalVideos={ uploadedLocalVideoCount }
+										onUploadClick={ handleLocalVideoUpload }
+										uploading={ uploading }
+									/>
 								</Col>
 							) }
 						</Container>
