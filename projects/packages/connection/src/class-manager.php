@@ -15,6 +15,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -760,6 +761,12 @@ class Manager {
 
 		// Make sure user is connected.
 		$user_token = $this->get_tokens()->get_access_token( $user_id );
+
+		// The token is missing, remove `master_user`.
+		if ( ! $user_token ) {
+			Jetpack_Options::delete_option( 'master_user' );
+			return false;
+		}
 
 		$connection_owner = false;
 

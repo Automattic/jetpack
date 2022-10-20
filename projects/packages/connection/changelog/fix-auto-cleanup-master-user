@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove connection owner if their user token is missing.
