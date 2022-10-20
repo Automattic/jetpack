@@ -1,3 +1,7 @@
+const getWpcomUser = state => {
+	return state?.userConnectionData.currentUser?.wpcomUser;
+};
+
 const connectionSelectors = {
 	getConnectionStatus: state => state.connectionStatus || {},
 	/**
@@ -14,6 +18,8 @@ const connectionSelectors = {
 	getUserConnectionData: state => state.userConnectionData || false,
 	getConnectedPlugins: state => state.connectedPlugins || [],
 	getConnectionErrors: state => state.connectionErrors || [],
+
+	getWpcomUser,
 };
 
 const selectors = {
