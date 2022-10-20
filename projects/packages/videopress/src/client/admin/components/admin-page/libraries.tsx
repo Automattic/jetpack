@@ -6,11 +6,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
@@ -20,7 +20,7 @@ import styles from './styles.module.scss';
 /**
  * Types
  */
-import { VideoLibraryProps } from './types';
+import { LocalLibraryProps, VideoLibraryProps } from './types';
 
 const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
@@ -103,7 +103,7 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const navigate = useNavigate();
+	const history = useHistory();
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
 		LIBRARY_TYPE_LOCALSORAGE_KEY
@@ -124,7 +124,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	};
 
 	const handleClickEditDetails = video => {
-		navigate( `/video/${ video?.id }/edit` );
+		history.push( `/video/${ video?.id }/edit` );
 	};
 
 	return (
@@ -154,27 +154,26 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
+export const LocalLibrary = ( {
+	videos,
+	totalVideos,
+	loading,
+	uploading,
+	onUploadClick,
+}: LocalLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<LocalVideoList videos={ videos } loading={ loading } />
+			<LocalVideoList
+				videos={ videos }
+				loading={ loading }
+				onActionClick={ onUploadClick }
+				uploading={ uploading }
+			/>
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
-	);
-};
-
-export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount, isFetching } = useLocalVideos();
-
-	return (
-		<LocalLibrary
-			videos={ videos }
-			totalVideos={ uploadedLocalVideoCount }
-			loading={ isFetching }
-		/>
 	);
 };

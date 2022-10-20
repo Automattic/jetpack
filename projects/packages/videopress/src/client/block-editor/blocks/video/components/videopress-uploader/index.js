@@ -11,7 +11,7 @@ import { useRef } from 'react';
 /**
  * Internal dependencies
  */
-import { useResumableUploader } from '../../../../../hooks/use-uploader';
+import { uploadFromLibrary, useResumableUploader } from '../../../../../hooks/use-uploader';
 import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
@@ -150,32 +150,12 @@ const VideoPressUploader = ( {
 	};
 
 	const startUploadFromLibrary = attachmentId => {
-		const path = `videopress/v1/upload/${ attachmentId }`;
-		apiFetch( { path, method: 'POST' } )
+		uploadFromLibrary( attachmentId )
 			.then( result => {
-				if ( 'uploading' === result.status ) {
-					startUploadFromLibrary( attachmentId );
-				} else if ( 'complete' === result.status ) {
-					handleUploadSuccess( {
-						guid: result.uploaded_details.guid,
-						id: result.uploaded_details.media_id,
-						src: result.uploaded_details.src,
-					} );
-				} else if ( 'error' === result.status ) {
-					setUploadErrorDataState( {
-						data: { message: result.error },
-					} );
-				} else {
-					setUploadErrorDataState( {
-						// Should never happen.
-						data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
-					} );
-				}
+				handleUploadSuccess( result );
 			} )
 			.catch( error => {
-				setUploadErrorDataState( {
-					data: { message: error.message },
-				} );
+				setUploadErrorDataState( error );
 			} );
 	};
 

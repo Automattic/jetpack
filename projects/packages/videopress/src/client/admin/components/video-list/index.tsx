@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, info } from '@wordpress/icons';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -13,14 +15,14 @@ import styles from './style.module.scss';
 /**
  * Types
  */
-import { VideoListProps } from './types';
+import { LocalVideoListProps, VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
 	hidePrivacy = false,
 	hideDuration = false,
 	hidePlays = false,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = true,
 	loading = false,
 	onVideoDetailsClick,
@@ -28,6 +30,7 @@ const VideoList = ( {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
+	const showCheckbox = false; // TODO: implement bulk actions
 
 	const handleAll = checked => {
 		if ( checked ) {
@@ -45,7 +48,7 @@ const VideoList = ( {
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					<Checkbox checked={ allSelected } onChange={ handleAll } />
+					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -72,9 +75,10 @@ const VideoList = ( {
 						isPrivate={ hidePrivacy ? null : video.isPrivate }
 						uploadDate={ video.uploadDate }
 						showQuickActions={ ! video?.uploading && showQuickActions }
-						showEditButton={ ! video?.uploading && showEditButton }
+						showActionButton={ ! video?.uploading && showActionButton }
+						showCheckbox={ showCheckbox }
 						className={ styles.row }
-						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+						onActionClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
 						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
@@ -98,13 +102,15 @@ const VideoList = ( {
 
 export const LocalVideoList = ( {
 	videos,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = false,
-	onVideoDetailsClick,
-}: VideoListProps ) => {
+	uploading = false,
+	onActionClick,
+}: LocalVideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
+	const showCheckbox = false; // TODO: implement bulk actions
 
 	const handleAll = checked => {
 		if ( checked ) {
@@ -115,14 +121,14 @@ export const LocalVideoList = ( {
 	};
 
 	const handleClickWithIndex = index => () => {
-		onVideoDetailsClick?.( videos[ index ] );
+		onActionClick?.( videos[ index ] );
 	};
 
 	return (
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					<Checkbox checked={ allSelected } onChange={ handleAll } />
+					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -145,10 +151,26 @@ export const LocalVideoList = ( {
 						key={ `local-video-${ video.id }` }
 						id={ video.id }
 						title={ video.title }
-						showEditButton={ showEditButton }
+						showActionButton={ showActionButton }
 						showQuickActions={ showQuickActions }
+						showCheckbox={ showCheckbox }
 						uploadDate={ video.uploadDate }
-						onVideoDetailsClick={ handleClickWithIndex( index ) }
+						onActionClick={ handleClickWithIndex( index ) }
+						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+						disabled={ video?.isUploadedToVideoPress }
+						disableActionButton={ uploading }
+						titleAdornment={
+							video?.isUploadedToVideoPress && (
+								<Tooltip
+									position="top center"
+									text={ __( 'Video already uploaded to VideoPress', 'jetpack-videopress-pkg' ) }
+								>
+									<div className={ styles[ 'title-adornment' ] }>
+										<Icon icon={ info } />
+									</div>
+								</Tooltip>
+							)
+						}
 					/>
 				);
 			} ) }
