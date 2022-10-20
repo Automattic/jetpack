@@ -104,6 +104,7 @@ export const LocalVideoList = ( {
 	videos,
 	showActionButton = true,
 	showQuickActions = false,
+	uploading = false,
 	onActionClick,
 }: LocalVideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
@@ -157,6 +158,7 @@ export const LocalVideoList = ( {
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 						disabled={ video?.isUploadedToVideoPress }
+						disableActionButton={ uploading }
 						titleAdornment={
 							video?.isUploadedToVideoPress && (
 								<Tooltip

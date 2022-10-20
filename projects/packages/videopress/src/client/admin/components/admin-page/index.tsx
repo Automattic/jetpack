@@ -75,6 +75,7 @@ const useDashboardVideos = () => {
 		handleFilesUpload,
 		handleLocalVideoUpload,
 		loading: isFetching,
+		uploading: uploading?.length > 0,
 	};
 };
 
@@ -89,6 +90,7 @@ const Admin = () => {
 		handleFilesUpload,
 		handleLocalVideoUpload,
 		loading,
+		uploading,
 	} = useDashboardVideos();
 
 	const { hasVideoPressPurchase } = usePlan();
@@ -183,6 +185,7 @@ const Admin = () => {
 										videos={ localVideos }
 										totalVideos={ uploadedLocalVideoCount }
 										onUploadClick={ handleLocalVideoUpload }
+										uploading={ uploading }
 									/>
 								</Col>
 							) }

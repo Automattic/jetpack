@@ -51,6 +51,10 @@ type VideoRowBaseProps = {
 	 * Adornment to be showed after title.
 	 */
 	titleAdornment?: React.ReactNode;
+	/**
+	 * Adornment to be showed after title.
+	 */
+	disableActionButton?: boolean;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &

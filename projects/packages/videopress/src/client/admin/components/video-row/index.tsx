@@ -106,6 +106,7 @@ export const VideoRow = ( {
 	loading = false,
 	isUpdatingPoster = false,
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
+	disableActionButton = false,
 	disabled = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
@@ -121,10 +122,10 @@ export const VideoRow = ( {
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;
-	const showStats = ( ! showActionsState && ! isSmall ) || ( isSmall && expanded ) || loading;
-	const showBottom = ! isSmall || ( isSmall && expanded );
 	const showActions =
 		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
+	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
+	const showBottom = ! isSmall || ( isSmall && expanded );
 
 	const privacyIsSetToPrivate = privacySetting
 		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
@@ -162,7 +163,11 @@ export const VideoRow = ( {
 	};
 
 	const actionButton = (
-		<Button size="small" onClick={ handleClickWithStopPropagation( onActionClick ) }>
+		<Button
+			size="small"
+			onClick={ handleClickWithStopPropagation( onActionClick ) }
+			disabled={ disableActionButton }
+		>
 			{ actionButtonLabel }
 		</Button>
 	);

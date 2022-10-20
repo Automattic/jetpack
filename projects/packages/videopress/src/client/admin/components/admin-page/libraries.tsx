@@ -158,6 +158,7 @@ export const LocalLibrary = ( {
 	videos,
 	totalVideos,
 	loading,
+	uploading,
 	onUploadClick,
 }: LocalLibraryProps ) => {
 	return (
@@ -166,7 +167,12 @@ export const LocalLibrary = ( {
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<LocalVideoList videos={ videos } loading={ loading } onActionClick={ onUploadClick } />
+			<LocalVideoList
+				videos={ videos }
+				loading={ loading }
+				onActionClick={ onUploadClick }
+				uploading={ uploading }
+			/>
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);

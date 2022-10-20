@@ -30,6 +30,10 @@ export type VideoListProps = {
 	 */
 	loading?: boolean;
 	/**
+	 * Is Uploading.
+	 */
+	uploading?: boolean;
+	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
 	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;

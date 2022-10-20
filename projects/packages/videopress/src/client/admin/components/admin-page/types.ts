@@ -34,6 +34,7 @@ export type LocalLibraryProps = {
 	videos: Array< LocalVideo >;
 	totalVideos?: number;
 	loading?: boolean;
+	uploading?: boolean;
 	onUploadClick?: ( video: LocalVideo ) => void;
 };
 
