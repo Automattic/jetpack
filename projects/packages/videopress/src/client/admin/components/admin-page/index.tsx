@@ -33,7 +33,7 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
-import GlobalNotice from '../global-notice';
+import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -136,12 +136,7 @@ const Admin = () => {
 
 							{ ! hasConnectedOwner ? (
 								<Col sm={ 4 } md={ 8 } lg={ 12 }>
-									<GlobalNotice addConnectUserLink={ true }>
-										{ __(
-											'Some actions need a user connection to WordPress.com to be able to work',
-											'jetpack-videopress-pkg'
-										) }
-									</GlobalNotice>
+									<NeedUserConnectionGlobalNotice />
 								</Col>
 							) : (
 								<ConnectionErrorNotice />
