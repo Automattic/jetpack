@@ -89,7 +89,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.4.1 - 2022-10-19
+### 1.4.2 - 2022-10-20
 #### Fixed
-- Social: Fix the connection test endpoint URL
+- Social: Fix the path to the connections URL in the editor
 
