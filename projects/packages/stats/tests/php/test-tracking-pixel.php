@@ -12,7 +12,7 @@ use WP_Query;
 /**
  * Class to test the Tracking_Pixel class.
  *
- * @covers Tracking_Pixel
+ * @covers \Automattic\Jetpack\Stats\Tracking_Pixel
  */
 class Test_Tracking_Pixel extends StatsBaseTestCase {
 

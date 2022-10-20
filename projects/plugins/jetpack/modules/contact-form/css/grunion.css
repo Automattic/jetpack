@@ -16,14 +16,22 @@
 	opacity: 0.3;
 }
 
-.contact-form input[type='text'],
-.contact-form input[type='email'],
-.contact-form input[type='tel'],
-.contact-form input[type='url'] {
+/*
+	Using :where we will keep a lower CSS specificity,
+	allowing themes to easily override these styles
+ */
+:where(
+	.contact-form input[type='text'],
+	.contact-form input[type='email'],
+	.contact-form input[type='tel'],
+	.contact-form input[type='url']
+) {
 	box-sizing: border-box;
 	margin-bottom: 1.5em;
 	width: 100%;
-	padding: 14px 7px;
+	padding: 12px 8px;
+	border-width: 1px;
+	line-height: normal;
 }
 
 .contact-form select {
@@ -143,6 +151,7 @@
 	/* Use transparent border to maintain consistent
 	 * space between elements with flexbox */
 	border-right: 15px solid transparent;
+	box-sizing: border-box;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {

@@ -196,6 +196,10 @@ class Data {
 				$media_details      = $video['media_details'];
 				$jetpack_videopress = $video['jetpack_videopress'];
 
+				// Check if video is already uploaded to VideoPress.
+				$uploader                  = new Uploader( $id );
+				$is_uploaded_to_videopress = $uploader->is_uploaded();
+
 				$upload_date = $video['date'];
 				$url         = $video['source_url'];
 
@@ -208,15 +212,16 @@ class Data {
 				$duration = $media_details['length'];
 
 				return array(
-					'id'          => $id,
-					'title'       => $title,
-					'description' => $description,
-					'caption'     => $caption,
-					'width'       => $width,
-					'height'      => $height,
-					'url'         => $url,
-					'uploadDate'  => $upload_date,
-					'duration'    => $duration,
+					'id'                     => $id,
+					'title'                  => $title,
+					'description'            => $description,
+					'caption'                => $caption,
+					'width'                  => $width,
+					'height'                 => $height,
+					'url'                    => $url,
+					'uploadDate'             => $upload_date,
+					'duration'               => $duration,
+					'isUploadedToVideoPress' => $is_uploaded_to_videopress,
 				);
 			},
 			$local_videos_data['videos']
