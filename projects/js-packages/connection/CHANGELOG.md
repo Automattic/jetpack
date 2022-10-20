@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.22.4 - 2022-10-19
+### Changed
+- Updated package dependencies. [#26883]
+
 ## 0.22.3 - 2022-10-17
 ### Changed
 - Updated package dependencies. [#26851]

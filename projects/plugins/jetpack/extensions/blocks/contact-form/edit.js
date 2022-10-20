@@ -33,24 +33,14 @@ import NewsletterIntegrationSettings from './components/jetpack-newsletter-integ
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
-	'jetpack/markdown',
-	'core/paragraph',
-	'core/image',
-	'core/heading',
-	'core/gallery',
-	'core/list',
-	'core/quote',
-	'core/shortcode',
 	'core/audio',
-	'core/code',
-	'core/cover',
-	'core/file',
-	'core/html',
+	'core/heading',
+	'core/image',
+	'core/list',
+	'core/paragraph',
 	'core/separator',
 	'core/spacer',
 	'core/subhead',
-	'core/table',
-	'core/verse',
 	'core/video',
 ];
 

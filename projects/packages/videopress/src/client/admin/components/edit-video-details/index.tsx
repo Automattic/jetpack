@@ -13,11 +13,12 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import classnames from 'classnames';
-import { useNavigate } from 'react-router-dom';
+import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -41,11 +42,11 @@ const Header = ( {
 	onSaveChanges: () => void;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const navigate = useNavigate();
+	const history = useHistory();
 
 	return (
 		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
-			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
+			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
 				<Logo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>
@@ -142,7 +143,7 @@ const EditVideoDetails = () => {
 		description,
 		caption,
 		// Page State/Actions
-		saveDisabled,
+		hasChanges,
 		updating,
 		isFetching,
 		handleSaveChanges,
@@ -163,6 +164,16 @@ const EditVideoDetails = () => {
 		libraryAttachment,
 	} = useEditDetails();
 
+	const unsavedChangesMessage = __(
+		'There are unsaved changes. Are you sure you want to exit?',
+		'jetpack-videopress-pkg'
+	);
+
+	useUnloadPrevent( {
+		shouldPrevent: hasChanges,
+		message: unsavedChangesMessage,
+	} );
+
 	let thumbnail: string | JSX.Element = posterImage;
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
@@ -172,6 +183,8 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
+			<Prompt when={ hasChanges } message={ unsavedChangesMessage } />
+
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
@@ -187,7 +200,7 @@ const EditVideoDetails = () => {
 				header={
 					<Header
 						onSaveChanges={ handleSaveChanges }
-						saveDisabled={ saveDisabled }
+						saveDisabled={ ! hasChanges }
 						saveLoading={ updating }
 					/>
 				}

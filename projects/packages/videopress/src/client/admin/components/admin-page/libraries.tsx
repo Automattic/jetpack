@@ -6,7 +6,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -103,7 +103,7 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const navigate = useNavigate();
+	const history = useHistory();
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
 		LIBRARY_TYPE_LOCALSORAGE_KEY
@@ -124,7 +124,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	};
 
 	const handleClickEditDetails = video => {
-		navigate( `/video/${ video?.id }/edit` );
+		history.push( `/video/${ video?.id }/edit` );
 	};
 
 	return (
