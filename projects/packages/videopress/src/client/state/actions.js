@@ -40,6 +40,7 @@ import {
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
 	SET_USERS_PAGINATION,
+	SET_LOCAL_VIDEO_UPLOADED,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -251,6 +252,7 @@ const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
 	const tempId = uid();
 	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.title } );
 	const data = await uploadFromLibrary( file?.id );
+	dispatch( { type: SET_LOCAL_VIDEO_UPLOADED, id: file?.id } );
 	dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
 	const video = await pollingUploadedVideoData( data );
 	dispatch( { type: UPLOADED_VIDEO, video } );
