@@ -1,9 +1,9 @@
 const getWpcomUser = state => {
-	return state?.userConnectionData.currentUser?.wpcomUser;
+	return state?.userConnectionData?.currentUser?.wpcomUser;
 };
 
 const getBlogId = state => {
-	return state?.userConnectionData.currentUser?.blogId;
+	return state?.userConnectionData?.currentUser?.blogId;
 };
 
 const connectionSelectors = {
