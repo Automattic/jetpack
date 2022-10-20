@@ -845,7 +845,7 @@ class Manager {
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
 			// Disconnect the user locally.
-			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
 
 			if ( $is_disconnected_locally ) {
 				// Delete cached connected user data.
