@@ -276,7 +276,10 @@ const useStatusPolling = () => {
 		const pollStatus = () => {
 			refreshStatus( true )
 				.then( latestStatus => {
-					if ( [ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ) {
+					if (
+						[ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ||
+						! latestStatus.status.lastChecked
+					) {
 						clearTimeout( pollTimeout );
 						pollTimeout = setTimeout( pollStatus, pollingDuration );
 					}

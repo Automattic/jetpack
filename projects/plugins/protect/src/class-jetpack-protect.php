@@ -19,12 +19,13 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Plan;
+use Automattic\Jetpack\Protect\Protect_Status;
 use Automattic\Jetpack\Protect\Rewind;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
-use Automattic\Jetpack\Protect\Status as Protect_Status;
+use Automattic\Jetpack\Protect\Status;
 use Automattic\Jetpack\Protect\Threats;
-use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
 
@@ -90,7 +91,7 @@ class Jetpack_Protect {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		$total_threats = Protect_Status::get_total_threats();
+		$total_threats = Status::get_total_threats();
 		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
 		if ( $total_threats ) {
 			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_threats );
@@ -175,12 +176,12 @@ class Jetpack_Protect {
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'            => Protect_Status::get_status(),
+			'status'            => Status::get_status(),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
-			'siteSuffix'        => ( new Status() )->get_site_suffix(),
+			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
@@ -213,7 +214,7 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->remove_connection();
 
-		Protect_Status::delete_option();
+		Status::delete_option();
 	}
 
 	/**
@@ -227,7 +228,7 @@ class Jetpack_Protect {
 			return;
 		}
 
-		$total = Protect_Status::get_total_threats();
+		$total = Status::get_total_threats();
 
 		if ( $total > 0 ) {
 			$args = array(
@@ -344,9 +345,10 @@ class Jetpack_Protect {
 	 */
 	public static function api_get_status( $request ) {
 		if ( $request['hard_refresh'] ) {
+			Scan_Status::delete_option();
 			Protect_Status::delete_option();
 		}
-		$status = Protect_Status::get_status();
+		$status = Status::get_status();
 		return rest_ensure_response( $status, 200 );
 	}
 

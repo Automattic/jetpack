@@ -27,7 +27,7 @@ const CredentialsNeededModal = () => {
 		const interval = setInterval( () => {
 			if (
 				! credentialState.state ||
-				[ 'in_progress', 'scanning' ].indexOf( credentialState.state ) >= 0
+				[ 'awaiting_credentials', 'unavailable' ].indexOf( credentialState.state ) >= 0
 			) {
 				checkCredentialsState();
 			}
