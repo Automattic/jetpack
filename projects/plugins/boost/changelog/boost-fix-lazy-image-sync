@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed lazy image toggle breaking if it was also used in Jetpack dashboard while Boost is active.
