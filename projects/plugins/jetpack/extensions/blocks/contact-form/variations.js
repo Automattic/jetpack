@@ -5,6 +5,19 @@ import { compact } from 'lodash';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
 
+const defaultBlockStyling = {
+	style: {
+		spacing: {
+			padding: {
+				top: '16px',
+				right: '16px',
+				bottom: '16px',
+				left: '16px',
+			},
+		},
+	},
+};
+
 const variations = compact( [
 	{
 		name: 'contact-form',
@@ -32,6 +45,9 @@ const variations = compact( [
 				},
 			],
 		],
+		attributes: {
+			...defaultBlockStyling,
+		},
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
@@ -62,6 +78,9 @@ const variations = compact( [
 				},
 			],
 		],
+		attributes: {
+			...defaultBlockStyling,
+		},
 	},
 	{
 		name: 'rsvp-form',
@@ -98,6 +117,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new RSVP from your website', 'jetpack' ),
 		},
 	},
@@ -142,6 +162,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new registration from your website', 'jetpack' ),
 		},
 	},
@@ -182,6 +203,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new appointment booked from your website', 'jetpack' ),
 		},
 	},
@@ -226,6 +248,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack' ),
 		},
 	},
