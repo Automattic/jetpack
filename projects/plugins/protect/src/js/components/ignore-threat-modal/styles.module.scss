@@ -38,21 +38,3 @@
     display: flex;
     justify-content: space-between;
 }
-
-.connect-user-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: calc( var( --spacing-base ) * 4 );
-}
-
-.connect-user-icon {
-    fill: var( --jp-red-50 );
-}
-
-.connect-user-message {
-    color: var( --jp-red-50 );
-}
-
-.connect-user-button {
-}
