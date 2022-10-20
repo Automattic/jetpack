@@ -42,14 +42,13 @@ const useDashboardVideos = () => {
 	const { uploadVideo, uploadVideoFromLibrary } = useDispatch( STORE_ID );
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
-	const { items: localVideos } = useLocalVideos();
+	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
 
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
-	const localTotalVideoCount = 0;
-	const hasLocalVideos = localVideos && localVideos.length > 0;
+	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
 	const handleFilesUpload = ( files: FileList | File[] ) => {
 		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
@@ -70,7 +69,7 @@ const useDashboardVideos = () => {
 		videos,
 		localVideos,
 		uploadedVideoCount,
-		localTotalVideoCount,
+		uploadedLocalVideoCount,
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
@@ -84,7 +83,7 @@ const Admin = () => {
 		videos,
 		uploadedVideoCount,
 		localVideos,
-		localTotalVideoCount,
+		uploadedLocalVideoCount,
 		hasVideos,
 		hasLocalVideos,
 		handleFilesUpload,
@@ -182,7 +181,7 @@ const Admin = () => {
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
 									<LocalLibrary
 										videos={ localVideos }
-										totalVideos={ localTotalVideoCount }
+										totalVideos={ uploadedLocalVideoCount }
 										onUploadClick={ handleLocalVideoUpload }
 									/>
 								</Col>

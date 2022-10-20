@@ -1,5 +1,5 @@
 import { productOriginalProps, siteProductOriginalProps } from '../../hooks/use-plan/types';
-import { MetadataVideo, VideoPressVideo } from '../../types';
+import { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
 	interface Window {
@@ -28,7 +28,13 @@ export type VideoLibraryProps = {
 	videos: Array< VideoPressVideo & MetadataVideo >;
 	totalVideos?: number;
 	loading?: boolean;
-	onUploadClick?: ( video: VideoPressVideo ) => void;
+};
+
+export type LocalLibraryProps = {
+	videos: Array< LocalVideo >;
+	totalVideos?: number;
+	loading?: boolean;
+	onUploadClick?: ( video: LocalVideo ) => void;
 };
 
 export interface ConnectionStore {

@@ -20,7 +20,7 @@ import styles from './styles.module.scss';
 /**
  * Types
  */
-import { VideoLibraryProps } from './types';
+import { LocalLibraryProps, VideoLibraryProps } from './types';
 
 const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
@@ -159,7 +159,7 @@ export const LocalLibrary = ( {
 	totalVideos,
 	loading,
 	onUploadClick,
-}: VideoLibraryProps ) => {
+}: LocalLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
