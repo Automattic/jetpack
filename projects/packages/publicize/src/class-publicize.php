@@ -592,10 +592,9 @@ class Publicize extends Publicize_Base {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
 
-		$this->test_connection_results[ $id ] = ! $xml->isError();
-
 		// Bail if all is well.
 		if ( ! $xml->isError() ) {
+			$this->test_connection_results[ $id ] = true;
 			return true;
 		}
 
@@ -616,7 +615,9 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		return new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+		$this->test_connection_results[ $id ] = new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+
+		return $this->test_connection_results[ $id ];
 	}
 
 	/**
