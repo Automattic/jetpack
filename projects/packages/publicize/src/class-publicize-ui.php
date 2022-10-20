@@ -370,14 +370,6 @@ jQuery( function($) {
 			}
 		} );
 	}
-
-	$( document ).ready( function() {
-		// If we have the #pub-connection-tests div present, kick off the connection test
-		if ( $( '#pub-connection-tests' ).length ) {
-			// publicizeConnTestStart(); TODO: Fix magic links
-		}
-	} );
-
 } );
 </script>
 

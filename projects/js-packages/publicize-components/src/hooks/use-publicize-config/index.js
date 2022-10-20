@@ -25,7 +25,8 @@ export default function usePublicizeConfig() {
 	);
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const connectionsRootUrl =
-		getJetpackData()?.publicizeConnectionsUrl ?? 'https://wordpress.com/marketing/connections/';
+		getJetpackData()?.social?.publicizeConnectionsUrl ??
+		'https://wordpress.com/marketing/connections/';
 
 	/*
 	 * isPublicizeEnabledMeta:

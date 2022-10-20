@@ -90,8 +90,8 @@ export default function PublicizeForm( {
 						<Notice type={ 'error' }>
 							{ createInterpolateElement(
 								_n(
-									'One of your social connections is broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
-									'Some of your social connections are broken! Reconnect them on the <fixLink>connection management</fixLink> page.',
+									'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+									'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
 									brokenConnections.length,
 									'jetpack'
 								),
