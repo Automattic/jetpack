@@ -38,6 +38,10 @@ type VideoRowBaseProps = {
 	 * Text to be used inside action button. Default to `Edit details`.
 	 */
 	actionButtonLabel?: string;
+	/**
+	 * Make row hoverable or not.
+	 */
+	hoverable?: boolean;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &

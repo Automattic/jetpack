@@ -1,4 +1,4 @@
-import { VideoPressVideo } from '../../types';
+import { LocalVideo, VideoPressVideo } from '../../types';
 
 export type VideoListProps = {
 	/**
@@ -35,6 +35,7 @@ export type VideoListProps = {
 	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;
 };
 
-export type LocalVideoListProps = Omit< VideoListProps, 'onVideoDetailsClick' > & {
-	onActionClick?: ( video: VideoPressVideo ) => void;
+export type LocalVideoListProps = Omit< VideoListProps, 'onVideoDetailsClick' | 'videos' > & {
+	videos: Array< LocalVideo >;
+	onActionClick?: ( video: LocalVideo ) => void;
 };
