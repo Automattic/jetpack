@@ -61,6 +61,7 @@ class Jetpack_Protect {
 						'jetpack_sync_modules'             => array(
 							'Automattic\\Jetpack\\Sync\\Modules\\Options',
 							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+							'Automattic\\Jetpack\\Sync\\Modules\\Users',
 						),
 						'jetpack_sync_callable_whitelist'  => array(
 							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
