@@ -19,6 +19,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Loading from 'components/loading';
+import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
@@ -67,7 +68,7 @@ export default function UpsellPage( { isLoading = false } ) {
 		hasCheckoutStarted: hasCheckoutStartedFree,
 	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search_free',
-		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
+		redirectUrl: `${ adminUrl }admin.php?page=jetpack-search`,
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
@@ -155,10 +156,38 @@ const OldPricingComponent = ( { sendToCart } ) => {
 
 const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 	const siteDomain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
+
 	const priceBefore = useSelect( select => select( STORE_ID ).getPriceBefore() / 12, [] );
 	const priceAfter = useSelect( select => select( STORE_ID ).getPriceAfter() / 12, [] );
 	const priceCurrencyCode = useSelect( select => select( STORE_ID ).getPriceCurrencyCode(), [] );
+	const discountPercentage = useSelect(
+		select => select( STORE_ID ).getPricingDiscountPercentage(),
+		[]
+	);
 	const { hasConnectionError } = useConnectionErrorNotice();
+
+	const paidRecordsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRecordsLimit(), [] );
+	const paidRecordsLimit = new Intl.NumberFormat( 'en-US', {
+		notation: 'compact',
+		compactDisplay: 'short',
+	} ).format( paidRecordsLimitRaw );
+
+	const paidRequestsLimitRaw = useSelect( select => select( STORE_ID ).getPaidRequestsLimit(), [] );
+	const hasUnlimitedRequests = paidRequestsLimitRaw > 1e18;
+	const unlimitedText = __( 'Unlimited', 'jetpack-search-pkg' );
+	const paidRequestsLimit = hasUnlimitedRequests
+		? unlimitedText
+		: new Intl.NumberFormat( 'en-US', {
+				notation: 'compact',
+				compactDisplay: 'short',
+		  } ).format( paidRequestsLimitRaw );
+
+	const unitPrice = useSelect( select => select( STORE_ID ).getAdditionalUnitPrice(), [] );
+	const unitQuantityRaw = useSelect( select => select( STORE_ID ).getAdditionalUnitQuantity(), [] );
+	const unitQuantity = new Intl.NumberFormat( 'en-US', {
+		notation: 'compact',
+		compactDisplay: 'short',
+	} ).format( unitQuantityRaw );
 
 	return (
 		<Container horizontalSpacing={ 8 }>
@@ -175,10 +204,17 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 							<PricingTableHeader>
 								<ProductPrice
 									price={ priceBefore }
-									offPrice={ priceAfter }
+									offPrice={ discountPercentage > 0 ? priceAfter : null }
 									currency={ priceCurrencyCode }
 									legend=""
-									promoLabel={ __( '50% off', 'jetpack-search-pkg' ) }
+									promoLabel={
+										discountPercentage > 0 &&
+										sprintf(
+											// translators: Discount percentage (e.g. 50%).
+											__( '%s off', 'jetpack-search-pkg' ),
+											`${ discountPercentage }%`
+										)
+									}
 								>
 									<div className="price-tip">
 										<span className="price-tip-text">
@@ -194,14 +230,27 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 												sprintf(
 													// translators: %1$s: site domain
 													__(
-														'Starting price based on the number of records for <b>%1$s</b>.' +
-															'For every additional 10k records or requests, an additional $7.50 per month will be charged.',
+														'Starting price based on the number of records for <b>%1$s</b>.',
 														'jetpack-search-pkg'
 													),
 													siteDomain
 												),
 												{ b: <b /> }
-											) }
+											) }{ ' ' }
+											{ ! hasUnlimitedRequests &&
+												createInterpolateElement(
+													sprintf(
+														// translators: %1$s: Records or requests count, <Price>: Additional charge.
+														__(
+															'For every additional %1$s records or requests, an additional <Price></Price> per month will be charged.',
+															'jetpack-search-pkg'
+														),
+														unitQuantity
+													),
+													{
+														Price: <Price amount={ unitPrice } currency={ priceCurrencyCode } />,
+													}
+												) }
 										</IconTooltip>
 									</div>
 								</ProductPrice>
@@ -213,10 +262,11 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={
 									<strong>
-										{
-											// translators: Record count for calculating Jetpack Search tier
-											__( '10k records', 'jetpack-search-pkg' )
-										}
+										{ sprintf(
+											// translators: %1$s: Number of records allowed before being charged extra.
+											__( '%1$s records', 'jetpack-search-pkg' ),
+											paidRecordsLimit
+										) }
 									</strong>
 								}
 							/>
@@ -224,10 +274,11 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 								isIncluded={ true }
 								label={
 									<strong>
-										{
-											// translators: Request count for calculating Jetpack Search tier
-											__( '10k requests', 'jetpack-search-pkg' )
-										}
+										{ sprintf(
+											// translators: %1$s: Number of requests allowed before being charged extra.
+											__( '%1$s requests', 'jetpack-search-pkg' ),
+											paidRequestsLimit
+										) }
 									</strong>
 								}
 							/>

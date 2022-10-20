@@ -12,9 +12,9 @@
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
-	function goToCheckout() {
+	async function goToCheckout() {
 		const eventProps = {};
-		recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
+		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
 		window.location.href = getUpgradeURL();
 	}
 

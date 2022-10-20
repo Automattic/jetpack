@@ -3,8 +3,7 @@
  */
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -53,7 +52,7 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 };
 
 export default () => {
-	const navigate = useNavigate();
+	const history = useHistory();
 	const dispatch = useDispatch( STORE_ID );
 
 	const { videoId: videoIdFromParams } = useParams();
@@ -101,7 +100,7 @@ export default () => {
 		setPosterImageSource( 'video' );
 	}, [ selectedTime ] );
 
-	const saveDisabled = metaChanged === false && selectedTime === null && ! libraryAttachment;
+	const hasChanges = metaChanged || selectedTime != null || libraryAttachment != null;
 
 	const selectPosterImageFromLibrary = async () => {
 		const attachment = await selectAttachmentFromLibrary();
@@ -131,7 +130,7 @@ export default () => {
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
-			navigate( '/' );
+			history.push( '/' );
 		} );
 	};
 
@@ -165,7 +164,7 @@ export default () => {
 	return {
 		...video,
 		...data, // data is the local representation of the video
-		saveDisabled,
+		hasChanges,
 		posterImageSource,
 		libraryAttachment,
 		selectPosterImageFromLibrary,

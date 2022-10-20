@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2022-10-19
+### Added
+- VideoPress: Add confirmation before leaving page when upload is in progress [#26912]
+- VideoPress: Scroll to top on route change [#26915]
+- VideoPress: track page view and checking out events [#26894]
+
+### Changed
+- Updated package dependencies. [#26883]
+- VideoPress: change the videopress redirect value to lead to product page [#26886]
+
+### Fixed
+- VideoPress: disable upoading button when site supports paid feature [#26876]
+- VideoPress: Fix focus style on ClipboardButtonInput component [#26880]
+- VideoPress: fix the issue when uploading the file by dropping it off on the media placeholder [#26907]
+- VideoPress: Use allowed video extensions from initial state [#26862]
+- VideoPress: Use camera icon as thumbnail when the video is private. [#26898]
+
 ## [0.6.1] - 2022-10-17
 ### Added
 - VideoPress: add an actionable dialog when the site needs connect [#26819]
@@ -313,6 +330,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.6.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.5.0...v0.5.1
