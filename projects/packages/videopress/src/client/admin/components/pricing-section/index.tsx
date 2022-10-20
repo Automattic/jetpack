@@ -62,7 +62,7 @@ const PricingPage = () => {
 						onClick={ run }
 						isLoading={ hasCheckoutStarted }
 						fullWidth
-						disabled={ isConnecting || hasCheckoutStarted }
+						disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
 					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
