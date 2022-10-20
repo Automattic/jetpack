@@ -79,7 +79,7 @@ export default function useProductCheckoutWorkflow( {
 	const run = event => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
-		initializeAnalytics();
+		isUserConnected && initializeAnalytics();
 		analytics.tracks.recordEvent( productSlug + '_purchase_button_click', {} );
 
 		if ( isRegistered ) {
