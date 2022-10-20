@@ -20,6 +20,13 @@ class Publicize extends Publicize_Base {
 	const CONNECTION_REFRESH_WAIT_TRANSIENT = 'jetpack_publicize_connection_refresh_wait';
 
 	/**
+	 * Transitory storage of connection testing results.
+	 *
+	 * @var array
+	 */
+	private $test_connection_results = array();
+
+	/**
 	 * Add hooks.
 	 */
 	public function __construct() {
@@ -578,8 +585,14 @@ class Publicize extends Publicize_Base {
 	public function test_connection( $service_name, $connection ) {
 		$id = $this->get_connection_id( $connection );
 
+		if ( array_key_exists( $id, $this->test_connection_results ) ) {
+			return $this->test_connection_results[ $id ];
+		}
+
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.testPublicizeConnection', $id );
+
+		$this->test_connection_results[ $id ] = ! $xml->isError();
 
 		// Bail if all is well.
 		if ( ! $xml->isError() ) {
