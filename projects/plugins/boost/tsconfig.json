@@ -8,7 +8,6 @@
 		/**
 		 * Values from "@tsconfig/svelte/tsconfig.json"
 		 */
-		"importsNotUsedAsValues": "error",
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true
 	}

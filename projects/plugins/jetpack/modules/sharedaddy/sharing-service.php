@@ -564,18 +564,28 @@ class Sharing_Service {
 		if ( $service_name === false ) {
 			if ( $post_id > 0 ) {
 				// total number of shares for this post
-				return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d', $_blog_id, $post_id ) );
+				$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d', $_blog_id, $post_id );
+				$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}";
 			} else {
 				// total number of shares for this blog
-				return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d', $_blog_id ) );
+				$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d', $_blog_id );
+				$cache_key = "sharing_service_get_total_b{$_blog_id}";
 			}
+		} elseif ( $post_id > 0 ) {
+			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s', $_blog_id, $post_id, $service_name );
+			$cache_key = "sharing_service_get_total_b{$_blog_id}_p{$post_id}_s{$service_name}";
+		} else {
+			$sql       = $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s', $_blog_id, $service_name );
+			$cache_key = "sharing_service_get_total_b{$_blog_id}_s{$service_name}";
 		}
 
-		if ( $post_id > 0 ) {
-			return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s', $_blog_id, $post_id, $service_name ) );
-		} else {
-			return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s', $_blog_id, $service_name ) );
+		$ret = wp_cache_get( $cache_key, 'sharing' );
+		if ( $ret === false ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+			$ret = (int) $wpdb->get_var( $sql ); // db call ok
+			wp_cache_set( $cache_key, $ret, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
+		return $ret;
 	}
 
 	/**
@@ -608,7 +618,12 @@ class Sharing_Service {
 		$totals = array();
 		global $wpdb, $blog_id;
 
-		$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) );
+		$cache_key = "sharing_service_get_posts_total_{$blog_id}";
+		$my_data   = wp_cache_get( $cache_key, 'sharing' );
+		if ( $my_data === false ) {
+			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // db call ok
+			wp_cache_set( $cache_key, $my_data, 'sharing', 5 * MINUTE_IN_SECONDS );
+		}
 
 		if ( ! empty( $my_data ) ) {
 			foreach ( $my_data as $row ) {
