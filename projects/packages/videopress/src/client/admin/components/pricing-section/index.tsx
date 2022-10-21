@@ -17,7 +17,7 @@ import { useState } from 'react';
  */
 import { usePlan } from '../../hooks/use-plan';
 
-const PricingPage = () => {
+const PricingPage = ( { onRedirecting } ) => {
 	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
@@ -59,7 +59,10 @@ const PricingPage = () => {
 						currency={ pricingForUi.currencyCode }
 					/>
 					<Button
-						onClick={ run }
+						onClick={ () => {
+							onRedirecting?.();
+							run();
+						} }
 						isLoading={ hasCheckoutStarted }
 						fullWidth
 						disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
@@ -86,6 +89,7 @@ const PricingPage = () => {
 						onClick={ () => {
 							setIsConnecting( true );
 							handleRegisterSite();
+							onRedirecting?.();
 						} }
 						isLoading={ userIsConnecting || isConnecting }
 						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
