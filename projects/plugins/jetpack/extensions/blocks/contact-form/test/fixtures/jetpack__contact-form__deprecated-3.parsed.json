@@ -6,7 +6,6 @@
 			"to": "test@example.com",
 			"customThankyou": "message",
 			"customThankyouMessage": "Thanks for speaking our linguine!",
-			"align": "wide",
 			"className": "noodles"
 		},
 		"innerBlocks": [
@@ -40,29 +39,25 @@
 				"attrs": {
 					"element": "button",
 					"text": "Contact Us Today!",
-					"textColor": "dark-gray",
-					"backgroundColor": "green",
-					"lock": {
-						"move": false,
-						"remove": true
-					}
+					"textColor": "tertiary",
+					"backgroundColor": "primary"
 				},
 				"innerBlocks": [],
 				"innerHTML": "",
 				"innerContent": []
 			}
 		],
-		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-form alignwide noodles\"><div class=\"wp-block-contact-form__inner-container\">\n\n    \n    \n    \n    \n    </div></div>\n    ",
+		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-form noodles\">\n\n    \n        \n    \n        \n    </div>\n    ",
 		"innerContent": [
-			"\n<div class=\"wp-block-jetpack-contact-form alignwide noodles\"><div class=\"wp-block-contact-form__inner-container\">",
+			"\n<div class=\"wp-block-jetpack-contact-form noodles\">",
 			null,
 			"\n\n    ",
 			null,
-			"\n    \n    ",
+			"\n        \n    ",
 			null,
-			"\n    \n    ",
+			"\n        \n    ",
 			null,
-			"</div></div>\n    "
+			"</div>\n    "
 		]
 	}
 ]

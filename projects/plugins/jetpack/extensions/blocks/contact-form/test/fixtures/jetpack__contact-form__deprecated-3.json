@@ -11,10 +11,9 @@
 			"customThankyouMessage": "Thanks for speaking our linguine!",
 			"customThankyouRedirect": "",
 			"jetpackCRM": true,
-			"align": "wide",
 			"className": "noodles"
 		},
 		"innerBlocks": [],
-		"originalContent": "<div class=\"wp-block-jetpack-contact-form alignwide noodles\"><div class=\"wp-block-contact-form__inner-container\">\n\n    \n    \n    \n    \n    </div></div>"
+		"originalContent": "<div class=\"wp-block-jetpack-contact-form noodles\">\n\n    \n        \n    \n        \n    </div>"
 	}
 ]

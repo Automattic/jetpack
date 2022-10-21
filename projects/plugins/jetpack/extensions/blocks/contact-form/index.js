@@ -45,6 +45,7 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
+		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
 	edit,
@@ -52,7 +53,9 @@ export const settings = {
 		const blockProps = useBlockProps.save();
 		return (
 			<div { ...blockProps }>
-				<InnerBlocks.Content />
+				<div className="wp-block-contact-form__inner-container">
+					<InnerBlocks.Content />
+				</div>
 			</div>
 		);
 	},
