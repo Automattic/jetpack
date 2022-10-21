@@ -144,7 +144,7 @@ jobs:
             --form-string "sha=$SHA" \
             --form-string "secret=$SECRET")
 
-            echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
+          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
 
   upgrade_test:
     name: Test plugin upgrades
