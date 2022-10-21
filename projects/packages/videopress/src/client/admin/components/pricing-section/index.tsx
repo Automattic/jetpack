@@ -18,10 +18,9 @@ import { useState } from 'react';
 import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = ( { onRedirecting } ) => {
-	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
+	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
-	const { registrationNonce } = window.jetpackVideoPressInitialState;
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
 		from: 'jetpack-videopress',

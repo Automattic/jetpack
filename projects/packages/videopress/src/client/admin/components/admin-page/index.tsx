@@ -17,6 +17,7 @@ import {
 	useConnection,
 	useConnectionErrorNotice,
 	ConnectionError,
+	ConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -32,6 +33,7 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -96,7 +98,7 @@ const Admin = () => {
 
 	const { hasVideoPressPurchase } = usePlan();
 
-	const { isRegistered } = useConnection();
+	const { isRegistered, hasConnectedOwner } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
@@ -130,6 +132,14 @@ const Admin = () => {
 								<Col>
 									<ConnectionError />
 								</Col>
+							) }
+
+							{ ! hasConnectedOwner ? (
+								<Col sm={ 4 } md={ 8 } lg={ 12 }>
+									<NeedUserConnectionGlobalNotice />
+								</Col>
+							) : (
+								<ConnectionErrorNotice />
 							) }
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
