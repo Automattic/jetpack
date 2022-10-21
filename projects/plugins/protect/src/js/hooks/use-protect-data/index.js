@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
 
 /**
@@ -21,19 +22,27 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
-	const numCoreThreats = status.core?.threat?.length || 0;
+	const numCoreThreats = useMemo( () => status.core?.threat?.length || 0, [ status.core ] );
 
-	const numPluginsThreats = ( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
-		return numThreats + plugin.threats.length;
-	}, 0 );
+	const numPluginsThreats = useMemo(
+		() =>
+			( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
+				return numThreats + plugin.threats.length;
+			}, 0 ),
+		[ status.plugins ]
+	);
 
-	const numThemesThreats = ( status.themes || [] ).reduce( ( numThreats, theme ) => {
-		return numThreats + theme.threats.length;
-	}, 0 );
+	const numThemesThreats = useMemo(
+		() =>
+			( status.themes || [] ).reduce( ( numThreats, theme ) => {
+				return numThreats + theme.threats.length;
+			}, 0 ),
+		[ status.themes ]
+	);
 
-	const numFilesThreats = status.files?.length || 0;
+	const numFilesThreats = useMemo( () => status.files?.length || 0, [ status.files ] );
 
-	const numDatabaseThreats = status.database?.length || 0;
+	const numDatabaseThreats = useMemo( () => status.database?.length || 0, [ status.database ] );
 
 	const numThreats =
 		numCoreThreats + numPluginsThreats + numThemesThreats + numFilesThreats + numDatabaseThreats;
