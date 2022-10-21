@@ -21,13 +21,30 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
+	const numCoreThreats = status.core?.threat?.length || 0;
+
+	const numPluginsThreats = ( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
+		return numThreats + plugin.threats.length;
+	}, 0 );
+
+	const numThemesThreats = ( status.themes || [] ).reduce( ( numThreats, theme ) => {
+		return numThreats + theme.threats.length;
+	}, 0 );
+
+	const numFilesThreats = status.files?.length || 0;
+
+	const numDatabaseThreats = status.database?.length || 0;
+
+	const numThreats =
+		numCoreThreats + numPluginsThreats + numThemesThreats + numFilesThreats + numDatabaseThreats;
+
 	return {
-		numThreats: status.numThreats || 0,
-		numCoreThreats: status.core?.threats?.length || 0,
-		numPluginsThreats: status.numPluginsThreats || 0,
-		numThemesThreats: status.numThemesThreats || 0,
-		numFilesThreats: status.files?.length || 0,
-		numDatabaseThreats: status.database?.length || 0,
+		numThreats,
+		numCoreThreats,
+		numPluginsThreats,
+		numThemesThreats,
+		numFilesThreats,
+		numDatabaseThreats,
 		lastChecked: status.lastChecked || null,
 		errorCode: status.errorCode || null,
 		errorMessage: status.errorMessage || null,
