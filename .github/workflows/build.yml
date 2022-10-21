@@ -294,8 +294,8 @@ jobs:
         env:
           SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
           URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
-          PR: ${{ github.event.number }}
-          SHA: ${{ github.event.pull_request.head.sha }}
+          PR: ${{ github.event_name == 'push' && github.ref_name || github.event.number }}
+          SHA: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
         run: |
           response=$(curl --fail -L \
             --url "$URL" \
