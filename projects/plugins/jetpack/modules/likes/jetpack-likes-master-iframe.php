@@ -9,22 +9,24 @@
  * This function needs to get loaded after the like scripts get added to the page.
  */
 function jetpack_likes_master_iframe() {
-	$version    = gmdate( 'YW' );
-	$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
+	$version = class_exists( Jetpack_Likes::class ) ? Jetpack_Likes::VERSION : gmdate( 'YW' );
 
 	$_locale = get_locale();
 
-	// We have to account for w.org vs WP.com locale divergence
-	if ( $in_jetpack ) {
+	if ( ! class_exists( GP_Locales::class ) ) {
 		if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 			return false;
 		}
 
 		require_once JETPACK__GLOTPRESS_LOCALES_PATH;
-
-		$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
-		$_locale   = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 	}
+
+	$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
+	if ( ! $gp_locale ) {
+		$gp_locale = GP_Locales::by_slug( $_locale );
+	}
+
+	$_locale = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
 
 	$likes_locale = ( '' === $_locale || 'en' === $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 

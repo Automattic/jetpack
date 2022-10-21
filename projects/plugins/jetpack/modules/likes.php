@@ -33,6 +33,7 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
  * Jetpack Like Class
  */
 class Jetpack_Likes {
+	const VERSION = '20220105';
 
 	/**
 	 * Initialize class
@@ -428,7 +429,12 @@ class Jetpack_Likes {
 		global $wp_current_filter;
 		$post_id = get_the_ID();
 
-		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
+		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_module_enabled() ) {
+			return $content;
+		}
+
+		// pre-check to avoid having to load the iframe if neither likes, nor reblog button will be shown
+		if ( ! ( $this->settings->is_likes_visible() || $this->settings->reblogs_enabled_sitewide() ) ) {
 			return $content;
 		}
 
@@ -457,7 +463,7 @@ class Jetpack_Likes {
 		*/
 		$uniqid = uniqid();
 
-		$src      = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post_id, $domain, $uniqid );
+		$src      = sprintf( 'https://widgets.wp.com/likes/index.html?ver=%1$d#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%4$s&amp;obj_id=%2$d-%3$d-%5$s', self::VERSION, $blog_id, $post_id, $domain, $uniqid );
 		$name     = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$wrapper  = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$headline = sprintf(
@@ -467,6 +473,16 @@ class Jetpack_Likes {
 		);
 
 		$title = esc_html__( 'Like or Reblog', 'jetpack' );
+
+		// provide the mapped domain when needed
+		if (
+			defined( 'IS_WPCOM' )
+			&& IS_WPCOM
+			&& isset( $_SERVER['HTTP_HOST'] )
+			&& strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), '.wordpress.com' ) === false
+		) {
+			$src .= '&amp;domain=' . rawurlencode( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) );
+		}
 
 		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name' data-title='$title'>";
 		$html .= $headline;
@@ -549,7 +565,7 @@ class Jetpack_Likes {
 		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
-		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
+		$src = sprintf( 'https://widgets.wp.com/likes/index.html?ver=%1$d#blog_id=%3$d&amp;post_id=%4$d&amp;origin=%2$s://%5$s', self::VERSION, $protocol, $blog_id, $post_id, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 

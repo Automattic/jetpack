@@ -114,4 +114,50 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		global $wp_admin_bar;
 		$this->assertArrayHasKey( 'admin-bar-likes-widget', $wp_admin_bar->get_nodes() );
 	}
+
+	public function provide_jetpack_likes_master_iframe() {
+		return array(
+			array( 'fr', 'fr' ),
+			array( 'en', '' ),
+			array( 'en_UK', '' ),
+			array( 'it_IT', 'it' ),
+			array( 'pt-br', 'pt-br' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_jetpack_likes_master_iframe
+	 * @covers ::jetpack_likes_master_iframe
+	 */
+	public function test_jetpack_likes_master_iframe( $locale_code, $expected_likes_locale ) {
+		// Make sure get_locale() returns our current locale
+		add_filter(
+			'locale',
+			function () use ( $locale_code ) {
+				return $locale_code;
+			}
+		);
+
+		$this->assertEquals( $locale_code, get_locale() );
+
+		$src = sprintf( 'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s', Jetpack_Likes::VERSION );
+		if ( $expected_likes_locale !== '' ) {
+			$src .= '&amp;lang=' . $expected_likes_locale;
+		}
+		$src = esc_url( $src );
+
+		ob_start();
+		jetpack_likes_master_iframe();
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( "<iframe src='$src'", $html );
+
+		remove_filter(
+			'locale',
+			function () use ( $locale_code ) {
+				return $locale_code;
+			}
+		);
+	}
+
 }
