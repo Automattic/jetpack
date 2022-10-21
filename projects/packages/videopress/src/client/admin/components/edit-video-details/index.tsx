@@ -142,6 +142,7 @@ const EditVideoDetails = () => {
 		title,
 		description,
 		caption,
+		playbackToken,
 		// Page State/Actions
 		hasChanges,
 		updating,
@@ -174,9 +175,14 @@ const EditVideoDetails = () => {
 		message: unsavedChangesMessage,
 	} );
 
-	let thumbnail: string | JSX.Element = posterImage;
+	// We may need the playback token on the video URL as well
+	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
+
+	let thumbnail: string | JSX.Element = playbackToken
+		? `${ posterImage }?metadata_token=${ playbackToken }`
+		: posterImage;
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
@@ -188,7 +194,7 @@ const EditVideoDetails = () => {
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
-					url={ url }
+					url={ videoUrl }
 					handleVideoFrameSelected={ handleVideoFrameSelected }
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
