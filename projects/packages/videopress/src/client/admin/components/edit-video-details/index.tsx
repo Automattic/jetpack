@@ -13,6 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import classnames from 'classnames';
+import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -148,6 +149,7 @@ const EditVideoDetails = () => {
 		// Page State/Actions
 		hasChanges,
 		updating,
+		updated,
 		isFetching,
 		handleSaveChanges,
 		// Metadata
@@ -173,9 +175,17 @@ const EditVideoDetails = () => {
 	);
 
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges,
+		shouldPrevent: hasChanges && ! updated,
 		message: unsavedChangesMessage,
 	} );
+
+	const history = useHistory();
+
+	useEffect( () => {
+		if ( updated === true ) {
+			history.push( '/' );
+		}
+	}, [ updated ] );
 
 	// We may need the playback token on the video URL as well
 	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
@@ -183,6 +193,8 @@ const EditVideoDetails = () => {
 	let thumbnail: string | JSX.Element = playbackToken
 		? `${ posterImage }?metadata_token=${ playbackToken }`
 		: posterImage;
+
+	let thumbnail: string | JSX.Element = posterImage;
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
@@ -193,7 +205,7 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			<Prompt when={ hasChanges } message={ unsavedChangesMessage } />
+			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
