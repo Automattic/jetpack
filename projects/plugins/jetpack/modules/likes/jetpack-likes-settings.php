@@ -348,6 +348,10 @@ class Jetpack_Likes_Settings {
 	public function is_likes_module_enabled() {
 		global $wp_current_filter; // Used to apply 'sharing_show' filter.
 
+		if ( Settings::is_syncing() ) {
+			return false;
+		}
+
 		$post    = get_post();
 		$enabled = true;
 
