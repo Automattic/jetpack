@@ -10,7 +10,7 @@ import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { debounce } from 'lodash';
 import PageVisibility from 'react-page-visibility';
-import { usePublicizeConfig } from '../../hooks/use-publicize-config';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import styles from './styles.module.scss';
 
