@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
+import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
@@ -29,7 +30,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	};
 
 	return (
-		<>
+		<UserConnectionGate>
 			<Text variant="title-medium" mb={ 2 }>
 				{ __( 'Do you really want to ignore this threat?', 'jetpack-protect' ) }
 			</Text>
@@ -71,7 +72,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>
-		</>
+		</UserConnectionGate>
 	);
 };
 
