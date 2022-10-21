@@ -49,7 +49,7 @@ export default function PublicizeForm( {
 		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter( connection => ! connection.is_healthy );
+	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -117,9 +117,9 @@ export default function PublicizeForm( {
 										disabled={
 											( isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable ) ||
 											( ! enabled && toggleable && outOfConnections ) ||
-											! is_healthy
+											false === is_healthy
 										}
-										enabled={ enabled && ! isPublicizeDisabledBySitePlan && is_healthy }
+										enabled={ enabled && ! isPublicizeDisabledBySitePlan && false !== is_healthy }
 										key={ id }
 										id={ id }
 										label={ display_name }
