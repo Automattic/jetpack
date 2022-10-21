@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Expire a VideoPress playback token on the local state when it reachs it's expire time.
