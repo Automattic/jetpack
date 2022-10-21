@@ -3,7 +3,7 @@ require __DIR__ . '/../../../../modules/publicize.php';
 
 /**
  * @group publicize
- * @covers Publicize
+ * @covers Jetpack_Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 

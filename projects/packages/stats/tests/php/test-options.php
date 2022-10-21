@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Stats;
 /**
  * Class to test the Options class.
  *
- * @covers Options
+ * @covers \Automattic\Jetpack\Stats\Options
  */
 class Test_Options extends StatsBaseTestCase {
 	/**

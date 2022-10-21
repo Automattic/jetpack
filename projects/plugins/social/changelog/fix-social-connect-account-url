@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fix the path to the connections URL in the editor

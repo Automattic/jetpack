@@ -63,7 +63,7 @@ export const settings = {
 };
 
 const FieldDefaults = {
-	category: 'grow',
+	category: 'contact-form-fields',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,
