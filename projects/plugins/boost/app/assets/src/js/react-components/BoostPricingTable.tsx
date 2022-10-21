@@ -52,6 +52,18 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 		onFreeCTA();
 	};
 
+	const discountPercentage =
+		pricing.yearly.priceBefore !== undefined && pricing.yearly.priceAfter !== undefined
+			? Math.floor(
+					( ( pricing.yearly.priceBefore - pricing.yearly.priceAfter ) /
+						pricing.yearly.priceBefore ) *
+						100
+			  )
+			: 0;
+
+	// If the first year discount ends, we want to remove the label without updating the plugin.
+	const promoLabel = discountPercentage === 50 ? __( 'First Year Discount', 'jetpack-boost' ) : '';
+
 	return (
 		<PricingTable
 			title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
@@ -81,6 +93,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 						offPrice={ pricing.yearly.priceAfter / 12 }
 						currency={ pricing.yearly.currencyCode }
 						hideDiscountLabel={ false }
+						promoLabel={ promoLabel }
 					/>
 					<Button
 						onClick={ handlePremiumCTA }
