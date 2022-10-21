@@ -134,6 +134,30 @@ class Data {
 	}
 
 	/**
+	 * Request the site purchases by hitting
+	 * the my-jetpack endpoint.
+	 *
+	 * @return array
+	 */
+	public static function get_site_purchases() {
+		$purchases = array(
+			'isFetching' => false,
+			'items'      => array(),
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/purchases' );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			// @todo: error handling
+			return $purchases;
+		}
+
+		$purchases['items'] = $response->get_data();
+		return $purchases;
+	}
+
+	/**
 	 * Gets the VideoPress used storage space in bytes
 	 *
 	 * @return int the used storage space
@@ -161,10 +185,7 @@ class Data {
 			'videos'    => array(
 				'storageUsed' => self::get_storage_used(),
 			),
-			'purchases' => array(
-				'isFetching' => false,
-				'items'      => array(),
-			),
+			'purchases' => self::get_site_purchases(),
 		);
 	}
 
