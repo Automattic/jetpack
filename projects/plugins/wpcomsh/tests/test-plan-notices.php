@@ -12,7 +12,7 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	/**
 	 * Set up.
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );

@@ -13,7 +13,7 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 	/**
 	 * Clear values for each test
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		Atomic_Persistent_Data::delete( 'JETPACK_BLOG_TOKEN' );
 		delete_option( 'blog_token' );
 	}
