@@ -26,6 +26,7 @@ jobs:
       TEST_COMMENT_INDICATOR: "<!-- wpcom-reminder-comment -->"
     outputs:
       any_plugins: ${{ steps.plugins.outputs.any }}
+      changed_projects: ${{ steps.changed.outputs.projects }}
 
     steps:
       - uses: actions/checkout@v3
@@ -129,22 +130,6 @@ jobs:
               body: commentBody,
               comment_id: +COMMENT_ID,
             } );
-
-      - name: Trigger TeamCity build
-        if: ${{ fromJSON(steps.changed.outputs.projects)['plugins/jetpack'] == true }}
-        env:
-          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
-          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
-          PR: ${{ github.event.number }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          response=$(curl --fail -L \
-            --url "$URL" \
-            --form-string "pr-number=$PR" \
-            --form-string "sha=$SHA" \
-            --form-string "secret=$SECRET")
-
-          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
 
   upgrade_test:
     name: Test plugin upgrades
@@ -297,6 +282,30 @@ jobs:
             --form-string "branch=${GITHUB_REF#refs/heads/}" \
             --form-string "plugins=$PLUGIN_DATA" \
             --form-string "secret=$SECRET"
+
+  teamcity_trigger:
+    name: "Trigger TeamCity build"
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ fromJSON(needs.build.outputs.changed_projects)['plugins/jetpack'] == true }}
+
+    steps:
+      - name: Trigger TeamCity build
+        env:
+          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
+          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
+          PR: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          response=$(curl --fail -L \
+            --url "$URL" \
+            --form-string "pr-number=$PR" \
+            --form-string "sha=$SHA" \
+            --form-string "secret=$SECRET")
+
+          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
+          echo
+          echo "If you would like to restart the tests, please re-run this job."
 
   update_mirrors:
     name: Push to mirror repos
