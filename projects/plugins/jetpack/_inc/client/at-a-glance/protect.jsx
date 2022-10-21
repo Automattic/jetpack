@@ -90,7 +90,7 @@ class DashProtect extends Component {
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+								button: <button onClick={ this.connect } className="jp-link-button" />,
 							}
 						) }
 
@@ -98,11 +98,11 @@ class DashProtect extends Component {
 						this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
+								'<button>Activate Protect</button> to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.activateProtect } />,
+								button: <button onClick={ this.activateProtect } className="jp-link-button" />,
 							}
 						) }
 				</p>
