@@ -13,6 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import classnames from 'classnames';
+import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -145,6 +146,7 @@ const EditVideoDetails = () => {
 		// Page State/Actions
 		hasChanges,
 		updating,
+		updated,
 		isFetching,
 		handleSaveChanges,
 		// Metadata
@@ -170,9 +172,17 @@ const EditVideoDetails = () => {
 	);
 
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges,
+		shouldPrevent: hasChanges && ! updated,
 		message: unsavedChangesMessage,
 	} );
+
+	const history = useHistory();
+
+	useEffect( () => {
+		if ( updated === true ) {
+			history.push( '/' );
+		}
+	}, [ updated ] );
 
 	let thumbnail: string | JSX.Element = posterImage;
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
@@ -183,7 +193,7 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			<Prompt when={ hasChanges } message={ unsavedChangesMessage } />
+			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal

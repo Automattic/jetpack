@@ -22,6 +22,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,6 +32,7 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -95,11 +97,12 @@ const Admin = () => {
 
 	const { hasVideoPressPurchase } = usePlan();
 
-	const { isRegistered, siteIsRegistering, userIsConnecting } = useConnection();
+	const { isRegistered, hasConnectedOwner } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
+	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
+
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const showConnectionCard = ! isRegistered || siteIsRegistering || userIsConnecting;
 
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
@@ -112,11 +115,11 @@ const Admin = () => {
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <Logo /> }
 		>
-			{ showConnectionCard ? (
+			{ showPricingSection ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<PricingSection />
+							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
 						</Col>
 					</Container>
 				</AdminSectionHero>
@@ -127,6 +130,12 @@ const Admin = () => {
 							{ hasConnectionError && (
 								<Col>
 									<ConnectionError />
+								</Col>
+							) }
+
+							{ ! hasConnectedOwner && (
+								<Col sm={ 4 } md={ 8 } lg={ 12 }>
+									<NeedUserConnectionGlobalNotice />
 								</Col>
 							) }
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
