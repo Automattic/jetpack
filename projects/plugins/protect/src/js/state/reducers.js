@@ -1,7 +1,7 @@
 import { combineReducers } from '@wordpress/data';
 import {
-	SET_CREDENTIAL_STATE,
-	SET_CREDENTIAL_STATE_IS_FETCHING,
+	SET_CREDENTIALS_STATE,
+	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
@@ -15,17 +15,17 @@ import {
 	SET_THREATS_ARE_FIXING,
 } from './actions';
 
-const Credential = ( state = {}, action ) => {
+const credentials = ( state = [], action ) => {
 	switch ( action.type ) {
-		case SET_CREDENTIAL_STATE:
-			return action.Credential;
+		case SET_CREDENTIALS_STATE:
+			return action.credentials;
 	}
 	return state;
 };
 
-const CredentialIsFetching = ( state = false, action ) => {
+const credentialsIsFetching = ( state = false, action ) => {
 	switch ( action.type ) {
-		case SET_CREDENTIAL_STATE_IS_FETCHING:
+		case SET_CREDENTIALS_STATE_IS_FETCHING:
 			return action.isFetching;
 	}
 	return state;
@@ -128,8 +128,8 @@ const notice = ( state = {}, action ) => {
 };
 
 const reducers = combineReducers( {
-	Credential,
-	CredentialIsFetching,
+	credentials,
+	credentialsIsFetching,
 	status,
 	statusIsFetching,
 	scanIsEnqueuing,

@@ -11,7 +11,7 @@ const CredentialsNeededModal = () => {
 	const { siteSuffix } = window.jetpackProtectInitialState;
 
 	const { checkCredentials } = useDispatch( STORE_ID );
-	const credential = useSelect( select => select( STORE_ID ).getCredential() );
+	const credentials = useSelect( select => select( STORE_ID ).getCredentials() );
 
 	const handleCancelClick = () => {
 		return event => {
@@ -25,13 +25,13 @@ const CredentialsNeededModal = () => {
 	 */
 	useEffect( () => {
 		const interval = setInterval( () => {
-			if ( ! credential.credentials || credential.credentials.length === 0 ) {
+			if ( ! credentials || credentials.length === 0 ) {
 				checkCredentials();
 			}
 		}, 3000 );
 
 		return () => clearInterval( interval );
-	}, [ checkCredentials, credential.credentials ] );
+	}, [ checkCredentials, credentials ] );
 
 	return (
 		<>

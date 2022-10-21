@@ -442,7 +442,7 @@ class Jetpack_Protect {
 			return new WP_REST_Response( 'An error occured while attempting to fetch the credentials array', 500 );
 		}
 
-		return new WP_REST_Response( array( 'credentials' => $credential_array ) );
+		return new WP_REST_Response( $credential_array );
 	}
 
 	/**
