@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
@@ -54,6 +55,11 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 export default () => {
 	const history = useHistory();
 	const dispatch = useDispatch( STORE_ID );
+	const { isRegistered } = useConnection();
+
+	if ( ! isRegistered ) {
+		history.push( '/' );
+	}
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
@@ -65,6 +71,7 @@ export default () => {
 	>( null );
 
 	const [ updating, setUpdating ] = useState( false );
+	const [ updated, setUpdated ] = useState( false );
 
 	const [ data, setData ] = useState( {
 		title: video?.title,
@@ -130,7 +137,7 @@ export default () => {
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
-			history.push( '/' );
+			setUpdated( true );
 		} );
 	};
 
@@ -171,6 +178,7 @@ export default () => {
 		handleSaveChanges,
 		isFetching,
 		updating,
+		updated,
 		selectedTime,
 		...metaEditData,
 		...posterEditData,

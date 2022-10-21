@@ -179,8 +179,12 @@ const getUploadedVideoCount = {
 
 const getPurchases = {
 	fulfill: () => async ( { dispatch, registry } ) => {
-		const { currentUser } = registry.select( CONNECTION_STORE_ID ).getUserConnectionData();
-		if ( ! currentUser?.isConnected ) {
+		/*
+		 * Check whether the site is already connected
+		 * befor to try to fetch the purchases.
+		 */
+		const { isRegistered } = registry.select( CONNECTION_STORE_ID ).getConnectionStatus();
+		if ( ! isRegistered ) {
 			return;
 		}
 
