@@ -17,7 +17,7 @@ function initWritingPrompts() {
 	const data = window.Jetpack_WritingPrompts;
 	const urlQuery = new URLSearchParams( document.location.search );
 	const embedPrompt = !! urlQuery.get( 'embed_prompt' );
-	if ( typeof data !== 'object' || ! data.prompts || data.prompts.length < 1 ) {
+	if ( typeof data !== 'object' || ! data.prompts || ! data.prompts[ 0 ] ) {
 		return;
 	}
 

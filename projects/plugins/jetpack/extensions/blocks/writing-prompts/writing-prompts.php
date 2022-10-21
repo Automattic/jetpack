@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\WritingPrompts;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Visitor;
 
 const FEATURE_NAME = 'writing-prompts';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -40,18 +41,25 @@ function get_daily_writing_prompt() {
 	$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 		'/sites/' . $blog_id . '/blogging-prompts?from=' . $today . '&number=1',
 		'v2',
-		array(),
+		array(
+			'headers' => array(
+				'Content-Type'    => 'application/json',
+				'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+			),
+		),
 		null,
 		'wpcom'
 	);
 
-	if ( is_wp_error( $response ) ) {
+	$response_status = wp_remote_retrieve_response_code( $response );
+
+	if ( is_wp_error( $response ) || $response_status !== \WP_Http::OK ) {
 		return null;
 	}
 
 	$prompt = wp_remote_retrieve_body( $response );
-
 	set_transient( $transient_key, $prompt, DAY_IN_SECONDS );
+
 	return $prompt;
 }
 
