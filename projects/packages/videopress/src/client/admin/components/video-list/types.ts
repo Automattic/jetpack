@@ -1,4 +1,4 @@
-import { VideoPressVideo } from '../../types';
+import { LocalVideo, VideoPressVideo } from '../../types';
 
 export type VideoListProps = {
 	/**
@@ -18,9 +18,9 @@ export type VideoListProps = {
 	 */
 	hidePlays?: boolean;
 	/**
-	 * Show edit button.
+	 * Show action button.
 	 */
-	showEditButton?: boolean;
+	showActionButton?: boolean;
 	/**
 	 * Show quick actions.
 	 */
@@ -30,7 +30,16 @@ export type VideoListProps = {
 	 */
 	loading?: boolean;
 	/**
+	 * Is Uploading.
+	 */
+	uploading?: boolean;
+	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
 	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;
+};
+
+export type LocalVideoListProps = Omit< VideoListProps, 'onVideoDetailsClick' | 'videos' > & {
+	videos: Array< LocalVideo >;
+	onActionClick?: ( video: LocalVideo ) => void;
 };

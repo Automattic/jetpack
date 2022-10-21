@@ -71,6 +71,7 @@ export default () => {
 	>( null );
 
 	const [ updating, setUpdating ] = useState( false );
+	const [ updated, setUpdated ] = useState( false );
 
 	const [ data, setData ] = useState( {
 		title: video?.title,
@@ -136,7 +137,7 @@ export default () => {
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
-			history.push( '/' );
+			setUpdated( true );
 		} );
 	};
 
@@ -177,6 +178,7 @@ export default () => {
 		handleSaveChanges,
 		isFetching,
 		updating,
+		updated,
 		selectedTime,
 		...metaEditData,
 		...posterEditData,
