@@ -142,7 +142,9 @@ const EditVideoDetails = () => {
 		title,
 		description,
 		caption,
+		// Playback Token
 		playbackToken,
+		isFetchingPlaybackToken,
 		// Page State/Actions
 		hasChanges,
 		updating,
@@ -187,6 +189,8 @@ const EditVideoDetails = () => {
 		thumbnail = libraryAttachment.url;
 	}
 
+	const isFetchingData = isFetching || isFetchingPlaybackToken;
+
 	return (
 		<>
 			<Prompt when={ hasChanges } message={ unsavedChangesMessage } />
@@ -221,12 +225,12 @@ const EditVideoDetails = () => {
 								onChangeDescription={ setDescription }
 								caption={ caption ?? '' }
 								onChangeCaption={ setCaption }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ isFetching ? <Placeholder height={ 200 } /> : thumbnail }
+								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
 								duration={ duration }
 								editable
 								onSelectFromVideo={ handleOpenSelectFrame }
@@ -236,7 +240,7 @@ const EditVideoDetails = () => {
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 					</Container>
