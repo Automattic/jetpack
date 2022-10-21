@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: added
 
 Connection: expose BlogId in the global state

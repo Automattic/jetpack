@@ -1,5 +1,5 @@
 Significance: patch
-Type: fixed
+Type: added
 
 Connection: add getWpcomUser() and getBlogId() selectors.
 
