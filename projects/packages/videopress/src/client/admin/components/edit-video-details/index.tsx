@@ -194,7 +194,6 @@ const EditVideoDetails = () => {
 		? `${ posterImage }?metadata_token=${ playbackToken }`
 		: posterImage;
 
-	let thumbnail: string | JSX.Element = posterImage;
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
