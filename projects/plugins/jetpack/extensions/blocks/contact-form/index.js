@@ -53,9 +53,7 @@ export const settings = {
 		const blockProps = useBlockProps.save();
 		return (
 			<div { ...blockProps }>
-				<div className="wp-block-contact-form__inner-container">
-					<InnerBlocks.Content />
-				</div>
+				<InnerBlocks.Content />
 			</div>
 		);
 	},

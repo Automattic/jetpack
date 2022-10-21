@@ -52,9 +52,9 @@
 				"innerContent": []
 			}
 		],
-		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-form alignwide noodles\"><div class=\"wp-block-contact-form__inner-container\">\n\n    \n    \n    \n    \n    </div></div>\n    ",
+		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-form alignwide noodles\">\n\n    \n    \n    \n    \n    </div>\n    ",
 		"innerContent": [
-			"\n<div class=\"wp-block-jetpack-contact-form alignwide noodles\"><div class=\"wp-block-contact-form__inner-container\">",
+			"\n<div class=\"wp-block-jetpack-contact-form alignwide noodles\">",
 			null,
 			"\n\n    ",
 			null,
@@ -62,7 +62,7 @@
 			null,
 			"\n    \n    ",
 			null,
-			"</div></div>\n    "
+			"</div>\n    "
 		]
 	}
 ]

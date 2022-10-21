@@ -1,4 +1,4 @@
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 import { omit } from 'lodash';
@@ -15,31 +15,6 @@ const deprecatedAttributes = [
 	'submitButtonClasses',
 	'hasFormSettingsSet',
 ];
-
-const v3 = {
-	attributes: {
-		...defaultAttributes,
-	},
-	supports: {
-		color: {
-			link: true,
-			gradients: true,
-		},
-		html: false,
-		spacing: {
-			padding: true,
-			margin: true,
-		},
-	},
-	save: () => {
-		const blockProps = useBlockProps.save();
-		return (
-			<div { ...blockProps }>
-				<InnerBlocks.Content />
-			</div>
-		);
-	},
-};
 
 const v2 = {
 	attributes: {
@@ -113,4 +88,4 @@ const v1 = {
 	save: () => <InnerBlocks.Content />,
 };
 
-export default [ v3, v2, v1 ];
+export default [ v2, v1 ];

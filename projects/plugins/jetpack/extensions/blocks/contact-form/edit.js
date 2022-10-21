@@ -346,9 +346,7 @@ export function JetpackContactFormEdit( {
 			</InspectorControls>
 
 			<div className={ formClassnames }>
-				<div className="wp-block-contact-form__inner-container">
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
-				</div>
+				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
 			</div>
 		</>
 	);

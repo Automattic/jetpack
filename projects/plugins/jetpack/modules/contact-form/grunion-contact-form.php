@@ -2592,8 +2592,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_enqueue_style( 'grunion.css' );
 		}
 
+		// Move align tool classes to the top container
+		$has_alignwide   = preg_match( '/<div class=\"wp-block-jetpack-contact-form.*alignwide.*?">/m', $content );
+		$has_alignfull   = preg_match( '/<div class=\"wp-block-jetpack-contact-form.*alignfull.*?">/m', $content );
+		$wrapper_classes = '';
+
+		if ( $has_alignwide ) {
+			$wrapper_classes = 'alignwide';
+		} elseif ( $has_alignfull ) {
+			$wrapper_classes = 'alignfull';
+		}
+
 		$r  = '';
-		$r .= "<div id='contact-form-$id'>\n";
+		$r .= "<div id='contact-form-$id' class='$wrapper_classes'>\n";
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
