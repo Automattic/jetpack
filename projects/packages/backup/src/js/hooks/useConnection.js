@@ -24,7 +24,7 @@ export default function useConnection() {
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 
 	const checkSiteHasBackupProduct = useCallback(
-		() => apiFetch( { path: '/jetpack/v4/has-backup-plan' } ).then( res => res ),
+		() => apiFetch( { path: '/jetpack/v4/has-backup-plan' } ),
 		[]
 	);
 
