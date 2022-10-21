@@ -17,6 +17,7 @@ import {
 	PROCESSING_VIDEO,
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
+	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -321,6 +322,34 @@ const getUsers = {
 	},
 };
 
+const getPlaybackToken = {
+	isFulfilled: ( state, guid ) => {
+		const playbackTokens = state?.playbackTokens?.items ?? [];
+		return playbackTokens?.some( token => token?.guid === guid );
+	},
+	fulfill: guid => async ( { dispatch } ) => {
+		dispatch.setIsFetchingPlaybackToken( true );
+
+		try {
+			const playbackTokenResponse = await apiFetch( {
+				path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT }/${ guid }` ),
+				method: 'POST',
+			} );
+
+			const playbackToken = {
+				guid,
+				token: playbackTokenResponse.playback_token,
+			};
+
+			dispatch.setPlaybackToken( playbackToken );
+
+			return playbackToken;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+};
+
 export default {
 	getStorageUsed,
 	getUploadedVideoCount,
@@ -332,4 +361,6 @@ export default {
 	getUsers,
 
 	getPurchases,
+
+	getPlaybackToken,
 };
