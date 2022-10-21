@@ -158,8 +158,12 @@ class Data {
 	 */
 	public static function get_connected_initial_state() {
 		return array(
-			'videos' => array(
+			'videos'    => array(
 				'storageUsed' => self::get_storage_used(),
+			),
+			'purchases' => array(
+				'isFetching' => false,
+				'items'      => array(),
 			),
 		);
 	}
