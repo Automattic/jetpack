@@ -7,6 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { playbackTokenExpired } from '../utils/playback-token';
 import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_FILTER,
@@ -325,7 +326,9 @@ const getUsers = {
 const getPlaybackToken = {
 	isFulfilled: ( state, guid ) => {
 		const playbackTokens = state?.playbackTokens?.items ?? [];
-		return playbackTokens?.some( token => token?.guid === guid );
+		return playbackTokens?.some( token => {
+			token?.guid === guid && ! playbackTokenExpired( token?.token );
+		} );
 	},
 	fulfill: guid => async ( { dispatch } ) => {
 		dispatch.setIsFetchingPlaybackToken( true );
