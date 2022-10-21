@@ -143,6 +143,9 @@ const EditVideoDetails = () => {
 		title,
 		description,
 		caption,
+		// Playback Token
+		playbackToken,
+		isFetchingPlaybackToken,
 		// Page State/Actions
 		hasChanges,
 		updating,
@@ -184,12 +187,20 @@ const EditVideoDetails = () => {
 		}
 	}, [ updated ] );
 
-	let thumbnail: string | JSX.Element = posterImage;
+	// We may need the playback token on the video URL as well
+	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
+
+	let thumbnail: string | JSX.Element = playbackToken
+		? `${ posterImage }?metadata_token=${ playbackToken }`
+		: posterImage;
+
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
+
+	const isFetchingData = isFetching || isFetchingPlaybackToken;
 
 	return (
 		<>
@@ -198,7 +209,7 @@ const EditVideoDetails = () => {
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
-					url={ url }
+					url={ videoUrl }
 					handleVideoFrameSelected={ handleVideoFrameSelected }
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
@@ -225,12 +236,12 @@ const EditVideoDetails = () => {
 								onChangeDescription={ setDescription }
 								caption={ caption ?? '' }
 								onChangeCaption={ setCaption }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ isFetching ? <Placeholder height={ 200 } /> : thumbnail }
+								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
 								duration={ duration }
 								editable
 								onSelectFromVideo={ handleOpenSelectFrame }
@@ -240,7 +251,7 @@ const EditVideoDetails = () => {
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 					</Container>

@@ -41,6 +41,8 @@ import {
 	SET_USERS,
 	SET_USERS_PAGINATION,
 	SET_LOCAL_VIDEO_UPLOADED,
+	SET_IS_FETCHING_PLAYBACK_TOKEN,
+	SET_PLAYBACK_TOKEN,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -313,6 +315,14 @@ const setUsersPagination = pagination => {
 	return { type: SET_USERS_PAGINATION, pagination };
 };
 
+const setIsFetchingPlaybackToken = isFetching => {
+	return { type: SET_IS_FETCHING_PLAYBACK_TOKEN, isFetching };
+};
+
+const setPlaybackToken = playbackToken => {
+	return { type: SET_PLAYBACK_TOKEN, playbackToken };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -348,6 +358,9 @@ const actions = {
 
 	setUsers,
 	setUsersPagination,
+
+	setIsFetchingPlaybackToken,
+	setPlaybackToken,
 };
 
 export { actions as default };
