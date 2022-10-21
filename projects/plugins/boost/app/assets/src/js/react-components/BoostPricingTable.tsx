@@ -52,17 +52,10 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 		onFreeCTA();
 	};
 
-	const discountPercentage =
-		pricing.yearly.priceBefore !== undefined && pricing.yearly.priceAfter !== undefined
-			? Math.floor(
-					( ( pricing.yearly.priceBefore - pricing.yearly.priceAfter ) /
-						pricing.yearly.priceBefore ) *
-						100
-			  )
-			: 0;
-
 	// If the first year discount ends, we want to remove the label without updating the plugin.
-	const promoLabel = discountPercentage === 50 ? __( 'First Year Discount', 'jetpack-boost' ) : '';
+	const promoLabel = pricing.yearly.isIntroductoryOffer
+		? __( 'First Year Discount', 'jetpack-boost' )
+		: '';
 
 	return (
 		<PricingTable
