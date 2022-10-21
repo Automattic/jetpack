@@ -1,6 +1,6 @@
 const selectors = {
-	getCredentialState: state => state.credentialState || {},
-	getCredentialStateIsFetching: state => state.credentialStateIsFetching || false,
+	getCredentials: state => state.credentials || [],
+	getCredentialsIsFetching: state => state.credentialsIsFetching || false,
 	getInstalledPlugins: state => state.installedPlugins || {},
 	getInstalledThemes: state => state.installedThemes || {},
 	getStatus: state => state.status || {},

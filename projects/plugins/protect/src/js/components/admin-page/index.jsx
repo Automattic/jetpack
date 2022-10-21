@@ -91,21 +91,21 @@ const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	);
 };
 
-const useCredentialState = () => {
-	const { checkCredentialsState } = useDispatch( STORE_ID );
-	const credentialState = useSelect( select => select( STORE_ID ).getCredentialState() );
+const useCredentials = () => {
+	const { checkCredentials } = useDispatch( STORE_ID );
+	const credentials = useSelect( select => select( STORE_ID ).getCredentials() );
 
 	useEffect( () => {
-		if ( ! credentialState.state ) {
-			checkCredentialsState();
+		if ( ! credentials.length ) {
+			checkCredentials();
 		}
-	}, [ checkCredentialsState, credentialState.state ] );
+	}, [ checkCredentials, credentials ] );
 };
 
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
-	useCredentialState();
+	useCredentials();
 
 	let currentScanStatus;
 	if ( 'error' === currentStatus ) {

@@ -2,8 +2,8 @@ import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
-const SET_CREDENTIAL_STATE_IS_FETCHING = 'SET_CREDENTIAL_STATE_IS_FETCHING';
-const SET_CREDENTIAL_STATE = 'SET_CREDENTIAL_STATE';
+const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
+const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
@@ -69,32 +69,32 @@ const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
  *
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const checkCredentialsState = () => async ( { dispatch } ) => {
+const checkCredentials = () => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
-		dispatch( setCredentialStateIsFetching( true ) );
+		dispatch( setCredentialsIsFetching( true ) );
 		return apiFetch( {
 			path: 'jetpack-protect/v1/check-credentials',
 			method: 'POST',
 		} )
-			.then( state => {
-				dispatch( setCredentialState( state ) );
-				resolve( state );
+			.then( credentials => {
+				dispatch( setCredentials( credentials ) );
+				resolve( credentials );
 			} )
 			.catch( error => {
 				reject( error );
 			} )
 			.finally( () => {
-				dispatch( setCredentialStateIsFetching( false ) );
+				dispatch( setCredentialsIsFetching( false ) );
 			} );
 	} );
 };
 
-const setCredentialStateIsFetching = isFetching => {
-	return { type: SET_CREDENTIAL_STATE_IS_FETCHING, isFetching };
+const setCredentialsIsFetching = isFetching => {
+	return { type: SET_CREDENTIALS_STATE_IS_FETCHING, isFetching };
 };
 
-const setCredentialState = credentialState => {
-	return { type: SET_CREDENTIAL_STATE, credentialState };
+const setCredentials = credentials => {
+	return { type: SET_CREDENTIALS_STATE, credentials };
 };
 
 const setStatusIsFetching = status => {
@@ -315,9 +315,9 @@ const setNotice = notice => {
 };
 
 const actions = {
-	checkCredentialsState,
-	setCredentialState,
-	setCredentialStateIsFetching,
+	checkCredentials,
+	setCredentials,
+	setCredentialsIsFetching,
 	setStatus,
 	refreshStatus,
 	setStatusIsFetching,
@@ -336,8 +336,8 @@ const actions = {
 };
 
 export {
-	SET_CREDENTIAL_STATE,
-	SET_CREDENTIAL_STATE_IS_FETCHING,
+	SET_CREDENTIALS_STATE,
+	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
