@@ -46,7 +46,7 @@ jQuery( function ( $ ) {
 				'One of your social connections is broken. Reconnect it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
 				'Some of your social connections are broken. Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
 				brokenConnections,
-				'no text domain is set in this in this project's .eslintrc.js'
+				'jetpack-publicize-pkg'
 			);
 
 			testsSelector
