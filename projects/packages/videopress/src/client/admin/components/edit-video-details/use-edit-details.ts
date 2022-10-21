@@ -10,17 +10,9 @@ import { useParams, useHistory } from 'react-router-dom';
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
 import { STORE_ID } from '../../../state';
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
-import { VideoPressVideo } from '../../types';
-
-const videoNeedsPlaybackToken = ( video: VideoPressVideo ): boolean => {
-	return video.privacySetting
-		? VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
-		: false;
-};
 
 const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 	const updateMeta = useMetaUpdate( videoId );
@@ -74,9 +66,7 @@ export default () => {
 	const videoId = Number( videoIdFromParams );
 	const { data: video, isFetching } = useVideo( Number( videoId ) );
 
-	const { playbackToken, isFetchingPlaybackToken } = videoNeedsPlaybackToken( video )
-		? usePlaybackToken( video.guid )
-		: { playbackToken: null, isFetchingPlaybackToken: false };
+	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
