@@ -131,6 +131,10 @@
 	margin-top: 7px;
 }
 
+form.wp-block-jetpack-contact-form {
+	display: block;
+}
+
 .wp-block-jetpack-contact-form {
 	display: flex;
 	flex-wrap: wrap;
