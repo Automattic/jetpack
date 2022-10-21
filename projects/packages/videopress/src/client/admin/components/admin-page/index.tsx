@@ -17,7 +17,6 @@ import {
 	useConnection,
 	useConnectionErrorNotice,
 	ConnectionError,
-	ConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -134,12 +133,10 @@ const Admin = () => {
 								</Col>
 							) }
 
-							{ ! hasConnectedOwner ? (
+							{ ! hasConnectedOwner && (
 								<Col sm={ 4 } md={ 8 } lg={ 12 }>
 									<NeedUserConnectionGlobalNotice />
 								</Col>
-							) : (
-								<ConnectionErrorNotice />
 							) }
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
