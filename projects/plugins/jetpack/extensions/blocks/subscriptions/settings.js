@@ -13,11 +13,11 @@ export const accessOptions = {
 	},
 	subscribers: {
 		label: __( 'All subscribers', 'jetpack' ),
-		info: __( 'Visible to everyone to subscribes to your site.', 'jetpack' ),
+		info: __( 'Visible to everyone that subscribes to your site.', 'jetpack' ),
 	},
 	paid_subscribers: {
 		label: __( 'Paid subscribers', 'jetpack' ),
-		info: __( 'Visible to everyone who purchases a paid plan on your site.', 'jetpack' ),
+		info: __( 'Visible to everyone that purchases a paid plan on your site.', 'jetpack' ),
 	},
 };
 
