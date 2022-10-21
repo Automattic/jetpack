@@ -1999,7 +1999,25 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
+	 * Returns extra field data stored in the post meta for the given response.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return array
+	 */
+	public static function get_extra_fields( $post_id ) {
+		$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
+
+		if ( ! is_array( $extra_fields ) ) {
+			return array();
+		}
+
+		return $extra_fields;
+	}
+
+	/**
 	 * Parse the contact form fields.
+	 *
+	 * @deprecated Use parse_fields() instead.
 	 *
 	 * @param int $post_id - the post ID.
 	 * @return array Fields.
@@ -2053,7 +2071,7 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
-		$fields['_feedback_all_fields'] = $all_values;
+		$fields['all_fields'] = $all_values;
 
 		$post_fields[ $post_id ] = $fields;
 

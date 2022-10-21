@@ -710,6 +710,40 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		register_rest_route(
 			'jetpack/v4',
+			'form-responses',
+			array(
+				'methods'           => WP_REST_Server::READABLE,
+				'callback'          => __CLASS__ . '::get_jetpack_form_responses',
+				'permissions_check' => __CLASS__ . '::jetpack_form_responses_permission_check',
+				'args'              => array(
+					'limit'   => array(
+						'default'           => 20,
+						'type'              => 'integer',
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::validate_posint',
+					),
+					'offset'  => array(
+						'default'           => 0,
+						'type'              => 'integer',
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::validate_non_neg_int',
+					),
+					'form_id' => array(
+						'type'              => 'integer',
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::validate_posint',
+					),
+					'search'  => array(
+						'type'              => 'text',
+						'required'          => false,
+						'validate_callback' => __CLASS__ . '::validate_string',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'purchase-token',
 			array(
 				array(
@@ -4112,6 +4146,86 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
+	}
+
+	/**
+	 * Returns Jetpack Forms responses.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response A response object containing Jetpack Forms responses.
+	 */
+	public static function get_jetpack_form_responses( $request ) {
+		$query = array(
+			'post_type' => 'feedback',
+		);
+
+		if ( isset( $request['form_id'] ) ) {
+			$query['post_parent'] = $request['form_id'];
+		}
+
+		if ( isset( $request['limit'] ) ) {
+			$query['numberposts'] = $request['limit'];
+		}
+
+		if ( isset( $request['offset'] ) ) {
+			$query['offset'] = $request['offset'];
+		}
+
+		if ( isset( $request['search'] ) ) {
+			$query['s'] = $request['search'];
+		}
+
+		$responses = array_map(
+			function ( $response ) {
+				$response_data  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $response->ID );
+				$response_extra = Grunion_Contact_Form_Plugin::get_extra_fields( $response->ID );
+
+				return array(
+					'id'              => $response->ID,
+					'uid'             => $response_data['all_fields']['feedback_id'],
+					'date'            => get_the_date( 'c', $response ),
+					'author_name'     => $response_data['_feedback_author'],
+					'author_email'    => $response_data['_feedback_author_email'],
+					'author_url'      => $response_data['_feedback_author_url'],
+					'ip'              => $response_data['_feedback_ip'],
+					'entry_title'     => $response_data['all_fields']['entry_title'],
+					'entry_permalink' => $response_data['all_fields']['entry_permalink'],
+					'subject'         => $response_data['_feedback_subject'],
+					'fields'          => array_diff_key(
+						array_merge(
+							$response_data['all_fields'],
+							$response_extra
+						),
+						array(
+							'entry_title'     => '',
+							'entry_permalink' => '',
+							'feedback_id'     => '',
+						)
+					),
+				);
+			},
+			get_posts( $query )
+		);
+
+		return rest_ensure_response( $responses );
+	}
+
+	/**
+	 * Verifies that the current user has the requird capability for viewing form responses.
+	 *
+	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
+	 */
+	public static function jetpack_form_responses_permission_check() {
+		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+			return new WP_Error(
+				'invalid_user_permission_jetpack_form_responses',
+				REST_Connector::get_user_permissions_error_msg(),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 
 	/**
