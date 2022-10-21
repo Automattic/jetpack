@@ -764,6 +764,7 @@ class Test_REST_Endpoints extends TestCase {
 				'isMaster'    => false,
 				'username'    => $user->user_login,
 				'id'          => $user->ID,
+				'blogId'      => false,
 				'wpcomUser'   => array(
 					'avatar' => false,
 				),
@@ -806,6 +807,7 @@ class Test_REST_Endpoints extends TestCase {
 				'isMaster'    => false,
 				'username'    => $user->user_login,
 				'id'          => $user->ID,
+				'blogId'      => self::BLOG_ID,
 				'wpcomUser'   => array(
 					'avatar' => false,
 				),
@@ -856,6 +858,7 @@ class Test_REST_Endpoints extends TestCase {
 				'isMaster'    => true,
 				'username'    => $user->user_login,
 				'id'          => $user->ID,
+				'blogId'      => self::BLOG_ID,
 				'wpcomUser'   => $dummy_wpcom_user_data,
 				'permissions' => array(
 					'connect'      => true,

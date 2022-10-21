@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update `wp_unslash` wrapper to possibly run on wpcom before WordPress is loaded.
