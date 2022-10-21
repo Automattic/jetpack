@@ -52,11 +52,11 @@ class DashPhoton extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									"<a>Activate</a> to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
+									"<button>Activate</button> to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activatePhoton } />,
+									button: <button onClick={ this.activatePhoton } className="jp-link-button" />,
 								}
 						  ) }
 				</p>

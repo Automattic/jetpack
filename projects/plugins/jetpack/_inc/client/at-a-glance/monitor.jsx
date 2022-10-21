@@ -58,11 +58,11 @@ class DashMonitor extends Component {
 		const activateMessage = this.props.hasConnectedOwner
 			? createInterpolateElement(
 					__(
-						'<a>Activate Monitor</a> to receive email notifications if your site goes down.',
+						'<button>Activate Monitor</button> to receive email notifications if your site goes down.',
 						'jetpack'
 					),
 					{
-						a: <a href="javascript:void(0)" onClick={ this.activateAndTrack } />,
+						button: <button onClick={ this.activateAndTrack } className="jp-link-button" />,
 					}
 			  )
 			: __(
@@ -87,9 +87,12 @@ class DashMonitor extends Component {
 				{ ! this.props.isOfflineMode && ! this.props.hasConnectedOwner && (
 					<p className="jp-dash-item__description jp-dash-item__connect">
 						{ createInterpolateElement(
-							__( '<a>Connect your WordPress.com</a> account to use this feature.', 'jetpack' ),
+							__(
+								'<button>Connect your WordPress.com</button> account to use this feature.',
+								'jetpack'
+							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+								button: <button onClick={ this.connect } className="jp-link-button" />,
 							}
 						) }
 					</p>

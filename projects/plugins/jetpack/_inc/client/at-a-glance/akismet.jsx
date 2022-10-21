@@ -99,9 +99,9 @@ class DashAkismet extends Component {
 
 		const getAkismetUpgradeBanner = () => {
 			const description = createInterpolateElement(
-				__( 'Already have a key? <a>Activate Akismet</a>', 'jetpack' ),
+				__( 'Already have a key? <button>Activate Akismet</button>', 'jetpack' ),
 				{
-					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,
+					button: <button onClick={ this.onActivateClick } className="jp-link-button" />,
 				}
 			);
 

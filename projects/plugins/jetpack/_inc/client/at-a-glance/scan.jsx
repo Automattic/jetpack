@@ -206,11 +206,13 @@ class DashScan extends Component {
 					<p className="jp-dash-item__description" key="inactive-scanning">
 						{ createInterpolateElement(
 							__(
-								'VaultPress is not active, <a>please activate</a> to enable automatic scanning for security for threats.',
+								'VaultPress is not active, <button>please activate</button> to enable automatic scanning for security for threats.',
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.onActivateVaultPressClick } />,
+								button: (
+									<button onClick={ this.onActivateVaultPressClick } className="jp-link-button" />
+								),
 							}
 						) }
 					</p>,

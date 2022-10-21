@@ -1,6 +1,21 @@
 @import '../../scss/calypso-colors';
 
 .jp-dash-item {
+
+	.jp-link-button {
+		background-color: transparent;
+		border: none;
+		color: #2271b1;
+		cursor: pointer;
+		display: inline;
+		font-style: italic;
+		margin: 0;
+		padding: 0;
+		transition-property: border, background, color;
+		transition-duration: .05s;
+		transition-timing-function: ease-in-out;
+	  }
+	  
 	.jp-dash-item__content a {
 		font-style: italic;
 	}

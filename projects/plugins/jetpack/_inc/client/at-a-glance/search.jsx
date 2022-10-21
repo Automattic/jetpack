@@ -189,11 +189,11 @@ class DashSearch extends Component {
 			pro_inactive: false,
 			content: createInterpolateElement(
 				__(
-					'<a>Activate</a> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+					'<button>Activate</button> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 					'jetpack'
 				),
 				{
-					a: <a href="javascript:void(0)" onClick={ this.activateSearch } />,
+					button: <button onClick={ this.activateSearch } className="jp-link-button" />,
 				}
 			),
 		} );
