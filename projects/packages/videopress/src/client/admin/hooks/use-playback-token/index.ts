@@ -15,8 +15,7 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
 /**
  * React custom hook to get the Users.
  *
- * @param {string} guid - The VideoPress video identifier
- * @param video
+ * @param {VideoPressVideo} video - The VideoPress video
  * @returns {object} Playback token
  */
 export default function usePlaybackToken( video: VideoPressVideo ) {
