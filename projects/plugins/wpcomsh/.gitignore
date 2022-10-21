@@ -2,6 +2,7 @@
 *.swp
 .env
 .DS_Store
+.phpunit.result.cache
 /private-constants.php
 build/
 vendor/
