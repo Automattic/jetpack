@@ -22,11 +22,18 @@ import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
-	const { backupState, fetchBackupsState, latestTime, progress, stats } = useBackupsState();
+	const {
+		backupState,
+		fetchBackupsState,
+		latestTime,
+		progress,
+		trackProgress,
+		stats,
+	} = useBackupsState();
 	// Loads data on startup and whenever progress updates.
 	useEffect( () => {
 		fetchBackupsState();
-	}, [ fetchBackupsState ] );
+	}, [ trackProgress ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<div className="jp-wrap jp-content">

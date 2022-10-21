@@ -83,6 +83,7 @@ const useBackupsState = () => {
 		fetchBackupsState,
 		latestTime,
 		progress,
+		trackProgress,
 		stats,
 	};
 };
