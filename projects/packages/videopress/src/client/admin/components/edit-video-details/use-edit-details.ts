@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
@@ -54,6 +55,11 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 export default () => {
 	const history = useHistory();
 	const dispatch = useDispatch( STORE_ID );
+	const { isRegistered } = useConnection();
+
+	if ( ! isRegistered ) {
+		history.push( '/' );
+	}
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );

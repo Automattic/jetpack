@@ -3,6 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import * as tus from 'tus-js-client';
 
 const jwtsForKeys = {};
@@ -136,6 +137,42 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, data } ) =>
 	} );
 
 	return upload;
+};
+
+export const uploadFromLibrary = attachmentId => {
+	const path = `videopress/v1/upload/${ attachmentId }`;
+	return new Promise( ( resolve, reject ) => {
+		apiFetch( { path, method: 'POST' } )
+			.then( result => {
+				if (
+					'uploading' === result.status ||
+					'new' === result.status ||
+					'resume' === result.status
+				) {
+					uploadFromLibrary( attachmentId ).then( resolve ).catch( reject );
+				} else if ( 'complete' === result.status ) {
+					resolve( {
+						guid: result.uploaded_details.guid,
+						id: result.uploaded_details.media_id,
+						src: result.uploaded_details.upload_src,
+					} );
+				} else if ( 'error' === result.status ) {
+					reject( {
+						data: { message: result.error },
+					} );
+				} else {
+					reject( {
+						// Should never happen.
+						data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
+					} );
+				}
+			} )
+			.catch( error => {
+				reject( {
+					data: { message: error?.message },
+				} );
+			} );
+	} );
 };
 
 export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {

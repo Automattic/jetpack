@@ -33,6 +33,7 @@ import {
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
 	SET_USERS_PAGINATION,
+	SET_LOCAL_VIDEO_UPLOADED,
 } from './constants';
 
 /**
@@ -488,6 +489,27 @@ const localVideos = ( state, action ) => {
 					...state._meta,
 					relyOnInitialState: false,
 				},
+			};
+		}
+
+		case SET_LOCAL_VIDEO_UPLOADED: {
+			const { id } = action;
+			const items = [ ...( state?.items ?? [] ) ];
+			const index = items.findIndex( item => item.id === id );
+
+			if ( index === -1 ) {
+				return state;
+			}
+
+			items[ index ] = {
+				...items[ index ],
+				isUploadedToVideoPress: true,
+			};
+
+			return {
+				...state,
+				items,
+				isFetching: false,
 			};
 		}
 	}
