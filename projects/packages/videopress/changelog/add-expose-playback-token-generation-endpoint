@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Expose VideoPress playback token generation endpoint to enable client display of private videos and thumbnails.
