@@ -1,7 +1,6 @@
-import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { useDispatch, select as syncSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import useConnection from '../../components/use-connection';
 import { STORE_ID } from '../../state/store.jsx';
@@ -40,17 +39,6 @@ export default function useProductCheckoutWorkflow( {
 		from,
 	} );
 
-	const initializeAnalytics = () => {
-		const tracksUser = syncSelect( STORE_ID ).getWpcomUser();
-		const blogId = syncSelect( STORE_ID ).getBlogId();
-
-		if ( tracksUser ) {
-			analytics.initialize( tracksUser.ID, tracksUser.login, {
-				blog_id: blogId,
-			} );
-		}
-	};
-
 	// Build the checkout URL.
 	const checkoutProductUrl = getProductCheckoutUrl(
 		productSlug,
@@ -79,8 +67,6 @@ export default function useProductCheckoutWorkflow( {
 	const run = event => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
-		isUserConnected && initializeAnalytics();
-		analytics.tracks.recordEvent( productSlug + '_purchase_button_click', {} );
 
 		if ( isRegistered ) {
 			return handleAfterRegistration();
