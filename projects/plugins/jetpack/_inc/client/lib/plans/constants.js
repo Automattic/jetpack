@@ -50,6 +50,10 @@ export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
+export const PLAN_JETPACK_SOCIAL_BASIC = 'jetpack_social_basic_yearly';
+export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
+export const PLAN_JETPACK_SOCIAL_PREMIUM = 'jetpack_social_premium_yearly';
+export const PLAN_JETPACK_SOCIAL_PREMIUM_MONTHLY = 'jetpack_social_premium_monthly';
 
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
@@ -206,6 +210,13 @@ export const JETPACK_VIDEOPRESS_PRODUCTS = [
 	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
 ];
 
+export const JETPACK_SOCIAL_PRODUCTS = [
+	PLAN_JETPACK_SOCIAL_BASIC,
+	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
+	PLAN_JETPACK_SOCIAL_PREMIUM,
+	PLAN_JETPACK_SOCIAL_PREMIUM_MONTHLY,
+];
+
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
 
@@ -282,14 +293,22 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
 };
 
+/**
+ * @param plan - The plan slug
+ * @returns {boolean} True is it's monthly plan
+ */
 export function isMonthly( plan ) {
 	return includes( JETPACK_MONTHLY_PLANS, plan );
 }
-
+/**
+ * @param plan - The plan slug
+ */
 export function isPopular( plan ) {
 	return includes( POPULAR_PLANS, plan );
 }
-
+/**
+ * @param plan - The plan slug
+ */
 export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
 }
@@ -324,14 +343,23 @@ export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
 }
 
+/**
+ * @param product
+ */
 export function isJetpackSearch( product ) {
 	return includes( JETPACK_SEARCH_PRODUCTS, product );
 }
 
+/**
+ * @param product
+ */
 export function isJetpackScan( product ) {
 	return JETPACK_SCAN_PRODUCTS.includes( product );
 }
 
+/**
+ * @param product
+ */
 export function isJetpackAntiSpam( product ) {
 	return JETPACK_ANTI_SPAM_PRODUCTS.includes( product );
 }
@@ -346,16 +374,33 @@ export function isJetpackVideoPress( product ) {
 	return JETPACK_VIDEOPRESS_PRODUCTS.includes( product );
 }
 
+/**
+ * Determines if a product is Jetpack Social.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack Social, false otherwise.
+ */
+export function isJetpackSocial( product ) {
+	return JETPACK_SOCIAL_PRODUCTS.includes( product );
+}
+
+/**
+ * @param product
+ */
 export function isJetpackProduct( product ) {
 	return (
 		isJetpackBackup( product ) ||
 		isJetpackSearch( product ) ||
 		isJetpackScan( product ) ||
 		isJetpackAntiSpam( product ) ||
-		isJetpackVideoPress( product )
+		isJetpackVideoPress( product ) ||
+		isJetpackSocial( product )
 	);
 }
 
+/**
+ * @param product
+ */
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
 }
@@ -369,6 +414,9 @@ export function isJetpackSecurityBundle( product ) {
 	return JETPACK_SECURITY_BUNDLES.includes( product );
 }
 
+/**
+ * @param product
+ */
 export function isJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS.includes( product );
 }
@@ -383,10 +431,16 @@ export function isSecurityComparableJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES.includes( product );
 }
 
+/**
+ * @param feature
+ */
 export function getJetpackProductUpsellByFeature( feature ) {
 	return JETPACK_FEATURE_PRODUCT_UPSELL_MAP[ feature ];
 }
 
+/**
+ * @param plan
+ */
 export function getPlanClass( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_FREE:
@@ -466,11 +520,20 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
 			return 'is-realtime-backup-plan';
 
+		case PLAN_JETPACK_SOCIAL_BASIC:
+		case PLAN_JETPACK_SOCIAL_BASIC_MONTHLY:
+			return 'is-jetpack-social-basic-plan';
+		case PLAN_JETPACK_SOCIAL_PREMIUM:
+		case PLAN_JETPACK_SOCIAL_PREMIUM_MONTHLY:
+			return 'is-jetpack-social-premium-plan';
 		default:
 			return '';
 	}
 }
 
+/**
+ * @param plan
+ */
 export function getMonthlyPlanByYearly( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_PREMIUM:

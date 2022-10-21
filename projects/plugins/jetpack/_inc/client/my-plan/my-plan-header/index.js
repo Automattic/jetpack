@@ -351,6 +351,26 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack VideoPress', 'jetpack' ),
 				};
 
+			case 'is-jetpack-social-basic-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Share your content to social media sites.', 'jetpack' ),
+					title: createInterpolateElement( __( 'Jetpack Social Basic', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
+			case 'is-jetpack-social-premium-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Share your content to social media sites.', 'jetpack' ),
+					title: createInterpolateElement( __( 'Jetpack Social Premium', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
 			default:
 				return {
 					...productProps,
