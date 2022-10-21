@@ -23,10 +23,8 @@ const Template = args => <GlobalNotice { ...args } />;
 export const _default = Template.bind( {} );
 _default.args = {
 	children: 'Typical error message',
-	addConnectUserLink: true,
 	isDismissible: true,
 	status: 'error',
 
 	onRemove: action( 'onRemove' ),
-	onConnectUserClick: action( 'onConnectUserClick' ),
 };
