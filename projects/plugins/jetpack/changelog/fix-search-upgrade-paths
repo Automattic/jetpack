@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: use search dashboard CTA instead of product page which wasn't detecting if free plan is active correctly
