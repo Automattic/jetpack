@@ -35,7 +35,7 @@ Take the complexity out of self-hosting videos. VideoPress offers fully-hosted v
 ### Installation
 
 1. To begin, click on the Plugins link in the left hand sidebar, then click Add New.
-2. Search for VideoPress. The latest version will be in the search results. Click the Install Now button:
+2. Search for VideoPress. The latest version will be in the search results. Click the Install Now button.
 3. Next, click the Activate button. After activating, you will be prompted to set up VideoPress.
 
 
