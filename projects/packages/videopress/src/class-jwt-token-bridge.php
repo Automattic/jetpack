@@ -32,8 +32,7 @@ class Jwt_Token_Bridge {
 			return;
 		}
 
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_token_bridge' ), 1 );
-
+		add_action( 'init', array( __CLASS__, 'enqueue_jwt_token_bridge' ), 1 );
 	}
 
 	/**
