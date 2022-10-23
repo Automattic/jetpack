@@ -44,7 +44,7 @@ Take the complexity out of self-hosting videos. VideoPress offers fully-hosted v
 
 This is just the start!
 
-We are working hard to bring more features and improvements to VideoPress. Let us know your thoughts and ideas
+We are working hard to bring more features and improvements to VideoPress. Let us know your thoughts and ideas.
 
 
 
