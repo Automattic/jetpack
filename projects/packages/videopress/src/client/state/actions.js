@@ -57,7 +57,7 @@ const pollingUploadedVideoData = async data => {
 
 	const video = mapVideoFromWPV2MediaEndpoint( response );
 
-	if ( video?.posterImage !== null ) {
+	if ( video?.posterImage !== null && video?.posterImage !== '' ) {
 		return Promise.resolve( video );
 	}
 
