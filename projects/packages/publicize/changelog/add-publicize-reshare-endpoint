@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Social: Add the reshare endpoint for proxying the request to WPCOM
