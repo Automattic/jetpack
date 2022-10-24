@@ -19,7 +19,6 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Credentials;
-use Automattic\Jetpack\Protect\Plan;
 use Automattic\Jetpack\Protect\Protect_Status;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
@@ -183,11 +182,8 @@ class Jetpack_Protect {
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => 'admin.php?page=jetpack-protect',
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
-			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
-
-		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
 
 		return $initial_state;
 	}
@@ -355,9 +351,7 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_get_plan() {
-		$plan                 = My_Jetpack_Products::get_product( 'scan' );
-		$plan['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
-
+		$plan = My_Jetpack_Products::get_product( 'protect' );
 		return rest_ensure_response( $plan, 200 );
 	}
 

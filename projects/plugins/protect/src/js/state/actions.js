@@ -25,7 +25,7 @@ const refreshPlan = () => ( { dispatch } ) => {
 	apiFetch( {
 		path: 'jetpack-protect/v1/plan',
 		method: 'GET',
-	} ).then( jetpackScan => dispatch( setJetpackScan( jetpackScan ) ) );
+	} ).then( productData => dispatch( setProductData( productData ) ) );
 };
 
 /**
@@ -122,10 +122,6 @@ const setInstalledThemes = themes => {
 
 const setwpVersion = version => {
 	return { type: SET_WP_VERSION, version };
-};
-
-const setJetpackScan = scan => {
-	return { type: SET_JETPACK_SCAN, scan };
 };
 
 const setProductData = productData => {
@@ -332,7 +328,6 @@ const actions = {
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
-	setJetpackScan,
 	setProductData,
 	ignoreThreat,
 	setModal,
