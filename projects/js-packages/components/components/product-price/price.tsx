@@ -12,7 +12,7 @@ import type React from 'react';
  * @returns {React.ReactNode} -Price react component.
  */
 export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
-	const classNames = classnames( styles.price, {
+	const classNames = classnames( styles.price, 'product-price_price', {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );
 

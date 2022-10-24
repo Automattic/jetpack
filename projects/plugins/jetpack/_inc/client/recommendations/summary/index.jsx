@@ -11,14 +11,18 @@ import {
 	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
+	getSummaryPrimarySections,
 	getUpsell,
 	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
+	getIsOnboardingActive,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
 import { FeatureSummary } from '../feature-summary';
 import './style.scss';
+import { PrimarySummary } from '../feature-summary/primary';
 import { ResourceSummary } from '../feature-summary/resource';
 import { MobileApp } from '../sidebar/mobile-app';
 import { OneClickRestores } from '../sidebar/one-click-restores';
@@ -35,12 +39,15 @@ const SummaryComponent = props => {
 		siteTitle,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
+		summaryPrimarySections,
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		upsell,
+		isOnboardingActive,
 		newRecommendations,
 		stateStepSlug,
 		updatingStep,
+		updateOnboardingData,
 	} = props;
 
 	useEffect( () => {
@@ -50,6 +57,12 @@ const SummaryComponent = props => {
 			addViewedRecommendation( 'summary' );
 		}
 	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
+
+	useEffect( () => {
+		if ( isOnboardingActive ) {
+			updateOnboardingData( { active: null } );
+		}
+	}, [ updateOnboardingData, isOnboardingActive ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -67,25 +80,41 @@ const SummaryComponent = props => {
 						siteTitle
 					) }
 				</h1>
-				<section aria-labelledby="enabled-recommendations">
-					<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
-					<div>
-						{ summaryFeatureSlugs.selected.length > 0 ? (
-							summaryFeatureSlugs.selected.map( slug => (
-								<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
-							) )
-						) : (
-							<p className="jp-recommendations-summary__recommendation-notice">
-								<em>
-									{ __(
-										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
-										'jetpack'
-									) }
-								</em>
-							</p>
-						) }
-					</div>
-				</section>
+				{ summaryPrimarySections.map( ( { name, slugs } ) => (
+					<section key={ name } aria-labelledby={ `primary-onboarding-${ name }` }>
+						<h2 id={ `primary-onboarding-${ name }` }>
+							{ sprintf(
+								/* translators: %s is the jetpack plan name */
+								__( 'Part of your %s plan', 'jetpack' ),
+								name
+							) }
+						</h2>
+						{ slugs.map( slug => (
+							<PrimarySummary key={ slug } slug={ slug } />
+						) ) }
+					</section>
+				) ) }
+				{ ( summaryFeatureSlugs.selected.length > 0 || summaryFeatureSlugs.skipped.length > 0 ) && (
+					<section aria-labelledby="enabled-recommendations">
+						<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
+						<div>
+							{ summaryFeatureSlugs.selected.length > 0 ? (
+								summaryFeatureSlugs.selected.map( slug => (
+									<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
+								) )
+							) : (
+								<p className="jp-recommendations-summary__recommendation-notice">
+									<em>
+										{ __(
+											'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
+											'jetpack'
+										) }
+									</em>
+								</p>
+							) }
+						</div>
+					</section>
+				) }
 				{ summaryFeatureSlugs.skipped.length > 0 && (
 					<section aria-labelledby="skipped-recommendations">
 						<h2 id="skipped-recommendations">{ __( 'Recommendations skipped', 'jetpack' ) }</h2>
@@ -202,13 +231,17 @@ const Summary = connect(
 			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			summaryPrimarySections: getSummaryPrimarySections( state ),
 			stateStepSlug: getStep( state ),
 			updatingStep: isUpdatingRecommendationsStep( state ),
+			isOnboardingActive: getIsOnboardingActive( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		updateOnboardingData: onboardingData =>
+			dispatch( updateRecommendationsOnboardingDataAction( onboardingData ) ),
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );

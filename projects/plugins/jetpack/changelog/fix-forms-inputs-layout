@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Change forms layout flex styles. Remove input's right border (used for spacing). Improve flex directives on 25, 50 and 75 wrappers.

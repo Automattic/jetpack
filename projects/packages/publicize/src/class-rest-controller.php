@@ -70,6 +70,38 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/publicize/(?P<postId>\d+)',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'share_post' ),
+				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
+				'args'                => array(
+					'message'             => array(
+						'description'       => __( 'The message to share.', 'jetpack-publicize-pkg' ),
+						'type'              => 'string',
+						'required'          => true,
+						'validate_callback' => function ( $param ) {
+							return is_string( $param );
+						},
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'skipped_connections' => array(
+						'description'       => __( 'Array of external connection IDs to skip sharing.', 'jetpack-publicize-pkg' ),
+						'type'              => 'array',
+						'required'          => false,
+						'validate_callback' => function ( $param ) {
+							return is_array( $param );
+						},
+						'sanitize_callback' => function ( $param ) {
+							return array_map( 'absint', $param );
+						},
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -123,6 +155,46 @@ class REST_Controller {
 		global $publicize;
 		$response = $publicize->get_publicize_shares_count( $this->get_blog_id() );
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Calls the WPCOM endpoint to reshare the post.
+	 *
+	 * POST jetpack/v4/publicize/(?P<postId>\d+)
+	 *
+	 * @param WP_Request $request The request object, which includes the parameters.
+	 */
+	public function share_post( $request ) {
+		$post_id             = $request->get_param( 'postId' );
+		$message             = trim( $request->get_param( 'message' ) );
+		$skip_connection_ids = $request->get_param( 'skipped_connections' );
+
+		/*
+		 * Publicize endpoint on WPCOM:
+		 * [POST] wpcom/v2/sites/{$siteId}/posts/{$postId}/publicize
+		 * body:
+		 *   - message: string
+		 *   - skipped_connections: array of connection ids to skip
+		 */
+		$url = sprintf(
+			'/sites/%d/posts/%d/publicize',
+			$this->get_blog_id(),
+			$post_id
+		);
+
+		$response = Client::wpcom_json_api_request_as_user(
+			$url,
+			'v2',
+			array(
+				'method' => 'POST',
+			),
+			array(
+				'message'             => $message,
+				'skipped_connections' => $skip_connection_ids,
+			)
+		);
+
+		return rest_ensure_response( $this->make_proper_response( $response ) );
 	}
 
 	/**

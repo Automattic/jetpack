@@ -103,7 +103,7 @@ class Search extends Hybrid_Product {
 		return array(
 			__( 'Instant search and indexing', 'jetpack-my-jetpack' ),
 			__( 'Powerful filtering', 'jetpack-my-jetpack' ),
-			__( 'Supports 29 languages', 'jetpack-my-jetpack' ),
+			__( 'Supports 38 languages', 'jetpack-my-jetpack' ),
 			__( 'Spelling correction', 'jetpack-my-jetpack' ),
 		);
 	}
@@ -118,6 +118,7 @@ class Search extends Hybrid_Product {
 		$pricing = array_merge(
 			array(
 				'available'               => true,
+				'trial_available'         => static::has_trial_support(),
 				'wpcom_product_slug'      => static::get_wpcom_product_slug(),
 				'wpcom_free_product_slug' => static::get_wpcom_free_product_slug(),
 			),
@@ -155,11 +156,21 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose.
+	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose, or it's active.
 	 */
 	public static function is_new_pricing_202208() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		return isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'];
+		if ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) {
+			return true;
+		}
+
+		$record_count   = intval( Search_Stats::estimate_count() );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+		if ( is_wp_error( $search_pricing ) ) {
+			return false;
+		}
+
+		return '202208' === $search_pricing['pricing_version'];
 	}
 
 	/**
@@ -167,10 +178,6 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-
-		if ( $status === 'needs_purchase' && self::is_new_pricing_202208() ) {
-			$status = 'needs_purchase_or_free';
-		}
 		return $status;
 	}
 
@@ -247,6 +254,19 @@ class Search extends Hybrid_Product {
 		$body   = wp_remote_retrieve_body( $response );
 		$status = json_decode( $body );
 		return $status;
+	}
+
+	/**
+	 * Checks whether the product supports trial or not
+	 *
+	 * Returns true if it supports. Return false otherwise.
+	 *
+	 * Free products will always return false.
+	 *
+	 * @return boolean
+	 */
+	public static function has_trial_support() {
+		return static::is_new_pricing_202208();
 	}
 
 	/**
