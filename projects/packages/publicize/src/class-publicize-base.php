@@ -856,16 +856,12 @@ abstract class Publicize_Base {
 					$enabled = true;
 				}
 
-				$connection_result = $this->test_connection( $service_name, $connection );
-
 				$connection_list[] = array(
 					'unique_id'       => $unique_id,
 					'service_name'    => $service_name,
 					'service_label'   => $this->get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
-					'is_healthy'      => true === $connection_result,
-
 					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
