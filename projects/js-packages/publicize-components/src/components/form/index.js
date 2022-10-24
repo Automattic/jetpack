@@ -7,13 +7,13 @@
  */
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Connection as PublicizeConnection } from '@automattic/jetpack-publicize-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import PublicizeConnection from '../connection';
 import MessageBoxControl from '../message-box-control';
 import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
@@ -24,7 +24,6 @@ import styles from './styles.module.scss';
  *
  * @param {object} props                                - The component props.
  * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
- * @param {boolean} props.isRePublicizeFeatureEnabled   - True if the RePublicize feature is available.
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @param {string} props.connectionsAdminUrl               - URL to the Admin connections page
@@ -32,7 +31,6 @@ import styles from './styles.module.scss';
  */
 export default function PublicizeForm( {
 	isPublicizeEnabled,
-	isRePublicizeFeatureEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	connectionsAdminUrl,
@@ -45,8 +43,6 @@ export default function PublicizeForm( {
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
-	const isDisabled = () =>
-		! isRePublicizeFeatureEnabled && connections.every( connection => ! connection.toggleable );
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
@@ -58,7 +54,7 @@ export default function PublicizeForm( {
 		<Wrapper>
 			{ hasConnections && (
 				<>
-					{ ! isDisabled() && numberOfSharesRemaining !== null && (
+					{ numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
 								{ createInterpolateElement(
@@ -115,7 +111,7 @@ export default function PublicizeForm( {
 								} ) => (
 									<PublicizeConnection
 										disabled={
-											( isRePublicizeFeatureEnabled ? ! isPublicizeEnabled : ! toggleable ) ||
+											! isPublicizeEnabled ||
 											( ! enabled && toggleable && outOfConnections ) ||
 											false === is_healthy
 										}
@@ -140,7 +136,6 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<MessageBoxControl
-							disabled={ isDisabled() }
 							maxLength={ maxLength }
 							onChange={ updateMessage }
 							message={ message }
