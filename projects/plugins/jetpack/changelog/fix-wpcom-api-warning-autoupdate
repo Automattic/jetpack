@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: This fixes a warning, nothing special here
+Comment: Fix a warning that is thrown when plugins are auto-updated.
 
 
