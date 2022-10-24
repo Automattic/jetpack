@@ -34,6 +34,7 @@ const PublicizePanel = ( { prePublish } ) => {
 		hasPaidPlan,
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
+		connectionsAdminUrl,
 	} = usePublicizeConfig();
 
 	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isPublicizeDisabledBySitePlan;
@@ -92,6 +93,7 @@ const PublicizePanel = ( { prePublish } ) => {
 					<PublicizeForm
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
+						connectionsAdminUrl={ connectionsAdminUrl }
 						numberOfSharesRemaining={
 							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 						}
