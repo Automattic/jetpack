@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
 
 /**
@@ -21,13 +22,38 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
+	const numCoreThreats = useMemo( () => status.core?.threat?.length || 0, [ status.core ] );
+
+	const numPluginsThreats = useMemo(
+		() =>
+			( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
+				return numThreats + plugin.threats.length;
+			}, 0 ),
+		[ status.plugins ]
+	);
+
+	const numThemesThreats = useMemo(
+		() =>
+			( status.themes || [] ).reduce( ( numThreats, theme ) => {
+				return numThreats + theme.threats.length;
+			}, 0 ),
+		[ status.themes ]
+	);
+
+	const numFilesThreats = useMemo( () => status.files?.length || 0, [ status.files ] );
+
+	const numDatabaseThreats = useMemo( () => status.database?.length || 0, [ status.database ] );
+
+	const numThreats =
+		numCoreThreats + numPluginsThreats + numThemesThreats + numFilesThreats + numDatabaseThreats;
+
 	return {
-		numThreats: status.numThreats || 0,
-		numCoreThreats: status.core?.threats?.length || 0,
-		numPluginsThreats: status.numPluginsThreats || 0,
-		numThemesThreats: status.numThemesThreats || 0,
-		numFilesThreats: status.files?.length || 0,
-		numDatabaseThreats: status.database?.length || 0,
+		numThreats,
+		numCoreThreats,
+		numPluginsThreats,
+		numThemesThreats,
+		numFilesThreats,
+		numDatabaseThreats,
 		lastChecked: status.lastChecked || null,
 		errorCode: status.errorCode || null,
 		errorMessage: status.errorMessage || null,
