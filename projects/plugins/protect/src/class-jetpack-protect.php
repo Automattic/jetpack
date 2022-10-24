@@ -181,7 +181,7 @@ class Jetpack_Protect {
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
-			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
+			'adminUrl'          => 'admin.php?page=jetpack-protect',
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
