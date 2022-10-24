@@ -11,26 +11,34 @@ import React from 'react';
 
 import './style.scss';
 
-// Format numbers with separators.
-const formatNumberWithSeparators = x => {
+const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
+
+// Format numbers with separators or convert to `Unlimited`.
+export const formatNumber = x => {
+	if ( x > 1e18 ) {
+		return localizedUnlimited;
+	}
+
 	return numberFormat( x );
 };
 
 const usageInfoMessage = ( current, limit ) => {
 	const isUnlimitedRequests = limit > 1e18;
+
 	// Standard case of current/limit.
 	if ( ! isUnlimitedRequests ) {
-		return formatNumberWithSeparators( current ) + '/' + formatNumberWithSeparators( limit );
+		return `${ formatNumber( current ) } / ${ formatNumber( limit ) }`;
 	}
+
 	// Special case for "unlimited" requests. API returning 64-bit PHP_INT_MAX.
 	// Return "Unlimited" if the current count is zero.
-	const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
 	if ( current === 0 ) {
 		return localizedUnlimited;
 	}
+
 	// We have a request count so include it in the info string.
 	// ie: "123/Unlimited"
-	return `${ formatNumberWithSeparators( current ) }/${ localizedUnlimited }`;
+	return `${ formatNumber( current ) } / ${ localizedUnlimited }`;
 };
 
 /**
@@ -59,7 +67,7 @@ const DonutMeterContainer = ( {
 	const usageInfo = usageInfoMessage( current, limit );
 
 	const tooltipArgs = {
-		shadowAnchor: true,
+		popoverAnchorStyle: 'wrapper',
 		title: tooltip.title,
 		placement: 'top',
 		forceShow: tooltip.forceShow,
@@ -72,7 +80,7 @@ const DonutMeterContainer = ( {
 					<DonutMeter
 						segmentCount={ displayCurrent }
 						totalCount={ displayLimit }
-						useAdaptiveColors
+						useAdaptiveColors={ ! isUnlimitedRequests }
 					/>
 					<div className="upgrade-tooltip-shadow-anchor">
 						<IconTooltip { ...tooltipArgs }>

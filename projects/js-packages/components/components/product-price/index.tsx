@@ -57,10 +57,12 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 						/>
 					) }
 				</div>
+			</div>
+			<div className={ styles.footer }>
+				{ children ? children : <Text className={ styles.legend }>{ legend }</Text> }
 				{ promoLabel && <Text className={ styles[ 'promo-label' ] }>{ promoLabel }</Text> }
 				{ discountElt && <Text className={ styles[ 'promo-label' ] }>{ discountElt }</Text> }
 			</div>
-			{ children ? children : <Text className={ styles.legend }>{ legend }</Text> }
 		</>
 	);
 };

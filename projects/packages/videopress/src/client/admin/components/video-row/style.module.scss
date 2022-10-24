@@ -8,9 +8,17 @@
 	padding: calc( var(--spacing-base) * 2 ) var(--spacing-base); // 16px | 8px
 	background-color: var(--jp-white);
 	gap: calc( var(--spacing-base) * 2 ); // 16px
-	cursor: pointer;
 
-	&:hover, &.pressed {
+	&.disabled {
+		color: var(--jp-gray-10);
+	}
+
+	&:not(.disabled) {
+		cursor: pointer;
+	}
+
+	&:hover:not(.disabled),
+	&.pressed:not(.disabled) {
 		background-color: var(--jp-gray-0);
 	}
 
@@ -81,6 +89,8 @@
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
+		display: flex;
+		align-items: center;
 	}
 
 	.label {

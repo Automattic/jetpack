@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+
+Connection: add getWpcomUser() and getBlogId() selectors.
+

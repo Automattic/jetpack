@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Don't show old price when it's the same as new one

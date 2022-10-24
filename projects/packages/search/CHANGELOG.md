@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.0] - 2022-10-19
+### Added
+- Search: enable new pricing if pricing_version is set to 202208 from API [#26900]
+
+### Changed
+- Updated package dependencies. [#26808]
+- Use API values for paid allowance limits shown in the new pricing table [#26895]
+
+## [0.28.0] - 2022-10-17
+### Changed
+- Check free plan by product_slug and disable Module Control only on free plan. [#26849]
+- Fetch checkoutProductUrl for upgrade flow redirection. [#26848]
+- Introduce GET param just_upgraded and localStorage upgrade_tooltip_finished to determine the tooltips showing. [#26828]
+- Refactor upgrade tooltips. [#26851]
+- Search: always add Search Dashboard page even when submenu is hidden [#26807]
+- Search Dashboard: Add missing CTAs and associated logic. [#26852]
+- Search Dashboard: Add siteTitle to plugin/package data. [#26816]
+- Search Dashboard: Better handling of "Unlimited" requests. [#26813]
+- Search Dashboard: Disable adaptive colors for Unlimited requests state. [#26850]
+- Search Dashboard: Fix responsive layouts for usage meters. [#26815]
+- Search Dashboard: Remove code duplication for support link. [#26811]
+- Search Dashboard: Update Plan Usage section to remove info icons. [#26812]
+- Updated package dependencies. [#26851]
+- Use adaptive coloring for donut meters in search dashboard [#26847]
+
 ## [0.27.0] - 2022-10-13
 ### Added
 - Add connection error notice to the Search plugin. [#26778]
@@ -549,6 +574,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.29.0]: https://github.com/Automattic/jetpack-search/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/jetpack-search/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/Automattic/jetpack-search/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/Automattic/jetpack-search/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/Automattic/jetpack-search/compare/v0.24.0...v0.25.0

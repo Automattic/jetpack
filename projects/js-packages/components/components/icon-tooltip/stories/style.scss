@@ -1,4 +1,4 @@
-.upgrade-tooltip-shadow-anchor {
+.tooltip-wrapper-anchor {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -26,7 +26,7 @@
 		font-size: var( --font-body );
 	}
 
-	.upgrade-tooltip-actions {
+	.tooltip-actions {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;

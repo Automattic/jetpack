@@ -60,12 +60,12 @@ export type IconTooltipProps = {
 	offset?: number;
 
 	/**
-	 * Keep the Popover placement aligned with its parent wrapper rather than the icon.
+	 * Set the Popover anchor for its alignment with placement.
 	 */
-	shadowAnchor?: boolean;
+	popoverAnchorStyle?: 'icon' | 'wrapper';
 
 	/**
-	 * Force the Popover to show without event triggering.
+	 * Force the Popover to show without an event trigger.
 	 */
 	forceShow?: boolean;
 };

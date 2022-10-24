@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { uploadVideo as videoPressUpload, getJWT } from '../hooks/use-uploader';
+import { uploadVideo as videoPressUpload, getJWT, uploadFromLibrary } from '../hooks/use-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -35,8 +35,38 @@ import {
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
+	WP_REST_API_VIDEOPRESS_ENDPOINT,
+	UPDATE_VIDEO_POSTER,
+	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
+	SET_USERS_PAGINATION,
+	SET_LOCAL_VIDEO_UPLOADED,
+	SET_IS_FETCHING_PLAYBACK_TOKEN,
+	SET_PLAYBACK_TOKEN,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
+
+/**
+ * Utility function to pool the video data until poster is ready.
+ */
+
+const pollingUploadedVideoData = async data => {
+	const response = await apiFetch( {
+		path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+	} );
+
+	const video = mapVideoFromWPV2MediaEndpoint( response );
+
+	if ( video?.posterImage !== null && video?.posterImage !== '' ) {
+		return Promise.resolve( video );
+	}
+
+	return pollingUploadedVideoData( video );
+};
+
+/**
+ * ACTIONS
+ */
 
 const setIsFetchingVideos = isFetching => {
 	return { type: SET_IS_FETCHING_VIDEOS, isFetching };
@@ -191,20 +221,6 @@ const deleteVideo = id => async ( { dispatch } ) => {
 const uploadVideo = file => async ( { dispatch } ) => {
 	const tempId = uid();
 
-	const poolingUploadedVideoData = async data => {
-		const response = await apiFetch( {
-			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
-		} );
-
-		const video = mapVideoFromWPV2MediaEndpoint( response );
-
-		if ( video?.posterImage !== null ) {
-			dispatch( { type: UPLOADED_VIDEO, video } );
-		} else {
-			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
-		}
-	};
-
 	// @todo: implement progress and error handler
 	const noop = () => {};
 
@@ -213,16 +229,35 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	// @todo: this should be stored in the state
 	const jwt = await getJWT();
 
+	const onSuccess = async data => {
+		dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+		const video = await pollingUploadedVideoData( data );
+		dispatch( { type: UPLOADED_VIDEO, video } );
+	};
+
 	videoPressUpload( {
 		data: jwt,
 		file,
 		onError: noop,
 		onProgress: noop,
-		onSuccess: data => {
-			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
-			poolingUploadedVideoData( data );
-		},
+		onSuccess,
 	} );
+};
+
+/**
+ * Thunk action to upload local videos for VideoPress.
+ *
+ * @param {object} file - File data
+ * @returns {Function} Thunk action
+ */
+const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
+	const tempId = uid();
+	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.title } );
+	const data = await uploadFromLibrary( file?.id );
+	dispatch( { type: SET_LOCAL_VIDEO_UPLOADED, id: file?.id } );
+	dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+	const video = await pollingUploadedVideoData( data );
+	dispatch( { type: UPLOADED_VIDEO, video } );
 };
 
 const setIsFetchingPurchases = isFetching => {
@@ -231,6 +266,61 @@ const setIsFetchingPurchases = isFetching => {
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
+	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
+
+	const pollPoster = () => {
+		setTimeout( async () => {
+			try {
+				const resp = await apiFetch( { path, method: 'GET' } );
+
+				if ( resp?.data?.generating ) {
+					pollPoster();
+				} else {
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+				}
+			} catch ( error ) {
+				// @todo implement error handling / UI
+				// eslint-disable-next-line no-console
+				console.error( error );
+			}
+		}, 2000 );
+	};
+
+	try {
+		dispatch( { type: SET_UPDATING_VIDEO_POSTER, id } );
+
+		const resp = await apiFetch( { method: 'POST', path, data } );
+
+		if ( resp?.data?.generating ) {
+			// Poll the poster image until generated
+			pollPoster();
+			return;
+		}
+
+		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+	} catch ( error ) {
+		// @todo: implement error handling / UI
+		console.error( error ); // eslint-disable-line no-console
+	}
+};
+
+const setUsers = users => {
+	return { type: SET_USERS, users };
+};
+
+const setUsersPagination = pagination => {
+	return { type: SET_USERS_PAGINATION, pagination };
+};
+
+const setIsFetchingPlaybackToken = isFetching => {
+	return { type: SET_IS_FETCHING_PLAYBACK_TOKEN, isFetching };
+};
+
+const setPlaybackToken = playbackToken => {
+	return { type: SET_PLAYBACK_TOKEN, playbackToken };
 };
 
 const actions = {
@@ -259,8 +349,18 @@ const actions = {
 	deleteVideo,
 
 	uploadVideo,
+	uploadVideoFromLibrary,
+
 	setIsFetchingPurchases,
 	setPurchases,
+
+	updateVideoPoster,
+
+	setUsers,
+	setUsersPagination,
+
+	setIsFetchingPlaybackToken,
+	setPlaybackToken,
 };
 
 export { actions as default };

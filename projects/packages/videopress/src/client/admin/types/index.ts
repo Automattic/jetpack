@@ -35,7 +35,7 @@ export type OriginalVideoPressVideo = {
 			/**
 			 * Video uploaded date in UTC
 			 */
-			upload_date: number;
+			upload_date: string;
 			/**
 			 * Video duration, in milliseconds
 			 */
@@ -140,13 +140,45 @@ export type VideoPressVideo = {
 
 export type LocalVideo = {
 	/**
+	 * Video ID
+	 */
+	id: number | string;
+	/**
 	 * Video title
 	 */
 	title: string;
 	/**
+	 * Video description
+	 */
+	description: string;
+	/**
+	 * Video caption
+	 */
+	caption: string;
+	/**
+	 * Media width.
+	 */
+	width: number;
+	/**
+	 * Media height.
+	 */
+	height: number;
+	/**
+	 * Video URL.
+	 */
+	url: string;
+	/**
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+	/**
+	 * Video duration, in milliseconds
+	 */
+	duration: number;
+	/**
+	 * Flag to indicate if the video is already uploaded or not to VideoPress.
+	 */
+	isUploadedToVideoPress: boolean;
 };
 
 export type MetadataVideo = {
@@ -156,15 +188,21 @@ export type MetadataVideo = {
 	hasBeenDeleted?: boolean;
 	uploading?: boolean;
 	processing?: boolean;
+	isUpdatingPrivacy?: boolean;
+	isUpdatingPoster?: boolean;
 };
 
 export type VideopressSelectors = {
+	isFetchingPurchases: () => boolean;
 	getVideo: ( id: number | string ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
+
+	getPlaybackToken: ( guid: string ) => { guid: string; token: string };
+	isFetchingPlaybackToken: () => boolean;
 
 	getUploadedLocalVideoCount: () => number;
 };
