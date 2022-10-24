@@ -16,7 +16,7 @@
 		"automattic/jetpack-action-bar": "0.1.x-dev",
 		"automattic/jetpack-assets": "1.17.x-dev",
 		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-backup": "1.9.x-dev",
+		"automattic/jetpack-backup": "1.10.x-dev",
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.7.x-dev",
 		"automattic/jetpack-composer-plugin": "1.1.x-dev",
