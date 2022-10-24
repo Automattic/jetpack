@@ -30,12 +30,32 @@ import {
 
 const { apiRoot } = window?.jetpackVideoPressInitialState || {};
 
+/**
+ * Helper function to populate some video data
+ * that requires a token.
+ *
+ * @param {object} video         - Video object.
+ * @param {object} resolveSelect - Containing the store’s selectors pre-bound to state
+ * @returns {object}               Tokenized video data object.
+ */
+async function populateVideoDataWithToken( video, resolveSelect ) {
+	if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] !== VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		return video;
+	}
+
+	const { token } = await resolveSelect.getPlaybackToken( video.guid );
+	video.posterImage += `?metadata_token=${ token }`;
+	video.thumbnail += `?metadata_token=${ token }`;
+
+	return video;
+}
+
 const getVideos = {
 	isFulfilled: state => {
 		return state?.videos?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch, select } ) => {
+	fulfill: () => async ( { dispatch, select, resolveSelect } ) => {
 		dispatch.setIsFetchingVideos( true );
 
 		let query = select.getVideosQuery();
@@ -108,7 +128,17 @@ const getVideos = {
 			// ... and the videos data from the response body.
 			const videos = await response.json();
 
-			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videos ) );
+			/*
+			 * Map videos from the API to the format expected by the app,
+			 * and tokenize some data when the video is private.
+			 */
+			const mappedVideos = await Promise.all(
+				mapVideosFromWPV2MediaEndpoint( videos ).map( async video => {
+					return await populateVideoDataWithToken( video, resolveSelect );
+				} )
+			);
+
+			dispatch.setVideos( mappedVideos );
 			return videos;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
@@ -118,26 +148,6 @@ const getVideos = {
 		return type === SET_VIDEOS_QUERY || type === DELETE_VIDEO || type === SET_VIDEOS_FILTER;
 	},
 };
-
-/**
- * Helper function to populate some video data
- * that requires a token.
- *
- * @param {object} video         - Video object.
- * @param {object} resolveSelect - Containing the store’s selectors pre-bound to state
- * @returns {object}               Tokenized video data object.
- */
-async function populateVideoDataWithToken( video, resolveSelect ) {
-	if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] !== VIDEO_PRIVACY_LEVEL_PRIVATE ) {
-		return video;
-	}
-
-	const { token } = await resolveSelect.getPlaybackToken( video.guid );
-	video.posterImage += `?metadata_token=${ token }`;
-	video.thumbnail += `?metadata_token=${ token }`;
-
-	return video;
-}
 
 const getVideo = {
 	isFulfilled: ( state, id ) => {
