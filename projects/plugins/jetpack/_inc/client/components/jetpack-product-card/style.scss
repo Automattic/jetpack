@@ -96,10 +96,17 @@
 			font-size: 0.75rem;
 			margin-top: -0.75rem;
 		}
+	}
 
-		// Final price
-		&:last-child {
-			color: var( --jp-gray-100 );
+	// Final price
+	.product-price_leyend {
+		color: var( --jp-gray-40 );
+		font-size: 14px; // --font-body-small
+		line-height: 20px;
+		font-weight: 400;
+
+		&::after {
+			content: "\200B"; // Pseudo element to keep height
 		}
 	}
 
