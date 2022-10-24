@@ -201,5 +201,8 @@ export type VideopressSelectors = {
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
 
+	getPlaybackToken: ( guid: string ) => { guid: string; token: string };
+	isFetchingPlaybackToken: () => boolean;
+
 	getUploadedLocalVideoCount: () => number;
 };

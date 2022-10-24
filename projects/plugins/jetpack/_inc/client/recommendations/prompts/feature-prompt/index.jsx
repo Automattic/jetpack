@@ -14,6 +14,7 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 	startFeatureInstall as startFeatureInstallAction,
 	endFeatureInstall as endFeatureInstallAction,
+	getOnboardingStepProgressValueIfEligible,
 	getNextRoute,
 	getStep,
 	isUpdatingRecommendationsStep,
@@ -22,6 +23,7 @@ import {
 	isFeatureActive,
 	isStepViewed,
 	getProductSlugForStep,
+	getIsOnboardingActive,
 } from 'state/recommendations';
 import { DEFAULT_ILLUSTRATION } from '../../constants';
 import {
@@ -31,7 +33,9 @@ import {
 } from '../../feature-utils';
 import DiscountCard from '../../sidebar/discount-card';
 import { ProductSpotlight } from '../../sidebar/product-spotlight';
+import { StepProgressBar } from '../../step-progress-bar';
 import { PromptLayout } from '../prompt-layout';
+
 const FeaturePromptComponent = props => {
 	const {
 		activateFeature,
@@ -48,6 +52,7 @@ const FeaturePromptComponent = props => {
 		illustration,
 		nextRoute,
 		progressValue,
+		stepProgressValue,
 		question,
 		stepSlug,
 		stateStepSlug,
@@ -139,11 +144,21 @@ const FeaturePromptComponent = props => {
 		sidebarCard = <DiscountCard />;
 	}
 
+	const progressBarComponent = useMemo( () => {
+		if ( stepProgressValue ) {
+			return <StepProgressBar { ...stepProgressValue } />;
+		}
+
+		if ( progressValue ) {
+			return <ProgressBar color={ '#00A32A' } value={ progressValue } />;
+		}
+
+		return null;
+	}, [ stepProgressValue, progressValue ] );
+
 	return (
 		<PromptLayout
-			progressBar={
-				progressValue ? <ProgressBar color={ '#00A32A' } value={ progressValue } /> : null
-			}
+			progressBar={ progressBarComponent }
 			isNew={ isNew }
 			question={ question }
 			description={ createInterpolateElement( description, {
@@ -225,7 +240,7 @@ const FeaturePromptComponent = props => {
 const FeaturePrompt = connect(
 	( state, ownProps ) => ( {
 		nextRoute: getNextRoute( state ),
-		...getStepContent( ownProps.stepSlug ),
+		...getStepContent( state, ownProps.stepSlug ),
 		...mapStateToSummaryFeatureProps( state, ownProps.stepSlug ),
 		stateStepSlug: getStep( state ),
 		updatingStep: isUpdatingRecommendationsStep( state ),
@@ -234,6 +249,12 @@ const FeaturePrompt = connect(
 		featureActive: isFeatureActive( state, ownProps.stepSlug ),
 		summaryViewed: isStepViewed( state, 'summary' ),
 		spotlightProduct: getProductSlugForStep( state, ownProps.stepSlug ),
+		...( getIsOnboardingActive( state )
+			? {
+					stepProgressValue: getOnboardingStepProgressValueIfEligible( state ),
+					summaryViewed: false,
+			  }
+			: {} ),
 	} ),
 	( dispatch, ownProps ) => ( {
 		addSelectedRecommendation: stepSlug => dispatch( addSelectedRecommendationAction( stepSlug ) ),
