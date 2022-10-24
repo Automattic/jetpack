@@ -487,23 +487,19 @@ class Tokens {
 	 *
 	 * @todo Refactor to properly load the XMLRPC client independently.
 	 *
-	 * @param int  $user_id The user identifier.
-	 * @param bool $can_overwrite_primary_user Allow for the primary user to be disconnected, deprecated.
+	 * @param int       $user_id The user identifier.
+	 * @param bool|null $deprecated Deprecated.
 	 *
 	 * @return bool Whether the disconnection of the user was successful.
 	 */
-	public function disconnect_user( $user_id, $can_overwrite_primary_user = false ) {
+	public function disconnect_user( $user_id, $deprecated = null ) {
 		$tokens = $this->get_user_tokens();
 		if ( ! $tokens ) {
 			return false;
 		}
 
-		if ( false !== $can_overwrite_primary_user ) {
+		if ( null !== $deprecated ) {
 			_deprecated_argument( __METHOD__, '$$next-version$$', 'Parameter $can_overwrite_primary_user is deprecated' );
-		}
-
-		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
-			return false;
 		}
 
 		if ( ! isset( $tokens[ $user_id ] ) ) {
