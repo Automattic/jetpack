@@ -22,9 +22,10 @@ class Premium_Pricing {
 		}
 
 		$constants['pricing']['yearly'] = array(
-			'priceBefore'  => $yearly_pricing['full_price'],
-			'priceAfter'   => $yearly_pricing['discount_price'],
-			'currencyCode' => $yearly_pricing['currency_code'],
+			'priceBefore'         => $yearly_pricing['full_price'],
+			'priceAfter'          => $yearly_pricing['discount_price'],
+			'currencyCode'        => $yearly_pricing['currency_code'],
+			'isIntroductoryOffer' => $yearly_pricing['is_introductory_offer'] === true,
 		);
 		return $constants;
 	}
