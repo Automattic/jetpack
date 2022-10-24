@@ -44,8 +44,13 @@ async function populateVideoDataWithToken( video, resolveSelect ) {
 	}
 
 	const { token } = await resolveSelect.getPlaybackToken( video.guid );
-	video.posterImage += `?metadata_token=${ token }`;
-	video.thumbnail += `?metadata_token=${ token }`;
+	if ( ! /metadata_token=/.test( video.posterImage ) ) {
+		video.posterImage += `?metadata_token=${ token }`;
+	}
+
+	if ( ! /metadata_token=/.test( video.thumbnail ) ) {
+		video.thumbnail += `?metadata_token=${ token }`;
+	}
 
 	return video;
 }
