@@ -21,8 +21,8 @@ export const name = 'contact-form';
 
 const icon = renderMaterialIcon(
 	<Path
-		fill-rule="evenodd"
-		clip-rule="evenodd"
+		fillRule="evenodd"
+		clipRule="evenodd"
 		d="M4 4H12V5.5H4V4ZM18.5 8V9H5.5V8H18.5ZM4 10.5H20V6.5H4V10.5ZM18.5 17.5V18.5H5.5V17.5H18.5ZM20 20V16H4V20H20ZM12 13.5H4V15H12V13.5Z"
 		fill={ getIconColor() }
 	/>
