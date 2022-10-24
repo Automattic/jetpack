@@ -119,9 +119,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 				// get_space_used() checks blog upload directory storage,
 				// so filter it temporarily to return only video storage used.
-				if ( function_exists( 'videopress_filter_jetpack_get_space_used' ) ) {
-					add_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
-				}
+				add_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
 
 				$media_items = $jetpack_sync->upload_media( $jetpack_media_files, $this->api );
 
