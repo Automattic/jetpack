@@ -110,6 +110,9 @@ class Jetpack_Connection_Widget {
 				<p class="jp-connection-widget__paragraph">
 					<?php esc_html_e( 'You’re missing out on great Jetpack features, sign up to set up.', 'jetpack' ); ?>
 				</p>
+				<p class="jp-connection-widget__tos-blurb">
+					<?php jetpack_render_tos_blurb(); ?>
+				</p>
 				<p class="jp-connection_widget__button-container">
 					<a class="jp-connection-widget__button" href="<?php echo esc_url( $connect_url ); ?>"><?php esc_html_e( 'Set up Jetpack for free', 'jetpack' ); ?></a>
 				</p>
