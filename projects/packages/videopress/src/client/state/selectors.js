@@ -88,6 +88,16 @@ export const getUsersPagination = state => {
 	return state?.users?.pagination;
 };
 
+export const getPlaybackToken = ( state, guid ) => {
+	const tokens = state?.playbackTokens?.items || [];
+	const token = tokens.find( t => t?.guid === guid );
+	return token;
+};
+
+export const isFetchingPlaybackToken = state => {
+	return state?.playbackTokens?.isFetching;
+};
+
 const selectors = {
 	// VideoPress videos
 	getVideos,
@@ -115,6 +125,9 @@ const selectors = {
 
 	getPurchases,
 	isFetchingPurchases,
+
+	getPlaybackToken,
+	isFetchingPlaybackToken,
 };
 
 export default selectors;

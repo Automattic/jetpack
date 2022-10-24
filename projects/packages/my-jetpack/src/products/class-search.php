@@ -155,11 +155,21 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose.
+	 * Returns true if the new_pricing_202208 is set to not empty in URL for testing purpose, or it's active.
 	 */
 	public static function is_new_pricing_202208() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-		return isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'];
+		if ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) {
+			return true;
+		}
+
+		$record_count   = intval( Search_Stats::estimate_count() );
+		$search_pricing = static::get_pricing_from_wpcom( $record_count );
+		if ( is_wp_error( $search_pricing ) ) {
+			return false;
+		}
+
+		return '202208' === $search_pricing['pricing_version'];
 	}
 
 	/**

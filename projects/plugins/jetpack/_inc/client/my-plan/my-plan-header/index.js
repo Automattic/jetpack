@@ -267,6 +267,14 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Search', 'jetpack' ),
 				};
 
+			case 'is-free-search-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
+					title: __( 'Jetpack Search Free', 'jetpack' ),
+				};
+
 			case 'is-scan-plan':
 				return {
 					...productProps,
