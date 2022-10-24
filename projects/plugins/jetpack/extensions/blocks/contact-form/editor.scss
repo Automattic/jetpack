@@ -23,11 +23,11 @@
 		flex-wrap: wrap;
 		justify-content: flex-start;
 		flex-direction: row;
+		gap: var(--wp--style--block-gap, 1.5rem);
 
 		.wp-block {
 			flex: 0 0 100%;
-			margin: 0 0 var(--wp--style--block-gap, 1.5rem);
-			border-right: 15px solid transparent;
+			margin: 0;
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,
@@ -36,7 +36,8 @@
 			}
 
 			&.jetpack-field__width-25 {
-				flex: 0 0 25%;
+				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 25%;
 
 				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
 					width: 70px;
@@ -44,11 +45,13 @@
 			}
 
 			&.jetpack-field__width-50 {
-				flex: 0 0 50%;
+				flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 50%;
 			}
 
 			&.jetpack-field__width-75 {
-				flex: 0 0 75%;
+				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 75%;
 			}
 
 			&[data-type='jetpack/field-checkbox'],
