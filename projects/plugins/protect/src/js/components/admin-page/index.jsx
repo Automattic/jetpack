@@ -307,11 +307,11 @@ const Admin = () => {
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
-		siteProductAvailabilityHandler: () =>
+		siteProductAvailabilityHandler: async () =>
 			apiFetch( {
 				path: 'jetpack-protect/v1/plan',
 				method: 'GET',
-			} ).then( jetpackScan => jetpackScan.hasRequiredPlan ),
+			} ).then( jetpackScan => jetpackScan?.has_required_plan ),
 	} );
 
 	/*
