@@ -254,6 +254,18 @@ class Jetpack_Protect {
 	public static function register_rest_endpoints() {
 		register_rest_route(
 			'jetpack-protect/v1',
+			'plan',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_plan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
 			'status',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
@@ -335,6 +347,18 @@ class Jetpack_Protect {
 				},
 			)
 		);
+	}
+
+	/**
+	 * Return site plan data for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_get_plan() {
+		$plan                 = My_Jetpack_Products::get_product( 'scan' );
+		$plan['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
+
+		return rest_ensure_response( $plan, 200 );
 	}
 
 	/**

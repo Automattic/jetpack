@@ -13,6 +13,7 @@ import {
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
+import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -306,6 +307,11 @@ const Admin = () => {
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
 		redirectUrl: adminUrl,
+		siteProductAvailabilityHandler: async () =>
+			apiFetch( {
+				path: 'jetpack-protect/v1/plan',
+				method: 'GET',
+			} ).then( jetpackScan => jetpackScan?.has_required_plan ),
 	} );
 
 	/*
