@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E: Add basic test for My Jetpack loading after connection of Jetpack plugin.
