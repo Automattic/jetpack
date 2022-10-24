@@ -93,10 +93,9 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		// We're splitting out videos for Jetpack sites.
 		foreach ( $media_files as $media_item ) {
 			if ( preg_match( '@^video/@', $media_item['type'] ) && $is_jetpack_site ) {
-				if ( defined( 'IS_WPCOM' ) &&
-					IS_WPCOM &&
-					defined( 'VIDEOPRESS_JETPACK_VIDEO_ENABLED' ) &&
-					VIDEOPRESS_JETPACK_VIDEO_ENABLED ) {
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
+					defined( 'VIDEOPRESS_JETPACK_VIDEO_ENABLED' ) && VIDEOPRESS_JETPACK_VIDEO_ENABLED
+				) {
 					// Check that video upload space is available for a Jetpack site (skipped if site is Atomic).
 					if ( function_exists( 'videopress_filter_jetpack_get_space_used' ) ) {
 						$result = videopress_check_space_available_for_jetpack( $blog_id, $media_item['name'], $media_item['size'] );
