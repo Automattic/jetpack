@@ -207,7 +207,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ needsPurchase && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
-							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							{ discountPrice < price && (
+								<Price value={ price } currency={ currencyCode } isOld={ true } />
+							) }
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
 						<Text className={ styles[ 'price-description' ] }>

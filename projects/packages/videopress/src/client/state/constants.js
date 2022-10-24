@@ -11,6 +11,7 @@ export const WP_REST_API_USERS_ENDPOINT = 'wp/v2/users';
 export const WP_REST_API_MEDIA_ENDPOINT = 'wp/v2/media';
 export const WP_REST_API_VIDEOPRESS_ENDPOINT = 'wpcom/v2/videopress';
 export const WP_REST_API_VIDEOPRESS_META_ENDPOINT = 'wpcom/v2/videopress/meta';
+export const WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT = 'wpcom/v2/videopress/playback-jwt';
 export const REST_API_SITE_PURCHASES_ENDPOINT = 'my-jetpack/v1/site/purchases';
 export const REST_API_SITE_INFO_ENDPOINT = 'videopress/v1/site';
 
@@ -43,6 +44,9 @@ export const PROCESSING_VIDEO = 'PROCESSING_VIDEO';
 export const UPLOADED_VIDEO = 'UPLOADED_VIDEO';
 export const SET_IS_FETCHING_PURCHASES = 'SET_IS_FETCHING_PURCHASES';
 export const SET_PURCHASES = 'SET_PURCHASES';
+
+export const SET_IS_FETCHING_PLAYBACK_TOKEN = 'SET_IS_FETCHING_PLAYBACK_TOKEN';
+export const SET_PLAYBACK_TOKEN = 'SET_PLAYBACK_TOKEN';
 
 export const SET_USERS = 'SET_USERS';
 export const SET_USERS_PAGINATION = 'SET_USERS_PAGINATION';
