@@ -7,7 +7,18 @@ import {
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
-import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
+import {
+	ONBOARDING_JETPACK_BACKUP,
+	ONBOARDING_JETPACK_COMPLETE,
+	ONBOARDING_JETPACK_SECURITY,
+	ONBOARDING_JETPACK_ANTI_SPAM,
+	ONBOARDING_JETPACK_VIDEOPRESS,
+	ONBOARDING_JETPACK_SEARCH,
+	ONBOARDING_JETPACK_SCAN,
+	SUMMARY_SECTION_BY_ONBOARDING_NAME,
+	RECOMMENDATION_WIZARD_STEP,
+	ONBOARDING_SUPPORT_START_TIMESTAMP,
+} from 'recommendations/constants';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION,
@@ -32,21 +43,29 @@ import {
 	JETPACK_RECOMMENDATIONS_SITE_DISCOUNT_VIEWED,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_START,
 	JETPACK_RECOMMENDATIONS_FEATURE_INSTALL_END,
+	JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE,
 } from 'state/action-types';
 import { hasConnectedOwner } from 'state/connection';
-import { getNewRecommendations, getInitialRecommendationsStep } from 'state/initial-state';
+import {
+	getNewRecommendations,
+	getInitialRecommendationsStep,
+	getNewRecommendationsCount,
+} from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import {
 	getSitePlan,
+	getSitePurchases,
 	hasActiveProductPurchase,
 	hasActiveSecurityPurchase,
 	siteHasFeature,
+	isFetchingSiteData,
 	hasActiveAntiSpamPurchase,
 	hasSecurityComparableLegacyPlan,
 	hasActiveBackupPurchase,
 } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
+import { sortByOnboardingPriority, getOnboardingNameByProductSlug } from './onboarding-utils';
 
 const mergeArrays = ( x, y ) => {
 	if ( Array.isArray( x ) && Array.isArray( y ) ) {
@@ -122,6 +141,15 @@ const data = ( state = {}, action ) => {
 			);
 
 			return viewedState;
+		}
+		case JETPACK_RECOMMENDATIONS_DATA_ONBOARDING_DATA_UPDATE: {
+			const { active, viewed, hasStarted, totalSteps } = action.onboardingData;
+			return Object.assign( {}, state, {
+				...( active !== undefined ? { onboardingActive: active } : {} ),
+				...( viewed !== undefined ? { onboardingViewed: viewed } : {} ),
+				...( hasStarted !== undefined ? { onboardingHasStarted: hasStarted } : {} ),
+				...( totalSteps !== undefined ? { onboardingTotalSteps: totalSteps } : {} ),
+			} );
 		}
 		default:
 			return state;
@@ -294,25 +322,75 @@ export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
 
-const stepToNextStep = {
-	'setup-wizard-completed': 'summary',
-	'banner-completed': 'woocommerce',
-	'not-started': 'site-type-question',
-	'site-type-question': 'agency',
-	agency: 'woocommerce',
-	'product-suggestions': 'woocommerce',
-	woocommerce: 'monitor',
-	monitor: 'related-posts',
-	'related-posts': 'creative-mail',
-	'creative-mail': 'site-accelerator',
-	'site-accelerator': 'publicize',
-	publicize: 'summary',
-	protect: 'summary',
-	'anti-spam': 'summary',
-	videopress: 'summary',
-	'backup-plan': 'summary',
-	boost: 'summary',
-	summary: 'summary',
+const stepToNextStepByPath = {
+	default: {
+		'setup-wizard-completed': 'summary',
+		'banner-completed': 'agency',
+		'not-started': 'site-type-question',
+		'site-type-question': 'agency',
+		agency: 'woocommerce',
+		'product-suggestions': 'woocommerce',
+		woocommerce: 'monitor',
+		monitor: 'related-posts',
+		'related-posts': 'creative-mail',
+		'creative-mail': 'site-accelerator',
+		'site-accelerator': 'publicize',
+		publicize: 'summary',
+		protect: 'summary',
+		'anti-spam': 'summary',
+		videopress: 'summary',
+		'backup-plan': 'summary',
+		boost: 'summary',
+		summary: 'summary',
+	},
+	onboarding: {
+		[ ONBOARDING_JETPACK_COMPLETE ]: {
+			welcome__complete: 'backup-activated',
+			'backup-activated': 'scan-activated',
+			'scan-activated': 'antispam-activated',
+			'antispam-activated': 'videopress-activated',
+			'videopress-activated': 'search-activated',
+			'search-activated': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SECURITY ]: {
+			welcome__security: 'backup-activated',
+			'backup-activated': 'scan-activated',
+			'scan-activated': 'antispam-activated',
+			'antispam-activated': 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_BACKUP ]: {
+			welcome__backup: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'server-credentials',
+			'server-credentials': 'summary',
+		},
+		[ ONBOARDING_JETPACK_ANTI_SPAM ]: {
+			welcome__antispam: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+		[ ONBOARDING_JETPACK_VIDEOPRESS ]: {
+			welcome__videopress: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'related-posts',
+			'related-posts': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SEARCH ]: {
+			welcome__search: 'related-posts',
+			'related-posts': 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+		[ ONBOARDING_JETPACK_SCAN ]: {
+			welcome__scan: 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'summary',
+		},
+	},
 };
 
 export const stepToRoute = {
@@ -332,13 +410,37 @@ export const stepToRoute = {
 	'backup-plan': '#/recommendations/backup-plan',
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
+	// new steps (September 2022)
+	welcome__backup: '#/recommendations/welcome-backup',
+	welcome__complete: '#/recommendations/welcome-complete',
+	welcome__security: '#/recommendations/welcome-security',
+	welcome__antispam: '#/recommendations/welcome-antispam',
+	welcome__videopress: '#/recommendations/welcome-videopress',
+	welcome__search: '#/recommendations/welcome-search',
+	welcome__scan: '#/recommendations/welcome-scan',
+	'backup-activated': '#/recommendations/backup-activated',
+	'scan-activated': '#/recommendations/scan-activated',
+	'antispam-activated': '#/recommendations/antispam-activated',
+	'videopress-activated': '#/recommendations/videopress-activated',
+	'search-activated': '#/recommendations/search-activated',
+	'server-credentials': '#/recommendations/server-credentials',
 };
 
+const getRecommendationsData = state => get( state.jetpack, [ 'recommendations', 'data' ] );
+
 export const isStepViewed = ( state, featureSlug ) => {
-	const recommendationsData = get( state.jetpack, [ 'recommendations', 'data' ] );
+	const recommendationsData = getRecommendationsData( state );
 	return (
 		recommendationsData.viewedRecommendations &&
 		recommendationsData.viewedRecommendations.includes( featureSlug )
+	);
+};
+
+export const isStepSkipped = ( state, featureSlug ) => {
+	const recommendationsData = getRecommendationsData( state );
+	return (
+		recommendationsData.skippedRecommendations &&
+		recommendationsData.skippedRecommendations.includes( featureSlug )
 	);
 };
 
@@ -368,8 +470,11 @@ export const isFeatureActive = ( state, featureSlug ) => {
 			return !! isPluginActive( state, 'jetpack-protect/jetpack-protect.php' );
 		case 'publicize':
 			return !! getSetting( state, 'publicize' );
+		case 'videopress-activated':
 		case 'videopress':
-			return !! getSetting( state, 'videopress' );
+			return !! isPluginActive( state, 'videopress/jetpack-videopress.php' );
+		case 'antispam-activated':
+			return !! isPluginActive( state, 'akismet/akismet.php' );
 		default:
 			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}
@@ -389,6 +494,19 @@ export const isProductSuggestionsAvailable = state => {
 	const suggestionsResult = getProductSuggestions( state );
 
 	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+};
+
+export const getNonViewedRecommendationsCount = state => {
+	const onboarding = getOnboardingData( state );
+
+	if ( onboarding && onboarding.active ) {
+		const { totalSteps: steps } = onboarding;
+		const step = getStep( state );
+
+		return steps.length - ( steps.indexOf( step ) + 1 );
+	}
+
+	return getNewRecommendationsCount( state );
 };
 
 export const getProductSlugForStep = ( state, step ) => {
@@ -467,23 +585,67 @@ const isStepEligibleToShow = ( state, step ) => {
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
 		case 'boost':
 			return isConditionalRecommendationEnabled( state, step ) && ! isFeatureActive( state, step );
+		case 'server-credentials':
+			return 'awaiting_credentials' === getRewindStatus( state ).state;
+		// Onboarding specific steps (`-activated` and `welcome__`):
+		case 'backup-activated':
+		case 'scan-activated':
+		case 'search-activated':
+		case 'welcome__complete':
+		case 'welcome__security':
+		case 'welcome__antispam':
+		case 'welcome__videopress':
+		case 'welcome__search':
+		case 'welcome__scan':
+		case 'welcome__backup':
+			return true;
+		case 'antispam-activated':
+		case 'videopress-activated':
+			return isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
 };
 
 const getNextEligibleStep = ( state, step ) => {
-	let nextStep = stepToNextStep[ step ];
+	const active = get( getOnboardingData( state ), 'active' );
+	const stepToNextStep = get( stepToNextStepByPath, active ? `onboarding.${ active }` : 'default' );
+
+	if ( ! stepToNextStep ) {
+		// If we cannot find next step due to some reason - we just show the summary
+		return 'summary';
+	}
+
+	let nextStep = stepToNextStep[ step ] || 'summary';
+
 	while ( ! isStepEligibleToShow( state, nextStep ) ) {
 		nextStep = stepToNextStep[ nextStep ];
 	}
+
 	return nextStep;
 };
 
+const getStepsForOnboarding = onboarding =>
+	Object.keys( get( stepToNextStepByPath, `onboarding.${ onboarding }`, {} ) );
+
+export const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( onboarding )[ 0 ];
+
 // Gets the step to show when one has not been set in the state yet.
-const getInitialStep = state => {
+export const getInitialStep = state => {
 	// Gets new recommendations from initial state.
 	const newRecommendations = getNewRecommendations( state );
+	const initialStep = getInitialRecommendationsStep( state );
+	const onboardingData = getOnboardingData( state );
+
+	if ( onboardingData && onboardingData.active ) {
+		return onboardingData.hasStarted
+			? initialStep
+			: getInitialStepForOnboarding( onboardingData.active );
+	}
+
+	if ( 'summary' === initialStep && ! isStepViewed( state, 'site-type-question' ) ) {
+		return 'site-type-question';
+	}
 
 	// Jump to a new recommendation if there is one to show.
 	if ( newRecommendations.length > 0 ) {
@@ -491,14 +653,62 @@ const getInitialStep = state => {
 	}
 
 	// Return the step from the initial React state.
-	return getInitialRecommendationsStep( state );
+	return initialStep;
+};
+
+const getProductsEligibleForPostPurchaseOnboarding = state =>
+	getSitePurchases( state ).filter(
+		( { active, subscribed_date } ) =>
+			'1' === active && ONBOARDING_SUPPORT_START_TIMESTAMP < Date.parse( subscribed_date )
+	);
+
+const getEligibleOnboardings = state =>
+	getProductsEligibleForPostPurchaseOnboarding( state )
+		.map( ( { product_slug } ) => getOnboardingNameByProductSlug( product_slug ) )
+		.filter( name => null !== name );
+
+export const getOnboardingData = state => {
+	if ( isFetchingSiteData( state ) || ! isRecommendationsDataLoaded( state ) ) {
+		return null;
+	}
+
+	const eligibleOnboardings = getEligibleOnboardings( state );
+
+	const onboarding = {
+		active: getDataByKey( state, 'onboardingActive' ) || null,
+		viewed: ( getDataByKey( state, 'onboardingViewed' ) || [] ).filter( viewedOnboarding =>
+			eligibleOnboardings.includes( viewedOnboarding )
+		),
+		totalSteps: getDataByKey( state, 'onboardingTotalSteps' ) || [],
+		hasStarted: getDataByKey( state, 'onboardingHasStarted' ) || false,
+	};
+
+	const newOnboardings = eligibleOnboardings.filter( name => ! onboarding.viewed.includes( name ) );
+
+	// Start the new onboarding if one is found
+	if ( newOnboardings.length > 0 ) {
+		const sortedOnboardings = newOnboardings.sort( sortByOnboardingPriority );
+		return {
+			active: sortedOnboardings[ 0 ],
+			totalSteps: getStepsForOnboarding( sortedOnboardings[ 0 ] ).filter( step =>
+				isStepEligibleToShow( state, step )
+			),
+			viewed: union( onboarding.viewed, sortedOnboardings ),
+			hasStarted: false,
+		};
+	}
+
+	return onboarding;
+};
+
+export const getIsOnboardingActive = state => {
+	const onboardingData = getOnboardingData( state );
+	return null !== onboardingData && null !== onboardingData.active;
 };
 
 export const getStep = state => {
-	const step =
-		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
-			? getInitialStep( state )
-			: state.jetpack.recommendations.step;
+	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
+	const step = '' !== savedStep ? savedStep : getInitialStep( state );
 
 	// These steps are special cases set on the server. There is technically no
 	// UI to display for them so the next eligible step is returned instead.
@@ -507,6 +717,22 @@ export const getStep = state => {
 	}
 
 	return step;
+};
+
+export const getOnboardingStepProgressValueIfEligible = state => {
+	const onboardingData = getOnboardingData( state );
+
+	if ( ! onboardingData || ! onboardingData.active ) {
+		return null;
+	}
+
+	const { totalSteps: steps } = onboardingData;
+	const step = getStep( state );
+
+	return {
+		currentStepIndex: steps.indexOf( step ),
+		totalSteps: steps.length,
+	};
 };
 
 export const getNextRoute = state => {
@@ -540,6 +766,38 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	}
 };
 
+export const isOnboardingEligibleToShowInSummary = ( state, onboardingName ) => {
+	const onboardingData = getOnboardingData( state );
+	const viewedOnboardings = onboardingData ? onboardingData.viewed : [];
+
+	if ( ! viewedOnboardings.includes( onboardingName ) ) {
+		// If onboarding is not currently active - do not display it
+		return false;
+	}
+
+	switch ( onboardingName ) {
+		case ONBOARDING_JETPACK_COMPLETE:
+			// Always show Complete plan
+			return true;
+		case ONBOARDING_JETPACK_VIDEOPRESS:
+		case ONBOARDING_JETPACK_SEARCH:
+		case ONBOARDING_JETPACK_SECURITY:
+			// Don't show plans that overlap with active plan: Complete
+			return ! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE );
+		case ONBOARDING_JETPACK_BACKUP:
+		case ONBOARDING_JETPACK_ANTI_SPAM:
+		case ONBOARDING_JETPACK_SCAN:
+			// Don't show plans that overlap with either active plans: Complete or Security
+			return (
+				! viewedOnboardings.includes( ONBOARDING_JETPACK_COMPLETE ) &&
+				! viewedOnboardings.includes( ONBOARDING_JETPACK_SECURITY )
+			);
+		default:
+			// Otherwise, show the onboarding in the summary until we create additional rule
+			return true;
+	}
+};
+
 export const getSummaryFeatureSlugs = state => {
 	const featureSlugsInPreferenceOrder = [
 		'woocommerce',
@@ -563,7 +821,7 @@ export const getSummaryFeatureSlugs = state => {
 	for ( const slug of featureSlugsEligibleToShow ) {
 		if ( isFeatureActive( state, slug ) || isInstallingRecommendedFeature( state, slug ) ) {
 			selected.push( slug );
-		} else {
+		} else if ( isStepSkipped( state, slug ) ) {
 			skipped.push( slug );
 		}
 	}
@@ -578,6 +836,19 @@ export const getSummaryResourceSlugs = state => {
 	const resourceSlugs = [ 'agency', 'anti-spam', 'backup-plan' ];
 
 	return resourceSlugs.filter( slug => isFeatureEligibleToShowInSummary( state, slug ) );
+};
+
+export const getSummaryPrimarySections = state => {
+	const onboardingData = getOnboardingData( state );
+
+	if ( ! onboardingData ) {
+		return [];
+	}
+
+	return onboardingData.viewed
+		.filter( onboarding => isOnboardingEligibleToShowInSummary( state, onboarding ) )
+		.sort( sortByOnboardingPriority )
+		.map( onboarding => SUMMARY_SECTION_BY_ONBOARDING_NAME[ onboarding ] );
 };
 
 export const getSidebarCardSlug = state => {

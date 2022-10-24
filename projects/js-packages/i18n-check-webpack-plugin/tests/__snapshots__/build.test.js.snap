@@ -75,7 +75,7 @@ exports[`Webpack \`known-problems\`: Webpack build stats 1`] = `
 Object {
   "errors": Array [
     Object {
-      "message": "main.js:3:92: msgid argument is not a string literal: __(o?\\"Foo is set\\":\\"Foo is not set\\",\\"domain\\")",
+      "message": "main.js:2:92: msgid argument is not a string literal: __(o?\\"Foo is set\\":\\"Foo is not set\\",\\"domain\\")",
     },
     Object {
       "message": "main.js: Translator comments have gone missing for \\"The comment will be lost when the assignment is merged into the above const\\" (context \\"context\\")

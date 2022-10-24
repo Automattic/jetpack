@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed detection of application/json scripts for exclusion from deferred JS

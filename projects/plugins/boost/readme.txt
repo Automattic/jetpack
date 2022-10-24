@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebin
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 6.0
+Tested up to: 6.1
 Requires PHP: 7.0
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,27 +176,18 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.5.1 - 2022-06-29
-#### Fixed
-- General: Fix caching of purchased plan features to reduce calls to wpcom api
-
-### 1.5.0 - 2022-06-27
+### 1.5.2-beta - 2022-10-20
 #### Added
-- Cloud CSS: Added support for generating Critical CSS in the cloud.
-- Critical CSS: Added an explanation for Console output during Critical CSS Generation.
-- General: Added an option to purchase a premium Jetpack Boost plan.
-- General: Added option to contact premium support for paid users.
-- Speed Scores: Added prompt for reaching out to support when the speed score decreases.
-
-#### Changed
-- General: Remove soft disconnect.
-- General: Remove use of `pnpx` in preparation for pnpm 7.0.
-- General: Renamed hook `handle_theme_change` to `handle_environment_change`
-- General: Updated external links to use Jetpack Redirects.
+- Compatibility: Added a compatibility module for WP Super Cache.
+- Compatibility: Tested with v6.1 of WordPress.
+- General: Added tracking to purchase flows.
+- User Experience: Added a flow for first-time users.
 
 #### Fixed
-- General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1
-- Stability: Fix broken SQL query on uninstall.
+- Critical CSS: Keep Critical CSS and Cloud CSS status in sync.
+- Deferred JS: Fix detection of application/json scripts to auto-exclude them from deferral.
+- Lazy Loading: Fix desynchronization of Lazy Loading features between Boost and Jetpack.
+- Speed Scores: Fixed issues dismissing notifications on speed score improvements.
 
 --------
 

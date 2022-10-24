@@ -5,7 +5,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
+import { Icon, edit, captureVideo, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -22,6 +22,7 @@ export const VideoThumbnailDropdownButtons = ( {
 	onSelectFromVideo,
 	onUploadImage,
 	onClose,
+	isUpdatingPoster = false,
 } ) => {
 	return (
 		<>
@@ -54,6 +55,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				fullWidth
 				variant="tertiary"
 				icon={ cloud }
+				disabled={ isUpdatingPoster }
 				onClick={ () => {
 					onClose();
 					onUploadImage?.();
@@ -107,17 +109,38 @@ const VideoThumbnail = ( {
 	thumbnail,
 	duration,
 	editable,
+	blankIconSize = 96,
+	isPrivate,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
+	thumbnail =
+		typeof thumbnail === 'string' && thumbnail !== '' ? (
+			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+		) : (
+			thumbnail
+		);
+
+	/** Use a different icon for private videos */
+	const blankIcon = isPrivate ? captureVideo : video;
+
+	/** If the thumbnail is not set, use the placeholder with an icon */
+	thumbnail = thumbnail ? (
+		thumbnail
+	) : (
+		<div className={ styles[ 'thumbnail-blank' ] }>
+			<Icon icon={ blankIcon } size={ blankIconSize } />
+		</div>
+	);
+
 	return (
 		<div
 			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
 		>
-			{ typeof thumbnail === 'string' && editable && (
+			{ Boolean( thumbnail ) && editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
 					onSelectFromVideo={ onSelectFromVideo }
@@ -134,13 +157,7 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			{ typeof thumbnail === 'string' && thumbnail !== '' ? (
-				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
-			) : (
-				<div className={ styles[ 'thumbnail-placeholder' ] }>
-					{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
-				</div>
-			) }
+			<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
 		</div>
 	);
 };

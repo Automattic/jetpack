@@ -17,4 +17,9 @@ export type VideoGridProps = {
 	 * @default 6
 	 */
 	count?: number;
+
+	/**
+	 * Trigger loading state
+	 */
+	loading?: boolean;
 };

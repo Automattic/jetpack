@@ -18,7 +18,7 @@ window.jetpackVideoPressInitialState = {
 	},
 	adminUrl: 'https://admin-url.com',
 	siteSuffix: 'site-suffix',
-	productData: {
+	siteProductData: {
 		slug: 'videopress',
 		plugin_slug: 'jetpack-videopress',
 		name: 'VideoPress',

@@ -19,6 +19,7 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
+import { PRODUCT_STATUSES } from '../product-card';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -90,6 +91,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		currencyCode,
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
+		wpcomFreeProductSlug,
 	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
@@ -105,6 +107,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	const addProductUrl =
 		needsPurchase && wpcomProductSlug
 			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
+			: null;
+
+	const addFreeProductUrl =
+		needsPurchase && wpcomFreeProductSlug && status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE
+			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
 
 	// Suppported products icons.
@@ -200,7 +207,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ needsPurchase && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
-							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							{ discountPrice < price && (
+								<Price value={ price } currency={ currencyCode } isOld={ true } />
+							) }
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
 						<Text className={ styles[ 'price-description' ] }>
@@ -245,6 +254,21 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							/* translators: placeholder is product name. */
 							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 						}
+					</Text>
+				) }
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && addFreeProductUrl && (
+					<Text
+						component={ ProductDetailButton }
+						onClick={ clickHandler }
+						isLoading={ isFetching }
+						disabled={ cantInstallPlugin }
+						isPrimary={ false }
+						href={ addFreeProductUrl }
+						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
+						variant="body"
+					>
+						{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 					</Text>
 				) }
 

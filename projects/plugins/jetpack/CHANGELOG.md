@@ -2,17 +2,102 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.4-beta - 2022-09-27
+## 11.5-a.9 - 2022-10-19
+### Bug fixes
+- Contact Form: display consent form field result in notification emails and feedback views. [#26878]
+- Contact Form: remove overlay causing issues with the block inserter hover behavior. [#26910]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add $all_values param to contact_form_to filter [#26810]
+- Copy wpcom hack from D17161 [#26891]
+- Featured image: Add featured_image_email_enabled option to the site settings endpoint [#26696]
+- Init 11.5-a.8 [#26879]
+- Remove an obsolete hack in class.wpcom-json-api-render-endpoint.php [#26893]
+- Sharing: Add caching for DB queries. [#26933]
+- Updated package dependencies. [#26808]
+- Update jetpack_require_lib to require_once [#26804]
+- WordPress.com REST API: exposed P2 design elements in API response [#26863]
+
+## 11.5-a.7 - 2022-10-17
+### Enhancements
+- Dashboard: ensure Apps card is always displayed, regardless of whether promotions are active. [#26659]
+- Form block: improve parent block selection when inner block is already selected. [#26687]
+- Subscription block: don't include Jetpack Social connections in subscriber count. [#26751]
+
+### Bug fixes
+- Payment Buttons block: fix payment-buttons font sizes taking precedence over the font sizes of contained button blocks. [#26839]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Manually sync site settings endpoint files with their WPCOM counterparts [#26747]
+- Search: changed Search CTA link to Search upsell page of the search package [#26807]
+- Updated package dependencies. [#26826, #26828, #26851]
+
+## 11.5-a.5 - 2022-10-13
+### Enhancements
+- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin [#26799]
+
+### Bug fixes
+- CRM: Fix unmounted state updates in Form CRM integration [#26688]
+- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking [#26668]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- init cycle [#26754]
+- Dashboard: fix dashboard backup link for Atomic sites. [#26766]
+- Replace usages of stats_get_from_restapi with corresponding methods from Stats package, WPCOM_Stats [#26719]
+- Updated jetpack_require_lib to require_once for Instagram class [#26802]
+- Updated package dependencies. [#26545]
+- Update to Typescript to reap the benefits (such as added safety and automation) [#26644]
+- Updating changelog and readme [#26755]
+
+## 11.5-a.3 - 2022-10-11
+### Enhancements
+- Payment Buttons block: add typography controls. [#26580]
+- Social: show pre-publish panel if the site has connections enabled. [#26663]
+
+### Improved compatibility
+- Contact Form Block: removed compatibility checks involving automatic deactivation of contact form functionality. [#26714]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bump version to 11.5-a.2 [#26646]
+- Changelog [#26647]
+- Fixed versions [#26750]
+- Integrate Stats package in Jetpack plugin. [#26640]
+- Jetpack_PostImages::get_image now returns null, not empty array, on failure to find an image. [#26670]
+- Shortcodes: fix wufoo shortcode output. [#26671]
+- Updated package dependencies. [#26633, #26640, #26683, #26726]
+- Update js-packages/licensing dependency version. [#25973]
+
+## 11.5-a.1 - 2022-10-05
+### Enhancements
+- Dashboard: add a new illustration for WooCommerce recommendation. [#26492]
+- Stats: change mentions of "Site Stats" with "Jetpack Stats". [#26566]
+- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar. [#26513]
+- Payment Button block: support a wider varity of layout options. [#26134]
+- Publicize: make the pre-publish panel initially closed by default. [#26512]
+- Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined. [#26507]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- masterbar: Remove wpcom-specific references to de-Fusioned stubs. [#26447]
+- Require components lib directly instead of using deprecated `jetpack_require_lib()`. [#26321]
+- Revert previously added Backup UI initialization. [#26617]
+- Updated package dependencies. [#26457]
+- WordPress.com REST API: Adds difm_lite_site_options key to get site API response. [#26217]
+- Unit Tests: add check for removing the WAF module from sites hosted on the Atomic platform. [#26452]
+
+## [11.4] - 2022-10-04
 ### Enhancements
 - Editor: update icon sizing in the Jetpack sidebar for consistency. [#26281]
 - Recommendations: update assistant with question for agency managed sites. [#26302]
 
 ### Bug fixes
 - Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks. [#26308]
+- Backup: update initialization of UI menu. [#23532]
 - Payments block: make filtering patterns used for the payments intro more robust. [#26465]
+- Social: prevent the package being initialized without a user connection. [#26543]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Account Connection Card: remove magic mobile link [#26311]
+- Account Connection Card: remove magic mobile link. [#26311]
+- Dashboard: update display of Jetpack app offering. [#26276]
 - Disconnect Dialog: fix prop types to avoid warnings from React. [#26340]
 - E2E tests: use CI build artifacts in e2e tests. [#26278]
 - Masterbar: always load CSS from Jetpack, not Fusioned paths, in preparation for de-Fusioning. [#26444]
@@ -26,7 +111,7 @@
 - Sync changes to modules/masterbar/nudges/additional-css/ from wpcom. [#26362]
 - Updated package dependencies.
 - WPcom: always disable WAF on WoA sites. [#26401]
-- WPcom: apply Calypso 'Add new site' styles to wp-admin [#26290]
+- WPcom: apply Calypso 'Add new site' styles to wp-admin. [#26290]
 
 ## 11.4-a.7 - 2022-09-22
 ### Improved compatibility
@@ -7092,6 +7177,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
 [11.2]: https://wp.me/p1moTy-JYL
 [11.1]: https://wp.me/p1moTy-Juo

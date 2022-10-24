@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Stats;
 /**
  * Class to test the Options class.
  *
- * @covers Options
+ * @covers \Automattic\Jetpack\Stats\Options
  */
 class Test_Options extends StatsBaseTestCase {
 	/**
@@ -40,7 +40,7 @@ class Test_Options extends StatsBaseTestCase {
 			'count_roles'  => array(),
 			'do_not_track' => true,
 			'blog_id'      => 1234,
-			'version'      => self::DEFAULT_STATS_VERSION,
+			'version'      => Main::STATS_VERSION,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -65,7 +65,7 @@ class Test_Options extends StatsBaseTestCase {
 			'count_roles'  => array_keys( get_editable_roles() ),
 			'do_not_track' => true,
 			'blog_id'      => 1234,
-			'version'      => self::DEFAULT_STATS_VERSION,
+			'version'      => Main::STATS_VERSION,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -91,7 +91,7 @@ class Test_Options extends StatsBaseTestCase {
 			),
 			'Version'      => array(
 				'option_name'  => 'version',
-				'option_value' => self::DEFAULT_STATS_VERSION,
+				'option_value' => Main::STATS_VERSION,
 			),
 			'Honor DNT'    => array(
 				'option_name'  => 'do_not_track',
@@ -141,7 +141,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'set version'          => array(
@@ -157,7 +157,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'set blog blog_id'     => array(
@@ -173,7 +173,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'multiple options'     => array(
@@ -200,7 +200,7 @@ class Test_Options extends StatsBaseTestCase {
 					),
 					'do_not_track' => false,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 		);
@@ -254,7 +254,7 @@ class Test_Options extends StatsBaseTestCase {
 			),
 			'do_not_track' => true,
 			'blog_id'      => 1234,
-			'version'      => self::DEFAULT_STATS_VERSION,
+			'version'      => Main::STATS_VERSION,
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -279,7 +279,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'Roles'        => array(
@@ -294,7 +294,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'Count Roles'  => array(
@@ -308,7 +308,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array( 'administrator' ),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'Version'      => array(
@@ -322,7 +322,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'Honor DNT'    => array(
@@ -336,7 +336,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => false,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 			'Dummy option' => array(
@@ -350,7 +350,7 @@ class Test_Options extends StatsBaseTestCase {
 					'count_roles'  => array(),
 					'do_not_track' => true,
 					'blog_id'      => 1234,
-					'version'      => self::DEFAULT_STATS_VERSION,
+					'version'      => Main::STATS_VERSION,
 				),
 			),
 		);

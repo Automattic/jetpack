@@ -11,6 +11,8 @@
  * Additional Search Queries: scroll, infinite, infinite scroll
  */
 
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+
 /**
  * Jetpack-specific elements of Infinite Scroll
  */
@@ -149,9 +151,9 @@ class Jetpack_Infinite_Scroll_Extras {
 		// Abort if Stats module isn't active
 		if ( in_array( 'stats', Jetpack::get_active_modules(), true ) ) {
 			// Abort if user is logged in but logged-in users shouldn't be tracked.
-			if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
-				$stats_options        = stats_get_options();
-				$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+			if ( is_user_logged_in() ) {
+				$stats_options        = Stats_Options::get_options();
+				$track_loggedin_users = isset( $stats_options['count_roles'] ) ? (bool) $stats_options['count_roles'] : false;
 
 				if ( ! $track_loggedin_users ) {
 					return $settings;

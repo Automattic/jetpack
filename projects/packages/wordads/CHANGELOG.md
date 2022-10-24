@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.20] - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## [0.2.19] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## [0.2.18] - 2022-10-11
+### Changed
+- Updated package dependencies. [#26640]
+
+## [0.2.17] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26457]
+
 ## [0.2.16] - 2022-09-27
 ### Changed
 - Updated package dependencies.
@@ -97,6 +113,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.2.20]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.19...v0.2.20
+[0.2.19]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.18...v0.2.19
+[0.2.18]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.17...v0.2.18
+[0.2.17]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.16...v0.2.17
 [0.2.16]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.15...v0.2.16
 [0.2.15]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.14...v0.2.15
 [0.2.14]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.13...v0.2.14
