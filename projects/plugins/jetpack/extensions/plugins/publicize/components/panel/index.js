@@ -13,13 +13,13 @@ import {
 	useSocialMediaConnections as useSelectSocialMediaConnections,
 	usePostJustPublished,
 	usePublicizeConfig,
+	SharePostRow,
 } from '@automattic/jetpack-publicize-components';
 import { PanelBody, PanelRow, ToggleControl, Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { SharePostRow } from '../../components/share-post';
 import UpsellNotice from '../upsell';
 
 const PublicizePanel = ( { prePublish } ) => {
@@ -27,11 +27,10 @@ const PublicizePanel = ( { prePublish } ) => {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	const {
-		isRePublicizeFeatureEnabled,
 		isPublicizeEnabled: isPublicizeEnabledFromConfig, // <- usually handled by the UI
+		hidePublicizeFeature,
 		togglePublicizeFeature,
 		isPublicizeDisabledBySitePlan,
-		hideRePublicizeFeature,
 		hasPaidPlan,
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
@@ -67,14 +66,14 @@ const PublicizePanel = ( { prePublish } ) => {
 		<PanelWrapper { ...wrapperProps }>
 			<UpsellNotice isPostPublished={ isPostPublished } />
 
-			{ ! hideRePublicizeFeature && (
+			{ ! hidePublicizeFeature && (
 				<Fragment>
-					{ isRePublicizeFeatureEnabled && ! isPostPublished && (
+					{ ! isPostPublished && (
 						<PanelRowWithDisabled>
 							<ToggleControl
 								className="jetpack-publicize-toggle"
 								label={
-									isPublicizeEnabled && ! isPublicizeDisabledBySitePlan
+									isPublicizeEnabled
 										? __( 'Share when publishing', 'jetpack' )
 										: __(
 												'Sharing is disabled',
@@ -92,7 +91,6 @@ const PublicizePanel = ( { prePublish } ) => {
 					<PublicizeConnectionVerify />
 					<PublicizeForm
 						isPublicizeEnabled={ isPublicizeEnabled }
-						isRePublicizeFeatureEnabled={ isRePublicizeFeatureEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
 						numberOfSharesRemaining={
 							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
