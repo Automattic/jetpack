@@ -103,7 +103,7 @@ class Search extends Hybrid_Product {
 		return array(
 			__( 'Instant search and indexing', 'jetpack-my-jetpack' ),
 			__( 'Powerful filtering', 'jetpack-my-jetpack' ),
-			__( 'Supports 29 languages', 'jetpack-my-jetpack' ),
+			__( 'Supports 38 languages', 'jetpack-my-jetpack' ),
 			__( 'Spelling correction', 'jetpack-my-jetpack' ),
 		);
 	}
