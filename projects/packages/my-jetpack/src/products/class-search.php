@@ -118,6 +118,7 @@ class Search extends Hybrid_Product {
 		$pricing = array_merge(
 			array(
 				'available'               => true,
+				'trial_available'         => static::has_trial_support(),
 				'wpcom_product_slug'      => static::get_wpcom_product_slug(),
 				'wpcom_free_product_slug' => static::get_wpcom_free_product_slug(),
 			),
@@ -177,10 +178,6 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_status() {
 		$status = parent::get_status();
-
-		if ( $status === 'needs_purchase' && self::is_new_pricing_202208() ) {
-			$status = 'needs_purchase_or_free';
-		}
 		return $status;
 	}
 
@@ -257,6 +254,19 @@ class Search extends Hybrid_Product {
 		$body   = wp_remote_retrieve_body( $response );
 		$status = json_decode( $body );
 		return $status;
+	}
+
+	/**
+	 * Checks whether the product supports trial or not
+	 *
+	 * Returns true if it supports. Return false otherwise.
+	 *
+	 * Free products will always return false.
+	 *
+	 * @return boolean
+	 */
+	public static function has_trial_support() {
+		return static::is_new_pricing_202208();
 	}
 
 	/**
