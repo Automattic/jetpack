@@ -85,6 +85,7 @@ require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
 require_once __DIR__ . '/feature-plugins/headstart-util.php';
+require_once __DIR__ . '/feature-plugins/headstart-woocommerce-terms.php';
 require_once __DIR__ . '/feature-plugins/hooks.php';
 require_once __DIR__ . '/feature-plugins/managed-plugins.php';
 require_once __DIR__ . '/feature-plugins/managed-themes.php';

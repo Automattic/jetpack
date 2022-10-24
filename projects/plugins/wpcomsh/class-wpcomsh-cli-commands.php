@@ -506,6 +506,19 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		public function purchases( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			WP_CLI::runcommand( 'wpcomsh persistent-data WPCOM_PURCHASES --format=' . $assoc_args['format'], array( 'launch' => false ) );
 		}
+
+		/**
+		 * Apply terms and taxonomies from the current theme's annotation file.
+		 *
+		 * In the case of WooCommerce specific terms, they can only be applied
+		 * after WooCommerce is installed, which might happen after a site's theme switch.
+		 * So this is provided as a separate command which can be ran in a post-install job.
+		 *
+		 * @subcommand headstart-terms
+		 */
+		public function headstart_terms( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			wpcomsh_apply_headstart_terms();
+		}
 	}
 }
 
