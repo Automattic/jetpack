@@ -12,7 +12,9 @@ function MyAdminApp( init ) {
 	 * Get the recordEvent helper,
 	 * registering the page-view record on the fly.
 	 */
-	const { recordEvent } = useAnalyticsTracks( { pageViewEventName: 'my_section' } );
+	const { recordEvent } = useAnalyticsTracks( {
+		pageViewEventName: 'jetpack_videopress_my_section_page_view',
+	} );
 
 	if ( init ) {
 		// Record generic event.
