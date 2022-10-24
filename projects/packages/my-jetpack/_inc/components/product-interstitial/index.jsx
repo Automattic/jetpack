@@ -8,7 +8,6 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import { STORE_ID } from '../../state/store';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
-import isSearchNewPricingLaunched202208 from '../../utils/is-search-new-pricing-202208';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import boostImage from './boost.png';
@@ -64,7 +63,9 @@ export default function ProductInterstitial( {
 			const hasRequiredPlan = product?.hasRequiredPlan;
 			const isFree = product?.pricingForUi?.isFree;
 			const wpcomProductSlug = product?.pricingForUi?.wpcomProductSlug;
+			const wpcomFreeProductSlug = product?.pricingForUi?.wpcomFreeProductSlug;
 			const needsPurchase = ! isFree && ! hasRequiredPlan;
+			const trialAvailable = product?.pricingForUi?.trialAvailable;
 
 			if ( postActivationUrl ) {
 				window.location.href = postActivationUrl;
@@ -75,8 +76,16 @@ export default function ProductInterstitial( {
 				return navigateToMyJetpackOverviewPage();
 			}
 
+			let url;
+
+			if ( trialAvailable && wpcomFreeProductSlug ) {
+				url = getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ); // If a trial is available, use the free product slug.
+			} else {
+				url = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
+			}
+
 			// Redirect to the checkout page.
-			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
+			window.location.href = url;
 		} );
 	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
 
@@ -207,12 +216,13 @@ export function SocialInterstitial() {
  * @returns {object} SearchInterstitial react component.
  */
 export function SearchInterstitial() {
+	const { detail } = useProduct( 'search' );
 	return (
 		<ProductInterstitial
 			slug="search"
 			installsPlugin={ true }
 			supportingInfo={
-				( isSearchNewPricingLaunched202208()
+				( detail?.pricingForUi?.trialAvailable
 					? __(
 							'Jetpack Search Free supports up to 5,000 records and 500 search requests per month for free. You will be asked to upgrade to a paid plan if you exceed these limits for three continuous months.',
 							'jetpack-my-jetpack'

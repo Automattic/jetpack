@@ -19,7 +19,6 @@ import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
 import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
-import { PRODUCT_STATUSES } from '../product-card';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -87,6 +86,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const {
 		isFree,
+		trialAvailable,
 		fullPricePerMonth: price,
 		currencyCode,
 		discountPricePerMonth: discountPrice,
@@ -110,7 +110,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 			: null;
 
 	const addFreeProductUrl =
-		needsPurchase && wpcomFreeProductSlug && status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE
+		trialAvailable && wpcomFreeProductSlug
 			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
 
@@ -257,7 +257,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					</Text>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && addFreeProductUrl && (
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
