@@ -54,7 +54,7 @@ export function buildInitialState() {
 						features: [
 							'Instant search and indexing',
 							'Powerful filtering',
-							'Supports 29 languages',
+							'Supports 38 languages',
 							'Spelling correction',
 						],
 					},

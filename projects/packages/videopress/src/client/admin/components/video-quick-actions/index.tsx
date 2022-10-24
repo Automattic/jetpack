@@ -16,6 +16,7 @@ import {
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
+import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
@@ -78,6 +79,7 @@ const ThumbnailActionsDropdown = ( {
 	return (
 		<Dropdown
 			position="bottom left"
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<>
 					<Button
@@ -87,7 +89,8 @@ const ThumbnailActionsDropdown = ( {
 						icon={ image }
 						onClick={ () => {
 							setShowPopover( false );
-							onToggle();
+							// Uploading image directly instead of toggling the content for now
+							onUpdate( 'upload-image' );
 						} }
 						aria-expanded={ isOpen }
 						onMouseEnter={ () => setShowPopover( true ) }
@@ -242,6 +245,8 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		videoId
 	);
 
+	const { isFetchingPlaybackToken } = usePlaybackToken( data );
+
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
 	const {
 		frameSelectorIsOpen,
@@ -333,7 +338,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 			onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
 			onDeleteVideo={ () => setShowDeleteModal( true ) }
 			privacySetting={ privacySetting }
-			isUpdatingPrivacy={ isUpdatingPrivacy }
+			isUpdatingPrivacy={ isUpdatingPrivacy || isFetchingPlaybackToken }
 			isUpdatingPoster={ isUpdatingPoster }
 		/>
 	);
