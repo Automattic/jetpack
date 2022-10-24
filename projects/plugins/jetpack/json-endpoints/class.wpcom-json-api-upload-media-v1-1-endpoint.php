@@ -97,9 +97,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 					defined( 'VIDEOPRESS_JETPACK_VIDEO_ENABLED' ) && VIDEOPRESS_JETPACK_VIDEO_ENABLED
 				) {
 					// Check that video upload space is available for a Jetpack site (skipped if site is Atomic).
-					if ( function_exists( 'videopress_filter_jetpack_get_space_used' ) ) {
-						$result = videopress_check_space_available_for_jetpack( $blog_id, $media_item['name'], $media_item['size'] );
-					}
+					$result = videopress_check_space_available_for_jetpack( $blog_id, $media_item['name'], $media_item['size'] );
 
 					if ( true !== $result ) {
 						$this->api->output_early( 400, array( 'errors' => $this->rewrite_generic_upload_error( array( $result ) ) ) );
@@ -119,9 +117,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 				// get_space_used() checks blog upload directory storage,
 				// so filter it temporarily to return only video storage used.
-				if ( function_exists( 'videopress_filter_jetpack_get_space_used' ) ) {
-					add_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
-				}
+				add_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
 
 				$media_items = $jetpack_sync->upload_media( $jetpack_media_files, $this->api );
 
