@@ -129,6 +129,8 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 					$post       = (object) $media_item['post'];
 					$media_item = $this->get_media_item_v1_1( $post->ID, $post, $media_item['file'] );
 				}
+				// Remove get_space_used filter after upload.
+				remove_filter( 'pre_get_space_used', 'videopress_filter_jetpack_get_space_used' );
 			}
 		}
 
