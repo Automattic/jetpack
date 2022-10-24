@@ -129,7 +129,7 @@ const setVideosStorageUsed = used => {
 	return { type: SET_VIDEOS_STORAGE_USED, used };
 };
 
-const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
+const updateVideoPrivacy = ( id, level ) => async ( { dispatch, select, resolveSelect } ) => {
 	const privacySetting = Number( level );
 	if ( isNaN( privacySetting ) ) {
 		throw new Error( `Invalid privacy level: '${ level }'` );
@@ -138,6 +138,12 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	if ( 0 > privacySetting || privacySetting >= VIDEO_PRIVACY_LEVELS.length ) {
 		// @todo: implement error handling / UI
 		throw new Error( `Invalid privacy level: '${ level }'` );
+	}
+
+	// Request a video token asap when it becomes private.
+	if ( level === 1 ) {
+		const video = await select.getVideo( id );
+		await resolveSelect.getPlaybackToken( video?.guid );
 	}
 
 	// Let's be optimistic and update the UI right away.
