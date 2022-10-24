@@ -1,4 +1,11 @@
+/*
+ * External dependencies
+ */
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+/*
+ * Internal dependencies
+ */
 import Text from '../text';
 import { Price } from './price';
 import styles from './style.module.scss';
@@ -41,7 +48,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	return (
 		<>
 			<div className={ styles.container }>
-				<div className={ styles[ 'price-container' ] }>
+				<div className={ classnames( styles[ 'price-container' ], 'product-price_container' ) }>
 					<Price
 						value={ offPrice ?? price }
 						currency={ currency }
@@ -59,9 +66,21 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 				</div>
 			</div>
 			<div className={ styles.footer }>
-				{ children ? children : <Text className={ styles.legend }>{ legend }</Text> }
-				{ promoLabel && <Text className={ styles[ 'promo-label' ] }>{ promoLabel }</Text> }
-				{ discountElt && <Text className={ styles[ 'promo-label' ] }>{ discountElt }</Text> }
+				{ children ? (
+					children
+				) : (
+					<Text className={ classnames( styles.legend, 'product-price_leyend' ) }>{ legend }</Text>
+				) }
+				{ promoLabel && (
+					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+						{ promoLabel }
+					</Text>
+				) }
+				{ discountElt && (
+					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+						{ discountElt }
+					</Text>
+				) }
 			</div>
 		</>
 	);
