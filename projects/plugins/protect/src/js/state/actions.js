@@ -16,6 +16,7 @@ const SET_THREAT_IS_UPDATING = 'SET_THREAT_IS_UPDATING';
 const SET_THREATS_ARE_FIXING = 'SET_THREATS_ARE_FIXING';
 const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
+const CLEAR_NOTICE = 'CLEAR_NOTICE';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -281,6 +282,11 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 				);
 			} )
 			.then( () => {
+				setTimeout( () => {
+					return dispatch( clearNotice() );
+				}, 1000 );
+			} )
+			.then( () => {
 				return dispatch( refreshStatusUntilScanning() );
 			} )
 			.catch( () => {
@@ -314,6 +320,10 @@ const setNotice = notice => {
 	return { type: SET_NOTICE, payload: notice };
 };
 
+const clearNotice = () => {
+	return { type: CLEAR_NOTICE };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -330,6 +340,7 @@ const actions = {
 	ignoreThreat,
 	setModal,
 	setNotice,
+	clearNotice,
 	fixThreats,
 	scan,
 	setThreatsAreFixing,
@@ -348,6 +359,7 @@ export {
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
+	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	actions as default,
 };
