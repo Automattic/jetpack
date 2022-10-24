@@ -11,8 +11,6 @@ import { useAnalyticsTracksProps } from './types';
 
 const useAnalyticsTracks = ( {
 	pageViewEventName,
-	pageViewNamespace = 'jetpack_videopress',
-	pageViewSuffix = 'page_view',
 	pageViewEventProperties = {},
 }: useAnalyticsTracksProps ) => {
 	const { isUserConnected, isRegistered, userConnectionData } = useConnection();
@@ -57,21 +55,17 @@ const useAnalyticsTracks = ( {
 	 * It's considered a page view event
 	 * when the component is mounted.
 	 */
-	const pageViewEvent = pageViewEventName
-		? `${ pageViewNamespace }_${ pageViewEventName }_${ pageViewSuffix }`
-		: null;
-
 	useEffect( () => {
 		// Also, only run if the site is registered.
 		if ( ! isRegistered ) {
 			return;
 		}
 
-		if ( ! pageViewEvent ) {
+		if ( ! pageViewEventName ) {
 			return;
 		}
 
-		recordEvent( pageViewEvent, pageViewEventProperties );
+		recordEvent( pageViewEventName, pageViewEventProperties );
 	}, [] );
 
 	return {
