@@ -90,7 +90,7 @@ jobs:
           )"
 
       - name: Send message to alerts channel
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.23.0
         if: github.event.workflow_run.head_branch == 'trunk'
         with:
           channel-id: ${{ secrets.SLACK_JP_ALERTS_CHANNEL }}
@@ -99,7 +99,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.23.0
         if: contains( github.event.workflow_run.head_branch, '/branch-' )
         with:
           channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}

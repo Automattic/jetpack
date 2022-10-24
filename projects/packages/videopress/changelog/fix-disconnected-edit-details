@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Add check for site connectivity on video details edit page
