@@ -140,6 +140,8 @@ class Admin_UI {
 		);
 		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
 
+		wp_enqueue_media();
+
 		// Required for Analytics.
 		if ( self::can_use_analytics() ) {
 			Tracking::register_tracks_functions_scripts( true );
