@@ -5,6 +5,7 @@ import camelize from 'camelize';
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
+const SCAN_STARTED = 'SCAN_STARTED';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
@@ -20,6 +21,10 @@ const CLEAR_NOTICE = 'CLEAR_NOTICE';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
+};
+
+const scanStarted = () => {
+	return { type: SCAN_STARTED };
 };
 
 /**
@@ -274,20 +279,21 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 			method: 'POST',
 		} )
 			.then( () => {
-				return dispatch(
+				dispatch(
 					setNotice( {
 						type: 'success',
 						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
 					} )
 				);
-			} )
-			.then( () => {
 				setTimeout( () => {
-					return dispatch( clearNotice() );
+					dispatch( clearNotice() );
 				}, 1000 );
 			} )
 			.then( () => {
-				return dispatch( refreshStatusUntilScanning() );
+				dispatch( scanStarted() );
+				setTimeout( () => {
+					dispatch( refreshStatus( true ) );
+				}, 5 * 1000 );
 			} )
 			.catch( () => {
 				return dispatch(
@@ -329,6 +335,7 @@ const actions = {
 	setCredentials,
 	setCredentialsIsFetching,
 	setStatus,
+	scanStarted,
 	refreshStatus,
 	setStatusIsFetching,
 	setScanIsEnqueuing,
@@ -350,6 +357,7 @@ export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
+	SCAN_STARTED,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
