@@ -16,6 +16,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
@@ -106,6 +107,8 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_loaded', $this );
 
 		My_Jetpack_Initializer::init();
+
+		Deactivation_Handler::init();
 	}
 
 	/**
