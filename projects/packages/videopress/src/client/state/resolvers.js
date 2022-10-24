@@ -160,7 +160,7 @@ const getVideo = {
 		const video = videos.find( ( { id: videoId } ) => videoId === id );
 
 		// Private videos require a token to be fetched.
-		if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		if ( video && VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
 			const tokens = state?.playbackTokens?.items || [];
 			const token = tokens.find( t => t?.guid === video.guid );
 
