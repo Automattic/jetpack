@@ -17,6 +17,7 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
 	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,
@@ -206,13 +207,11 @@ class DashScan extends Component {
 					<p className="jp-dash-item__description" key="inactive-scanning">
 						{ createInterpolateElement(
 							__(
-								'VaultPress is not active, <button>please activate</button> to enable automatic scanning for security for threats.',
+								'VaultPress is not active, <Link>please activate</Link> to enable automatic scanning for security for threats.',
 								'jetpack'
 							),
 							{
-								button: (
-									<button onClick={ this.onActivateVaultPressClick } className="jp-link-button" />
-								),
+								Link: <Link to="#!" onClick={ this.onActivateVaultPressClick } />,
 							}
 						) }
 					</p>,

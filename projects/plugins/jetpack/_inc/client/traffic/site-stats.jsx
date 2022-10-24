@@ -15,6 +15,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { filter, includes } from 'lodash';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -172,11 +173,11 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<button>Activate Jetpack Stats</button> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'<Link>Activate Jetpack Stats</Link> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 											'jetpack'
 										),
 										{
-											button: <button onClick={ this.activateStats } className="jp-link-button" />,
+											Link: <Link to="#!" onClick={ this.activateStats } />,
 											a1: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }

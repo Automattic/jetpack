@@ -10,6 +10,7 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
 	connectUser,
 	hasConnectedOwner as hasConnectedOwnerSelector,
@@ -151,11 +152,11 @@ class DashVideoPress extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<button>Activate</button> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
+									'<Link>Activate</Link> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
 									'jetpack'
 								),
 								{
-									button: <button onClick={ this.activateVideoPress } className="jp-link-button" />,
+									Link: <Link to="#!" onClick={ this.activateVideoPress } />,
 								}
 						  ) }
 				</p>

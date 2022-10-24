@@ -14,6 +14,7 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { getAkismetData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getApiNonce } from 'state/initial-state';
@@ -99,9 +100,9 @@ class DashAkismet extends Component {
 
 		const getAkismetUpgradeBanner = () => {
 			const description = createInterpolateElement(
-				__( 'Already have a key? <button>Activate Akismet</button>', 'jetpack' ),
+				__( 'Already have a key? <Link>Activate Akismet</Link>', 'jetpack' ),
 				{
-					button: <button onClick={ this.onActivateClick } className="jp-link-button" />,
+					Link: <Link to="#!" onClick={ this.activateVideoPress } />,
 				}
 			);
 

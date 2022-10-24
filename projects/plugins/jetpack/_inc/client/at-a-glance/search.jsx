@@ -14,6 +14,7 @@ import {
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
@@ -189,11 +190,11 @@ class DashSearch extends Component {
 			pro_inactive: false,
 			content: createInterpolateElement(
 				__(
-					'<button>Activate</button> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+					'<Link>Activate</Link> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 					'jetpack'
 				),
 				{
-					button: <button onClick={ this.activateSearch } className="jp-link-button" />,
+					Link: <Link to="#!" onClick={ this.activateSearch } />,
 				}
 			),
 		} );

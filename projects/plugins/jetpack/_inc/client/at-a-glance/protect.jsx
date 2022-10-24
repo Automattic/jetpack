@@ -6,6 +6,7 @@ import QueryProtectCount from 'components/data/query-dash-protect';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { getProtectCount } from 'state/at-a-glance';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
@@ -86,11 +87,11 @@ class DashProtect extends Component {
 						! this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<a>Connect your WordPress.com</a> account to keep your site protected from malicious sign in attempts.',
+								'<Link>Connect your WordPress.com</Link> account to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								button: <button onClick={ this.connect } className="jp-link-button" />,
+								Link: <Link to="#!" onClick={ this.connect } />,
 							}
 						) }
 
@@ -98,11 +99,11 @@ class DashProtect extends Component {
 						this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<button>Activate Protect</button> to keep your site protected from malicious sign in attempts.',
+								'<Link>Activate Protect</Link> to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								button: <button onClick={ this.activateProtect } className="jp-link-button" />,
+								Link: <Link to="#!" onClick={ this.activateProtect } />,
 							}
 						) }
 				</p>

@@ -6,6 +6,7 @@ import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 
@@ -58,11 +59,11 @@ class DashMonitor extends Component {
 		const activateMessage = this.props.hasConnectedOwner
 			? createInterpolateElement(
 					__(
-						'<button>Activate Monitor</button> to receive email notifications if your site goes down.',
+						'<Link>Activate Monitor</Link> to receive email notifications if your site goes down.',
 						'jetpack'
 					),
 					{
-						button: <button onClick={ this.activateAndTrack } className="jp-link-button" />,
+						Link: <Link to="#!" onClick={ this.activateAndTrack } />,
 					}
 			  )
 			: __(
@@ -88,11 +89,11 @@ class DashMonitor extends Component {
 					<p className="jp-dash-item__description jp-dash-item__connect">
 						{ createInterpolateElement(
 							__(
-								'<button>Connect your WordPress.com</button> account to use this feature.',
+								'<Link>Connect your WordPress.com</Link> account to use this feature.',
 								'jetpack'
 							),
 							{
-								button: <button onClick={ this.connect } className="jp-link-button" />,
+								Link: <Link to="#!" onClick={ this.connect } />,
 							}
 						) }
 					</p>

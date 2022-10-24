@@ -5,6 +5,7 @@ import DashItem from 'components/dash-item';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { isOfflineMode } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 
@@ -52,11 +53,11 @@ class DashPhoton extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									"<button>Activate</button> to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
+									"<Link>Activate</Link> to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.",
 									'jetpack'
 								),
 								{
-									button: <button onClick={ this.activatePhoton } className="jp-link-button" />,
+									Link: <Link to="#!" onClick={ this.activatePhoton } />,
 								}
 						  ) }
 				</p>
