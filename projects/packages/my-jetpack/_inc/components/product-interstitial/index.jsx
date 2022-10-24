@@ -3,11 +3,9 @@ import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import { STORE_ID } from '../../state/store';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import boostImage from './boost.png';
@@ -44,50 +42,45 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
-	const trackProductClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
-	}, [ recordEvent, slug ] );
+	const trackProductClick = useCallback(
+		( customSlug = null ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: customSlug ?? slug,
+			} );
+		},
+		[ recordEvent, slug ]
+	);
 
 	const trackBundleClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
 	}, [ recordEvent, bundle ] );
 
-	const { isUserConnected } = useMyJetpackConnection();
-
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
-	const clickHandler = useCallback( () => {
-		activate().finally( () => {
-			const product = select( STORE_ID ).getProduct( slug );
-			const postActivationUrl = product?.postActivationUrl;
-			const hasRequiredPlan = product?.hasRequiredPlan;
-			const isFree = product?.pricingForUi?.isFree;
-			const wpcomProductSlug = product?.pricingForUi?.wpcomProductSlug;
-			const wpcomFreeProductSlug = product?.pricingForUi?.wpcomFreeProductSlug;
-			const needsPurchase = ! isFree && ! hasRequiredPlan;
-			const trialAvailable = product?.pricingForUi?.trialAvailable;
+	const clickHandler = useCallback(
+		checkoutUrl => {
+			activate().finally( () => {
+				const product = select( STORE_ID ).getProduct( slug );
+				const postActivationUrl = product?.postActivationUrl;
+				const hasRequiredPlan = product?.hasRequiredPlan;
+				const isFree = product?.pricingForUi?.isFree;
+				const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-			if ( postActivationUrl ) {
-				window.location.href = postActivationUrl;
-				return;
-			}
+				if ( postActivationUrl ) {
+					window.location.href = postActivationUrl;
+					return;
+				}
 
-			if ( ! needsPurchase || ! wpcomProductSlug ) {
-				return navigateToMyJetpackOverviewPage();
-			}
+				if ( ! needsPurchase || ! checkoutUrl ) {
+					return navigateToMyJetpackOverviewPage();
+				}
 
-			let url;
-
-			if ( trialAvailable && wpcomFreeProductSlug ) {
-				url = getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ); // If a trial is available, use the free product slug.
-			} else {
-				url = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
-			}
-
-			// Redirect to the checkout page.
-			window.location.href = url;
-		} );
-	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
+				// Redirect to the checkout page.
+				window.location.href = checkoutUrl;
+			} );
+		},
+		[ navigateToMyJetpackOverviewPage, activate, slug ]
+	);
 
 	const onClickGoBack = useCallback( () => {
 		if ( slug ) {

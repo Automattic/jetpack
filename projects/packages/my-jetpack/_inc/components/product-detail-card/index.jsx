@@ -138,10 +138,13 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		if ( onClick ) {
-			onClick();
-		}
-	}, [ onClick, trackButtonClick ] );
+		onClick?.( addProductUrl );
+	}, [ onClick, trackButtonClick, addProductUrl ] );
+
+	const trialClickHandler = useCallback( () => {
+		trackButtonClick( wpcomFreeProductSlug );
+		onClick?.( addFreeProductUrl );
+	}, [ onClick, trackButtonClick, addFreeProductUrl, wpcomFreeProductSlug ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -260,11 +263,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable && (
 					<Text
 						component={ ProductDetailButton }
-						onClick={ clickHandler }
+						onClick={ trialClickHandler }
 						isLoading={ isFetching }
 						disabled={ cantInstallPlugin }
 						isPrimary={ false }
-						href={ addFreeProductUrl }
+						href={ onClick ? undefined : addFreeProductUrl }
 						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
 						variant="body"
 					>
