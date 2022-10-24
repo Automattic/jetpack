@@ -18,6 +18,8 @@ import {
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
+	VIDEO_PRIVACY_LEVELS,
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -117,6 +119,26 @@ const getVideos = {
 	},
 };
 
+/**
+ * Helper function to populate some video data
+ * that requires a token.
+ *
+ * @param {object} video         - Video object.
+ * @param {object} resolveSelect - Containing the store’s selectors pre-bound to state
+ * @returns {object}               Tokenized video data object.
+ */
+async function populateVideoDataWithToken( video, resolveSelect ) {
+	if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] !== VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		return video;
+	}
+
+	const { token } = await resolveSelect.getPlaybackToken( video.guid );
+	video.posterImage += `?metadata_token=${ token }`;
+	video.thumbnail += `?metadata_token=${ token }`;
+
+	return video;
+}
+
 const getVideo = {
 	isFulfilled: ( state, id ) => {
 		// String ID is the generated ID, not the WP ID.
@@ -125,17 +147,31 @@ const getVideo = {
 		}
 
 		const videos = state.videos.items ?? [];
-		return videos?.some( video => video?.id === id );
+		const video = videos.find( ( { id: videoId } ) => videoId === id );
+
+		// Private videos require a token to be fetched.
+		if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+			const tokens = state?.playbackTokens?.items || [];
+			const token = tokens.find( t => t?.guid === video.guid );
+
+			return !! token;
+		}
+
+		return video;
 	},
-	fulfill: id => async ( { dispatch } ) => {
+	fulfill: id => async ( { dispatch, resolveSelect } ) => {
 		dispatch.setIsFetchingVideos( true );
 
 		try {
 			const video = await apiFetch( {
 				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
 			} );
+			const mappedVideoData = await populateVideoDataWithToken(
+				mapVideoFromWPV2MediaEndpoint( video ),
+				resolveSelect
+			);
 
-			dispatch.setVideo( mapVideoFromWPV2MediaEndpoint( video ) );
+			dispatch.setVideo( mappedVideoData );
 			return video;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
