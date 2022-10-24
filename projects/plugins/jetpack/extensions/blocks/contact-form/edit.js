@@ -19,7 +19,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
-import { get, map } from 'lodash';
+import { get, map, filter } from 'lodash';
 import HelpMessage from '../../shared/help-message';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
@@ -272,7 +272,7 @@ export function JetpackContactFormEdit( {
 						"Please select which type of form you'd like to add, or create your own using the skip option.",
 						'jetpack'
 					) }
-					variations={ variations }
+					variations={ filter( variations, v => ! v.hiddenFromPicker ) }
 					allowSkip
 					onSelect={ ( nextVariation = defaultVariation ) => {
 						setVariation( nextVariation );
