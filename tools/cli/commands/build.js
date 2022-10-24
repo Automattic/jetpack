@@ -768,12 +768,38 @@ async function buildProject( t ) {
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
-		await writeFileAtomic(
-			`${ buildDir }/composer.json`,
-			JSON.stringify( composerJson, null, '\t' ) + '\n',
-			{ encoding: 'utf8' }
-		);
 	}
+
+	// Update dependency version numbers in composer.json.
+	const composerDepTyes = [ 'require', 'require-dev' ];
+	for ( const key of composerDepTyes ) {
+		if ( composerJson[ key ] ) {
+			for ( const [ pkg ] of Object.entries( composerJson[ key ] ) ) {
+				Object.values( t.ctx.versions ).find( ctxPkg => {
+					if ( ctxPkg.name === pkg ) {
+						let massagedVer = ctxPkg.version;
+
+						// Truncate non-0.x versions to be two components only.
+						if ( massagedVer[ 0 ] !== '0' ) {
+							massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
+						}
+
+						// Prefix versions with '^'.
+						massagedVer = `^${ massagedVer }`;
+
+						composerJson[ key ][ pkg ] = massagedVer;
+					}
+				} );
+			}
+		}
+	}
+
+	// Write updated composer.json file data.
+	await writeFileAtomic(
+		`${ buildDir }/composer.json`,
+		JSON.stringify( composerJson, null, '\t' ) + '\n',
+		{ encoding: 'utf8' }
+	);
 
 	// Remove engines and workspace refs from package.json.
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
@@ -831,10 +857,33 @@ async function buildProject( t ) {
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
 	}
 
+	// Get the proeject version number from the changelog.md file.
+	let projectVersionNumber = '';
+	try {
+		const changelogText = await fs.readFile( `${ t.cwd }/CHANGELOG.md`, { encoding: 'utf8' } );
+		projectVersionNumber = changelogText
+			.toString()
+			.split( '\n' )
+			.find( line => {
+				return line.startsWith( '## ' ) && ! line.includes( '-alpha' );
+			} )
+			.split( ' ' )[ 1 ]
+			.replace( /[[\]]/g, '' );
+
+		if ( ! projectVersionNumber ) {
+			throw 'Version number not found.';
+		}
+	} catch ( err ) {
+		console.error(
+			`Error reading project version number from changelog file for ${ t.project }: ${ err }`
+		);
+		return false;
+	}
+
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
-		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
+		version: projectVersionNumber,
 	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
