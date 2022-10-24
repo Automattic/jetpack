@@ -5,5 +5,7 @@ type eventPageViewNameProp = `${ eventPrefix }_${ eventName }_${ eventSuffix }`;
 
 export type useAnalyticsTracksProps = {
 	pageViewEventName?: eventPageViewNameProp;
-	pageViewEventProperties?: object;
+	pageViewEventProperties?: {
+		[ key: string ]: string | number | boolean;
+	};
 };
