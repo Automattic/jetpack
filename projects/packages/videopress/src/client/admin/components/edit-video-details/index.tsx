@@ -13,6 +13,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall } from '@wordpress/icons';
 import classnames from 'classnames';
+import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -142,9 +143,13 @@ const EditVideoDetails = () => {
 		title,
 		description,
 		caption,
+		// Playback Token
+		playbackToken,
+		isFetchingPlaybackToken,
 		// Page State/Actions
 		hasChanges,
 		updating,
+		updated,
 		isFetching,
 		handleSaveChanges,
 		// Metadata
@@ -170,25 +175,41 @@ const EditVideoDetails = () => {
 	);
 
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges,
+		shouldPrevent: hasChanges && ! updated,
 		message: unsavedChangesMessage,
 	} );
 
-	let thumbnail: string | JSX.Element = posterImage;
+	const history = useHistory();
+
+	useEffect( () => {
+		if ( updated === true ) {
+			history.push( '/' );
+		}
+	}, [ updated ] );
+
+	// We may need the playback token on the video URL as well
+	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
+
+	let thumbnail: string | JSX.Element = playbackToken
+		? `${ posterImage }?metadata_token=${ playbackToken }`
+		: posterImage;
+
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
 
+	const isFetchingData = isFetching || isFetchingPlaybackToken;
+
 	return (
 		<>
-			<Prompt when={ hasChanges } message={ unsavedChangesMessage } />
+			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
-					url={ url }
+					url={ videoUrl }
 					handleVideoFrameSelected={ handleVideoFrameSelected }
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
@@ -215,12 +236,12 @@ const EditVideoDetails = () => {
 								onChangeDescription={ setDescription }
 								caption={ caption ?? '' }
 								onChangeCaption={ setCaption }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ isFetching ? <Placeholder height={ 200 } /> : thumbnail }
+								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
 								duration={ duration }
 								editable
 								onSelectFromVideo={ handleOpenSelectFrame }
@@ -230,7 +251,7 @@ const EditVideoDetails = () => {
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 					</Container>

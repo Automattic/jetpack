@@ -178,7 +178,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 *
 	 * @dataProvider privacy_settings_data_provider
 	 *
-	 * @covers VIDEOPRESS_PRIVACY::
+	 * @covers VIDEOPRESS_PRIVACY
 	 *
 	 * @param int $expected The expected privacy constant value.
 	 * @param int $actual   The actual privacy constant value.
