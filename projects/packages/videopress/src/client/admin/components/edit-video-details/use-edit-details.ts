@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
@@ -9,6 +10,7 @@ import { useParams, useHistory } from 'react-router-dom';
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
 import { STORE_ID } from '../../../state';
+import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 
@@ -54,10 +56,17 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 export default () => {
 	const history = useHistory();
 	const dispatch = useDispatch( STORE_ID );
+	const { isRegistered } = useConnection();
+
+	if ( ! isRegistered ) {
+		history.push( '/' );
+	}
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
 	const { data: video, isFetching } = useVideo( Number( videoId ) );
+
+	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
@@ -65,6 +74,7 @@ export default () => {
 	>( null );
 
 	const [ updating, setUpdating ] = useState( false );
+	const [ updated, setUpdated ] = useState( false );
 
 	const [ data, setData ] = useState( {
 		title: video?.title,
@@ -130,7 +140,7 @@ export default () => {
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
-			history.push( '/' );
+			setUpdated( true );
 		} );
 	};
 
@@ -162,6 +172,8 @@ export default () => {
 	}, [ initialLoading ] );
 
 	return {
+		playbackToken,
+		isFetchingPlaybackToken,
 		...video,
 		...data, // data is the local representation of the video
 		hasChanges,
@@ -171,6 +183,7 @@ export default () => {
 		handleSaveChanges,
 		isFetching,
 		updating,
+		updated,
 		selectedTime,
 		...metaEditData,
 		...posterEditData,

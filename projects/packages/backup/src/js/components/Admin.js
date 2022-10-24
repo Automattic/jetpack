@@ -204,6 +204,10 @@ const ReviewMessage = connectionLoaded => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
 
+	const tracksDismissReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_dismiss_review_click' );
+	}, [ tracks ] );
+
 	if ( hasRecentSuccesfulRestore() ) {
 		requestReason = 'restore';
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
@@ -217,7 +221,8 @@ const ReviewMessage = connectionLoaded => {
 
 	const [ dismissedReview, dismissMessage ] = useDismissedReviewRequest(
 		connectionLoaded,
-		requestReason
+		requestReason,
+		tracksDismissReview
 	);
 
 	if ( ! hasRecentSuccesfulRestore() && ! hasFiveSuccessfulBackups() ) {
@@ -291,7 +296,7 @@ const useBackups = connectionLoaded => {
 	return [ backups, setBackups ];
 };
 
-const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
+const useDismissedReviewRequest = ( connectionLoaded, requestReason, tracksDismissReview ) => {
 	const [ dismissedReview, setDismissedReview ] = useState( true );
 
 	useEffect( () => {
@@ -317,6 +322,7 @@ const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
 
 	const dismissMessage = e => {
 		e.preventDefault();
+		tracksDismissReview();
 		apiFetch( {
 			path: '/jetpack/v4/site/dismissed-review-request',
 			method: 'POST',

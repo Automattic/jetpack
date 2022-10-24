@@ -90,6 +90,7 @@ export const VideoRow = ( {
 	className = '',
 	checked = false,
 	title,
+	titleAdornment = null,
 	thumbnail: defaultThumbnail,
 	showThumbnail = false,
 	duration,
@@ -97,18 +98,22 @@ export const VideoRow = ( {
 	plays,
 	isPrivate,
 	privacySetting,
-	onVideoDetailsClick,
+	onActionClick,
 	onSelect,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = true,
+	showCheckbox = true,
 	loading = false,
 	isUpdatingPoster = false,
+	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
+	disableActionButton = false,
+	disabled = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const [ showActions, setShowActions ] = useState( false );
+	const [ showActionsState, setShowActions ] = useState( false );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
 
@@ -117,6 +122,8 @@ export const VideoRow = ( {
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;
+	const showActions =
+		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
 
@@ -130,14 +137,14 @@ export const VideoRow = ( {
 	const canExpand =
 		isSmall &&
 		! loading &&
-		( showEditButton ||
+		( showActionButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
 			typeof isPrivate === 'boolean' );
 
-	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
+	const hoverDisabled = isSmall || loading || disabled;
 
-	const editVideoLabel = __( 'Edit video details', 'jetpack-videopress-pkg' );
+	const isSpaceOrEnter = code => code === 'Space' || code === 'Enter';
 
 	const wrapperAriaLabel = sprintf(
 		/* translators: 1 Video title, 2 Video duration, 3 Video upload date */
@@ -155,9 +162,13 @@ export const VideoRow = ( {
 		callback?.( event );
 	};
 
-	const editDetailsButton = (
-		<Button size="small" onClick={ handleClickWithStopPropagation( onVideoDetailsClick ) }>
-			{ editVideoLabel }
+	const actionButton = (
+		<Button
+			size="small"
+			onClick={ handleClickWithStopPropagation( onActionClick ) }
+			disabled={ disableActionButton }
+		>
+			{ actionButtonLabel }
 		</Button>
 	);
 
@@ -202,27 +213,30 @@ export const VideoRow = ( {
 			tabIndex={ 0 }
 			onKeyDown={ isSmall ? null : handleKeyDown }
 			onKeyUp={ isSmall ? null : handleKeyUp }
-			onMouseOver={ isSmall || loading ? null : handleOver }
-			onMouseLeave={ isSmall || loading ? null : handleLeave }
+			onMouseOver={ hoverDisabled ? null : handleOver }
+			onMouseLeave={ hoverDisabled ? null : handleLeave }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
 			className={ classNames(
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
+					[ styles.disabled ]: hoverDisabled,
 				},
 				className
 			) }
 		>
-			<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
-				<Checkbox
-					ref={ checkboxRef }
-					checked={ checked && ! loading }
-					tabIndex={ -1 }
-					onChange={ onSelect }
-					disabled={ loading }
-				/>
-			</div>
+			{ showCheckbox && (
+				<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
+					<Checkbox
+						ref={ checkboxRef }
+						checked={ checked && ! loading }
+						tabIndex={ -1 }
+						onChange={ onSelect }
+						disabled={ loading }
+					/>
+				</div>
+			) }
 			<div
 				className={ classNames( styles[ 'video-data-wrapper' ], {
 					[ styles.small ]: isSmall,
@@ -252,8 +266,13 @@ export const VideoRow = ( {
 						{ loading ? (
 							<Placeholder height={ 30 } />
 						) : (
-							<Text variant="title-small" className={ styles.title } ref={ textRef }>
+							<Text
+								variant="title-small"
+								className={ classNames( styles.title, { [ styles.disabled ]: disabled } ) }
+								ref={ textRef }
+							>
 								{ title }
+								{ titleAdornment }
 							</Text>
 						) }
 
@@ -271,9 +290,9 @@ export const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && ( showEditButton || showQuickActions ) && ! loading && (
+						{ showActions && (
 							<div className={ styles.actions }>
-								{ showEditButton && editDetailsButton }
+								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }
@@ -288,7 +307,7 @@ export const VideoRow = ( {
 						) }
 						{ isSmall && (
 							<div className={ styles[ 'mobile-actions' ] }>
-								{ showEditButton && editDetailsButton }
+								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }

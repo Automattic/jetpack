@@ -117,9 +117,6 @@ const VideoThumbnail = ( {
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
-	/** If the thumbnail is private, do not try to show it */
-	thumbnail = isPrivate ? null : thumbnail;
-
 	thumbnail =
 		typeof thumbnail === 'string' && thumbnail !== '' ? (
 			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
