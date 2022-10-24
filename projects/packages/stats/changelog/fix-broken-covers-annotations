@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix broken `@covers` in tests. No need to mention that in the changelog, it's just tests.
+
+

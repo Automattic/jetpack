@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: check if free plan and new pricing is active using wpcom API

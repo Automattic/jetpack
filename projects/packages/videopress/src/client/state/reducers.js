@@ -33,6 +33,9 @@ import {
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
 	SET_USERS_PAGINATION,
+	SET_LOCAL_VIDEO_UPLOADED,
+	SET_IS_FETCHING_PLAYBACK_TOKEN,
+	SET_PLAYBACK_TOKEN,
 } from './constants';
 
 /**
@@ -490,6 +493,27 @@ const localVideos = ( state, action ) => {
 				},
 			};
 		}
+
+		case SET_LOCAL_VIDEO_UPLOADED: {
+			const { id } = action;
+			const items = [ ...( state?.items ?? [] ) ];
+			const index = items.findIndex( item => item.id === id );
+
+			if ( index === -1 ) {
+				return state;
+			}
+
+			items[ index ] = {
+				...items[ index ],
+				isUploadedToVideoPress: true,
+			};
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
 	}
 
 	return state;
@@ -541,11 +565,49 @@ const purchases = ( state, action ) => {
 	}
 };
 
+const playbackTokens = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PLAYBACK_TOKEN: {
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		}
+
+		case SET_PLAYBACK_TOKEN: {
+			const { playbackToken } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const playbackTokenIndex = items.findIndex( item => item.guid === playbackToken.guid );
+
+			if ( playbackTokenIndex === -1 ) {
+				// Add it to the array
+				items.unshift( playbackToken );
+			} else {
+				// Update it
+				items[ playbackTokenIndex ] = {
+					...items[ playbackTokenIndex ],
+					...playbackToken,
+				};
+			}
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	videos,
 	localVideos,
 	purchases,
 	users,
+	playbackTokens,
 } );
 
 export default reducers;
