@@ -12,7 +12,7 @@ The scope of this library is to:
 - provide a consistent way to launch and configure a Jetpack environment for e2e testing
 - provide the most common pages modeled as page objects (see [Page objects model](https://playwright.dev/docs/test-pom))
 - provide implementation of the most common flows (login, connect Jetpack)
-- create test results, send Slack notifications
+- create test results
 
 This project is intended to be used as a dependency by other e2e test projects for Jetpack plugins. There are no tests defined here.
 

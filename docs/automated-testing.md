@@ -55,13 +55,13 @@ There are examples scattered through the monorepo such as [connection-status-car
 
 ### Gutenberg blocks
 
-The [official core documentation](https://developer.wordpress.org/block-editor/contributors/code/testing-overview/) covers quite a lot of basics and would a good starting point for anyone starting with Gutenberg tests. There are multiple types of tests one can write for a blocks:
+The [official core documentation](https://developer.wordpress.org/block-editor/contributors/code/testing-overview/) covers quite a lot of basics and would a good starting point for anyone starting with Gutenberg tests. There are multiple types of tests one can write for a block:
 
 - [`validate` tests](/projects/plugins/jetpack/extensions/shared/test/block-fixtures.md) - Tests that verify expected block output.
 - `edit` tests - Tests for edit handlers.
 - `controls` tests - Tests for block controls.
 
-Subscriptions block has a good example of how to write tests for all of these types of tests. Refer to [subscriptions block tests](/projects/plugins/jetpack/extensions/blocks/subscriptions/test) for more details.
+Subscriptions block has a good example of how to write these types of tests. Refer to [subscriptions block tests](/projects/plugins/jetpack/extensions/blocks/subscriptions/test) for more details.
 
 ## E2E Tests
 
