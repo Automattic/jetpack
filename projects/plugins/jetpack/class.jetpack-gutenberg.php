@@ -695,6 +695,7 @@ class Jetpack_Gutenberg {
 				 * @module publicize
 				 *
 				 * @since 10.3.0
+				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */

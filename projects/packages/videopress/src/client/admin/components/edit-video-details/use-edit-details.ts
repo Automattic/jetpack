@@ -10,6 +10,7 @@ import { useParams, useHistory } from 'react-router-dom';
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
 import { STORE_ID } from '../../../state';
+import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 
@@ -64,6 +65,8 @@ export default () => {
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
 	const { data: video, isFetching } = useVideo( Number( videoId ) );
+
+	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
@@ -169,6 +172,8 @@ export default () => {
 	}, [ initialLoading ] );
 
 	return {
+		playbackToken,
+		isFetchingPlaybackToken,
 		...video,
 		...data, // data is the local representation of the video
 		hasChanges,

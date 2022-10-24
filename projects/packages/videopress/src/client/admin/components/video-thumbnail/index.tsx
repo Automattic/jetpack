@@ -76,12 +76,13 @@ export const VideoThumbnailDropdown = ( {
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
 				position="bottom left"
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
-						onClick={ onToggle }
+						onClick={ onUploadImage }
 						aria-expanded={ isOpen }
 					/>
 				) }
@@ -116,9 +117,6 @@ const VideoThumbnail = ( {
 	onUploadImage,
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-
-	/** If the thumbnail is private, do not try to show it */
-	thumbnail = isPrivate ? null : thumbnail;
 
 	thumbnail =
 		typeof thumbnail === 'string' && thumbnail !== '' ? (

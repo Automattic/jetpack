@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Add support to the use of playback tokens on the details page, so it's possible to see thumbnails on videos that are private.

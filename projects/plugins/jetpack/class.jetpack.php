@@ -3268,6 +3268,7 @@ p {
 
 		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
+			Jetpack_Connection_Widget::init();
 		}
 
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
@@ -6751,7 +6752,7 @@ endif;
 			'features'          => array(
 				_x( 'Instant search and indexing', 'Search Product Feature', 'jetpack' ),
 				_x( 'Powerful filtering', 'Search Product Feature', 'jetpack' ),
-				_x( 'Supports 29 languages', 'Search Product Feature', 'jetpack' ),
+				_x( 'Supports 38 languages', 'Search Product Feature', 'jetpack' ),
 				_x( 'Spelling correction', 'Search Product Feature', 'jetpack' ),
 			),
 		);
