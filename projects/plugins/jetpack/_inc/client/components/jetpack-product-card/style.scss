@@ -78,23 +78,25 @@
 
 .jp-product-card__price {
 	// Price item
-	> div > p {
+	.product-price_price {
 		margin-inline-end: 0.75rem !important;
 
-		font-size: 3.375rem;
+		font-size: 48px; // var(--font-headline-medium);
 		font-weight: 700;
-		line-height: 0.7;
+		line-height: 52px;
 
 		// Currency symbol
 		sup:first-of-type {
-			font-size: 1.5rem;
-			margin-top: -0.25rem;
+			font-weight: 400;
+			font-size: 24px; // var(--font-title-medium);
+    		line-height: 32px;
 		}
 
 		// Fraction
 		sup:last-of-type {
-			font-size: 0.75rem;
-			margin-top: -0.75rem;
+			font-size: 14px; // var(--font-body-small);
+			font-weight: 400;
+			line-height: 24px;
 		}
 	}
 
@@ -104,6 +106,7 @@
 		font-size: 14px; // --font-body-small
 		line-height: 20px;
 		font-weight: 400;
+		margin-bottom: 24px;
 
 		&::after {
 			content: "\200B"; // Pseudo element to keep height
