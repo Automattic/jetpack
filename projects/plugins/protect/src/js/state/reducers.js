@@ -38,7 +38,7 @@ const status = ( state = {}, action ) => {
 		case SET_STATUS:
 			return action.status;
 		case SCAN_STARTED:
-			return { ...state, status: 'scanning' };
+			return { ...state, lastChecked: null, status: 'scanning' };
 	}
 	return state;
 };
