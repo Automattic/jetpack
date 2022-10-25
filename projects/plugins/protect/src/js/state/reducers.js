@@ -12,6 +12,7 @@ import {
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
+	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 } from './actions';
 
@@ -123,6 +124,8 @@ const notice = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_NOTICE:
 			return { ...state, ...action.payload };
+		case CLEAR_NOTICE:
+			return {};
 	}
 	return state;
 };
