@@ -9,9 +9,18 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 
 	/**
-	 * List of objects to pass to each copy of the slot.
+	 * Svelte doesn't support TypeScript generics,
+	 * so this is a workaround found in:
+	 * https://github.com/sveltejs/language-tools/issues/273
 	 */
-	export let entries: unknown[] = [];
+	type T = $$Generic;
+	interface $$Slots {
+		default: {
+			entry: T;
+		};
+	}
+
+	export let entries: T[] = [];
 
 	/**
 	 * The maximum number of items to show before folding extras away.
@@ -22,12 +31,14 @@
 	function toggle() {
 		expanded = ! expanded;
 	}
+
+	$: listItems = expanded ? entries : entries.slice( 0, showLimit );
 </script>
 
 <ul>
-	{#each expanded ? entries : entries.slice( 0, showLimit ) as props}
+	{#each listItems as item}
 		<li transition:slide|local>
-			<slot entry={props} />
+			<slot entry={item} />
 		</li>
 	{/each}
 
