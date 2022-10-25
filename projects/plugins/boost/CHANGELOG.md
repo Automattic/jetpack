@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.2-beta] - 2022-10-20
+## [1.5.2] - 2022-10-25
 ### Added
 - Compatibility: Added a compatibility module for WP Super Cache.
 - Compatibility: Tested with v6.1 of WordPress.
@@ -174,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
 [1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
 [1.4.3-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.2...v1.4.3-beta
-[1.5.2-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.1...v1.5.2-beta
+[1.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.1...v1.5.2-beta
 [1.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.5.0
 [1.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.4.2
