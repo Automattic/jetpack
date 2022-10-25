@@ -4,20 +4,20 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.11.x-dev",
-		"automattic/jetpack-connection": "1.46.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "2.3.x-dev",
-		"automattic/jetpack-sync": "1.40.x-dev",
-		"automattic/jetpack-plugins-installer": "0.2.x-dev",
-		"automattic/jetpack-videopress": "0.6.x-dev"
+		"automattic/jetpack-assets": "^1.17.23",
+		"automattic/jetpack-autoloader": "^2.11.11",
+		"automattic/jetpack-composer-plugin": "^1.1.5",
+		"automattic/jetpack-config": "^1.11.0",
+		"automattic/jetpack-connection": "^1.46.0",
+		"automattic/jetpack-identity-crisis": "^0.8.27",
+		"automattic/jetpack-my-jetpack": "^2.3.2",
+		"automattic/jetpack-sync": "^1.40.1",
+		"automattic/jetpack-plugins-installer": "^0.2.0",
+		"automattic/jetpack-videopress": "^0.6.4"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "3.2.x-dev",
+		"automattic/jetpack-changelogger": "^3.2.1",
 		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
@@ -30,15 +30,7 @@
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
