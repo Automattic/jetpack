@@ -20,6 +20,7 @@
 	const dispatch = createEventDispatcher();
 
 	async function disablePrompt() {
+		// @TODO: Fix TypeScript Issue
 		// Send a request to back-end to permanently disable the rating prompt.
 		data = {
 			action: 'set_show_score_prompt',
@@ -38,6 +39,7 @@
 
 {#if ! $dismissedPopOuts.includes( id )}
 	<div class="jb-rating-card__wrapper">
+		<!-- @TODO: Fix TypeScript Issue -->
 		<div class="jb-rating-card" transition:slideRightTransition>
 			<CloseButton on:click={() => dispatch( 'dismiss' )} />
 			<h3 class="jb-rating-card__headline">

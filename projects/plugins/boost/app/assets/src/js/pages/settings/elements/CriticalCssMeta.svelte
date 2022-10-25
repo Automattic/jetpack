@@ -14,6 +14,7 @@
 				'jetpack-boost'
 			)}
 		</span>
+		<!-- @TODO: Fix TypeScript Issue -->
 		<div
 			role="progressbar"
 			aria-valuemax="100"

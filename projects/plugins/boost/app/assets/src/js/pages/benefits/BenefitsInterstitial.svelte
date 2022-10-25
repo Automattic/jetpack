@@ -69,6 +69,7 @@
 
 			<div class="jb-card__cta px-2 my-4">
 				{#if 'yearly' in $pricing}
+					<!-- @TODO: Fix TypeScript Issue -->
 					<ReactComponent
 						this={PricingCard}
 						title={'Jetpack Boost'}

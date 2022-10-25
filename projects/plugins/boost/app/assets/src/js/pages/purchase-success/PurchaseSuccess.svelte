@@ -46,6 +46,7 @@
 			</div>
 
 			<div class="jb-card__cta px-1 py-4">
+				<!-- @TODO: Fix TypeScript Issue -->
 				<img
 					src={`${ window.Jetpack_Boost.site.assetPath }../static/images/boost.png`}
 					alt={__( 'Optimize with Jetpack Boost', 'jetpack-boost' )}

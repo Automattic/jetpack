@@ -35,6 +35,7 @@
 	// Keep a set of URLs in an easy-to-render {href:, label:} format.
 	// Each should show the URL in its label, but actually link to error.meta.url if available.
 	let displayUrls = [];
+	// @TODO: Fix TypeScript Issue
 	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => ( {
 		href: error.meta.url ? error.meta.url : url,
 		label: url,
@@ -48,10 +49,12 @@
 
 <div class="jb-critical-css__error-description">
 	<span class="error-description">
+		<!-- @TODO: Fix TypeScript Issue -->
 		<TemplatedString template={describeErrorSet( errorSet )} vars={{ templateVars }} />
 	</span>
 
 	<MoreList let:entry entries={displayUrls}>
+		<!-- @TODO: Fix TypeScript Issue -->
 		<a href={entry.href} target="_blank">
 			{entry.label}
 		</a>

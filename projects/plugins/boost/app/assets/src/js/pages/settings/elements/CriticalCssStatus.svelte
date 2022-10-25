@@ -32,6 +32,7 @@
 					),
 					$criticalCssStatus.success_count
 				)}
+				<!-- @TODO: Fix TypeScript Issue -->
 				<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
 				{#if $criticalCssStatus.progress < 100}
 					<span>{generateMoreText}</span>
