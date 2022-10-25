@@ -6,12 +6,11 @@
 ### Enhancements
 - Form block: add Contact Form child blocks to the Block Library. [#26937]
 - Form block: add default spacing attributes on all form variations. [#26916]
-- Dashboard: add Jetpack Search Free to My products. [#27007]
-- Dashboard: add Jetpack Social to My products. [#26990]
+- Dashboard: add Jetpack Search Free  and Jetpack Social to My Products. [#27007, #26990]
 - Form block: change layout flex styles. [#26914]
 - Jetpack Social: display broken connections to user in editor. [#25803]
 - Dashboard: add connection widget for unconnected sites. [#26596]
-- Form block: move Contact Forms child blocks to a new category and remove some Core blocks from the child blocks list. [#26896]
+- Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list. [#26896]
 - Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar. [#26911]
 
 ### Bug fixes
@@ -22,7 +21,7 @@
 - Comment: Added featured_image_email_enabled for syncing [#27009]
 - CSSTidy: adding margin-block as valid CSS properties [#26961]
 - Fix broken `@covers` in tests, and reconfigure coverage directives to not scan ridiculous numbers of files. [#26931]
-- Search: now supports 38 languages [#27025]
+- Search: updated documentation as Search now supports 38 languages [#27025]
 - Social: Refactored the resharing UI and moved some additional components to publicize-components [#25993]
 - Updated package dependencies. [#25993, #26705, #26980]
 - Update `jetpack_is_mobile()` and `Jetpack_User_Agent_Info` for sync to wpcom. [#26971]

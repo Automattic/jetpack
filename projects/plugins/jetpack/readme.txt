@@ -246,17 +246,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Enhancements
 - Dashboard: add a new illustration for WooCommerce recommendation.
 - Dashboard: add connection widget for unconnected sites.
-- Dashboard: add Jetpack Search Free to My products.
-- Dashboard: add Jetpack Social to My products.
+- Dashboard: add Jetpack Search Free and Jetpack Social to My Products. 
 - Dashboard: ensure Apps card is always displayed, regardless of whether promotions are active.
 - Form block: add Contact Form child blocks to the Block Library.
-- Form block: add default spacing attributes on all form variations.
-- Form block: change layout flex styles.
+- Form block: add default spacing attributes on all form variations, and change layout styles.
 - Form block: improve parent block selection when inner block is already selected.
-- Form block: move Contact Forms child blocks to a new category and remove some Core blocks from the child blocks list.
+- Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list.
 - Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar.
 - Jetpack Social: display broken connections to user in editor.
-- Payment Button block: support a wider varity of layout options.
+- Payment Button block: support a wider variety of layout options.
 - Payment Buttons block: add typography controls.
 - Publicize: make the pre-publish panel initially closed by default.
 - Social: show pre-publish panel if the site has connections enabled.
