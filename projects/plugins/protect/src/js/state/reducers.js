@@ -15,7 +15,7 @@ import {
 	SET_THREATS_ARE_FIXING,
 } from './actions';
 
-const credentials = ( state = [], action ) => {
+const credentials = ( state = null, action ) => {
 	switch ( action.type ) {
 		case SET_CREDENTIALS_STATE:
 			return action.credentials;
