@@ -17,17 +17,16 @@ import { useState } from 'react';
  */
 import { usePlan } from '../../hooks/use-plan';
 
-const PricingPage = () => {
-	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
+const PricingPage = ( { onRedirecting } ) => {
+	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
-	const { registrationNonce } = window.jetpackVideoPressInitialState;
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
 		from: 'jetpack-videopress',
 		registrationNonce,
 	} );
-	const [ isConnecting, setIsConnection ] = useState( false );
+	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		siteSuffix,
@@ -59,10 +58,13 @@ const PricingPage = () => {
 						currency={ pricingForUi.currencyCode }
 					/>
 					<Button
-						onClick={ run }
+						onClick={ () => {
+							onRedirecting?.();
+							run();
+						} }
 						isLoading={ hasCheckoutStarted }
 						fullWidth
-						disabled={ isConnecting || hasCheckoutStarted }
+						disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
 					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -84,10 +86,11 @@ const PricingPage = () => {
 						fullWidth
 						variant="secondary"
 						onClick={ () => {
-							setIsConnection( true );
+							setIsConnecting( true );
 							handleRegisterSite();
+							onRedirecting?.();
 						} }
-						isLoading={ userIsConnecting }
+						isLoading={ userIsConnecting || isConnecting }
 						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }

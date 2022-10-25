@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add default spacing attributes on all form variations. This achieves an easier way to select the form (parent) block while retaining wysiwyg capabilities: the user might choose to remove the spacing.

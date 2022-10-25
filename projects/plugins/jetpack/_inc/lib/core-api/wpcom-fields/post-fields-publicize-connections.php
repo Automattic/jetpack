@@ -145,12 +145,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
-				'is_healthy'      => array(
-					'description' => __( 'Whether the connection is healthy or broken', 'jetpack' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
 			),
 		);
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Move Contact Forms child blocks to a new category and remove some Core blocks from the child blocks list
