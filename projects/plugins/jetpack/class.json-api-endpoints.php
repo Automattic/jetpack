@@ -1677,6 +1677,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 				}
 
+				if ( isset( $info->title ) ) {
+					$response['title'] = $info->title;
+				}
+
 				// If we didn't get VideoPress information (for some reason) then let's
 				// not try and include it in the response.
 				if ( isset( $info->guid ) ) {
