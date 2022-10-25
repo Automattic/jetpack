@@ -38,7 +38,7 @@ const status = ( state = {}, action ) => {
 		case SET_STATUS:
 			return action.status;
 		case START_SCAN_OPTIMISTICALLY:
-			return { ...state, lastChecked: null, status: 'scanning' };
+			return { ...state, status: 'scanning' };
 	}
 	return state;
 };
