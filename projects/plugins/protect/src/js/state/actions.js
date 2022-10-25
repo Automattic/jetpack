@@ -124,6 +124,10 @@ const setwpVersion = version => {
 	return { type: SET_WP_VERSION, version };
 };
 
+const setJetpackScan = jetpackScan => {
+	return { type: SET_JETPACK_SCAN, jetpackScan };
+};
+
 const setProductData = productData => {
 	return { type: SET_PRODUCT_DATA, productData };
 };
@@ -328,6 +332,7 @@ const actions = {
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
+	setJetpackScan,
 	setProductData,
 	ignoreThreat,
 	setModal,

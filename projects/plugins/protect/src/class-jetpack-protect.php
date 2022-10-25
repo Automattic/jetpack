@@ -183,10 +183,11 @@ class Jetpack_Protect {
 			'wpVersion'         => $wp_version,
 			'adminUrl'          => 'admin.php?page=jetpack-protect',
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
+			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
 
-		$initial_state['productData']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
+		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
 
 		return $initial_state;
 	}

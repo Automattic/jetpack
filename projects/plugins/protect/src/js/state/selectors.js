@@ -7,6 +7,7 @@ const selectors = {
 	getStatusIsFetching: state => state.statusIsFetching || false,
 	getScanIsEnqueuing: state => state.scanIsEnqueuing || false,
 	getWpVersion: state => state.wpVersion || '',
+	getJetpackScan: state => state.jetpackScan || {},
 	getProductData: state => state.productData || {},
 	getThreatsUpdating: state => state.threatsUpdating || {},
 	getModalType: state => state.modal?.type || null,

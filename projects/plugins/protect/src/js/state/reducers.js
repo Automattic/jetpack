@@ -79,6 +79,14 @@ const wpVersion = ( state = {}, action ) => {
 	return state;
 };
 
+const jetpackScan = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_JETPACK_SCAN:
+			return action.scan;
+	}
+	return state;
+};
+
 const productData = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_JETPACK_SCAN:
@@ -128,6 +136,7 @@ const reducers = combineReducers( {
 	installedPlugins,
 	installedThemes,
 	wpVersion,
+	jetpackScan,
 	productData,
 	threatsUpdating,
 	modal,

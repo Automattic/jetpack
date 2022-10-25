@@ -29,8 +29,8 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 	} );
 
 	// Access paid protect product data
-	const { productData } = useProtectData();
-	const { pricingForUi } = productData;
+	const { jetpackScan } = useProtectData();
+	const { pricingForUi } = jetpackScan;
 	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
 	// Compute the price per month.
