@@ -490,6 +490,8 @@ class Jetpack_Memberships {
 	 * Whether site has any paid plan.
 	 *
 	 * @param string $type - Type of a plan for which site is configured. For now supports empty and newsletter.
+	 *
+	 * @return bool
 	 */
 	public static function has_configured_plans_jetpack_recurring_payments( $type = '' ) {
 		if ( ! self::is_supported_jetpack_recurring_payments() ) {
