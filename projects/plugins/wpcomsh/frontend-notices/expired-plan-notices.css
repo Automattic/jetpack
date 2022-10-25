@@ -1,0 +1,156 @@
+html.has-wpcomsh-epn {
+    /* No admin bar nor marketing bar on this page */
+    margin-top: 0 !important;
+    overflow: auto;
+}
+
+html.wpcomsh-epn-hidden {
+    /* Hide the page */
+    display: none;
+}
+
+.wpcomsh-epn-body {
+    position: fixed;
+    inset: 0;
+    background: #117ac9;
+    color: #fff;
+    display: grid;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+    grid-gap: 24px;
+    -ms-grid-columns: (1fr)[1];
+    grid-template-columns: repeat(1, 1fr);
+    padding-right: 24px;
+    padding-left: 24px;
+    z-index: 999999;
+}
+.wpcomsh-epn-body-inner {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    -ms-grid-column: 1;
+    grid-column-start: 1;
+    -ms-grid-column-span: 1;
+    grid-column-end: span 1;
+    height: 100vh;
+    align-content: center;
+    justify-content: space-between;
+}
+.wpcomsh-epn-body-main,
+.wpcomsh-epn-action {
+    flex: 0 0 100%;
+}
+.wpcomsh-epn-info {
+    color: #fff;
+    font-size: 19px;
+    margin-top: 8px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    padding: 0;
+    text-align: left;
+}
+.wpcomsh-epn-body-description {
+    color: #fff;
+    font-size: 40px;
+    line-height: 1.15;
+    padding: 0;
+    text-align: left;
+    font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.wpcomsh-epn-action {
+    padding-bottom: 8px;
+    padding-top: 40px;
+}
+
+.wpcomsh-epn-action-buttons .wpcomsh-epn-button {
+    background: #fff;
+    border-radius: 2px;
+    border: 1px solid #fff;
+    box-sizing: border-box;
+    color: #117ac9;
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 21px;
+    padding: 13px;
+    text-align: center;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    transition: opacity .15s ease-out;
+    white-space: nowrap;
+    width: 100%;
+}
+.wpcomsh-epn-action-buttons .wpcomsh-epn-button-secondary,
+.wpcomsh-epn-action-buttons .wpcomsh-epn-button-secondary:hover,
+.wpcomsh-epn-action-buttons .wpcomsh-epn-button-secondary:focus {
+    background: transparent;
+    color: #fff;
+}
+.wpcomsh-epn-action-buttons .wpcomsh-epn-button:hover,
+.wpcomsh-epn-action-buttons .wpcomsh-epn-button:focus {
+    opacity: .85;
+}
+.wpcomsh-epn-action-buttons p {
+    margin: 1em 0;
+}
+@media screen and ( min-width: 660px ) {
+    .wpcomsh-epn-body-description {
+        font-family: Recoleta, Georgia, "Times New Roman", Times, serif;
+    }
+    .wpcomsh-epn-info {
+        font-size: 23px;
+    }
+    .wpcomsh-epn-body-description {
+        font-size: 69px;
+    }
+    .wpcomsh-epn-action {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: 24px;
+    }
+
+    .wpcomsh-epn-action-buttons {
+        display: flex;
+    }
+    .wpcomsh-epn-action-buttons p {
+        margin: 0;
+    }
+    
+    .wpcomsh-epn-action-buttons .button {
+        font-size: 13px;
+        padding: 7px 13px;
+        min-width: 145px;
+    }
+}
+@media screen and ( min-width: 661px ) {
+    .wpcomsh-epn-body p, ul, ol {
+        font-size: 16px;
+        letter-spacing: 0;
+    }
+}
+@media screen and ( min-width: 960px ) {
+    .wpcomsh-epn-info {
+        font-size: 28px;
+        margin-bottom: 16px;
+    }
+    .wpcomsh-epn-body-description {
+        font-size: 99px;
+    }
+    
+}
+@media screen and ( min-width: 1040px ) {
+    .wpcomsh-epn-body {
+        -ms-grid-columns: (1fr)[12];
+        grid-template-columns: repeat(12, 1fr);
+    }
+    .wpcomsh-epn-body-inner {
+        -ms-grid-column: 2;
+        grid-column-start: 2;
+        -ms-grid-column-span: 10;
+        grid-column-end: span 10;
+    }
+    .wpcomsh-epn-action {
+        padding-bottom: 32px;
+    }
+}

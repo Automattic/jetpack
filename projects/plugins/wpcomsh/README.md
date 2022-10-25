@@ -304,3 +304,8 @@ Provides a series of customisations to enable the full Nav Unification experienc
 - activate the Nav Unification feature shipped in Jetpack on Atomic.
 - add a WooCommerce install item to the menu when Woo isn't installed.
 - force disable Nav Unification feature via query string.
+
+### Frontend Notices
+
+Allow the showing of notices on the frontend. Currently we are showing a full page notice
+on sites that are expired indicating to the user that they can reach out to the site owner to let them know the site has expired.
