@@ -19,6 +19,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Credentials;
+use Automattic\Jetpack\Protect\Plan;
 use Automattic\Jetpack\Protect\Protect_Status;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
@@ -184,6 +185,8 @@ class Jetpack_Protect {
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 		);
+
+		$initial_state['productData']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
 
 		return $initial_state;
 	}
