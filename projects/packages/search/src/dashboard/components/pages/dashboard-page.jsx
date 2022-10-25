@@ -126,7 +126,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					{ isNewPricing && (
+					{ isNewPricing && supportsInstantSearch && (
 						<PlanInfo
 							hasIndex={ postCount !== 0 }
 							recordMeterInfo={ recordMeterInfo }
@@ -134,7 +134,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							sendPaidPlanToCart={ sendPaidPlanToCart }
 						/>
 					) }
-					{ ! isNewPricing && (
+					{ ! isNewPricing && supportsInstantSearch && (
 						<RecordMeter
 							postCount={ postCount }
 							postTypeBreakdown={ postTypeBreakdown }
