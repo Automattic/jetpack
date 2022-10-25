@@ -31,6 +31,14 @@ class Jetpack_Memberships {
 	 * @var string
 	 */
 	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+
+	/**
+	 * Post meta that will store the level of access for newsletters
+	 *
+	 * @var string
+	 */
+	public static $newsletter_access_level_meta_name = 'jetpack_newsletter_access';
+
 	/**
 	 * Button block type to use.
 	 *
@@ -415,6 +423,15 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Get the newsletter access level
+	 *
+	 * @return string|void
+	 */
+	public static function get_newsletter_access_level() {
+		return get_post_meta( get_the_ID(), self::$newsletter_access_level_meta_name, true );
+	}
+
+	/**
 	 * Determines whether the current user can edit.
 	 *
 	 * @return bool Whether the user can edit.
@@ -423,6 +440,22 @@ class Jetpack_Memberships {
 		$user = wp_get_current_user();
 		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+	}
+
+	/**
+	 * Determines whether the post can be viewed based on the newsletter access level
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
+	public static function user_can_view_post() {
+		if ( 'paid_subscribers' === self::get_newsletter_access_level() ) {
+			require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+			$paywall  = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+			$plan_ids = self::get_all_plans_id_jetpack_recurring_payments();
+			return $paywall->visitor_can_view_content( $plan_ids );
+		}
+		return true;
 	}
 
 	/**
