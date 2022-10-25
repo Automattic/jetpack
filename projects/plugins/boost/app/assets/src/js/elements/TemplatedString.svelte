@@ -16,7 +16,7 @@
 	 */
 	export let vars: TemplateVars;
 
-	let span;
+	let span: Node;
 
 	onMount( () => {
 		// Copy template to span, substituting vars.
