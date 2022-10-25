@@ -21,12 +21,12 @@ const setStatus = status => {
 	return { type: SET_STATUS, status };
 };
 
-// const refreshPlan = () => ( { dispatch } ) => {
-// 	apiFetch( {
-// 		path: 'jetpack-protect/v1/plan',
-// 		method: 'GET',
-// 	} ).then( productData => dispatch( setProductData( productData ) ) );
-// };
+const refreshPlan = () => ( { dispatch } ) => {
+	apiFetch( {
+		path: 'jetpack-protect/v1/plan',
+		method: 'GET',
+	} ).then( productData => dispatch( setProductData( productData ) ) );
+};
 
 /**
  * Side effect action which will fetch the status from the server
@@ -340,7 +340,7 @@ const actions = {
 	fixThreats,
 	scan,
 	setThreatsAreFixing,
-	// refreshPlan,
+	refreshPlan,
 };
 
 export {

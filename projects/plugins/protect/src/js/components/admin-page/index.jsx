@@ -17,7 +17,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-// import { addQueryArgs, getQueryArg } from '@wordpress/url';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import classnames from 'classnames';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -305,12 +305,11 @@ const Admin = () => {
 	useRegistrationWatcher();
 	useStatusPolling();
 
-	// const { refreshPlan } = useDispatch( STORE_ID );
+	const { refreshPlan } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
-		// redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
-		redirectUrl: adminUrl,
+		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
 		siteProductAvailabilityHandler: async () =>
 			apiFetch( {
 				path: 'jetpack-protect/v1/plan',
@@ -318,11 +317,11 @@ const Admin = () => {
 			} ).then( jetpackScan => jetpackScan?.has_required_plan ),
 	} );
 
-	// useEffect( () => {
-	// 	if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
-	// 		refreshPlan();
-	// 	}
-	// }, [ refreshPlan ] );
+	useEffect( () => {
+		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
+			refreshPlan();
+		}
+	}, [ refreshPlan ] );
 
 	/*
 	 * Show interstital page when
