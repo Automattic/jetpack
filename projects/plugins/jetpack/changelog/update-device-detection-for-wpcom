@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Update `jetpack_is_mobile()` and `Jetpack_User_Agent_Info` for sync to wpcom.

@@ -27,7 +27,6 @@
 	.contact-form input[type='url']
 ) {
 	box-sizing: border-box;
-	margin-bottom: 1.5em;
 	width: 100%;
 	padding: 12px 8px;
 	border-width: 1px;
@@ -35,7 +34,6 @@
 }
 
 .contact-form select {
-	margin-bottom: 1.5em;
 	padding: 14px 7px;
 	min-width: 150px;
 }
@@ -44,7 +42,6 @@
 	box-sizing: border-box;
 	float: none;
 	height: 200px;
-	margin-bottom: 1.5em;
 	width: 100%;
 	padding: 7px;
 	font: inherit;
@@ -136,6 +133,7 @@
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	flex-direction: row;
+	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap,
@@ -148,22 +146,22 @@
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {
-	/* Use transparent border to maintain consistent
-	 * space between elements with flexbox */
-	border-right: 15px solid transparent;
 	box-sizing: border-box;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
-	flex: 0 0 25%;
+	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 25%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
-	flex: 0 0 50%;
+	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 50%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
-	flex: 0 0 75%;
+	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 75%;
 }
 
 .grunion-field-checkbox-wrap,
