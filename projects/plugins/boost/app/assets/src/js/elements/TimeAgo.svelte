@@ -6,7 +6,7 @@
 	import { readable } from 'svelte/store';
 	import describeTimeAgo from '../utils/describe-time-ago';
 
-	export let time;
+	export let time: Date;
 
 	const label = readable( describeTimeAgo( time ), set => {
 		// Update label every 10 seconds.

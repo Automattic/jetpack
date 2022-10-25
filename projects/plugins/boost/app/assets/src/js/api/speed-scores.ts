@@ -204,7 +204,15 @@ export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 	return 0;
 }
 
-export function scoreChangeModal( scores: SpeedScoresSet ) {
+export type ScoreChangeMessage = {
+	id: string;
+	title: string;
+	message: string;
+	cta: string;
+	ctaLink: string;
+};
+
+export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage {
 	const changePercentage = getScoreMovementPercentage( scores );
 	if ( changePercentage > 5 ) {
 		return {

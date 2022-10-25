@@ -3,6 +3,7 @@
 	import { ApiError } from '../api/api-error';
 	import NoticeIcon from '../svg/notice-outline.svg';
 	import actionLinkTemplateVar from '../utils/action-link-template-var';
+	import { TemplateVars } from '../utils/copy-dom-template';
 	import { standardizeError } from '../utils/standardize-error';
 	import supportLinkTemplateVar from '../utils/support-link-template-var';
 	import TemplatedString from './TemplatedString.svelte';
@@ -26,19 +27,19 @@
 	export let data = '';
 
 	/**
-	 * @member suggestion Optional suggestion to include after the error message.
+	 * Optional suggestion to include after the error message.
 	 */
 	export let suggestion = '';
 
 	/**
-	 * @member {TemplateVars} vars Optional template variables to substitute for tags in the error suggestions.
+	 * Optional template variables to substitute for tags in the error suggestions.
 	 * Note: Unless you supply a custom description slot and template it yourself,
 	 * these will not apply to the main message / description, as it may be unsafe to parse as HTML.
 	 * Note: the following template vars are automatically included in all errors:
 	 * - <support>: a link to support.
 	 * - <action name="">: A link to dispatch the named action.
 	 */
-	export let vars = {};
+	export let vars: TemplateVars = {};
 
 	// Figure out an appropriate description based on error object or message.
 	const description = standardizeError( error ).message;

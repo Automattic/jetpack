@@ -54,7 +54,7 @@
 	/**
 	 * Figure out heading based on state.
 	 */
-	let heading;
+	let heading: string;
 	$: heading =
 		$activeRecommendations.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )

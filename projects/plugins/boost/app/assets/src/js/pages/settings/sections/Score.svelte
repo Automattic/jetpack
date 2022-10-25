@@ -6,6 +6,7 @@
 		requestSpeedScores,
 		didScoresChange,
 		scoreChangeModal,
+		ScoreChangeMessage,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
@@ -112,14 +113,15 @@
 		}
 	}, 2000 );
 
-	$: showModal = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
+	let modalData: ScoreChangeMessage | null = null;
+	$: modalData = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
 	function dismissModal() {
-		showModal = false;
+		modalData = null;
 	}
 </script>
 
@@ -204,13 +206,13 @@
 	</div>
 </div>
 
-{#if showModal}
+{#if modalData}
 	<PopOut
-		id={showModal.id}
-		title={showModal.title}
+		id={modalData.id}
+		title={modalData.title}
 		on:dismiss={() => dismissModal()}
-		message={showModal.message}
-		ctaLink={showModal.ctaLink}
-		cta={showModal.cta}
+		message={modalData.message}
+		ctaLink={modalData.ctaLink}
+		cta={modalData.cta}
 	/>
 {/if}

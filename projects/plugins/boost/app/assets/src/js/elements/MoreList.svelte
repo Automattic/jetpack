@@ -9,17 +9,16 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 
 	/**
-	 * @member {Array} entries List of objects to pass to each copy of the slot.
+	 * List of objects to pass to each copy of the slot.
 	 */
-	export let entries = [];
+	export let entries: unknown[] = [];
 
 	/**
-	 * @member {number} showLimit The maximum number of items to show before folding extras away.
+	 * The maximum number of items to show before folding extras away.
 	 */
 	export let showLimit = 2;
 
 	let expanded = false;
-
 	function toggle() {
 		expanded = ! expanded;
 	}
