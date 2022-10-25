@@ -110,7 +110,13 @@ export type OriginalVideoPressVideo = {
 		 */
 		privacy_setting?: 0 | 1 | 2;
 	};
+	/**
+	 * Video source URL
+	 */
 	source_url: string;
+	/**
+	 * Video date
+	 */
 	date: string;
 	/**
 	 * Video guid
