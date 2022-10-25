@@ -69,11 +69,11 @@
 
 			<div class="jb-card__cta px-2 my-4">
 				{#if 'yearly' in $pricing}
-					<!-- @TODO: Fix TypeScript Issue -->
+					<!-- svelte-ignore missing-declaration Jetpack_Boost -->
 					<ReactComponent
 						this={PricingCard}
 						title={'Jetpack Boost'}
-						icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
+						icon={`${ Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
 						priceBefore={$pricing.yearly.priceBefore / 12}
 						priceAfter={$pricing.yearly.priceAfter / 12}
 						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
