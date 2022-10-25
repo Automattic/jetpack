@@ -176,7 +176,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
+
 ### 1.5.3 - 2022-10-25
+
 #### Added
 - Compatibility: Added a compatibility module for WP Super Cache.
 - Compatibility: Tested with v6.1 of WordPress.
