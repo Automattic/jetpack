@@ -20,7 +20,10 @@ export type SlideRightTransition = {
 
 import { cubicInOut } from 'svelte/easing';
 
-export default function ( node: HTMLElement, params: SlideRightParams ): SlideRightTransition {
+export default function (
+	node: HTMLElement,
+	params: SlideRightParams = null
+): SlideRightTransition {
 	const existingTransform = getComputedStyle( node ).transform.replace( 'none', '' );
 
 	return {
