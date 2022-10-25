@@ -1656,6 +1656,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$response['privacy_setting'] = (int) $metadata['videopress']['privacy_setting'];
 				}
 
+				$thumbnail_query_data = array();
+				if ( video_is_private( $info ) ) {
+					$thumbnail_query_data['metadata_token'] = video_generate_auth_token( $info );
+				}
+
 				// Thumbnails.
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
 					$response['thumbnails'] = array(
@@ -1665,7 +1670,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					);
 					foreach ( $response['thumbnails'] as $size => $thumbnail_url ) {
 						if ( video_format_done( $info, $size ) ) {
-							$response['thumbnails'][ $size ] = video_image_url_by_guid( $info->guid, $size );
+							$response['thumbnails'][ $size ] = \add_query_arg( $thumbnail_query_data, \video_image_url_by_guid( $info->guid, $size ) );
 						} else {
 							unset( $response['thumbnails'][ $size ] );
 						}
