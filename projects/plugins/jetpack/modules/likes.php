@@ -435,16 +435,6 @@ class Jetpack_Likes {
 		return $content . $html;
 	}
 
-	/**
-	 * Adds sd-like-enabled CSS class
-	 *
-	 * @param array $classes CSS class for post flair.
-	 */
-	public function post_flair_service_enabled_like( $classes ) {
-		$classes[] = 'sd-like-enabled';
-		return $classes;
-	}
-
 	/** Checks if admin bar is visible.*/
 	public function is_admin_bar_button_visible() {
 		global $wp_admin_bar;

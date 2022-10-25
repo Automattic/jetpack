@@ -540,45 +540,6 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Returns the current state of the "WordPress.com Reblogs are" option.
-	 *
-	 * @return bool true if enabled sitewide, false if not
-	 */
-	public function reblogs_enabled_sitewide() {
-		/**
-		 * Filters whether Reblogs are enabled by default on all posts.
-		 * true if enabled sitewide, false if not.
-		 *
-		 * @module likes
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param bool $option Are Reblogs enabled sitewide.
-		 */
-		return (bool) apply_filters( 'wpl_reblogging_enabled_sitewide', ! get_option( 'disabled_reblogs' ) );
-	}
-
-	/**
-	 * Used for WPCOM ONLY. Comment likes are in their own module in Jetpack.
-	 * Returns if comment likes are enabled. Defaults to 'off'
-	 *
-	 * @return boolean true if we should show comment likes, false if not
-	 */
-	public function is_comments_enabled() {
-		/**
-		 * Filters whether Comment Likes are enabled.
-		 * true if enabled, false if not.
-		 *
-		 * @module comment-likes
-		 *
-		 * @since 2.2.0
-		 *
-		 * @param bool $option Are Comment Likes enabled sitewide.
-		 */
-		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
-	}
-
-	/**
 	 * Saves the setting in the database.
 	 */
 	public function admin_settings_callback() {
