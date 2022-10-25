@@ -30,6 +30,7 @@ export const PLAN_JETPACK_BACKUP_T1_MONTHLY = 'jetpack_backup_t1_monthly';
 export const PLAN_JETPACK_BACKUP_T2_YEARLY = 'jetpack_backup_t2_yearly';
 export const PLAN_JETPACK_BACKUP_T2_MONTHLY = 'jetpack_backup_t2_monthly';
 export const PLAN_JETPACK_SEARCH = 'jetpack_search';
+export const PLAN_JETPACK_SEARCH_FREE = 'jetpack_search_free';
 export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
 export const PLAN_JETPACK_SECURITY_T1_YEARLY = 'jetpack_security_t1_yearly';
 export const PLAN_JETPACK_SECURITY_T1_MONTHLY = 'jetpack_security_t1_monthly';
@@ -140,6 +141,8 @@ export const JETPACK_PLANS_WITH_ANTI_SPAM = [
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
+export const JETPACK_COMPLETE_BUNDLES = [ PLAN_JETPACK_COMPLETE, PLAN_JETPACK_COMPLETE_MONTHLY ];
+
 export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
@@ -186,6 +189,7 @@ export const JETPACK_BACKUP_PRODUCTS = [
 export const JETPACK_SEARCH_PRODUCTS = [
 	PLAN_JETPACK_SEARCH,
 	PLAN_JETPACK_SEARCH_MONTHLY,
+	PLAN_JETPACK_SEARCH_FREE,
 	PLAN_WPCOM_SEARCH,
 	PLAN_WPCOM_SEARCH_MONTHLY,
 ];
@@ -435,6 +439,8 @@ export function getPlanClass( plan ) {
 		case PLAN_WPCOM_SEARCH:
 		case PLAN_WPCOM_SEARCH_MONTHLY:
 			return 'is-search-plan';
+		case PLAN_JETPACK_SEARCH_FREE:
+			return 'is-free-search-plan';
 		case PLAN_JETPACK_SCAN:
 		case PLAN_JETPACK_SCAN_MONTHLY:
 			return 'is-scan-plan';

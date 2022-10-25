@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Only user facing pieces of Publicize are found here.
  */
@@ -151,6 +153,27 @@ class Publicize_UI {
 			return;
 		}
 
+		Assets::register_script(
+			'jetpack-social-classic-editor-connections',
+			'../build/classic-editor-connections.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'enqueue'    => true,
+				'textdomain' => 'jetpack-publicize-pkg',
+			)
+		);
+		wp_add_inline_script(
+			'jetpack-social-classic-editor-connections',
+			'var jetpackSocialClassicEditorConnections = ' . wp_json_encode(
+				array(
+					'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+					'connectionsUrl' => esc_url( $this->publicize_settings_url ),
+				)
+			),
+			'before'
+		);
+
 		$default_prefix = $this->publicize->default_prefix;
 		$default_prefix = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_prefix ) );
 
@@ -285,99 +308,6 @@ jQuery( function($) {
 			fakebox = '<input id="wpas-submit-' + service + '" type="hidden" value="1" name="wpas[submit][' + service + ']" />';
 		$( '#add-publicize-check' ).append( fakebox );
 	} );
-
-	publicizeConnTestStart = function() {
-		$( '#pub-connection-tests' )
-			.removeClass( 'below-h2' )
-			.removeClass( 'error' )
-			.removeClass( 'publicize-token-refresh-message' )
-			.addClass( 'test-in-progress' )
-			.html( '' );
-		$.post( ajaxurl, { action: 'test_publicize_conns' }, publicizeConnTestComplete );
-	}
-
-	publicizeConnRefreshClick = function( event ) {
-		event.preventDefault();
-		var popupURL = event.currentTarget.href;
-		var popupTitle = event.currentTarget.title;
-		// open a popup window
-		// when it is closed, kick off the tests again
-		var popupWin = window.open( popupURL, popupTitle, '' );
-		var popupWinTimer= window.setInterval( function() {
-			if ( popupWin.closed !== false ) {
-				window.clearInterval( popupWinTimer );
-				publicizeConnTestStart();
-			}
-		}, 500 );
-	}
-
-	publicizeConnTestComplete = function( response ) {
-		var testsSelector = $( '#pub-connection-tests' );
-		testsSelector
-			.removeClass( 'test-in-progress' )
-			.removeClass( 'below-h2' )
-			.removeClass( 'error' )
-			.removeClass( 'publicize-token-refresh-message' )
-			.html( '' );
-
-		// If any of the tests failed, show some stuff
-		var somethingShownAlready = false;
-		var facebookNotice = false;
-		$.each( response.data, function( index, testResult ) {
-			// find the li for this connection
-			if ( ! testResult.connectionTestPassed && testResult.userCanRefresh ) {
-				if ( ! somethingShownAlready ) {
-					testsSelector
-						.addClass( 'below-h2' )
-						.addClass( 'error' )
-						.addClass( 'publicize-token-refresh-message' )
-						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure Jetpack Social can share your posts:', 'jetpack-publicize-pkg' ) ); ?></p>" );
-					somethingShownAlready = true;
-				}
-
-				if ( testResult.userCanRefresh ) {
-					testsSelector.append( '<p/>' );
-					$( '<a/>', {
-						'class'  : 'pub-refresh-button button',
-						'title'  : testResult.refreshText,
-						'href'   : testResult.refreshURL,
-						'text'   : testResult.refreshText,
-						'target' : '_refresh_' + testResult.serviceName
-					} )
-						.appendTo( testsSelector.children().last() )
-						.click( publicizeConnRefreshClick );
-				}
-			}
-
-			if( ! testResult.connectionTestPassed && ! testResult.userCanRefresh ) {
-				$( '#wpas-submit-' + testResult.unique_id ).prop( "checked", false ).prop( "disabled", true );
-				if ( ! facebookNotice ) {
-					var message = '<p>'
-						+ testResult.connectionTestMessage
-						+ '</p><p>'
-						+ ' <a class="button" href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank">'
-						+ '<?php echo esc_html( __( 'Update Your Sharing Settings', 'jetpack-publicize-pkg' ) ); ?>'
-						+ '</a>'
-						+ '<p>';
-
-					testsSelector
-						.addClass( 'below-h2' )
-						.addClass( 'error' )
-						.addClass( 'publicize-token-refresh-message' )
-						.append( message );
-					facebookNotice = true;
-				}
-			}
-		} );
-	}
-
-	$( document ).ready( function() {
-		// If we have the #pub-connection-tests div present, kick off the connection test
-		if ( $( '#pub-connection-tests' ).length ) {
-			publicizeConnTestStart();
-		}
-	} );
-
 } );
 </script>
 
@@ -546,7 +476,7 @@ jQuery( function($) {
 				$labels = array();
 
 				foreach ( $connections_data as $connection_data ) {
-					if ( ! $connection_data['enabled'] ) {
+					if ( ! $connection_data['enabled'] || ( isset( $connection_data['is_healthy'] ) && false === $connection_data['is_healthy'] ) ) {
 						continue;
 					}
 
@@ -627,6 +557,7 @@ jQuery( function($) {
 
 		$all_done             = $this->publicize->post_is_done_sharing();
 		$all_connections_done = true;
+		$broken_connections   = array();
 
 		ob_start();
 
@@ -637,6 +568,9 @@ jQuery( function($) {
 
 		foreach ( $connections_data as $connection_data ) {
 			$all_connections_done = $all_connections_done && $connection_data['done'];
+			if ( isset( $connection_data['is_healthy'] ) && false === $connection_data['is_healthy'] ) {
+				$broken_connections[] = $connection_data;
+			}
 			?>
 
 			<li>
@@ -651,11 +585,11 @@ jQuery( function($) {
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
 					<?php
-						checked( true, $connection_data['enabled'] );
-						disabled( false, $connection_data['toggleable'] );
+						checked( true, $connection_data['enabled'] && ! empty( $connection_data['is_healthy'] ) );
+						disabled( false, $connection_data['toggleable'] && ! empty( $connection_data['is_healthy'] ) );
 					?>
 					/>
-				<?php if ( $connection_data['enabled'] && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
+				<?php if ( $connection_data['enabled'] && ! empty( $connection_data['is_healthy'] ) && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
 					<input
 						type="hidden"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
@@ -689,7 +623,33 @@ jQuery( function($) {
 		</div>
 
 		<?php if ( ! $all_done ) : ?>
-			<div id="pub-connection-tests"></div>
+			<?php if ( $broken_connections ) : ?>
+				<div id="pub-connection-tests" class="error below-h2 publicize-token-refresh-message">
+					<?php
+						printf(
+							wp_kses(
+								/* translators: %s is the link to the connections page in Calypso */
+								_n(
+									'One of your social connections is broken. Reconnect it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+									'Some of your social connections are broken. Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+									count( $broken_connections ),
+									'jetpack-publicize-pkg'
+								),
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+										'rel'    => array(),
+									),
+								)
+							),
+							esc_url( $this->publicize->publicize_connections_url() )
+						);
+					?>
+				</div>
+			<?php else : ?>
+				<div id="pub-connection-tests"></div>
+			<?php endif; ?>
 		<?php endif; ?>
 		<?php
 
