@@ -41,6 +41,8 @@ import {
 	SET_USERS,
 	SET_USERS_PAGINATION,
 	SET_LOCAL_VIDEO_UPLOADED,
+	SET_IS_FETCHING_PLAYBACK_TOKEN,
+	SET_PLAYBACK_TOKEN,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -55,11 +57,15 @@ const pollingUploadedVideoData = async data => {
 
 	const video = mapVideoFromWPV2MediaEndpoint( response );
 
-	if ( video?.posterImage !== null ) {
+	if ( video?.posterImage !== null && video?.posterImage !== '' ) {
 		return Promise.resolve( video );
 	}
 
-	return pollingUploadedVideoData( video );
+	return new Promise( ( resolve, reject ) => {
+		setTimeout( () => {
+			pollingUploadedVideoData( data ).then( resolve ).catch( reject );
+		}, 2000 );
+	} );
 };
 
 /**
@@ -127,7 +133,7 @@ const setVideosStorageUsed = used => {
 	return { type: SET_VIDEOS_STORAGE_USED, used };
 };
 
-const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
+const updateVideoPrivacy = ( id, level ) => async ( { dispatch, select, resolveSelect } ) => {
 	const privacySetting = Number( level );
 	if ( isNaN( privacySetting ) ) {
 		throw new Error( `Invalid privacy level: '${ level }'` );
@@ -136,6 +142,12 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	if ( 0 > privacySetting || privacySetting >= VIDEO_PRIVACY_LEVELS.length ) {
 		// @todo: implement error handling / UI
 		throw new Error( `Invalid privacy level: '${ level }'` );
+	}
+
+	// Request a video token asap when it becomes private.
+	if ( level === 1 ) {
+		const video = await select.getVideo( id );
+		await resolveSelect.getPlaybackToken( video?.guid );
 	}
 
 	// Let's be optimistic and update the UI right away.
@@ -313,6 +325,14 @@ const setUsersPagination = pagination => {
 	return { type: SET_USERS_PAGINATION, pagination };
 };
 
+const setIsFetchingPlaybackToken = isFetching => {
+	return { type: SET_IS_FETCHING_PLAYBACK_TOKEN, isFetching };
+};
+
+const setPlaybackToken = playbackToken => {
+	return { type: SET_PLAYBACK_TOKEN, playbackToken };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -348,6 +368,9 @@ const actions = {
 
 	setUsers,
 	setUsersPagination,
+
+	setIsFetchingPlaybackToken,
+	setPlaybackToken,
 };
 
 export { actions as default };
