@@ -25,7 +25,7 @@ const refreshPlan = () => ( { dispatch } ) => {
 	apiFetch( {
 		path: 'jetpack-protect/v1/plan',
 		method: 'GET',
-	} ).then( productData => dispatch( setProductData( productData ) ) );
+	} ).then( jetpackScan => dispatch( setJetpackScan( jetpackScan ) ) );
 };
 
 /**
