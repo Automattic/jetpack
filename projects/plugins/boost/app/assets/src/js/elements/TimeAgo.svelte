@@ -4,7 +4,7 @@
 -->
 <script lang="ts">
 	import { readable } from 'svelte/store';
-	import describeTimeAgo from '../utils/describe-time-ago.ts';
+	import describeTimeAgo from '../utils/describe-time-ago';
 
 	export let time;
 

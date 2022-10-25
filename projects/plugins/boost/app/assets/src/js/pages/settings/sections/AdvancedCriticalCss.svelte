@@ -11,7 +11,7 @@
 		clearDismissedRecommendations,
 		dismissalError,
 		setDismissalError,
-	} from '../../../stores/critical-css-recommendations.ts';
+	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';

@@ -4,6 +4,7 @@
 	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
 		"types": [ "svelte" ],
+		"jsx": "react",
 		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
 		/**
 		 * Values from "@tsconfig/svelte/tsconfig.json"

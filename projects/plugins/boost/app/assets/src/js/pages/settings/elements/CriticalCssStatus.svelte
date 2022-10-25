@@ -7,7 +7,7 @@
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import routerHistory from '../../../utils/router-history.ts';
+	import routerHistory from '../../../utils/router-history';
 
 	export let generateText = '';
 	export let generateMoreText = '';

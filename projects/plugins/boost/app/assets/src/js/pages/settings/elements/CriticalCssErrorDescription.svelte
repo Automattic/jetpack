@@ -12,7 +12,7 @@
 	import MoreList from '../../../elements/MoreList.svelte';
 	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import actionLinkTemplateVar from '../../../utils/action-link-template-var.ts';
+	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import {
 		describeErrorSet,
 		suggestion,
