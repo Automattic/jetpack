@@ -279,37 +279,6 @@ class MyPlanBody extends React.Component {
 			);
 		};
 
-		const getSocialCard = () => {
-			return (
-				<div className="jp-landing__plan-features-card">
-					<div className="jp-landing__plan-features-img">
-						<img
-							src={ imagePath + '/jetpack-search-icon.svg' }
-							className="jp-landing__plan-features-icon"
-							alt={ __( 'A Jetpack Site with the power of Jetpack Search', 'jetpack' ) }
-						/>
-					</div>
-					<div className="jp-landing__plan-features-text">
-						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Instant search and filtering', 'jetpack' ) }
-						</h3>
-						<p>
-							{ __(
-								'Relevant search results and filtering tightly integrated with your theme.',
-								'jetpack'
-							) }
-						</p>
-						<Button
-							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
-							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
-						>
-							{ __( 'Customize Search', 'jetpack' ) }
-						</Button>
-					</div>
-				</div>
-			);
-		};
-
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
@@ -327,7 +296,6 @@ class MyPlanBody extends React.Component {
 						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
 						{ this.props.hasInstantSearch && getSearchCard() }
-						{ 'is-jetpack-social-plan' === planClass && getSocialCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img

@@ -59,8 +59,6 @@ import {
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 	PLAN_JETPACK_SOCIAL_BASIC,
 	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
-	PLAN_JETPACK_SOCIAL_PREMIUM,
-	PLAN_JETPACK_SOCIAL_PREMIUM_MONTHLY,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -116,8 +114,6 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_VIDEOPRESS_MONTHLY ]: '/products/product-jetpack-videopress.svg',
 	[ PLAN_JETPACK_SOCIAL_BASIC ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_BASIC_MONTHLY ]: '/products/product-jetpack-social.svg',
-	[ PLAN_JETPACK_SOCIAL_PREMIUM ]: '/products/product-jetpack-social.svg',
-	[ PLAN_JETPACK_SOCIAL_PREMIUM_MONTHLY ]: '/products/product-jetpack-social.svg',
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	[ PLAN_JETPACK_BACKUP_DAILY ]: '/products/product-jetpack-backup.svg',
@@ -198,8 +194,6 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_VIDEOPRESS_MONTHLY,
 		PLAN_JETPACK_SOCIAL_BASIC,
 		PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
-		PLAN_JETPACK_SOCIAL_PREMIUM,
-		PLAN_JETPACK_SOCIAL_PREMIUM_MONTHLY,
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
