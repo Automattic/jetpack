@@ -12,7 +12,9 @@
 	import MoreList from '../../../elements/MoreList.svelte';
 	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import { ErrorSet } from '../../../stores/critical-css-recommendations';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
+	import { TemplateVars } from '../../../utils/copy-dom-template';
 	import {
 		describeErrorSet,
 		suggestion,
@@ -28,20 +30,36 @@
 	export let showClosingParagraph = true;
 
 	/**
-	 * @member {ErrorSet} errorSet Error Set to display a description of, from a Recommendation or CriticalCssStatus.
+	 * A set of errors to display recommendations from, from a Recommendation or CriticalCssStatus.
 	 */
-	export let errorSet;
+	export let errorSet: ErrorSet;
 
+	type FormattedURL = {
+		/**
+		 * The URL to display in the list.
+		 */
+		href: string;
+		/**
+		 * The URL to link to.
+		 */
+		label: string;
+	};
 	// Keep a set of URLs in an easy-to-render {href:, label:} format.
 	// Each should show the URL in its label, but actually link to error.meta.url if available.
-	let displayUrls = [];
-	// @TODO: Fix TypeScript Issue
-	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => ( {
-		href: error.meta.url ? error.meta.url : url,
-		label: url,
-	} ) );
+	let displayUrls: FormattedURL[] = [];
 
-	const templateVars = {
+	$: displayUrls = Object.entries( errorSet.byUrl ).map( ( [ url, error ] ) => {
+		let href = url;
+		if ( error.meta.url && typeof error.meta.url === 'string' ) {
+			href = error.meta.url;
+		}
+		return {
+			href,
+			label: url,
+		};
+	} );
+
+	const templateVars: TemplateVars = {
 		...actionLinkTemplateVar( () => dispatch( 'retry' ), 'retry' ),
 		...supportLinkTemplateVar(),
 	};
@@ -49,12 +67,10 @@
 
 <div class="jb-critical-css__error-description">
 	<span class="error-description">
-		<!-- @TODO: Fix TypeScript Issue -->
-		<TemplatedString template={describeErrorSet( errorSet )} vars={{ templateVars }} />
+		<TemplatedString template={describeErrorSet( errorSet )} vars={templateVars} />
 	</span>
 
 	<MoreList let:entry entries={displayUrls}>
-		<!-- @TODO: Fix TypeScript Issue -->
 		<a href={entry.href} target="_blank">
 			{entry.label}
 		</a>
