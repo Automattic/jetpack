@@ -8,6 +8,7 @@ import {
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
+	Button,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
