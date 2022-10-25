@@ -355,7 +355,7 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_get_plan() {
-		$plan                 = My_Jetpack_Products::get_product( 'protect' );
+		$plan                 = My_Jetpack_Products::get_product( 'scan' );
 		$plan['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
 
 		return rest_ensure_response( $plan, 200 );
