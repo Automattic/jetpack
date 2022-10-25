@@ -179,7 +179,12 @@ export function SubscriptionEdit( props ) {
 				setSubscriberCountString(
 					sprintf(
 						/* translators: Placeholder is a number of subscribers. */
-						_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
+						_n(
+							'Join %s other email subscriber',
+							'Join %s other email subscribers',
+							count,
+							'jetpack'
+						),
 						count
 					)
 				);

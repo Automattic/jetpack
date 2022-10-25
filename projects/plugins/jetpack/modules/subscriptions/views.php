@@ -438,7 +438,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
 					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( sprintf( _n( 'Join %s other email subscriber', 'Join %s other email subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
 					?>
 				</div>
 			<?php } ?>
@@ -528,7 +528,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
 					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+					echo esc_html( sprintf( _n( 'Join %s other email subscriber', 'Join %s other email subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
 					?>
 				</div>
 			<?php } ?>
@@ -768,7 +768,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						value="1"<?php echo esc_attr( $show_subscribers_total ); ?> />
 					<?php
 					/* translators: %s: Number of followers. */
-					echo esc_html( sprintf( _n( 'Show total number of followers? (%s follower)', 'Show total number of followers? (%s followers)', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( sprintf( _n( 'Show total number of email subscribers? (%s subscriber)', 'Show total number of email subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
 					?>
 				</label>
 			</p>
