@@ -112,7 +112,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<Header
-						isUpgradable={ isNewPricing && isFreePlan }
+						isUpgradable={ ( isNewPricing && isFreePlan ) || ! supportsInstantSearch }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
 					/>
 					{ hasConnectionError && (
