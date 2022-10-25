@@ -5,7 +5,7 @@ import camelize from 'camelize';
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
-const SCAN_STARTED = 'SCAN_STARTED';
+const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
@@ -23,8 +23,8 @@ const setStatus = status => {
 	return { type: SET_STATUS, status };
 };
 
-const scanStarted = () => {
-	return { type: SCAN_STARTED };
+const startScanOptimistically = () => {
+	return { type: START_SCAN_OPTIMISTICALLY };
 };
 
 /**
@@ -271,7 +271,9 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 				}, 1000 );
 			} )
 			.then( () => {
-				dispatch( scanStarted() );
+				setTimeout( () => {
+					dispatch( startScanOptimistically() );
+				}, 2 * 1000 );
 				setTimeout( () => {
 					dispatch( refreshStatus( true ) );
 				}, 5 * 1000 );
@@ -316,7 +318,7 @@ const actions = {
 	setCredentials,
 	setCredentialsIsFetching,
 	setStatus,
-	scanStarted,
+	startScanOptimistically,
 	refreshStatus,
 	setStatusIsFetching,
 	setScanIsEnqueuing,
@@ -338,7 +340,7 @@ export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
-	SCAN_STARTED,
+	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,

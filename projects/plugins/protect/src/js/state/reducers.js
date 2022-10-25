@@ -3,7 +3,7 @@ import {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
-	SCAN_STARTED,
+	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
@@ -37,7 +37,7 @@ const status = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_STATUS:
 			return action.status;
-		case SCAN_STARTED:
+		case START_SCAN_OPTIMISTICALLY:
 			return { ...state, lastChecked: null, status: 'scanning' };
 	}
 	return state;
