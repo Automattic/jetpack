@@ -301,7 +301,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __(
-									'Enable targeted advertising to California site visitors (CCPA)',
+									'Enable targeted advertising to site visitors in all US states.',
 									'jetpack'
 								) }
 							</span>
@@ -310,36 +310,22 @@ export const Ads = withModuleSettingsFormHelpers(
 							<FormFieldset>
 								<p>
 									<small className="jp-form-setting-explanation">
-										{ createInterpolateElement(
+										{ 
 											__(
-												'For more information about the California Consumer Privacy Act (CCPA) <br/>and how it pertains to your site, please consult our <link>CCPA guide for site owners</link>.',
+												'Some US States have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
 												'jetpack'
-											),
-											{
-												br: <br />,
-												link: (
-													<ExternalLink
-														href={
-															this.props.isAtomicSite
-																? getRedirectUrl( 'wpcom-support-ccpa' )
-																: getRedirectUrl( 'jetpack-support-ads' )
-														}
-														rel="noopener noreferrer"
-													/>
-												),
-											}
-										) }
+											)
+										}
 									</small>
 								</p>
 								<p>
 									<FormLegend>{ __( 'Do Not Sell Link', 'jetpack' ) }</FormLegend>
 									{ createInterpolateElement(
 										__(
-											'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. <br/>You can use the <widgetLink>Do Not Sell Link (CCPA) Widget</widgetLink>, or the <code>[ccpa-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
+											'If you enable targeted advertising in all US states you are required to place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. You can use the <widgetLink>Do Not Sell Link Widget</widgetLink>, or the <code>[privacy-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
 											'jetpack'
 										),
 										{
-											br: <br />,
 											code: <code />,
 											widgetLink: (
 												<a
@@ -351,7 +337,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									) }
 									<span className="jp-form-setting-explanation">
 										{ __(
-											'Failure to add this link will result in non-compliance with CCPA.',
+											'Failure to add this link will result in non-compliance with privacy laws in some US states.',
 											'jetpack'
 										) }
 									</span>
@@ -375,7 +361,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								/>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'Adds a link to your privacy policy to the bottom of the CCPA notice popup (optional).',
+										'Adds a link to your privacy policy to the bottom of the sale opt-out notice popup (optional).',
 										'jetpack'
 									) }
 								</span>
