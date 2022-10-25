@@ -1044,45 +1044,29 @@ require __DIR__ . '/subscriptions/views.php';
  * @return string
  */
 function maybe_get_locked_content( $the_content ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
-	require_once __DIR__ . '/../extensions/blocks/premium-content/_inc/subscription-service/include.php';
-	require_once __DIR__ . '/../modules/memberships/class-jetpack-memberships.php';
-
-	$protection_level = get_post_meta( get_the_ID(), 'jetpack_newsletter_access', true );
-
-	$can_view = true;
-	if ( 'paid_subscribers' === $protection_level ) {
-		$paywall  = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$plan_ids = Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$can_view = $paywall->visitor_can_view_content( $plan_ids );
+	if ( Jetpack_Memberships::user_can_view_post() ) {
+		return $the_content;
 	}
 
-	if ( 'subscribers' === $protection_level ) {
-		// Do something else
-		$can_view = true;
-	}
+	return do_blocks(
+		'<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"},"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}}},"backgroundColor":"tertiary"} -->
+			<div class="wp-block-group has-tertiary-background-color has-background" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center"} -->
+			<h2 class="has-text-align-center">' . esc_html__( 'Subscribe to get access', 'jetpack' ) . '</h2>
+			<!-- /wp:heading -->
 
-	if ( ! $can_view ) {
-		return do_blocks(
-			'<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"},"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}}},"backgroundColor":"tertiary"} -->
-				<div class="wp-block-group has-tertiary-background-color has-background" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center"} -->
-				<h2 class="has-text-align-center">' . esc_html__( 'Subscribe to get access', 'jetpack' ) . '</h2>
-				<!-- /wp:heading -->
+			<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
+			<p class="has-text-align-center has-small-font-size">' . esc_html__( 'Read more of this content if you subscribe today.', 'jetpack' ) . '</p>
+			<!-- /wp:paragraph -->
 
-				<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
-				<p class="has-text-align-center has-small-font-size">' . esc_html__( 'Read more of this content if you subscribe today.', 'jetpack' ) . '</p>
-				<!-- /wp:paragraph -->
-
-				<!-- wp:jetpack/subscriptions {"subscribePlaceholder":"Email Address","buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} -->
-					<div class="wp-block-jetpack-subscriptions wp-block-jetpack-subscriptions__supports-newline is-style-compact">
-						[jetpack_subscription_form subscribe_placeholder="Email Address" show_subscribers_total="false" button_on_newline="false" custom_font_size="16px" custom_border_radius="50" custom_border_weight="1" custom_padding="15" custom_spacing="10" submit_button_classes="has-primary-border-color has-text-color has-secondary-color has-background has-primary-background-color" email_field_classes="has-primary-border-color" show_only_email_and_button="true"]
-					</div>
-				<!-- /wp:jetpack/subscriptions --></div>
-				<!-- /wp:group -->'
-		);
-	}
-
-	return $the_content;
+			<!-- wp:jetpack/subscriptions {"subscribePlaceholder":"Email Address","buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} -->
+				<div class="wp-block-jetpack-subscriptions wp-block-jetpack-subscriptions__supports-newline is-style-compact">
+					[jetpack_subscription_form subscribe_placeholder="Email Address" show_subscribers_total="false" button_on_newline="false" custom_font_size="16px" custom_border_radius="50" custom_border_weight="1" custom_padding="15" custom_spacing="10" submit_button_classes="has-primary-border-color has-text-color has-secondary-color has-background has-primary-background-color" email_field_classes="has-primary-border-color" show_only_email_and_button="true"]
+				</div>
+			<!-- /wp:jetpack/subscriptions --></div>
+			<!-- /wp:group -->'
+	);
 }
 
 
