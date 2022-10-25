@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
 	import generateCriticalCss from '../../../utils/generate-critical-css';

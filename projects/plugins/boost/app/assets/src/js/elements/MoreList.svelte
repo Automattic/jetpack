@@ -4,7 +4,7 @@
 
 	Automatically folds away with "...and x more" when the list exceeds showLimit.
 -->
-<script>
+<script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { sprintf, __ } from '@wordpress/i18n';
 

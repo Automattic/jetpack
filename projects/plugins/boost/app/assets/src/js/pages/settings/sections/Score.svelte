@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { derived, writable } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import {

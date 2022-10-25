@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { copyDomTemplate } from '../utils/copy-dom-template';
 	import { parsePseudoHTML } from '../utils/parse-pseudo-html';

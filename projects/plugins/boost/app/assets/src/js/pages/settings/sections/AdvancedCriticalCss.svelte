@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import BackButton from '../../../elements/BackButton.svelte';

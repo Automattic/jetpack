@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable.tsx';
 	import Header from '../../sections/Header.svelte';

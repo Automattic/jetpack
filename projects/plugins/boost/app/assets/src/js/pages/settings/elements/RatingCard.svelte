@@ -1,7 +1,7 @@
 <!--
 	This component shows a prompt to rate Boost if scores improved after enabling a feature.
 -->
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import CloseButton from '../../../elements/CloseButton.svelte';

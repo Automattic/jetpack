@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
 	import React from 'react';
 	import { derived } from 'svelte/store';

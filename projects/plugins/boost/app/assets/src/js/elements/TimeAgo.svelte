@@ -2,7 +2,7 @@
 	This Component shows a span with the given time (Date) as a relative time in
 	the past. Mouseover to show the exact time.
 -->
-<script>
+<script lang="ts">
 	import { readable } from 'svelte/store';
 	import describeTimeAgo from '../utils/describe-time-ago.ts';
 

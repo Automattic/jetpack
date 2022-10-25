@@ -1,7 +1,7 @@
 <!--
 	This component pops out and shows a message based on the props passed to it
 -->
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n/';
 	import CloseButton from '../../../elements/CloseButton.svelte';

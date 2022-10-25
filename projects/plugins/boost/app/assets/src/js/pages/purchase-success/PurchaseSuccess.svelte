@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { Button } from '@wordpress/components';
 	import { __ } from '@wordpress/i18n';
