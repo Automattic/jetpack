@@ -8,27 +8,27 @@
 	import TemplatedString from './TemplatedString.svelte';
 
 	/**
-	 * @member {string} title Title to display above the error message.
+	 * Title to display above the error message.
 	 */
-	export let title;
+	export let title: string;
 
 	/**
-	 * @member {Error | string} error Error being displayed. Automatically populates
+	 * Error being displayed. Automatically populates
 	 * description (and if appropriate data) sections.
 	 *
 	 * Note: Description can be overridden by the default slot, if one is provided.
 	 */
-	export let error = new Error( title );
+	export let error: Error | string = new Error( title );
 
 	/**
-	 * @member {string} data Optional raw string data to include with error. Automatically pulled out of ApiErrors.
+	 * Optional raw string data to include with error. Automatically pulled out of ApiErrors.
 	 */
-	export let data;
+	export let data = '';
 
 	/**
-	 * @member {string} suggestion Optional suggestion to include after the error message.
+	 * @member suggestion Optional suggestion to include after the error message.
 	 */
-	export let suggestion;
+	export let suggestion = '';
 
 	/**
 	 * @member {TemplateVars} vars Optional template variables to substitute for tags in the error suggestions.
