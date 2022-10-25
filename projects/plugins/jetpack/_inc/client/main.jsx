@@ -22,6 +22,7 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
+import Forms from 'forms';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
@@ -515,6 +516,12 @@ class Main extends React.Component {
 					break;
 				}
 
+				if ( this.isFormsScreen() ) {
+					navComponent = null;
+					pageComponent = <Forms />;
+					break;
+				}
+
 				this.props.history.replace( '/dashboard' );
 				pageComponent = this.getAtAGlance();
 				break;
@@ -663,6 +670,15 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Checks if this is a forms screen page.
+	 *
+	 * @returns {boolean} Whether this is a forms screen page.
+	 */
+	isFormsScreen() {
+		return this.props.location.pathname.startsWith( '/forms' );
+	}
+
+	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
@@ -703,6 +719,10 @@ class Main extends React.Component {
 
 		if ( this.isLicensingScreen() ) {
 			jpClasses.push( 'jp-licensing-screen' );
+		}
+
+		if ( this.isFormsScreen() ) {
+			jpClasses.push( 'jp-forms-screen' );
 		}
 
 		return (

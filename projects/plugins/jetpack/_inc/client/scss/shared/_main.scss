@@ -76,6 +76,17 @@
 		box-sizing: content-box;
 	}
 
+	&.jp-forms-screen {
+		background: $white;
+		max-width: 100%;
+		padding: 20px 0;
+
+		.dops-notice {
+			margin: 0 64px 20px;
+			max-width: calc( 100% - 128px );
+		}
+	}
+
 	@media (max-width: 1250px) {
 		max-width: 95%;
 	}
