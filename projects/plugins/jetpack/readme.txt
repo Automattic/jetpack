@@ -260,7 +260,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Stats: change mentions of "Site Stats" with "Jetpack Stats".
 - Subscription block: don't include Jetpack Social connections in subscriber count.
 - Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined.
-- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin
 
 #### Improved compatibility
 - Contact Form Block: removed compatibility checks involving automatic deactivation of contact form functionality.
