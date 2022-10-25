@@ -10,13 +10,15 @@ class AdminAjaxError extends Error {
 	}
 }
 
+type PayloadValue = string | number | boolean;
+
 /**
  * Prepare a wp-ajax request, returning a raw Response object.
  *
- * @param {Record< string, string >} payload Key/value pairs to send with the request.
+ * @param {Record< string, PayloadValue >} payload Key/value pairs to send with the request.
  */
 export async function prepareAdminAjaxRequest(
-	payload: Record< string, string >
+	payload: Record< string, PayloadValue >
 ): Promise< Response > {
 	const args = {
 		method: 'post',
@@ -43,10 +45,10 @@ export async function prepareAdminAjaxRequest(
 /**
  * Make a wp-ajax request, interpreting the result as a JSON object.
  *
- * @param {Record< string, string >} payload Key/value pairs to send with the request.
+ * @param {Record< string, PayloadValue >} payload Key/value pairs to send with the request.
  */
 export async function makeAdminAjaxRequest< T = JSONObject >(
-	payload: Record< string, string >
+	payload: Record< string, PayloadValue >
 ): Promise< T > {
 	const response = await prepareAdminAjaxRequest( payload );
 
