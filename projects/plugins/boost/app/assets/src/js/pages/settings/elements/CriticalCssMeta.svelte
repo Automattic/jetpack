@@ -17,8 +17,8 @@
 		<!-- @TODO: Fix TypeScript Issue -->
 		<div
 			role="progressbar"
-			aria-valuemax="100"
-			aria-valuemin="0"
+			aria-valuemax={100}
+			aria-valuemin={0}
 			aria-valuenow={$criticalCssStatus.progress}
 			class="jb-progress-bar"
 		>
