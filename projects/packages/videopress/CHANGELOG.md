@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] - 2022-10-25
+### Added
+- VideoPress: Add component unload prevention on video details edit when there are unsaved changes [#26919]
+- VideoPress: add GlobalNotice component [#26973]
+- VideoPress: add loading state to connect button righ after user clicks on it [#26958]
+- VideoPress: Add support to the use of playback tokens on the details page, so it's possible to see thumbnails on videos that are private. [#26996]
+- VideoPress: Expose VideoPress playback token generation endpoint to enable client display of private videos and thumbnails. [#26974]
+- VideoPress: give access to secondary admins [#26962]
+- VideoPress: handle show admin or pricing based on a local state [#26977]
+- VideoPress: handle UI when setting private video in the quick actions component [#27035]
+- VideoPress: make tracks works [#27040]
+- VideoPress: show an actionable notice when user connection is required [#26986]
+- VideoPress: Upload from library [#26948]
+
+### Changed
+- Updated package dependencies. [#26705]
+- VideoPress: Hide thumbnail actions and open library directly [#27038]
+- VideoPress: show video thumbnails for private videos in the list view [#27024]
+
+### Fixed
+- VideoPress: Add check for site connectivity on video details edit page [#26969]
+- VideoPress: Check for empty poster image on video polling after upload [#27000]
+- VideoPress: enqueue token bridge script when `init` action [#27021]
+- VideoPress: Fix unsaved changes prompt when updating video thumbnail [#26989]
+- VideoPress: Remove ConnectionErrorNotice component on dashboard when there is no connection issue [#26997]
+
 ## [0.6.2] - 2022-10-19
 ### Added
 - VideoPress: Add confirmation before leaving page when upload is in progress [#26912]
@@ -330,6 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.6.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.5.1...v0.6.0
