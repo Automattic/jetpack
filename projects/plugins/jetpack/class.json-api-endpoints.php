@@ -2266,6 +2266,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 						wp_update_attachment_metadata( $media_id, $id3_meta );
 					}
 				}
+
+				// Attributes: Meta
+				if ( isset( $attrs['meta'] ) && isset( $attrs['meta']['vertical_id'] ) ) {
+					update_post_meta( $media_id, 'vertical_id', $attrs['meta']['vertical_id'] );
+				}
 			}
 		}
 
