@@ -4,14 +4,14 @@
 
 ## 11.5-beta - 2022-10-25
 ### Enhancements
+- Dashboard: add connection widget for unconnected sites. [#26596]
+- Dashboard: add Jetpack Search Free  and Jetpack Social to My Products. [#27007, #26990]
 - Form block: add Contact Form child blocks to the Block Library. [#26937]
 - Form block: add default spacing attributes on all form variations. [#26916]
-- Dashboard: add Jetpack Search Free  and Jetpack Social to My Products. [#27007, #26990]
-- Form block: change layout flex styles. [#26914]
-- Jetpack Social: display broken connections to user in editor. [#25803]
-- Dashboard: add connection widget for unconnected sites. [#26596]
 - Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list. [#26896]
 - Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar. [#26911]
+- Form block: change layout flex styles. [#26914]
+- Jetpack Social: display broken connections to user in editor. [#25803]
 
 ### Bug fixes
 - Form block: include spacing between Contact Form blocks to allow the block inserter to be shown on mouse hover. [#26818]

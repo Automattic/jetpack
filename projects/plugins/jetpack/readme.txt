@@ -252,7 +252,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Form block: add default spacing attributes on all form variations, and change layout styles.
 - Form block: improve parent block selection when inner block is already selected.
 - Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list.
-- Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar.
 - Jetpack Social: display broken connections to user in editor.
 - Payment Button block: support a wider variety of layout options.
 - Payment Buttons block: add typography controls.
@@ -261,11 +260,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Stats: change mentions of "Site Stats" with "Jetpack Stats".
 - Subscription block: don't include Jetpack Social connections in subscriber count.
 - Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined.
-- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar.
 - VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin
 
 #### Improved compatibility
 - Contact Form Block: removed compatibility checks involving automatic deactivation of contact form functionality.
+- Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar.
+- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar.
 
 #### Bug fixes
 - Contact Form: display consent form field result in notification emails and feedback views.
