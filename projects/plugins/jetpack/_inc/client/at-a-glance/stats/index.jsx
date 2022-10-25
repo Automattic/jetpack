@@ -230,7 +230,7 @@ export class DashStats extends Component {
 						src={ imagePath + 'stats.svg' }
 						width="60"
 						height="60"
-						alt={ __( 'Line chart overlaid a bar chart', 'jetpack' ) }
+						alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
 						className="jp-at-a-glance__stats-icon"
 					/>
 				</div>
