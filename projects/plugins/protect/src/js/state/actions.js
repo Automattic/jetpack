@@ -51,25 +51,6 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	} );
 };
 
-const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
-	return await new Promise( ( resolve, reject ) => {
-		dispatch( refreshStatus( true ) )
-			.then( async response => {
-				if ( 'scanning' !== response.status ) {
-					return await new Promise( () => {
-						setTimeout( () => {
-							dispatch( refreshStatusUntilScanning() );
-						}, 1000 );
-					} );
-				}
-				resolve();
-			} )
-			.catch( error => {
-				reject( error );
-			} );
-	} );
-};
-
 /**
  * Side effect action which will fetch the credential status from the server
  *
