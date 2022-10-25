@@ -225,6 +225,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
+			'featured_image_email_enabled'                 => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

@@ -6752,7 +6752,7 @@ endif;
 			'features'          => array(
 				_x( 'Instant search and indexing', 'Search Product Feature', 'jetpack' ),
 				_x( 'Powerful filtering', 'Search Product Feature', 'jetpack' ),
-				_x( 'Supports 29 languages', 'Search Product Feature', 'jetpack' ),
+				_x( 'Supports 38 languages', 'Search Product Feature', 'jetpack' ),
 				_x( 'Spelling correction', 'Search Product Feature', 'jetpack' ),
 			),
 		);

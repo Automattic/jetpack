@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Cache connection testing results during an HTTP request.

@@ -1,6 +1,11 @@
+type eventPrefix = 'jetpack_videopress';
+type eventSuffix = 'page_view';
+type eventName = string;
+type eventPageViewNameProp = `${ eventPrefix }_${ eventName }_${ eventSuffix }`;
+
 export type useAnalyticsTracksProps = {
-	pageViewEventName?: string;
-	pageViewNamespace?: string;
-	pageViewSuffix?: string;
-	pageViewEventProperties?: object;
+	pageViewEventName?: eventPageViewNameProp;
+	pageViewEventProperties?: {
+		[ key: string ]: string | number | boolean;
+	};
 };
