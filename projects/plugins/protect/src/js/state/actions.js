@@ -21,12 +21,12 @@ const setStatus = status => {
 	return { type: SET_STATUS, status };
 };
 
-const refreshPlan = () => ( { dispatch } ) => {
-	apiFetch( {
-		path: 'jetpack-protect/v1/plan',
-		method: 'GET',
-	} ).then( productData => dispatch( setProductData( productData ) ) );
-};
+// const refreshPlan = () => ( { dispatch } ) => {
+// 	apiFetch( {
+// 		path: 'jetpack-protect/v1/plan',
+// 		method: 'GET',
+// 	} ).then( productData => dispatch( setProductData( productData ) ) );
+// };
 
 /**
  * Side effect action which will fetch the status from the server
@@ -124,8 +124,8 @@ const setwpVersion = version => {
 	return { type: SET_WP_VERSION, version };
 };
 
-const setJetpackScan = jetpackScan => {
-	return { type: SET_JETPACK_SCAN, jetpackScan };
+const setJetpackScan = scan => {
+	return { type: SET_JETPACK_SCAN, scan };
 };
 
 const setProductData = productData => {
@@ -340,7 +340,7 @@ const actions = {
 	fixThreats,
 	scan,
 	setThreatsAreFixing,
-	refreshPlan,
+	// refreshPlan,
 };
 
 export {
