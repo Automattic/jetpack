@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: enqueue token bridge script when `init` action

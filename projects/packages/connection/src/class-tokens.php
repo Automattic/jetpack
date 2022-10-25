@@ -499,7 +499,7 @@ class Tokens {
 		}
 
 		if ( null !== $deprecated ) {
-			_deprecated_argument( __METHOD__, '$$next-version$$', 'Parameter $can_overwrite_primary_user is deprecated' );
+			_deprecated_argument( __METHOD__, '1.46.0', 'Parameter $can_overwrite_primary_user is deprecated' );
 		}
 
 		if ( ! isset( $tokens[ $user_id ] ) ) {
