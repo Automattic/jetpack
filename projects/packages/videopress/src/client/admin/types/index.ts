@@ -21,6 +21,10 @@ export type OriginalVideoPressVideo = {
 		 */
 		height: number;
 		/**
+		 * Media length.
+		 */
+		length: number;
+		/**
 		 * Data related specific with videopress.
 		 */
 		videopress: {
@@ -106,6 +110,8 @@ export type OriginalVideoPressVideo = {
 		 */
 		privacy_setting?: 0 | 1 | 2;
 	};
+	source_url: string;
+	date: string;
 	/**
 	 * Video guid
 	 */
@@ -113,29 +119,31 @@ export type OriginalVideoPressVideo = {
 };
 
 export type VideoPressVideo = {
-	uploading: boolean;
+	width?: OriginalVideoPressVideo[ 'media_details' ][ 'width' ];
+	height?: OriginalVideoPressVideo[ 'media_details' ][ 'height' ];
 	id: OriginalVideoPressVideo[ 'id' ];
-	guid: OriginalVideoPressVideo[ 'jetpack_videopress_guid' ];
+	guid?: OriginalVideoPressVideo[ 'jetpack_videopress_guid' ];
 	title: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'title' ];
 	description: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'description' ];
 	caption: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'caption' ];
 	url: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'original' ];
 	uploadDate: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'upload_date' ];
 	duration: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'duration' ];
-	isPrivate: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'is_private' ];
-	posterImage: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
-	allowDownload: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
-	rating: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'rating' ];
-	privacySetting: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'privacy_setting' ];
-	poster: {
+	isPrivate?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'is_private' ];
+	posterImage?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
+	allowDownload?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
+	rating?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'rating' ];
+	privacySetting?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'privacy_setting' ];
+	poster?: {
 		src: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 		width: OriginalVideoPressVideo[ 'media_details' ][ 'width' ];
 		height: OriginalVideoPressVideo[ 'media_details' ][ 'height' ];
 	};
+	finished?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
+	filename?: OriginalVideoPressVideo[ 'slug' ];
 	thumbnail?: string;
-	finished: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
+	uploading?: boolean;
 	plays?: number; // Not provided yet
-	filename: OriginalVideoPressVideo[ 'slug' ];
 };
 
 export type LocalVideo = {

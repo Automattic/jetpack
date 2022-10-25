@@ -152,8 +152,8 @@ const VideoThumbnail = ( {
 				<div className={ styles[ 'video-thumbnail-duration' ] }>
 					<Text variant="body-small" component="div">
 						{ duration >= 3600 * 1000
-							? gmdateI18n( 'H:i:s', duration )
-							: gmdateI18n( 'i:s', duration ) }
+							? gmdateI18n( 'H:i:s', new Date( duration ) )
+							: gmdateI18n( 'i:s', new Date( duration ) ) }
 					</Text>
 				</div>
 			) }
