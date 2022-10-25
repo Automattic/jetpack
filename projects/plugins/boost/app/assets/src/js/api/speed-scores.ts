@@ -37,7 +37,6 @@ export async function requestSpeedScores( force = false ): Promise< SpeedScoresS
 	// Request metrics
 	const response = parseResponse(
 		await api.post( force ? '/speed-scores/refresh' : '/speed-scores', {
-			// eslint-disable-next-line camelcase
 			url: Jetpack_Boost.site.url,
 		} )
 	);
@@ -116,7 +115,6 @@ async function pollRequest(): Promise< SpeedScoresSet > {
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'jetpack-boost' ),
 		callback: async resolve => {
 			const response = parseResponse(
-				// eslint-disable-next-line camelcase
 				await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
 			);
 

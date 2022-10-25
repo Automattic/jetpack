@@ -23,7 +23,6 @@
 			action: 'set_show_score_prompt',
 			id,
 			value: false,
-			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showScorePromptNonce,
 		};
 

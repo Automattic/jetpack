@@ -47,7 +47,6 @@ const resetState = {
 	status: 'not_generated',
 };
 
-// eslint-disable-next-line camelcase
 const initialState = Jetpack_Boost.criticalCssStatus || resetState;
 
 const store = writable< CriticalCssStatus >( initialState );
@@ -96,7 +95,6 @@ export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] 
 type CriticalCssApiResponse = {
 	status: string;
 	code?: string;
-	// eslint-disable-next-line camelcase
 	status_update?: CriticalCssStatus;
 };
 

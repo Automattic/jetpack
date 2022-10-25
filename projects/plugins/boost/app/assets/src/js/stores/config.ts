@@ -2,7 +2,6 @@ import { writable } from 'svelte/store';
 import api from '../api/api';
 import { saveGetStarted } from '../api/get-started';
 
-// eslint-disable-next-line camelcase
 const { subscribe, update } = writable( Jetpack_Boost );
 
 async function refresh(): Promise< void > {
@@ -13,7 +12,6 @@ async function refresh(): Promise< void > {
 	} );
 }
 
-// eslint-disable-next-line camelcase
 const dismissedPopOutStore = writable( Jetpack_Boost.dismissedScorePrompts );
 
 export const dismissedPopOuts = {

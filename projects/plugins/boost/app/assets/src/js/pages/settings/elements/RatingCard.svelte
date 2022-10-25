@@ -16,9 +16,7 @@
 		// Send a request to back-end to permanently disable the rating prompt.
 		await makeAdminAjaxRequest( {
 			action: 'set_show_rating_prompt',
-			// @TODO: Fix TypeScript Issue
 			value: false,
-			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showRatingPromptNonce,
 		} );
 
@@ -27,7 +25,6 @@
 	}
 </script>
 
-<!-- @TODO: Fix TypeScript Issue -->
 <div class="jb-rating-card" transition:slideRightTransition>
 	<CloseButton on:click={() => dispatch( 'dismiss' )} />
 	<h3 class="jb-rating-card__headline">

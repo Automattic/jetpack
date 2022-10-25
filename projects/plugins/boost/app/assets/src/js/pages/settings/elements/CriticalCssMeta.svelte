@@ -14,7 +14,6 @@
 				'jetpack-boost'
 			)}
 		</span>
-		<!-- @TODO: Fix TypeScript Issue -->
 		<div
 			role="progressbar"
 			aria-valuemax={100}
@@ -32,5 +31,5 @@
 {:else if $showError}
 	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
 {:else}
-	<CriticalCssStatus on:retry={generateCriticalCss} />
+	<CriticalCssStatus on:retry={() => generateCriticalCss()} />
 {/if}
