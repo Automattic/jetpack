@@ -909,6 +909,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$validate = self::validate_array_of_strings( $answer, $request, $param );
 			} elseif ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
+			} elseif ( $answer === null ) {
+				$validate = true;
 			} else {
 				$validate = self::validate_boolean( $answer, $request, $param );
 			}

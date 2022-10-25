@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2022-10-25
+### Changed
+- Updated package dependencies. [#26705]
+
+## [2.3.1] - 2022-10-25
+### Added
+- Add a flag to indicate if the pricing is introductory with product price [#26982]
+- My Jetpack: Support trial [#27033]
+
+### Changed
+- Search: now support 38 languages [#27025]
+
+### Fixed
+- Don't show old price when it's the same as new one [#27015]
+- Search: check if free plan and new pricing is active using wpcom API [#27016]
+
 ## [2.3.0] - 2022-10-19
 ### Added
 - Added support for free product and added free product for Search [#26808]
@@ -633,6 +649,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.1...2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.0...2.3.1
 [2.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.3...2.3.0
 [2.2.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.1...2.2.2

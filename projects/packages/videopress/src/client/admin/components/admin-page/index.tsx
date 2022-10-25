@@ -108,7 +108,7 @@ const Admin = () => {
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
 
-	useAnalyticsTracks( { pageViewEventName: 'admin' } );
+	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
 	return (
 		<AdminPage
