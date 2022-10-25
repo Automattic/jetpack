@@ -159,6 +159,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				},
 			)
 		);
+
+		// Playback Token Route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/playback-jwt/(?P<video_guid>\w+)',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'videopress_playback_jwt' ),
+				'permission_callback' => function () {
+					return current_user_can( 'read' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -263,7 +276,26 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return WP_Rest_Response - The response object.
 	 */
 	public static function videopress_upload_jwt() {
-		$blog_id = VideoPressToken::blog_id();
+		$has_connected_owner = Data::has_connected_owner();
+		if ( ! $has_connected_owner ) {
+			return rest_ensure_response(
+				new WP_Error(
+					'owner_not_connected',
+					'User not connected.',
+					array(
+						'code'        => 503,
+						'connect_url' => Admin_UI::get_admin_page_url(),
+					)
+				)
+			);
+		}
+
+		$blog_id = Data::get_blog_id();
+		if ( ! $blog_id ) {
+			return rest_ensure_response(
+				new WP_Error( 'site_not_registered', 'Site not registered.', 503 )
+			);
+		}
 
 		try {
 			$token  = VideoPressToken::videopress_upload_jwt();
@@ -274,7 +306,54 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'upload_blog_id' => $blog_id,
 			);
 		} catch ( \Exception $e ) {
-			// TODO: Improve status code.
+			$status = 500;
+			$data   = array(
+				'error' => $e->getMessage(),
+			);
+
+		}
+
+		return rest_ensure_response(
+			new WP_REST_Response( $data, $status )
+		);
+	}
+
+	/**
+	 * Endpoint for generating a VideoPress Playback JWT
+	 *
+	 * @param WP_REST_Request $request the request object.
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public static function videopress_playback_jwt( $request ) {
+		$has_connected_owner = Data::has_connected_owner();
+		if ( ! $has_connected_owner ) {
+			return rest_ensure_response(
+				new WP_Error(
+					'owner_not_connected',
+					'User not connected.',
+					array(
+						'code'        => 503,
+						'connect_url' => Admin_UI::get_admin_page_url(),
+					)
+				)
+			);
+		}
+
+		$blog_id = Data::get_blog_id();
+		if ( ! $blog_id ) {
+			return rest_ensure_response(
+				new WP_Error( 'site_not_registered', 'Site not registered.', 503 )
+			);
+		}
+
+		try {
+			$video_guid = $request->get_param( 'video_guid' );
+			$token      = VideoPressToken::videopress_playback_jwt( $video_guid );
+			$status     = 200;
+			$data       = array(
+				'playback_token' => $token,
+			);
+		} catch ( \Exception $e ) {
 			$status = 500;
 			$data   = array(
 				'error' => $e->getMessage(),
@@ -398,6 +477,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				if ( isset( $json_params['rating'] ) && isset( $meta['videopress']['rating'] ) && videopress_is_valid_video_rating( $json_params['rating'] ) ) {
 					$meta['videopress']['rating'] = $json_params['rating'];
 					$should_update_meta           = true;
+
+					/** Set a new meta field so we can filter using it directly */
+					update_post_meta( $post_id, 'videopress_rating', $json_params['rating'] );
 				}
 
 				if ( isset( $json_params['title'] ) ) {
@@ -428,6 +510,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					if ( ! isset( $meta['videopress']['privacy_setting'] ) || $meta['videopress']['privacy_setting'] !== $privacy_setting ) {
 						$meta['videopress']['privacy_setting'] = $privacy_setting;
 						$should_update_meta                    = true;
+
+						/** Set a new meta field so we can filter using it directly */
+						update_post_meta( $post_id, 'videopress_privacy_setting', $privacy_setting );
 					}
 				}
 

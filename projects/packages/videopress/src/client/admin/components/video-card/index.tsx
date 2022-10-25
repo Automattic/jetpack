@@ -14,6 +14,7 @@ import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
 import React from 'react';
 import { useState } from 'react';
+import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import Placeholder from '../placeholder';
 /**
@@ -77,15 +78,21 @@ export const VideoCard = ( {
 	editable,
 	showQuickActions = true,
 	loading = false,
+	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
+	privacySetting,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
 
+	const privacyIsSetToPrivate = privacySetting
+		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
+		: false;
+
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
+	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
 	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	const hasPlays = typeof plays !== 'undefined';
@@ -116,6 +123,7 @@ export const VideoCard = ( {
 					thumbnail={ thumbnail }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
+					isPrivate={ privacyIsSetToPrivate }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -176,7 +184,7 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading, processing } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
 
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
@@ -187,8 +195,10 @@ export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 			{ ...restProps }
 			loading={ loading }
 			uploading={ uploading }
+			isUpdatingPoster={ isUpdatingPoster }
 			processing={ processing }
 			editable={ editable }
+			privacySetting={ data.privacySetting }
 		/>
 	);
 };

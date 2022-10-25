@@ -16,6 +16,7 @@ export default function useVideos() {
 	// Data
 	const items = useSelect( select => select( STORE_ID ).getVideos() );
 	const uploading = useSelect( select => select( STORE_ID ).getUploadingVideos() );
+	const isUploading = uploading.length > 0;
 	const search = '';
 	const uploadedVideoCount = useSelect( select => select( STORE_ID ).getUploadedVideoCount() );
 	const isFetching = useSelect( select => select( STORE_ID ).getIsFetching() );
@@ -29,6 +30,7 @@ export default function useVideos() {
 	return {
 		items,
 		uploading,
+		isUploading,
 		search,
 		uploadedVideoCount,
 		isFetching,
@@ -41,6 +43,7 @@ export default function useVideos() {
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
 		setSearch: querySearch =>
 			dispatch( STORE_ID ).setVideosQuery( { search: querySearch, page: 1 } ),
+		setFilter: dispatch( STORE_ID ).setVideosFilter,
 	};
 }
 
@@ -52,6 +55,7 @@ export const useLocalVideos = () => {
 		select( STORE_ID ).getUploadedLocalVideoCount()
 	);
 
+	const isFetching = useSelect( select => select( STORE_ID ).getIsFetchingLocalVideos() );
 	const query = useSelect( select => select( STORE_ID ).getLocalVideosQuery() || {} );
 	const pagination = useSelect( select => select( STORE_ID ).getLocalPagination() );
 
@@ -59,6 +63,7 @@ export const useLocalVideos = () => {
 		// Data
 		items,
 		uploadedLocalVideoCount,
+		isFetching,
 		...query,
 		...pagination,
 

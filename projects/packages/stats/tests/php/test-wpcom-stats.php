@@ -534,6 +534,47 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test get_visits.
+	 */
+	public function test_get_visits() {
+		$expected_stats = array(
+			'date'   => '2022-10-12',
+			'unit'   => 'month',
+			'fields' => array(
+				'period',
+				'views',
+			),
+			'data'   => array(
+				array(
+					'2022-08-01',
+					138,
+				),
+				array(
+					'2022-09-01',
+					41,
+				),
+				array(
+					'2022-10-01',
+					57,
+				),
+			),
+		);
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->with(
+				$this->equalTo( '/sites/1234/stats/visits' ),
+				$this->equalTo( array() )
+			)
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_visits();
+		$this->assertSame( $expected_stats, $stats );
+		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/visits' ) );
+	}
+
+	/**
 	 * Test get_stats with cached result.
 	 */
 	public function test_get_stats_with_cached_result() {
@@ -559,6 +600,24 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test get_stats with cached error.
+	 */
+	public function test_get_stats_with_cached_error() {
+		$expected_error = new WP_Error( 'dummy' );
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->wpcom_stats->get_stats();
+
+		$stats = $this->wpcom_stats->get_stats();
+		$this->assertSame( $expected_error, $stats );
+		$this->assertSame( $expected_error, self::get_stats_transient( '/sites/1234/stats/' ) );
+	}
+
+	/**
 	 * Test get_stats with error.
 	 */
 	public function test_get_stats_with_error() {
@@ -571,7 +630,7 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_stats();
 		$this->assertSame( $expected_error, $stats );
-		$this->assertFalse( self::get_stats_transient( '/sites/1234/stats/' ) );
+		$this->assertSame( $expected_error, self::get_stats_transient( '/sites/1234/stats/' ) );
 	}
 
 	/**

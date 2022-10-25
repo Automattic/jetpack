@@ -909,6 +909,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$validate = self::validate_array_of_strings( $answer, $request, $param );
 			} elseif ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
+			} elseif ( $answer === null ) {
+				$validate = true;
 			} else {
 				$validate = self::validate_boolean( $answer, $request, $param );
 			}
@@ -2792,15 +2794,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_alphanum',
-				'jp_group'          => 'settings',
-			),
-
-			// Apps card on dashboard.
-			'dismiss_dash_app_card'                => array(
-				'description'       => '',
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'settings',
 			),
 

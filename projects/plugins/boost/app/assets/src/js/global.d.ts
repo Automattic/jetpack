@@ -40,6 +40,7 @@ declare global {
 			url: string;
 			online: boolean;
 			assetPath: string;
+			getStarted: boolean;
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];
@@ -51,6 +52,7 @@ declare global {
 				priceBefore: number;
 				priceAfter: number;
 				currencyCode: string;
+				isIntroductoryOffer: boolean;
 			};
 		};
 	};

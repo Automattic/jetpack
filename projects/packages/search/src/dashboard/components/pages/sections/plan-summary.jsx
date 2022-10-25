@@ -1,15 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 
-// import './plan-summary.scss';
-
-const planNameFromAPIData = apiData => {
+const getPlanName = isFreePlan => {
 	// Determine plan name for display.
-	const paidText = __( 'Paid Plan', 'jetpack-search-pkg' );
-	const freeText = __( 'Free Plan', 'jetpack-search-pkg' );
-	const planType = apiData?.tierSlug;
-	const planName = planType ? paidText : freeText;
-	return planName;
+	const paidText = __( 'Upgraded', 'jetpack-search-pkg' );
+	const freeText = __( 'Free plan', 'jetpack-search-pkg' );
+	return isFreePlan ? freeText : paidText;
 };
 
 const displayPeriodFromAPIData = apiData => {
@@ -30,9 +26,7 @@ const displayPeriodFromAPIData = apiData => {
 	return `${ startDateText } - ${ endDateText }`;
 };
 
-const PlanSummary = ( { planInfo } ) => {
-	const planName = planNameFromAPIData( planInfo );
-	const displayPeriod = displayPeriodFromAPIData( planInfo );
+const PlanSummary = ( { isFreePlan, planInfo } ) => {
 	return (
 		<h2>
 			{
@@ -40,7 +34,7 @@ const PlanSummary = ( { planInfo } ) => {
 				__( 'Your usage', 'jetpack-search-pkg' )
 			}{ ' ' }
 			<span>
-				{ displayPeriod } ({ planName })
+				{ displayPeriodFromAPIData( planInfo ) } ({ getPlanName( isFreePlan ) })
 			</span>
 		</h2>
 	);

@@ -5,7 +5,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
+import { Icon, edit, captureVideo, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -22,6 +22,7 @@ export const VideoThumbnailDropdownButtons = ( {
 	onSelectFromVideo,
 	onUploadImage,
 	onClose,
+	isUpdatingPoster = false,
 } ) => {
 	return (
 		<>
@@ -54,6 +55,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				fullWidth
 				variant="tertiary"
 				icon={ cloud }
+				disabled={ isUpdatingPoster }
 				onClick={ () => {
 					onClose();
 					onUploadImage?.();
@@ -74,12 +76,13 @@ export const VideoThumbnailDropdown = ( {
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
 				position="bottom left"
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
-						onClick={ onToggle }
+						onClick={ onUploadImage }
 						aria-expanded={ isOpen }
 					/>
 				) }
@@ -107,6 +110,8 @@ const VideoThumbnail = ( {
 	thumbnail,
 	duration,
 	editable,
+	blankIconSize = 96,
+	isPrivate,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
@@ -119,6 +124,18 @@ const VideoThumbnail = ( {
 		) : (
 			thumbnail
 		);
+
+	/** Use a different icon for private videos */
+	const blankIcon = isPrivate ? captureVideo : video;
+
+	/** If the thumbnail is not set, use the placeholder with an icon */
+	thumbnail = thumbnail ? (
+		thumbnail
+	) : (
+		<div className={ styles[ 'thumbnail-blank' ] }>
+			<Icon icon={ blankIcon } size={ blankIconSize } />
+		</div>
+	);
 
 	return (
 		<div
@@ -141,15 +158,7 @@ const VideoThumbnail = ( {
 				</div>
 			) }
 
-			<div className={ styles[ 'thumbnail-placeholder' ] }>
-				{ thumbnail ? (
-					thumbnail
-				) : (
-					<div className={ styles[ 'thumbnail-blank' ] }>
-						<Icon icon={ video } size={ 96 } />
-					</div>
-				) }
-			</div>
+			<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
 		</div>
 	);
 };

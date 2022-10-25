@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Integrate the ConnectionError react component to the Social plugin.

@@ -19,8 +19,8 @@
    - jetpack-approvers
    - yamato-backup-and-security
    - heart-of-gold
-   - jetpack-search
    - jetpack-reach
+   - red
 
 # Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
 - name: Jetpack and packages
@@ -77,8 +77,9 @@
   teams:
    - heart-of-gold
    - jetpack-approvers
+   - '@donnchawp'
 
-# The Search team reviews changes to the Search plugin, and the Search package.
+# The Red team reviews changes to the Search plugin, and the Search package.
 - name: Search
   paths:
    - 'projects/plugins/search/**'
@@ -87,7 +88,7 @@
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'
   teams:
-   - jetpack-search
+   - red
    - jetpack-approvers
 
 # The Reach team reviews changes to the Social plugin, and the Publicize package.

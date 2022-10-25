@@ -293,6 +293,19 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the number of visits for the site.
+	 *
+	 * @param array $args Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_visits( $args = array() ) {
+
+		$this->resource = 'visits';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Build WPCOM REST API endpoint.
 	 *
 	 * @return string
@@ -319,19 +332,19 @@ class WPCOM_Stats {
 
 		if ( $stats_cache ) {
 			$time = key( $stats_cache );
-			$data = $stats_cache[ $time ]; // JSON encoded data.
+			$data = $stats_cache[ $time ]; // WP_Error or string (JSON encoded object).
+
+			if ( is_wp_error( $data ) ) {
+				return $data;
+			}
 
 			return array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
 		}
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
-		if ( is_wp_error( $wpcom_stats ) ) {
-			return $wpcom_stats;
-		}
-
 		// To reduce size in storage: store with time as key, store JSON encoded data.
-		$cached_value = wp_json_encode( $wpcom_stats );
+		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
 		$expiration   = self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS;
 		set_transient( $transient_name, array( time() => $cached_value ), $expiration );
 
@@ -347,7 +360,10 @@ class WPCOM_Stats {
 	 * @return array|WP_Error.
 	 */
 	protected function fetch_remote_stats( $endpoint, $args ) {
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, $args );
+		if ( is_array( $args ) && ! empty( $args ) ) {
+			$endpoint .= '?' . http_build_query( $args );
+		}
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 

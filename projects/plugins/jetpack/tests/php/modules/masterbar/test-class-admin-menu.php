@@ -514,7 +514,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Tests test_add_woocommerce_installation_menu
 	 *
-	 * @covers ::test_add_woocommerce_installation_menu
+	 * @covers ::add_woocommerce_installation_menu
 	 */
 	public function test_add_woocommerce_installation_menu() {
 		global $menu;
