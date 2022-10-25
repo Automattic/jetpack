@@ -239,6 +239,18 @@ class Jetpack_Likes {
 		return 'on';
 	}
 
+	/**
+	 * Force comment likes on for a blog
+	 * Used when a new blog is created on wpcom
+	 *
+	 * @param int $blog_id - Blog ID.
+	 */
+	public function enable_comment_likes( $blog_id ) {
+		switch_to_blog( $blog_id );
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		restore_current_blog();
+	}
+
 	/** Initialize admin settings */
 	public function admin_init() {
 		add_filter( 'manage_posts_columns', array( $this, 'add_like_count_column' ) );
