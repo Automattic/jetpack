@@ -19,7 +19,12 @@ type GlobalNoticeProps = {
 	isDismissible?: boolean;
 	className?: string;
 	children: React.ReactNode;
-	actions: Array< { url: string; label: string; isPrimary?: boolean; onClick: () => void } >;
+	actions: Array< {
+		label: string;
+		onClick: () => void;
+		variant: string;
+		noDefaultClasses: boolean;
+	} >;
 	addConnectUserLink?: boolean | string;
 	onRemove?: () => void;
 };
