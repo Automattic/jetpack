@@ -22,10 +22,11 @@ export const fetchResponses = ( query, limit = 20, offset = 0 ) => {
 			.then( response => {
 				return response.json();
 			} )
-			.then( responses => {
+			.then( data => {
 				dispatch( {
 					type: JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
-					responses,
+					responses: data.responses,
+					total: data.total,
 				} );
 			} )
 			.catch( error => {

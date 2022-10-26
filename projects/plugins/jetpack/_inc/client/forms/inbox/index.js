@@ -16,7 +16,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
  */
 import { find, includes, map } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchResponses, getResponses, isFetchingResponses } from 'state/forms';
+import { fetchResponses, getResponses, getTotalResponses, isFetchingResponses } from 'state/forms';
 import JetpackFormsLogo from '../logo';
 import FormsInboxList from './list';
 import FormsInboxResponse from './response';
@@ -28,9 +28,10 @@ const FormsInbox = () => {
 
 	const dispatch = useDispatch();
 
-	const [ loading, responses ] = useSelector( state => [
+	const [ loading, responses, total ] = useSelector( state => [
 		isFetchingResponses( state ),
 		getResponses( state ),
+		getTotalResponses( state ),
 	] );
 
 	useEffect( () => {
@@ -55,8 +56,8 @@ const FormsInbox = () => {
 
 	const numberOfResponses = sprintf(
 		/* translators: %s: Number of responses. */
-		_n( '%s response', '%s responses', responses.length, 'jetpack' ),
-		responses.length
+		_n( '%s response', '%s responses', total, 'jetpack' ),
+		total
 	);
 
 	return (
