@@ -9,10 +9,8 @@ import {
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	SelectControl,
 } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
-import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -20,131 +18,8 @@ import { find, includes, map } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchResponses, getResponses, isFetchingResponses } from 'state/forms';
 import JetpackFormsLogo from '../logo';
-
-const getDisplayName = response => {
-	if ( response.author_name ) {
-		return response.author_name;
-	}
-
-	if ( response.author_email ) {
-		return response.author_email;
-	}
-
-	return response.ip;
-};
-
-const getPath = response => {
-	const url = new URL( response.entry_permalink );
-
-	return url.pathname;
-};
-
-const formatFieldName = fieldName => {
-	const match = fieldName.match( /^(\d+_)?(.*)/i );
-
-	if ( match ) {
-		return match[ 2 ];
-	}
-
-	return fieldName;
-};
-
-const FormsInboxResponseList = ( { currentResponse, onViewResponse, responses } ) => {
-	const viewResponse = responseId => () => onViewResponse( responseId );
-
-	return (
-		<div className="jp-forms__inbox-list">
-			<div className="jp-forms__inbox-list-header">
-				<div className="jp-forms__inbox-list-cell">
-					<input type="checkbox" className="jp-forms__inbox-list-checkbox" />
-				</div>
-				<div className="jp-forms__inbox-list-cell">{ 'From' }</div>
-				<div className="jp-forms__inbox-list-cell">{ 'Source' }</div>
-				<div className="jp-forms__inbox-list-cell">{ 'Date' }</div>
-			</div>
-			{ map( responses, response => {
-				const classes = classnames( 'jp-forms__inbox-list-row', {
-					'is-selected': currentResponse && currentResponse === response.id,
-				} );
-
-				return (
-					<div key={ response.uid } className={ classes }>
-						<div className="jp-forms__inbox-list-cell">
-							<input type="checkbox" className="jp-forms__inbox-list-checkbox" />
-						</div>
-						<div className="jp-forms__inbox-list-cell is-strong">
-							<a href={ `#forms` } onClick={ viewResponse( response.id ) }>
-								{ getDisplayName( response ) }
-							</a>
-						</div>
-						<div className="jp-forms__inbox-list-cell">
-							<a href={ response.entry_permalink } target="_blank" rel="noreferrer noopener">
-								{ getPath( response ) }
-							</a>
-						</div>
-						<div className="jp-forms__inbox-list-cell">{ dateI18n( 'F j, Y', response.date ) }</div>
-					</div>
-				);
-			} ) }
-		</div>
-	);
-};
-
-const FormsInboxResponseView = ( { response } ) => {
-	if ( ! response ) {
-		return null;
-	}
-
-	return (
-		<div className="jp-forms__response">
-			<div className="jp-forms__response-meta">
-				{ response.author_avatar && (
-					<div className="jp-forms__response-meta-item is-avatar">
-						<img className="jp-forms__response-meta-avatar" src={ response.author_avatar } alt="" />
-					</div>
-				) }
-				{ response.author_name && (
-					<div className="jp-forms__response-meta-item is-name">
-						<span className="jp-forms__response-meta-label">{ __( 'Name:', 'jetpack' ) }</span>
-						<span className="jp-forms__response-meta-value">{ response.author_name }</span>
-					</div>
-				) }
-				{ response.author_email && (
-					<div className="jp-forms__response-meta-item is-email">
-						<span className="jp-forms__response-meta-label">{ __( 'Email:', 'jetpack' ) }</span>
-						<span className="jp-forms__response-meta-value">{ response.author_email }</span>
-					</div>
-				) }
-				<div className="jp-forms__response-meta-item is-date">
-					<span className="jp-forms__response-meta-label">{ __( 'Date:', 'jetpack' ) }</span>
-					<span className="jp-forms__response-meta-value">
-						{ dateI18n( 'F j, Y | g:i A', response.date ) }
-					</span>
-				</div>
-				<div className="jp-forms__response-meta-item is-ip">
-					<span className="jp-forms__response-meta-label">{ __( 'IP:', 'jetpack' ) }</span>
-					<span className="jp-forms__response-meta-value">{ response.ip }</span>
-				</div>
-				<div className="jp-forms__response-meta-item is-source">
-					<span className="jp-forms__response-meta-label">{ __( 'Source:', 'jetpack' ) }</span>
-					<span className="jp-forms__response-meta-value">
-						<a href={ response.entry_permalink } target="_blank" rel="noreferrer noopener">
-							{ response.entry_permalink }
-						</a>
-					</span>
-				</div>
-			</div>
-			<div className="jp-forms__response-fields">
-				{ map( response.fields, ( value, key ) => (
-					<Fragment key={ key }>
-						<div className="jp-forms__response-field-name">{ formatFieldName( key ) }</div>
-						<div className="jp-forms__response-field-value">{ value }</div>
-					</Fragment>
-				) ) }
-			</div>
-		</div>
-	);
-};
+import FormsInboxList from './list';
+import FormsInboxResponse from './response';
 
 const FormsInbox = () => {
 	const [ currentResponse, setCurrentResponse ] = useState( -1 );
@@ -212,14 +87,14 @@ const FormsInbox = () => {
 			</div>
 			<div className="jp-forms__inbox-content">
 				<div className="jp-forms__inbox-content-column">
-					<FormsInboxResponseList
+					<FormsInboxList
 						currentResponse={ currentResponse }
 						onViewResponse={ setCurrentResponse }
 						responses={ responses }
 					/>
 				</div>
 				<div className="jp-forms__inbox-content-column">
-					<FormsInboxResponseView response={ find( responses, { id: currentResponse } ) } />
+					<FormsInboxResponse response={ find( responses, { id: currentResponse } ) } />
 				</div>
 			</div>
 		</div>
