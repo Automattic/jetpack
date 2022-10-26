@@ -3,12 +3,9 @@ import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import { STORE_ID } from '../../state/store';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
-import isSearchNewPricingLaunched202208 from '../../utils/is-search-new-pricing-202208';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import boostImage from './boost.png';
@@ -45,40 +42,45 @@ export default function ProductInterstitial( {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
 
-	const trackProductClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: slug } );
-	}, [ recordEvent, slug ] );
+	const trackProductClick = useCallback(
+		( customSlug = null ) => {
+			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
+				product: customSlug ?? slug,
+			} );
+		},
+		[ recordEvent, slug ]
+	);
 
 	const trackBundleClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', { product: bundle } );
 	}, [ recordEvent, bundle ] );
 
-	const { isUserConnected } = useMyJetpackConnection();
-
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
-	const clickHandler = useCallback( () => {
-		activate().finally( () => {
-			const product = select( STORE_ID ).getProduct( slug );
-			const postActivationUrl = product?.postActivationUrl;
-			const hasRequiredPlan = product?.hasRequiredPlan;
-			const isFree = product?.pricingForUi?.isFree;
-			const wpcomProductSlug = product?.pricingForUi?.wpcomProductSlug;
-			const needsPurchase = ! isFree && ! hasRequiredPlan;
+	const clickHandler = useCallback(
+		checkoutUrl => {
+			activate().finally( () => {
+				const product = select( STORE_ID ).getProduct( slug );
+				const postActivationUrl = product?.postActivationUrl;
+				const hasRequiredPlan = product?.hasRequiredPlan;
+				const isFree = product?.pricingForUi?.isFree;
+				const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-			if ( postActivationUrl ) {
-				window.location.href = postActivationUrl;
-				return;
-			}
+				if ( postActivationUrl ) {
+					window.location.href = postActivationUrl;
+					return;
+				}
 
-			if ( ! needsPurchase || ! wpcomProductSlug ) {
-				return navigateToMyJetpackOverviewPage();
-			}
+				if ( ! needsPurchase || ! checkoutUrl ) {
+					return navigateToMyJetpackOverviewPage();
+				}
 
-			// Redirect to the checkout page.
-			window.location.href = getProductCheckoutUrl( wpcomProductSlug, isUserConnected );
-		} );
-	}, [ navigateToMyJetpackOverviewPage, activate, isUserConnected, slug ] );
+				// Redirect to the checkout page.
+				window.location.href = checkoutUrl;
+			} );
+		},
+		[ navigateToMyJetpackOverviewPage, activate, slug ]
+	);
 
 	const onClickGoBack = useCallback( () => {
 		if ( slug ) {
@@ -207,12 +209,13 @@ export function SocialInterstitial() {
  * @returns {object} SearchInterstitial react component.
  */
 export function SearchInterstitial() {
+	const { detail } = useProduct( 'search' );
 	return (
 		<ProductInterstitial
 			slug="search"
 			installsPlugin={ true }
 			supportingInfo={
-				( isSearchNewPricingLaunched202208()
+				( detail?.pricingForUi?.trialAvailable
 					? __(
 							'Jetpack Search Free supports up to 5,000 records and 500 search requests per month for free. You will be asked to upgrade to a paid plan if you exceed these limits for three continuous months.',
 							'jetpack-my-jetpack'

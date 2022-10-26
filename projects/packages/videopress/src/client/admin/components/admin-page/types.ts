@@ -1,5 +1,5 @@
 import { productOriginalProps, siteProductOriginalProps } from '../../hooks/use-plan/types';
-import { MetadataVideo, VideoPressVideo } from '../../types';
+import { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
 	interface Window {
@@ -16,7 +16,7 @@ declare global {
 				isVideoPressUnlimitedSupported: boolean;
 			};
 			siteProductData: siteProductOriginalProps;
-			productData: productOriginalProps;
+			productData?: productOriginalProps;
 			adminUrl: string;
 			adminUri: string;
 			siteSuffix: string;
@@ -28,6 +28,14 @@ export type VideoLibraryProps = {
 	videos: Array< VideoPressVideo & MetadataVideo >;
 	totalVideos?: number;
 	loading?: boolean;
+};
+
+export type LocalLibraryProps = {
+	videos: Array< LocalVideo >;
+	totalVideos?: number;
+	loading?: boolean;
+	uploading?: boolean;
+	onUploadClick?: ( video: LocalVideo ) => void;
 };
 
 export interface ConnectionStore {
