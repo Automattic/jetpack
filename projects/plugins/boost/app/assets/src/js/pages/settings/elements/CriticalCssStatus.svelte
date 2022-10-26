@@ -32,8 +32,9 @@
 					),
 					$criticalCssStatus.success_count
 				)}
-
-				<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{#if $criticalCssStatus.updated}
+					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{/if}
 				{#if $criticalCssStatus.progress < 100}
 					<span>{generateMoreText}</span>
 				{/if}

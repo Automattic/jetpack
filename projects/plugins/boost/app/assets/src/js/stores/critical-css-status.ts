@@ -9,7 +9,7 @@ export interface CriticalCssErrorDetails {
 	message: string;
 	type: string;
 	meta: JSONObject;
-};
+}
 
 export interface CriticalCssStatus {
 	progress: number;
@@ -20,7 +20,7 @@ export interface CriticalCssStatus {
 	pending_provider_keys?: ProviderKeyUrls;
 	provider_success_ratio?: ProvidersSuccessRatio;
 	status: string;
-	updated: number;
+	updated?: number;
 	core_providers?: string[];
 	core_providers_status?: string;
 	status_error?: Error | string;
