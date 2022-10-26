@@ -441,7 +441,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					echo esc_html( sprintf( _n( 'Join %s other site subscriber', 'Join %s other site subscribers', $subscribers_total['subs'], 'jetpack' ), number_format_i18n( $subscribers_total['subs'] ) ) );
 					if ( $subscribers_total['followers'] ) {
 						// translators: %s number of social followers for the blog */
-						echo esc_html( sprintf( _n( 'and %s social follower', 'and %s social followers', $subscribers_total['followers'], 'jetpack' ), number_format_i18n( $subscribers_total['followers'] ) ) );
+						echo esc_html( sprintf( _n( ' and %s social follower', ' and %s social followers', $subscribers_total['followers'], 'jetpack' ), number_format_i18n( $subscribers_total['followers'] ) ) );
 					}
 					?>
 				</div>
