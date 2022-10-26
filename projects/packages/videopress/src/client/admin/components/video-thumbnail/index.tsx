@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Dropdown, Spinner } from '@wordpress/components';
+import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
  */
 import Placeholder from '../placeholder';
+import ProgressBar from '../progress-bar';
 import styles from './style.module.scss';
 /**
  * Types
@@ -100,16 +101,46 @@ export const VideoThumbnailDropdown = ( {
 	);
 };
 
-const UploadingThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Spinner />
-		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
-	</div>
-);
+const UploadingThumbnail = ( {
+	uploadProgress = 0,
+	isRow = false,
+}: {
+	uploadProgress: number;
+	isRow?: boolean;
+} ) => {
+	const completingTextFull = __( 'Completing upload', 'jetpack-videopress-pkg' );
+	const completingTextCompact = __( 'Completing', 'jetpack-videopress-pkg' );
+	const completingText = isRow ? completingTextCompact : completingTextFull;
 
-const ProcessingThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+	const uploadPercentage = `${ Math.floor( uploadProgress * 100 ) }%`;
+	const uploadingText = sprintf(
+		/* translators: placeholder is the upload percentage */
+		__( 'Uploading %s', 'jetpack-videopress-pkg' ),
+		uploadPercentage
+	);
+	const infoText = uploadProgress === 1 ? completingText : uploadingText;
+
+	return (
+		<div
+			className={ classnames( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }
+		>
+			<ProgressBar
+				className={ styles[ 'progress-bar' ] }
+				size="small"
+				progress={ uploadProgress }
+			/>
+			<Text variant={ isRow ? 'body-extra-small' : 'body' } className={ styles[ 'upload-text' ] }>
+				{ infoText }
+			</Text>
+		</div>
+	);
+};
+
+const ProcessingThumbnail = ( { isRow = false }: { isRow?: boolean } ) => (
+	<div className={ styles[ 'custom-thumbnail' ] }>
+		<Text variant={ isRow ? 'body-extra-small' : 'body' } className={ styles.pulse }>
+			{ __( 'Processing', 'jetpack-videopress-pkg' ) }
+		</Text>
 	</div>
 );
 
@@ -131,14 +162,20 @@ const VideoThumbnail = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	uploadProgress,
+	isRow = false,
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = defaultThumbnail;
 	thumbnail = loading ? <Placeholder /> : thumbnail;
-	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
-	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
+	thumbnail = uploading ? (
+		<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
+	) : (
+		thumbnail
+	);
+	thumbnail = processing ? <ProcessingThumbnail isRow={ isRow } /> : thumbnail;
 
 	thumbnail =
 		typeof thumbnail === 'string' && thumbnail !== '' ? (

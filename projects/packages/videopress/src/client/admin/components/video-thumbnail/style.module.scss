@@ -80,7 +80,7 @@
 	}
 }
 
-.video-card__custom-thumbnail {
+.custom-thumbnail {
 	// Change spinner color
 	--wp-admin-theme-color: var( --jp-green-50 );
 
@@ -93,4 +93,22 @@
 	.pulse {
 		animation: pulse 1.5s infinite;
 	}
+
+	&.is-row {
+		.progress-bar {
+			max-width: 80px;
+		}
+
+		.upload-text {
+			margin-top: 0;
+		}
+	}
+}
+
+.progress-bar {
+	max-width: 112px;
+}
+
+.upload-text {
+	margin-top: calc( var( --spacing-base ) * 3 );
 }
