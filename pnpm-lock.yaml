@@ -1416,7 +1416,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1650,7 +1650,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1724,7 +1724,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1844,7 +1844,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1924,7 +1924,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
