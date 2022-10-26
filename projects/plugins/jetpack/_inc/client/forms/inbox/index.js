@@ -88,6 +88,12 @@ const FormsInboxResponseView = ( { response } ) => {
 	return (
 		<div className="jp-forms__response">
 			<div className="jp-forms__response-meta">
+				{ response.author_avatar && (
+					<div className="jp-forms__response-meta-item is-avatar">
+						2{ ' ' }
+						<img className="jp-forms__response-meta-avatar" src={ response.author_avatar } alt="" />
+					</div>
+				) }
 				{ response.author_name && (
 					<div className="jp-forms__response-meta-item is-name">
 						<span className="jp-forms__response-meta-label">{ __( 'Name:', 'jetpack' ) }</span>

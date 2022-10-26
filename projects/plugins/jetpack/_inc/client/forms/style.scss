@@ -6,6 +6,7 @@
 
 .jp-forms__header-text {
 	font-size: var(--font-title-large);
+	font-weight: bold;
 	margin-bottom: 8px;
 }
 
@@ -105,7 +106,7 @@ input[type="checkbox"].jp-forms__inbox-list-checkbox {
 .jp-forms__response {
 	display: flex;
 	flex-direction: column;
-	padding: 90px 0 32px;
+	padding: 20px 0 32px;
 }
 
 .jp-forms__response-meta {
@@ -124,9 +125,15 @@ input[type="checkbox"].jp-forms__inbox-list-checkbox {
 		grid-column: 1;
 	}
 
+	&.is-avatar,
 	&.is-source {
 		grid-column: span 2;
 	}
+}
+
+.jp-forms__response-meta-avatar {
+	height: 64px;
+	width: 64px;
 }
 
 .jp-forms__response-meta-label {
