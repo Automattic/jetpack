@@ -8,7 +8,6 @@ import {
 	numberFormat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -49,19 +48,6 @@ const QuickActions = ( {
 	);
 };
 
-const UploadingThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Spinner />
-		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
-	</div>
-);
-
-const ProcessingThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
-	</div>
-);
-
 /**
  * Video Card component
  *
@@ -73,7 +59,7 @@ export const VideoCard = ( {
 	id,
 	duration,
 	plays,
-	thumbnail: defaultThumbnail,
+	thumbnail,
 	editable,
 	showQuickActions = true,
 	loading = false,
@@ -82,12 +68,7 @@ export const VideoCard = ( {
 	processing = false,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
-
-	// Mapping thumbnail (Ordered by priority)
-	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
-	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail && ! loading;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
@@ -115,6 +96,9 @@ export const VideoCard = ( {
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
+					loading={ loading }
+					uploading={ uploading || isUpdatingPoster }
+					processing={ processing }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
 				/>

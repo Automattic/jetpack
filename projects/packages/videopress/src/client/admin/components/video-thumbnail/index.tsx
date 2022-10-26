@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { Dropdown } from '@wordpress/components';
+import { Dropdown, Spinner } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
@@ -10,6 +10,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import Placeholder from '../placeholder';
 import styles from './style.module.scss';
 /**
  * Types
@@ -99,6 +100,19 @@ export const VideoThumbnailDropdown = ( {
 	);
 };
 
+const UploadingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Spinner />
+		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
+const ProcessingThumbnail = () => (
+	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
+		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+	</div>
+);
+
 /**
  * React component to display video thumbnail.
  *
@@ -107,15 +121,24 @@ export const VideoThumbnailDropdown = ( {
  */
 const VideoThumbnail = ( {
 	className,
-	thumbnail,
+	thumbnail: defaultThumbnail,
 	duration,
 	editable,
 	blankIconSize = 96,
+	loading = false,
+	uploading = false,
+	processing = false,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	// Mapping thumbnail (Ordered by priority)
+	let thumbnail = defaultThumbnail;
+	thumbnail = loading ? <Placeholder /> : thumbnail;
+	thumbnail = uploading ? <UploadingThumbnail /> : thumbnail;
+	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
 
 	thumbnail =
 		typeof thumbnail === 'string' && thumbnail !== '' ? (

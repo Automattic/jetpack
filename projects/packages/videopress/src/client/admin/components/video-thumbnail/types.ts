@@ -24,7 +24,7 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	className?: string;
 
 	/**
-	 * Video thumbnial image
+	 * Video thumbnail image
 	 */
 	thumbnail?: string | React.ReactNode;
 
@@ -42,4 +42,19 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	 * Blank icon size
 	 */
 	blankIconSize?: number;
+
+	/**
+	 * True when is in loading mode.
+	 */
+	loading?: boolean;
+
+	/**
+	 * True when is in uploading mode.
+	 */
+	uploading?: boolean;
+
+	/**
+	 * True when is in processing mode.
+	 */
+	processing?: boolean;
 };

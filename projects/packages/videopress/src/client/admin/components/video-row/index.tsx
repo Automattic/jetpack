@@ -90,7 +90,7 @@ export const VideoRow = ( {
 	checked = false,
 	title,
 	titleAdornment = null,
-	thumbnail: defaultThumbnail,
+	thumbnail,
 	showThumbnail = false,
 	duration,
 	uploadDate,
@@ -102,6 +102,8 @@ export const VideoRow = ( {
 	showQuickActions = true,
 	showCheckbox = true,
 	loading = false,
+	uploading = false,
+	processing = false,
 	isUpdatingPoster = false,
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
 	disableActionButton = false,
@@ -124,9 +126,6 @@ export const VideoRow = ( {
 		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
-
-	let thumbnail = defaultThumbnail;
-	thumbnail = loading || isUpdatingPoster ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
 
 	const canExpand =
 		isSmall &&
@@ -243,7 +242,13 @@ export const VideoRow = ( {
 				>
 					{ showThumbnail && (
 						<div className={ styles.poster }>
-							<VideoThumbnail thumbnail={ thumbnail } blankIconSize={ 28 } />
+							<VideoThumbnail
+								thumbnail={ thumbnail }
+								loading={ loading }
+								uploading={ uploading || isUpdatingPoster }
+								processing={ processing }
+								blankIconSize={ 28 }
+							/>
 						</div>
 					) }
 					<div className={ styles[ 'title-wrapper' ] }>
@@ -316,7 +321,9 @@ export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
 			id={ id }
 			{ ...restProps }
 			loading={ loading }
+			uploading={ uploading }
 			isUpdatingPoster={ isUpdatingPoster }
+			processing={ processing }
 			showThumbnail
 			privacySetting={ data.privacySetting }
 		/>
