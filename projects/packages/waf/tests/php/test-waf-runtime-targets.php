@@ -103,7 +103,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Test all of the *_NAMES targets for the targets tested by testArrayTargets() above
 	 *
-	 * @dataProvider provideArrayTargets
+	 * @dataProvider provideArrayTargetsNames
 	 *
 	 * @param Waf_Runtime                     $runtime                    The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
 	 * @param string                          $target_name                The modsecurity target name being tested (without the _NAMES), lowercase (examples: 'request_headers', 'tx', 'args', etc).
@@ -111,12 +111,6 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 * @param string                          $second_name_regex          RegEx pattern that will match only the second item in the list.
 	 */
 	public function testArrayTargetsNames( $runtime, $target_name, $expected_names_and_values, $second_name_regex ) {
-		if ( $target_name === 'tx' || $target_name === 'ip' ) {
-			// TX_NAMES and IP_NAMES aren't targets
-			$this->expectNotToPerformAssertions();
-			return;
-		}
-
 		$target_name   .= '_names';
 		$expected_count = count( $expected_names_and_values );
 		$expected       = array();
@@ -192,7 +186,20 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Provide data to test key/value targets such as REQUEST_HEADERS, ARGS, TX, etc. (as well as their associated *_NAMES targets)
+	 * Provide data to test key/value targets suach as ARGS_NAMES, REQUEST_HEADERS_NAMES, etc.
+	 */
+	public function provideArrayTargetsNames() {
+		// use the same output from provideArrayTargets(), but skip IP and TX
+		foreach ( $this->provideArrayTargets() as $k => $v ) {
+			if ( $k === 'TX' || $k === 'IP' ) {
+				continue;
+			}
+			yield $k => $v;
+		}
+	}
+
+	/**
+	 * Provide data to test key/value targets such as REQUEST_HEADERS, ARGS, TX, etc.
 	 */
 	public function provideArrayTargets() {
 		// REQUEST_HEADERS
