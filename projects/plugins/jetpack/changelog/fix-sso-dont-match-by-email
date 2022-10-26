@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SSO: properly disable "match by email" by default.
