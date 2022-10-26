@@ -2,8 +2,8 @@
 Contributors: automattic, retrofox, oskosk, dhasilva, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
-Requires at least: 5.9
-Tested up to: 6.0
+Requires at least: 6.0
+Tested up to: 6.1
 Stable tag: 0.1.0-alpha
 Requires PHP: 5.6
 License: GPLv2 or later
