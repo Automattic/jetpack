@@ -278,6 +278,7 @@ export function JetpackContactFormEdit( {
 						label={ __( 'Title of the Form', 'jetpack' ) }
 						value={ formTitle }
 						onChange={ value => setAttributes( { formTitle: value } ) }
+						help={ __( 'Optional - not visible to viewers', 'jetpack' ) }
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
