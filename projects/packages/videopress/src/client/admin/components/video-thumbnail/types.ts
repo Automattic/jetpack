@@ -62,4 +62,9 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	 * The video upload progress from 0 to 1.
 	 */
 	uploadProgress?: number;
+
+	/**
+	 * True if the thumbnail is used on a video row.
+	 */
+	isRow?: boolean;
 };

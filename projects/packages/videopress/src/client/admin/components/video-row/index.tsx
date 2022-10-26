@@ -250,6 +250,7 @@ export const VideoRow = ( {
 								processing={ processing }
 								blankIconSize={ 28 }
 								uploadProgress={ uploadProgress }
+								isRow
 							/>
 						</div>
 					) }
