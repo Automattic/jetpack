@@ -4178,8 +4178,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$responses = array_map(
 			function ( $response ) {
-				$response_data  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $response->ID );
-				$response_extra = Grunion_Contact_Form_Plugin::get_extra_fields( $response->ID );
+				$response_data = Grunion_Contact_Form_Plugin::parse_fields_from_content( $response->ID );
 
 				return array(
 					'id'              => $response->ID,
@@ -4193,10 +4192,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'entry_permalink' => $response_data['all_fields']['entry_permalink'],
 					'subject'         => $response_data['_feedback_subject'],
 					'fields'          => array_diff_key(
-						array_merge(
-							$response_data['all_fields'],
-							$response_extra
-						),
+						$response_data['all_fields'],
 						array(
 							'entry_title'     => '',
 							'entry_permalink' => '',
