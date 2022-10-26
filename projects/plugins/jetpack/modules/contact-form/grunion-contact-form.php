@@ -1999,22 +1999,6 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Returns extra field data stored in the post meta for the given response.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return array
-	 */
-	public static function get_extra_fields( $post_id ) {
-		$extra_fields = get_post_meta( $post_id, '_feedback_extra_fields', true );
-
-		if ( ! is_array( $extra_fields ) ) {
-			return array();
-		}
-
-		return $extra_fields;
-	}
-
-	/**
 	 * Parse the contact form fields.
 	 *
 	 * @deprecated Use parse_fields() instead.
