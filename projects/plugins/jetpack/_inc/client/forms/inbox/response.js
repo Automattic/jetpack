@@ -13,9 +13,30 @@ import { map } from 'lodash';
  */
 import { formatFieldName } from './util';
 
-const FormsInboxResponse = ( { response } ) => {
+const Placeholder = () => (
+	<div className="jp-forms__response is-loading">
+		<div className="jp-forms__response-meta">
+			<div className="jp-forms__response-meta-item is-avatar" />
+			<div className="jp-forms__response-meta-item" />
+			<div className="jp-forms__response-meta-item" />
+			<div className="jp-forms__response-meta-item is-source" />
+		</div>
+		<div className="jp-forms__response-fields">
+			<div className="jp-forms__response-field-name" />
+			<div className="jp-forms__response-field-value" />
+			<div className="jp-forms__response-field-name" />
+			<div className="jp-forms__response-field-value" />
+		</div>
+	</div>
+);
+
+const FormsInboxResponse = ( { loading, response } ) => {
+	if ( ! response && loading ) {
+		return <Placeholder />;
+	}
+
 	if ( ! response ) {
-		return null;
+		return <div className="jp-forms__response" />;
 	}
 
 	return (

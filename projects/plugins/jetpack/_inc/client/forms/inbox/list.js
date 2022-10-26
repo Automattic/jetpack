@@ -7,19 +7,19 @@
 import { dateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { map } from 'lodash';
+import { map, times } from 'lodash';
 /**
  * Internal dependencies
  */
 import { getDisplayName, getPath } from './util';
 
-const FormsInboxResponse = ( { currentResponse, onViewResponse, responses } ) => {
+const FormsInboxResponse = ( { currentResponse, loading, onViewResponse, responses } ) => {
 	const viewResponse = responseId => () => onViewResponse( responseId );
 
 	return (
 		<div className="jp-forms__inbox-list">
 			<div className="jp-forms__inbox-list-header">
-				<div className="jp-forms__inbox-list-cell">
+				<div className="jp-forms__inbox-list-cell is-checkbox">
 					<input type="checkbox" className="jp-forms__inbox-list-checkbox" />
 				</div>
 				<div className="jp-forms__inbox-list-cell">{ __( 'From', 'jetpack' ) }</div>
@@ -33,7 +33,7 @@ const FormsInboxResponse = ( { currentResponse, onViewResponse, responses } ) =>
 
 				return (
 					<div key={ response.uid } className={ classes }>
-						<div className="jp-forms__inbox-list-cell">
+						<div className="jp-forms__inbox-list-cell is-checkbox">
 							<input type="checkbox" className="jp-forms__inbox-list-checkbox" />
 						</div>
 						<div className="jp-forms__inbox-list-cell is-strong">
@@ -50,6 +50,18 @@ const FormsInboxResponse = ( { currentResponse, onViewResponse, responses } ) =>
 					</div>
 				);
 			} ) }
+
+			{ loading &&
+				times( 8, n => (
+					<div key={ n } className="jp-forms__inbox-list-row is-loading">
+						<div className="jp-forms__inbox-list-cell is-checkbox">
+							<input type="checkbox" className="jp-forms__inbox-list-checkbox" disabled />
+						</div>
+						<div className="jp-forms__inbox-list-cell" />
+						<div className="jp-forms__inbox-list-cell" />
+						<div className="jp-forms__inbox-list-cell" />
+					</div>
+				) ) }
 		</div>
 	);
 };

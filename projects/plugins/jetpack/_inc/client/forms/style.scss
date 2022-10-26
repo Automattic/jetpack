@@ -1,3 +1,9 @@
+@keyframes jp-forms__loading-pulse-animation {
+	0% { opacity: 33%; }
+	50% { opacity: 100%; }
+	100% { opacity: 33%; }
+}
+
 .jp-forms__header {
 	display: flex;
 	flex-direction: column;
@@ -84,6 +90,7 @@
 	line-height: 24px;
 	padding: 20px 10px 19px;
 	text-overflow: ellipsis;
+	vertical-align: center;
 	white-space: nowrap;
 
 	&.is-strong {
@@ -136,6 +143,14 @@ input[type="checkbox"].jp-forms__inbox-list-checkbox {
 	&.is-source {
 		grid-column: span 2;
 	}
+
+	.jp-forms__response.is-loading &.is-avatar {
+		animation: jp-forms__loading-pulse-animation 2s ease-in-out infinite;
+		background: var(--jp-gray-40);
+		border-radius: 4px;
+		height: 64px;
+		width: 64px;
+	}
 }
 
 .jp-forms__response-meta-avatar {
@@ -165,4 +180,51 @@ input[type="checkbox"].jp-forms__inbox-list-checkbox {
 .jp-forms__response-field-value {
 	font-weight: bold;
 	white-space: pre-wrap;
+}
+
+.jp-forms__response.is-loading,
+.jp-forms__inbox-list-row.is-loading {
+	.jp-forms__response-meta-item:not(.is-avatar)::before,
+	.jp-forms__response-meta-item:not(.is-avatar)::after,
+	.jp-forms__response-field-name::before,
+	.jp-forms__response-field-value::before,
+	.jp-forms__response-field-value::after,
+	.jp-forms__inbox-list-cell:not(.is-checkbox)::before {
+		animation: jp-forms__loading-pulse-animation 2s ease-in-out infinite;
+		background: var(--jp-gray-40);
+		border-radius: 11px;
+		box-sizing: border-box;
+		content: "";
+		display: block;
+		height: 22px;		
+	}
+
+	.jp-forms__response-meta-item:not(.is-avatar)::before {
+			margin-bottom: 8px;
+			width: 25%;
+	}
+
+	.jp-forms__response-meta-item:not(.is-avatar)::after {
+			margin-bottom: 0;
+			width: 67%;
+	}
+
+	.jp-forms__response-field-name::before {
+		width: 120px;
+	}
+
+	.jp-forms__response-field-value::before {
+			margin-bottom: 8px;
+			width: 67%;
+	}
+
+	.jp-forms__response-field-value::after {
+		margin-bottom: 0;
+		width: 33%;
+	}
+
+	.jp-forms__inbox-list-cell:not(.is-checkbox)::before {
+		min-width: 120px;
+		width: 67px;
+	}
 }

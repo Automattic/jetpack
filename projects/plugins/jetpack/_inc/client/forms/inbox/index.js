@@ -89,12 +89,16 @@ const FormsInbox = () => {
 				<div className="jp-forms__inbox-content-column">
 					<FormsInboxList
 						currentResponse={ currentResponse }
+						loading={ loading }
 						onViewResponse={ setCurrentResponse }
 						responses={ responses }
 					/>
 				</div>
 				<div className="jp-forms__inbox-content-column">
-					<FormsInboxResponse response={ find( responses, { id: currentResponse } ) } />
+					<FormsInboxResponse
+						loading={ loading }
+						response={ find( responses, { id: currentResponse } ) }
+					/>
 				</div>
 			</div>
 		</div>
