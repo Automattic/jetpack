@@ -73,6 +73,17 @@ describe( 'SettingsGroup', () => {
 		expect( screen.queryByRole( 'button', { name: 'Learn more' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows support info icon if no link but text and displayWithoutLink was passed', () => {
+		const infoProps = {
+			support: {
+				text: 'A support info text',
+				displayWithoutLink: true,
+			},
+		};
+		render( <SettingsGroup { ...infoProps } /> );
+		expect( screen.getByRole( 'button', { name: 'Learn more' } ) ).toBeInTheDocument();
+	} );
+
 	describe( 'has a fading layer', () => {
 		it( 'visible in in Offline Mode', () => {
 			const disabled = {
