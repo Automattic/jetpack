@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
@@ -9,11 +8,11 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import TextInput from 'components/text-input';
 import Textarea from 'components/textarea';
 import analytics from 'lib/analytics';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import React from 'react';
-import TextInput from '../components/text-input';
 
 export const Ads = withModuleSettingsFormHelpers(
 	class extends React.Component {
@@ -285,9 +284,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).',
 								'jetpack'
 							),
-							link: this.props.isAtomicSite
-								? getRedirectUrl( 'wpcom-support-ccpa' )
-								: getRedirectUrl( 'jetpack-support-ads' ),
+							displayWithoutLink: true,
 						} }
 					>
 						<CompactFormToggle
@@ -310,12 +307,10 @@ export const Ads = withModuleSettingsFormHelpers(
 							<FormFieldset>
 								<p>
 									<small className="jp-form-setting-explanation">
-										{ 
-											__(
-												'Some US States have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
-												'jetpack'
-											)
-										}
+										{ __(
+											'Some US States have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
+											'jetpack'
+										) }
 									</small>
 								</p>
 								<p>
