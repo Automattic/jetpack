@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VideoPress
  * Plugin URI: https://wordpress.org/plugins/jetpack-videopress
  * Description: High quality, ad-free video.
- * Version: 1.0.0
+ * Version: 1.0.1-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
