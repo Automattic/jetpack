@@ -81,7 +81,8 @@
 		max-width: 100%;
 		padding: 20px 0;
 
-		.dops-notice {
+		.dops-notice,
+		.jp-unlinked-notice {
 			margin: 0 64px 20px;
 			max-width: calc( 100% - 128px );
 		}
