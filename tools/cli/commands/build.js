@@ -871,13 +871,14 @@ async function buildProject( t ) {
 			.replace( /[[\]]/g, '' );
 
 		if ( ! projectVersionNumber ) {
-			throw 'Version number not found.';
+			throw new Error( 'Version number not found.' );
 		}
 	} catch ( err ) {
-		console.error(
-			`Error reading project version number from changelog file for ${ t.project }: ${ err }`
+		await t.setStatus( 'build failure' );
+		await t.output(
+			`\nError fetching latest version number from changelog.md while building project: ${ t.project }\n`
 		);
-		return false;
+		throw new Error( err );
 	}
 
 	// Build succeeded! Now do some bookkeeping.
