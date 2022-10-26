@@ -22,9 +22,9 @@ export const encodeValueForShortcodeAttribute = value => {
 		.replace( /\u200b/g, '&#x200b;' );
 };
 
-export const getPaidPlanLink = () => {
-	const siteSlug = location.hostname;
-	return 'https://wordpress.com/earn/payments-plans/' + siteSlug + '#add-newsletter-payment-plan';
+export const getPaidPlanLink = hasNewsletterPlans => {
+	const link = 'https://wordpress.com/earn/payments-plans/' + location.hostname;
+	return hasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
 };
 
 function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
@@ -34,14 +34,14 @@ function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 
 	if ( 'toolbar' === context ) {
 		return (
-			<ToolbarButton href={ getPaidPlanLink() } target="_blank">
+			<ToolbarButton href={ getPaidPlanLink( hasNewsletterPlans ) } target="_blank">
 				{ addPaidPlanButtonText }
 			</ToolbarButton>
 		);
 	}
 
 	return (
-		<Button variant="primary" href={ getPaidPlanLink() } target="_blank">
+		<Button variant="primary" href={ getPaidPlanLink( hasNewsletterPlans ) } target="_blank">
 			{ addPaidPlanButtonText }
 		</Button>
 	);
