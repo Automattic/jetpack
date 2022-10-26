@@ -26,7 +26,7 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
-import { PaidPlanPanel } from './paid-plan';
+import PaidPlanPanel from './paid-plan';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,

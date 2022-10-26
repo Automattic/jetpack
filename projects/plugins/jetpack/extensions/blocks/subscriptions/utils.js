@@ -1,6 +1,4 @@
 import { Button, ToolbarButton } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
 import { _x } from '@wordpress/i18n';
 
 /**
@@ -27,7 +25,7 @@ export const getPaidPlanLink = hasNewsletterPlans => {
 	return hasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
 };
 
-function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
+export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
 		: _x( 'Add paid plan', '', 'jetpack' );
@@ -46,14 +44,3 @@ function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 		</Button>
 	);
 }
-
-export default compose( [
-	withSelect( select => {
-		const newsletterPlans = select( 'jetpack/membership-products' )
-			?.getProducts()
-			?.filter( product => product.subscribe_as_site_subscriber );
-		return {
-			hasNewsletterPlans: newsletterPlans?.length !== 0,
-		};
-	} ),
-] )( GetAddPaidPlanButton );
