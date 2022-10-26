@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.46.0] - 2022-10-25
+### Changed
+- Use blog token to unlink users from WPCOM. [#26705]
+
 ## [1.45.5] - 2022-10-25
 ### Added
 - Connection: expose BlogId in the global state [#26978]
@@ -705,6 +709,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.46.0]: https://github.com/Automattic/jetpack-connection/compare/v1.45.5...v1.46.0
 [1.45.5]: https://github.com/Automattic/jetpack-connection/compare/v1.45.4...v1.45.5
 [1.45.4]: https://github.com/Automattic/jetpack-connection/compare/v1.45.3...v1.45.4
 [1.45.3]: https://github.com/Automattic/jetpack-connection/compare/v1.45.2...v1.45.3

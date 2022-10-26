@@ -61,7 +61,11 @@ const pollingUploadedVideoData = async data => {
 		return Promise.resolve( video );
 	}
 
-	return pollingUploadedVideoData( video );
+	return new Promise( ( resolve, reject ) => {
+		setTimeout( () => {
+			pollingUploadedVideoData( data ).then( resolve ).catch( reject );
+		}, 2000 );
+	} );
 };
 
 /**

@@ -164,7 +164,7 @@ class SiteStatsComponent extends React.Component {
 								src={ imagePath + 'stats.svg' }
 								width="60"
 								height="60"
-								alt={ __( 'Jetpack Stats Icon', 'jetpack' ) }
+								alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
 								className="jp-at-a-glance__stats-icon"
 							/>
 						</div>
@@ -173,7 +173,7 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<Link>Activate Jetpack Stats</Link> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'<Link>Activate Jetpack Stats</Link> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 											'jetpack'
 										),
 										{
@@ -262,7 +262,7 @@ class SiteStatsComponent extends React.Component {
 							) ) }
 						</FormFieldset>
 						<FormFieldset>
-							<FormLegend>{ __( 'Allow stats reports to be viewed by', 'jetpack' ) }</FormLegend>
+							<FormLegend>{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }</FormLegend>
 							<CompactFormToggle checked={ true } disabled={ true }>
 								<span className="jp-form-toggle-explanation">{ siteRoles.administrator.name }</span>
 							</CompactFormToggle>

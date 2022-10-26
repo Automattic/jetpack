@@ -112,7 +112,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<Header
-						isUpgradable={ isNewPricing && isFreePlan }
+						isUpgradable={ ( isNewPricing && isFreePlan ) || ! supportsInstantSearch }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
 					/>
 					{ hasConnectionError && (
@@ -126,7 +126,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					{ isNewPricing && (
+					{ isNewPricing && supportsInstantSearch && (
 						<PlanInfo
 							hasIndex={ postCount !== 0 }
 							recordMeterInfo={ recordMeterInfo }
@@ -134,7 +134,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							sendPaidPlanToCart={ sendPaidPlanToCart }
 						/>
 					) }
-					{ ! isNewPricing && (
+					{ ! isNewPricing && supportsInstantSearch && (
 						<RecordMeter
 							postCount={ postCount }
 							postTypeBreakdown={ postTypeBreakdown }
