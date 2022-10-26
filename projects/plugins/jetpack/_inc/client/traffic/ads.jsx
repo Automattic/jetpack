@@ -281,7 +281,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						hasChild
 						support={ {
 							text: __(
-								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).',
+								'Enables a targeted advertising opt-out link for consumers from some US states.',
 								'jetpack'
 							),
 							displayWithoutLink: true,
