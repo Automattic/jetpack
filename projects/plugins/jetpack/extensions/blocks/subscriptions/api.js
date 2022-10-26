@@ -2,7 +2,8 @@ import apiFetch from '@wordpress/api-fetch';
 
 export function getSubscriberCount( successCallback, failureCallback ) {
 	return apiFetch( {
-		path: '/wpcom/v2/subscribers/count?include_publicize_subscribers=false',
+		path:
+			'/wpcom/v2/subscribers/count?include_publicize_subscribers=false&split_subs_and_followers=true',
 	} ).then( count => {
 		// Handle error condition
 		if ( ! count.hasOwnProperty( 'count' ) ) {
