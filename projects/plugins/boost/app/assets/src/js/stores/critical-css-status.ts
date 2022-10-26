@@ -5,13 +5,12 @@ import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-c
 import type { JSONObject } from '../utils/json-types';
 import type { Viewport } from '../utils/types';
 
-export type CriticalCssErrorDetails = {
+export interface CriticalCssErrorDetails {
 	message: string;
 	type: string;
 	meta: JSONObject;
 };
 
-/* eslint-disable camelcase */
 export interface CriticalCssStatus {
 	progress: number;
 	retried_show_stopper?: boolean;
@@ -21,6 +20,7 @@ export interface CriticalCssStatus {
 	pending_provider_keys?: ProviderKeyUrls;
 	provider_success_ratio?: ProvidersSuccessRatio;
 	status: string;
+	updated: number;
 	core_providers?: string[];
 	core_providers_status?: string;
 	status_error?: Error | string;
@@ -34,7 +34,6 @@ export interface CriticalCssStatus {
 	created?: number;
 	viewports?: Viewport[];
 }
-/* eslint-enable camelcase */
 
 const SUCCESS = 'success';
 const FAIL = 'fail';
@@ -52,7 +51,7 @@ const initialState = Jetpack_Boost.criticalCssStatus || resetState;
 const store = writable< CriticalCssStatus >( initialState );
 const { subscribe, update } = store;
 
-let status;
+let status: CriticalCssStatus;
 subscribe( state => ( status = state ) );
 
 export function getStatus() {
