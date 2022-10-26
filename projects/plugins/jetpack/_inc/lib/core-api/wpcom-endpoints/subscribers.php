@@ -65,7 +65,8 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 			delete_transient( 'wpcom_subscribers_total_no_publicize' );
 		}
 		$include_publicize_subscribers = isset( $request['include_publicize_subscribers'] ) ? rest_sanitize_boolean( $request['include_publicize_subscribers'] ) : true;
-		$subscriber_info               = Jetpack_Subscriptions_Widget::fetch_subscriber_count( $include_publicize_subscribers );
+		$split_subs_and_followers      = isset( $request['split_subs_and_followers'] ) ? rest_sanitize_boolean( $request['split_subs_and_followers'] ) : false;
+		$subscriber_info               = Jetpack_Subscriptions_Widget::fetch_subscriber_count( $include_publicize_subscribers, $split_subs_and_followers );
 		$subscriber_count              = $subscriber_info['value'];
 
 		return array(

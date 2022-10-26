@@ -180,7 +180,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function render_widget_status_messages( $instance ) {
 		if ( self::is_jetpack() && isset( $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 			$success_message   = isset( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
-			$subscribers_total = self::fetch_subscriber_count( false );
+			$subscribers_total = self::fetch_subscriber_count( false, true );
 			switch ( $_GET['subscribe'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'invalid_email':
 					?>
@@ -339,7 +339,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$source                       = 'widget';
 		$widget_id                    = ! empty( $args['widget_id'] ) ? $args['widget_id'] : self::$instance_count;
 		$subscribe_button             = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
-		$subscribers_total            = self::fetch_subscriber_count( false );
+		$subscribers_total            = self::fetch_subscriber_count( false, true );
 		$subscribe_placeholder        = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$submit_button_classes        = isset( $instance['submit_button_classes'] ) ? 'wp-block-button__link ' . $instance['submit_button_classes'] : 'wp-block-button__link';
 		$submit_button_styles         = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
@@ -434,11 +434,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</button>
 				</p>
 			</form>
-			<?php if ( $show_subscribers_total && $subscribers_total ) { ?>
+			<?php if ( $show_subscribers_total && $subscribers_total['subs'] ) { ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
 					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( sprintf( _n( 'Join %s other site subscriber', 'Join %s other site subscribers', $subscribers_total['subs'], 'jetpack' ), number_format_i18n( $subscribers_total['subs'] ) ) );
+					if ( $subscribers_total['followers'] ) {
+						// translators: %s number of social followers for the blog */
+						echo esc_html( sprintf( _n( 'and %s social follower', 'and %s social followers', $subscribers_total['followers'], 'jetpack' ), number_format_i18n( $subscribers_total['followers'] ) ) );
+					}
 					?>
 				</div>
 			<?php } ?>
@@ -596,16 +600,19 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * Determine the amount of folks currently subscribed to the blog.
 	 *
 	 * @param bool $include_publicize_subscribers Include followers through Publicize.
+	 * @param bool $split_subs_and_followers Split the total into subscribers and followers.
 	 * @return int|array
 	 */
-	public static function fetch_subscriber_count( $include_publicize_subscribers = true ) {
+	public static function fetch_subscriber_count( $include_publicize_subscribers = true, $split_subs_and_followers = false ) {
 		$subs_count = 0;
 		if ( self::is_jetpack() ) {
-			$cache_key  = $include_publicize_subscribers ? 'wpcom_subscribers_total' : 'wpcom_subscribers_total_no_publicize';
-			$subs_count = get_transient( $cache_key );
+			$cache_key_suffix = $split_subs_and_followers ? '_split' : '';
+			$cache_key        = $include_publicize_subscribers ? 'wpcom_subscribers_total' : 'wpcom_subscribers_total_no_publicize';
+			$cache_key       .= $cache_key_suffix;
+			$subs_count       = get_transient( $cache_key );
 			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 				$xml = new Jetpack_IXR_Client();
-				$xml->query( 'jetpack.fetchSubscriberCount', $include_publicize_subscribers );
+				$xml->query( 'jetpack.fetchSubscriberCount', $include_publicize_subscribers, $split_subs_and_followers );
 
 				if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
 
@@ -625,11 +632,22 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 		}
 
+		// TODO
 		if ( self::is_wpcom() ) {
-			if ( $include_publicize_subscribers && function_exists( 'wpcom_reach_total_for_blog' ) ) {
-				$subs_count = wpcom_reach_total_for_blog();
-			} elseif ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
-				$subs_count = wpcom_subs_total_for_blog();
+			if ( $split_subs_and_followers && function_exists( 'wpcom_reach_total_for_blog' ) && function_exists( 'wpcom_subs_total_for_blog' ) ) {
+				$total_reach = wpcom_reach_total_for_blog();
+				$subs        = wpcom_subs_total_for_blog();
+
+				return array(
+					'subs'      => $subs,
+					'followers' => $total_reach - $subs,
+				);
+			} else {
+				if ( $include_publicize_subscribers && function_exists( 'wpcom_reach_total_for_blog' ) ) {
+					$subs_count = wpcom_reach_total_for_blog();
+				} elseif ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
+					$subs_count = wpcom_subs_total_for_blog();
+				}
 			}
 		}
 
@@ -703,7 +721,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_text      = esc_attr( stripslashes( $instance['subscribe_text'] ) );
 			$subscribe_logged_in = esc_attr( stripslashes( $instance['subscribe_logged_in'] ) );
 			$subscribe_button    = esc_attr( stripslashes( $instance['subscribe_button'] ) );
-			$subscribers_total   = self::fetch_subscriber_count( false );
+			$subscribers_total   = self::fetch_subscriber_count( false, true );
 		}
 
 		if ( self::is_jetpack() ) {
@@ -712,7 +730,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_placeholder = stripslashes( $instance['subscribe_placeholder'] );
 			$subscribe_button      = stripslashes( $instance['subscribe_button'] );
 			$success_message       = stripslashes( $instance['success_message'] );
-			$subs_fetch            = self::fetch_subscriber_count( false );
+			$subs_fetch            = self::fetch_subscriber_count( false, true );
 			if ( 'failed' === $subs_fetch['status'] ) {
 				printf( '<div class="error inline"><p>%s: %s</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
 			}
