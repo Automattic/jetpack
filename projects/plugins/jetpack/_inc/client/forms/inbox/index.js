@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-/**
- * WordPress dependencies
- */
+import { JetpackFooter } from '@automattic/jetpack-components';
 import {
 	Button,
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
@@ -11,11 +9,14 @@ import {
 } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { find, includes, map } from 'lodash';
+import { useDispatch, useSelector } from 'react-redux';
+/**
+ * WordPress dependencies
+ */
 /**
  * Internal dependencies
  */
-import { find, includes, map } from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
 import { fetchResponses, getResponses, getTotalResponses, isFetchingResponses } from 'state/forms';
 import JetpackFormsLogo from '../logo';
 import { RESPONSES_PER_PAGE } from './constants';
@@ -109,6 +110,7 @@ const FormsInbox = () => {
 					/>
 				</div>
 			</div>
+			<JetpackFooter className="jp-forms__footer" moduleName={ __( 'Jetpack Forms', 'jetpack' ) } />
 		</div>
 	);
 };

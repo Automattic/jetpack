@@ -20,6 +20,12 @@
 	margin: 0;
 }
 
+.jp-forms__footer.jp-dashboard-footer {
+	box-sizing: border-box;
+	padding: 40px 64px 20px;
+	max-width: 100%;
+}
+
 .jp-forms__actions {
 	--wp-admin-theme-color: var(--jp-gray-80);
 	--wp-admin-theme-color-darker-10: var(--jp-gray-90);
