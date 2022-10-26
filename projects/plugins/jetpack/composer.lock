@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ee5f710efe03ef89b4fc48e5c3b82cf",
+    "content-hash": "e22e94c816fd6c628f879b256033120f",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1503,16 +1503,16 @@
         },
         {
             "name": "automattic/jetpack-search",
-            "version": "v0.29.1",
+            "version": "v0.29.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-search.git",
-                "reference": "14046084ccb757699ea754f37c32849bb4a00f12"
+                "reference": "fb8319056b2ab2ce0b1abd039e727466bdf14135"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/14046084ccb757699ea754f37c32849bb4a00f12",
-                "reference": "14046084ccb757699ea754f37c32849bb4a00f12",
+                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/fb8319056b2ab2ce0b1abd039e727466bdf14135",
+                "reference": "fb8319056b2ab2ce0b1abd039e727466bdf14135",
                 "shasum": ""
             },
             "require": {
@@ -1554,9 +1554,9 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-search/tree/v0.29.1"
+                "source": "https://github.com/Automattic/jetpack-search/tree/v0.29.2"
             },
-            "time": "2022-10-25T11:13:17+00:00"
+            "time": "2022-10-26T15:04:33+00:00"
         },
         {
             "name": "automattic/jetpack-stats",
