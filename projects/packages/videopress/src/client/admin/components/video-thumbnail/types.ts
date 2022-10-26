@@ -44,17 +44,17 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	blankIconSize?: number;
 
 	/**
-	 * True when is in loading mode.
+	 * True when in loading mode.
 	 */
 	loading?: boolean;
 
 	/**
-	 * True when is in uploading mode.
+	 * True when in uploading mode.
 	 */
 	uploading?: boolean;
 
 	/**
-	 * True when is in processing mode.
+	 * True when in processing mode.
 	 */
 	processing?: boolean;
 
