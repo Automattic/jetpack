@@ -12,6 +12,11 @@
  *
  * @package automattic/jetpack
  */
+/**
+ * NOTE: While the front-end behavior currently varies, try to keep the data
+ * model here the same as on wpcom to facilitate Simple→Atomic moves and
+ * possible future work to recombine the front-ends.
+ */
 
 use Automattic\Jetpack\Assets;
 

@@ -8,6 +8,13 @@ use Automattic\Jetpack\Sync\Settings;
 class Jetpack_Likes_Settings {
 
 	/**
+	 * Constructor function.
+	 */
+	public function __construct() {
+		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+	}
+
+	/**
 	 * Replaces the "Sharing" title for the post screen metabox with "Likes and Shares"
 	 */
 	public function add_likes_to_sharing_meta_box_title() {
@@ -134,7 +141,18 @@ class Jetpack_Likes_Settings {
 			return $post_id;
 		}
 
-		if ( isset( $_POST['post_type'] ) && 'post' === $_POST['post_type'] ) {
+		// Record sharing disable. Only needs to be done for WPCOM.
+		if ( ! $this->in_jetpack ) {
+			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ), true ) ) {
+				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
+					update_post_meta( $post_id, 'sharing_disabled', 1 );
+				} else {
+					delete_post_meta( $post_id, 'sharing_disabled' );
+				}
+			}
+		}
+
+		if ( 'post' === $_POST['post_type'] ) {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				return $post_id;
 			}
@@ -268,11 +286,25 @@ class Jetpack_Likes_Settings {
 		}
 
 		/*
-		 * the new and improved behavior on Jetpack and recent WPCOM posts:
-		 * $post_likes_switched is empty to follow site setting,
-		 * 0 if we want likes disabled, 1 if we want likes enabled.
+		 * on WPCOM, we need to look at post edit date so we don't break old posts
+		 * if post edit date predates this code, stick with the former (buggy) behavior
+		 * see: p7DVsv-64H-p2
 		 */
-		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
+		$last_modified_time = strtotime( $post->post_modified_gmt );
+
+		$behavior_was_changed_at = strtotime( '2019-02-22 00:40:42' );
+
+		if ( $this->in_jetpack || $last_modified_time > $behavior_was_changed_at ) {
+			/*
+			 * the new and improved behavior on Jetpack and recent WPCOM posts:
+			 * $post_likes_switched is empty to follow site setting,
+			 * 0 if we want likes disabled, 1 if we want likes enabled.
+			 */
+			return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
+		}
+
+		// implicit else (old behavior): $post_likes_switched simply inverts the global setting.
+		return ( (bool) $post_likes_switched ) xor $sitewide_likes_enabled;
 	}
 
 	/**
@@ -535,8 +567,84 @@ class Jetpack_Likes_Settings {
 					<div>
 			</td>
 		</tr>
+		<?php if ( ! $this->in_jetpack ) : ?>
+			<tr>
+				<th scope="row">
+					<label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack' ); ?></label>
+				</th>
+				<td>
+					<div>
+						<label>
+							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="on" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
+							<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack' ); ?>
+						</label>
+					</div>
+					<div>
+						<label>
+							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
+							<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
+						</label>
+					</div>
+				</td>
+			</tr>
+			<!-- WPCOM only: Comment Likes -->
+			<?php if ( ! $this->in_jetpack ) : ?>
+				<tr>
+					<th scope="row">
+						<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
+					</th>
+					<td>
+						<div>
+							<label>
+								<input type="checkbox" class="code" name="jetpack_comment_likes_enabled" value="1" <?php checked( $this->is_comments_enabled(), true ); ?> />
+								<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
+							</label>
+						</div>
+					</td>
+				</tr>
+			<?php endif; ?>
+		<?php endif; ?>
 		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
 		<?php
+	}
+
+	/**
+	 * Returns the current state of the "WordPress.com Reblogs are" option.
+	 *
+	 * @return bool true if enabled sitewide, false if not
+	 */
+	public function reblogs_enabled_sitewide() {
+		/**
+		 * Filters whether Reblogs are enabled by default on all posts.
+		 * true if enabled sitewide, false if not.
+		 *
+		 * @module likes
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param bool $option Are Reblogs enabled sitewide.
+		 */
+		return (bool) apply_filters( 'wpl_reblogging_enabled_sitewide', ! get_option( 'disabled_reblogs' ) );
+	}
+
+	/**
+	 * Used for WPCOM ONLY. Comment likes are in their own module in Jetpack.
+	 * Returns if comment likes are enabled. Defaults to 'off'
+	 *
+	 * @return boolean true if we should show comment likes, false if not
+	 */
+	public function is_comments_enabled() {
+		/**
+		 * Filters whether Comment Likes are enabled.
+		 * true if enabled, false if not.
+		 *
+		 * @module comment-likes
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool $option Are Comment Likes enabled sitewide.
+		 */
+		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
 	}
 
 	/**
@@ -580,6 +688,24 @@ class Jetpack_Likes_Settings {
 			default:
 				delete_option( 'disabled_reblogs' );
 				break;
+		}
+
+		// WPCOM only: Comment Likes
+		if ( ! $this->in_jetpack ) {
+			if ( ! empty( $_POST['jetpack_comment_likes_enabled'] ) ) {
+				$new_comments_state = sanitize_text_field( wp_unslash( $_POST['jetpack_comment_likes_enabled'] ) );
+			} else {
+				$new_comments_state = false;
+			}
+			switch ( (bool) $new_comments_state ) {
+				case true:
+					update_option( 'jetpack_comment_likes_enabled', 1 );
+					break;
+				case false:
+				default:
+					update_option( 'jetpack_comment_likes_enabled', 0 );
+					break;
+			}
 		}
 	}
 
