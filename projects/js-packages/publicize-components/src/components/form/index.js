@@ -11,6 +11,7 @@ import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import PublicizeConnection from '../connection';
@@ -43,6 +44,7 @@ export default function PublicizeForm( {
 		enabledConnections,
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+	const { isEnhancedPublishingEnabled } = usePublicizeConfig();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -142,7 +144,7 @@ export default function PublicizeForm( {
 								onChange={ updateMessage }
 								message={ message }
 							/>
-							<MediaSection />
+							{ isEnhancedPublishingEnabled && <MediaSection /> }
 						</>
 					) }
 				</Fragment>

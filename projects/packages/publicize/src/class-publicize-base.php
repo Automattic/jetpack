@@ -1469,39 +1469,75 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Call the WPCOM REST API to get the Publicize shares info.
+	 * Get the Jetpack Social info from the API.
 	 *
-	 * @param string $blog_id The WPCOM blog_id for the current blog.
+	 * @param int $blog_id The WPCOM blog_id for the current blog.
 	 * @return array
 	 */
-	public function get_publicize_shares_info( $blog_id ) {
-		static $share_info_response = null;
-		$key                        = 'jetpack_social_shares_info';
+	public function get_api_data( $blog_id ) {
+		static $api_data_response = null;
+		$key                      = 'jetpack_social_api_data';
 
-		if ( ! isset( $share_info_response ) ) {
-			$response            = Client::wpcom_json_api_request_as_blog(
-				sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
-				'2',
-				array(
-					'headers' => array( 'content-type' => 'application/json' ),
-					'method'  => 'GET',
-				),
-				null,
-				'wpcom'
-			);
-			$rest_controller     = new REST_Controller();
-			$share_info_response = $rest_controller->make_proper_response( $response );
-			if ( ! is_wp_error( $share_info_response ) ) {
-				set_transient( $key, $share_info_response, DAY_IN_SECONDS );
-				return $share_info_response;
-			}
-			$cached_response = get_transient( $key );
-			if ( ! empty( $cached_response ) ) {
-				return $cached_response;
-			}
+		if ( isset( $api_data_response ) ) {
+			return ! is_wp_error( $api_data_response ) ? $api_data_response : array();
 		}
 
-		return ! is_wp_error( $share_info_response ) ? $share_info_response : null;
+		$rest_controller   = new REST_Controller();
+		$response          = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
+			'2',
+			array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method'  => 'GET',
+			),
+			null,
+			'wpcom'
+		);
+		$api_data_response = $rest_controller->make_proper_response( $response );
+
+		if ( ! is_wp_error( $api_data_response ) ) {
+			set_transient( $key, $api_data_response, DAY_IN_SECONDS );
+			return $api_data_response;
+		}
+
+		$cached_response = get_transient( $key );
+		if ( ! empty( $cached_response ) ) {
+			return $cached_response;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get the Publicize shares info.
+	 *
+	 * @param string $blog_id The WPCOM blog_id for the current blog.
+	 * @return ?array
+	 */
+	public function get_publicize_shares_info( $blog_id ) {
+		$data = $this->get_api_data( $blog_id );
+
+		if ( empty( $data ) ) {
+			return null;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Check if enhanced publishing is enabled.
+	 *
+	 * @param int $blog_id The blog ID for the current blog.
+	 * @return bool
+	 */
+	public function is_enhanced_publishing_enabled( $blog_id ) {
+		$data = $this->get_api_data( $blog_id );
+
+		if ( empty( $data ) ) {
+			return false;
+		}
+
+		return ! empty( $data['is_enhanced_publishing_enabled'] );
 	}
 
 	/**
