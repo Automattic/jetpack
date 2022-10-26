@@ -18,6 +18,7 @@ import { find, includes, map } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchResponses, getResponses, getTotalResponses, isFetchingResponses } from 'state/forms';
 import JetpackFormsLogo from '../logo';
+import { RESPONSES_PER_PAGE } from './constants';
 import FormsInboxList from './list';
 import FormsInboxResponse from './response';
 
@@ -35,7 +36,7 @@ const FormsInbox = () => {
 	] );
 
 	useEffect( () => {
-		fetchResponses( {} )( dispatch );
+		fetchResponses( {}, RESPONSES_PER_PAGE )( dispatch );
 	}, [] );
 
 	useEffect( () => {
@@ -46,10 +47,14 @@ const FormsInbox = () => {
 		setCurrentResponse( responses[ 0 ].id );
 	}, [ responses ] );
 
+	const handleLoadMore = useCallback( () => {
+		fetchResponses( { search: searchText }, RESPONSES_PER_PAGE, responses.length )( dispatch );
+	}, [ searchText, responses ] );
+
 	const handleSearch = useCallback(
 		event => {
 			event.preventDefault();
-			fetchResponses( { search: searchText } )( dispatch );
+			fetchResponses( { search: searchText }, RESPONSES_PER_PAGE )( dispatch );
 		},
 		[ searchText ]
 	);
@@ -90,7 +95,9 @@ const FormsInbox = () => {
 				<div className="jp-forms__inbox-content-column">
 					<FormsInboxList
 						currentResponse={ currentResponse }
+						hasMore={ responses.length < total }
 						loading={ loading }
+						onLoadMore={ handleLoadMore }
 						onViewResponse={ setCurrentResponse }
 						responses={ responses }
 					/>

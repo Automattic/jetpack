@@ -16,7 +16,11 @@ export const fetchResponses = ( query, limit = 20, offset = 0 ) => {
 			offset,
 		} );
 
-		const queryString = new URLSearchParams( query ).toString();
+		const queryString = new URLSearchParams( {
+			...query,
+			limit,
+			offset,
+		} ).toString();
 
 		return fetch( `/wp-json/jetpack/v4/form-responses?${ queryString }` )
 			.then( response => {
@@ -25,6 +29,7 @@ export const fetchResponses = ( query, limit = 20, offset = 0 ) => {
 			.then( data => {
 				dispatch( {
 					type: JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
+					append: 0 < offset,
 					responses: data.responses,
 					total: data.total,
 				} );
