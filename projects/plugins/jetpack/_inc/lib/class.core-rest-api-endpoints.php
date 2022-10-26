@@ -4157,7 +4157,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_jetpack_form_responses( $request ) {
 		$args = array(
-			'post_type' => 'feedback',
+			'post_type'   => 'feedback',
+			'post_status' => array( 'publish', 'draft' ),
 		);
 
 		if ( isset( $request['form_id'] ) ) {
