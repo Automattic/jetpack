@@ -138,7 +138,7 @@
 		"@wordpress/keycodes": "3.19.0",
 		"@wordpress/notices": "3.19.0",
 		"@wordpress/token-list": "2.19.0",
-		"autoprefixer": "10.4.9",
+		"autoprefixer": "10.4.12",
 		"babel-jest": "28.1.0",
 		"concurrently": "6.0.2",
 		"fs-extra": "10.0.0",
