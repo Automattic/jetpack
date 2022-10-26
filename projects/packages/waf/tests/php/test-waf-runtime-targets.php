@@ -14,6 +14,7 @@ use Automattic\Jetpack\Waf\Waf_Transforms;
  * Runtime test suite.
  */
 final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * Test key/value targets  REQUEST_HEADERS, TX, IP, REQUEST_COOKIES, ARGS, ARGS_POST, ARGS_GET, FILES
@@ -40,26 +41,26 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$values = $runtime->normalize_targets( array( $target_name => array() ) );
 		$this->assertCount( $expected_count, $values, "$target_name 'all' test returned incorrect count" );
 		foreach ( $expected as $exp ) {
-			$this->assertContainsEquals( $exp, $values, "$target_name 'all' test did not include value for '{$exp['name']}'" );
+			$this->assertContains( $exp, $values, "$target_name 'all' test did not include value for '{$exp['name']}'" );
 		}
 		// test "only" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[1]['name'] ) ) ) );
 		$this->assertCount( 1, $values, "$target_name 'only' test returned incorrect number of values" );
-		$this->assertContainsEquals( $expected[1], $values, "$target_name 'only' test did not include value for '{$expected[1]['name']}'" );
+		$this->assertContains( $expected[1], $values, "$target_name 'only' test did not include value for '{$expected[1]['name']}'" );
 
 		// test "only" filter with regex pattern
 		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $second_name_regex ) ) ) );
 		$this->assertCount( 1, $values, "$target_name 'only regex' test returned incorrect number of values" );
-		$this->assertContainsEquals( $expected[1], $values, "$target_name 'only regex' test did not include value for '{$expected[1]['name']}'" );
+		$this->assertContains( $expected[1], $values, "$target_name 'only regex' test did not include value for '{$expected[1]['name']}'" );
 
 		// test "except" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $expected[0]['name'] ) ) ) );
 		$this->assertCount( $expected_count - 1, $values, "$target_name 'except' test returned incorrect number of values" );
 		foreach ( $expected as $i => $exp ) {
 			if ( 0 === $i ) {
-				$this->assertNotContainsEquals( $exp, $values );
+				$this->assertNotContains( $exp, $values );
 			} else {
-				$this->assertContainsEquals( $exp, $values );
+				$this->assertContains( $exp, $values );
 			}
 		}
 
@@ -68,9 +69,9 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$this->assertCount( $expected_count - 1, $values, "$target_name 'except regex' test returned incorrect number of values" );
 		foreach ( $expected as $i => $exp ) {
 			if ( 1 === $i ) {
-				$this->assertNotContainsEquals( $exp, $values );
+				$this->assertNotContains( $exp, $values );
 			} else {
-				$this->assertContainsEquals( $exp, $values );
+				$this->assertContains( $exp, $values );
 			}
 		}
 
@@ -88,7 +89,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test that "count" works
 		$values = $runtime->normalize_targets( array( $target_name => array( 'count' => true ) ) );
 		$this->assertCount( 1, $values, "$target_name 'count' test returned more than 1 value" );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => $target_name,
 				'value'  => $expected_count,
@@ -131,27 +132,27 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$values = $runtime->normalize_targets( array( $target_name => array() ) );
 		$this->assertCount( $expected_count, $values, "$target_name 'all' test returned incorrect count" );
 		foreach ( $expected as $exp ) {
-			$this->assertContainsEquals( $exp, $values );
+			$this->assertContains( $exp, $values );
 		}
 
 		// test "only" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[1]['value'] ) ) ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals( $expected[1], $values );
+		$this->assertContains( $expected[1], $values );
 
 		// test "only" filter with regex pattern
 		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $second_name_regex ) ) ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals( $expected[1], $values );
+		$this->assertContains( $expected[1], $values );
 
 		// test "except" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'except' => array( $expected[0]['value'] ) ) ) );
 		$this->assertCount( $expected_count - 1, $values );
 		foreach ( $expected as $i => $exp ) {
 			if ( 0 === $i ) {
-				$this->assertNotContainsEquals( $exp, $values );
+				$this->assertNotContains( $exp, $values );
 			} else {
-				$this->assertContainsEquals( $exp, $values );
+				$this->assertContains( $exp, $values );
 			}
 		}
 
@@ -160,9 +161,9 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$this->assertCount( $expected_count - 1, $values );
 		foreach ( $expected as $i => $exp ) {
 			if ( 1 === $i ) {
-				$this->assertNotContainsEquals( $exp, $values );
+				$this->assertNotContains( $exp, $values );
 			} else {
-				$this->assertContainsEquals( $exp, $values );
+				$this->assertContains( $exp, $values );
 			}
 		}
 
@@ -180,7 +181,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test that "count" works
 		$values = $runtime->normalize_targets( array( $target_name => array( 'count' => true ) ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => $target_name,
 				'value'  => $expected_count,
@@ -341,7 +342,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_method' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_method',
 				'value'  => 'DELETE',
@@ -359,7 +360,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_protocol' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_protocol',
 				'value'  => 'TEST',
@@ -378,7 +379,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test request_uri
 		$values = $runtime->normalize_targets( array( 'request_uri' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_uri',
 				'value'  => '/index.php?test=test',
@@ -389,7 +390,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test request_uri_raw
 		$values = $runtime->normalize_targets( array( 'request_uri_raw' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_uri_raw',
 				'value'  => 'https://wordpress.com/index.php?test=test',
@@ -400,7 +401,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test request_filename
 		$values = $runtime->normalize_targets( array( 'request_filename' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_filename',
 				'value'  => '/index.php',
@@ -411,7 +412,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test request_basename
 		$values = $runtime->normalize_targets( array( 'request_basename' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_basename',
 				'value'  => 'index.php',
@@ -422,7 +423,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		// test query_string
 		$values = $runtime->normalize_targets( array( 'query_string' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'query_string',
 				'value'  => '?test=test',
@@ -440,7 +441,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'remote_addr' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'remote_addr',
 				'value'  => 'test_remote_addr',
@@ -458,7 +459,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_body' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_body',
 				'value'  => 'test request body',
@@ -482,7 +483,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
 		$values  = $runtime->normalize_targets( array( 'request_line' => array() ) );
 		$this->assertCount( 1, $values );
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'   => 'request_line',
 				'value'  => 'GET /index.php?test=test HTTP/1.2',

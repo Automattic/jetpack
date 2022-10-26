@@ -11,6 +11,8 @@ use Automattic\Jetpack\Waf\Waf_Request;
  * Request test suite.
  */
 class WafRequestTest extends PHPUnit\Framework\TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
+
 	/**
 	 * Test for null on CLI.
 	 */
@@ -140,17 +142,17 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$_SERVER['CONTENT_LENGTH']  = '1234567890';
 		$request                    = new Waf_Request();
 		$headers                    = $request->get_headers();
-		$this->assertNotContainsEquals( array( 'notaheader', 'wrong' ), $headers );
-		$this->assertContainsEquals( array( 'headername', 'test' ), $headers );
-		$this->assertContainsEquals( array( 'content-type', 'mocked/content-type' ), $headers );
-		$this->assertContainsEquals( array( 'content-length', '1234567890' ), $headers );
+		$this->assertNotContains( array( 'notaheader', 'wrong' ), $headers );
+		$this->assertContains( array( 'headername', 'test' ), $headers );
+		$this->assertContains( array( 'content-type', 'mocked/content-type' ), $headers );
+		$this->assertContains( array( 'content-length', '1234567890' ), $headers );
 		// ensure defaults for Content-Type and Content-Length are used if not found
 		unset( $_SERVER['CONTENT_TYPE'] );
 		unset( $_SERVER['CONTENT_LENGTH'] );
 		$request = new Waf_Request();
 		$headers = $request->get_headers();
-		$this->assertContainsEquals( array( 'content-type', 'application/octet-stream' ), $headers );
-		$this->assertContainsEquals( array( 'content-length', '0' ), $headers );
+		$this->assertContains( array( 'content-type', 'application/octet-stream' ), $headers );
+		$this->assertContains( array( 'content-length', '0' ), $headers );
 	}
 
 	/**
@@ -249,7 +251,7 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$request                = new Waf_Request();
 		$value                  = $request->get_cookies();
 		$this->assertIsArray( $value );
-		$this->assertContainsEquals( array( 'test_cookie', 'test_value' ), $value );
+		$this->assertContains( array( 'test_cookie', 'test_value' ), $value );
 	}
 
 	/**
@@ -262,9 +264,9 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$request         = new Waf_Request();
 		$value           = $request->get_get_vars();
 		$this->assertIsArray( $value );
-		$this->assertContainsEquals( array( 'get_var', 'test_value' ), $value );
-		$this->assertContainsEquals( array( 'get_2[child]', 'value' ), $value );
-		$this->assertContainsEquals( array( 'get_num[0]', 'value1' ), $value );
+		$this->assertContains( array( 'get_var', 'test_value' ), $value );
+		$this->assertContains( array( 'get_2[child]', 'value' ), $value );
+		$this->assertContains( array( 'get_num[0]', 'value1' ), $value );
 	}
 
 	/**
@@ -277,9 +279,9 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$request           = new Waf_Request();
 		$value             = $request->get_post_vars();
 		$this->assertIsArray( $value );
-		$this->assertContainsEquals( array( 'test_var', 'test_value' ), $value );
-		$this->assertContainsEquals( array( 'test_2[child]', 'value' ), $value );
-		$this->assertContainsEquals( array( 'test_num[0]', 'value1' ), $value );
+		$this->assertContains( array( 'test_var', 'test_value' ), $value );
+		$this->assertContains( array( 'test_2[child]', 'value' ), $value );
+		$this->assertContains( array( 'test_num[0]', 'value1' ), $value );
 	}
 
 	/**
@@ -306,7 +308,7 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertIsArray( $values );
 		$this->assertCount( 5, $values );
 		// $_FILES['single'] should turn into a single output value:
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'     => 'single',
 				'filename' => 'single_file.pdf',
@@ -314,14 +316,14 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 			$values
 		);
 		// $_FILES['double'] should turn into two output values:
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'     => 'double[0]',
 				'filename' => 'double_1.pdf',
 			),
 			$values
 		);
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'     => 'double[1]',
 				'filename' => 'double_2.pdf',
@@ -329,14 +331,14 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 			$values
 		);
 		// $_FILES['nested'] should turn into two output values:
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'     => 'nested[a][b]',
 				'filename' => 'nested_ab.pdf',
 			),
 			$values
 		);
-		$this->assertContainsEquals(
+		$this->assertContains(
 			array(
 				'name'     => 'nested[a][c]',
 				'filename' => 'nested_ac.pdf',
