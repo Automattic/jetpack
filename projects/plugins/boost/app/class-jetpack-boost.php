@@ -108,7 +108,7 @@ class Jetpack_Boost {
 
 		My_Jetpack_Initializer::init();
 
-		Deactivation_Handler::init();
+		Deactivation_Handler::init( $this->plugin_name, 'https://developer.wordpress.org/reference/functions/esc_url/', __DIR__ . '/deactivation/view.php' );
 	}
 
 	/**

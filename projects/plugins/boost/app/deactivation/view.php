@@ -4,8 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
  <div class="jb-deactivation__dialog">
-	<div class="jp-deactivation__dialog__content">
-		<h1 id="jp-deactivation__dialog__heading">Are you sure you want to deactivate?</h1>
+	<div class="jb-deactivation__dialog__content">
+		<h1 id="jb-deactivation__dialog__heading">Are you sure you want to deactivate?</h1>
 		<div class="jetpack-benefits__general-benefits-section">
 			<p class="jp-connection__disconnect-dialog__large-text">Jetpack has many powerful tools that can help you achieve your goals</p>
 			<ul class="jetpack-benefits__general-benefits-list">
@@ -15,22 +15,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</ul>
 		</div>
 	</div>
-	<div class="jp-deactivation__dialog__footer">
+	<div class="jb-deactivation__dialog__actions">
 		<button 
 			class="jp-deactivation__dialog__button jp-deactivation__dialog__button--cancel" 
 			type="button"
-			onclick="dispatchEvent(jbDeactivationEvents.close)"
+			onclick="dispatchEvent(DeactivationDialog.events.close)"
 		>Cancel</button>
 		<button 
 			class="jp-deactivation__dialog__button jp-deactivation__dialog__button--deactivate" 
-			type="button" 
-			onclick="dispatchEvent(jbDeactivationEvents.deactivate)"
+			type="button"
+			onclick="dispatchEvent(DeactivationDialog.events.deactivate)"
 		>Deactivate</button>
 		<button 
 			class="jp-deactivation__dialog__button jp-deactivation__dialog__button--deactivate" 
-			type="button" 
-			onclick="dispatchEvent(jbDeactivationEvents.deactivateWithFeedback)"
+			type="button"
+			onclick="dispatchEvent(DeactivationDialog.events.deactivateWithFeedback)"
 		>Give Feedback &amp; Deactivate</button>
 	</div>
 </div>
-<div class="jb-deactivation__overlay" onclick="dispatchEvent(jbDeactivationEvents.close)"></div>
+<div class="jb-deactivation__overlay" onclick="dispatchEvent(DeactivationDialog.events.close)"></div>
