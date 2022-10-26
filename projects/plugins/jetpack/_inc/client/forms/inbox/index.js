@@ -8,7 +8,7 @@ import {
 } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
-import { __, _nx } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -163,13 +163,10 @@ const FormsInbox = () => {
 		[ searchText ]
 	);
 
-	// translators: %s: Number of responses.
-	const numberOfResponses = _nx(
-		'%s response',
-		'%s responses',
-		responses.length || 0,
-		'number of responses',
-		'jetpack'
+	const numberOfResponses = sprintf(
+		/* translators: %s: Number of responses. */
+		_n( '%s response', '%s responses', responses.length, 'jetpack' ),
+		responses.length
 	);
 
 	return (
