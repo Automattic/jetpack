@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Social: Ensure we have a user connection when loading the module
