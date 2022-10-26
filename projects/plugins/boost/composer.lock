@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da85e9a672650514e9eb99f19d21187c",
+    "content-hash": "155b4f20a819a25f3de5361eecf54ba8",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -871,6 +871,60 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Support functions for Jetpack hosting partners.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-plugin-deactivation",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/plugin-deactivation",
+                "reference": "4b3e781f081dbd4c596fe9b86a6a4715d5d3047b"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^3.2",
+                "yoast/phpunit-polyfills": "1.0.3"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-plugin-deactivation",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-plugin-deactivation/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-plugin-deactivation"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Ask for feedback while deactivating a plugin",
             "transport-options": {
                 "relative": true
             }
@@ -4235,15 +4289,16 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-assets": 20,
         "automattic/jetpack-admin-ui": 20,
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
-        "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-lazy-images": 20,
+        "automattic/jetpack-my-jetpack": 20,
+        "automattic/jetpack-plugin-deactivation": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,

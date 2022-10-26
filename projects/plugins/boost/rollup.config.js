@@ -64,141 +64,112 @@ if ( ! production ) {
 	} );
 }
 
-export default [
-	{
-		input: 'app/deactivation/assets/js/deactivation.ts',
-		output: {
-			sourcemap: ! production,
-			format: 'cjs',
-			name: 'deactivation',
-			file: 'app/deactivation/dist/deactivation.js',
+export default {
+	input: 'app/assets/src/js/index.ts',
+	output: {
+		sourcemap: ! production,
+		format: 'iife',
+		name: 'app',
+		file: 'app/assets/dist/jetpack-boost.js',
+		globals: {
+			'@wordpress/components': 'wp.components',
+			'@wordpress/i18n': 'wp.i18n',
+			react: 'window.React',
+			'react-dom': 'window.ReactDOM',
 		},
-		plugins: [
-			// we'll extract any component CSS out into
-			// a separate file - better for performance
-			postcss( {
-				extensions: [ '.scss' ],
-				extract: path.resolve( 'app/deactivation/dist/deactivation.css' ),
-				minimize: production,
-			} ),
-
-			typescript( {
-				sourceMap: ! production,
-				inlineSources: ! production,
-				// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
-				// we need to include those here and pass the custom tsconfig as well
-				include: tsconfig.include,
-				tsconfig: 'rollup-tsconfig.json',
-			} ),
-		],
 	},
-	{
-		input: 'app/assets/src/js/index.ts',
-		output: {
-			sourcemap: ! production,
-			format: 'iife',
-			name: 'app',
-			file: 'app/assets/dist/jetpack-boost.js',
-			globals: {
-				'@wordpress/components': 'wp.components',
-				'@wordpress/i18n': 'wp.i18n',
-				react: 'window.React',
-				'react-dom': 'window.ReactDOM',
+	external: [ '@wordpress/components', '@wordpress/i18n', 'react', 'react-dom' ],
+	plugins: [
+		replace( {
+			preventAssignment: true,
+			delimiters: [ '', '' ],
+			values: {
+				"@import '@automattic": "@import '~@automattic",
+				'process.env.NODE_ENV': '"production"',
 			},
-		},
-		external: [ '@wordpress/components', '@wordpress/i18n', 'react', 'react-dom' ],
-		plugins: [
-			replace( {
-				preventAssignment: true,
-				delimiters: [ '', '' ],
-				values: {
-					"@import '@automattic": "@import '~@automattic",
-					'process.env.NODE_ENV': '"production"',
-				},
-			} ),
+		} ),
 
-			resolve( {
-				browser: true,
-				preferBuiltins: false,
-				dedupe: [ 'svelte' ],
-			} ),
+		resolve( {
+			browser: true,
+			preferBuiltins: false,
+			dedupe: [ 'svelte' ],
+		} ),
 
-			commonjs(),
-			globals(),
-			json(),
+		commonjs(),
+		globals(),
+		json(),
 
-			babel( {
-				exclude: 'node_modules/**',
-				presets: [ '@babel/preset-react' ],
-				babelHelpers: 'bundled',
-				compact: true,
-			} ),
+		babel( {
+			exclude: 'node_modules/**',
+			presets: [ '@babel/preset-react' ],
+			babelHelpers: 'bundled',
+			compact: true,
+		} ),
 
-			// we'll extract any component CSS out into
-			// a separate file - better for performance
-			postcss( {
-				extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
-				extract: path.resolve( 'app/assets/dist/jetpack-boost.css' ),
-				minimize: production,
-			} ),
+		// we'll extract any component CSS out into
+		// a separate file - better for performance
+		postcss( {
+			extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
+			extract: path.resolve( 'app/assets/dist/jetpack-boost.css' ),
+			minimize: production,
+		} ),
 
-			svelteSVG(),
-			svelte( {
-				preprocess: sveltePreprocess( { sourceMap: ! production } ),
-				compilerOptions: {
-					// enable run-time checks when not in production
-					dev: ! production,
-				},
-			} ),
+		svelteSVG(),
+		svelte( {
+			preprocess: sveltePreprocess( { sourceMap: ! production } ),
+			compilerOptions: {
+				// enable run-time checks when not in production
+				dev: ! production,
+			},
+		} ),
 
-			typescript( {
-				sourceMap: ! production,
-				inlineSources: ! production,
-				// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
-				// we need to include those here and pass the custom tsconfig as well
-				include: tsconfig.include,
-				tsconfig: 'rollup-tsconfig.json',
-			} ),
+		typescript( {
+			sourceMap: ! production,
+			inlineSources: ! production,
+			// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
+			// we need to include those here and pass the custom tsconfig as well
+			include: tsconfig.include,
+			tsconfig: 'rollup-tsconfig.json',
+		} ),
 
-			copy( {
-				targets: copyTargets,
-			} ),
+		copy( {
+			targets: copyTargets,
+		} ),
 
-			// In dev mode, call `npm run start` once
-			// the bundle has been generated
-			runServer && serve(),
+		// In dev mode, call `npm run start` once
+		// the bundle has been generated
+		runServer && serve(),
 
-			// If we're building for production (npm run build
-			// instead of npm run dev), minify
-			production && terser(),
-		],
-		watch: {
-			clearScreen: false,
-		},
-
-		onwarn: ( warning, defaultHandler ) => {
-			// Ignore unused external imports for known problem React / ReactDOM imports.
-			if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
-				const ignoredImports = [
-					'createPortal',
-					'findDOMNode',
-					'render',
-					'unmountComponentAtNode',
-					'createRef',
-					'memo',
-					'useImperativeHandle',
-					'useDebugValue',
-					'lazy',
-					'Suspense',
-				];
-
-				const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
-				if ( unignoredWarnings.length === 0 ) {
-					return;
-				}
-			}
-
-			defaultHandler( warning );
-		},
+		// If we're building for production (npm run build
+		// instead of npm run dev), minify
+		production && terser(),
+	],
+	watch: {
+		clearScreen: false,
 	},
-];
+
+	onwarn: ( warning, defaultHandler ) => {
+		// Ignore unused external imports for known problem React / ReactDOM imports.
+		if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
+			const ignoredImports = [
+				'createPortal',
+				'findDOMNode',
+				'render',
+				'unmountComponentAtNode',
+				'createRef',
+				'memo',
+				'useImperativeHandle',
+				'useDebugValue',
+				'lazy',
+				'Suspense',
+			];
+
+			const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
+			if ( unignoredWarnings.length === 0 ) {
+				return;
+			}
+		}
+
+		defaultHandler( warning );
+	},
+};

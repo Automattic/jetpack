@@ -1,0 +1,39 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-plugin-deactivation",
+	"version": "0.1.0-alpha",
+	"description": "Ask for feedback while deactivating a plugin",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plugin-deactivation/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Plugin Deactivation"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/plugin-deactivation"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build-concurrently": "pnpm run clear-dist && rollup -c",
+		"build-development": "pnpm run build-concurrently",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
+		"compile-ts": "tsc --pretty",
+		"clear-dist": "rm -rf assets/dist/*",
+		"watch": "pnpm run clear-dist && rollup -c -w"
+	},
+	"engines": {
+		"node": "^16.13.2",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"devDependencies": {
+		"@rollup/plugin-typescript": "8.3.3",
+		"concurrently": "7.5.0",
+		"postcss": "8.4.18",
+		"rollup": "2.56.3",
+		"rollup-plugin-postcss": "4.0.2",
+		"sass": "1.55.0",
+		"tslib": "2.3.1",
+		"typescript": "4.8.2"
+	}
+}

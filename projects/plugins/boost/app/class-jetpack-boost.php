@@ -13,10 +13,10 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
@@ -108,7 +108,7 @@ class Jetpack_Boost {
 
 		My_Jetpack_Initializer::init();
 
-		Deactivation_Handler::init( $this->plugin_name, 'https://developer.wordpress.org/reference/functions/esc_url/', __DIR__ . '/deactivation/view.php' );
+		Deactivation_Handler::init( $this->plugin_name, 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback', __DIR__ . '/admin/deactivation-dialog.php' );
 	}
 
 	/**

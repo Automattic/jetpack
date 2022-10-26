@@ -1,0 +1,58 @@
+{
+	"name": "automattic/jetpack-plugin-deactivation",
+	"description": "Ask for feedback while deactivating a plugin",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.3",
+		"automattic/jetpack-changelogger": "^3.2"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-production": "pnpm run build-production",
+		"build-development": "pnpm run build-development",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-plugin-deactivation",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-plugin-deactivation/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-plugin-deactivation",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-deactivation-handler.php"
+		}
+	}
+}
