@@ -43,7 +43,7 @@ Jetpack Search is a completely customizable WordPress site search plugin, so you
 * Improved theme compatibility for both mobile and desktop
 * Real-time indexing, so your search index is updated within minutes of changes to your site
 * Integrates seamlessly with WooCommerce
-* Support for all languages, and advanced language analysis for 29 languages
+* Support for all languages, and advanced language analysis for 38 languages
 * Highlighted search terms on comments and post content
 * Fast and accurate spelling correction
 
@@ -72,7 +72,7 @@ Simply install the plugin and connect your site. If you already have a paid subs
 
 = What languages does Jetpack Search support? =
 
-We provide support for all languages, and advanced language analysis for 29 languages.
+We provide support for all languages, and advanced language analysis for 38 languages.
 
 = Does Jetpack Search support eCommerce stores and products? =
 

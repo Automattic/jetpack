@@ -7,6 +7,7 @@ import {
 	getRedirectUrl,
 	PricingCard,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -25,6 +26,7 @@ import './masthead/masthead-style.scss';
 const Admin = () => {
 	const [ connectionStatus ] = useConnection();
 	const { tracks } = useAnalytics();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
 	const isFullyConnected =
 		connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
@@ -46,6 +48,11 @@ const Admin = () => {
 				<div className="content">
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 0 }>
+							{ hasConnectionError && (
+								<Col className="jetpack-connection-verified-error">
+									<ConnectionError />
+								</Col>
+							) }
 							<Col>
 								<div id="jp-admin-notices" className="jetpack-backup-jitm-card" />
 							</Col>
@@ -197,6 +204,10 @@ const ReviewMessage = connectionLoaded => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
 
+	const tracksDismissReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_dismiss_review_click' );
+	}, [ tracks ] );
+
 	if ( hasRecentSuccesfulRestore() ) {
 		requestReason = 'restore';
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
@@ -210,7 +221,8 @@ const ReviewMessage = connectionLoaded => {
 
 	const [ dismissedReview, dismissMessage ] = useDismissedReviewRequest(
 		connectionLoaded,
-		requestReason
+		requestReason,
+		tracksDismissReview
 	);
 
 	if ( ! hasRecentSuccesfulRestore() && ! hasFiveSuccessfulBackups() ) {
@@ -284,7 +296,7 @@ const useBackups = connectionLoaded => {
 	return [ backups, setBackups ];
 };
 
-const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
+const useDismissedReviewRequest = ( connectionLoaded, requestReason, tracksDismissReview ) => {
 	const [ dismissedReview, setDismissedReview ] = useState( true );
 
 	useEffect( () => {
@@ -310,6 +322,7 @@ const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
 
 	const dismissMessage = e => {
 		e.preventDefault();
+		tracksDismissReview();
 		apiFetch( {
 			path: '/jetpack/v4/site/dismissed-review-request',
 			method: 'POST',

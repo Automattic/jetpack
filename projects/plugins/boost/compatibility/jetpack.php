@@ -65,3 +65,24 @@ function lazy_images_sync_status( $_unused, $new_value ) {
 
 add_action( 'add_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
 add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
+
+/**
+ * The compatibility layer uses Jetpack as the single source of truth for lazy images.
+ * As a fallback, Boost still keeps track of the value in the database,
+ * This ensures that the value is still present when Jetpack is deactivated.
+ *
+ * This filter is going to track changes to the Jetpack lazy-images option
+ * And make sure that Jetpack Boost is in sync.
+ */
+function lazy_images_sync_with_jetpack() {
+	update_option( 'jetpack_boost_status_lazy-images', \Jetpack::is_module_active( 'lazy-images' ) );
+}
+
+add_action( 'jetpack_deactivate_module_lazy-images', __NAMESPACE__ . '\lazy_images_sync_with_jetpack', 10, 2 );
+add_action( 'jetpack_activate_module_lazy-images', __NAMESPACE__ . '\lazy_images_sync_with_jetpack', 10, 2 );
+
+/**
+ * Update the Jetpack Boost option to match the Jetpack option,
+ * in case the options are out of sync when the page is loaded.
+ */
+add_action( 'load-jetpack_page_jetpack-boost', __NAMESPACE__ . '\lazy_images_sync_with_jetpack' );

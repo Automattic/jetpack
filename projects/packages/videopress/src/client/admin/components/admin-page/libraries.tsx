@@ -6,21 +6,23 @@ import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
-import { ConnectPagination } from '../pagination';
-import { FilterButton, FilterSection } from '../video-filter';
+import { ConnectLocalPagination, ConnectPagination } from '../pagination';
+import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
-import VideoList from '../video-list';
+import VideoList, { LocalVideoList } from '../video-list';
 import styles from './styles.module.scss';
 /**
  * Types
  */
-import { VideoLibraryProps } from './types';
+import { LocalLibraryProps, VideoLibraryProps } from './types';
+
+const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
 const LibraryType = {
 	List: 'list',
@@ -94,26 +96,35 @@ const VideoLibraryWrapper = ( {
 					</div>
 				) }
 			</div>
-			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
+			{ isFilterActive && <ConnectFilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const navigate = useNavigate();
-	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
-	const disabled = videos?.some?.( video => video.uploading );
+	const history = useHistory();
+
+	const libraryTypeFromLocalStorage = localStorage.getItem(
+		LIBRARY_TYPE_LOCALSORAGE_KEY
+	) as LibraryType;
+
+	const [ libraryType, setLibraryType ] = useState< LibraryType >(
+		libraryTypeFromLocalStorage ?? LibraryType.Grid
+	);
+
+	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
-		setLibraryType( current =>
-			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
-		);
+		setLibraryType( current => {
+			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
+			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			return next;
+		} );
 	};
 
 	const handleClickEditDetails = video => {
-		navigate( `/video/${ video?.id }/edit` );
+		history.push( `/video/${ video?.id }/edit` );
 	};
 
 	return (
@@ -122,36 +133,47 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
-			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
 				<VideoGrid
 					videos={ videos }
 					onVideoDetailsClick={ handleClickEditDetails }
 					loading={ loading }
+					count={ uploading ? videos.length : 6 }
 				/>
 			) : (
-				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
+				<VideoList
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					hidePlays
+					loading={ loading }
+				/>
 			) }
+			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( {
+	videos,
+	totalVideos,
+	loading,
+	uploading,
+	onUploadClick,
+}: LocalLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList
-				hidePrivacy
-				hideDuration
-				hidePlays
-				showEditButton={ false }
-				showQuickActions={ false }
+			<LocalVideoList
 				videos={ videos }
+				loading={ loading }
+				onActionClick={ onUploadClick }
+				uploading={ uploading }
 			/>
+			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
