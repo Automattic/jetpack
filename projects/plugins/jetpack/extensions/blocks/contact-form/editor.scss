@@ -319,6 +319,32 @@ input.components-text-control__input {
 	}
 }
 
+// Make sure form settings dropdown looks good on older Gutenberg versions
+.jetpack-contact-form__popover .components-popover__content {
+	min-width: 260px;
+
+	.components-base-control {
+		margin-bottom: 24px;
+
+		&:last-child {
+			margin-bottom: 8px;
+		}
+	}
+
+	.form-settings-dropdown__hint {
+		color: #757575;
+		margin: 0 8px;
+		font-size: 12px;
+	}
+
+	.form-settings-dropdown__item {
+		svg {
+			margin-right: 8px;
+			fill: none;
+		}
+	}
+}
+
 .jetpack-contact-form__crm_text {
 	margin-bottom: 0;
 }
