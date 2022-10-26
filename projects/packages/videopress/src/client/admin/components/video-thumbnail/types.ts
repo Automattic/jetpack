@@ -57,4 +57,9 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	 * True when is in processing mode.
 	 */
 	processing?: boolean;
+
+	/**
+	 * The video upload progress from 0 to 1.
+	 */
+	uploadProgress?: number;
 };

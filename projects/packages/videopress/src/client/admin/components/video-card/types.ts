@@ -28,4 +28,9 @@ export type VideoCardProps = Pick< VideoPressVideo, 'title' | 'plays' | 'id' > &
 		 * True when the video has been deleted in the server-side.
 		 */
 		hasBeenDeleted?: boolean;
+
+		/**
+		 * The video upload progress from 0 to 1.
+		 */
+		uploadProgress?: number;
 	};

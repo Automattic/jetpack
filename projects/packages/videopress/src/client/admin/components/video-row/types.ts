@@ -32,6 +32,10 @@ type VideoRowBaseProps = {
 	 */
 	isUpdatingPoster?: boolean;
 	/**
+	 * The video upload progress from 0 to 1.
+	 */
+	uploadProgress?: number;
+	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
 	onSelect?: ( check: boolean ) => void;

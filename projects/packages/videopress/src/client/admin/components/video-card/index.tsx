@@ -66,6 +66,7 @@ export const VideoCard = ( {
 	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
+	uploadProgress,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! thumbnail && ! loading;
@@ -73,7 +74,7 @@ export const VideoCard = ( {
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
-				/* translators: placeholder is a product name */
+				/* translators: placeholder is a number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				numberFormat( plays )
 		  )
@@ -101,6 +102,7 @@ export const VideoCard = ( {
 					processing={ processing }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
+					uploadProgress={ uploadProgress }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -161,7 +163,9 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
+		id
+	);
 
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
@@ -176,6 +180,7 @@ export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 			processing={ processing }
 			editable={ editable }
 			privacySetting={ data.privacySetting }
+			uploadProgress={ uploadProgress }
 		/>
 	);
 };

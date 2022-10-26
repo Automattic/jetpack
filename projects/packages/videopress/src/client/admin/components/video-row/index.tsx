@@ -108,6 +108,7 @@ export const VideoRow = ( {
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
 	disableActionButton = false,
 	disabled = false,
+	uploadProgress,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -248,6 +249,7 @@ export const VideoRow = ( {
 								uploading={ uploading || isUpdatingPoster }
 								processing={ processing }
 								blankIconSize={ 28 }
+								uploadProgress={ uploadProgress }
 							/>
 						</div>
 					) }
@@ -314,7 +316,9 @@ export const VideoRow = ( {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
+		id
+	);
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	return (
 		<VideoRow
@@ -326,6 +330,7 @@ export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
 			processing={ processing }
 			showThumbnail
 			privacySetting={ data.privacySetting }
+			uploadProgress={ uploadProgress }
 		/>
 	);
 };
