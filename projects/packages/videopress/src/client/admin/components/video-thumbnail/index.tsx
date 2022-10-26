@@ -5,7 +5,7 @@ import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { Icon, edit, captureVideo, cloud, image, media, video } from '@wordpress/icons';
+import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -111,7 +111,6 @@ const VideoThumbnail = ( {
 	duration,
 	editable,
 	blankIconSize = 96,
-	isPrivate,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
@@ -125,15 +124,12 @@ const VideoThumbnail = ( {
 			thumbnail
 		);
 
-	/** Use a different icon for private videos */
-	const blankIcon = isPrivate ? captureVideo : video;
-
 	/** If the thumbnail is not set, use the placeholder with an icon */
 	thumbnail = thumbnail ? (
 		thumbnail
 	) : (
 		<div className={ styles[ 'thumbnail-blank' ] }>
-			<Icon icon={ blankIcon } size={ blankIconSize } />
+			<Icon icon={ video } size={ blankIconSize } />
 		</div>
 	);
 

@@ -12,9 +12,7 @@ import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
-import React from 'react';
 import { useState } from 'react';
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import Placeholder from '../placeholder';
 /**
@@ -24,6 +22,7 @@ import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 import { VideoCardProps } from './types';
+import type React from 'react';
 
 const QuickActions = ( {
 	id,
@@ -81,14 +80,9 @@ export const VideoCard = ( {
 	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
-	privacySetting,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
 	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
-
-	const privacyIsSetToPrivate = privacySetting
-		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
-		: false;
 
 	// Mapping thumbnail (Ordered by priority)
 	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
@@ -123,7 +117,6 @@ export const VideoCard = ( {
 					thumbnail={ thumbnail }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
-					isPrivate={ privacyIsSetToPrivate }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
