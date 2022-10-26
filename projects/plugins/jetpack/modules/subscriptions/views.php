@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Jetpack_Subscriptions_Widget main view class.
@@ -180,7 +181,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function render_widget_status_messages( $instance ) {
 		if ( self::is_jetpack() && isset( $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 			$success_message   = isset( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
-			$subscribers_total = self::fetch_subscriber_count( ! self::is_wpcom() );
+			$subscribers_total = self::fetch_subscriber_count( ! self::is_wpcom() && ! self::is_atomic() );
 			switch ( $_GET['subscribe'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'invalid_email':
 					?>
@@ -339,7 +340,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$source                       = 'widget';
 		$widget_id                    = ! empty( $args['widget_id'] ) ? $args['widget_id'] : self::$instance_count;
 		$subscribe_button             = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
-		$subscribers_total            = self::fetch_subscriber_count( ! self::is_wpcom() );
+		$subscribers_total            = self::fetch_subscriber_count( ! self::is_wpcom() && ! self::is_atomic() );
 		$subscribe_placeholder        = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$submit_button_classes        = isset( $instance['submit_button_classes'] ) ? 'wp-block-button__link ' . $instance['submit_button_classes'] : 'wp-block-button__link';
 		$submit_button_styles         = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
@@ -571,6 +572,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Is this script running on WordPress on Atomic?
+	 *
+	 * @return bool
+	 */
+	public static function is_atomic() {
+		return ( new Host() )->is_woa_site();
+	}
+
+	/**
 	 * Used to determine if there is a valid status slug within the wordpress.com environment.
 	 *
 	 * @return bool
@@ -703,7 +713,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_text      = esc_attr( stripslashes( $instance['subscribe_text'] ) );
 			$subscribe_logged_in = esc_attr( stripslashes( $instance['subscribe_logged_in'] ) );
 			$subscribe_button    = esc_attr( stripslashes( $instance['subscribe_button'] ) );
-			$subscribers_total   = self::fetch_subscriber_count( ! self::is_wpcom() );
+			$subscribers_total   = self::fetch_subscriber_count( ! self::is_wpcom() && ! self::is_atomic() );
 		}
 
 		if ( self::is_jetpack() ) {
@@ -712,7 +722,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_placeholder = stripslashes( $instance['subscribe_placeholder'] );
 			$subscribe_button      = stripslashes( $instance['subscribe_button'] );
 			$success_message       = stripslashes( $instance['success_message'] );
-			$subs_fetch            = self::fetch_subscriber_count( ! self::is_wpcom() );
+			$subs_fetch            = self::fetch_subscriber_count( ! self::is_wpcom() && ! self::is_atomic() );
 			if ( 'failed' === $subs_fetch['status'] ) {
 				printf( '<div class="error inline"><p>%s: %s</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
 			}
