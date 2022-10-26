@@ -4178,25 +4178,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$responses = array_map(
 			function ( $response ) {
-				$response_data = Grunion_Contact_Form_Plugin::parse_fields_from_content( $response->ID );
+				$data = Grunion_Contact_Form_Plugin::parse_fields_from_content( $response->ID );
 
 				return array(
-					'id'              => $response->ID,
-					'uid'             => $response_data['all_fields']['feedback_id'],
-					'date'            => get_the_date( 'c', $response ),
-					'author_name'     => $response_data['_feedback_author'],
-					'author_email'    => $response_data['_feedback_author_email'],
-					'author_url'      => $response_data['_feedback_author_url'],
-					'ip'              => $response_data['_feedback_ip'],
-					'entry_title'     => $response_data['all_fields']['entry_title'],
-					'entry_permalink' => $response_data['all_fields']['entry_permalink'],
-					'subject'         => $response_data['_feedback_subject'],
-					'fields'          => array_diff_key(
-						$response_data['all_fields'],
+					'id'                      => $response->ID,
+					'uid'                     => $data['all_fields']['feedback_id'],
+					'date'                    => get_the_date( 'c', $data ),
+					'author_name'             => $data['_feedback_author'],
+					'author_email'            => $data['_feedback_author_email'],
+					'author_url'              => $data['_feedback_author_url'],
+					'author_avatar'           => empty( $data['_feedback_author_email'] ) ? '' : get_avatar_url( $data['_feedback_author_email'] ),
+					'email_marketing_consent' => $data['all_fields']['email_marketing_consent'],
+					'ip'                      => $data['_feedback_ip'],
+					'entry_title'             => $data['all_fields']['entry_title'],
+					'entry_permalink'         => $data['all_fields']['entry_permalink'],
+					'subject'                 => $data['_feedback_subject'],
+					'fields'                  => array_diff_key(
+						$data['all_fields'],
 						array(
-							'entry_title'     => '',
-							'entry_permalink' => '',
-							'feedback_id'     => '',
+							'email_marketing_consent' => '',
+							'entry_title'             => '',
+							'entry_permalink'         => '',
+							'feedback_id'             => '',
 						)
 					),
 				);
