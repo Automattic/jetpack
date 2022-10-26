@@ -1,5 +1,7 @@
-import { constants as fsconstants } from 'fs';
+import { constants as fsconstants, createReadStream } from 'fs';
 import fs from 'fs/promises';
+import { once } from 'node:events';
+import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -857,18 +859,21 @@ async function buildProject( t ) {
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
 	}
 
-	// Get the proeject version number from the changelog.md file.
-	let projectVersionNumber = '';
+	// Get the project version number from the changelog.md file.
+	const projectVersionNumber = '';
 	try {
-		const changelogText = await fs.readFile( `${ t.cwd }/CHANGELOG.md`, { encoding: 'utf8' } );
-		projectVersionNumber = changelogText
-			.toString()
-			.split( '\n' )
-			.find( line => {
-				return line.startsWith( '## ' ) && ! line.includes( '-alpha' );
-			} )
-			.split( ' ' )[ 1 ]
-			.replace( /[[\]]/g, '' );
+		const rl = rlcreateInterface( {
+			input: createReadStream( `${ t.cwd }/CHANGELOG.md`, {
+				encoding: 'utf8',
+			} ),
+			crlfDelay: Infinity,
+		} );
+
+		// eslint-disable-next-line no-unused-vars
+		rl.on( 'line', line => {
+			// Todo: pull the correct version number from the changelog file.
+		} );
+		await once( rl, 'close' );
 
 		if ( ! projectVersionNumber ) {
 			throw new Error( 'Version number not found.' );
