@@ -21,63 +21,6 @@ define( 'VAULTPRESS__VERSION', '2.2.3-alpha' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
- * First, we check for our supported version of PHP. If it fails,
- * we "pause" VaultPress by ending the loading process and displaying an admin_notice to inform the site owner.
- */
-if ( version_compare( phpversion(), VAULTPRESS__MINIMUM_PHP_VERSION, '<' ) ) {
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log(
-			sprintf(
-				/* translators: Placeholders are numbers, versions of PHP in use on the site, and required by VaultPress. */
-				esc_html__( 'Your version of PHP (%1$s) is lower than the version required by VaultPress (%2$s). Please update PHP to continue enjoying VaultPress.', 'vaultpress' ),
-				esc_html( phpversion() ),
-				VAULTPRESS__MINIMUM_PHP_VERSION
-			)
-		);
-	}
-
-	/**
-	 * Outputs an admin notice for folks running an outdated version of PHP.
-	 *
-	 * @todo: Remove once WP 5.2 is the minimum version.
-	 *
-	 * @since 2.0.0
-	 */
-	function vaultpress_admin_unsupported_php_notice() {
-		$update_php_url = ( function_exists( 'wp_get_update_php_url' ) ? wp_get_update_php_url() : 'https://wordpress.org/support/update-php/' );
-
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-			<?php
-				printf(
-					/* translators: Placeholders are numbers, versions of PHP in use on the site, and required by VaultPress. */
-					esc_html__( 'Your version of PHP (%1$s) is lower than the version required by VaultPress (%2$s). Please update PHP to continue enjoying VaultPress.', 'vaultpress' ),
-					esc_html( phpversion() ),
-					esc_html( VAULTPRESS__MINIMUM_PHP_VERSION )
-				);
-			?>
-			</p>
-			<p class="button-container">
-				<?php
-				printf(
-					'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
-					esc_url( $update_php_url ),
-					__( 'Learn more about updating PHP' ),
-					/* translators: accessibility text */
-					__( '(opens in a new tab)' )
-				);
-				?>
-			</p>
-		</div>
-		<?php
-	}
-
-	add_action( 'admin_notices', 'vaultpress_admin_unsupported_php_notice' );
-	return;
-}
-
-/**
  * Load all the packages.
  *
  * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
