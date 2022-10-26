@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
