@@ -4156,25 +4156,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response A response object containing Jetpack Forms responses.
 	 */
 	public static function get_jetpack_form_responses( $request ) {
-		$query = array(
+		$args = array(
 			'post_type' => 'feedback',
 		);
 
 		if ( isset( $request['form_id'] ) ) {
-			$query['post_parent'] = $request['form_id'];
+			$args['post_parent'] = $request['form_id'];
 		}
 
 		if ( isset( $request['limit'] ) ) {
-			$query['numberposts'] = $request['limit'];
+			$args['posts_per_page'] = $request['limit'];
 		}
 
 		if ( isset( $request['offset'] ) ) {
-			$query['offset'] = $request['offset'];
+			$args['offset'] = $request['offset'];
 		}
 
 		if ( isset( $request['search'] ) ) {
-			$query['s'] = $request['search'];
+			$args['s'] = $request['search'];
 		}
+
+		$query = new \WP_Query( $args );
 
 		$responses = array_map(
 			function ( $response ) {
@@ -4204,10 +4206,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 					),
 				);
 			},
-			get_posts( $query )
+			$query->posts
 		);
 
-		return rest_ensure_response( $responses );
+		return rest_ensure_response(
+			array(
+				'responses' => $responses,
+				'total'     => $query->found_posts,
+			)
+		);
 	}
 
 	/**
