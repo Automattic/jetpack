@@ -89,6 +89,13 @@
 	&.is-strong {
 		font-weight: bold;
 	}
+
+	.jp-forms__inbox-list-row.is-selected & {
+		background: var(--jp-gray-0);
+		border-color: var(--jp-gray-80);
+		border-top: 1px solid;
+		padding-top: 19px;
+	}
 }
 
 .jp-forms__inbox-list-cell a {

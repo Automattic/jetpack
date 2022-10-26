@@ -1,4 +1,7 @@
 /**
+ * External dependencies
+ */
+/**
  * WordPress dependencies
  */
 import {
@@ -9,6 +12,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { Fragment, useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import classnames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -45,7 +49,7 @@ const formatFieldName = fieldName => {
 	return fieldName;
 };
 
-const FormsInboxResponseList = ( { onViewResponse, responses } ) => {
+const FormsInboxResponseList = ( { currentResponse, onViewResponse, responses } ) => {
 	const viewResponse = responseId => () => onViewResponse( responseId );
 
 	return (
@@ -58,24 +62,30 @@ const FormsInboxResponseList = ( { onViewResponse, responses } ) => {
 				<div className="jp-forms__inbox-list-cell">{ 'Source' }</div>
 				<div className="jp-forms__inbox-list-cell">{ 'Date' }</div>
 			</div>
-			{ map( responses, response => (
-				<div key={ response.uid } className="jp-forms__inbox-list-row">
-					<div className="jp-forms__inbox-list-cell">
-						<input type="checkbox" className="jp-forms__inbox-list-checkbox" />
+			{ map( responses, response => {
+				const classes = classnames( 'jp-forms__inbox-list-row', {
+					'is-selected': currentResponse && currentResponse === response.id,
+				} );
+
+				return (
+					<div key={ response.uid } className={ classes }>
+						<div className="jp-forms__inbox-list-cell">
+							<input type="checkbox" className="jp-forms__inbox-list-checkbox" />
+						</div>
+						<div className="jp-forms__inbox-list-cell is-strong">
+							<a href={ `#forms` } onClick={ viewResponse( response.id ) }>
+								{ getDisplayName( response ) }
+							</a>
+						</div>
+						<div className="jp-forms__inbox-list-cell">
+							<a href={ response.entry_permalink } target="_blank" rel="noreferrer noopener">
+								{ getPath( response ) }
+							</a>
+						</div>
+						<div className="jp-forms__inbox-list-cell">{ dateI18n( 'F j, Y', response.date ) }</div>
 					</div>
-					<div className="jp-forms__inbox-list-cell is-strong">
-						<a href={ `#forms` } onClick={ viewResponse( response.id ) }>
-							{ getDisplayName( response ) }
-						</a>
-					</div>
-					<div className="jp-forms__inbox-list-cell">
-						<a href={ response.entry_permalink } target="_blank" rel="noreferrer noopener">
-							{ getPath( response ) }
-						</a>
-					</div>
-					<div className="jp-forms__inbox-list-cell">{ dateI18n( 'F j, Y', response.date ) }</div>
-				</div>
-			) ) }
+				);
+			} ) }
 		</div>
 	);
 };
@@ -90,7 +100,6 @@ const FormsInboxResponseView = ( { response } ) => {
 			<div className="jp-forms__response-meta">
 				{ response.author_avatar && (
 					<div className="jp-forms__response-meta-item is-avatar">
-						2{ ' ' }
 						<img className="jp-forms__response-meta-avatar" src={ response.author_avatar } alt="" />
 					</div>
 				) }
@@ -203,7 +212,11 @@ const FormsInbox = () => {
 			</div>
 			<div className="jp-forms__inbox-content">
 				<div className="jp-forms__inbox-content-column">
-					<FormsInboxResponseList onViewResponse={ setCurrentResponse } responses={ responses } />
+					<FormsInboxResponseList
+						currentResponse={ currentResponse }
+						onViewResponse={ setCurrentResponse }
+						responses={ responses }
+					/>
 				</div>
 				<div className="jp-forms__inbox-content-column">
 					<FormsInboxResponseView response={ find( responses, { id: currentResponse } ) } />
