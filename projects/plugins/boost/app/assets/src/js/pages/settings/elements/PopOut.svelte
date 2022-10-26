@@ -22,7 +22,6 @@
 		const data = {
 			action: 'set_show_score_prompt',
 			id,
-			value: false,
 			nonce: Jetpack_Boost.showScorePromptNonce,
 		};
 
