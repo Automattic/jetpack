@@ -52,6 +52,7 @@ declare global {
 				priceBefore: number;
 				priceAfter: number;
 				currencyCode: string;
+				isIntroductoryOffer: boolean;
 			};
 		};
 	};

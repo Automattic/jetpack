@@ -12,7 +12,9 @@ function MyAdminApp( init ) {
 	 * Get the recordEvent helper,
 	 * registering the page-view record on the fly.
 	 */
-	const { recordEvent } = useAnalyticsTracks( { pageViewEventName: 'my_section' } );
+	const { recordEvent } = useAnalyticsTracks( {
+		pageViewEventName: 'jetpack_videopress_my_section_page_view',
+	} );
 
 	if ( init ) {
 		// Record generic event.
@@ -33,22 +35,6 @@ function MyAdminApp( init ) {
 -   Type: `String`
 
 When defined, it will record a **page-view** event. See [Recording a Page View event](#recording-a-page-view-event) section for more info.
-
-### `pageViewNamespace`
-
--   Type: `String`
--   Optional
--   Default: `jetpack-videopress`
-
-The prefix of the whole name of the **page-view** event. You may like to define a different prefix when recording events in other apps, contexts, etc. For instance, `calypso`, `woocommerce`, etc
-
-### `pageViewSuffix`
-
--   Type: `String`
--   Optional
--   Default: `page_view`
-
-The suffix of the whole name of the **page-view** event. **We strongly do not recommend changing it** unless you really consider the need to do.
 
 ### `pageViewEventProperties`
 
@@ -139,12 +125,6 @@ function MyAdminApp() {
 
 Recording a **page-view** event is something so usual that deserves simple and automatic usage.
 Taking advantage of the React hooks, it makes sense to induce that it happens when the component is mounted.
-Also, and by convention to get even more straightforward, a **page-view** event has the following shape:
-
-`{ pageViewNamespace }_{ eventName }_{ suffix }`, where the values of `pageViewNamespace` is `jetpack_videopress` and `suffix` is `page_view` by default.
-This naming convention aims to be consistent among all page-view events recorded by different apps, contexts, etc.
-
-Being said that, it's possible to record the **page-view** event simply by defining the event name via the [pageViewEventName](#pagevieweventname-optional) of the hook settings:
 
 ```jsx
 import useAnalyticsTracks from './hooks/use-analytics-tracks';
@@ -155,7 +135,7 @@ function MyAdminApp() {
 	 * the `jetpack_videopress_my_section_page_view` event.
 	 */
 	useAnalyticsTracks( {
-		pageViewEventName: 'my_section'
+		pageViewEventName: 'jetpack_videopress_my_section_page_view'
 	} );
 
 	return <div>Hello, tracking world!</div>;

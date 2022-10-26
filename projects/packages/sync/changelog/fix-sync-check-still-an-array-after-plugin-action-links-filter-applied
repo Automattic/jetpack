@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check $action_links is still array after plugin_action_links filter has been applied.
