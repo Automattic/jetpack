@@ -32,7 +32,7 @@ import BackupUpgrade from './backup-upgrade';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Backup', 'jetpack' ) }
+		label={ __( 'Jetpack Backup', 'jetpack' ) }
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
