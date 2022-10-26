@@ -111,7 +111,6 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 * @param string                          $second_name_regex          RegEx pattern that will match only the second item in the list.
 	 */
 	public function testArrayTargetsNames( $runtime, $target_name, $expected_names_and_values, $second_name_regex ) {
-		$target_name   .= '_names';
 		$expected_count = count( $expected_names_and_values );
 		$expected       = array();
 		foreach ( $expected_names_and_values as $i => list( $exp_name ) ) {
@@ -194,7 +193,12 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			if ( $k === 'TX' || $k === 'IP' ) {
 				continue;
 			}
-			yield $k => $v;
+			// change this data item key from ARGS to ARGS_NAMES
+			$names_k = $k . '_NAMES';
+			$names_v = $v;
+			// change the target name from args to args_names;
+			$names_v[1] .= '_names';
+			yield $names_k => $names_v;
 		}
 	}
 

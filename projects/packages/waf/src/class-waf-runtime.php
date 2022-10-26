@@ -697,7 +697,8 @@ class Waf_Runtime {
 		foreach ( $source as $source_key => $source_val ) {
 			if ( is_array( $source_val ) ) {
 				// if $source_val looks like a tuple from flatten_array(), then use the tuple as the key and value
-				list( $source_key, $source_val ) = $source_val;
+				$source_key = $source_val[0];
+				$source_val = $source_val[1];
 			}
 			$filter_match = ( $flags & self::NORMALIZE_ARRAY_MATCH_VALUES ) > 0 ? $source_val : $source_key;
 			// if this key is on the "exclude" list, skip it
