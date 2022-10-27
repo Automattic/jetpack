@@ -23,7 +23,11 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	 * Test without data.
 	 */
 	public function test_no_data_plan_notices() {
-		$this->assertEmpty( wpcomsh_plan_notices() );
+		ob_start();
+		$result = wpcomsh_plan_notices();
+		ob_get_clean();
+
+		$this->assertEmpty( $result );
 	}
 
 	/**
