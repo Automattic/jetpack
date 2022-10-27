@@ -1,7 +1,7 @@
 .wrapper {
 	padding: 0;
 
-	& > :global( .components-spinner ) {
+	& :global( .components-spinner ) {
 		position: absolute;
 		top: 50%;
 		left: 50%;
@@ -10,16 +10,17 @@
 	}
 
 	// Stack consecutive buttons.
-	& > :global( .components-button + .components-button ) {
+	& :global( .components-button + .components-button ) {
 		display: block;
 		margin-top: 1em;
 	}
 
 	// This keeps images at their intrinsic size (eg. a 50px
 	// image will never be wider than 50px).
-	& > :global( .components-responsive-wrapper__content ) {
+	& :global( .components-responsive-wrapper__content ) {
 		max-width: 100%;
 		width: auto;
+		height: auto;
 	}
 }
 
