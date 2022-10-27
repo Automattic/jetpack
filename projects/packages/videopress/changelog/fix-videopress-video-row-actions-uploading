@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Remove actions and stats on VideoRow when uploading or processing and fix styles
