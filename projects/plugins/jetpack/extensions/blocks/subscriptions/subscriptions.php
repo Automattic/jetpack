@@ -13,7 +13,7 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 
-require_once dirname() . '/constants.php';
+require_once __DIR__ . '/constants.php';
 
 /**
  * Registers the block for use in Gutenberg

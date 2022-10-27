@@ -8,7 +8,7 @@
 
 use Automattic\Jetpack\Blocks;
 
-require_once dirname() . '/../../extensions/blocks/subscriptions/constants.php';
+require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
 /**
  * Class Jetpack_Memberships
