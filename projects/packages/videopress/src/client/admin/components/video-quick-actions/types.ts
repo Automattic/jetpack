@@ -19,7 +19,7 @@ export interface PopoverWithAnchorProps {
 	/**
 	 * Ref that anchors the popover
 	 */
-	anchorRef: HTMLElement | null;
+	anchor: HTMLElement | null;
 	/**
 	 * Popover content
 	 */

@@ -190,7 +190,7 @@ const EditVideoDetails = () => {
 	// We may need the playback token on the video URL as well
 	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
 
-	let thumbnail = posterImage;
+	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;

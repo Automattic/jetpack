@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix a warning that is thrown when plugins are auto-updated.
+
+
