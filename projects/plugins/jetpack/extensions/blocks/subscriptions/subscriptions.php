@@ -14,9 +14,7 @@ use Jetpack_Gutenberg;
 use Jetpack_Subscriptions_Widget;
 use Jetpack_Memberships;
 
-const FEATURE_NAME                             = 'subscriptions';
-const BLOCK_NAME                               = 'jetpack/' . FEATURE_NAME;
-const META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS = '_jetpack_newsletter_access';
+require_once dirname() . '/constants.php';
 
 /**
  * These block defaults should match ./constants.js

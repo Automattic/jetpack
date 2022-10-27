@@ -8,6 +8,8 @@
 
 use Automattic\Jetpack\Blocks;
 
+require_once dirname() . '/../../extensions/blocks/subscriptions/constants.php';
+
 /**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
@@ -37,7 +39,7 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	public static $newsletter_access_level_meta_name = 'jetpack_newsletter_access';
+	public static $newsletter_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 	/**
 	 * Button block type to use.
