@@ -6,17 +6,6 @@ window.JP_CONNECTION_INITIAL_STATE = {
 	},
 };
 
-window.jetpackSocialInitialState = {
-	siteData: {
-		apiRoot: true,
-		apiNonce: true,
-		registrationNonce: true,
-		siteSuffix: true,
-		pluginVersion: true,
-	},
-	jetpackSettings: { show_pricing_page: true },
-};
-
 // Overwrite window.location so assign can be stubbed.
 const oldLocation = window.location;
 delete window.location;
