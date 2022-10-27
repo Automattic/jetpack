@@ -95,6 +95,22 @@
 	}
 }
 
+.jetpack-contact-form.is-placeholder {
+	border: 1px solid #1e1e1e;
+	padding: 24px;
+
+	.components-placeholder {
+		box-shadow: unset;
+		padding: 0;
+		margin-bottom: 16px;
+	}
+
+	.form-placeholder__external-link {
+		padding-left: 0;
+		padding-right: 0;
+	}
+}
+
 .jetpack-contact-form__intro-message {
 	margin: 0 0 16px;
 }
