@@ -6,6 +6,12 @@ import { __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import styles from './styles.module.scss';
 
+/**
+ * Get relevant details from a WordPress media object.
+ *
+ * @param {Object} media - WordPress media object.
+ * @returns {{ mediaWidth: [ number ], mediaHeight: [ number ], mediaSourceUrl: [ string ] }} - Media details.
+ */
 const getMediaDetails = media => {
 	if ( ! media ) {
 		return {};
@@ -50,7 +56,7 @@ export default function MediaSection() {
 		( { open } ) => (
 			<div className={ styles.container }>
 				<Button className={ ! mediaObject ? styles.toggle : styles.preview } onClick={ open }>
-					{ mediaObject && (
+					{ mediaWidth && mediaHeight && mediaSourceUrl && (
 						<ResponsiveWrapper naturalWidth={ mediaWidth } naturalHeight={ mediaHeight } isInline>
 							<img src={ mediaSourceUrl } alt="" />
 						</ResponsiveWrapper>
