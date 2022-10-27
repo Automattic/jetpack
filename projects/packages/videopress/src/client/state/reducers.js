@@ -37,6 +37,7 @@ import {
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
+	EXPIRE_PLAYBACK_TOKEN,
 } from './constants';
 
 /**
@@ -611,6 +612,23 @@ const playbackTokens = ( state, action ) => {
 					...items[ playbackTokenIndex ],
 					...playbackToken,
 				};
+			}
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		case EXPIRE_PLAYBACK_TOKEN: {
+			const { guid } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const playbackTokenIndex = items.findIndex( item => item.guid === guid );
+
+			if ( playbackTokenIndex > -1 ) {
+				// Remove it from the array
+				items.splice( playbackTokenIndex, 1 );
 			}
 
 			return {
