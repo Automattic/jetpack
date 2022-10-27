@@ -434,7 +434,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
+			$badge = isset( $matches[0] ) ? $matches[0] : '';
+			$title = trim( str_replace( $badge, '', $title ) );
 		}
 
 		if ( false !== strpos( $title, 'inline-text' ) ) {
