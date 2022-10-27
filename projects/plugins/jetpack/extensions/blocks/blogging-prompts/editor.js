@@ -13,8 +13,8 @@ async function insertTemplate( prompt, embedPrompt = false ) {
 	insertBlocks( writingPromptBlocks, 0, undefined, false );
 }
 
-function initWritingPrompts() {
-	const data = window.Jetpack_WritingPrompts;
+function initBloggingPrompts() {
+	const data = window.Jetpack_BloggingPrompts;
 	const urlQuery = new URLSearchParams( document.location.search );
 	const embedPrompt = !! urlQuery.get( 'embed_prompt' );
 	if ( typeof data !== 'object' || ! data.prompts || ! data.prompts[ 0 ] ) {
@@ -24,4 +24,4 @@ function initWritingPrompts() {
 	insertTemplate( data.prompts[ 0 ], embedPrompt );
 }
 
-initWritingPrompts();
+initBloggingPrompts();

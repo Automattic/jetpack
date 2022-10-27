@@ -1,29 +1,29 @@
 <?php
 /**
- * Writing prompts.
+ * Blogging prompts.
  *
  * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\WritingPrompts;
+namespace Automattic\Jetpack\Extensions\BloggingPrompts;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Visitor;
 
-const FEATURE_NAME = 'writing-prompts';
+const FEATURE_NAME = 'blogging-prompts';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
- * Registers the writing prompt integration for the block editor.
+ * Registers the blogging prompt integration for the block editor.
  */
 function register_extension() {
 	Blocks::jetpack_register_block( BLOCK_NAME );
 }
 
 /**
- * Retrieve a daily writing prompt from the wpcom API and cache it.
+ * Retrieve a daily blogging prompt from the wpcom API and cache it.
  *
  * @return string JSON response from the API, as a string.
  */
@@ -64,7 +64,7 @@ function get_daily_writing_prompt() {
 }
 
 /**
- * Checks URL params to determine if we should load a writing prompt.
+ * Checks URL params to determine if we should load a blogging prompt.
  */
 function inject_writing_prompts() {
 	global $current_screen;
@@ -82,7 +82,7 @@ function inject_writing_prompts() {
 	$daily_prompt = get_daily_writing_prompt();
 
 	if ( $daily_prompt ) {
-		wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_WritingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompt ) . '" ) );', 'before' );
+		wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_BloggingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompt ) . '" ) );', 'before' );
 	}
 }
 

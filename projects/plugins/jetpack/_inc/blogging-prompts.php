@@ -1,6 +1,6 @@
 <?php
 /**
- * Used by the blogging prompt feature of the mobile app.
+ * Used by the blogging prompt feature.
  *
  * @package automattic/jetpack
  */
