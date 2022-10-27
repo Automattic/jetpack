@@ -27,6 +27,7 @@ function wpcomsh_apply_headstart_terms() {
 	if ( ! empty( $annotation['custom_terms_by_taxonomy'] ) ) {
 		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Found custom_terms_by_taxonomy for [$theme], applying." );
 		$term_id_map = wpcomsh_apply_headstart_custom_terms( $annotation['custom_terms_by_taxonomy'] );
+		wpcomsh_headstart_log( compact( 'term_id_map' ) );
 		if ( ! empty( $annotation['custom_term_meta'] ) ) {
 			wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Found custom_terms_meta for [$theme], applying." );
 			wpcomsh_apply_headstart_custom_term_meta( $annotation['custom_term_meta'], $term_id_map );
@@ -150,6 +151,7 @@ function wpcomsh_apply_headstart_custom_terms( $custom_terms_by_taxonomy ) {
 
 	foreach ( $custom_terms_by_taxonomy as $taxonomy => $terms ) {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
+			wpcomsh_headstart_log( "Skipping taxonomy [$taxonomy] because it does not exist." );
 			continue;
 		}
 
