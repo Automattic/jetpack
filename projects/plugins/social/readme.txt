@@ -98,7 +98,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 - Reshare: Added the reshare UI to the block editor extension
 
 #### Changed
-- Updated package dependencies. [#25993, #26640, #26683, #26705, #26716, #26790, #26791, #26808, #26826, #26829, #26851, #27089]
+- Updated package dependencies.
 
 #### Fixed
 - Social: Fix the connection test endpoint URL
