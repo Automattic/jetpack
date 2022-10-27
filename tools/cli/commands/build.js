@@ -860,7 +860,7 @@ async function buildProject( t ) {
 	}
 
 	// Get the project version number from the changelog.md file.
-	const projectVersionNumber = '';
+	let projectVersionNumber = '';
 	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
 	const rl = rlcreateInterface( {
 		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
@@ -869,10 +869,11 @@ async function buildProject( t ) {
 		crlfDelay: Infinity,
 	} );
 
-	// eslint-disable-next-line no-unused-vars
 	rl.on( 'line', line => {
-		// Todo: pull the correct version number from the changelog file.
-		// break; once we have the version number.
+		if ( line.startsWith( '## ' ) ) {
+			projectVersionNumber = line;
+			rl.close();
+		}
 	} );
 	await once( rl, 'close' );
 
