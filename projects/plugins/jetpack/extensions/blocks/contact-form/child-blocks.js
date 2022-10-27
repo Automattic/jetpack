@@ -159,7 +159,7 @@ export const childBlocks = [
 		name: 'field-text',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Text', 'jetpack' ),
+			title: __( 'Text Input Field', 'jetpack' ),
 			description: __( 'When you need just a small amount of text, add a text input.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M4 9h16v2H4V9zm0 4h10v2H4v-2z" />
@@ -171,7 +171,7 @@ export const childBlocks = [
 		name: 'field-name',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Name', 'jetpack' ),
+			title: __( 'Name Field', 'jetpack' ),
 			description: __(
 				'Introductions are important. Add an input for folks to add their name.',
 				'jetpack'
@@ -189,7 +189,7 @@ export const childBlocks = [
 		name: 'field-email',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Email', 'jetpack' ),
+			title: __( 'Email Field', 'jetpack' ),
 			keywords: [ __( 'e-mail', 'jetpack' ), __( 'mail', 'jetpack' ), 'email' ],
 			description: __( 'Want to reply to folks? Add an email address input.', 'jetpack' ),
 			icon: renderMaterialIcon(
@@ -206,7 +206,7 @@ export const childBlocks = [
 		name: 'field-url',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Website', 'jetpack' ),
+			title: __( 'URL Field', 'jetpack' ),
 			keywords: [ 'url', __( 'internet page', 'jetpack' ), 'link' ],
 			description: __( 'Add an address input for a website.', 'jetpack' ),
 			icon: renderMaterialIcon(
@@ -242,7 +242,7 @@ export const childBlocks = [
 		name: 'field-telephone',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Phone Number', 'jetpack' ),
+			title: __( 'Phone Number Field', 'jetpack' ),
 			keywords: [
 				__( 'Phone', 'jetpack' ),
 				__( 'Cellular phone', 'jetpack' ),
@@ -262,7 +262,7 @@ export const childBlocks = [
 		name: 'field-textarea',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Message', 'jetpack' ),
+			title: __( 'Multi-line Text Field', 'jetpack' ),
 			keywords: [ __( 'Textarea', 'jetpack' ), 'textarea', __( 'Multiline text', 'jetpack' ) ],
 			description: __(
 				'Let folks speak their mind. This text box is great for longer responses.',
@@ -322,7 +322,7 @@ export const childBlocks = [
 		name: 'field-consent',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Consent', 'jetpack' ),
+			title: __( 'Terms Consent', 'jetpack' ),
 			keywords: [ __( 'Consent', 'jetpack' ) ],
 			description: __( 'Ask for consent', 'jetpack' ),
 			icon: renderMaterialIcon(
@@ -382,7 +382,7 @@ export const childBlocks = [
 		name: 'field-checkbox-multiple',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Checkbox Group', 'jetpack' ),
+			title: __( 'Multiple Choice (Checkbox)', 'jetpack' ),
 			keywords: [ __( 'Choose Multiple', 'jetpack' ), __( 'Option', 'jetpack' ) ],
 			description: __( 'People love options. Add several checkbox items.', 'jetpack' ),
 			icon: renderMaterialIcon(
@@ -405,7 +405,7 @@ export const childBlocks = [
 		name: 'field-radio',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Radio', 'jetpack' ),
+			title: __( 'Single Choice (Radio)', 'jetpack' ),
 			keywords: [ __( 'Choose', 'jetpack' ), __( 'Select', 'jetpack' ), __( 'Option', 'jetpack' ) ],
 			description: __(
 				'Inspired by radios, only one radio item can be selected at a time. Add several radio button items.',
@@ -434,7 +434,7 @@ export const childBlocks = [
 		name: 'field-select',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Select', 'jetpack' ),
+			title: __( 'Dropdown Field', 'jetpack' ),
 			keywords: [
 				__( 'Choose', 'jetpack' ),
 				__( 'Dropdown', 'jetpack' ),
