@@ -1,0 +1,90 @@
+.boost-banner {
+    margin: 50px 1.25rem 1.25rem 0;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+    border: 1px solid #d5d5d5;
+    position: relative;
+}
+.boost-banner h1{
+    line-height:30px;
+}
+.boost-banner-inner {
+    display: flex;
+    grid-template-columns: minmax(auto, 750px) 500px;
+    justify-content: space-between;
+    min-height: 300px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.boost-banner-content {
+    display: inline-flex;
+    flex-direction: column;
+    padding: 2rem 3rem 2rem 2rem;
+    text-align: left;
+}
+
+.boost-banner-image-container {
+    position: relative;
+    background-image: url( '../static/images/jetpack-colors.svg' );
+    background-size: cover;
+    max-width: 40%;
+    overflow: hidden;
+}
+
+.boost-banner-image-container img {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.boost-banner p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 1rem 0 2rem;
+}
+
+.boost-banner .boost-dismiss {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: white;
+    cursor:pointer;
+}
+
+.boost-banner .button-primary {
+    background: black;
+    border-color: black;
+    color: #fff;
+    width: fit-content;
+    padding: 0.4rem 1rem;
+    font-size: 16px;
+}
+
+.boost-banner .button-primary:hover {
+    background-color: #333;
+}
+
+.boost-banner .button-primary:visited {
+    background-color: black;
+    border-color: black;
+}
+.boost-banner .boost-almost-done{
+    align-items: baseline;
+    background-color: #069e08;
+    color: #fff;
+    display: flex;
+    padding: 1rem 2.25rem 1.5rem 1rem;
+}
+.boost-almost-done  svg {
+    height: 24px;
+    margin-right: 0.625rem;
+    position: relative;
+    top: 7px;
+    width: 24px;
+    color:white;
+}
+.boost-almost-done  svg path{
+    fill:white;
+}
