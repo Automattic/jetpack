@@ -67,6 +67,10 @@ class Deactivation_Handler {
 	public static function init( $plugin, $feedback_url, $dialog_view ) {
 		$instance = new self( $plugin, $feedback_url, $dialog_view );
 
+		if ( ! file_exists( $instance->dialog_view ) ) {
+			wp_die( 'The plugin deactivation dialog view file does not exist.' );
+		}
+
 		add_action( 'load-plugins.php', array( $instance, 'enqueue_script' ) );
 		add_action( 'admin_footer-plugins.php', array( $instance, 'embed_dialog' ) );
 
