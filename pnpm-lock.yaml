@@ -1741,18 +1741,28 @@ importers:
       '@automattic/jetpack-publicize-components': workspace:* || ^0.8
       '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@babel/core': 7.19.3
+      '@babel/plugin-transform-react-jsx': 7.19.0
       '@babel/preset-env': 7.19.3
       '@babel/register': 7.18.9
       '@babel/runtime': 7.19.0
+      '@testing-library/dom': 8.16.0
+      '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.1
+      '@wordpress/api-fetch': 6.16.0
+      '@wordpress/babel-plugin-import-jsx-pragma': 4.2.0
       '@wordpress/browserslist-config': 5.2.0
+      '@wordpress/components': 21.2.0
       '@wordpress/data': 7.3.0
       '@wordpress/date': 4.19.0
       '@wordpress/element': 4.17.0
       '@wordpress/i18n': 4.19.0
       '@wordpress/icons': 9.10.0
       autoprefixer: 10.4.12
+      babel-jest: 28.1.0
       classnames: 2.3.1
       concurrently: 6.0.2
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       postcss: 8.4.18
       postcss-custom-properties: 12.1.7
       postcss-loader: 6.2.0
@@ -1767,6 +1777,8 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-publicize-components': link:../../js-packages/publicize-components
+      '@wordpress/api-fetch': 6.16.0
+      '@wordpress/components': 21.2.0_7zkbjz6d46tpcbbta4lk5n6n6i
       '@wordpress/data': 7.3.0_react@17.0.2
       '@wordpress/date': 4.19.0
       '@wordpress/element': 4.17.0
@@ -1780,12 +1792,20 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.19.3
+      '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.19.3
       '@babel/preset-env': 7.19.3_@babel+core@7.19.3
       '@babel/register': 7.18.9_@babel+core@7.19.3
       '@babel/runtime': 7.19.0
+      '@testing-library/dom': 8.16.0
+      '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
+      '@testing-library/react-hooks': 8.0.1_sfoxds7t5ydpegc3knd667wn6m
+      '@wordpress/babel-plugin-import-jsx-pragma': 4.2.0_@babel+core@7.19.3
       '@wordpress/browserslist-config': 5.2.0
       autoprefixer: 10.4.12_postcss@8.4.18
+      babel-jest: 28.1.0_@babel+core@7.19.3
       concurrently: 6.0.2
+      jest: 28.1.0
+      jest-environment-jsdom: 28.1.0
       postcss: 8.4.18
       postcss-custom-properties: 12.1.7_postcss@8.4.18
       postcss-loader: 6.2.0_6r4oyq4qoawclpccpbbst4knle
@@ -6822,6 +6842,28 @@ packages:
       react-dom: 17.0.2_react@17.0.2
       react-error-boundary: 3.1.4_react@17.0.2
       react-test-renderer: 17.0.2_react@17.0.2
+    dev: true
+
+  /@testing-library/react-hooks/8.0.1_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-Aqhl2IVmLt8IovEVarNDFuJDVWVvhnr9/GCU6UUnrYXwgDFF9h2L2o2P9KBni1AST5sT6riAyoukFLyjQUgD/g==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@types/react': ^16.9.0 || ^17.0.0
+      react: ^16.9.0 || ^17.0.0
+      react-dom: ^16.9.0 || ^17.0.0
+      react-test-renderer: ^16.9.0 || ^17.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react-dom:
+        optional: true
+      react-test-renderer:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.19.4
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-error-boundary: 3.1.4_react@17.0.2
     dev: true
 
   /@testing-library/react-hooks/8.0.1_xq2qrcilqnfv63wx4morfrxcvq:
