@@ -18,6 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Social: Fix the connection test endpoint URL [#26892]
 - Social: Fix the path to the connections URL in the editor [#26932]
 
+## 1.4.2 - 2022-10-20
+### Fixed
+- Social: Fix the path to the connections URL in the editor [#26932]
+
+## 1.4.1 - 2022-10-19
+### Fixed
+- Social: Fix the connection test endpoint URL [#26892]
 ## 1.4.0 - 2022-10-06
 ### Added
 - Add ContextualUpgradeTrigger to Jetpack Social admin page [#26115]
