@@ -1,6 +1,11 @@
 .jp-plugin-deactivation {
 	display: none;
 
+	// Resets
+	* {
+		box-sizing: border-box;
+	}
+
 	@keyframes jp-plugin-deactivation__appear-animation {
 		0% {
 			transform: translateY(32px)
@@ -41,7 +46,7 @@
 		display: flex;
 		flex-direction: column;
 
-		> main {
+		&__content {
 			padding: 2rem 1rem;
 			background-color: #f9f9f6;
 			flex-grow: 1;
@@ -52,7 +57,7 @@
 			align-items: center;
 		}
 
-		> footer {
+		&__actions {
 			padding: 2rem 1rem;
 			border-top: 1px solid #dcdcde;
 			width: 100%;
@@ -72,10 +77,6 @@
 				font-size: 36px;
 			}
 		}
-	}
-
-	* {
-		box-sizing: border-box;
 	}
 
 	p, li {

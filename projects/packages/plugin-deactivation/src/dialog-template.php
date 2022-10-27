@@ -11,13 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 ?>
-<main>
+<main class="jp-plugin-deactivation__dialog__content">
 	<h1><?php esc_html_e( 'Are you sure you want to deactivate?', 'jetpack-plugin-deactivation' ); ?></h1>
 	<p class="big"><?php esc_html_e( 'Before you go...', 'jetpack-plugin-deactivation' ); ?></p>
 	<p><?php esc_html_e( "We'd really love your feedback on our plugin.", 'jetpack-plugin-deactivation' ); ?></p>
 	<p><?php esc_html_e( "Just temporarily deactivating, or don't fancy giving feedback? No problem.", 'jetpack-plugin-deactivation' ); ?></p>
 </main>
-<footer>
+<footer class="jp-plugin-deactivation__dialog__actions">
 	<button 
 		type="button"
 		class="jp-plugin-deactivation__button"
