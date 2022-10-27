@@ -390,6 +390,7 @@ const getPlaybackToken = {
 			const playbackToken = {
 				guid,
 				token: playbackTokenResponse.playback_token,
+				issueTime: Date.now(),
 			};
 
 			dispatch.setPlaybackToken( playbackToken );
