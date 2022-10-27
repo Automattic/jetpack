@@ -14,7 +14,7 @@ use Jetpack_Gutenberg;
 use Jetpack_Subscriptions_Widget;
 use Jetpack_Memberships;
 
-require_once dirname() . '/constants.php';
+require_once __DIR__ . '/constants.php';
 
 /**
  * These block defaults should match ./constants.js
