@@ -861,29 +861,23 @@ async function buildProject( t ) {
 
 	// Get the project version number from the changelog.md file.
 	const projectVersionNumber = '';
-	try {
-		const rl = rlcreateInterface( {
-			input: createReadStream( `${ t.cwd }/CHANGELOG.md`, {
-				encoding: 'utf8',
-			} ),
-			crlfDelay: Infinity,
-		} );
+	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
+	const rl = rlcreateInterface( {
+		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
+			encoding: 'utf8',
+		} ),
+		crlfDelay: Infinity,
+	} );
 
-		// eslint-disable-next-line no-unused-vars
-		rl.on( 'line', line => {
-			// Todo: pull the correct version number from the changelog file.
-		} );
-		await once( rl, 'close' );
+	// eslint-disable-next-line no-unused-vars
+	rl.on( 'line', line => {
+		// Todo: pull the correct version number from the changelog file.
+		// break; once we have the version number.
+	} );
+	await once( rl, 'close' );
 
-		if ( ! projectVersionNumber ) {
-			throw new Error( 'Version number not found.' );
-		}
-	} catch ( err ) {
-		await t.setStatus( 'build failure' );
-		await t.output(
-			`\nError fetching latest version number from changelog.md while building project: ${ t.project }\n`
-		);
-		throw new Error( err );
+	if ( ! projectVersionNumber ) {
+		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
 	}
 
 	// Build succeeded! Now do some bookkeeping.
