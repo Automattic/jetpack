@@ -9,7 +9,6 @@ import {
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
-	Button,
 	Icon,
 	PanelBody,
 	SelectControl,
@@ -24,10 +23,12 @@ import { Fragment, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
+import InspectorHint from '../../shared/components/inspector-hint';
 import { JetpackLogo, MailIcon, NewsletterIcon } from '../../shared/icons';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackFormSettingsDropdown from './components/jetpack-form-settings-dropdown';
+import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import defaultVariations from './variations';
 
@@ -42,8 +43,6 @@ const ALLOWED_BLOCKS = [
 	'core/subhead',
 	'core/video',
 ];
-
-const RESPONSES_PATH = '/wp-admin/edit.php?post_type=feedback';
 
 export function JetpackContactFormEdit( {
 	attributes,
@@ -113,47 +112,12 @@ export function JetpackContactFormEdit( {
 		}
 	}, [ to, postAuthorEmail, subject, siteTitle, postTitle, setAttributes ] );
 
-	const SectionDescription = ( { children } ) => (
-		<p
-			style={ {
-				color: 'rgba( 117, 117, 117, 1 )',
-				marginBottom: '24px',
-			} }
-		>
-			{ children }
-		</p>
-	);
-
-	const renderManageResponses = () => {
-		return (
-			<>
-				<SectionDescription>
-					{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack' ) }
-				</SectionDescription>
-				<Button
-					variant="secondary"
-					href={ RESPONSES_PATH }
-					target="_blank"
-					style={ { marginBottom: '24px' } }
-				>
-					{ __( 'View Form Responses', 'jetpack' ) }
-				</Button>
-				<TextControl
-					label={ __( 'Title of the Form', 'jetpack' ) }
-					value={ formTitle }
-					onChange={ value => setAttributes( { formTitle: value } ) }
-					help={ __( 'Optional - not visible to viewers', 'jetpack' ) }
-				/>
-			</>
-		);
-	};
-
 	const renderSubmissionSettings = () => {
 		return (
 			<>
-				<SectionDescription>
+				<InspectorHint>
 					{ __( 'Customize the view after form submission:', 'jetpack' ) }
-				</SectionDescription>
+				</InspectorHint>
 				<SelectControl
 					label={ __( 'On Submission', 'jetpack' ) }
 					value={ customThankyou }
@@ -273,7 +237,6 @@ export function JetpackContactFormEdit( {
 								attributes={ attributes }
 								setAttributes={ setAttributes }
 								settings={ formSettingsSections }
-								responsesPath={ RESPONSES_PATH }
 							/>
 						) }
 					</ToolbarItem>
@@ -281,7 +244,7 @@ export function JetpackContactFormEdit( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
-					{ renderManageResponses() }
+					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
 				</PanelBody>
 				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
 					{ renderSubmissionSettings() }
