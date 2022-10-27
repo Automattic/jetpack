@@ -331,10 +331,15 @@ input.components-text-control__input {
 		}
 	}
 
-	.form-settings-dropdown__hint {
-		color: #757575;
-		margin: 0 8px;
-		font-size: 12px;
+	.form-settings-dropdown__content {
+		padding: 12px;
+	}
+
+	.form-settings-dropdown__close-icon {
+		width: 24px;
+		height: 24px;
+		padding: 0;
+		justify-content: center;
 	}
 
 	.form-settings-dropdown__item {

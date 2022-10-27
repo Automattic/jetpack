@@ -1,4 +1,12 @@
-import { DropdownMenu, Flex, FlexItem, Icon, MenuGroup, MenuItem } from '@wordpress/components';
+import {
+	Button,
+	DropdownMenu,
+	Flex,
+	FlexItem,
+	Icon,
+	MenuGroup,
+	MenuItem,
+} from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close, external } from '@wordpress/icons';
@@ -11,10 +19,10 @@ const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose,
 	if ( ! currentSettingsView ) {
 		return (
 			<>
-				<span className="form-settings-dropdown__hint">
-					{ __( 'CONNECT FORM RESPONSES TO', 'jetpack' ) }
-				</span>
 				<MenuGroup>
+					<div className="components-menu-group__label">
+						{ __( 'Connect form responses to', 'jetpack' ) }
+					</div>
 					{ map( settings, ( setting, index ) => (
 						<MenuItem
 							className="form-settings-dropdown__item"
@@ -41,12 +49,14 @@ const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose,
 	}
 
 	return (
-		<div style={ { padding: '12px' } }>
+		<div className="form-settings-dropdown__content">
 			<Flex style={ { marginBottom: '24px' } }>
 				<FlexItem>
 					<strong>{ currentSettingsView.title }</strong>
 				</FlexItem>
-				<Icon icon={ close } onClick={ () => setCurrentSettingsView( null ) } size={ 16 } />
+				<Button className="form-settings-dropdown__close-icon">
+					<Icon icon={ close } onClick={ () => setCurrentSettingsView( null ) } size={ 16 } />
+				</Button>
 			</Flex>
 			{ currentSettingsView.content( props ) }
 		</div>
@@ -60,6 +70,7 @@ const JetpackFormSettingsDropdown = props => {
 			popoverProps={ {
 				position: 'bottom right',
 				className: 'jetpack-contact-form__popover',
+				isAlternate: true,
 			} }
 		>
 			{ ( { onClose } ) => <JetpackFormSettingsDropdownContent onClose={ onClose } { ...props } /> }
