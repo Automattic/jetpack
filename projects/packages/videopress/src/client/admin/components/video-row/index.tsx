@@ -122,15 +122,16 @@ export const VideoRow = ( {
 	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
+	const unavailable = loading || uploading || processing;
+
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showActions =
-		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
-	const showBottom = ! isSmall || ( isSmall && expanded );
-
+		showActionsState && ( showActionButton || showQuickActions ) && ! unavailable && ! disabled;
+	const showStats = ! unavailable && ( ( ! isSmall && ! showActions ) || ( isSmall && expanded ) );
+	const showBottom = ! unavailable && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
-		! loading &&
+		! unavailable &&
 		( showActionButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
@@ -215,7 +216,7 @@ export const VideoRow = ( {
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
-					[ styles.disabled ]: hoverDisabled,
+					[ styles.disabled ]: disabled,
 				},
 				className
 			) }
