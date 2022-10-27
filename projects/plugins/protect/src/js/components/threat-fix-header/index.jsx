@@ -76,7 +76,6 @@ export default function ThreatFixHeader( { threat, fixAllDialog, onCheckFix } ) 
 					</Text>
 				</div>
 				<div className={ styles.threat__severity }>
-					{ /* to do: implement severity badge component once available */ }
 					<ThreatSeverityBadge severity={ threat.severity } />
 				</div>
 
