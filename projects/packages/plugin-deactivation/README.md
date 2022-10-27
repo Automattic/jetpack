@@ -6,7 +6,7 @@ Ask for feedback while deactivating a plugin
 
 ## How to install plugin-deactivation
 
-Instantiate the `Deactivation_Handler` by providing the `$plugin_slag`, `$feedback_url`, and `$dialog_view_file_path` as parameters.
+Instantiate the `Deactivation_Handler` by providing the `$plugin_slug`, `$feedback_url`, and `$dialog_view_file_path` as parameters.
 
 ```PHP
 add_action( 'init', function() {
