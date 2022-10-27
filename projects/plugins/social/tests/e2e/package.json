@@ -45,6 +45,7 @@
 	"ci": {
 		"targets": [
 			"plugins/social",
+			"packages/publicize",
 			"js-packages/publicize-components",
 			"tools/e2e-commons"
 		],
