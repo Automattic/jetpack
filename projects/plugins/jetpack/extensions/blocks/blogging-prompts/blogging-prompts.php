@@ -79,6 +79,11 @@ function inject_writing_prompts() {
 		return;
 	}
 
+	// And only for blogging sites.
+	if ( ! jetpack_is_potential_blogging_site() ) {
+		return;
+	}
+
 	$daily_prompt = get_daily_writing_prompt();
 
 	if ( $daily_prompt ) {
