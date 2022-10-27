@@ -54,8 +54,8 @@ class Block_Editor_Extensions {
 	 */
 	public static function get_block_editor_extensions_url() {
 		return Assets::get_file_url_for_environment(
-			'../build/block-editor/extensions.js', // <- production
-			'client/block-editor/extensions.js', // <- development
+			'../build/block-editor/extensions/index.js', // <- production
+			'client/block-editor/extensions/index.js', // <- development
 			__FILE__
 		);
 	}
