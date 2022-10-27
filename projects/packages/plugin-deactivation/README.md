@@ -32,7 +32,7 @@ Example Usage:
 ```HTML
 <button 
 		type="button"
-		class="components-button"
+		class="jp-plugin-deactivation__button"
 		onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"
 	>Cancel</button>
 ```

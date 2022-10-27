@@ -1,6 +1,16 @@
 .jp-plugin-deactivation {
 	display: none;
 
+	@keyframes jp-plugin-deactivation__appear-animation {
+		0% {
+			transform: translateY(32px)
+		}
+	
+		to {
+			transform: translateY(0)
+		}
+	}
+
 	&--active {
 		display: block;
 	}
@@ -26,7 +36,7 @@
 		border-radius: 2px;
 		box-shadow: 0 10px 10px #00000040;
 		z-index: 10000;
-		animation: components-modal__appear-animation .1s ease-out;
+		animation: jp-plugin-deactivation__appear-animation .1s ease-out;
 		animation-fill-mode: forwards;
 		display: flex;
 		flex-direction: column;
@@ -64,6 +74,10 @@
 		}
 	}
 
+	* {
+		box-sizing: border-box;
+	}
+
 	p, li {
 		font-size: 1rem;
 	}
@@ -74,7 +88,7 @@
 		margin-left: 2rem;
 	}
 
-	.components-button {
+	&__button {
 		--btn-color: #000;
 
 		background-color: var(--btn-color);
@@ -85,6 +99,8 @@
 		height: 40px;
 		font-size: var(--font-body-small);
 		border-radius: 4px;
+		padding: 6px 12px;
+		cursor: pointer;
 
 		&:hover {
 			color: #fff;
