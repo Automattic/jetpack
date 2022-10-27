@@ -43,6 +43,7 @@ import {
 	SET_LOCAL_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
+	SET_VIDEO_UPLOAD_PROGRESS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -245,11 +246,15 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		dispatch( { type: UPLOADED_VIDEO, video } );
 	};
 
+	const onProgress = ( bytesSent, bytesTotal ) => {
+		dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
+	};
+
 	videoPressUpload( {
 		data: jwt,
 		file,
 		onError: noop,
-		onProgress: noop,
+		onProgress,
 		onSuccess,
 	} );
 };

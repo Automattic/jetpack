@@ -32,6 +32,10 @@ type VideoRowBaseProps = {
 	 */
 	isUpdatingPoster?: boolean;
 	/**
+	 * The video upload progress from 0 to 1.
+	 */
+	uploadProgress?: number;
+	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
 	onSelect?: ( check: boolean ) => void;
@@ -62,7 +66,7 @@ type VideoPressVideoProps = VideoRowBaseProps &
 	Partial<
 		Pick< VideoPressVideo, 'duration' | 'uploadDate' | 'plays' | 'isPrivate' | 'privacySetting' > // Optional
 	> &
-	Pick< VideoThumbnailProps, 'thumbnail' >;
+	Pick< VideoThumbnailProps, 'thumbnail' | 'loading' | 'processing' | 'uploading' >;
 
 export type VideoRowProps = VideoPressVideoProps & {
 	showThumbnail?: boolean;

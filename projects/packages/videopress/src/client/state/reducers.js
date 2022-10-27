@@ -36,6 +36,7 @@ import {
 	SET_LOCAL_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
+	SET_VIDEO_UPLOAD_PROGRESS,
 } from './constants';
 
 /**
@@ -438,6 +439,28 @@ const videos = ( state, action ) => {
 						...currentMetaItems,
 						[ id ]: {
 							isUpdatingPoster: false,
+						},
+					},
+				},
+			};
+		}
+
+		case SET_VIDEO_UPLOAD_PROGRESS: {
+			const { id, bytesSent, bytesTotal } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const currentVideoMeta = currentMetaItems[ id ] || {};
+			const uploadProgress = bytesTotal > 0 ? bytesSent / bytesTotal : 0;
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentVideoMeta,
+							uploadProgress,
 						},
 					},
 				},
