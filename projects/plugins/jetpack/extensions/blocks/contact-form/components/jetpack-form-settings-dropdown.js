@@ -5,7 +5,7 @@ import { close, external } from '@wordpress/icons';
 import { map } from 'lodash';
 import { PluginIcon } from '../../../shared/icons';
 
-const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose } ) => {
+const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose, ...props } ) => {
 	const [ currentSettingsView, setCurrentSettingsView ] = useState( null );
 
 	if ( ! currentSettingsView ) {
@@ -48,7 +48,7 @@ const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose 
 				</FlexItem>
 				<Icon icon={ close } onClick={ () => setCurrentSettingsView( null ) } size={ 16 } />
 			</Flex>
-			{ currentSettingsView.content() }
+			{ currentSettingsView.content( props ) }
 		</div>
 	);
 };

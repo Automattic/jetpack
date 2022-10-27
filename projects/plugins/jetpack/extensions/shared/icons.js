@@ -387,7 +387,7 @@ export const PluginIcon = (
 		<Path
 			d="M13.9 16.55L13.75 16.75V17V19C13.75 19.1381 13.6381 19.25 13.5 19.25H10.5C10.3619 19.25 10.25 19.1381 10.25 19V17V16.75L10.1 16.55L7.25 12.75V9C7.25 8.86193 7.36193 8.75 7.5 8.75H16.5C16.6381 8.75 16.75 8.86193 16.75 9V12.75L13.9 16.55Z"
 			stroke="currentColor"
-			stroke-width="1.5"
+			strokeWidth="1.5"
 		/>
 		<line x1="9.75" y1="9" x2="9.75" y2="4" stroke="currentColor" strokeWidth="1.5" />
 		<line x1="14.25" y1="9" x2="14.25" y2="4" stroke="currentColor" strokeWidth="1.5" />
