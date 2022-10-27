@@ -20,6 +20,7 @@ import {
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	EXPIRE_PLAYBACK_TOKEN,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -399,6 +400,9 @@ const getPlaybackToken = {
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
+	},
+	shouldInvalidate: ( action, guid ) => {
+		return action.type === EXPIRE_PLAYBACK_TOKEN && action.guid === guid;
 	},
 };
 
