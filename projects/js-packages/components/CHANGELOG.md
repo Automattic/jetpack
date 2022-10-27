@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.24.2 - 2022-10-25
+### Changed
+- Fix visual issues in the Product Price component in Jetpack plugin [#27032]
+
 ## 0.24.1 - 2022-10-19
 ### Changed
 - RNA: move product labels next to `legend` text [#26877]

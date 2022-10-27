@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes several invalid action callbacks.
