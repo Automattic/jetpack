@@ -55,13 +55,11 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function add_hooks() {
-		echo 'add hooks';
-		// add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, 'activate', 10, 0 );
-		// add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, 'activate', 10, 0 );
-		// add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, Waf_Runner::activate(), 10, 0 );
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
 		// TODO: This doesn't exactly fit here - may need to find another home
-		// do_action( 'jetpack_waf_rules_update_cron' );
 		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
 			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
 		}
@@ -310,8 +308,6 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function update_rules_cron() {
-		echo 'update rules';
-		exit();
 		self::define_mode();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
