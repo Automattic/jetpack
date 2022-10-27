@@ -122,16 +122,14 @@ export const VideoRow = ( {
 	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
-	const unavailable = loading || uploading || processing;
-
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showActions =
-		showActionsState && ( showActionButton || showQuickActions ) && ! unavailable && ! disabled;
-	const showStats = ! unavailable && ( ( ! isSmall && ! showActions ) || ( isSmall && expanded ) );
-	const showBottom = ! unavailable && ( ! isSmall || ( isSmall && expanded ) );
+		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
+	const showStats = ! loading && ( ( ! isSmall && ! showActions ) || ( isSmall && expanded ) );
+	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
-		! unavailable &&
+		! loading &&
 		( showActionButton ||
 			Boolean( duration ) ||
 			Number.isFinite( plays ) ||
