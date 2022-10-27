@@ -8,13 +8,10 @@ import {
 	numberFormat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
-import React from 'react';
 import { useState } from 'react';
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import Placeholder from '../placeholder';
 /**
@@ -24,6 +21,7 @@ import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 import { VideoCardProps } from './types';
+import type React from 'react';
 
 const QuickActions = ( {
 	id,
@@ -50,19 +48,6 @@ const QuickActions = ( {
 	);
 };
 
-const UploadingThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Spinner />
-		<Text>{ __( 'Uploading', 'jetpack-videopress-pkg' ) }</Text>
-	</div>
-);
-
-const ProcessingThumbnail = () => (
-	<div className={ styles[ 'video-card__custom-thumbnail' ] }>
-		<Text className={ styles.pulse }>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
-	</div>
-);
-
 /**
  * Video Card component
  *
@@ -74,31 +59,22 @@ export const VideoCard = ( {
 	id,
 	duration,
 	plays,
-	thumbnail: defaultThumbnail,
+	thumbnail,
 	editable,
 	showQuickActions = true,
 	loading = false,
 	isUpdatingPoster = false,
 	uploading = false,
 	processing = false,
-	privacySetting,
+	uploadProgress,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! defaultThumbnail && ! loading;
-
-	const privacyIsSetToPrivate = privacySetting
-		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
-		: false;
-
-	// Mapping thumbnail (Ordered by priority)
-	let thumbnail = loading ? <Placeholder /> : defaultThumbnail;
-	thumbnail = uploading || isUpdatingPoster ? <UploadingThumbnail /> : thumbnail;
-	thumbnail = processing ? <ProcessingThumbnail /> : thumbnail;
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail && ! loading;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
-				/* translators: placeholder is a product name */
+				/* translators: placeholder is a number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				numberFormat( plays )
 		  )
@@ -121,9 +97,12 @@ export const VideoCard = ( {
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
+					loading={ loading }
+					uploading={ uploading || isUpdatingPoster }
+					processing={ processing }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
-					isPrivate={ privacyIsSetToPrivate }
+					uploadProgress={ uploadProgress }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -184,7 +163,9 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
+		id
+	);
 
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
@@ -199,6 +180,7 @@ export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
 			processing={ processing }
 			editable={ editable }
 			privacySetting={ data.privacySetting }
+			uploadProgress={ uploadProgress }
 		/>
 	);
 };

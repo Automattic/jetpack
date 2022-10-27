@@ -5,7 +5,6 @@ import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
 import privacy from '../../../components/icons/crossed-eye-icon';
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
@@ -91,23 +90,25 @@ export const VideoRow = ( {
 	checked = false,
 	title,
 	titleAdornment = null,
-	thumbnail: defaultThumbnail,
+	thumbnail,
 	showThumbnail = false,
 	duration,
 	uploadDate,
 	plays,
 	isPrivate,
-	privacySetting,
 	onActionClick,
 	onSelect,
 	showActionButton = true,
 	showQuickActions = true,
 	showCheckbox = true,
 	loading = false,
+	uploading = false,
+	processing = false,
 	isUpdatingPoster = false,
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
 	disableActionButton = false,
 	disabled = false,
+	uploadProgress,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -126,13 +127,6 @@ export const VideoRow = ( {
 		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
 	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
 	const showBottom = ! isSmall || ( isSmall && expanded );
-
-	const privacyIsSetToPrivate = privacySetting
-		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
-		: false;
-
-	let thumbnail = defaultThumbnail;
-	thumbnail = loading || isUpdatingPoster ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
 
 	const canExpand =
 		isSmall &&
@@ -250,9 +244,13 @@ export const VideoRow = ( {
 					{ showThumbnail && (
 						<div className={ styles.poster }>
 							<VideoThumbnail
-								isPrivate={ privacyIsSetToPrivate }
 								thumbnail={ thumbnail }
+								loading={ loading }
+								uploading={ uploading || isUpdatingPoster }
+								processing={ processing }
 								blankIconSize={ 28 }
+								uploadProgress={ uploadProgress }
+								isRow
 							/>
 						</div>
 					) }
@@ -319,16 +317,21 @@ export const VideoRow = ( {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
+		id
+	);
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	return (
 		<VideoRow
 			id={ id }
 			{ ...restProps }
 			loading={ loading }
+			uploading={ uploading }
 			isUpdatingPoster={ isUpdatingPoster }
+			processing={ processing }
 			showThumbnail
 			privacySetting={ data.privacySetting }
+			uploadProgress={ uploadProgress }
 		/>
 	);
 };
