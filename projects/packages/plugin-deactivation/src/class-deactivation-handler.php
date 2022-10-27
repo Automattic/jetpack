@@ -55,9 +55,6 @@ class Deactivation_Handler {
 		$this->plugin       = $plugin;
 		$this->feedback_url = $feedback_url;
 		$this->dialog_view  = $dialog_view;
-
-		add_action( 'load-plugins.php', array( $this, 'enqueue_script' ) );
-		add_action( 'admin_footer-plugins.php', array( $this, 'embed_dialog' ) );
 	}
 
 	/**
@@ -69,6 +66,10 @@ class Deactivation_Handler {
 	 */
 	public static function init( $plugin, $feedback_url, $dialog_view ) {
 		$instance = new self( $plugin, $feedback_url, $dialog_view );
+
+		add_action( 'load-plugins.php', array( $instance, 'enqueue_script' ) );
+		add_action( 'admin_footer-plugins.php', array( $instance, 'embed_dialog' ) );
+
 		return $instance;
 	}
 
