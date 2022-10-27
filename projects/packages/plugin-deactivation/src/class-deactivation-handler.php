@@ -103,7 +103,7 @@ class Deactivation_Handler {
 			</div>
 			<div class="jp-plugin-deactivation__overlay" onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"></div>
 		</div>
-		<script>new JetpackPluginDeactivation("<?php echo esc_attr( $this->plugin ); ?>", "<?php echo esc_url( $this->feedback_url ); ?>");</script>
+		<script>new JetpackPluginDeactivation( decodeURIComponent( '<?php echo rawurlencode( $this->plugin ); ?>' ), <?php echo wp_json_encode( $this->feedback_url ); ?> );</script>
 		<?php
 	}
 }
