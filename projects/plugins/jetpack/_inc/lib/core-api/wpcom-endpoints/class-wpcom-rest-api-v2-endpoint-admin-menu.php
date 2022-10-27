@@ -440,14 +440,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if ( false !== strpos( $title, 'inline-text' ) ) {
 			preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches );
 
-			$text = $matches[1];
-			if ( $text ) {
+			if ( ! empty( $matches[1] ) ) {
 				// Keep the text in the item array.
-				$item['inlineText'] = $text;
+				$item['inlineText'] = $matches[1];
 			}
 
 			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
+			$badge = isset( $matches[0] ) ? $matches[0] : '';
+			$title = trim( str_replace( $badge, '', $title ) );
 		}
 
 		if ( false !== strpos( $title, 'awaiting-mod' ) && preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches ) ) {
@@ -457,7 +457,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Finally remove the markup.
-			$title = trim( str_replace( $matches[0], '', $title ) );
+			$badge = isset( $matches[0] ) ? $matches[0] : '';
+			$title = trim( str_replace( $badge, '', $title ) );
 		}
 
 		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
