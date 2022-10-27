@@ -105,15 +105,15 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	 *
 	 * @dataProvider provideArrayTargetsNames
 	 *
-	 * @param Waf_Runtime                     $runtime                    The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
-	 * @param string                          $target_name                The modsecurity target name being tested (without the _NAMES), lowercase (examples: 'request_headers', 'tx', 'args', etc).
-	 * @param array{ 0: string, 1: scalar }[] $expected_names_and_values  Array of key/value tuples, where `key` is the name of one of the three mocked items, and `value` is its value.
-	 * @param string                          $second_name_regex          RegEx pattern that will match only the second item in the list.
+	 * @param Waf_Runtime $runtime            The Waf_Runtime instance to use for the test (pre-loaded with items of mocked data).
+	 * @param string      $target_name        The modsecurity target name being tested, lowercase (examples: 'request_headers_names', 'args_names', etc).
+	 * @param string[]    $expected_names     Array of names that are expected to be found in the target.
+	 * @param string      $second_name_regex  RegEx pattern that will match only the second item in the list.
 	 */
-	public function testArrayTargetsNames( $runtime, $target_name, $expected_names_and_values, $second_name_regex ) {
-		$expected_count = count( $expected_names_and_values );
+	public function testArrayTargetsNames( $runtime, $target_name, $expected_names, $second_name_regex ) {
+		$expected_count = count( $expected_names );
 		$expected       = array();
-		foreach ( $expected_names_and_values as $i => list( $exp_name ) ) {
+		foreach ( $expected_names as $i => $exp_name ) {
 			$expected[] = array(
 				'name'   => "$i",
 				'value'  => $exp_name,
@@ -198,6 +198,12 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 			$names_v = $v;
 			// change the target name from args to args_names;
 			$names_v[1] .= '_names';
+			// change the expected values from a tuple of [name,value] to just an array of `name`
+			$expected = array();
+			foreach ( $names_v[2] as list( $expected_name ) ) {
+				$expected[] = $expected_name;
+			}
+			$names_v[2] = $expected;
 			yield $names_k => $names_v;
 		}
 	}
