@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Change the playback token handling to expire tokens after 24h.
