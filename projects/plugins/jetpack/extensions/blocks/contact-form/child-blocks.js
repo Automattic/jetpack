@@ -276,7 +276,6 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Phone Number Field', 'jetpack' ),
-			label: __( 'Phone', 'jetpack' ),
 			keywords: [
 				__( 'Phone', 'jetpack' ),
 				__( 'Cellular phone', 'jetpack' ),
