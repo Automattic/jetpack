@@ -1,7 +1,7 @@
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { Button, ResponsiveWrapper, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import styles from './styles.module.scss';
@@ -37,7 +37,7 @@ export default function MediaSection() {
 	const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
 	const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
 
-	const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
+	const ALLOWED_MEDIA_TYPES = useMemo( () => [ 'image/jpeg', 'image/png' ], [] );
 
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 
@@ -48,9 +48,18 @@ export default function MediaSection() {
 	const { mediaWidth, mediaHeight, mediaSourceUrl } = getMediaDetails( mediaObject );
 
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
-	const onUpdateMedia = useCallback( media => updateAttachedMedia( [ media.id ] ), [
-		updateAttachedMedia,
-	] );
+	const onUpdateMedia = useCallback(
+		media => {
+			// allowedTypes doesn't properly disallow uploaded media types.
+			// See: https://github.com/WordPress/gutenberg/issues/25130
+			if ( ! ALLOWED_MEDIA_TYPES.includes( media.mime ) ) {
+				return;
+			}
+
+			updateAttachedMedia( [ media.id ] );
+		},
+		[ ALLOWED_MEDIA_TYPES, updateAttachedMedia ]
+	);
 
 	const setMediaRender = useCallback(
 		( { open } ) => (
