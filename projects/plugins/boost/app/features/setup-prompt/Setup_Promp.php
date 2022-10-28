@@ -5,6 +5,7 @@
 
 namespace Automattic\Jetpack_Boost\Features\Setup_Prompt;
 
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 
 class Setup_Prompt implements Has_Setup {
@@ -21,6 +22,10 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	public function load_banner() {
+		if ( ! Config::is_getting_started() ) {
+			return;
+		}
+
 		add_action( 'admin_notices', array( $this, 'connection_prompt' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_footer', array( $this, 'add_dismiss_script' ) );
