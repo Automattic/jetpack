@@ -63,7 +63,7 @@ class Block_Editor_Extensions {
 	/**
 	 * Enqueues the jwt bridge script.
 	 */
-	public static function enqueue_extenions() {
+	public static function enqueue_extensions() {
 		self::enqueue_script();
 
 		$videopress_extensions_file        = __DIR__ . '/client/block-editor/extensions/index.json';
