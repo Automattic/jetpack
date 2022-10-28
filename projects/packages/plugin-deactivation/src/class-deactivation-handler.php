@@ -29,13 +29,6 @@ class Deactivation_Handler {
 	private $plugin;
 
 	/**
-	 * Feedback form url to redicret to, on deactivation.
-	 *
-	 * @var string
-	 */
-	private $feedback_url;
-
-	/**
 	 * Path to a PHP file that will be used as a template for the deactivation dialog.
 	 *
 	 * Copy ./dialog-template.php to your plugin and modify it to suit your needs.
