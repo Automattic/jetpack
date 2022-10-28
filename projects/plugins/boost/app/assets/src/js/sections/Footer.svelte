@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import AutomatticLogo from '../svg/automattic.svg';
 	import JetpackIcon from '../svg/jetpack.svg';

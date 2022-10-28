@@ -7,6 +7,49 @@
 
 new WPCOM_JSON_API_Add_Widgets_Endpoint(
 	array(
+		'description'          => 'Activate a group of widgets on a site. The bulk version of using the /new endpoint',
+		'group'                => '__do_not_document',
+		'stat'                 => 'widgets:new:bulk',
+		'force'                => 'wpcom',
+		'method'               => 'POST',
+		'min_version'          => '1.1',
+		'path'                 => '/sites/%s/widgets',
+		'path_labels'          => array(
+			'$site' => '(string) Site ID or domain.',
+		),
+		'request_format'       => array(
+			'widgets' => '(array:widget) An array of widget objects to add.',
+		),
+		'response_format'      => array(
+			'widgets' => '(array:widget) An array of widget objects added.',
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/12345678/widgets',
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+			'body'    => array(
+				'id_base'  => 'text',
+				'sidebar'  => 'sidebar-2',
+				'position' => '0',
+				'settings' => array( 'title' => 'hello world' ),
+			),
+		),
+		'example_response'     => '
+	{
+		"id": "text-3",
+		"id_base": "text",
+		"settings": {
+			"title": "hello world"
+		},
+		"sidebar": "sidebar-2",
+		"position": 0
+	}',
+	)
+);
+
+new WPCOM_JSON_API_Add_Widgets_Endpoint(
+	array(
 		'description'          => 'Activate a widget on a site.',
 		'group'                => 'sites',
 		'stat'                 => 'widgets:new',
