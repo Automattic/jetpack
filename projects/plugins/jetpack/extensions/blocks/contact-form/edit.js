@@ -33,6 +33,8 @@ import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
 	'core/audio',
+	'core/columns',
+	'core/group',
 	'core/heading',
 	'core/image',
 	'core/list',

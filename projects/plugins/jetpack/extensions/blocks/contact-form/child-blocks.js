@@ -1,6 +1,8 @@
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Circle, Path } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { Fragment, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
@@ -12,7 +14,7 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 
 const FieldDefaults = {
 	category: 'contact-form-fields',
-	parent: [ 'jetpack/contact-form' ],
+	// parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,
 		html: false,
@@ -126,6 +128,19 @@ const getFieldLabel = ( { attributes, name: blockName } ) => {
 };
 
 const editField = type => props => {
+	const parents = useSelect( select => {
+		return select( blockEditorStore ).getBlockParentsByBlockName(
+			props.clientId,
+			'jetpack/contact-form'
+		);
+	} );
+	useEffect( () => {
+		// eslint-disable-next-line
+		console.log( parents );
+		// eslint-disable-next-line
+		console.log( props.clientId );
+	}, [ props.clientId, parents ] );
+
 	return (
 		<JetpackField
 			type={ type }
