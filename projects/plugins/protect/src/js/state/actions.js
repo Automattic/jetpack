@@ -27,6 +27,13 @@ const startScanOptimistically = () => {
 	return { type: START_SCAN_OPTIMISTICALLY };
 };
 
+const refreshPlan = () => ( { dispatch } ) => {
+	apiFetch( {
+		path: 'jetpack-protect/v1/plan',
+		method: 'GET',
+	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
+};
+
 /**
  * Side effect action which will fetch the status from the server
  *
@@ -318,6 +325,7 @@ const actions = {
 	fixThreats,
 	scan,
 	setThreatsAreFixing,
+	refreshPlan,
 };
 
 export {
