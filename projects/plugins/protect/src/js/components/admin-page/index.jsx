@@ -97,7 +97,7 @@ const useCredentials = () => {
 	const credentials = useSelect( select => select( STORE_ID ).getCredentials() );
 
 	useEffect( () => {
-		if ( ! credentials.length ) {
+		if ( ! credentials ) {
 			checkCredentials();
 		}
 	}, [ checkCredentials, credentials ] );

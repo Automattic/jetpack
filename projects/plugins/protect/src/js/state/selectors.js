@@ -1,5 +1,5 @@
 const selectors = {
-	getCredentials: state => state.credentials || [],
+	getCredentials: state => state.credentials || null,
 	getCredentialsIsFetching: state => state.credentialsIsFetching || false,
 	getInstalledPlugins: state => state.installedPlugins || {},
 	getInstalledThemes: state => state.installedThemes || {},
