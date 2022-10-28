@@ -313,7 +313,7 @@ export const childBlocks = [
 			),
 			edit: props => (
 				<JetpackFieldTextarea
-					label={ getFieldLabel( props ) }
+					label={ props.attributes.label }
 					required={ props.attributes.required }
 					setAttributes={ props.setAttributes }
 					isSelected={ props.isSelected }
@@ -327,7 +327,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Multi-line Text',
+					default: '',
 				},
 			},
 		},
