@@ -43,7 +43,7 @@
 
 	.link {
 		--gray-70: #3C434A !important;
-		margin-bottom:28px;
+		margin-bottom: calc( var( --spacing-base ) * 3 );
 		font-size: 14px;
 		color: var(--gray-70);
 		display: flex;
