@@ -13,12 +13,14 @@ class Setup_Prompt implements Has_Setup {
 	const OPTION_KEY   = 'jb_setup_banner_dismissed';
 	const AJAX_ACTION  = 'jb_dismiss_setup_banner';
 
-	public function __construct() {
+	public function setup() {
 		// The ajax endpoint may not trigger the setup_trigger hook, so we need to add it here.
 		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( $this, 'dismiss_setup_banner' ) );
+
+		add_action( 'load-plugins.php', array( $this, 'load_banner' ) );
 	}
 
-	public function setup() {
+	public function load_banner() {
 		add_action( 'admin_notices', array( $this, 'connection_prompt' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_footer', array( $this, 'add_dismiss_script' ) );
@@ -32,7 +34,7 @@ class Setup_Prompt implements Has_Setup {
 	 * Get the action hoot that defines when to setup the prompt.
 	 */
 	public function setup_trigger() {
-		return 'load-plugins.php';
+		return 'admin_init';
 	}
 
 	public function connection_prompt() {
