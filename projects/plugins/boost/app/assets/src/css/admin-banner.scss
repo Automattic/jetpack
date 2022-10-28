@@ -1,5 +1,7 @@
+@import 'main/variables';
+
 .jb-setup-banner {
-    border: 1px solid #d5d5d5;
+    border: 1px solid $gray_5;
     box-shadow: 0 2px 6px rgb(0 0 0 / 3%), 0 1px 2px rgb(0 0 0 / 3%);
     display: block;
     margin: 3rem 1.25rem 1.25rem 0;
@@ -8,7 +10,7 @@
 
     &__content-top-text {
         align-items: baseline;
-        background-color: #069e08;
+        background-color: $jetpack-green;
         color: #fff;
         display: flex;
         padding: 1rem 2.25rem 1.5rem 1rem;
@@ -95,9 +97,15 @@
         transition: all .15s ease-in-out;
         vertical-align: top;
 
+        &:hover {
+            color: #fff;
+            background-color: $gray_80;
+        }
+
         &:focus {
+            color: #fff;
             box-shadow: none;
-            outline: solid 1px var(--jp-black);
+            outline: solid 1px $primary-black;
             outline-offset: 1px;
         }
     }
@@ -110,7 +118,6 @@
         margin: 0;
         padding: 9px;
         background: 0 0;
-        color: #787c82;
         cursor: pointer;
 
         &::before {
