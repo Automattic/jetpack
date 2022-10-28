@@ -16,13 +16,15 @@
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
-add_action( 'the_content', 'maybe_get_locked_content' );
 
 /**
  * Loads the Subscriptions module.
  */
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
+	if ( Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
+		add_action( 'the_content', 'maybe_get_locked_content' );
+	}
 }
 
 /**
