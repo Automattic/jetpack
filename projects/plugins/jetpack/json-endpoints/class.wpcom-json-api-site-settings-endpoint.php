@@ -869,6 +869,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
+				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
