@@ -2,7 +2,7 @@
 	"private": true,
 	"name": "@automattic/jetpack-plugin-deactivation",
 	"version": "0.1.0-alpha",
-	"description": "Ask for feedback while deactivating a plugin",
+	"description": "Intercept plugin deactivation with a dialog",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plugin-deactivation/#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Package] Plugin Deactivation"
