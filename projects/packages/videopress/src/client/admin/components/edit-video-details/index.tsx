@@ -170,6 +170,7 @@ const EditVideoDetails = () => {
 		setTitle,
 		setDescription,
 		setCaption,
+		processing,
 		// Poster Image
 		useVideoAsThumbnail,
 		selectedTime,
@@ -259,6 +260,7 @@ const EditVideoDetails = () => {
 								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
 								duration={ duration }
 								editable
+								processing={ processing }
 								onSelectFromVideo={ handleOpenSelectFrame }
 								onUploadImage={ selectPosterImageFromLibrary }
 							/>

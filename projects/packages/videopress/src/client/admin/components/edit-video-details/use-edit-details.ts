@@ -64,7 +64,7 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video, isFetching } = useVideo( Number( videoId ) );
+	const { data: video, isFetching, processing } = useVideo( Number( videoId ) );
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
@@ -182,6 +182,7 @@ export default () => {
 		selectPosterImageFromLibrary,
 		handleSaveChanges,
 		isFetching,
+		processing,
 		updating,
 		updated,
 		selectedTime,
