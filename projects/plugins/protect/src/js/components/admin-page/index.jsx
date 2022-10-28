@@ -1,3 +1,4 @@
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -169,6 +170,12 @@ const ProtectAdminPage = () => {
 
 	// When there's no information yet. Usually when the plugin was just activated
 	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
+		const { currentProgress } = status;
+		const heading =
+			currentProgress === 0
+				? __( 'Preparing to scan…', 'jetpack-protect' )
+				: __( 'Scannning your site…', 'jetpack-protect' );
+
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
@@ -194,10 +201,21 @@ const ProtectAdminPage = () => {
 												marginLeft: 0,
 											} }
 										/>
-										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
+										<span>{ heading }</span>
 									</Col>
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
+										{ currentProgress >= 0 && (
+											<div className={ styles.progress }>
+												<ProgressBar
+													className={ styles[ 'progress-bar' ] }
+													value={ currentProgress }
+													total={ 100 }
+													color="#069E08"
+												/>
+												<p className={ styles[ 'progress-bar-percent' ] }>{ currentProgress }%</p>
+											</div>
+										) }
 										<Text>
 											{ __(
 												'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',

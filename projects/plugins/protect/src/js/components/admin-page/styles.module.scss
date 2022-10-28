@@ -44,3 +44,17 @@
 .connection-error-col {
 	margin-top: 25px;
 }
+
+.progress {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: calc( var( --spacing-base ) * 3 );
+}
+
+.progress-bar-percent {
+	font-weight: 600;
+	line-height: 24px;
+	color: #23282d;
+	margin-left: auto;
+}

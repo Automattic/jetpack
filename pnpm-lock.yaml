@@ -1659,6 +1659,7 @@ importers:
 
   projects/plugins/protect:
     specifiers:
+      '@automattic/components': 2.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.24
@@ -1688,6 +1689,7 @@ importers:
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/components': 2.0.1_a3k5oznvmzyijbc2qxjrnm7rry
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -2176,10 +2178,10 @@ packages:
       '@automattic/typography': 1.0.0
       '@wordpress/base-styles': 4.10.0
       '@wordpress/data': 7.3.0_react@17.0.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       gridicons: 3.4.0_react@17.0.2
       lodash: 4.17.21
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-modal: 3.15.1_sfoxds7t5ydpegc3knd667wn6m
@@ -17970,7 +17972,7 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     dependencies:
       exenv: 1.2.2
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-lifecycles-compat: 3.0.4

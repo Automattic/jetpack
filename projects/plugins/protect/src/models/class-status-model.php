@@ -96,6 +96,13 @@ class Status_Model {
 	public $has_unchecked_items;
 
 	/**
+	 * The estimated percentage of the current scan.
+	 *
+	 * @var int
+	 */
+	public $current_progress;
+
+	/**
 	 * Whether there was an error loading the status.
 	 *
 	 * @var bool
