@@ -3675,7 +3675,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$custom_redirect = false;
 		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
 			$custom_redirect = true;
-			$redirect        = esc_url( $this->get_attribute( 'customThankyouRedirect' ) );
+			$redirect        = esc_url_raw( $this->get_attribute( 'customThankyouRedirect' ) );
 		}
 
 		if ( ! $redirect ) {
