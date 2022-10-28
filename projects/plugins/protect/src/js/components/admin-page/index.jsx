@@ -107,6 +107,7 @@ const useCredentials = () => {
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const status = useSelect( select => select( STORE_ID ).getStatus() );
 	useCredentials();
 
 	let currentScanStatus;
@@ -168,7 +169,7 @@ const ProtectAdminPage = () => {
 	}
 
 	// When there's no information yet. Usually when the plugin was just activated
-	if ( ! lastChecked ) {
+	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
