@@ -48,24 +48,21 @@ class Deactivation_Handler {
 	 * Constructor.
 	 *
 	 * @param string $plugin       Slug of the plugin to intercept deactivation for.
-	 * @param string $feedback_url Feedback form url to redicret to, on deactivation.
 	 * @param string $dialog_view  Path to a PHP file that will be used as a template for the deactivation dialog.
 	 */
-	public function __construct( $plugin, $feedback_url, $dialog_view ) {
-		$this->plugin       = $plugin;
-		$this->feedback_url = $feedback_url;
-		$this->dialog_view  = $dialog_view;
+	public function __construct( $plugin, $dialog_view ) {
+		$this->plugin      = $plugin;
+		$this->dialog_view = $dialog_view;
 	}
 
 	/**
 	 * Instantiates the deactivation handler to intercept the deactivation of plugins.
 	 *
 	 * @param string $plugin       Slug of the plugin to intercept deactivation for.
-	 * @param string $feedback_url Feedback form url to redicret to, on deactivation.
 	 * @param string $dialog_view  Path to a PHP file that will be used as a template for the deactivation dialog.
 	 */
-	public static function init( $plugin, $feedback_url, $dialog_view ) {
-		$instance = new self( $plugin, $feedback_url, $dialog_view );
+	public static function init( $plugin, $dialog_view ) {
+		$instance = new self( $plugin, $dialog_view );
 
 		if ( ! file_exists( $instance->dialog_view ) ) {
 			wp_die( 'The plugin deactivation dialog view file does not exist.' );
@@ -108,7 +105,7 @@ class Deactivation_Handler {
 			</div>
 			<div class="jp-plugin-deactivation__overlay" onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"></div>
 		</div>
-		<script>new JetpackPluginDeactivation( decodeURIComponent( '<?php echo rawurlencode( $this->plugin ); ?>' ), <?php echo wp_json_encode( $this->feedback_url ); ?> );</script>
+		<script>new JetpackPluginDeactivation( decodeURIComponent( '<?php echo rawurlencode( $this->plugin ); ?>' ) );</script>
 		<?php
 	}
 }

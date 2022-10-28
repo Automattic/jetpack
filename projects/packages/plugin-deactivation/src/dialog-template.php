@@ -27,12 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		type="button"
 		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
 		onclick="dispatchEvent(JetpackPluginDeactivation.events.deactivate)"
-	><?php esc_html_e( 'Just Deactivate', 'jetpack-plugin-deactivation' ); ?></button>
-	<button 
-		type="button"
-		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.deactivateWithFeedback)"
-	><?php esc_html_e( 'Deactivate & Give Feedback', 'jetpack-plugin-deactivation' ); ?></button>
+	><?php esc_html_e( 'Deactivate', 'jetpack-plugin-deactivation' ); ?></button>
 </footer>
 
 <style>

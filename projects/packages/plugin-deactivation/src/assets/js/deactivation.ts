@@ -11,17 +11,10 @@ class JetpackPluginDeactivation {
 
 	static events = {
 		close: new Event( JetpackPluginDeactivation.CLOSE_EVENT, { bubbles: true } ),
-		deactivate: new CustomEvent( JetpackPluginDeactivation.DEACTIVATE_EVENT, {
-			bubbles: true,
-			detail: { feedback: false },
-		} ),
-		deactivateWithFeedback: new CustomEvent( JetpackPluginDeactivation.DEACTIVATE_EVENT, {
-			bubbles: true,
-			detail: { feedback: true },
-		} ),
+		deactivate: new Event( JetpackPluginDeactivation.DEACTIVATE_EVENT, { bubbles: true } ),
 	};
 
-	constructor( private pluginSlug: string, private feedbackUrl: string ) {
+	constructor( private pluginSlug: string ) {
 		this.deactivateButton = document.getElementById(
 			`deactivate-${ this.pluginSlug }`
 		) as HTMLAnchorElement;
@@ -51,19 +44,16 @@ class JetpackPluginDeactivation {
 
 	attachEventListeners() {
 		this.dialog.addEventListener( JetpackPluginDeactivation.CLOSE_EVENT, () => this.hideDialog() );
-		this.dialog.addEventListener( JetpackPluginDeactivation.DEACTIVATE_EVENT, event =>
-			this.deactivate( event )
+		this.dialog.addEventListener( JetpackPluginDeactivation.DEACTIVATE_EVENT, () =>
+			this.deactivate()
 		);
 	}
 
-	deactivate( event ) {
+	deactivate() {
 		if ( ! this.deactivateButton ) {
 			return;
 		}
 
-		if ( event.detail.feedback ) {
-			window.open( this.feedbackUrl, '_blank' );
-		}
 		window.location.href = this.deactivateButton.href;
 		this.hideDialog();
 	}

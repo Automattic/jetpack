@@ -108,7 +108,7 @@ class Jetpack_Boost {
 
 		My_Jetpack_Initializer::init();
 
-		Deactivation_Handler::init( $this->plugin_name, 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback', __DIR__ . '/admin/deactivation-dialog.php' );
+		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 	}
 
 	/**

@@ -23,9 +23,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<button 
 		type="button"
 		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.deactivateWithFeedback)"
+		onclick="jpBoostDeactivateWithFeedback()"
 	><?php esc_html_e( 'Deactivate & Give Feedback', 'jetpack-boost' ); ?></button>
 </footer>
+
+<script>
+	function jpBoostDeactivateWithFeedback() {
+		window.open( 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback', '_blank' );
+		dispatchEvent(JetpackPluginDeactivation.events.deactivate);
+	}
+</script>
 
 <style>
 	#jp-plugin-deactivation-jetpack-boost p.big {
