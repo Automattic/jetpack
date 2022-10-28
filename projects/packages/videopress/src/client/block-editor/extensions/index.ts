@@ -16,7 +16,7 @@ debug( 'Extensions: %o', extensions );
  * @param {string} extension - The extension to check.
  * @returns {boolean} - Whether the extension is enabled.
  */
-export function isEstensionEnabled( extension: string ) {
+export function isExtensionEnabled( extension: string ) {
 	const vpExtension = extensions.find( ( ext: VideoPressExtensionProp ) => ext.name === extension );
 	return !! vpExtension?.isEnabled;
 }
