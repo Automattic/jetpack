@@ -21,9 +21,14 @@ domReady( function () {
 			}
 			event.preventDefault();
 			const url =
-				'https://subscribe.wordpress.com/memberships/?blog=' +
+				'https://subscribe.wordpress.com/memberships/?' +
+				'blog=' +
 				form.dataset.blog +
-				'&plan=newsletter&source=jetpack_subscribe&display=alternate&email=' +
+				'&plan=newsletter' +
+				'&source=' +
+				form.dataset.post_access_level +
+				'&display=alternate&' +
+				'email=' +
 				encodeURIComponent( email );
 			window.scrollTo( 0, 0 );
 			tb_show( null, url + '&TB_iframe=true', null );
