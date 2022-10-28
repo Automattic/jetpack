@@ -56,36 +56,39 @@ export default function SubscribePanels() {
 	return (
 		<>
 			{ isNewsletterFeatureEnabled() && (
-				<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
-					<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
-				</PluginDocumentSettingPanel>
-			) }
-			<PluginPrePublishPanel
-				className="jetpack-subscribe-pre-publish-panel"
-				initialOpen
-				title={ __( 'Newsletter', 'jetpack' ) }
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-			>
-				{ showNotices && (
-					<InspectorNotice>
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: %s is the number of subscribers */
-								_n(
-									'This post will be sent to <span>%s reader</span>',
-									'This post will be sent to <span>%s readers</span>',
-									subscriberCount,
-									'jetpack'
-								),
-								numberFormat( subscriberCount )
-							),
-							{ span: <span className="jetpack-subscribe-reader-count" /> }
-						) }
-					</InspectorNotice>
-				) }
+				<>
+					<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
+						<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+					</PluginDocumentSettingPanel>
 
-				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
-			</PluginPrePublishPanel>
+					<PluginPrePublishPanel
+						className="jetpack-subscribe-pre-publish-panel"
+						initialOpen
+						title={ __( 'Newsletter', 'jetpack' ) }
+						icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+					>
+						{ showNotices && (
+							<InspectorNotice>
+								{ createInterpolateElement(
+									sprintf(
+										/* translators: %s is the number of subscribers */
+										_n(
+											'This post will be sent to <span>%s reader</span>',
+											'This post will be sent to <span>%s readers</span>',
+											subscriberCount,
+											'jetpack'
+										),
+										numberFormat( subscriberCount )
+									),
+									{ span: <span className="jetpack-subscribe-reader-count" /> }
+								) }
+							</InspectorNotice>
+						) }
+
+						<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+					</PluginPrePublishPanel>
+				</>
+			) }
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
 				{ showNotices && (
 					<InspectorNotice>
