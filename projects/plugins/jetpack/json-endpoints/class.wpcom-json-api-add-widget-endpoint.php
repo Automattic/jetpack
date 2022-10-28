@@ -105,7 +105,6 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
-	 * @uses jetpack_require_lib
 	 * @uses Jetpack_Widgets
 	 *
 	 * @return array|WP_Error
@@ -121,7 +120,7 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'User is not authorized to access widgets', 403 );
 		}
 
-		jetpack_require_lib( 'widgets' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/widgets.php';
 		$args = $this->input( false, false ); // Don't filter the input.
 		if ( empty( $args ) || ! is_array( $args ) ) {
 			return new WP_Error( 'no_data', 'No data was provided.', 400 );
