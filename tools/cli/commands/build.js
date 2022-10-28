@@ -874,9 +874,11 @@ async function buildProject( t ) {
 	} );
 
 	rl.on( 'line', line => {
-		if ( line.startsWith( '## ' ) ) {
-			projectVersionNumber = line;
+		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
+		if ( match && match[ 1 ] ) {
+			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
 			rl.close();
+			rl.removeAllListeners();
 		}
 	} );
 	await once( rl, 'close' );
