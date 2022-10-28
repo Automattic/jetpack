@@ -770,42 +770,41 @@ async function buildProject( t ) {
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
-	}
 
-	// Update dependency version numbers in composer.json.
-	const composerDepTyes = [ 'require', 'require-dev' ];
-	for ( const key of composerDepTyes ) {
-		if ( composerJson[ key ] ) {
-			for ( const [ pkg ] of Object.entries( composerJson[ key ] ) ) {
-				for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
-					if ( ctxPkg.name === pkg ) {
-						let massagedVer = ctxPkg.version;
+		// Update dependency version numbers in composer.json.
+		const composerDepTyes = [ 'require', 'require-dev' ];
+		for ( const key of composerDepTyes ) {
+			if ( composerJson[ key ] ) {
+				for ( const [ pkg ] of Object.entries( composerJson[ key ] ) ) {
+					for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+						if ( ctxPkg.name === pkg ) {
+							let massagedVer = ctxPkg.version;
 
-						// Truncate non-0.x 'require' package versions to be two components only.
-						if (
-							key === 'require' &&
-							t.project.startsWith( 'packages/' && massagedVer[ 0 ] !== '0' )
-						) {
-							massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
+							// Truncate non-0.x 'require' package versions to be two components only.
+							if (
+								key === 'require' &&
+								t.project.startsWith( 'packages/' && massagedVer[ 0 ] !== '0' )
+							) {
+								massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
+							}
+
+							// Prefix versions with '^'.
+							massagedVer = `^${ massagedVer }`;
+
+							composerJson[ key ][ pkg ] = massagedVer;
+							break;
 						}
-
-						// Prefix versions with '^'.
-						massagedVer = `^${ massagedVer }`;
-
-						composerJson[ key ][ pkg ] = massagedVer;
-						break;
 					}
 				}
 			}
 		}
-	}
 
-	// Write updated composer.json file data.
-	await writeFileAtomic(
-		`${ buildDir }/composer.json`,
-		JSON.stringify( composerJson, null, '\t' ) + '\n',
-		{ encoding: 'utf8' }
-	);
+		await writeFileAtomic(
+			`${ buildDir }/composer.json`,
+			JSON.stringify( composerJson, null, '\t' ) + '\n',
+			{ encoding: 'utf8' }
+		);
+	}
 
 	// Remove engines and workspace refs from package.json.
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
