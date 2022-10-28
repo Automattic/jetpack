@@ -4,10 +4,10 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
-import { isExtensionEnabled } from '../../extensions';
 /**
  * Internal dependencies
  */
+import { isExtensionEnabled } from '../../extensions';
 import DetailsControl from './components/details-control';
 import useVideoItem from './hooks/use-video-item';
 import { useSyncMedia } from './hooks/use-video-item-update';
