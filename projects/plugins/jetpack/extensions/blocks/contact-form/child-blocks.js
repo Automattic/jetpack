@@ -165,6 +165,13 @@ export const childBlocks = [
 				<Path fill={ getIconColor() } d="M4 9h16v2H4V9zm0 4h10v2H4v-2z" />
 			),
 			edit: editField( 'text' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Text',
+				},
+			},
 		},
 	},
 	{
@@ -183,6 +190,13 @@ export const childBlocks = [
 				/>
 			),
 			edit: editField( 'text' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Name',
+				},
+			},
 		},
 	},
 	{
@@ -199,9 +213,15 @@ export const childBlocks = [
 				/>
 			),
 			edit: editField( 'email' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Email',
+				},
+			},
 		},
 	},
-
 	{
 		name: 'field-url',
 		settings: {
@@ -216,9 +236,15 @@ export const childBlocks = [
 				/>
 			),
 			edit: editField( 'url' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'URL',
+				},
+			},
 		},
 	},
-
 	{
 		name: 'field-date',
 		settings: {
@@ -236,6 +262,13 @@ export const childBlocks = [
 				/>
 			),
 			edit: editField( 'text' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Date',
+				},
+			},
 		},
 	},
 	{
@@ -243,6 +276,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Phone Number Field', 'jetpack' ),
+			label: __( 'Phone', 'jetpack' ),
 			keywords: [
 				__( 'Phone', 'jetpack' ),
 				__( 'Cellular phone', 'jetpack' ),
@@ -256,6 +290,13 @@ export const childBlocks = [
 				/>
 			),
 			edit: editField( 'tel' ),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Phone',
+				},
+			},
 		},
 	},
 	{
@@ -283,6 +324,13 @@ export const childBlocks = [
 					width={ props.attributes.width }
 				/>
 			),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Multi-line Text',
+				},
+			},
 		},
 	},
 	{
@@ -396,7 +444,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Choose several',
+					default: 'Choose several options',
 				},
 			},
 		},
@@ -425,7 +473,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Choose one',
+					default: 'Choose one option',
 				},
 			},
 		},
@@ -449,7 +497,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: 'Select one',
+					default: 'Select one option',
 				},
 			},
 		},
