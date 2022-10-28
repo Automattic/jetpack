@@ -75,6 +75,9 @@ class Main {
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 
 		XMLRPC_Provider::init();
+		// These shouldn't be initialized with the main API, just to be easier for the PoC.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+		( new Dashboard() )->init_hooks();
 	}
 
 	/**
