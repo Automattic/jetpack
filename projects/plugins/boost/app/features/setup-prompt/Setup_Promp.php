@@ -9,12 +9,13 @@ use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 
 class Setup_Prompt implements Has_Setup {
 
-	public static $nonce_action     = 'jetpack_boost_setup_banner';
-	public static $dismissed_option = 'jb_setup_banner_dismissed';
+	const NONCE_ACTION = 'jetpack_boost_setup_banner';
+	const OPTION_KEY   = 'jb_setup_banner_dismissed';
+	const AJAX_ACTION  = 'jb_dismiss_setup_banner';
 
 	public function __construct() {
 		// The ajax endpoint may not trigger the setup_trigger hook, so we need to add it here.
-		add_action( 'wp_ajax_dismiss_setup_banner', array( $this, 'dismiss_setup_banner' ) );
+		add_action( 'wp_ajax_' . self::AJAX_ACTION, array( $this, 'dismiss_setup_banner' ) );
 	}
 
 	public function setup() {
@@ -47,13 +48,13 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	private function is_showing_setup_banner() {
-		return get_option( self::$dismissed_option, true );
+		return get_option( self::OPTION_KEY, true );
 	}
 
 	// hides the boost promo banner on dismiss
 	public function dismiss_setup_banner() {
-		check_ajax_referer( self::$nonce_action, 'nonce' );
-		update_option( self::$dismissed_option, 0, 'no' );
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		update_option( self::OPTION_KEY, 0, 'no' );
 		exit();
 	}
 }
