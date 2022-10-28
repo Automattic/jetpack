@@ -1,90 +1,128 @@
-.boost-banner {
-    margin: 50px 1.25rem 1.25rem 0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+.jb-setup-banner {
     border: 1px solid #d5d5d5;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 3%), 0 1px 2px rgb(0 0 0 / 3%);
+    display: block;
+    margin: 3rem 1.25rem 1.25rem 0;
     position: relative;
-}
-.boost-banner h1{
-    line-height:30px;
-}
-.boost-banner-inner {
-    display: flex;
-    grid-template-columns: minmax(auto, 750px) 500px;
-    justify-content: space-between;
-    min-height: 300px;
-    background: #fff;
     overflow: hidden;
-}
 
-.boost-banner-content {
-    display: inline-flex;
-    flex-direction: column;
-    padding: 2rem 3rem 2rem 2rem;
-    text-align: left;
-}
+    &__content-top-text {
+        align-items: baseline;
+        background-color: #069e08;
+        color: #fff;
+        display: flex;
+        padding: 1rem 2.25rem 1.5rem 1rem;
+        width: 100%;
 
-.boost-banner-image-container {
-    position: relative;
-    background-image: url( '../static/images/jetpack-colors.svg' );
-    background-size: cover;
-    max-width: 40%;
-    overflow: hidden;
-}
+        svg {
+            height: 24px;
+            margin-right: 0.625rem;
+            position: relative;
+            top: 7px;
+            width: 24px;
+            color: white;
+            fill: white;
+        }
+    }
 
-.boost-banner-image-container img {
-    position: relative;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-}
+    &__inner {
+        display: flex;
+        grid-template-columns: minmax(auto, 750px) 500px;
+        justify-content: space-between;
+        min-height: 300px;
+        background: #fff;
+        overflow: hidden;
+    }
 
-.boost-banner p {
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 1rem 0 2rem;
-}
+    &__logo {
+        width: 180px;
+        margin: 0 0 1.25rem;
+    }
+    
+    &__content {
+        display: inline-flex;
+        flex-direction: column;
+        padding: 2rem 3rem 2rem 2rem;
+        text-align: left;
+        align-items: flex-start;
+        max-width: 750px;
+    }
 
-.boost-banner .boost-dismiss {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: white;
-    cursor:pointer;
-}
+    &__title {
+        font-size: 1.8rem;
+        margin: 0 0 2rem;
+        line-height: 2.1rem;
+    }
 
-.boost-banner .button-primary {
-    background: black;
-    border-color: black;
-    color: #fff;
-    width: fit-content;
-    padding: 0.4rem 1rem;
-    font-size: 16px;
-}
+    &__image-container {
+        position: relative;
+        background-image: url( '../static/images/jetpack-colors.svg' );
+        background-size: cover;
+        max-width: 40%;
+        overflow: hidden;
+    }
+    
+    &__image-container img {
+        position: relative;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+    }
+    
+    &__text {
+        font-size: 1rem;
+        line-height: 1.5;
+        margin: 1rem 0 2rem;
+    }
 
-.boost-banner .button-primary:hover {
-    background-color: #333;
-}
+    &__cta-button {
+        background: #000;
+        border: 1px solid #000;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: #fff;
+        cursor: pointer;
+        display: inline-block;
+        font-size: .875rem;
+        font-weight: 600;
+        margin: 0;
+        outline: 0;
+        overflow: hidden;
+        padding: 0.625rem 1.5rem;
+        text-decoration: none;
+        text-overflow: ellipsis;
+        transition: all .15s ease-in-out;
+        vertical-align: top;
 
-.boost-banner .button-primary:visited {
-    background-color: black;
-    border-color: black;
-}
-.boost-banner .boost-almost-done{
-    align-items: baseline;
-    background-color: #069e08;
-    color: #fff;
-    display: flex;
-    padding: 1rem 2.25rem 1.5rem 1rem;
-}
-.boost-almost-done  svg {
-    height: 24px;
-    margin-right: 0.625rem;
-    position: relative;
-    top: 7px;
-    width: 24px;
-    color:white;
-}
-.boost-almost-done  svg path{
-    fill:white;
+        &:focus {
+            box-shadow: none;
+            outline: solid 1px var(--jp-black);
+            outline-offset: 1px;
+        }
+    }
+
+    .notice-dismiss {
+        position: absolute;
+        top: 0;
+        right: 1px;
+        border: none;
+        margin: 0;
+        padding: 9px;
+        background: 0 0;
+        color: #787c82;
+        cursor: pointer;
+
+        &::before {
+            color: #fff;
+        }
+    }
+
+    @media (max-width: 1152px) {
+        margin: 4rem 1.25rem 1.25rem 0;
+
+        &__image-container {
+            display: none;
+        }
+    }
 }
