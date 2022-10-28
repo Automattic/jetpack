@@ -159,7 +159,7 @@ class Config {
 	 * @param bool   $enabled Enabled status.
 	 */
 	public function on_module_status_change( $module, $status ) {
-		if ( $status == 1 ) {
+		if ( $status ) {
 			self::set_getting_started( false );
 		}
 	}
@@ -177,7 +177,8 @@ class Config {
 	 * Check if force redirect to getting started page is enabled.
 	 */
 	public static function is_getting_started() {
-		return \get_option( 'jb_get_started', false );
+		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
+		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
 	}
 
 	/**
