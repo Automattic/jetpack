@@ -260,23 +260,10 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 			method: 'POST',
 		} )
 			.then( () => {
-				dispatch(
-					setNotice( {
-						type: 'success',
-						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
-					} )
-				);
-				setTimeout( () => {
-					dispatch( clearNotice() );
-				}, 1000 );
-			} )
-			.then( () => {
-				setTimeout( () => {
-					dispatch( startScanOptimistically() );
-				}, 2 * 1000 );
-				setTimeout( () => {
-					dispatch( refreshStatus( true ) );
-				}, 5 * 1000 );
+				dispatch( startScanOptimistically() );
+				// setTimeout( () => {
+				// 	dispatch( refreshStatus( true ) );
+				// }, 5 * 1000 );
 			} )
 			.catch( () => {
 				return dispatch(
