@@ -517,7 +517,10 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * @subcommand headstart-terms
 		 */
 		public function headstart_terms( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-			wpcomsh_apply_headstart_terms();
+			$results            = wpcomsh_apply_headstart_terms();
+			$missing_taxonomies = $results['missing_taxonomies'];
+			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_PRETTY_PRINT );
+			WP_CLI::log( $output );
 		}
 	}
 }

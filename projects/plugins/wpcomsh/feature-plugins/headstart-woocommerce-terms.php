@@ -10,6 +10,8 @@
 /**
  * Main function for applying all term and taxonomy information from
  * the current theme's headstart annotation.
+ *
+ * @return array $results An associative array. Key 'missing_taxonomies' has an array value: if there were terms in the annotation that could not be added because a taxonomy was missing on the site, the list of missing taxonomies. (An array of strings).
  */
 function wpcomsh_apply_headstart_terms() {
 	$theme           = wp_get_theme();
@@ -17,17 +19,20 @@ function wpcomsh_apply_headstart_terms() {
 	$locale          = get_locale();
 	$fallback_locale = 'en';
 
-	$annotation = wpcomsh_headstart_get_annotation( $theme_name, $locale, $fallback_locale );
+	$annotation         = wpcomsh_headstart_get_annotation( $theme_name, $locale, $fallback_locale );
+	$missing_taxonomies = array();
 
 	if ( false === $annotation ) {
 		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Could not find the headstart annotation for theme [$theme_name]. locale=[$locale] fallback_locale=[$fallback_locale]" );
-		return;
+		return $missing_taxonomies;
 	}
 
 	if ( ! empty( $annotation['custom_terms_by_taxonomy'] ) ) {
 		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Found custom_terms_by_taxonomy for [$theme], applying." );
-		$term_id_map = wpcomsh_apply_headstart_custom_terms( $annotation['custom_terms_by_taxonomy'] );
-		wpcomsh_headstart_log( compact( 'term_id_map' ) );
+		$custom_terms_return = wpcomsh_apply_headstart_custom_terms( $annotation['custom_terms_by_taxonomy'] );
+		$term_id_map         = $custom_terms_return['term_id_map'];
+		$missing_taxonomies  = $custom_terms_return['missing_taxonomies'];
+		wpcomsh_headstart_log( compact( 'term_id_map', 'missing_taxonomies' ) );
 		if ( ! empty( $annotation['custom_term_meta'] ) ) {
 			wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Found custom_terms_meta for [$theme], applying." );
 			wpcomsh_apply_headstart_custom_term_meta( $annotation['custom_term_meta'], $term_id_map );
@@ -39,6 +44,7 @@ function wpcomsh_apply_headstart_terms() {
 	} else {
 		wpcomsh_headstart_log( "wpcomsh_apply_headstart_terms: Found an annotation for [$theme], but not taking action since it did not contain custom_terms_by_taxonomy." );
 	}
+	return array( 'missing_taxonomies' => $missing_taxonomies );
 }
 
 /**
@@ -147,11 +153,13 @@ function wpcomsh_apply_headstart_custom_term_assignment( $post_id, $assignments 
  * @return array $term_id_map A mapping of "old" term_ids to "new" term_ids for any terms that were inserted or found.
  */
 function wpcomsh_apply_headstart_custom_terms( $custom_terms_by_taxonomy ) {
-	$term_id_map = array();
+	$term_id_map        = array();
+	$missing_taxonomies = array();
 
 	foreach ( $custom_terms_by_taxonomy as $taxonomy => $terms ) {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			wpcomsh_headstart_log( "Skipping taxonomy [$taxonomy] because it does not exist." );
+			$missing_taxonomies[] = $taxonomy;
 			continue;
 		}
 
@@ -208,7 +216,10 @@ function wpcomsh_apply_headstart_custom_terms( $custom_terms_by_taxonomy ) {
 			}
 		}
 	}
-	return $term_id_map;
+	return array(
+		'term_id_map'        => $term_id_map,
+		'missing_taxonomies' => $missing_taxonomies,
+	);
 }
 
 /**
