@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Classic Editor: Fixed the is_healthy logic that disabled the connections
