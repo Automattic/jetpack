@@ -172,10 +172,9 @@ const ProtectAdminPage = () => {
 	// When there's no information yet. Usually when the plugin was just activated
 	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
 		const { currentProgress } = status;
-		const heading =
-			currentProgress === 0
-				? __( 'Preparing to scan…', 'jetpack-protect' )
-				: __( 'Scannning your site…', 'jetpack-protect' );
+		const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
+		const scanning = __( 'Scannning your site…', 'jetpack-protect' );
+		const heading = currentProgress === 0 ? preparing : scanning;
 
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
