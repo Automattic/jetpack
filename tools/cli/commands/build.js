@@ -777,12 +777,15 @@ async function buildProject( t ) {
 	for ( const key of composerDepTyes ) {
 		if ( composerJson[ key ] ) {
 			for ( const [ pkg ] of Object.entries( composerJson[ key ] ) ) {
-				Object.values( t.ctx.versions ).find( ctxPkg => {
+				for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
 					if ( ctxPkg.name === pkg ) {
 						let massagedVer = ctxPkg.version;
 
-						// Truncate non-0.x versions to be two components only.
-						if ( massagedVer[ 0 ] !== '0' ) {
+						// Truncate non-0.x 'require' package versions to be two components only.
+						if (
+							key === 'require' &&
+							t.project.startsWith( 'packages/' && massagedVer[ 0 ] !== '0' )
+						) {
 							massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
 						}
 
@@ -790,8 +793,9 @@ async function buildProject( t ) {
 						massagedVer = `^${ massagedVer }`;
 
 						composerJson[ key ][ pkg ] = massagedVer;
+						break;
 					}
-				} );
+				}
 			}
 		}
 	}
