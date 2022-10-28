@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: Remove ConnectionErrorNotice component on dashboard when there is no connection issue

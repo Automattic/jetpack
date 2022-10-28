@@ -27,4 +27,8 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	formTitle: {
+		type: 'string',
+		default: '',
+	},
 };

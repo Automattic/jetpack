@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix broken `@covers` in tests, and reconfigure coverage directives to not scan ridiculous numbers of files.
