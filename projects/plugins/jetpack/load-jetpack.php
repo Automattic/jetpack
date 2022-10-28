@@ -70,12 +70,12 @@ Jetpack_XMLRPC_Methods::init();
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-status.php';
 Jetpack_Connection_Status::init();
 
-jetpack_require_lib( 'class-jetpack-recommendations' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-recommendations-banner.php';
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-	jetpack_require_lib( 'debugger' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 }
 
 // Play nice with https://wp-cli.org/.

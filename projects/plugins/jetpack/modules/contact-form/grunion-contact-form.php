@@ -4662,7 +4662,7 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 			$event_user    = get_userdata( $event_user_id );
 		}
 
-		jetpack_require_lib( 'tracks/client' );
+		require_lib( 'tracks/client' );
 		tracks_record_event( $event_user, $event_name, $event_props );
 	} else {
 		// If the form was sent by a logged out visitor, record event with Jetpack master user.
