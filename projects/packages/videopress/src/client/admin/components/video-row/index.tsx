@@ -125,9 +125,8 @@ export const VideoRow = ( {
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showActions =
 		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
-	const showBottom = ! isSmall || ( isSmall && expanded );
-
+	const showStats = ! loading && ( ( ! isSmall && ! showActions ) || ( isSmall && expanded ) );
+	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
 		! loading &&
@@ -215,7 +214,7 @@ export const VideoRow = ( {
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
-					[ styles.disabled ]: hoverDisabled,
+					[ styles.disabled ]: disabled,
 				},
 				className
 			) }
