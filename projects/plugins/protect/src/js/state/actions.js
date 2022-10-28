@@ -27,6 +27,13 @@ const startScanOptimistically = () => {
 	return { type: START_SCAN_OPTIMISTICALLY };
 };
 
+const refreshPlan = () => ( { dispatch } ) => {
+	apiFetch( {
+		path: 'jetpack-protect/v1/plan',
+		method: 'GET',
+	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
+};
+
 /**
  * Side effect action which will fetch the status from the server
  *
@@ -260,23 +267,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 			method: 'POST',
 		} )
 			.then( () => {
-				dispatch(
-					setNotice( {
-						type: 'success',
-						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
-					} )
-				);
-				setTimeout( () => {
-					dispatch( clearNotice() );
-				}, 1000 );
-			} )
-			.then( () => {
-				setTimeout( () => {
-					dispatch( startScanOptimistically() );
-				}, 2 * 1000 );
-				setTimeout( () => {
-					dispatch( refreshStatus( true ) );
-				}, 5 * 1000 );
+				dispatch( startScanOptimistically() );
 			} )
 			.catch( () => {
 				return dispatch(
@@ -334,6 +325,7 @@ const actions = {
 	fixThreats,
 	scan,
 	setThreatsAreFixing,
+	refreshPlan,
 };
 
 export {
