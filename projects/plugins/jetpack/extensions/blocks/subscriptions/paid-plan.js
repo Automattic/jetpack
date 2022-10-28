@@ -6,9 +6,13 @@ import GetAddPaidPlanButton from './utils';
 
 function PaidPlanPanel( { hasNewsletterPlans } ) {
 	const title = __( 'Paid Newsletter', 'jetpack' );
-	const text = hasNewsletterPlans
-		? __( 'Manage paid plan for readers to access your content.', 'jetpack' )
-		: __( 'Set up paid plan for readers to access your content.', 'jetpack' );
+	let text;
+	if ( hasNewsletterPlans ) {
+		// I am rewriting this from ternary operator since webpack optimization seems to change it from ( x ? __( 'a' ) : __( 'b' ) ) to ( __( x ? 'a' : 'b' ) ).
+		text = __( 'Manage paid plan for readers to access your content.', 'jetpack' );
+	} else {
+		text = __( 'Set up paid plan for readers to access your content.', 'jetpack' );
+	}
 
 	return (
 		<PanelBody title={ title } initialOpen={ true }>
