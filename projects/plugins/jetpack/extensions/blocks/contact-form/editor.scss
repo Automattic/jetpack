@@ -106,8 +106,13 @@
 	}
 
 	.form-placeholder__external-link {
-		padding-left: 0;
-		padding-right: 0;
+		font-size: 13px;
+
+		svg {
+			width: 1.4em;
+			height: 1.4em;
+			margin-left: 2px;
+		}
 	}
 }
 

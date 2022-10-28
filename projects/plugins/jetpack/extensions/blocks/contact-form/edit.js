@@ -10,6 +10,7 @@ import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
 	Button,
+	ExternalLink,
 	Flex,
 	Icon,
 	PanelBody,
@@ -23,7 +24,6 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { external } from '@wordpress/icons';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
 import { JetpackLogo, MailIcon, NewsletterIcon } from '../../shared/icons';
@@ -221,14 +221,12 @@ export function JetpackContactFormEdit( {
 					} }
 				/>
 				<Flex>
-					<Button className="form-placeholder__external-link" href={ CUSTOMIZING_FORMS_URL }>
+					<ExternalLink className="form-placeholder__external-link" href={ CUSTOMIZING_FORMS_URL }>
 						{ __( 'Learn more about customizing forms.', 'jetpack' ) }
-						<Icon icon={ external } size={ 20 } />
-					</Button>
-					<Button className="form-placeholder__external-link" href={ RESPONSES_PATH }>
+					</ExternalLink>
+					<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
 						{ __( 'View and export your form responses here.', 'jetpack' ) }
-						<Icon icon={ external } size={ 20 } />
-					</Button>
+					</ExternalLink>
 				</Flex>
 			</div>
 		);
