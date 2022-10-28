@@ -36,4 +36,10 @@
 	@media ( min-width: 600px ) {
 		margin: 0;
 	}
+
+	&.is-viewport-large {
+		&:first-of-type {
+			margin-right: calc( var( --spacing-base ) * 3 );
+		}
+	}
 }
