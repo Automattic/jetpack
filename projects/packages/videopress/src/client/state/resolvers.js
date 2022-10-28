@@ -49,7 +49,7 @@ async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
 
 	if ( playbackToken ) {
 		// let's set the expire time to 24h
-		const playbackTokenExpireTime = playbackToken.issueTime + 1000 * 60 * 60 * 24;
+		const playbackTokenExpireTime = Number( playbackToken.issueTime ) + 1000 * 60 * 60 * 24;
 		if ( playbackTokenExpireTime < Date.now() ) {
 			// expire the old one
 			await dispatch.expirePlaybackToken( video.guid );
