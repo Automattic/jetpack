@@ -25,7 +25,8 @@ domReady( function () {
 				'blog=' +
 				form.dataset.blog +
 				'&plan=newsletter' +
-				'&source=' +
+				'&source=jetpack_subscribe' +
+				'&post_access_level=' +
 				form.dataset.post_access_level +
 				'&display=alternate&' +
 				'email=' +
