@@ -44,7 +44,7 @@ class Block_Editor_Extensions {
 		}
 
 		// Register the script.
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_extenions' ), 1 );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_extensions' ), 1 );
 	}
 
 	/**
