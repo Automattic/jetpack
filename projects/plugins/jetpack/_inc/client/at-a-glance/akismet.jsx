@@ -102,7 +102,7 @@ class DashAkismet extends Component {
 			const description = createInterpolateElement(
 				__( 'Already have a key? <Link>Activate Akismet</Link>', 'jetpack' ),
 				{
-					Link: <Link to="#!" onClick={ this.activateVideoPress } />,
+					Link: <Link to="#!" onClick={ this.onActivateClick } />,
 				}
 			);
 
