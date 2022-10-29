@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from '../../../utils/url/index.js';
+import { getVideoPressUrl } from '../../../lib/url/index.js';
 
 /**
  * VideoPress block save function
