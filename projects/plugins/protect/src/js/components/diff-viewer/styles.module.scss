@@ -5,12 +5,12 @@
 
 .diff-viewer__filename {
 	padding: 4px 8px;
-	background-color: var( --jp-gray-10 );
+	background-color: var( --studio-gray-10 );
 	font-weight: 600;
 }
 
 .diff-viewer__file {
-	background-color: var( --jp-gray-0 );
+	background-color: var( --studio-gray-0 );
 	display: flex;
 	font-family: "Courier 10 Pitch", Courier, monospace;
 	flex-direction: row;
@@ -23,8 +23,8 @@
 	display: flex;
 	flex-direction: column;
 	text-align: right;
-	background-color: var( --jp-gray-10 );
-	color: var( --jp-gray-50 );
+	background-color: var( --studio-gray-10 );
+	color: var( --studio-gray-50 );
 }
 
 .diff-viewer__lines {
@@ -41,12 +41,12 @@
 	}
 
 	& del {
-		background-color: var( --jp-red-0 );
-		color: var( --jp-red-60 );
+		background-color: var( --studio-red-0 );
+		color: var( --studio-red-60 );
 	}
 
 	& ins {
-		background-color: var( --jp-green-5 );
-		color: var( --jp-green-60 );
+		background-color: var( --studio-jetpack-green-5 );
+		color: var( --studio-jetpack-green-60 );
 	}
 }

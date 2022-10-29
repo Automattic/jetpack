@@ -1,6 +1,6 @@
 .marked-lines {
 	padding: 0;
-	background-color: var( --jp-gray-0 );
+	background-color: var( --studio-gray-0 );
 	font-family: monospace;
 	display: flex;
 	flex-direction: row;
@@ -8,7 +8,7 @@
 }
 
 .marked-lines__marked-line {
-	background-color: var( --jp-red-0 );
+	background-color: var( --studio-red-0 );
 }
 
 .marked-lines__line-numbers {
@@ -19,12 +19,12 @@
 
 .marked-lines__line-number {
 	padding: 0 4px;
-	background-color: var( --jp-gray-10 );
+	background-color: var( --studio-gray-10 );
 	color: var( --font-body );
 
 	&.marked-lines__marked-line {
-		background-color: var( --jp-red-50 );
-		color: var( --jp-white );
+		background-color: var( --studio-red-50 );
+		color: var( --studio-white );
 	}
 }
 
@@ -41,8 +41,8 @@
 }
 
 .marked-lines__mark {
-	background-color: var( --jp-red );
-	color: var( --jp-white );
+	background-color: var( --studio-red );
+	color: var( --studio-white );
 	border-radius: 2px;
 	padding: 2px 4px;
 }
