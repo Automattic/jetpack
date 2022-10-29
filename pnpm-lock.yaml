@@ -2180,10 +2180,10 @@ packages:
       '@automattic/typography': 1.0.0
       '@wordpress/base-styles': 4.10.0
       '@wordpress/data': 7.3.0_react@17.0.2
-      classnames: 2.3.2
+      classnames: 2.3.1
       gridicons: 3.4.0_react@17.0.2
       lodash: 4.17.21
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-modal: 3.15.1_sfoxds7t5ydpegc3knd667wn6m
@@ -17974,7 +17974,7 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     dependencies:
       exenv: 1.2.2
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-lifecycles-compat: 3.0.4
