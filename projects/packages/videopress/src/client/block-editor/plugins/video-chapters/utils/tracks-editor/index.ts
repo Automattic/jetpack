@@ -6,13 +6,24 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import getMediaToken from '../../../../../lib/get-media-token';
+import { TrackDataProps } from './types';
+
+export const TRACK_KIND_OPTIONS = [
+	'subtitles',
+	'captions',
+	'descriptions',
+	'chapters',
+	'metadata',
+] as const;
 
 const shouldUseJetpackVideoFetch = () => {
-	return window.siteType !== 'simple';
+	return window?.videoPressEditorState?.siteType !== 'simple';
 };
 
-const videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
+const videoPressUploadTrack = function ( track: TrackDataProps ) {
 	return new Promise( function ( resolve, reject ) {
+		const { kind, srcLang, label, tmpFile: vttFile } = track;
+
 		getMediaToken( 'upload' ).then( ( { token, blogId } ) => {
 			const body = new FormData();
 			body.append( 'kind', kind );
@@ -25,13 +36,13 @@ const videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
 					// Set auth header with upload token.
 					Authorization: `X_UPLOAD_TOKEN token="${ token }" blog_id="${ blogId }"`,
 				},
-				credentials: 'omit', // Handle CORS.
-				url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }/tracks`,
 				method: 'POST',
 				body,
 			};
 
-			apiFetch( requestOptions ).then( resolve ).catch( reject );
+			fetch( `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }/tracks`, requestOptions )
+				.then( resolve )
+				.catch( reject );
 		} );
 	} );
 };
@@ -44,11 +55,11 @@ const videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
  * @param {string} guid - the video guid
  * @returns {Promise} the api request promise
  */
-export const uploadTrackForGuid = ( track = {}, guid ) => {
+export const uploadTrackForGuid = ( track: TrackDataProps, guid ) => {
 	const { kind, srcLang, label, tmpFile } = track;
 
 	if ( shouldUseJetpackVideoFetch() ) {
-		return videoPressUploadTrack( guid, kind, srcLang, label, tmpFile );
+		return videoPressUploadTrack( { kind, srcLang, label, tmpFile } );
 	}
 
 	return apiFetch( {
