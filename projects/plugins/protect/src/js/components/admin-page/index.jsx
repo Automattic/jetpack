@@ -169,7 +169,7 @@ const ProtectAdminPage = () => {
 		);
 	}
 
-	// When there's no information yet. Usually when the plugin was just activated
+	// When there's a scan in progress or no information yet.
 	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
 		const { currentProgress } = status;
 		const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
@@ -206,7 +206,7 @@ const ProtectAdminPage = () => {
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
 										{ currentProgress >= 0 && (
-											<div className={ styles.progress }>
+											<div className={ styles[ 'progress-bar' ] }>
 												<ProgressBar
 													className={ styles[ 'progress-bar' ] }
 													value={ currentProgress }
