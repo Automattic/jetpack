@@ -20,7 +20,7 @@ const shouldUseJetpackVideoFetch = () => {
 	return window?.videoPressEditorState?.siteType !== 'simple';
 };
 
-const videoPressUploadTrack = function ( track: TrackDataProps ) {
+const videoPressUploadTrack = function ( track: TrackDataProps, guid: string ) {
 	return new Promise( function ( resolve, reject ) {
 		const { kind, srcLang, label, tmpFile: vttFile } = track;
 
@@ -55,11 +55,11 @@ const videoPressUploadTrack = function ( track: TrackDataProps ) {
  * @param {string} guid - the video guid
  * @returns {Promise} the api request promise
  */
-export const uploadTrackForGuid = ( track: TrackDataProps, guid ) => {
+export const uploadTrackForGuid = ( track: TrackDataProps, guid: string ) => {
 	const { kind, srcLang, label, tmpFile } = track;
 
 	if ( shouldUseJetpackVideoFetch() ) {
-		return videoPressUploadTrack( { kind, srcLang, label, tmpFile } );
+		return videoPressUploadTrack( { kind, srcLang, label, tmpFile }, guid );
 	}
 
 	return apiFetch( {
