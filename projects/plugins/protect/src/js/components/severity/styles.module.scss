@@ -12,16 +12,16 @@
 }
 
 .is-critical {
-	background: #facfd2;
-	color: #b32d2e;
+	background: var( --studio-red-5 );
+	color: var( --studio-red-60 );
 }
 
 .is-high {
-	background: #f5e6b3;
-	color: #7d5600;
+	background: var( --studio-yellow-5 );
+	color: var( --studio-yellow-60 );
 }
 
 .is-low {
-	background: #f6f7f7;
-	color: #646970;
+	background: var( --studio-gray-0 );
+	color: var( --studio-gray-50 );
 }

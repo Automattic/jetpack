@@ -1,5 +1,5 @@
 .threat {
-    border: 1px solid #DCDCDE;
+    border: 1px solid var( --studio-gray-5 );
     border-radius: 4px;
     padding: 16px;
     display: flex;
@@ -24,7 +24,7 @@
     &__summary__title {
         font-size: 14px;
         line-height: 21px;
-        color: #2C3338;
+        color: var( --studio-gray-80 );
     }
 
     &__severity {

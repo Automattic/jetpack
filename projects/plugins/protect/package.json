@@ -25,6 +25,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.24",
