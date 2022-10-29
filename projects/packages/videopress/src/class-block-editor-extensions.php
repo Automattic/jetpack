@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * VideoPress Extensions class.
@@ -88,10 +89,20 @@ class Block_Editor_Extensions {
 			$videopress_extensions_data['beta']
 		);
 
+		$site_type = 'jetpack';
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$site_type = 'simple';
+		} elseif ( ( new Host() )->is_woa_site() ) {
+			$site_type = 'atomic';
+		}
+
 		wp_localize_script(
 			self::SCRIPT_HANDLE,
-			'videoPressExtensions',
-			$beta_extensions
+			'videoPressEditorState',
+			array(
+				'extensions' => $beta_extensions,
+				'siteType'   => $site_type,
+			)
 		);
 	}
 
