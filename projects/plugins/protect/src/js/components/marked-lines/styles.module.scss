@@ -18,7 +18,7 @@
 }
 
 .marked-lines__line-number {
-	padding: 0 4px;
+	padding: 0 calc( var( --spacing-base ) / 2 ); // 0px | 4px
 	background-color: var( --jp-gray-10 );
 	color: var( --font-body );
 
@@ -37,12 +37,12 @@
 }
 
 .marked-lines__line {
-	padding-left: 8px;
+	padding-left: var( --spacing-base ); // 8px
 }
 
 .marked-lines__mark {
 	background-color: var( --jp-red );
 	color: var( --jp-white );
-	border-radius: 2px;
-	padding: 2px 4px;
+	border-radius: calc( var( --jp-border-radius ) / 2 ); // 2px
+	padding: calc( var( --spacing-base ) / 4 ) calc( var( --spacing-base ) / 2 ); // 2px | 4px
 }

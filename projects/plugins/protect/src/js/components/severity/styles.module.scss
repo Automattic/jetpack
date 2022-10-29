@@ -5,7 +5,7 @@
 	font-style: normal;
 	font-weight: 600;
 	line-height: 16px;
-	padding: 4px;
+	padding: calc( var( --spacing-base ) / 2 ); // 4px
 	position: relative;
 	text-align: center;
 	width: 60px;
