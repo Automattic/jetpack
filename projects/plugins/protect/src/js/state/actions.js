@@ -5,6 +5,7 @@ import camelize from 'camelize';
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
+const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
@@ -20,6 +21,17 @@ const CLEAR_NOTICE = 'CLEAR_NOTICE';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
+};
+
+const startScanOptimistically = () => {
+	return { type: START_SCAN_OPTIMISTICALLY };
+};
+
+const refreshPlan = () => ( { dispatch } ) => {
+	apiFetch( {
+		path: 'jetpack-protect/v1/plan',
+		method: 'GET',
+	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
 };
 
 /**
@@ -39,25 +51,6 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 				dispatch( setStatus( camelize( status ) ) );
 				dispatch( setStatusIsFetching( false ) );
 				resolve( status );
-			} )
-			.catch( error => {
-				reject( error );
-			} );
-	} );
-};
-
-const refreshStatusUntilScanning = () => async ( { dispatch } ) => {
-	return await new Promise( ( resolve, reject ) => {
-		dispatch( refreshStatus( true ) )
-			.then( async response => {
-				if ( 'scanning' !== response.status ) {
-					return await new Promise( () => {
-						setTimeout( () => {
-							dispatch( refreshStatusUntilScanning() );
-						}, 1000 );
-					} );
-				}
-				resolve();
 			} )
 			.catch( error => {
 				reject( error );
@@ -274,20 +267,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 			method: 'POST',
 		} )
 			.then( () => {
-				return dispatch(
-					setNotice( {
-						type: 'success',
-						message: __( 'Scan was enqueued successfully', 'jetpack-protect' ),
-					} )
-				);
-			} )
-			.then( () => {
-				setTimeout( () => {
-					return dispatch( clearNotice() );
-				}, 1000 );
-			} )
-			.then( () => {
-				return dispatch( refreshStatusUntilScanning() );
+				dispatch( startScanOptimistically() );
 			} )
 			.catch( () => {
 				return dispatch(
@@ -329,6 +309,7 @@ const actions = {
 	setCredentials,
 	setCredentialsIsFetching,
 	setStatus,
+	startScanOptimistically,
 	refreshStatus,
 	setStatusIsFetching,
 	setScanIsEnqueuing,
@@ -344,12 +325,14 @@ const actions = {
 	fixThreats,
 	scan,
 	setThreatsAreFixing,
+	refreshPlan,
 };
 
 export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
+	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
