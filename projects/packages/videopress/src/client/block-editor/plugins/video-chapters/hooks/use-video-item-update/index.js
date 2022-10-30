@@ -8,16 +8,19 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getVideoPressUrl } from '../../../../../utils/url';
 /**
  * Internal dependencies
  */
+import { getVideoPressUrl } from '../../../../../lib/url';
 import extractVideoChapters from '../../utils/extract-video-chapters';
 import generateChaptersFile from '../../utils/generate-chapters-file';
-import { uploadTrackForGuid } from '../../utils/tracks-editor/tracks-editor';
+import { uploadTrackForGuid } from '../../utils/tracks-editor';
 
 /**
- * @param id
+ * Hook to update the media data by hitting the VideoPress API.
+ *
+ * @param {number} id - Media ID.
+ * @returns {Function}  Update Promise handler.
  */
 export default function useMediaItemUpdate( id ) {
 	const updateMediaItem = data => {
@@ -41,7 +44,11 @@ export default function useMediaItemUpdate( id ) {
 }
 
 /**
- * @param attributes
+ * React hook to keep the data in-sync
+ * between the media item and the block attributes.
+ *
+ * @param {object} attributes - Block attributes.
+ * @returns {Array} - [ forceInitialState, isSyncing ]
  */
 export function useSyncMedia( attributes ) {
 	const { id, title, description, guid } = attributes;
@@ -92,7 +99,7 @@ export function useSyncMedia( attributes ) {
 			return;
 		}
 
-		// Upload .vtt file if it description contains chapters
+		// Upload .vtt file if its description contains chapters
 		const chapters = extractVideoChapters( dataToUpdate.description );
 		if ( ! chapters?.length ) {
 			return;

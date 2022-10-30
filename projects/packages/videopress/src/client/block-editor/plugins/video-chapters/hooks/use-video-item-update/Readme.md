@@ -1,6 +1,7 @@
 # useMediaItemUpdate
 
-React custom hook to update the video metadata
+React custom hook to update the video metadata.
+It returns a handler (a Promise) to hit the API endpoint to update the data.
 
 ```jsx
 import { useMediaItemUpdate } from './use-video-item-update';
@@ -21,8 +22,8 @@ function VideoItem( { id } ) {
 
 # useSyncMedia
 
-React custom hook to keep block attributes in-sync with the video item metadata.
-The hook will keep the initial state of the attributes to keep in-sync, 
+React custom hook to keep block attributes in sync with the video item metadata.
+The hook will keep the initial state of the attributes to keep in-sync,
 and will update them at the same time the post saves.
 
 ```jsx
