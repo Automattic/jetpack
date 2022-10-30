@@ -9,17 +9,14 @@ import { __ } from '@wordpress/i18n';
 import useBlockAttributes from '../../hooks/use-block-attributes';
 import './index.scss';
 
-const VIDEOPRESS_VIDEO_CHAPTERS_FEATURE = 'videopress/video-chapters';
-const isVideoChaptersEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
-	VIDEOPRESS_VIDEO_CHAPTERS_FEATURE
-];
-
 const CHARACTERS_PER_LINE = 31;
-const isBetaExtension = true;
 
 /**
- * @param root0
- * @param root0.isRequestingVideoItem
+ * React component that renders a Video details control
+ *
+ * @param {object} props - Component properties
+ * @param {boolean} props.isRequestingVideoItem - Whether the video item is being requested
+ * @returns {object} Video details control component
  */
 export default function DetailsControl( { isRequestingVideoItem } ) {
 	const { attributes, setAttributes } = useBlockAttributes();
@@ -37,10 +34,6 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 		: minRows;
 
 	const descriptionControlRows = Math.min( maxRows, Math.max( rows, minRows ) );
-
-	// if ( ! isVideoChaptersEnabled ) {
-	// 	return null;
-	// }
 
 	const setTitleAttribute = newTitle => {
 		setAttributes( { title: newTitle } );
