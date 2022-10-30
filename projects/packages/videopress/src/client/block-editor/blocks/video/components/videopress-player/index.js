@@ -96,7 +96,7 @@ export default function VideoPressPlayer( {
 
 		if ( preview ) {
 			// Once the video is loaded, delegate the height to the player (iFrame)
-			return setVideoPlayerTemporaryHeight( 'auto' );
+			return setVideoPlayerTemporaryHeightState( 'auto' );
 		}
 
 		if ( ! videoRatio ) {
@@ -166,7 +166,7 @@ export default function VideoPressPlayer( {
 				}
 			}
 
-			setVideoPlayerTemporaryHeight( 'auto' );
+			setVideoPlayerTemporaryHeightState( 'auto' );
 			setAttributes( { maxWidth: newMaxWidth } );
 		},
 		[ setAttributes ]
@@ -193,6 +193,7 @@ export default function VideoPressPlayer( {
 				size={ { width: maxWidth } }
 				style={ { margin: 'auto' } }
 				onResizeStop={ onBlockResize }
+				onResizeStart={ () => setVideoPlayerTemporaryHeightState( 'auto' ) }
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 
