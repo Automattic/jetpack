@@ -5,6 +5,7 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -45,6 +46,7 @@ globalScripts.push( vpBlockBridge );
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {Array} props.scripts          - Scripts to pass trough to the sandbox.
  * @param {object} props.preview         - oEmbed preview data.
+ * @param {boolean} props.isRequestingEmbedPreview - oEmbed preview data.
  * @returns {object}                     - React component.
  */
 export default function VideoPressPlayer( {
@@ -54,24 +56,26 @@ export default function VideoPressPlayer( {
 	setAttributes,
 	scripts = [],
 	preview,
+	isRequestingEmbedPreview,
 } ) {
 	const ref = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
 
-	// Pick up iFrame and sandbox window references.
-	const iFrameDomReference = ref?.current?.querySelector( 'iframe' );
-	const sandboxWindow = iFrameDomReference?.contentWindow;
-
 	/*
 	 * Temporary height is used to set the height of the video
-	 * as soon as the block is rendered into the canvas,
+	 * as soon as the block is rendered into the canvas
 	 * while the preview fetching process is happening,
-	 * trying to reduce the flicker effects as much as possible
-	 *
-	 * Once the preview is fetched, the temporary heihgt is ignored.
+	 * trying to reduce the flicker effects as much as possible.
+	 * Once the preview is fetched, the temporary height is ignored.
 	 */
 	const [ temporaryHeight, setTemporaryHeight ] = useState();
-	const [ isVideoLoaded, setIsVideoLoaded ] = useState( false );
+
+	/*
+	 * isVideoLoad registers the state
+	 * when the video has been loaded in the videopress player.
+	 */
+	const [ isVideoPlayerLoaded, setIsVideoPlayerLoaded ] = useState( false );
+
 	useEffect( () => {
 		if ( ! ref?.current ) {
 			return;
@@ -99,32 +103,38 @@ export default function VideoPressPlayer( {
 		 * note: videopress API does not provide
 		 * the event to know when the video is not loaded.
 		 */
-		setIsVideoLoaded( false );
+		setIsVideoPlayerLoaded( false );
 	}, [ ref, videoRatio, preview ] );
 
-	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
-		setIsVideoLoaded( detail?.state === 'loaded' );
-	}, [] );
-
-	// set video is loaded as False, when html is not available.
+	// Set video is loaded as False, when html is not available.
 	useEffect( () => {
 		if ( html ) {
 			return;
 		}
 
-		setIsVideoLoaded( false );
+		setIsVideoPlayerLoaded( false );
 	}, [ html ] );
 
+	/*
+	 * Callback state handler for the video player
+	 * tied to the `onVideoPressLoadingState` event,
+	 * provided by the videopress player through the bridge.
+	 */
+	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
+		setIsVideoPlayerLoaded( detail?.state === 'loaded' );
+	}, [] );
+
+	// Listen to the `onVideoPressLoadingState` event.
 	useEffect( () => {
-		if ( ! sandboxWindow ) {
+		if ( ! window ) {
 			return;
 		}
 
-		sandboxWindow.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
 
 		return () =>
-			sandboxWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, sandboxWindow, html ] );
+			window?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler, window, html ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -137,6 +147,7 @@ export default function VideoPressPlayer( {
 				}
 			}
 
+			setTemporaryHeight( 'auto' );
 			setAttributes( { maxWidth: newMaxWidth } );
 		},
 		[ setAttributes ]
@@ -163,13 +174,28 @@ export default function VideoPressPlayer( {
 				onResizeStop={ onBlockResize }
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
+
 				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
-					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-					{ ! isVideoLoaded && (
-						<div className="jetpack-videopress-player__loading">
-							{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
+					<>
+						<div
+							className={ classnames( 'jetpack-videopress-ghost-player', {
+								'is-requesting-preview': isRequestingEmbedPreview,
+								'video-has-been-loaded': isVideoPlayerLoaded,
+							} ) }
+						>
+							<SandBox html={ html } />
 						</div>
-					) }
+
+						{ ! isRequestingEmbedPreview && (
+							<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
+						) }
+
+						{ ! isVideoPlayerLoaded && (
+							<div className="jetpack-videopress-player__loading">
+								{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
+							</div>
+						) }
+					</>
 				</div>
 			</ResizableBox>
 
