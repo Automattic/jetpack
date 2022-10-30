@@ -58,7 +58,7 @@ export default function VideoPressPlayer( {
 	preview,
 	isRequestingEmbedPreview,
 } ) {
-	const ref = useRef();
+	const videoWrapperRef = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
 
 	/*
@@ -77,7 +77,7 @@ export default function VideoPressPlayer( {
 	const [ isVideoPlayerLoaded, setIsVideoPlayerLoaded ] = useState( false );
 
 	useEffect( () => {
-		if ( ! ref?.current ) {
+		if ( ! videoWrapperRef?.current ) {
 			return;
 		}
 
@@ -91,11 +91,11 @@ export default function VideoPressPlayer( {
 		}
 
 		// When no preview is available, set the height of the video.
-		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+		setTemporaryHeight( ( videoWrapperRef.current.offsetWidth * videoRatio ) / 100 );
 
 		setTimeout( () => {
 			// Recalculated in case the sidebar is opened.
-			setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+			setTemporaryHeight( ( videoWrapperRef.current.offsetWidth * videoRatio ) / 100 );
 		}, 0 );
 
 		/*
@@ -104,7 +104,7 @@ export default function VideoPressPlayer( {
 		 * the event to know when the video is not loaded.
 		 */
 		setIsVideoPlayerLoaded( false );
-	}, [ ref, videoRatio, preview ] );
+	}, [ videoWrapperRef, videoRatio, preview ] );
 
 	// Set video is loaded as False, when html is not available.
 	useEffect( () => {
@@ -153,10 +153,10 @@ export default function VideoPressPlayer( {
 		[ setAttributes ]
 	);
 
-	const style = {};
+	const wrapperElementStyle = {};
 	if ( temporaryHeight !== 'auto' ) {
-		style.height = temporaryHeight || 200;
-		style.paddingBottom = temporaryHeight ? 12 : 0;
+		wrapperElementStyle.height = temporaryHeight || 200;
+		wrapperElementStyle.paddingBottom = temporaryHeight ? 12 : 0;
 	}
 
 	return (
@@ -175,7 +175,11 @@ export default function VideoPressPlayer( {
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 
-				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
+				<div
+					className="jetpack-videopress-player__wrapper"
+					ref={ videoWrapperRef }
+					style={ wrapperElementStyle }
+				>
 					<>
 						<div
 							className={ classnames( 'jetpack-videopress-ghost-player', {
