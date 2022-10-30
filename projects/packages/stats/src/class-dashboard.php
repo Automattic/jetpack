@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\Stats;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 
+use Jetpack_Options;
+
 /**
  * Responsible for adding a stats dashboard to wp-admin.
  *
@@ -66,9 +68,20 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
-		<div id="jp-stats-dashboard" class="jp-stats-dashboard">
+		<div id="wpcom" class="jp-stats-dashboard">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats' ); ?></div>
 		</div>
+		<script>
+			jQuery(document).ready(function($) {
+				$("#wpcom").on('click', 'a', function (e) {
+					console.log(e.currentTarget.attributes.href.value)
+					location.hash = '#!' + e.currentTarget.attributes.href.value;
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				});
+			});
+		</script>
 		<?php
 	}
 
@@ -98,15 +111,29 @@ class Dashboard {
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script(
 			'jp-stats-dashboard',
-			static::initial_state(),
+			static::config_data(),
 			'before'
+		);
+
+		add_action(
+			'admin_head',
+			function () {
+				echo '<style>
+				.jp-stats-dashboard .card {
+					border:0;
+					max-width: initial;
+					min-width: initial;
+				}
+				</style>';
+			},
+			100
 		);
 	}
 
 	/**
 	 * Return the initial state of the app.
 	 */
-	public static function initial_state() {
+	public static function config_data() {
 		return 'window.configData = ' . wp_json_encode(
 			array(
 				'site_name'                => 'whatever',
@@ -129,6 +156,7 @@ class Dashboard {
 				'signup_url'               => false,
 				'features'                 => array(),
 				'api_root'                 => esc_url_raw( rest_url() ),
+				'blog_id'                  => Jetpack_Options::get_option( 'id' ),
 				'nonce'                    => wp_create_nonce( 'wp_rest' ),
 				'meta'                     => array(
 					'property' => 'og:site_name',

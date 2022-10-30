@@ -55,6 +55,51 @@ class REST_Controller {
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
+		register_rest_route(
+			static::$namespace,
+			'/sites/(?P<blog_id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'site' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/me/sites',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'sites' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/me/settings',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'empty_object' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/me/preferences',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'empty_object' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/sites/(?P<blog_id>\d+)/features',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'empty_object' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
 	}
 
 	/**
@@ -96,6 +141,41 @@ class REST_Controller {
 			'ID'       => 9025583,
 			'username' => 'kangzj',
 		);
+	}
+
+	/**
+	 * Site endpoint.
+	 *
+	 * @return array
+	 */
+	public function site() {
+		return array(
+			'ID'  => 193141071,
+			'URL' => 'https://jasper1.au.ngrok.io',
+		);
+	}
+
+	/**
+	 * Sites endpoint.
+	 *
+	 * @return array
+	 */
+	public function sites() {
+		return array(
+			'sites' => array(
+				'ID'  => 193141071,
+				'URL' => 'https://jasper1.au.ngrok.io',
+			),
+		);
+	}
+
+	/**
+	 * Empty result.
+	 *
+	 * @return array
+	 */
+	public function empty_object() {
+		return json_decode( '{}' );
 	}
 
 	/**
