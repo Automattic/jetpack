@@ -46,22 +46,12 @@
 		}
 
 		.jetpack-videopress-ghost-player {
-			opacity: 0;
-			visibility: hidden;
 			position: absolute;
-			z-index: 1;
+			z-index: 0;
 			top: 0;
 			left: 0;
 			width: 100%;
 			height: 100%;
-			&.is-requesting-preview {
-				opacity: 1;
-				visibility: visible; // BUHHH!! MUAMUMUA!!
-			}
-
-			&.video-has-been-loaded {
-				z-index: 0;
-			}
 		}
 	}
 
