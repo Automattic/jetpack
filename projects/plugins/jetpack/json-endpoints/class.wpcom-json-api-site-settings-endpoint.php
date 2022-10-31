@@ -436,6 +436,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
+						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -868,6 +869,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
+				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;

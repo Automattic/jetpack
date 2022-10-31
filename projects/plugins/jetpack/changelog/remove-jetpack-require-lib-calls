@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove remaining calls to `jetpack_require_lib()`, mainly for non-Fusioned stuff.

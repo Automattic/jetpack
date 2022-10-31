@@ -4,6 +4,11 @@
 import './blocks/video';
 
 /*
- * extensibility
+ * Extensibility
  */
 import './extend';
+
+/*
+ * Extensions
+ */
+import './extensions';

@@ -34,20 +34,6 @@ class Jetpack_Calypsoify {
 	}
 
 	/**
-	 * Original singleton.
-	 *
-	 * @todo We need to leave this in place until wpcomsh is updated. wpcomsh can be updated once 9.3.0 is stable.
-	 *
-	 * Deprecated 9.3.0
-	 *
-	 * @return Jetpack_Calypsoify
-	 */
-	public static function getInstance() { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		_deprecated_function( __METHOD__, 'Jetpack 9.3.0', 'Jetpack_Calypsoify::get_instance' );
-		return self::get_instance();
-	}
-
-	/**
 	 * Singleton.
 	 *
 	 * @return Jetpack_Calypsoify

@@ -204,6 +204,7 @@ export type MetadataVideo = {
 	processing?: boolean;
 	isUpdatingPrivacy?: boolean;
 	isUpdatingPoster?: boolean;
+	uploadProgress?: number;
 };
 
 export type VideopressSelectors = {

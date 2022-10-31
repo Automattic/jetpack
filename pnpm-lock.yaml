@@ -586,7 +586,7 @@ importers:
       '@wordpress/element': 4.17.0
       '@wordpress/format-library': 3.17.0
       '@wordpress/postcss-plugins-preset': 4.3.0
-      autoprefixer: 10.4.9
+      autoprefixer: 10.4.12
       babel-loader: 8.2.5
       babel-plugin-inline-json-import: 0.3.2
       css-loader: 6.5.1
@@ -634,7 +634,7 @@ importers:
       '@wordpress/element': 4.17.0
       '@wordpress/format-library': 3.17.0_7zkbjz6d46tpcbbta4lk5n6n6i
       '@wordpress/postcss-plugins-preset': 4.3.0_postcss@8.4.18
-      autoprefixer: 10.4.9_postcss@8.4.18
+      autoprefixer: 10.4.12_postcss@8.4.18
       babel-loader: 8.2.5_gj2vcjr43e3o5phtyaahn5ys64
       babel-plugin-inline-json-import: 0.3.2
       css-loader: 6.5.1_webpack@5.72.1
@@ -1033,7 +1033,7 @@ importers:
       '@wordpress/element': 4.17.0
       '@wordpress/i18n': 4.19.0
       '@wordpress/icons': 9.10.0
-      autoprefixer: 10.4.9
+      autoprefixer: 10.4.12
       babel-jest: 28.1.0
       classnames: 2.3.1
       concurrently: 6.4.0
@@ -1109,7 +1109,7 @@ importers:
       '@wordpress/babel-plugin-import-jsx-pragma': 4.2.0_@babel+core@7.19.3
       '@wordpress/browserslist-config': 5.2.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.2.0_webpack@5.72.1
-      autoprefixer: 10.4.9_postcss@8.4.18
+      autoprefixer: 10.4.12_postcss@8.4.18
       babel-jest: 28.1.0_@babel+core@7.19.3
       concurrently: 6.4.0
       core-js: 3.23.5
@@ -1163,7 +1163,7 @@ importers:
       '@wordpress/i18n': 4.19.0
       '@wordpress/icons': 9.10.0
       '@wordpress/url': 3.20.0
-      autoprefixer: 10.4.9
+      autoprefixer: 10.4.12
       classnames: 2.3.1
       debug: 4.3.4
       filesize: 8.0.6
@@ -1224,7 +1224,7 @@ importers:
       '@types/wordpress__components': 19.10.0_sfoxds7t5ydpegc3knd667wn6m
       '@types/wordpress__url': 2.14.0
       '@wordpress/browserslist-config': 5.2.0
-      autoprefixer: 10.4.9_postcss@8.4.18
+      autoprefixer: 10.4.12_postcss@8.4.18
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
       postcss: 8.4.18
@@ -1436,7 +1436,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1503,7 +1503,7 @@ importers:
       '@wordpress/url': 3.20.0
       '@wordpress/viewport': 4.17.0
       '@wordpress/widgets': 2.17.0
-      autoprefixer: 10.4.9
+      autoprefixer: 10.4.12
       babel-jest: 28.1.0
       bounding-client-rect: 1.0.5
       classnames: 2.3.1
@@ -1649,7 +1649,7 @@ importers:
       '@wordpress/keycodes': 3.19.0
       '@wordpress/notices': 3.19.0_react@17.0.2
       '@wordpress/token-list': 2.19.0
-      autoprefixer: 10.4.9_postcss@8.4.18
+      autoprefixer: 10.4.12_postcss@8.4.18
       babel-jest: 28.1.0_@babel+core@7.19.3
       concurrently: 6.0.2
       fs-extra: 10.0.0
@@ -1670,7 +1670,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1744,7 +1744,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1770,7 +1770,7 @@ importers:
       '@wordpress/element': 4.17.0
       '@wordpress/i18n': 4.19.0
       '@wordpress/icons': 9.10.0
-      autoprefixer: 10.4.9
+      autoprefixer: 10.4.12
       classnames: 2.3.1
       concurrently: 6.0.2
       postcss: 8.4.18
@@ -1804,7 +1804,7 @@ importers:
       '@babel/register': 7.18.9_@babel+core@7.19.3
       '@babel/runtime': 7.19.0
       '@wordpress/browserslist-config': 5.2.0
-      autoprefixer: 10.4.9_postcss@8.4.18
+      autoprefixer: 10.4.12_postcss@8.4.18
       concurrently: 6.0.2
       postcss: 8.4.18
       postcss-custom-properties: 12.1.7_postcss@8.4.18
@@ -1864,7 +1864,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -1944,7 +1944,7 @@ importers:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
-      jetpack-e2e-commons: '*'
+      jetpack-e2e-commons: workspace:*
     devDependencies:
       '@playwright/test': 1.26.0
       allure-playwright: 2.0.0-beta.19
@@ -8713,7 +8713,7 @@ packages:
       postcss: ^8.0.0
     dependencies:
       '@wordpress/base-styles': 4.10.0
-      autoprefixer: 10.4.9_postcss@8.4.18
+      autoprefixer: 10.4.12_postcss@8.4.18
       postcss: 8.4.18
     dev: true
 
@@ -9546,8 +9546,8 @@ packages:
     hasBin: true
     dev: true
 
-  /autoprefixer/10.4.9_postcss@8.4.18:
-    resolution: {integrity: sha512-Uu67eduPEmOeA0vyJby5ghu1AAELCCNSsLAjK+lz6kYzNM5sqnBO36MqfsjhPjQF/BaJM5U/UuFYyl7PavY/wQ==}
+  /autoprefixer/10.4.12_postcss@8.4.18:
+    resolution: {integrity: sha512-WrCGV9/b97Pa+jtwf5UGaRjgQIg7OK3D06GnoYoZNcG1Xb8Gt3EfuKjlhh9i/VtT16g6PYjZ69jdJ2g8FxSC4Q==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
