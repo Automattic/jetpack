@@ -964,7 +964,7 @@ class Search_Widget extends \WP_Widget {
 		$args['name_placeholder'] = Helper::generate_widget_filter_name( $args );
 
 		// Hide author & blog ID filters when Instant Search is turned off.
-		if ( ! $is_instant_search && in_array( $args['type'], array( 'author', 'blog_id' ) ) ) :
+		if ( ! $is_instant_search && in_array( $args['type'], array( 'author', 'blog_id' ), true ) ) :
 			return;
 		endif;
 		?>
