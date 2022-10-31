@@ -22,7 +22,7 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	public function load_banner() {
-		if ( ! Config::is_getting_started() ) {
+		if ( ! Config::is_getting_started() || $this->is_banner_dismissed() ) {
 			return;
 		}
 
@@ -43,25 +43,21 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	public function connection_prompt() {
-		if ( $this->is_showing_setup_banner() ) {
-			include __DIR__ . '/_inc/banner.php';
-		}
+		include __DIR__ . '/_inc/banner.php';
 	}
 
 	public function add_dismiss_script() {
-		if ( $this->is_showing_setup_banner() ) {
-			include __DIR__ . '/_inc/dismiss-script.php';
-		}
+		include __DIR__ . '/_inc/dismiss-script.php';
 	}
 
-	private function is_showing_setup_banner() {
-		return get_option( self::OPTION_KEY, true );
+	private function is_banner_dismissed() {
+		return get_option( self::OPTION_KEY, false );
 	}
 
 	// hides the boost promo banner on dismiss
 	public function dismiss_setup_banner() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-		update_option( self::OPTION_KEY, 0, 'no' );
+		update_option( self::OPTION_KEY, true, 'no' );
 		exit();
 	}
 }
