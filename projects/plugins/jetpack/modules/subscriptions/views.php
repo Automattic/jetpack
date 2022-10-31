@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
  * Jetpack_Subscriptions_Widget main view class.
@@ -323,6 +324,21 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Generates the source parameter to pass to the iframe
+	 *
+	 * @return string the actaul post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+	 */
+	protected static function get_post_access_level() {
+		require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
+		global $post;
+		$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		if ( empty( $meta ) ) {
+			$meta = 'everybody';
+		}
+		return $meta;
+	}
+
+	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array  $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -460,10 +476,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			 */
 			$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 
-			$form_id = self::get_redirect_fragment( $widget_id );
+			$form_id           = self::get_redirect_fragment( $widget_id );
+			$post_access_level = self::get_post_access_level();
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
-			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>" data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>">
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>"
+				data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>" >
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
