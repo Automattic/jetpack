@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from '@wordpress/data';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
@@ -317,6 +318,7 @@ const videos = ( state, action ) => {
 			const { id, title } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
+			const sanitizedTitle = cleanForSlug( title );
 
 			return {
 				...state,
@@ -325,7 +327,7 @@ const videos = ( state, action ) => {
 					items: {
 						...currentMetaItems,
 						[ id ]: {
-							title,
+							title: sanitizedTitle,
 							uploading: true,
 						},
 					},
@@ -341,7 +343,9 @@ const videos = ( state, action ) => {
 			const items = [ ...( state?.items ?? [] ) ];
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
-			const title = currentMetaItems[ id ]?.title || '';
+			const title =
+				data?.src?.split( '/' )?.slice( -1 )?.[ 0 ] || currentMetaItems[ id ]?.title || '';
+			const sanitizedTitle = cleanForSlug( title );
 
 			let total = state?.uploadedVideoCount ?? 0;
 
@@ -357,7 +361,7 @@ const videos = ( state, action ) => {
 					id: data.id,
 					guid: data.guid,
 					url: data.src,
-					title,
+					title: sanitizedTitle,
 					posterImage: null,
 					finished: false,
 				} );
