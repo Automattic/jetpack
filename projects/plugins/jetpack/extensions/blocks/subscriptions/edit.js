@@ -8,6 +8,7 @@ import {
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -61,6 +62,7 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
+		hasNewsletterPlans,
 	} = props;
 
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -236,7 +238,7 @@ export function SubscriptionEdit( props ) {
 			</InspectorControls>
 			<BlockControls>
 				<Toolbar>
-					<GetAddPaidPlanButton context={ 'toolbar' } />
+					<GetAddPaidPlanButton context={ 'toolbar' } hasNewsletterPlans={ hasNewsletterPlans } />
 				</Toolbar>
 			</BlockControls>
 
@@ -273,6 +275,14 @@ export function SubscriptionEdit( props ) {
 }
 
 export default compose( [
+	withSelect( select => {
+		const newsletterPlans = select( 'jetpack/membership-products' )
+			?.getProducts()
+			?.filter( product => product.subscribe_as_site_subscriber );
+		return {
+			hasNewsletterPlans: newsletterPlans?.length !== 0,
+		};
+	} ),
 	withColors(
 		{ emailFieldBackgroundColor: 'backgroundColor' },
 		{ buttonBackgroundColor: 'backgroundColor' },
