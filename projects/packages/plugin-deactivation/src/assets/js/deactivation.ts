@@ -26,12 +26,8 @@ class JetpackPluginDeactivation {
 			return;
 		}
 
+		this.observeDialogActions();
 		this.attachEventListeners();
-
-		this.deactivateButton.addEventListener( `click`, event => {
-			event.preventDefault();
-			this.showDialog();
-		} );
 	}
 
 	showDialog() {
@@ -42,11 +38,41 @@ class JetpackPluginDeactivation {
 		this.dialog.classList.remove( JetpackPluginDeactivation.ACTIVE_CLASS_NAME );
 	}
 
+	/**
+	 * Look for clicks in elements of the dialog and trigger events accordingly.
+	 */
+	observeDialogActions() {
+		const closeActions = this.dialog.querySelectorAll( '.jp-plugin-deactivation__action--close' );
+
+		closeActions.forEach( action => {
+			action.addEventListener( 'click', () => {
+				this.dialog.dispatchEvent( JetpackPluginDeactivation.events.close );
+			} );
+		} );
+
+		const deactivateActions = this.dialog.querySelectorAll(
+			'.jp-plugin-deactivation__action--deactivate'
+		);
+
+		deactivateActions.forEach( action => {
+			action.addEventListener( 'click', () => {
+				this.dialog.dispatchEvent( JetpackPluginDeactivation.events.deactivate );
+			} );
+		} );
+	}
+
 	attachEventListeners() {
+		// Act on modal actions.
 		this.dialog.addEventListener( JetpackPluginDeactivation.CLOSE_EVENT, () => this.hideDialog() );
 		this.dialog.addEventListener( JetpackPluginDeactivation.DEACTIVATE_EVENT, () =>
 			this.deactivate()
 		);
+
+		// Intercept the plugin deactivation link click.
+		this.deactivateButton.addEventListener( `click`, event => {
+			event.preventDefault();
+			this.showDialog();
+		} );
 	}
 
 	deactivate() {

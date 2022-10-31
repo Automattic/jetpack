@@ -96,7 +96,7 @@ class Deactivation_Handler {
 			<div class="jp-plugin-deactivation__dialog">
 				<?php include $this->dialog_view; ?>
 			</div>
-			<div class="jp-plugin-deactivation__overlay" onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"></div>
+			<div class="jp-plugin-deactivation__overlay jp-plugin-deactivation__action--close"></div>
 		</div>
 		<script>new JetpackPluginDeactivation( decodeURIComponent( '<?php echo rawurlencode( $this->plugin ); ?>' ) );</script>
 		<?php

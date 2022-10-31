@@ -12,27 +12,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 <footer class="jp-plugin-deactivation__dialog__actions">
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__button"
+		class="jp-plugin-deactivation__action--close jp-plugin-deactivation__button"
 		onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"
 	><?php esc_html_e( 'Cancel', 'jetpack-boost' ); ?></button>
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.deactivate)"
+		class="jp-plugin-deactivation__action--deactivate jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
 	><?php esc_html_e( 'Just Deactivate', 'jetpack-boost' ); ?></button>
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
-		onclick="jpBoostDeactivateWithFeedback()"
+		class="jp-plugin-deactivation__action--deactivate jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
+		onclick="window.open( 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback', '_blank' )"
 	><?php esc_html_e( 'Deactivate & Give Feedback', 'jetpack-boost' ); ?></button>
 </footer>
-
-<script>
-	function jpBoostDeactivateWithFeedback() {
-		window.open( 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback', '_blank' );
-		dispatchEvent(JetpackPluginDeactivation.events.deactivate);
-	}
-</script>
 
 <style>
 	#jp-plugin-deactivation-jetpack-boost p.big {

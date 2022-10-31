@@ -20,13 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 <footer class="jp-plugin-deactivation__dialog__actions">
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__button"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"
+		class="jp-plugin-deactivation__action--close jp-plugin-deactivation__button"
 	><?php esc_html_e( 'Cancel', 'jetpack-plugin-deactivation' ); ?></button>
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.deactivate)"
+		class="jp-plugin-deactivation__action--deactivate jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
 	><?php esc_html_e( 'Deactivate', 'jetpack-plugin-deactivation' ); ?></button>
 </footer>
 
