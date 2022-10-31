@@ -27,7 +27,7 @@ export function isExtensionEnabled( extension: string ) {
 }
 
 /**
- * Hellper function to check if the given extension is beta.
+ * Helper function to check if the given extension is beta.
  *
  * @param {string} extension - The extension to check.
  * @returns {boolean} - Whether the extension is beta.
