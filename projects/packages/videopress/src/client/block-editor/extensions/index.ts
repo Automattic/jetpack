@@ -2,11 +2,14 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import { VideoPressExtensionProp } from './global';
+/*
+ * Types
+ */
+import { VideoPressExtensionsProps } from './types';
 
 const debug = debugFactory( 'videopress:extensions' );
 
-const extensions = window?.videoPressExtensions || {};
+const extensions = window?.videoPressExtensions || <VideoPressExtensionsProps>[];
 
 debug( 'Extensions: %o', extensions );
 
@@ -17,6 +20,17 @@ debug( 'Extensions: %o', extensions );
  * @returns {boolean} - Whether the extension is enabled.
  */
 export function isExtensionEnabled( extension: string ) {
-	const vpExtension = extensions.find( ( ext: VideoPressExtensionProp ) => ext.name === extension );
-	return !! vpExtension?.isEnabled;
+	const vpExtension = extensions.find( ext => ext.name === extension );
+	return vpExtension?.isEnabled;
+}
+
+/**
+ * Helper function to check if the given extension is beta.
+ *
+ * @param {string} extension - The extension to check.
+ * @returns {boolean} - Whether the extension is beta.
+ */
+export function isBetaExtension( extension: string ) {
+	const vpExtension = extensions.find( ext => ext.name === extension );
+	return vpExtension?.isBeta;
 }
