@@ -34,9 +34,10 @@ function register_extension() {
  *
  * @return string JSON response from the API, as a string.
  */
-function get_daily_writing_prompt() {
+function get_daily_blogging_prompt() {
 	$today         = date_i18n( 'Y-m-d', true );
-	$transient_key = 'jetpack_writing_prompt_' . $today;
+	$locale        = get_locale();
+	$transient_key = 'jetpack_blogging_prompt_' . $today . '_' . $locale;
 	$prompt_today  = get_transient( $transient_key );
 
 	// Return the cached prompt, if we have it. Otherwise fetch it from the API.
@@ -80,7 +81,7 @@ function get_daily_writing_prompt() {
 /**
  * Checks URL params to determine if we should load a blogging prompt.
  */
-function inject_writing_prompts() {
+function inject_blogging_prompts() {
 	global $current_screen;
 
 	// Return early if we are not in the block editor.
@@ -98,7 +99,7 @@ function inject_writing_prompts() {
 		return;
 	}
 
-	$daily_prompt = get_daily_writing_prompt();
+	$daily_prompt = get_daily_blogging_prompt();
 
 	if ( $daily_prompt ) {
 		wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_BloggingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompt ) . '" ) );', 'before' );
@@ -106,4 +107,4 @@ function inject_writing_prompts() {
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
-add_action( 'enqueue_block_assets', __NAMESPACE__ . '\inject_writing_prompts' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\inject_blogging_prompts' );

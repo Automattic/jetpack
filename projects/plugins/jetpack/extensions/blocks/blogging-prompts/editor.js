@@ -6,11 +6,11 @@ async function insertTemplate( prompt, embedPrompt = false ) {
 	await waitForEditor();
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
-	const writingPromptBlocks = embedPrompt
+	const bloggingPromptBlocks = embedPrompt
 		? [ createBlock( 'core/pullquote', { value: prompt.text } ), createBlock( 'core/paragraph' ) ]
 		: createBlock( 'core/paragraph', { placeholder: prompt.text }, [] );
 
-	insertBlocks( writingPromptBlocks, 0, undefined, false );
+	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
 }
 
 function initBloggingPrompts() {
