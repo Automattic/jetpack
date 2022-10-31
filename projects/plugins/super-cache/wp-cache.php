@@ -1187,10 +1187,10 @@ table.wpsc-settings-table {
 	<h4><?php _e( 'Other Site Tools', 'wp-super-cache' ); ?></h4>
 	<ul style="list-style: square; margin-left: 2em;">
 
-	<li><a href="<?php echo esc_url($wpsc_promo_links['boost']);?>"><?php _e( 'Boost your page speed scores', 'wp-super-cache' ); ?></a></li>
-	<li><a href="<?php echo esc_url($wpsc_promo_links['photon']);?>"><?php _e( 'Speed up images and photos (free)', 'wp-super-cache' ); ?></a></li>
-	<li><a href="<?php echo esc_url($wpsc_promo_links['videopress']);?>"><?php _e( 'Fast video hosting (paid)', 'wp-super-cache' ); ?></a></li>
-	<li><a href="<?php echo esc_url($wpsc_promo_links['crowdsignal']);?>"><?php _e( 'Add Surveys and Polls to your site', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['boost'] ); ?>"><?php esc_html_e( 'Boost your page speed scores', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['photon'] ); ?>"><?php esc_html_e( 'Speed up images and photos (free)', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['videopress'] ); ?>"><?php esc_html_e( 'Fast video hosting (paid)', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['crowdsignal'] ); ?>"><?php esc_html_e( 'Add Surveys and Polls to your site', 'wp-super-cache' ); ?></a></li>
 	</ul>
 	<h4><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h4>
 	<ol>
