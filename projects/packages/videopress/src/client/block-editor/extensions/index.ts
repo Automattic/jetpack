@@ -5,11 +5,11 @@ import debugFactory from 'debug';
 /*
  * Types
  */
-import { VideoPressExtensionProps } from './types';
+import { VideoPressExtensionsProps } from './types';
 
 const debug = debugFactory( 'videopress:extensions' );
 
-const extensions = window?.videoPressExtensions || [];
+const extensions = window?.videoPressExtensions || <VideoPressExtensionsProps>[];
 
 debug( 'Extensions: %o', extensions );
 
@@ -20,9 +20,7 @@ debug( 'Extensions: %o', extensions );
  * @returns {boolean} - Whether the extension is enabled.
  */
 export function isExtensionEnabled( extension: string ) {
-	const vpExtension = extensions.find(
-		( ext: VideoPressExtensionProps ) => ext.name === extension
-	);
+	const vpExtension = extensions.find( ext => ext.name === extension );
 	return vpExtension?.isEnabled;
 }
 
@@ -33,8 +31,6 @@ export function isExtensionEnabled( extension: string ) {
  * @returns {boolean} - Whether the extension is beta.
  */
 export function isBetaExtension( extension: string ) {
-	const vpExtension = extensions.find(
-		( ext: VideoPressExtensionProps ) => ext.name === extension
-	);
+	const vpExtension = extensions.find( ext => ext.name === extension );
 	return vpExtension?.isBeta;
 }
