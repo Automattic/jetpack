@@ -55,6 +55,14 @@ function generateChaptersFileContent(
 	return content;
 }
 
+/**
+ * Helper function that return a File instance,
+ * based on the given row data.
+ *
+ * @param {string} description   - Description row data.
+ * @param {number} videoDuration - Number row data.
+ * @returns {File} File data object
+ */
 export default function generateChaptersFile(
 	description: string,
 	videoDuration: number
