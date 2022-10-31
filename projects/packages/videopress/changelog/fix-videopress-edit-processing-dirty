@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Get video title from backend after upload to avoid dirty form while processing
