@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Search: add blog ID filtering and `blogIdFilteringLabels` option
