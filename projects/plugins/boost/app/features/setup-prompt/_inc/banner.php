@@ -1,7 +1,7 @@
 <div class="jb-setup-banner">
 	<div class="jb-setup-banner__content-top-text">
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"></rect><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"></path></g></svg>
-		<span><?php esc_html_e( 'You are almost done. Set up Jetpack Boost and generate your sites critical CSS to see the impact on your pagespeed scores.', 'jetpack-boost' ); ?></span>
+		<span><?php esc_html_e( "You're almost done. Set up Jetpack Boost and generate your site's Critical CSS to see the impact on your PageSpeed scores.", 'jetpack-boost' ); ?></span>
 	</div>
 	<span class="notice-dismiss jb-setup-banner__dismiss" title="Dismiss this notice"></span>
 	<div class="jb-setup-banner__inner">
@@ -13,7 +13,7 @@
 			</h1>
 
 			<p class="jb-setup-banner__text">
-				<?php esc_html_e( 'You are almost done. Set up Jetpack Boost and generate your sites critical CSS to see the impact on your pagespeed scores.', 'jetpack-boost' ); ?>
+				<?php esc_html_e( "You're almost done. Set up Jetpack Boost and generate your site's Critical CSS to see the impact on your PageSpeed scores.", 'jetpack-boost' ); ?>
 			</p>
 
 			<footer class="jb-setup-banner__footer">
