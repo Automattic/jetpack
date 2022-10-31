@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
@@ -57,10 +58,28 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			'/sites/(?P<blog_id>\d+)',
+			'/sites/' . Jetpack_Options::get_option( 'id' ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'site' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/stats/(?P<resource>\w+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_resource_from_wpcom' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/(?P<resource>[\-\w]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_resource_from_wpcom' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
@@ -78,7 +97,7 @@ class REST_Controller {
 			'/me/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'empty_object' ),
+				'callback'            => array( $this, 'empty_result' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
@@ -87,16 +106,7 @@ class REST_Controller {
 			'/me/preferences',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'empty_object' ),
-				'permission_callback' => 'is_user_logged_in',
-			)
-		);
-		register_rest_route(
-			static::$namespace,
-			'/sites/(?P<blog_id>\d+)/features',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'empty_object' ),
+				'callback'            => array( $this, 'empty_result' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
@@ -170,12 +180,49 @@ class REST_Controller {
 	}
 
 	/**
-	 * Empty result.
+	 * Resource endpoint.
 	 *
+	 * @param WP_REST_Request $params The request object.
 	 * @return array
 	 */
-	public function empty_object() {
+	public function get_resource_from_wpcom( $params ) {
+		$wpcom_stats = new WPCOM_Stats( $params['resource'] );
+		return $wpcom_stats->fetch_stats();
+	}
+
+	/**
+	 * Returns an empty object.
+	 *
+	 * @return object
+	 */
+	public function empty_result() {
 		return json_decode( '{}' );
+	}
+
+	/**
+	 * Empty result.
+	 *
+	 * @param WP_REST_Request $params The request object.
+	 * @return array
+	 */
+	public function get_site_resource_from_wpcom( $params ) {
+		$response      = Client::wpcom_json_api_request_as_blog(
+			sprintf(
+				'/sites/%d/%s',
+				Jetpack_Options::get_option( 'id' ),
+				$params['resouce']
+			),
+			'1.1',
+			array( 'timeout' => 30 )
+		);
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
+			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
+		}
+
+		return json_decode( $response_body, true );
 	}
 
 	/**

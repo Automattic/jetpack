@@ -50,6 +50,15 @@ class WPCOM_Stats {
 	protected $resource;
 
 	/**
+	 * Stats resource
+	 *
+	 * @param string $resource The stats resource to fetch results for.
+	 */
+	public function __construct( $resource ) {
+		$this->resource = $resource;
+	}
+
+	/**
 	 * Get site's stats.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
@@ -323,7 +332,7 @@ class WPCOM_Stats {
 	 *
 	 * @return array|WP_Error
 	 */
-	protected function fetch_stats( $args = array() ) {
+	public function fetch_stats( $args = array() ) {
 		$endpoint       = $this->build_endpoint();
 		$api_version    = self::STATS_REST_API_VERSION;
 		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
@@ -363,12 +372,12 @@ class WPCOM_Stats {
 		if ( is_array( $args ) && ! empty( $args ) ) {
 			$endpoint .= '?' . http_build_query( $args );
 		}
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION );
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, array( 'timeout' => 30 ) );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
-			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', 'Failed to fetch Stats from WPCOM' );
+			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
 		}
 
 		return json_decode( $response_body, true );
