@@ -3,8 +3,11 @@
  */
 import { VideoPressExtensionsProps } from './types';
 
-export declare global {
+declare global {
 	interface Window {
-		videoPressExtensions: VideoPressExtensionsProps;
+		videoPressEditorState: {
+			extensions: VideoPressExtensionsProps;
+			siteType: 'simple' | 'atomic' | 'jetpack';
+		};
 	}
 }
