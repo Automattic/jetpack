@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\BloggingPrompts;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status\Visitor;
 
 const FEATURE_NAME = 'blogging-prompts';
@@ -20,6 +21,12 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  */
 function register_extension() {
 	Blocks::jetpack_register_block( BLOCK_NAME );
+
+	// Load the blogging-prompts endpoint here on init so its route will be registered.
+	// We can use it with `WPCOM_API_Direct::do_request` to avoid a network request on Simple Sites.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && jetpack_is_potential_blogging_site() ) {
+		wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' );
+	}
 }
 
 /**
@@ -37,20 +44,27 @@ function get_daily_writing_prompt() {
 		return $prompt_today;
 	}
 
-	$blog_id  = \Jetpack_Options::get_option( 'id' );
-	$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-		'/sites/' . $blog_id . '/blogging-prompts?from=' . $today . '&number=1',
-		'v2',
-		array(
-			'headers' => array(
-				'Content-Type'    => 'application/json',
-				'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-			),
+	$blog_id = \Jetpack_Options::get_option( 'id' );
+	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $today . '&number=1';
+	$args    = array(
+		'headers' => array(
+			'Content-Type'    => 'application/json',
+			'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 		),
-		null,
-		'wpcom'
+		// `method` and `url` are needed for using `WPCOM_API_Direct::do_request`
+		// `wpcom_json_api_request_as_user` will generate and overwrite these.
+		'method'  => \WP_REST_Server::READABLE,
+		'url'     => JETPACK__WPCOM_JSON_API_BASE . '/wpcom/v2' . $path,
 	);
 
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		// This will load the library, but the `enqueue_block_assets` hook is too late to load any endpoints
+		// using WPCOM_API_Direct::register_endpoints.
+		require_lib( 'wpcom-api-direct' );
+		$response = \WPCOM_API_Direct::do_request( $args );
+	} else {
+		$response = Client::wpcom_json_api_request_as_user( $path, 'v2', $args, null, 'wpcom' );
+	}
 	$response_status = wp_remote_retrieve_response_code( $response );
 
 	if ( is_wp_error( $response ) || $response_status !== \WP_Http::OK ) {
