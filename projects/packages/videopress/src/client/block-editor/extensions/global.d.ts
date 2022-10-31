@@ -1,10 +1,7 @@
-export type VideoPressExtensionProp = {
-	name: string;
-	isEnabled: boolean;
-	isBeta: boolean;
-};
-
-export type VideoPressExtensionsProp = Array< VideoPressExtensionProp >;
+/**
+ * Internal dependencies
+ */
+import { VideoPressExtensionsProps } from './types';
 
 export declare global {
 	interface Window {
