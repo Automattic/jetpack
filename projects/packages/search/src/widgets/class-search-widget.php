@@ -964,7 +964,7 @@ class Search_Widget extends \WP_Widget {
 		$args['name_placeholder'] = Helper::generate_widget_filter_name( $args );
 
 		// Hide author & blog ID filters when Instant Search is turned off.
-		if ( ! $is_instant_search && ( 'author' === $args['type'] || 'blog_id' === $args['type'] ) ) :
+		if ( ! $is_instant_search && in_array( $args['type'], array( 'author', 'blog_id' ) ) ) :
 			return;
 		endif;
 		?>
@@ -984,7 +984,7 @@ class Search_Widget extends \WP_Widget {
 							<?php esc_html_e( 'Author', 'jetpack-search-pkg' ); ?>
 						</option>
 						<option value="blog_id" <?php $this->render_widget_option_selected( 'type', $args['type'], 'blog_id', $is_template ); ?>>
-							<?php esc_html_e( 'Blog ID', 'jetpack-search-pkg' ); ?>
+							<?php esc_html_e( 'Blog', 'jetpack-search-pkg' ); ?>
 						</option>
 						<?php endif; ?>
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
