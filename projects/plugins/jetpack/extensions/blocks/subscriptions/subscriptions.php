@@ -95,8 +95,8 @@ function render_block( $attributes, $content ) {
 /**
  * Filter excerpts looking for subscription data.
  *
- * @param $excerpt  string
- * @param $raw_text WP_Post
+ * @param string  $excerpt The extrapolated excerpt string.
+ * @param WP_Post $post    The current post being processed (in `get_the_excerpt`).
  *
  * @return mixed
  */
