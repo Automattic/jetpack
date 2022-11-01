@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "2.3.2",
+	"version": "2.3.3-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -28,11 +28,11 @@
 		"@automattic/jetpack-components": "workspace:* || ^0.24",
 		"@automattic/jetpack-connection": "workspace:* || ^0.22",
 		"@automattic/jetpack-licensing": "workspace:* || ^0.6",
-		"@wordpress/api-fetch": "6.16.0",
-		"@wordpress/components": "21.2.0",
-		"@wordpress/data": "7.3.0",
-		"@wordpress/i18n": "4.19.0",
-		"@wordpress/icons": "9.10.0",
+		"@wordpress/api-fetch": "6.17.0",
+		"@wordpress/components": "21.3.0",
+		"@wordpress/data": "7.4.0",
+		"@wordpress/i18n": "4.20.0",
+		"@wordpress/icons": "9.11.0",
 		"classnames": "2.3.1",
 		"prop-types": "15.8.1",
 		"react-router-dom": "6.2.2"
