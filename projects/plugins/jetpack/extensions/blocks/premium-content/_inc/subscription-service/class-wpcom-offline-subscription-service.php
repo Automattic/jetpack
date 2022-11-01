@@ -37,7 +37,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * Lookup users subscriptions for a site and determine if the user has a valid subscription to match the plan ID
 	 *
 	 * @param array  $valid_plan_ids .
-	 * @param string $access_level  .
+	 * @param string $access_level .
 	 *
 	 * @return bool
 	 */
