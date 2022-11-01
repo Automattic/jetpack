@@ -450,19 +450,14 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post() {
+		$newsletter_access_level = self::get_newsletter_access_level();
+		if ( 'everybody' === $newsletter_access_level ) {
+			return true;
+		}
+
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-
-		$newsletter_access_level = self::get_newsletter_access_level();
-		if ( 'paid_subscribers' === $newsletter_access_level ) {
-			$plan_ids = self::get_all_plans_id_jetpack_recurring_payments();
-			return $paywall->visitor_can_view_content( $plan_ids );
-		}
-
-		if ( 'subscribers' === $newsletter_access_level ) {
-			return $paywall->vistor_is_blog_subscriber();
-		}
-		return true;
+		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
 	/**
