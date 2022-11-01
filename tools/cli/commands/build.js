@@ -777,13 +777,14 @@ async function buildProject( t ) {
 			if ( composerJson[ key ] ) {
 				for ( const [ pkg ] of Object.entries( composerJson[ key ] ) ) {
 					for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
-						if ( ctxPkg.name === pkg ) {
+						if ( ctxPkg.name === pkg && pkg.version.includes( '@dev' ) ) {
 							let massagedVer = ctxPkg.version;
 
 							// Truncate non-0.x 'require' package versions to be two components only.
 							if (
 								key === 'require' &&
-								t.project.startsWith( 'packages/' ) && massagedVer[ 0 ] !== '0'
+								t.project.startsWith( 'packages/' ) &&
+								massagedVer[ 0 ] !== '0'
 							) {
 								massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
 							}
