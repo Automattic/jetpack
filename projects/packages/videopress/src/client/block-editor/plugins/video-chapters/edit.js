@@ -3,7 +3,6 @@
  */
 import { InspectorControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -16,36 +15,9 @@ import { VIDEO_CHAPTERS_EXTENSION_NAME } from '.';
 const withVideoChaptersEdit = createHigherOrderComponent(
 	BlockEdit => props => {
 		const { attributes, setAttributes } = props;
-		const [ videoItem, isRequestingVideoItem ] = useVideoItem( attributes?.id );
-		const [ forceInitialState ] = useSyncMedia( attributes );
+		const [ isRequestingVideoItem ] = useVideoItem( attributes?.id );
+		useSyncMedia( attributes, setAttributes, [ 'title', 'description' ] );
 		const isVideoChaptersEnabled = isExtensionEnabled( VIDEO_CHAPTERS_EXTENSION_NAME );
-
-		/*
-		 * Propagate title and description from
-		 * the video item (metadata) to the block attributes.
-		 */
-		useEffect( () => {
-			if ( ! videoItem ) {
-				return;
-			}
-
-			const freshAttributes = {};
-
-			if ( videoItem?.title ) {
-				freshAttributes.title = videoItem.title;
-			}
-
-			if ( videoItem?.description ) {
-				freshAttributes.description = videoItem.description;
-			}
-
-			if ( ! Object.keys( freshAttributes ).length ) {
-				return;
-			}
-
-			setAttributes( freshAttributes );
-			forceInitialState( freshAttributes );
-		}, [ videoItem, setAttributes, forceInitialState ] );
 
 		if ( ! isVideoChaptersEnabled ) {
 			return <BlockEdit { ...props } />;

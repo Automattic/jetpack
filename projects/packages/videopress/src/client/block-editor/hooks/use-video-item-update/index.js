@@ -15,6 +15,7 @@ import { getVideoPressUrl } from '../../../lib/url';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
 import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
+import useVideoItem from '../use-video-item';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
@@ -48,11 +49,14 @@ export default function useMediaItemUpdate( id ) {
  * between the media item and the block attributes.
  *
  * @param {object} attributes        - Block attributes.
+ * @param {Function} setAttributes   - Block attributes setter.
  * @param {Array} attributesToUpdate - Block attributes list to update.
  * @returns {Array}                    [ forceInitialState, isSyncing ]
  */
-export function useSyncMedia( attributes, attributesToUpdate ) {
+export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 	const { id, guid } = attributes;
+	const [ videoItem, isRequestingVideoItem ] = useVideoItem( id );
+
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
@@ -63,17 +67,42 @@ export function useSyncMedia( attributes, attributesToUpdate ) {
 		setState( current => ( { ...current, ...data } ) );
 	}, [] );
 
-	// Populate initial state when mounted
+	/*
+	 * Populate block attributes with the media data,
+	 * provided by the VideoPress API (useVideoItem hook).
+	 */
 	useEffect( () => {
+		if ( isRequestingVideoItem ) {
+			return;
+		}
+
+		if ( ! videoItem ) {
+			return;
+		}
+
+		// Build the attributes object to update.
 		const initialAttributesState = attributesToUpdate.reduce( ( acc, key ) => {
-			acc[ key ] = attributes[ key ];
+			acc[ key ] = videoItem[ key ];
 			return acc;
 		}, {} );
+
+		if ( ! Object.keys( initialAttributesState ).length ) {
+			return;
+		}
+
+		// Let's set the internal initial state.
 		setState( initialAttributesState );
-	}, [] );
+
+		// And udpate the block attribute with fresh data.
+		setAttributes( initialAttributesState );
+	}, [ videoItem, isRequestingVideoItem ] );
 
 	const updateMedia = useMediaItemUpdate( id );
 
+	/**
+	 * Compare the current block attributes with the initial state,
+	 * and update the media item if needed (via the VideoPress API).
+	 */
 	useEffect( () => {
 		if ( ! isSaving || wasSaving ) {
 			return;

@@ -13,7 +13,7 @@ import { WPV2MediaAPIResponseProps } from './types';
  * @returns {Array} - The video item and a boolean indicating if the request is in progress.
  */
 export default function useVideoItem( id: VideoId ): [ WPV2MediaAPIResponseProps, boolean ] {
-	const [ item, setItem ] = useState( {} );
+	const [ item, setItem ] = useState();
 	const [ loading, setLoading ] = useState( false );
 
 	useEffect( () => {
@@ -26,8 +26,12 @@ export default function useVideoItem( id: VideoId ): [ WPV2MediaAPIResponseProps
 					path: `/wp/v2/media/${ id }`,
 				} );
 
-				setItem( response?.jetpack_videopress || {} );
 				setLoading( false );
+				if ( ! response?.jetpack_videopress ) {
+					return;
+				}
+
+				setItem( response.jetpack_videopress );
 			} catch ( error ) {
 				setLoading( false );
 				throw new Error( error );
