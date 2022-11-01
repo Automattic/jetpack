@@ -313,6 +313,7 @@ class Waf_Runner {
 			return;
 		}
 
+		self::generate_ip_rules();
 		self::generate_rules();
 		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
 	}
