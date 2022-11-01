@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<button 
 		type="button"
 		class="jp-plugin-deactivation__action--close jp-plugin-deactivation__button"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"
 	><?php esc_html_e( 'Cancel', 'jetpack-boost' ); ?></button>
 	<button 
 		type="button"
