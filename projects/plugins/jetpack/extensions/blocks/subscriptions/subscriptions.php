@@ -103,6 +103,7 @@ function render_block( $attributes, $content ) {
 function jetpack_filter_excerpt_for_newsletter( $excerpt, $post ) {
 	if ( false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
 		$excerpt .= sprintf(
+			// translators: %s is the permalink url to the current post.
 			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
 			get_post_permalink()
 		);
