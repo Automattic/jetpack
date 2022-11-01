@@ -1,8 +1,7 @@
 /**
  * Internal dependencies
  */
-import { VideoPressExtensionsProps } from './types';
-
+import { VideoPressExtensionsProps } from './extensions/types';
 declare global {
 	interface Window {
 		videoPressEditorState: {
