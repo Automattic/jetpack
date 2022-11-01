@@ -27,7 +27,7 @@ export const getPaidPlanLink = hasNewsletterPlans => {
 
 export const isNewsletterFeatureEnabled = () => {
 	return !! window?.Jetpack_Editor_Initial_State?.available_blocks[
-		'videopress/video-chapters' // We probably want to introduce a new "extension" instaed of reusing this one.
+		'paid-newsletters-in-subscriptions' // We probably want to introduce a new "extension" instaed of reusing this one.
 	];
 };
 

@@ -25,7 +25,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 import SubscriptionControls from './controls';
-import GetAddPaidPlanButton from './utils';
+import GetAddPaidPlanButton, { isNewsletterFeatureEnabled } from './utils';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -236,11 +236,13 @@ export function SubscriptionEdit( props ) {
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
-			<BlockControls>
-				<Toolbar>
-					<GetAddPaidPlanButton context={ 'toolbar' } hasNewsletterPlans={ hasNewsletterPlans } />
-				</Toolbar>
-			</BlockControls>
+			{ isNewsletterFeatureEnabled() && (
+				<BlockControls>
+					<Toolbar>
+						<GetAddPaidPlanButton context={ 'toolbar' } hasNewsletterPlans={ hasNewsletterPlans } />
+					</Toolbar>
+				</BlockControls>
+			) }
 
 			<div className={ getBlockClassName() }>
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
