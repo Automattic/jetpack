@@ -12,7 +12,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from '../../../utils/url/index.js';
+import { getVideoPressUrl } from '../../../lib/url';
 import { VideoPressIcon } from './components/icons';
 import VideoPressInspectorControls from './components/inspector-controls';
 import PosterImageBlockControl from './components/poster-image-block-control';

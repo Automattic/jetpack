@@ -46,7 +46,7 @@ export const getVideoPressUrl = (
 	return addQueryArgs( `https://videopress.com/v/${ guid }`, options );
 };
 
-export const pickGUIDFromUrl = url => {
+export const pickGUIDFromUrl = ( url: string ) => {
 	if ( ! url ) {
 		return null;
 	}

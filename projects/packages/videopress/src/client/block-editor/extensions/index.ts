@@ -9,7 +9,7 @@ import { VideoPressExtensionsProps } from './types';
 
 const debug = debugFactory( 'videopress:extensions' );
 
-const extensions = window?.videoPressExtensions || <VideoPressExtensionsProps>[];
+const extensions = window?.videoPressEditorState?.extensions || <VideoPressExtensionsProps>[];
 
 debug( 'Extensions: %o', extensions );
 
