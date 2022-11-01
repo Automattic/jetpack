@@ -1,4 +1,4 @@
-import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { ProgressBar } from '@automattic/components';
 import {
 	AdminPage,
 	AdminSectionHero,
