@@ -1,13 +1,13 @@
-export type VideoPressExtensionProp = {
-	name: string;
-	isEnabled: boolean;
-	isBeta: boolean;
-};
+/**
+ * Internal dependencies
+ */
+import { VideoPressExtensionsProps } from './types';
 
-export type VideoPressExtensionsProp = Array< VideoPressExtensionProp >;
-
-export declare global {
+declare global {
 	interface Window {
-		videoPressExtensions: VideoPressExtensionsProps;
+		videoPressEditorState: {
+			extensions: VideoPressExtensionsProps;
+			siteType: 'simple' | 'atomic' | 'jetpack';
+		};
 	}
 }
