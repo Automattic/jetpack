@@ -1,0 +1,84 @@
+.perfguard {
+	position: relative;
+}
+
+.perfguard--bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.perfguard-overlay,
+.perfguard-previews {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 20px;
+	z-index: 9001;
+}
+
+.perfguard-overlay {
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	background-color: hsl(0 90% 5% / 0.55);
+	display: none;
+}
+
+.perfguard-overlay:hover, .perfguard:has(.perfguard-previews:hover) .perfguard-overlay {
+	display: block;
+}
+
+
+.perfguard-previews {
+	position: absolute;
+	width: fit-content;
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.perfguard-info {
+	padding: 25px;
+	font-family: sans-serif;
+	background-color: rgb(255, 255, 255);
+	margin-bottom: 10px;
+
+	width: fit-content;
+	border-radius: 6px;
+	font-size: 15px;
+	display: flex;
+	gap: 15px;
+}
+
+.perfguard-preview {
+	background-color: #069e08;
+	color: white;
+
+	font-weight: 700;
+	font-family: sans-serif;
+	font-size: 11px;
+
+	padding: 3px;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	text-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
+	cursor: default;
+}
+
+.perfguard-preview.high {
+	background-color: #e52e00;
+}
+
+.perfguard-preview.medium {
+	background-color: #e98800;
+}
