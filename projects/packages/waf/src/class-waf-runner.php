@@ -331,6 +331,7 @@ class Waf_Runner {
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::WAF_RULES_VERSION !== $version ) {
 			update_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
+			self::generate_ip_rules();
 			self::generate_rules();
 		}
 	}
