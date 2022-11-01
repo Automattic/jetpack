@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 
 /**
@@ -108,57 +107,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	}
 
 	/**
-	 * The user is visiting with a subscriber token cookie
-	 * or the user is logged in and the blog subscription
-	 * is verified by POSTing the Auth endpoint
-	 */
-	public function vistor_is_blog_subscriber() {
-
-		// URL token always has a precedence, so it can overwrite the cookie when new data available.
-		$token = $this->token_from_request();
-		if ( $token ) {
-			$this->set_token_cookie( $token );
-		} else {
-			$token = $this->token_from_cookie();
-		}
-
-		$is_valid_token = true;
-
-		if ( empty( $token ) ) {
-			// no token, no access.
-			$is_valid_token = false;
-		} else {
-			$payload = $this->decode_token( $token );
-			if ( empty( $payload ) ) {
-				$is_valid_token = false;
-			}
-		}
-
-		if ( $is_valid_token ) {
-			return 'active' === $payload['blog_sub'];
-		} elseif ( is_user_logged_in() ) {
-			/*
-			 * If there is no token, but the user is logged in,
-			 * POST to the Auth endpoint to determine if the user
-			 * subscribed to the blog
-			 */
-			// TODO: Figure out how to request JWT
-			$response  = Client::remote_request(
-				array(
-					'url'    => $this->get_rest_api_token_url( $this->get_site_id(), get_permalink() ),
-					'method' => 'POST',
-				)
-			);
-			$jwt_token = $this->token_from_request( $response );
-			$token     = $this->decode_token( get_current_blog_id(), $jwt_token );
-
-			return 'active' === $payload['blog_sub'];
-		} else {
-			return false;
-		}
-	}
-
-	/**
 	 * Decode the given token.
 	 *
 	 * @param string $token Token to decode.
@@ -246,21 +194,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			}
 		}
 		return $token;
-	}
-
-	/**
-	 * Take the endpoint response and extract the token paramater sent in the redirect.
-	 *
-	 * @param Response $response Response.
-	 *
-	 * @return ?string token passed as a redirect.
-	 */
-	private function extract_token_from_response( $response ) {
-		$token_query = wp_parse_url( $response->headers['location'], PHP_URL_QUERY );
-		$matches     = array();
-		preg_match( '/token=(?P<token>[^&]*)/', $token_query, $matches );
-		$this->assertCount( 3, $matches );
-		return urldecode( $matches['token'] );
 	}
 
 	/**
