@@ -74,7 +74,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	if ( class_exists( 'Jetpack_Memberships' ) && Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+	if (
+		\Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) &&
+		class_exists( 'Jetpack_Memberships' ) &&
+		Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
+	) {
 		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
