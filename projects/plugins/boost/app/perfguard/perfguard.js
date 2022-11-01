@@ -45,13 +45,15 @@ function addInfo($el, imageURL, ratio, loadedW, loadedH, actualW, actualH) {
 	<div class="perfguard-preview ${severity}">
 		<div class="perfguard-preview__ratio">${ratio}</div>
 	</div>
-`;
+	`;
+	const fakeSavingsInKB = Math.round((loadedW * loadedH - actualW * actualH) / 1000);
 	const infoHTML = `
 	<div class="perfguard-info">
 		<div class="perfguard-details">
 			<a href="${imageURL}" target="_blank">${imageName}</a> is <b>${ratio}x</b> larger the needed. <br>
 			Actual Size: ${actualW} x ${actualH} <br>
 			Loaded Size: ${loadedW} x ${loadedH} <br>
+			Potential Savings: <strong>${fakeSavingsInKB} KB</strong>
 		</div>
 	</div>
 	`;
