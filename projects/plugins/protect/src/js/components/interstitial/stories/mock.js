@@ -12,8 +12,9 @@ export const jetpackProtectInitialState = {
 			version: '5.9.3',
 			threats: [],
 		},
-		themes: {
-			twentynineteen: {
+		themes: [
+			{
+				slug: 'twentynineteen',
 				version: '2.2',
 				threats: [
 					{
@@ -23,7 +24,8 @@ export const jetpackProtectInitialState = {
 					},
 				],
 			},
-			twentytwenty: {
+			{
+				slug: 'twentytwenty',
 				version: '1.9',
 				threats: [
 					{
@@ -38,17 +40,20 @@ export const jetpackProtectInitialState = {
 					},
 				],
 			},
-			twentytwentyone: {
+			{
+				slug: 'twentytwentyone',
 				version: '1.5',
 				threats: [],
 			},
-			twentytwentytwo: {
+			{
+				slug: 'twentytwentytwo',
 				version: '1.1',
 				threats: [],
 			},
-		},
-		plugins: {
-			'akismet/akismet.php': {
+		],
+		plugins: [
+			{
+				slug: 'akismet/akismet.php',
 				version: '4.2.3',
 				threats: [
 					{
@@ -58,7 +63,8 @@ export const jetpackProtectInitialState = {
 					},
 				],
 			},
-			'always-use-jetpack-open-graph/always-use-jetpack-open-graph.php': {
+			{
+				slug: 'always-use-jetpack-open-graph/always-use-jetpack-open-graph.php',
 				version: '1.0.2-alpha',
 				threats: [
 					{
@@ -73,79 +79,97 @@ export const jetpackProtectInitialState = {
 					},
 				],
 			},
-			'core-control/core-control.php': {
+			{
+				slug: 'core-control/core-control.php',
 				version: '1.2.1',
 				threats: [],
 			},
-			'creative-mail-by-constant-contact/creative-mail-plugin.php': {
+			{
+				slug: 'creative-mail-by-constant-contact/creative-mail-plugin.php',
 				version: '1.4.9',
 				threats: [],
 			},
-			'gutenberg/gutenberg.php': {
+			{
+				slug: 'gutenberg/gutenberg.php',
 				version: '12.7.1',
 				threats: [],
 			},
-			'jetpack/jetpack.php': {
+			{
+				slug: 'jetpack/jetpack.php',
 				version: '11.0-a.2',
 				threats: [],
 			},
-			'backup/jetpack-backup.php': {
+			{
+				slug: 'backup/jetpack-backup.php',
 				version: '1.3.0-alpha',
 				threats: [],
 			},
-			'beta/jetpack-beta.php': {
+			{
+				slug: 'beta/jetpack-beta.php',
 				version: '3.1.2-alpha',
 				threats: [],
 			},
-			'boost/jetpack-boost.php': {
+			{
+				slug: 'boost/jetpack-boost.php',
 				version: '1.4.3-alpha',
 				threats: [],
 			},
-			'jetpack-boost/jetpack-boost.php': {
+			{
+				slug: 'jetpack-boost/jetpack-boost.php',
 				version: '1.4.0',
 				threats: [],
 			},
-			'zero-bs-crm/ZeroBSCRM.php': {
+			{
+				slug: 'zero-bs-crm/ZeroBSCRM.php',
 				version: '4.9.0',
 				threats: [],
 			},
-			'debug-helper/plugin.php': {
+			{
+				slug: 'debug-helper/plugin.php',
 				version: '1.4.0-alpha',
 				threats: [],
 			},
-			'protect/jetpack-protect.php': {
+			{
+				slug: 'protect/jetpack-protect.php',
 				version: '0.1.0-alpha',
 				threats: [],
 			},
-			'search/jetpack-search.php': {
+			{
+				slug: 'search/jetpack-search.php',
 				version: '0.1.0-alpha',
 				threats: [],
 			},
-			'social/jetpack-social.php': {
+			{
+				slug: 'social/jetpack-social.php',
 				version: '0.1.0-alpha',
 				threats: [],
 			},
-			'starter-plugin/jetpack-starter-plugin.php': {
+			{
+				slug: 'starter-plugin/jetpack-starter-plugin.php',
 				version: '0.1.0-alpha',
 				threats: [],
 			},
-			'qr-block/qr-block.php': {
+			{
+				slug: 'qr-block/qr-block.php',
 				version: '0.0.10',
 				threats: [],
 			},
-			'query-monitor/query-monitor.php': {
+			{
+				slug: 'query-monitor/query-monitor.php',
 				version: '3.8.2',
 				threats: [],
 			},
-			'vaultpress/vaultpress.php': {
+			{
+				slug: 'vaultpress/vaultpress.php',
 				version: '2.2.2-alpha',
 				threats: [],
 			},
-			'wp-crontrol/wp-crontrol.php': {
+			{
+				slug: 'wp-crontrol/wp-crontrol.php',
 				version: '1.12.0',
 				threats: [],
 			},
-		},
+		],
 	},
 	installedPlugins: {
 		'akismet/akismet.php': {
@@ -574,12 +598,33 @@ export const jetpackProtectInitialState = {
 			'Access to latest Firewall rules',
 		],
 		status: 'needs_purchase',
-		pricing_for_ui: {
+		pricingForUi: {
+			productId: 2106,
+			productName: 'Jetpack Scan Daily',
+			productSlug: 'jetpack_scan',
+			description: '',
+			productType: 'jetpack',
 			available: true,
-			wpcom_product_slug: 'jetpack_scan',
-			currency_code: 'USD',
-			full_price: 119.4,
-			discount_price: 59.4,
+			billingProductSlug: 'jetpack-scan',
+			isDomainRegistration: false,
+			costDisplay: 'C$155.40',
+			combinedCostDisplay: 'C$155.40',
+			cost: 155.4,
+			costSmallestUnit: 15540,
+			currencyCode: 'CAD',
+			priceTierList: [],
+			priceTierUsageQuantity: null,
+			productTerm: 'year',
+			priceTiers: [],
+			priceTierSlug: '',
+			introductoryOffer: {
+				intervalUnit: 'year',
+				intervalCount: 1,
+				usageLimit: null,
+				costPerInterval: 83.4,
+				transitionAfterRenewalCount: 0,
+				shouldProrateWhenOfferEnds: false,
+			},
 		},
 		is_bundle: false,
 		is_upgradable_by_bundle: [ 'security' ],
