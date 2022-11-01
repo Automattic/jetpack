@@ -299,7 +299,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		);
 	}
 
-	// X - Show VideoPress player. @todo: finish
+	// Show VideoPress player.
 	return (
 		<div
 			{ ...blockProps }
