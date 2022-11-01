@@ -613,7 +613,7 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Updates site editor dashboard link
 	 *
-	 * @param string $setting block-editor settings.
+	 * @param array $setting block-editor settings.
 	 * @return array
 	 */
 	public function test_editor_settings( $setting ) {
