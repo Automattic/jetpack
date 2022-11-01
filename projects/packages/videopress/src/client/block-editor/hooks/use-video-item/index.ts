@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { VideoId } from '../../types';
+import { VideoId } from '../../plugins/video-chapters/types';
 import { WPV2MediaAPIResponseProps } from './types';
 
 /**

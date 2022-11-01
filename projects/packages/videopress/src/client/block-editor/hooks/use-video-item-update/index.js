@@ -11,10 +11,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from '../../../../../lib/url';
-import extractVideoChapters from '../../utils/extract-video-chapters';
-import generateChaptersFile from '../../utils/generate-chapters-file';
-import { uploadTrackForGuid } from '../../utils/tracks-editor';
+import { getVideoPressUrl } from '../../../lib/url';
+import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
+import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
+import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.

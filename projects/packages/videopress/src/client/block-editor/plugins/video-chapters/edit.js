@@ -8,9 +8,9 @@ import { useEffect } from '@wordpress/element';
  * Internal dependencies
  */
 import { isExtensionEnabled } from '../../extensions';
+import useVideoItem from '../../hooks/use-video-item';
+import { useSyncMedia } from '../../hooks/use-video-item-update';
 import DetailsControl from './components/details-control';
-import useVideoItem from './hooks/use-video-item';
-import { useSyncMedia } from './hooks/use-video-item-update';
 import { VIDEO_CHAPTERS_EXTENSION_NAME } from '.';
 
 const withVideoChaptersEdit = createHigherOrderComponent(

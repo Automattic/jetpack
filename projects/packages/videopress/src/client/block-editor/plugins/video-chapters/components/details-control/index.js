@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useBlockAttributes from '../../hooks/use-block-attributes';
+import useBlockAttributes from '../../../../hooks/use-block-attributes';
 import './index.scss';
 
 const CHARACTERS_PER_LINE = 31;
