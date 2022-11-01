@@ -25,6 +25,12 @@ export const getPaidPlanLink = hasNewsletterPlans => {
 	return hasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
 };
 
+export const isNewsletterFeatureEnabled = () => {
+	return !! window?.Jetpack_Editor_Initial_State?.available_blocks[
+		'paid-newsletters-in-subscriptions' // We probably want to introduce a new "extension" instaed of reusing this one.
+	];
+};
+
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
