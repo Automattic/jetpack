@@ -47,11 +47,12 @@ export default function useMediaItemUpdate( id ) {
  * React hook to keep the data in-sync
  * between the media item and the block attributes.
  *
- * @param {object} attributes - Block attributes.
- * @returns {Array} - [ forceInitialState, isSyncing ]
+ * @param {object} attributes        - Block attributes.
+ * @param {Array} attributesToUpdate - Block attributes list to update.
+ * @returns {Array}                    [ forceInitialState, isSyncing ]
  */
-export function useSyncMedia( attributes ) {
-	const { id, title, description, guid } = attributes;
+export function useSyncMedia( attributes, attributesToUpdate ) {
+	const { id, guid } = attributes;
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
@@ -64,7 +65,11 @@ export function useSyncMedia( attributes ) {
 
 	// Populate initial state when mounted
 	useEffect( () => {
-		setState( { title, description } );
+		const initialAttributesState = attributesToUpdate.reduce( ( acc, key ) => {
+			acc[ key ] = attributes[ key ];
+			return acc;
+		}, {} );
+		setState( initialAttributesState );
 	}, [] );
 
 	const updateMedia = useMediaItemUpdate( id );
@@ -74,27 +79,30 @@ export function useSyncMedia( attributes ) {
 			return;
 		}
 
-		if ( ! id ) {
+		if ( ! attributes?.id ) {
 			return;
 		}
 
-		const dataToUpdate = {};
+		// Compute the diff between the initial state and the current attributes
+		const dataToUpdate = attributesToUpdate.reduce( ( acc, key ) => {
+			if ( initialState[ key ] !== attributes[ key ] ) {
+				acc[ key ] = attributes[ key ];
+			}
+			return acc;
+		}, {} );
 
-		if ( initialState?.title !== title ) {
-			dataToUpdate.title = title;
-		}
-
-		if ( initialState?.description !== description ) {
-			dataToUpdate.description = description;
-		}
-
+		// When nothing to update, bail out early.
 		if ( ! Object.keys( dataToUpdate ).length ) {
 			return;
 		}
 
-		updateMedia( dataToUpdate ).then( () => updateInitialState( { title, description } ) );
+		updateMedia( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
 
-		// Video Chapters //
+		// | Video Chapters feature |
+		if ( ! attributes?.guid ) {
+			return;
+		}
+
 		if ( ! dataToUpdate?.description?.length ) {
 			return;
 		}
@@ -112,6 +120,7 @@ export function useSyncMedia( attributes ) {
 			tmpFile: generateChaptersFile( dataToUpdate.description ),
 		};
 
+		// Re-render video player
 		uploadTrackForGuid( track, guid ).then( () => {
 			const videoPressUrl = getVideoPressUrl( guid, attributes );
 			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
@@ -119,16 +128,11 @@ export function useSyncMedia( attributes ) {
 	}, [
 		isSaving,
 		wasSaving,
-		title,
-		initialState?.title,
-		initialState?.description,
-		description,
 		updateMedia,
 		updateInitialState,
 		attributes,
 		invalidateResolution,
-		id,
-		guid,
+		attributesToUpdate,
 	] );
 
 	return [ updateInitialState ];

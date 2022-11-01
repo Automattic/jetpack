@@ -22,15 +22,15 @@ function VideoItem( { id } ) {
 
 # useSyncMedia
 
-React custom hook to keep block attributes in sync with the video item metadata.
+React custom hook to keep block attributes in sync with the video data.
 The hook will keep the initial state of the attributes to keep in-sync,
 and will update them at the same time the post saves.
 
 ```jsx
 import { useSyncMedia } from './use-video-item-update';
 
-export default function VideoItemComponent( { attributes, setAttributes } ) {
-	useSyncMedia( attributes );
+export default function VideoItemComponent( { setAttributes } ) {
+	useSyncMedia( attributes, 'title' );
 
 	return (
 		<TextControl
@@ -50,7 +50,7 @@ In case you need to force the initial state, the hook returns a handler for it:
 import { useSyncMedia } from './use-video-item-update';
 
 export default function VideoItemComponent( { attributes, setAttributes } ) {
-	const [ forceInitialState ] = useSyncMedia( attributes );
+	const [ forceInitialState ] = useSyncMedia( attributes, [ 'title' ] );
 
 	useEffect( () => {
 		if ( dataChanged ) {
