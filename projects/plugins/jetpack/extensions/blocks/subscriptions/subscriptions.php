@@ -62,6 +62,7 @@ function register_block() {
 		10
 	);
 
+	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -89,4 +90,23 @@ function render_block( $attributes, $content ) {
 	}
 
 	return $content;
+}
+
+/**
+ * Filter excerpts looking for subscription data.
+ *
+ * @param string   $excerpt The extrapolated excerpt string.
+ * @param \WP_Post $post    The current post being processed (in `get_the_excerpt`).
+ *
+ * @return mixed
+ */
+function jetpack_filter_excerpt_for_newsletter( $excerpt, $post ) {
+	if ( false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
+		$excerpt .= sprintf(
+			// translators: %s is the permalink url to the current post.
+			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
+			get_post_permalink()
+		);
+	}
+	return $excerpt;
 }
