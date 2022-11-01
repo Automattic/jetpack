@@ -105,21 +105,6 @@
 		margin-bottom: 9px;
 		color: var(--jp-black);
 	}
-
-	.jp-realtime-note {
-		font-size: 14px;
-		line-height: 22px;
-		a {
-			white-space: nowrap;
-		}
-	}
-
-	.jp-realtime-note + h2 {
-		margin-top: 37px;
-		@include responsive( one-col ) {
-			margin-top: 56px;
-		}
-	}
 }
 
 .jp-hero {
