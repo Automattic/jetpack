@@ -242,43 +242,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.5 - 2022-11-01
+### 11.6-a.1 - 2022-11-01
 #### Enhancements
-- Dashboard: add a new illustration for WooCommerce recommendation.
-- Dashboard: add connection widget for unconnected sites.
-- Dashboard: add Jetpack Search Free and Jetpack Social to My Products. [#27007, #26990]
-- Dashboard: ensure Apps card is always displayed, regardless of whether promotions are active.
-- Form block: add Contact Form child blocks to the Block Library.
-- Form block: add default spacing attributes on all form variations.
-- Form block: change layout flex styles.
-- Form block: improve parent block selection when inner block is already selected.
-- Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list.
-- Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar.
-- Jetpack Social: display broken connections to user in editor.
-- Payment Button block: support a wider varity of layout options.
-- Payment Buttons block: add typography controls.
-- Publicize: make the pre-publish panel initially closed by default.
-- Social: show pre-publish panel if the site has connections enabled.
-- Stats: change mentions of "Site Stats" with "Jetpack Stats".
-- Subscription block: don't include Jetpack Social connections in subscriber count.
-- Subscription block: revert the subscription block subscriber count change.
-- Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined.
-- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar.
-- VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin
-
-#### Improved compatibility
-- Contact Form Block: removed compatibility checks involving automatic deactivation of contact form functionality.
+- Form block: update contact-form icon
+- Form block: update Contact Form Sidebar to include Manage Responses section and split Form Settings section into more specific sections
+- Form block: update Contact Form Toolbar to include a form settings dropdown
+- Stats: update mentions of "Site Stats" to "Jetpack Stats"
 
 #### Bug fixes
-- Contact Form: display consent form field result in notification emails and feedback views.
-- Contact Form: remove overlay causing issues with the block inserter hover behavior.
-- CRM: Fix unmounted state updates in Form CRM integration
-- Form block: include spacing between Contact Form blocks to allow the block inserter to be shown on mouse hover.
-- Form block: prevent contact form from escaping valid URL characters in the redirect URL
-- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking
-- Payment Buttons block: fix payment-buttons font sizes taking precedence over the font sizes of contained button blocks.
-- Publicize Components: Fix the panel component refactor
-- Social: Ensure we have a user connection when loading the module
+- SSO: properly disable "match by email" by default.
+- WordPress.com REST API: Fix fatal error in site ID endpoint.
 
 --------
 
