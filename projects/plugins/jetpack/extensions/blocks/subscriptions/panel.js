@@ -15,6 +15,7 @@ import { getSubscriberCounts } from './api';
 import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
+import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
@@ -65,9 +66,11 @@ export default function SubscribePanels() {
 	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
 	return (
 		<>
-			<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
-				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
-			</PluginDocumentSettingPanel>
+			{ isNewsletterFeatureEnabled() && (
+				<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
+					<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+				</PluginDocumentSettingPanel>
+			) }
 
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
@@ -96,6 +99,11 @@ export default function SubscribePanels() {
 					) }
 				</InspectorNotice>
 			) }
+
+			{ isNewsletterFeatureEnabled() && (
+				<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+			) }
+
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
 				{ showNotices && (
