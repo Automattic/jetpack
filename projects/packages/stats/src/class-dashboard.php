@@ -74,8 +74,11 @@ class Dashboard {
 		<script>
 			jQuery(document).ready(function($) {
 				$("#wpcom").on('click', 'a', function (e) {
-					console.log(e.currentTarget.attributes.href.value)
-					location.hash = '#!' + e.currentTarget.attributes.href.value;
+					// TODO: we should only intercept internal links here.
+					const link = e?.currentTarget?.attributes?.href?.value;
+					if( link && ! link.startsWith( 'https' ) ) {
+						location.hash = `#!${link}`;
+					}
 					e.preventDefault();
 					e.stopPropagation();
 					return false;
@@ -124,6 +127,9 @@ class Dashboard {
 					max-width: initial;
 					min-width: initial;
 				}
+				ul.wp-submenu, ul.wp-submenu-wrap {
+					margin-left: 0;
+				}
 				</style>';
 			},
 			100
@@ -134,36 +140,58 @@ class Dashboard {
 	 * Return the initial state of the app.
 	 */
 	public static function config_data() {
+
 		return 'window.configData = ' . wp_json_encode(
 			array(
-				'site_name'                => 'whatever',
-				'env_id'                   => 'jetpack-stats-app',
-				'i18n_default_locale_slug' => 'en',
-				'google_analytics_key'     => 'UA-10673494-15',
-				'client_slug'              => 'browser',
-				'twemoji_cdn_url'          => 'https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/',
-				'site_filter'              => array(),
-				'sections'                 => array(),
-				'enable_all_sections'      => false,
-				'livechat_support_locales' => array( 'en' ),
-				'upwork_support_locales'   => array( 'de' ),
-				'jetpack_support_blog'     => 'jetpackme.wordpress.com',
-				'wpcom_support_blog'       => 'en.support.wordpress.com',
-				'mc_analytics_enabled'     => false,
-				'gutenboarding_url'        => '/new',
-				'hostname'                 => false,
-				'restricted_me_access'     => true,
-				'signup_url'               => false,
-				'features'                 => array(),
-				'api_root'                 => esc_url_raw( rest_url() ),
-				'blog_id'                  => Jetpack_Options::get_option( 'id' ),
-				'nonce'                    => wp_create_nonce( 'wp_rest' ),
-				'meta'                     => array(
+				'site_name'                      => \get_bloginfo( 'name' ),
+				'env_id'                         => 'jetpack-stats-app',
+				'i18n_default_locale_slug'       => 'en',
+				'i18n_locale_slug'               => static::get_site_locale(),
+				'google_analytics_key'           => 'UA-10673494-15',
+				'client_slug'                    => 'browser',
+				'twemoji_cdn_url'                => 'https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/',
+				'site_filter'                    => array(),
+				'sections'                       => array(),
+				'enable_all_sections'            => false,
+				'jetpack_support_blog'           => 'jetpackme.wordpress.com',
+				'wpcom_support_blog'             => 'en.support.wordpress.com',
+				'google_maps_and_places_api_key' => '',
+				'mc_analytics_enabled'           => false,
+				'gutenboarding_url'              => '/new',
+				'hostname'                       => false,
+				'restricted_me_access'           => true,
+				'signup_url'                     => false,
+				'features'                       => array(),
+				'api_root'                       => esc_url_raw( rest_url() ),
+				'blog_id'                        => Jetpack_Options::get_option( 'id' ),
+				'nonce'                          => wp_create_nonce( 'wp_rest' ),
+				'meta'                           => array(
 					'property' => 'og:site_name',
 					'content'  => 'WordPress.com',
 				),
 			)
 		);
+	}
+
+	/**
+	 * Get locale acceptable by Calypso.
+	 */
+	protected static function get_site_locale() {
+		// Stolen from `projects/plugins/jetpack/modules/sitemaps/sitemap-builder.php`
+
+		/*
+		 * Trim the locale to an ISO 639 language code as required by Google.
+		 * Special cases are zh-cn (Simplified Chinese) and zh-tw (Traditional Chinese).
+		 * @link https://www.loc.gov/standards/iso639-2/php/code_list.php
+		 */
+		$locale = strtolower( get_locale() );
+
+		if ( in_array( $locale, array( 'zh_tw', 'zh_cn' ), true ) ) {
+			$locale = str_replace( '_', '-', $locale );
+		} else {
+			$locale = preg_replace( '/(_.*)$/i', '', $locale );
+		}
+		return $locale;
 	}
 
 }

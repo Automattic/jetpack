@@ -67,7 +67,7 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/stats/(?P<resource>\w+)',
+			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/stats/(?P<resource>[\-\w]+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_resource_from_wpcom' ),
@@ -97,7 +97,8 @@ class REST_Controller {
 			'/me/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'empty_result' ),
+				'callback'            => function () {
+					return array( 'language' => 'zh-cn' );},
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
@@ -148,8 +149,8 @@ class REST_Controller {
 	 */
 	public function me() {
 		return array(
-			'ID'       => 9025583,
-			'username' => 'kangzj',
+			'ID'       => 1000,
+			'username' => 'no-user',
 		);
 	}
 
@@ -159,10 +160,22 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function site() {
-		return array(
-			'ID'  => 193141071,
-			'URL' => 'https://jasper1.au.ngrok.io',
+		$response      = static::request_as_blog_cached(
+			sprintf(
+				'/sites/%d',
+				Jetpack_Options::get_option( 'id' )
+			),
+			'1.1',
+			array( 'timeout' => 30 )
 		);
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
+			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
+		}
+
+		return json_decode( $response_body, true );
 	}
 
 	/**
@@ -171,12 +184,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function sites() {
-		return array(
-			'sites' => array(
-				'ID'  => 193141071,
-				'URL' => 'https://jasper1.au.ngrok.io',
-			),
-		);
+		return array( 'sites' => $this->site() );
 	}
 
 	/**
@@ -187,7 +195,7 @@ class REST_Controller {
 	 */
 	public function get_resource_from_wpcom( $params ) {
 		$wpcom_stats = new WPCOM_Stats( $params['resource'] );
-		return $wpcom_stats->fetch_stats();
+		return $wpcom_stats->fetch_stats( $params );
 	}
 
 	/**
@@ -206,7 +214,8 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_resource_from_wpcom( $params ) {
-		$response      = Client::wpcom_json_api_request_as_blog(
+		$params['resouce'] = $params['resouce'] ? $params['resouce'] : '';
+		$response          = static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/%s',
 				Jetpack_Options::get_option( 'id' ),
@@ -215,8 +224,8 @@ class REST_Controller {
 			'1.1',
 			array( 'timeout' => 30 )
 		);
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$response_body = wp_remote_retrieve_body( $response );
+		$response_code     = wp_remote_retrieve_response_code( $response );
+		$response_body     = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
@@ -259,6 +268,37 @@ class REST_Controller {
 			isset( $body['message'] ) ? $body['message'] : 'unknown remote error',
 			array( 'status' => $status_code )
 		);
+	}
+	/**
+	 * Query the WordPress.com REST API using the blog token
+	 *
+	 * @param String $path The API endpoint relative path.
+	 * @param String $version The API version.
+	 * @param array  $args Request arguments.
+	 * @param String $body Request body.
+	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
+	 * @param bool   $use_cache (optional) default to true.
+	 * @return array|WP_Error $response Data.
+	 */
+	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true ) {
+		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
+
+		if ( $use_cache ) {
+			$response = get_transient( $cache_key );
+			if ( false !== $response ) {
+				return json_decode( $response, true );
+			}
+		}
+
+		$response          = Client::wpcom_json_api_request_as_blog(
+			$path,
+			$version,
+			$args,
+			$body,
+			$base_api_path = 'rest'
+		);
+		set_transient( $cache_key, wp_json_encode( $response ), 5 * MINUTE_IN_SECONDS );
+		return $response;
 	}
 
 	/**
