@@ -1,18 +1,18 @@
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import GetAddPaidPlanButton from './utils';
 
 function PaidPlanPanel( { hasNewsletterPlans } ) {
 	const title = __( 'Paid Newsletter', 'jetpack' );
-	let text;
-	if ( hasNewsletterPlans ) {
-		// I am rewriting this from ternary operator since webpack optimization seems to change it from ( x ? __( 'a' ) : __( 'b' ) ) to ( __( x ? 'a' : 'b' ) ).
-		text = __( 'Manage paid plan for readers to access your content.', 'jetpack' );
-	} else {
-		text = __( 'Set up paid plan for readers to access your content.', 'jetpack' );
-	}
+	const text = hasNewsletterPlans
+		? _x(
+				'Manage paid plan for readers to access your content.',
+				'unused context to distinguish translations',
+				'jetpack'
+		  )
+		: _x( 'Set up paid plan for readers to access your content.', '', 'jetpack' );
 
 	return (
 		<PanelBody title={ title } initialOpen={ true }>
