@@ -71,6 +71,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 		add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
+		add_filter( 'block_editor_settings_all', array( $this, 'test_editor_settings' ), 10, 2 );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -607,6 +608,18 @@ class Jetpack_WPCOM_Block_Editor {
 				),
 			);
 		}
+	}
+
+	/**
+	 * Updates site editor dashboard link
+	 *
+	 * @param string $setting block-editor settings.
+	 * @return array
+	 */
+	public function test_editor_settings( $setting ) {
+		$site_slug                              = get_blog_details( get_current_blog_id(), false )->domain;
+		$setting['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $site_slug;
+		return $setting;
 	}
 }
 
