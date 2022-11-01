@@ -85,6 +85,16 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
+			sprintf( '/jetpack-blogs/%d/rest-api', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'empty_result' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		// jetpack-blogs/193141071/rest-api/?path=%2Fjetpack%2Fv4%2Fmodule%2Fall%2F
+		register_rest_route(
+			static::$namespace,
 			'/me/sites',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
