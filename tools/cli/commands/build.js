@@ -783,7 +783,7 @@ async function buildProject( t ) {
 							// Truncate non-0.x 'require' package versions to be two components only.
 							if (
 								key === 'require' &&
-								t.project.startsWith( 'packages/' && massagedVer[ 0 ] !== '0' )
+								t.project.startsWith( 'packages/' ) && massagedVer[ 0 ] !== '0'
 							) {
 								massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
 							}
