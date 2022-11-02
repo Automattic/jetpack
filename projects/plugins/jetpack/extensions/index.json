@@ -65,7 +65,8 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"paywall",
-		"ai-assistant-form-support"
+		"ai-assistant-form-support",
+		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
