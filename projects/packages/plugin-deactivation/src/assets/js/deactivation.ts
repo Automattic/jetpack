@@ -1,18 +1,11 @@
 import '../css/deactivation.scss';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class JetpackPluginDeactivation {
+export default class JetpackPluginDeactivation {
 	private deactivateButton: HTMLAnchorElement;
 	private dialog: HTMLDivElement;
 
-	static CLOSE_EVENT = 'deactivationDialog:close';
-	static DEACTIVATE_EVENT = 'deactivationDialog:deactivate';
 	static ACTIVE_CLASS_NAME = 'jp-plugin-deactivation--active';
-
-	static events = {
-		close: new Event( JetpackPluginDeactivation.CLOSE_EVENT, { bubbles: true } ),
-		deactivate: new Event( JetpackPluginDeactivation.DEACTIVATE_EVENT, { bubbles: true } ),
-	};
 
 	constructor( private pluginSlug: string ) {
 		this.deactivateButton = document.getElementById(
@@ -41,12 +34,12 @@ class JetpackPluginDeactivation {
 	/**
 	 * Look for clicks in elements of the dialog and trigger events accordingly.
 	 */
-	observeDialogActions() {
+	private observeDialogActions() {
 		const closeActions = this.dialog.querySelectorAll( '.jp-plugin-deactivation__action--close' );
 
 		closeActions.forEach( action => {
 			action.addEventListener( 'click', () => {
-				this.dialog.dispatchEvent( JetpackPluginDeactivation.events.close );
+				this.hideDialog();
 			} );
 		} );
 
@@ -56,18 +49,12 @@ class JetpackPluginDeactivation {
 
 		deactivateActions.forEach( action => {
 			action.addEventListener( 'click', () => {
-				this.dialog.dispatchEvent( JetpackPluginDeactivation.events.deactivate );
+				this.deactivate();
 			} );
 		} );
 	}
 
-	attachEventListeners() {
-		// Act on modal actions.
-		this.dialog.addEventListener( JetpackPluginDeactivation.CLOSE_EVENT, () => this.hideDialog() );
-		this.dialog.addEventListener( JetpackPluginDeactivation.DEACTIVATE_EVENT, () =>
-			this.deactivate()
-		);
-
+	private attachEventListeners() {
 		// Intercept the plugin deactivation link click.
 		this.deactivateButton.addEventListener( `click`, event => {
 			event.preventDefault();

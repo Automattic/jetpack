@@ -9,10 +9,9 @@ export default {
 	input: 'src/assets/js/deactivation.ts',
 	output: {
 		sourcemap: ! production,
-		format: 'cjs',
-		name: 'deactivation',
-		file: 'dist/deactivation.js',
-		exports: 'auto',
+		format: 'iife',
+		name: 'JetpackPluginDeactivation',
+		dir: 'dist',
 	},
 	plugins: [
 		// we'll extract any component CSS out into
