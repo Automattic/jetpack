@@ -62,7 +62,8 @@ class Deactivation_Handler {
 		}
 
 		add_action( 'load-plugins.php', array( $instance, 'enqueue_script' ) );
-		add_action( 'admin_footer-plugins.php', array( $instance, 'embed_dialog' ) );
+		add_action( 'admin_footer-plugins.php', array( $instance, 'embed_dialog' ), 9 );
+		add_action( 'admin_footer-plugins.php', array( $instance, 'init_dialog' ), 10 );
 
 		return $instance;
 	}
@@ -101,7 +102,16 @@ class Deactivation_Handler {
 				class="jp-plugin-deactivation__overlay"
 			></div>
 		</div>
-		<script>new JetpackPluginDeactivation( decodeURIComponent( '<?php echo rawurlencode( $this->plugin ); ?>' ) );</script>
 		<?php
+	}
+
+	/**
+	 * Instantiate the dialog handler class.
+	 */
+	public function init_dialog() {
+		// Name of the javascript variable that will hold the dialog handler instance for a given plugin.
+		$variable_name = str_replace( '-', '', ucwords( sanitize_key( $this->plugin ), '-' ) ) . 'Deactivation';
+
+		echo '<script>var ' . esc_js( $variable_name ) . ' = new JetpackPluginDeactivation( decodeURIComponent( "' . rawurlencode( $this->plugin ) . '" ) );</script>';
 	}
 }
