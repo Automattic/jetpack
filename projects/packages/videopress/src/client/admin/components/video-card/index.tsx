@@ -88,7 +88,7 @@ export const VideoCard = ( {
 			<div
 				className={ classnames( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
-					[ styles.disabled ]: isSm && disabled,
+					[ styles.disabled ]: isSm || disabled,
 				} ) }
 				{ ...( isSm && ! disabled && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
 			>

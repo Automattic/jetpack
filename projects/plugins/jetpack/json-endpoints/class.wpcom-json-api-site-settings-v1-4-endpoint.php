@@ -116,6 +116,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'featured_image_email_enabled'            => '(bool) Whether the Featured image is displayed in the New Post email template or not',
+			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
 		),
 
 		'response_format' => array(
