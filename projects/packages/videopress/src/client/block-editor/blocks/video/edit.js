@@ -118,7 +118,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 * into a block `html` and `thumbnail` attributes respectively.
 	 *
 	 * `html` will be used to render the player asap,
-	 * while a fresh preview is geing fetched from the server,
+	 * while a fresh preview is going fetched from the server,
 	 * via the core store selectors.
 	 *
 	 * `thumbnail` will be shown as a fallback image
@@ -314,14 +314,14 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				setAttributes={ setAttributes }
 				clientId={ clientId }
 			/>
+
 			<VideoPressPlayer
 				html={ html }
-				isUpdatingPreview={ ! previewHtml }
+				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				scripts={ scripts }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
-				className="wp-block-jetpack-videopress"
 				preview={ preview }
 			/>
 		</div>
