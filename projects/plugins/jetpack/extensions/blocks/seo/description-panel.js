@@ -4,7 +4,7 @@ import { Component } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { get } from 'lodash';
 
-class SeoPanel extends Component {
+class SeoDescriptionPanel extends Component {
 	onMessageChange = event => {
 		this.props.updateSeoDescription( event.target.value );
 	};
@@ -49,4 +49,4 @@ export default compose( [
 			} );
 		},
 	} ) ),
-] )( SeoPanel );
+] )( SeoDescriptionPanel );
