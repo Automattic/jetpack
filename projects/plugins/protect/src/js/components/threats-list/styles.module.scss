@@ -63,7 +63,7 @@
 	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px
 	border: 1px solid var( --jp-gray );
 	border-bottom: none;
-	color: #646970;
+	color: var( --jp-gray-50 );
 	width: 100%;
 
 	> span:first-child {
@@ -82,7 +82,7 @@
 	> button span {
 		font-size: var( --font-body-small );
 		font-weight: normal;
-		color: #3c434a;
+		color: var( --jp-gray-70 );
 	}
 
 	button:hover:not(:disabled) {
