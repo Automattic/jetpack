@@ -93,6 +93,21 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
+		if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			return $default_title;
+		}
+
+		// If it's a singular -- page or post -- check for a meta title override.
+		if ( 'pages' === $page_type || 'posts' === $page_type ) {
+			$post = get_post();
+			if ( $post instanceof WP_Post ) {
+				$custom_title = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );
+				if ( $custom_title ) {
+					return esc_html( $custom_title );
+				}
+			}
+		}
+
 		$title_formats = self::get_custom_title_formats();
 
 		// Keep default title if user has not defined custom title for this page type.
@@ -100,25 +115,8 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
-		if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
-			return $default_title;
-		}
-
 		$custom_title = '';
 		$format_array = $title_formats[ $page_type ];
-
-		// If it's a singular -- page or post -- check for a meta title override.
-		if ( 'pages' === $page_type || 'posts' === $page_type ) {
-			$post = get_post();
-			if ( $post instanceof WP_Post ) {
-				$title_override = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );
-				if ( $title_override ) {
-					// If there's an override saved in the db, set it as-is and don't append any tokens.
-					$custom_title = $title_override;
-					$format_array = array();
-				}
-			}
-		}
 
 		foreach ( $format_array as $item ) {
 			if ( 'token' === $item['type'] ) {
