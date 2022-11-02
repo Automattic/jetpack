@@ -107,14 +107,22 @@ class REST_Controller {
 			'/me/settings',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => function () {
-					return array( 'language' => 'zh-cn' );},
+				'callback'            => array( $this, 'empty_result' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 		register_rest_route(
 			static::$namespace,
 			'/me/preferences',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'empty_result' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			'/me/connections',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
@@ -167,13 +175,17 @@ class REST_Controller {
 	/**
 	 * Site endpoint.
 	 *
+	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function site() {
+	public function site( $req ) {
 		$response      = static::request_as_blog_cached(
 			sprintf(
-				'/sites/%d',
-				Jetpack_Options::get_option( 'id' )
+				'/sites/%d?%s',
+				Jetpack_Options::get_option( 'id' ),
+				http_build_query(
+					$req->get_params()
+				)
 			),
 			'1.1',
 			array( 'timeout' => 30 )
@@ -200,12 +212,13 @@ class REST_Controller {
 	/**
 	 * Resource endpoint.
 	 *
-	 * @param WP_REST_Request $params The request object.
+	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_resource_from_wpcom( $params ) {
-		$wpcom_stats = new WPCOM_Stats( $params['resource'] );
-		return $wpcom_stats->fetch_stats( $params );
+	public function get_resource_from_wpcom( $req ) {
+		// TODO: add a whitelist of allowed resources.
+		$wpcom_stats = new WPCOM_Stats( $req['resource'] );
+		return $wpcom_stats->fetch_stats( $req->get_params() );
 	}
 
 	/**
@@ -220,22 +233,26 @@ class REST_Controller {
 	/**
 	 * Empty result.
 	 *
-	 * @param WP_REST_Request $params The request object.
+	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_site_resource_from_wpcom( $params ) {
-		$params['resouce'] = $params['resouce'] ? $params['resouce'] : '';
-		$response          = static::request_as_blog_cached(
+	public function get_site_resource_from_wpcom( $req ) {
+		// TODO: add a whitelist of allowed resources.
+		$req['resouce'] = $req['resouce'] ? $req['resouce'] : '';
+		$response       = static::request_as_blog_cached(
 			sprintf(
-				'/sites/%d/%s',
+				'/sites/%d/%s?%s',
 				Jetpack_Options::get_option( 'id' ),
-				$params['resouce']
+				$req['resouce'],
+				http_build_query(
+					$req->get_params()
+				)
 			),
 			'1.1',
 			array( 'timeout' => 30 )
 		);
-		$response_code     = wp_remote_retrieve_response_code( $response );
-		$response_body     = wp_remote_retrieve_body( $response );
+		$response_code  = wp_remote_retrieve_response_code( $response );
+		$response_body  = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
@@ -291,6 +308,7 @@ class REST_Controller {
 	 * @return array|WP_Error $response Data.
 	 */
 	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true ) {
+		// Arrays are serialized without considering the order of objects, but it's okay atm.
 		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
