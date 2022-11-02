@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './index.scss';
+import LearnHowNotice from '../learn-how-notice';
 
 const CHARACTERS_PER_LINE = 31;
 
@@ -20,7 +21,8 @@ const CHARACTERS_PER_LINE = 31;
  * @returns {object} Video details control component
  */
 export default function DetailsControl( { attributes, setAttributes, isRequestingVideoData } ) {
-	const { title, description } = attributes;
+	const { title, description, tracks } = attributes;
+	const hasChapters = !! tracks.length;
 	const isBeta = true;
 
 	// Expands the description textarea to accommodate the description
@@ -64,6 +66,7 @@ export default function DetailsControl( { attributes, setAttributes, isRequestin
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData }
 			/>
+			{ ! hasChapters && <LearnHowNotice /> }
 		</PanelBody>
 	);
 }

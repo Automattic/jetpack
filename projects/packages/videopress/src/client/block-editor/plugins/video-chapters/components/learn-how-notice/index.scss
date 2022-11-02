@@ -1,0 +1,23 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.learn-how-notice {
+	margin: 0;
+	background-color: #f6f7f7;
+
+	&.is-dismissible {
+		padding-right: 12px;
+	}
+
+	.message {
+		margin: 0;
+
+		.add-chapters-message {
+			font-weight: 600;
+		}
+	}
+
+	.learn-how-button {
+		color: #3858e9;
+		padding: 0;
+	}
+}
