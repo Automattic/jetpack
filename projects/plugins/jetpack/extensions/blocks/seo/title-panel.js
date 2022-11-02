@@ -4,6 +4,7 @@ import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { get } from 'lodash';
 import React from 'react';
+import { CountedTextArea } from './counted-textarea';
 
 class SeoTitlePanel extends Component {
 	onTitleChange = event => {
@@ -13,13 +14,14 @@ class SeoTitlePanel extends Component {
 	render() {
 		const { seoTitle } = this.props;
 		return (
-			<div className="jetpack-seo-message-box">
-				<input
-					value={ seoTitle }
-					onChange={ this.onTitleChange }
-					placeholder={ __( 'Write a title', 'jetpack' ) }
-				/>
-			</div>
+			<CountedTextArea
+				value={ seoTitle }
+				onChange={ this.onTitleChange }
+				placeholder={ __( 'Write a title…', 'jetpack' ) }
+				rows={ 2 }
+				/* Suggestion is 50 - 60 chars */
+				maxLength={ 65 }
+			/>
 		);
 	}
 }
