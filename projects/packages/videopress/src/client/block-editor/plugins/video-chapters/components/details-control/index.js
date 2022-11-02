@@ -3,6 +3,7 @@
  */
 import { Button, Notice, PanelBody, TextareaControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -22,6 +23,11 @@ const CHARACTERS_PER_LINE = 31;
 export default function DetailsControl( { attributes, setAttributes, isRequestingVideoData } ) {
 	const { title, description } = attributes;
 	const isBeta = true;
+	const [ dismiss, setDismiss ] = useState( false );
+
+	const onRemove = () => {
+		setDismiss( true );
+	};
 
 	// Expands the description textarea to accommodate the description
 	const minRows = 4;
@@ -69,11 +75,12 @@ export default function DetailsControl( { attributes, setAttributes, isRequestin
 				disabled={ isRequestingVideoData }
 			/>
 
-			{ !! attributes.tracks.length && (
+			{ ! dismiss && !! attributes.tracks.length && (
 				<Notice
 					className={ 'jetpack-videopress-videochapters-prompt' }
 					status={ 'success' }
 					isDismissable={ true }
+					onRemove={ onRemove }
 				>
 					<p>
 						{ __( 'We detected chapters in your video Description', 'jetpack-videopress-pkg' ) }
