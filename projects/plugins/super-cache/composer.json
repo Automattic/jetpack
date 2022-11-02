@@ -52,5 +52,8 @@
 		"release-branch-prefix": "super-cache",
 		"wp-plugin-slug": "wp-super-cache",
 		"wp-svn-autopublish": true
+	},
+	"config": {
+		"autoloader-suffix": "6fe342bc02f0b440f7b3c8d8ade42286_super_cacheⓥversion"
 	}
 }
