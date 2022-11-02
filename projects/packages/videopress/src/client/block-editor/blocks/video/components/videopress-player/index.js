@@ -74,7 +74,7 @@ export default function VideoPressPlayer( {
 	const temporaryHeighErrorCorrection = 12;
 
 	/**
-	 * Helper to set thge temporary height
+	 * Helper to set the temporary height
 	 * of the video player.
 	 */
 	function setVideoPlayerTemporaryHeight() {
