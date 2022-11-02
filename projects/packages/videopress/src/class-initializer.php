@@ -202,7 +202,7 @@ class Initializer {
 	}
 
 	/**
-	 * Register the VideoPress Chapters block editor block,
+	 * Register the VideoPress Chapters editor block,
 	 *
 	 * @return void
 	 */
