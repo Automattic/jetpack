@@ -41,7 +41,7 @@
 		"automattic/jetpack-search": "0.30.x-dev",
 		"automattic/jetpack-stats": "0.3.x-dev",
 		"automattic/jetpack-status": "1.14.x-dev",
-		"automattic/jetpack-sync": "1.40.x-dev",
+		"automattic/jetpack-sync": "1.41.x-dev",
 		"automattic/jetpack-videopress": "0.6.x-dev",
 		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-wordads": "0.2.x-dev",
