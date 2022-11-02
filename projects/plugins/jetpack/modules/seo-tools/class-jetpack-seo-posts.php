@@ -10,7 +10,7 @@
  */
 class Jetpack_SEO_Posts {
 	/**
-	 * Key of the post meta value that will be used to store post custom description.
+	 * Key of the post meta values that will be used to store post custom data.
 	 */
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
 	const HTML_TITLE_META_KEY  = '_jetpack_seo_html_title';
@@ -18,12 +18,13 @@ class Jetpack_SEO_Posts {
 	/**
 	 * Build meta description for post SEO.
 	 *
-	 * @param WP_Post $post Source of data for custom description.
+	 * @param WP_Post|null $post Source of data for custom description.
 	 *
 	 * @return string Post description or empty string.
 	 */
 	public static function get_post_description( $post ) {
-		if ( empty( $post ) ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
 		}
 
@@ -49,12 +50,13 @@ class Jetpack_SEO_Posts {
 	 * Returns post's custom meta description if it is set, and if
 	 * SEO tools are enabled for current blog.
 	 *
-	 * @param WP_Post $post Source of data for custom description.
+	 * @param WP_Post|null $post Source of data for custom description.
 	 *
 	 * @return string Custom description or empty string
 	 */
-	public static function get_post_custom_description( $post ) {
-		if ( empty( $post ) ) {
+	public static function get_post_custom_description( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
 		}
 
@@ -71,12 +73,13 @@ class Jetpack_SEO_Posts {
 	 * Gets a custom HTML title for a post if one is set, and if
 	 * SEO tools are enabled for the current blog.
 	 *
-	 * @param WP_Post $post Source of data for the custom HTML title.
+	 * @param WP_Post|null $post Source of data for the custom HTML title.
 	 *
 	 * @return string Custom HTML title or or empty string if not set
 	 */
-	public static function get_post_custom_html_title( $post ) {
-		if ( empty( $post ) ) {
+	public static function get_post_custom_html_title( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
 		}
 
@@ -105,7 +108,7 @@ class Jetpack_SEO_Posts {
 
 		$html_title_args = array(
 			'type'         => 'string',
-			'description'  => __( 'Custom title to be used in HTML <title /> tag', 'jetpack' ),
+			'description'  => __( 'Custom title to be used in HTML <title /> and <meta /> tag.', 'jetpack' ),
 			'single'       => true,
 			'default'      => '',
 			'show_in_rest' => array(
