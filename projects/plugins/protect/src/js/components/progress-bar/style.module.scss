@@ -1,0 +1,20 @@
+.progress-wrapper {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: calc( var( --spacing-base ) * 3 );
+	
+	.progress {
+		height: 9px;
+		border-radius: calc( var( --spacing-base ) * 3 );
+		background-color: var( --jp-green-40 );
+	}
+
+	.progress-percent {
+		font-weight: 600;
+		line-height: 24px;
+		color: var( --jp-gray-90 );
+		margin-left: auto;
+		padding-left: var( --spacing-base );
+	}
+}

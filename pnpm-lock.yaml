@@ -1659,7 +1659,6 @@ importers:
 
   projects/plugins/protect:
     specifiers:
-      '@automattic/components': 2.0.1
       '@automattic/jetpack-analytics': workspace:* || ^0.1
       '@automattic/jetpack-base-styles': workspace:* || ^0.3
       '@automattic/jetpack-components': workspace:* || ^0.24
@@ -1690,7 +1689,6 @@ importers:
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
-      '@automattic/components': 2.0.1_a3k5oznvmzyijbc2qxjrnm7rry
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components

@@ -1,4 +1,3 @@
-import { ProgressBar } from '@automattic/components';
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -28,6 +27,7 @@ import AlertSVGIcon from '../alert-icon';
 import Footer from '../footer';
 import Interstitial from '../interstitial';
 import Logo from '../logo';
+import ProtectProgressBar from '../progress-bar';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
@@ -170,7 +170,7 @@ const ProtectAdminPage = () => {
 	}
 
 	// When there's a scan in progress or no information yet.
-	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || lastChecked ) {
+	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
 		const { currentProgress } = status;
 		const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
 		const scanning = __( 'Scannning your site…', 'jetpack-protect' );
@@ -205,17 +205,7 @@ const ProtectAdminPage = () => {
 									</Col>
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
-										{ currentProgress >= 0 && (
-											<div className={ styles[ 'progress-bar' ] }>
-												<ProgressBar
-													className={ styles[ 'progress-bar' ] }
-													value={ currentProgress }
-													total={ 100 }
-													color="#069E08"
-												/>
-												<p className={ styles[ 'progress-bar-percent' ] }>{ currentProgress }%</p>
-											</div>
-										) }
+										{ currentProgress >= 0 && <ProtectProgressBar progress={ currentProgress } /> }
 										<Text>
 											{ __(
 												'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
