@@ -150,8 +150,20 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 			tmpFile: generateChaptersFile( dataToUpdate.description ),
 		};
 
-		// Re-render video player
-		uploadTrackForGuid( track, guid ).then( () => {
+		uploadTrackForGuid( track, guid ).then( src => {
+			// Update block track attribute
+			setAttributes( {
+				tracks: [
+					{
+						label: track.label,
+						srcLang: track.srcLang,
+						kind: track.kind,
+						src,
+					},
+				],
+			} );
+
+			// Re-render video player
 			const videoPressUrl = getVideoPressUrl( guid, attributes );
 			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 		} );
