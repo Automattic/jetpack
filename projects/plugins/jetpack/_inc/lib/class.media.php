@@ -322,9 +322,9 @@ class Jetpack_Media {
 	 *
 	 * Also, it removes the file defined in each item.
 	 *
-	 * @param int    $media_id - media post ID.
-	 * @param object $criteria - criteria to remove the items.
-	 * @param array  $revision_history - revision history array.
+	 * @param int   $media_id - media post ID.
+	 * @param array $criteria - criteria to remove the items.
+	 * @param array $revision_history - revision history array.
 	 *
 	 * @return array `revision_history` array updated.
 	 */

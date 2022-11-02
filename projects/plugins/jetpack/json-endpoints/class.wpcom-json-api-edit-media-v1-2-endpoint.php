@@ -354,7 +354,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 */
 	private function restore_original( $media_id, $original_media ) {
 		$revisions = (array) Jetpack_Media::get_revision_history( $media_id );
-		$criteria  = (object) array(
+		$criteria  = array(
 			'from' => 0,
 			'to'   => REVISION_HISTORY_MAXIMUM_AMOUNT,
 		);
