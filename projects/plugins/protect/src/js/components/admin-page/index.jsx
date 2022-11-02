@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components/src';
+import { ProgressBar } from '@automattic/components';
 import {
 	AdminPage,
 	AdminSectionHero,
@@ -170,7 +170,7 @@ const ProtectAdminPage = () => {
 	}
 
 	// When there's a scan in progress or no information yet.
-	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
+	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || lastChecked ) {
 		const { currentProgress } = status;
 		const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
 		const scanning = __( 'Scannning your site…', 'jetpack-protect' );
