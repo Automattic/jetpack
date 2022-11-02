@@ -8,6 +8,7 @@
 		height: 9px;
 		border-radius: calc( var( --spacing-base ) * 3 );
 		background-color: var( --jp-green-40 );
+		transition: width 200ms;
 	}
 
 	.progress-percent {
