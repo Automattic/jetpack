@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a bug that caused because the cron wont regenerate ip rules
