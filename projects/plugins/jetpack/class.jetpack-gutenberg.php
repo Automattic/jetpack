@@ -467,6 +467,8 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
+		add_filter( 'block_editor_settings_all', array( 'Jetpack_Gutenberg', 'update_editor_dashboard_link_setting' ), 10, 2 );
+
 		/**
 		 * Filter to disable Gutenberg blocks
 		 *
@@ -1198,6 +1200,18 @@ class Jetpack_Gutenberg {
 
 			return null;
 		};
+	}
+
+	/**
+	 * Update __experimentalDashboardLink setting to pass to block editor.
+	 *
+	 * @param array $setting Default editor settings.
+	 * @return array
+	 */
+	public function update_editor_dashboard_link_setting( $setting ) {
+		$site_slug                              = get_blog_details( get_current_blog_id(), false )->domain;
+		$setting['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $site_slug;
+		return $setting;
 	}
 }
 
