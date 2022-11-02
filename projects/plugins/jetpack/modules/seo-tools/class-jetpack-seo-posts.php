@@ -13,6 +13,7 @@ class Jetpack_SEO_Posts {
 	 * Key of the post meta value that will be used to store post custom description.
 	 */
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
+	const HTML_TITLE_META_KEY  = '_jetpack_seo_html_title';
 
 	/**
 	 * Build meta description for post SEO.
@@ -67,6 +68,28 @@ class Jetpack_SEO_Posts {
 	}
 
 	/**
+	 * Gets a custom HTML title for a post if one is set, and if
+	 * SEO tools are enabled for the current blog.
+	 *
+	 * @param WP_Post $post Source of data for the custom HTML title.
+	 *
+	 * @return string Custom HTML title or or empty string if not set
+	 */
+	public static function get_post_custom_html_title( $post ) {
+		if ( empty( $post ) ) {
+			return '';
+		}
+
+		$custom_html_title = get_post_meta( $post->ID, self::HTML_TITLE_META_KEY, true );
+
+		if ( empty( $custom_html_title ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			return '';
+		}
+
+		return $custom_html_title;
+	}
+
+	/**
 	 * Registers the self::DESCRIPTION_META_KEY post_meta for use in the REST API.
 	 */
 	public static function register_post_meta() {
@@ -80,6 +103,17 @@ class Jetpack_SEO_Posts {
 			),
 		);
 
+		$html_title_args = array(
+			'type'         => 'string',
+			'description'  => __( 'Custom title to be used in HTML <title /> tag', 'jetpack' ),
+			'single'       => true,
+			'default'      => '',
+			'show_in_rest' => array(
+				'name' => self::HTML_TITLE_META_KEY,
+			),
+		);
+
+		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
 		register_meta( 'post', self::DESCRIPTION_META_KEY, $args );
 	}
 
