@@ -74,14 +74,11 @@ class Dashboard {
 		<script>
 			jQuery(document).ready(function($) {
 				$("#wpcom").on('click', 'a', function (e) {
-					// TODO: we should only intercept internal links here.
-					const link = e?.currentTarget?.attributes?.href?.value;
-					if( link && ! link.startsWith( 'https' ) ) {
+					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
+					if( link && ! link.startsWith( 'http' ) ) {
 						location.hash = `#!${link}`;
+						return false;
 					}
-					e.preventDefault();
-					e.stopPropagation();
-					return false;
 				});
 			});
 		</script>
@@ -130,6 +127,9 @@ class Dashboard {
 				ul.wp-submenu, ul.wp-submenu-wrap {
 					margin-left: 0;
 				}
+				.followers-count {
+					display: none;
+				}
 				</style>';
 			},
 			100
@@ -144,7 +144,7 @@ class Dashboard {
 		return 'window.configData = ' . wp_json_encode(
 			array(
 				'site_name'                      => \get_bloginfo( 'name' ),
-				'env_id'                         => 'jetpack-stats-app',
+				'env_id'                         => 'production',
 				'i18n_default_locale_slug'       => 'en',
 				'i18n_locale_slug'               => static::get_site_locale(),
 				'google_analytics_key'           => 'UA-10673494-15',
@@ -165,6 +165,7 @@ class Dashboard {
 				'api_root'                       => esc_url_raw( rest_url() ),
 				'blog_id'                        => Jetpack_Options::get_option( 'id' ),
 				'nonce'                          => wp_create_nonce( 'wp_rest' ),
+				'is_running_in_jetpack_site'     => true,
 				'meta'                           => array(
 					'property' => 'og:site_name',
 					'content'  => 'WordPress.com',

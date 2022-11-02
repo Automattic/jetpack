@@ -58,6 +58,15 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
+			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/(?P<resource>[\-\w]+)',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_resource_from_wpcom' ),
+				'permission_callback' => 'is_user_logged_in',
+			)
+		);
+		register_rest_route(
+			static::$namespace,
 			'/sites/' . Jetpack_Options::get_option( 'id' ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -71,15 +80,6 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_resource_from_wpcom' ),
-				'permission_callback' => 'is_user_logged_in',
-			)
-		);
-		register_rest_route(
-			static::$namespace,
-			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/(?P<resource>[\-\w]+)',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_site_resource_from_wpcom' ),
 				'permission_callback' => 'is_user_logged_in',
 			)
 		);
@@ -203,10 +203,11 @@ class REST_Controller {
 	/**
 	 * Sites endpoint.
 	 *
+	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function sites() {
-		return array( 'sites' => $this->site() );
+	public function sites( $req ) {
+		return array( 'sites' => $this->site( $req ) );
 	}
 
 	/**
@@ -238,12 +239,11 @@ class REST_Controller {
 	 */
 	public function get_site_resource_from_wpcom( $req ) {
 		// TODO: add a whitelist of allowed resources.
-		$req['resouce'] = $req['resouce'] ? $req['resouce'] : '';
-		$response       = static::request_as_blog_cached(
+		$response      = static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/%s?%s',
 				Jetpack_Options::get_option( 'id' ),
-				$req['resouce'],
+				$req->get_param( 'resource' ),
 				http_build_query(
 					$req->get_params()
 				)
@@ -251,8 +251,8 @@ class REST_Controller {
 			'1.1',
 			array( 'timeout' => 30 )
 		);
-		$response_code  = wp_remote_retrieve_response_code( $response );
-		$response_body  = wp_remote_retrieve_body( $response );
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
