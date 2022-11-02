@@ -16,6 +16,7 @@ class SeoTitlePanel extends Component {
 				value={ metaValue }
 				onChange={ this.onTitleChange }
 				placeholder={ __( 'Write a title…', 'jetpack' ) }
+				suggestedLimit={ 70 }
 				rows={ 2 }
 			/>
 		);
