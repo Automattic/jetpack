@@ -28,7 +28,7 @@ export default compose( [
 	withSelect( select => ( {
 		seoTitle: get(
 			select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
-			[ '_jetpack_seo_html_title' ],
+			[ 'jetpack_seo_html_title' ],
 			''
 		),
 	} ) ),
@@ -36,7 +36,7 @@ export default compose( [
 		updateSeoTitle( seoTitle ) {
 			dispatch( 'core/editor' ).editPost( {
 				meta: {
-					_jetpack_seo_html_title: seoTitle,
+					jetpack_seo_html_title: seoTitle,
 				},
 			} );
 		},

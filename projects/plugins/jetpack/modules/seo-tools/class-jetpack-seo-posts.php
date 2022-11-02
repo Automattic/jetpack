@@ -13,7 +13,7 @@ class Jetpack_SEO_Posts {
 	 * Key of the post meta values that will be used to store post custom data.
 	 */
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
-	const HTML_TITLE_META_KEY  = '_jetpack_seo_html_title';
+	const HTML_TITLE_META_KEY  = 'jetpack_seo_html_title';
 
 	/**
 	 * Build meta description for post SEO.
