@@ -69,7 +69,7 @@ class Jetpack_Media {
 
 		do {
 			$filename  = $filename_base;
-			$filename .= $number_suffix;
+			$filename .= "e{$number_suffix}";
 			$file_ext  = $new_file_ext ? $new_file_ext : $current_file_ext;
 
 			$new_filename = "{$filename}.{$file_ext}";
