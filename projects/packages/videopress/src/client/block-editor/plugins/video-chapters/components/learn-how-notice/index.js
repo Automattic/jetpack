@@ -10,17 +10,21 @@ import { useState } from 'react';
  */
 import './index.scss';
 
+const HAS_USER_DISMISSED = 'hasUserDismissed';
+
 /**
  * React component that renders a Notice with some specific design changes
  *
  * @returns {object} Notice component
  */
 export default function LearnHowNotice() {
-	const [ dismiss, setDismiss ] = useState( false );
+	const hasUserDismissed = JSON.parse( localStorage.getItem( HAS_USER_DISMISSED ) );
+	const [ dismissNotice, setDismissNotice ] = useState( hasUserDismissed );
 	const [ showModal, setShowModal ] = useState( false );
 
-	const onRemove = () => {
-		setDismiss( true );
+	const onRemoveNotice = () => {
+		setDismissNotice( true );
+		localStorage.setItem( HAS_USER_DISMISSED, 'true' );
 	};
 
 	const openModal = () => {
@@ -41,13 +45,13 @@ export default function LearnHowNotice() {
 		}
 	);
 
-	if ( dismiss ) {
+	if ( dismissNotice ) {
 		return null;
 	}
 
 	return (
 		<>
-			<Notice status="info" className="learn-how-notice" onRemove={ onRemove }>
+			<Notice status="info" className="learn-how-notice" onRemove={ onRemoveNotice }>
 				<p className="learn-how-notice__message">{ message }</p>
 				<Button className="learn-how-notice__button" onClick={ openModal } variant="link">
 					{ __( 'Learn how', 'jetpack-videopress-pkg' ) }
@@ -81,9 +85,7 @@ export default function LearnHowNotice() {
 						) }
 					</p>
 
-					<p className="learn-how-modal__heading">
-						{ __( 'How to add Chapters to your VideoPress videos', 'jetpack-videopress-pkg' ) }
-					</p>
+					<p className="learn-how-modal__heading">{ __( 'Example', 'jetpack-videopress-pkg' ) }</p>
 					<p>{ __( '00:00 Intro', 'jetpack-videopress-pkg' ) }</p>
 					<p>{ __( '00:24 Mountains arise', 'jetpack-videopress-pkg' ) }</p>
 					<p>{ __( '02:38 Coming back home', 'jetpack-videopress-pkg' ) }</p>
