@@ -12,16 +12,16 @@
 }
 
 .is-critical {
-	background: #facfd2;
-	color: #b32d2e;
+	background: var( --jp-red-5 );
+	color: var( --jp-red-60 );
 }
 
 .is-high {
-	background: #f5e6b3;
-	color: #7d5600;
+	background: var( --jp-yellow-5 );
+	color: var( --jp-yellow-60 );
 }
 
 .is-low {
-	background: #f6f7f7;
-	color: #646970;
+	background: var( --jp-gray-0 );
+	color: var( --jp-gray-50 );
 }
