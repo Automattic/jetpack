@@ -5,9 +5,12 @@ export type WPV2MediaAPIResponseProps = {
 	};
 };
 
-export type VideoItem = {
-	title: string;
-	description: string;
+export type VideoData = {
+	title?: string;
+	description?: string;
 };
 
-export type UseVideoItemProps = [ VideoItem, boolean ];
+export type useVideoDataProps = {
+	videoData: VideoData;
+	isRequestingVideoData: boolean;
+};

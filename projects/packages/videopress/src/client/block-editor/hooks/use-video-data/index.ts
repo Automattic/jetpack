@@ -4,21 +4,21 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { VideoId } from '../../plugins/video-chapters/types';
-import { WPV2MediaAPIResponseProps } from './types';
+import { useVideoDataProps, WPV2MediaAPIResponseProps } from './types';
 
 /**
- * React hook to fetch the video item from the media library.
+ * React hook to fetch the video data from the media library.
  *
  * @param {number|string} id - The video id.
- * @returns {Array} - The video item and a boolean indicating if the request is in progress.
+ * @returns {Object}           Hook API object.
  */
-export default function useVideoItem( id: VideoId ): [ WPV2MediaAPIResponseProps, boolean ] {
-	const [ item, setItem ] = useState();
-	const [ loading, setLoading ] = useState( false );
+export default function useVideoData( id: VideoId ): useVideoDataProps {
+	const [ videoData, setVideoData ] = useState( {} );
+	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
 		/**
-		 * Fetches the video item from the API.
+		 * Fetches the video videoData from the API.
 		 */
 		async function fetchVideoItem() {
 			try {
@@ -26,23 +26,23 @@ export default function useVideoItem( id: VideoId ): [ WPV2MediaAPIResponseProps
 					path: `/wp/v2/media/${ id }`,
 				} );
 
-				setLoading( false );
+				setIsRequestingVideoData( false );
 				if ( ! response?.jetpack_videopress ) {
 					return;
 				}
 
-				setItem( response.jetpack_videopress );
+				setVideoData( response.jetpack_videopress );
 			} catch ( error ) {
-				setLoading( false );
+				setIsRequestingVideoData( false );
 				throw new Error( error );
 			}
 		}
 
 		if ( id ) {
-			setLoading( true );
+			setIsRequestingVideoData( true );
 			fetchVideoItem();
 		}
 	}, [ id ] );
 
-	return [ item, loading ];
+	return { videoData, isRequestingVideoData };
 }

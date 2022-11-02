@@ -15,7 +15,7 @@ import { getVideoPressUrl } from '../../../lib/url';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
 import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
-import useVideoItem from '../use-video-data';
+import useVideoData from '../use-video-data';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
@@ -55,7 +55,7 @@ export default function useMediaItemUpdate( id ) {
  */
 export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 	const { id, guid } = attributes;
-	const [ videoData, isRequestingVideoData ] = useVideoItem( id );
+	const { videoData, isRequestingVideoData } = useVideoData( id );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
@@ -69,14 +69,14 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 
 	/*
 	 * Populate block attributes with the media data,
-	 * provided by the VideoPress API (useVideoItem hook).
+	 * provided by the VideoPress API (useVideoData hook).
 	 */
 	useEffect( () => {
 		if ( isRequestingVideoData ) {
 			return;
 		}
 
-		if ( ! videoData ) {
+		if ( ! videoData || Object.keys( videoData ).length === 0 ) {
 			return;
 		}
 
