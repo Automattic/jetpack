@@ -84,7 +84,7 @@ export default function VideoPressPlayer( {
 	}
 
 	/*
-	 * isVideoLoad registers the state
+	 * isVideoPlayerLoaded registers the state
 	 * when the video has been loaded in the videopress player.
 	 */
 	const [ isVideoPlayerLoaded, setIsVideoPlayerLoaded ] = useState( false );
