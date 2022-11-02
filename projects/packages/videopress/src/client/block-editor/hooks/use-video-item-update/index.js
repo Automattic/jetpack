@@ -51,11 +51,11 @@ export default function useMediaItemUpdate( id ) {
  * @param {object} attributes        - Block attributes.
  * @param {Function} setAttributes   - Block attributes setter.
  * @param {Array} attributesToUpdate - Block attributes list to update.
- * @returns {Array}                    [ forceInitialState, isSyncing ]
+ * @returns {object}                   Hook API object.
  */
 export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 	const { id, guid } = attributes;
-	const [ videoItem, isRequestingVideoItem ] = useVideoItem( id );
+	const [ videoData, isRequestingVideoData ] = useVideoItem( id );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
@@ -72,17 +72,17 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 	 * provided by the VideoPress API (useVideoItem hook).
 	 */
 	useEffect( () => {
-		if ( isRequestingVideoItem ) {
+		if ( isRequestingVideoData ) {
 			return;
 		}
 
-		if ( ! videoItem ) {
+		if ( ! videoData ) {
 			return;
 		}
 
 		// Build the attributes object to update.
 		const initialAttributesState = attributesToUpdate.reduce( ( acc, key ) => {
-			acc[ key ] = videoItem[ key ];
+			acc[ key ] = videoData[ key ];
 			return acc;
 		}, {} );
 
@@ -95,7 +95,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 
 		// And udpate the block attribute with fresh data.
 		setAttributes( initialAttributesState );
-	}, [ videoItem, isRequestingVideoItem ] );
+	}, [ videoData, isRequestingVideoData ] );
 
 	const updateMediaHandler = useMediaItemUpdate( id );
 
@@ -165,5 +165,9 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 		attributesToUpdate,
 	] );
 
-	return [ updateInitialState ];
+	return {
+		forceInitialState: updateInitialState,
+		videoData,
+		isRequestingVideoData,
+	};
 }
