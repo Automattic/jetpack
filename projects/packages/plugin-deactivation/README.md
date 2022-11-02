@@ -20,20 +20,29 @@ add_action( 'init', function() {
 | `$plugin_slug`           | Slug of the plugin, e.g. `jetpack`, `jetpack-boost`.                                                                                                                               |
 | `$dialog_view_file_path` | The path to a PHP file that contains the markup for your dialog.  Copy `src/dialog-template.php` to your plugin, customize it, and  pass its path as the `$dialog_view_file_path`. |
 
-### Buttons
-The buttons can also be customized as much as you want. However, you can dispatch events to control the dialog. These are the pre-defined events:
-- `JetpackPluginDeactivation.events.close` to close the dialog
-- `JetpackPluginDeactivation.events.deactivate` to deactivate and close the plugin
+### Controlling the dialog
 
-Example:
+#### Using attribute
+You can use `data-jp-plugin-deactivation-action` attribute with the values `close`|`deactivate` on any element. Adding this attribute will observe the element and
+close or deactivate the plugin based on the attribute value.
+
+Example of a button that closes the dialog:
 
 ```HTML
 <button 
 		type="button"
 		class="jp-plugin-deactivation__button"
-		onclick="dispatchEvent(JetpackPluginDeactivation.events.close)"
+		data-jp-plugin-deactivation-action="close"
 	>Cancel</button>
 ```
+
+#### Using the instance
+
+On the plugin page where the dialog exists, you have access to a special variable: `<PascalCasePluginSlug>Deactivation`. For example: `jetpack-boost` has the variable `JetpackBoostDeactivation`. It has access to the following methods:
+
+- `showDialog()` - Open the deactivation dialog
+- `hideDialog()` - Close the deactivation dialog
+- `deactivate()` - Deactivate the plugin and close the dialog
 
 
 ## Security
