@@ -1,4 +1,5 @@
 <?php
+global $wpsc_promo_links;
 echo '<form name="wp_manager" action="' . esc_url_raw( add_query_arg( 'tab', 'easy', $admin_url ) ) . '" method="post">';
 echo '<input type="hidden" name="action" value="easysetup" />';
 wp_nonce_field( 'wp-cache' );
@@ -124,9 +125,34 @@ if ( is_multisite() && wpsupercache_site_admin() ) {
 ?>
 <h4 class="clear"><?php esc_html_e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h4>
 <p><?php esc_html_e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
+
 <ul style="list-style: square; margin-left: 2em;">
-<li><?php printf( __( '<a href="%s">Jetpack Boost</a> helps speed up your website by generating critical CSS, defering Javascript and much more.', 'wp-super-cache' ), 'https://jetpack.com/redirect/?source=wp-super-cache-boost-rec' ); ?></li>
-<li><?php printf( __( '<a href="%s">Jetpack</a> provides everything you need to build a successful WordPress website including an image/photo CDN (free) and a video hosting service (paid).', 'wp-super-cache' ), 'https://jetpack.com/redirect/?source=jitm-wpsc-recommended' ); ?></li>
+	<li>
+		<?php
+			echo \wp_kses(
+				\sprintf(
+					/* translators: %s: Link URL for Jetpack Boost. */
+					__( '<a href="%s">Jetpack Boost</a> helps speed up your website by generating critical CSS, defering Javascript and much more.', 'wp-super-cache' ),
+					$wpsc_promo_links['boost']
+				),
+				'a'
+			);
+			?>
+	</li>
+
+	<li>
+		<?php
+			echo \wp_kses(
+				\printf(
+					/* translators: %s: Link URL for Jetpack. */
+					__( '<a href="%s">Jetpack</a> provides everything you need to build a successful WordPress website including an image/photo CDN (free) and a video hosting service (paid).', 'wp-super-cache' ),
+					$wpsc_promo_links['jetpack']
+				),
+				'a'
+			);
+			?>
+	</li>
+
 <li><?php printf( __( '<a href="%s">Yahoo! Yslow</a> analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href="%s">GTMetrix</a>.', 'wp-super-cache' ), 'http://yslow.org/', 'https://gtmetrix.com/' ); ?></li>
 <li><?php printf( __( '<a href="%s">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically, it may reduce your Yslow score.', 'wp-super-cache' ), 'https://wordpress.org/plugins/use-google-libraries/' ); ?></li>
 <li><?php printf( __( '<a href="%s">commonWP</a> does the same job as "Use Google Libraries" and offloads some commonly used static files to an external CDN.', 'wp-super-cache' ), 'https://wordpress.org/plugins/commonwp/' ); ?></li>

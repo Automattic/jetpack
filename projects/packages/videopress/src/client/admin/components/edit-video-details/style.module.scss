@@ -34,3 +34,20 @@
 .input {
 	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }
+
+.back-link {
+	.icon {
+		width: 16px;
+		margin-right: 4px;
+	}
+
+	.link {
+		--gray-70: #3C434A !important;
+		margin-bottom: calc( var( --spacing-base ) * 3 );
+		font-size: 14px;
+		color: var(--gray-70);
+		display: flex;
+		text-decoration: none;
+		align-items: center;
+	}
+}

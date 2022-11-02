@@ -64,6 +64,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'options'                     => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'p2_thumbnail_elements'       => '(array) Details used to render a thumbnail of the site. P2020 themed sites only.',
 		'plan'                        => '(array) Details of the current plan for this site.',
+		'products'                    => '(array) Details of the current products for this site.',
+		'zendesk_site_meta'           => '(array) Site meta data for Zendesk.',
 		'updates'                     => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'jetpack_modules'             => '(array) A list of active Jetpack modules.',
 		'meta'                        => '(object) Meta data',
@@ -99,6 +101,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_private',
 		'is_coming_soon',
 		'is_following',
+		'organization_id',
 		'meta',
 		'launch_status',
 		'site_migration',
@@ -170,19 +173,27 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'signup_is_store',
 		'has_pending_automated_transfer',
 		'woocommerce_is_active',
+		'editing_toolkit_is_active',
 		'design_type',
 		'site_goals',
 		'site_segment',
 		'import_engine',
+		'is_pending_plan',
 		'is_wpforteams_site',
 		'p2_hub_blog_id',
 		'site_creation_flow',
 		'is_cloud_eligible',
 		'selected_features',
 		'anchor_podcast',
+		'was_created_with_blank_canvas_design',
+		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'difm_lite_site_options',
 		'site_intent',
+		'site_vertical_id',
+		'blogging_prompts_settings',
+		'launchpad_screen',
+		'launchpad_checklist_tasks_statuses',
 	);
 
 	/**
@@ -231,6 +242,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_store',
 		'woocommerce_is_active',
+		'editing_toolkit_is_active',
 		'frame_nonce',
 		'jetpack_frame_nonce',
 		'design_type',
@@ -240,6 +252,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// See https://github.com/Automattic/jetpack/blob/58638f46094b36f5df9cbc4570006544f0ad300c/sal/class.json-api-site-base.php#L387.
 		'created_at',
 		'updated_at',
+		'is_pending_plan',
+		'is_cloud_eligible',
+		'videopress_storage_used',
+		'blogging_prompts_settings',
 	);
 
 	/**
@@ -282,6 +298,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$blog_id = $api->token_details['blog_id'];
 		}
 
+		add_filter( 'wpcom_allow_jetpack_blog_token', '__return_true' );
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -515,7 +532,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_products();
 				break;
 			case 'zendesk_site_meta':
-				$response[ $key ] = $this->site->get_zendesk_site_meta();
+				// D59613-code only added this function to the wpcom SAL subclasses. Absent any better idea,
+				// we'll just omit the key entirely in Jetpack.
+				if ( is_callable( array( $this->site, 'get_zendesk_site_meta' ) ) ) {
+					$response[ $key ] = $this->site->get_zendesk_site_meta();
+				}
 				break;
 			case 'quota':
 				$response[ $key ] = $this->site->get_quota();
@@ -738,17 +759,24 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'woocommerce_is_active':
 					$options[ $key ] = $site->woocommerce_is_active();
 					break;
+				case 'editing_toolkit_is_active':
+					$options[ $key ] = $site->editing_toolkit_is_active();
+					break;
 				case 'design_type':
 					$options[ $key ] = $site->get_design_type();
-					break;
-				case 'site_goals':
-					$options[ $key ] = $site->get_site_goals();
 					break;
 				case 'site_segment':
 					$options[ $key ] = $site->get_site_segment();
 					break;
 				case 'import_engine':
 					$options[ $key ] = $site->get_import_engine();
+					break;
+				case 'is_pending_plan':
+					// D40032-code only added this function to the wpcom SAL subclasses. Absent any better idea,
+					// we'll just omit the key entirely in Jetpack.
+					if ( is_callable( array( $site, 'is_pending_plan' ) ) ) {
+						$options[ $key ] = $site->is_pending_plan();
+					}
 					break;
 
 				case 'is_wpforteams_site':
@@ -776,6 +804,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'anchor_podcast':
 					$options[ $key ] = $site->get_anchor_podcast();
 					break;
+				case 'was_created_with_blank_canvas_design':
+					$options[ $key ] = $site->was_created_with_blank_canvas_design();
+					break;
+				case 'videopress_storage_used':
+					$options[ $key ] = $this->site->get_videopress_storage_used();
+					break;
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
 					break;
@@ -796,6 +830,20 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
+					break;
+				case 'site_vertical_id':
+					$options[ $key ] = $site->get_site_vertical_id();
+					break;
+				case 'blogging_prompts_settings':
+					if ( current_user_can( 'edit_posts' ) ) {
+						$options[ $key ] = $site->get_blogging_prompts_settings( get_current_user_id(), $site->blog_id );
+					}
+					break;
+				case 'launchpad_screen':
+					$options[ $key ] = $site->get_launchpad_screen();
+					break;
+				case 'launchpad_checklist_tasks_statuses':
+					$options[ $key ] = $site->get_launchpad_checklist_tasks_statuses();
 					break;
 			}
 		}
@@ -868,6 +916,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// render additional options.
 		if ( $response->options ) {
 			$wpcom_options_response = $this->render_option_keys( self::$jetpack_response_option_additions );
+
+			// Remove heic from jetpack (and atomic) sites so that the iOS app know to convert the file format into a JPEG.
+			// heic fromat is currently not supported by for uploading.
+			// See https://jetpackp2.wordpress.com/2020/08/19/image-uploads-in-the-wp-ios-app-broken
+			if ( $this->site->is_jetpack() && isset( $response->options['allowed_file_types'] ) ) {
+				$remove_file_types                       = array(
+					'heic',
+				);
+				$response->options['allowed_file_types'] = array_values( array_diff( $response->options['allowed_file_types'], $remove_file_types ) );
+			}
 
 			foreach ( $wpcom_options_response as $key => $value ) {
 				$response->options[ $key ] = $value;

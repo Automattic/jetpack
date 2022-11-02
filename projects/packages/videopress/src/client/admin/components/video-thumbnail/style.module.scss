@@ -1,3 +1,21 @@
+// Animation
+
+@keyframes pulse {
+	0% {
+		transform: scale( 1 );
+	}
+
+	50% {
+		transform: scale( 1.1 );
+	}
+
+	100% {
+		transform: scale( 1 );
+	}
+}
+
+// Classes
+
 .thumbnail {
 	--videopress-video-item-aspect-radio: calc( 16 / 9 );
 	position: relative;
@@ -60,4 +78,37 @@
 			margin: 0;
 		}
 	}
+}
+
+.custom-thumbnail {
+	// Change spinner color
+	--wp-admin-theme-color: var( --jp-green-50 );
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: var( --spacing-base );
+
+	.pulse {
+		animation: pulse 1.5s infinite;
+	}
+
+	&.is-row {
+		.progress-bar {
+			max-width: 80px;
+		}
+
+		.upload-text {
+			margin-top: 0;
+		}
+	}
+}
+
+.progress-bar {
+	max-width: 112px;
+}
+
+.upload-text {
+	margin-top: calc( var( --spacing-base ) * 3 );
 }

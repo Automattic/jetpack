@@ -18,13 +18,6 @@
 
 use \Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
-require_once __DIR__ . '/functions.is-mobile.php';
-
-// We may have been loaded before the autoloader, so load the necessary class manually.
-if ( defined( 'JETPACK_PLUGIN_LOADER_PATH' ) && ! class_exists( User_Agent_Info::class ) ) {
-	require_once JETPACK_PLUGIN_LOADER_PATH . '/jetpack_vendor/automattic/jetpack-device-detection/src/class-user-agent-info.php';
-}
-
 /**
  * A class providing device properties detection.
  *
