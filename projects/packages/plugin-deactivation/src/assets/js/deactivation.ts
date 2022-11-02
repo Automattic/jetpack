@@ -35,7 +35,9 @@ export default class JetpackPluginDeactivation {
 	 * Look for clicks in elements of the dialog and trigger events accordingly.
 	 */
 	private observeDialogActions() {
-		const closeActions = this.dialog.querySelectorAll( '.jp-plugin-deactivation__action--close' );
+		const closeActions = this.dialog.querySelectorAll(
+			'[data-jp-plugin-deactivation-action="close"]'
+		);
 
 		closeActions.forEach( action => {
 			action.addEventListener( 'click', () => {
@@ -44,7 +46,7 @@ export default class JetpackPluginDeactivation {
 		} );
 
 		const deactivateActions = this.dialog.querySelectorAll(
-			'.jp-plugin-deactivation__action--deactivate'
+			'[data-jp-plugin-deactivation-action="deactivate"]'
 		);
 
 		deactivateActions.forEach( action => {

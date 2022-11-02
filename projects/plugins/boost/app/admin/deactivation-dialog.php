@@ -12,15 +12,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 <footer class="jp-plugin-deactivation__dialog__actions">
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__action--close jp-plugin-deactivation__button"
+		class="jp-plugin-deactivation__button"
+		data-jp-plugin-deactivation-action="close"
 	><?php esc_html_e( 'Cancel', 'jetpack-boost' ); ?></button>
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__action--deactivate jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
+		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
+		data-jp-plugin-deactivation-action="deactivate"
 	><?php esc_html_e( 'Just Deactivate', 'jetpack-boost' ); ?></button>
 	<button 
 		type="button"
-		class="jp-plugin-deactivation__action--deactivate jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
+		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
+		data-jp-plugin-deactivation-action="deactivate"
 		onclick="window.open( 'https://jetpack.com/redirect/?source=jetpack-boost-deactivation-feedback', '_blank' )"
 	><?php esc_html_e( 'Deactivate & Give Feedback', 'jetpack-boost' ); ?></button>
 </footer>
