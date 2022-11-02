@@ -771,29 +771,31 @@ async function buildProject( t ) {
 			delete composerJson.repositories;
 		}
 
-		// Update dependency version numbers in composer.json.
+		// Update '@dev' dependency version numbers in composer.json.
 		const composerDepTyes = [ 'require', 'require-dev' ];
 		for ( const key of composerDepTyes ) {
 			if ( composerJson[ key ] ) {
-				for ( const [ pkg ] of Object.entries( composerJson[ key ] ) ) {
-					for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
-						if ( ctxPkg.name === pkg && pkg.version.includes( '@dev' ) ) {
-							let massagedVer = ctxPkg.version;
+				for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
+					if ( ver === '@dev' ) {
+						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+							if ( ctxPkg.name === pkg ) {
+								let massagedVer = ctxPkg.version;
 
-							// Truncate non-0.x 'require' package versions to be two components only.
-							if (
-								key === 'require' &&
-								t.project.startsWith( 'packages/' ) &&
-								massagedVer[ 0 ] !== '0'
-							) {
-								massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
+								// Truncate non-0.x 'require' package versions to be two components only.
+								if (
+									key === 'require' &&
+									t.project.startsWith( 'packages/' ) &&
+									massagedVer[ 0 ] !== '0'
+								) {
+									massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
+								}
+
+								// Prefix versions with '^'.
+								massagedVer = `^${ massagedVer }`;
+
+								composerJson[ key ][ pkg ] = massagedVer;
+								break;
 							}
-
-							// Prefix versions with '^'.
-							massagedVer = `^${ massagedVer }`;
-
-							composerJson[ key ][ pkg ] = massagedVer;
-							break;
 						}
 					}
 				}
@@ -825,10 +827,15 @@ async function buildProject( t ) {
 		for ( const key of depTypes ) {
 			if ( packageJson[ key ] ) {
 				for ( const [ pkg, ver ] of Object.entries( packageJson[ key ] ) ) {
-					if ( ver.startsWith( 'workspace:* || ' ) ) {
-						packageJson[ key ][ pkg ] = ver.substring( 15 );
-					} else if ( ver === 'workspace:*' ) {
-						delete packageJson[ key ][ pkg ];
+					if ( ver === 'workspace:*' ) {
+						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+							if ( ctxPkg.name === pkg ) {
+								let massagedVer = ctxPkg.version;
+								massagedVer = `^${ massagedVer }`;
+								packageJson[ key ][ pkg ] = massagedVer;
+								break;
+							}
+						}
 					}
 				}
 			}
