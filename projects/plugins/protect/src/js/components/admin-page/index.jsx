@@ -1,4 +1,4 @@
-import { ProgressBar } from '@automattic/components';
+import { ProgressBar } from '@automattic/components/src';
 import {
 	AdminPage,
 	AdminSectionHero,
