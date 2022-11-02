@@ -10,6 +10,7 @@ import { formatListNumbered as ChaptersIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import VideoPressChaptersInspectorControls from './components/inspector-controls';
 import { description, title } from '.';
 
 import './editor.scss';
@@ -36,6 +37,11 @@ export default function VideoPressChaptersEdit( {
 
 	return (
 		<div { ...blockProps }>
+			<VideoPressChaptersInspectorControls
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+			/>
+
 			<Placeholder
 				icon={ <BlockIcon icon={ ChaptersIcon } /> }
 				instructions={ description }
