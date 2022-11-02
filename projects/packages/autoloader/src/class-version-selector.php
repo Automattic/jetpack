@@ -52,7 +52,10 @@ class Version_Selector {
 	 * @return bool True if the version is a dev version, else false.
 	 */
 	public function is_dev_version( $version ) {
-		if ( 'dev-' === substr( $version, 0, 4 ) || '9999999-dev' === $version ) {
+		if ( 'dev-' === substr( $version, 0, 4 ) ||
+			'9999999-dev' === $version ||
+			str_ends_with( $version, '-alpha' ) ||
+			preg_match( '/-a(?:[.\d])+$/', $version ) ) {
 			return true;
 		}
 
