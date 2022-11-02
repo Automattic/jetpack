@@ -1,7 +1,7 @@
 .loading {
     text-align: center;
-    padding-top: calc( var( --spacing-base ) * 6 );
-    padding-bottom: calc( var( --spacing-base ) * 6 );
+    padding-top: calc( var( --spacing-base ) * 6 ); // 48px
+    padding-bottom: calc( var( --spacing-base ) * 6 ); // 48px
 
     &__message {
         margin-bottom: 0;

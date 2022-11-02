@@ -1,26 +1,26 @@
 .notice {
-    background-color: #1D2327;
-    color: #FFFFFF;
+    background-color: var( --jp-gray-90 );
+    color: var( --jp-white );
     display: flex;
-    border-radius: 4px;
+    border-radius: var( --jp-border-radius ); // 4px
     overflow: hidden;
 
     &.notice--info {
-        border-left: 4px solid #F0C930;
-        margin-bottom: calc( var( --spacing-base ) * 3 );
+        border-left: 4px solid var( --jp-yellow-20 );
+        margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
     }
 }
 
 .notice__icon {
-    background-color: #DEB100;
-    fill: #FFFFFF;
+    background-color: var( --jp-yellow-30 );
+    fill: var( --jp-white );
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: calc( var( --spacing-base ) * 1.5 ); // 12px
     
     .notice--success & {
-        background-color: #008A20;
+        background-color: var( --jp-green-50 );
     }
 
     .notice--error & {
@@ -28,17 +28,17 @@
     }
     
     .notice--info & {
-        fill: #9D6E00;
-        background-color: #F5E6B3;
+        fill: var( --jp-yellow-50 );
+        background-color: var( --jp-yellow-5 );
     }
 }
 
 .notice__message {
     font-size: 14px;
-    padding: 14px;
+    padding: calc( var( --spacing-base ) * 1.75 ); // 14px
 
     .notice--info & {
-        color: #1D2327;
-        background-color: #F5E6B3;
+        color: var( --jp-gray-90 );
+        background-color: var( --jp-yellow-5 );
     }
 }

@@ -83,7 +83,6 @@
 	"projects/plugins/super-cache/rest/class.wp-super-cache-rest-get-status.php",
 	"projects/plugins/super-cache/rest/class.wp-super-cache-rest-preload.php",
 	"projects/plugins/super-cache/rest/class.wp-super-cache-rest-test-cache.php",
-	"projects/plugins/super-cache/rest/class.wp-super-cache-rest-update-plugins.php",
 	"projects/plugins/super-cache/rest/class.wp-super-cache-rest-update-settings.php",
 	"projects/plugins/super-cache/rest/class.wp-super-cache-settings-map.php",
 	"projects/plugins/super-cache/rest/load.php",
