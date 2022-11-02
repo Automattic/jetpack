@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
+import { Button, Notice, PanelBody, TextareaControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -60,10 +60,26 @@ export default function DetailsControl( { attributes, setAttributes, isRequestin
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				value={ description }
 				placeholder={ __( 'Video description', 'jetpack-videopress-pkg' ) }
+				help={ __(
+					'These details are reflected wherever the video is shown.',
+					'jetpack-videopress-pkg'
+				) }
 				onChange={ setDescriptionAttribute }
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData }
 			/>
+
+			{ !! attributes.tracks.length && (
+				<Notice status={ 'success' } isDismissable={ true }>
+					<div>
+						{ __( 'We detected chapters in your video Description', 'jetpack-videopress-pkg' ) }
+					</div>
+
+					<Button variant="primary">
+						{ __( 'Add chapters list to post', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</Notice>
+			) }
 		</PanelBody>
 	);
 }
