@@ -8956,6 +8956,14 @@ packages:
     dependencies:
       '@babel/runtime': 7.19.4
 
+  /@wordpress/url/3.20.0:
+    resolution: {integrity: sha512-geLgg7AWh/pIFPQEI43hQYR6MvEUi3QIawaPPoYMqw3Fne1UvbnXW9ETsCLzYyegmV8DXzcYSMPeSBQf+HL/ig==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.19.4
+      remove-accents: 0.4.3
+    dev: false
+
   /@wordpress/url/3.21.0:
     resolution: {integrity: sha512-lCsM9RG0U8rYeLJ9T9BCX4v+kis2Cif5zbHA/wLhjO1ndfMmdOIOycEiTl1d9wOyjau97jKZTMqf2xF4HH5ZHA==}
     engines: {node: '>=12'}
