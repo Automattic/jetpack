@@ -6,7 +6,7 @@
 	"title": "Video Chapters",
 	"category": "media",
 	"icon": "smiley",
-	"description": "Display the chapters in a VideoPress video whatever whatever.",
+	"description": "Display the chapters of a VideoPress video.",
 	"supports": {
 		"align": true
 	},
