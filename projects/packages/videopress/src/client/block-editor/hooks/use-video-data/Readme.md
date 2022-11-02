@@ -4,12 +4,12 @@ Perform a request to the media endpoint. Pull and tweak the response to be adequ
 
 ```jsx
 function myVideoComponent( { id } ) {
-	const [ videoItem, isRequestingVideoItem ] = useVideoItem( id );
+	const [ videoData, isRequestingVideoItem ] = useVideoData( id );
 
 	if ( isRequestingVideoItem ) {
 		return null;
 	}
 
-	return <p>Video title: { videoItem.title }</p>;
+	return <p>Video title: { videoData.title }</p>;
 }
 ```

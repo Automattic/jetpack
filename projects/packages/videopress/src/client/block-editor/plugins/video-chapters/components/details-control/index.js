@@ -6,7 +6,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useBlockAttributes from '../../hooks/use-block-attributes';
 import './index.scss';
 
 const CHARACTERS_PER_LINE = 31;
@@ -14,12 +13,13 @@ const CHARACTERS_PER_LINE = 31;
 /**
  * React component that renders a Video details control
  *
- * @param {object} props - Component properties
- * @param {boolean} props.isRequestingVideoItem - Whether the video item is being requested
+ * @param {object} props                        - Component properties.
+ * @param {object} props.attributes             - Block attributes.
+ * @param {boolean} props.isRequestingVideoData - Whether the video data is being requested.
+ * @param {Function} props.setAttributes - Block attributes setter.
  * @returns {object} Video details control component
  */
-export default function DetailsControl( { isRequestingVideoItem } ) {
-	const { attributes, setAttributes } = useBlockAttributes();
+export default function DetailsControl( { attributes, setAttributes, isRequestingVideoData } ) {
 	const { title, description } = attributes;
 	const isBeta = true;
 
@@ -53,7 +53,7 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 				value={ title }
 				placeholder={ __( 'Video title', 'jetpack-videopress-pkg' ) }
 				onChange={ setTitleAttribute }
-				disabled={ isRequestingVideoItem }
+				disabled={ isRequestingVideoData }
 			/>
 
 			<TextareaControl
@@ -61,8 +61,8 @@ export default function DetailsControl( { isRequestingVideoItem } ) {
 				value={ description }
 				placeholder={ __( 'Video description', 'jetpack-videopress-pkg' ) }
 				onChange={ setDescriptionAttribute }
-				disabled={ isRequestingVideoItem }
 				rows={ descriptionControlRows }
+				disabled={ isRequestingVideoData }
 			/>
 		</PanelBody>
 	);
