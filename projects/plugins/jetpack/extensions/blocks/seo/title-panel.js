@@ -19,8 +19,6 @@ class SeoTitlePanel extends Component {
 				onChange={ this.onTitleChange }
 				placeholder={ __( 'Write a title…', 'jetpack' ) }
 				rows={ 2 }
-				/* Suggestion is 50 - 60 chars */
-				maxLength={ 65 }
 			/>
 		);
 	}
