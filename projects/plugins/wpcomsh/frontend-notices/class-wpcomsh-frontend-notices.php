@@ -147,9 +147,9 @@ class WPCOMSH_Frontend_Notices {
 
 		$data['plan_level'] = sanitize_text_field( self::get_plan_level( $current_purchase ) );
 		$data['i18n']       = array(
-			'title'       => 'This site is going offline soon.',
-			'description' => 'If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?',
-			'action'      => 'Continue to site',
+			'title'       => esc_html__( 'This site is going offline soon.', 'wpcomsh' ),
+			'description' => esc_html__( 'If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?', 'wpcomsh' ),
+			'action'      => esc_html__( 'Continue to site', 'wpcomsh' ),
 		);
 
 		wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), WPCOMSH_VERSION );

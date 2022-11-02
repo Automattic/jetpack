@@ -79,6 +79,7 @@ html.wpcomsh-epn-hidden {
     transition: opacity .15s ease-out;
     white-space: nowrap;
     width: 100%;
+    cursor: pointer;
 }
 .wpcomsh-epn-action-buttons .wpcomsh-epn-button-secondary,
 .wpcomsh-epn-action-buttons .wpcomsh-epn-button-secondary:hover,

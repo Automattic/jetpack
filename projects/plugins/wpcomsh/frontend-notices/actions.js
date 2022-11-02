@@ -34,18 +34,24 @@
 		notice.setAttribute('id', 'wpcomsh-exp-notice');
 		notice.classList.add('wpcomsh-epn-body');
 		document.documentElement.classList.add('has-wpcomsh-epn');
+
 		notice.innerHTML =
 			'<div class="wpcomsh-epn-body-inner">' +
 			'<div class="wpcomsh-epn-body-main">' +
-			'<div class="wpcomsh-epn-body-description">This site is going offline soon.</div>' +
-			'<div class="wpcomsh-epn-info">If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?</div>' +
+			'<div id="wpcomsh-epn-title" class="wpcomsh-epn-body-description"></div>' +
+			'<div id="wpcomsh-epn-desc" class="wpcomsh-epn-info"></div>' +
 			'</div>' +
 			'<div class="wpcomsh-epn-action">' +
 			'<div class="wpcomsh-epn-action-buttons">' +
-			'<p><button id="wpcomsh-epn-visit-site" class="wpcomsh-epn-button">Continue to site</button></p>' +
+			'<p><button id="wpcomsh-epn-visit-site" class="wpcomsh-epn-button"></button></p>' +
 			'</div>' +
 			'</div>' +
 			'</div>';
+
+		notice.querySelector('#wpcomsh-epn-title').innerText = wpcomsh_epn_data.i18n.title;
+		notice.querySelector('#wpcomsh-epn-desc').innerText = wpcomsh_epn_data.i18n.description;
+		notice.querySelector('#wpcomsh-epn-visit-site').innerText = wpcomsh_epn_data.i18n.action;
+
 		document.body.prepend(notice);
 	}
 })();
