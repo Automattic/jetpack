@@ -7,7 +7,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
  * Internal dependencies
  */
 import { isExtensionEnabled } from '../../extensions';
-import { useSyncMedia } from '../../hooks/use-video-item-update';
+import { useSyncMedia } from '../../hooks/use-video-data-update';
 import DetailsControl from './components/details-control';
 import { VIDEO_CHAPTERS_EXTENSION_NAME } from '.';
 

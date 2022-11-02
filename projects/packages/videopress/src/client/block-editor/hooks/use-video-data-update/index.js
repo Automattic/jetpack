@@ -15,7 +15,7 @@ import { getVideoPressUrl } from '../../../lib/url';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
 import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
-import useVideoItem from '../use-video-item';
+import useVideoItem from '../use-video-data';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
