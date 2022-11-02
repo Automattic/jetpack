@@ -24,7 +24,12 @@ import './editor.scss';
  * @param {string} props.clientId        - Block client ID.
  * @returns {object}                     - React component.
  */
-export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
+export default function VideoPressChaptersEdit( {
+	attributes,
+	setAttributes,
+	isSelected,
+	clientId,
+} ) {
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-videopress-chapters',
 	} );
