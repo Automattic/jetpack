@@ -70,10 +70,14 @@ export default function DetailsControl( { attributes, setAttributes, isRequestin
 			/>
 
 			{ !! attributes.tracks.length && (
-				<Notice status={ 'success' } isDismissable={ true }>
-					<div>
+				<Notice
+					className={ 'jetpack-videopress-videochapters-prompt' }
+					status={ 'success' }
+					isDismissable={ true }
+				>
+					<p>
 						{ __( 'We detected chapters in your video Description', 'jetpack-videopress-pkg' ) }
-					</div>
+					</p>
 
 					<Button variant="primary">
 						{ __( 'Add chapters list to post', 'jetpack-videopress-pkg' ) }
