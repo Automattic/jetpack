@@ -3,7 +3,9 @@
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-device-detection": "1.4.x-dev"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "3.2.x-dev"
