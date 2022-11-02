@@ -9,12 +9,12 @@
 }
 
 .threat-section + .threat-section {
-	margin-top: 40px;
+	margin-top: calc( var( --spacing-base ) * 5 ); // 40px
 }
 
 .threat-filename {
 	background-color: var( --jp-gray-0 );
-	padding: 24px;
+	padding: calc( var( --spacing-base ) * 3 ); // 24px
 	overflow-x: scroll;
 }
 
@@ -22,17 +22,17 @@
 	display: flex;
 	justify-content: end;
 	border-top: 1px solid var( --jp-gray );
-	padding-top: 24px;
-	margin-top: 24px;
+	padding-top: calc( var( --spacing-base ) * 3 ); // 24px
+	margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }
 .threat-item-cta {
-	margin-top: 36px;
+	margin-top: calc( var( --spacing-base ) * 4 ); // 36px
 }
 
 .list-header {
 	display: flex;
 	align-items: flex-end;
-	margin-bottom: calc( var( --spacing-base ) * 2.25 );
+	margin-bottom: calc( var( --spacing-base ) * 2.25 ); // 18px
 }
 
 .list-title {
@@ -41,18 +41,18 @@
 }
 
 .list-header-button {
-	margin-left: calc( var( --spacing-base ) * 2 );
+	margin-left: calc( var( --spacing-base ) * 2 ); // 16px
 }
 
 .threat-footer {
 	width: 100%;
 	display: flex;
 	justify-content: right;
-	padding-top: calc( var( --spacing-base ) * 4 );
+	padding-top: calc( var( --spacing-base ) * 4 ); // 32px
 	border-top: 1px solid var( --jp-gray );
 
 	> :last-child {
-		margin-left: calc( var( --spacing-base ) * 2 );
+		margin-left: calc( var( --spacing-base ) * 2 ); // 16px
 	}
 }
 
@@ -60,7 +60,7 @@
 	display: grid;
 	grid-template-columns: repeat( 9, 1fr );
 	background-color: white;
-	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 );
+	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px
 	border: 1px solid var( --jp-gray );
 	border-bottom: none;
 	color: var( --jp-gray-50 );
@@ -76,7 +76,7 @@
 }
 
 .manual-scan {
-	margin: 32px 64px;
+	margin: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 8 ); // 32px | 64px
 	text-align: center;
 
 	> button span {
@@ -97,7 +97,7 @@
 @media ( max-width: 599px ) {
 
 	.list-header {
-		margin-bottom: calc( var( --spacing-base ) * 3 );
+		margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
 	}
 
 	.list-title {

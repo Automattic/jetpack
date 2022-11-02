@@ -1,5 +1,5 @@
 .list {
-    margin-bottom: 40px;
+    margin-bottom: calc( var( --spacing-base ) * 5 ); // 40px
 }
 
 .footer {

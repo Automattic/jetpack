@@ -4,7 +4,7 @@
 }
 
 .diff-viewer__filename {
-	padding: 4px 8px;
+	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
 	background-color: var( --jp-gray-10 );
 	font-weight: 600;
 }
@@ -19,7 +19,7 @@
 }
 
 .diff-viewer__line-numbers {
-	padding: 0 8px;
+	padding: 0 var( --spacing-base ); // 0px | 8px
 	display: flex;
 	flex-direction: column;
 	text-align: right;
@@ -36,7 +36,7 @@
 	& div,
 	& del,
 	& ins {
-		padding: 0 8px;
+		padding: 0 var( --spacing-base ); // 0px | 8px
 		text-decoration: none;
 	}
 

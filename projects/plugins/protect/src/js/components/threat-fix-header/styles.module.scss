@@ -1,17 +1,17 @@
 .threat {
     border: 1px solid var( --jp-gray );
-    border-radius: 4px;
-    padding: 16px;
+    border-radius: var( --jp-border-radius ); // 4px
+    padding: calc( var( --spacing-base ) * 2 ); // 16px
     display: flex;
 
     &:first-of-type {
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
+        border-top-left-radius: var( --jp-border-radius ); // 4px
+        border-top-right-radius: var( --jp-border-radius ); // 4px
     }
 
     &:last-of-type {
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
+        border-bottom-left-radius: var( --jp-border-radius ); // 4px
+        border-bottom-right-radius: var( --jp-border-radius ); // 4px
     }
 
     + .threat {
@@ -19,7 +19,7 @@
     }
     
     &__icon {
-        margin-right: 16px;
+        margin-right: calc( var( --spacing-base ) * 2 ); // 16px
         min-width: 24px;
     }
 
@@ -42,13 +42,13 @@
 
     &__severity {
         align-self: center;
-        margin-left: 16px;
-        margin-right: 8px;
+        margin-left: calc( var( --spacing-base ) * 2 ); // 16px
+        margin-right: var( --spacing-base ); // 8px
     }
 
     &__checkbox {
         align-self: center;
-        margin-left: 16px;
-        margin-right: 8px;
+        margin-left: calc( var( --spacing-base ) * 2 ); // 16px
+        margin-right: var( --spacing-base ); // 8px
     }
 }
