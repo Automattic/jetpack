@@ -2,7 +2,11 @@
 
 if ( ! class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
 	// Manually load Device_Detection before autoload is initialized.
-	require_once WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php';
+	if ( defined( 'WPCACHEHOME' ) ) {
+		if ( file_exists( WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php' ) ) {
+			require_once WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php';
+		}
+	}
 }
 
 function wp_super_cache_jetpack_admin() {
@@ -63,6 +67,10 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 		} elseif ( $_COOKIE['akm_mobile'] == 'false' ) {
 			return 'normal';
 		}
+	}
+
+	if ( ! class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
+		return 'normal';
 	}
 
 	if ( \Automattic\Jetpack\Device_Detection::is_phone() ) {
