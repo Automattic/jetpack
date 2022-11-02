@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-		"mediawiki/mediawiki-codesniffer": "^39.0",
+		"mediawiki/mediawiki-codesniffer": "^40.0",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-variable-analysis": "^2.10",
 		"wp-coding-standards/wpcs": "^2.3",
@@ -60,7 +60,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.6.x-dev"
+			"dev-trunk": "2.7.x-dev"
 		}
 	},
 	"config": {
