@@ -1,21 +1,19 @@
-import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { get } from 'lodash';
 import { CountedTextArea } from './counted-textarea';
+import { withSeoHelper } from './with-seo-helper';
 
 class SeoDescriptionPanel extends Component {
 	onMessageChange = event => {
-		this.props.updateSeoDescription( event.target.value );
+		this.props.updateMetaValue( event.target.value );
 	};
 
 	render() {
-		const { seoDescription } = this.props;
+		const { metaValue } = this.props;
 
 		return (
 			<CountedTextArea
-				value={ seoDescription }
+				value={ metaValue }
 				onChange={ this.onMessageChange }
 				placeholder={ __( 'Write a description…', 'jetpack' ) }
 				rows={ 4 }
@@ -24,21 +22,4 @@ class SeoDescriptionPanel extends Component {
 	}
 }
 
-export default compose( [
-	withSelect( select => ( {
-		seoDescription: get(
-			select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
-			[ 'advanced_seo_description' ],
-			''
-		),
-	} ) ),
-	withDispatch( dispatch => ( {
-		updateSeoDescription( seoDescription ) {
-			dispatch( 'core/editor' ).editPost( {
-				meta: {
-					advanced_seo_description: seoDescription,
-				},
-			} );
-		},
-	} ) ),
-] )( SeoDescriptionPanel );
+export default withSeoHelper( 'advanced_seo_description' )( SeoDescriptionPanel );
