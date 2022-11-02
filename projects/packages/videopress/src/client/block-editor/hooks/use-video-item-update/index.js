@@ -97,11 +97,12 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 		setAttributes( initialAttributesState );
 	}, [ videoItem, isRequestingVideoItem ] );
 
-	const updateMedia = useMediaItemUpdate( id );
+	const updateMediaHandler = useMediaItemUpdate( id );
 
-	/**
-	 * Compare the current block attributes with the initial state,
-	 * and update the media item if needed (via the VideoPress API).
+	/*
+	 * Compare the current attribute values of the block
+	 * with the initial state, and update the media data
+	 * in case it detects changes on it (via the VideoPress API).
 	 */
 	useEffect( () => {
 		if ( ! isSaving || wasSaving ) {
@@ -112,7 +113,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 			return;
 		}
 
-		// Compute the diff between the initial state and the current attributes
+		// Filter the attributes that have changed their values.
 		const dataToUpdate = attributesToUpdate.reduce( ( acc, key ) => {
 			if ( initialState[ key ] !== attributes[ key ] ) {
 				acc[ key ] = attributes[ key ];
@@ -125,7 +126,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 			return;
 		}
 
-		updateMedia( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
+		updateMediaHandler( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
 
 		// | Video Chapters feature |
 		if ( ! attributes?.guid ) {
@@ -157,7 +158,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 	}, [
 		isSaving,
 		wasSaving,
-		updateMedia,
+		updateMediaHandler,
 		updateInitialState,
 		attributes,
 		invalidateResolution,
