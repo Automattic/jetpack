@@ -41,7 +41,13 @@ const videoPressUploadTrack = function ( track: TrackDataProps, guid: string ) {
 			};
 
 			fetch( `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }/tracks`, requestOptions )
-				.then( resolve )
+				.then( data => {
+					try {
+						return resolve( data.json() );
+					} catch ( error ) {
+						return reject( error );
+					}
+				} )
 				.catch( reject );
 		} );
 	} );
