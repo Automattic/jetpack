@@ -63,7 +63,7 @@ export default function VideoPressPlayer( {
 } ) {
 	const mainWrapperRef = useRef();
 	const videoWrapperRef = useRef();
-	const { maxWidth, caption, videoRatio } = attributes;
+	const { maxWidth, caption, videoRatio, permanentClientId } = attributes;
 
 	/*
 	 * Temporary height is used to set the height of the video
@@ -202,6 +202,7 @@ export default function VideoPressPlayer( {
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
 
 				<div
+					id={ permanentClientId }
 					className="jetpack-videopress-player__wrapper"
 					ref={ videoWrapperRef }
 					style={ wrapperElementStyle }
