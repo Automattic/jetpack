@@ -160,3 +160,33 @@ function wpcom_fse_global_editors_script() {
 	wp_add_inline_script( 'wp-list-reusable-blocks', $script );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_fse_global_editors_script' );
+
+/**
+ * This function hooks into the action that is dispatched when changes to the Global Styles of site are made.
+ *
+ * @param string $message The message that will be logged.
+ *
+ * @return void
+ */
+function logstash_log_global_styles( $message ) {
+	// We sample the logs so that we only send 1 in 100 logs. We don't treat proxied requests in any special way.
+	if ( time() % 100 !== 0 ) {
+		return;
+	}
+
+	// This data has the format that's expected by the logstash endpoint.
+	$data = wp_json_encode(
+		array(
+			'feature' => 'atomic_global_styles_gate',
+			'message' => $message,
+			'extra'   => array(
+				'trace'          => ( new Exception() )->getTraceAsString(),
+				'atomic_site_id' => wpcomsh_get_atomic_site_id(),
+			),
+		)
+	);
+
+	// We FAF the call to the logging endpoint.
+	wp_remote_post( 'https://public-api.wordpress.com/rest/v1.1/logstash', array( 'body' => array( 'params' => $data ) ) );
+}
+add_action( 'global_styles_log', 'logstash_log_global_styles' );
