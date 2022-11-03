@@ -134,8 +134,11 @@ class Dashboard {
 				ul.wp-submenu, ul.wp-submenu-wrap {
 					margin-left: 0;
 				}
-				.followers-count {
+				.jp-stats-dashboard .followers-count {
 					display: none;
+				}
+				.jp-stats-dashboard .layout__content {
+					padding-top: 32px;
 				}
 				</style>';
 			},
@@ -173,12 +176,22 @@ class Dashboard {
 				'blog_id'                        => Jetpack_Options::get_option( 'id' ),
 				'nonce'                          => wp_create_nonce( 'wp_rest' ),
 				'is_running_in_jetpack_site'     => true,
+				'admin_page_base'                => static::get_admin_path(),
 				'meta'                           => array(
 					'property' => 'og:site_name',
 					'content'  => 'WordPress.com',
 				),
 			)
 		);
+	}
+
+	/**
+	 * Page base for the Calypso admin page.
+	 */
+	protected static function get_admin_path() {
+		$admin_url        = admin_url( 'admin.php?page=stats&calypso_stats=1' );
+		$parsed_admin_url = parse_url( $admin_url );
+		return $parsed_admin_url['path'] . '?' . $parsed_admin_url['query'];
 	}
 
 	/**

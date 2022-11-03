@@ -17,9 +17,8 @@ namespace Automattic\Jetpack\StatsAdmin;
 class Main {
 	/**
 	 * Stats version.
-	 * Mostly needed for backwards compatibility.
 	 */
-	const STATS_VERSION = '9';
+	const STATS_ADMIN_VERSION = '9';
 
 	/**
 	 * Singleton Main instance.
@@ -48,8 +47,6 @@ class Main {
 	 * @return void
 	 */
 	private function __construct() {
-		// These shouldn't be initialized with the main API, just to be easier for the PoC.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-		( new Dashboard() )->init_hooks();
 	}
 }

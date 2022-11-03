@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\StatsAdmin;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Rest_Authentication;
-use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -205,8 +204,26 @@ class REST_Controller {
 	 */
 	public function get_resource_from_wpcom( $req ) {
 		// TODO: add a whitelist of allowed resources.
-		$wpcom_stats = new WPCOM_Stats( $req['resource'] );
-		return $wpcom_stats->fetch_stats( $req->get_params() );
+		$response      = static::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/stats/%s?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'resource' ),
+				http_build_query(
+					$req->get_params()
+				)
+			),
+			'1.1',
+			array( 'timeout' => 30 )
+		);
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = wp_remote_retrieve_body( $response );
+
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
+			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', $response_body );
+		}
+
+		return json_decode( $response_body, true );
 	}
 
 	/**
