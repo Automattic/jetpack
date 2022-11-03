@@ -30,7 +30,7 @@ export default function DetailsControl( {
 	isRequestingVideoData,
 	clientId,
 } ) {
-	const { title, description, permanentClientId, tracks } = attributes;
+	const { title, description, linkClientId, tracks } = attributes;
 
 	const hasChapters = !! tracks.length;
 	const isBeta = true;
@@ -62,23 +62,16 @@ export default function DetailsControl( {
 		setAttributes( { description: newDescription } );
 	};
 
-	const setVideoChaptersClientId = newVideoChaptersClientId => {
-		setAttributes( { permanentClientId: newVideoChaptersClientId } );
-	};
-
 	const addVideoChaptersBlock = () => {
 		const videoPressBlockIndex = getBlockIndex( clientId );
 		const block = createBlock( 'videopress/video-chapters', {
-			videoPressBlockId: permanentClientId,
+			linkClientId,
 		} );
 		insertBlock( block, videoPressBlockIndex + 1 );
-		setVideoChaptersClientId( block.clientId );
 	};
 
 	const hasVideoChapters =
-		typeof permanentClientId === 'string' &&
-		permanentClientId.length > 0 &&
-		getBlock( permanentClientId );
+		typeof linkClientId === 'string' && linkClientId.length > 0 && getBlock( linkClientId );
 
 	return (
 		<PanelBody

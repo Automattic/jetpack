@@ -32,12 +32,12 @@ const withVideoChaptersEdit = createHigherOrderComponent(
 
 		// Set a permanent client id.
 		useEffect( () => {
-			if ( attributes.permanentClientId ) {
+			if ( attributes.linkClientId ) {
 				return;
 			}
 
-			setAttributes( { permanentClientId: props.clientId } );
-		}, [ props.clientId, attributes.permanentClientId ] );
+			setAttributes( { linkClientId: props.clientId } );
+		}, [ props.clientId, attributes.linkClientId ] );
 
 		return (
 			<>
