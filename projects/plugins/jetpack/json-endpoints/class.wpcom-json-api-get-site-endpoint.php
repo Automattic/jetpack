@@ -561,6 +561,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'p2_thumbnail_elements':
 				$response[ $key ] = $this->site->get_p2_thumbnail_elements();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
