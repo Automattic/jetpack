@@ -172,4 +172,4 @@ require_once __DIR__ . '/compatibility/boost-1.3.1.php';
 
 
 
-require_once __DIR__ . '/app/features/perfguard/perfguard.php';
+require_once __DIR__ . '/app/features/guide/jetpack-boost-guide.php';

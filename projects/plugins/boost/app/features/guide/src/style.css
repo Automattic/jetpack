@@ -1,9 +1,9 @@
-.perfguard {
+.jb-guide {
 	position: relative;
 	text-align: left;
 }
 
-.perfguard--bg {
+.jb-guide--bg {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -11,8 +11,8 @@
 	bottom: 0;
 }
 
-.perfguard-overlay,
-.perfguard-previews {
+.jb-guide-overlay,
+.jb-guide-previews {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -20,7 +20,7 @@
 	z-index: 9001;
 }
 
-.perfguard-overlay {
+.jb-guide-overlay {
 	right: 0;
 	bottom: 0;
 	width: 100%;
@@ -29,12 +29,12 @@
 	display: none;
 }
 
-.perfguard-overlay:hover, .perfguard:has(.perfguard-previews:hover) .perfguard-overlay {
+.jb-guide-overlay:hover, .jb-guide:has(.jb-guide-previews:hover) .jb-guide-overlay {
 	display: block;
 }
 
 
-.perfguard-previews {
+.jb-guide-previews {
 	position: absolute;
 	width: fit-content;
 	display: flex;
@@ -42,7 +42,7 @@
 	flex-wrap: wrap;
 }
 
-.perfguard-info {
+.jb-guide-info {
 	padding: 25px;
 	font-family: sans-serif;
 	background-color: rgb(255, 255, 255);
@@ -55,8 +55,8 @@
 	gap: 15px;
 }
 
-.perfguard-overlay::after {
-    background: url(./boost.png) no-repeat;
+.jb-guide-overlay::after {
+    background: url(../boost.png) no-repeat;
     content: '';
     position: absolute;
     bottom: 20px;
@@ -74,7 +74,7 @@
     background-color: white;
 }
 
-.perfguard-preview {
+.jb-guide-preview {
 	background-color: #069e08;
 	color: white;
 
@@ -95,10 +95,10 @@
 	cursor: default;
 }
 
-.perfguard-preview.high {
+.jb-guide-preview.high {
 	background-color: #e52e00;
 }
 
-.perfguard-preview.medium {
+.jb-guide-preview.medium {
 	background-color: #e98800;
 }

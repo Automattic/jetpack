@@ -64,7 +64,7 @@ if (!production) {
 	});
 }
 
-const PERFGUARD_PATH = `app/features/perfguard`;
+const GUIDE_PATH = `app/features/guide`;
 
 export default [
 
@@ -189,17 +189,17 @@ export default [
 	/**
 	 *
 	 *
-	 * Perfguard
+	 * Jetpack Boost Guide
 	 *
 	 *
 	 */
 	{
-		input: `${PERFGUARD_PATH}/src/index.ts`,
+		input: `${GUIDE_PATH}/src/index.ts`,
 		output: {
 			sourcemap: !production,
 			format: 'iife',
 			name: 'app',
-			file: `${PERFGUARD_PATH}/dist/perfguard.js`,
+			file: `${GUIDE_PATH}/dist/guide.js`,
 		},
 		plugins: [
 			resolve({
@@ -223,7 +223,7 @@ export default [
 			// a separate file - better for performance
 			postcss({
 				extensions: ['.css', '.sss', '.pcss', '.sass', '.scss'],
-				extract: path.resolve(`${PERFGUARD_PATH}/dist/perfguard.css`),
+				extract: path.resolve(`${GUIDE_PATH}/dist/guide.css`),
 				minimize: production,
 			}),
 
