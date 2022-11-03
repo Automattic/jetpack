@@ -40,8 +40,8 @@ class Deactivation_Handler {
 	/**
 	 * Constructor.
 	 *
-	 * @param string $plugin       Slug of the plugin to intercept deactivation for.
-	 * @param string $dialog_view  Path to a PHP file that will be used as a template for the deactivation dialog.
+	 * @param string $plugin      Slug of the plugin to intercept deactivation for.
+	 * @param string $dialog_view Path to a PHP file that will be used as a template for the deactivation dialog.
 	 */
 	public function __construct( $plugin, $dialog_view ) {
 		$this->plugin      = $plugin;
@@ -51,8 +51,8 @@ class Deactivation_Handler {
 	/**
 	 * Instantiates the deactivation handler to intercept the deactivation of plugins.
 	 *
-	 * @param string $plugin       Slug of the plugin to intercept deactivation for.
-	 * @param string $dialog_view  Path to a PHP file that will be used as a template for the deactivation dialog.
+	 * @param string $plugin      Slug of the plugin to intercept deactivation for.
+	 * @param string $dialog_view Path to a PHP file that will be used as a template for the deactivation dialog.
 	 */
 	public static function init( $plugin, $dialog_view ) {
 		$instance = new self( $plugin, $dialog_view );
@@ -62,30 +62,44 @@ class Deactivation_Handler {
 		}
 
 		add_action( 'load-plugins.php', array( $instance, 'enqueue_script' ) );
-		add_action( 'admin_footer-plugins.php', array( $instance, 'embed_dialog' ), 9 );
-		add_action( 'admin_footer-plugins.php', array( $instance, 'init_dialog' ), 10 );
+		add_action( 'admin_footer-plugins.php', array( $instance, 'embed_dialog' ) );
+		add_filter( 'jp_plugin_deactivation_data', array( $instance, 'add_deactivation_data' ) );
 
 		return $instance;
+	}
+
+	public function add_deactivation_data( $plugins ) {
+		$plugins['slugs'][] = $this->plugin;
+		return $plugins;
 	}
 
 	/**
 	 * Enqueues the deactivation handler script and styles.
 	 */
 	public function enqueue_script() {
+
 		wp_enqueue_script(
-			'jp-plugin-deactivation',
-			plugins_url( '../dist/deactivation.js', __FILE__ ),
-			array(),
-			self::PACKAGE_VERSION,
-			true
+				'jp-plugin-deactivation',
+				plugins_url( '../dist/deactivation.js', __FILE__ ),
+				array(),
+				self::PACKAGE_VERSION,
+				true
 		);
 
 		wp_enqueue_style(
-			'jp-plugin-deactivation',
-			plugins_url( '../dist/deactivation.css', __FILE__ ),
-			array(),
-			self::PACKAGE_VERSION
+				'jp-plugin-deactivation',
+				plugins_url( '../dist/deactivation.css', __FILE__ ),
+				array(),
+				self::PACKAGE_VERSION
 		);
+
+		/**
+		 * This is going to pass plugin slugs to the script.
+		 */
+		$data = array(
+			'slugs' => array(),
+		);
+		wp_localize_script( 'jp-plugin-deactivation', 'JetpackPluginDeactivationData', apply_filters( 'jp_plugin_deactivation_data', $data ) );
 	}
 
 	/**
@@ -97,21 +111,12 @@ class Deactivation_Handler {
 			<div class="jp-plugin-deactivation__dialog">
 				<?php include $this->dialog_view; ?>
 			</div>
-			<div 
-				data-jp-plugin-deactivation-action="close"
-				class="jp-plugin-deactivation__overlay"
+			<div
+					data-jp-plugin-deactivation-action="close"
+					class="jp-plugin-deactivation__overlay"
 			></div>
 		</div>
 		<?php
 	}
 
-	/**
-	 * Instantiate the dialog handler class.
-	 */
-	public function init_dialog() {
-		// Name of the javascript variable that will hold the dialog handler instance for a given plugin.
-		$variable_name = str_replace( '-', '', ucwords( sanitize_key( $this->plugin ), '-' ) ) . 'Deactivation';
-
-		echo '<script>var ' . esc_js( $variable_name ) . ' = new JetpackPluginDeactivation( decodeURIComponent( "' . rawurlencode( $this->plugin ) . '" ) );</script>';
-	}
 }
