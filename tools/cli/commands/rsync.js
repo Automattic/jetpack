@@ -92,14 +92,11 @@ async function promptToManageConfig() {
 		type: 'list',
 		name: 'manageConfig',
 		message: 'Manage saved destination paths.',
-		choices: [ 'list', 'clear all', 'remove' ],
+		choices: [ 'list', 'remove' ],
 	} );
 	if ( configManage.manageConfig === 'list' ) {
 		console.log( "Here's what you have saved:" );
 		console.log( rsyncConfigStore.all );
-	}
-	if ( configManage.manageConfig === 'clear' ) {
-		await promptClearAll();
 	}
 	if ( configManage.manageConfig === 'remove' ) {
 		const configKeys = Object.keys( rsyncConfigStore.all );
