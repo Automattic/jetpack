@@ -247,7 +247,7 @@ class Data {
 				$privacy_setting = $jetpack_videopress['privacy_setting'];
 
 				$original      = $videopress_media_details['original'];
-				$poster        = $videopress_media_details['poster'];
+				$poster        = $privacy_setting !== 1 ? $videopress_media_details['poster'] : null;
 				$upload_date   = $videopress_media_details['upload_date'];
 				$duration      = $videopress_media_details['duration'];
 				$is_private    = $videopress_media_details['is_private'];
@@ -255,7 +255,7 @@ class Data {
 				$finished      = $videopress_media_details['finished'];
 				$files         = $videopress_media_details['files'];
 
-				if ( isset( $files['dvd']['original_img'] ) ) {
+				if ( isset( $files['dvd']['original_img'] ) && $privacy_setting !== 1 ) {
 					$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
 				} else {
 					$thumbnail = null;

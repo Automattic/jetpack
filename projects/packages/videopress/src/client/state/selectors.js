@@ -90,8 +90,8 @@ export const getUsersPagination = state => {
 
 export const getPlaybackToken = ( state, guid ) => {
 	const tokens = state?.playbackTokens?.items || [];
-	const token = tokens.find( t => t?.guid === guid );
-	return token;
+	const tokenData = tokens.find( t => t?.guid === guid );
+	return tokenData || {};
 };
 
 export const isFetchingPlaybackToken = state => {

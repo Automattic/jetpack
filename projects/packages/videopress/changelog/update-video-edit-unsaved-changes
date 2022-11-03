@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: Add component unload prevention on video details edit when there are unsaved changes

@@ -1,7 +1,7 @@
 <!--
 	This component pops out and shows a message based on the props passed to it
 -->
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __ } from '@wordpress/i18n/';
 	import CloseButton from '../../../elements/CloseButton.svelte';
@@ -15,17 +15,13 @@
 	export let ctaLink = '';
 	export let cta = '';
 
-	let data = '';
-
 	const dispatch = createEventDispatcher();
 
 	async function disablePrompt() {
 		// Send a request to back-end to permanently disable the rating prompt.
-		data = {
+		const data = {
 			action: 'set_show_score_prompt',
 			id,
-			value: false,
-			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showScorePromptNonce,
 		};
 

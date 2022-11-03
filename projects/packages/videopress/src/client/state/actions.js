@@ -43,6 +43,8 @@ import {
 	SET_LOCAL_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
+	EXPIRE_PLAYBACK_TOKEN,
+	SET_VIDEO_UPLOAD_PROGRESS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -61,7 +63,11 @@ const pollingUploadedVideoData = async data => {
 		return Promise.resolve( video );
 	}
 
-	return pollingUploadedVideoData( video );
+	return new Promise( ( resolve, reject ) => {
+		setTimeout( () => {
+			pollingUploadedVideoData( data ).then( resolve ).catch( reject );
+		}, 2000 );
+	} );
 };
 
 /**
@@ -129,7 +135,7 @@ const setVideosStorageUsed = used => {
 	return { type: SET_VIDEOS_STORAGE_USED, used };
 };
 
-const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
+const updateVideoPrivacy = ( id, level ) => async ( { dispatch, select, resolveSelect } ) => {
 	const privacySetting = Number( level );
 	if ( isNaN( privacySetting ) ) {
 		throw new Error( `Invalid privacy level: '${ level }'` );
@@ -138,6 +144,12 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	if ( 0 > privacySetting || privacySetting >= VIDEO_PRIVACY_LEVELS.length ) {
 		// @todo: implement error handling / UI
 		throw new Error( `Invalid privacy level: '${ level }'` );
+	}
+
+	// Request a video token asap when it becomes private.
+	if ( level === 1 ) {
+		const video = await select.getVideo( id );
+		await resolveSelect.getPlaybackToken( video?.guid );
 	}
 
 	// Let's be optimistic and update the UI right away.
@@ -235,11 +247,15 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		dispatch( { type: UPLOADED_VIDEO, video } );
 	};
 
+	const onProgress = ( bytesSent, bytesTotal ) => {
+		dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
+	};
+
 	videoPressUpload( {
 		data: jwt,
 		file,
 		onError: noop,
-		onProgress: noop,
+		onProgress,
 		onSuccess,
 	} );
 };
@@ -323,6 +339,10 @@ const setPlaybackToken = playbackToken => {
 	return { type: SET_PLAYBACK_TOKEN, playbackToken };
 };
 
+const expirePlaybackToken = guid => {
+	return { type: EXPIRE_PLAYBACK_TOKEN, guid };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -361,6 +381,7 @@ const actions = {
 
 	setIsFetchingPlaybackToken,
 	setPlaybackToken,
+	expirePlaybackToken,
 };
 
 export { actions as default };

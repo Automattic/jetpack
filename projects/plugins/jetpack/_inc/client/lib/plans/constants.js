@@ -50,6 +50,8 @@ export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
+export const PLAN_JETPACK_SOCIAL_BASIC = 'jetpack_social_basic_yearly';
+export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
 
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
@@ -141,6 +143,8 @@ export const JETPACK_PLANS_WITH_ANTI_SPAM = [
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
 
+export const JETPACK_COMPLETE_BUNDLES = [ PLAN_JETPACK_COMPLETE, PLAN_JETPACK_COMPLETE_MONTHLY ];
+
 export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
@@ -202,6 +206,11 @@ export const JETPACK_ANTI_SPAM_PRODUCTS = [
 export const JETPACK_VIDEOPRESS_PRODUCTS = [
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
+];
+
+export const JETPACK_SOCIAL_PRODUCTS = [
+	PLAN_JETPACK_SOCIAL_BASIC,
+	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
 ];
 
 export const PLAN_MONTHLY_PERIOD = 31;
@@ -280,14 +289,30 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
 };
 
+/**
+ * Checks if a plan slug represents a monthly plan.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if it's monthly plan
+ */
 export function isMonthly( plan ) {
 	return includes( JETPACK_MONTHLY_PLANS, plan );
 }
-
+/**
+ * Checks if a plan slug is in the group of popular plans.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if it's popular plan
+ */
 export function isPopular( plan ) {
 	return includes( POPULAR_PLANS, plan );
 }
-
+/**
+ * Checks if a plan slug is a new plan.
+ *
+ * @param {string} plan - The plan slug
+ * @returns {boolean} True if it's new plan
+ */
 export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
 }
@@ -322,14 +347,32 @@ export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
 }
 
+/**
+ * Checks if a product slug is Jetpack Search.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Search
+ */
 export function isJetpackSearch( product ) {
 	return includes( JETPACK_SEARCH_PRODUCTS, product );
 }
 
+/**
+ * Checks if a product slug is Jetpack Scan.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Scan
+ */
 export function isJetpackScan( product ) {
 	return JETPACK_SCAN_PRODUCTS.includes( product );
 }
 
+/**
+ * Checks if a product slug is Jetpack Anti-Spam.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Anti-Spam
+ */
 export function isJetpackAntiSpam( product ) {
 	return JETPACK_ANTI_SPAM_PRODUCTS.includes( product );
 }
@@ -344,19 +387,43 @@ export function isJetpackVideoPress( product ) {
 	return JETPACK_VIDEOPRESS_PRODUCTS.includes( product );
 }
 
+/**
+ * Determines if a product is Jetpack Social.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack Social, false otherwise.
+ */
+export function isJetpackSocial( product ) {
+	return JETPACK_SOCIAL_PRODUCTS.includes( product );
+}
+
+/**
+ * Checks if a product slug is a Jetpack product.
+ *
+ * @param {string} product - The product id.
+ * @returns {boolean} True if the product is Jetpack product.
+ */
 export function isJetpackProduct( product ) {
 	return (
 		isJetpackBackup( product ) ||
 		isJetpackSearch( product ) ||
 		isJetpackScan( product ) ||
 		isJetpackAntiSpam( product ) ||
-		isJetpackVideoPress( product )
+		isJetpackVideoPress( product ) ||
+		isJetpackSocial( product )
 	);
 }
 
+/**
+ * Checks if the product slug is a Jetpack bundle.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack bundle
+ */
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
 }
+
 /**
  * Determine if the given product is a Security Bundle.
  *
@@ -367,6 +434,12 @@ export function isJetpackSecurityBundle( product ) {
 	return JETPACK_SECURITY_BUNDLES.includes( product );
 }
 
+/**
+ * Checks if the product slug is a legacy Jetpack plan.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is a legacy Jetpack plan
+ */
 export function isJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS.includes( product );
 }
@@ -381,10 +454,22 @@ export function isSecurityComparableJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES.includes( product );
 }
 
+/**
+ * Retrieves the upsell for a feature.
+ *
+ * @param {string} feature - The feature slug.
+ * @returns {string} The product slug required for the feature.
+ */
 export function getJetpackProductUpsellByFeature( feature ) {
 	return JETPACK_FEATURE_PRODUCT_UPSELL_MAP[ feature ];
 }
 
+/**
+ * Gets the CSS class to use for the plans section, given the plan slug.
+ *
+ * @param {string} plan - The plan slug.
+ * @returns {string} The CSS class to use.
+ */
 export function getPlanClass( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_FREE:
@@ -464,11 +549,20 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
 			return 'is-realtime-backup-plan';
 
+		case PLAN_JETPACK_SOCIAL_BASIC:
+		case PLAN_JETPACK_SOCIAL_BASIC_MONTHLY:
+			return 'is-jetpack-social-basic-plan';
 		default:
 			return '';
 	}
 }
 
+/**
+ * Retrieve the monthly equivalent of a yearly plan.
+ *
+ * @param {string} plan - The plan slug of the yearly plan.
+ * @returns {string} The monthly plan if it exists, otherwise, an empty string.
+ */
 export function getMonthlyPlanByYearly( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_PREMIUM:

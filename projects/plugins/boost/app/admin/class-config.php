@@ -25,6 +25,7 @@ class Config {
 
 	public function init() {
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
+		add_action( 'jetpack_boost_before_module_status_update', array( $this, 'on_module_status_change' ), 10, 2 );
 	}
 
 	public function constants() {
@@ -152,6 +153,18 @@ class Config {
 	}
 
 	/**
+	 * Flag get started as complete if a module is enabled.
+	 *
+	 * @param string $module Module Slug.
+	 * @param bool   $enabled Enabled status.
+	 */
+	public function on_module_status_change( $module, $status ) {
+		if ( $status ) {
+			self::set_getting_started( false );
+		}
+	}
+
+	/**
 	 * Enable of disable getting started page.
 	 *
 	 * If enabled, trying to open boost dashboard will take a user to the getting started page.
@@ -164,7 +177,8 @@ class Config {
 	 * Check if force redirect to getting started page is enabled.
 	 */
 	public static function is_getting_started() {
-		return \get_option( 'jb_get_started', false );
+		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
+		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
 	}
 
 	/**

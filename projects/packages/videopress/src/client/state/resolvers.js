@@ -18,6 +18,9 @@ import {
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
+	VIDEO_PRIVACY_LEVELS,
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	EXPIRE_PLAYBACK_TOKEN,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -28,12 +31,50 @@ import {
 
 const { apiRoot } = window?.jetpackVideoPressInitialState || {};
 
+/**
+ * Helper function to populate some video data
+ * that requires a token.
+ *
+ * @param {object} video         - Video object.
+ * @param {object} resolveSelect - Containing the store’s selectors pre-bound to state
+ * @param {object} dispatch      - Containing the store’s actions pre-bound to state
+ * @returns {object}               Tokenized video data object.
+ */
+async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
+	if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] !== VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		return video;
+	}
+
+	let playbackToken = await resolveSelect.getPlaybackToken( video.guid );
+
+	if ( playbackToken ) {
+		// let's set the expire time to 24h
+		const playbackTokenExpireTime = Number( playbackToken.issueTime ) + 1000 * 60 * 60 * 24;
+		if ( playbackTokenExpireTime < Date.now() ) {
+			// expire the old one
+			await dispatch.expirePlaybackToken( video.guid );
+			// and get a new one
+			playbackToken = await resolveSelect.getPlaybackToken( video.guid );
+		}
+	}
+
+	if ( ! /metadata_token=/.test( video.posterImage ) ) {
+		video.posterImage += `?metadata_token=${ playbackToken.token }`;
+	}
+
+	if ( ! /metadata_token=/.test( video.thumbnail ) ) {
+		video.thumbnail += `?metadata_token=${ playbackToken.token }`;
+	}
+
+	return video;
+}
+
 const getVideos = {
 	isFulfilled: state => {
 		return state?.videos?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch, select } ) => {
+	fulfill: () => async ( { dispatch, select, resolveSelect } ) => {
 		dispatch.setIsFetchingVideos( true );
 
 		let query = select.getVideosQuery();
@@ -106,7 +147,17 @@ const getVideos = {
 			// ... and the videos data from the response body.
 			const videos = await response.json();
 
-			dispatch.setVideos( mapVideosFromWPV2MediaEndpoint( videos ) );
+			/*
+			 * Map videos from the API to the format expected by the app,
+			 * and tokenize some data when the video is private.
+			 */
+			const mappedVideos = await Promise.all(
+				mapVideosFromWPV2MediaEndpoint( videos ).map( async video => {
+					return await populateVideoDataWithToken( video, resolveSelect, dispatch );
+				} )
+			);
+
+			dispatch.setVideos( mappedVideos );
 			return videos;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
@@ -125,17 +176,32 @@ const getVideo = {
 		}
 
 		const videos = state.videos.items ?? [];
-		return videos?.some( video => video?.id === id );
+		const video = videos.find( ( { id: videoId } ) => videoId === id );
+
+		// Private videos require a token to be fetched.
+		if ( video && VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+			const tokens = state?.playbackTokens?.items || [];
+			const token = tokens.find( t => t?.guid === video.guid );
+
+			return !! token;
+		}
+
+		return video;
 	},
-	fulfill: id => async ( { dispatch } ) => {
+	fulfill: id => async ( { dispatch, resolveSelect } ) => {
 		dispatch.setIsFetchingVideos( true );
 
 		try {
 			const video = await apiFetch( {
 				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
 			} );
+			const mappedVideoData = await populateVideoDataWithToken(
+				mapVideoFromWPV2MediaEndpoint( video ),
+				resolveSelect,
+				dispatch
+			);
 
-			dispatch.setVideo( mapVideoFromWPV2MediaEndpoint( video ) );
+			dispatch.setVideo( mappedVideoData );
 			return video;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
@@ -339,6 +405,7 @@ const getPlaybackToken = {
 			const playbackToken = {
 				guid,
 				token: playbackTokenResponse.playback_token,
+				issueTime: Date.now(),
 			};
 
 			dispatch.setPlaybackToken( playbackToken );
@@ -347,6 +414,9 @@ const getPlaybackToken = {
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
+	},
+	shouldInvalidate: ( action, guid ) => {
+		return action.type === EXPIRE_PLAYBACK_TOKEN && action.guid === guid;
 	},
 };
 

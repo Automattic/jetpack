@@ -11,13 +11,14 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRightSmall } from '@wordpress/icons';
+import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import Input from '../input';
@@ -65,6 +66,19 @@ const Header = ( {
 					</Button>
 				</div>
 			</div>
+		</div>
+	);
+};
+
+const GoBackLink = () => {
+	const history = useHistory();
+
+	return (
+		<div className={ styles[ 'back-link' ] }>
+			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+				<Icon icon={ arrowLeft } className={ styles.icon } />
+				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
+			</Link>
 		</div>
 	);
 };
@@ -156,6 +170,7 @@ const EditVideoDetails = () => {
 		setTitle,
 		setDescription,
 		setCaption,
+		processing,
 		// Poster Image
 		useVideoAsThumbnail,
 		selectedTime,
@@ -190,9 +205,7 @@ const EditVideoDetails = () => {
 	// We may need the playback token on the video URL as well
 	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
 
-	let thumbnail: string | JSX.Element = playbackToken
-		? `${ posterImage }?metadata_token=${ playbackToken }`
-		: posterImage;
+	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
@@ -219,11 +232,14 @@ const EditVideoDetails = () => {
 			<AdminPage
 				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 				header={
-					<Header
-						onSaveChanges={ handleSaveChanges }
-						saveDisabled={ ! hasChanges }
-						saveLoading={ updating }
-					/>
+					<>
+						<GoBackLink />
+						<Header
+							onSaveChanges={ handleSaveChanges }
+							saveDisabled={ ! hasChanges }
+							saveLoading={ updating }
+						/>
+					</>
 				}
 			>
 				<AdminSection>
@@ -244,6 +260,7 @@ const EditVideoDetails = () => {
 								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
 								duration={ duration }
 								editable
+								processing={ processing }
 								onSelectFromVideo={ handleOpenSelectFrame }
 								onUploadImage={ selectPosterImageFromLibrary }
 							/>

@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Assets\Logo;
-
 use PHPUnit\Framework\TestCase;
 
 /**
