@@ -181,6 +181,10 @@ class Dashboard {
 					'property' => 'og:site_name',
 					'content'  => 'WordPress.com',
 				),
+				'features'                       => array(
+					'stats/show-traffic-highlights' => true,
+					'stats/new-main-chart'          => true,
+				),
 			)
 		);
 	}
