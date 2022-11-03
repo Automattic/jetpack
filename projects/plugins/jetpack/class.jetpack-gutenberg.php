@@ -467,7 +467,9 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
-		add_filter( 'block_editor_settings_all', array( 'Jetpack_Gutenberg', 'update_editor_dashboard_link_setting' ), 10, 2 );
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
+			add_filter( 'block_editor_settings_all', array( 'Jetpack_Gutenberg', 'update_editor_dashboard_link_setting' ), 10, 2 );
+		}
 
 		/**
 		 * Filter to disable Gutenberg blocks
