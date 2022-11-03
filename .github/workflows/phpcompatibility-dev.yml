@@ -69,7 +69,7 @@ jobs:
             exit 1
           fi
           composer remove --dev automattic/jetpack-codesniffer
-          composer require --dev phpcompatibility/php-compatibility=dev-develop "squizlabs/php_codesniffer=^$(jq -r '.["require-dev"]["squizlabs/php_codesniffer"]' composer.json)"
+          composer require --dev phpcompatibility/php-compatibility=dev-develop
           # Update any other packages needing update now too.
           composer update
 
