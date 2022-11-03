@@ -5,6 +5,7 @@
  * WordPress dependencies
  */
 import { useBlockProps } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
 /**
  * Internal dependencies
  */
@@ -34,7 +35,7 @@ const convertSecondsToTimeCode = seconds => {
  * @returns {object}                     - React component.
  */
 export default function VideoPressChaptersEdit( { attributes, setAttributes } ) {
-	const chapters = useChapters( attributes );
+	const { chapters, play, seek } = useChapters( attributes );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-video-chapters',
@@ -61,8 +62,17 @@ export default function VideoPressChaptersEdit( { attributes, setAttributes } ) 
 								selected: 0 === index,
 							} ) }
 						>
-							<span>{ text }</span>
-							<span>{ time }</span>
+							<Button
+								className="video-chapters__button"
+								variant="tertiary"
+								onClick={ () => {
+									seek( startTime );
+									play();
+								} }
+							>
+								<div className="video-chapters__text">{ text }</div>
+								<div className="video-chapters__time">{ time }</div>
+							</Button>
 						</li>
 					);
 				} ) }
