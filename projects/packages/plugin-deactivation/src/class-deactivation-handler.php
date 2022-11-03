@@ -58,7 +58,7 @@ class Deactivation_Handler {
 		$instance = new self( $plugin, $dialog_view );
 
 		if ( ! file_exists( $instance->dialog_view ) ) {
-			wp_die( 'The plugin deactivation dialog view file does not exist.' );
+			return new \WP_Error( 'no-template', 'The plugin deactivation dialog view file does not exist.' );
 		}
 
 		add_action( 'load-plugins.php', array( $instance, 'enqueue_script' ) );
