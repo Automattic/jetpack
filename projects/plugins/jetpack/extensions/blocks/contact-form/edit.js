@@ -10,6 +10,8 @@ import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
 	Button,
+	ExternalLink,
+	Flex,
 	Icon,
 	PanelBody,
 	SelectControl,
@@ -44,6 +46,7 @@ const ALLOWED_BLOCKS = [
 ];
 
 const RESPONSES_PATH = '/wp-admin/edit.php?post_type=feedback';
+const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 export function JetpackContactFormEdit( {
 	attributes,
@@ -73,7 +76,9 @@ export function JetpackContactFormEdit( {
 		formTitle,
 	} = attributes;
 
-	const formClassnames = classnames( className, 'jetpack-contact-form' );
+	const formClassnames = classnames( className, 'jetpack-contact-form', {
+		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
+	} );
 
 	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
@@ -207,15 +212,22 @@ export function JetpackContactFormEdit( {
 					icon={ get( blockType, [ 'icon', 'src' ] ) }
 					label={ get( blockType, [ 'title' ] ) }
 					instructions={ __(
-						"Please select which type of form you'd like to add, or create your own using the skip option.",
+						'Start building a form by selecting one of these form templates, or search in the patterns library for more forms:',
 						'jetpack'
 					) }
 					variations={ filter( variations, v => ! v.hiddenFromPicker ) }
-					allowSkip
 					onSelect={ ( nextVariation = defaultVariation ) => {
 						setVariation( nextVariation );
 					} }
 				/>
+				<Flex>
+					<ExternalLink className="form-placeholder__external-link" href={ CUSTOMIZING_FORMS_URL }>
+						{ __( 'Learn more about customizing forms.', 'jetpack' ) }
+					</ExternalLink>
+					<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
+						{ __( 'View and export your form responses here.', 'jetpack' ) }
+					</ExternalLink>
+				</Flex>
 			</div>
 		);
 	};
