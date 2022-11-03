@@ -24,6 +24,7 @@ const getIFrameWindowElement = id => {
 
 export default ( { guid, linkClientId } ) => {
 	const [ chapters, setChapters ] = useState( [] );
+	const [ currentChapter, setCurrentChapter ] = useState( [] );
 	useEffect( () => {
 		if ( ! linkClientId ) {
 			return;
@@ -39,8 +40,15 @@ export default ( { guid, linkClientId } ) => {
 			setChapters( eventChapters );
 		} );
 
+		window.addEventListener( 'onChaptersChapterChange', event => {
+			const { detail } = event;
+			const { currentChapter: currentChapterEvent } = detail;
+			setCurrentChapter( currentChapterEvent );
+		} );
+
 		return function () {
 			window.removeEventListener( 'onChaptersTrackChange' );
+			window.removeEventListener( 'onChaptersChapterChange' );
 		};
 	}, [ linkClientId, guid ] );
 
@@ -89,5 +97,5 @@ export default ( { guid, linkClientId } ) => {
 		);
 	}, [ linkClientId, iFrameWindowElement ] );
 
-	return { chapters, seek, play, pause };
+	return { chapters, currentChapter, seek, play, pause };
 };

@@ -35,7 +35,7 @@ const convertSecondsToTimeCode = seconds => {
  * @returns {object}                     - React component.
  */
 export default function VideoPressChaptersEdit( { attributes, setAttributes } ) {
-	const { chapters, play, seek } = useChapters( attributes );
+	const { chapters, currentChapter, play, seek } = useChapters( attributes );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-video-chapters',
@@ -55,11 +55,7 @@ export default function VideoPressChaptersEdit( { attributes, setAttributes } ) 
 						<li
 							key={ index }
 							className={ classNames( 'video-chapters__item', {
-								// At block we just provide an way of user see the three states, not interact with them.
-								// - Not selected
-								// - Selected
-								// - Hover
-								selected: 0 === index,
+								selected: Number( currentChapter.id ) === index + 1,
 							} ) }
 						>
 							<Button
