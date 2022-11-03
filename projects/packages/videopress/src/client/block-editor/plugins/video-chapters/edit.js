@@ -3,6 +3,7 @@
  */
 import { InspectorControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -28,6 +29,15 @@ const withVideoChaptersEdit = createHigherOrderComponent(
 		if ( ! props.name === 'videopress/video' || ! props.attributes?.guid ) {
 			return <BlockEdit { ...props } />;
 		}
+
+		// Set a permanent client id.
+		useEffect( () => {
+			if ( attributes.permanentClientId ) {
+				return;
+			}
+
+			setAttributes( { permanentClientId: props.clientId } );
+		}, [ props.clientId, attributes.permanentClientId ] );
 
 		return (
 			<>
