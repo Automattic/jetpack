@@ -80,21 +80,19 @@ export default class JetpackPluginDeactivation {
 }
 
 type PluginDeactivation = {
-	slugs: string[]
-	instances: Record<string, JetpackPluginDeactivation>
-}
+	slugs: string[];
+	instances: Record< string, JetpackPluginDeactivation >;
+};
 const plugins: PluginDeactivation = window.JetpackPluginDeactivationData;
 
-if (plugins) {
-	document.addEventListener('DOMContentLoaded', function () {
-
-		if (!plugins.instances) {
+if ( plugins ) {
+	document.addEventListener( 'DOMContentLoaded', function () {
+		if ( ! plugins.instances ) {
 			plugins.instances = {};
 		}
 
-		for (const plugin of plugins.slugs) {
-			plugins.instances[plugin] = new JetpackPluginDeactivation(plugin);
+		for ( const plugin of plugins.slugs ) {
+			plugins.instances[ plugin ] = new JetpackPluginDeactivation( plugin );
 		}
-
-	});
+	} );
 }

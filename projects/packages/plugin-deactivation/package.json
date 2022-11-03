@@ -18,6 +18,7 @@
 		"build-concurrently": "pnpm run clear-dist && rollup -c",
 		"build-development": "pnpm run build-concurrently",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
+		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
 		"compile-ts": "tsc --pretty",
 		"clear-dist": "rm -rf assets/dist/*",
 		"watch": "pnpm run clear-dist && rollup -c -w"
