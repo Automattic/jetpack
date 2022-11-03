@@ -13,23 +13,28 @@ import VideoPressChaptersInspectorControls from './components/inspector-controls
 import useChapters from './hooks/use-chapters';
 import './editor.scss';
 
+const convertSecondsToTimeCode = seconds => {
+	if ( ! seconds ) {
+		return '00:00';
+	}
+
+	if ( seconds < 3600 ) {
+		return new Date( seconds * 1000 ).toISOString().substr( 14, 5 );
+	}
+
+	return new Date( seconds * 1000 ).toISOString().substr( 11, 8 );
+};
+
 /**
  * VideoPress Chapters block Edit react components
  *
  * @param {object} props                 - Component props.
  * @param {object} props.attributes      - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {string} props.clientId        - Block client ID.
  * @returns {object}                     - React component.
  */
-export default function VideoPressChaptersEdit( {
-	attributes,
-	setAttributes,
-	isSelected,
-	clientId,
-} ) {
-	const chapters = useChapters();
+export default function VideoPressChaptersEdit( { attributes, setAttributes } ) {
+	const chapters = useChapters( attributes );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-video-chapters',
@@ -43,20 +48,24 @@ export default function VideoPressChaptersEdit( {
 			/>
 
 			<ul className="video-chapters_list">
-				{ chapters.map( ( { chapter, time }, index ) => (
-					<li
-						className={ classNames( 'video-chapters__item', {
-							// At block we just provide an way of user see the three states, not interact with them.
-							// - Not selected
-							// - Selected
-							// - Hover
-							selected: 0 === index,
-						} ) }
-					>
-						<span>{ chapter }</span>
-						<span>{ time }</span>
-					</li>
-				) ) }
+				{ chapters.map( ( { text, startTime }, index ) => {
+					const time = convertSecondsToTimeCode( startTime );
+					return (
+						<li
+							key={ index }
+							className={ classNames( 'video-chapters__item', {
+								// At block we just provide an way of user see the three states, not interact with them.
+								// - Not selected
+								// - Selected
+								// - Hover
+								selected: 0 === index,
+							} ) }
+						>
+							<span>{ text }</span>
+							<span>{ time }</span>
+						</li>
+					);
+				} ) }
 			</ul>
 		</div>
 	);
