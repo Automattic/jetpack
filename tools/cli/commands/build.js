@@ -810,8 +810,9 @@ async function buildProject( t ) {
 	}
 
 	// Remove engines and workspace refs from package.json.
+	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
-		const packageJson = JSON.parse(
+		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
 
@@ -829,7 +830,7 @@ async function buildProject( t ) {
 				for ( const [ pkg, ver ] of Object.entries( packageJson[ key ] ) ) {
 					if ( ver === 'workspace:*' ) {
 						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
-							if ( ctxPkg.name === pkg ) {
+							if ( ctxPkg.jsName === pkg ) {
 								let massagedVer = ctxPkg.version;
 								massagedVer = `^${ massagedVer }`;
 								packageJson[ key ][ pkg ] = massagedVer;
@@ -897,6 +898,7 @@ async function buildProject( t ) {
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
+		jsName: packageJson?.name,
 		version: projectVersionNumber,
 	};
 	await t.ctx.mirrorMutex( async () => {
