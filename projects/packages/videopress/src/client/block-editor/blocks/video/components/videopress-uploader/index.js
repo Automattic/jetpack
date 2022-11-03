@@ -120,8 +120,9 @@ const VideoPressUploader = ( {
 	 * Handler to add a video via an URL.
 	 *
 	 * @param {string} videoUrl - URL of the video to attach
+	 * @param {string} id - Attachment ID if available
 	 */
-	function onSelectURL( videoUrl ) {
+	function onSelectURL( videoUrl, id = undefined ) {
 		const videoGuid = getGuidFromVideoUrl( videoUrl );
 		if ( ! videoGuid ) {
 			setUploadErrorDataState( {
@@ -131,7 +132,7 @@ const VideoPressUploader = ( {
 		}
 
 		// Update guid based on the URL.
-		setAttributes( { guid: videoGuid, src: videoUrl } );
+		setAttributes( { guid: videoGuid, src: videoUrl, id } );
 		handleDoneUpload();
 	}
 
@@ -193,7 +194,7 @@ const VideoPressUploader = ( {
 		if ( media.videopress_guid ) {
 			const videoGuid = media.videopress_guid[ 0 ];
 			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
-			onSelectURL( videoUrl );
+			onSelectURL( videoUrl, media?.id );
 			return;
 		}
 
