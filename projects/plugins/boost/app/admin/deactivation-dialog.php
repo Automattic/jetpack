@@ -10,17 +10,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<p><?php esc_html_e( "Just temporarily deactivating or don't fancy giving feedback? No problem.", 'jetpack-boost' ); ?></p>
 </main>
 <footer class="jp-plugin-deactivation__dialog__actions">
-	<button 
+	<button
 		type="button"
 		class="jp-plugin-deactivation__button"
 		data-jp-plugin-deactivation-action="close"
 	><?php esc_html_e( 'Cancel', 'jetpack-boost' ); ?></button>
-	<button 
+	<button
 		type="button"
 		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--outline jp-plugin-deactivation__button--destructive"
 		data-jp-plugin-deactivation-action="deactivate"
 	><?php esc_html_e( 'Just Deactivate', 'jetpack-boost' ); ?></button>
-	<button 
+	<!-- Using an anchor instead of a button for the Deactivate & Give Feedback may trigger browser's popup blocker as it is navigating to two URLs at once. -->
+	<button
 		type="button"
 		class="jp-plugin-deactivation__button jp-plugin-deactivation__button--destructive"
 		data-jp-plugin-deactivation-action="deactivate"
