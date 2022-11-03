@@ -52,13 +52,13 @@ class Jetpack_Admin {
 
 	/** Constructor. */
 	private function __construct() {
-		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$this->jetpack_react = new Jetpack_React_Page();
 
-		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
 		$this->fallback_page = new Jetpack_Settings_Page();
 
-		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-about-page.php';
 		$this->jetpack_about = new Jetpack_About_Page();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
@@ -549,7 +549,7 @@ class Jetpack_Admin {
 	 * Add debugger admin menu.
 	 */
 	public function admin_menu_debugger() {
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page(
 			null,
@@ -577,7 +577,7 @@ class Jetpack_Admin {
 	 * Display debugger page.
 	 */
 	public function debugger_page() {
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 

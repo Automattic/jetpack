@@ -336,10 +336,10 @@ class Jetpack_AMP_Support {
 	 * @return array Dimensions.
 	 */
 	private static function extract_image_dimensions_from_getimagesize( $dimensions ) {
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'jetpack_require_lib' ) ) ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'require_lib' ) ) ) {
 			return $dimensions;
 		}
-		jetpack_require_lib( 'wpcom/imagesize' );
+		require_lib( 'wpcom/imagesize' );
 
 		foreach ( $dimensions as $url => $value ) {
 			if ( is_array( $value ) ) {
