@@ -190,7 +190,7 @@ class Dashboard {
 	 */
 	protected static function get_admin_path() {
 		$admin_url        = admin_url( 'admin.php?page=stats&calypso_stats=1' );
-		$parsed_admin_url = parse_url( $admin_url );
+		$parsed_admin_url = wp_parse_url( $admin_url );
 		return $parsed_admin_url['path'] . '?' . $parsed_admin_url['query'];
 	}
 
