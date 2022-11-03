@@ -10,26 +10,30 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 
 domReady( function () {
-	// eslint-disable-next-line no-console
-	console.log( __( 'VideoPress Chapters init', 'jetpack-videopress-pkg' ) );
+	const videoPlayerWrapper = document.querySelector( '.jetpack-videopress-player__wrapper' );
+	const videoIframe = videoPlayerWrapper.querySelector( 'iframe' );
+
+	window.iframeApi = window.VideoPressIframeApi( videoIframe, () => {
+		iframeApi.info.onInfoUpdated( async () => {
+			const guid = await iframeApi.info.guid();
+			const title = await iframeApi.info.title();
+			const duration = await iframeApi.info.duration();
+			const poster = await iframeApi.info.poster();
+			const privacy = await iframeApi.info.privacy();
+		} );
+	} );
 
 	// Chapters list
 	const listWrapperElement = document.querySelectorAll( '.video-chapters_list' );
-	console.log( 'listWrapperElement: ', listWrapperElement );
 	const guid = listWrapperElement[ 0 ].dataset.guid;
-	console.log( 'guid: ', guid );
 
 	const listElements = document.querySelectorAll( '.video-chapters_list ul li' );
-	console.log( 'listElements: ', listElements );
 
-	listElements.forEach( ( element ) => {
-		element.addEventListener( 'click', ( event ) => {
+	listElements.forEach( itemElement => {
+		itemElement.addEventListener( 'click', event => {
 			event.preventDefault();
-			const time = element.dataset.time;
-			console.log( 'time: ', time );
-
-			// const videoElement = document.getElementById( 'video-' + guid );
-			// videoElement.currentTime = time;
+			iframeApi.controls.seek( 1000 );
+			iframeApi.controls.play();
 		} );
 	} );
 } );
