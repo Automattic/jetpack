@@ -4,14 +4,12 @@
 /**
  * WordPress dependencies
  */
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
-import { Placeholder } from '@wordpress/components';
-import { formatListNumbered as ChaptersIcon } from '@wordpress/icons';
+import { useBlockProps } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
-import { description, title } from '.';
-
+import classNames from 'classnames';
+import useChapters from './hooks/use-chapters';
 import './editor.scss';
 
 /**
@@ -30,19 +28,30 @@ export default function VideoPressChaptersEdit( {
 	isSelected,
 	clientId,
 } ) {
+	const chapters = useChapters();
+
 	const blockProps = useBlockProps( {
-		className: 'wp-block-jetpack-videopress-chapters',
+		className: 'wp-block-jetpack-video-chapters',
 	} );
 
 	return (
 		<div { ...blockProps }>
-			<Placeholder
-				icon={ <BlockIcon icon={ ChaptersIcon } /> }
-				instructions={ description }
-				label={ title }
-			>
-				<div />
-			</Placeholder>
+			<ul className="video-chapters_list">
+				{ chapters.map( ( { chapter, time }, index ) => (
+					<li
+						className={ classNames( 'video-chapters__item', {
+							// At block we just provide an way of user see the three states, not interact with them.
+							// - Not selected
+							// - Selected
+							// - Hover
+							selected: 0 === index,
+						} ) }
+					>
+						<span>{ chapter }</span>
+						<span>{ time }</span>
+					</li>
+				) ) }
+			</ul>
 		</div>
 	);
 }
