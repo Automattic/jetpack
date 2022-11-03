@@ -83,9 +83,9 @@ type PluginDeactivation = {
 	slugs: string[];
 	instances: Record< string, JetpackPluginDeactivation >;
 };
-const plugins: PluginDeactivation = window.JetpackPluginDeactivationData;
 
-if ( plugins ) {
+if ( 'JetpackPluginDeactivationData' in window ) {
+	const plugins = window.JetpackPluginDeactivationData as PluginDeactivation;
 	document.addEventListener( 'DOMContentLoaded', function () {
 		if ( ! plugins.instances ) {
 			plugins.instances = {};
