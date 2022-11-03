@@ -45,21 +45,23 @@ class Chapters {
 	 * @return string HTML markup
 	 */
 	public static function render_chapters( $video_guid ) {
+		error_log( '$video_guid: ' . print_r( $video_guid, true ) );
+
 		$chapters = self::fetch_chapters( $video_guid );
 		// @todo: figure out how to choose the language
 		if ( ! $chapters || ! isset( $chapters['chapters']['en'] ) ) {
 			return '';
 		}
 
-		$html = '<ul>';
+		$html = '<div class="video-chapters_list" data-guid="' . $video_guid .'"><ul>';
 		foreach ( $chapters['chapters']['en'] as $chapter ) {
 			$html .= sprintf(
-				'<li><a href="#">%s</a> %s</li>',
-				esc_html( $chapter['start'] ),
-				esc_html( $chapter['description'] )
+				'<li><div class="video-chapters__item"><a class="video-chapters__text" href="#">%s</a> %s</div></li>',
+				esc_html( $chapter['description'] ),
+				esc_html( $chapter['start'] )
 			);
 		}
-		$html .= '</ul>';
+		$html .= '</ul></div>';
 
 		return $html;
 	}

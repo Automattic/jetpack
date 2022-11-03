@@ -1,1 +1,41 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-post-content {
+	.video-chapters_list {
+		ul {
+			list-style: none;
+			padding: 8px;
+
+			li.selected .video-chapters__item {
+				color: #f6f7f7;
+				background-color: #101517;
+			}
+
+			.video-chapters__item {
+				cursor: pointer;
+				width: 100%;
+				font-weight: 400;
+				font-size: 14px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				color: #f6f7f7;
+				border: 0;
+				box-shadow: none;
+				padding: 6px;
+				border-radius: 4px;
+
+				&:hover {
+					color: #f6f7f7;
+					background-color: #787c82;
+				}
+
+				.video-chapters__text {
+					text-decoration: none;
+					text-align: left;
+					flex-grow: 2;
+				}
+			}
+		}
+	}
+}

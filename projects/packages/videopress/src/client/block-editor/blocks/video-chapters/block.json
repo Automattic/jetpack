@@ -28,6 +28,6 @@
 	"textdomain": "jetpack-videopress",
 	"editorScript": "file:../../../../../build/block-editor/video-chapters/index.js",
 	"editorStyle": "file:../../../../../build/block-editor/video-chapters/index.css",
-	"style": "file:../../../../../build/block-editor/video-chapters/style-index.css",
+	"style": "file:../../../../../build/block-editor/video-chapters/view.css",
 	"viewScript": "file:../../../../../build/block-editor/video-chapters/view.js"
 }

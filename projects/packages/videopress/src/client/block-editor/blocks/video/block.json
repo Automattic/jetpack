@@ -86,6 +86,6 @@
 	"textdomain": "jetpack-videopress",
 	"editorScript": "file:../../../../../build/block-editor/index.js",
 	"editorStyle": "file:../../../../../build/block-editor/index.css",
-	"style": "file:../../../../../build/block-editor/style-index.css",
+	"style": "file:../../../../../build/block-editor/view.css",
 	"viewScript": "file:../../../../../build/block-editor/view.js"
 }
