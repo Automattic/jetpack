@@ -50,7 +50,7 @@ class VideoPress_IFrame_API {
 
 		return wp_enqueue_script(
 			self::SCRIPT_HANDLE,
-			'https://video.wordpress.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js',
+			self::VIDEOPRESS_IFRAME_API_URL,
 			array(),
 			Package_Version::PACKAGE_VERSION,
 			false
