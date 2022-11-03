@@ -15,6 +15,7 @@
 		"automattic/jetpack-plugins-installer": "0.2.x-dev",
 		"automattic/jetpack-sync": "1.43.x-dev",
 		"automattic/jetpack-transport-helper": "0.1.x-dev",
+		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-plans": "0.2.x-dev"
 	},
 	"require-dev": {
