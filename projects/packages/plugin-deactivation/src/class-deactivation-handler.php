@@ -71,7 +71,8 @@ class Deactivation_Handler {
 	/**
 	 * Used by `jp_plugin_deactivation_data` filter to pass data to
 	 * the JetpackPluginDeactivation class.
-	 * @param $data
+	 *
+	 * @param $data array The data to pass to the JetpackPluginDeactivation class.
 	 *
 	 * @return array
 	 */
