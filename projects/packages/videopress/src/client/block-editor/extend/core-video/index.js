@@ -98,15 +98,13 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 				'jetpack-videopress-pkg'
 			),
 			{
-				moreAboutVideoPressLink: (
-					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
-				),
+				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
 			}
 		);
 
 		if ( ! ignoreBlockRecovery ) {
 			return (
-				<>
+				<div>
 					<Warning
 						className="extended-block-warning"
 						actions={ [
@@ -138,7 +136,7 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 							</p>
 						) }
 					</Warning>
-				</>
+				</div>
 			);
 		}
 

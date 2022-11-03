@@ -2,6 +2,94 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.6-a.1 - 2022-11-01
+### Enhancements
+- Form block: update contact-form icon [#27010]
+- Form block: update Contact Form Sidebar to include Manage Responses section and split Form Settings section into more specific sections [#26970]
+- Form block: update Contact Form Toolbar to include a form settings dropdown [#27105]
+- Stats: update mentions of "Site Stats" to "Jetpack Stats" [#27069]
+
+### Bug fixes
+- SSO: properly disable "match by email" by default. [#27102]
+- WordPress.com REST API: Fix fatal error in site ID endpoint. [#27059]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added wpcom_gifting_subscription for syncing [#27116]
+- Dashboard: Fixed the Related Posts card link to the block editor support doc. [#27112]
+- E2E tests: disabled update plugin e2e test [#27124]
+- Gifting subscription: Add wpcom_gifting_subscription option to the site settings endpoint [#27137]
+- Gifting subscription: Update wpcom_gifting_subscription option default value [#27204]
+- Infinite Scroll: Bring in some JS fixes from wpcom. [#27065]
+- Init cycle [#27053]
+- Likes: Delete wpcom code paths. Things are just too different to de-Fusion. [#27062]
+- Remove remaining calls to `jetpack_require_lib()`, mainly for non-Fusioned stuff. [#27094]
+- Sync endpoint with wpcom [#27097]
+- Sync sites endpoints from wpcom. [#27059]
+- Updated package dependencies. [#27089]
+
+## [11.5] - 2022-11-01
+### Enhancements
+- Dashboard: add connection widget for unconnected sites. [#26596]
+- Dashboard: add Jetpack Search Free  and Jetpack Social to My Products. [#27007, #26990]
+- Form block: add Contact Form child blocks to the Block Library. [#26937]
+- Form block: add default spacing attributes on all form variations. [#26916]
+- Form block: change layout flex styles. [#26914]
+- Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list. [#26896]
+- Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar. [#26911]
+- Jetpack Social: display broken connections to user in editor. [#25803]
+- Subscription block: revert the subscription block subscriber count change. [#27082]
+
+### Bug fixes
+- Form block: include spacing between Contact Form blocks to allow the block inserter to be shown on mouse hover. [#26818]
+- Form block: prevent contact form from escaping valid URL characters in the redirect URL [#27141]
+- Publicize Components: Fix the panel component refactor [#27095]
+- Social: Ensure we have a user connection when loading the module [#27061]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add post-purchase onboardings to Recommendation flows [#26484]
+- Bring media-v1-1-endpoint in sync with wpcom [#27004]
+- Comment: Added featured_image_email_enabled for syncing [#27009]
+- Compatibility: WordPress 6.1 compatibility [#27084]
+- CSSTidy: adding margin-block as valid CSS properties [#26961]
+- Fix broken `@covers` in tests, and reconfigure coverage directives to not scan ridiculous numbers of files. [#26931]
+- Fix visual issues of the Product Price component in the Jetpack plugin [#27032]
+- Log and readme cleanup for 11.5-beta [#27055]
+- Search: updated documentation as Search now supports 38 languages [#27025]
+- Search: use search dashboard CTA instead of product page which wasn't detecting if free plan is active correctly. [#27016]
+- Social: Refactored the resharing UI and moved some additional components to publicize-components [#25993]
+- Updated package dependencies. [#25993, #26705, #26980]
+- Update `jetpack_is_mobile()` and `Jetpack_User_Agent_Info` for sync to wpcom. [#26971]
+
+## 11.5-a.9 - 2022-10-19
+### Bug fixes
+- Contact Form: display consent form field result in notification emails and feedback views. [#26878]
+- Contact Form: remove overlay causing issues with the block inserter hover behavior. [#26910]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add $all_values param to contact_form_to filter [#26810]
+- Copy wpcom hack from D17161 [#26891]
+- Featured image: Add featured_image_email_enabled option to the site settings endpoint [#26696]
+- Init 11.5-a.8 [#26879]
+- Remove an obsolete hack in class.wpcom-json-api-render-endpoint.php [#26893]
+- Sharing: Add caching for DB queries. [#26933]
+- Updated package dependencies. [#26808]
+- Update jetpack_require_lib to require_once [#26804]
+- WordPress.com REST API: exposed P2 design elements in API response [#26863]
+
+## 11.5-a.7 - 2022-10-17
+### Enhancements
+- Dashboard: ensure Apps card is always displayed, regardless of whether promotions are active. [#26659]
+- Form block: improve parent block selection when inner block is already selected. [#26687]
+- Subscription block: don't include Jetpack Social connections in subscriber count. [#26751]
+
+### Bug fixes
+- Payment Buttons block: fix payment-buttons font sizes taking precedence over the font sizes of contained button blocks. [#26839]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Manually sync site settings endpoint files with their WPCOM counterparts [#26747]
+- Search: changed Search CTA link to Search upsell page of the search package [#26807]
+- Updated package dependencies. [#26826, #26828, #26851]
+
 ## 11.5-a.5 - 2022-10-13
 ### Enhancements
 - VideoPress: move videopress/video transfrom from VideoPress plugin to Jetpack plugin [#26799]
@@ -7147,6 +7235,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
 [11.2]: https://wp.me/p1moTy-JYL

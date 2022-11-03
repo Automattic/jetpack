@@ -74,6 +74,13 @@
 		},
 		"videoRatio": {
 			"type": "number"
+		},
+		"tracks": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
 		}
 	},
 	"textdomain": "jetpack-videopress",

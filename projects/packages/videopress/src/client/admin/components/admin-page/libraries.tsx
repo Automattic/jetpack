@@ -6,21 +6,23 @@ import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
-import VideoList from '../video-list';
+import VideoList, { LocalVideoList } from '../video-list';
 import styles from './styles.module.scss';
 /**
  * Types
  */
-import { VideoLibraryProps } from './types';
+import { LocalLibraryProps, VideoLibraryProps } from './types';
+
+const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
 const LibraryType = {
 	List: 'list',
@@ -101,18 +103,28 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const navigate = useNavigate();
-	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
+	const history = useHistory();
+
+	const libraryTypeFromLocalStorage = localStorage.getItem(
+		LIBRARY_TYPE_LOCALSORAGE_KEY
+	) as LibraryType;
+
+	const [ libraryType, setLibraryType ] = useState< LibraryType >(
+		libraryTypeFromLocalStorage ?? LibraryType.Grid
+	);
+
 	const uploading = videos?.some?.( video => video.uploading );
 
 	const toggleType = () => {
-		setLibraryType( current =>
-			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
-		);
+		setLibraryType( current => {
+			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
+			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			return next;
+		} );
 	};
 
 	const handleClickEditDetails = video => {
-		navigate( `/video/${ video?.id }/edit` );
+		history.push( `/video/${ video?.id }/edit` );
 	};
 
 	return (
@@ -142,28 +154,26 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( {
+	videos,
+	totalVideos,
+	loading,
+	uploading,
+	onUploadClick,
+}: LocalLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList
-				hidePrivacy
-				hideDuration
-				hidePlays
-				showEditButton={ false }
-				showQuickActions={ false }
+			<LocalVideoList
 				videos={ videos }
+				loading={ loading }
+				onActionClick={ onUploadClick }
+				uploading={ uploading }
 			/>
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
-};
-
-export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount } = useLocalVideos();
-
-	return <LocalLibrary videos={ videos } totalVideos={ uploadedLocalVideoCount } />;
 };

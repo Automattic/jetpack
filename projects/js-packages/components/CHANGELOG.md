@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.24.3 - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## 0.24.2 - 2022-10-25
+### Changed
+- Fix visual issues in the Product Price component in Jetpack plugin [#27032]
+
+## 0.24.1 - 2022-10-19
+### Changed
+- RNA: move product labels next to `legend` text [#26877]
+- Updated package dependencies. [#26883]
+
+### Fixed
+- Fixed the tooltips being cut of on PricingTable [#26666]
+
+## 0.24.0 - 2022-10-17
+### Changed
+- Refactor IconTooltip with prop popoverAnchorStyle for alignment with Popover anchor. [#26851]
+
 ## 0.23.0 - 2022-10-13
 ### Changed
 - Add shadowAnchor and forceShow for pure Popover displaying within parent wrapper. [#26790]

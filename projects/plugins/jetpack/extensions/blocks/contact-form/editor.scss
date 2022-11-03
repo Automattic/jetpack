@@ -23,12 +23,11 @@
 		flex-wrap: wrap;
 		justify-content: flex-start;
 		flex-direction: row;
+		gap: var(--wp--style--block-gap, 1.5rem);
 
 		.wp-block {
 			flex: 0 0 100%;
 			margin: 0;
-			border-right: 15px solid transparent;
-			border-bottom: 15px solid transparent;
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-50,
@@ -37,7 +36,8 @@
 			}
 
 			&.jetpack-field__width-25 {
-				flex: 0 0 25%;
+				flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 25%;
 
 				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
 					width: 70px;
@@ -45,11 +45,13 @@
 			}
 
 			&.jetpack-field__width-50 {
-				flex: 0 0 50%;
+				flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 50%;
 			}
 
 			&.jetpack-field__width-75 {
-				flex: 0 0 75%;
+				flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+				max-width: 75%;
 			}
 
 			&[data-type='jetpack/field-checkbox'],
@@ -162,6 +164,19 @@ input.components-text-control__input {
 	line-height: 16px;
 }
 
+/*
+	Gutenberg adds some default styling to the TextControl component
+	(https://github.com/WordPress/gutenberg/blob/trunk/packages/base-styles/_mixins.scss#L130)
+	For the TextareaControl, since the base styles are added to the StyledComponent,
+	(https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/textarea-control/styles/textarea-control-styles.ts#L13)
+	The output CSS has a lower specificity and it's being overridden on themes like
+	Twenty Twenty-One and Twenty Twenty-Two.
+	Adding this to normalize the styles between the TextControl and TextareaControl
+ */
+:where(.jetpack-field) textarea.components-textarea-control__input {
+	border: 1px solid #757575;
+}
+
 .jetpack-field {
 	// done to increase elevate specificity in order to overwrite calypso styles
 	.components-text-control__input.components-text-control__input {
@@ -173,6 +188,10 @@ input.components-text-control__input {
 		padding: 12px 8px;
 		box-shadow: unset;
 		width: 100%;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
 	}
 
 	textarea.components-textarea-control__input {
@@ -302,8 +321,33 @@ input.components-text-control__input {
 
 // Make sure form settings dropdown looks good on older Gutenberg versions
 .jetpack-contact-form__popover .components-popover__content {
-	padding: 12px;
 	min-width: 260px;
+
+	.components-base-control {
+		margin-bottom: 24px;
+
+		&:last-child {
+			margin-bottom: 8px;
+		}
+	}
+
+	.form-settings-dropdown__content {
+		padding: 12px;
+	}
+
+	.form-settings-dropdown__close-icon {
+		width: 24px;
+		height: 24px;
+		padding: 0;
+		justify-content: center;
+	}
+
+	.form-settings-dropdown__item {
+		svg {
+			margin-right: 8px;
+			fill: none;
+		}
+	}
 }
 
 .jetpack-contact-form__crm_text {

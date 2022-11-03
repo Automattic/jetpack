@@ -947,7 +947,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						: true;
 					break;
 
-				case 'dismiss_dash_app_card':
 				case 'dismiss_empty_stats_card':
 				case 'dismiss_dash_backup_getting_started':
 				case 'dismiss_dash_agencies_learn_more':
@@ -958,7 +957,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
-					jetpack_require_lib( 'widgets' );
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/widgets.php';
 					// Break apart and set Jetpack onboarding options.
 					$result = $this->process_onboarding( (array) $value );
 					if ( empty( $result ) ) {

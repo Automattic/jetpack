@@ -36,6 +36,14 @@ class Status {
 	}
 
 	public function update( $new_status ) {
+		/**
+		 * Fires before attempting to update the status of a module.
+		 *
+		 * @param string $slug Slug of the module.
+		 * @param bool $new_status New status of the module.
+		 */
+		do_action( 'jetpack_boost_before_module_status_update', $this->slug, (bool) $new_status );
+
 		if ( update_option( $this->get_option_name( $this->slug ), (bool) $new_status ) ) {
 			$this->update_mapped_modules( $new_status );
 
