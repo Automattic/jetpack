@@ -93,7 +93,11 @@ class Deactivation_Handler {
 	 */
 	public function embed_dialog() {
 		?>
-		<div id="jp-plugin-deactivation-<?php echo esc_attr( $this->plugin ); ?>" class="jp-plugin-deactivation">
+		<div
+			id="jp-plugin-deactivation-<?php echo esc_attr( $this->plugin ); ?>"
+			data-jp-plugin-deactivation="<?php echo esc_attr( $this->plugin ); ?>"
+			class="jp-plugin-deactivation"
+		>
 			<div class="jp-plugin-deactivation__dialog">
 				<?php include $this->dialog_view; ?>
 			</div>
