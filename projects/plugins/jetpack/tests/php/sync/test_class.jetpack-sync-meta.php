@@ -1,11 +1,9 @@
 <?php
-
-use Automattic\Jetpack\Sync\Defaults;
-
 /**
  * Testing CRUD on Meta
  */
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Settings;

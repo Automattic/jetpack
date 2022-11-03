@@ -56,6 +56,9 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 	define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 }
 
+if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
+	define( 'JETPACK_BOOST_PLUGINS_DIR_URL', plugin_dir_url( __FILE__ ) );
+}
 /**
  * Setup autoloading
  */

@@ -28,7 +28,7 @@ class Jetpack_Instagram_Gallery_Helper {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
-				\jetpack_require_lib( 'instagram-gallery-helper' );
+				\require_lib( 'instagram-gallery-helper' );
 			}
 			$token = WPCOM_Instagram_Gallery_Helper::get_token( $access_token_id );
 			return ! is_wp_error( $token );
