@@ -307,5 +307,7 @@ Provides a series of customisations to enable the full Nav Unification experienc
 
 ### Frontend Notices
 
-Allow the showing of notices on the frontend. Currently we are showing a full page notice
-on sites that are expired indicating to the user that they can reach out to the site owner to let them know the site has expired.
+Allow the showing of notices on the frontend. Currently we are showing:
+
+- A full page notice on sites that are expired indicating to the user that they can reach out to the site owner to let them know the site has expired.
+- A top header notice on sites that are close to expire.
