@@ -85,7 +85,7 @@ type PluginDeactivation = {
 };
 
 if ( 'JetpackPluginDeactivationData' in window ) {
-	const plugins = window.JetpackPluginDeactivationData as PluginDeactivation;
+	const plugins = window["JetpackPluginDeactivationData"] as PluginDeactivation;
 	document.addEventListener( 'DOMContentLoaded', function () {
 		if ( ! plugins.instances ) {
 			plugins.instances = {};
