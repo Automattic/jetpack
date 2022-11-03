@@ -14,16 +14,16 @@ const VideoBlockSelectControl = ( { value, onChange } ) => {
 	useEffect( () => {
 		// Defaults to first option
 		if ( ! value && blocks.length > 0 ) {
-			onChange( blocks[ 0 ].clientId );
+			onChange( blocks[ 0 ].attributes.uid );
 		}
 	}, [] );
 
 	const options = blocks
 		.map( block => ( {
-			value: block.clientId,
+			value: block.attributes.uid,
 			label: block.attributes.title,
 		} ) )
-		.filter( data => data.label ); // Avoid to list blocks with no video or not title defined
+		.filter( data => data.label && data.value ); // Avoid to list blocks with no video or not title defined
 
 	return (
 		<SelectControl

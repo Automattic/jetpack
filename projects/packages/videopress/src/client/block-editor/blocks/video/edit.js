@@ -65,6 +65,7 @@ export const PlaceholderWrapper = withNotices( function ( {
  */
 export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
 	const {
+		uid,
 		autoplay,
 		loop,
 		muted,
@@ -95,6 +96,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		useAverageColor,
 		poster,
 	} );
+
+	// Set an UID based on Client ID to be stored in the block attributes
+	useEffect( () => {
+		if ( ! uid ) {
+			setAttributes( { uid: clientId } );
+		}
+	}, [ clientId, uid, setAttributes ] );
 
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(

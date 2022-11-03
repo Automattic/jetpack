@@ -29,7 +29,7 @@ export default function VideoPressChaptersEdit( {
 	isSelected,
 	clientId,
 } ) {
-	const chapters = useChapters();
+	const chapters = useChapters( attributes );
 
 	const blockProps = useBlockProps( {
 		className: 'wp-block-jetpack-video-chapters',
@@ -45,6 +45,7 @@ export default function VideoPressChaptersEdit( {
 			<ul className="video-chapters_list">
 				{ chapters.map( ( { chapter, time }, index ) => (
 					<li
+						key={ chapter }
 						className={ classNames( 'video-chapters__item', {
 							// At block we just provide an way of user see the three states, not interact with them.
 							// - Not selected

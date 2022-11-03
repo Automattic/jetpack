@@ -81,6 +81,9 @@
 				"type": "object"
 			},
 			"default": []
+		},
+		"uid": {
+			"type": "string"
 		}
 	},
 	"textdomain": "jetpack-videopress",
