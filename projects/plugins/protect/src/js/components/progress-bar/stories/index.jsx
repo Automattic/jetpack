@@ -16,6 +16,6 @@ export default {
 	],
 };
 
-export const Initial = () => <ProtectProgressBar progress={ 0 } />;
-export const Halfway = () => <ProtectProgressBar progress={ 50 } />;
-export const Complete = () => <ProtectProgressBar progress={ 100 } />;
+export const Initial = () => <ProtectProgressBar value={ 0 } />;
+export const Halfway = () => <ProtectProgressBar value={ 50 } />;
+export const Complete = () => <ProtectProgressBar value={ 100 } />;
