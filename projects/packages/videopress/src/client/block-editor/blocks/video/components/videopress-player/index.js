@@ -27,6 +27,10 @@ if ( window.videopressAjax ) {
 		URL.createObjectURL( videopresAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
+
+	globalScripts.push(
+		'https://video.wordpress.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js'
+	);
 }
 
 // Define a debug instance for block bridge.
