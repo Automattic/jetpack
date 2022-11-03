@@ -1657,7 +1657,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 
 				$thumbnail_query_data = array();
-				if ( video_is_private( $info ) ) {
+				if ( function_exists( 'video_is_private' ) && video_is_private( $info ) ) {
 					$thumbnail_query_data['metadata_token'] = video_generate_auth_token( $info );
 				}
 
