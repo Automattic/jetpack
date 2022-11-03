@@ -193,9 +193,12 @@ class Dashboard {
 	 * Page base for the Calypso admin page.
 	 */
 	protected static function get_admin_path() {
-		$admin_url        = admin_url( 'admin.php?page=stats&calypso_stats=1' );
-		$parsed_admin_url = wp_parse_url( $admin_url );
-		return $parsed_admin_url['path'] . '?' . $parsed_admin_url['query'];
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
+			return admin_url( 'admin.php?page=stats&calypso_stats=1' );
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return wp_unslash( $_SERVER['PHP_SELF'] ) . '?' . wp_unslash( $_SERVER['QUERY_STRING'] );
 	}
 
 	/**
