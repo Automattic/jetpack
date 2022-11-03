@@ -10,6 +10,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import './index.scss';
+import LearnHowNotice from '../learn-how-notice';
 
 const CHARACTERS_PER_LINE = 31;
 
@@ -29,7 +30,8 @@ export default function DetailsControl( {
 	isRequestingVideoData,
 	clientId,
 } ) {
-	const { title, description, videoChaptersClientId } = attributes;
+	const { title, description, videoChaptersClientId, tracks } = attributes;
+	const hasChapters = !! tracks.length;
 	const isBeta = true;
 	const [ dismiss, setDismiss ] = useState( false );
 	const { getBlock, getBlockIndex } = useSelect( select => select( 'core/block-editor' ) );
@@ -65,9 +67,8 @@ export default function DetailsControl( {
 
 	const addVideoChaptersBlock = () => {
 		const videoPressBlockIndex = getBlockIndex( clientId );
-		const block = createBlock( 'core/paragraph', { content: clientId } );
+		const block = createBlock( 'videopress/video-chapters', { content: clientId } );
 		insertBlock( block, videoPressBlockIndex + 1 );
-
 		setVideoChaptersClientId( block.clientId );
 	};
 
@@ -101,6 +102,7 @@ export default function DetailsControl( {
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData }
 			/>
+			{ ! hasChapters && <LearnHowNotice /> }
 
 			{ ! dismiss && ! hasVideoChapters && !! attributes.tracks.length && (
 				<Notice
