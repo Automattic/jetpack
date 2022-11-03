@@ -14,14 +14,14 @@ async function insertTemplate( prompt, embedPrompt = false ) {
 }
 
 function initBloggingPrompts() {
-	const data = window.Jetpack_BloggingPrompts;
+	const prompts = window.Jetpack_BloggingPrompts;
 	const urlQuery = new URLSearchParams( document.location.search );
-	const embedPrompt = !! urlQuery.get( 'embed_prompt' );
-	if ( typeof data !== 'object' || ! data.prompts || ! data.prompts[ 0 ] ) {
+	const answerPrompt = !! urlQuery.get( 'answer_prompt' );
+	if ( ! Array.isArray( prompts ) || ! prompts[ 0 ] ) {
 		return;
 	}
 
-	insertTemplate( data.prompts[ 0 ], embedPrompt );
+	insertTemplate( prompts[ 0 ], answerPrompt );
 }
 
 initBloggingPrompts();
