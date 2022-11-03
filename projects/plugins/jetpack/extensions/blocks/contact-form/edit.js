@@ -9,7 +9,6 @@ import {
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
-	Button,
 	ExternalLink,
 	Flex,
 	Icon,
