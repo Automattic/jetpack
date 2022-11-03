@@ -91,35 +91,57 @@ function jetpack_is_valid_blogging_prompt( $prompt_id ) {
 /**
  * Determines if the site might have a blog.
  *
+ * @param @param array $checks {
+ *     Optional. An array of checks to determine if the site has a blog.
+ *
+ *     @type bool $post_count  Whether to check the number of posts. Default true.
+ *     @type bool $posts_page  Whehter to check if posts page is set. Default true.
+ *     @type bool $site_intent Whether to check the site intent when the site was created. Default true.
+ * }
  * @return bool
  */
-function jetpack_is_potential_blogging_site() {
+function jetpack_is_potential_blogging_site( $checks = array() ) {
+	$checks = wp_parse_args(
+		$checks,
+		array(
+			'posts_count' => true,
+			'posts_page'  => true,
+			'site_intent' => true,
+		)
+	);
+
 	// During site creation the "Write" intent was choose.
-	if ( 'write' === get_option( 'site_intent', '' ) ) {
+	if ( $checks['site_intent'] && 'write' === get_option( 'site_intent', '' ) ) {
 		return true;
 	}
 
-	// The site is set up to be a blog.
-	if ( 'posts' === get_option( 'show_on_front' ) ) {
-		return true;
+	if ( $checks['posts_page'] ) {
+		// The site is set up to be a blog.
+		if ( 'posts' === get_option( 'show_on_front' ) ) {
+			return true;
+		}
+
+		// They are choosing to set the posts to be set to 0.
+		$is_posts_page_set = (int) get_option( 'page_for_posts' ) > 0;
+		if ( $is_posts_page_set ) {
+			return true;
+		}
 	}
 
-	// They are choosing to set the posts to be set to 0.
-	$is_posts_page_set = (int) get_option( 'page_for_posts' ) > 0;
-	if ( $is_posts_page_set ) {
-		return true;
+	if ( $checks['posts_count'] ) {
+		// Lets count the posts.
+		$count_posts_object = wp_count_posts( 'post' );
+
+		if ( $count_posts_object->publish >= 2 ) {
+			return true;
+		}
+
+		$count_posts = (int) $count_posts_object->publish + (int) $count_posts_object->future + (int) $count_posts_object->draft;
+
+		return $count_posts >= 100;
 	}
 
-	// Lets count the posts.
-	$count_posts_object = wp_count_posts( 'post' );
-
-	if ( $count_posts_object->publish >= 2 ) {
-		return true;
-	}
-
-	$count_posts = (int) $count_posts_object->publish + (int) $count_posts_object->future + (int) $count_posts_object->draft;
-
-	return $count_posts >= 100;
+	return false;
 }
 
 /**

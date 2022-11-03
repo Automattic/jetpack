@@ -42,12 +42,13 @@ function inject_blogging_prompts() {
 	}
 
 	// And only for blogging sites.
-	if ( ! jetpack_is_potential_blogging_site() ) {
+	if ( ! jetpack_is_potential_blogging_site( array( 'posts_count' => false ) ) ) {
 		return;
 	}
 
 	$daily_prompts = wp_json_encode( jetpack_get_daily_blogging_prompts() );
 
+	// See p7H4VZ-2cf-p2 for why prompt data is escaped this way.
 	if ( $daily_prompts ) {
 		wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_BloggingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompts ) . '" ) );', 'before' );
 	}
