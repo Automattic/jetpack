@@ -227,6 +227,15 @@ class Initializer {
 			return;
 		}
 
-		register_block_type( $videopress_chapters_metadata_file );
+		register_block_type(
+			$videopress_chapters_metadata_file,
+			array(
+				'render_callback' => function ( $attributes, $content, $block ) {
+					// @todo figure out how to fetch the guid
+					$guid = 'MNCGFUQp';
+					return Chapters::render_chapters( $guid );
+				},
+			)
+		);
 	}
 }
