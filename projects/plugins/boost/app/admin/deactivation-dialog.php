@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 <main class="jp-plugin-deactivation__dialog__content">
 	<h1><?php esc_html_e( 'Are you sure you want to deactivate?', 'jetpack-boost' ); ?></h1>
 	<p class="big"><?php esc_html_e( 'Before you go...', 'jetpack-boost' ); ?></p>
-	<p><?php esc_html_e( "Thank you for trying Jetpack Boost, before you go, we'd really love your feedback on our plugin.", 'jetpack-boost' ); ?></p>
-	<p><?php esc_html_e( "Just temporarily deactivating, or don't fancy giving feedback? No problem.", 'jetpack-boost' ); ?></p>
+	<p><?php esc_html_e( "Thank you for trying Jetpack Boost. Before you go, we'd really love your feedback on our plugin.", 'jetpack-boost' ); ?></p>
+	<p><?php esc_html_e( "Just temporarily deactivating or don't fancy giving feedback? No problem.", 'jetpack-boost' ); ?></p>
 </main>
 <footer class="jp-plugin-deactivation__dialog__actions">
 	<button 
