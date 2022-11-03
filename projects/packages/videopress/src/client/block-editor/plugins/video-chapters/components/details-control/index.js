@@ -30,7 +30,7 @@ export default function DetailsControl( {
 	isRequestingVideoData,
 	clientId,
 } ) {
-	const { title, description, linkClientId, tracks } = attributes;
+	const { title, description, linkClientId, tracks, guid } = attributes;
 
 	const hasChapters = !! tracks.length;
 	const isBeta = true;
@@ -65,6 +65,7 @@ export default function DetailsControl( {
 	const addVideoChaptersBlock = () => {
 		const videoPressBlockIndex = getBlockIndex( clientId );
 		const block = createBlock( 'videopress/video-chapters', {
+			guid,
 			linkClientId,
 		} );
 		insertBlock( block, videoPressBlockIndex + 1 );
