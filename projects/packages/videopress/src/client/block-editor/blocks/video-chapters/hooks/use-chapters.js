@@ -1,16 +1,44 @@
-export default () => {
-	return [
-		{
-			chapter: 'Chapter 1',
-			time: '00:00',
-		},
-		{
-			chapter: 'Chapter 2',
-			time: '02:00',
-		},
-		{
-			chapter: 'Chapter 3',
-			time: '04:00',
-		},
-	];
+/**
+ * External dependencies
+ */
+import { useEffect, useState } from '@wordpress/element';
+
+export default ( { guid, linkClientId } ) => {
+	const [ chapters, setChapters ] = useState( [] );
+	useEffect( () => {
+		if ( ! linkClientId ) {
+			return;
+		}
+
+		const videoSandboxEl = document.getElementById( linkClientId );
+		if ( ! videoSandboxEl ) {
+			return;
+		}
+
+		const iFrame = videoSandboxEl.querySelector( 'iframe.components-sandbox' );
+		if ( ! iFrame ) {
+			return;
+		}
+
+		const iFrameWindow = iFrame.contentWindow;
+		if ( ! iFrameWindow ) {
+			return;
+		}
+
+		window.addEventListener( 'onChaptersTrackChange', event => {
+			const { detail } = event;
+			const { guid: eventGuid, chapters: eventChapters } = detail;
+			if ( guid !== eventGuid ) {
+				return;
+			}
+
+			setChapters( eventChapters );
+		} );
+
+		return function () {
+			iFrameWindow.removeEventListener( 'onChaptersTrackChange' );
+		};
+	}, [ linkClientId, guid ] );
+
+	return chapters;
 };
