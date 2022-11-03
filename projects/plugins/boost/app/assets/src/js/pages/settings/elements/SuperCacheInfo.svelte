@@ -25,7 +25,7 @@
 		{#await testPromise}
 			<Notice
 				title={__( 'Measuring Super Cache Speed', 'jetpack-boost' )}
-				message="{__( 'Jetpack Boost is testing the speed of your cache.', 'jetpack-boost' )},"
+				message={__( 'Jetpack Boost is testing the speed of your cache.', 'jetpack-boost' )}
 				actions={[ { label: runLabel, isLoading: true, disabled: true } ]}
 			/>
 		{:then testResult}
