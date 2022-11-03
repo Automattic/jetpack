@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
+import { Button, Notice, PanelBody, TextareaControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import './index.scss';
+import LearnHowNotice from '../learn-how-notice';
 
 const CHARACTERS_PER_LINE = 31;
 
@@ -20,8 +22,14 @@ const CHARACTERS_PER_LINE = 31;
  * @returns {object} Video details control component
  */
 export default function DetailsControl( { attributes, setAttributes, isRequestingVideoData } ) {
-	const { title, description } = attributes;
+	const { title, description, tracks } = attributes;
+	const hasChapters = !! tracks.length;
 	const isBeta = true;
+	const [ dismiss, setDismiss ] = useState( false );
+
+	const onRemove = () => {
+		setDismiss( true );
+	};
 
 	// Expands the description textarea to accommodate the description
 	const minRows = 4;
@@ -60,10 +68,32 @@ export default function DetailsControl( { attributes, setAttributes, isRequestin
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				value={ description }
 				placeholder={ __( 'Video description', 'jetpack-videopress-pkg' ) }
+				help={ __(
+					'These details are reflected wherever the video is shown.',
+					'jetpack-videopress-pkg'
+				) }
 				onChange={ setDescriptionAttribute }
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData }
 			/>
+			{ ! hasChapters && <LearnHowNotice /> }
+
+			{ ! dismiss && !! attributes.tracks.length && (
+				<Notice
+					className={ 'jetpack-videopress-videochapters-prompt' }
+					status={ 'success' }
+					isDismissable={ true }
+					onRemove={ onRemove }
+				>
+					<p>
+						{ __( 'We detected chapters in your video Description', 'jetpack-videopress-pkg' ) }
+					</p>
+
+					<Button variant="primary">
+						{ __( 'Add chapters list to post', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</Notice>
+			) }
 		</PanelBody>
 	);
 }

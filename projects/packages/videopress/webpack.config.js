@@ -9,6 +9,9 @@ module.exports = [
 			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
 			'admin/index': './src/client/admin/index.js',
 			'block-editor/extensions/index': './src/client/block-editor/extensions/index.ts',
+			'block-editor/video-chapters/index':
+				'./src/client/block-editor/blocks/video-chapters/index.js',
+			'block-editor/video-chapters/view': './src/client/block-editor/blocks/video-chapters/view.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
