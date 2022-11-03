@@ -114,7 +114,7 @@ class Deactivation_Handler {
 	 */
 	public function init_dialog() {
 		// Name of the javascript variable that will hold the dialog handler instance for a given plugin.
-		$variable_name = str_replace( '-', '', ucwords( sanitize_key( $this->plugin ), '-' ) ) . 'Deactivation';
+		$variable_name = 'deactivate' . str_replace( '-', '', ucwords( sanitize_key( $this->plugin ), '-' ) );
 
 		echo '<script>var ' . esc_js( $variable_name ) . ' = new JetpackPluginDeactivation( decodeURIComponent( "' . rawurlencode( $this->plugin ) . '" ) );</script>';
 	}
