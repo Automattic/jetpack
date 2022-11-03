@@ -18,10 +18,12 @@ const VideoBlockSelectControl = ( { value, onChange } ) => {
 		}
 	}, [] );
 
-	const options = blocks.map( block => ( {
-		value: block.clientId,
-		label: block.attributes.title,
-	} ) );
+	const options = blocks
+		.map( block => ( {
+			value: block.clientId,
+			label: block.attributes.title,
+		} ) )
+		.filter( data => data.label ); // Avoid to list blocks with no video or not title defined
 
 	return (
 		<SelectControl
