@@ -9,6 +9,7 @@ import { useBlockProps } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import classNames from 'classnames';
+import VideoPressChaptersInspectorControls from './components/inspector-controls';
 import useChapters from './hooks/use-chapters';
 import './editor.scss';
 
@@ -36,6 +37,11 @@ export default function VideoPressChaptersEdit( {
 
 	return (
 		<div { ...blockProps }>
+			<VideoPressChaptersInspectorControls
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+			/>
+
 			<ul className="video-chapters_list">
 				{ chapters.map( ( { chapter, time }, index ) => (
 					<li

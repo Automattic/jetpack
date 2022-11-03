@@ -6,13 +6,7 @@ import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
 
-const VideoBlockSelectControl = ( {
-	value,
-	onChange,
-}: {
-	value: string;
-	onChange: ( blockId: string ) => void;
-} ) => {
+const VideoBlockSelectControl = ( { value, onChange } ) => {
 	const blocks = select( 'core/block-editor' )
 		.getBlocks()
 		.filter( block => block.name === 'videopress/video' );
@@ -24,10 +18,12 @@ const VideoBlockSelectControl = ( {
 		}
 	}, [] );
 
-	const options = blocks.map( block => ( {
-		value: block.clientId,
-		label: block.attributes.title,
-	} ) );
+	const options = blocks
+		.map( block => ( {
+			value: block.clientId,
+			label: block.attributes.title,
+		} ) )
+		.filter( data => data.label ); // Avoid to list blocks with no video or not title defined
 
 	return (
 		<SelectControl
