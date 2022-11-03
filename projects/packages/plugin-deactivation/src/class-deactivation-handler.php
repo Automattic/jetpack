@@ -68,9 +68,16 @@ class Deactivation_Handler {
 		return $instance;
 	}
 
-	public function add_deactivation_data( $plugins ) {
-		$plugins['slugs'][] = $this->plugin;
-		return $plugins;
+	/**
+	 * Used by `jp_plugin_deactivation_data` filter to pass data to
+	 * the JetpackPluginDeactivation class.
+	 * @param $data
+	 *
+	 * @return array
+	 */
+	public function add_deactivation_data( $data ) {
+		$data['slugs'][] = $this->plugin;
+		return $data;
 	}
 
 	/**
@@ -79,18 +86,18 @@ class Deactivation_Handler {
 	public function enqueue_script() {
 
 		wp_enqueue_script(
-				'jp-plugin-deactivation',
-				plugins_url( '../dist/deactivation.js', __FILE__ ),
-				array(),
-				self::PACKAGE_VERSION,
-				true
+			'jp-plugin-deactivation',
+			plugins_url( '../dist/deactivation.js', __FILE__ ),
+			array(),
+			self::PACKAGE_VERSION,
+			true
 		);
 
 		wp_enqueue_style(
-				'jp-plugin-deactivation',
-				plugins_url( '../dist/deactivation.css', __FILE__ ),
-				array(),
-				self::PACKAGE_VERSION
+			'jp-plugin-deactivation',
+			plugins_url( '../dist/deactivation.css', __FILE__ ),
+			array(),
+			self::PACKAGE_VERSION
 		);
 
 		/**
