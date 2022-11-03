@@ -451,7 +451,7 @@ class Jetpack_Memberships {
 	 */
 	public static function user_can_view_post() {
 		$newsletter_access_level = self::get_newsletter_access_level();
-		if ( 'everybody' === $newsletter_access_level ) {
+		if ( 'everybody' === $newsletter_access_level || empty( $newsletter_access_level ) ) {
 			return true;
 		}
 
