@@ -104,7 +104,7 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 
 		if ( ! ignoreBlockRecovery ) {
 			return (
-				<>
+				<div>
 					<Warning
 						className="extended-block-warning"
 						actions={ [
@@ -136,7 +136,7 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 							</p>
 						) }
 					</Warning>
-				</>
+				</div>
 			);
 		}
 

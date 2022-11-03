@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
 ## [1.0.3] - 2022-07-06
 ### Changed
 - Reorder JS imports for `import/order` eslint rule. [#24601]
@@ -24,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.0.4]: https://github.com/Automattic/eslint-config-target-es/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/Automattic/eslint-config-target-es/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/Automattic/eslint-config-target-es/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/Automattic/eslint-config-target-es/compare/1.0.0...1.0.1

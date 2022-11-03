@@ -8,7 +8,7 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow, Disabled } from '@wordpress/components';
+import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { Fragment, createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -26,12 +26,14 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
+ * @param {string} props.connectionsAdminUrl               - URL to the Admin connections page
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
 	isPublicizeEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
+	connectionsAdminUrl,
 } ) {
 	const {
 		connections,
@@ -42,6 +44,8 @@ export default function PublicizeForm( {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
+
+	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -78,15 +82,40 @@ export default function PublicizeForm( {
 							</Notice>
 						</PanelRow>
 					) }
+					{ brokenConnections.length > 0 && (
+						<Notice type={ 'error' }>
+							{ createInterpolateElement(
+								_n(
+									'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+									'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+									brokenConnections.length,
+									'jetpack'
+								),
+								{
+									fixLink: <ExternalLink href={ connectionsAdminUrl } />,
+								}
+							) }
+						</Notice>
+					) }
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
 							{ connections.map(
-								( { display_name, enabled, id, service_name, toggleable, profile_picture } ) => (
+								( {
+									display_name,
+									enabled,
+									id,
+									service_name,
+									toggleable,
+									profile_picture,
+									is_healthy,
+								} ) => (
 									<PublicizeConnection
 										disabled={
-											! isPublicizeEnabled || ( ! enabled && toggleable && outOfConnections )
+											! isPublicizeEnabled ||
+											( ! enabled && toggleable && outOfConnections ) ||
+											false === is_healthy
 										}
-										enabled={ enabled && ! isPublicizeDisabledBySitePlan }
+										enabled={ enabled && ! isPublicizeDisabledBySitePlan && false !== is_healthy }
 										key={ id }
 										id={ id }
 										label={ display_name }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Related Posts Block: when 3 posts are outputted, increase the width to closer to 100%

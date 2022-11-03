@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
 	import ReactComponent from '../../elements/ReactComponent.svelte';
-	import { BoostPricingTable } from '../../react-components/BoostPricingTable.tsx';
+	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { updateModuleState } from '../../stores/modules';
@@ -12,7 +12,7 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
 	const chooseFreePlan = async () => {
-		// Not awaiting for the promise to resolve, as we don't want to block the navigation.
+		// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
 		markGetStartedComplete();
 
 		// Need to await in this case because the generation request needs to go after the backend has enabled the module.

@@ -1,10 +1,10 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, danielpost, siddarthan
+Contributors: automattic, pabline, danielpost, siddarthan, gmjuhasz
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 5.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
-Stable tag: 1.3.0
+Tested up to: 6.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,25 +91,16 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.4.0 - 2022-10-06
+### 1.5.0-beta - 2022-10-27
 #### Added
-- Add ContextualUpgradeTrigger to Jetpack Social admin page
-- Added check to not show the share metre if someone has a paid plan.
-- Added Jetpack social redirect urls.
-- Add pricing table to Jetpack Social
-- Adds ability to autotag, autorelease and autopublish releases
-- Enforce sharing limits in the Classic Editor
+- Display broken connections to user in editor
+- Integrate the ConnectionError react component to the Social plugin.
+- Reshare: Added the reshare UI to the block editor extension
 
 #### Changed
-- Changed the values on the pricing table, and fixed a redirect
-- Move share limits code to the Publicize package
-- Set version to 1.4.0-alpha
-- Social: Aligned Jetpack and Social to use the connection-test-results endpoint in the block editor
 - Updated package dependencies.
-- Updated style for Jetpack Logo icon shown in pre-publish panels for Jetpack and Jetpack Social plugins
-- Update Inspector Panel Jetpack icon color to #1E1E1E
-- Use Jetpack logo in Jetpack Social pre-publish screen for Publicize and Social Preview features
 
 #### Fixed
-- Social: Require a user connection to use the plugin.
-- Store: Added the missing showNudge reducer
+- Social: Fix the connection test endpoint URL
+- Social: Fix the path to the connections URL in the editor
+

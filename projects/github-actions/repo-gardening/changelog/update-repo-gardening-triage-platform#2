@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure multiple plugins can be provided and then added as labels

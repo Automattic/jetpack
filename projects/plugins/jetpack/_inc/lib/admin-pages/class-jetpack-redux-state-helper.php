@@ -272,7 +272,7 @@ class Jetpack_Redux_State_Helper {
 
 		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
-			jetpack_require_lib( 'class.jetpack-photon-image' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image.php';
 			$photon_image = new Jetpack_Photon_Image(
 				array(
 					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
@@ -360,7 +360,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 		// phpcs:disable
 		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable

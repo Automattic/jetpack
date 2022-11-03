@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.22.6 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.22.5 - 2022-10-25
+### Added
+- Connection: add getWpcomUser() and getBlogId() selectors. [#26978]
+
 ## 0.22.4 - 2022-10-19
 ### Changed
 - Updated package dependencies. [#26883]

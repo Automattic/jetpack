@@ -677,6 +677,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
@@ -723,6 +724,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered.
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 		// Add a dummy transient.
 		$transient_key = "jetpack_connected_user_data_$user->ID";

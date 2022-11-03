@@ -2,9 +2,9 @@
 Contributors: automattic, retrofox, oskosk, dhasilva, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
-Requires at least: 5.9
-Tested up to: 6.0
-Stable tag: 0.1.0-alpha
+Requires at least: 6.0
+Tested up to: 6.1
+Stable tag: 1.0.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,5 +73,7 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
+### 1.0.0 - 2022-10-25
+#### Added
+- Initial release.
 
-Introduce new VideoPress block and dashboard
