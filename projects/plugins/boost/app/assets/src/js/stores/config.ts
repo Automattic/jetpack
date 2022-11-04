@@ -17,6 +17,8 @@ const dismissedPopOutStore = writable( Jetpack_Boost.dismissedScorePrompts );
 export const dismissedPopOuts = {
 	subscribe: dismissedPopOutStore.subscribe,
 	dismiss: async ( name: string ) => {
+		dismissedPopOutStore.update( dismissals => [ ...dismissals, name ] );
+
 		await makeAdminAjaxRequest( {
 			action: 'set_show_score_prompt',
 			id: name,
@@ -24,8 +26,6 @@ export const dismissedPopOuts = {
 			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showScorePromptNonce,
 		} );
-
-		dismissedPopOutStore.update( dismissals => [ ...dismissals, name ] );
 	},
 };
 
