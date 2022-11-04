@@ -82,7 +82,6 @@ function googleapps_embed_to_shortcode( $content ) {
 
 			if ( isset( $params['width'] ) ) {
 				$width = (int) $params['width']['value'];
-				error_log( 'width seen of: ' . print_r( $width, true ) );
 			}
 
 			if ( isset( $params['height'] ) ) {
