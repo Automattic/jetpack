@@ -413,12 +413,6 @@ $css
 						</a>
 					</td>
 					<td>
-						<xsl:value-of select='image:image/image:title'/>
-					</td>
-					<td>
-						<xsl:value-of select='image:image/image:caption'/>
-					</td>
-					<td>
 						<xsl:value-of select='sitemap:lastmod'/>
 					</td>
 					<td>
