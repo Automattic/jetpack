@@ -285,7 +285,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: this.props.isAtomicSite
-								? getRedirectUrl( 'wpcom-support-ccpa' )
+								? getRedirectUrl( 'wpcom-support-us-privacy' )
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
