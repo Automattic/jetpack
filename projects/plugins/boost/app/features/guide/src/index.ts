@@ -33,9 +33,6 @@ window.addEventListener('load', async () => {
 	const images = await load(Array.from(nodes));
 	const measuredImages = measure(images);
 
-	// Create div and wrap image.node with that div
-	const guide = document.createElement('div');
-	guide.classList.add('jb-guide');
 	for (const image of measuredImages) {
 		const container = closestStableParent(image.node);
 
@@ -64,11 +61,9 @@ window.addEventListener('load', async () => {
 				},
 			});
 		} else {
-			image.node.parentNode.insertBefore(guide, image.node);
-			guide.appendChild(image.node);
-
 			new Info({
 				target: container,
+				anchor: image.node.remove(),
 				props: {
 					image,
 				},
