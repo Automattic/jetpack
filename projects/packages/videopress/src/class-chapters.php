@@ -31,7 +31,10 @@ class Chapters {
 		if ( is_wp_error( $result ) || 200 !== wp_remote_retrieve_response_code( $result ) ) {
 			l( 'Error when fetching chapters for GUID ' . $video_guid );
 
-			return array();
+			return array(
+				'chapters' => array(),
+				'error'    => true,
+			);
 		}
 
 		return json_decode( wp_remote_retrieve_body( $result ), true );
