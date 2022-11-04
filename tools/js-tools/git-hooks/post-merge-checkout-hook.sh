@@ -1,9 +1,13 @@
 #!/bin/bash
 
 changedFiles="$(git -c core.quotepath=off diff-tree -r --name-only --no-commit-id "$1" HEAD)"
+SEP=$'---\n'
 
 runOnChange() {
-	echo "$changedFiles" | grep -q "^\($1\)" && echo -e "$2"
+	if echo "$changedFiles" | grep -q "^\($1\)"; then
+		echo -e "$SEP$2"
+		SEP=
+	fi
 }
 
 for f in $(git -c core.quotepath=off ls-files '**/composer.lock'); do
