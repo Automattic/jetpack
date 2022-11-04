@@ -19,7 +19,7 @@ class WordAds_Ccpa_Do_Not_Sell_Link_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Do Not Sell Link (CCPA)', 'jetpack' ) ),
 			array(
-				'description'                 => __( 'Inserts "Do Not Sell My Personal Information" link required by the California Consumer Privacy Act (CCPA)', 'jetpack' ),
+				'description'                 => __( 'Inserts "Do Not Sell or Share My Personal Information" link required by the California Consumer Privacy Act (CCPA)', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
