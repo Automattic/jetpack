@@ -84,8 +84,14 @@ type PluginDeactivation = {
 	instances: Record< string, JetpackPluginDeactivation >;
 };
 
+declare global {
+	interface Window {
+		JetpackPluginDeactivationData: PluginDeactivation;
+	}
+}
+
 if ( 'JetpackPluginDeactivationData' in window ) {
-	const plugins = window["JetpackPluginDeactivationData"] as PluginDeactivation;
+	const plugins = window.JetpackPluginDeactivationData;
 	document.addEventListener( 'DOMContentLoaded', function () {
 		if ( ! plugins.instances ) {
 			plugins.instances = {};
