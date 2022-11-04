@@ -3,6 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
+import FirewallHeader from '../firewall-header';
 
 const FirewallPage = () => {
 	const wafSeen = useSelect( select => select( STORE_ID ).getWafSeen() );
@@ -23,7 +24,11 @@ const FirewallPage = () => {
 		} );
 	}, [ wafSeen, setWafSeen ] );
 
-	return <AdminPage />;
+	return (
+		<AdminPage>
+			<FirewallHeader />
+		</AdminPage>
+	);
 };
 
 export default FirewallPage;
