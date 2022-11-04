@@ -33,13 +33,16 @@ window.addEventListener('load', async () => {
 	const images = await load(Array.from(nodes));
 	const measuredImages = measure(images);
 
-
 	// Create div and wrap image.node with that div
 	const guide = document.createElement('div');
 	guide.classList.add('jb-guide');
 
 	for (const image of measuredImages) {
 		const container = closestStableParent(image.node);
+
+		if( image.width <= 64) {
+			continue;
+		}
 
 		if (!container) {
 			console.error(`Could not find relative parent for image`, image.node);
