@@ -29,7 +29,7 @@ class Chapters {
 		);
 
 		if ( is_wp_error( $result ) || 200 !== wp_remote_retrieve_response_code( $result ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not fetch VideoPress chapters. Please try again later.', 'jetpack-videopress-pkg' ) ) );
+			l( 'Error when fetching chapters for GUID ' . $video_guid );
 
 			return array();
 		}
@@ -45,8 +45,6 @@ class Chapters {
 	 * @return string HTML markup
 	 */
 	public static function render_chapters( $video_guid ) {
-		error_log( '$video_guid: ' . print_r( $video_guid, true ) );
-
 		$chapters = self::fetch_chapters( $video_guid );
 		// @todo: figure out how to choose the language
 		if ( ! $chapters || ! isset( $chapters['chapters']['en'] ) ) {
@@ -57,9 +55,9 @@ class Chapters {
 		foreach ( $chapters['chapters']['en'] as $chapter ) {
 			$html .= sprintf(
 				'<li><div class="video-chapters__item"><a class="video-chapters__text" href="#" data-time="%s">%s</a> %s</div></li>',
-				esc_attr( self::vtt_time_to_ms( $chapter['start'] ) ),
+				esc_attr( $chapter['start'] ),
 				esc_html( $chapter['description'] ),
-				esc_html( self::vtt_time_to_mm_ss( $chapter['start'] ) )
+				esc_html( self::format_time_from_ms( $chapter['start'] ) )
 			);
 		}
 		$html .= '</ul></div>';
@@ -68,47 +66,17 @@ class Chapters {
 	}
 
 	/**
-	 * Vtt time to milliseconds integer.
+	 * Convert time in milliseconds to mm:ss or hh:mm:ss format.
 	 *
-	 * @param string $vtt_time_format Timestamp in VTT format.
+	 * @param int $timestamp Timestamp in milliseconds. Must be shorter than 24h.
 	 *
-	 * @return int Number of milliseconds.
+	 * @return string Time in mm:ss or hh:mm:ss
 	 */
-	protected static function vtt_time_to_ms( $vtt_time_format ) {
-		$date_time_string = '1970-01-01 ' . $vtt_time_format;
-		$date             = \DateTime::createFromFormat( 'Y-m-d H:i:s.u', $date_time_string );
-		if ( ! $date ) {
-			$date = \DateTime::createFromFormat( 'Y-m-d i:s.u', $date_time_string );
-			if ( ! $date ) {
-				return 0;
-			}
-		}
+	protected static function format_time_from_ms( $timestamp ) {
+		$utc     = new \DateTimeZone( 'UTC' );
+		$seconds = (int) floor( $timestamp / 1000 );
+		$date    = \DateTime::createFromFormat( 'U', $seconds, $utc );
 
-		$secs       = $date->getTimestamp();
-		$millisecs  = $secs * 1000;
-		$millisecs += $date->format( 'u' ) / 1000;
-
-		return (int) $millisecs;
-	}
-
-	/**
-	 * Convert vtt timestamp to mm:ss format.
-	 *
-	 * @param string $vtt_time_format Timestamp in VTT format.
-	 *
-	 * @return string Time in mm:ss
-	 */
-	protected static function vtt_time_to_mm_ss( $vtt_time_format ) {
-		$date_time_string = '1970-01-01 ' . $vtt_time_format;
-		$date             = \DateTime::createFromFormat( 'Y-m-d H:i:s.u', $date_time_string );
-		if ( ! $date ) {
-			$date = \DateTime::createFromFormat( 'Y-m-d i:s.u', $date_time_string );
-			if ( ! $date ) {
-				return '00:00';
-			}
-		}
-
-		// @todo add hours if longer than one hour
-		return $date->format( 'i:s' );
+		return $date->format( $seconds > 3600 ? 'H:i:s' : 'i:s' );
 	}
 }
