@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\StatsAdmin;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -40,7 +39,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'me' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -49,7 +48,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_single_resource_from_wpcom' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -58,7 +57,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_resource_from_wpcom' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -67,7 +66,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_resource_from_wpcom' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -76,7 +75,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'site' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -85,7 +84,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -94,7 +93,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'sites' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -103,7 +102,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -112,7 +111,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 		register_rest_route(
@@ -121,7 +120,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
-				'permission_callback' => 'is_user_logged_in',
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
 	}
@@ -131,24 +130,8 @@ class REST_Controller {
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
-	public function require_admin_privilege_callback() {
-		if ( current_user_can( 'manage_options' ) ) {
-			return true;
-		}
-
-		return $this->get_forbidden_error();
-	}
-
-	/**
-	 * The corresponding endpoints can only be accessible from WPCOM.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
-	 */
-	public function require_valid_blog_token_callback() {
-		if ( Rest_Authentication::is_signed_with_blog_token() ) {
+	public function check_user_privileges_callback() {
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) ) {
 			return true;
 		}
 
@@ -204,6 +187,9 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_stats_resource_from_wpcom( $req ) {
+		if ( 'file-downloads' === $req->get_param( 'resource' ) ) {
+			return $this->empty_result();
+		}
 		// TODO: add a whitelist of allowed resources.
 		return static::request_as_blog_cached(
 			sprintf(
@@ -258,27 +244,33 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_resource_from_wpcom( $req ) {
-		// TODO: we could serve 'posts' locally.
 		// TODO: add a whitelist of allowed resources.
-		if ( 'site-has-never-published-post' === $req->get_param( 'resource' ) ) {
-			return $this->get_has_never_published_post( $req );
+		$resource = $req->get_param( 'resource' );
+		switch ( $resource ) {
+			case 'site-has-never-published-post':
+				return $this->get_has_never_published_post( $req );
+
+			case 'sharing-buttons':
+			case 'plugins':
+			case 'keyrings':
+			case 'rewind':
+				return $this->empty_result();
+
+			default:
+				return static::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/%s?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'resource' ),
+						http_build_query(
+							$req->get_params()
+						)
+					),
+					'1.1',
+					array( 'timeout' => 30 )
+				);
+
 		}
-		// TODO: remove calling those APIs.
-		if ( in_array( $req->get_param( 'resource' ), array( 'sharing-buttons', 'plugins', 'keyrings', 'rewind' ), true ) ) {
-			return $this->empty_result();
-		}
-		return static::request_as_blog_cached(
-			sprintf(
-				'/sites/%d/%s?%s',
-				Jetpack_Options::get_option( 'id' ),
-				$req->get_param( 'resource' ),
-				http_build_query(
-					$req->get_params()
-				)
-			),
-			'1.1',
-			array( 'timeout' => 30 )
-		);
 	}
 
 	/**
