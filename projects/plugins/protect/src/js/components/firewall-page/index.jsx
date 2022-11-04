@@ -1,3 +1,4 @@
+import { AdminSection, Container } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from 'react';
@@ -42,6 +43,9 @@ const FirewallPage = () => {
 	return (
 		<AdminPage>
 			<FirewallHeader status={ currentWafStatus } hasRequiredPlan={ hasRequiredPlan } />
+			<AdminSection>
+				<Container></Container>
+			</AdminSection>
 			<FirewallFooter />
 		</AdminPage>
 	);
