@@ -5,7 +5,11 @@ import styles from './styles.module.scss';
 
 const FirewallFooter = () => (
 	<AdminSectionHero>
-		<Container className={ styles[ 'firewall-footer' ] } horizontalSpacing={ 6 }>
+		<Container
+			className={ styles[ 'firewall-footer' ] }
+			horizontalSpacing={ 6 }
+			horizontalGap={ 0 }
+		>
 			<Col>
 				<Text variant={ 'title-medium-semi-bold' } mb={ 2 }>
 					{ __( 'Standalone mode', 'jetpack-protect' ) }
@@ -17,7 +21,7 @@ const FirewallFooter = () => (
 					) }
 				</Text>
 				<Button variant={ 'link' } isExternalLink={ true } weight={ 'regular' }>
-					{ __( ' Learn more', 'jetpack-protect' ) }
+					{ __( 'Learn more', 'jetpack-protect' ) }
 				</Button>
 			</Col>
 			<Col>

@@ -44,7 +44,7 @@ const FirewallPage = () => {
 		<AdminPage>
 			<FirewallHeader status={ currentWafStatus } hasRequiredPlan={ hasRequiredPlan } />
 			<AdminSection>
-				<Container></Container>
+				<Container horizontalSpacing={ 8 } horizontalGap={ 7 }></Container>
 			</AdminSection>
 			<FirewallFooter />
 		</AdminPage>
