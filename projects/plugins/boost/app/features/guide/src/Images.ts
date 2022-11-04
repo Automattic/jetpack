@@ -4,6 +4,7 @@ export interface Image {
 	width: number;
 	height: number;
 	node: Element;
+	fileSize: number;
 }
 
 export async function load(domElements: Element[]) {
@@ -21,15 +22,55 @@ export async function load(domElements: Element[]) {
 	return (await Promise.all(parsedNodes)).filter(Boolean) as Image[];
 }
 
-async function urlToDimensions(url: string) {
+async function getImageSize(url) {
+	// Try the performance API first.
+	const perfEntry = performance.getEntriesByName(url, 'resource')[0] as PerformanceResourceTiming;
+	if (perfEntry && perfEntry.transferSize) {
+		return perfEntry.transferSize / 1024;
+	}
+
+	// If Performance API doesn't yield results,
+	// try a hacky way using fetch.
+	try {
+		const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+
+		if (!response.url) {
+			console.info(`Can't get image size for ${url} likely due to a CORS error.`);
+			return -1;
+		}
+
+		const size = response.headers.get('content-length');
+		if (size) {
+			return parseInt(size, 10) / 1024;
+		}
+	} catch (e) {
+		console.error(e);
+	}
+
+	return -1;
+}
+
+async function getImageDimensions(url) {
 	const img = new Image();
 	img.src = url;
-
 	return new Promise<{ width: number; height: number }>(resolve => {
 		img.onload = () => {
 			resolve({ width: img.width, height: img.height });
 		};
 	});
+}
+
+async function measurementsFromURL(url: string) {
+	const [fileSize, { width, height }] = await Promise.all([
+		getImageSize(url),
+		getImageDimensions(url),
+	]);
+
+	return {
+		fileSize,
+		width,
+		height,
+	};
 }
 
 async function getBackgroundImage(el: Element): Promise<Image | false> {
@@ -40,13 +81,14 @@ async function getBackgroundImage(el: Element): Promise<Image | false> {
 		return false;
 	}
 
-	const { width, height } = await urlToDimensions(url);
+	const { width, height, fileSize } = await measurementsFromURL(url);
 
 	return {
 		type: 'background',
 		width,
 		height,
 		url,
+		fileSize,
 		node: el,
 	};
 }
@@ -82,13 +124,14 @@ async function getImg(el: HTMLImageElement): Promise<Image | false> {
 		return false;
 	}
 
-	const { width, height } = await urlToDimensions(url);
+	const { width, height, fileSize } = await measurementsFromURL(url);
 
 	return {
 		type,
 		width,
 		height,
 		url,
+		fileSize,
 		node: el,
 	};
 }
