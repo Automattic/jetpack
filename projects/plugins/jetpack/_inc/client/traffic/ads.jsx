@@ -284,7 +284,9 @@ export const Ads = withModuleSettingsFormHelpers(
 								'Enables a targeted advertising opt-out link in US States where this is legally required.',
 								'jetpack'
 							),
-							displayWithoutLink: true,
+							link: this.props.isAtomicSite
+								? getRedirectUrl( 'wpcom-support-ccpa' )
+								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
 						<CompactFormToggle

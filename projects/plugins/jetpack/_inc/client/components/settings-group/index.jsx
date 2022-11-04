@@ -38,8 +38,6 @@ export const SettingsGroup = props => {
 	if ( 'post-by-email' === module.module && ! props.isLinked ) {
 		displayFadeBlock = true;
 	}
-	const displaySupportInfo =
-		props.support.link || ( props.support.displayWithoutLink && props.support.text );
 
 	return (
 		<div className={ classNames( 'jp-form-settings-group', props.className ) }>
@@ -50,7 +48,7 @@ export const SettingsGroup = props => {
 				} ) }
 			>
 				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
-				{ displaySupportInfo && <SupportInfo module={ module } { ...props.support } /> }
+				{ props.support.link && <SupportInfo module={ module } { ...props.support } /> }
 				{ props.children }
 			</Card>
 		</div>
@@ -71,7 +69,7 @@ SettingsGroup.propTypes = {
 };
 
 SettingsGroup.defaultProps = {
-	support: { text: '', link: '', displayWithoutLink: false },
+	support: { text: '', link: '' },
 	module: {},
 	disableInOfflineMode: false,
 	disableInSiteConnectionMode: false,

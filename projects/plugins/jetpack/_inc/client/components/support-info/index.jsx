@@ -72,28 +72,24 @@ export default class SupportInfo extends Component {
 					screenReaderText={ __( 'Learn more', 'jetpack' ) }
 				>
 					{ text + ' ' }
-					{ link && (
-						<span className="jp-support-info__learn-more">
-							<ExternalLink
-								href={ link }
-								onClick={ this.trackLearnMoreClick }
-								rel="noopener noreferrer"
-							>
-								{ __( 'Learn more', 'jetpack' ) }
-							</ExternalLink>
-						</span>
-					) }
-					{ privacyLink && (
-						<span className="jp-support-info__privacy">
-							<ExternalLink
-								href={ privacyLink }
-								onClick={ this.trackPrivacyInfoClick }
-								rel="noopener noreferrer"
-							>
-								{ __( 'Privacy information', 'jetpack' ) }
-							</ExternalLink>
-						</span>
-					) }
+					<span className="jp-support-info__learn-more">
+						<ExternalLink
+							href={ link }
+							onClick={ this.trackLearnMoreClick }
+							rel="noopener noreferrer"
+						>
+							{ __( 'Learn more', 'jetpack' ) }
+						</ExternalLink>
+					</span>
+					<span className="jp-support-info__privacy">
+						<ExternalLink
+							href={ privacyLink }
+							onClick={ this.trackPrivacyInfoClick }
+							rel="noopener noreferrer"
+						>
+							{ __( 'Privacy information', 'jetpack' ) }
+						</ExternalLink>
+					</span>
 				</InfoPopover>
 			</div>
 		);
