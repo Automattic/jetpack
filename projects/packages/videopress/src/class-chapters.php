@@ -48,7 +48,12 @@ class Chapters {
 	 * @return string HTML markup
 	 */
 	public static function render_chapters( $video_guid ) {
-		$chapters = self::fetch_chapters( $video_guid );
+		$chapters_response = self::fetch_chapters( $video_guid );
+		if ( $chapters_response['error'] ) {
+			return '';
+		}
+		$chapters = $chapters_response['chapters'];
+
 		// @todo: figure out how to choose the language
 		if ( ! $chapters || ! isset( $chapters['chapters']['en'] ) ) {
 			return '';
