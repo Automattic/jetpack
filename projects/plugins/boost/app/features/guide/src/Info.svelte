@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ComparedImage } from './Measurements';
 	export let image: ComparedImage;
+	export let insertNode = true;
 
 	const imageName = image.url.split('/').pop();
 	const ratio = image.scaling.pixels.toFixed(2);
@@ -9,7 +10,9 @@
 		image.scaling.pixels > 4 ? 'high' : image.scaling.pixels > 2 ? 'medium' : 'normal';
 </script>
 
-<div class="jb-guide">
+
+
+<div class="jb-guide" class:bg={!insertNode}>
 	<div class="jb-guide-previews">
 		<div class="jb-guide-preview {severity}">
 			<div class="jb-guide-preview__ratio">{ratio}</div>
@@ -26,6 +29,17 @@
 			</div>
 		</div>
 	</div>
-
-	{@html image.node.outerHTML}
+	{#if insertNode}
+		{@html image.node.outerHTML}
+	{/if}
 </div>
+
+<style>
+	.bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+</style>

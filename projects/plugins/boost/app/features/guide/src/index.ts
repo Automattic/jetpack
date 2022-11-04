@@ -55,14 +55,24 @@ window.addEventListener('load', async () => {
 		}
 
 		// Wrap image.node in guide
-		image.node.parentNode.insertBefore(guide, image.node);
-		guide.appendChild(image.node);
+		if (image.type === 'background') {
+			new Info({
+				target: image.node,
+				props: {
+					image,
+					insertNode: false,
+				},
+			});
+		} else {
+			image.node.parentNode.insertBefore(guide, image.node);
+			guide.appendChild(image.node);
 
-		new Info({
-			target: container,
-			props: {
-				image,
-			},
-		});
+			new Info({
+				target: container,
+				props: {
+					image,
+				},
+			});
+		}
 	}
 });
