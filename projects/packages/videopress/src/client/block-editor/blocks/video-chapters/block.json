@@ -10,7 +10,15 @@
 	"supports": {
 		"align": true
 	},
-	"attributes": {},
+	"attributes": {
+		"videoPressBlockId": {
+			"type": "string"
+		},
+		"style": {
+			"type": "string",
+			"default": "list"
+		}
+	},
 	"textdomain": "jetpack-videopress",
 	"editorScript": "file:../../../../../build/block-editor/video-chapters/index.js",
 	"editorStyle": "file:../../../../../build/block-editor/video-chapters/index.css",
