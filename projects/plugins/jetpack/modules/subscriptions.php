@@ -22,6 +22,7 @@ add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
  */
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
+	error_log('n3f test');
 	if ( Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
 		add_action( 'the_content', 'maybe_get_locked_content' );
 	}
@@ -1037,6 +1038,15 @@ class Jetpack_Subscriptions {
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+
+
+
+
+
+
+
+
+// TODO: REMOVE THIS BEFORE MERGING PR...
 
 /**
  * Gate access to posts
