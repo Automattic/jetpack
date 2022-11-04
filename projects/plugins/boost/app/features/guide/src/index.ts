@@ -36,11 +36,11 @@ window.addEventListener('load', async () => {
 	// Create div and wrap image.node with that div
 	const guide = document.createElement('div');
 	guide.classList.add('jb-guide');
-
 	for (const image of measuredImages) {
 		const container = closestStableParent(image.node);
 
-		if( image.width <= 64) {
+		if ((image.fileSize < 10 && image.fileSize >= 0) || (image.width < 250 && image.height < 100)) {
+			console.info(`Skipping ${image.url} because it's too small`);
 			continue;
 		}
 
