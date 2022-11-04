@@ -29,7 +29,7 @@ class Chapters {
 		);
 
 		if ( is_wp_error( $result ) || 200 !== wp_remote_retrieve_response_code( $result ) ) {
-			wp_send_json_error( array( 'message' => __( 'Could not fetch VideoPress chapters. Please try again later.', 'jetpack-videopress-pkg' ) ) );
+			l( 'Error when fetching chapters for GUID ' . $video_guid );
 
 			return array();
 		}
@@ -51,16 +51,32 @@ class Chapters {
 			return '';
 		}
 
-		$html = '<ul>';
+		$html = '<div class="video-chapters_list" data-guid="' . $video_guid . '"><ul>';
 		foreach ( $chapters['chapters']['en'] as $chapter ) {
 			$html .= sprintf(
-				'<li><a href="#">%s</a> %s</li>',
-				esc_html( $chapter['start'] ),
-				esc_html( $chapter['description'] )
+				'<li><div class="video-chapters__item"><a class="video-chapters__text" href="#" data-time="%s">%s</a> %s</div></li>',
+				esc_attr( $chapter['start'] ),
+				esc_html( $chapter['description'] ),
+				esc_html( self::format_time_from_ms( $chapter['start'] ) )
 			);
 		}
-		$html .= '</ul>';
+		$html .= '</ul></div>';
 
 		return $html;
+	}
+
+	/**
+	 * Convert time in milliseconds to mm:ss or hh:mm:ss format.
+	 *
+	 * @param int $timestamp Timestamp in milliseconds. Must be shorter than 24h.
+	 *
+	 * @return string Time in mm:ss or hh:mm:ss
+	 */
+	protected static function format_time_from_ms( $timestamp ) {
+		$utc     = new \DateTimeZone( 'UTC' );
+		$seconds = (int) floor( $timestamp / 1000 );
+		$date    = \DateTime::createFromFormat( 'U', $seconds, $utc );
+
+		return $date->format( $seconds > 3600 ? 'H:i:s' : 'i:s' );
 	}
 }
