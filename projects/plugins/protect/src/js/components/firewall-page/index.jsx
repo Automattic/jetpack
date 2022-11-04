@@ -5,6 +5,7 @@ import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
+import FirewallFooter from '../firewall-footer';
 import FirewallHeader from '../firewall-header';
 
 const FirewallPage = () => {
@@ -41,6 +42,7 @@ const FirewallPage = () => {
 	return (
 		<AdminPage>
 			<FirewallHeader status={ currentWafStatus } hasRequiredPlan={ hasRequiredPlan } />
+			<FirewallFooter />
 		</AdminPage>
 	);
 };

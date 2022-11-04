@@ -1,0 +1,42 @@
+.firewall-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+
+    > * {
+        width: 45%;
+    }
+}
+
+.footer-checkbox {
+    display: flex;
+    align-items: center;
+
+    & input[type=checkbox]:checked {
+        background: var( --jp-green-40 );
+        border-color: var( --jp-green-40 );
+    }
+
+    & input[type=checkbox]:indeterminate {
+        background: var( --jp-green-40 );
+        border-color: var( --jp-green-40 );
+    }
+
+    & input[type=checkbox]:focus {
+        box-shadow: 0 0 0 2px #fff, 0 0 0 4px var( --jp-green-40 );
+    } 
+}
+
+@media ( max-width: 599px ) {
+    .firewall-footer {
+
+        > * {
+            width: 90%;
+        }
+
+        > :first-child {
+            padding-bottom: calc( var( --spacing-base ) * 6 );
+        }
+    }
+}
