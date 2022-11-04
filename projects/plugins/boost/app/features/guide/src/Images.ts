@@ -6,96 +6,86 @@ export interface Image {
 	node: Element;
 }
 
-export class Images {
-	private targets: Image[] = [];
-
-	public async load(domElements: Element[]) {
-		const parsedNodes = domElements.map(async (el: Element) => {
-
-			// Handle <img> tags first.
-			if (el.tagName === 'IMG') {
-				return this.getImg(el as HTMLImageElement);
-			}
-
-			// Check for background images
-			// in all other elements.
-			return this.getBackgroundImage(el);
-		}, []);
-
-		this.targets = (await Promise.all(parsedNodes)).filter(Boolean) as Image[];
-		return this.targets;
-	}
-
-	private async urlToDimensions(url: string) {
-		const img = new Image();
-		img.src = url;
-
-		return new Promise<{ width: number; height: number }>(resolve => {
-			img.onload = () => {
-				resolve({ width: img.width, height: img.height });
-			};
-		});
-	}
-
-	private async getBackgroundImage(el: Element): Promise<Image | false> {
-		const style = window.getComputedStyle(el);
-		const url = this.backgroundImageSrc(style.backgroundImage);
-
-		if (!url) {
-			return false;
+export async function load(domElements: Element[]) {
+	const parsedNodes = domElements.map(async (el: Element) => {
+		// Handle <img> tags first.
+		if (el.tagName === 'IMG') {
+			return getImg(el as HTMLImageElement);
 		}
 
-		const { width, height } = await this.urlToDimensions(url);
+		// Check for background images
+		// in all other elements.
+		return getBackgroundImage(el);
+	}, []);
 
-		return {
-			type: 'background',
-			width,
-			height,
-			url,
-			node: el,
+	return (await Promise.all(parsedNodes)).filter(Boolean) as Image[];
+}
+
+async function urlToDimensions(url: string) {
+	const img = new Image();
+	img.src = url;
+
+	return new Promise<{ width: number; height: number }>(resolve => {
+		img.onload = () => {
+			resolve({ width: img.width, height: img.height });
 		};
-	}
+	});
+}
 
-	private backgroundImageSrc(backgroundValue: string): string | false {
-		if (!this.isImageURL(backgroundValue)) {
-			return false;
-		}
+async function getBackgroundImage(el: Element): Promise<Image | false> {
+	const style = window.getComputedStyle(el);
+	const url = backgroundImageSrc(style.backgroundImage);
 
-		const url = backgroundValue.match(/url\(...([\w\d.-]+...)\)/);
-		if (url && url[1]) {
-			return url[1];
-		}
-
+	if (!url) {
 		return false;
 	}
 
-	private isImageURL(url: string): boolean {
-		const ignore = ['data:image', 'gradient', '.svg', 'none', 'initial', 'inherit'];
-		if (ignore.some(ignore => url.includes(ignore))) {
-			return false;
-		}
+	const { width, height } = await urlToDimensions(url);
 
-		return true;
+	return {
+		type: 'background',
+		width,
+		height,
+		url,
+		node: el,
+	};
+}
+
+function backgroundImageSrc(backgroundValue: string): string | false {
+	if (!isImageURL(backgroundValue)) {
+		return false;
 	}
 
-	private async getImg(el: HTMLImageElement): Promise<Image | false> {
-		const url = el.getAttribute('src');
-		if (!url || !this.isImageURL(url)) {
-			return false;
-		}
-
-		const { width, height } = await this.urlToDimensions(url);
-
-		return {
-			type: 'img',
-			width,
-			height,
-			url,
-			node: el,
-		};
+	const url = backgroundValue.match(/url\(...([\w\d.-]+...)\)/);
+	if (url && url[1]) {
+		return url[1];
 	}
 
-	public get() {
-		return this.targets;
+	return false;
+}
+
+function isImageURL(url: string): boolean {
+	const ignore = ['data:image', 'gradient', '.svg', 'none', 'initial', 'inherit'];
+	if (ignore.some(ignore => url.includes(ignore))) {
+		return false;
 	}
+
+	return true;
+}
+
+async function getImg(el: HTMLImageElement): Promise<Image | false> {
+	const url = el.getAttribute('src');
+	if (!url || !isImageURL(url)) {
+		return false;
+	}
+
+	const { width, height } = await urlToDimensions(url);
+
+	return {
+		type: 'img',
+		width,
+		height,
+		url,
+		node: el,
+	};
 }
