@@ -33,7 +33,7 @@ async function urlToDimensions(url: string) {
 }
 
 async function getBackgroundImage(el: Element): Promise<Image | false> {
-	const style = window.getComputedStyle(el);
+	const style = getComputedStyle(el);
 	const url = backgroundImageSrc(style.backgroundImage);
 
 	if (!url) {
@@ -56,7 +56,7 @@ function backgroundImageSrc(backgroundValue: string): string | false {
 		return false;
 	}
 
-	const url = backgroundValue.match(/url\(...([\w\d.-]+...)\)/);
+	const url = backgroundValue.match(/url\(.?(.*?).?\)/i);
 	if (url && url[1]) {
 		return url[1];
 	}
