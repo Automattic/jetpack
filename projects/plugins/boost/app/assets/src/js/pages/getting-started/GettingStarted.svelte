@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
@@ -20,6 +21,10 @@
 
 		navigate( '/' );
 	};
+
+	onMount( () => {
+		recordBoostEvent( 'view_getting_started_page_in_plugin', {} );
+	} );
 
 	const choosePaidPlan = async () => {
 		await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );

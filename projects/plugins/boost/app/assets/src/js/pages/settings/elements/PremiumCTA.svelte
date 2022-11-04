@@ -1,10 +1,15 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { __ } from '@wordpress/i18n';
 	import RightArrow from '../../../svg/right-arrow.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import routerHistory from '../../../utils/router-history';
 
 	const { navigate } = routerHistory;
+
+	onMount( () => {
+		recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
+	} );
 
 	function showBenefits() {
 		const eventProps = {};
