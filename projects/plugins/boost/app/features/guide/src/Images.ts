@@ -1,5 +1,5 @@
 export interface Image {
-	type: 'img' | 'background';
+	type: 'img' | 'srcset' | 'background';
 	url: string;
 	width: number;
 	height: number;
@@ -74,7 +74,10 @@ function isImageURL(url: string): boolean {
 }
 
 async function getImg(el: HTMLImageElement): Promise<Image | false> {
-	const url = el.getAttribute('src');
+	// Get the currently used image source in srcset if it's available.
+	const url = el.currentSrc || el.src;
+	const type = el.srcset ? 'srcset' : 'img';
+
 	if (!url || !isImageURL(url)) {
 		return false;
 	}
@@ -82,7 +85,7 @@ async function getImg(el: HTMLImageElement): Promise<Image | false> {
 	const { width, height } = await urlToDimensions(url);
 
 	return {
-		type: 'img',
+		type,
 		width,
 		height,
 		url,
