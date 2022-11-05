@@ -49,7 +49,7 @@ class Chapters {
 	 */
 	public static function render_chapters( $video_guid ) {
 		$chapters_response = self::fetch_chapters( $video_guid );
-		if ( $chapters_response['error'] ) {
+		if ( isset( $chapters_response['error'] ) && $chapters_response['error'] ) {
 			return '';
 		}
 		$chapters = $chapters_response['chapters'];
