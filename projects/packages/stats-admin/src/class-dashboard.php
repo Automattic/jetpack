@@ -183,7 +183,7 @@ class Dashboard {
 				),
 				'features'                       => array(
 					'stats/show-traffic-highlights' => true,
-					// 'stats/new-main-chart'          => true,
+					'stats/new-main-chart'          => true,
 				),
 			)
 		);
@@ -198,6 +198,7 @@ class Dashboard {
 			$parsed = wp_parse_url( admin_url( 'admin.php?page=stats&calypso_stats=1' ) );
 			return $parsed['path'] . '?' . $parsed['query'];
 		}
+		// We do this because page.js requires the exactly page base to be set otherwise it will not work properly.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		return wp_unslash( $_SERVER['PHP_SELF'] ) . '?' . wp_unslash( $_SERVER['QUERY_STRING'] );
 	}
