@@ -195,7 +195,8 @@ class Dashboard {
 	protected static function get_admin_path() {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_SERVER['PHP_SELF'] ) || ! isset( $_SERVER['QUERY_STRING'] ) ) {
-			return admin_url( 'admin.php?page=stats&calypso_stats=1' );
+			$parsed = wp_parse_url( admin_url( 'admin.php?page=stats&calypso_stats=1' ) );
+			return $parsed['path'] . '?' . $parsed['query'];
 		}
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		return wp_unslash( $_SERVER['PHP_SELF'] ) . '?' . wp_unslash( $_SERVER['QUERY_STRING'] );
