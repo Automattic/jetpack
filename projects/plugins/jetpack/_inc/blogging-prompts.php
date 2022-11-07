@@ -68,7 +68,7 @@ function jetpack_get_daily_blogging_prompts() {
 	}
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $today . '&number=1';
+	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $today . '&number=10&_locale=' . $locale;
 	$args    = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
