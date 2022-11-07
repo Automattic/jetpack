@@ -242,16 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.6-a.1 - 2022-11-01
+### 11.6-a.3 - 2022-11-07
 #### Enhancements
-- Form block: update contact-form icon
-- Form block: update Contact Form Sidebar to include Manage Responses section and split Form Settings section into more specific sections
-- Form block: update Contact Form Toolbar to include a form settings dropdown
-- Stats: update mentions of "Site Stats" to "Jetpack Stats"
+- Form block: add support links to form type selector.
+- Form block: register Jetpack forms in the pattern inserter.
+
+#### Improved compatibility
+- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar.
+- VideoPress (beta): introduce Video Chapters beta block.
 
 #### Bug fixes
-- SSO: properly disable "match by email" by default.
-- WordPress.com REST API: Fix fatal error in site ID endpoint.
+- Customizer: make sure the menu item is shown for block themes.
+- Image Editor: fix issue where users are not able to edit/crop and restore images.
+- Related Posts Block: when 3 posts are output, increase the width closer to 100%.
 
 --------
 
