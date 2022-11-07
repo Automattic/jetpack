@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-jetpack_require_lib( 'class.media' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 0 );
 define( 'WP_ATTACHMENT_IMAGE_ALT', '_wp_attachment_image_alt' );

@@ -31,12 +31,12 @@ import {
 	ConnectVideoQuickActionsProps,
 } from './types';
 
-const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorProps ) => {
-	if ( ! anchorRef ) {
+const PopoverWithAnchor = ( { anchor, children = null }: PopoverWithAnchorProps ) => {
+	if ( ! anchor ) {
 		return null;
 	}
 	const popoverProps = {
-		anchorRef,
+		anchor,
 		offset: 15,
 	};
 
@@ -50,11 +50,11 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 };
 
 const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
+	const [ anchor, setAnchor ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	return (
-		<div ref={ setAnchorRef } className={ className }>
+		<div ref={ setAnchor } className={ className }>
 			<Button
 				size="small"
 				variant="tertiary"
@@ -63,7 +63,7 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 				onMouseLeave={ () => setShowPopover( false ) }
 				{ ...props }
 			/>
-			{ showPopover && <PopoverWithAnchor anchorRef={ anchorRef }>{ children }</PopoverWithAnchor> }
+			{ showPopover && <PopoverWithAnchor anchor={ anchor }>{ children }</PopoverWithAnchor> }
 		</div>
 	);
 };
@@ -73,7 +73,7 @@ const ThumbnailActionsDropdown = ( {
 	onUpdate,
 	isUpdatingPoster,
 }: ThumbnailActionsDropdownProps ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
+	const [ anchor, setAnchor ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	return (
@@ -83,7 +83,7 @@ const ThumbnailActionsDropdown = ( {
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<>
 					<Button
-						ref={ setAnchorRef }
+						ref={ setAnchor }
 						size="small"
 						variant="tertiary"
 						icon={ image }
@@ -97,7 +97,7 @@ const ThumbnailActionsDropdown = ( {
 						onMouseLeave={ () => setShowPopover( false ) }
 					/>
 					{ showPopover && (
-						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
+						<PopoverWithAnchor anchor={ anchor }>{ description }</PopoverWithAnchor>
 					) }
 				</>
 			) }
@@ -120,7 +120,7 @@ const PrivacyActionsDropdown = ( {
 	isUpdatingPrivacy,
 	onUpdate,
 }: PrivacyActionsDropdownProps ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
+	const [ anchor, setAnchor ] = useState( null );
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	let currentPrivacyIcon = siteDefaultPrivacyIcon;
@@ -136,7 +136,7 @@ const PrivacyActionsDropdown = ( {
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<>
 					<Button
-						ref={ setAnchorRef }
+						ref={ setAnchor }
 						size="small"
 						variant="tertiary"
 						icon={ currentPrivacyIcon }
@@ -150,7 +150,7 @@ const PrivacyActionsDropdown = ( {
 						disabled={ isUpdatingPrivacy }
 					/>
 					{ showPopover && (
-						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
+						<PopoverWithAnchor anchor={ anchor }>{ description }</PopoverWithAnchor>
 					) }
 				</>
 			) }

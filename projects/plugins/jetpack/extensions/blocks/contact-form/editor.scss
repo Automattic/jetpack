@@ -95,6 +95,27 @@
 	}
 }
 
+.jetpack-contact-form.is-placeholder {
+	border: 1px solid #1e1e1e;
+	padding: 24px;
+
+	.components-placeholder {
+		box-shadow: unset;
+		padding: 0;
+		margin-bottom: 16px;
+	}
+
+	.form-placeholder__external-link {
+		font-size: 13px;
+
+		svg {
+			width: 1.4em;
+			height: 1.4em;
+			margin-left: 2px;
+		}
+	}
+}
+
 .jetpack-contact-form__intro-message {
 	margin: 0 0 16px;
 }
@@ -315,6 +336,37 @@ input.components-text-control__input {
 
 		> .block-editor-inner-blocks > .block-editor-block-list__layout {
 			margin: 0;
+		}
+	}
+}
+
+// Make sure form settings dropdown looks good on older Gutenberg versions
+.jetpack-contact-form__popover .components-popover__content {
+	min-width: 260px;
+
+	.components-base-control {
+		margin-bottom: 24px;
+
+		&:last-child {
+			margin-bottom: 8px;
+		}
+	}
+
+	.form-settings-dropdown__content {
+		padding: 12px;
+	}
+
+	.form-settings-dropdown__close-icon {
+		width: 24px;
+		height: 24px;
+		padding: 0;
+		justify-content: center;
+	}
+
+	.form-settings-dropdown__item {
+		svg {
+			margin-right: 8px;
+			fill: none;
 		}
 	}
 }

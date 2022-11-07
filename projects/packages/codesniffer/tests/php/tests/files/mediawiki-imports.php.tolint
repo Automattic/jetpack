@@ -11,6 +11,7 @@ namespace Dummy;
 
 use Z;
 use X;
+
 use Y;
 use Dummy\Unnecessary;
 use Unused;

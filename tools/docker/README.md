@@ -476,8 +476,8 @@ You will need to supply a pathMappings value to the `launch.json` configuration.
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "/usr/local/src/jetpack-monorepo": "${workspaceRoot}",
-                "/var/www/html": "${workspaceRoot}/tools/docker/wordpress",
+                "/usr/local/src/jetpack-monorepo": "${workspaceFolder}",
+                "/var/www/html": "${workspaceFolder}/tools/docker/wordpress",
             }
         },
         {
@@ -491,6 +491,10 @@ You will need to supply a pathMappings value to the `launch.json` configuration.
     ]
 }
 ```
+
+In older versions of VSCode `workspaceFolder` was named `workspaceRoot`,
+so make sure to update your configuration to reflect that change if you use an
+older version.
 
 In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 

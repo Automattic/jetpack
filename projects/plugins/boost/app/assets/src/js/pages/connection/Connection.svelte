@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../elements/ErrorNotice.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';

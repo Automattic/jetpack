@@ -18,24 +18,14 @@
 function jetpack_load_custom_css() {
 	// If WordPress has the core version of Custom CSS, load our new version.
 	// @see https://core.trac.wordpress.org/changeset/38829
+	// @todo When should we remove the migration?
 	if ( function_exists( 'wp_get_custom_css' ) ) {
 		if ( ! function_exists( 'wp_update_custom_css_post' ) ) {
 			wp_die( 'Please run a SVN up to get the latest version of trunk, or update to at least 4.7 RC1' );
 		}
 		if ( ! Jetpack_Options::get_option( 'custom_css_4.7_migration' ) ) {
 			include_once __DIR__ . '/custom-css/migrate-to-core.php';
-		} else { // TODO: DELETE THIS.
-			if ( defined( 'WP_CLI' ) && WP_CLI ) {
-				WP_CLI::add_command(
-					'jetpack custom-css undo-migrate',
-					function () {
-						Jetpack_Options::delete_option( 'custom_css_4.7_migration' );
-						WP_CLI::success( __( 'Option deleted, re-migrate via `wp jetpack custom-css migrate`.', 'jetpack' ) );
-					}
-				);
-			}
 		}
-		// TODO: END DELETE THIS.
 
 		include_once __DIR__ . '/custom-css/custom-css/preprocessors.php';
 		include_once __DIR__ . '/custom-css/custom-css-4.7.php';

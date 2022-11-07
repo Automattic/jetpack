@@ -26,7 +26,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			$this->is_wpcom = true;
 
 			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
-				\jetpack_require_lib( 'instagram-gallery-helper' );
+				\require_lib( 'instagram-gallery-helper' );
 			}
 		}
 

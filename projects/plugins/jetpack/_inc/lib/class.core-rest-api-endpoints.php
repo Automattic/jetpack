@@ -1389,7 +1389,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		$cxntests = new Jetpack_Cxn_Tests();
 
 		if ( $cxntests->pass() ) {
@@ -1457,7 +1457,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function jetpack_connection_test_for_external() {
 		// Since we are running this test for inclusion in the WP.com testing suite, let's not try to run them as part of these results.
 		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		$cxntests = new Jetpack_Cxn_Tests();
 
 		if ( $cxntests->pass() ) {
