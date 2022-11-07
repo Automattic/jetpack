@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Change base number to 10 and total space value to 10^12 so we refer to it in terabytes instead of tebibytes, keeping consistency between marketing and product.
