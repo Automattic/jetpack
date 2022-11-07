@@ -1,0 +1,26 @@
+name: End to end tests
+
+on:
+  create:
+  push:
+
+jobs:
+  run-tests:
+    name: "Trigger e2e tests in Jetpack monorepo"
+    runs-on: ubuntu-latest
+    if: github.repository == 'automattic/jetpack-production'
+
+    steps:
+      - name: Create a repository dispatch
+        env:
+          TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
+        run: |
+          curl -X POST https://api.github.com/repos/automattic/jetpack/dispatches \
+          -H "Accept: application/vnd.github.v3+json" \
+          -u "user:$TOKEN" \
+          --data "{\"event_type\": \"$GITHUB_EVENT_NAME $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_REF_TYPE\",
+          \"client_payload\": {
+          \"repository\": \"$GITHUB_REPOSITORY\",
+          \"ref_name\": \"$GITHUB_REF_NAME\",
+          \"ref_type\": \"$GITHUB_REF_TYPE\"
+          }}"

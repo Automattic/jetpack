@@ -15,6 +15,7 @@ on:
     types: [completed]
     workflows: ["Build"]
     branches: [ 'trunk', '*/branch-*' ]
+  repository_dispatch:
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
