@@ -71,3 +71,36 @@
 .query-no-results {
 	font-style: italic;
 }
+
+.admin-wrapper {
+	.files-overlay {
+		position: absolute;
+		height: 100%;
+		top: 0;
+		left: -20px;
+		width: calc( 100% + 20px );
+		z-index: 1;
+		pointer-events: none;
+
+		.file-input {
+			display: none;
+		}
+
+		.drop-text {
+			color: var( --jp-white );
+			visibility: hidden;
+		}
+
+		&.hover {
+			background-color: rgba( 22, 137, 219, 0.7 ); // --jp-blue-40;
+			border: 2px dashed var( --jp-white );
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			.drop-text {
+				visibility: visible;
+			}
+		}
+	}
+}
