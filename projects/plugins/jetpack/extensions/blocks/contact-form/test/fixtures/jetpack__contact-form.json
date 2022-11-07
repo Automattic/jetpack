@@ -10,6 +10,7 @@
 			"customThankyouHeading": "Message Sent",
 			"customThankyouMessage": "Thanks for speaking our linguine!",
 			"customThankyouRedirect": "",
+			"formTitle": "",
 			"jetpackCRM": true,
 			"className": "noodles"
 		},

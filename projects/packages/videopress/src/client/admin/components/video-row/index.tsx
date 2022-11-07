@@ -1,11 +1,16 @@
+/**
+ * External dependencies
+ */
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
-import privacy from '../../../components/icons/crossed-eye-icon';
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
+/**
+ * Internal dependencies
+ */
+import privateIcon from '../../../components/icons/crossed-eye-icon';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
@@ -13,6 +18,9 @@ import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import StatsBase from './stats';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import { VideoRowProps } from './types';
 
 const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
@@ -49,7 +57,7 @@ const Stats = ( {
 			<span>{ isPrivate ? privateLabel : publicLabel }</span>
 		</>
 	) : (
-		<>{ isPrivate && <Icon icon={ privacy } /> }</>
+		isPrivate && <Icon icon={ privateIcon } />
 	);
 
 	const durationElement =
@@ -91,23 +99,25 @@ export const VideoRow = ( {
 	checked = false,
 	title,
 	titleAdornment = null,
-	thumbnail: defaultThumbnail,
+	thumbnail,
 	showThumbnail = false,
 	duration,
 	uploadDate,
 	plays,
 	isPrivate,
-	privacySetting,
 	onActionClick,
 	onSelect,
 	showActionButton = true,
 	showQuickActions = true,
 	showCheckbox = true,
 	loading = false,
+	uploading = false,
+	processing = false,
 	isUpdatingPoster = false,
 	actionButtonLabel = __( 'Edit video details', 'jetpack-videopress-pkg' ),
 	disableActionButton = false,
 	disabled = false,
+	uploadProgress,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -124,16 +134,8 @@ export const VideoRow = ( {
 	const showTitleLabel = ! isSmall && isEllipsisActive;
 	const showActions =
 		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
-	const showBottom = ! isSmall || ( isSmall && expanded );
-
-	const privacyIsSetToPrivate = privacySetting
-		? VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
-		: false;
-
-	let thumbnail = defaultThumbnail;
-	thumbnail = loading || isUpdatingPoster ? <Placeholder width={ 90 } height={ 50 } /> : thumbnail;
-
+	const showStats = ! loading && ( ( ! isSmall && ! showActions ) || ( isSmall && expanded ) );
+	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
 		! loading &&
@@ -221,7 +223,7 @@ export const VideoRow = ( {
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
-					[ styles.disabled ]: hoverDisabled,
+					[ styles.disabled ]: disabled,
 				},
 				className
 			) }
@@ -250,9 +252,13 @@ export const VideoRow = ( {
 					{ showThumbnail && (
 						<div className={ styles.poster }>
 							<VideoThumbnail
-								isPrivate={ privacyIsSetToPrivate }
 								thumbnail={ thumbnail }
+								loading={ loading }
+								uploading={ uploading || isUpdatingPoster }
+								processing={ processing }
 								blankIconSize={ 28 }
+								uploadProgress={ uploadProgress }
+								isRow
 							/>
 						</div>
 					) }
@@ -319,16 +325,21 @@ export const VideoRow = ( {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data } = useVideo( id );
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
+		id
+	);
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	return (
 		<VideoRow
 			id={ id }
 			{ ...restProps }
 			loading={ loading }
+			uploading={ uploading }
 			isUpdatingPoster={ isUpdatingPoster }
+			processing={ processing }
 			showThumbnail
 			privacySetting={ data.privacySetting }
+			uploadProgress={ uploadProgress }
 		/>
 	);
 };

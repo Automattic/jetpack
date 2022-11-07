@@ -69,7 +69,7 @@ add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\
 /**
  * The compatibility layer uses Jetpack as the single source of truth for lazy images.
  * As a fallback, Boost still keeps track of the value in the database,
- * This ensures that the value is still present when Jetpack is dactivated.
+ * This ensures that the value is still present when Jetpack is deactivated.
  *
  * This filter is going to track changes to the Jetpack lazy-images option
  * And make sure that Jetpack Boost is in sync.

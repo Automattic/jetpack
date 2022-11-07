@@ -1,6 +1,6 @@
 {
 	"name": "test-results-to-slack",
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"description": "GitHub Action to send Slack notifications with test results",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",

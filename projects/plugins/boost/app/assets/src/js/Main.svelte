@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
 	import Connection from './pages/connection/Connection.svelte';
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
