@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Create endpoints to fetch and update the video privacy setting.
