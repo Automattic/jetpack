@@ -73,6 +73,10 @@ class Jetpack_Social {
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
 
+				if ( ! $this->is_connected() ) {
+					return;
+				}
+
 				// Publicize package.
 				$config->ensure(
 					'publicize',
@@ -143,6 +147,10 @@ class Jetpack_Social {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
+		$screen = get_current_screen();
+		if ( ! empty( $screen ) && 'jetpack_page_jetpack-social' !== $screen->base ) {
+			return;
+		}
 
 		Assets::register_script(
 			'jetpack-social',
@@ -170,6 +178,21 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Get the shares data, but cache it so we don't call the API
+	 * more than once per request.
+	 *
+	 * @return array The shares data.
+	 */
+	public function get_shares_info() {
+		global $publicize;
+		static $shares_info = null;
+		if ( ! $shares_info ) {
+			$shares_info = $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+		}
+		return ! is_wp_error( $shares_info ) ? $shares_info : null;
+	}
+
+	/**
 	 * Get the initial state data for hydrating the React UI.
 	 *
 	 * @return array
@@ -177,25 +200,52 @@ class Jetpack_Social {
 	public function initial_state() {
 		global $publicize;
 
-		return array(
-			'siteData'        => array(
+		$state = array(
+			'siteData' => array(
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'siteSuffix'        => ( new Status() )->get_site_suffix(),
 				'pluginVersion'     => $this->get_plugin_version(),
 			),
-			'jetpackSettings' => array(
-				'publicize_active'  => self::is_publicize_active(),
-				'show_pricing_page' => self::should_show_pricing_page(),
-			),
-			'connectionData'  => array(
-				'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
-				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
-			),
-			'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-			'showNudge'       => ! $publicize->has_paid_plan( true ),
 		);
+
+		if ( $this->is_connected() ) {
+			$state = array_merge(
+				$state,
+				array(
+					'jetpackSettings' => array(
+						'publicize_active'  => self::is_publicize_active(),
+						'show_pricing_page' => self::should_show_pricing_page(),
+						'showNudge'         => ! $publicize->has_paid_plan( true ),
+					),
+					'connectionData'  => array(
+						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
+						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
+					),
+					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+				)
+			);
+		}
+
+		return $state;
+	}
+
+	/**
+	 * Returns a boolean as to whether we have a plan that supports
+	 * sharing beyond the free limit.
+	 *
+	 * It also caches the result to make sure that we don't call the API
+	 * more than once a request.
+	 *
+	 * @returns boolean True if the site has a plan that supports a higher share limit.
+	 */
+	public function has_paid_plan() {
+		static $has_plan = null;
+		if ( null === $has_plan ) {
+			$has_plan = Current_Plan::supports( 'social-shares-1000', true );
+		}
+		return $has_plan;
 	}
 
 	/**
@@ -214,7 +264,12 @@ class Jetpack_Social {
 	public function enqueue_block_editor_scripts() {
 		global $publicize;
 
-		if ( ! self::is_publicize_active() || class_exists( 'Jetpack' ) || ! $this->is_supported_post() ) {
+		if (
+			! $this->is_connected() ||
+			! self::is_publicize_active() ||
+			class_exists( 'Jetpack' ) ||
+			! $this->is_supported_post()
+		) {
 			return;
 		}
 
@@ -237,7 +292,8 @@ class Jetpack_Social {
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
 					'sharesData'              => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'   => '/jetpack/v4/publicize/connections-test-results',
+					'connectionRefreshPath'   => '/jetpack/v4/publicize/connection-test-results',
+					'resharePath'             => '/jetpack/v4/publicize/{postId}',
 					'publicizeConnectionsUrl' => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
@@ -270,7 +326,7 @@ class Jetpack_Social {
 	 * Helper to check that we have a Jetpack connection.
 	 */
 	private function is_connected() {
-		return $this->manager->is_connected();
+		return $this->manager->is_connected() && $this->manager->has_connected_user();
 	}
 
 	/**

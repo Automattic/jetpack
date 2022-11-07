@@ -1,23 +1,37 @@
+/**
+ * External dependencies
+ */
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, info } from '@wordpress/icons';
 import { useState } from 'react';
+/**
+ * Internal dependencies
+ */
+import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import Checkbox from '../checkbox';
-import VideoRow, { Stats } from '../video-row';
+import ConnectVideoRow, { VideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
-import { VideoListProps } from './types';
+/**
+ * Types
+ */
+import { LocalVideoListProps, VideoListProps } from './types';
 
 const VideoList = ( {
 	videos,
 	hidePrivacy = false,
 	hideDuration = false,
 	hidePlays = false,
-	showEditButton = true,
+	showActionButton = true,
 	showQuickActions = true,
+	loading = false,
 	onVideoDetailsClick,
 }: VideoListProps ) => {
 	const [ selected, setSelected ] = useState( [] );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
+	const showCheckbox = false; // TODO: implement bulk actions
 
 	const handleAll = checked => {
 		if ( checked ) {
@@ -35,7 +49,7 @@ const VideoList = ( {
 		<div className={ styles.list }>
 			<div className={ styles.header }>
 				<div className={ styles[ 'title-wrapper' ] }>
-					<Checkbox checked={ allSelected } onChange={ handleAll } />
+					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
 					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				{ ! isSmall && (
@@ -50,18 +64,26 @@ const VideoList = ( {
 				) }
 			</div>
 			{ videos.map( ( video, index ) => {
+				const isPrivate =
+					VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE;
+
 				return (
-					<VideoRow
-						key={ video?.id }
-						{ ...video }
-						showQuickActions={ ! video?.uploading && showQuickActions }
-						showEditButton={ ! video?.uploading && showEditButton }
-						isPrivate={ hidePrivacy ? null : video.isPrivate }
+					<ConnectVideoRow
+						key={ video?.guid ?? video?.id }
+						id={ video?.id }
+						checked={ selected.includes( index ) }
+						title={ video.title }
+						thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 						duration={ hideDuration ? null : video.duration }
 						plays={ hidePlays ? null : video.plays }
+						isPrivate={ hidePrivacy ? null : isPrivate }
+						uploadDate={ video.uploadDate }
+						showQuickActions={ ! video?.uploading && showQuickActions }
+						showActionButton={ ! video?.uploading && showActionButton }
+						showCheckbox={ showCheckbox }
 						className={ styles.row }
-						checked={ selected.includes( index ) }
-						onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+						onActionClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
 								const indexOf = current.indexOf( index );
@@ -74,6 +96,84 @@ const VideoList = ( {
 
 								return current;
 							} )
+						}
+					/>
+				);
+			} ) }
+		</div>
+	);
+};
+
+export const LocalVideoList = ( {
+	videos,
+	showActionButton = true,
+	showQuickActions = false,
+	uploading = false,
+	onActionClick,
+}: LocalVideoListProps ) => {
+	const [ selected, setSelected ] = useState( [] );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const allSelected = selected?.length === videos?.length;
+	const showCheckbox = false; // TODO: implement bulk actions
+
+	const handleAll = checked => {
+		if ( checked ) {
+			setSelected( videos.map( ( _, i ) => i ) );
+		} else {
+			setSelected( [] );
+		}
+	};
+
+	const handleClickWithIndex = index => () => {
+		onActionClick?.( videos[ index ] );
+	};
+
+	return (
+		<div className={ styles.list }>
+			<div className={ styles.header }>
+				<div className={ styles[ 'title-wrapper' ] }>
+					{ showCheckbox && <Checkbox checked={ allSelected } onChange={ handleAll } /> }
+					<Text>{ __( 'Title', 'jetpack-videopress-pkg' ) }</Text>
+				</div>
+				{ ! isSmall && (
+					<div className={ styles[ 'data-wrapper' ] }>
+						<Stats
+							privacy=""
+							duration=""
+							plays=""
+							upload={ __( 'Upload date', 'jetpack-videopress-pkg' ) }
+						/>
+					</div>
+				) }
+			</div>
+			{ videos.map( ( video, index ) => {
+				if ( ! video?.id ) {
+					return null;
+				}
+				return (
+					<VideoRow
+						key={ `local-video-${ video.id }` }
+						id={ video.id }
+						title={ video.title }
+						showActionButton={ showActionButton }
+						showQuickActions={ showQuickActions }
+						showCheckbox={ showCheckbox }
+						uploadDate={ video.uploadDate }
+						onActionClick={ handleClickWithIndex( index ) }
+						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+						disabled={ video?.isUploadedToVideoPress }
+						disableActionButton={ uploading }
+						titleAdornment={
+							video?.isUploadedToVideoPress && (
+								<Tooltip
+									position="top center"
+									text={ __( 'Video already uploaded to VideoPress', 'jetpack-videopress-pkg' ) }
+								>
+									<div className={ styles[ 'title-adornment' ] }>
+										<Icon icon={ info } />
+									</div>
+								</Tooltip>
+							)
 						}
 					/>
 				);

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure that User_Agent is loaded in environments without autoload enabled. (e.g.: WordPress.com and Super Cache)

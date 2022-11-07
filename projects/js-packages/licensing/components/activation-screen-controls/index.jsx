@@ -1,10 +1,11 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
 import { Button, TextControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, warning } from '@wordpress/icons';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import './style.scss';
 
@@ -24,6 +25,10 @@ const ActivationScreenControls = props => {
 	const { activateLicense, isActivating, license, licenseError, onLicenseChange } = props;
 
 	const hasLicenseError = licenseError !== null && licenseError !== undefined;
+
+	useEffect( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_key_activation_view' );
+	}, [] );
 
 	return (
 		<div className="jp-license-activation-screen-controls">

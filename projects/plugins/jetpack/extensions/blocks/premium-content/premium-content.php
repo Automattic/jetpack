@@ -86,7 +86,7 @@ function render_block( $attributes, $content ) {
  */
 function render_stripe_nudge() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		\jetpack_require_lib( 'memberships' );
+		\require_lib( 'memberships' );
 		$blog_id  = get_current_blog_id();
 		$settings = (array) \get_memberships_settings_for_site( $blog_id );
 
@@ -120,7 +120,7 @@ function render_stripe_nudge() {
  * @return string Final content to render.
  */
 function stripe_nudge( $checkout_url, $description, $button_text ) {
-	\jetpack_require_lib( 'components' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
 			'checkoutUrl' => $checkout_url,

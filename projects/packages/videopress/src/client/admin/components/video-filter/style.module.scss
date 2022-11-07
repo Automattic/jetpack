@@ -1,4 +1,6 @@
 .filter-button {
+	flex-shrink: 0;
+
 	&.is-active {
 		> svg {
 			fill: var( --jp-white );
@@ -22,7 +24,7 @@
 	cursor: pointer;
 	height: 20px;
 	line-height: 20px;
-	margin-bottom: var( --spacing-base );
+	margin-top: var( --spacing-base );
 
 	.checkbox[type="checkbox"] {
 		border: 1px solid var( --jp-green-40 );

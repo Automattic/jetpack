@@ -1,10 +1,10 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, danielpost, siddarthan
+Contributors: automattic, pabline, danielpost, siddarthan, gmjuhasz
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 5.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
-Stable tag: 1.3.0
+Tested up to: 6.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,6 +12,8 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 
 == Description ==
 ### Write once, publish everywhere.
+
+*Share up to 30 times per month for free with Jetpack Social, and upgrade to share as many times as you want!*
 
 **Grow your following by sharing your content with Jetpack Social!**
 
@@ -89,27 +91,16 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.3.0 - 2022-09-07
+### 1.5.0-beta - 2022-10-27
 #### Added
-- Added scheduled post calculation on plugin activation.
-- Added Social Previews.
-- Added support for JITMs.
-- Enforce sharing limits in the block editor, if it is enabled for a site.
+- Display broken connections to user in editor
+- Integrate the ConnectionError react component to the Social plugin.
+- Reshare: Added the reshare UI to the block editor extension
 
 #### Changed
-- Updated package dependencies. [#24477, #25265, #25300, #25315, #25334, #25338, #25339, #25377, #25406, #25628, #25661, #25665, #25694, #25762, #25769, #25787, #25814, #25931]
-
-#### Removed
-- Packages: remove deprecated package.
+- Updated package dependencies.
 
 #### Fixed
-- Avoid PHP warnings when OG description is not set.
+- Social: Fix the connection test endpoint URL
+- Social: Fix the path to the connections URL in the editor
 
-#### Other
-- My Jetpack includes JITMs
-- Post release tasks.
-- Start a new release cycle.
-- Support section for paid users
-- Tweaked the supports method of the plans package to refresh the plan data.
-- Updated Readme.txt for the jetpack-social-1.2.0-beta
-- Enables autotag, autorelease, and autosvn actions

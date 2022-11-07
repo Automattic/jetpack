@@ -45,6 +45,7 @@ globalScripts.push( vpBlockBridge );
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {Array} props.scripts          - Scripts to pass trough to the sandbox.
  * @param {object} props.preview         - oEmbed preview data.
+ * @param {boolean} props.isRequestingEmbedPreview - oEmbed preview data.
  * @returns {object}                     - React component.
  */
 export default function VideoPressPlayer( {
@@ -54,32 +55,48 @@ export default function VideoPressPlayer( {
 	setAttributes,
 	scripts = [],
 	preview,
+	isRequestingEmbedPreview,
 } ) {
-	const ref = useRef();
+	const mainWrapperRef = useRef();
+	const videoWrapperRef = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
-
-	// Pick up iFrame and sandbox window references.
-	const iFrameDomReference = ref?.current?.querySelector( 'iframe' );
-	const sandboxWindow = iFrameDomReference?.contentWindow;
 
 	/*
 	 * Temporary height is used to set the height of the video
-	 * as soon as the block is rendered into the canvas,
+	 * as soon as the block is rendered into the canvas
 	 * while the preview fetching process is happening,
-	 * trying to reduce the flicker effects as much as possible
-	 *
-	 * Once the preview is fetched, the temporary heihgt is ignored.
+	 * trying to reduce the flicker effects as much as possible.
+	 * Once the preview is fetched, the temporary height is ignored.
 	 */
-	const [ temporaryHeight, setTemporaryHeight ] = useState();
-	const [ isVideoLoaded, setIsVideoLoaded ] = useState( false );
+	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState();
+
+	// todo: figure out why 12px are needed.
+	const temporaryHeighErrorCorrection = 12;
+
+	/**
+	 * Helper to set the temporary height
+	 * of the video player.
+	 */
+	function setVideoPlayerTemporaryHeight() {
+		setVideoPlayerTemporaryHeightState(
+			( videoWrapperRef.current.offsetWidth * videoRatio ) / 100 + temporaryHeighErrorCorrection
+		);
+	}
+
+	/*
+	 * isVideoPlayerLoaded registers the state
+	 * when the video has been loaded in the videopress player.
+	 */
+	const [ isVideoPlayerLoaded, setIsVideoPlayerLoaded ] = useState( false );
+
 	useEffect( () => {
-		if ( ! ref?.current ) {
+		if ( ! videoWrapperRef?.current ) {
 			return;
 		}
 
 		if ( preview ) {
 			// Once the video is loaded, delegate the height to the player (iFrame)
-			return setTemporaryHeight( 'auto' );
+			return setVideoPlayerTemporaryHeightState( 'auto' );
 		}
 
 		if ( ! videoRatio ) {
@@ -87,11 +104,11 @@ export default function VideoPressPlayer( {
 		}
 
 		// When no preview is available, set the height of the video.
-		setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+		setVideoPlayerTemporaryHeight();
 
 		setTimeout( () => {
 			// Recalculated in case the sidebar is opened.
-			setTemporaryHeight( ( ref.current.offsetWidth * videoRatio ) / 100 );
+			setVideoPlayerTemporaryHeight();
 		}, 0 );
 
 		/*
@@ -99,32 +116,44 @@ export default function VideoPressPlayer( {
 		 * note: videopress API does not provide
 		 * the event to know when the video is not loaded.
 		 */
-		setIsVideoLoaded( false );
-	}, [ ref, videoRatio, preview ] );
+		setIsVideoPlayerLoaded( false );
+	}, [ videoWrapperRef, videoRatio, preview ] );
 
-	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
-		setIsVideoLoaded( detail?.state === 'loaded' );
-	}, [] );
-
-	// set video is loaded as False, when html is not available.
+	// Set video is loaded as False when `html` is not available.
 	useEffect( () => {
 		if ( html ) {
 			return;
 		}
 
-		setIsVideoLoaded( false );
+		setIsVideoPlayerLoaded( false );
 	}, [ html ] );
 
+	/*
+	 * Callback state handler for the video player
+	 * tied to the `onVideoPressLoadingState` event,
+	 * provided by the videopress player through the bridge.
+	 */
+	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
+		setIsVideoPlayerLoaded( detail?.state === 'loaded' );
+	}, [] );
+
+	// Listen to the `onVideoPressLoadingState` event.
 	useEffect( () => {
-		if ( ! sandboxWindow ) {
+		if ( ! window ) {
 			return;
 		}
 
-		sandboxWindow.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
 
 		return () =>
-			sandboxWindow?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, sandboxWindow, html ] );
+			window?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler, window, html ] );
+
+	useEffect( () => {
+		if ( isRequestingEmbedPreview ) {
+			setVideoPlayerTemporaryHeight();
+		}
+	}, [ isVideoPlayerLoaded, isRequestingEmbedPreview ] );
 
 	const onBlockResize = useCallback(
 		( event, direction, domElement ) => {
@@ -137,19 +166,22 @@ export default function VideoPressPlayer( {
 				}
 			}
 
+			setVideoPlayerTemporaryHeightState( 'auto' );
 			setAttributes( { maxWidth: newMaxWidth } );
 		},
 		[ setAttributes ]
 	);
 
-	const style = {};
-	if ( temporaryHeight !== 'auto' ) {
-		style.height = temporaryHeight || 200;
-		style.paddingBottom = temporaryHeight ? 12 : 0;
+	const wrapperElementStyle = {};
+	if ( videoPlayerTemporaryHeight !== 'auto' ) {
+		wrapperElementStyle.height = videoPlayerTemporaryHeight || 200;
+		wrapperElementStyle.paddingBottom = videoPlayerTemporaryHeight
+			? temporaryHeighErrorCorrection
+			: 0;
 	}
 
 	return (
-		<figure className="jetpack-videopress-player">
+		<figure ref={ mainWrapperRef } className="jetpack-videopress-player">
 			<ResizableBox
 				enable={ {
 					top: false,
@@ -161,15 +193,30 @@ export default function VideoPressPlayer( {
 				size={ { width: maxWidth } }
 				style={ { margin: 'auto' } }
 				onResizeStop={ onBlockResize }
+				onResizeStart={ () => setVideoPlayerTemporaryHeightState( 'auto' ) }
 			>
 				{ ! isSelected && <div className="jetpack-videopress-player__overlay" /> }
-				<div className="jetpack-videopress-player__wrapper" ref={ ref } style={ style }>
-					<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-					{ ! isVideoLoaded && (
-						<div className="jetpack-videopress-player__loading">
-							{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
+
+				<div
+					className="jetpack-videopress-player__wrapper"
+					ref={ videoWrapperRef }
+					style={ wrapperElementStyle }
+				>
+					<>
+						{ ! isRequestingEmbedPreview && (
+							<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
+						) }
+
+						{ ! isVideoPlayerLoaded && (
+							<div className="jetpack-videopress-player__loading">
+								{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
+							</div>
+						) }
+
+						<div className="jetpack-videopress-ghost-player">
+							<SandBox html={ html } />
 						</div>
-					) }
+					</>
 				</div>
 			</ResizableBox>
 

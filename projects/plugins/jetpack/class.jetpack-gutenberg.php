@@ -695,6 +695,7 @@ class Jetpack_Gutenberg {
 				 * @module publicize
 				 *
 				 * @since 10.3.0
+				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
@@ -1026,7 +1027,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function upgrade_nudge( $plan ) {
-		jetpack_require_lib( 'components' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
 				'plan' => $plan,

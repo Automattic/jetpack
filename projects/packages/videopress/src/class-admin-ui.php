@@ -10,9 +10,12 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Initialized the VideoPress package
@@ -60,6 +63,28 @@ class Admin_UI {
 	}
 
 	/**
+	 * Gets the list of allowed video extensions
+	 *
+	 * @return array
+	 */
+	public static function get_allowed_video_extensions() {
+		$allowed_mime_types       = get_allowed_mime_types();
+		$allowed_video_extensions = array();
+
+		foreach ( $allowed_mime_types as $possible_extensions => $mime_type ) {
+			if ( strpos( $mime_type, 'video/' ) !== false ) {
+				$extensions = explode( '|', $possible_extensions );
+
+				foreach ( $extensions as $extension ) {
+					$allowed_video_extensions[ $extension ] = $mime_type;
+				}
+			}
+		}
+
+		return $allowed_video_extensions;
+	}
+
+	/**
 	 * Initialize the admin resources.
 	 */
 	public static function admin_init() {
@@ -89,6 +114,18 @@ class Admin_UI {
 	}
 
 	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+	}
+
+	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
@@ -102,6 +139,13 @@ class Admin_UI {
 			)
 		);
 		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
+
+		wp_enqueue_media();
+
+		// Required for Analytics.
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE, Connection_Initial_State::render(), 'before' );
@@ -124,17 +168,21 @@ class Admin_UI {
 	 */
 	public static function initial_state() {
 		return array(
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'adminUrl'          => self::get_admin_page_url(),
-			'paidFeatures'      => array(
+			'apiRoot'                => esc_url_raw( rest_url() ),
+			'apiNonce'               => wp_create_nonce( 'wp_rest' ),
+			'registrationNonce'      => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'adminUrl'               => self::get_admin_page_url(),
+			'adminUri'               => 'admin.php?page=' . self::ADMIN_PAGE_SLUG,
+			'paidFeatures'           => array(
 				'isVideoPressSupported'          => Current_Plan::supports( 'videopress' ),
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
-			'productData'       => My_Jetpack_Products::get_product( 'videopress' ),
-			'siteSuffix'        => ( new Status() )->get_site_suffix(),
+			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
+			'siteSuffix'             => ( new Status() )->get_site_suffix(),
+			'productData'            => Plan::get_product(),
+			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
+			'initialState'           => Data::get_initial_state(),
 		);
 	}
 

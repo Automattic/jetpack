@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 
@@ -908,6 +909,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$validate = self::validate_array_of_strings( $answer, $request, $param );
 			} elseif ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
+			} elseif ( $answer === null ) {
+				$validate = true;
 			} else {
 				$validate = self::validate_boolean( $answer, $request, $param );
 			}
@@ -1386,7 +1389,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		$cxntests = new Jetpack_Cxn_Tests();
 
 		if ( $cxntests->pass() ) {
@@ -1454,7 +1457,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function jetpack_connection_test_for_external() {
 		// Since we are running this test for inclusion in the WP.com testing suite, let's not try to run them as part of these results.
 		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		$cxntests = new Jetpack_Cxn_Tests();
 
 		if ( $cxntests->pass() ) {
@@ -2794,15 +2797,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			// Apps card on dashboard.
-			'dismiss_dash_app_card'                => array(
-				'description'       => '',
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'settings',
-			),
-
 			// Empty stats card dismiss.
 			'dismiss_empty_stats_card'             => array(
 				'description'       => '',
@@ -3608,10 +3602,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'stats':
 				// It's local, but it must be broken apart since it's saved as an array.
-				if ( ! function_exists( 'stats_get_options' ) ) {
-					include_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
-				}
-				$options = self::split_options( $options, stats_get_options() );
+				$options = self::split_options( $options, Stats_Options::get_options() );
 				break;
 			default:
 				// These option are just stored as plain WordPress options.

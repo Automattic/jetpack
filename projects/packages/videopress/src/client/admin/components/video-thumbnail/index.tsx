@@ -4,12 +4,14 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import Placeholder from '../placeholder';
+import ProgressBar from '../progress-bar';
 import styles from './style.module.scss';
 /**
  * Types
@@ -22,6 +24,7 @@ export const VideoThumbnailDropdownButtons = ( {
 	onSelectFromVideo,
 	onUploadImage,
 	onClose,
+	isUpdatingPoster = false,
 } ) => {
 	return (
 		<>
@@ -54,6 +57,7 @@ export const VideoThumbnailDropdownButtons = ( {
 				fullWidth
 				variant="tertiary"
 				icon={ cloud }
+				disabled={ isUpdatingPoster }
 				onClick={ () => {
 					onClose();
 					onUploadImage?.();
@@ -74,12 +78,13 @@ export const VideoThumbnailDropdown = ( {
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
 				position="bottom left"
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
-						onClick={ onToggle }
+						onClick={ onUploadImage }
 						aria-expanded={ isOpen }
 					/>
 				) }
@@ -96,6 +101,49 @@ export const VideoThumbnailDropdown = ( {
 	);
 };
 
+const UploadingThumbnail = ( {
+	uploadProgress = 0,
+	isRow = false,
+}: {
+	uploadProgress: number;
+	isRow?: boolean;
+} ) => {
+	const completingTextFull = __( 'Completing upload', 'jetpack-videopress-pkg' );
+	const completingTextCompact = __( 'Completing', 'jetpack-videopress-pkg' );
+	const completingText = isRow ? completingTextCompact : completingTextFull;
+
+	const uploadPercentage = `${ Math.floor( uploadProgress * 100 ) }%`;
+	const uploadingText = sprintf(
+		/* translators: placeholder is the upload percentage */
+		__( 'Uploading %s', 'jetpack-videopress-pkg' ),
+		uploadPercentage
+	);
+	const infoText = uploadProgress === 1 ? completingText : uploadingText;
+
+	return (
+		<div
+			className={ classnames( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }
+		>
+			<ProgressBar
+				className={ styles[ 'progress-bar' ] }
+				size="small"
+				progress={ uploadProgress }
+			/>
+			<Text variant={ isRow ? 'body-extra-small' : 'body' } className={ styles[ 'upload-text' ] }>
+				{ infoText }
+			</Text>
+		</div>
+	);
+};
+
+const ProcessingThumbnail = ( { isRow = false }: { isRow?: boolean } ) => (
+	<div className={ styles[ 'custom-thumbnail' ] }>
+		<Text variant={ isRow ? 'body-extra-small' : 'body' } className={ styles.pulse }>
+			{ __( 'Processing', 'jetpack-videopress-pkg' ) }
+		</Text>
+	</div>
+);
+
 /**
  * React component to display video thumbnail.
  *
@@ -104,20 +152,52 @@ export const VideoThumbnailDropdown = ( {
  */
 const VideoThumbnail = ( {
 	className,
-	thumbnail,
+	thumbnail: defaultThumbnail,
 	duration,
 	editable,
+	blankIconSize = 96,
+	loading = false,
+	uploading = false,
+	processing = false,
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	uploadProgress,
+	isRow = false,
 }: VideoThumbnailProps ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	// Mapping thumbnail (Ordered by priority)
+	let thumbnail = defaultThumbnail;
+	thumbnail = loading ? <Placeholder /> : thumbnail;
+	thumbnail = uploading ? (
+		<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
+	) : (
+		thumbnail
+	);
+	thumbnail = processing ? <ProcessingThumbnail isRow={ isRow } /> : thumbnail;
+
+	thumbnail =
+		typeof thumbnail === 'string' && thumbnail !== '' ? (
+			<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
+		) : (
+			thumbnail
+		);
+
+	/** If the thumbnail is not set, use the placeholder with an icon */
+	thumbnail = thumbnail ? (
+		thumbnail
+	) : (
+		<div className={ styles[ 'thumbnail-blank' ] }>
+			<Icon icon={ video } size={ blankIconSize } />
+		</div>
+	);
 
 	return (
 		<div
 			className={ classnames( className, styles.thumbnail, { [ styles[ 'is-small' ] ]: isSmall } ) }
 		>
-			{ typeof thumbnail === 'string' && editable && (
+			{ Boolean( thumbnail ) && editable && (
 				<VideoThumbnailDropdown
 					onUseDefaultThumbnail={ onUseDefaultThumbnail }
 					onSelectFromVideo={ onSelectFromVideo }
@@ -128,19 +208,13 @@ const VideoThumbnail = ( {
 				<div className={ styles[ 'video-thumbnail-duration' ] }>
 					<Text variant="body-small" component="div">
 						{ duration >= 3600 * 1000
-							? gmdateI18n( 'H:i:s', duration )
-							: gmdateI18n( 'i:s', duration ) }
+							? gmdateI18n( 'H:i:s', new Date( duration ) )
+							: gmdateI18n( 'i:s', new Date( duration ) ) }
 					</Text>
 				</div>
 			) }
 
-			{ typeof thumbnail === 'string' && thumbnail !== '' ? (
-				<img src={ thumbnail } alt={ __( 'Video thumbnail', 'jetpack-videopress-pkg' ) } />
-			) : (
-				<div className={ styles[ 'thumbnail-placeholder' ] }>
-					{ thumbnail ? thumbnail : <Icon icon={ video } size={ 96 } /> }
-				</div>
-			) }
+			<div className={ styles[ 'thumbnail-placeholder' ] }>{ thumbnail }</div>
 		</div>
 	);
 };

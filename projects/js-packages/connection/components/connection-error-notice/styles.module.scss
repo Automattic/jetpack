@@ -1,3 +1,6 @@
+@import '../../node_modules/@wordpress/base-styles/breakpoints';
+@import '../../node_modules/@wordpress/base-styles/mixins';
+
 .heading {
 	margin-bottom: 0;
 }
@@ -45,7 +48,24 @@
 	}
 }
 
-.message {
-	margin-left: 8px;
+.error {
+	margin-bottom: 25px;
 }
 
+.error {
+	margin-bottom: 25px;
+}
+
+.message {
+	margin-left: 8px;
+	margin-right: 10px;
+}
+
+.link {
+	margin-left: auto;
+	padding-left: 8px;
+	text-decoration: underline;
+	color: var( --jp-black );
+	font-weight:700;
+	cursor: pointer;
+}

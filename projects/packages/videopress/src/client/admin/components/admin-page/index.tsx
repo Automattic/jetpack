@@ -13,122 +13,113 @@ import {
 	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
 import {
-	ConnectScreenRequiredPlan,
 	useProductCheckoutWorkflow,
-	CONNECTION_STORE_ID,
+	useConnection,
+	useConnectionErrorNotice,
+	ConnectionError,
 } from '@automattic/jetpack-connection';
-import apiFetch from '@wordpress/api-fetch';
 import { FormFileUpload } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import classnames from 'classnames';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import useUploader from '../../../hooks/use-uploader';
 import { STORE_ID } from '../../../state';
-import { WP_REST_API_MEDIA_ENDPOINT } from '../../../state/constants';
-import { mapVideoFromWPV2MediaEndpoint } from '../../../state/utils/map-videos';
-import useVideos from '../../hooks/use-videos';
+import uid from '../../../utils/uid';
+import { fileInputExtensions } from '../../../utils/video-extensions';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import { usePlan } from '../../hooks/use-plan';
+import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
+import PricingSection from '../pricing-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
-/**
- * Types
- */
-import { ConnectionStore } from './types';
 
 const useDashboardVideos = () => {
-	const { setVideo } = useDispatch( STORE_ID );
+	const { uploadVideo, uploadVideoFromLibrary } = useDispatch( STORE_ID );
 
-	const {
-		items,
-		total: totalVideoCount,
-		uploadedVideoCount,
-		// isFetching = true,
-		// IsFetchingTotalVideosCount = true,
-	} = useVideos();
+	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
+	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 
-	const poolingUploadedVideoData = async data => {
-		setVideo( data );
+	// Do not show uploading videos if not in the first page or searching
+	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
 
-		const response = await apiFetch( {
-			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
-		} );
+	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
+	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
-		const video = mapVideoFromWPV2MediaEndpoint( response );
-
-		if ( video?.posterImage !== null ) {
-			setVideo( video );
-		} else {
-			setTimeout( () => poolingUploadedVideoData( video ), 2000 );
-		}
+	const handleFilesUpload = ( files: FileList | File[] ) => {
+		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
+		uploadVideo( file );
 	};
 
-	const handleSuccess = ( data, file ) => {
-		poolingUploadedVideoData( {
-			id: data?.id,
-			guid: data?.guid,
-			url: data?.src,
-			title: file?.name,
-		} );
+	const handleLocalVideoUpload = file => {
+		uploadVideoFromLibrary( file );
 	};
 
-	const { handleFilesUpload, status, file } = useUploader( {
-		onSuccess: handleSuccess,
-	} );
-
-	const videos =
-		status === 'uploading'
-			? [ { id: null, guid: null, uploading: true, title: file.name }, ...items ]
-			: items;
+	// Fill with empty videos if loading
+	if ( isFetching ) {
+		// Use generated ID to work with React Key
+		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
+	}
 
 	return {
 		videos,
-		totalVideoCount,
+		localVideos,
 		uploadedVideoCount,
-		uploadStatus: status,
+		uploadedLocalVideoCount,
+		hasVideos,
+		hasLocalVideos,
 		handleFilesUpload,
+		handleLocalVideoUpload,
+		loading: isFetching,
+		uploading: uploading?.length > 0,
 	};
 };
 
 const Admin = () => {
 	const {
 		videos,
-		totalVideoCount,
 		uploadedVideoCount,
-		uploadStatus,
+		localVideos,
+		uploadedLocalVideoCount,
+		hasVideos,
+		hasLocalVideos,
 		handleFilesUpload,
+		handleLocalVideoUpload,
+		loading,
+		uploading,
 	} = useDashboardVideos();
 
-	const connectionStatus = useSelect(
-		select => ( select( CONNECTION_STORE_ID ) as ConnectionStore ).getConnectionStatus(),
-		[]
-	);
+	const { hasVideoPressPurchase } = usePlan();
+
+	const { isRegistered, hasConnectedOwner } = useConnection();
+	const { hasConnectionError } = useConnectionErrorNotice();
+
+	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
+
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { isUserConnected, isRegistered } = connectionStatus;
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
-	const localVideos = [];
-	const localTotalVideoCount = 0;
-	const hasVideos = uploadedVideoCount > 0 || uploadStatus === 'uploading';
-	const hasLocalVideos = localVideos && localVideos.length > 0;
+
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
+
+	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <Logo /> }
 		>
-			{ showConnectionCard ? (
+			{ showPricingSection ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<ConnectionSection />
+							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
 						</Col>
 					</Container>
 				</AdminSectionHero>
@@ -136,6 +127,17 @@ const Admin = () => {
 				<>
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+							{ hasConnectionError && (
+								<Col>
+									<ConnectionError />
+								</Col>
+							) }
+
+							{ ! hasConnectedOwner && (
+								<Col sm={ 4 } md={ 8 } lg={ 12 }>
+									<NeedUserConnectionGlobalNotice />
+								</Col>
+							) }
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
@@ -148,14 +150,20 @@ const Admin = () => {
 
 								<FormFileUpload
 									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
-									accept="video/*"
+									accept={ fileInputExtensions }
 									render={ ( { openFileDialog } ) => (
-										<Button fullWidth={ isSm } onClick={ openFileDialog }>
+										<Button
+											fullWidth={ isSm }
+											onClick={ openFileDialog }
+											isLoading={ loading }
+											disabled={ ! hasVideoPressPurchase && hasVideos }
+										>
 											{ addVideoLabel }
 										</Button>
 									) }
 								/>
-								<UpgradeTrigger />
+
+								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
@@ -163,7 +171,11 @@ const Admin = () => {
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							{ hasVideos ? (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<VideoPressLibrary videos={ videos } totalVideos={ totalVideoCount } />
+									<VideoPressLibrary
+										videos={ videos }
+										totalVideos={ uploadedVideoCount }
+										loading={ loading }
+									/>
 								</Col>
 							) : (
 								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
@@ -178,7 +190,12 @@ const Admin = () => {
 							) }
 							{ hasLocalVideos && (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
-									<LocalLibrary videos={ localVideos } totalVideos={ localTotalVideoCount } />
+									<LocalLibrary
+										videos={ localVideos }
+										totalVideos={ uploadedLocalVideoCount }
+										onUploadClick={ handleLocalVideoUpload }
+										uploading={ uploading }
+									/>
 								</Col>
 							) }
 						</Container>
@@ -191,65 +208,42 @@ const Admin = () => {
 
 export default Admin;
 
-const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackVideoPressInitialState;
-	return (
-		<ConnectScreenRequiredPlan
-			buttonLabel={ __( 'Get Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			priceAfter={ 4.5 }
-			priceBefore={ 9 }
-			pricingTitle={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			title={ __( 'High quality, ad-free video.', 'jetpack-videopress-pkg' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			from="jetpack-videopress"
-			redirectUri="admin.php?page=jetpack-videopress"
-		>
-			<h3>{ __( 'Connection screen title', 'jetpack-videopress-pkg' ) }</h3>
-			<ul>
-				<li>{ __( 'Amazing feature 1', 'jetpack-videopress-pkg' ) }</li>
-				<li>{ __( 'Amazing feature 2', 'jetpack-videopress-pkg' ) }</li>
-				<li>{ __( 'Amazing feature 3', 'jetpack-videopress-pkg' ) }</li>
-			</ul>
-		</ConnectScreenRequiredPlan>
-	);
-};
+const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
+	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
 
-const UpgradeTrigger = () => {
-	const {
-		paidFeatures: { isVideoPress1TBSupported, isVideoPressUnlimitedSupported },
-		adminUrl,
-	} = window.jetpackVideoPressInitialState;
+	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_videopress',
+		siteSuffix,
+		productSlug: product.productSlug,
 		redirectUrl: adminUrl,
+		isFetchingPurchases,
 	} );
 
-	if ( isVideoPress1TBSupported || isVideoPressUnlimitedSupported ) {
-		return null;
-	}
+	const { recordEventHandler } = useAnalyticsTracks( {} );
+	const onButtonClickHandler = recordEventHandler(
+		'jetpack_videopress_upgrade_trigger_link_click',
+		run
+	);
 
-	// TODO: use count from initial state
-	const { uploadedVideoCount } = useVideos();
-	const hasUploadedVideo = uploadedVideoCount > 0;
-	const isUploading = false;
+	const description = hasUsedVideo
+		? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
+		: '';
 
-	const description =
-		hasUploadedVideo || isUploading
-			? __( 'You have used your free video upload', 'jetpack-videopress-pkg' )
-			: '';
 	const cta = __(
 		'Upgrade now to unlock unlimited videos, 1TB of storage, and more!',
 		'jetpack-videopress-pkg'
 	);
+
+	if ( hasVideoPressPurchase || isFetchingPurchases ) {
+		return null;
+	}
 
 	return (
 		<ContextualUpgradeTrigger
 			description={ description }
 			cta={ cta }
 			className={ styles[ 'upgrade-trigger' ] }
-			onClick={ run }
+			onClick={ onButtonClickHandler }
 		/>
 	);
 };
