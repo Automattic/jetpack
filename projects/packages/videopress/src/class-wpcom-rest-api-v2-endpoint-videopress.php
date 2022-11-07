@@ -192,7 +192,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						return current_user_can( 'manage_options' );
 					},
 					'args'                => array(
-						'videopress_private_enabled' => array(
+						'videopress_videos_private_for_site' => array(
 							'description'       => __( 'If the VideoPress videos should be private by default', 'jetpack-videopress-pkg' ),
 							'type'              => 'boolean',
 							'required'          => true,
@@ -599,7 +599,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		$status = 200;
 		$data   = array(
-			'videopress_private_enabled' => get_option( 'videopress_private_enabled_for_site', false ) ? true : false,
+			'videopress_videos_private_for_site' => get_option( 'videopress_private_enabled_for_site', false ) ? true : false,
 		);
 
 		return rest_ensure_response(
@@ -639,7 +639,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$json_params = $request->get_json_params();
 
 		// We are sure that the param is set because it's required by the request
-		update_option( 'videopress_private_enabled_for_site', boolval( $json_params['videopress_private_enabled'] ) );
+		update_option( 'videopress_private_enabled_for_site', boolval( $json_params['videopress_videos_private_for_site'] ) );
 
 		return rest_ensure_response(
 			array(
