@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Updated how backup determines if the site has a plan.
