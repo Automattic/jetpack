@@ -59,7 +59,7 @@ class Host {
 	}
 
 	/**
-	 * Determine if this is a Simple platfoxrm site.
+	 * Determine if this is a Simple platform site.
 	 *
 	 * @return bool
 	 */
@@ -70,7 +70,7 @@ class Host {
 	/**
 	 * Determine if this is a WordPress.com site.
 	 *
-	 * Includes both Simple and WoA Platforms
+	 * Includes both Simple and WoA platforms.
 	 *
 	 * @return bool
 	 */
