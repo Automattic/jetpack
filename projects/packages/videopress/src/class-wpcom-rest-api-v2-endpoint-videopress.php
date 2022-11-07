@@ -176,7 +176,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// VideoPress Private Setting Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/privacy-setting',
+			$this->rest_base . '/site-privacy-setting',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
