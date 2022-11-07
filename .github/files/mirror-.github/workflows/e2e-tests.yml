@@ -1,7 +1,6 @@
 name: End to end tests
 
 on:
-  create:
   push:
 
 jobs:
