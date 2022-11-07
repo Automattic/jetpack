@@ -2,6 +2,7 @@ import { TextControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import emailValidator from 'email-validator';
+import InspectorHint from '../../../shared/components/inspector-hint';
 import HelpMessage from '../../../shared/help-message';
 
 const JetpackEmailConnectionSettings = ( {
@@ -86,7 +87,9 @@ const JetpackEmailConnectionSettings = ( {
 
 	return (
 		<>
-			<p>{ __( 'Get incoming form responses sent to your email inbox:', 'jetpack' ) }</p>
+			<InspectorHint>
+				{ __( 'Get incoming form responses sent to your email inbox:', 'jetpack' ) }
+			</InspectorHint>
 			<TextControl
 				aria-describedby={ `contact-form-${ instanceId }-email-${
 					hasEmailErrors() ? 'error' : 'help'

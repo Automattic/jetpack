@@ -13,7 +13,9 @@ import { close, external } from '@wordpress/icons';
 import { map } from 'lodash';
 import { PluginIcon } from '../../../shared/icons';
 
-const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose, ...props } ) => {
+const RESPONSES_PATH = '/wp-admin/edit.php?post_type=feedback';
+
+const JetpackFormSettingsDropdownContent = ( { settings, onClose, ...props } ) => {
 	const [ currentSettingsView, setCurrentSettingsView ] = useState( null );
 
 	if ( ! currentSettingsView ) {
@@ -36,7 +38,7 @@ const JetpackFormSettingsDropdownContent = ( { responsesPath, settings, onClose,
 				</MenuGroup>
 				<MenuGroup>
 					<MenuItem
-						href={ responsesPath }
+						href={ RESPONSES_PATH }
 						icon={ external }
 						target="_blank"
 						onClick={ () => onClose() }
