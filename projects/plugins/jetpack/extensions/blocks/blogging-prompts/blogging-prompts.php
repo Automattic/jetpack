@@ -22,13 +22,13 @@ function register_extension() {
 
 	// Load the blogging-prompts endpoint here on init so its route will be registered.
 	// We can use it with `WPCOM_API_Direct::do_request` to avoid a network request on Simple Sites.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && jetpack_is_potential_blogging_site() ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && should_load_blogging_prompts() ) {
 		wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' );
 	}
 }
 
 /**
- * Checks URL params to determine if we should load a blogging prompt.
+ * Loads the blogging prompt extension within the editor, if appropriate.
  */
 function inject_blogging_prompts() {
 	// Return early if we are not in the block editor.
@@ -41,17 +41,27 @@ function inject_blogging_prompts() {
 		return;
 	}
 
-	// And only for blogging sites.
-	if ( ! jetpack_is_potential_blogging_site( array( 'posts_count' => false ) ) ) {
-		return;
-	}
+	// And only for blogging sites or those explicitly responding to the prompt.
+	if ( should_load_blogging_prompts() ) {
+		$daily_prompts = wp_json_encode( jetpack_get_daily_blogging_prompts() );
 
-	$daily_prompts = wp_json_encode( jetpack_get_daily_blogging_prompts() );
-
-	// See p7H4VZ-2cf-p2 for why prompt data is escaped this way.
-	if ( $daily_prompts ) {
-		wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_BloggingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompts ) . '" ) );', 'before' );
+		// See p7H4VZ-2cf-p2 for why prompt data is escaped this way.
+		if ( $daily_prompts ) {
+			wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_BloggingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompts ) . '" ) );', 'before' );
+		}
 	}
+}
+
+/**
+ * Determines if the blogging prompts extension should be loaded in the editor.
+ *
+ * @return bool
+ */
+function should_load_blogging_prompts() {
+	return jetpack_has_write_intent() ||
+			jetpack_has_posts_page() ||
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			( isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) );
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
