@@ -39,14 +39,10 @@ export default function PlaybackControl( { attributes, setAttributes }: Playback
 				) }
 				onChange={ handleAttributeChange( 'autoplay' ) }
 				checked={ autoplay }
-				help={
-					autoplay
-						? __(
-								'Note: Autoplaying videos may cause usability issues for some visitors.',
-								'jetpack-videopress-pkg'
-						  )
-						: null
-				}
+				help={ __(
+					'Note: Autoplaying videos may cause usability issues for some visitors.',
+					'jetpack-videopress-pkg'
+				) }
 			/>
 
 			<ToggleControl
