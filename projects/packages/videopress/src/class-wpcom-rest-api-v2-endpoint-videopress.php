@@ -172,6 +172,21 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				},
 			)
 		);
+
+		// VideoPress Private Setting Route.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/privacy-setting',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'videopress_get_privacy_setting' ),
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
+				),
+			)
+		);
 	}
 
 	/**
@@ -537,6 +552,44 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Returns the value of the VideoPress privacy setting, a boolean
+	 * stating if the videos are private or not.
+	 *
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public static function videopress_get_privacy_setting() {
+		$has_connected_owner = Data::has_connected_owner();
+		if ( ! $has_connected_owner ) {
+			return rest_ensure_response(
+				new WP_Error(
+					'owner_not_connected',
+					'User not connected.',
+					array(
+						'code'        => 503,
+						'connect_url' => Admin_UI::get_admin_page_url(),
+					)
+				)
+			);
+		}
+
+		$blog_id = Data::get_blog_id();
+		if ( ! $blog_id ) {
+			return rest_ensure_response(
+				new WP_Error( 'site_not_registered', 'Site not registered.', 503 )
+			);
+		}
+
+		$status = 200;
+		$data   = array(
+			'videopress_private_enabled' => get_option( 'videopress_private_enabled_for_site', false ) ? true : false,
+		);
+
+		return rest_ensure_response(
+			new WP_REST_Response( $data, $status )
+		);
 	}
 }
 
