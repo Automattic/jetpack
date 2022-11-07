@@ -76,4 +76,49 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 		}
 		return $subscriptions;
 	}
+
+	/**
+	 * This is part of the jetpack - newsletter subscription
+	 *
+	 * @param int $subscriber_id User id of the subscriber
+	 * @param int $blog_id Blog id
+	 * @param int $post_id Post id
+	 *
+	 * @return bool
+	 */
+	public static function user_can_receive_post_by_mail( $subscriber_id, $blog_id, $post_id ) {
+
+		// Site admins can do everything
+		if ( current_user_can( 'edit_post', $post_id ) ) {
+			return true;
+		}
+
+		$access_level = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
+
+		if ( empty( $access_level ) || 'everybody' === $access_level ) {
+			// empty level means the post is not gated for paid users
+			return true;
+		}
+
+		if ( 'paid_subscribers' === $access_level ) {
+			$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $subscriber_id, $blog_id );
+			$subscriptions = array_filter(
+				$subscriptions,
+				function ( $s ) {
+					return 'active' == $s['status'];
+				}
+			);
+			return 0 !== count( $subscriptions );
+		}
+
+		if ( 'subscribers' === $access_level ) {
+			// @todo Needs to be done if we ever merge the logic with the jetpack code, gating access on the post level.
+			// once done there is a test ready to be unskipped: test_jetpack_paid_newsletters_gated_subscribers_newsletter()
+			return true;
+		}
+
+		// It should not happen
+		return true;
+	}
+
 }
