@@ -15,13 +15,17 @@ async function insertTemplate( prompt, embedPrompt = false ) {
 
 function initBloggingPrompts() {
 	const prompts = window.Jetpack_BloggingPrompts;
-	const urlQuery = new URLSearchParams( document.location.search );
-	const answerPrompt = !! urlQuery.get( 'answer_prompt' );
 	if ( ! Array.isArray( prompts ) || ! prompts[ 0 ] ) {
 		return;
 	}
 
-	insertTemplate( prompts[ 0 ], answerPrompt );
+	const urlQuery = new URLSearchParams( document.location.search );
+	const answerPrompt = urlQuery.get( 'answer_prompt' ) ?? '0';
+	const answerPromptId = parseInt( answerPrompt );
+
+	// Try to find the prompt by id, otherwise just default to the first prompt for the day.
+	const prompt = prompts.find( p => p.id === answerPromptId ) ?? prompts[ 0 ];
+	insertTemplate( prompt, !! answerPromptId );
 }
 
 initBloggingPrompts();
