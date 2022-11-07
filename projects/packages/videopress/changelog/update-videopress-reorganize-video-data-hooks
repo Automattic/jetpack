@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: re-organize hooks to keep video data in sync
