@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Deprecation warnings are now issued for `jetpack_require_lib()`, `jetpack_require_lib_dir()`, and the `jetpack_require_lib_dir` filter.
