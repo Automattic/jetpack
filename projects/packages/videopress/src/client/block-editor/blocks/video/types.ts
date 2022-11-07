@@ -2,7 +2,7 @@ type Track = {
 	items: object;
 };
 
-export type BlockAttributes = {
+export type VideoBlockAttributes = {
 	id?: number;
 	guid?: string;
 	src?: string;
@@ -34,7 +34,7 @@ export type PlaybackControlProps = {
 	/**
 	 * Block Attributes object.
 	 */
-	attributes: BlockAttributes;
+	attributes: VideoBlockAttributes;
 
-	setAttributes: ( attributes: BlockAttributes ) => void;
+	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 };
