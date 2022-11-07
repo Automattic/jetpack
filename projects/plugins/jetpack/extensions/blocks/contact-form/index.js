@@ -13,16 +13,18 @@ import variations from './variations';
 export const name = 'contact-form';
 
 const icon = renderMaterialIcon(
-	<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
+	<Path
+		fillRule="evenodd"
+		clipRule="evenodd"
+		d="M4 4H12V5.5H4V4ZM18.5 8V9H5.5V8H18.5ZM4 10.5H20V6.5H4V10.5ZM18.5 17.5V18.5H5.5V17.5H18.5ZM20 20V16H4V20H20ZM12 13.5H4V15H12V13.5Z"
+		fill={ getIconColor() }
+	/>
 );
 
 export const settings = {
 	title: __( 'Form', 'jetpack' ),
 	description: __( 'A simple way to get feedback from folks visiting your site.', 'jetpack' ),
-	icon: {
-		src: icon,
-		foreground: getIconColor(),
-	},
+	icon,
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'feedback', 'block search term', 'jetpack' ),
@@ -50,7 +52,7 @@ export const settings = {
 		);
 	},
 	variations,
-	category: 'grow',
+	category: 'contact-form',
 	transforms,
 	deprecated,
 };

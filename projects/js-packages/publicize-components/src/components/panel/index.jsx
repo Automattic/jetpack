@@ -14,7 +14,7 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import { SharePostRow } from '../share-post';
-import PublicizeTwitterOptions from '../twitter';
+import PublicizeTwitterOptions from '../twitter/options';
 
 const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
@@ -28,6 +28,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 		isShareLimitEnabled,
 		numberOfSharesRemaining,
 		hasPaidPlan,
+		connectionsAdminUrl,
 	} = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
@@ -75,6 +76,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 					<PublicizeForm
 						isPublicizeEnabled={ isPublicizeEnabled }
 						isPublicizeDisabledBySitePlan={ isPublicizeDisabledBySitePlan }
+						connectionsAdminUrl={ connectionsAdminUrl }
 						numberOfSharesRemaining={
 							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 						}
