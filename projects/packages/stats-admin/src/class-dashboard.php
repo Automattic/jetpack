@@ -195,7 +195,7 @@ class Dashboard {
 								'visible'      => true,
 								'capabilities' => $empty_object,
 								'products'     => array(),
-								'plan'         => $empty_object,
+								'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							),
 						),
 					),
