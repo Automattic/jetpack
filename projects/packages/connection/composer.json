@@ -8,7 +8,7 @@
 		"automattic/jetpack-admin-ui": "^0.2",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-roles": "^1.4",
-		"automattic/jetpack-status": "^1.14",
+		"automattic/jetpack-status": "^1.15",
 		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {

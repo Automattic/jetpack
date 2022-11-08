@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Remove include of `functions.is-mobile.php` from `class.jetpack-user-agent.php` to restore status quo.

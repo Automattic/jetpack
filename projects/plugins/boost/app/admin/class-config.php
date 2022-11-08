@@ -178,7 +178,7 @@ class Config {
 	 */
 	public static function is_getting_started() {
 		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
-		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
+		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
