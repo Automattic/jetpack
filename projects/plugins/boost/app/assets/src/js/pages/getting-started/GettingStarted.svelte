@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
@@ -26,14 +27,15 @@
 		window.location.href = getUpgradeURL();
 	};
 
-	$: {
+	onMount( () => {
+		// If we don't have pricing data, we should skip the page and go directly to settings.
 		if ( typeof pricing.yearly === 'undefined' ) {
 			// Allow opening the boost settings page.
 			markGetStartedComplete();
 
 			navigate( '/', { replace: true } );
 		}
-	}
+	} );
 </script>
 
 <div id="jb-settings" class="jb-settings jb-settings--main">
