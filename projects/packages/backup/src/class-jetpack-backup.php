@@ -13,6 +13,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Backup\Initial_State as Backup_Initial_State;
 use Automattic\Jetpack\Backup\Jetpack_Backup_Upgrades;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -207,6 +208,17 @@ class Jetpack_Backup {
 			)
 		);
 
+		// Get whether the site has a backup plan
+		register_rest_route(
+			'jetpack/v4',
+			'/has-backup-plan',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::has_backup_plan',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
 		// Get site rewind data.
 		register_rest_route(
 			'jetpack/v4',
@@ -302,6 +314,44 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
+	}
+
+	/**
+	 * Hits the wpcom api to check rewind status.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_rewind_state_from_wpcom() {
+		static $status = null;
+
+		if ( $status !== null ) {
+			return $status;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'rewind_state_fetch_failed' );
+		}
+
+		$body   = wp_remote_retrieve_body( $response );
+		$status = json_decode( $body );
+		return $status;
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_backup_plan() {
+		$rewind_data = static::get_rewind_state_from_wpcom();
+		if ( is_wp_error( $rewind_data ) ) {
+			return false;
+		}
+		return is_object( $rewind_data ) && isset( $rewind_data->state ) && 'unavailable' !== $rewind_data->state;
 	}
 
 	/**

@@ -43,6 +43,7 @@ import {
 	SET_LOCAL_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
+	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
@@ -338,6 +339,10 @@ const setPlaybackToken = playbackToken => {
 	return { type: SET_PLAYBACK_TOKEN, playbackToken };
 };
 
+const expirePlaybackToken = guid => {
+	return { type: EXPIRE_PLAYBACK_TOKEN, guid };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -376,6 +381,7 @@ const actions = {
 
 	setIsFetchingPlaybackToken,
 	setPlaybackToken,
+	expirePlaybackToken,
 };
 
 export { actions as default };

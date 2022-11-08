@@ -568,8 +568,10 @@ jQuery( function($) {
 
 		foreach ( $connections_data as $connection_data ) {
 			$all_connections_done = $all_connections_done && $connection_data['done'];
-			if ( isset( $connection_data['is_healthy'] ) && false === $connection_data['is_healthy'] ) {
+			$connection_healthy   = ! isset( $connection_data['is_healthy'] ) || $connection_data['is_healthy'];
+			if ( ! $connection_healthy ) {
 				$broken_connections[] = $connection_data;
+
 			}
 			?>
 
@@ -585,11 +587,11 @@ jQuery( function($) {
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
 					<?php
-						checked( true, $connection_data['enabled'] && ! empty( $connection_data['is_healthy'] ) );
-						disabled( false, $connection_data['toggleable'] && ! empty( $connection_data['is_healthy'] ) );
+						checked( true, $connection_data['enabled'] && $connection_healthy );
+						disabled( false, $connection_data['toggleable'] && $connection_healthy );
 					?>
 					/>
-				<?php if ( $connection_data['enabled'] && ! empty( $connection_data['is_healthy'] ) && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
+				<?php if ( $connection_data['enabled'] && $connection_healthy && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
 					<input
 						type="hidden"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"

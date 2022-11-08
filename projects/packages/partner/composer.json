@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "^1.46",
-		"automattic/jetpack-status": "^1.14"
+		"automattic/jetpack-status": "^1.15"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",

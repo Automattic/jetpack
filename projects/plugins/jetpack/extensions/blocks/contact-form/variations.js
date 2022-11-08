@@ -34,9 +34,9 @@ const variations = compact( [
 			'-4 -4 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-textarea', {} ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack' ) } ],
 			[
 				'jetpack/button',
 				{
@@ -67,8 +67,8 @@ const variations = compact( [
 			'-6 -6 92 92'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[ 'jetpack/field-consent', {} ],
 			[
 				'jetpack/button',
@@ -97,8 +97,8 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[
 				'jetpack/field-radio',
 				{
@@ -136,9 +136,9 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-telephone', { label: __( 'Phone', 'jetpack' ) } ],
 			[
 				'jetpack/field-select',
 				{
@@ -181,9 +181,9 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-telephone', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-telephone', { required: true, label: __( 'Phone', 'jetpack' ) } ],
 			[ 'jetpack/field-date', { label: __( 'Date', 'jetpack' ), required: true } ],
 			[
 				'jetpack/field-radio',
@@ -222,8 +222,8 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[
 				'jetpack/field-radio',
 				{
