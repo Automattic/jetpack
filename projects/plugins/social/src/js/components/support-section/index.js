@@ -22,17 +22,15 @@ const SupportSection = () => {
 	}
 
 	return (
-		<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
+		<Container
+			horizontalSpacing={ 7 }
+			horizontalGap={ 3 }
+			className={ classNames( {
+				[ styles[ 'is-viewport-medium' ] ]: isAtLeastMedium,
+			} ) }
+		>
 			<IconText
-				icon={
-					<Icon
-						icon={ lifesaver }
-						size={ 30 }
-						className={ classNames( styles.icon, {
-							[ styles[ 'is-viewport-medium' ] ]: isAtLeastMedium,
-						} ) }
-					></Icon>
-				}
+				icon={ <Icon icon={ lifesaver } size={ 30 } className={ styles.icon }></Icon> }
 				title={ __( 'World-class support', 'jetpack-social' ) }
 			>
 				<Text>

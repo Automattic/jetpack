@@ -3,7 +3,7 @@
 }
 
 .icon {
-	&.is-viewport-medium {
+	.is-viewport-medium & {
 		margin-left: calc( var( --spacing-base ) * 3 );
 		margin-right: calc( var( --spacing-base ) * 1 );
 	}
