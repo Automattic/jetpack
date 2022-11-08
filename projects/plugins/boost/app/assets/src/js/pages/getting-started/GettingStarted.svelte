@@ -25,6 +25,15 @@
 		await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 		window.location.href = getUpgradeURL();
 	};
+
+	$: {
+		if ( typeof pricing.yearly === 'undefined' ) {
+			// Allow opening the boost settings page.
+			markGetStartedComplete();
+
+			navigate( '/', { replace: true } );
+		}
+	}
 </script>
 
 <div id="jb-settings" class="jb-settings jb-settings--main">
@@ -32,14 +41,16 @@
 		<Header />
 	</div>
 
-	<div class="jb-section jb-section--alt">
-		<div class="jb-container">
-			<ReactComponent
-				this={BoostPricingTable}
-				{pricing}
-				onPremiumCTA={choosePaidPlan}
-				onFreeCTA={chooseFreePlan}
-			/>
+	{#if pricing.yearly}
+		<div class="jb-section jb-section--alt">
+			<div class="jb-container">
+				<ReactComponent
+					this={BoostPricingTable}
+					{pricing}
+					onPremiumCTA={choosePaidPlan}
+					onFreeCTA={chooseFreePlan}
+				/>
+			</div>
 		</div>
-	</div>
+	{/if}
 </div>
