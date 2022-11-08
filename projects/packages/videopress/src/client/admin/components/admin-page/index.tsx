@@ -56,7 +56,10 @@ const useDashboardVideos = () => {
 
 	const handleFilesUpload = ( files: FileList | File[] ) => {
 		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
-		uploadVideo( file );
+
+		if ( file ) {
+			uploadVideo( file );
+		}
 	};
 
 	const handleLocalVideoUpload = file => {
