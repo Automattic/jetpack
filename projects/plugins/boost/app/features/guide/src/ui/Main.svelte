@@ -3,13 +3,11 @@
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
-	const insertNodes = images.some(image => image.type === 'background');
-
 	let show: number | false = false;
-	show = 0;
+
 </script>
 
-<div class="guide" class:show={show !== false} class:bg={!insertNodes} on:mouseleave={() => show = false}>
+<div class="guide" class:show={show !== false} on:mouseleave={() => show = false} >
 	<div class="previews">
 		{#each images as image, index}
 			<Bubble ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
@@ -31,6 +29,9 @@
 		height: 100%;
 		z-index: 9000;
 		padding: 15px;
+		background-color: transparent;
+		will-change: background-color;
+		transition: background-color 100ms ease-out;
 
 		&.show {
 			background-color: hsl(0 90% 5% / 0.55);
