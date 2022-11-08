@@ -13,16 +13,16 @@ const InfoSection = () => {
 	};
 
 	return (
-		<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
-			<div className={ classNames( styles.column, viewportClasses ) }>
+		<Container
+			className={ classNames( viewportClasses ) }
+			horizontalSpacing={ 7 }
+			horizontalGap={ 3 }
+		>
+			<div className={ styles.column }>
 				<Text variant="title-medium" className={ styles.title }>
 					{ __( 'Did you know?', 'jetpack-social' ) }
 				</Text>
-				<Text
-					variant="headline-small-regular"
-					component={ 'span' }
-					className={ classNames( styles.number, viewportClasses ) }
-				>
+				<Text variant="headline-small-regular" component={ 'span' } className={ styles.number }>
 					40x
 				</Text>
 				<Text>
