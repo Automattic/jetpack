@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Removing the Customizer link breaks other plugins that rely on it.
