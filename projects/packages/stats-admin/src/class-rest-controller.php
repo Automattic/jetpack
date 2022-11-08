@@ -35,16 +35,7 @@ class REST_Controller {
 	public function register_rest_routes() {
 		register_rest_route(
 			static::$namespace,
-			'/me',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'me' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
-			)
-		);
-		register_rest_route(
-			static::$namespace,
-			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/stats/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)',
+			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_single_resource_from_wpcom' ),
@@ -53,7 +44,7 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/stats/(?P<resource>[\-\w]+)',
+			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_resource_from_wpcom' ),
@@ -62,7 +53,7 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			'/sites/' . Jetpack_Options::get_option( 'id' ) . '/(?P<resource>[\-\w]+)',
+			sprintf( '/sites/%d/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_resource_from_wpcom' ),
@@ -81,33 +72,6 @@ class REST_Controller {
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/jetpack-blogs/%d/rest-api', Jetpack_Options::get_option( 'id' ) ),
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'empty_result' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
-			)
-		);
-		register_rest_route(
-			static::$namespace,
-			'/me/sites',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'sites' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
-			)
-		);
-		register_rest_route(
-			static::$namespace,
-			'/me/settings',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'empty_result' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
-			)
-		);
-		register_rest_route(
-			static::$namespace,
-			'/me/preferences',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
@@ -148,36 +112,6 @@ class REST_Controller {
 			'ID'       => 1000,
 			'username' => 'no-user',
 		);
-	}
-
-	/**
-	 * Site endpoint.
-	 *
-	 * @param WP_REST_Request $req The request object.
-	 * @return array
-	 */
-	public function site( $req ) {
-		return static::request_as_blog_cached(
-			sprintf(
-				'/sites/%d?%s',
-				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
-					$req->get_params()
-				)
-			),
-			'1.1',
-			array( 'timeout' => 30 )
-		);
-	}
-
-	/**
-	 * Sites endpoint.
-	 *
-	 * @param WP_REST_Request $req The request object.
-	 * @return array
-	 */
-	public function sites( $req ) {
-		return array( 'sites' => $this->site( $req ) );
 	}
 
 	/**
@@ -340,6 +274,9 @@ class REST_Controller {
 		);
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
+
+		var_dump( $response_body );
+		exit;
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error(
