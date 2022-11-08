@@ -64,11 +64,11 @@ abstract class Publicize_Base {
 	const POST_PUBLICIZE_FEATURE_ENABLED = '_wpas_feature_enabled';
 
 	/**
-	 * Post meta key for adding attached media.
+	 * Post meta key for Jetpack Social options.
 	 *
 	 * @var string
 	 */
-	const POST_ATTACHED_MEDIA = '_wpas_attached_media';
+	const POST_JETPACK_SOCIAL_OPTIONS = 'jetpack_social_options';
 
 	/**
 	 * Connection ID appended to indicate that a connection should NOT be publicized to.
@@ -1045,17 +1045,22 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
-		$publicize_attached_media_args = array(
-			'type'          => 'array',
-			'description'   => __( 'List of media IDs that will be attached to the social media post.', 'jetpack-publicize-pkg' ),
+		$jetpack_social_options_args = array(
+			'type'          => 'object',
+			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => array(),
 			'show_in_rest'  => array(
-				'name'   => 'jetpack_publicize_attached_media',
+				'name'   => 'jetpack_social_options',
 				'schema' => array(
-					'type'  => 'array',
-					'items' => array(
-						'type' => 'number',
+					'type'       => 'object',
+					'properties' => array(
+						'attached_media' => array(
+							'type'  => 'array',
+							'items' => array(
+								'type' => 'number',
+							),
+						),
 					),
 				),
 			),
@@ -1070,11 +1075,12 @@ abstract class Publicize_Base {
 			$message_args['object_subtype']                  = $post_type;
 			$tweetstorm_args['object_subtype']               = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
+			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
-			register_meta( 'post', self::POST_ATTACHED_MEDIA, $publicize_attached_media_args );
+			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 		}
 	}
 

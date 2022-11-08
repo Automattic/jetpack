@@ -541,12 +541,21 @@ export function getFeatureEnableState() {
 }
 
 /**
+ * Get all Jetpack Social options.
+ *
+ * @returns {Object} Object with Jetpack Social options.
+ */
+export function getJetpackSocialOptions() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_social_options' ], {} );
+}
+
+/**
  * Get a list of all attached media.
  *
  * @returns {Array} An array of media IDs.
  */
 export function getAttachedMedia() {
-	const { getEditedPostAttribute } = select( editorStore );
-	const meta = getEditedPostAttribute( 'meta' );
-	return get( meta, [ 'jetpack_publicize_attached_media' ], [] );
+	return get( getJetpackSocialOptions(), [ 'attached_media' ], [] );
 }

@@ -16,13 +16,16 @@ export default function useAttachedMedia() {
 	const { editPost } = useDispatch( editorStore );
 
 	const attachedMedia = useSelect( select => select( 'jetpack/publicize' ).getAttachedMedia() );
+	const currentOptions = useSelect( select =>
+		select( 'jetpack/publicize' ).getJetpackSocialOptions()
+	);
 
 	return {
 		attachedMedia,
 		updateAttachedMedia: function ( ids ) {
 			editPost( {
 				meta: {
-					jetpack_publicize_attached_media: ids,
+					jetpack_social_options: { ...currentOptions, attached_media: ids },
 				},
 			} );
 		},
