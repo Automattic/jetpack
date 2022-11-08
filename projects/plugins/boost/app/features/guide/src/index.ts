@@ -1,4 +1,3 @@
-import './style.css';
 import { load, Image } from './Images';
 import { measure, MeasuredImage } from './Measurements';
 
