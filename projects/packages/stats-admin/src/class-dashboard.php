@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\StatsAdmin;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
-use WP_REST_Request;
 
 /**
  * Responsible for adding a stats dashboard to wp-admin.
@@ -115,8 +114,8 @@ class Dashboard {
 		// );
 		// Assets::enqueue_script( 'jp-stats-dashboard' );
 
-		wp_register_script( 'jp-stats-dashboard', '//kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), JETPACK__VERSION, true );
-		wp_register_style( 'jp-stats-dashboard-style', '//kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), JETPACK__VERSION );
+		wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), JETPACK__VERSION, true );
+		wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), JETPACK__VERSION );
 		wp_enqueue_script( 'jp-stats-dashboard' );
 		wp_enqueue_style( 'jp-stats-dashboard-style' );
 
@@ -158,6 +157,7 @@ class Dashboard {
 	public static function config_data() {
 		$connection_manager = new Connection_Manager( 'jetpack' );
 		$blog_id            = Jetpack_Options::get_option( 'id' );
+		$empty_object       = json_decode( '{}' );
 
 		return 'window.configData = ' . wp_json_encode(
 			array(
@@ -207,7 +207,15 @@ class Dashboard {
 					),
 					'sites'       => array(
 						'items' => array(
-							"$blog_id" => ( new REST_Controller() )->site( new WP_REST_Request() ),
+							"$blog_id" => array(
+								'ID'           => $blog_id,
+								'URL'          => site_url(),
+								'jetpack'      => true,
+								'visible'      => true,
+								'capabilities' => $empty_object,
+								'products'     => array(),
+								'plan'         => $empty_object,
+							),
 						),
 					),
 				),
