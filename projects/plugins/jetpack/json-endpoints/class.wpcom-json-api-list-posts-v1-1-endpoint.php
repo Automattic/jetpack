@@ -6,7 +6,6 @@
 new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 	array(
 		'description'                          => 'Get a list of matching posts.',
-		'allow_jetpack_site_auth'              => true,
 		'min_version'                          => '1.1',
 		'max_version'                          => '1.1',
 
