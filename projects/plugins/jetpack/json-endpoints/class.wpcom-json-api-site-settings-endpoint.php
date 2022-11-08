@@ -906,6 +906,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) $value;
 					break;
 
+				case 'featured_image_email_enabled':
+					update_option( 'featured_image_email_enabled', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
 				default:
 					// allow future versions of this endpoint to support additional settings keys.
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
