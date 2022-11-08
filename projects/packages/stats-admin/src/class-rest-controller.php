@@ -53,6 +53,24 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
+			sprintf( '/sites/%d/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)/(?P<sub_resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_sub_resource_from_wpcom' ),
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_single_resource_from_wpcom' ),
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+			)
+		);
+		register_rest_route(
+			static::$namespace,
 			sprintf( '/sites/%d/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -140,7 +158,31 @@ class REST_Controller {
 	}
 
 	/**
-	 * Resource endpoint.
+	 * Sub Resource endpoint e.g. posts/121/likes.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_site_sub_resource_from_wpcom( $req ) {
+		// TODO: add a whitelist of allowed resources.
+		return static::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/%s/%d/%s?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'resource' ),
+				$req->get_param( 'resource_id' ),
+				$req->get_param( 'sub_resource' ),
+				http_build_query(
+					$req->get_params()
+				)
+			),
+			'1.2',
+			array( 'timeout' => 30 )
+		);
+	}
+
+	/**
+	 * Site Stats Resource endpoint.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
@@ -150,6 +192,30 @@ class REST_Controller {
 		return static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/stats/%s/%d?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'resource' ),
+				$req->get_param( 'resource_id' ),
+				http_build_query(
+					$req->get_params()
+				)
+			),
+			'1.1',
+			array( 'timeout' => 30 )
+		);
+	}
+
+	/**
+	 * Site Resource endpoint.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_site_single_resource_from_wpcom( $req ) {
+		// TODO: add a whitelist of allowed resources.
+		// TODO: sites/123/posts/456 currently returns 403.
+		return static::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/%s/%d?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource' ),
 				$req->get_param( 'resource_id' ),
@@ -180,6 +246,7 @@ class REST_Controller {
 	public function get_site_resource_from_wpcom( $req ) {
 		// TODO: add a whitelist of allowed resources.
 		// TODO: for posts the `allow_fallback_to_jetpack_blog_token` in controller doesn't seem to work - `json-endpoints/class.wpcom-json-api-list-posts-v1-1-endpoint.php`.
+		// so currently it returns 403 for posts.
 		$resource = $req->get_param( 'resource' );
 		switch ( $resource ) {
 			case 'site-has-never-published-post':
