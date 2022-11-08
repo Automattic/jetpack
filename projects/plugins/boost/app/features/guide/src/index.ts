@@ -2,7 +2,7 @@ import './style.css';
 import { load, Image } from './Images';
 import { measure, MeasuredImage } from './Measurements';
 
-import Info from './Info.svelte';
+import Main from './ui/Main.svelte';
 
 function closestStableParent(node: Element, distance = 0): Element | null {
 	if (!node.parentNode) {
@@ -141,7 +141,7 @@ window.addEventListener('load', async () => {
 	}, {} as Record<number, ImageComponentConfig>);
 
 	const instances = Object.values(componentConfiguration).map(data => {
-		const instance = new Info(data);
+		const instance = new Main(data);
 		return instance;
 	});
 });

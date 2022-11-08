@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ImageGuide from './ImageGuide.svelte';
 	import type { ComparedImage } from './Measurements';
-	import Bubble from './ui/Bubble.svelte';
+	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
 	const insertNodes = images.some(image => image.type === 'background');
 
