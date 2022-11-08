@@ -22,7 +22,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -126,12 +126,22 @@ const Admin = () => {
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
+	useEffect( () => {
+		document.addEventListener( 'drop', handleDropEvent );
+		document.addEventListener( 'dragover', handleDragOverEvent );
+		document.addEventListener( 'dragleave', handleDragLeaveEvent );
+
+		return () => {
+			document.removeEventListener( 'drop', handleDropEvent );
+			document.removeEventListener( 'dragover', handleDragOverEvent );
+			document.removeEventListener( 'dragleave', handleDragLeaveEvent );
+		};
+	}, [ handleDropEvent, handleDragOverEvent, handleDragLeaveEvent ] );
+
 	return (
-		<div
-			className={ styles[ 'admin-wrapper' ] }
-			onDrop={ handleDropEvent }
-			onDragOver={ handleDragOverEvent }
-			onDragLeave={ handleDragLeaveEvent }
+		<AdminPage
+			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
+			header={ <Logo /> }
 		>
 			<div
 				className={ classnames( styles[ 'files-overlay' ], {
@@ -151,105 +161,100 @@ const Admin = () => {
 				/>
 			</div>
 
-			<AdminPage
-				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-				header={ <Logo /> }
-			>
-				{ showPricingSection ? (
+			{ showPricingSection ? (
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col sm={ 4 } md={ 8 } lg={ 12 }>
+							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
+						</Col>
+					</Container>
+				</AdminSectionHero>
+			) : (
+				<>
 					<AdminSectionHero>
-						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-							<Col sm={ 4 } md={ 8 } lg={ 12 }>
-								<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
+						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+							{ hasConnectionError && (
+								<Col>
+									<ConnectionError />
+								</Col>
+							) }
+
+							{ ! hasConnectedOwner && (
+								<Col sm={ 4 } md={ 8 } lg={ 12 }>
+									<NeedUserConnectionGlobalNotice />
+								</Col>
+							) }
+							<Col sm={ 4 } md={ 4 } lg={ 8 }>
+								<Text variant="headline-small" mb={ 3 }>
+									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
+								</Text>
+
+								<ConnectVideoStorageMeter
+									className={ styles[ 'storage-meter' ] }
+									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+								/>
+
+								<FormFileUpload
+									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									accept={ fileInputExtensions }
+									render={ ( { openFileDialog } ) => (
+										<Button
+											fullWidth={ isSm }
+											onClick={ openFileDialog }
+											isLoading={ loading }
+											disabled={ ! hasVideoPressPurchase && hasVideos }
+										>
+											{ addVideoLabel }
+										</Button>
+									) }
+								/>
+
+								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
 						</Container>
 					</AdminSectionHero>
-				) : (
-					<>
-						<AdminSectionHero>
-							<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
-								{ hasConnectionError && (
-									<Col>
-										<ConnectionError />
-									</Col>
-								) }
-
-								{ ! hasConnectedOwner && (
-									<Col sm={ 4 } md={ 8 } lg={ 12 }>
-										<NeedUserConnectionGlobalNotice />
-									</Col>
-								) }
-								<Col sm={ 4 } md={ 4 } lg={ 8 }>
-									<Text variant="headline-small" mb={ 3 }>
-										{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
-									</Text>
-
-									<ConnectVideoStorageMeter
-										className={ styles[ 'storage-meter' ] }
-										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+					<AdminSection>
+						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
+							{ hasVideos ? (
+								<Col sm={ 4 } md={ 6 } lg={ 12 }>
+									<VideoPressLibrary
+										videos={ videos }
+										totalVideos={ uploadedVideoCount }
+										loading={ loading }
 									/>
-
-									<FormFileUpload
-										onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
-										accept={ fileInputExtensions }
-										render={ ( { openFileDialog } ) => (
-											<Button
-												fullWidth={ isSm }
-												onClick={ openFileDialog }
-												isLoading={ loading }
-												disabled={ ! hasVideoPressPurchase && hasVideos }
-											>
-												{ addVideoLabel }
-											</Button>
-										) }
-									/>
-
-									{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 								</Col>
-							</Container>
-						</AdminSectionHero>
-						<AdminSection>
-							<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
-								{ hasVideos ? (
-									<Col sm={ 4 } md={ 6 } lg={ 12 }>
-										<VideoPressLibrary
-											videos={ videos }
-											totalVideos={ uploadedVideoCount }
-											loading={ loading }
-										/>
-									</Col>
-								) : (
-									<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
-										<Text variant="headline-small">
-											{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
-										</Text>
-										<VideoUploadArea
-											className={ classnames( styles[ 'upload-area' ], {
-												[ styles.small ]: isSm,
-											} ) }
-											onSelectFiles={ handleFilesUpload }
-										/>
-									</Col>
-								) }
-								{ hasLocalVideos && (
-									<Col sm={ 4 } md={ 6 } lg={ 12 }>
-										<LocalLibrary
-											videos={ localVideos }
-											totalVideos={ uploadedLocalVideoCount }
-											onUploadClick={ handleLocalVideoUpload }
-											uploading={ uploading }
-										/>
-									</Col>
-								) }
-							</Container>
-						</AdminSection>
-					</>
-				) }
+							) : (
+								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
+									<Text variant="headline-small">
+										{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
+									</Text>
+									<VideoUploadArea
+										className={ classnames( styles[ 'upload-area' ], {
+											[ styles.small ]: isSm,
+										} ) }
+										onSelectFiles={ handleFilesUpload }
+									/>
+								</Col>
+							) }
+							{ hasLocalVideos && (
+								<Col sm={ 4 } md={ 6 } lg={ 12 }>
+									<LocalLibrary
+										videos={ localVideos }
+										totalVideos={ uploadedLocalVideoCount }
+										onUploadClick={ handleLocalVideoUpload }
+										uploading={ uploading }
+									/>
+								</Col>
+							) }
+						</Container>
+					</AdminSection>
+				</>
+			) }
 
-				<AdminSection>
-					<SettingsSection />
-				</AdminSection>
-			</AdminPage>
-		</div>
+			<AdminSection>
+				<SettingsSection />
+			</AdminSection>
+		</AdminPage>
 	);
 };
 
