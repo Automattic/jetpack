@@ -5,17 +5,23 @@ import styles from './styles.module.scss';
 
 const InfoSection = () => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const [ isAtLeastMedium ] = useBreakpointMatch( 'md', '>=' );
+
+	const viewportClasses = {
+		[ styles[ 'is-viewport-large' ] ]: isLg,
+		[ styles[ 'is-viewport-medium' ] ]: isAtLeastMedium,
+	};
 
 	return (
 		<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
-			<div className={ styles.column }>
+			<div className={ classNames( styles.column, viewportClasses ) }>
 				<Text variant="title-medium" className={ styles.title }>
 					{ __( 'Did you know?', 'jetpack-social' ) }
 				</Text>
 				<Text
 					variant="headline-small-regular"
 					component={ 'span' }
-					className={ classNames( styles.number, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
+					className={ classNames( styles.number, viewportClasses ) }
 				>
 					40x
 				</Text>
