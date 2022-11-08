@@ -157,6 +157,7 @@ class Dashboard {
 				'nonce'                      => wp_create_nonce( 'wp_rest' ),
 				'is_running_in_jetpack_site' => true,
 				'admin_page_base'            => static::get_admin_path(),
+				'mc_analytics_enabled'       => false,
 				'meta'                       => array(),
 				'features'                   => array(
 					'stats/show-traffic-highlights' => true,
