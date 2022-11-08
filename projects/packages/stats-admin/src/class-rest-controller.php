@@ -322,7 +322,7 @@ class REST_Controller {
 	 * @param bool   $use_cache (optional) default to true.
 	 * @return array|WP_Error $response Data.
 	 */
-	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = false ) {
+	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true ) {
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
 		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
 
