@@ -186,10 +186,6 @@ class Dashboard {
 							'username' => 'no-user',
 						),
 					),
-					'ui'          => array(
-						'selectedSiteId'           => Jetpack_Options::get_option( 'id' ),
-						'siteSelectionInitialized' => true,
-					),
 					'sites'       => array(
 						'items' => array(
 							"$blog_id" => array(
