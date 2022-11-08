@@ -179,6 +179,7 @@ class REST_Controller {
 	 */
 	public function get_site_resource_from_wpcom( $req ) {
 		// TODO: add a whitelist of allowed resources.
+		// TODO: for posts the `allow_fallback_to_jetpack_blog_token` in controller doesn't seem to work - `json-endpoints/class.wpcom-json-api-list-posts-v1-1-endpoint.php`.
 		$resource = $req->get_param( 'resource' );
 		switch ( $resource ) {
 			case 'site-has-never-published-post':
