@@ -146,39 +146,22 @@ class Dashboard {
 
 		return 'window.configData = ' . wp_json_encode(
 			array(
-				'site_name'                      => \get_bloginfo( 'name' ),
-				'env_id'                         => 'production',
-				'i18n_default_locale_slug'       => 'en',
-				'i18n_locale_slug'               => static::get_site_locale(),
-				'google_analytics_key'           => 'UA-10673494-15',
-				'client_slug'                    => 'browser',
-				'twemoji_cdn_url'                => 'https://s0.wp.com/wp-content/mu-plugins/wpcom-smileys/twemoji/2/',
-				'site_filter'                    => array(),
-				'sections'                       => array(),
-				'enable_all_sections'            => false,
-				'jetpack_support_blog'           => 'jetpackme.wordpress.com',
-				'wpcom_support_blog'             => 'en.support.wordpress.com',
-				'google_maps_and_places_api_key' => '',
-				'mc_analytics_enabled'           => false,
-				'gutenboarding_url'              => '/new',
-				'hostname'                       => false,
-				'restricted_me_access'           => true,
-				'signup_url'                     => false,
-				'features'                       => array(),
-				'api_root'                       => esc_url_raw( rest_url() ),
-				'blog_id'                        => Jetpack_Options::get_option( 'id' ),
-				'nonce'                          => wp_create_nonce( 'wp_rest' ),
-				'is_running_in_jetpack_site'     => true,
-				'admin_page_base'                => static::get_admin_path(),
-				'meta'                           => array(
-					'property' => 'og:site_name',
-					'content'  => 'WordPress.com',
-				),
-				'features'                       => array(
+				'site_name'                  => \get_bloginfo( 'name' ),
+				'env_id'                     => 'production',
+				'i18n_default_locale_slug'   => 'en',
+				'i18n_locale_slug'           => static::get_site_locale(),
+				'google_analytics_key'       => 'UA-10673494-15',
+				'api_root'                   => esc_url_raw( rest_url() ),
+				'blog_id'                    => Jetpack_Options::get_option( 'id' ),
+				'nonce'                      => wp_create_nonce( 'wp_rest' ),
+				'is_running_in_jetpack_site' => true,
+				'admin_page_base'            => static::get_admin_path(),
+				'meta'                       => array(),
+				'features'                   => array(
 					'stats/show-traffic-highlights' => true,
 					'stats/new-main-chart'          => true,
 				),
-				'intial_state'                   => array(
+				'intial_state'               => array(
 					'currentUser' => array(
 						'id'   => 1000,
 						'user' => array(
