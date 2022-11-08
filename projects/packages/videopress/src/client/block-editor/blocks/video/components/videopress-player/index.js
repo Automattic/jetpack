@@ -216,10 +216,6 @@ export default function VideoPressPlayer( {
 								{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
 							</div>
 						) }
-
-						<div className="jetpack-videopress-ghost-player">
-							<SandBox html={ html } />
-						</div>
 					</>
 				</div>
 			</ResizableBox>
