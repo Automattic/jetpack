@@ -147,23 +147,24 @@ class Dashboard {
 
 		return 'window.configData = ' . wp_json_encode(
 			array(
-				'site_name'                  => \get_bloginfo( 'name' ),
-				'env_id'                     => 'production',
-				'i18n_default_locale_slug'   => 'en',
-				'i18n_locale_slug'           => static::get_site_locale(),
-				'google_analytics_key'       => 'UA-10673494-15',
-				'api_root'                   => esc_url_raw( rest_url() ),
-				'blog_id'                    => Jetpack_Options::get_option( 'id' ),
-				'nonce'                      => wp_create_nonce( 'wp_rest' ),
-				'is_running_in_jetpack_site' => true,
-				'admin_page_base'            => static::get_admin_path(),
-				'mc_analytics_enabled'       => false,
-				'meta'                       => array(),
-				'features'                   => array(
+				'site_name'                      => \get_bloginfo( 'name' ),
+				'env_id'                         => 'production',
+				'i18n_default_locale_slug'       => 'en',
+				'i18n_locale_slug'               => static::get_site_locale(),
+				'google_analytics_key'           => 'UA-10673494-15',
+				'google_maps_and_places_api_key' => '',
+				'api_root'                       => esc_url_raw( rest_url() ),
+				'blog_id'                        => Jetpack_Options::get_option( 'id' ),
+				'nonce'                          => wp_create_nonce( 'wp_rest' ),
+				'is_running_in_jetpack_site'     => true,
+				'admin_page_base'                => static::get_admin_path(),
+				'mc_analytics_enabled'           => false,
+				'meta'                           => array(),
+				'features'                       => array(
 					'stats/show-traffic-highlights' => true,
 					'stats/new-main-chart'          => true,
 				),
-				'intial_state'               => array(
+				'intial_state'                   => array(
 					'currentUser' => array(
 						'id'   => 1000,
 						'user' => array(
