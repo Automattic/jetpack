@@ -8,8 +8,9 @@
 namespace Automattic\Jetpack\StatsAdmin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
+use WP_REST_Request;
 
 /**
  * Responsible for adding a stats dashboard to wp-admin.
@@ -103,16 +104,21 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		Assets::register_script(
-			'jp-stats-dashboard',
-			'../dist/build.min.js',
-			__FILE__,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-stats-admin',
-			)
-		);
-		Assets::enqueue_script( 'jp-stats-dashboard' );
+		// Assets::register_script(
+		// 'jp-stats-dashboard',
+		// '../dist/build.min.js',
+		// __FILE__,
+		// array(
+		// 'in_footer'  => true,
+		// 'textdomain' => 'jetpack-stats-admin',
+		// )
+		// );
+		// Assets::enqueue_script( 'jp-stats-dashboard' );
+
+		wp_register_script( 'jp-stats-dashboard', '//kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), JETPACK__VERSION, true );
+		wp_register_style( 'jp-stats-dashboard-style', '//kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), JETPACK__VERSION );
+		wp_enqueue_script( 'jp-stats-dashboard' );
+		wp_enqueue_style( 'jp-stats-dashboard-style' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
@@ -150,6 +156,8 @@ class Dashboard {
 	 * Return the initial state of the app.
 	 */
 	public static function config_data() {
+		$connection_manager = new Connection_Manager( 'jetpack' );
+		$blog_id            = Jetpack_Options::get_option( 'id' );
 
 		return 'window.configData = ' . wp_json_encode(
 			array(
@@ -183,7 +191,25 @@ class Dashboard {
 				),
 				'features'                       => array(
 					'stats/show-traffic-highlights' => true,
-					'stats/new-main-chart'          => true,
+					// 'stats/new-main-chart'          => true,
+				),
+				'intial_state'                   => array(
+					'currentUser' => array(
+						'id'   => 1000,
+						'user' => array(
+							'ID'       => 1000,
+							'username' => 'no-user',
+						),
+					),
+					'ui'          => array(
+						'selectedSiteId'           => Jetpack_Options::get_option( 'id' ),
+						'siteSelectionInitialized' => true,
+					),
+					'sites'       => array(
+						'items' => array(
+							"$blog_id" => ( new REST_Controller() )->site( new WP_REST_Request() ),
+						),
+					),
 				),
 			)
 		);
