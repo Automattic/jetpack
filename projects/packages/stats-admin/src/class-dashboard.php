@@ -164,7 +164,7 @@ class Dashboard {
 				'sections'                       => array(),
 				'features'                       => array(
 					'stats/show-traffic-highlights' => true,
-					'stats/new-main-chart'          => true,
+					// 'stats/new-main-chart'          => true,
 				),
 				'intial_state'                   => array(
 					'currentUser' => array(
