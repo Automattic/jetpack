@@ -780,19 +780,7 @@ async function buildProject( t ) {
 						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
 							if ( ctxPkg.name === pkg ) {
 								let massagedVer = ctxPkg.version;
-
-								// Truncate non-0.x 'require' package versions to be two components only.
-								if (
-									key === 'require' &&
-									t.project.startsWith( 'packages/' ) &&
-									massagedVer[ 0 ] !== '0'
-								) {
-									massagedVer = massagedVer.split( '.' ).slice( 0, 2 ).join( '.' );
-								}
-
-								// Prefix versions with '^'.
 								massagedVer = `^${ massagedVer }`;
-
 								composerJson[ key ][ pkg ] = massagedVer;
 								break;
 							}
