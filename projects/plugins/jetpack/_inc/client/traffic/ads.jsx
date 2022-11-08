@@ -281,7 +281,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						hasChild
 						support={ {
 							text: __(
-								'Enables a targeted advertising opt-out link in US States where this is legally required.',
+								'Enables a targeted advertising opt-out link in US states where this is legally required.',
 								'jetpack'
 							),
 							link: this.props.isAtomicSite
@@ -310,7 +310,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								<p>
 									<small className="jp-form-setting-explanation">
 										{ __(
-											'Some US States have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
+											'Some US states have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
 											'jetpack'
 										) }
 									</small>
