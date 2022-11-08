@@ -1,9 +1,7 @@
-.jb-guide {
+.jetpack-boost-guide.relative {
 	position: relative;
-	text-align: left;
 }
-
-.jb-guide--bg {
+.jetpack-boost-guide--bg {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -26,13 +24,7 @@
 	width: 100%;
 	height: 100%;
 	background-color: hsl(0 90% 5% / 0.55);
-	display: none;
 }
-
-.jb-guide-overlay:hover, .jb-guide:has(.jb-guide-previews:hover) .jb-guide-overlay {
-	display: block;
-}
-
 
 .jb-guide-previews {
 	position: absolute;

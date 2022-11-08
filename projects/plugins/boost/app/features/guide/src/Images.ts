@@ -34,8 +34,8 @@ async function getImageSize(url) {
 	try {
 		const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
 
-		if (!response.url) {
-			console.info(`Can't get image size for ${url} likely due to a CORS error.`);
+		if( ! response.url ) {
+			console.log(`Can't get image size for ${url} likely due to a CORS error.`);
 			return -1;
 		}
 
