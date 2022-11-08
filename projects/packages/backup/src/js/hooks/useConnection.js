@@ -3,7 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 import BackupPromotionBlock from '../components/backup-promotion';
 import { STORE_ID } from '../store';
 
@@ -22,6 +22,11 @@ export default function useConnection() {
 	);
 	const [ price, setPrice ] = useState( 0 );
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
+
+	const checkSiteHasBackupProduct = useCallback(
+		() => apiFetch( { path: '/jetpack/v4/has-backup-plan' } ),
+		[]
+	);
 
 	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
@@ -48,6 +53,8 @@ export default function useConnection() {
 				registrationNonce={ registrationNonce }
 				from="jetpack-backup"
 				redirectUri="admin.php?page=jetpack-backup"
+				wpcomProductSlug="jetpack_backup_t1_yearly"
+				siteProductAvailabilityHandler={ checkSiteHasBackupProduct }
 			>
 				<BackupPromotionBlock />
 			</ConnectScreenRequiredPlan>

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Comment: Add a missing break statement in the site API endpoint

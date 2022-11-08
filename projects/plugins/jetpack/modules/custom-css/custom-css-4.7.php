@@ -1,7 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Blocks;
 
 /**
  * Alternate Custom CSS source for 4.7 compat.
@@ -45,25 +44,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_filter( 'editor_max_image_size', array( __CLASS__, 'editor_max_image_size' ), 10, 3 );
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
-
-		// Remove the Customizer link from the menu to avoid additional confusion if the site is a FSE themed site.
-		if ( wp_is_block_theme() || Blocks::is_fse_theme() ) {
-			if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-				add_action(
-					'admin_menu',
-					function () {
-						remove_submenu_page(
-							'themes.php',
-							add_query_arg(
-								'return',
-								rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ),  // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-								'customize.php'
-							)
-						);
-					}
-				);
-			}
-		}
 	}
 
 	/**
