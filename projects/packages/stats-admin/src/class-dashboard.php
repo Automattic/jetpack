@@ -78,6 +78,7 @@ class Dashboard {
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
 		</div>
 		<script>
+			// we intercept on all anchor tags and change it to hashbang style.
 			jQuery(document).ready(function($) {
 				$("#wpcom").on('click', 'a', function (e) {
 					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
