@@ -45,6 +45,7 @@ import {
 	SET_PLAYBACK_TOKEN,
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
+	SET_VIDEOPRESS_SITE_PRIVACY_SETTING,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -352,6 +353,10 @@ const expirePlaybackToken = guid => {
 	return { type: EXPIRE_PLAYBACK_TOKEN, guid };
 };
 
+const setVideoPressSitePrivacySetting = videoPressSitePrivacySetting => {
+	return { type: SET_VIDEOPRESS_SITE_PRIVACY_SETTING, videoPressSitePrivacySetting };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -391,6 +396,8 @@ const actions = {
 	setIsFetchingPlaybackToken,
 	setPlaybackToken,
 	expirePlaybackToken,
+
+	setVideoPressSitePrivacySetting,
 };
 
 export { actions as default };
