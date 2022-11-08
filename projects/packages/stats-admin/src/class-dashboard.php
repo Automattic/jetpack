@@ -139,7 +139,7 @@ class Dashboard {
 	}
 
 	/**
-	 * Return the initial state of the app.
+	 * Return the config for the app.
 	 */
 	public static function config_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
