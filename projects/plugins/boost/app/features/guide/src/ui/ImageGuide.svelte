@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ComparedImage } from './Measurements';
+	import type { ComparedImage } from '../Measurements';
 	export let image: ComparedImage;
 	const imageName = image.url.split('/').pop();
 	const ratio = image.scaling.pixels.toFixed(2);
