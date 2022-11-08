@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.1
 Requires PHP: 7.0
-Stable tag: 1.5.1
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,20 +176,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-
-### 1.5.3 - 2022-10-25
-
-#### Added
-- Compatibility: Added a compatibility module for WP Super Cache.
-- Compatibility: Tested with v6.1 of WordPress.
-- General: Added tracking to purchase flows.
-- User Experience: Added a flow for first-time users.
-
+### 1.5.4 - 2022-11-08
 #### Fixed
-- Critical CSS: Keep Critical CSS and Cloud CSS status in sync.
-- Deferred JS: Fix detection of application/json scripts to auto-exclude them from deferral.
-- Lazy Loading: Fix desynchronization of Lazy Loading features between Boost and Jetpack.
-- Speed Scores: Fixed issues dismissing notifications on speed score improvements.
+- Fixed an issue that caused boost to break on offline sites
 
 --------
 
