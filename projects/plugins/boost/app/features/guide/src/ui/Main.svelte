@@ -9,48 +9,37 @@
 	show = 0;
 </script>
 
-<div class="guide" class:bg={!insertNodes} on:mouseleave={() => (show = false)}>
+<div class="guide" class:show={show !== false} class:bg={!insertNodes} on:mouseleave={() => show = false}>
 	<div class="previews">
 		{#each images as image, index}
 			<Bubble ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
 		{/each}
 	</div>
 	{#if show !== false}
-		<div class="overlay">
-			<ImageGuide image={images[show]} />
-		</div>
+		<ImageGuide image={images[show]} />
 	{/if}
 </div>
 
 <style lang="scss">
-	.jb-guide {
+	.guide {
 		position: absolute;
 		top: 0;
 		left: 0;
-		right: 0;
-		bottom: 0;
-	}
-	.overlay,
-	.previews {
-		position: absolute;
-		top: 0;
-		left: 0;
-		padding: 20px;
-		z-index: 9001;
-	}
-
-	.overlay {
 		right: 0;
 		bottom: 0;
 		width: 100%;
 		height: 100%;
-		background-color: hsl(0 90% 5% / 0.55);
+		z-index: 9000;
+		padding: 15px;
 
-		&::after {
+		&.show {
+			background-color: hsl(0 90% 5% / 0.55);
+		}
+
+		&.show::after {
 			content: '';
 
 			position: absolute;
-			z-index: 9001;
 			bottom: 20px;
 			right: 20px;
 			display: block;
@@ -69,10 +58,10 @@
 	}
 
 	.previews {
-		position: absolute;
-		width: fit-content;
+		width: 100%;
 		display: flex;
-		gap: 10px;
+		gap: 15px;
 		flex-wrap: wrap;
+		margin-bottom: 15px;
 	}
 </style>

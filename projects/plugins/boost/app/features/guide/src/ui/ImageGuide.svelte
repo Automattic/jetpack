@@ -35,22 +35,5 @@
 		gap: 15px;
 	}
 
-	.overlay::after {
-		background: url(../boost.png) no-repeat;
-		content: '';
-		position: absolute;
-		bottom: 20px;
-		right: 20px;
-		display: block;
-		width: 100px;
-		height: 100px;
-		z-index: 9001;
-		background-position: center;
-		background-size: 70px;
-		overflow: hidden;
-		height: 40px;
-		border-radius: 6px;
-		width: 100px;
-		background-color: white;
-	}
+
 </style>
