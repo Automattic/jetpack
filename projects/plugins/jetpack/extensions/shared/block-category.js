@@ -13,6 +13,17 @@ if ( ! isWpcom ) {
 	} );
 }
 
+// We're moving Form specific blocks to a new 'Forms' category
+// that should appear before the 'earn' and 'grow' categories
+setCategories( [
+	...getCategories().filter( ( { slug } ) => slug !== 'contact-form' ),
+	{
+		slug: 'contact-form',
+		title: __( 'Forms', 'jetpack' ),
+		icon: <JetpackLogo />,
+	},
+] );
+
 setCategories( [
 	...getCategories().filter( ( { slug } ) => slug !== 'earn' ),
 	// Add a Earn block category

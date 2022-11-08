@@ -89,6 +89,9 @@ function generateAggregation( filter ) {
 		case 'author': {
 			return { terms: { field: 'author_login_slash_name', size: filter.count } };
 		}
+		case 'blog_id': {
+			return { terms: { field: filter.type, size: filter.count } };
+		}
 	}
 }
 
@@ -131,6 +134,9 @@ const filterKeyToEsFilter = new Map( [
 
 	// Author
 	[ 'authors', author => ( { term: { author_login: author } } ) ],
+
+	// Blog ID
+	[ 'blog_ids', blogId => ( { term: { blog_id: blogId } } ) ],
 
 	// Built-in taxonomies
 	[ 'category', category => ( { term: { 'category.slug': category } } ) ],

@@ -52,7 +52,7 @@ export const settings = {
 		);
 	},
 	variations,
-	category: 'grow',
+	category: 'contact-form',
 	transforms,
 	deprecated,
 };

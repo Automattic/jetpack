@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.20] - 2022-11-07
+### Fixed
+- Ensure that User_Agent is loaded in environments without autoload enabled. (e.g.: WordPress.com and Super Cache) [#27223]
+
 ## [1.4.19] - 2022-10-25
 ### Changed
 - Update `wp_unslash` wrapper to possibly run on wpcom before WordPress is loaded. [#26971]
@@ -128,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[1.4.20]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.19...v1.4.20
 [1.4.19]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.18...v1.4.19
 [1.4.18]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.17...v1.4.18
 [1.4.17]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.16...v1.4.17

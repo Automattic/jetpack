@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.4
+Stable tag: 11.5.1
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -242,37 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.5-beta - 2022-10-25
+### 11.6-a.3 - 2022-11-07
 #### Enhancements
-- Dashboard: add a new illustration for WooCommerce recommendation.
-- Dashboard: add connection widget for unconnected sites.
-- Dashboard: add Jetpack Search Free and Jetpack Social to My Products. 
-- Dashboard: ensure Apps card is always displayed, regardless of whether promotions are active.
-- Form block: add Contact Form child blocks to the Block Library.
-- Form block: add default spacing attributes on all form variations, and change layout styles.
-- Form block: improve parent block selection when inner block is already selected.
-- Form block: move Contact Form child blocks to a new category and remove some Core blocks from the child blocks list.
-- Jetpack Social: display broken connections to user in editor.
-- Payment Button block: support a wider variety of layout options.
-- Payment Buttons block: add typography controls.
-- Publicize: make the pre-publish panel initially closed by default.
-- Social: show pre-publish panel if the site has connections enabled.
-- Stats: change mentions of "Site Stats" with "Jetpack Stats".
-- Subscription block: don't include Jetpack Social connections in subscriber count.
-- Subscriptions: bold the display reader numbers in subscriptions panel instead of underlined.
+- Form block: add support links to form type selector.
+- Form block: register Jetpack forms in the pattern inserter.
 
 #### Improved compatibility
-- Contact Form Block: removed compatibility checks involving automatic deactivation of contact form functionality.
-- Form block: remove duplicated contact form settings from the Contact Form block's toolbar in favor of the sidebar.
-- VideoPress: change the toolbar text for the "Edit video" button on the VideoPress block to "Replace" to match the core video block's toolbar.
+- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar.
+- VideoPress (beta): introduce Video Chapters beta block.
 
 #### Bug fixes
-- Contact Form: display consent form field result in notification emails and feedback views.
-- Contact Form: remove overlay causing issues with the block inserter hover behavior.
-- CRM: Fix unmounted state updates in Form CRM integration
-- Form block: include spacing between Contact Form blocks to allow the block inserter to be shown on mouse hover.
-- Get Apps card: Iterate on link to jetpack.com/apps to ensure backwards compatibility and click-tracking
-- Payment Buttons block: fix payment-buttons font sizes taking precedence over the font sizes of contained button blocks.
+- Customizer: make sure the menu item is shown for block themes.
+- Image Editor: fix issue where users are not able to edit/crop and restore images.
+- Related Posts Block: when 3 posts are output, increase the width closer to 100%.
 
 --------
 

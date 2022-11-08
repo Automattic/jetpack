@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+When running the script locally for testing, do not require `API_TOKEN_GITHUB`.
