@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue that caused boost to break on offline sites

@@ -164,7 +164,8 @@ class Config {
 	 * Check if force redirect to getting started page is enabled.
 	 */
 	public static function is_getting_started() {
-		return \get_option( 'jb_get_started', false );
+		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
+		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
