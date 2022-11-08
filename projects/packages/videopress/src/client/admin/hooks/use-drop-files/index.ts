@@ -9,8 +9,13 @@ import { allowedVideoExtensions } from '../../../utils/video-extensions';
 
 const useDropFiles = ( {
 	canDrop = true,
+	dropElement,
 	onSelectFiles,
-}: { canDrop?: boolean; onSelectFiles?: ( files: File[] ) => void } = {} ) => {
+}: {
+	canDrop?: boolean;
+	dropElement?: HTMLElement | Document;
+	onSelectFiles?: ( files: File[] ) => void;
+} = {} ) => {
 	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
 	const inputRef = useRef( null );
 	// Chrome and Firefox diverge on the order of events, with Chrome firing two leave events in a row, hence the array
@@ -81,6 +86,20 @@ const useDropFiles = ( {
 			setIsDraggingOver( false );
 		}
 	}, [ canDrop ] );
+
+	if ( dropElement ) {
+		useEffect( () => {
+			dropElement.addEventListener( 'drop', ( handleDropEvent as unknown ) as EventListener );
+			dropElement.addEventListener( 'dragover', handleDragOverEvent );
+			dropElement.addEventListener( 'dragleave', handleDragLeaveEvent );
+
+			return () => {
+				dropElement.removeEventListener( 'drop', ( handleDropEvent as unknown ) as EventListener );
+				dropElement.removeEventListener( 'dragover', handleDragOverEvent );
+				dropElement.removeEventListener( 'dragleave', handleDragLeaveEvent );
+			};
+		}, [ handleDropEvent, handleDragOverEvent, handleDragLeaveEvent ] );
+	}
 
 	return {
 		isDraggingOver,

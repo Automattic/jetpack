@@ -22,7 +22,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -111,15 +111,9 @@ const Admin = () => {
 
 	const canDrop = hasVideoPressPurchase && isRegistered && hasVideos && ! loading;
 
-	const {
-		isDraggingOver,
-		handleDragOverEvent,
-		handleDragLeaveEvent,
-		handleDropEvent,
-		inputRef,
-		handleFileInputChangeEvent,
-	} = useDropFiles( {
+	const { isDraggingOver, inputRef, handleFileInputChangeEvent } = useDropFiles( {
 		canDrop,
+		dropElement: document,
 		onSelectFiles: handleFilesUpload,
 	} );
 
@@ -128,18 +122,6 @@ const Admin = () => {
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
-
-	useEffect( () => {
-		document.addEventListener( 'drop', handleDropEvent );
-		document.addEventListener( 'dragover', handleDragOverEvent );
-		document.addEventListener( 'dragleave', handleDragLeaveEvent );
-
-		return () => {
-			document.removeEventListener( 'drop', handleDropEvent );
-			document.removeEventListener( 'dragover', handleDragOverEvent );
-			document.removeEventListener( 'dragleave', handleDragLeaveEvent );
-		};
-	}, [ handleDropEvent, handleDragOverEvent, handleDragLeaveEvent ] );
 
 	return (
 		<AdminPage
