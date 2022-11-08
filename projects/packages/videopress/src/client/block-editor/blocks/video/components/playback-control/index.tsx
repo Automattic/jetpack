@@ -63,7 +63,7 @@ export default function PlaybackControl( { attributes, setAttributes }: Playback
 
 			<ToggleControl
 				label={ renderControlLabelWithTooltip(
-					__( 'Playback Controls', 'jetpack-videopress-pkg' ),
+					__( 'Show Controls', 'jetpack-videopress-pkg' ),
 					/* translators: Tooltip describing the "controls" option for the VideoPress player */
 					__( 'Display the video playback controls', 'jetpack-videopress-pkg' )
 				) }
