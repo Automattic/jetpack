@@ -160,6 +160,8 @@ class Dashboard {
 				'admin_page_base'                => static::get_admin_path(),
 				'mc_analytics_enabled'           => false,
 				'meta'                           => array(),
+				'sections'                       => array(),
+				'enable_all_sections'            => false,
 				'features'                       => array(
 					'stats/show-traffic-highlights' => true,
 					'stats/new-main-chart'          => true,
