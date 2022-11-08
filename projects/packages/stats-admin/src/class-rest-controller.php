@@ -275,9 +275,6 @@ class REST_Controller {
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 
-		var_dump( $response_body );
-		exit;
-
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
