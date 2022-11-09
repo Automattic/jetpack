@@ -176,7 +176,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.5.4 - 2022-11-08
+### 1.5.4 - 2022-11-09
 #### Fixed
 - Fixed an issue that caused boost to break on offline sites
 
