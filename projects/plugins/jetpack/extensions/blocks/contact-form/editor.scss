@@ -115,7 +115,6 @@
 	.form-placeholder__footer-links {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
 	}
 
 	.form-placeholder__external-link {
@@ -130,8 +129,8 @@
 }
 
 .form-placeholder__patterns-modal {
-	// To keep modal dimensions consistent as subsections are navigated, width
-	// and height are used instead of max-(width/height).
+	max-width: 1200px;
+
 	@include break-small() {
 		width: calc(100% - #{ $grid-unit-20 * 2 });
 		height: calc(100% - #{ $header-height * 2 });
@@ -147,6 +146,16 @@
 
 	.components-modal__content {
 		padding: 0;
+
+		.view-mode-carousel {
+			.pattern-slide {
+				border: 1px solid #ddd;
+			}
+
+			.block-editor-block-pattern-setup__container {
+				padding: 0 32px;
+			}
+		}
 	}
 
 	.block-editor-block-pattern-setup__grid .block-editor-block-pattern-setup__container {
