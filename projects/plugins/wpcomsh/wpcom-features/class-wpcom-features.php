@@ -89,6 +89,9 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T1_MONTHLY                   = 'jetpack_backup_t1_monthly'; // 2113
 	private const JETPACK_BACKUP_T2_YEARLY                    = 'jetpack_backup_t2_yearly'; // 2114
 	private const JETPACK_BACKUP_T2_MONTHLY                   = 'jetpack_backup_t2_monthly'; // 2115
+	private const JETPACK_BACKUP_ADDON_STORAGE_10GB_MONTHLY   = 'jetpack_backup_addon_storage_10gb_monthly'; // 2040
+	private const JETPACK_BACKUP_ADDON_STORAGE_100GB_MONTHLY  = 'jetpack_backup_addon_storage_100gb_monthly'; // 2044
+	private const JETPACK_BACKUP_ADDON_STORAGE_1TB_MONTHLY    = 'jetpack_backup_addon_storage_1tb_monthly'; // 2048
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const JETPACK_BACKUP_T0_YEARLY                    = 'jetpack_backup_t0_yearly'; // 2120
@@ -106,7 +109,7 @@ class WPCOM_Features {
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
-	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic'; // 2503
+	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic_yearly'; // 2503
 	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
 
 	// WPCOM "Level 2": Groups of level 1s.
@@ -141,6 +144,8 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T2_PLANS       = array( self::JETPACK_SECURITY_T2_MONTHLY, self::JETPACK_SECURITY_T2_YEARLY );
 
 	private const JETPACK_SCAN_PLANS = array( self::JETPACK_SCAN, self::JETPACK_SCAN_MONTHLY, self::JETPACK_SCAN_REALTIME, self::JETPACK_SCAN_REALTIME_MONTHLY );
+
+	private const JETPACK_SOCIAL_PLANS = array( self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
 
 	private const JETPACK_BACKUP_DAILY_PLANS    = array( self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY );
 	private const JETPACK_BACKUP_REALTIME_PLANS = array( self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY );
@@ -701,9 +706,9 @@ class WPCOM_Features {
 		 *
 		 */
 		self::SOCIAL_SHARES_1000            => array(
-			self::JETPACK_SOCIAL_BASIC_MONTHLY,
-			self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY,
-			self::JETPACK_SOCIAL_BASIC,
+			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::BUNDLE_ENTERPRISE,
 		),
 
 		self::SPACE                         => array(

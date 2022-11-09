@@ -91,11 +91,14 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 			}
 			$product_data = $product_cache[ $unformatted_purchase->product_id ];
 			$purchases[]  = (object) array(
-				'product_slug'    => $product_data['product_slug'],
-				'product_id'      => (string) $unformatted_purchase->product_id,
-				'product_type'    => $product_data['product_type'],
-				'subscribed_date' => wpcom_datetime_to_iso8601( $unformatted_purchase->subscribed_date ),
-				'expiry_date'     => wpcom_datetime_to_iso8601( $unformatted_purchase->expiry ),
+				'product_slug'           => $product_data['product_slug'],
+				'product_id'             => (string) $unformatted_purchase->product_id,
+				'product_type'           => $product_data['product_type'],
+				'subscribed_date'        => wpcom_datetime_to_iso8601( $unformatted_purchase->subscribed_date ),
+				'expiry_date'            => wpcom_datetime_to_iso8601( $unformatted_purchase->expiry ),
+				// We don't use is_configured_to_allow_auto_renew() for auto_renew because it's too slow.
+				'user_allows_auto_renew' => ! empty( $unformatted_purchase->auto_renew ),
+				'subscription_id'        => (string) $unformatted_purchase->ID,
 			);
 		}
 	}
