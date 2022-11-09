@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.5
+Stable tag: 11.5.1
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -242,16 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.6-a.1 - 2022-11-01
+### 11.6-a.3 - 2022-11-07
 #### Enhancements
-- Form block: update contact-form icon
-- Form block: update Contact Form Sidebar to include Manage Responses section and split Form Settings section into more specific sections
-- Form block: update Contact Form Toolbar to include a form settings dropdown
-- Stats: update mentions of "Site Stats" to "Jetpack Stats"
+- Form block: add support links to form type selector.
+- Form block: register Jetpack forms in the pattern inserter.
+
+#### Improved compatibility
+- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar.
+- VideoPress (beta): introduce Video Chapters beta block.
 
 #### Bug fixes
-- SSO: properly disable "match by email" by default.
-- WordPress.com REST API: Fix fatal error in site ID endpoint.
+- Customizer: make sure the menu item is shown for block themes.
+- Image Editor: fix issue where users are not able to edit/crop and restore images.
+- Related Posts Block: when 3 posts are output, increase the width closer to 100%.
 
 --------
 

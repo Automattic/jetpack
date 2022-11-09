@@ -11,12 +11,14 @@
  *
  * @since 4.0.2
  * @deprecated since 11.3 Use `JETPACK__PLUGIN_DIR . '_inc/lib/'` instead.
+ * @todo Remove this in Jetpack 11.9 (started issuing warnings in 11.6).
  *
  * @return string Location of Jetpack library directory.
  *
  * @filter require_lib_dir
  */
 function jetpack_require_lib_dir() {
+	_deprecated_function( __FUNCTION__, 'Jetpack 11.3', '`JETPACK__PLUGIN_DIR . \'_inc/lib/\'`' );
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
