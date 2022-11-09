@@ -2,17 +2,21 @@ import '../css/deactivation.scss';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default class JetpackPluginDeactivation {
-	private deactivateButton: HTMLElement;
+	private deactivateButton: HTMLAnchorElement;
 	private dialog: HTMLDivElement;
 
 	static ACTIVE_CLASS_NAME = 'jp-plugin-deactivation--active';
 
 	constructor( private pluginSlug: string ) {
-		this.deactivateButton = document.getElementById( `deactivate-${ this.pluginSlug }` );
+		this.deactivateButton = document.getElementById(
+			`deactivate-${ this.pluginSlug }`
+		) as HTMLAnchorElement;
 
 		// When using jetpack beta, the id is postfixed with `-dev`.
 		if ( ! this.deactivateButton ) {
-			this.deactivateButton = document.getElementById( `deactivate-${ this.pluginSlug }-dev` );
+			this.deactivateButton = document.getElementById(
+				`deactivate-${ this.pluginSlug }-dev`
+			) as HTMLAnchorElement;
 		}
 
 		// If the button is still not found, we're probably in a different page.
