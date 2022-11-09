@@ -83,7 +83,7 @@ function jetpack_vr_viewer_get_html( $url_params ) {
 	$iframe = add_query_arg( $url_params, 'https://vr.me.sh/view/' );
 
 	// set some defaults.
-	$maxwidth = ( isset( $content_width ) ) ? $content_width : 720;
+	$maxwidth = ( is_numeric( $content_width ) && $content_width > 0 ) ? $content_width : 720;
 	$view     = ( isset( $url_params['view'] ) ) ? $url_params['view'] : 'cinema';
 
 	// If the shortcode is displayed in a WPCOM notification, display a simple link only.
