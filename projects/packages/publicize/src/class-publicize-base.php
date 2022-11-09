@@ -68,7 +68,7 @@ abstract class Publicize_Base {
 	 *
 	 * @var string
 	 */
-	const POST_JETPACK_SOCIAL_OPTIONS = 'jetpack_social_options';
+	const POST_JETPACK_SOCIAL_OPTIONS = '_wpas_options';
 
 	/**
 	 * Connection ID appended to indicate that a connection should NOT be publicized to.
