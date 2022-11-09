@@ -1,7 +1,7 @@
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { Button, ResponsiveWrapper, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import styles from './styles.module.scss';
@@ -27,18 +27,17 @@ const getMediaDetails = media => {
 	};
 };
 
+const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
+const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
+
+const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
+
 /**
  * Wrapper that handles media-related functionality.
  *
  * @returns {object} The media section.
  */
 export default function MediaSection() {
-	const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
-	const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
-	const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
-
-	const ALLOWED_MEDIA_TYPES = useMemo( () => [ 'image/jpeg', 'image/png' ], [] );
-
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 
 	const mediaObject = useSelect( select =>
@@ -58,7 +57,7 @@ export default function MediaSection() {
 
 			updateAttachedMedia( [ media.id ] );
 		},
-		[ ALLOWED_MEDIA_TYPES, updateAttachedMedia ]
+		[ updateAttachedMedia ]
 	);
 
 	const setMediaRender = useCallback(
@@ -74,16 +73,7 @@ export default function MediaSection() {
 				</Button>
 			</div>
 		),
-		[ ADD_MEDIA_LABEL, mediaHeight, mediaObject, mediaSourceUrl, mediaWidth, attachedMedia ]
-	);
-
-	const replaceMediaRender = useCallback(
-		( { open } ) => (
-			<Button onClick={ open } variant="secondary">
-				{ REPLACE_MEDIA_LABEL }
-			</Button>
-		),
-		[ REPLACE_MEDIA_LABEL ]
+		[ mediaHeight, mediaObject, mediaSourceUrl, mediaWidth, attachedMedia ]
 	);
 
 	return (
@@ -97,17 +87,9 @@ export default function MediaSection() {
 					value={ attachedMedia[ 0 ] }
 				/>
 				{ mediaObject && (
-					<>
-						<MediaUpload
-							title={ REPLACE_MEDIA_LABEL }
-							onSelect={ onUpdateMedia }
-							allowedTypes={ ALLOWED_MEDIA_TYPES }
-							render={ replaceMediaRender }
-						/>
-						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
-							{ REMOVE_MEDIA_LABEL }
-						</Button>
-					</>
+					<Button onClick={ onRemoveMedia } variant="link" isDestructive>
+						{ REMOVE_MEDIA_LABEL }
+					</Button>
 				) }
 			</MediaUploadCheck>
 		</div>

@@ -9,12 +9,6 @@
 		margin-left: -9px;
 	}
 
-	// Stack consecutive buttons.
-	& :global( .components-button + .components-button ) {
-		display: block;
-		margin-top: 1em;
-	}
-
 	// This keeps images at their intrinsic size (eg. a 50px
 	// image will never be wider than 50px).
 	& :global( .components-responsive-wrapper__content ) {
