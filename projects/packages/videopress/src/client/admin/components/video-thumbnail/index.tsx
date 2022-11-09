@@ -28,7 +28,9 @@ export const VideoThumbnailDropdownButtons = ( {
 } ) => {
 	return (
 		<>
+			{ /* TODO: Implement use default and remove disabled class */ }
 			<Button
+				className={ styles.disabled }
 				weight="regular"
 				fullWidth
 				variant="tertiary"
@@ -84,7 +86,7 @@ export const VideoThumbnailDropdown = ( {
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
-						onClick={ onUploadImage }
+						onClick={ onToggle }
 						aria-expanded={ isOpen }
 					/>
 				) }
