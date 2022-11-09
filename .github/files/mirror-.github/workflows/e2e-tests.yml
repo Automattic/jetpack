@@ -11,15 +11,9 @@ jobs:
 
     steps:
       - name: Create a repository dispatch
-        env:
-          TOKEN: ${{ secrets.REPO_DISPATCH_TOKEN }}
-        run: |
-          curl -X POST https://api.github.com/repos/automattic/jetpack/dispatches \
-          -H "Accept: application/vnd.github.v3+json" \
-          -u "user:$TOKEN" \
-          --data "{\"event_type\": \"e2e tests: $GITHUB_EVENT_NAME $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_REF_TYPE\",
-          \"client_payload\": {
-          \"repository\": \"$GITHUB_REPOSITORY\",
-          \"ref_name\": \"$GITHUB_REF_NAME\",
-          \"ref_type\": \"$GITHUB_REF_TYPE\"
-          }}"
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: automattic/jetpack
+          event-type: e2e tests at ${{github.event_name}} on ${{github.repository}} ${{github.ref_name}} ${{github.ref_type}}
+          client-payload: '{"repository": "${{github.repository}}", "ref_name": "${{github.ref_name}}", "ref_type": "${{github.ref_type}}"}'
