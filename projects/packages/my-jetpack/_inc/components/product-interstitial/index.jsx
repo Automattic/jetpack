@@ -186,6 +186,15 @@ export function ExtrasInterstitial() {
 }
 
 /**
+ * ProtectInterstitial component
+ *
+ * @returns {object} ProtectInterstitial react component.
+ */
+export function ProtectInterstitial() {
+	return <ProductInterstitial slug="protect" installsPlugin={ true } bundle="security" />;
+}
+
+/**
  * ScanInterstitial component
  *
  * @returns {object} ScanInterstitial react component.

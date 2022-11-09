@@ -67,7 +67,7 @@ const pluginSelectors = {
 					'jetpack-social',
 					'jetpack-videopress',
 				].indexOf( plugin.TextDomain ) >= 0
-		),
+		).length > 0,
 };
 
 const noticeSelectors = {
