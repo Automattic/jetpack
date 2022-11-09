@@ -103,8 +103,9 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), JETPACK__VERSION, true );
-		wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), JETPACK__VERSION );
+		wp_register_script( 'jp-stats-load-sprite', plugins_url( '../assets/load-sprite.js', __FILE__ ), array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
+		wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill', 'jp-stats-load-sprite' ), uniqid(), true );
+		wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), uniqid() );
 		wp_enqueue_script( 'jp-stats-dashboard' );
 		wp_enqueue_style( 'jp-stats-dashboard-style' );
 
@@ -145,7 +146,9 @@ class Dashboard {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
 
-		return 'window.configData = ' . wp_json_encode(
+		return '
+		__webpack_public_path__ = ' . wp_json_encode( esc_url( plugins_url( 'jetpack_vendor/automattic/jetpack-stats-admin/assets/', JETPACK__PLUGIN_FILE ) ) ) . ';
+		configData = ' . wp_json_encode(
 			array(
 				'admin_page_base'                => static::get_admin_path(),
 				'api_root'                       => esc_url_raw( rest_url() ),
