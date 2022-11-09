@@ -295,7 +295,16 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 				if ( resp?.data?.generating ) {
 					pollPoster();
 				} else {
-					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+					const poster = resp?.data?.poster;
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
+					apiFetch( {
+						path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
+						method: 'POST',
+						data: {
+							id,
+							poster,
+						},
+					} );
 				}
 			} catch ( error ) {
 				// @todo implement error handling / UI
