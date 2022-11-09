@@ -284,7 +284,7 @@ const getStorageUsed = {
 			 * Let's compute the value in bytes.
 			 */
 			const storageUsed = response.options.videopress_storage_used
-				? Math.round( Number( response.options.videopress_storage_used ) * 1024 * 1024 )
+				? Math.round( Number( response.options.videopress_storage_used ) * 1000 * 1000 )
 				: 0;
 
 			dispatch.setVideosStorageUsed( storageUsed );

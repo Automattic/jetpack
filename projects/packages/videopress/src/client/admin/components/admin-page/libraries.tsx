@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -104,6 +105,7 @@ const VideoLibraryWrapper = ( {
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const history = useHistory();
+	const { search } = useVideos();
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
 		LIBRARY_TYPE_LOCALSORAGE_KEY
@@ -127,6 +129,23 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 		history.push( `/video/${ video?.id }/edit` );
 	};
 
+	const library =
+		libraryType === LibraryType.Grid ? (
+			<VideoGrid
+				videos={ videos }
+				onVideoDetailsClick={ handleClickEditDetails }
+				loading={ loading }
+				count={ uploading ? videos.length : 6 }
+			/>
+		) : (
+			<VideoList
+				videos={ videos }
+				onVideoDetailsClick={ handleClickEditDetails }
+				hidePlays
+				loading={ loading }
+			/>
+		);
+
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
@@ -134,20 +153,21 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
 		>
-			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid
-					videos={ videos }
-					onVideoDetailsClick={ handleClickEditDetails }
-					loading={ loading }
-					count={ uploading ? videos.length : 6 }
-				/>
+			{ videos.length > 0 || loading ? (
+				library
 			) : (
-				<VideoList
-					videos={ videos }
-					onVideoDetailsClick={ handleClickEditDetails }
-					hidePlays
-					loading={ loading }
-				/>
+				<Text>
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: placeholder is the search term */
+							__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
+							search
+						),
+						{
+							em: <em className={ styles[ 'query-no-results' ] } />,
+						}
+					) }
+				</Text>
 			) }
 			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>

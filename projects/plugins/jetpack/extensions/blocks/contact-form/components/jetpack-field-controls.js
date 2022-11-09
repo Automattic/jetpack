@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldWidth from './jetpack-field-width';
+import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 	return (
@@ -31,6 +32,9 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 			</BlockControls>
 
 			<InspectorControls>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+					<JetpackManageResponsesSettings isChildBlock />
+				</PanelBody>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack' ) }
