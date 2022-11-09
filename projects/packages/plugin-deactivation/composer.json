@@ -25,8 +25,12 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": "pnpm run build-production",
-		"build-development": "pnpm run build-development",
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"

@@ -15,14 +15,11 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build-webpack": "webpack --config ./webpack.config.js",
-		"build-concurrently": "pnpm run clear-dist && rollup -c",
-		"build-development": "pnpm run build-concurrently",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build-concurrently",
-		"reformat-files": "../../../tools/js-tools/node_modules/.bin/prettier --ignore-path .eslintignore --write --plugin-search-dir=. ./**/*.{svelte,js,ts,json}",
-		"compile-ts": "tsc --pretty",
-		"clear-dist": "rm -rf assets/dist/*",
-		"watch": "pnpm run clear-dist && rollup -c -w"
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "pnpm webpack --config webpack.config.js",
+		"clean": "rm -rf build/",
+		"watch": "pnpm run build && pnpm webpack watch",
+		"test": "jest --config=tests/jest.config.js"
 	},
 	"engines": {
 		"node": "^16.13.2",
@@ -30,12 +27,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
-		"@rollup/plugin-typescript": "8.3.3",
-		"concurrently": "7.5.0",
-		"postcss": "8.4.18",
-		"rollup": "2.56.3",
-		"rollup-plugin-postcss": "4.0.2",
-		"sass": "1.55.0",
+		"sass": "1.56.1",
 		"sass-loader": "12.4.0",
 		"tslib": "2.3.1",
 		"typescript": "4.8.2",
