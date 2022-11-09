@@ -98,8 +98,8 @@ export const isFetchingPlaybackToken = state => {
 	return state?.playbackTokens?.isFetching;
 };
 
-export const getVideoPressSitePrivacySetting = state => {
-	return state?.siteSettings?.videoPressSitePrivacySetting;
+export const getVideoPressSettings = state => {
+	return state?.siteSettings;
 };
 
 const selectors = {
@@ -133,7 +133,7 @@ const selectors = {
 	getPlaybackToken,
 	isFetchingPlaybackToken,
 
-	getVideoPressSitePrivacySetting,
+	getVideoPressSettings,
 };
 
 export default selectors;

@@ -21,7 +21,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	EXPIRE_PLAYBACK_TOKEN,
-	WP_REST_API_VIDEOPRESS_SITE_PRIVACY_SETTING_ENDPOINT,
+	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -421,20 +421,21 @@ const getPlaybackToken = {
 	},
 };
 
-const getVideoPressSitePrivacySetting = {
+const getVideoPressSettings = {
 	isFulfilled: state => {
-		const siteSettings = state?.siteSettings || {};
-		return siteSettings.videoPressSitePrivacySetting !== undefined;
+		return state?.siteSettings !== undefined;
 	},
 	fulfill: () => async ( { dispatch } ) => {
 		try {
 			const { videopress_videos_private_for_site: videoPressSitePrivacySetting } = await apiFetch( {
-				path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SITE_PRIVACY_SETTING_ENDPOINT }` ),
+				path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT }` ),
 				method: 'GET',
 			} );
 
-			dispatch.setVideoPressSitePrivacySetting( videoPressSitePrivacySetting );
-			return videoPressSitePrivacySetting;
+			const videoPressSettings = { videoPressSitePrivacySetting };
+
+			dispatch.setVideoPressSettings( videoPressSettings );
+			return videoPressSettings;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
@@ -455,5 +456,5 @@ export default {
 
 	getPlaybackToken,
 
-	getVideoPressSitePrivacySetting,
+	getVideoPressSettings,
 };

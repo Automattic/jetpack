@@ -39,7 +39,7 @@ import {
 	SET_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
 	EXPIRE_PLAYBACK_TOKEN,
-	SET_VIDEOPRESS_SITE_PRIVACY_SETTING,
+	SET_VIDEOPRESS_SETTINGS,
 } from './constants';
 
 /**
@@ -650,12 +650,12 @@ const playbackTokens = ( state, action ) => {
 
 const siteSettings = ( state, action ) => {
 	switch ( action.type ) {
-		case SET_VIDEOPRESS_SITE_PRIVACY_SETTING: {
-			const { videoPressSitePrivacySetting } = action;
+		case SET_VIDEOPRESS_SETTINGS: {
+			const { videoPressSettings } = action;
 
 			return {
 				...state,
-				videoPressSitePrivacySetting,
+				...videoPressSettings,
 			};
 		}
 
