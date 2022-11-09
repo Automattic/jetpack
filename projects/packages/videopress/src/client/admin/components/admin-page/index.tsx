@@ -30,6 +30,7 @@ import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useDropFiles from '../../hooks/use-drop-files';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
@@ -55,7 +56,10 @@ const useDashboardVideos = () => {
 
 	const handleFilesUpload = ( files: FileList | File[] ) => {
 		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
-		uploadVideo( file );
+
+		if ( file ) {
+			uploadVideo( file );
+		}
 	};
 
 	const handleLocalVideoUpload = file => {
@@ -105,6 +109,14 @@ const Admin = () => {
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
+	const canDrop = hasVideoPressPurchase && isRegistered && hasVideos && ! loading;
+
+	const { isDraggingOver, inputRef, handleFileInputChangeEvent } = useDropFiles( {
+		canDrop,
+		dropElement: document,
+		onSelectFiles: handleFilesUpload,
+	} );
+
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
 	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
@@ -116,6 +128,24 @@ const Admin = () => {
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <Logo /> }
 		>
+			<div
+				className={ classnames( styles[ 'files-overlay' ], {
+					[ styles.hover ]: isDraggingOver && canDrop,
+				} ) }
+			>
+				<Text className={ styles[ 'drop-text' ] } variant="headline-medium">
+					{ __( 'Drop files to upload', 'jetpack-videopress-pkg' ) }
+				</Text>
+
+				<input
+					ref={ inputRef }
+					type="file"
+					accept={ fileInputExtensions }
+					className={ styles[ 'file-input' ] }
+					onChange={ handleFileInputChangeEvent }
+				/>
+			</div>
+
 			{ showPricingSection ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -184,7 +214,9 @@ const Admin = () => {
 										{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
 									</Text>
 									<VideoUploadArea
-										className={ classnames( styles[ 'upload-area' ], { [ styles.small ]: isSm } ) }
+										className={ classnames( styles[ 'upload-area' ], {
+											[ styles.small ]: isSm,
+										} ) }
 										onSelectFiles={ handleFilesUpload }
 									/>
 								</Col>
