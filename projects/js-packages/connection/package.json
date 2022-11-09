@@ -7,7 +7,7 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-config": "workspace:* || ^0.1",
-		"@automattic/jetpack-components": "workspace:* || ^0.24",
+		"@automattic/jetpack-components": "workspace:* || ^0.25",
 		"@automattic/jetpack-api": "workspace:* || ^0.14",
 		"@wordpress/base-styles": "4.12.0",
 		"@wordpress/browserslist-config": "5.4.0",
