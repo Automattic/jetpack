@@ -118,6 +118,11 @@ const Admin = () => {
 		>
 			{ showPricingSection ? (
 				<AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						<Col>
+							<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
+						</Col>
+					</Container>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
 							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />

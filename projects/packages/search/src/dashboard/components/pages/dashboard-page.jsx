@@ -212,6 +212,11 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 	return (
 		<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
+				<Container horizontalSpacing={ 0 }>
+					<Col>
+						<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+					</Col>
+				</Container>
 				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 					<h1>
 						{ __(
