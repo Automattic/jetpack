@@ -16,6 +16,7 @@ on:
     workflows: ["Build"]
     branches: [ 'trunk', '*/branch-*' ]
   repository_dispatch:
+    types: ['tba'] #use a type that will not trigger anything yet. to be updated after #27288 is merged
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}

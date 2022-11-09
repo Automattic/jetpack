@@ -17,7 +17,7 @@ jobs:
           curl -X POST https://api.github.com/repos/automattic/jetpack/dispatches \
           -H "Accept: application/vnd.github.v3+json" \
           -u "user:$TOKEN" \
-          --data "{\"event_type\": \"$GITHUB_EVENT_NAME $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_REF_TYPE\",
+          --data "{\"event_type\": \"e2e tests: $GITHUB_EVENT_NAME $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_REF_TYPE\",
           \"client_payload\": {
           \"repository\": \"$GITHUB_REPOSITORY\",
           \"ref_name\": \"$GITHUB_REF_NAME\",
