@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.5.0 - 2022-11-08
+### Changed
+- Compatibility: WordPress 6.1 compatibility [#27084]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Social: Updated the plugin versions to start the new cycle [#27114]
+- Updated package dependencies. [#27182, #27196, #27278, #27289]
+
+## 1.5.0-beta - 2022-10-27
+### Added
+- Display broken connections to user in editor [#25803]
+- Integrate the ConnectionError react component to the Social plugin. [#26904]
+- Reshare: Added the reshare UI to the block editor extension [#25993]
+
+### Changed
+- Updated package dependencies. [#25993, #26640, #26683, #26705, #26716, #26790, #26791, #26808, #26826, #26829, #26851, #27089]
+
+### Fixed
+- Social: Fix the connection test endpoint URL [#26892]
+- Social: Fix the path to the connections URL in the editor [#26932]
+
+## 1.4.2 - 2022-10-20
+### Fixed
+- Social: Fix the path to the connections URL in the editor [#26932]
+
+## 1.4.1 - 2022-10-19
+### Fixed
+- Social: Fix the connection test endpoint URL [#26892]
+
 ## 1.4.0 - 2022-10-06
 ### Added
 - Add ContextualUpgradeTrigger to Jetpack Social admin page [#26115]

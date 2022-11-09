@@ -43,6 +43,7 @@ import {
 	SET_LOCAL_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
+	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
@@ -294,7 +295,16 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 				if ( resp?.data?.generating ) {
 					pollPoster();
 				} else {
-					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+					const poster = resp?.data?.poster;
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
+					apiFetch( {
+						path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
+						method: 'POST',
+						data: {
+							id,
+							poster,
+						},
+					} );
 				}
 			} catch ( error ) {
 				// @todo implement error handling / UI
@@ -338,6 +348,10 @@ const setPlaybackToken = playbackToken => {
 	return { type: SET_PLAYBACK_TOKEN, playbackToken };
 };
 
+const expirePlaybackToken = guid => {
+	return { type: EXPIRE_PLAYBACK_TOKEN, guid };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -376,6 +390,7 @@ const actions = {
 
 	setIsFetchingPlaybackToken,
 	setPlaybackToken,
+	expirePlaybackToken,
 };
 
 export { actions as default };

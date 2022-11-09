@@ -81,24 +81,24 @@ export const VideoCard = ( {
 		: '';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
-	const disabled = isSm || loading || uploading || processing;
+	const disabled = loading || uploading;
 
 	return (
 		<>
 			<div
 				className={ classnames( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
-					[ styles.disabled ]: disabled,
+					[ styles.disabled ]: isSm || disabled,
 				} ) }
-				{ ...( isSm && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
+				{ ...( isSm && ! disabled && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
 			>
 				{ ! isSm && <div className={ styles[ 'video-card__background' ] } /> }
 
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
-					loading={ loading }
-					uploading={ uploading || isUpdatingPoster }
+					loading={ loading || isUpdatingPoster }
+					uploading={ uploading }
 					processing={ processing }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
@@ -106,7 +106,7 @@ export const VideoCard = ( {
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
-					{ isSm && (
+					{ isSm && ! disabled && (
 						<div className={ styles.chevron }>
 							{ isOpen && <Icon icon={ chevronUp } /> }
 							{ ! isOpen && <Icon icon={ chevronDown } /> }

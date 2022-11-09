@@ -10,8 +10,8 @@
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
  * Version: 1.5.4-alpha
- * Author:            Automattic - Website Speed and Performance team
- * Author URI:        https://automattic.com
+ * Author:            Automattic - Jetpack Site Speed team
+ * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       jetpack-boost
@@ -56,6 +56,9 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 	define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 }
 
+if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
+	define( 'JETPACK_BOOST_PLUGINS_DIR_URL', plugin_dir_url( __FILE__ ) );
+}
 /**
  * Setup autoloading
  */

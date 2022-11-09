@@ -8,11 +8,6 @@
 
 use Automattic\Jetpack\Device_Detection;
 
-// We may have been loaded before the autoloader, so load the necessary class manually.
-if ( defined( 'JETPACK_PLUGIN_LOADER_PATH' ) && ! class_exists( Device_Detection::class ) ) {
-	require_once JETPACK_PLUGIN_LOADER_PATH . '/jetpack_vendor/automattic/jetpack-device-detection/src/class-device-detection.php';
-}
-
 /**
  * Determine if the current User Agent matches the passed $kind
  *

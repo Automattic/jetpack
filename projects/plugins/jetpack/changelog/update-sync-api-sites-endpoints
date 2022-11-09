@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-WordPress.com REST API: Fix fatal error in the `/sites/$id` endpoint.
