@@ -17,8 +17,11 @@ class Premium_Pricing {
 		$yearly_pricing_slug  = self::PRODUCT_SLUG_BASE . '_yearly';
 		$yearly_pricing       = Wpcom_Products::get_product_pricing( $yearly_pricing_slug );
 
-		if ( empty( $yearly_pricing ) && ! ( new Status() )->is_offline_mode() ) {
-			Analytics::record_user_event( 'upgrade_price_missing', array( 'error_message' => 'Missing pricing information on benefits interstitial page.' ) );
+		if ( empty( $yearly_pricing ) ) {
+			// In offline mode, we don't have access to the pricing data and it's not an error.
+			if ( ! ( new Status() )->is_offline_mode() ) {
+				Analytics::record_user_event( 'upgrade_price_missing', array( 'error_message' => 'Missing pricing information on benefits interstitial page.' ) );
+			}
 			return $constants;
 		}
 
