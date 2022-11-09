@@ -106,6 +106,18 @@
 		margin-bottom: 16px;
 	}
 
+	.form-placeholder__footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.form-placeholder__footer-links {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
 	.form-placeholder__external-link {
 		font-size: 13px;
 
@@ -114,6 +126,31 @@
 			height: 1.4em;
 			margin-left: 2px;
 		}
+	}
+}
+
+.form-placeholder__patterns-modal {
+	// To keep modal dimensions consistent as subsections are navigated, width
+	// and height are used instead of max-(width/height).
+	@include break-small() {
+		width: calc(100% - #{ $grid-unit-20 * 2 });
+		height: calc(100% - #{ $header-height * 2 });
+	}
+	@include break-medium() {
+		width: $break-medium - $grid-unit-20 * 2;
+	}
+	@include break-large() {
+		height: 80%;
+		width: 80%;
+		max-height: none;
+	}
+
+	.components-modal__content {
+		padding: 0;
+	}
+
+	.block-editor-block-pattern-setup__grid .block-editor-block-pattern-setup__container {
+		padding-bottom: 72px;
 	}
 }
 
