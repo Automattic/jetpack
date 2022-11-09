@@ -16,7 +16,7 @@ export default function useConnectionWatcher() {
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
-	const { isSiteConnected, topJetpackMenuItemUrl, hasConnectedOwner } = useMyJetpackConnection();
+	const { hasConnectedOwner } = useMyJetpackConnection();
 
 	const requiresUserConnection =
 		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
@@ -37,15 +37,6 @@ export default function useConnectionWatcher() {
 					'jetpack-my-jetpack'
 			  )
 			: oneProductMessage;
-
-	/*
-	 * When the site is not connect, redirect to the Jetpack dashboard.
-	 */
-	useEffect( () => {
-		if ( ! isSiteConnected && topJetpackMenuItemUrl ) {
-			window.location = topJetpackMenuItemUrl;
-		}
-	}, [ isSiteConnected, topJetpackMenuItemUrl ] );
 
 	useEffect( () => {
 		if ( requiresUserConnection ) {
