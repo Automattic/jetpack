@@ -1,6 +1,6 @@
 <?php
 /**
- * VideoPress Site Privacy Setting Endpoint
+ * VideoPress Settings Endpoint
  *
  * @package automattic/jetpack-videopress
  */
@@ -12,9 +12,9 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * VideoPress rest api class for fetching and setting site privacy options
+ * Rest API class for fetching and setting site settings related to VideoPress.
  */
-class VideoPress_Rest_Api_V1_Site_Privacy_Setting {
+class VideoPress_Rest_Api_V1_Settings {
 	/**
 	 * Initializes the endpoints
 	 *
@@ -32,18 +32,18 @@ class VideoPress_Rest_Api_V1_Site_Privacy_Setting {
 	public static function register_rest_endpoints() {
 		register_rest_route(
 			'videopress/v1',
-			'site-privacy-setting',
+			'settings',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( static::class, 'get_privacy_setting' ),
+					'callback'            => array( static::class, 'get_settings' ),
 					'permission_callback' => function () {
 						return current_user_can( 'manage_options' );
 					},
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( static::class, 'update_privacy_setting' ),
+					'callback'            => array( static::class, 'update_settings' ),
 					'permission_callback' => function () {
 						return current_user_can( 'manage_options' );
 					},
@@ -61,12 +61,11 @@ class VideoPress_Rest_Api_V1_Site_Privacy_Setting {
 	}
 
 	/**
-	 * Returns the value of the VideoPress privacy setting, a boolean
-	 * stating if the videos are private or not.
+	 * Returns the value of the VideoPress settings.
 	 *
 	 * @return WP_Rest_Response - The response object.
 	 */
-	public static function get_privacy_setting() {
+	public static function get_settings() {
 		$has_connected_owner = Data::has_connected_owner();
 		if ( ! $has_connected_owner ) {
 			return rest_ensure_response(
@@ -99,13 +98,13 @@ class VideoPress_Rest_Api_V1_Site_Privacy_Setting {
 	}
 
 	/**
-	 * Updates the value of the VideoPress privacy setting, defining
-	 * if the videos should be private by default or not.
+	 * Updates the value of the VideoPress settings when a new value
+	 * is present on the request body.
 	 *
 	 * @param WP_REST_Request $request the request object.
 	 * @return WP_Rest_Response - The response object.
 	 */
-	public static function update_privacy_setting( $request ) {
+	public static function update_settings( $request ) {
 		$has_connected_owner = Data::has_connected_owner();
 		if ( ! $has_connected_owner ) {
 			return rest_ensure_response(
@@ -135,7 +134,7 @@ class VideoPress_Rest_Api_V1_Site_Privacy_Setting {
 		return rest_ensure_response(
 			array(
 				'code'    => 'success',
-				'message' => __( 'VideoPress privacy setting updated successfully.', 'jetpack-videopress-pkg' ),
+				'message' => __( 'VideoPress settings updated successfully.', 'jetpack-videopress-pkg' ),
 				'data'    => 200,
 			)
 		);
