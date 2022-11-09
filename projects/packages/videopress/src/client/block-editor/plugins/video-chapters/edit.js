@@ -17,6 +17,7 @@ const withVideoChaptersEdit = createHigherOrderComponent(
 		const { isRequestingVideoData } = useSyncMedia( attributes, setAttributes, [
 			'title',
 			'description',
+			'videoChaptersClientId',
 		] );
 		const isVideoChaptersEnabled = isExtensionEnabled( VIDEO_CHAPTERS_EXTENSION_NAME );
 
@@ -35,6 +36,7 @@ const withVideoChaptersEdit = createHigherOrderComponent(
 						isRequestingVideoData={ isRequestingVideoData }
 						attributes={ props.attributes }
 						setAttributes={ props.setAttributes }
+						clientId={ props.clientId }
 					/>
 				</InspectorControls>
 

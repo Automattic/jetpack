@@ -17,6 +17,7 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
@@ -24,7 +25,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Transient;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Get_Started;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimizations_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -98,6 +98,10 @@ class Jetpack_Boost {
 
 		// Initialize the Admin experience.
 		$this->init_admin( $optimizations );
+
+		// Add the setup prompt.
+		Setup::add( new Setup_Prompt() );
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ) );
@@ -140,7 +144,6 @@ class Jetpack_Boost {
 		REST_API::register( Optimization_Status::class );
 		REST_API::register( Optimizations_Status::class );
 		REST_API::register( Config_State::class );
-		REST_API::register( Get_Started::class );
 		$this->connection->ensure_connection();
 		new Admin( $modules );
 	}

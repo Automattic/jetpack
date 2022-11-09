@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.6-a.3 - 2022-11-07
+### Enhancements
+- Form block: add support links to form type selector. [#27134]
+- Form block: register Jetpack forms in the pattern inserter. [#27030]
+
+### Improved compatibility
+- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar. [#27127]
+- VideoPress (beta): introduce Video Chapters beta block. [#27241]
+
+### Bug fixes
+- Customizer: make sure the menu item is shown for block themes. [#27238]
+- Image Editor: fix issue where users are not able to edit/crop and restore images. [#27224]
+- Related Posts Block: when 3 posts are output, increase the width closer to 100%. [#27228]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Deprecation warnings are now issued for `jetpack_require_lib()`, `jetpack_require_lib_dir()`, and the `jetpack_require_lib_dir` filter. [#27273]
+- Endpoints: add a missing break statement in the site API endpoint. [#27225]
+- Featured image email template toggle: add missing 'featured_image_email_enabled' option update. [#27049]
+- Form block: rename child blocks names to be more meaningful. [#27131]
+- JSON API: add 1.4 versions to dev in order to browse in https://developer.wordpress.com/docs/api/console/ [#27239]
+- Remove include of `functions.is-mobile.php` from `class.jetpack-user-agent.php` to restore status quo. [#27217]
+- Remove nonexistent site editor styles entry point. [#27263]
+- Updated package dependencies.
+- WPcom: sync endpoint file. [#27258]
+
 ## 11.6-a.1 - 2022-11-01
 ### Enhancements
 - Form block: update contact-form icon [#27010]

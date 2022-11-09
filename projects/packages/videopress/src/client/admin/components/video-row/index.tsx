@@ -1,10 +1,16 @@
+/**
+ * External dependencies
+ */
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
-import privacy from '../../../components/icons/crossed-eye-icon';
+/**
+ * Internal dependencies
+ */
+import privateIcon from '../../../components/icons/crossed-eye-icon';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
@@ -12,6 +18,9 @@ import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import StatsBase from './stats';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import { VideoRowProps } from './types';
 
 const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
@@ -48,7 +57,7 @@ const Stats = ( {
 			<span>{ isPrivate ? privateLabel : publicLabel }</span>
 		</>
 	) : (
-		<>{ isPrivate && <Icon icon={ privacy } /> }</>
+		isPrivate && <Icon icon={ privateIcon } />
 	);
 
 	const durationElement =

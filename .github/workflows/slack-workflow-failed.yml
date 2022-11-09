@@ -24,7 +24,7 @@ jobs:
         run: |
           source .github/files/gh-funcs.sh
 
-          set_output message "$(
+          gh_set_output message "$(
             jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | $e.workflow_run as $run | {
               icon_emoji: ":github-rejected:",
               text: "*\( $e.workflow.name ) failed on \( $run.head_branch )*\n<\( $run.html_url )|Run #\( $run.id )>",

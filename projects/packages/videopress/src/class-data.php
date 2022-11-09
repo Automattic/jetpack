@@ -207,9 +207,9 @@ class Data {
 				$description = $jetpack_videopress['description'];
 				$caption     = $jetpack_videopress['caption'];
 
-				$width    = $media_details['width'];
-				$height   = $media_details['height'];
-				$duration = $media_details['length'];
+				$width    = isset( $media_details['width'] ) ? $media_details['width'] : null;
+				$height   = isset( $media_details['height'] ) ? $media_details['height'] : null;
+				$duration = isset( $media_details['length'] ) ? $media_details['length'] : null;
 
 				return array(
 					'id'                     => $id,
