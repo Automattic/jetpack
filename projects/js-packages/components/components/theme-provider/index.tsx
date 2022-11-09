@@ -29,6 +29,7 @@ export const colors = {
 	'--jp-gray-40': '#787C82',
 	'--jp-gray-50': '#646970',
 	'--jp-gray-60': '#50575E',
+	'--jp-gray-70': '#3C434A',
 	'--jp-gray-80': '#2C3338',
 	'--jp-gray-off': '#e2e2df',
 	// Red
