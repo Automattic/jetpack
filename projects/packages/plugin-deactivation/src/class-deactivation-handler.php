@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Plugin_Deactivation;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Handles plugin deactivation.
  *
@@ -83,20 +85,15 @@ class Deactivation_Handler {
 	 * Enqueues the deactivation handler script and styles.
 	 */
 	public function enqueue_script() {
-
-		wp_enqueue_script(
-			'jp-plugin-deactivation',
-			plugins_url( '../dist/deactivation.js', __FILE__ ),
-			array(),
-			self::PACKAGE_VERSION,
-			true
-		);
-
-		wp_enqueue_style(
-			'jp-plugin-deactivation',
-			plugins_url( '../dist/deactivation.css', __FILE__ ),
-			array(),
-			self::PACKAGE_VERSION
+		Assets::register_script(
+			'jetpack-plugin-deactivation',
+			'../build/index.js',
+			__FILE__,
+			array(
+				'enqueue'    => true,
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-plugin-deactivation',
+			)
 		);
 
 		/**
@@ -105,7 +102,7 @@ class Deactivation_Handler {
 		$data = array(
 			'slugs' => array(),
 		);
-		wp_localize_script( 'jp-plugin-deactivation', 'JetpackPluginDeactivationData', apply_filters( 'jp_plugin_deactivation_data', $data ) );
+		wp_localize_script( 'jetpack-plugin-deactivation', 'JetpackPluginDeactivationData', apply_filters( 'jp_plugin_deactivation_data', $data ) );
 	}
 
 	/**

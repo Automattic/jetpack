@@ -969,23 +969,31 @@ importers:
 
   projects/packages/plugin-deactivation:
     specifiers:
+      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
       '@rollup/plugin-typescript': 8.3.3
       concurrently: 7.5.0
       postcss: 8.4.18
       rollup: 2.56.3
       rollup-plugin-postcss: 4.0.2
       sass: 1.55.0
+      sass-loader: 12.4.0
       tslib: 2.3.1
       typescript: 4.8.2
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
     devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@rollup/plugin-typescript': 8.3.3_ekrymbhnvajk4rd4auj6mlvt3q
       concurrently: 7.5.0
       postcss: 8.4.18
       rollup: 2.56.3
       rollup-plugin-postcss: 4.0.2_postcss@8.4.18
       sass: 1.55.0
+      sass-loader: 12.4.0_sass@1.55.0+webpack@5.72.1
       tslib: 2.3.1
       typescript: 4.8.2
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
 
   projects/packages/publicize:
     specifiers:
@@ -19063,6 +19071,28 @@ packages:
       klona: 2.0.5
       neo-async: 2.6.2
       sass: 1.54.4
+      webpack: 5.72.1_webpack-cli@4.9.1
+    dev: true
+
+  /sass-loader/12.4.0_sass@1.55.0+webpack@5.72.1:
+    resolution: {integrity: sha512-7xN+8khDIzym1oL9XyS6zP6Ges+Bo2B2xbPrjdMHEYyV3AQYhd/wXeru++3ODHF0zMjYmVadblSKrPrjEkL8mg==}
+    engines: {node: '>= 12.13.0'}
+    peerDependencies:
+      fibers: '>= 3.1.0'
+      node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+      sass: ^1.3.0
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      fibers:
+        optional: true
+      node-sass:
+        optional: true
+      sass:
+        optional: true
+    dependencies:
+      klona: 2.0.5
+      neo-async: 2.6.2
+      sass: 1.55.0
       webpack: 5.72.1_webpack-cli@4.9.1
     dev: true
 

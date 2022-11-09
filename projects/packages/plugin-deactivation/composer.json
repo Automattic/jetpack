@@ -3,7 +3,9 @@
 	"description": "Ask for feedback while deactivating a plugin",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-assets": "1.17.x-dev"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/jetpack-changelogger": "^3.2"
