@@ -37,6 +37,7 @@ const getMediaDetails = media => {
 };
 
 const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
+const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
 const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
@@ -85,6 +86,15 @@ export default function MediaSection() {
 		[ mediaHeight, mediaObject, mediaSourceUrl, mediaWidth, attachedMedia ]
 	);
 
+	const replaceMediaRender = useCallback(
+		( { open } ) => (
+			<Button onClick={ open } variant="secondary">
+				{ REPLACE_MEDIA_LABEL }
+			</Button>
+		),
+		[]
+	);
+
 	return (
 		<div className={ styles.wrapper }>
 			<MediaUploadCheck>
@@ -96,9 +106,17 @@ export default function MediaSection() {
 					value={ attachedMedia[ 0 ] }
 				/>
 				{ mediaObject && (
-					<Button onClick={ onRemoveMedia } variant="link" isDestructive>
-						{ REMOVE_MEDIA_LABEL }
-					</Button>
+					<>
+						<MediaUpload
+							title={ REPLACE_MEDIA_LABEL }
+							onSelect={ onUpdateMedia }
+							allowedTypes={ ALLOWED_MEDIA_TYPES }
+							render={ replaceMediaRender }
+						/>
+						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
+							{ REMOVE_MEDIA_LABEL }
+						</Button>
+					</>
 				) }
 			</MediaUploadCheck>
 		</div>
