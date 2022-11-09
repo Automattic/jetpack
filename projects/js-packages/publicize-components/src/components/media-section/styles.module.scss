@@ -1,20 +1,10 @@
 .wrapper {
 	padding: 0;
 
-	& :global( .components-spinner ) {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		margin-top: -9px;
-		margin-left: -9px;
-	}
-
 	// This keeps images at their intrinsic size (eg. a 50px
 	// image will never be wider than 50px).
 	& :global( .components-responsive-wrapper__content ) {
-		max-width: 100%;
 		width: auto;
-		height: auto;
 	}
 }
 

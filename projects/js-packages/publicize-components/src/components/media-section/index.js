@@ -18,7 +18,16 @@ const getMediaDetails = media => {
 	}
 
 	const sizes = media?.media_details?.sizes ?? {};
-	const mediaObject = sizes.large || sizes.thumbnail || media.media_details;
+
+	if ( Object.keys( sizes ).length === 0 ) {
+		return {
+			mediaWidth: media.media_details.width,
+			mediaHeight: media.media_details.height,
+			mediaSourceUrl: media.source_url,
+		};
+	}
+
+	const mediaObject = sizes.large || sizes.thumbnail;
 
 	return {
 		mediaWidth: mediaObject.width,
