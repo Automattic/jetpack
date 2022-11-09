@@ -55,6 +55,21 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
+const pluginSelectors = {
+	hasStandalonePluginInstalled: state =>
+		Object.values( state.plugins ).filter(
+			plugin =>
+				[
+					'jetpack-backup',
+					'jetpack-boost',
+					'jetpack-protect',
+					'jetpack-search',
+					'jetpack-social',
+					'jetpack-videopress',
+				].indexOf( plugin.TextDomain ) >= 0
+		),
+};
+
 const noticeSelectors = {
 	getGlobalNotice: state => state.notices?.global,
 };
@@ -63,6 +78,7 @@ const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
 	...noticeSelectors,
+	...pluginSelectors,
 };
 
 export default selectors;
