@@ -78,8 +78,15 @@ class Dashboard {
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
 		</div>
 		<script>
-			// we intercept on all anchor tags and change it to hashbang style.
 			jQuery(document).ready(function($) {
+				// Load SVG sprite.
+				$.get("https://widgets.wp.com/calypso-happychat/images/gridicons-506499ddac13811fee8e.svg", function(data) {
+					var div = document.createElement("div");
+					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
+					div.style = 'display: none';
+					document.body.insertBefore(div, document.body.childNodes[0]);
+				});
+				// we intercept on all anchor tags and change it to hashbang style.
 				$("#wpcom").on('click', 'a', function (e) {
 					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
 					if( link && ! link.startsWith( 'http' ) ) {
@@ -103,8 +110,7 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		wp_register_script( 'jp-stats-load-sprite', plugins_url( '../assets/load-sprite.js', __FILE__ ), array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
-		wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill', 'jp-stats-load-sprite' ), uniqid(), true );
+		wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
 		wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), uniqid() );
 		wp_enqueue_script( 'jp-stats-dashboard' );
 		wp_enqueue_style( 'jp-stats-dashboard-style' );
@@ -147,7 +153,6 @@ class Dashboard {
 		$empty_object = json_decode( '{}' );
 
 		return '
-		__webpack_public_path__ = ' . wp_json_encode( esc_url( plugins_url( 'jetpack_vendor/automattic/jetpack-stats-admin/assets/', JETPACK__PLUGIN_FILE ) ) ) . ';
 		configData = ' . wp_json_encode(
 			array(
 				'admin_page_base'                => static::get_admin_path(),
