@@ -92,7 +92,6 @@ const ThumbnailActionsDropdown = ( {
 	return (
 		<Dropdown
 			position="bottom left"
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
@@ -101,8 +100,7 @@ const ThumbnailActionsDropdown = ( {
 						icon={ image }
 						onClick={ () => {
 							setShowPopover( false );
-							// Uploading image directly instead of toggling the content for now
-							onUpdate( 'upload-image' );
+							onToggle();
 						} }
 						aria-expanded={ isOpen }
 						onMouseEnter={ () => setShowPopover( true ) }
