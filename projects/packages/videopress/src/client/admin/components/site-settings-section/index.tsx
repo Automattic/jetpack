@@ -16,9 +16,7 @@ import { SiteSettingsSectionProps } from './types';
  * @param {SiteSettingsSectionProps} props - Component props.
  * @returns {React.ReactElement}   Component template
  */
-const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
-	onPrivacySettingsChange,
-} ) => {
+const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( { onPrivacyChange } ) => {
 	return (
 		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
 			<Col>
@@ -33,7 +31,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 						'Video Privacy: Restrict views to members of this site',
 						'jetpack-videopress-pkg'
 					) }
-					onChange={ onPrivacySettingsChange }
+					onChange={ onPrivacyChange }
 				/>
 			</Col>
 		</Container>

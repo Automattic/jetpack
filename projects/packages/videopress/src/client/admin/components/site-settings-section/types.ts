@@ -7,5 +7,5 @@ export type SiteSettingsSectionProps = {
 	/**
 	 * Callback function to be invoked when the privacy settings changes.
 	 */
-	onPrivacySettingsChange?: ( isPrivate: boolean ) => void;
+	onPrivacyChange?: ( isPrivate: boolean ) => void;
 };
