@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+
 /**
  * The Plan class.
  */
@@ -97,10 +99,10 @@ class Plan {
 			return false;
 		}
 
-		$products = array_column( \Jetpack_Plan::get_products(), 'product_slug' );
+		$products = array_column( Jetpack_Plan::get_products(), 'product_slug' );
 
 		// Check for a plan or product that enables scan.
-		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
+		$plan_supports_scan = Jetpack_Plan::supports( 'scan' );
 		$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
 		$has_scan           = $plan_supports_scan || $has_scan_product;
 
