@@ -47,6 +47,7 @@ const useDashboardVideos = () => {
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
+	const { hasVideoPressPurchase } = usePlan();
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
@@ -55,10 +56,12 @@ const useDashboardVideos = () => {
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
 	const handleFilesUpload = ( files: File[] ) => {
-		const file = Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
-
-		if ( file ) {
-			uploadVideo( file );
+		if ( hasVideoPressPurchase ) {
+			files.forEach( file => {
+				uploadVideo( file );
+			} );
+		} else if ( files.length > 0 ) {
+			uploadVideo( files[ 0 ] );
 		}
 	};
 
@@ -83,6 +86,7 @@ const useDashboardVideos = () => {
 		handleLocalVideoUpload,
 		loading: isFetching,
 		uploading: uploading?.length > 0,
+		hasVideoPressPurchase,
 	};
 };
 
@@ -98,9 +102,8 @@ const Admin = () => {
 		handleLocalVideoUpload,
 		loading,
 		uploading,
+		hasVideoPressPurchase,
 	} = useDashboardVideos();
-
-	const { hasVideoPressPurchase } = usePlan();
 
 	const { isRegistered, hasConnectedOwner } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -189,6 +192,7 @@ const Admin = () => {
 										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
 									}
 									accept={ fileInputExtensions }
+									multiple={ hasVideoPressPurchase }
 									render={ ( { openFileDialog } ) => (
 										<Button
 											fullWidth={ isSm }
