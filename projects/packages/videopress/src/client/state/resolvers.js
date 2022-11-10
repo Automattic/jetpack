@@ -427,12 +427,14 @@ const getVideoPressSettings = {
 	},
 	fulfill: () => async ( { dispatch } ) => {
 		try {
-			const { videopress_videos_private_for_site: videoPressSitePrivacySetting } = await apiFetch( {
-				path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT }` ),
-				method: 'GET',
-			} );
+			const { videopress_videos_private_for_site: videoPressVideosPrivateForSite } = await apiFetch(
+				{
+					path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT }` ),
+					method: 'GET',
+				}
+			);
 
-			const videoPressSettings = { videoPressSitePrivacySetting };
+			const videoPressSettings = { videoPressVideosPrivateForSite };
 
 			dispatch.setVideoPressSettings( videoPressSettings );
 			return videoPressSettings;
