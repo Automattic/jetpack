@@ -22,6 +22,12 @@ body {
 	display: none;
 }
 
+.jetpack-search-jitm-card {
+	background-color: $white;
+    overflow: hidden;
+	padding: 1em 0;
+}
+
 #jp-search-dashboard {
 	background-color: $white;
 	color: $black;

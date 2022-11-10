@@ -127,9 +127,9 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
+		<div id="jp-admin-notices" class="jetpack-search-jitm-card"></div>
 		<div id="jp-search-dashboard" class="jp-search-dashboard">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Search dashboard requires JavaScript to function properly.', 'jetpack-search-pkg' ); ?></div>
-			<div id="jp-admin-notices" class="jetpack-search-jitm-card" />
 		</div>
 		<?php
 	}
