@@ -2592,8 +2592,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_enqueue_style( 'grunion.css' );
 		}
 
+		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
+		$container_classes[]      = self::get_block_alignment_class( $attributes );
+		$container_classes_string = implode( ' ', $container_classes );
+
 		$r  = '';
-		$r .= "<div id='contact-form-$id'>\n";
+		$r .= "<div data-test='contact-form' id='contact-form-$id' class='{$container_classes_string}'>\n";
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
@@ -3861,6 +3865,24 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		return addslashes( $value );
 	}
 
+	/**
+	 * Rough implementation of Gutenberg's align-attribute-to-css-class map.
+	 * Only allowin "wide" and "full" as "center", "left" and "right" don't
+	 * make much sense for the form.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string The CSS alignment class: alignfull | alignwide.
+	 */
+	public static function get_block_alignment_class( $attributes = array() ) {
+		$align_to_class_map = array(
+			'wide' => 'alignwide',
+			'full' => 'alignfull',
+		);
+		if ( empty( $attributes['align'] ) || ! array_key_exists( $attributes['align'], $align_to_class_map ) ) {
+			return '';
+		}
+		return $align_to_class_map[ $attributes['align'] ];
+	}
 } // end class Grunion_Contact_Form
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- how many times I have to disable this?
