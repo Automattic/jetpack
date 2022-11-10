@@ -18,4 +18,4 @@ use Automattic\Jetpack\Action_Bar;
 
 return; // Return out early for now. The module is not ready for production yet.
 
-( new Action_Bar() )->init();
+( new Action_Bar() )->init(); // phpcs:ignore Squiz.PHP.NonExecutableCode.Unreachable
