@@ -39,6 +39,7 @@
 		& > svg {
 			fill: var( --jp-red-60 );
 			flex-shrink: 0;
+			margin-right: 22px;
 			margin-bottom: 24px;
 
 			@include break-medium {
@@ -90,7 +91,6 @@
 }
 
 .message {
-	margin-left: 22px;
 	margin-right: 10px;
 	flex-grow: 1;
 }
