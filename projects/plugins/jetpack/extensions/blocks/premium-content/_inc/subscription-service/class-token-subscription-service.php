@@ -46,9 +46,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @inheritDoc
 	 *
 	 * @param array $valid_plan_ids List of valid plan IDs.
-	 * @param array $access_level   Access level for content.
+	 * @param array $access_level Access level for content.
+	 * @param int   $visitor_id (optional) Visitor id.
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $visitor_id = null ) {
 
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();

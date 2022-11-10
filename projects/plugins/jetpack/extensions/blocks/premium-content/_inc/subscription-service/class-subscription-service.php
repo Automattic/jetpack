@@ -43,10 +43,11 @@ interface Subscription_Service {
 	 *
 	 * @param array  $valid_plan_ids .
 	 * @param string $access_level   .
+	 * @param int    $visitor_id   (optional) User id to use as visitor ID.
 	 *
 	 * @return boolean
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level );
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $visitor_id = null );
 
 	/**
 	 * The current visitor would like to obtain access. Where do they go?

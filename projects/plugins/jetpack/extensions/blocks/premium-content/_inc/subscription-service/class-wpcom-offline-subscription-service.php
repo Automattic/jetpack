@@ -36,20 +36,60 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	/**
 	 * Lookup users subscriptions for a site and determine if the user has a valid subscription to match the plan ID
 	 *
-	 * @param array  $valid_plan_ids .
-	 * @param string $access_level .
+	 * @param array    $valid_plan_ids .
+	 * @param string   $access_level .
+	 * @param int|null $visitor_id (optional) ID of the visitor. default to current user id.
 	 *
 	 * @return bool
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level, $visitor_id = null ) {
+		if ( null === $visitor_id ) {
+			wp_get_current_user()->ID;
+		}
+
 		/** This filter is already documented in projects/plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/class-token-subscription-service.php */
-		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
+		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), visitor_id, $this->get_site_id() );
 		if ( empty( $subscriptions ) ) {
 			return false;
 		}
 		// format the subscriptions so that they can be validated.
 		$subscriptions = self::abbreviate_subscriptions( $subscriptions );
 		return $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+	}
+
+	/**
+	 * Check if the subscriber can receive the newsletter
+	 *
+	 * @param int $user_id User id.
+	 * @param int $blog_id Blog id.
+	 * @param int $post_id Post id.
+	 *
+	 * @return bool
+	 * @throws \Exception Throws an exception when used outside of WPCOM.
+	 */
+	public static function user_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			throw \Exception( 'Should only be called on WPCOM' );
+		}
+
+		// Site admins can do everything
+		if ( current_user_can( 'edit_post', $post_id ) ) {
+			return true;
+		}
+
+		$access_level = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
+
+		if ( empty( $access_level ) || $access_level === 'everybody' ) {
+			// empty level means the post is not gated for paid users
+			return true;
+		}
+
+		switch_to_blog( $blog_id );
+		$valid_plan_ids = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
+		$allowed        = static::visitor_can_view_content( $valid_plan_ids, $access_level, $user_id );
+		restore_current_blog();
+
+		return $allowed;
 	}
 
 	/**
@@ -75,50 +115,6 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 			}
 		}
 		return $subscriptions;
-	}
-
-	/**
-	 * This is part of the jetpack - newsletter subscription
-	 *
-	 * @param int $subscriber_id User id of the subscriber
-	 * @param int $blog_id Blog id
-	 * @param int $post_id Post id
-	 *
-	 * @return bool
-	 */
-	public static function user_can_receive_post_by_mail( $subscriber_id, $blog_id, $post_id ) {
-
-		// Site admins can do everything
-		if ( current_user_can( 'edit_post', $post_id ) ) {
-			return true;
-		}
-
-		$access_level = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-
-		if ( empty( $access_level ) || 'everybody' === $access_level ) {
-			// empty level means the post is not gated for paid users
-			return true;
-		}
-
-		if ( 'paid_subscribers' === $access_level ) {
-			$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), $subscriber_id, $blog_id );
-			$subscriptions = array_filter(
-				$subscriptions,
-				function ( $s ) {
-					return 'active' == $s['status'];
-				}
-			);
-			return 0 !== count( $subscriptions );
-		}
-
-		if ( 'subscribers' === $access_level ) {
-			// @todo Needs to be done if we ever merge the logic with the jetpack code, gating access on the post level.
-			// once done there is a test ready to be unskipped: test_jetpack_paid_newsletters_gated_subscribers_newsletter()
-			return true;
-		}
-
-		// It should not happen
-		return true;
 	}
 
 }
