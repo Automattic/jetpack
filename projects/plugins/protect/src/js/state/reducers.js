@@ -10,6 +10,7 @@ import {
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
 	SET_JETPACK_SCAN,
+	SET_PRODUCT_DATA,
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
@@ -93,7 +94,7 @@ const jetpackScan = ( state = {}, action ) => {
 
 const productData = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_JETPACK_SCAN:
+		case SET_PRODUCT_DATA:
 			return action.productData;
 	}
 	return state;
