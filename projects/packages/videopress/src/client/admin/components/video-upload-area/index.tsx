@@ -25,14 +25,9 @@ import type { ReactNode } from 'react';
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const {
-		inputRef,
-		isDraggingOver,
-		handleFileInputChangeEvent,
-		handleDragOverEvent,
-		handleDragLeaveEvent,
-		handleDropEvent,
-	} = useDropFiles( { onSelectFiles } );
+	const { inputRef, handleFileInputChangeEvent } = useDropFiles( {
+		onSelectFiles,
+	} );
 
 	const handleClickEvent = () => {
 		inputRef.current.click();
@@ -42,11 +37,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 		<div
 			className={ classnames( styles.wrapper, className, {
 				[ styles.small ]: isSm,
-				[ styles.hover ]: isDraggingOver,
 			} ) }
-			onDrop={ handleDropEvent }
-			onDragOver={ handleDragOverEvent }
-			onDragLeave={ handleDragLeaveEvent }
 		>
 			<input
 				ref={ inputRef }
@@ -64,7 +55,6 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				variant="secondary"
 				className={ classnames( styles.button ) }
 				onClick={ handleClickEvent }
-				disabled={ isDraggingOver }
 			>
 				{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }
 			</Button>

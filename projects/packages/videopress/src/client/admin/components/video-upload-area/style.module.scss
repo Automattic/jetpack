@@ -26,16 +26,6 @@
 	display: none;
 }
 
-.hover {
-	background-color: var( --jp-gray-5 );
-	transition: all 0.1s linear;
-
-	// Avoiding drag events on children
-	* {
-		pointer-events: none;
-	}
-}
-
 .icon {
 	fill: var( --jp-green-50 );
 	flex-shrink: 0;
