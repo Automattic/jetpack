@@ -709,6 +709,8 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::BUNDLE_ENTERPRISE,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
 		),
 
 		self::SPACE                         => array(
