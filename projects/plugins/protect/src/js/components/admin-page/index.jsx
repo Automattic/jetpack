@@ -315,7 +315,7 @@ const Admin = () => {
 			apiFetch( {
 				path: 'jetpack-protect/v1/plan',
 				method: 'GET',
-			} ).then( jetpackScan => jetpackScan?.has_required_plan ),
+			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
 
 	useEffect( () => {

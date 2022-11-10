@@ -86,4 +86,24 @@ class Plan {
 			)
 		);
 	}
+
+	/**
+	 * Has Required Plan
+	 *
+	 * @return bool True when the site has a plan or product that supports the paid Protect tier.
+	 */
+	public static function has_required_plan() {
+		if ( ! class_exists( 'Jetpack_Plan' ) ) {
+			return false;
+		}
+
+		$products = array_column( \Jetpack_Plan::get_products(), 'product_slug' );
+
+		// Check for a plan or product that enables scan.
+		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );
+		$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
+		$has_scan           = $plan_supports_scan || $has_scan_product;
+
+		return $has_scan;
+	}
 }
