@@ -1,26 +1,49 @@
+@import '../../../node_modules/@wordpress/base-styles/breakpoints';
+@import '../../../node_modules/@wordpress/base-styles/mixins';
+
 .heading {
 	margin-bottom: 0;
 }
 
 .notice {
+	box-sizing: border-box;
 	margin: 0;
+	padding: 12px 20px 12px 14px;
 	font-size: 16px;
+	line-height: 22px;
+	color: var( --jp-gray-80 );
+	border: 1px solid #DCDCDE;
+	border-left: 6px solid var( --jp-red-50 );
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.06);
 
 	// notice itself on error status
 	&:global(.is-error) {
-		background-color: var(--jp-red-0);
+		background-color: var( --jp-white );
 	}
 
 	// notice content
 	& :global(.components-notice__content) {
 		display: flex;
-		align-items: center;
 		margin: 0;
 		padding: 12px 4px;
+		flex-direction: column;
+		align-items: start;
+
+		@include break-medium {
+			flex-direction: row;
+			align-items: center;
+		}
 
 		// left icon
 		& > svg {
-			fill: var(--jp-red-60);
+			fill: var( --jp-red-60 );
+			flex-shrink: 0;
+			margin-bottom: 24px;
+
+			@include break-medium {
+				margin-bottom: 0;
+			}
 		}
 	}
 
@@ -38,6 +61,7 @@
 }
 
 .message {
-	margin-left: 8px;
+	margin-left: 22px;
+	margin-right: 10px;
+	flex-grow: 1;
 }
-

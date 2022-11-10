@@ -61,7 +61,7 @@ const ConnectionErrorNotice = props => {
 					<a
 						onClick={ restoreConnectionCallback }
 						onKeyDown={ restoreConnectionCallback }
-						className={ styles.link }
+						className={ styles.button }
 						href="#"
 					>
 						{ __( 'Restore Connection', 'jetpack' ) }

@@ -905,6 +905,7 @@ importers:
       '@testing-library/react': 12.1.5
       '@testing-library/user-event': 14.2.1
       '@wordpress/api-fetch': 6.18.0
+      '@wordpress/base-styles': 4.10.0
       '@wordpress/components': 22.0.0
       '@wordpress/data': 7.5.0
       '@wordpress/i18n': 4.21.0
@@ -932,6 +933,7 @@ importers:
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-licensing': link:../../js-packages/licensing
       '@wordpress/api-fetch': 6.18.0
+      '@wordpress/base-styles': 4.10.0
       '@wordpress/components': 22.0.0_m5j7lwbckoquomtbl6yhnt55ua
       '@wordpress/data': 7.5.0_react@17.0.2
       '@wordpress/i18n': 4.21.0
@@ -7599,6 +7601,10 @@ packages:
       - supports-color
     dev: true
 
+  /@wordpress/base-styles/4.10.0:
+    resolution: {integrity: sha512-vNNMpDTFCLdvEW604xgzFIYrwfx08/z8QNJBEzu0u3iFIHc5XAYEgFWINtLwtCJGCBjFEMk/9dMOk5DQKCfrOQ==}
+    dev: false
+
   /@wordpress/base-styles/4.12.0:
     resolution: {integrity: sha512-cg4FXIEQZCoCc06a0BGuAis2MtP3VUaVtYFhjHMayp4E5sCfX/jKF226/Dz8EJFgfjkK6XrZV4cigwRFAAqgcQ==}
 
@@ -8017,7 +8023,7 @@ packages:
       '@wordpress/rich-text': 5.19.0_react@17.0.2
       '@wordpress/warning': 2.21.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       date-fns: 2.29.3
       dom-scroll-into-view: 1.2.1
@@ -8077,7 +8083,7 @@ packages:
       '@wordpress/rich-text': 5.19.0_react@17.0.2
       '@wordpress/warning': 2.21.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       date-fns: 2.29.3
       dom-scroll-into-view: 1.2.1
@@ -8683,7 +8689,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.1
       '@wordpress/element': 4.19.0
-      classnames: 2.3.1
+      classnames: 2.3.2
 
   /@wordpress/priority-queue/2.21.0:
     resolution: {integrity: sha512-eyboO7cfGPQ1IUBGdT9tEko1V5bRz0Rw1WKvoOwgaexxSSER6kt0couYuoo0Vvfh0al+74TCBZ1pRPYhHml0ww==}

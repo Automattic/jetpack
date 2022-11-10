@@ -6,24 +6,44 @@
 }
 
 .notice {
+	box-sizing: border-box;
 	margin: 0;
+	padding: 12px 20px 12px 14px;
 	font-size: 16px;
+	line-height: 22px;
+	color: var( --jp-gray-80 );
+	border: 1px solid #DCDCDE;
+	border-left: 6px solid var( --jp-red-50 );
+	border-radius: 4px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.06);
 
 	// notice itself on error status
 	&:global(.is-error) {
-		background-color: var(--jp-red-0);
+		background-color: var( --jp-white );
 	}
 
 	// notice content
 	& :global(.components-notice__content) {
 		display: flex;
-		align-items: center;
 		margin: 0;
 		padding: 12px 4px;
+		flex-direction: column;
+		align-items: start;
+
+		@include break-medium {
+			flex-direction: row;
+			align-items: center;
+		}
 
 		// left icon
 		& > svg {
-			fill: var(--jp-red-60);
+			fill: var( --jp-red-60 );
+			flex-shrink: 0;
+			margin-bottom: 24px;
+
+			@include break-medium {
+				margin-bottom: 0;
+			}
 		}
 	}
 
@@ -39,12 +59,25 @@
 		align-self: center;
 	}
 
-	svg {
-		flex-shrink: 0;
-	}
+	.button, .button:visited, .button:active, .button:hover {
+		color: var( --jp-white );
+		font-weight: 600;
+		font-size: 16px;
+		line-height: 24px;
+		letter-spacing: -0.01em;
+		text-decoration: none;
+		cursor: pointer;
+		justify-content: center;
+		align-items: center;
+		padding: 8px 24px;
+		margin-top: 24px;
+		background: #000000;
+		border-radius: 4px;
+		white-space: nowrap;
 
-	.link {
-		margin-left: auto;
+		@include break-medium {
+			margin-top: 0;
+		}
 	}
 }
 
@@ -57,15 +90,7 @@
 }
 
 .message {
-	margin-left: 8px;
+	margin-left: 22px;
 	margin-right: 10px;
-}
-
-.link {
-	margin-left: auto;
-	padding-left: 8px;
-	text-decoration: underline;
-	color: var( --jp-black );
-	font-weight:700;
-	cursor: pointer;
+	flex-grow: 1;
 }
