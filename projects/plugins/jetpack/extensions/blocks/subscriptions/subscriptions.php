@@ -65,7 +65,7 @@ function register_block() {
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
 	if ( \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
-		add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
+		add_action( 'the_content', __NAMESPACE__ . '\maybe_gate_content_and_comments' );
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
@@ -116,18 +116,26 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post ) {
 }
 
 /**
- * Gate access to posts
+ * Gate access to posts and comments
  *
  * @param string $the_content Post content.
  *
  * @return string
  */
-function maybe_get_locked_content( $the_content ) {
+function maybe_gate_content_and_comments( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
+
+	// Close comments on the front-end
+	add_filter( 'comments_open', '__return_false' );
+	add_filter( 'pings_open', '__return_false' );
+
+	// Hide existing comments
+	add_filter( 'comments_array', '__return_empty_array' );
+
 	return get_locked_content_placeholder_text();
 }
 
