@@ -9,7 +9,7 @@
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-status": "^1.15",
 		"automattic/jetpack-config": "^1.11",
-		"automattic/jetpack-my-jetpack": "^2.3"
+		"automattic/jetpack-my-jetpack": "^2.4"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.2",

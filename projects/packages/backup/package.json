@@ -28,7 +28,7 @@
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.14",
 		"@automattic/jetpack-components": "workspace:* || ^0.24",
-		"@automattic/jetpack-connection": "workspace:* || ^0.22",
+		"@automattic/jetpack-connection": "workspace:* || ^0.23",
 		"@wordpress/api-fetch": "6.18.0",
 		"@wordpress/data": "7.5.0",
 		"@wordpress/element": "4.19.0",

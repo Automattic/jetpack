@@ -18,7 +18,7 @@
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
 		"@automattic/jetpack-components": "workspace:* || ^0.24",
-		"@automattic/jetpack-connection": "workspace:* || ^0.22",
+		"@automattic/jetpack-connection": "workspace:* || ^0.23",
 		"@wordpress/data": "7.5.0",
 		"@wordpress/element": "4.19.0",
 		"@wordpress/date": "4.21.0",
