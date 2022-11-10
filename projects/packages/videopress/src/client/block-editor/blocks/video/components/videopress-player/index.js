@@ -94,9 +94,13 @@ export default function VideoPressPlayer( {
 			return;
 		}
 
+		// Once the video is loaded, delegate the height to the player (iFrame)
 		if ( preview ) {
-			// Once the video is loaded, delegate the height to the player (iFrame)
-			return setVideoPlayerTemporaryHeightState( 'auto' );
+			// Hack to mitigate the flickr when the player is
+			setTimeout( () => {
+				setVideoPlayerTemporaryHeightState( 'auto' );
+			}, 250 );
+			return;
 		}
 
 		if ( ! videoRatio ) {
@@ -212,10 +216,6 @@ export default function VideoPressPlayer( {
 								{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
 							</div>
 						) }
-
-						<div className="jetpack-videopress-ghost-player">
-							<SandBox html={ html } />
-						</div>
 					</>
 				</div>
 			</ResizableBox>

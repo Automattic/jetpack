@@ -5,14 +5,17 @@ import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components
 import { __ } from '@wordpress/i18n';
 import { Icon, cloudUpload } from '@wordpress/icons';
 import classnames from 'classnames';
-import { DragEvent, useCallback, useState, useRef, ChangeEvent } from 'react';
 /**
  * Internal dependencies
  */
-import { ReactNode } from 'react';
-import { allowedVideoExtensions, fileInputExtensions } from '../../../utils/video-extensions';
+import { fileInputExtensions } from '../../../utils/video-extensions';
+import useDropFiles from '../../hooks/use-drop-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
+/**
+ * Types
+ */
+import type { ReactNode } from 'react';
 
 /**
  * Video Upload Area component
@@ -22,42 +25,18 @@ import { VideoUploadAreaProps } from './types';
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
-	const inputRef = useRef( null );
+	const {
+		inputRef,
+		isDraggingOver,
+		handleFileInputChangeEvent,
+		handleDragOverEvent,
+		handleDragLeaveEvent,
+		handleDropEvent,
+	} = useDropFiles( { onSelectFiles } );
 
-	const handleFileInputChangeEvent = useCallback(
-		( e: ChangeEvent< HTMLInputElement > ) => {
-			onSelectFiles( Array.from( e.currentTarget.files ) );
-		},
-		[ onSelectFiles ]
-	);
-
-	const handleClickEvent = useCallback( () => {
+	const handleClickEvent = () => {
 		inputRef.current.click();
-	}, [] );
-
-	const handleDragOverEvent = useCallback( ( event: DragEvent< HTMLInputElement > ) => {
-		event.preventDefault();
-		setIsDraggingOver( true );
-	}, [] );
-
-	const handleDragLeaveEvent = useCallback( () => {
-		setIsDraggingOver( false );
-	}, [] );
-
-	const handleDropEvent = useCallback(
-		( event: DragEvent< HTMLInputElement > ) => {
-			event.preventDefault();
-			setIsDraggingOver( false );
-
-			const files = Array.from( event.dataTransfer.files ).filter( file => {
-				return allowedVideoExtensions.some( extension => file.name.endsWith( extension ) );
-			} );
-
-			onSelectFiles( files );
-		},
-		[ onSelectFiles ]
-	);
+	};
 
 	return (
 		<div

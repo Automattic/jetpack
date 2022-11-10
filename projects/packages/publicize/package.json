@@ -35,6 +35,6 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "4.20.0"
+		"@wordpress/i18n": "4.21.0"
 	}
 }

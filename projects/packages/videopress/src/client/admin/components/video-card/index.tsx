@@ -97,8 +97,8 @@ export const VideoCard = ( {
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
-					loading={ loading }
-					uploading={ uploading || isUpdatingPoster }
+					loading={ loading || isUpdatingPoster }
+					uploading={ uploading }
 					processing={ processing }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
