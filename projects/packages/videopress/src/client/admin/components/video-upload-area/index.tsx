@@ -9,6 +9,7 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { fileInputExtensions } from '../../../utils/video-extensions';
+import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
@@ -26,6 +27,7 @@ import type { ReactNode } from 'react';
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { inputRef, handleFileInputChangeEvent } = useSelectVideoFiles( { onSelectFiles } );
+	const { hasVideoPressPurchase } = usePlan();
 
 	const handleClickEvent = () => {
 		inputRef.current.click();
@@ -43,6 +45,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				accept={ fileInputExtensions }
 				className={ classnames( styles[ 'file-input' ] ) }
 				onChange={ handleFileInputChangeEvent }
+				multiple={ hasVideoPressPurchase }
 			/>
 			<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) } />
 			<Text variant="title-small">

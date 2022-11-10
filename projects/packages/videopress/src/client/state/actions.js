@@ -226,7 +226,7 @@ const deleteVideo = id => async ( { dispatch } ) => {
 };
 
 /**
- * Thunk action to fetch upload videos for VideoPress.
+ * Thunk action to upload videos for VideoPress.
  *
  * @param {File} file - File to upload
  * @returns {Function} Thunk action
