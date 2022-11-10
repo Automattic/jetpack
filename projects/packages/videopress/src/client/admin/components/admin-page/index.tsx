@@ -30,8 +30,8 @@ import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useDropFiles from '../../hooks/use-drop-files';
 import { usePlan } from '../../hooks/use-plan';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
@@ -54,8 +54,8 @@ const useDashboardVideos = () => {
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
-	const handleFilesUpload = ( files: FileList | File[] ) => {
-		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
+	const handleFilesUpload = ( files: File[] ) => {
+		const file = Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
 
 		if ( file ) {
 			uploadVideo( file );
@@ -109,9 +109,14 @@ const Admin = () => {
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const canDrop = hasVideoPressPurchase && isRegistered && hasVideos && ! loading;
+	const canDrop = ( hasVideoPressPurchase || ! hasVideos ) && isRegistered && ! loading;
 
-	const { isDraggingOver, inputRef, handleFileInputChangeEvent } = useDropFiles( {
+	const {
+		isDraggingOver,
+		inputRef,
+		handleFileInputChangeEvent,
+		filterVideoFiles,
+	} = useSelectVideoFiles( {
 		canDrop,
 		dropElement: document,
 		onSelectFiles: handleFilesUpload,
@@ -180,7 +185,9 @@ const Admin = () => {
 								/>
 
 								<FormFileUpload
-									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									onChange={ evt =>
+										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+									}
 									accept={ fileInputExtensions }
 									render={ ( { openFileDialog } ) => (
 										<Button

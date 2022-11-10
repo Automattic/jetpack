@@ -7,8 +7,8 @@ import { useEffect, useState, useRef, useCallback, DragEvent, ChangeEvent } from
  */
 import { allowedVideoExtensions } from '../../../utils/video-extensions';
 
-const useDropFiles = ( {
-	canDrop = true,
+const useSelectVideoFiles = ( {
+	canDrop = false,
 	dropElement,
 	onSelectFiles,
 }: {
@@ -21,9 +21,17 @@ const useDropFiles = ( {
 	// Chrome and Firefox diverge on the order of events, with Chrome firing two leave events in a row, hence the array
 	let dragTimeouts = [];
 
+	const filterVideoFiles = ( files: FileList | File[] ) => {
+		return Array.from( files ).filter( file => {
+			return allowedVideoExtensions.some( extension => file.name.endsWith( extension ) );
+		} );
+	};
+
 	const handleFileInputChangeEvent = useCallback(
-		( e: Pick< ChangeEvent< HTMLInputElement >, 'currentTarget' > ) => {
-			onSelectFiles( Array.from( e.currentTarget.files ) );
+		( event: Pick< ChangeEvent< HTMLInputElement >, 'currentTarget' > ) => {
+			const files = filterVideoFiles( event.currentTarget.files );
+
+			onSelectFiles( files );
 		},
 		[ onSelectFiles ]
 	);
@@ -72,9 +80,7 @@ const useDropFiles = ( {
 				return;
 			}
 
-			const files = Array.from( event.dataTransfer.files ).filter( file => {
-				return allowedVideoExtensions.some( extension => file.name.endsWith( extension ) );
-			} );
+			const files = filterVideoFiles( event.dataTransfer.files );
 
 			onSelectFiles( files );
 		},
@@ -109,7 +115,8 @@ const useDropFiles = ( {
 		handleDragOverEvent,
 		handleDragLeaveEvent,
 		handleDropEvent,
+		filterVideoFiles,
 	};
 };
 
-export default useDropFiles;
+export default useSelectVideoFiles;
