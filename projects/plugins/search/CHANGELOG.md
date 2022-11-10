@@ -8,18 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2022-11-10
 ### Added
 - Enable stats tracking upon establishing a site connection. [#26697]
+- Search: add post type breakdown endpoint. [#26463]
+- Search Dashboard: Add support link for plan limits. [#26694]
+- Search Dashboard: Add support for conditional CUTs. [#26656]
+- Search: enable new pricing if pricing_version is set to 202208 from API. [#26900]
+- Search: add blog ID filtering and `blogIdFilteringLabels` option. [#27120]
 
 ### Changed
-- Compatibility: WordPress 6.1 compatibility [#27084]
-- Ported back 1.2.0 release changelog [#26079]
-- Search: now support 38 languages [#27025]
+- Compatibility: WordPress 6.1 compatibility. [#27084]
+- Ported back 1.2.0 release changelog. [#26079]
+- Search: now support 38 languages. [#27025]
+- Introduce PricingTable to update Upsell page. [#26408]
 - Updated package dependencies. [#27283]
+- Search: always add Search Dashboard page even when submenu is hidden. [#26807]
+- Hide Jetpack logo toggle, enforce display for free plans. [#26951]
+- Search: add purchase tracking. [#26981]
+
+### Fixed
+- Fixes the issue where search results are not loaded in customizer. [#26212]
+- Fix error message styling in Instant Search overlay. [#26339]
+- Search: wpcom sites should not be considered as connected. [#26835]
+- Search: hide meters etc for Classic Search. [#27073]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Adds ability to autotag, autorelease and autopublish releases [#26156]
-- E2E tests: use CI build artifacts in e2e tests [#26278]
-- Search: start v1.3.0-alpha release cycle [#25854]
-- E2E tests: removed deprecated Slack notification code [#26215]
+- Adds ability to autotag, autorelease and autopublish releases. [#26156]
+- E2E tests: use CI build artifacts in e2e tests. [#26278]
+- Search: start v1.3.0-alpha release cycle. [#25854]
+- E2E tests: removed deprecated Slack notification code. [#26215]
 
 ## [1.2.0] - 2022-09-05
 ### Added

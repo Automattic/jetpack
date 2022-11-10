@@ -113,13 +113,22 @@ You can purchase a Search subscription directly through this plugin or via the [
 == Changelog ==
 ### 1.3.0 - 2022-11-10
 #### Added
-- Enable stats tracking upon establishing a site connection.
+- Search: Enable stats tracking upon establishing a site connection.
+- Search: Added support for Jetpack Search Free plan and the new pricing.
+- Search Dashboard: Added new record count and search request donut meters.
+- Search Dashboard: Added conditional CTA and notices.
+- Search: add blog ID filtering support.
 
 #### Changed
-- Compatibility: WordPress 6.1 compatibility
-- Ported back 1.2.0 release changelog
-- Search: now support 38 languages
+- Compatibility: WordPress 6.1 compatibility.
+- Search: now support 38 languages.
+- Search: always add Search Dashboard page even when submenu is hidden.
 - Updated package dependencies.
+
+### Fixed
+- Customizer: Fixes the issue where search results are not loaded in customizer.
+- Instant Search: Fix error message styling in Instant Search overlay.
+- Search: hide meters etc for Classic Search.
 
 == Testimonials ==
 
