@@ -1,11 +1,27 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { backOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
+
 	export let ratio: number;
+	export let index: number;
 	const severity = ratio > 4 ? 'high' : ratio > 2 ? 'medium' : 'normal';
+
+	let mounted = false;
+	onMount(() => (mounted = true));
+	const scaleConfig = {
+		delay: 50 * index,
+		duration: 250,
+		y: 2,
+		easing: backOut,
+	};
 </script>
 
-<div class="preview {severity}" on:mouseenter>
-	<div class="bubble">{ratio.toFixed(2)}</div>
-</div>
+{#if mounted}
+	<div class="preview {severity}" on:mouseenter transition:fly={scaleConfig}>
+		<div class="bubble">{ratio.toFixed(2)}</div>
+	</div>
+{/if}
 
 <style lang="scss">
 	.preview {

@@ -10,7 +10,7 @@
 <div class="guide" class:show={show !== false} on:mouseleave={() => show = false} >
 	<div class="previews">
 		{#each images as image, index}
-			<Bubble ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
+			<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
 		{/each}
 	</div>
 	{#if show !== false}
