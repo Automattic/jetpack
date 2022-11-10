@@ -2021,11 +2021,10 @@ class Grunion_Contact_Form_Plugin {
 		$lines        = array();
 
 		if ( count( $content ) > 1 ) {
-			$content  = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			$one_line = preg_replace( '/\s+/', ' ', $content );
-			$one_line = preg_replace( '/.*Array \( (.*)\)/', '$1', $one_line );
+			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
+			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-			preg_match_all( '/\[([^\]]+)\] =\&gt\; ([^\[]+)/', $one_line, $matches );
+			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 			if ( count( $matches ) > 1 ) {
 				$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
