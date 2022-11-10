@@ -112,3 +112,8 @@
 .upload-text {
 	margin-top: calc( var( --spacing-base ) * 3 );
 }
+
+// TODO: Remove when implement use default thumbnail
+.disabled {
+	display: none;
+}
