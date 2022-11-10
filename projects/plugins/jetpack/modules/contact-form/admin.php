@@ -354,12 +354,22 @@ function grunion_manage_post_column_response( $post ) {
 
 	echo '<div class="feedback_response__item">';
 	foreach ( $response_fields as $key => $value ) {
-		pprintf(
+		printf(
 			'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 			esc_html( preg_replace( '#^\d+_#', '', $key ) ),
 			esc_html( $value )
 		);
 	}
+	echo '</div>';
+	echo '<hr />';
+
+	echo '<div class="feedback_response__item">';
+	if ( isset( $content_fields['_feedback_ip'] ) ) {
+		echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack' ) . '</div>';
+		echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
+	}
+	echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack' ) . '</div>';
+	echo '<div class="feedback_response__item-value"><a href="' . esc_url( get_permalink( $post->post_parent ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( get_permalink( $post->post_parent ) ) . '</a></div>';
 	echo '</div>';
 
 	// Feedback item actions:
@@ -515,7 +525,7 @@ function grunion_manage_post_column_source( $post ) {
 	$form_url   = get_permalink( $post->post_parent );
 	$parsed_url = wp_parse_url( $form_url );
 
-	return pprintf(
+	printf(
 		'<a href="%s" target="_blank" rel="noopener noreferrer">/%s</a>',
 		esc_url( $form_url ),
 		esc_html( basename( $parsed_url['path'] ) )
