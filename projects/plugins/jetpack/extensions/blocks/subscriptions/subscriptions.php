@@ -66,6 +66,13 @@ function register_block() {
 
 	if ( \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
 		add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
+
+		// Close comments on the front-end
+		add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments' );
+		add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments' );
+
+		// Hide existing comments
+		add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
@@ -129,6 +136,35 @@ function maybe_get_locked_content( $the_content ) {
 		return $the_content;
 	}
 	return get_locked_content_placeholder_text();
+}
+
+/**
+ * Gate access to comments
+ *
+ * @return bool
+ */
+function maybe_close_comments() {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	return Jetpack_Memberships::user_can_view_post();
+}
+
+/**
+ * Gate access to exisiting comments
+ *
+ * @param string $comment The comment.
+ *
+ * @return string
+ */
+function maybe_gate_existing_comments( $comment ) {
+	if ( empty( $comment ) ) {
+		return $comment;
+	}
+
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	if ( Jetpack_Memberships::user_can_view_post() ) {
+		return $comment;
+	}
+	return '';
 }
 
 /**
