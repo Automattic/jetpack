@@ -1,5 +1,5 @@
 === Jetpack VideoPress  ===
-Contributors: automattic, retrofox, oskosk, dhasilva, renatoagds, lhkowalski, nunyvega, leogermani
+Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
 Requires at least: 5.9
