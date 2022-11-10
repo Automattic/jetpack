@@ -371,7 +371,7 @@ const updateVideoPressSettings = settings => async ( { dispatch } ) => {
 
 	const data = { force: true };
 
-	if ( settings.videoPressVideosPrivateForSite !== undefined ) {
+	if ( typeof settings.videoPressVideosPrivateForSite === 'boolean' ) {
 		data.videopress_videos_private_for_site = settings.videoPressVideosPrivateForSite;
 	}
 
