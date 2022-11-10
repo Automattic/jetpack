@@ -58,10 +58,11 @@
 	}
 
 	.details {
-		color: black;
+		color: #3c434a;
 		padding: 25px;
 		font-family: sans-serif;
 		background-color: rgb(255, 255, 255);
+		background: linear-gradient(159.87deg,#f6f6f4 7.24%,#f7f4ea 64.73%,#ddedd5 116.53%);
 		margin-bottom: 10px;
 
 		width: fit-content;
@@ -72,6 +73,7 @@
 
 	img {
 		border-radius: 3px;
+		box-shadow: 0 0 2px 1px hsl(0deg 0% 95%)
 	}
 
 	.row {

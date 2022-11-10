@@ -56,6 +56,11 @@
 			border-radius: 6px;
 			background-color: white;
 		}
+
+		// Important statements to override theme styles
+		font-size: 15px !important;
+		font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans","Ubuntu","Cantarell","Helvetica Neue",sans-serif !important;
+
 	}
 
 	.previews {
