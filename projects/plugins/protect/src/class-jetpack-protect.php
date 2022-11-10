@@ -185,6 +185,7 @@ class Jetpack_Protect {
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
+			'hasRequiredPlan'   => Plan::has_required_plan(),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
@@ -254,10 +255,10 @@ class Jetpack_Protect {
 	public static function register_rest_endpoints() {
 		register_rest_route(
 			'jetpack-protect/v1',
-			'plan',
+			'check-plan',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_get_plan',
+				'callback'            => __CLASS__ . '::api_check_plan',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -354,11 +355,10 @@ class Jetpack_Protect {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_get_plan() {
-		$plan                 = My_Jetpack_Products::get_product( 'scan' );
-		$plan['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
+	public static function api_check_plan() {
+		$has_required_plan = Plan::has_required_plan();
 
-		return rest_ensure_response( $plan, 200 );
+		return rest_ensure_response( $has_required_plan, 200 );
 	}
 
 	/**
