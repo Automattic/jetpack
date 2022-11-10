@@ -9,7 +9,7 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { fileInputExtensions } from '../../../utils/video-extensions';
-import useDropFiles from '../../hooks/use-drop-files';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
 /**
@@ -25,9 +25,7 @@ import type { ReactNode } from 'react';
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { inputRef, handleFileInputChangeEvent } = useDropFiles( {
-		onSelectFiles,
-	} );
+	const { inputRef, handleFileInputChangeEvent } = useSelectVideoFiles( { onSelectFiles } );
 
 	const handleClickEvent = () => {
 		inputRef.current.click();
