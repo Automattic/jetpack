@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Fix bug and return with select thumbnail from frame

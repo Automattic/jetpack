@@ -1,9 +1,9 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon
 Tags: search, jetpack
-Requires at least: 5.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
+Tested up to: 6.1
 Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -43,7 +43,7 @@ Jetpack Search is a completely customizable WordPress site search plugin, so you
 * Improved theme compatibility for both mobile and desktop
 * Real-time indexing, so your search index is updated within minutes of changes to your site
 * Integrates seamlessly with WooCommerce
-* Support for all languages, and advanced language analysis for 29 languages
+* Support for all languages, and advanced language analysis for 38 languages
 * Highlighted search terms on comments and post content
 * Fast and accurate spelling correction
 
@@ -72,7 +72,7 @@ Simply install the plugin and connect your site. If you already have a paid subs
 
 = What languages does Jetpack Search support? =
 
-We provide support for all languages, and advanced language analysis for 29 languages.
+We provide support for all languages, and advanced language analysis for 38 languages.
 
 = Does Jetpack Search support eCommerce stores and products? =
 

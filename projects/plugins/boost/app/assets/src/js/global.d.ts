@@ -16,7 +16,6 @@ declare global {
 	};
 
 	// Constants provided by the plugin.
-	// eslint-disable-next-line camelcase
 	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
@@ -40,6 +39,7 @@ declare global {
 			url: string;
 			online: boolean;
 			assetPath: string;
+			getStarted: boolean;
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];
@@ -51,6 +51,7 @@ declare global {
 				priceBefore: number;
 				priceAfter: number;
 				currencyCode: string;
+				isIntroductoryOffer: boolean;
 			};
 		};
 	};
@@ -64,7 +65,6 @@ declare global {
 	type TracksEventProperties = { [ key: string ]: string | number };
 
 	const jpTracksAJAX: {
-		// eslint-disable-next-line camelcase
 		record_ajax_event(
 			eventName: string,
 			eventType: string,

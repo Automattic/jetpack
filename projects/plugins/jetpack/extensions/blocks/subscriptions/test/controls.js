@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { BlockEditorProvider } from '@wordpress/block-editor';
 import { DEFAULT_FONTSIZE_VALUE } from '../constants';
 import SubscriptionsInspectorControls from '../controls';
 
@@ -92,9 +93,14 @@ describe( 'Inspector controls', () => {
 
 		test( 'set custom text', async () => {
 			const user = userEvent.setup();
-			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			await user.click( screen.getByText( 'Typography' ), { selector: 'button' } );
-			await user.type( screen.getAllByLabelText( 'Custom Size' )[ 1 ], '18' );
+			render(
+				<BlockEditorProvider settings={ { disableCustomFontSizes: false } }>
+					<SubscriptionsInspectorControls { ...defaultProps } />
+				</BlockEditorProvider>
+			);
+			await user.click( screen.getByRole( 'button', { name: 'Typography' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Set custom size' } ) );
+			await user.type( screen.getByRole( 'spinbutton', { name: 'Custom' } ), '18' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				fontSize: 18,

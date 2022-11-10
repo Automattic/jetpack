@@ -187,14 +187,6 @@ class Jetpack {
 		'comment-likes'      => array(
 			'Epoch' => 'epoch/plugincore.php',
 		),
-		'contact-form'       => array(
-			'Contact Form 7'           => 'contact-form-7/wp-contact-form-7.php',
-			'Gravity Forms'            => 'gravityforms/gravityforms.php',
-			'Contact Form Plugin'      => 'contact-form-plugin/contact_form.php',
-			'Easy Contact Forms'       => 'easy-contact-forms/easy-contact-forms.php',
-			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
-			'Ninja Forms'              => 'ninja-forms/ninja-forms.php',
-		),
 		'latex'              => array(
 			'LaTeX for WordPress'     => 'latex/latex.php',
 			'Youngwhans Simple Latex' => 'youngwhans-simple-latex/yw-latex.php',
@@ -737,7 +729,7 @@ class Jetpack {
 			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
 			 * so they point moderation links on emails to Calypso.
 			 */
-			jetpack_require_lib( 'functions.wp-notify' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/functions.wp-notify.php';
 			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
 			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
 		}
@@ -830,6 +822,7 @@ class Jetpack {
 				'sync',
 				'waf',
 				'videopress',
+				'stats',
 			)
 			as $feature
 		) {
@@ -924,9 +917,6 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
-		if ( $this->should_show_backup() ) {
-			Jetpack_Backup::initialize();
-		}
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
@@ -939,31 +929,6 @@ class Jetpack {
 		do_action( 'jetpack_loaded', $this );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 2 );
-	}
-
-	/**
-	 * Checks if Jetpack Backup is active or waiting credentials.
-	 * Will return true if the state of Backup is anything except "unavailable".
-	 *
-	 * @return bool|int|mixed
-	 */
-	public static function should_show_backup() {
-		// Backup is a paid feature, therefore requires a user-level connection.
-		if ( ! static::connection()->has_connected_owner() ) {
-			return false;
-		}
-		$backup_enabled = get_transient( 'jetpack_rewind_state' );
-		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $backup_enabled;
-		if ( false === $backup_enabled || $recheck ) {
-			jetpack_require_lib( 'class.core-rest-api-endpoints' );
-			$backup_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
-			$backup_enabled = ( ! is_wp_error( $backup_data )
-				&& ! empty( $backup_data['state'] )
-				&& 'unavailable' !== $backup_data['state'] )
-				? 1
-				: 0;
-		}
-		return $backup_enabled;
 	}
 
 	/**
@@ -3303,6 +3268,7 @@ p {
 
 		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
+			Jetpack_Connection_Widget::init();
 		}
 
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
@@ -6576,7 +6542,7 @@ endif;
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
 		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $rewind_enabled;
 		if ( false === $rewind_enabled || $recheck ) {
-			jetpack_require_lib( 'class.core-rest-api-endpoints' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
 				&& ! empty( $rewind_data['state'] )
@@ -6786,7 +6752,7 @@ endif;
 			'features'          => array(
 				_x( 'Instant search and indexing', 'Search Product Feature', 'jetpack' ),
 				_x( 'Powerful filtering', 'Search Product Feature', 'jetpack' ),
-				_x( 'Supports 29 languages', 'Search Product Feature', 'jetpack' ),
+				_x( 'Supports 38 languages', 'Search Product Feature', 'jetpack' ),
 				_x( 'Spelling correction', 'Search Product Feature', 'jetpack' ),
 			),
 		);

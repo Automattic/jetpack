@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.11] - 2022-10-25
+### Changed
+- Sort data in generated `vendor/composer/jetpack_autoload_classmap.php` to avoid spurious diffs. [#26929]
+
+## [2.11.10] - 2022-10-05
+
+- Tests: Clear `COMPOSER_AUTH` environment variable when running Composer for tests. [#26404]
+
 ## [2.11.9] - 2022-09-27
 ### Fixed
 - Tests: Clear `COMPOSER_AUTH` environment variable when running Composer for tests. [#26404]
@@ -269,6 +277,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.11.11]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.10...v2.11.11
+[2.11.10]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.9...v2.11.10
 [2.11.9]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.8...v2.11.9
 [2.11.8]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.7...v2.11.8
 [2.11.7]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.6...v2.11.7

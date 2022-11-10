@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Create selector/resolver machinery to fetch VideoPress site privacy setting from the backend.
