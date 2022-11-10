@@ -1,4 +1,4 @@
-export interface Image {
+export type Image = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
 	width: number;
