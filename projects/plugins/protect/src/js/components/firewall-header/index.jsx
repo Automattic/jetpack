@@ -82,7 +82,7 @@ const FirewallHeader = () => {
 				<Col>
 					<Spinner className={ styles.spinner } />
 					<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-						{ __( 'Automattic firewall is being set up', 'jetpack-protect' ) }
+						{ __( 'Automatic firewall is being set up', 'jetpack-protect' ) }
 					</H3>
 					<Text variant={ 'body-small' } weight={ 600 }>
 						{ __( 'Please wait…', 'jetpack-protect' ) }
