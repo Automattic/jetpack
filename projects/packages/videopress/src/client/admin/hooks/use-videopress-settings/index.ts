@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 /*
  * Internal dependencies
  */
@@ -13,11 +13,17 @@ import { VideopressSelectors } from '../../types';
 import { useVideoPressSettingsProps } from './types';
 
 export const useVideoPressSettings = (): useVideoPressSettingsProps => {
+	const dispatch = useDispatch( STORE_ID );
+
 	const settings = useSelect( select => {
 		return ( select( STORE_ID ) as VideopressSelectors ).getVideoPressSettings();
 	}, [] );
 
 	return {
-		settings,
+		settings: {
+			videoPressVideosPrivateForSite: settings?.videoPressVideosPrivateForSite ?? false,
+		},
+
+		onUpdate: settingsToUpdate => dispatch.updateVideoPressSettings( settingsToUpdate ),
 	};
 };

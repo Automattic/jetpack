@@ -18,7 +18,7 @@ import { SiteSettingsSectionProps } from './types';
  * @returns {React.ReactElement}   Component template
  */
 const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
-	videosPrivateForSite,
+	videoPressVideosPrivateForSite,
 	onPrivacyChange,
 } ) => {
 	return (
@@ -36,21 +36,24 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 						'jetpack-videopress-pkg'
 					) }
 					onChange={ onPrivacyChange }
-					checked={ videosPrivateForSite }
+					checked={ videoPressVideosPrivateForSite }
 				/>
 			</Col>
 		</Container>
 	);
 };
 
-export const ConnectSiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
-	onPrivacyChange,
-} ) => {
-	const { videoPressVideosPrivateForSite: videosPrivateForSite } = useVideoPressSettings();
+export const ConnectSiteSettingsSection: React.FC< SiteSettingsSectionProps > = () => {
+	const { settings, onUpdate } = useVideoPressSettings();
+	const { videoPressVideosPrivateForSite } = settings;
 	return (
 		<SiteSettingsSection
-			videosPrivateForSite={ videosPrivateForSite }
-			onPrivacyChange={ onPrivacyChange }
+			videoPressVideosPrivateForSite={ videoPressVideosPrivateForSite }
+			onPrivacyChange={ newPrivacyValue => {
+				onUpdate( {
+					videoPressVideosPrivateForSite: newPrivacyValue,
+				} );
+			} }
 		/>
 	);
 };

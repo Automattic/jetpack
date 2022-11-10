@@ -7,7 +7,7 @@ export type SiteSettingsSectionProps = {
 	/**
 	 * Define if the videos are private at the site level.
 	 */
-	videosPrivateForSite: boolean;
+	videoPressVideosPrivateForSite: boolean;
 
 	/**
 	 * Callback function to be invoked when the privacy settings changes.

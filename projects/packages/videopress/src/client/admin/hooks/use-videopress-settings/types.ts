@@ -104,5 +104,8 @@ export type productProps = {
 };
 
 export type useVideoPressSettingsProps = {
-	videoPressVideosPrivateForSite: boolean;
+	settings: {
+		videoPressVideosPrivateForSite: boolean;
+	};
+	onUpdate: ( settings: { videoPressVideosPrivateForSite: boolean } ) => void;
 };

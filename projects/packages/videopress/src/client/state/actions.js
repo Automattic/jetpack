@@ -46,6 +46,7 @@ import {
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
 	SET_VIDEOPRESS_SETTINGS,
+	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -357,6 +358,41 @@ const setVideoPressSettings = videoPressSettings => {
 	return { type: SET_VIDEOPRESS_SETTINGS, videoPressSettings };
 };
 
+/**
+ * Thunk action to remove a video from the state,
+ *
+ * @param {object} settings - VideoPress settings
+ * @returns {Function}        Thunk action
+ */
+const updateVideoPressSettings = settings => async ( { dispatch } ) => {
+	if ( ! settings ) {
+		return;
+	}
+
+	const data = { force: true };
+
+	if ( settings.videoPressVideosPrivateForSite !== undefined ) {
+		data.videopress_videos_private_for_site = settings.videoPressVideosPrivateForSite;
+	}
+
+	// videopress_videos_private_for_site
+	try {
+		// 100% optimistic update
+		dispatch.setVideoPressSettings( settings );
+
+		const resp = await apiFetch( {
+			path: WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+			method: 'PUT',
+			data,
+		} );
+
+		return resp;
+	} catch ( error ) {
+		// @todo: implement error handling / UI
+		console.error( error ); // eslint-disable-line no-console
+	}
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -398,6 +434,7 @@ const actions = {
 	expirePlaybackToken,
 
 	setVideoPressSettings,
+	updateVideoPressSettings,
 };
 
 export { actions as default };
