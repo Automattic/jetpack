@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ComparedImage } from '../Measurements';
-	import { fly, fade, crossfade } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	export let image: ComparedImage;
 	const imageName = image.url.split('/').pop();
