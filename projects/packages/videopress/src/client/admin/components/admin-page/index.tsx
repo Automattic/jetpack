@@ -244,12 +244,12 @@ const Admin = () => {
 							) }
 						</Container>
 					</AdminSection>
+
+					<AdminSection>
+						<SettingsSection />
+					</AdminSection>
 				</>
 			) }
-
-			<AdminSection>
-				<SettingsSection />
-			</AdminSection>
 		</AdminPage>
 	);
 };

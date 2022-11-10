@@ -43,7 +43,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	);
 };
 
-export const ConnectSiteSettingsSection: React.FC< SiteSettingsSectionProps > = () => {
+export const ConnectSiteSettingsSection = () => {
 	const { settings, onUpdate } = useVideoPressSettings();
 	const { videoPressVideosPrivateForSite } = settings;
 	return (
