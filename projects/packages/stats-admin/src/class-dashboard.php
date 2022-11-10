@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\StatsAdmin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Assets;
 use Jetpack_Options;
 
 /**
@@ -110,10 +111,23 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
-		wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), uniqid() );
-		wp_enqueue_script( 'jp-stats-dashboard' );
-		wp_enqueue_style( 'jp-stats-dashboard-style' );
+		if ( file_exists( plugin_dir_path( __FILE__, '../dist/build.min.js' ) ) ) {
+			Assets::register_script(
+				'jp-stats-dashboard',
+				'../dist/build.min.js',
+				__FILE__,
+				array(
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-stats-admin',
+				)
+			);
+			Assets::enqueue_script( 'jp-stats-dashboard' );
+		} else {
+			wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
+			wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), uniqid() );
+			wp_enqueue_script( 'jp-stats-dashboard' );
+			wp_enqueue_style( 'jp-stats-dashboard-style' );
+		}
 
 		wp_add_inline_script(
 			'jp-stats-dashboard',
@@ -153,7 +167,7 @@ class Dashboard {
 		$empty_object = json_decode( '{}' );
 
 		return '
-		configData = ' . wp_json_encode(
+		window.configData = ' . wp_json_encode(
 			array(
 				'admin_page_base'                => static::get_admin_path(),
 				'api_root'                       => esc_url_raw( rest_url() ),
