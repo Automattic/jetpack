@@ -1,22 +1,24 @@
 <script lang="ts">
+	import state from './StateStore';
 	import type { ComparedImage } from '../Measurements';
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
 	let show: number | false = false;
-
 </script>
 
-<div class="guide" class:show={show !== false} on:mouseleave={() => show = false} >
-	<div class="previews">
-		{#each images as image, index}
-			<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
-		{/each}
+{#if $state === 'Active'}
+	<div class="guide" class:show={show !== false} on:mouseleave={() => (show = false)}>
+		<div class="previews">
+			{#each images as image, index}
+				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
+			{/each}
+		</div>
+		{#if show !== false}
+			<ImageGuide image={images[show]} />
+		{/if}
 	</div>
-	{#if show !== false}
-		<ImageGuide image={images[show]} />
-	{/if}
-</div>
+{/if}
 
 <style lang="scss">
 	.guide {
@@ -59,8 +61,8 @@
 
 		// Important statements to override theme styles
 		font-size: 15px !important;
-		font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen-Sans","Ubuntu","Cantarell","Helvetica Neue",sans-serif !important;
-
+		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans',
+			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
 	}
 
 	.previews {

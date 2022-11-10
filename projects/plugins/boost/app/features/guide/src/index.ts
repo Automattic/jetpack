@@ -2,6 +2,7 @@ import { load, Image } from './Images';
 import { measure, MeasuredImage } from './Measurements';
 
 import Main from './ui/Main.svelte';
+import AdminBarToggle from './ui/AdminBarToggle.svelte';
 
 function closestStableParent(node: Element, distance = 0): Element | null {
 	if (!node.parentNode) {
@@ -143,4 +144,19 @@ window.addEventListener('load', async () => {
 		const instance = new Main(data);
 		return instance;
 	});
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+	const adminBarToggle = document.getElementById('wp-admin-bar-jetpack-boost-image-guide');
+	const link = adminBarToggle?.querySelector('a');
+	if (adminBarToggle && link) {
+		const href = link.getAttribute('href');
+		link.remove();
+		new AdminBarToggle({
+			target: adminBarToggle,
+			props: {
+				href,
+			},
+		});
+	}
 });
