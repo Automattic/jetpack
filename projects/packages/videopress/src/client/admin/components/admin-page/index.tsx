@@ -109,7 +109,7 @@ const Admin = () => {
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const canDrop = hasVideoPressPurchase && isRegistered && ! loading;
+	const canDrop = ( hasVideoPressPurchase || ! hasVideos ) && isRegistered && ! loading;
 
 	const {
 		isDraggingOver,
