@@ -10,7 +10,7 @@
 	let mounted = false;
 	onMount(() => (mounted = true));
 	const scaleConfig = {
-		delay: 50 * index,
+		delay: 150 + 50 * index,
 		duration: 250,
 		y: 2,
 		easing: backOut,
