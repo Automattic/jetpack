@@ -1,9 +1,9 @@
 <?php
 /**
- * The Search Rest Controller class.
- * Registers the REST routes for Search.
+ * The Stats Rest Controller class.
+ * Registers the REST routes for Stats.
  *
- * @package automattic/jetpack-search
+ * @package automattic/jetpack-stats-admin
  */
 
 namespace Automattic\Jetpack\StatsAdmin;
@@ -14,20 +14,19 @@ use WP_Error;
 use WP_REST_Server;
 
 /**
- * Registers the REST routes for Search.
+ * Registers the REST routes for Stats.
+ * It bascially forwards the requests to the WordPress.com REST API.
  */
 class REST_Controller {
 	/**
 	 * Namespace for the REST API.
-	 *
-	 * This is overriden with value `wpcom-orgin/jetpack/v4` for WPCOM.
 	 *
 	 * @var string
 	 */
 	public static $namespace = 'jetpack/v4/stats-app';
 
 	/**
-	 * Registers the REST routes for Search.
+	 * Registers the REST routes for Stats.
 	 *
 	 * @access public
 	 * @static
@@ -118,18 +117,6 @@ class REST_Controller {
 		}
 
 		return $this->get_forbidden_error();
-	}
-
-	/**
-	 * Me endpoint.
-	 *
-	 * @return array
-	 */
-	public function me() {
-		return array(
-			'ID'       => 1000,
-			'username' => 'no-user',
-		);
 	}
 
 	/**
