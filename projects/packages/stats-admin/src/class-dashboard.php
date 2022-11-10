@@ -123,6 +123,7 @@ class Dashboard {
 			);
 			Assets::enqueue_script( 'jp-stats-dashboard' );
 		} else {
+			// TODO: replace uniqid() with a real version.
 			wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
 			wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), uniqid() );
 			wp_enqueue_script( 'jp-stats-dashboard' );
