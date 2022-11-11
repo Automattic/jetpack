@@ -431,6 +431,8 @@ class Search extends Module {
 		'_wc_general_product_dependency_theme'   => array(),
 		'_wc_general_product_dependency_plugin'  => array(),
 		'wpcom_marketplace_product_extra_fields' => array(),
+		'wpcom_marketplace_store_product_yearly_id' => array(),
+		'wpcom_marketplace_store_product_monthly_id' => array(),
 
 	); // end indexed post meta.
 
