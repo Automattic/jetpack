@@ -112,9 +112,10 @@ class Scan extends Module_Product {
 	 *
 	 * @todo Maybe add caching.
 	 *
+	 * @param int $timeout The request timeout in seconds.
 	 * @return Object|WP_Error
 	 */
-	private static function get_state_from_wpcom() {
+	private static function get_state_from_wpcom( $timeout = 2 ) {
 		static $status = null;
 
 		if ( $status !== null ) {
@@ -123,7 +124,7 @@ class Scan extends Module_Product {
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array( 'timeout' => $timeout ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'scan_state_fetch_failed' );
@@ -137,10 +138,11 @@ class Scan extends Module_Product {
 	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
+	 * @param int $request_timeout The request timeout in seconds, to pass to get_state_from_wpcom().
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
-		$scan_data = static::get_state_from_wpcom();
+	public static function has_required_plan( $request_timeout = 2 ) {
+		$scan_data = static::get_state_from_wpcom( $request_timeout );
 		if ( is_wp_error( $scan_data ) ) {
 			return false;
 		}
