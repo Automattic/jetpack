@@ -4,7 +4,7 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { Tooltip } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import PlaybackControl from './playback-control';
+import PlaybackPanel from './playback-panel';
 /**
  * Internal dependencies
  */
@@ -39,7 +39,7 @@ export default function VideoPressInspectorControls( { attributes, setAttributes
 
 	return (
 		<InspectorControls>
-			<PlaybackControl attributes={ attributes } setAttributes={ setAttributes } />
+			<PlaybackPanel attributes={ attributes } setAttributes={ setAttributes } />
 
 			<SeekbarColorSettings
 				{ ...{ attributes, setAttributes, useAverageColor } }
