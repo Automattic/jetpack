@@ -17,7 +17,7 @@ import type React from 'react';
  * @param {PlaybackControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function PlaybackControl( { attributes, setAttributes }: PlaybackControlProps ) {
+export default function PlaybackPanel( { attributes, setAttributes }: PlaybackControlProps ) {
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(
