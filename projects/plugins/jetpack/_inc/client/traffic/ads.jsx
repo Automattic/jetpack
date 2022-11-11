@@ -358,7 +358,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								/>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'Adds a link to your privacy policy to the bottom of the sale opt-out notice popup (optional).',
+										'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
 										'jetpack'
 									) }
 								</span>
