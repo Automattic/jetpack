@@ -30,13 +30,13 @@ import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useDropFiles from '../../hooks/use-drop-files';
 import { usePlan } from '../../hooks/use-plan';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
-import SettingsSection from '../site-settings-section';
+import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
@@ -47,6 +47,7 @@ const useDashboardVideos = () => {
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
+	const { hasVideoPressPurchase } = usePlan();
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
@@ -54,11 +55,13 @@ const useDashboardVideos = () => {
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
-	const handleFilesUpload = ( files: FileList | File[] ) => {
-		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
-
-		if ( file ) {
-			uploadVideo( file );
+	const handleFilesUpload = ( files: File[] ) => {
+		if ( hasVideoPressPurchase ) {
+			files.forEach( file => {
+				uploadVideo( file );
+			} );
+		} else if ( files.length > 0 ) {
+			uploadVideo( files[ 0 ] );
 		}
 	};
 
@@ -83,6 +86,7 @@ const useDashboardVideos = () => {
 		handleLocalVideoUpload,
 		loading: isFetching,
 		uploading: uploading?.length > 0,
+		hasVideoPressPurchase,
 	};
 };
 
@@ -98,9 +102,8 @@ const Admin = () => {
 		handleLocalVideoUpload,
 		loading,
 		uploading,
+		hasVideoPressPurchase,
 	} = useDashboardVideos();
-
-	const { hasVideoPressPurchase } = usePlan();
 
 	const { isRegistered, hasConnectedOwner } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -109,9 +112,14 @@ const Admin = () => {
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const canDrop = hasVideoPressPurchase && isRegistered && hasVideos && ! loading;
+	const canDrop = ( hasVideoPressPurchase || ! hasVideos ) && isRegistered && ! loading;
 
-	const { isDraggingOver, inputRef, handleFileInputChangeEvent } = useDropFiles( {
+	const {
+		isDraggingOver,
+		inputRef,
+		handleFileInputChangeEvent,
+		filterVideoFiles,
+	} = useSelectVideoFiles( {
 		canDrop,
 		dropElement: document,
 		onSelectFiles: handleFilesUpload,
@@ -185,8 +193,11 @@ const Admin = () => {
 								/>
 
 								<FormFileUpload
-									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									onChange={ evt =>
+										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+									}
 									accept={ fileInputExtensions }
+									multiple={ hasVideoPressPurchase }
 									render={ ( { openFileDialog } ) => (
 										<Button
 											fullWidth={ isSm }
@@ -238,12 +249,12 @@ const Admin = () => {
 							) }
 						</Container>
 					</AdminSection>
+
+					<AdminSection>
+						<SettingsSection />
+					</AdminSection>
 				</>
 			) }
-
-			<AdminSection>
-				<SettingsSection />
-			</AdminSection>
 		</AdminPage>
 	);
 };

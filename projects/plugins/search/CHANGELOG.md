@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2022-11-10
+### Added
+- Enable stats tracking upon establishing a site connection. [#26697]
+
+### Changed
+- Compatibility: WordPress 6.1 compatibility [#27084]
+- Ported back 1.2.0 release changelog [#26079]
+- Search: now support 38 languages [#27025]
+- Updated package dependencies. [#27283]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds ability to autotag, autorelease and autopublish releases [#26156]
+- E2E tests: use CI build artifacts in e2e tests [#26278]
+- Search: start v1.3.0-alpha release cycle [#25854]
+- E2E tests: removed deprecated Slack notification code [#26215]
+
 ## [1.2.0] - 2022-09-05
 ### Added
 - Instant Search: add author filtering support.
@@ -67,5 +83,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[1.3.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.2.0-beta...1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0-beta...1.1.0
