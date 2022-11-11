@@ -71,43 +71,43 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $is_valid_token ) {
-			if ( 'subscribers' === $access_level ) {
-				return 'active' === $payload['blog_sub'];
-			}
-			$subscriptions = (array) $payload['subscriptions'];
-		} elseif ( is_user_logged_in() ) {
-			/*
-			 * If there is no token, but the user is logged in,
-			 * get current subscriptions and determine if the user has
-			 * a valid subscription to match the plan ID.
-			 */
-
-			/**
-			 * Filter the subscriptions attached to a specific user on a given site.
-			 *
-			 * @since 9.4.0
-			 *
-			 * @param array $subscriptions Array of subscriptions.
-			 * @param int   $user_id The user's ID.
-			 * @param int   $site_id ID of the current site.
-			 */
-			$subscriptions = apply_filters(
-				'earn_get_user_subscriptions_for_site_id',
-				array(),
-				wp_get_current_user()->ID,
-				$this->get_site_id()
-			);
-
-			if ( empty( $subscriptions ) ) {
-				return false;
-			}
-			// format the subscriptions so that they can be validated.
-			$subscriptions = self::abbreviate_subscriptions( $subscriptions );
+			$is_blog_subscrber  = 'active' === $payload['blog_sub'];
+			$subscriptions      = (array) $payload['subscriptions'];
+			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
-			return false;
+			// Token not valid. We bail even unless the post can be accessed publicly.
+			return 'everybody' === $access_level;
 		}
 
-		return $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+		return self::user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber );
+	}
+
+	/**
+	 * Return if the user has access to the content depending on the access level and the user rights
+	 *
+	 * @param string $access_level Post or blog access level.
+	 * @param bool   $is_blog_subscrber Is user a subscriber of the blog.
+	 * @param bool   $is_paid_subscriber Is user a paidsubscriber of the blog.
+	 *
+	 * @return bool does the user have access to the post/blog.
+	 */
+	protected static function user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber ) {
+		if ( empty( $access_level ) || $access_level === 'everybody' ) {
+			// empty level means the post is not gated for paid users
+			return true;
+		}
+
+		if ( $access_level === 'subscribers' ) {
+			return $is_blog_subscrber || $is_paid_subscriber;
+		}
+
+		if ( $access_level === 'paid_subscribers' ) {
+			return $is_paid_subscriber;
+		}
+
+		// This should not be a use case
+		return false;
+
 	}
 
 	/**
@@ -209,7 +209,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @return bool
 	 */
-	protected function validate_subscriptions( $valid_plan_ids, $token_subscriptions ) {
+	public static function validate_subscriptions( $valid_plan_ids, $token_subscriptions ) {
 		// Create a list of product_ids to compare against.
 		$product_ids = array();
 		foreach ( $valid_plan_ids as $plan_id ) {
@@ -251,6 +251,11 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return array<int, array>
 	 */
 	public static function abbreviate_subscriptions( $subscriptions_from_bd ) {
+
+		if ( empty( $subscriptions_from_bd ) ) {
+			return array();
+		}
+
 		$subscriptions = array();
 		foreach ( $subscriptions_from_bd as $subscription ) {
 			// We are picking the expiry date that is the most in the future.

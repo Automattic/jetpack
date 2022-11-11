@@ -63,25 +63,41 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * @return bool
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
-	public static function user_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
+	public static function subscriber_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
 
 		// Site admins can do everything
 		if ( current_user_can( 'edit_post', $post_id ) ) {
 			return true;
 		}
 
-		$access_level = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-
-		if ( empty( $access_level ) || $access_level === 'everybody' ) {
-			// empty level means the post is not gated for paid users
-			return true;
-		}
-
 		switch_to_blog( $blog_id );
+
 		$previous_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
-		$valid_plan_ids = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$allowed        = static::visitor_can_view_content( $valid_plan_ids, $access_level );
+
+		/**
+		 * Filter the subscriptions attached to a specific user on a given site.
+		 *
+		 * @since 9.4.0
+		 *
+		 * @param array $subscriptions Array of subscriptions.
+		 * @param int   $user_id The user's ID.
+		 * @param int   $site_id ID of the current site.
+		 */
+		$subscriptions = apply_filters(
+			'earn_get_user_subscriptions_for_site_id',
+			array(),
+			wp_get_current_user()->ID,
+			$blog_id
+		);
+
+		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
+		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
+		$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
+
+		// All the users here are subscribers
+		$allowed = static::user_has_access( $access_level, true, $is_paid_subscriber );
+
 		wp_set_current_user( $previous_user );
 		restore_current_blog();
 
