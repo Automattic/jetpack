@@ -1796,6 +1796,18 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/plugins/social/tests/e2e:
+    specifiers:
+      '@playwright/test': 1.26.0
+      allure-playwright: 2.0.0-beta.19
+      config: 3.3.7
+      jetpack-e2e-commons: workspace:*
+    devDependencies:
+      '@playwright/test': 1.26.0
+      allure-playwright: 2.0.0-beta.19
+      config: 3.3.7
+      jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
   projects/plugins/starter-plugin:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:* || ^0.3

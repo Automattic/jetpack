@@ -16,5 +16,6 @@
 
 use Automattic\Jetpack\Action_Bar;
 
-$action_bar = new Action_Bar();
-$action_bar->init();
+return; // Return out early for now. The module is not ready for production yet.
+
+( new Action_Bar() )->init(); // phpcs:ignore Squiz.PHP.NonExecutableCode.Unreachable
