@@ -6,22 +6,25 @@ describe( 'Message content', () => {
 	const refType = 'branch';
 	const prNumber = '123';
 	const sha = '12345abcd';
+	const action = 'some action';
 
 	test.each`
-		eventName           | isFailure  | suiteName         | expected
-		${ 'push' }         | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_` } }
-		${ 'push' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_` } }
-		${ 'push' }         | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_` } }
-		${ 'workflow_run' } | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_ (workflow_run)` } }
-		${ 'workflow_run' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
-		${ 'workflow_run' } | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
-		${ 'schedule' }     | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for scheduled run on ${ refType } _*${ refName }*_` } }
-		${ 'schedule' }     | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
-		${ 'schedule' }     | ${ true }  | ${ 'test-suite' } | ${ { text: `:x:	_*test-suite*_ tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
-		${ 'schedule' }     | ${ true }  | ${ '' }           | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
-		${ 'pull_request' } | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for pull request *#${ prNumber }*` } }
-		${ 'pull_request' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for pull request *#${ prNumber }*` } }
-		${ 'unsupported' }  | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for ${ sha }` } }
+		eventName                  | isFailure  | suiteName         | expected
+		${ 'push' }                | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_` } }
+		${ 'push' }                | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_` } }
+		${ 'push' }                | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_` } }
+		${ 'workflow_run' }        | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed on ${ refType } _*${ refName }*_ (workflow_run)` } }
+		${ 'workflow_run' }        | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
+		${ 'workflow_run' }        | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed on ${ refType } _*${ refName }*_ (workflow_run)` } }
+		${ 'schedule' }            | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for scheduled run on ${ refType } _*${ refName }*_` } }
+		${ 'schedule' }            | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
+		${ 'schedule' }            | ${ true }  | ${ 'test-suite' } | ${ { text: `:x:	_*test-suite*_ tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
+		${ 'schedule' }            | ${ true }  | ${ '' }           | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
+		${ 'pull_request' }        | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for pull request *#${ prNumber }*` } }
+		${ 'pull_request' }        | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for pull request *#${ prNumber }*` } }
+		${ 'repository_dispatch' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for event _*${ action }*_` } }
+		${ 'repository_dispatch' } | ${ false } | ${ 'test-suite' } | ${ { text: `:white_check_mark:	_*test-suite*_ tests passed for event _*${ action }*_` } }
+		${ 'unsupported' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for ${ sha }` } }
 	`(
 		`Message text is correct for $eventName and workflow failed=$isFailure and suiteName=$suiteName`,
 		async ( { eventName, isFailure, suiteName, expected } ) => {
@@ -35,6 +38,7 @@ describe( 'Message content', () => {
 					head_commit: { id: '123', message: 'Some commit message' },
 					pull_request: { number: prNumber },
 					workflow_run: { head_commit: { id: '123', message: 'Some commit message' } },
+					action,
 				},
 				sha,
 				eventName,
@@ -116,6 +120,7 @@ describe( 'Message content', () => {
 		${ 'push' }
 		${ 'schedule' }
 		${ 'workflow_run' }
+		${ 'repository_dispatch' }
 		${ 'unsupported' }
 	`( 'There are no empty blocks elements lists for $eventName event', async ( { eventName } ) => {
 		const { mockGitHubContext } = require( './test-utils' );
@@ -126,6 +131,7 @@ describe( 'Message content', () => {
 				head_commit: { id: '123', message: 'Some commit message' },
 				pull_request: { number: prNumber },
 				workflow_run: { head_commit: { id: '123', message: 'Some commit message' } },
+				action,
 			},
 			sha,
 			eventName,
@@ -140,6 +146,33 @@ describe( 'Message content', () => {
 		expect( mainMsgBlocks[ 2 ].type ).toBe( 'actions' );
 		expect( mainMsgBlocks[ 2 ].elements.length ).toBeGreaterThan( 0 );
 	} );
+
+	test.each`
+		description                                      | clientPayload                                          | expectedContextLength | expectedButtonsLength
+		${ 'upstream sha, upstream repository' }         | ${ { sha: '123456789', repository: 'upstream/repo' } } | ${ 2 }                | ${ 2 }
+		${ 'upstream sha, missing upstream repository' } | ${ { sha: '123456789' } }                              | ${ 2 }                | ${ 1 }
+		${ 'missing upstream sha, upstream repository' } | ${ { repository: 'upstream/repo' } }                   | ${ 1 }                | ${ 1 }
+	`(
+		`Repository dispatch blocks for #description`,
+		async ( { clientPayload, expectedContextLength, expectedButtonsLength } ) => {
+			const { mockGitHubContext } = require( './test-utils' );
+
+			// Mock GitHub context
+			mockGitHubContext( {
+				payload: {
+					action: 'some action',
+					client_payload: clientPayload,
+				},
+				eventName: 'repository_dispatch',
+			} );
+
+			const { createMessage } = require( '../src/message' );
+			const { mainMsgBlocks } = await createMessage( true );
+
+			expect( mainMsgBlocks[ 1 ].elements ).toHaveLength( expectedContextLength );
+			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
+		}
+	);
 } );
 
 describe( 'Send message', () => {

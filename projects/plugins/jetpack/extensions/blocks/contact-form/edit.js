@@ -1,6 +1,5 @@
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
-	BlockControls,
 	InnerBlocks,
 	InspectorControls,
 	URLInput,
@@ -11,13 +10,10 @@ import {
 	BaseControl,
 	ExternalLink,
 	Flex,
-	Icon,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	ToolbarGroup,
-	ToolbarItem,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -26,10 +22,8 @@ import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
 import InspectorHint from '../../shared/components/inspector-hint';
-import { JetpackLogo, MailIcon, NewsletterIcon } from '../../shared/icons';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import JetpackFormSettingsDropdown from './components/jetpack-form-settings-dropdown';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import defaultVariations from './variations';
@@ -202,60 +196,8 @@ export function JetpackContactFormEdit( {
 		return renderVariationPicker();
 	}
 
-	const formSettingsSections = [
-		{
-			title: __( 'Email Connection', 'jetpack' ),
-			icon: <Icon icon={ MailIcon } />,
-			// eslint-disable-next-line no-shadow
-			content: ( { attributes, setAttributes } ) => (
-				<JetpackEmailConnectionSettings
-					emailAddress={ attributes.to }
-					emailSubject={ attributes.subject }
-					instanceId={ instanceId }
-					postAuthorEmail={ postAuthorEmail }
-					setAttributes={ setAttributes }
-				/>
-			),
-		},
-	];
-
-	if ( ! isSimpleSite() ) {
-		formSettingsSections.push( {
-			title: __( 'Newsletter Integration', 'jetpack' ),
-			icon: <Icon icon={ NewsletterIcon } />,
-			content: () => <NewsletterIntegrationSettings />,
-		} );
-
-		if ( canUserInstallPlugins ) {
-			formSettingsSections.push( {
-				title: 'Jetpack CRM',
-				icon: <JetpackLogo border={ 2 } />,
-				// eslint-disable-next-line no-shadow
-				content: ( { attributes, setAttributes } ) => (
-					<CRMIntegrationSettings
-						jetpackCRM={ attributes.jetpackCRM }
-						setAttributes={ setAttributes }
-					/>
-				),
-			} );
-		}
-	}
-
 	return (
 		<>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarItem>
-						{ () => (
-							<JetpackFormSettingsDropdown
-								attributes={ attributes }
-								setAttributes={ setAttributes }
-								settings={ formSettingsSections }
-							/>
-						) }
-					</ToolbarItem>
-				</ToolbarGroup>
-			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />

@@ -12,6 +12,7 @@ export const WP_REST_API_MEDIA_ENDPOINT = 'wp/v2/media';
 export const WP_REST_API_VIDEOPRESS_ENDPOINT = 'wpcom/v2/videopress';
 export const WP_REST_API_VIDEOPRESS_META_ENDPOINT = 'wpcom/v2/videopress/meta';
 export const WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT = 'wpcom/v2/videopress/playback-jwt';
+export const WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT = 'videopress/v1/settings';
 export const REST_API_SITE_PURCHASES_ENDPOINT = 'my-jetpack/v1/site/purchases';
 export const REST_API_SITE_INFO_ENDPOINT = 'videopress/v1/site';
 
@@ -57,6 +58,8 @@ export const SET_USERS_PAGINATION = 'SET_USERS_PAGINATION';
 
 export const SET_UPDATING_VIDEO_POSTER = 'SET_UPDATING_VIDEO_POSTER';
 export const UPDATE_VIDEO_POSTER = 'UPDATE_VIDEO_POSTER';
+
+export const SET_VIDEOPRESS_SETTINGS = 'SET_VIDEOPRESS_SETTINGS';
 
 /*
  * Accepted file extensions
