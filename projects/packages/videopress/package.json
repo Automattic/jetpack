@@ -68,6 +68,7 @@
 		"@automattic/jetpack-connection": "workspace:* || ^0.22",
 		"@storybook/addon-actions": "6.5.13",
 		"@wordpress/api-fetch": "6.18.0",
+		"@wordpress/block-editor": "10.4.0",
 		"@wordpress/blocks": "11.20.0",
 		"@wordpress/components": "22.0.0",
 		"@wordpress/compose": "5.19.0",
