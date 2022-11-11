@@ -262,6 +262,7 @@ class WPCOM_Features {
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SSH                           = 'ssh';
 	public const SUBSCRIBER_UNLIMITED_IMPORTS  = 'subscriber-unlimited-imports';
+	public const SUBSCRIPTION_GIFTING          = 'subscription-gifting';
 	public const SUPPORT                       = 'support';
 	public const UPGRADED_UPLOAD_FILETYPES     = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES            = 'upload-audio-files';
@@ -740,6 +741,10 @@ class WPCOM_Features {
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+		),
+
+		self::SUBSCRIPTION_GIFTING          => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 
 		// SUPPORT - Everybody needs somebody.
