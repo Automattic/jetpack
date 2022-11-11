@@ -1,5 +1,6 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { useCallback } from '@wordpress/element';
 
 /**
  * @typedef {Object} AttachedMediaHook
@@ -20,14 +21,19 @@ export default function useAttachedMedia() {
 		select( 'jetpack/publicize' ).getJetpackSocialOptions()
 	);
 
-	return {
-		attachedMedia,
-		updateAttachedMedia: function ( ids ) {
+	const updateAttachedMedia = useCallback(
+		ids => {
 			editPost( {
 				meta: {
 					jetpack_social_options: { ...currentOptions, attached_media: ids },
 				},
 			} );
 		},
+		[ currentOptions, editPost ]
+	);
+
+	return {
+		attachedMedia,
+		updateAttachedMedia,
 	};
 }
