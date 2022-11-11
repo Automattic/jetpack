@@ -9,7 +9,6 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { VideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
@@ -64,9 +63,6 @@ const VideoList = ( {
 				) }
 			</div>
 			{ videos.map( ( video, index ) => {
-				const isPrivate =
-					VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE;
-
 				return (
 					<ConnectVideoRow
 						key={ video?.guid ?? video?.id }
@@ -76,7 +72,7 @@ const VideoList = ( {
 						thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
 						duration={ hideDuration ? null : video.duration }
 						plays={ hidePlays ? null : video.plays }
-						isPrivate={ hidePrivacy ? null : isPrivate }
+						isPrivate={ hidePrivacy ? null : video.videoIsPrivate }
 						uploadDate={ video.uploadDate }
 						showQuickActions={ ! video?.uploading && showQuickActions }
 						showActionButton={ ! video?.uploading && showActionButton }
