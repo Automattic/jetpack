@@ -5,7 +5,6 @@
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
 	let show: number | false = false;
-	show = 0;
 </script>
 
 {#if $state === 'Active'}
