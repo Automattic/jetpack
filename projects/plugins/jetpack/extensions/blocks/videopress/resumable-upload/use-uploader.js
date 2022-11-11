@@ -45,7 +45,7 @@ export const getJWT = function ( key ) {
 
 const jwtsForKeys = {};
 
-const startPolling = () => {
+const completionPolling = () => {
 	let polling = false;
 	let timerId = null;
 	const cleanup = () => {
@@ -110,7 +110,7 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 	return ( file, data ) => {
 		const upload = new tus.Upload( file, {
 			onError: function ( msg ) {
-				startPolling().cleanup();
+				completionPolling().cleanup();
 				onError && onError( msg );
 			},
 			onProgress: onProgress,
@@ -137,7 +137,7 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 				const mediaId = res.getHeader( MEDIA_ID_HEADER );
 				const src = res.getHeader( SRC_URL_HEADER );
 				if ( guid && mediaId && src ) {
-					startPolling().cleanup();
+					completionPolling().cleanup();
 					onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
 					return;
 				}
@@ -196,7 +196,7 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 				if ( [ 'OPTIONS', 'GET', 'HEAD', 'DELETE', 'PUT', 'PATCH' ].indexOf( method ) >= 0 ) {
 					const url = new URL( req._url );
 					const maybeUploadkey = extractUploadKeyForUrl( url );
-					startPolling().start( upload.url, onSuccess, onError );
+					completionPolling().start( upload.url, onSuccess, onError );
 					if ( jwtsForKeys[ maybeUploadkey ] ) {
 						req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
 					} else if ( 'HEAD' === method ) {
