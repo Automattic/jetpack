@@ -8,8 +8,8 @@ use Automattic\Jetpack_Boost\Admin\Admin;
 class Image_Guide implements Feature {
 
 	public function setup() {
-		// Disable Admin bar UI in the WordPress admin.
-		if ( is_admin() ) {
+		// Show the UI only when the user is logged in, with sufficient permissions and isn't looking at the dashboard.
+		if ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
@@ -35,7 +35,7 @@ class Image_Guide implements Feature {
 	}
 
 	/**
-	 * @param WP_Admin_Bar $bar
+	 * @param \WP_Admin_Bar $bar
 	 */
 	public function add_to_adminbar( $bar ) {
 		// Disable in Admin Dashboard
