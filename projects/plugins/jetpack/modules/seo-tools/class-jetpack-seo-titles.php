@@ -78,7 +78,7 @@ class Jetpack_SEO_Titles {
 	 *
 	 * @param string $default_title Default title for current page.
 	 *
-	 * @return string Custom title with replaced tokens or default title.
+	 * @return string A custom per-post title, custom title structure with replaced tokens, or default title.
 	 */
 	public static function get_custom_title( $default_title = '' ) {
 		// Don't filter title for unsupported themes.
