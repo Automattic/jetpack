@@ -87,7 +87,7 @@ class Dashboard {
 		<script>
 			jQuery(document).ready(function($) {
 				// Load SVG sprite.
-				$.get("https://widgets.wp.com/calypso-happychat/images/gridicons-506499ddac13811fee8e.svg", function(data) {
+				$.get("https://widgets.wp.com/calypso-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
 					var div = document.createElement("div");
 					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
 					div.style = 'display: none';
@@ -117,7 +117,8 @@ class Dashboard {
 	 * Enqueue admin scripts.
 	 */
 	public function load_admin_scripts() {
-		if ( file_exists( plugin_dir_path( __FILE__, '../dist/build.min.js' ) ) ) {
+		if ( file_exists( __DIR__ . '/../dist/build.min.js' ) ) {
+			// Load local assets for the convinience of development.
 			Assets::register_script(
 				'jp-stats-dashboard',
 				'../dist/build.min.js',
@@ -129,6 +130,7 @@ class Dashboard {
 			);
 			Assets::enqueue_script( 'jp-stats-dashboard' );
 		} else {
+			// In production, we load the assets from our CDN.
 			$css_url = 'build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 			wp_register_script( 'jp-stats-dashboard', sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, 'build.min.js' ), array( 'react', 'react-dom', 'wp-polyfill' ), Main::VERSON, true );
 			wp_register_style( 'jp-stats-dashboard-style', sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, $css_url ), array(), Main::VERSON );
