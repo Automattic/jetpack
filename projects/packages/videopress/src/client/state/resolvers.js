@@ -18,8 +18,6 @@ import {
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
-	VIDEO_PRIVACY_LEVELS,
-	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	EXPIRE_PLAYBACK_TOKEN,
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
 } from './constants';
@@ -42,7 +40,8 @@ const { apiRoot } = window?.jetpackVideoPressInitialState || {};
  * @returns {object}               Tokenized video data object.
  */
 async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
-	if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] !== VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+	// Only private videos need tokens; if it's not private, skip.
+	if ( ! video.videoIsPrivate ) {
 		return video;
 	}
 
@@ -180,7 +179,7 @@ const getVideo = {
 		const video = videos.find( ( { id: videoId } ) => videoId === id );
 
 		// Private videos require a token to be fetched.
-		if ( video && VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
+		if ( video && video.videoIsPrivate ) {
 			const tokens = state?.playbackTokens?.items || [];
 			const token = tokens.find( t => t?.guid === video.guid );
 
