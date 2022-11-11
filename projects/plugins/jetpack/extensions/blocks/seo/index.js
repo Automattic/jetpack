@@ -17,24 +17,31 @@ export const settings = {
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 		};
 
-		const prePublishPanelProps = {
+		const titlePanelProps = {
+			...generalPanelProps,
+			title: __( 'SEO Page Title', 'jetpack' ),
+		};
+
+		const descriptionPanelProps = {
 			...generalPanelProps,
 			title: __( 'SEO Description', 'jetpack' ),
-			id: 'seo-title',
 		};
 
 		return (
 			<Fragment>
 				<JetpackPluginSidebar>
-					<PanelBody { ...generalPanelProps } title={ __( 'SEO Title', 'jetpack' ) }>
+					<PanelBody { ...titlePanelProps }>
 						<SeoTitlePanel />
 					</PanelBody>
-					<PanelBody { ...generalPanelProps } title={ __( 'SEO Description', 'jetpack' ) }>
+					<PanelBody { ...descriptionPanelProps }>
 						<SeoDescriptionPanel />
 					</PanelBody>
 				</JetpackPluginSidebar>
-				{ /* TODO: Add Seo Title to PrePublishPanel */ }
-				<PluginPrePublishPanel { ...prePublishPanelProps }>
+
+				<PluginPrePublishPanel { ...titlePanelProps }>
+					<SeoTitlePanel />
+				</PluginPrePublishPanel>
+				<PluginPrePublishPanel { ...descriptionPanelProps }>
 					<SeoDescriptionPanel />
 				</PluginPrePublishPanel>
 			</Fragment>
