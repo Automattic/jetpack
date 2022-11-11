@@ -1,7 +1,9 @@
-<div style="width: 16px; height: 16px;">
+<script lang="ts">
+	export let size = 16;
+</script>
+<div style="width: {size}px; height: {size}px;">
 	<svg
-		width="110"
-		height="110"
+
 		viewBox="0 0 110 110"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"

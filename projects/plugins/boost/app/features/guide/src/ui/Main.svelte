@@ -5,6 +5,7 @@
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
 	let show: number | false = false;
+	show = 0;
 </script>
 
 {#if $state === 'Active'}
@@ -37,26 +38,6 @@
 
 		&.show {
 			background-color: hsl(0 90% 5% / 0.55);
-		}
-
-		&.show::after {
-			content: '';
-
-			position: absolute;
-			bottom: 20px;
-			right: 20px;
-			display: block;
-
-			height: 40px;
-			width: 100px;
-
-			background: url(../boost.png) no-repeat;
-			background-position: center;
-			background-size: 70px;
-			overflow: hidden;
-
-			border-radius: 6px;
-			background-color: white;
 		}
 
 		// Important statements to override theme styles

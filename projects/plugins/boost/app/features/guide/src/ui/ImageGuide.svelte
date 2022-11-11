@@ -2,6 +2,7 @@
 	import type { ComparedImage } from '../Measurements';
 	import { fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
+	import JetpackLogo from './JetpackLogo.svelte';
 	export let image: ComparedImage;
 	const imageName = image.url.split('/').pop();
 	const ratio = image.scaling.pixels.toFixed(2);
@@ -12,11 +13,15 @@
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
+	<div class="logo">
+		<JetpackLogo size={250} />
+	</div>
+
 	<div class="preview">
 		<div class="description">
 			<b>{ratio}x larger</b><br />
 			The image loaded over the network is {ratio}x larger than it appears in the browser.
-			<br>
+			<br />
 		</div>
 		<img
 			src={image.url}
@@ -55,6 +60,10 @@
 		align-items: flex-start;
 		max-width: 340px;
 		width: 100%;
+		img {
+			border-radius: 3px;
+			box-shadow: 0 0 2px 1px hsl(0deg 0% 95%);
+		}
 	}
 
 	.details {
@@ -62,18 +71,19 @@
 		padding: 25px;
 		font-family: sans-serif;
 		background-color: rgb(255, 255, 255);
-		background: linear-gradient(159.87deg,#f6f6f4 7.24%,#f7f4ea 64.73%,#ddedd5 116.53%);
+		background: linear-gradient(159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53%);
 		margin-bottom: 10px;
 
 		width: fit-content;
 		min-width: 320px;
 		border-radius: 6px;
 		font-size: 15px;
-	}
 
-	img {
-		border-radius: 3px;
-		box-shadow: 0 0 2px 1px hsl(0deg 0% 95%)
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+
+		text-align: left;
 	}
 
 	.row {
@@ -86,5 +96,14 @@
 		&:last-child {
 			border-bottom: none;
 		}
+	}
+
+	.logo {
+		position: absolute;
+		bottom: -25px;
+		right: -50px;
+		opacity: 0.04;
+		transform: rotate(15deg);
+		z-index: -1;
 	}
 </style>
