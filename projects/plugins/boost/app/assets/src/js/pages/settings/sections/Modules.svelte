@@ -104,4 +104,11 @@
 			/>
 		</p>
 	</Module>
+
+	<Module slug={'image-guide'}>
+		<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}</h3>
+		<p slot="description">
+			{__( `Detect images that are too large on the site to help you catch images that are too large while you browse the site.`, 'jetpack-boost' )}
+		</p>
+	</Module>
 </div>

@@ -13,7 +13,7 @@
 	id="jetpack-boost-bar"
 	{href}
 	class="ab-item"
-	class:inactive={$state === 'Inactive'}
+	class:paused={$state === 'Paused'}
 	on:click|preventDefault={toggleUI}
 >
 	<JetpackLogo />
@@ -26,8 +26,8 @@
 		gap: 10px;
 		align-items: center;
 
-		&.inactive :global(svg) {
-			filter: grayscale(100%) contrast(1.7);
+		&.paused :global( svg ) {
+			filter: grayscale( 100% ) contrast( 1.7 );
 		}
 	}
 </style>
