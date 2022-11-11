@@ -38,7 +38,7 @@ Example of a button that closes the dialog:
 
 #### Using the instance
 
-On the plugin page where the dialog exists, you have access to a special variable: `deactivate<PascalCasePluginSlug>`. For example: `jetpack-boost` has the variable `deactivateJetpackBoost`. It has access to the following methods:
+You can access the deactivation dialog instance in `window.JetpackPluginDeactivationData[<plugin slug>]`. It has access to the following methods:
 
 - `showDialog()` - Open the deactivation dialog
 - `hideDialog()` - Close the deactivation dialog
