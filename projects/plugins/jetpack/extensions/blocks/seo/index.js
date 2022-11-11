@@ -12,7 +12,7 @@ import './editor.scss';
 export const name = 'seo';
 
 export const settings = {
-	render: function JetpackSEODescriptionPanel() {
+	render: () => {
 		const generalPanelProps = {
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 		};
