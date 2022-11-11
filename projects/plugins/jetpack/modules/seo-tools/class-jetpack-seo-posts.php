@@ -108,7 +108,7 @@ class Jetpack_SEO_Posts {
 
 		$html_title_args = array(
 			'type'         => 'string',
-			'description'  => __( 'Custom title to be used in HTML <title /> and <meta /> tag.', 'jetpack' ),
+			'description'  => __( 'Custom title to be used in HTML <title /> tag.', 'jetpack' ),
 			'single'       => true,
 			'default'      => '',
 			'show_in_rest' => array(
