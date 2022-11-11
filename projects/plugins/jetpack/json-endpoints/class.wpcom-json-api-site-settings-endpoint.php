@@ -506,10 +506,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return bool
 	 */
 	protected function get_wpcom_gifting_subscription_default() {
-		if ( function_exists( 'wpcom_site_has_feature' ) ) {
-			$purchase = Gifting_Banner::get_plan_purchase();
-			if ( $purchase !== null && isset( $purchase->auto_renew ) ) {
-				return ! $purchase->auto_renew;
+		if ( function_exists( 'wpcom_get_site_purchases' ) && function_exists( 'wpcom_purchase_has_feature' ) ) {
+			$purchases = wpcom_get_site_purchases();
+
+			foreach ( $purchases as $purchase ) {
+				if ( wpcom_purchase_has_feature( $purchase, \WPCOM_Features::SUBSCRIPTION_GIFTING ) ) {
+					if ( isset( $purchase->auto_renew ) ) {
+						return ! $purchase->auto_renew;
+					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
+						return ! $purchase->user_allows_auto_renew;
+					}
+				}
 			}
 		}
 		return false;
