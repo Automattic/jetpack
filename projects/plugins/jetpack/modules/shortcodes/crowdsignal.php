@@ -538,7 +538,8 @@ if (
 					if ( 'iframe' === $attributes['type'] ) {
 						if ( 'auto' !== $attributes['height'] ) {
 							if (
-								isset( $content_width )
+								is_numeric( $content_width )
+								&& $content_width > 0
 								&& is_numeric( $attributes['width'] )
 								&& $attributes['width'] > $content_width
 							) {

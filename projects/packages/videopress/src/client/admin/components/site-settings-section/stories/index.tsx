@@ -18,5 +18,5 @@ const Template = args => <SettingsSection { ...args } />;
 
 export const _default = Template.bind( {} );
 _default.args = {
-	onPrivacySettingsChange: action( 'onPrivacySettingsChange' ),
+	onPrivacyChange: action( 'onPrivacyChange' ),
 };

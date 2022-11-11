@@ -840,7 +840,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				saveEditorData();
 			};
 
-			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
+			const isResumableUploading = null !== fileForUpload && fileForUpload.name;
 
 			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
 				const title = this.state.title ?? filename;

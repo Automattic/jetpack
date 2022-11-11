@@ -41,11 +41,17 @@ export const FilterButton = ( props: {
 export const CheckboxCheckmark = ( props: {
 	label?: string;
 	for: string;
+	checked?: boolean;
 	onChange?: ( checked: boolean ) => void;
 } ): JSX.Element => {
 	return (
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
-			<Checkbox id={ props.for } className={ styles.checkbox } onChange={ props.onChange } />
+			<Checkbox
+				id={ props.for }
+				className={ styles.checkbox }
+				onChange={ props.onChange }
+				checked={ props.checked }
+			/>
 			<span className={ styles[ 'checkbox-checkmark' ] } />
 			<Text variant="body-small">{ props.label }</Text>
 		</label>
