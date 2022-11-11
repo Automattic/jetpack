@@ -1,7 +1,31 @@
 import * as tus from 'tus-js-client';
 
+const GUID_HEADER = 'x-videopress-upload-guid';
+const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
+const SRC_URL_HEADER = 'x-videopress-upload-src-url';
+
+const extractUploadKeyForUrl = urlString => {
+	const url = new URL( urlString );
+	const path = url.pathname;
+	const parts = path.split( '/' );
+	return parts[ parts.length - 1 ];
+};
+
+const getJWTTokenMemoized = async function ( key ) {
+	if ( jwtsForKeys[ key ] ) {
+		return jwtsForKeys[ key ];
+	}
+	const responseData = await getJWT( key );
+	jwtsForKeys[ key ] = responseData.token;
+	return jwtsForKeys[ key ];
+};
+
 export const getJWT = function ( key ) {
 	return new Promise( function ( resolve, reject ) {
+		if ( jwtsForKeys[ key ] ) {
+			return resolve( jwtsForKeys[ key ] );
+		}
+
 		const extras = key ? { data: { key } } : {};
 		// eslint-disable-next-line no-undef
 		wp.media
@@ -21,10 +45,74 @@ export const getJWT = function ( key ) {
 
 const jwtsForKeys = {};
 
+const startPolling = () => {
+	let polling = false;
+	let timerId = null;
+	const cleanup = () => {
+		timerId && clearTimeout( timerId );
+	};
+
+	return {
+		cleanup,
+		start( url, onSuccess, onError ) {
+			if ( polling ) {
+				return;
+			}
+
+			polling = true;
+
+			const waitSec = 1.5;
+			const waitMs = waitSec * 1000;
+			const maxRetries = 48 * 60 * ( 60 / waitSec ); // About two days worth of polling.
+			const maybeUploadkey = extractUploadKeyForUrl( url );
+			const method = 'HEAD';
+			let retries = 0;
+			const recurse = function recurse() {
+				if ( retries >= maxRetries ) {
+					cleanup();
+					onError && onError( 'Max retries reached.' );
+				}
+
+				retries += 1;
+
+				getJWTTokenMemoized( maybeUploadkey ).then( token => {
+					const headers = {
+						'x-videopress-upload-token': token,
+						'X-HTTP-Method-Override': method,
+					};
+
+					fetch( url, {
+						headers,
+						method: 'GET',
+					} ).then( res => {
+						if ( ! res.ok ) {
+							onError && onError( 'HEAD request failed' );
+							return;
+						}
+						const guid = res.headers.get( GUID_HEADER );
+						const mediaId = res.headers.get( MEDIA_ID_HEADER );
+						const src = res.headers.get( SRC_URL_HEADER );
+						if ( src && mediaId && guid ) {
+							cleanup();
+							onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
+						} else {
+							timerId = setTimeout( () => recurse(), waitMs );
+						}
+					} );
+				} );
+			};
+			recurse();
+		},
+	};
+};
+
 export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress, onSuccess } ) => {
 	return ( file, data ) => {
 		const upload = new tus.Upload( file, {
-			onError: onError,
+			onError: function ( msg ) {
+				startPolling().cleanup();
+				onError && onError( msg );
+			},
 			onProgress: onProgress,
 			endpoint: data.url,
 			removeFingerprintOnSuccess: true,
@@ -45,13 +133,11 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 					return;
 				}
 
-				const GUID_HEADER = 'x-videopress-upload-guid';
-				const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
-				const SRC_URL_HEADER = 'x-videopress-upload-src-url';
 				const guid = res.getHeader( GUID_HEADER );
 				const mediaId = res.getHeader( MEDIA_ID_HEADER );
 				const src = res.getHeader( SRC_URL_HEADER );
 				if ( guid && mediaId && src ) {
+					startPolling().cleanup();
 					onSuccess && onSuccess( { mediaId: Number( mediaId ), guid, src } );
 					return;
 				}
@@ -109,9 +195,8 @@ export const resumableUploader = ( { onUploadUuidRetrieved, onError, onProgress,
 
 				if ( [ 'OPTIONS', 'GET', 'HEAD', 'DELETE', 'PUT', 'PATCH' ].indexOf( method ) >= 0 ) {
 					const url = new URL( req._url );
-					const path = url.pathname;
-					const parts = path.split( '/' );
-					const maybeUploadkey = parts[ parts.length - 1 ];
+					const maybeUploadkey = extractUploadKeyForUrl( url );
+					startPolling().start( upload.url, onSuccess, onError );
 					if ( jwtsForKeys[ maybeUploadkey ] ) {
 						req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
 					} else if ( 'HEAD' === method ) {
