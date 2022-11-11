@@ -1,7 +1,8 @@
 import { BaseControl, PanelBody, TextControl, ExternalLink, Path } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../../shared/block-icons';
+import HelpMessage from '../../../../shared/help-message';
 import renderMaterialIcon from '../../../../shared/render-material-icon';
 
 export const salesforceLeadFormVariation = {
@@ -94,7 +95,9 @@ export const salesforceLeadFormVariation = {
 	},
 };
 
-export default ( { salesforceData, setAttributes } ) => {
+export default ( { salesforceData, setAttributes, instanceId } ) => {
+	const [ organizationIdError, setOrganizationIdError ] = useState( false );
+
 	const setSalesforceData = attributePair => {
 		setAttributes( {
 			salesforceData: {
@@ -102,6 +105,15 @@ export default ( { salesforceData, setAttributes } ) => {
 				...attributePair,
 			},
 		} );
+	};
+
+	const setOrganizationId = value => {
+		setOrganizationIdError( false );
+		setSalesforceData( { organizationId: value.trim() } );
+	};
+
+	const onBlurOrgIdField = e => {
+		setOrganizationIdError( ! e.target.value.trim().match( /^[a-zA-Z0-9]{15,18}$/ ) );
 	};
 
 	return (
@@ -112,11 +124,20 @@ export default ( { salesforceData, setAttributes } ) => {
 						label={ __( 'Organization ID', 'jetpack' ) }
 						value={ salesforceData.organizationId || '' }
 						placeholder={ __( 'Enter your Organization ID', 'jetpack' ) }
-						onChange={ organizationId => setSalesforceData( { organizationId } ) }
+						onBlur={ onBlurOrgIdField }
+						onChange={ setOrganizationId }
 						help={ __( 'Enter the Salesforce organization ID to send Leads to.', 'jetpack' ) }
 					/>
+					{ organizationIdError && (
+						<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
+							{ __(
+								'Invalid Organization ID. Should be a 15 - 18 alphanumeric string.',
+								'jetpack'
+							) }
+						</HelpMessage>
+					) }
 					<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
-						Where to find your Salesforce Organization ID
+						{ __( 'Where to find your Salesforce Organization ID', 'jetpack' ) }
 					</ExternalLink>
 				</BaseControl>
 			</PanelBody>

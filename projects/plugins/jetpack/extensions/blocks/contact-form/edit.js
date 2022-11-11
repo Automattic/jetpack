@@ -226,10 +226,11 @@ export function JetpackContactFormEdit( {
 					/>
 				</PanelBody>
 
-				{ ! isSimpleSite() && isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
+				{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
 					<SalesforceLeadFormSettings
 						salesforceData={ salesforceData }
 						setAttributes={ setAttributes }
+						instanceId={ instanceId }
 					/>
 				) }
 				{ ! isSimpleSite() && (
