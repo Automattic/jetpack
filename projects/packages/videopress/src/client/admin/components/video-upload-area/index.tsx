@@ -9,7 +9,8 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { fileInputExtensions } from '../../../utils/video-extensions';
-import useDropFiles from '../../hooks/use-drop-files';
+import { usePlan } from '../../hooks/use-plan';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
 /**
@@ -25,14 +26,8 @@ import type { ReactNode } from 'react';
  */
 const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const {
-		inputRef,
-		isDraggingOver,
-		handleFileInputChangeEvent,
-		handleDragOverEvent,
-		handleDragLeaveEvent,
-		handleDropEvent,
-	} = useDropFiles( { onSelectFiles } );
+	const { inputRef, handleFileInputChangeEvent } = useSelectVideoFiles( { onSelectFiles } );
+	const { hasVideoPressPurchase } = usePlan();
 
 	const handleClickEvent = () => {
 		inputRef.current.click();
@@ -42,11 +37,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 		<div
 			className={ classnames( styles.wrapper, className, {
 				[ styles.small ]: isSm,
-				[ styles.hover ]: isDraggingOver,
 			} ) }
-			onDrop={ handleDropEvent }
-			onDragOver={ handleDragOverEvent }
-			onDragLeave={ handleDragLeaveEvent }
 		>
 			<input
 				ref={ inputRef }
@@ -54,6 +45,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				accept={ fileInputExtensions }
 				className={ classnames( styles[ 'file-input' ] ) }
 				onChange={ handleFileInputChangeEvent }
+				multiple={ hasVideoPressPurchase }
 			/>
 			<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) } />
 			<Text variant="title-small">
@@ -64,7 +56,6 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				variant="secondary"
 				className={ classnames( styles.button ) }
 				onClick={ handleClickEvent }
-				disabled={ isDraggingOver }
 			>
 				{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }
 			</Button>

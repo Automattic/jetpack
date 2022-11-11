@@ -25,6 +25,19 @@ class Data {
 	}
 
 	/**
+	 * Gets the VideoPress site privacy configuration.
+	 *
+	 * @return boolean If all the videos are private on the site
+	 */
+	public static function get_videopress_videos_private_for_site() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', false ) );
+		} else {
+			return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
+		}
+	}
+
+	/**
 	 * Gets the video data
 	 *
 	 * @param boolean $is_videopress - True when getting VideoPress data.
