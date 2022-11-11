@@ -129,7 +129,6 @@ class REST_Controller {
 		if ( 'file-downloads' === $req->get_param( 'resource' ) ) {
 			return $this->empty_result();
 		}
-		// TODO: add a whitelist of allowed resources.
 		return static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/stats/%s?%s',
@@ -151,7 +150,6 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_sub_resource_from_wpcom( $req ) {
-		// TODO: add a whitelist of allowed resources.
 		return static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/%s/%d/%s?%s',
@@ -175,7 +173,6 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_stats_single_resource_from_wpcom( $req ) {
-		// TODO: add a whitelist of allowed resources.
 		return static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/stats/%s/%d?%s',
@@ -198,8 +195,6 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_single_resource_from_wpcom( $req ) {
-		// TODO: add a whitelist of allowed resources.
-		// TODO: sites/123/posts/456 currently returns 403.
 		return static::request_as_blog_cached(
 			sprintf(
 				'/sites/%d/%s/%d?%s',
@@ -231,8 +226,6 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_resource_from_wpcom( $req ) {
-		// TODO: add a whitelist of allowed resources.
-		// TODO: for posts the `allow_fallback_to_jetpack_blog_token` in controller doesn't seem to work - `json-endpoints/class.wpcom-json-api-list-posts-v1-1-endpoint.php`.
 		// so currently it returns 403 for posts.
 		$resource = $req->get_param( 'resource' );
 		switch ( $resource ) {
