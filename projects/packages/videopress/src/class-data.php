@@ -252,15 +252,16 @@ class Data {
 				$width                    = $media_details['width'];
 				$height                   = $media_details['height'];
 
-				$title           = $jetpack_videopress['title'];
-				$description     = $jetpack_videopress['description'];
-				$caption         = $jetpack_videopress['caption'];
-				$rating          = $jetpack_videopress['rating'];
-				$allow_download  = $jetpack_videopress['allow_download'];
-				$privacy_setting = $jetpack_videopress['privacy_setting'];
+				$title            = $jetpack_videopress['title'];
+				$description      = $jetpack_videopress['description'];
+				$caption          = $jetpack_videopress['caption'];
+				$rating           = $jetpack_videopress['rating'];
+				$allow_download   = $jetpack_videopress['allow_download'];
+				$privacy_setting  = $jetpack_videopress['privacy_setting'];
+				$video_is_private = $jetpack_videopress['video_is_private'];
 
 				$original      = $videopress_media_details['original'];
-				$poster        = $privacy_setting !== 1 ? $videopress_media_details['poster'] : null;
+				$poster        = ( ! $video_is_private ) ? $videopress_media_details['poster'] : null;
 				$upload_date   = $videopress_media_details['upload_date'];
 				$duration      = $videopress_media_details['duration'];
 				$is_private    = $videopress_media_details['is_private'];
@@ -288,6 +289,7 @@ class Data {
 					'allowDownload'  => $allow_download,
 					'rating'         => $rating,
 					'privacySetting' => $privacy_setting,
+					'videoIsPrivate' => $video_is_private,
 					'poster'         => array(
 						'src'    => $poster,
 						'width'  => $width,
@@ -316,7 +318,6 @@ class Data {
 					'relyOnInitialState' => true,
 				),
 			),
-
 			'localVideos' => array(
 				'uploadedVideoCount'           => $local_videos_data['total'],
 				'items'                        => $local_videos,
