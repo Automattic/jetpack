@@ -45,6 +45,8 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
 
+	}
+
 	/**
 	 * Things that we do on init.
 	 */
