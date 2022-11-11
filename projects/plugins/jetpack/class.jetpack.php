@@ -823,6 +823,7 @@ class Jetpack {
 				'waf',
 				'videopress',
 				'stats',
+				'stats_admin',
 			)
 			as $feature
 		) {
