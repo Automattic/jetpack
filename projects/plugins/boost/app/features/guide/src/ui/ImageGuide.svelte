@@ -4,12 +4,12 @@
 	import { backOut } from 'svelte/easing';
 	import JetpackLogo from './JetpackLogo.svelte';
 	export let image: ComparedImage;
-	const imageName = image.url.split('/').pop();
-	const ratio = image.scaling.pixels.toFixed(2);
-	const fakeSavingsInKB = Math.round(1024 / image.scaling.pixels).toFixed(2);
+	const imageName = image.url.split( '/' ).pop();
+	const ratio = image.scaling.pixels.toFixed( 2 );
+	const fakeSavingsInKB = Math.round( 1024 / image.scaling.pixels ).toFixed( 2 );
 
 	const previewWidth = 100;
-	const previewHeight = Math.floor(previewWidth / (image.width / image.height));
+	const previewHeight = Math.floor( previewWidth / ( image.width / image.height ) );
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -49,7 +49,7 @@
 </div>
 
 <style lang="scss">
-	:global(.jetpack-boost-guide.relative) {
+	:global( .jetpack-boost-guide.relative ) {
 		position: relative;
 	}
 
@@ -62,7 +62,7 @@
 		width: 100%;
 		img {
 			border-radius: 3px;
-			box-shadow: 0 0 2px 1px hsl(0deg 0% 95%);
+			box-shadow: 0 0 2px 1px hsl( 0deg 0% 95% );
 		}
 	}
 
@@ -70,8 +70,8 @@
 		color: #3c434a;
 		padding: 25px;
 		font-family: sans-serif;
-		background-color: rgb(255, 255, 255);
-		background: linear-gradient(159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53%);
+		background-color: rgb( 255, 255, 255 );
+		background: linear-gradient( 159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53% );
 		margin-bottom: 10px;
 
 		width: fit-content;
@@ -91,7 +91,7 @@
 		gap: 10px;
 		justify-content: space-between;
 		margin-bottom: 5px;
-		border-bottom: 1px dotted hsl(0deg 0% 85%);
+		border-bottom: 1px dotted hsl( 0deg 0% 85% );
 		font-size: 14px;
 		&:last-child {
 			border-bottom: none;
@@ -103,7 +103,7 @@
 		bottom: -25px;
 		right: -50px;
 		opacity: 0.04;
-		transform: rotate(15deg);
+		transform: rotate( 15deg );
 		z-index: -1;
 	}
 </style>

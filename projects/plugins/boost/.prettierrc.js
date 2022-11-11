@@ -3,5 +3,5 @@ module.exports = {
 	plugins: [ require.resolve( 'prettier-plugin-svelte' ) ],
 	svelteStrictMode: false,
 	svelteBracketNewLine: true,
-	svelteIndentScriptAndStyle: true
+	svelteIndentScriptAndStyle: true,
 };

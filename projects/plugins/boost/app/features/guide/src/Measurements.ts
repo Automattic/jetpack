@@ -15,18 +15,18 @@ export interface ComparedImage extends MeasuredImage {
 	};
 }
 
-function compareDimensions(image: MeasuredImage) {
+function compareDimensions( image: MeasuredImage ) {
 	const onScreen = image.onScreen;
 
 	return {
 		width: image.width / onScreen.width,
 		height: image.height / onScreen.height,
-		pixels: (image.width * image.height) / (onScreen.width * onScreen.height),
+		pixels: ( image.width * image.height ) / ( onScreen.width * onScreen.height ),
 	};
 }
 
-export function measure(images: Image[]): ComparedImage[] {
-	return images.map(image => {
+export function measure( images: Image[] ): ComparedImage[] {
+	return images.map( image => {
 		const { width, height } = image.node.getBoundingClientRect();
 
 		const measuredImage = {
@@ -38,8 +38,8 @@ export function measure(images: Image[]): ComparedImage[] {
 		};
 
 		return {
-			scaling: compareDimensions(measuredImage),
+			scaling: compareDimensions( measuredImage ),
 			...measuredImage,
 		};
-	});
+	} );
 }

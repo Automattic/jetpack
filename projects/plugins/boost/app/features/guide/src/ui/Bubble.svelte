@@ -8,7 +8,7 @@
 	const severity = ratio > 4 ? 'high' : ratio > 2 ? 'medium' : 'normal';
 
 	let mounted = false;
-	onMount(() => (mounted = true));
+	onMount( () => ( mounted = true ) );
 	const scaleConfig = {
 		delay: 150 + 50 * index,
 		duration: 250,
@@ -19,7 +19,7 @@
 
 {#if mounted}
 	<div class="preview {severity}" on:mouseenter transition:fly={scaleConfig}>
-		<div class="bubble">{ratio.toFixed(2)}</div>
+		<div class="bubble">{ratio.toFixed( 2 )}</div>
 	</div>
 {/if}
 
@@ -41,7 +41,7 @@
 		justify-content: center;
 		align-items: center;
 
-		text-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
+		text-shadow: 0 0 1px rgba( 0, 0, 0, 0.25 );
 		cursor: default;
 
 		&.high {

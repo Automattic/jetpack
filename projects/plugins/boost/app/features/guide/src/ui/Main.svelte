@@ -8,14 +8,14 @@
 </script>
 
 {#if $state === 'Active'}
-	<div class="guide" class:show={show !== false} on:mouseleave={() => (show = false)}>
+	<div class="guide" class:show={show !== false} on:mouseleave={() => ( show = false )}>
 		<div class="previews">
 			{#each images as image, index}
-				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => (show = index)} />
+				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => ( show = index )} />
 			{/each}
 		</div>
 		{#if show !== false}
-			<ImageGuide image={images[show]} />
+			<ImageGuide image={images[ show ]} />
 		{/if}
 	</div>
 {/if}
@@ -36,7 +36,7 @@
 		transition: background-color 100ms ease-out;
 
 		&.show {
-			background-color: hsl(0 90% 5% / 0.55);
+			background-color: hsl( 0 90% 5% / 0.55 );
 		}
 
 		// Important statements to override theme styles

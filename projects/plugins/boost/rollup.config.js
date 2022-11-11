@@ -14,10 +14,10 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './rollup-tsconfig.json';
 
-const cssGenPath = path.dirname(require.resolve('jetpack-boost-critical-css-gen'));
+const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
 
-const production = !process.env.ROLLUP_WATCH;
-const runServer = !!process.env.SERVE;
+const production = ! process.env.ROLLUP_WATCH;
+const runServer = !! process.env.SERVE;
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 function serve() {
@@ -25,49 +25,48 @@ function serve() {
 
 	// eslint-disable-next-line jsdoc/require-jsdoc
 	function toExit() {
-		if (server) {
-			server.kill(0);
+		if ( server ) {
+			server.kill( 0 );
 		}
 	}
 
 	return {
 		writeBundle() {
-			if (server) {
+			if ( server ) {
 				return;
 			}
 
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-				stdio: ['ignore', 'inherit', 'inherit'],
+			server = require( 'child_process' ).spawn( 'npm', [ 'run', 'start', '--', '--dev' ], {
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
 				shell: true,
-			});
+			} );
 
-			process.on('SIGTERM', toExit);
-			process.on('exit', toExit);
+			process.on( 'SIGTERM', toExit );
+			process.on( 'exit', toExit );
 		},
 	};
 }
 
 const copyTargets = [
 	{
-		src: path.join(cssGenPath, 'dist/bundle.js'),
+		src: path.join( cssGenPath, 'dist/bundle.js' ),
 		dest: 'app/assets/dist/',
 		rename: 'critical-css-gen.js',
 	},
 ];
 
-if (!production) {
-	copyTargets.push({
-		src: path.join(cssGenPath, 'dist/bundle.js.map'),
+if ( ! production ) {
+	copyTargets.push( {
+		src: path.join( cssGenPath, 'dist/bundle.js.map' ),
 		dest: 'app/assets/dist/',
 		rename: 'critical-css-gen.js.map',
-	});
+	} );
 }
 
 const GUIDE_PATH = `app/features/guide`;
 
 export default [
-
 	/**
 	 *
 	 *
@@ -78,7 +77,7 @@ export default [
 	{
 		input: 'app/assets/src/js/index.ts',
 		output: {
-			sourcemap: !production,
+			sourcemap: ! production,
 			format: 'iife',
 			name: 'app',
 			file: 'app/assets/dist/jetpack-boost.js',
@@ -89,63 +88,63 @@ export default [
 				'react-dom': 'window.ReactDOM',
 			},
 		},
-		external: ['@wordpress/components', '@wordpress/i18n', 'react', 'react-dom'],
+		external: [ '@wordpress/components', '@wordpress/i18n', 'react', 'react-dom' ],
 		plugins: [
-			replace({
+			replace( {
 				preventAssignment: true,
-				delimiters: ['', ''],
+				delimiters: [ '', '' ],
 				values: {
 					"@import '@automattic": "@import '~@automattic",
 					'process.env.NODE_ENV': '"production"',
 				},
-			}),
+			} ),
 
-			resolve({
+			resolve( {
 				browser: true,
 				preferBuiltins: false,
-				dedupe: ['svelte'],
-			}),
+				dedupe: [ 'svelte' ],
+			} ),
 
 			commonjs(),
 			globals(),
 			json(),
 
-			babel({
+			babel( {
 				exclude: 'node_modules/**',
-				presets: ['@babel/preset-react'],
+				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
-			}),
+			} ),
 
 			// we'll extract any component CSS out into
 			// a separate file - better for performance
-			postcss({
-				extensions: ['.css', '.sss', '.pcss', '.sass', '.scss'],
-				extract: path.resolve('app/assets/dist/jetpack-boost.css'),
+			postcss( {
+				extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
+				extract: path.resolve( 'app/assets/dist/jetpack-boost.css' ),
 				minimize: production,
-			}),
+			} ),
 
 			svelteSVG(),
-			svelte({
-				preprocess: sveltePreprocess({ sourceMap: !production }),
+			svelte( {
+				preprocess: sveltePreprocess( { sourceMap: ! production } ),
 				compilerOptions: {
 					// enable run-time checks when not in production
-					dev: !production,
+					dev: ! production,
 				},
-			}),
+			} ),
 
-			typescript({
-				sourceMap: !production,
-				inlineSources: !production,
+			typescript( {
+				sourceMap: ! production,
+				inlineSources: ! production,
 				// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
 				// we need to include those here and pass the custom tsconfig as well
 				include: tsconfig.include,
 				tsconfig: 'rollup-tsconfig.json',
-			}),
+			} ),
 
-			copy({
+			copy( {
 				targets: copyTargets,
-			}),
+			} ),
 
 			// In dev mode, call `npm run start` once
 			// the bundle has been generated
@@ -159,9 +158,9 @@ export default [
 			clearScreen: false,
 		},
 
-		onwarn: (warning, defaultHandler) => {
+		onwarn: ( warning, defaultHandler ) => {
 			// Ignore unused external imports for known problem React / ReactDOM imports.
-			if (warning.code === 'UNUSED_EXTERNAL_IMPORT') {
+			if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
 				const ignoredImports = [
 					'createPortal',
 					'findDOMNode',
@@ -175,16 +174,15 @@ export default [
 					'Suspense',
 				];
 
-				const unignoredWarnings = warning.names.filter(name => !ignoredImports.includes(name));
-				if (unignoredWarnings.length === 0) {
+				const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
+				if ( unignoredWarnings.length === 0 ) {
 					return;
 				}
 			}
 
-			defaultHandler(warning);
-		}
+			defaultHandler( warning );
+		},
 	},
-
 
 	/**
 	 *
@@ -194,60 +192,60 @@ export default [
 	 *
 	 */
 	{
-		input: `${GUIDE_PATH}/src/index.ts`,
+		input: `${ GUIDE_PATH }/src/index.ts`,
 		output: {
-			sourcemap: !production,
+			sourcemap: ! production,
 			format: 'iife',
 			name: 'app',
-			file: `${GUIDE_PATH}/dist/guide.js`,
+			file: `${ GUIDE_PATH }/dist/guide.js`,
 		},
 		plugins: [
-			resolve({
+			resolve( {
 				browser: true,
 				preferBuiltins: false,
-				dedupe: ['svelte'],
-			}),
+				dedupe: [ 'svelte' ],
+			} ),
 
 			commonjs(),
 			globals(),
 			json(),
 
-			babel({
+			babel( {
 				exclude: 'node_modules/**',
-				presets: ['@babel/preset-react'],
+				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
-			}),
+			} ),
 
 			// we'll extract any component CSS out into
 			// a separate file - better for performance
-			postcss({
-				extensions: ['.css', '.sss', '.pcss', '.sass', '.scss'],
-				extract: path.resolve(`${GUIDE_PATH}/dist/guide.css`),
+			postcss( {
+				extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
+				extract: path.resolve( `${ GUIDE_PATH }/dist/guide.css` ),
 				minimize: production,
-			}),
+			} ),
 
 			svelteSVG(),
-			svelte({
-				preprocess: sveltePreprocess({ sourceMap: !production }),
+			svelte( {
+				preprocess: sveltePreprocess( { sourceMap: ! production } ),
 				compilerOptions: {
 					// enable run-time checks when not in production
-					dev: !production,
+					dev: ! production,
 				},
-			}),
+			} ),
 
-			typescript({
-				sourceMap: !production,
-				inlineSources: !production,
+			typescript( {
+				sourceMap: ! production,
+				inlineSources: ! production,
 				// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
 				// we need to include those here and pass the custom tsconfig as well
 				include: tsconfig.include,
 				tsconfig: 'rollup-tsconfig.json',
-			}),
+			} ),
 
-			copy({
+			copy( {
 				targets: copyTargets,
-			}),
+			} ),
 
 			// In dev mode, call `npm run start` once
 			// the bundle has been generated
@@ -261,9 +259,9 @@ export default [
 			clearScreen: false,
 		},
 
-		onwarn: (warning, defaultHandler) => {
+		onwarn: ( warning, defaultHandler ) => {
 			// Ignore unused external imports for known problem React / ReactDOM imports.
-			if (warning.code === 'UNUSED_EXTERNAL_IMPORT') {
+			if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
 				const ignoredImports = [
 					'createPortal',
 					'findDOMNode',
@@ -277,13 +275,13 @@ export default [
 					'Suspense',
 				];
 
-				const unignoredWarnings = warning.names.filter(name => !ignoredImports.includes(name));
-				if (unignoredWarnings.length === 0) {
+				const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
+				if ( unignoredWarnings.length === 0 ) {
 					return;
 				}
 			}
 
-			defaultHandler(warning);
-		}
-	}
+			defaultHandler( warning );
+		},
+	},
 ];

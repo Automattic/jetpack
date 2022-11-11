@@ -10,6 +10,6 @@
 		 */
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true,
-		"rootDir": ".",
+		"rootDir": "."
 	}
 }

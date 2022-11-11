@@ -4,29 +4,29 @@ import { measure, MeasuredImage } from './Measurements';
 import Main from './ui/Main.svelte';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 
-function closestStableParent(node: Element, distance = 0): Element | null {
-	if (!node.parentNode) {
+function closestStableParent( node: Element, distance = 0 ): Element | null {
+	if ( ! node.parentNode ) {
 		return null;
 	}
 
-	if (!(node.parentNode instanceof Element)) {
+	if ( ! ( node.parentNode instanceof Element ) ) {
 		return null;
 	}
 
 	// Stop searching at body.
-	if (node.parentNode.tagName === 'BODY') {
+	if ( node.parentNode.tagName === 'BODY' ) {
 		node.parentNode;
 	}
-	if (node.parentNode.classList.contains('jetpack-boost-guide')) {
+	if ( node.parentNode.classList.contains( 'jetpack-boost-guide' ) ) {
 		return node.parentNode;
 	}
 
-	const position = getComputedStyle(node.parentNode).position;
-	if (position === 'static' || position === 'relative') {
+	const position = getComputedStyle( node.parentNode ).position;
+	if ( position === 'static' || position === 'relative' ) {
 		return node.parentNode;
 	}
 
-	return closestStableParent(node.parentNode, ++distance);
+	return closestStableParent( node.parentNode, ++distance );
 }
 
 /**
@@ -38,50 +38,50 @@ function closestStableParent(node: Element, distance = 0): Element | null {
  *
  */
 let wrapperID = 0;
-function findContainer(image: Image): Element | undefined {
+function findContainer( image: Image ): Element | undefined {
 	const node = image.node;
 
 	if (
 		image.type === 'background' &&
-		!['absolute', 'fixed'].includes(getComputedStyle(node).position)
+		! [ 'absolute', 'fixed' ].includes( getComputedStyle( node ).position )
 	) {
 		return node;
 	}
 
-	if (!node.parentNode || !node.parentElement) {
+	if ( ! node.parentNode || ! node.parentElement ) {
 		return;
 	}
 
-	const parent = closestStableParent(node);
+	const parent = closestStableParent( node );
 
-	if (parent?.classList.contains('jetpack-boost-guide')) {
+	if ( parent?.classList.contains( 'jetpack-boost-guide' ) ) {
 		return parent;
 	}
 
-	if (parent) {
-		const parentStyle = getComputedStyle(parent);
+	if ( parent ) {
+		const parentStyle = getComputedStyle( parent );
 
 		// If this is a relative parent, see if any boost guide-elements are in here already
-		if (parentStyle.position === 'relative') {
-			const existing = Array.from(parent.children).find(child =>
-				child.classList.contains('jetpack-boost-guide')
+		if ( parentStyle.position === 'relative' ) {
+			const existing = Array.from( parent.children ).find( child =>
+				child.classList.contains( 'jetpack-boost-guide' )
 			);
-			if (existing) {
+			if ( existing ) {
 				return existing;
 			}
 		}
 
-		const wrapper = document.createElement('div');
-		wrapper.classList.add('jetpack-boost-guide');
-		wrapper.dataset.jetpackBoostGuideId = (++wrapperID).toString();
-		if (parentStyle.position === 'static') {
-			wrapper.classList.add('relative');
-			Array.from(parent.children)
+		const wrapper = document.createElement( 'div' );
+		wrapper.classList.add( 'jetpack-boost-guide' );
+		wrapper.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
+		if ( parentStyle.position === 'static' ) {
+			wrapper.classList.add( 'relative' );
+			Array.from( parent.children )
 				.reverse()
-				.forEach(child => wrapper.appendChild(child));
+				.forEach( child => wrapper.appendChild( child ) );
 		}
 
-		parent.prepend(wrapper);
+		parent.prepend( wrapper );
 		return wrapper;
 	}
 
@@ -96,40 +96,43 @@ interface ImageComponentConfig {
 	};
 }
 
-type ComponentConfig = Record<number, ImageComponentConfig>;
+type ComponentConfig = Record< number, ImageComponentConfig >;
 
-window.addEventListener('load', async () => {
-	const nodes = document.querySelectorAll('body *');
+window.addEventListener( 'load', async () => {
+	const nodes = document.querySelectorAll( 'body *' );
 
-	const images = await load(Array.from(nodes));
-	const measuredImages = measure(images);
+	const images = await load( Array.from( nodes ) );
+	const measuredImages = measure( images );
 
-	const componentConfiguration = measuredImages.reduce((acc, image, index): ComponentConfig => {
-		if ((image.fileSize < 10 && image.fileSize >= 0) || (image.width < 250 && image.height < 100)) {
-			console.info(`Skipping ${image.url} because it's too small`);
+	const componentConfiguration = measuredImages.reduce( ( acc, image, index ): ComponentConfig => {
+		if (
+			( image.fileSize < 10 && image.fileSize >= 0 ) ||
+			( image.width < 250 && image.height < 100 )
+		) {
+			console.info( `Skipping ${ image.url } because it's too small` );
 			return acc;
 		}
 
-		if (!image.node.parentNode) {
-			console.error(`Image has no parent`, image.node);
+		if ( ! image.node.parentNode ) {
+			console.error( `Image has no parent`, image.node );
 			return acc;
 		}
 
-		const container = findContainer(image);
+		const container = findContainer( image );
 
-		if (!container) {
-			console.error(`Could not find a parent for image`, image);
+		if ( ! container ) {
+			console.error( `Could not find a parent for image`, image );
 			return acc;
 		}
 
 		// Use the index in the array as a unique identifier.
-		let id = parseInt(container?.dataset?.jetpackBoostGuideId);
-		const images = acc[id]?.props.images || [];
-		images.push(image);
+		let id = parseInt( container?.dataset?.jetpackBoostGuideId );
+		const images = acc[ id ]?.props.images || [];
+		images.push( image );
 
 		// If there's only one image, assume a new Svelte component needs to be created.
-		if (images.length === 1) {
-			acc[id] = {
+		if ( images.length === 1 ) {
+			acc[ id ] = {
 				target: container,
 				props: {
 					images,
@@ -138,25 +141,25 @@ window.addEventListener('load', async () => {
 		}
 
 		return acc;
-	}, {} as Record<number, ImageComponentConfig>);
+	}, {} as Record< number, ImageComponentConfig > );
 
-	const instances = Object.values(componentConfiguration).map(data => {
-		const instance = new Main(data);
+	const instances = Object.values( componentConfiguration ).map( data => {
+		const instance = new Main( data );
 		return instance;
-	});
-});
+	} );
+} );
 
-document.addEventListener('DOMContentLoaded', () => {
-	const adminBarToggle = document.getElementById('wp-admin-bar-jetpack-boost-image-guide');
-	const link = adminBarToggle?.querySelector('a');
-	if (adminBarToggle && link) {
-		const href = link.getAttribute('href');
+document.addEventListener( 'DOMContentLoaded', () => {
+	const adminBarToggle = document.getElementById( 'wp-admin-bar-jetpack-boost-image-guide' );
+	const link = adminBarToggle?.querySelector( 'a' );
+	if ( adminBarToggle && link ) {
+		const href = link.getAttribute( 'href' );
 		link.remove();
-		new AdminBarToggle({
+		new AdminBarToggle( {
 			target: adminBarToggle,
 			props: {
 				href,
 			},
-		});
+		} );
 	}
-});
+} );
