@@ -15,3 +15,6 @@ phpunit.xml.dist  production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 src/assets/**     production-exclude
+babel.config.js   production-exclude
+webpack.config.js production-exclude
+tsconfig.json     production-exclude
