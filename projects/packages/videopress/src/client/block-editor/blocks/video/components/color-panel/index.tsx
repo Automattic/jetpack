@@ -2,7 +2,7 @@
  *External dependencies
  */
 import { PanelColorSettings } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import { PlaybackControlProps } from '../../types';
 import { VideoPressPlayerColorProps } from './types';
 import type React from 'react';
+import './style.scss';
 
 /**
  * Sidebar Control component.
@@ -48,32 +49,41 @@ export default function ColorPanel( { attributes, setAttributes }: PlaybackContr
 				checked={ useAverageColor }
 			/>
 
-			<PanelColorSettings
-				opened={ ! useAverageColor }
-				showTitle={ false }
-				colorSettings={ [
-					{
-						label: __( 'Main', 'jetpack-videopress-pkg' ),
-						showTitle: true,
-						value: colors.seekbarColor,
-						onChange: newSeekbarColor => setColor( { seekbarColor: newSeekbarColor } ),
-					},
-					{
-						label: __( 'Loaded', 'jetpack-videopress-pkg' ),
-						showTitle: true,
-						value: colors.seekbarLoadingColor,
-						onChange: newSeekbarLoadingColor =>
-							setColor( { seekbarLoadingColor: newSeekbarLoadingColor } ),
-					},
-					{
-						label: __( 'Progress', 'jetpack-videopress-pkg' ),
-						showTitle: true,
-						value: colors.seekbarPlayedColor,
-						onChange: newSeekbarPlayedColor =>
-							setColor( { seekbarPlayedColor: newSeekbarPlayedColor } ),
-					},
-				] }
-			/>
+			{ ! useAverageColor && (
+				<>
+					<PanelColorSettings
+						className="videopress-color-panel"
+						opened={ ! useAverageColor }
+						showTitle={ false }
+						colorSettings={ [
+							{
+								label: __( 'Main', 'jetpack-videopress-pkg' ),
+								showTitle: true,
+								value: colors.seekbarColor,
+								onChange: newSeekbarColor => setColor( { seekbarColor: newSeekbarColor } ),
+							},
+							{
+								label: __( 'Loaded', 'jetpack-videopress-pkg' ),
+								showTitle: true,
+								value: colors.seekbarLoadingColor,
+								onChange: newSeekbarLoadingColor =>
+									setColor( { seekbarLoadingColor: newSeekbarLoadingColor } ),
+							},
+							{
+								label: __( 'Progress', 'jetpack-videopress-pkg' ),
+								showTitle: true,
+								value: colors.seekbarPlayedColor,
+								onChange: newSeekbarPlayedColor =>
+									setColor( { seekbarPlayedColor: newSeekbarPlayedColor } ),
+							},
+						] }
+					>
+						<PanelRow>
+							{ __( 'Set custom colors for the video player', 'jetpack-videopress-pkg' ) }
+						</PanelRow>
+					</PanelColorSettings>
+				</>
+			) }
 		</PanelBody>
 	);
 }
