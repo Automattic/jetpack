@@ -40,9 +40,14 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
-		"textdomain": "jetpack-stats-admin"
+		"textdomain": "jetpack-stats-admin",
+		"version-constants": {
+			"::VERSION": "src/class-main.php"
+		}
 	}
 }

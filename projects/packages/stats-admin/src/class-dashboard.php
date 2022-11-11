@@ -17,6 +17,12 @@ use Jetpack_Options;
  * @package jetpack-stats
  */
 class Dashboard {
+	const CALYPSO_CDN_URL = 'https://widgets.wp.com/calypso-stats/%s/%s';
+	/**
+	 * We bump the asset version when the Jetpack back end is not compatible anymore.
+	 */
+	const CALYPSO_STATS_VERSION = 'v1';
+
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -123,9 +129,9 @@ class Dashboard {
 			);
 			Assets::enqueue_script( 'jp-stats-dashboard' );
 		} else {
-			// TODO: replace uniqid() with a real version.
-			wp_register_script( 'jp-stats-dashboard', 'https://kangzj.net/dist/build.min.js', array( 'react', 'react-dom', 'wp-polyfill' ), uniqid(), true );
-			wp_register_style( 'jp-stats-dashboard-style', 'https://kangzj.net/dist/build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css', array(), uniqid() );
+			$css_url = 'build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
+			wp_register_script( 'jp-stats-dashboard', sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, 'build.min.js' ), array( 'react', 'react-dom', 'wp-polyfill' ), Main::VERSON, true );
+			wp_register_style( 'jp-stats-dashboard-style', sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, $css_url ), array(), Main::VERSON );
 			wp_enqueue_script( 'jp-stats-dashboard' );
 			wp_enqueue_style( 'jp-stats-dashboard-style' );
 		}
