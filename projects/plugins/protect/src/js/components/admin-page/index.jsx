@@ -313,7 +313,7 @@ const Admin = () => {
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
 		siteProductAvailabilityHandler: async () =>
 			apiFetch( {
-				path: 'jetpack-protect/v1/plan',
+				path: 'jetpack-protect/v1/check-plan',
 				method: 'GET',
 			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
