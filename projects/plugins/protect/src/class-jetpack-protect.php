@@ -20,7 +20,6 @@ use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Credentials;
 use Automattic\Jetpack\Protect\Plan;
-use Automattic\Jetpack\Protect\Protect_Status;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status;
@@ -356,7 +355,7 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_check_plan() {
-		$has_required_plan = Plan::has_required_plan();
+		$has_required_plan = Plan::has_required_plan( true );
 
 		return rest_ensure_response( $has_required_plan, 200 );
 	}
@@ -369,11 +368,7 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_get_status( $request ) {
-		if ( $request['hard_refresh'] ) {
-			Scan_Status::delete_option();
-			Protect_Status::delete_option();
-		}
-		$status = Status::get_status();
+		$status = Status::get_status( $request['hard_refresh'] );
 		return rest_ensure_response( $status, 200 );
 	}
 
