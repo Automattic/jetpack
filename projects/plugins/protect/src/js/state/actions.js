@@ -30,7 +30,7 @@ const startScanOptimistically = () => {
 
 const refreshPlan = () => ( { dispatch } ) => {
 	apiFetch( {
-		path: 'jetpack-protect/v1/plan',
+		path: 'jetpack-protect/v1/check-plan',
 		method: 'GET',
 	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
 };
