@@ -44,14 +44,15 @@ class Protect_Status extends Status {
 	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
+	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
 	 * @return Status_Model
 	 */
-	public static function get_status() {
+	public static function get_status( $refresh_from_wpcom = false ) {
 		if ( self::$status !== null ) {
 			return self::$status;
 		}
 
-		if ( ! self::should_use_cache() || self::is_cache_expired() ) {
+		if ( $refresh_from_wpcom || ! self::should_use_cache() || self::is_cache_expired() ) {
 			$status = self::fetch_from_server();
 		} else {
 			$status = self::get_from_options();
