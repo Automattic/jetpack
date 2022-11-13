@@ -141,7 +141,7 @@ class Dashboard {
 
 		wp_add_inline_script(
 			'jp-stats-dashboard',
-			$this->render_config_data(),
+			$this->get_config_data_js(),
 			'before'
 		);
 
