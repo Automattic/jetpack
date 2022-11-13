@@ -32,7 +32,7 @@ const refreshPlan = () => ( { dispatch } ) => {
 	apiFetch( {
 		path: 'jetpack-protect/v1/check-plan',
 		method: 'GET',
-	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
+	} ).then( hasRequiredPlan => dispatch( setHasRequiredPlan( hasRequiredPlan ) ) );
 };
 
 /**
