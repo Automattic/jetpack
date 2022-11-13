@@ -141,7 +141,7 @@ class Dashboard {
 
 		wp_add_inline_script(
 			'jp-stats-dashboard',
-			static::config_data(),
+			$this->render_config_data(),
 			'before'
 		);
 
@@ -200,57 +200,62 @@ class Dashboard {
 	}
 
 	/**
+	 * Set configData to window.configData.
+	 */
+	protected function get_config_data_js() {
+		return 'window.configData = ' . wp_json_encode(
+			$this->config_data()
+		) . ';';
+	}
+
+	/**
 	 * Return the config for the app.
 	 */
-	public static function config_data() {
+	protected function config_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
-
-		return '
-		window.configData = ' . wp_json_encode(
-			array(
-				'admin_page_base'                => static::get_admin_path(),
-				'api_root'                       => esc_url_raw( rest_url() ),
-				'blog_id'                        => Jetpack_Options::get_option( 'id' ),
-				'enable_all_sections'            => false,
-				'env_id'                         => 'production',
-				'google_analytics_key'           => 'UA-10673494-15',
-				'google_maps_and_places_api_key' => '',
-				'i18n_default_locale_slug'       => 'en',
-				'i18n_locale_slug'               => static::get_site_locale(),
-				'is_running_in_jetpack_site'     => true,
-				'mc_analytics_enabled'           => false,
-				'meta'                           => array(),
-				'nonce'                          => wp_create_nonce( 'wp_rest' ),
-				'site_name'                      => \get_bloginfo( 'name' ),
-				'sections'                       => array(),
-				'features'                       => array(
-					'stats/show-traffic-highlights' => true,
-					// 'stats/new-main-chart'          => true,
-				),
-				'intial_state'                   => array(
-					'currentUser' => array(
-						'id'   => 1000,
-						'user' => array(
-							'ID'       => 1000,
-							'username' => 'no-user',
-						),
+		return array(
+			'admin_page_base'                => static::get_admin_path(),
+			'api_root'                       => esc_url_raw( rest_url() ),
+			'blog_id'                        => Jetpack_Options::get_option( 'id' ),
+			'enable_all_sections'            => false,
+			'env_id'                         => 'production',
+			'google_analytics_key'           => 'UA-10673494-15',
+			'google_maps_and_places_api_key' => '',
+			'i18n_default_locale_slug'       => 'en',
+			'i18n_locale_slug'               => static::get_site_locale(),
+			'is_running_in_jetpack_site'     => true,
+			'mc_analytics_enabled'           => false,
+			'meta'                           => array(),
+			'nonce'                          => wp_create_nonce( 'wp_rest' ),
+			'site_name'                      => \get_bloginfo( 'name' ),
+			'sections'                       => array(),
+			'features'                       => array(
+				'stats/show-traffic-highlights' => true,
+				// 'stats/new-main-chart'          => true,
+			),
+			'intial_state'                   => array(
+				'currentUser' => array(
+					'id'   => 1000,
+					'user' => array(
+						'ID'       => 1000,
+						'username' => 'no-user',
 					),
-					'sites'       => array(
-						'items' => array(
-							"$blog_id" => array(
-								'ID'           => $blog_id,
-								'URL'          => site_url(),
-								'jetpack'      => true,
-								'visible'      => true,
-								'capabilities' => $empty_object,
-								'products'     => array(),
-								'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
-							),
+				),
+				'sites'       => array(
+					'items' => array(
+						"$blog_id" => array(
+							'ID'           => $blog_id,
+							'URL'          => site_url(),
+							'jetpack'      => true,
+							'visible'      => true,
+							'capabilities' => $empty_object,
+							'products'     => array(),
+							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 						),
 					),
 				),
-			)
+			),
 		);
 	}
 

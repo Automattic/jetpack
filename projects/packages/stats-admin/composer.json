@@ -4,7 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-constants": "1.6.x-dev"
+		"automattic/jetpack-constants": "1.6.x-dev",
+		"automattic/jetpack-options": "1.16.x-dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
