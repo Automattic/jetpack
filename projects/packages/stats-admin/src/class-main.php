@@ -5,7 +5,7 @@
  * @package automattic/jetpack-stats
  */
 
-namespace Automattic\Jetpack\StatsAdmin;
+namespace Automattic\Jetpack\Stats_Admin;
 
 /**
  * Stats Main class.

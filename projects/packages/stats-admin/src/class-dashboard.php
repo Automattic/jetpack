@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\StatsAdmin;
+namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;

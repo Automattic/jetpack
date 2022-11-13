@@ -6,7 +6,7 @@
  * @package automattic/jetpack-stats-admin
  */
 
-namespace Automattic\Jetpack\StatsAdmin;
+namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
