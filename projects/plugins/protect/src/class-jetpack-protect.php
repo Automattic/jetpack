@@ -172,11 +172,12 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
-		$initial_state = array(
+		$refresh_from_wpcom = isset( $_GET['refreshPlan'] );
+		$initial_state      = array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'            => Status::get_status(),
+			'status'            => Status::get_status( $refresh_from_wpcom ),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
@@ -184,7 +185,7 @@ class Jetpack_Protect {
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
-			'hasRequiredPlan'   => Plan::has_required_plan(),
+			'hasRequiredPlan'   => Plan::has_required_plan( $refresh_from_wpcom ),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
