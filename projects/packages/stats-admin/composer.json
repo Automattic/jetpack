@@ -49,5 +49,10 @@
 		"version-constants": {
 			"::VERSION": "src/class-main.php"
 		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	}
 }
