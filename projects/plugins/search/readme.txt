@@ -1,6 +1,6 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
-Tags: search, filter, woocommerce search, ajax search, product search, cloud-based search
+Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -8,7 +8,7 @@ Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A cloud-powered replacement for WordPress' search.
+Easily add cloud-powered instant search and filters to your website or WooCommerce store with advanced algorithms that boost your search results based on traffic to your site. Try it out for FREE!
 == Description ==
 
 Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.
@@ -17,7 +17,7 @@ Jetpack Search is an easy-to-use WordPress search plugin that enhances the defau
 
 From real-time search filtering and faceting, to instant search results, Jetpack Search has all the features and options for best site search usability and results.
 
-Jetpack Search is free to use for sites with up to 5000 documents and 500 search requests per month. Beyond that, we offer tiered pricing to fit the needs of your site.
+Note: Jetpack Search is free to use for sites with up to 5000 documents and 500 search requests per month. Beyond that, a Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin.
 
 **LESS DIGGING, MORE FINDING**
 
@@ -105,9 +105,9 @@ Yes, visitors can filter search results by tags, categories, dates, custom taxon
 
 You can purchase a Search subscription directly through this plugin or via the [Jetpack website](https://jetpack.com/search/).
 
-= How do I get rid of the "Powered by Jetpack" message in the sidebar? =
+= How do I get rid of the "Powered by Jetpack" message in the overlay? =
 
-If you are using the Jetpack Search free option, you cannot disable the "Powered by Jetpack" message. You will need to upgrade to a paid tier.
+If you are using the Jetpack Search free option, you cannot disable the "Powered by Jetpack" message. You will need to upgrade to a paid plan.
 
 = What happens if I go over the records or requests limit? =
 
