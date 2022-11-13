@@ -282,6 +282,9 @@ const useStatusPolling = () => {
 		const pollStatus = () => {
 			refreshStatus( true )
 				.then( latestStatus => {
+					if ( latestStatus.status.error ) {
+						throw latestStatus.status.errorMessage;
+					}
 					if (
 						[ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ||
 						! latestStatus.status.lastChecked
