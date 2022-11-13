@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats_Admin\Test_Case as Stats_Test_Case;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -11,6 +12,33 @@ use WP_REST_Server;
  * @package automattic/jetpack-stats-admin
  */
 class Test_REST_Controller extends Stats_Test_Case {
+	const SUPPORTED_ROUTES = array(
+		'/jetpack/v4/stats-app/sites/999/stats/visits',
+		'/jetpack/v4/stats-app/sites/999/stats/highlights',
+		'/jetpack/v4/stats-app/sites/999/stats',
+		'/jetpack/v4/stats-app/sites/999/stats/top-posts',
+		'/jetpack/v4/stats-app/sites/999/stats/search-terms',
+		'/jetpack/v4/stats-app/sites/999/stats/country-views',
+		'/jetpack/v4/stats-app/sites/999/stats/clicks',
+		'/jetpack/v4/stats-app/sites/999/stats/referrers',
+		'/jetpack/v4/stats-app/sites/999/stats/top-authors',
+		'/jetpack/v4/stats-app/sites/999/stats/video-plays',
+		'/jetpack/v4/stats-app/sites/999/posts',
+		'/jetpack/v4/stats-app/sites/999/stats/streak',
+		'/jetpack/v4/stats-app/sites/999/stats/tags',
+		'/jetpack/v4/stats-app/sites/999/stats/followers',
+		'/jetpack/v4/stats-app/sites/999/stats/publicize',
+		'/jetpack/v4/stats-app/sites/999/stats/comments',
+		'/jetpack/v4/stats-app/sites/999/stats/comment-follower',
+
+		// TODO: investigate how we could remove these calls.
+		// '/jetpack/v4/stats-app/sites/999/rewind',
+		// '/jetpack/v4/stats-app/sites/999/plugins',
+		// '/jetpack/v4/stats-app/sites/999/keyrings',
+		// '/jetpack/v4/stats-app/me/connections',
+		// '/jetpack/v4/stats-app/jetpack-blogs/999/rest-api/',
+		// '/jetpack/v4/stats-app/sites/999/sharing-buttons',
+	);
 
 	/**
 	 * REST Server object.
@@ -61,6 +89,33 @@ class Test_REST_Controller extends Stats_Test_Case {
 	 * Test /stats exists.
 	 */
 	public function test_blog_stats_endpoint_exists() {
-		$this->assertTrue( true );
+		wp_set_current_user( $this->admin_id );
+		foreach ( self::SUPPORTED_ROUTES as $route ) {
+			$this->assert_route_exists( $route );
+		}
+	}
+
+	/**
+	 * Ensure required routes exists
+	 *
+	 * @param string $route The route to check.
+	 */
+	public function assert_route_exists( $route ) {
+		$request = new WP_REST_Request( 'GET', $route );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotEquals( 'rest_no_route', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/sites/999/site-has-never-published-post'
+	 */
+	public function test_site_has_never_published_post() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/stats-app/sites/999/site-has-never-published-post' );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotTrue( $response );
 	}
 }

@@ -88,7 +88,7 @@ class REST_Controller {
 		);
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/jetpack-blogs/%d/rest-api', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/jetpack-blogs/%d/rest-api/', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'empty_result' ),
@@ -321,7 +321,7 @@ class REST_Controller {
 			$base_api_path = 'rest'
 		);
 		$response_code = wp_remote_retrieve_response_code( $response );
-		$response_body = wp_remote_retrieve_body( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error(
@@ -333,7 +333,7 @@ class REST_Controller {
 		}
 
 		set_transient( $cache_key, $response_body, 5 * MINUTE_IN_SECONDS );
-		return json_decode( $response_body, true );
+		return $response_body;
 	}
 
 	/**

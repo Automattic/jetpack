@@ -121,6 +121,16 @@ class Test_Case extends TestCase {
 			);
 		}
 
+		if ( strpos( $url, '/sites/999/' ) !== false ) {
+			return array(
+				'response' => array(
+					'code'    => 403,
+					'message' => 'forbidden',
+				),
+				'body'     => '{"code"=>"forbidden"}',
+			);
+		}
+
 		return $response;
 	}
 }
