@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Search
  * Plugin URI: https://jetpack.com/search/
  * Description: Easily add cloud-powered instant search and filters to your website or WooCommerce store with advanced algorithms that boost your search results based on traffic to your site.
- * Version: 1.3.0-alpha
+ * Version: 1.3.0
  * Author: Automattic - Jetpack Search team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
