@@ -2,7 +2,7 @@
 /**
  * A class that adds a stats dashboard to wp-admin.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-stats-admin
  */
 
 namespace Automattic\Jetpack\Stats_Admin;
@@ -14,7 +14,7 @@ use Jetpack_Options;
 /**
  * Responsible for adding a stats dashboard to wp-admin.
  *
- * @package jetpack-stats
+ * @package jetpack-stats-admin
  */
 class Dashboard {
 	const CALYPSO_CDN_URL = 'https://widgets.wp.com/calypso-stats/%s/%s';

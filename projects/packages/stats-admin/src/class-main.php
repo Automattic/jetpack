@@ -2,7 +2,7 @@
 /**
  * Stats Main
  *
- * @package automattic/jetpack-stats
+ * @package automattic/jetpack-stats-admin
  */
 
 namespace Automattic\Jetpack\Stats_Admin;
