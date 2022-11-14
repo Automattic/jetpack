@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Disable actions when user is not connected or there is no connected site owner
