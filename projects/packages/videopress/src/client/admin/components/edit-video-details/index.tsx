@@ -20,6 +20,7 @@ import { useHistory, Prompt } from 'react-router-dom';
  */
 import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import Input from '../input';
 import Logo from '../logo';
@@ -184,13 +185,15 @@ const EditVideoDetails = () => {
 		libraryAttachment,
 	} = useEditDetails();
 
+	const { canPerformAction } = usePermission();
+
 	const unsavedChangesMessage = __(
 		'There are unsaved changes. Are you sure you want to exit?',
 		'jetpack-videopress-pkg'
 	);
 
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges && ! updated,
+		shouldPrevent: hasChanges && ! updated && canPerformAction,
 		message: unsavedChangesMessage,
 	} );
 
@@ -201,6 +204,10 @@ const EditVideoDetails = () => {
 			history.push( '/' );
 		}
 	}, [ updated ] );
+
+	if ( ! canPerformAction ) {
+		history.push( '/' );
+	}
 
 	// We may need the playback token on the video URL as well
 	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
