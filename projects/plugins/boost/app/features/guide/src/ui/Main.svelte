@@ -34,6 +34,7 @@
 		background-color: transparent;
 		will-change: background-color;
 		transition: background-color 100ms ease-out;
+		line-height: 1.55;
 
 		&.show {
 			background-color: hsl( 0 90% 5% / 0.55 );
