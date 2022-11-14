@@ -3,11 +3,11 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats_Admin\Test_Case as Stats_Test_Case;
 
- /**
-  * Unit tests for the Dashbaord class.
-  *
-  * @package automattic/jetpack-stats-admin
-  */
+/**
+ * Unit tests for the Dashbaord class.
+ *
+ * @package automattic/jetpack-stats-admin
+ */
 class Test_Plan extends Stats_Test_Case {
 	/**
 	 * Test that init sets $initialized.
