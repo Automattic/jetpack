@@ -1,15 +1,22 @@
 /**
  *External dependencies
  */
-import { PanelBody, ToggleControl, SelectControl } from '@wordpress/components';
+import { Tooltip, PanelBody, ToggleControl, SelectControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { PlaybackControlProps } from '../../types';
-import { renderControlLabelWithTooltip } from '../inspector-controls';
 import type React from 'react';
+
+export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
+	return (
+		<Tooltip text={ tooltipText } position="top left">
+			<span>{ label }</span>
+		</Tooltip>
+	);
+};
 
 /**
  * Sidebar Control component.
@@ -17,7 +24,7 @@ import type React from 'react';
  * @param {PlaybackControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function PlaybackControl( { attributes, setAttributes }: PlaybackControlProps ) {
+export default function PlaybackPanel( { attributes, setAttributes }: PlaybackControlProps ) {
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(
