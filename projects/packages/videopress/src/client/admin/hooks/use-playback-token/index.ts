@@ -5,11 +5,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import {
-	STORE_ID,
-	VIDEO_PRIVACY_LEVELS,
-	VIDEO_PRIVACY_LEVEL_PRIVATE,
-} from '../../../state/constants';
+import { STORE_ID } from '../../../state/constants';
 import { VideopressSelectors, VideoPressVideo } from '../../types';
 
 /**
@@ -19,9 +15,7 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
  * @returns {object} Playback token
  */
 export default function usePlaybackToken( video: VideoPressVideo ) {
-	const videoNeedsPlaybackToken = video.privacySetting
-		? VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE
-		: false;
+	const videoNeedsPlaybackToken = video.needsPlaybackToken;
 
 	// Data
 	const playbackToken = useSelect(
