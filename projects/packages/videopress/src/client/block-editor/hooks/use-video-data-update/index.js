@@ -151,44 +151,36 @@ export function useSyncMedia( attributes, setAttributes ) {
 		updateMediaHandler( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
 
 		// | Video Chapters feature |
-		if ( ! attributes?.guid ) {
-			return;
+		if ( attributes?.guid && dataToUpdate?.description?.length ) {
+			// Upload .vtt file if its description contains chapters
+			const chapters = extractVideoChapters( dataToUpdate.description );
+			if ( chapters?.length ) {
+				const track = {
+					label: __( 'English', 'jetpack-videopress-pkg' ),
+					srcLang: 'en',
+					kind: 'chapters',
+					tmpFile: generateChaptersFile( dataToUpdate.description ),
+				};
+
+				uploadTrackForGuid( track, guid ).then( src => {
+					// Update block track attribute
+					setAttributes( {
+						tracks: [
+							{
+								label: track.label,
+								srcLang: track.srcLang,
+								kind: track.kind,
+								src,
+							},
+						],
+					} );
+				} );
+			}
 		}
 
-		if ( ! dataToUpdate?.description?.length ) {
-			return;
-		}
-
-		// Upload .vtt file if its description contains chapters
-		const chapters = extractVideoChapters( dataToUpdate.description );
-		if ( ! chapters?.length ) {
-			return;
-		}
-
-		const track = {
-			label: __( 'English', 'jetpack-videopress-pkg' ),
-			srcLang: 'en',
-			kind: 'chapters',
-			tmpFile: generateChaptersFile( dataToUpdate.description ),
-		};
-
-		uploadTrackForGuid( track, guid ).then( src => {
-			// Update block track attribute
-			setAttributes( {
-				tracks: [
-					{
-						label: track.label,
-						srcLang: track.srcLang,
-						kind: track.kind,
-						src,
-					},
-				],
-			} );
-
-			// Re-render video player
-			const videoPressUrl = getVideoPressUrl( guid, attributes );
-			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-		} );
+		// Re-render video player
+		const videoPressUrl = getVideoPressUrl( guid, attributes );
+		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [
 		isSaving,
 		wasSaving,
