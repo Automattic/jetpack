@@ -1,0 +1,63 @@
+[
+	{
+		"blockName": "jetpack/contact-form",
+		"attrs": {
+			"subject": "Your lasagne order",
+			"to": "test@example.com",
+			"customThankyou": "message",
+			"customThankyouMessage": "Thanks for speaking our linguine!",
+			"className": "noodles"
+		},
+		"innerBlocks": [
+			{
+				"blockName": "jetpack/field-name",
+				"attrs": {
+					"required": true
+				},
+				"innerBlocks": [],
+				"innerHTML": "",
+				"innerContent": []
+			},
+			{
+				"blockName": "jetpack/field-email",
+				"attrs": {
+					"required": true
+				},
+				"innerBlocks": [],
+				"innerHTML": "",
+				"innerContent": []
+			},
+			{
+				"blockName": "jetpack/field-textarea",
+				"attrs": {},
+				"innerBlocks": [],
+				"innerHTML": "",
+				"innerContent": []
+			},
+			{
+				"blockName": "jetpack/button",
+				"attrs": {
+					"element": "button",
+					"text": "Contact Us Today!",
+					"textColor": "tertiary",
+					"backgroundColor": "primary"
+				},
+				"innerBlocks": [],
+				"innerHTML": "",
+				"innerContent": []
+			}
+		],
+		"innerHTML": "\n<div class=\"wp-block-jetpack-contact-form noodles\">\n\n    \n        \n    \n        \n    </div>\n    ",
+		"innerContent": [
+			"\n<div class=\"wp-block-jetpack-contact-form noodles\">",
+			null,
+			"\n\n    ",
+			null,
+			"\n        \n    ",
+			null,
+			"\n        \n    ",
+			null,
+			"</div>\n    "
+		]
+	}
+]

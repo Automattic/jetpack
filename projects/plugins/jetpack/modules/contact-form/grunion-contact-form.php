@@ -398,6 +398,9 @@ class Grunion_Contact_Form_Plugin {
 			'jetpack/contact-form',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'        => array(
+					'align' => array( 'wide', 'full' ),
+				),
 			)
 		);
 
@@ -2593,18 +2596,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		// Move align tool classes to the top container
-		$has_alignwide   = preg_match( '/<div class=\"wp-block-jetpack-contact-form.*alignwide.*?">/m', $content );
-		$has_alignfull   = preg_match( '/<div class=\"wp-block-jetpack-contact-form.*alignfull.*?">/m', $content );
-		$wrapper_classes = '';
+		$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+		$has_alignwide      = strpos( $wrapper_attributes['class'], 'alignwide' ) !== false;
+		$has_alignfull      = strpos( $wrapper_attributes['class'], 'alignfull' ) !== false;
 
 		if ( $has_alignwide ) {
-			$wrapper_classes = 'alignwide';
+			$wrapper_class = 'alignwide';
 		} elseif ( $has_alignfull ) {
-			$wrapper_classes = 'alignfull';
+			$wrapper_class = 'alignfull';
 		}
 
 		$r  = '';
-		$r .= "<div id='contact-form-$id' class='$wrapper_classes'>\n";
+		$r .= "<div id='contact-form-$id' class='$wrapper_class'>\n";
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
