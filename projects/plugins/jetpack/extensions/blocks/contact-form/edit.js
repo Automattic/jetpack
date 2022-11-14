@@ -199,7 +199,7 @@ export function JetpackContactFormEdit( {
 				/>
 				<div className="form-placeholder__footer">
 					<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
-						{ __( 'Explore Forms Patterns', 'jetpack' ) }
+						{ __( 'Explore Form Patterns', 'jetpack' ) }
 					</Button>
 					<div className="form-placeholder__footer-links">
 						<ExternalLink
