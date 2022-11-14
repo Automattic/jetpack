@@ -5,10 +5,17 @@
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
 	let show: ComparedImage | false = false;
+
+	function onMouseLeave() {
+		if( $state !== "Always On" ) {
+			show = false;
+		}
+	}
+	$: show =  $state === "Always On" ? images[0] : false;
 </script>
 
-{#if $state === 'Active'}
-	<div class="guide" class:show={show !== false} on:mouseleave={() => ( show = false )}>
+{#if $state === 'Active' || $state === 'Always On'}
+	<div class="guide" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each images as image, index}
 				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => ( show = images[index] )} />

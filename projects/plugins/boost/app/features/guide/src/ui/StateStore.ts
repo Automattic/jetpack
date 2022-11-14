@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
 const LS_KEY = 'jetpack-boost-guide';
-const states = [ 'Active', 'Paused' ] as const;
+const states = [ 'Active', 'Always On', 'Paused' ] as const;
 type State = typeof states[ number ];
 
 let stored = localStorage.getItem( LS_KEY ) as State;
