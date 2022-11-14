@@ -4,18 +4,18 @@
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
-	let show: number | false = false;
+	let show: ComparedImage | false = false;
 </script>
 
 {#if $state === 'Active'}
 	<div class="guide" class:show={show !== false} on:mouseleave={() => ( show = false )}>
 		<div class="previews">
 			{#each images as image, index}
-				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => ( show = index )} />
+				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => ( show = images[index] )} />
 			{/each}
 		</div>
 		{#if show !== false}
-			<ImageGuide image={images[ show ]} />
+			<ImageGuide bind:image={show} />
 		{/if}
 	</div>
 {/if}

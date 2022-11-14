@@ -4,9 +4,11 @@
 	import { backOut } from 'svelte/easing';
 	import JetpackLogo from './JetpackLogo.svelte';
 	export let image: ComparedImage;
-	const imageName = image.url.split( '/' ).pop();
-	const ratio = image.scaling.pixels.toFixed( 2 );
-	const fakeSavingsInKB = Math.round( 1024 / image.scaling.pixels ).toFixed( 2 );
+
+	// Reactive variables because this component can be reused by Svelte.
+	$: imageName = image.url.split( '/' ).pop();
+	$: ratio = image.scaling.pixels.toFixed( 2 );
+	$: potentialSavings = Math.round(image.fileSize - (image.fileSize / image.scaling.pixels));
 
 	const previewWidth = 100;
 	const previewHeight = Math.floor( previewWidth / ( image.width / image.height ) );
@@ -33,18 +35,29 @@
 	</div>
 
 	<div class="meta">
+		{#if image.fileSize > 0 }
+			<div class="row">
+				<div class="label">Image Size</div>
+				<div class="value">{Math.round(image.fileSize)}kb</div>
+			</div>
+		{/if}
+
 		<div class="row">
-			<div class="label">Size in browser</div>
-			<div class="value">{image.onScreen.width} x {image.onScreen.height}</div>
-		</div>
-		<div class="row">
-			<div class="label">Size loaded</div>
+			<div class="label">Image Dimensions</div>
 			<div class="value">{image.width} x {image.height}</div>
 		</div>
+
 		<div class="row">
-			<div class="label">Potential savings</div>
-			<div class="value"><strong>{fakeSavingsInKB} KB</strong></div>
+			<div class="label">Image Dimensions on screen</div>
+			<div class="value">{image.onScreen.width} x {image.onScreen.height}</div>
 		</div>
+
+		{#if potentialSavings > 0}
+			<div class="row">
+				<div class="label">Potential savings</div>
+				<div class="value"><strong>{potentialSavings} KB</strong></div>
+			</div>
+		{/if}
 	</div>
 </div>
 

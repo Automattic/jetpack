@@ -58,7 +58,7 @@ async function getImageDimensions( url ) {
 	img.src = url;
 	return new Promise< { width: number; height: number } >( resolve => {
 		img.onload = () => {
-			resolve( { width: img.width, height: img.height } );
+			resolve( { width: Math.round(img.width), height: Math.round(img.height) } );
 		};
 	} );
 }

@@ -32,8 +32,8 @@ export function measure( images: Image[] ): ComparedImage[] {
 		const measuredImage = {
 			...image,
 			onScreen: {
-				width,
-				height,
+				width: Math.round( width ),
+				height: Math.round( height ),
 			},
 		};
 
