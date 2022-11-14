@@ -64,12 +64,6 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
 	public static function subscriber_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
-
-		// Site admins can do everything
-		if ( current_user_can( 'edit_post', $post_id ) ) {
-			return true;
-		}
-
 		switch_to_blog( $blog_id );
 
 		$previous_user = wp_get_current_user();

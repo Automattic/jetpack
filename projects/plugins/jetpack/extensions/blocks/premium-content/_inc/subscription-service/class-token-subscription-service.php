@@ -76,7 +76,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
 			// Token not valid. We bail even unless the post can be accessed publicly.
-			return 'everybody' === $access_level;
+			return self::user_has_access( $access_level, false, false );
 		}
 
 		return self::user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber );
@@ -92,6 +92,12 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool does the user have access to the post/blog.
 	 */
 	protected static function user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber ) {
+
+		if ( is_user_logged_in() && current_user_can( 'edit_post' ) ) {
+			// Admin has access
+			return true;
+		}
+
 		if ( empty( $access_level ) || $access_level === 'everybody' ) {
 			// empty level means the post is not gated for paid users
 			return true;
