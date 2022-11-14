@@ -1,5 +1,5 @@
 <?php
-require_jetpack_file( 'modules/subscriptions.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 
 class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**

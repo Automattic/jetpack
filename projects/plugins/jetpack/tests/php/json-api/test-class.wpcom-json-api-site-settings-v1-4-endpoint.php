@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Jetpack `sites/%s/settings` endpoint unit tests.
