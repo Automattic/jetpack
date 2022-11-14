@@ -242,19 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.6-a.3 - 2022-11-07
+### 11.6-a.5 - 2022-11-14
 #### Enhancements
-- Form block: add support links to form type selector.
-- Form block: register Jetpack forms in the pattern inserter.
+- Form Block: add block alignment control for the form wrapper: center, wide and full
+- Form Block: remove connection button from the Form block toolbar
 
 #### Improved compatibility
-- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar.
-- VideoPress (beta): introduce Video Chapters beta block.
+- Sitemaps: improve compatibility with recent Google Image Sitemap changes.
 
 #### Bug fixes
-- Customizer: make sure the menu item is shown for block themes.
-- Image Editor: fix issue where users are not able to edit/crop and restore images.
-- Related Posts Block: when 3 posts are output, increase the width closer to 100%.
+- Dashboard: prevent scrolling to the active settings menu item on page load.
+- VideoPress: fix issue with uploading VideoPress videos in the Full Site Editor.
+- Shortcodes: fix content_width handling for various shortcodes.
 
 --------
 
