@@ -158,7 +158,6 @@ const EditVideoDetails = () => {
 		description,
 		caption,
 		// Playback Token
-		playbackToken,
 		isFetchingPlaybackToken,
 		// Page State/Actions
 		hasChanges,
@@ -202,13 +201,10 @@ const EditVideoDetails = () => {
 		}
 	}, [ updated ] );
 
-	// We may need the playback token on the video URL as well
-	const videoUrl = playbackToken ? `${ url }?metadata_token=${ playbackToken }` : url;
-
 	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ videoUrl } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
@@ -222,7 +218,7 @@ const EditVideoDetails = () => {
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
-					url={ videoUrl }
+					url={ url }
 					handleVideoFrameSelected={ handleVideoFrameSelected }
 					selectedTime={ selectedTime }
 					handleConfirmFrame={ handleConfirmFrame }
