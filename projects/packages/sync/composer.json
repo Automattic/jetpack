@@ -9,7 +9,7 @@
 		"automattic/jetpack-identity-crisis": "^0.8",
 		"automattic/jetpack-password-checker": "^0.2",
 		"automattic/jetpack-roles": "^1.4",
-		"automattic/jetpack-status": "^1.14"
+		"automattic/jetpack-status": "^1.15"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^3.2",
@@ -56,7 +56,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.40.x-dev"
+			"dev-trunk": "1.42.x-dev"
 		}
 	},
 	"config": {

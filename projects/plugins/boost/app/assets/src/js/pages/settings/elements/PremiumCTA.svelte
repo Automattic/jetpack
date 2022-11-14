@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import RightArrow from '../../../svg/right-arrow.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';

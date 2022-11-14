@@ -20,6 +20,8 @@ import {
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	EXPIRE_PLAYBACK_TOKEN,
+	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -36,20 +38,33 @@ const { apiRoot } = window?.jetpackVideoPressInitialState || {};
  *
  * @param {object} video         - Video object.
  * @param {object} resolveSelect - Containing the store’s selectors pre-bound to state
+ * @param {object} dispatch      - Containing the store’s actions pre-bound to state
  * @returns {object}               Tokenized video data object.
  */
-async function populateVideoDataWithToken( video, resolveSelect ) {
+async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
 	if ( VIDEO_PRIVACY_LEVELS[ video.privacySetting ] !== VIDEO_PRIVACY_LEVEL_PRIVATE ) {
 		return video;
 	}
 
-	const { token } = await resolveSelect.getPlaybackToken( video.guid );
+	let playbackToken = await resolveSelect.getPlaybackToken( video.guid );
+
+	if ( playbackToken ) {
+		// let's set the expire time to 24h
+		const playbackTokenExpireTime = Number( playbackToken.issueTime ) + 1000 * 60 * 60 * 24;
+		if ( playbackTokenExpireTime < Date.now() ) {
+			// expire the old one
+			await dispatch.expirePlaybackToken( video.guid );
+			// and get a new one
+			playbackToken = await resolveSelect.getPlaybackToken( video.guid );
+		}
+	}
+
 	if ( ! /metadata_token=/.test( video.posterImage ) ) {
-		video.posterImage += `?metadata_token=${ token }`;
+		video.posterImage += `?metadata_token=${ playbackToken.token }`;
 	}
 
 	if ( ! /metadata_token=/.test( video.thumbnail ) ) {
-		video.thumbnail += `?metadata_token=${ token }`;
+		video.thumbnail += `?metadata_token=${ playbackToken.token }`;
 	}
 
 	return video;
@@ -139,7 +154,7 @@ const getVideos = {
 			 */
 			const mappedVideos = await Promise.all(
 				mapVideosFromWPV2MediaEndpoint( videos ).map( async video => {
-					return await populateVideoDataWithToken( video, resolveSelect );
+					return await populateVideoDataWithToken( video, resolveSelect, dispatch );
 				} )
 			);
 
@@ -183,7 +198,8 @@ const getVideo = {
 			} );
 			const mappedVideoData = await populateVideoDataWithToken(
 				mapVideoFromWPV2MediaEndpoint( video ),
-				resolveSelect
+				resolveSelect,
+				dispatch
 			);
 
 			dispatch.setVideo( mappedVideoData );
@@ -269,7 +285,7 @@ const getStorageUsed = {
 			 * Let's compute the value in bytes.
 			 */
 			const storageUsed = response.options.videopress_storage_used
-				? Math.round( Number( response.options.videopress_storage_used ) * 1024 * 1024 )
+				? Math.round( Number( response.options.videopress_storage_used ) * 1000 * 1000 )
 				: 0;
 
 			dispatch.setVideosStorageUsed( storageUsed );
@@ -390,11 +406,38 @@ const getPlaybackToken = {
 			const playbackToken = {
 				guid,
 				token: playbackTokenResponse.playback_token,
+				issueTime: Date.now(),
 			};
 
 			dispatch.setPlaybackToken( playbackToken );
 
 			return playbackToken;
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+		}
+	},
+	shouldInvalidate: ( action, guid ) => {
+		return action.type === EXPIRE_PLAYBACK_TOKEN && action.guid === guid;
+	},
+};
+
+const getVideoPressSettings = {
+	isFulfilled: state => {
+		return state?.siteSettings !== undefined;
+	},
+	fulfill: () => async ( { dispatch } ) => {
+		try {
+			const { videopress_videos_private_for_site: videoPressVideosPrivateForSite } = await apiFetch(
+				{
+					path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT }` ),
+					method: 'GET',
+				}
+			);
+
+			const videoPressSettings = { videoPressVideosPrivateForSite };
+
+			dispatch.setVideoPressSettings( videoPressSettings );
+			return videoPressSettings;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console
 		}
@@ -414,4 +457,6 @@ export default {
 	getPurchases,
 
 	getPlaybackToken,
+
+	getVideoPressSettings,
 };

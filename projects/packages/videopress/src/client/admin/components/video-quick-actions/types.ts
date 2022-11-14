@@ -17,6 +17,14 @@ export interface ActionItemProps extends React.ButtonHTMLAttributes< HTMLButtonE
 
 export interface PopoverWithAnchorProps {
 	/**
+	 * Whether the popover should be rendered or not
+	 */
+	showPopover?: boolean;
+	/**
+	 * Whether the anchor is focused
+	 */
+	isAnchorFocused?: boolean;
+	/**
 	 * Ref that anchors the popover
 	 */
 	anchor: HTMLElement | null;

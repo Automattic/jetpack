@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Mock `@wordpress/block-editor` `useSetting` in a test instead of using `BlockEditorProvider`.
+

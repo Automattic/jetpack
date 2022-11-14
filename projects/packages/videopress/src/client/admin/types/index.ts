@@ -204,6 +204,11 @@ export type MetadataVideo = {
 	processing?: boolean;
 	isUpdatingPrivacy?: boolean;
 	isUpdatingPoster?: boolean;
+	uploadProgress?: number;
+};
+
+export type VideoPressSettings = {
+	videoPressVideosPrivateForSite: boolean;
 };
 
 export type VideopressSelectors = {
@@ -219,4 +224,6 @@ export type VideopressSelectors = {
 	isFetchingPlaybackToken: () => boolean;
 
 	getUploadedLocalVideoCount: () => number;
+
+	getVideoPressSettings: () => VideoPressSettings;
 };

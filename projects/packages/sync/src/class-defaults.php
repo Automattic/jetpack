@@ -174,6 +174,7 @@ class Defaults {
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
 		'videopress_private_enabled_for_site',
+		'wpcom_gifting_subscription',
 	);
 
 	/**
@@ -723,6 +724,7 @@ class Defaults {
 		'_wpas_feature_enabled',
 		'_wpas_is_tweetstorm',
 		'_wpas_mess',
+		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',
