@@ -313,7 +313,7 @@
 						// Got a geo response. Parse out the region data.
 						var data = JSON.parse( this.response );
 						var region      = data.region ? data.region.toLowerCase() : '';
-						var ccpaApplies = ['california', 'colorado', 'connecticut', 'utah', 'virginia'].includes( region );
+						var ccpaApplies = ['california', 'colorado', 'connecticut', 'utah', 'virginia'].indexOf( region ) > -1;
 
 						// Set CCPA applies cookie. This keeps us from having to make a geo request too frequently.
 						setCcpaAppliesCookie( ccpaApplies );

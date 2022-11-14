@@ -72,7 +72,7 @@ class WordAds_California_Privacy {
 	}
 
 	/**
-	 * Outputs [ccpa-do-not-sell-link] shortcode markup.
+	 * Outputs [privacy-do-not-sell-link] shortcode markup.
 	 *
 	 * @return string The generated shortcode markup.
 	 */
