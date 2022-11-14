@@ -5,6 +5,7 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoDescriptionPanel from './description-panel';
+import SeoNoindexPanel from './noindex-panel';
 import SeoTitlePanel from './title-panel';
 
 import './editor.scss';
@@ -27,6 +28,11 @@ export const settings = {
 			title: __( 'SEO Description', 'jetpack' ),
 		};
 
+		const noindexPanelProps = {
+			...generalPanelProps,
+			title: __( 'SEO Indexing', 'jetpack' ),
+		};
+
 		return (
 			<Fragment>
 				<JetpackPluginSidebar>
@@ -36,6 +42,9 @@ export const settings = {
 					<PanelBody { ...descriptionPanelProps }>
 						<SeoDescriptionPanel />
 					</PanelBody>
+					<PanelBody { ...noindexPanelProps }>
+						<SeoNoindexPanel />
+					</PanelBody>
 				</JetpackPluginSidebar>
 
 				<PluginPrePublishPanel { ...titlePanelProps }>
@@ -43,6 +52,9 @@ export const settings = {
 				</PluginPrePublishPanel>
 				<PluginPrePublishPanel { ...descriptionPanelProps }>
 					<SeoDescriptionPanel />
+				</PluginPrePublishPanel>
+				<PluginPrePublishPanel { ...noindexPanelProps }>
+					<SeoNoindexPanel />
 				</PluginPrePublishPanel>
 			</Fragment>
 		);
