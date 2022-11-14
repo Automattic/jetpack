@@ -7,7 +7,9 @@ import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useEffect } from 'react';
-/** */
+/**
+ * Internal dependencies
+ */
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import {
@@ -16,12 +18,16 @@ import {
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
+import { useActionItem } from '../../hooks/use-action-item';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import {
 	ActionItemProps,
 	PopoverWithAnchorProps,
@@ -33,6 +39,7 @@ import {
 
 const PopoverWithAnchor = ( {
 	showPopover = false,
+	isAnchorFocused = false,
 	anchor,
 	children = null,
 }: PopoverWithAnchorProps ) => {
@@ -41,7 +48,7 @@ const PopoverWithAnchor = ( {
 	}
 
 	useEffect( () => {
-		if ( showPopover ) {
+		if ( showPopover && ! isAnchorFocused ) {
 			( anchor?.querySelector( '.components-popover' ) as HTMLElement | null )?.focus();
 		}
 	}, [ showPopover ] );
@@ -61,8 +68,14 @@ const PopoverWithAnchor = ( {
 };
 
 const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) => {
-	const [ anchor, setAnchor ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
+	const {
+		setAnchor,
+		setIsFocused,
+		setIsHovering,
+		anchor,
+		isFocused,
+		showPopover,
+	} = useActionItem();
 
 	return (
 		<div ref={ setAnchor } className={ className }>
@@ -70,11 +83,17 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 				size="small"
 				variant="tertiary"
 				icon={ icon }
-				onMouseEnter={ () => setShowPopover( true ) }
-				onMouseLeave={ () => setShowPopover( false ) }
+				onMouseEnter={ () => setIsHovering( true ) }
+				onMouseLeave={ () => setIsHovering( false ) }
+				onFocus={ () => setIsFocused( true ) }
+				onBlur={ () => setIsFocused( false ) }
 				{ ...props }
 			/>
-			<PopoverWithAnchor showPopover={ showPopover } anchor={ anchor }>
+			<PopoverWithAnchor
+				showPopover={ showPopover }
+				anchor={ anchor }
+				isAnchorFocused={ isFocused }
+			>
 				{ children }
 			</PopoverWithAnchor>
 		</div>
@@ -86,8 +105,15 @@ const ThumbnailActionsDropdown = ( {
 	onUpdate,
 	isUpdatingPoster,
 }: ThumbnailActionsDropdownProps ) => {
-	const [ anchor, setAnchor ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
+	const {
+		setAnchor,
+		setIsFocused,
+		setIsHovering,
+		setShowPopover,
+		anchor,
+		isFocused,
+		showPopover,
+	} = useActionItem();
 
 	return (
 		<Dropdown
@@ -103,10 +129,16 @@ const ThumbnailActionsDropdown = ( {
 							onToggle();
 						} }
 						aria-expanded={ isOpen }
-						onMouseEnter={ () => setShowPopover( true ) }
-						onMouseLeave={ () => setShowPopover( false ) }
+						onMouseEnter={ () => setIsHovering( true ) }
+						onMouseLeave={ () => setIsHovering( false ) }
+						onFocus={ () => setIsFocused( true ) }
+						onBlur={ () => setIsFocused( false ) }
 					/>
-					<PopoverWithAnchor showPopover={ showPopover } anchor={ anchor }>
+					<PopoverWithAnchor
+						showPopover={ showPopover && ! isOpen }
+						anchor={ anchor }
+						isAnchorFocused={ isFocused }
+					>
 						{ description }
 					</PopoverWithAnchor>
 				</div>
@@ -130,8 +162,15 @@ const PrivacyActionsDropdown = ( {
 	isUpdatingPrivacy,
 	onUpdate,
 }: PrivacyActionsDropdownProps ) => {
-	const [ anchor, setAnchor ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
+	const {
+		setAnchor,
+		setIsFocused,
+		setIsHovering,
+		setShowPopover,
+		anchor,
+		isFocused,
+		showPopover,
+	} = useActionItem();
 
 	let currentPrivacyIcon = siteDefaultPrivacyIcon;
 	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
@@ -154,11 +193,17 @@ const PrivacyActionsDropdown = ( {
 							onToggle();
 						} }
 						aria-expanded={ isOpen }
-						onMouseEnter={ () => setShowPopover( true ) }
-						onMouseLeave={ () => setShowPopover( false ) }
+						onMouseEnter={ () => setIsHovering( true ) }
+						onMouseLeave={ () => setIsHovering( false ) }
+						onFocus={ () => setIsFocused( true ) }
+						onBlur={ () => setIsFocused( false ) }
 						disabled={ isUpdatingPrivacy }
 					/>
-					<PopoverWithAnchor showPopover={ showPopover } anchor={ anchor }>
+					<PopoverWithAnchor
+						showPopover={ showPopover && ! isOpen }
+						anchor={ anchor }
+						isAnchorFocused={ isFocused }
+					>
 						{ description }
 					</PopoverWithAnchor>
 				</div>

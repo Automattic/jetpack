@@ -133,7 +133,14 @@
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	flex-direction: row;
+	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+/* Added circa Nov 2022: container class assigned to topmost block div */
+.wp-block-jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
+	padding-right: 0;
+	padding-left: 0;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap,
