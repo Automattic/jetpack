@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: Exposed video_is_private flag on each video, taking into account the video privacy setting as well as the VideoPress site-wide privacy setting.
