@@ -30,7 +30,7 @@ class WPCOM_Token_Subscription_Service extends Token_Subscription_Service {
 	 *
 	 * @inheritDoc
 	 */
-	public function get_site_id() {
+	public static function get_site_id() {
 		return get_current_blog_id();
 	}
 

@@ -144,7 +144,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @return int
 	 */
-	abstract public function get_site_id();
+	abstract public static function get_site_id();
 
 	// phpcs:disable
 	/**
