@@ -504,6 +504,41 @@ jQuery(document).ready( function($) {
 	}
 }
 
+add_action( 'restrict_manage_posts', 'grunion_source_filter' );
+/**
+ * Add a post filter dropdown at the top of the admin page.
+ *
+ * @return void
+ */
+function grunion_source_filter() {
+	$screen = get_current_screen();
+
+	if ( 'edit-feedback' !== $screen->id ) {
+		return;
+	}
+
+	$parent_id = intval( isset( $_GET['jetpack_form_parent_id'] ) ? $_GET['jetpack_form_parent_id'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	\Grunion_Contact_Form_Plugin::form_posts_dropdown( $parent_id );
+}
+
+add_action( 'pre_get_posts', 'grunion_source_filter_results' );
+/**
+ * Filter feedback posts by parent_id if present.
+ *
+ * @param WP_Query $query Current query.
+ *
+ * @return void
+ */
+function grunion_source_filter_results( $query ) {
+	$parent_id = intval( isset( $_GET['jetpack_form_parent_id'] ) ? $_GET['jetpack_form_parent_id'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( ! $parent_id || $query->query_vars['post_type'] !== 'feedback' ) {
+		return;
+	}
+
+	$query->query_vars['post_parent'] = $parent_id;
+}
+
 /**
  * Escape grunion attributes.
  *

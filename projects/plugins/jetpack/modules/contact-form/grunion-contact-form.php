@@ -1277,6 +1277,21 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
+	 * Prints a dropdown of posts with forms.
+	 *
+	 * @param int $selected_id Currently selected post ID.
+	 * @return void
+	 */
+	public static function form_posts_dropdown( $selected_id ) {
+		?>
+		<select name="jetpack_form_parent_id">
+			<option value=""><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
+			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
+		</select>
+		<?php
+	}
+
+	/**
 	 * Prints the menu
 	 */
 	public function export_form() {
@@ -1305,7 +1320,7 @@ class Grunion_Contact_Form_Plugin {
 				<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
 				<select name="post">
 					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
-					<?php echo $this->get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
+					<?php echo self::get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
 				</select>
 
 				<br><br>
@@ -1937,9 +1952,10 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Returns a string of HTML <option> items from an array of posts
 	 *
+	 * @param int $selected_id Currently selected post ID.
 	 * @return string a string of HTML <option> items
 	 */
-	protected function get_feedbacks_as_options() {
+	protected static function get_feedbacks_as_options( $selected_id = 0 ) {
 		$options = '';
 
 		// Get the feedbacks' parents' post IDs
@@ -1966,7 +1982,12 @@ class Grunion_Contact_Form_Plugin {
 
 		// creates the string of <option> elements
 		foreach ( $posts as $post ) {
-			$options .= sprintf( '<option value="%s">%s</option>', esc_attr( $post->ID ), esc_html( $post->post_title ) );
+			$options .= sprintf(
+				'<option value="%s" %s>%s</option>',
+				esc_attr( $post->ID ),
+				$selected_id === $post->ID ? 'selected' : '',
+				esc_html( $post->post_title )
+			);
 		}
 
 		return $options;
