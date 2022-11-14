@@ -38,6 +38,7 @@ class Jetpack_Protect {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
 
 		// Init Jetpack packages
 		add_action(
@@ -91,6 +92,22 @@ class Jetpack_Protect {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+		// Add custom WP REST API endoints.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+
+		My_Jetpack_Initializer::init();
+		Site_Health::init();
+
+		// Sets up JITMS.
+		JITM::configure();
+	}
+
+	/**
+	 * Initialize the admin page resources.
+	 */
+	public function admin_page_init() {
 		$total_threats = Status::get_total_threats();
 		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
 		if ( $total_threats ) {
@@ -105,25 +122,8 @@ class Jetpack_Protect {
 			array( $this, 'plugin_settings_page' ),
 			99
 		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
-		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-		// Add custom WP REST API endoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
-
-		My_Jetpack_Initializer::init();
-		Site_Health::init();
-
-		// Sets up JITMS.
-		JITM::configure();
-	}
-
-	/**
-	 * Initialize the admin resources.
-	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
