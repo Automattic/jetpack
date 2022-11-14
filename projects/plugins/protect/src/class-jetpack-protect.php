@@ -172,7 +172,7 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
-		$refresh_from_wpcom = isset( $_GET['refreshPlan'] );
+		$refresh_from_wpcom = isset( $_GET['checkPlan'] );
 		$initial_state      = array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
