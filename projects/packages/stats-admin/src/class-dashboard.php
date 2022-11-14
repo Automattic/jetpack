@@ -185,7 +185,7 @@ class Dashboard {
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to the package version.
-			return Main::VERSON;
+			return Main::VERSION;
 		}
 
 		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -196,7 +196,7 @@ class Dashboard {
 		}
 
 		// fallback to the package version.
-		return Main::VERSON;
+		return Main::VERSION;
 	}
 
 	/**
