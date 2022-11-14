@@ -36,7 +36,6 @@ import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackStateNotices from './state-notices';
-import UserLicenseActivationNotice from './user-license-activation';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -212,7 +211,6 @@ class JetpackNotices extends React.Component {
 		);
 
 		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
-		const isUserLicenseActivationScreen = this.props.location.pathname.startsWith( '/license' );
 
 		return (
 			<div aria-live="polite">
@@ -270,11 +268,6 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ ! isUserLicenseActivationScreen &&
-					! this.props.isAtomicSite &&
-					this.props.isConnectionOwner && (
-						<UserLicenseActivationNotice pathname={ this.props.location.pathname } />
-					) }
 			</div>
 		);
 	}

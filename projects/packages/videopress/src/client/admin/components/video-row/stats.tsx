@@ -9,17 +9,19 @@ const Stats = ( {
 	plays,
 	upload,
 	loading = false,
+	className,
 }: {
 	privacy: React.ReactNode;
 	duration: React.ReactNode;
 	plays?: React.ReactNode;
 	upload?: React.ReactNode;
 	loading?: boolean;
+	className?: string;
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	return (
-		<div className={ classNames( styles.stats, { [ styles.small ]: isSmall } ) }>
+		<div className={ classNames( className, styles.stats, { [ styles.small ]: isSmall } ) }>
 			{ loading ? (
 				<>
 					<Placeholder height={ 24 } />

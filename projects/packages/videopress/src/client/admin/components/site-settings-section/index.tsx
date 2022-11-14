@@ -3,13 +3,17 @@
  */
 import { Col, Container, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 /**
  * Internal dependencies
  */
+import { usePermission } from '../../hooks/use-permission';
+import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import { CheckboxCheckmark } from '../video-filter';
 import { SiteSettingsSectionProps } from './types';
+/**
+ * Types
+ */
+import type React from 'react';
 
 /**
  * VideoPress SettingsSection component
@@ -21,6 +25,8 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	videoPressVideosPrivateForSite,
 	onPrivacyChange,
 } ) => {
+	const { canPerformAction } = usePermission();
+
 	return (
 		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
 			<Col>
@@ -37,6 +43,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 					) }
 					onChange={ onPrivacyChange }
 					checked={ videoPressVideosPrivateForSite }
+					disabled={ ! canPerformAction }
 				/>
 			</Col>
 		</Container>

@@ -49,7 +49,7 @@
 			"js-packages/publicize-components",
 			"tools/e2e-commons"
 		],
-		"pluginSlug": "social-plugin",
+		"pluginSlug": "social",
 		"mirrorName": "jetpack-social-plugin"
 	}
 }

@@ -252,15 +252,16 @@ class Data {
 				$width                    = $media_details['width'];
 				$height                   = $media_details['height'];
 
-				$title           = $jetpack_videopress['title'];
-				$description     = $jetpack_videopress['description'];
-				$caption         = $jetpack_videopress['caption'];
-				$rating          = $jetpack_videopress['rating'];
-				$allow_download  = $jetpack_videopress['allow_download'];
-				$privacy_setting = $jetpack_videopress['privacy_setting'];
+				$title                = $jetpack_videopress['title'];
+				$description          = $jetpack_videopress['description'];
+				$caption              = $jetpack_videopress['caption'];
+				$rating               = $jetpack_videopress['rating'];
+				$allow_download       = $jetpack_videopress['allow_download'];
+				$privacy_setting      = $jetpack_videopress['privacy_setting'];
+				$needs_playback_token = $jetpack_videopress['needs_playback_token'];
 
 				$original      = $videopress_media_details['original'];
-				$poster        = $privacy_setting !== 1 ? $videopress_media_details['poster'] : null;
+				$poster        = ( ! $needs_playback_token ) ? $videopress_media_details['poster'] : null;
 				$upload_date   = $videopress_media_details['upload_date'];
 				$duration      = $videopress_media_details['duration'];
 				$is_private    = $videopress_media_details['is_private'];
@@ -275,26 +276,27 @@ class Data {
 				}
 
 				return array(
-					'id'             => $id,
-					'guid'           => $guid,
-					'title'          => $title,
-					'description'    => $description,
-					'caption'        => $caption,
-					'url'            => $original,
-					'uploadDate'     => $upload_date,
-					'duration'       => $duration,
-					'isPrivate'      => $is_private,
-					'posterImage'    => $poster,
-					'allowDownload'  => $allow_download,
-					'rating'         => $rating,
-					'privacySetting' => $privacy_setting,
-					'poster'         => array(
+					'id'                 => $id,
+					'guid'               => $guid,
+					'title'              => $title,
+					'description'        => $description,
+					'caption'            => $caption,
+					'url'                => $original,
+					'uploadDate'         => $upload_date,
+					'duration'           => $duration,
+					'isPrivate'          => $is_private,
+					'posterImage'        => $poster,
+					'allowDownload'      => $allow_download,
+					'rating'             => $rating,
+					'privacySetting'     => $privacy_setting,
+					'needsPlaybackToken' => $needs_playback_token,
+					'poster'             => array(
 						'src'    => $poster,
 						'width'  => $width,
 						'height' => $height,
 					),
-					'thumbnail'      => $thumbnail,
-					'finished'       => $finished,
+					'thumbnail'          => $thumbnail,
+					'finished'           => $finished,
 				);
 			},
 			$videopress_data['videos']
@@ -316,7 +318,6 @@ class Data {
 					'relyOnInitialState' => true,
 				),
 			),
-
 			'localVideos' => array(
 				'uploadedVideoCount'           => $local_videos_data['total'],
 				'items'                        => $local_videos,
