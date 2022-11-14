@@ -49,6 +49,16 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 			method: 'GET',
 		} )
 			.then( status => {
+				// const checkStatus = ( status, attempts = 0 ) => {
+				// 	if ( 'unavailable' === status && attempts <= 3 ) {
+				// 		setTimeout( () => {
+				// 			refreshStatus( true ).then( newStatus =>
+				// 				checkStatus( newStatus.status, attempts + 1 )
+				// 			);
+				// 		}, 5000 );
+				// 	}
+				// };
+				// checkStatus();
 				dispatch( setStatus( camelize( status ) ) );
 				dispatch( setStatusIsFetching( false ) );
 				resolve( status );

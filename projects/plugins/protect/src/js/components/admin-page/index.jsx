@@ -107,8 +107,19 @@ const useCredentials = () => {
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const status = useSelect( select => select( STORE_ID ).getStatus() );
+	const { refreshStatus } = useDispatch( STORE_ID );
+	const { statusIsFetching, status } = useSelect( select => ( {
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		status: select( STORE_ID ).getStatus(),
+	} ) );
 	useCredentials();
+
+	// retry fetching status if it is not available
+	useEffect( () => {
+		if ( ! statusIsFetching && status.status === 'unavailable' ) {
+			// refreshStatus( true );
+		}
+	}, [ statusIsFetching, status.status, refreshStatus ] );
 
 	let currentScanStatus;
 	if ( 'error' === currentStatus ) {
