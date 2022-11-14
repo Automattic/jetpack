@@ -18,7 +18,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSON = '0.1.0-alpha';
+	const VERSION = '0.1.0-alpha';
 
 	/**
 	 * Singleton Main instance.
