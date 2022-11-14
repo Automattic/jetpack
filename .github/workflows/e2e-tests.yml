@@ -92,6 +92,13 @@ jobs:
         run_id: ${{ github.event.workflow_run.id }}
         path: build-output
 
+    - name: Checkout mirror repo
+      if: github.event_name == 'repository_dispatch'
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ github.event.client_payload.repository }}
+        path: build-output/build/${{ github.event.client_payload.repository }}
+
     - name: Prepare build
       env:
         COMPOSER_ROOT_VERSION: "dev-trunk"
@@ -100,6 +107,7 @@ jobs:
       run: |
         if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
           echo "::group::Prepare build artefacts"
+          tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
