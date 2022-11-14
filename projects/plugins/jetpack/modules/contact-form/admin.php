@@ -867,6 +867,7 @@ function grunion_enable_spam_recheck() {
 	}
 
 	// Add the actual "Check for Spam" button.
+	add_action( 'admin_head', 'grunion_export_button' );
 	add_action( 'admin_head', 'grunion_check_for_spam_button' );
 }
 
@@ -948,6 +949,48 @@ function grunion_check_for_spam_button() {
 	?>
 	<script type="text/javascript">
 		jQuery( function( $ ) {
+			$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
+		} );
+	</script>
+	<?php
+}
+
+/**
+ * Adds the 'Export' button to the feedback dashboard page.
+ *
+ * @return void
+ */
+function grunion_export_button() {
+	$current_screen = get_current_screen();
+	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'export' ) ) {
+		return;
+	}
+
+	// if there aren't any feedbacks, bail out
+	if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+		return;
+	}
+
+	$nonce_name = 'feedback_export_nonce';
+
+	$button_html = get_submit_button(
+		__( 'Export', 'jetpack' ),
+		'primary',
+		'jetpack-export-feedback',
+		false,
+		array(
+			'data-nonce-name' => $nonce_name,
+		)
+	);
+
+	$button_html .= wp_nonce_field( 'feedback_export', $nonce_name, false, false );
+	?>
+	<script type="text/javascript">
+		jQuery( function ( $ ) {
 			$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
 		} );
 	</script>

@@ -303,6 +303,7 @@ class Grunion_Contact_Form_Plugin {
 		// Export to CSV feature
 		if ( is_admin() ) {
 			add_action( 'admin_post_feedback_export', array( $this, 'download_feedback_as_csv' ) );
+			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
@@ -1285,7 +1286,7 @@ class Grunion_Contact_Form_Plugin {
 	public static function form_posts_dropdown( $selected_id ) {
 		?>
 		<select name="jetpack_form_parent_id">
-			<option value=""><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
+			<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
 			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
 		</select>
 		<?php
@@ -1310,23 +1311,20 @@ class Grunion_Contact_Form_Plugin {
 		}
 		?>
 
-		<div id="feedback-export" style="display:none">
-			<h2><?php esc_html_e( 'Export responses as CSV', 'jetpack' ); ?></h2>
-			<div class="clear"></div>
-			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="form">
-				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
+		<form id="feedback-export" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="form">
+			<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
 
-				<input name="action" value="feedback_export" type="hidden">
-				<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
-				<select name="post">
-					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
-					<?php echo self::get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
-				</select>
+			<input name="action" value="feedback_export" type="hidden">
 
-				<br><br>
-				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Download', 'jetpack' ); ?>">
-			</form>
-		</div>
+			<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
+			<select name="post">
+				<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
+				<?php echo self::get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
+			</select>
+
+			<br><br>
+			<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Download', 'jetpack' ); ?>">
+		</form>
 
 		<?php
 		// There aren't any usable actions in core to output the "export feedback" form in the correct place,
@@ -1849,6 +1847,7 @@ class Grunion_Contact_Form_Plugin {
 			'order'            => 'ASC',
 			'fields'           => 'ids',
 			'suppress_filters' => false,
+			'date_query'       => array(),
 		);
 
 		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
@@ -1857,6 +1856,25 @@ class Grunion_Contact_Form_Plugin {
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
 			$filename            = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+		}
+
+		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
+			$args['date_query']['year'] = intval( $_POST['year'] );
+		}
+
+		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
+			$args['date_query']['month'] = intval( $_POST['month'] );
+		}
+
+		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
+			$args['include'] = array_filter(
+				array_map(
+					function ( $selected ) {
+						return intval( $selected );
+					},
+					$_POST['selected'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				)
+			);
 		}
 
 		$feedbacks = get_posts( $args );
