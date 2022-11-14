@@ -2,7 +2,6 @@ import { Container, Col, Title, Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
-import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import EmptyList from './empty';
 import FreeList from './free-list';
@@ -12,8 +11,8 @@ import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = window.jetpackProtectInitialState;
+
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 

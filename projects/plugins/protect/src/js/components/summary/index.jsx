@@ -9,8 +9,8 @@ import Notice from '../notice';
 import styles from './styles.module.scss';
 
 const Summary = () => {
-	const { numThreats, lastChecked, jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { numThreats, lastChecked } = useProtectData();
+	const { hasRequiredPlan } = window.jetpackProtectInitialState;
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );

@@ -21,9 +21,8 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		numCoreThreats,
 		numFilesThreats,
 		numDatabaseThreats,
-		jetpackScan,
 	} = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = window.jetpackProtectInitialState;
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 

@@ -7,10 +7,39 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\My_Jetpack\REST_Purchases as My_Jetpack_REST_Purchases;
+
 /**
  * The Plan class.
  */
 class Plan {
+	/**
+	 * The array of product slugs for scan plans
+	 *
+	 * @var array
+	 */
+	const JETPACK_SCAN_PLANS = array( 'jetpack_scan', 'jetpack_scan_monthly' );
+
+	/**
+	 * The array of product slugs for plans with scan
+	 *
+	 * @var array
+	 */
+	const JETPACK_PLANS_WITH_SCAN = array(
+		'jetpack_premium',
+		'jetpack_business',
+		// 'jetpack_personal',
+		'jetpack_premium_monthly',
+		'jetpack_business_monthly',
+		// 'jetpack_personal_monthly',
+		'jetpack_security_t1_yearly',
+		'jetpack_security_t1_monthly',
+		'jetpack_security_t2_yearly',
+		'jetpack_security_t2_monthly',
+		'jetpack_complete',
+		'jetpack_complete_monthly',
+	);
+
 	/**
 	 * The meta name used to store the cache date
 	 *
@@ -85,5 +114,30 @@ class Plan {
 				'request' => $wpcom_request,
 			)
 		);
+	}
+
+	/**
+	 * Gets the purchases list and compares against scan inclusive plans lists
+	 */
+	public static function has_required_plan() {
+		$response = My_Jetpack_REST_Purchases::get_site_current_purchases();
+
+		if ( is_wp_error( $response ) || 200 !== $response->status ) {
+			return false;
+		}
+
+		$products = array_column( $response->data, 'product_slug' );
+
+		foreach ( $products as $product ) {
+			if ( in_array( $product, self::JETPACK_SCAN_PLANS, true ) ) {
+				return true;
+			}
+
+			if ( in_array( $product, self::JETPACK_PLANS_WITH_SCAN, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

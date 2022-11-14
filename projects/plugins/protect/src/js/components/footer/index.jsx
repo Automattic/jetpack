@@ -9,7 +9,6 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
 import { JETPACK_SCAN, SeventyFiveLayout } from '../admin-page';
 import styles from './styles.module.scss';
 
@@ -24,8 +23,7 @@ const ProductPromotion = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
 
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = window.jetpackProtectInitialState;
 
 	if ( hasRequiredPlan ) {
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
@@ -71,8 +69,7 @@ const ProductPromotion = () => {
 
 const FooterInfo = () => {
 	// TODO: Update with new paid Protect product
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = window.jetpackProtectInitialState;
 
 	if ( hasRequiredPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
