@@ -881,10 +881,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugin-deactivation",
-                "reference": "391aa1c6f14b375140f5ff7f37e6491b982abaea"
+                "reference": "8a38a0aef62adf6bb564c92d4f3ce832b1449faa"
             },
             "require": {
-                "automattic/jetpack-assets": "1.17.x-dev"
+                "automattic/jetpack-assets": "^1.17"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
