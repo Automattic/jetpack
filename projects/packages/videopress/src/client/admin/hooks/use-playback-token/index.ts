@@ -15,7 +15,7 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
  * @returns {object} Playback token
  */
 export default function usePlaybackToken( video: VideoPressVideo ) {
-	const videoNeedsPlaybackToken = video.videoIsPrivate;
+	const videoNeedsPlaybackToken = video.needsPlaybackToken;
 
 	// Data
 	const playbackToken = useSelect(

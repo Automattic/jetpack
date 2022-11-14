@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-VideoPress: Changed the resolver to rely on the new videoIsPrivate flag when deciding if a video needs a playback token.
+VideoPress: Changed the resolver to rely on the new needsPlaybackToken flag when deciding if a video needs a playback token.

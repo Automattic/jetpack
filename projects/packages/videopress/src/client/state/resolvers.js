@@ -40,8 +40,7 @@ const { apiRoot } = window?.jetpackVideoPressInitialState || {};
  * @returns {object}               Tokenized video data object.
  */
 async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
-	// Only private videos need tokens; if it's not private, skip.
-	if ( ! video.videoIsPrivate ) {
+	if ( ! video.needsPlaybackToken ) {
 		return video;
 	}
 
@@ -179,7 +178,7 @@ const getVideo = {
 		const video = videos.find( ( { id: videoId } ) => videoId === id );
 
 		// Private videos require a token to be fetched.
-		if ( video && video.videoIsPrivate ) {
+		if ( video && video.needsPlaybackToken ) {
 			const tokens = state?.playbackTokens?.items || [];
 			const token = tokens.find( t => t?.guid === video.guid );
 

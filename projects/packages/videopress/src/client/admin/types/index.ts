@@ -110,11 +110,11 @@ export type OriginalVideoPressVideo = {
 		 */
 		privacy_setting?: 0 | 1 | 2;
 		/**
-		 * If the video is private or not, taking the video
-		 * privacy setting and the VideoPress site privacy
-		 * setting into account.
+		 * If a playback token is needed when fetching the video
+		 * resources, taking the video privacy setting and the
+		 * VideoPress site privacy setting into account.
 		 */
-		video_is_private?: boolean;
+		needs_playback_token?: boolean;
 	};
 	/**
 	 * Video source URL
@@ -146,7 +146,7 @@ export type VideoPressVideo = {
 	allowDownload?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
 	rating?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'rating' ];
 	privacySetting?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'privacy_setting' ];
-	videoIsPrivate?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'video_is_private' ];
+	needsPlaybackToken?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'needs_playback_token' ];
 	poster?: {
 		src: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 		width: OriginalVideoPressVideo[ 'media_details' ][ 'width' ];
