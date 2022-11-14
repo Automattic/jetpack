@@ -44,28 +44,36 @@ const refreshPlan = () => ( { dispatch } ) => {
 const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
-		return apiFetch( {
-			path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
-			method: 'GET',
-		} )
-			.then( status => {
-				// const checkStatus = ( status, attempts = 0 ) => {
-				// 	if ( 'unavailable' === status && attempts <= 3 ) {
-				// 		setTimeout( () => {
-				// 			refreshStatus( true ).then( newStatus =>
-				// 				checkStatus( newStatus.status, attempts + 1 )
-				// 			);
-				// 		}, 5000 );
-				// 	}
-				// };
-				// checkStatus();
-				dispatch( setStatus( camelize( status ) ) );
-				dispatch( setStatusIsFetching( false ) );
-				resolve( status );
+		return (
+			apiFetch( {
+				path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
+				method: 'GET',
 			} )
-			.catch( error => {
-				reject( error );
-			} );
+				// .then( status => {
+				// 	const checkStatus = ( status, attempts = 0 ) => {
+				// 		return new Promise( ( resolve, reject ) => {
+				// 			if ( 'unavailable' === status.status && attempts <= 3 ) {
+				// 				setTimeout( () => {
+				// 					dispatch( refreshStatus( true ) ).then( newStatus =>
+				// 						checkStatus( newStatus, attempts++ )
+				// 					);
+				// 				}, 5000 );
+				// 			} else {
+				// 				resolve( status );
+				// 			}
+				// 		} );
+				// 	};
+				// 	return checkStatus( status );
+				// } )
+				.then( status => {
+					dispatch( setStatus( camelize( status ) ) );
+					dispatch( setStatusIsFetching( false ) );
+					resolve( status );
+				} )
+				.catch( error => {
+					reject( error );
+				} )
+		);
 	} );
 };
 
