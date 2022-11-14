@@ -4,7 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "1.17.x-dev"
+		"automattic/jetpack-assets": "^1.17"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
