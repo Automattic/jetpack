@@ -48,10 +48,11 @@ export default function useMediaDataUpdate( id ) {
 /*
  * Fields list to keep in sync with block attributes.
  */
-const videoFieldsToUpdate = [ 'privacy_setting' ];
+const videoFieldsToUpdate = [ 'privacy_setting', 'rating' ];
 
 /*
  * Map object from video field name to block attribute name.
+ * Only register those fields that have a different attribute name.
  */
 const mapFieldsToAttributes = {
 	privacy_setting: 'privacySetting',
@@ -133,7 +134,7 @@ export function useSyncMedia( attributes, setAttributes ) {
 		 * based on the initial state.
 		 */
 		const dataToUpdate = videoFieldsToUpdate.reduce( ( acc, key ) => {
-			const attrName = mapFieldsToAttributes[ key ];
+			const attrName = mapFieldsToAttributes[ key ] || key;
 
 			if ( initialState[ key ] !== attributes[ attrName ] ) {
 				acc[ key ] = attributes[ attrName ];
