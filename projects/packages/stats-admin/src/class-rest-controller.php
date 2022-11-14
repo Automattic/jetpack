@@ -309,7 +309,7 @@ class REST_Controller {
 		if ( $use_cache ) {
 			$response_body = get_transient( $cache_key );
 			if ( false !== $response_body ) {
-				return json_decode( $response_body, true );
+				return $response_body;
 			}
 		}
 
