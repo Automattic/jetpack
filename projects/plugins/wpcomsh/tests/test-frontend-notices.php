@@ -111,7 +111,8 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertTrue( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
 	/**
@@ -124,7 +125,8 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertTrue( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
 	/**
@@ -137,7 +139,8 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertFalse( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
 	/**
@@ -150,7 +153,8 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertTrue( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
 	/**
@@ -163,7 +167,8 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertFalse( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
 	/**
@@ -175,11 +180,12 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertFalse( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
 	/**
-	 * Test should not display gift notice when plan auto renew on.
+	 * Test should not display gift notice when plan auto renew on and gifting toggle has not been set.
 	 */
 	public function test_should_not_display_gift_notice_when_plan_auto_renew_on() {
 		$business_plan_purchase = array(
@@ -188,7 +194,24 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => true,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertFalse( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
+	}
+
+	/**
+	 * Test should display gift notice when plan auto renew on and gifting toggle it true.
+	 */
+	public function test_should_display_gift_notice_when_plan_auto_renew_on_and_option_true() {
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
+			'auto_renew'   => true,
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		$gifting_banner = new Gifting_Banner();
+		add_option( 'wpcom_gifting_subscription', true );
+		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
+		delete_option( 'wpcom_gifting_subscription' );
 	}
 
 	/**
@@ -201,11 +224,12 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
-		$this->assertTrue( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 
-		// TODO: check why update_option is not working
-		// update_option( 'wpcom_gifting_subscription', false );
-		// $this->assertFalse( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		add_option( 'wpcom_gifting_subscription', false );
+		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
+		delete_option( 'wpcom_gifting_subscription' );
 	}
 
 	/**
@@ -213,6 +237,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	 */
 	public function test_should_not_display_gift_notice_when_no_purchases() {
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array() ) );
-		$this->assertFalse( WPCOMSH_Frontend_Notices::should_display_expiring_plan_notice() );
+		$gifting_banner = new Gifting_Banner();
+		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 }
