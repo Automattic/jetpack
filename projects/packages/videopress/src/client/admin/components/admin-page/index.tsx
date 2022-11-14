@@ -31,11 +31,12 @@ import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePlan } from '../../hooks/use-plan';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
-import SettingsSection from '../site-settings-section';
+import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
@@ -46,6 +47,7 @@ const useDashboardVideos = () => {
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
+	const { hasVideoPressPurchase } = usePlan();
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
@@ -53,9 +55,14 @@ const useDashboardVideos = () => {
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
-	const handleFilesUpload = ( files: FileList | File[] ) => {
-		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
-		uploadVideo( file );
+	const handleFilesUpload = ( files: File[] ) => {
+		if ( hasVideoPressPurchase ) {
+			files.forEach( file => {
+				uploadVideo( file );
+			} );
+		} else if ( files.length > 0 ) {
+			uploadVideo( files[ 0 ] );
+		}
 	};
 
 	const handleLocalVideoUpload = file => {
@@ -79,6 +86,7 @@ const useDashboardVideos = () => {
 		handleLocalVideoUpload,
 		loading: isFetching,
 		uploading: uploading?.length > 0,
+		hasVideoPressPurchase,
 	};
 };
 
@@ -94,9 +102,8 @@ const Admin = () => {
 		handleLocalVideoUpload,
 		loading,
 		uploading,
+		hasVideoPressPurchase,
 	} = useDashboardVideos();
-
-	const { hasVideoPressPurchase } = usePlan();
 
 	const { isRegistered, hasConnectedOwner } = useConnection();
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -104,6 +111,19 @@ const Admin = () => {
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+
+	const canDrop = ( hasVideoPressPurchase || ! hasVideos ) && isRegistered && ! loading;
+
+	const {
+		isDraggingOver,
+		inputRef,
+		handleFileInputChangeEvent,
+		filterVideoFiles,
+	} = useSelectVideoFiles( {
+		canDrop,
+		dropElement: document,
+		onSelectFiles: handleFilesUpload,
+	} );
 
 	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
 	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
@@ -116,6 +136,24 @@ const Admin = () => {
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <Logo /> }
 		>
+			<div
+				className={ classnames( styles[ 'files-overlay' ], {
+					[ styles.hover ]: isDraggingOver && canDrop,
+				} ) }
+			>
+				<Text className={ styles[ 'drop-text' ] } variant="headline-medium">
+					{ __( 'Drop files to upload', 'jetpack-videopress-pkg' ) }
+				</Text>
+
+				<input
+					ref={ inputRef }
+					type="file"
+					accept={ fileInputExtensions }
+					className={ styles[ 'file-input' ] }
+					onChange={ handleFileInputChangeEvent }
+				/>
+			</div>
+
 			{ showPricingSection ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -150,8 +188,11 @@ const Admin = () => {
 								/>
 
 								<FormFileUpload
-									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									onChange={ evt =>
+										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+									}
 									accept={ fileInputExtensions }
+									multiple={ hasVideoPressPurchase }
 									render={ ( { openFileDialog } ) => (
 										<Button
 											fullWidth={ isSm }
@@ -184,7 +225,9 @@ const Admin = () => {
 										{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
 									</Text>
 									<VideoUploadArea
-										className={ classnames( styles[ 'upload-area' ], { [ styles.small ]: isSm } ) }
+										className={ classnames( styles[ 'upload-area' ], {
+											[ styles.small ]: isSm,
+										} ) }
 										onSelectFiles={ handleFilesUpload }
 									/>
 								</Col>
@@ -201,12 +244,12 @@ const Admin = () => {
 							) }
 						</Container>
 					</AdminSection>
+
+					<AdminSection>
+						<SettingsSection />
+					</AdminSection>
 				</>
 			) }
-
-			<AdminSection>
-				<SettingsSection />
-			</AdminSection>
 		</AdminPage>
 	);
 };

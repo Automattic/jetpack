@@ -253,8 +253,8 @@ export const VideoRow = ( {
 						<div className={ styles.poster }>
 							<VideoThumbnail
 								thumbnail={ thumbnail }
-								loading={ loading }
-								uploading={ uploading || isUpdatingPoster }
+								loading={ loading || isUpdatingPoster }
+								uploading={ uploading }
 								processing={ processing }
 								blankIconSize={ 28 }
 								uploadProgress={ uploadProgress }

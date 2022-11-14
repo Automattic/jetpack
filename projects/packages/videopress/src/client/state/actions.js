@@ -45,6 +45,8 @@ import {
 	SET_PLAYBACK_TOKEN,
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
+	SET_VIDEOPRESS_SETTINGS,
+	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -225,7 +227,7 @@ const deleteVideo = id => async ( { dispatch } ) => {
 };
 
 /**
- * Thunk action to fetch upload videos for VideoPress.
+ * Thunk action to upload videos for VideoPress.
  *
  * @param {File} file - File to upload
  * @returns {Function} Thunk action
@@ -295,7 +297,16 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 				if ( resp?.data?.generating ) {
 					pollPoster();
 				} else {
-					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+					const poster = resp?.data?.poster;
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
+					apiFetch( {
+						path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
+						method: 'POST',
+						data: {
+							id,
+							poster,
+						},
+					} );
 				}
 			} catch ( error ) {
 				// @todo implement error handling / UI
@@ -343,6 +354,45 @@ const expirePlaybackToken = guid => {
 	return { type: EXPIRE_PLAYBACK_TOKEN, guid };
 };
 
+const setVideoPressSettings = videoPressSettings => {
+	return { type: SET_VIDEOPRESS_SETTINGS, videoPressSettings };
+};
+
+/**
+ * Thunk action to remove a video from the state,
+ *
+ * @param {object} settings - VideoPress settings
+ * @returns {Function}        Thunk action
+ */
+const updateVideoPressSettings = settings => async ( { dispatch } ) => {
+	if ( ! settings ) {
+		return;
+	}
+
+	const data = { force: true };
+
+	if ( typeof settings.videoPressVideosPrivateForSite === 'boolean' ) {
+		data.videopress_videos_private_for_site = settings.videoPressVideosPrivateForSite;
+	}
+
+	// videopress_videos_private_for_site
+	try {
+		// 100% optimistic update
+		dispatch.setVideoPressSettings( settings );
+
+		const resp = await apiFetch( {
+			path: WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+			method: 'PUT',
+			data,
+		} );
+
+		return resp;
+	} catch ( error ) {
+		// @todo: implement error handling / UI
+		console.error( error ); // eslint-disable-line no-console
+	}
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -382,6 +432,9 @@ const actions = {
 	setIsFetchingPlaybackToken,
 	setPlaybackToken,
 	expirePlaybackToken,
+
+	setVideoPressSettings,
+	updateVideoPressSettings,
 };
 
 export { actions as default };

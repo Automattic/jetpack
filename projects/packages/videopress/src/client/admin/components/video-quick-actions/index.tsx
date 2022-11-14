@@ -31,17 +31,28 @@ import {
 	ConnectVideoQuickActionsProps,
 } from './types';
 
-const PopoverWithAnchor = ( { anchor, children = null }: PopoverWithAnchorProps ) => {
-	if ( ! anchor ) {
+const PopoverWithAnchor = ( {
+	showPopover = false,
+	anchor,
+	children = null,
+}: PopoverWithAnchorProps ) => {
+	if ( ! anchor || ! showPopover ) {
 		return null;
 	}
+
+	useEffect( () => {
+		if ( showPopover ) {
+			( anchor?.querySelector( '.components-popover' ) as HTMLElement | null )?.focus();
+		}
+	}, [ showPopover ] );
+
 	const popoverProps = {
 		anchor,
 		offset: 15,
 	};
 
 	return (
-		<Popover position="top center" noArrow { ...popoverProps }>
+		<Popover position="top center" noArrow focusOnMount={ false } { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
@@ -63,7 +74,9 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 				onMouseLeave={ () => setShowPopover( false ) }
 				{ ...props }
 			/>
-			{ showPopover && <PopoverWithAnchor anchor={ anchor }>{ children }</PopoverWithAnchor> }
+			<PopoverWithAnchor showPopover={ showPopover } anchor={ anchor }>
+				{ children }
+			</PopoverWithAnchor>
 		</div>
 	);
 };
@@ -79,27 +92,24 @@ const ThumbnailActionsDropdown = ( {
 	return (
 		<Dropdown
 			position="bottom left"
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			renderToggle={ ( { isOpen, onToggle } ) => (
-				<>
+				<div ref={ setAnchor }>
 					<Button
-						ref={ setAnchor }
 						size="small"
 						variant="tertiary"
 						icon={ image }
 						onClick={ () => {
 							setShowPopover( false );
-							// Uploading image directly instead of toggling the content for now
-							onUpdate( 'upload-image' );
+							onToggle();
 						} }
 						aria-expanded={ isOpen }
 						onMouseEnter={ () => setShowPopover( true ) }
 						onMouseLeave={ () => setShowPopover( false ) }
 					/>
-					{ showPopover && (
-						<PopoverWithAnchor anchor={ anchor }>{ description }</PopoverWithAnchor>
-					) }
-				</>
+					<PopoverWithAnchor showPopover={ showPopover } anchor={ anchor }>
+						{ description }
+					</PopoverWithAnchor>
+				</div>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<VideoThumbnailDropdownButtons
@@ -134,9 +144,8 @@ const PrivacyActionsDropdown = ( {
 		<Dropdown
 			position="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
-				<>
+				<div ref={ setAnchor }>
 					<Button
-						ref={ setAnchor }
 						size="small"
 						variant="tertiary"
 						icon={ currentPrivacyIcon }
@@ -149,10 +158,10 @@ const PrivacyActionsDropdown = ( {
 						onMouseLeave={ () => setShowPopover( false ) }
 						disabled={ isUpdatingPrivacy }
 					/>
-					{ showPopover && (
-						<PopoverWithAnchor anchor={ anchor }>{ description }</PopoverWithAnchor>
-					) }
-				</>
+					<PopoverWithAnchor showPopover={ showPopover } anchor={ anchor }>
+						{ description }
+					</PopoverWithAnchor>
+				</div>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<div className={ styles[ 'dropdown-content' ] }>
