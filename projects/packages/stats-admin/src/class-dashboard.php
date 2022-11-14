@@ -230,10 +230,7 @@ class Dashboard {
 			'nonce'                          => wp_create_nonce( 'wp_rest' ),
 			'site_name'                      => \get_bloginfo( 'name' ),
 			'sections'                       => array(),
-			'features'                       => array(
-				'stats/show-traffic-highlights' => true,
-				// 'stats/new-main-chart'          => true,
-			),
+			'features'                       => array(),
 			'intial_state'                   => array(
 				'currentUser' => array(
 					'id'   => 1000,
