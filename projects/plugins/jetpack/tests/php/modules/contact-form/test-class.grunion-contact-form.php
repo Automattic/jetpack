@@ -736,7 +736,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'id'          => 'funID',
 		);
 
-		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
 		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
