@@ -2,6 +2,7 @@ import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
@@ -10,7 +11,6 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
 	connectUser,
 	hasConnectedOwner as hasConnectedOwnerSelector,
@@ -152,11 +152,11 @@ class DashVideoPress extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<Link>Activate</Link> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
+									'<Button>Activate</Button> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
 									'jetpack'
 								),
 								{
-									Link: <Link to="#!" onClick={ this.activateVideoPress } />,
+									Button: <Button className="jp-link-button" onClick={ this.activateVideoPress } />,
 								}
 						  ) }
 				</p>

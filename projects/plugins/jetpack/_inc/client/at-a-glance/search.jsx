@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -14,7 +15,6 @@ import {
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { siteHasFeature, isFetchingSitePurchases } from 'state/site';
 
@@ -190,11 +190,11 @@ class DashSearch extends Component {
 			pro_inactive: false,
 			content: createInterpolateElement(
 				__(
-					'<Link>Activate</Link> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+					'<Button>Activate</Button> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 					'jetpack'
 				),
 				{
-					Link: <Link to="#!" onClick={ this.activateSearch } />,
+					Button: <Button className="jp-link-button" onClick={ this.activateSearch } />,
 				}
 			),
 		} );

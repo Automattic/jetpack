@@ -2,6 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryAkismetData from 'components/data/query-akismet-data';
@@ -14,7 +15,6 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { getAkismetData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
 import { getApiNonce } from 'state/initial-state';
@@ -100,9 +100,9 @@ class DashAkismet extends Component {
 
 		const getAkismetUpgradeBanner = () => {
 			const description = createInterpolateElement(
-				__( 'Already have a key? <Link>Activate Akismet</Link>', 'jetpack' ),
+				__( 'Already have a key? <Button>Activate Akismet</Button>', 'jetpack' ),
 				{
-					Link: <Link to="#!" onClick={ this.onActivateClick } />,
+					Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
 				}
 			);
 

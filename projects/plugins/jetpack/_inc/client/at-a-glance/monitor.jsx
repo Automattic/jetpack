@@ -1,12 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 
@@ -59,11 +59,11 @@ class DashMonitor extends Component {
 		const activateMessage = this.props.hasConnectedOwner
 			? createInterpolateElement(
 					__(
-						'<Link>Activate Monitor</Link> to receive email notifications if your site goes down.',
+						'<Button>Activate Monitor</Button> to receive email notifications if your site goes down.',
 						'jetpack'
 					),
 					{
-						Link: <Link to="#!" onClick={ this.activateAndTrack } />,
+						Button: <Button className="jp-link-button" onClick={ this.activateAndTrack } />,
 					}
 			  )
 			: __(
@@ -89,11 +89,11 @@ class DashMonitor extends Component {
 					<p className="jp-dash-item__description jp-dash-item__connect">
 						{ createInterpolateElement(
 							__(
-								'<Link>Connect your WordPress.com</Link> account to use this feature.',
+								'<Button>Connect your WordPress.com</Button> account to use this feature.',
 								'jetpack'
 							),
 							{
-								Link: <Link to="#!" onClick={ this.connect } />,
+								Button: <Button className="jp-link-button" onClick={ this.connect } />,
 							}
 						) }
 					</p>

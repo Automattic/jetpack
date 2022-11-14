@@ -1,7 +1,6 @@
 @import '../../scss/calypso-colors';
 
 .jp-dash-item {
- 
 	.jp-dash-item__content a {
 		font-style: italic;
 	}
@@ -75,6 +74,13 @@
 
 	&.jp-dash-item__connect {
 		margin-top: 20px;
+	}
+
+	.jp-link-button {
+		background: $white;
+		border: none;
+		padding: 2px 0;
+		font-style: italic;
 	}
 }
 

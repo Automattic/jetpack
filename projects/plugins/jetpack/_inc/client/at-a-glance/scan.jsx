@@ -2,6 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
@@ -17,7 +18,6 @@ import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
 	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,
@@ -207,11 +207,13 @@ class DashScan extends Component {
 					<p className="jp-dash-item__description" key="inactive-scanning">
 						{ createInterpolateElement(
 							__(
-								'VaultPress is not active, <Link>please activate</Link> to enable automatic scanning for security for threats.',
+								'VaultPress is not active, <Button>please activate</Button> to enable automatic scanning for security for threats.',
 								'jetpack'
 							),
 							{
-								Link: <Link to="#!" onClick={ this.onActivateVaultPressClick } />,
+								Button: (
+									<Button className="jp-link-button" onClick={ this.onActivateVaultPressClick } />
+								),
 							}
 						) }
 					</p>,

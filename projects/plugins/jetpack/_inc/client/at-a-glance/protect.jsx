@@ -1,12 +1,12 @@
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import QueryProtectCount from 'components/data/query-dash-protect';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { getProtectCount } from 'state/at-a-glance';
 import { isOfflineMode, hasConnectedOwner, connectUser } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
@@ -87,11 +87,11 @@ class DashProtect extends Component {
 						! this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<Link>Connect your WordPress.com</Link> account to keep your site protected from malicious sign in attempts.',
+								'<Button>Connect your WordPress.com</Button> account to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								Link: <Link to="#!" onClick={ this.connect } />,
+								Button: <Button className="jp-link-button" onClick={ this.connect } />,
 							}
 						) }
 
@@ -99,11 +99,11 @@ class DashProtect extends Component {
 						this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<Link>Activate Protect</Link> to keep your site protected from malicious sign in attempts.',
+								'<Button>Activate Protect</Button> to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{
-								Link: <Link to="#!" onClick={ this.activateProtect } />,
+								Button: <Button className="jp-link-button" onClick={ this.activateProtect } />,
 							}
 						) }
 				</p>
