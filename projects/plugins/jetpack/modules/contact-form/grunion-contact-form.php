@@ -4278,14 +4278,15 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$custom_validation_message = __( 'Please enter a valid URL - https://www.example.com', 'jetpack' );
 		$validation_attrs          = array(
-			'title'     => $custom_validation_message,
-			'oninvalid' => 'setCustomValidity("' . $custom_validation_message . '")',
-			'oninput'   => 'setCustomValidity("")',
-			'pattern'   => 'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)',
+			'title'              => $custom_validation_message,
+			'oninvalid'          => 'setCustomValidity("' . $custom_validation_message . '")',
+			'oninput'            => 'setCustomValidity("")',
+			'pattern'            => '(([:\/a-zA-Z0-9_\-]+)?(\.[a-zA-Z0-9_\-\/]+)+)',
+			'data-type-override' => 'url',
 		);
 
 		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'url', $id, $value, $class, $placeholder, $required, $validation_attrs );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $validation_attrs );
 		return $field;
 	}
 
@@ -4534,7 +4535,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
 
 		$shell_field_class = "class='grunion-field-wrap grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
-		/**
 		/**
 		 * Filter the Contact Form required field text
 		 *
