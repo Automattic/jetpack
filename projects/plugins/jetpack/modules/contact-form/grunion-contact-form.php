@@ -4016,7 +4016,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$field_id    = $this->get_attribute( 'id' );
-		$field_type  = $this->get_attribute( 'type' );
+		$field_type  = $this->maybe_override_type();
 		$field_label = $this->get_attribute( 'label' );
 
 		if ( isset( $_POST[ $field_id ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
@@ -4087,7 +4087,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		global $current_user, $user_identity;
 
 		$field_id          = $this->get_attribute( 'id' );
-		$field_type        = $this->get_attribute( 'type' );
+		$field_type        = $this->maybe_override_type();
 		$field_label       = $this->get_attribute( 'label' );
 		$field_required    = $this->get_attribute( 'required' );
 		$field_placeholder = $this->get_attribute( 'placeholder' );
@@ -4133,7 +4133,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			)
 		) {
 			// Special defaults for logged-in users
-			switch ( $this->get_attribute( 'type' ) ) {
+			switch ( $field_type ) {
 				case 'email':
 					$this->value = $current_user->data->user_email;
 					break;
@@ -4590,6 +4590,36 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		return $field;
 	}
 
+	/**
+	 * Overrides input type (maybe).
+	 *
+	 * @module contact-form
+	 *
+	 * Custom input types, like URL, will rely on browser's implementation to validate
+	 * the value. If the input carries a data-type-override, we allow to override
+	 * the type at render/submit so it can be validated with custom patterns.
+	 * This method will try to match the input's type to a custom data-type-override
+	 * attribute and return it. Defaults to input's type.
+	 *
+	 * @return string The input's type attribute or the overriden type.
+	 */
+	private function maybe_override_type() {
+		// Define overridables-to-custom-type, extend as needed.
+		$overridable_types = array( 'text' => array( 'url' ) );
+		$type              = $this->get_attribute( 'type' );
+
+		if ( ! array_key_exists( $type, $overridable_types ) ) {
+			return $type;
+		}
+
+		$override_type = $this->get_attribute( 'data-type-override' );
+
+		if ( in_array( $override_type, $overridable_types[ $type ], true ) ) {
+			return $override_type;
+		}
+
+		return $type;
+	}
 }
 
 add_action( 'init', array( 'Grunion_Contact_Form_Plugin', 'init' ), 9 );
