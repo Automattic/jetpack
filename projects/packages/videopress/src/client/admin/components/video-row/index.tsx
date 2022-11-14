@@ -11,6 +11,7 @@ import { useState, useRef } from 'react';
  * Internal dependencies
  */
 import privateIcon from '../../../components/icons/crossed-eye-icon';
+import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
@@ -123,6 +124,8 @@ export const VideoRow = ( {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
+	const { canPerformAction } = usePermission();
+
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
@@ -166,7 +169,7 @@ export const VideoRow = ( {
 		<Button
 			size="small"
 			onClick={ handleClickWithStopPropagation( onActionClick ) }
-			disabled={ disableActionButton }
+			disabled={ ! canPerformAction || disableActionButton }
 		>
 			{ actionButtonLabel }
 		</Button>

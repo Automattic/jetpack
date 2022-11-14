@@ -12,6 +12,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useState } from 'react';
+import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
 import Placeholder from '../placeholder';
 /**
@@ -21,6 +22,9 @@ import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 import { VideoCardProps } from './types';
+/**
+ * Types
+ */
 import type React from 'react';
 
 const QuickActions = ( {
@@ -32,6 +36,8 @@ const QuickActions = ( {
 	onVideoDetailsClick: VideoCardProps[ 'onVideoDetailsClick' ];
 	className?: VideoCardProps[ 'className' ];
 } ) => {
+	const { canPerformAction } = usePermission();
+
 	return (
 		<div className={ classnames( styles[ 'video-card__quick-actions-section' ], className ) }>
 			<Button
@@ -39,6 +45,7 @@ const QuickActions = ( {
 				size="small"
 				onClick={ onVideoDetailsClick }
 				className={ styles[ 'video-card__quick-actions__edit-button' ] }
+				disabled={ ! canPerformAction }
 			>
 				{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 			</Button>
