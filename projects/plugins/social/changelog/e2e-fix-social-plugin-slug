@@ -1,5 +1,4 @@
 Significance: patch
 Type: fixed
-Comment: Fixed E2E Tests
 
-
+E2E tests: fix plugin slug

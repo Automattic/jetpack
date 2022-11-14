@@ -15,7 +15,8 @@
 		}
 	}
 
-	&:not(.disabled):hover {
+	&:not(.disabled):hover,
+	&:not(.disabled):focus-within {
 		.video-card__background {
 			opacity: 1;
 			z-index: 1;
