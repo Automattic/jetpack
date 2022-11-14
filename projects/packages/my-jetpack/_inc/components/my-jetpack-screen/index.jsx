@@ -7,9 +7,9 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { Notice } from '@wordpress/components';
+import { Icon, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning, info } from '@wordpress/icons';
+import { info } from '@wordpress/icons';
 import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
@@ -26,14 +26,33 @@ const GlobalNotice = ( { message, options, clean } ) => {
 	 * `success`, `info`, `warning`, `error`
 	 */
 	const iconMap = {
-		error: warning,
+		error: (
+			<svg
+				className={ styles.nofill }
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path
+					d="M11.7815 4.93772C11.8767 4.76626 12.1233 4.76626 12.2185 4.93772L20.519 19.8786C20.6116 20.0452 20.4911 20.25 20.3005 20.25H3.69951C3.50889 20.25 3.3884 20.0452 3.48098 19.8786L11.7815 4.93772Z"
+					stroke="#D63638"
+					stroke-width="1.5"
+				/>
+				<path d="M13 10H11V15H13V10Z" fill="#D63638" />
+				<path d="M13 16H11V18H13V16Z" fill="#D63638" />
+			</svg>
+		),
 		info,
 	};
 
 	return (
 		<Notice isDismissible={ false } { ...options } onRemove={ clean } className={ styles.notice }>
-			{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
-			<div className={ styles.message }>{ message }</div>
+			<div className={ styles.message }>
+				{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
+				{ message }
+			</div>
 		</Notice>
 	);
 };

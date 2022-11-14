@@ -55,7 +55,6 @@ export default function useConnectionWatcher() {
 					{
 						label: __( 'Connect your user account to fix this', 'jetpack-my-jetpack' ),
 						onClick: navToConnection,
-						variant: 'link',
 						noDefaultClasses: true,
 					},
 				],

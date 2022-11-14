@@ -34,18 +34,6 @@
 			flex-direction: row;
 			align-items: center;
 		}
-
-		// left icon
-		& > svg {
-			fill: var( --jp-red-60 );
-			flex-shrink: 0;
-			margin-right: 22px;
-			margin-bottom: 24px;
-
-			@include break-medium {
-				margin-bottom: 0;
-			}
-		}
 	}
 
 	// action button
@@ -74,10 +62,10 @@
 		margin-top: 24px;
 		background: #000000;
 		border-radius: 4px;
-		white-space: nowrap;
 
 		@include break-medium {
 			margin-top: 0;
+			white-space: nowrap;
 		}
 	}
 }
@@ -93,4 +81,17 @@
 .message {
 	margin-right: 10px;
 	flex-grow: 1;
+	display: flex;
+
+	// left icon
+	& > svg {
+		flex-shrink: 0;
+		align-self: flex-start;
+		margin-right: 16px;
+		margin-bottom: 24px;
+
+		@include break-medium {
+			margin-bottom: 0;
+		}
+	}
 }
