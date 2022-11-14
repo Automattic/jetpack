@@ -172,6 +172,7 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
 		$initial_state             = array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
