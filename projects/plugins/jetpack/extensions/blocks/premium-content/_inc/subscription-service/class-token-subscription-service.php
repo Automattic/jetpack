@@ -139,13 +139,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 */
 	abstract public function get_key();
 
-	/**
-	 * Get the ID of the current site.
-	 *
-	 * @return int
-	 */
-	abstract public static function get_site_id();
-
 	// phpcs:disable
 	/**
 	 * Get the URL to access the protected content.
@@ -159,7 +152,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$permalink = add_query_arg( $wp->query_vars, home_url( $wp->request ) );
 		}
 
-		$login_url = $this->get_rest_api_token_url( $this->get_site_id(), $permalink );
+		$login_url = $this->get_rest_api_token_url( get_current_blog_id(), $permalink );
 		return $login_url;
 	}
 	// phpcs:enable
