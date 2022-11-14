@@ -11,6 +11,9 @@ import {
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+	VIDEO_RATING_G,
+	VIDEO_RATING_PG_13,
+	VIDEO_RATING_R_17,
 } from '../../../../../state/constants';
 import { VideoControlProps } from '../../types';
 import type React from 'react';
@@ -22,10 +25,40 @@ import type React from 'react';
  * @returns {React.ReactElement}    Component template
  */
 export default function PrivacyAndRatingPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { privacySetting } = attributes;
+	const { privacySetting, rating } = attributes;
 
 	return (
 		<PanelBody title={ __( 'Privacy and rating', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
+			<SelectControl
+				label={ _x( 'Rating', 'The age rating for this video.', 'jetpack-videopress-pkg' ) }
+				value={ rating ?? '' }
+				options={ [
+					{
+						label: _x( 'G', 'Video rating for "General Audiences".', 'jetpack-videopress-pkg' ),
+						value: VIDEO_RATING_G,
+					},
+					{
+						label: _x(
+							'PG-13',
+							'Video rating for "Parental Guidance", unsuitable for children under 13.',
+							'jetpack-videopress-pkg'
+						),
+						value: VIDEO_RATING_PG_13,
+					},
+					{
+						label: _x(
+							'R',
+							'Video rating for "Restricted", not recommended for children under 17.',
+							'jetpack-videopress-pkg'
+						),
+						value: VIDEO_RATING_R_17,
+					},
+				] }
+				onChange={ value => {
+					setAttributes( { rating: value } );
+				} }
+			/>
+
 			<SelectControl
 				label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 				onChange={ value => {
