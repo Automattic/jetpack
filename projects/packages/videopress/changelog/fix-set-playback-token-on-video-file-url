@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Changed the resolver to set the playback token on the video URL when the video needs it.
