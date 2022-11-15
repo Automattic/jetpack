@@ -261,26 +261,6 @@ class Waf_Request {
 	}
 
 	/**
-	 * Returns the IP address of the requesting client
-	 *
-	 * @return string
-	 */
-	public function get_remote_addr() {
-		// check these entries in $_SERVER in this order to try and find a client IP address
-		$keys_to_check = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
-		foreach ( $keys_to_check as $key ) {
-			$value = array_key_exists( $key, $_SERVER )
-				? filter_var( wp_unslash( $_SERVER[ $key ], FILTER_VALIDATE_IP ) )
-				: false;
-			if ( false !== $value ) {
-				return $value;
-			}
-		}
-		// no IP address was found in any expected place if we get here.
-		return '';
-	}
-
-	/**
 	 * Returns the request body.
 	 *
 	 * @return string

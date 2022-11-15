@@ -459,7 +459,7 @@ class Waf_Runtime {
 	/**
 	 * A cache of metadata about the incoming request.
 	 *
-	 * @param string $key The type of metadata to request ('headers', 'remote_addr', etc.).
+	 * @param string $key The type of metadata to request ('headers', 'request_method', etc.).
 	 */
 	public function meta( $key ) {
 		if ( ! isset( $this->metadata[ $key ] ) ) {
@@ -470,9 +470,6 @@ class Waf_Runtime {
 					break;
 				case 'headers_names':
 					$value = $this->args_names( $this->meta( 'headers' ) );
-					break;
-				case 'remote_addr':
-					$value = $this->request->get_remote_addr();
 					break;
 				case 'request_method':
 					$value = $this->request->get_method();
@@ -623,7 +620,6 @@ class Waf_Runtime {
 				case 'request_uri':
 				case 'request_uri_raw':
 				case 'request_filename':
-				case 'remote_addr':
 				case 'request_basename':
 				case 'request_body':
 				case 'query_string':

@@ -213,27 +213,6 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test Waf_Request::get_remote_addr()
-	 */
-	public function testGetRemoteAddr() {
-		// reset the state
-		unset( $_SERVER['HTTP_CLIENT_IP'] );
-		unset( $_SERVER['HTTP_X_FORWARDED_FOR'] );
-		// test the REMOTE_ADDR fallback
-		$_SERVER['REMOTE_ADDR'] = 'test_remote_addr';
-		$request                = new Waf_Request();
-		$this->assertSame( 'test_remote_addr', $request->get_remote_addr() );
-		// HTTP_X_FORWARDED_FOR takes priority over REMOTE_ADDR
-		$_SERVER['HTTP_X_FORWARDED_FOR'] = 'test_x';
-		$request                         = new Waf_Request();
-		$this->assertSame( 'test_x', $request->get_remote_addr() );
-		// HTTP_CLIENT_IP takes precendence over everything
-		$_SERVER['HTTP_CLIENT_IP'] = 'test_ip';
-		$request                   = new Waf_Request();
-		$this->assertSame( 'test_ip', $request->get_remote_addr() );
-	}
-
-	/**
 	 * Test Waf_Request::get_query_string()
 	 */
 	public function testGetQueryString() {
