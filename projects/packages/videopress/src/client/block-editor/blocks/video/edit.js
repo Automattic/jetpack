@@ -15,6 +15,7 @@ import classNames from 'classnames';
 import { getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ColorPanel from './components/color-panel';
+import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
@@ -313,9 +314,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			} ) }
 		>
 			<InspectorControls>
-				<PlaybackPanel attributes={ attributes } setAttributes={ setAttributes } />
-				<ColorPanel attributes={ attributes } setAttributes={ setAttributes } />
-				<PrivacyAndRatingPanel attributes={ attributes } setAttributes={ setAttributes } />
+				<DetailsPanel { ...{ attributes, setAttributes } } />
+				<PlaybackPanel { ...{ attributes, setAttributes } } />
+				<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
+				<ColorPanel { ...{ attributes, setAttributes } } />
 			</InspectorControls>
 
 			<PosterImageBlockControl
