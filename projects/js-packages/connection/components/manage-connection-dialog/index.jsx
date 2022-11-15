@@ -1,10 +1,11 @@
-import { Button, getRedirectUrl, H3 } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 import DisconnectDialog from '../disconnect-dialog';
+import './style.scss';
 
 /**
  * The RNA Manage Connection Dialog component.
@@ -55,7 +56,7 @@ const ManageConnectionDialog = props => {
 			{ isOpen && (
 				<>
 					<Modal
-						title={ title }
+						title=""
 						contentLabel={ title }
 						aria={ {
 							labelledby: 'jp-connection__manage-dialog__heading',
@@ -65,30 +66,27 @@ const ManageConnectionDialog = props => {
 						isDismissible={ false }
 						className={ 'jp-connection__manage-dialog' }
 					>
-						<H3>
-							{ __(
-								'At least one user must be connected for your Jetpack products to work properly.',
-								'jetpack'
-							) }
-						</H3>
-						<Button // Uses the wpcom connection transfer page, this functionality is not yet available in MyJetpack
-							variant="primary"
-							isExternalLink={ true }
-							fullWidth={ true }
-							href={ getRedirectUrl( 'calypso-settings-manage-connection', {
-								site: window?.myJetpackInitialState?.siteSuffix,
-							} ) }
-						>
-							{ __( 'Transfer ownership to another admin', 'jetpack' ) }
-						</Button>
-						<Button
-							variant="primary"
-							fullWidth={ true }
-							isDestructive={ true }
-							onClick={ openDisconnectDialog }
-						>
-							{ __( 'Disconnect Jetpack', 'jetpack' ) }
-						</Button>
+						<div className="jp-connection__manage-dialog__content">
+							<h1 id="jp-connection__manage-dialog__heading">{ title }</h1>
+							<p className="jp-connection__manage-dialog__large-text">
+								{ __(
+									'At least one user must be connected for your Jetpack products to work properly.',
+									'jetpack'
+								) }
+							</p>
+							<ManageConnectionButton
+								title={ __( 'Transfer ownership to another admin', 'jetpack' ) }
+								link={ getRedirectUrl( 'calypso-settings-manage-connection', {
+									site: window?.myJetpackInitialState?.siteSuffix,
+								} ) }
+								key="transfer"
+							/>
+							<ManageConnectionButton
+								title={ __( 'Disconnect Jetpack', 'jetpack' ) }
+								onClick={ openDisconnectDialog }
+								key="disconnect"
+							/>
+						</div>
 						<HelpFooter onClose={ onClose } />
 					</Modal>
 
@@ -109,14 +107,31 @@ const ManageConnectionDialog = props => {
 	);
 };
 
+const ManageConnectionButton = ( { title, onClick = () => null, link = '#' } ) => {
+	return (
+		<div className="jp-connection__disconnect-card card">
+			<div className="jp-connection__disconnect-card__card-content">
+				<a
+					href={ link }
+					className="jp-connection__disconnect-card__card-headline"
+					onClick={ onClick }
+				>
+					{ ' ' }
+					{ title }
+				</a>
+			</div>
+		</div>
+	);
+};
+
 const HelpFooter = ( { onClose } ) => {
 	return (
-		<div className="jp-row">
-			<div className="lg-col-span-7 md-col-span-8 sm-col-span-4">
+		<div className="jp-row jp-connection__manage-dialog__actions">
+			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-10 md-col-span-6 sm-col-span-8">
 				<p>
 					{ createInterpolateElement(
 						__(
-							'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>.',
+							'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>',
 							'jetpack'
 						),
 						{
@@ -128,7 +143,7 @@ const HelpFooter = ( { onClose } ) => {
 									) }
 									rel="noopener noreferrer"
 									target="_blank"
-									className="jp-connection__disconnect-dialog__link"
+									className="jp-connection__manage-dialog__link"
 									// TODO add click track
 								/>
 							),
@@ -137,7 +152,7 @@ const HelpFooter = ( { onClose } ) => {
 									href={ getRedirectUrl( 'jetpack-support' ) }
 									rel="noopener noreferrer"
 									target="_blank"
-									className="jp-connection__disconnect-dialog__link"
+									className="jp-connection__manage-dialog__link"
 									// TODO add click track
 								/>
 							),
@@ -145,11 +160,12 @@ const HelpFooter = ( { onClose } ) => {
 					) }
 				</p>
 			</div>
-			<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
+			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-2 md-col-span-6 sm-col-span-4">
 				<Button
-					variant="primary"
-					className="jp-connection__disconnect-dialog__btn-dismiss"
+					weight="regular"
+					variant="secondary"
 					onClick={ onClose }
+					className="jp-connection__manage-dialog__btn-dismiss"
 				>
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>
