@@ -1,24 +1,23 @@
 === Jetpack Search ===
-Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon
-Tags: search, jetpack
+Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
+Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.2.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A cloud-powered replacement for WordPress' search.
-
+Easily add cloud-powered instant search and filters to your website or WooCommerce store with advanced algorithms that boost your search results based on traffic to your site. Try it out for FREE!
 == Description ==
 
 Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.
 
 Jetpack Search is an easy-to-use WordPress search plugin that enhances the default site search functionality provided by the CMS. Thanks to advanced site search tools, your visitors will experience the best search experience you can offer.
 
-From a predictive autocomplete algorithm, to instant search results, Jetpack Search has all the features and options for best site search usability and results.
+From real-time search filtering and faceting, to instant search results, Jetpack Search has all the features and options for best site search usability and results.
 
-Note: A Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin.
+Note: Jetpack Search is free to use for sites with up to 5000 documents and 500 search requests per month. Beyond that, a Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin.
 
 **LESS DIGGING, MORE FINDING**
 
@@ -58,7 +57,7 @@ There’s nothing to configure – the setup process is as easy as:
 Install the plugin
 Activate Jetpack Connection
 
-Note: A Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin.
+Note: A Jetpack Search subscription, or a Jetpack plan subscription that includes Search is required to use this plugin. If you want to try it out for free, simply choose the free option during the subscription checkout process.
 
 == Frequently Asked Questions ==
 
@@ -68,7 +67,11 @@ Site search enables visitors to quickly find what they are looking for from your
 
 = How do I enable Jetpack Search? =
 
-Simply install the plugin and connect your site. If you already have a paid subscription that includes Jetpack Search it will work automatically, otherwise you can purchase a subscription through the plugin.
+Simply install the plugin and connect your site. If you already have a subscription that includes Jetpack Search it will work automatically, otherwise you can sign up for a subscription through the plugin.
+
+= Is there a free version? =
+
+YES! You can use Jetpack Search for free for sites up to 5000 records or 500 search requests per month. You will still need to sign up for a subscription; simply choose the free option.  You can sign up for a free Jetpack Search subscription directly through this plugin or via the [Jetpack website](https://jetpack.com/search/).
 
 = What languages does Jetpack Search support? =
 
@@ -102,6 +105,14 @@ Yes, visitors can filter search results by tags, categories, dates, custom taxon
 
 You can purchase a Search subscription directly through this plugin or via the [Jetpack website](https://jetpack.com/search/).
 
+= How do I get rid of the "Powered by Jetpack" message in the overlay? =
+
+If you are using the Jetpack Search free option, you cannot disable the "Powered by Jetpack" message. You will need to upgrade to a paid plan.
+
+= What happens if I go over the records or requests limit? =
+
+If you are using the Jetpack Search free option, and you have more than 5000 records (posts, pages, etc. ) on your site, or more than 500 search requests per month, we will ask you to upgrade to a paid subscription at the appropriate tier at your next renewal period. If your usage is above the threshold for three months or more, we will disable the plan, and your site visitors will see the default WordPress search experience instead. Note that we base the number of requests on the median of the past three months, so an unusual spike in search traffic will not automatically force you into the next tier.
+
 == Screenshots ==
 
 1. Configuring and customizing Jetpack Search is a breeze.
@@ -111,15 +122,25 @@ You can purchase a Search subscription directly through this plugin or via the [
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.3.0 - 2022-11-10
+### 1.3.1 - 2022-11-13
 #### Added
-- Enable stats tracking upon establishing a site connection.
+- Search: support for Jetpack Search FREE tier for up to 5000 records or 500 search requests per month.
+- Search: Enable stats tracking upon establishing a site connection.
+- Search Dashboard: new record count and search request donut meters.
+- Search Dashboard: conditional CTA and notices.
+- Search: blog filtering support.
 
 #### Changed
-- Compatibility: WordPress 6.1 compatibility
-- Ported back 1.2.0 release changelog
-- Search: now support 38 languages
+- Compatibility: WordPress 6.1 compatibility.
+- Search: now support 38 languages.
+- Search: always add Search Dashboard page even when submenu is hidden.
 - Updated package dependencies.
+
+### Fixed
+- Customizer: Fixes the issue where search results are not loaded in customizer.
+- Instant Search: Fix error message styling in Instant Search overlay.
+- Search: hide meters etc for Classic Search.
+- Fixed readme and descriptions for Free tier support and new pricing.
 
 == Testimonials ==
 
