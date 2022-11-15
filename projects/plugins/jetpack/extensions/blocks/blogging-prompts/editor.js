@@ -23,9 +23,13 @@ function initBloggingPrompts() {
 	const answerPrompt = urlQuery.get( 'answer_prompt' ) ?? '0';
 	const answerPromptId = parseInt( answerPrompt );
 
-	// Try to find the prompt by id, otherwise just default to the first prompt for the day.
-	const prompt = prompts.find( p => p.id === answerPromptId ) ?? prompts[ 0 ];
-	insertTemplate( prompt, !! answerPromptId );
+	// Try to find the prompt by id, otherwise just default to the first prompt for today.
+	// The current list of prompts starts from yesteday, so today's is the second prompt.
+	const prompt = prompts.find( p => p.id === answerPromptId ) ?? prompts[ 1 ];
+
+	if ( prompt ) {
+		insertTemplate( prompt, !! answerPromptId );
+	}
 }
 
 initBloggingPrompts();
