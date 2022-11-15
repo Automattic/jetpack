@@ -625,12 +625,13 @@ class WPCOM_Features {
 		 *
 		 * Active for:
 		 * - Simple and Atomic sites with Premium or up plan.
-		 * - Jetpack sites with Premium or up plan.
+		 * - Jetpack sites with Premium or up plan, or a Jetpack Social plan.
 		 */
 		self::REPUBLICIZE                   => array(
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_SOCIAL_PLANS,
 		),
 		self::SCAN                          => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
