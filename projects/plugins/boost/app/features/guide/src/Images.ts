@@ -108,25 +108,25 @@ function backgroundImageSrc( backgroundValue: string ): string | false {
 	return false;
 }
 
-function isImageURL( url: string ): boolean {
-	const ignore = [ 'data:image', 'gradient', '.svg', 'none', 'initial', 'inherit' ];
-	if ( ignore.some( ignore => url.includes( ignore ) ) ) {
+function isImageURL(url: string): boolean {
+	const ignore = ['data:image', 'gradient', '.svg', 'none', 'initial', 'inherit'];
+	if (ignore.some(ignore => url.includes(ignore))) {
 		return false;
 	}
 
 	return true;
 }
 
-async function getImg( el: HTMLImageElement ): Promise< Image | false > {
+async function getImg(el: HTMLImageElement): Promise<Image | false> {
 	// Get the currently used image source in srcset if it's available.
-	const url = el.currentSrc || el.src;
+	const url = el.currentSrc && isImageURL(el.currentSrc) ? el.currentSrc : el.src;
 	const type = el.srcset ? 'srcset' : 'img';
 
-	if ( ! url || ! isImageURL( url ) ) {
+	if (!url || !isImageURL(url)) {
 		return false;
 	}
 
-	const { width, height, fileSize } = await measurementsFromURL( url );
+	const { width, height, fileSize } = await measurementsFromURL(url);
 
 	return {
 		type,
