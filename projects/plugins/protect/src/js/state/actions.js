@@ -91,9 +91,7 @@ const checkStatus = ( currentStatus, attempts = 0 ) => async ( { dispatch } ) =>
 				} )
 				.catch( reject );
 		} else {
-			if ( 'unavailable' === currentStatus.status ) {
-				dispatch( setScanIsUnavailable( true ) );
-			}
+			dispatch( setScanIsUnavailable( 'unavailable' === currentStatus.status ) );
 			resolve( currentStatus );
 		}
 	} );
