@@ -1,0 +1,80 @@
+@import '@automattic/jetpack-base-styles/style';
+.jp-connection__manage-dialog {
+	--spacing-base: 8px;
+	background-color: var( --jp-white );
+	width: 1000px;
+	max-width: 100%;
+	padding: 1rem 2rem;
+	border: none;
+	border-radius: 3px;
+	box-shadow: 0 0 15px var( --jp-gray-off );
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0;
+	margin-bottom: 1rem;
+
+	&__large-text,
+	p.jp-connection__manage-dialog__large-text {
+		font-size: 1.25rem;
+		margin-bottom: calc( var( --spacing-base ) * 4 );
+	}
+
+	&__link,
+	.jp-connection__manage-dialog__link {
+		font-size: var( --font-body );
+		color: var( --jp-black );
+		font: inherit;
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+		}
+	}
+
+	.components-modal{
+		&__content{
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+			margin: 0;
+		}
+	}
+
+		.jp-row {
+		align-items: center;
+		width: calc(100% - 48px); // Help with the margin on the row.
+	}
+	&__content{
+		background: var( --jp-white-off );
+		margin: 0;
+		padding: 2rem 1rem;
+		border-radius: 4px;
+		text-align: center;
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	&__actions{
+		background: var( --jp-white );
+		padding: 2rem 0;
+		margin:0px;
+		position: sticky;
+		bottom: 0;
+		border-top: 1px solid var( --jp-gray );
+	}
+
+	&__button-wrap {
+	float:right;
+	}
+	&__text-wrap {
+		float:left;
+		}
+}
