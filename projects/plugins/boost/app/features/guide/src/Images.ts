@@ -22,31 +22,16 @@ export async function load( domElements: Element[] ) {
 }
 
 async function getImageSize( url ) {
-	// Try the performance API first.
-	const perfEntry = performance.getEntriesByName(
-		url,
-		'resource'
-	)[ 0 ] as PerformanceResourceTiming;
-	if ( perfEntry && perfEntry.transferSize ) {
-		return perfEntry.transferSize / 1024;
+	const response = await fetch( url, { method: 'HEAD', mode: 'no-cors' } );
+	console.log( 'Loading using fetch', response );
+	if ( ! response.url ) {
+		console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
+		return -1;
 	}
 
-	// If Performance API doesn't yield results,
-	// try a hacky way using fetch.
-	try {
-		const response = await fetch( url, { method: 'HEAD', mode: 'no-cors' } );
-
-		if ( ! response.url ) {
-			console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
-			return -1;
-		}
-
-		const size = response.headers.get( 'content-length' );
-		if ( size ) {
-			return parseInt( size, 10 ) / 1024;
-		}
-	} catch ( e ) {
-		console.error( e );
+	const size = response.headers.get( 'content-length' );
+	if ( size ) {
+		return parseInt( size, 10 ) / 1024;
 	}
 
 	return -1;
@@ -57,7 +42,7 @@ async function getImageDimensions( url ) {
 	img.src = url;
 	return new Promise< { width: number; height: number } >( resolve => {
 		img.onload = () => {
-			resolve( { width: Math.round(img.width), height: Math.round(img.height) } );
+			resolve( { width: Math.round( img.width ), height: Math.round( img.height ) } );
 		};
 	} );
 }
@@ -108,25 +93,25 @@ function backgroundImageSrc( backgroundValue: string ): string | false {
 	return false;
 }
 
-function isImageURL(url: string): boolean {
-	const ignore = ['data:image', 'gradient', '.svg', 'none', 'initial', 'inherit'];
-	if (ignore.some(ignore => url.includes(ignore))) {
+function isImageURL( url: string ): boolean {
+	const ignore = [ 'data:image', 'gradient', '.svg', 'none', 'initial', 'inherit' ];
+	if ( ignore.some( ignore => url.includes( ignore ) ) ) {
 		return false;
 	}
 
 	return true;
 }
 
-async function getImg(el: HTMLImageElement): Promise<Image | false> {
+async function getImg( el: HTMLImageElement ): Promise< Image | false > {
 	// Get the currently used image source in srcset if it's available.
-	const url = el.currentSrc && isImageURL(el.currentSrc) ? el.currentSrc : el.src;
+	const url = el.currentSrc && isImageURL( el.currentSrc ) ? el.currentSrc : el.src;
 	const type = el.srcset ? 'srcset' : 'img';
 
-	if (!url || !isImageURL(url)) {
+	if ( ! url || ! isImageURL( url ) ) {
 		return false;
 	}
 
-	const { width, height, fileSize } = await measurementsFromURL(url);
+	const { width, height, fileSize } = await measurementsFromURL( url );
 
 	return {
 		type,
