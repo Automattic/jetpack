@@ -57,6 +57,8 @@ export type VideoControlProps = {
 	attributes: VideoBlockAttributes;
 
 	setAttributes: VideoBlockSetAttributesProps;
+
+	isRequestingVideoData: boolean;
 };
 
 export type VideoEditProps = VideoControlProps;

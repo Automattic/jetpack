@@ -6,7 +6,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useVideoData from '../../../../hooks/use-video-data';
 import { videoControlProps } from '../../types';
 import type React from 'react';
 
@@ -18,9 +17,12 @@ const CHARACTERS_PER_LINE = 31;
  * @param {videoControlProps} props - Component properties.
  * @returns {React.ReactElement}      Details panel component.
  */
-export default function DetailsPanel( { attributes, setAttributes }: videoControlProps ) {
+export default function DetailsPanel( {
+	attributes,
+	setAttributes,
+	isRequestingVideoData,
+}: videoControlProps ) {
 	const { title, description } = attributes;
-	const { isRequestingVideoData } = useVideoData( attributes.id );
 
 	// Expands the description textarea to accommodate the description
 	const minRows = 4;

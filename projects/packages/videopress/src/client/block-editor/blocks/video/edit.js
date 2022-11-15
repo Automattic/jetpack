@@ -99,7 +99,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 	} );
 
-	useSyncMedia( attributes, setAttributes );
+	const { isRequestingVideoData } = useSyncMedia( attributes, setAttributes );
 
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
@@ -314,10 +314,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			} ) }
 		>
 			<InspectorControls>
-				<DetailsPanel { ...{ attributes, setAttributes } } />
-				<PlaybackPanel { ...{ attributes, setAttributes } } />
-				<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
-				<ColorPanel { ...{ attributes, setAttributes } } />
+				<DetailsPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<PrivacyAndRatingPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
 
 			<PosterImageBlockControl
