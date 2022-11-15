@@ -64,7 +64,7 @@
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.14",
 		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@automattic/jetpack-components": "workspace:* || ^0.24",
+		"@automattic/jetpack-components": "workspace:* || ^0.25",
 		"@automattic/jetpack-connection": "workspace:* || ^0.22",
 		"@storybook/addon-actions": "6.5.13",
 		"@wordpress/api-fetch": "6.18.0",
