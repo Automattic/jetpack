@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { ComparedImage } from '../types';
+	import type { MeasuredImage } from '../types';
 	import state from './StateStore';
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
-	export let images: ComparedImage[];
-	let show: ComparedImage | false = false;
+	export let images: MeasuredImage[];
+	let show: MeasuredImage | false = false;
 
 	function onMouseLeave() {
 		if( $state !== "Always On" ) {
@@ -18,7 +18,7 @@
 	<div class="guide" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each images as image, index}
-				<Bubble {index} ratio={image.scaling.pixels} on:mouseenter={() => ( show = images[index] )} />
+				<Bubble {index} oversizedBy={image.scaling.oversizedBy} on:mouseenter={() => ( show = images[index] )} />
 			{/each}
 		</div>
 		{#if show !== false}

@@ -1,29 +1,20 @@
-
-export type Image = {
+export type MeasuredImage = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
 	width: number;
 	height: number;
 	node: Element;
 	fileSize: number;
-};
-
-export interface MeasuredImage extends Image {
 	onScreen: {
 		width: number;
 		height: number;
 	};
-}
-
-
-export interface ComparedImage extends MeasuredImage {
 	scaling: {
 		width: number;
 		height: number;
-		pixels: number;
+		oversizedBy: number;
 	};
-}
-
+};
 
 
 export interface ImageComponentConfig {

@@ -1,30 +1,22 @@
-import type { MeasuredImage, Image, ComparedImage } from './types';
+import type { MeasuredImage } from './types';
 
-function compareDimensions( image: MeasuredImage ) {
-	const onScreen = image.onScreen;
+type Image = Omit<MeasuredImage, 'scaling' | 'onScreen'>;
 
-	return {
-		width: image.width / onScreen.width,
-		height: image.height / onScreen.height,
-		pixels: ( image.width * image.height ) / ( onScreen.width * onScreen.height ),
-	};
-}
-
-export function measure( images: Image[] ): ComparedImage[] {
-	return images.map( image => {
+export function measure(images: Image[]): MeasuredImage[] {
+	return images.map(image => {
 		const { width, height } = image.node.getBoundingClientRect();
 
-		const measuredImage = {
+		return {
 			...image,
 			onScreen: {
-				width: Math.round( width ),
-				height: Math.round( height ),
+				width: Math.round(width),
+				height: Math.round(height),
+			},
+			scaling: {
+				width: image.width / width,
+				height: image.height / height,
+				oversizedBy: (image.width * image.height) / (width * height),
 			},
 		};
-
-		return {
-			scaling: compareDimensions( measuredImage ),
-			...measuredImage,
-		};
-	} );
+	});
 }

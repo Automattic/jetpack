@@ -3,9 +3,9 @@
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 
-	export let ratio: number;
+	export let oversizedBy: number;
 	export let index: number;
-	const severity = ratio > 4 ? 'high' : ratio > 2 ? 'medium' : 'normal';
+	const severity = oversizedBy > 4 ? 'high' : oversizedBy > 2 ? 'medium' : 'normal';
 
 	let mounted = false;
 	onMount( () => ( mounted = true ) );
@@ -19,7 +19,7 @@
 
 {#if mounted}
 	<div class="preview {severity}" on:mouseenter transition:fly={scaleConfig}>
-		<div class="bubble">{ratio.toFixed( 2 )}</div>
+		<div class="bubble">{oversizedBy.toFixed( 2 )}</div>
 	</div>
 {/if}
 

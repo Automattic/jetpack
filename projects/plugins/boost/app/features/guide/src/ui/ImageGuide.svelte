@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { ComparedImage } from '../types';
 	import { fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	import JetpackLogo from './JetpackLogo.svelte';
+	import { MeasuredImage } from '../types';
 
-	export let image: ComparedImage;
+	export let image: MeasuredImage;
 
 	// Reactive variables because this component can be reused by Svelte.
 	$: imageName = image.url.split( '/' ).pop();
-	$: ratio = image.scaling.pixels.toFixed( 2 );
-	$: potentialSavings = Math.round(image.fileSize - (image.fileSize / image.scaling.pixels));
+	$: ratio = image.scaling.oversizedBy.toFixed( 2 );
+	$: potentialSavings = Math.round(image.fileSize - (image.fileSize / image.scaling.oversizedBy));
 
 	const previewWidth = 100;
 	const previewHeight = Math.floor( previewWidth / ( image.width / image.height ) );
