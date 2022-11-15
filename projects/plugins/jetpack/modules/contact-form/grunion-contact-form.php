@@ -302,9 +302,7 @@ class Grunion_Contact_Form_Plugin {
 
 		// Export to CSV feature
 		if ( is_admin() ) {
-			add_action( 'admin_post_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
-			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -1289,55 +1287,6 @@ class Grunion_Contact_Form_Plugin {
 			<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
 			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
 		</select>
-		<?php
-	}
-
-	/**
-	 * Prints the menu
-	 */
-	public function export_form() {
-		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'export' ) ) {
-			return;
-		}
-
-		// if there aren't any feedbacks, bail out
-		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
-			return;
-		}
-		?>
-
-		<form id="feedback-export" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="form">
-			<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
-
-			<input name="action" value="feedback_export" type="hidden">
-
-			<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
-			<select name="post">
-				<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
-				<?php echo self::get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
-			</select>
-
-			<br><br>
-			<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Download', 'jetpack' ); ?>">
-		</form>
-
-		<?php
-		// There aren't any usable actions in core to output the "export feedback" form in the correct place,
-		// so this inline JS moves it from the top of the page to the bottom.
-		?>
-		<script type='text/javascript'>
-			var menu = document.getElementById( 'feedback-export' ),
-				wrapper = document.getElementsByClassName( 'wrap' )[0];
-			<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
-			wrapper.appendChild(menu);
-			<?php endif; ?>
-			menu.style.display = 'block';
-		</script>
 		<?php
 	}
 
