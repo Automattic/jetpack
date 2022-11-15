@@ -23,7 +23,13 @@ export type WPComV2VideopressPostMetaEndpointBodyProps = {
  */
 export type WPV2mediaGetEndpointResponseProps = {
 	jetpack_videopress?: {
+		guid: string;
 		title: string;
 		description: string;
+		caption: string;
+		allow_download: 0 | 1;
+		needs_playback_token: boolean;
+		privacy_setting: privacySettingProp;
+		rating: string;
 	};
 };

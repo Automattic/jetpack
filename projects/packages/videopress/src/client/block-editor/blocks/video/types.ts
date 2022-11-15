@@ -19,6 +19,10 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	id?: VideoId;
 	guid?: string;
 	src?: string;
+
+	title?: string;
+	description?: string;
+
 	poster?: string;
 	videoRatio?: number;
 	tracks?: Array< Track >;
