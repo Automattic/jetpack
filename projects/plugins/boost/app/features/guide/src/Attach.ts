@@ -1,8 +1,6 @@
 import type { MeasuredImage, Image, ImageComponentConfig } from './types';
 import Main from './ui/Main.svelte';
 
-
-
 function closestStableParent( node: Element, distance = 0 ): Element | null {
 	if ( ! node.parentNode ) {
 		return null;
@@ -88,10 +86,7 @@ function findContainer( image: Image ): Element | undefined {
 	return node.parentNode as Element;
 }
 
-
-
 export function attachGuides( images: MeasuredImage[] ) {
-
 	type ComponentConfig = Record< number, ImageComponentConfig >;
 
 	const componentConfiguration = images.reduce( ( acc, image, index ): ComponentConfig => {

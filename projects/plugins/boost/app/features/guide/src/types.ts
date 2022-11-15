@@ -16,11 +16,9 @@ export type MeasuredImage = {
 	};
 };
 
-
 export interface ImageComponentConfig {
 	target: Element;
 	props: {
 		images: MeasuredImage[];
 	};
 }
-

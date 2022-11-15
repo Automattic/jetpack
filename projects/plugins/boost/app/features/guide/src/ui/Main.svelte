@@ -7,18 +7,22 @@
 	let show: MeasuredImage | false = false;
 
 	function onMouseLeave() {
-		if( $state !== "Always On" ) {
+		if ( $state !== 'Always On' ) {
 			show = false;
 		}
 	}
-	$: show =  $state === "Always On" ? images[0] : false;
+	$: show = $state === 'Always On' ? images[ 0 ] : false;
 </script>
 
 {#if $state === 'Active' || $state === 'Always On'}
 	<div class="guide" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each images as image, index}
-				<Bubble {index} oversizedBy={image.scaling.oversizedBy} on:mouseenter={() => ( show = images[index] )} />
+				<Bubble
+					{index}
+					oversizedBy={image.scaling.oversizedBy}
+					on:mouseenter={() => ( show = images[ index ] )}
+				/>
 			{/each}
 		</div>
 		{#if show !== false}

@@ -1,88 +1,86 @@
-type ImageCallback = (images: HTMLElement[]) => void;
+type ImageCallback = ( images: HTMLElement[] ) => void;
 
-const onChange =
-	(callback: ImageCallback): MutationCallback =>
-	(mutationList) => {
-		const mutations = mutationList
-			.filter(mutation => {
-				// Ignore mutations that added `jetpack-boost-guide-image` class
-				if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-					const target = mutation.target as HTMLImageElement;
-					if (target.classList.contains('jetpack-boost-guide-image')) {
-						return false;
-					}
+const onChange = ( callback: ImageCallback ): MutationCallback => mutationList => {
+	const mutations = mutationList
+		.filter( mutation => {
+			// Ignore mutations that added `jetpack-boost-guide-image` class
+			if ( mutation.type === 'attributes' && mutation.attributeName === 'class' ) {
+				const target = mutation.target as HTMLImageElement;
+				if ( target.classList.contains( 'jetpack-boost-guide-image' ) ) {
+					return false;
 				}
+			}
 
-				// New image elements are added to the DOM
-				if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-					for (const node of mutation.addedNodes) {
-						if (node instanceof HTMLImageElement) {
-							return true;
-						}
-
-						/**
-						 * @TODO:
-						 * MutationObserver only detects the parent node that was added.
-						 * Any child nodes that were added are not detected.
-						 */
-
-						// Walk the DOM tree to find any image elements
-						const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT);
-						while (walker.nextNode()) {
-							if (walker.currentNode instanceof HTMLImageElement) {
-								return true;
-							}
-						}
-					}
-				}
-
-				if (mutation.type === 'attributes') {
-					// Mutations that change the src attribute
-					if (mutation.target instanceof HTMLImageElement && mutation.attributeName === 'src') {
+			// New image elements are added to the DOM
+			if ( mutation.type === 'childList' && mutation.addedNodes.length > 0 ) {
+				for ( const node of mutation.addedNodes ) {
+					if ( node instanceof HTMLImageElement ) {
 						return true;
 					}
 
-					// Mutations that add a background image
-					if (mutation.attributeName === 'style') {
-						getComputedStyle(mutation.target as Element).backgroundImage !== 'none';
+					/**
+					 * @TODO:
+					 * MutationObserver only detects the parent node that was added.
+					 * Any child nodes that were added are not detected.
+					 */
+
+					// Walk the DOM tree to find any image elements
+					const walker = document.createTreeWalker( node, NodeFilter.SHOW_ELEMENT );
+					while ( walker.nextNode() ) {
+						if ( walker.currentNode instanceof HTMLImageElement ) {
+							return true;
+						}
 					}
 				}
+			}
 
-				// Ignore mutations that don't add images
-				return false;
-			})
-			.map(mutation => {
-				if (mutation.type === 'attributes') {
-					return mutation.target;
+			if ( mutation.type === 'attributes' ) {
+				// Mutations that change the src attribute
+				if ( mutation.target instanceof HTMLImageElement && mutation.attributeName === 'src' ) {
+					return true;
 				}
-				if (mutation.type === 'childList') {
-					const images = Array.from(mutation.addedNodes).filter(
-						node => node instanceof HTMLImageElement
-					);
-					if (images.length > 0) {
-						return images;
-					}
-				}
-				const walker = document.createTreeWalker(mutation.target, NodeFilter.SHOW_ELEMENT);
-				while (walker.nextNode()) {
-					if (walker.currentNode instanceof HTMLImageElement) {
-						return walker.currentNode;
-					}
-				}
-			});
 
-		if (mutations.length > 0) {
-			callback(mutations);
-		}
-	};
+				// Mutations that add a background image
+				if ( mutation.attributeName === 'style' ) {
+					getComputedStyle( mutation.target as Element ).backgroundImage !== 'none';
+				}
+			}
 
-export async function createImageObserver(callback: ImageCallback) {
+			// Ignore mutations that don't add images
+			return false;
+		} )
+		.map( mutation => {
+			if ( mutation.type === 'attributes' ) {
+				return mutation.target;
+			}
+			if ( mutation.type === 'childList' ) {
+				const images = Array.from( mutation.addedNodes ).filter(
+					node => node instanceof HTMLImageElement
+				);
+				if ( images.length > 0 ) {
+					return images;
+				}
+			}
+			const walker = document.createTreeWalker( mutation.target, NodeFilter.SHOW_ELEMENT );
+			while ( walker.nextNode() ) {
+				if ( walker.currentNode instanceof HTMLImageElement ) {
+					return walker.currentNode;
+				}
+			}
+		} );
+
+	if ( mutations.length > 0 ) {
+		callback( mutations );
+	}
+};
+
+export async function createImageObserver( callback: ImageCallback ) {
 	var target = document.body;
 	const config = { childList: true, characterData: false, subtree: true, attributes: true };
 
-	const observer = new MutationObserver(onChange(callback));
+	const observer = new MutationObserver( onChange( callback ) );
 
-	observer.observe(target, config);
+	observer.observe( target, config );
 
 	return observer;
 }

@@ -9,13 +9,13 @@
 	// Reactive variables because this component can be reused by Svelte.
 	$: imageName = image.url.split( '/' ).pop();
 	$: ratio = image.scaling.oversizedBy.toFixed( 2 );
-	$: potentialSavings = Math.round(image.fileSize - (image.fileSize / image.scaling.oversizedBy));
+	$: potentialSavings = Math.round( image.fileSize - image.fileSize / image.scaling.oversizedBy );
 
 	const previewWidth = 100;
 	const previewHeight = Math.floor( previewWidth / ( image.width / image.height ) );
 
-	$: origin = new URL(window.location.href).origin;
-	$: imageOrigin = new URL(image.url).origin;
+	$: origin = new URL( window.location.href ).origin;
+	$: imageOrigin = new URL( image.url ).origin;
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -39,10 +39,10 @@
 	</div>
 
 	<div class="meta">
-		{#if image.fileSize > 0 }
+		{#if image.fileSize > 0}
 			<div class="row">
 				<div class="label">Image Size</div>
-				<div class="value">{Math.round(image.fileSize)}kb</div>
+				<div class="value">{Math.round( image.fileSize )}kb</div>
 			</div>
 		{/if}
 
@@ -65,44 +65,47 @@
 	</div>
 
 	{#if imageOrigin !== origin}
-	<div class="origin">
-		<p>
-			<strong>Image Source</strong>
-			Unable to fetch image size because the image is hosted on a different domain.
-		</p>
-		<div class="row">
-			<div class="label">Image hosted on</div>
-			<div class="value">{imageOrigin}</div>
+		<div class="origin">
+			<p>
+				<strong>Image Source</strong>
+				Unable to fetch image size because the image is hosted on a different domain.
+			</p>
+			<div class="row">
+				<div class="label">Image hosted on</div>
+				<div class="value">{imageOrigin}</div>
+			</div>
+			<div class="row">
+				<div class="label">Current page served from</div>
+				<div class="value">{origin}</div>
+			</div>
 		</div>
-		<div class="row">
-			<div class="label">Current page served from</div>
-			<div class="value">{origin}</div>
-		</div>
-	</div>
-{/if}
-
+	{/if}
 </div>
 
 <style lang="scss">
 	:root {
 		--shadow-color: 97deg 21% 44%;
-		--shadow:
-		0px 0px 0px hsl(var(--shadow-color) / 0.35),
-		0px 0px 0.5px -0.3px hsl(var(--shadow-color) / 0.34),
-		0px 0px 2px -0.4px hsl(var(--shadow-color) / 0.27),
-		0px 0px 0px -1.9px hsl(var(--shadow-color) / 0.27),
-		0px 0px 0px -2.6px hsl(var(--shadow-color) / 0.25),
-		0px 0px 0px -3.2px hsl(var(--shadow-color) / 0.19),
-		0.1px 0px 0.1px -3.8px hsl(var(--shadow-color) / 0.14);
+		--shadow: 0px 0px 0px hsl( var( --shadow-color ) / 0.35 ),
+			0px 0px 0.5px -0.3px hsl( var( --shadow-color ) / 0.34 ),
+			0px 0px 2px -0.4px hsl( var( --shadow-color ) / 0.27 ),
+			0px 0px 0px -1.9px hsl( var( --shadow-color ) / 0.27 ),
+			0px 0px 0px -2.6px hsl( var( --shadow-color ) / 0.25 ),
+			0px 0px 0px -3.2px hsl( var( --shadow-color ) / 0.19 ),
+			0.1px 0px 0.1px -3.8px hsl( var( --shadow-color ) / 0.14 );
 	}
 	.origin {
 		margin-top: 30px;
 		max-width: 400px;
-		background-color: hsl(240deg 0% 100% / 55%);
-		background: linear-gradient( 70deg, #f6f6f4 7.24%, hsla(46, 45%, 94%, 0.8) 64.73%, hsla(100, 40%, 88%, 0.725) 116.53% );
+		background-color: hsl( 240deg 0% 100% / 55% );
+		background: linear-gradient(
+			70deg,
+			#f6f6f4 7.24%,
+			hsla( 46, 45%, 94%, 0.8 ) 64.73%,
+			hsla( 100, 40%, 88%, 0.725 ) 116.53%
+		);
 		padding: 20px;
 		border-radius: 7px;
-		box-shadow: var(--shadow);
+		box-shadow: var( --shadow );
 		strong {
 			display: block;
 		}
