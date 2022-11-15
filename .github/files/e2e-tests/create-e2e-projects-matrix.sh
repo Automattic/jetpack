@@ -30,6 +30,8 @@ if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
 	done
 elif [[ "$GITHUB_EVENT_NAME" == "push" || "$GITHUB_EVENT_NAME" == "workflow_run" ]]; then
 	PROJECTS_MATRIX=("${PROJECTS[*]}")
+elif [[ "$GITHUB_EVENT_NAME" == "repository_dispatch" ]]; then
+	PROJECTS_MATRIX=('{"project":"Jetpack pre-connection","path":"projects/plugins/jetpack/tests/e2e","testArgs":["specs/pre-connection","--retries=2"]}')
 elif [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
 	# gutenberg scheduled run
   	if [ "$CRON" == "0 */12 * * *" ]; then

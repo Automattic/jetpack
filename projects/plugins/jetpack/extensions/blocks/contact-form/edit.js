@@ -26,6 +26,9 @@ import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
+import SalesforceLeadFormSettings, {
+	salesforceLeadFormVariation,
+} from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
@@ -69,11 +72,19 @@ export function JetpackContactFormEdit( {
 		customThankyouRedirect,
 		jetpackCRM,
 		formTitle,
+		salesforceData,
 	} = attributes;
 
 	const formClassnames = classnames( className, 'jetpack-contact-form', {
 		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 	} );
+	const isSalesForceExtensionEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
+		'contact-form/salesforce-lead-form'
+	];
+
+	if ( isSalesForceExtensionEnabled ) {
+		variations = [ ...variations, salesforceLeadFormVariation ];
+	}
 
 	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
@@ -214,6 +225,14 @@ export function JetpackContactFormEdit( {
 						setAttributes={ setAttributes }
 					/>
 				</PanelBody>
+
+				{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
+					<SalesforceLeadFormSettings
+						salesforceData={ salesforceData }
+						setAttributes={ setAttributes }
+						instanceId={ instanceId }
+					/>
+				) }
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (

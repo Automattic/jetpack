@@ -23,6 +23,7 @@ function load_3rd_party() {
 		'class.jetpack-amp-support.php',
 		'class-jetpack-crm-data.php',
 		'class-jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
+		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
 		'creative-mail.php',
 		'jetpack-backup.php',
 		'jetpack-boost.php',
