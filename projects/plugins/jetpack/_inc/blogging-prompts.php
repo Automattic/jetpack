@@ -81,8 +81,9 @@ function jetpack_get_daily_blogging_prompts() {
 	);
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		// This will load the library, but the `enqueue_block_assets` hook is too late to load any endpoints
-		// using WPCOM_API_Direct::register_endpoints.
+		// This will load the library, but may be too late to automatically load any endpoints using WPCOM_API_Direct::register_endpoints.
+		// In that case, call `wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' )`
+		// on the `init` hook to load the blogging-prompts endpoint before calling this function.
 		require_lib( 'wpcom-api-direct' );
 		$response = \WPCOM_API_Direct::do_request( $args );
 	} else {
