@@ -113,7 +113,11 @@ require_once $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-2-endpoint.php';
 
 // Jetpack Only Endpoints
-$json_jetpack_endpoints_dir = __DIR__ . '/json-endpoints/jetpack/';
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	$json_jetpack_endpoints_dir = ABSPATH . 'public.api/rest/json-endpoints/jetpack/';
+} else {
+	$json_jetpack_endpoints_dir = __DIR__ . '/json-endpoints/jetpack/';
+}
 
 // This files instantiates the endpoints
 require_once $json_jetpack_endpoints_dir . 'json-api-jetpack-endpoints.php';

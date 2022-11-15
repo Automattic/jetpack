@@ -30,6 +30,7 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats_Admin\Main as StatsAdminMain;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -823,6 +824,7 @@ class Jetpack {
 				'waf',
 				'videopress',
 				'stats',
+				'stats_admin',
 			)
 			as $feature
 		) {
@@ -904,6 +906,9 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
+
+		// We will change to use the config package.
+		StatsAdminMain::init();
 	}
 
 	/**

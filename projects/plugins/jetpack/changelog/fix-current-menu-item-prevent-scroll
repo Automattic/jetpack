@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Prevent scrolling to the active menu item on page load.

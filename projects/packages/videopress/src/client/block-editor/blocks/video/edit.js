@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -13,13 +13,13 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+import ColorPanel from './components/color-panel';
 import { VideoPressIcon } from './components/icons';
-import VideoPressInspectorControls from './components/inspector-controls';
+import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
-
 import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
@@ -308,7 +308,11 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				'is-updating-preview': ! previewHtml,
 			} ) }
 		>
-			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<InspectorControls>
+				<PlaybackPanel attributes={ attributes } setAttributes={ setAttributes } />
+				<ColorPanel attributes={ attributes } setAttributes={ setAttributes } />
+			</InspectorControls>
+
 			<PosterImageBlockControl
 				attributes={ attributes }
 				setAttributes={ setAttributes }
