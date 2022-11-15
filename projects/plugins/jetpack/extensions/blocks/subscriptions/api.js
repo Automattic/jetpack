@@ -12,3 +12,16 @@ export function getSubscriberCount( successCallback, failureCallback ) {
 		}
 	} );
 }
+
+export function getSubscriberCounts( successCallback, failureCallback ) {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/counts',
+	} ).then( count => {
+		// Handle error condition
+		if ( ! count.hasOwnProperty( 'counts' ) ) {
+			failureCallback();
+		} else {
+			successCallback( count.counts );
+		}
+	} );
+}
