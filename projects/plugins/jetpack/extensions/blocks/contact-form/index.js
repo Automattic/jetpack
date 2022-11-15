@@ -40,6 +40,7 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
+		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
 	edit,
