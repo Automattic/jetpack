@@ -9,7 +9,7 @@ import { STORE_ID } from '../../../state/constants';
 import { VideopressSelectors, VideoPressVideo } from '../../types';
 
 /**
- * React custom hook to get the Users.
+ * React custom hook to get the the video's playback token.
  *
  * @param {VideoPressVideo} video - The VideoPress video
  * @returns {object} Playback token
