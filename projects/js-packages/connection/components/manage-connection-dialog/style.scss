@@ -1,22 +1,27 @@
 @import '@automattic/jetpack-base-styles/style';
 .jp-connection__manage-dialog {
 	--spacing-base: 8px;
-	background-color: var( --jp-white );
-	width: 1000px;
+	background-color: var( --jp-white-off );
+	width: 1200px;
 	max-width: 100%;
-	padding: 1rem 2rem;
+	padding: 0px;
 	border: none;
 	border-radius: 3px;
-	box-shadow: 0 0 15px var( --jp-gray-off );
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 0;
-	margin-bottom: 1rem;
+	//box-shadow: 0 0 15px var( --jp-gray-off );
+	margin: auto;
 
-	&__large-text,
-	p.jp-connection__manage-dialog__large-text {
+	h1 {
+		margin: 0;
+		line-height: 1.2;
+		font-size: var( --font-title-large );
+		font-weight: 700;
+	}
+
+	&__large-text {
 		font-size: 1.25rem;
 		margin-bottom: calc( var( --spacing-base ) * 4 );
+		max-width: 60%;
+		font-weight:600;
 	}
 
 	&__link,
@@ -37,22 +42,21 @@
 
 	.components-modal{
 		&__content{
-			padding: 0;
 			display: flex;
 			flex-direction: column;
 			flex-grow: 1;
 			margin: 0;
+			padding:0;
 		}
 	}
-
-		.jp-row {
+	.jp-row {
 		align-items: center;
-		width: calc(100% - 48px); // Help with the margin on the row.
 	}
+
 	&__content{
 		background: var( --jp-white-off );
 		margin: 0;
-		padding: 2rem 1rem;
+		padding: 80px;
 		border-radius: 4px;
 		text-align: center;
 		flex-grow: 1;
@@ -65,16 +69,60 @@
 	&__actions{
 		background: var( --jp-white );
 		padding: 2rem 0;
-		margin:0px;
+		margin:0px !important;
 		position: sticky;
 		bottom: 0;
-		border-top: 1px solid var( --jp-gray );
+		border: 1px solid var( --jp-gray );
+		align-items: center;
+		max-width: 1200px !important;
+		width:100%;
+		padding: calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 5 );
 	}
 
-	&__button-wrap {
-	float:right;
+	&__button-wrap button{
+		float:right;
+
 	}
 	&__text-wrap {
 		float:left;
 		}
+
+	.jp-connection__action-card {
+		background-color: var( --jp-white );
+		width: 750px;
+		max-width: 100%;
+		padding: 1rem 2rem;
+		border: none;
+		border-radius: 3px;
+		box-shadow: 0 0 15px var( --jp-gray-off );
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 0;
+		margin-bottom: 1rem;
+		text-align: left;
+
+		&__card-headline,
+		.jp-connection__action-card__card-headline { // Override rule from disconnect-modal
+			font-size: 1.25rem;
+			font-weight: 600;
+			margin-top: 0;
+			flex-shrink: 0;
+			margin-bottom: 0;
+			text-decoration: none;
+		}
+
+		.transfer {
+			color:var( --jp-black );
+			fill: var( --jp-black );
+		}
+
+		.disconnect {
+			color: var( --jp-red );
+			fill: var( --jp-red );
+		}
+
+		&__icon {
+			float:right;
+		}
+	}
 }

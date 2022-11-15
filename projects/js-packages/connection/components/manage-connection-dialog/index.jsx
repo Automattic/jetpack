@@ -2,6 +2,7 @@ import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight, external } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 import DisconnectDialog from '../disconnect-dialog';
@@ -74,17 +75,19 @@ const ManageConnectionDialog = props => {
 									'jetpack'
 								) }
 							</p>
-							<ManageConnectionButton
+							<ManageConnectionActionCard
 								title={ __( 'Transfer ownership to another admin', 'jetpack' ) }
 								link={ getRedirectUrl( 'calypso-settings-manage-connection', {
 									site: window?.myJetpackInitialState?.siteSuffix,
 								} ) }
 								key="transfer"
+								action="transfer"
 							/>
-							<ManageConnectionButton
+							<ManageConnectionActionCard
 								title={ __( 'Disconnect Jetpack', 'jetpack' ) }
 								onClick={ openDisconnectDialog }
 								key="disconnect"
+								action="disconnect"
 							/>
 						</div>
 						<HelpFooter onClose={ onClose } />
@@ -107,17 +110,20 @@ const ManageConnectionDialog = props => {
 	);
 };
 
-const ManageConnectionButton = ( { title, onClick = () => null, link = '#' } ) => {
+const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', action } ) => {
 	return (
-		<div className="jp-connection__disconnect-card card">
-			<div className="jp-connection__disconnect-card__card-content">
+		<div className="jp-connection__action-card card">
+			<div className="jp-connection__action-card__card-content">
 				<a
 					href={ link }
-					className="jp-connection__disconnect-card__card-headline"
+					className={ `jp-connection__action-card__card-headline ${ action }` }
 					onClick={ onClick }
 				>
-					{ ' ' }
 					{ title }
+					<Icon
+						icon={ action === 'disconnect' ? chevronRight : external }
+						className="jp-connection__action-card__icon"
+					/>
 				</a>
 			</div>
 		</div>
@@ -127,7 +133,7 @@ const ManageConnectionButton = ( { title, onClick = () => null, link = '#' } ) =
 const HelpFooter = ( { onClose } ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
-			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-10 md-col-span-6 sm-col-span-8">
+			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-8 md-col-span-6 sm-col-span-3">
 				<p>
 					{ createInterpolateElement(
 						__(
@@ -160,7 +166,7 @@ const HelpFooter = ( { onClose } ) => {
 					) }
 				</p>
 			</div>
-			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-2 md-col-span-6 sm-col-span-4">
+			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-4 md-col-span-2 sm-col-span-1">
 				<Button
 					weight="regular"
 					variant="secondary"
