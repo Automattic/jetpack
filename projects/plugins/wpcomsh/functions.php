@@ -296,9 +296,18 @@ function wpcomsh_get_wpcom_active_subscriptions() {
 	return array_reduce(
 		$wpcom_purchases,
 		function ( $assoc_array, $purchase ) {
-			// 1. Remove _monthly or _yearly ( mainly found in marketplace plugins ).
-			// 2. Transform to plugin slug pattern with dashes.
-			$product_slug                 = preg_replace( array( '/(_monthly|_yearly)$/', '/_/' ), array( '', '-' ), $purchase->product_slug );
+			/**
+			 * Check if the billing_product_slug exists, if not, revert to parsing the store product slug.
+			 * This happens for sites that don't have the APD updated to the new format.
+			 */
+			if ( isset( $purchase->billing_product_slug ) ) {
+				$product_slug = $purchase->billing_product_slug;
+			} else {
+				// 1. Remove _monthly or _yearly ( mainly found in marketplace plugins ).
+				// 2. Transform to product slug pattern with dashes (billing product slug).
+				$product_slug = preg_replace( array( '/(_monthly|_yearly)$/', '/_/' ), array( '', '-' ), $purchase->product_slug );
+			}
+
 			$assoc_array[ $product_slug ] = $purchase;
 
 			return $assoc_array;
