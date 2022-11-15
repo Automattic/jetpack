@@ -1,5 +1,5 @@
-=== Jetpack Backup ===
-Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
+=== Jetpack VaultPress Backup ===
+Contributors: automattic, bjorsch, fgiannar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas, initsogar
 Tags: jetpack
 Requires at least: 6.0
 Requires PHP: 5.6
@@ -8,11 +8,11 @@ Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one‑click restores.
+VaultPress is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
 
 == Description ==
 
-Jetpack Backup is a new plugin that focuses specifically on Jetpack's Backup features.
+Jetpack VaultPress Backup is a plugin that delivers backups and restores without the other parts of Jetpack.
 
 Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
 
@@ -28,7 +28,7 @@ If you make money from your site, or spend hours perfecting content, you need Wo
 
 ### Reliability you can trust
 
-Jetpack Backup is built on WordPress.com’s world‑class infrastructure, so you can be sure your site is safe and can be recovered at any moment. Host backups are often time‑consuming and require technical expertise to restore. You’ve got more important things to do.
+Jetpack VaultPress Backup is built on WordPress.com’s world‑class infrastructure, so you can be sure your site is safe and can be recovered at any moment. Host backups are often time‑consuming and require technical expertise to restore. You’ve got more important things to do.
 
 * Backups of all files including WordPress database backups, theme file backups and plugin backups
 * Backups of all WooCommerce customer and order data
@@ -60,7 +60,7 @@ We have a global team of Happiness Engineers ready to provide incredible support
 
 ### Get Started
 
-Installation is free, quick, and easy. It only takes a few minutes to install Jetpack Backup.
+Installation is free, quick, and easy. It only takes a few minutes to install Jetpack VaultPress Backup.
 
 Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
 
