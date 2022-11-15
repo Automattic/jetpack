@@ -87,9 +87,19 @@ function grunion_admin_css() {
 	width: 100%;
 }
 
+.widefat .column-feedback_response::before {
+	display: none !important;
+}
+
+@media screen and (max-width: 782px) {
+	.widefat .column-feedback_response {
+		padding-left: 8px !important;
+	}
+}
+
 .column-feedback_response .feedback_response__item {
 	display: grid;
-	grid-template-columns: 33% 1fr;
+	grid-template-columns: 35% 1fr;
 	grid-row-gap: 8px;
 }
 .column-feedback_response .feedback_response__item-key,
@@ -100,6 +110,16 @@ function grunion_admin_css() {
 }
 .column-feedback_response .feedback_response__item-value {
 	font-weight: bold;
+}
+
+.column-feedback_response .feedback_response__mobile-separator {
+	display: block;
+}
+
+@media screen and (min-width: 783px) {
+	.column-feedback_response .feedback_response__mobile-separator {
+		display: none;
+	}
 }
 
 .spam a {
@@ -309,22 +329,6 @@ function grunion_post_type_columns_filter( $cols ) { // phpcs:ignore VariableAna
 	);
 }
 
-add_filter( 'list_table_primary_column', 'grunion_list_table_primary_column', 10, 2 );
-/**
- * Make response the default column for the feedback table.
- *
- * @param  string $default Default primary column.
- * @param  string $screen  Current screen.
- * @return string
- */
-function grunion_list_table_primary_column( $default, $screen ) {
-	if ( $screen !== 'edit-feedback' ) {
-		return $default;
-	}
-
-	return 'feedback_response';
-}
-
 /**
  * Displays the value for the source column. (This function runs within the loop.)
  *
@@ -384,6 +388,7 @@ function grunion_manage_post_column_response( $post ) {
 		)
 	);
 
+	echo '<hr class="feedback_response__mobile-separator" />';
 	echo '<div class="feedback_response__item">';
 	foreach ( $response_fields as $key => $value ) {
 		printf(

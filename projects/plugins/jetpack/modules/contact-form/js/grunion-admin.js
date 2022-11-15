@@ -145,7 +145,7 @@ jQuery( function ( $ ) {
 			);
 		}
 
-		$( 'tr.type-feedback .feedback_response .row-actions a' ).click( function ( e ) {
+		$( 'tr.type-feedback .row-actions a' ).click( function ( e ) {
 			e.preventDefault();
 
 			var postRowId = $( e.target ).closest( 'tr.type-feedback' ).attr( 'id' );
