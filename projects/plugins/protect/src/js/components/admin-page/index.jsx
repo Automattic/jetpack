@@ -108,8 +108,9 @@ const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
-	const { statusIsFetching, status } = useSelect( select => ( {
+	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
 		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
 		status: select( STORE_ID ).getStatus(),
 	} ) );
 	useCredentials();
@@ -117,9 +118,15 @@ const ProtectAdminPage = () => {
 	// retry fetching status if it is not available
 	useEffect( () => {
 		if ( ! statusIsFetching && status.status === 'unavailable' ) {
-			refreshStatus( true );
+			console.log( scanIsUnavailable );
+			if ( scanIsUnavailable ) {
+				console.log( 'Handle scan unavailable here' );
+			} else {
+				console.log( 'Initial attempt' );
+				refreshStatus( true );
+			}
 		}
-	}, [ statusIsFetching, status.status, refreshStatus ] );
+	}, [ statusIsFetching, status.status, scanIsUnavailable, refreshStatus ] );
 
 	let currentScanStatus;
 	if ( 'error' === currentStatus ) {

@@ -7,6 +7,7 @@ const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
+const SET_SCAN_IS_UNAVAILABLE = 'SET_SCAN_IS_UNAVAILABLE';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
@@ -54,8 +55,9 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 				// 		return new Promise( ( resolve, reject ) => {
 				// 			if ( 'unavailable' === status.status && attempts <= 3 ) {
 				// 				setTimeout( () => {
+				// 					console.log( 'Attempt ' + attempts );
 				// 					dispatch( refreshStatus( true ) ).then( newStatus =>
-				// 						checkStatus( newStatus, attempts++ )
+				// 						checkStatus( newStatus, attempts + 1 )
 				// 					);
 				// 				}, 5000 );
 				// 			} else {
@@ -65,6 +67,12 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 				// 	};
 				// 	return checkStatus( status );
 				// } )
+
+				.then( status => {
+					if ( 'unavailable' === status.status ) {
+						dispatch( checkUnavailableStatus() );
+					}
+				} )
 				.then( status => {
 					dispatch( setStatus( camelize( status ) ) );
 					dispatch( setStatusIsFetching( false ) );
@@ -74,6 +82,32 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 					reject( error );
 				} )
 		);
+	} );
+};
+
+const checkUnavailableStatus = ( attempts = 0 ) => async ( { dispatch } ) => {
+	return await new Promise( ( resolve, reject ) => {
+		return apiFetch( {
+			path: 'jetpack-protect/v1/status',
+			method: 'GET',
+		} )
+			.then( status => {
+				// If unavailable and attempts are less than 3 loop
+				if ( 'unavailable' === status.status && attempts < 3 ) {
+					setTimeout( () => {
+						console.log( 'Attempt ' + attempts );
+						dispatch( checkUnavailableStatus( attempts + 1 ) );
+					}, 5000 );
+				}
+				// If unavailable and attempts over 3, resolve and setScanIsUnavailable
+				// What if not unavailable but under 3?
+				// Allow set status to happen in refreshStatus!
+				dispatch( setScanIsUnavailable( true ) );
+				resolve( status );
+			} )
+			.catch( error => {
+				reject( error );
+			} );
 	} );
 };
 
@@ -112,6 +146,10 @@ const setCredentials = credentials => {
 
 const setStatusIsFetching = status => {
 	return { type: SET_STATUS_IS_FETCHING, status };
+};
+
+const setScanIsUnavailable = status => {
+	return { type: SET_SCAN_IS_UNAVAILABLE, status };
 };
 
 const setScanIsEnqueuing = isEnqueuing => {
@@ -358,6 +396,7 @@ export {
 	SET_STATUS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_UNAVAILABLE,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
