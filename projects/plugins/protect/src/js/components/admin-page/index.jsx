@@ -118,18 +118,13 @@ const ProtectAdminPage = () => {
 	// retry fetching status if it is not available
 	useEffect( () => {
 		if ( ! statusIsFetching && status.status === 'unavailable' ) {
-			console.log( scanIsUnavailable );
-			if ( scanIsUnavailable ) {
-				console.log( 'Handle scan unavailable here' );
-			} else {
-				console.log( 'Initial attempt' );
-				refreshStatus( true );
-			}
+			console.log( 'First attempt' );
+			refreshStatus( true );
 		}
-	}, [ statusIsFetching, status.status, scanIsUnavailable, refreshStatus ] );
+	}, [ statusIsFetching, status.status, refreshStatus ] );
 
 	let currentScanStatus;
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		currentScanStatus = 'error';
 	} else if ( ! lastChecked ) {
 		currentScanStatus = 'in_progress';
@@ -146,7 +141,7 @@ const ProtectAdminPage = () => {
 	} );
 
 	// Error
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		let displayErrorMessage = errorMessage
 			? `${ errorMessage } (${ errorCode }).`
 			: __( 'We are having problems scanning your site.', 'jetpack-protect' );

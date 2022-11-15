@@ -53,7 +53,7 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 				.then( status => {
 					const checkStatus = ( status, attempts = 0 ) => {
 						return new Promise( resolveCheckStatus => {
-							if ( 'unavailable' === status.status && attempts <= 3 ) {
+							if ( 'unavailable' === status.status && attempts < 3 ) {
 								setTimeout( () => {
 									console.log( 'Attempt ' + attempts );
 									apiFetch( {
@@ -62,6 +62,10 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 									} ).then( newStatus => checkStatus( newStatus, attempts + 1 ) );
 								}, 5000 );
 							} else {
+								if ( 'unavailable' === status.status ) {
+									console.log( 'Set scan as unavailable' );
+									dispatch( setScanIsUnavailable( true ) );
+								}
 								resolveCheckStatus( status );
 							}
 						} );
@@ -70,7 +74,7 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 				} )
 				// .then( status => {
 				// 	if ( 'unavailable' === status.status ) {
-				// 		dispatch( checkUnavailableStatus() );
+				// 		return dispatch( checkUnavailableStatus() );
 				// 	}
 				// } )
 				.then( status => {
@@ -88,22 +92,21 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 const checkUnavailableStatus = ( attempts = 0 ) => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
 		return apiFetch( {
-			path: 'jetpack-protect/v1/status',
+			path: 'jetpack-protect/v1/status?hard_refresh=true',
 			method: 'GET',
 		} )
 			.then( status => {
-				// If unavailable and attempts are less than 3 loop
 				if ( 'unavailable' === status.status && attempts < 3 ) {
 					setTimeout( () => {
 						console.log( 'Attempt ' + attempts );
 						dispatch( checkUnavailableStatus( attempts + 1 ) );
 					}, 5000 );
+				} else {
+					if ( 'unavailable' === status.status ) {
+						dispatch( setScanIsUnavailable( true ) );
+					}
+					resolve( status );
 				}
-				// If unavailable and attempts over 3, resolve and setScanIsUnavailable
-				// What if not unavailable but under 3?
-				// Allow set status to happen in refreshStatus!
-				dispatch( setScanIsUnavailable( true ) );
-				resolve( status );
 			} )
 			.catch( error => {
 				reject( error );
