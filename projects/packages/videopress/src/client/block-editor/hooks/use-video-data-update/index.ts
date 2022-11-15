@@ -59,7 +59,7 @@ export default function useMediaDataUpdate( id: VideoId ) {
 /*
  * Fields list to keep in sync with block attributes.
  */
-const videoFieldsToUpdate = [ 'privacy_setting', 'rating' ];
+const videoFieldsToUpdate = [ 'privacy_setting', 'rating', 'allow_download' ];
 
 /*
  * Map object from video field name to block attribute name.
@@ -67,6 +67,7 @@ const videoFieldsToUpdate = [ 'privacy_setting', 'rating' ];
  */
 const mapFieldsToAttributes = {
 	privacy_setting: 'privacySetting',
+	allow_download: 'allowDownload',
 };
 
 /**
@@ -123,6 +124,12 @@ export function useSyncMedia(
 
 		// ...and udpate the block attributes with fresh data.
 		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
+
+		// Cast/tweak response body => block attributes.
+		if ( typeof initialAttributesValues.allowDownload !== 'undefined' ) {
+			initialAttributesValues.allowDownload = !! initialAttributesValues.allowDownload;
+		}
+
 		setAttributes( initialAttributesValues );
 	}, [ videoData, isRequestingVideoData ] );
 
