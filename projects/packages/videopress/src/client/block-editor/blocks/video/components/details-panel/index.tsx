@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { videoControlProps } from '../../types';
+import { DetailsPanelProps } from '../../types';
 import type React from 'react';
 
 const CHARACTERS_PER_LINE = 31;
@@ -14,14 +14,15 @@ const CHARACTERS_PER_LINE = 31;
 /**
  * React component that renders a Video details control
  *
- * @param {videoControlProps} props - Component properties.
+ * @param {DetailsPanelProps} props - Component properties.
  * @returns {React.ReactElement}      Details panel component.
  */
 export default function DetailsPanel( {
+	filename,
 	attributes,
 	setAttributes,
 	isRequestingVideoData,
-}: videoControlProps ) {
+}: DetailsPanelProps ) {
 	const { title, description } = attributes;
 
 	// Expands the description textarea to accommodate the description
@@ -41,7 +42,7 @@ export default function DetailsPanel( {
 			<TextControl
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				value={ title }
-				placeholder={ __( 'Video title', 'jetpack-videopress-pkg' ) }
+				placeholder={ `${ filename } video` }
 				onChange={ value => setAttributes( { title: value } ) }
 				disabled={ isRequestingVideoData }
 			/>

@@ -62,3 +62,7 @@ export type VideoControlProps = {
 };
 
 export type VideoEditProps = VideoControlProps;
+
+export type DetailsPanelProps = VideoControlProps & {
+	filename: string;
+};
