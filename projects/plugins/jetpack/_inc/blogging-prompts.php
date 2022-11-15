@@ -57,9 +57,14 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  * @return stdClass[] Array of blogging prompt objects.
  */
 function jetpack_get_daily_blogging_prompts() {
-	$today         = date_i18n( 'Y-m-d', true );
+	$date_format = 'Y-m-d';
+	$today       = date_i18n( $date_format, true );
+
+	// Include prompts from yesterday, just in case someone has an outdated prompt id from a previous day.
+	$one_day       = date_interval_create_from_date_string( '1 day' );
+	$yesterday     = date_format( date_create( $today )->sub( $one_day ), $date_format );
 	$locale        = get_locale();
-	$transient_key = 'jetpack_blogging_prompt_' . $today . '_' . $locale;
+	$transient_key = 'jetpack_blogging_prompt_' . $yesterday . '_' . $locale;
 	$prompts_today = get_transient( $transient_key );
 
 	// Return the cached prompt, if we have it. Otherwise fetch it from the API.
@@ -68,7 +73,7 @@ function jetpack_get_daily_blogging_prompts() {
 	}
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $today . '&number=10&_locale=' . $locale;
+	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $yesterday . '&number=10&_locale=' . $locale;
 	$args    = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
@@ -81,7 +86,7 @@ function jetpack_get_daily_blogging_prompts() {
 	);
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		// This will load the library, but may be too late to automatically load any endpoints using WPCOM_API_Direct::register_endpoints.
+		// This will load the library, but it may be too late to automatically load any endpoints using WPCOM_API_Direct::register_endpoints.
 		// In that case, call `wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' )`
 		// on the `init` hook to load the blogging-prompts endpoint before calling this function.
 		require_lib( 'wpcom-api-direct' );
