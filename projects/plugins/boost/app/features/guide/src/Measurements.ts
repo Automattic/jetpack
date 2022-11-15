@@ -1,19 +1,4 @@
-import type { Image } from './Images';
-
-export interface MeasuredImage extends Image {
-	onScreen: {
-		width: number;
-		height: number;
-	};
-}
-
-export interface ComparedImage extends MeasuredImage {
-	scaling: {
-		width: number;
-		height: number;
-		pixels: number;
-	};
-}
+import type { MeasuredImage, Image, ComparedImage } from './types';
 
 function compareDimensions( image: MeasuredImage ) {
 	const onScreen = image.onScreen;

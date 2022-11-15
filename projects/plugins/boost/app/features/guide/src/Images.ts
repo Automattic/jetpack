@@ -1,11 +1,4 @@
-export type Image = {
-	type: 'img' | 'srcset' | 'background';
-	url: string;
-	width: number;
-	height: number;
-	node: Element;
-	fileSize: number;
-};
+import type { Image } from './types';
 
 export async function load( domElements: Element[] ) {
 	const parsedNodes = domElements.map( async ( el: Element ) => {

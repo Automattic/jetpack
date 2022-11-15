@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type { ComparedImage } from '../Measurements';
+	import { ComparedImage } from '../types';
 	import { fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	import JetpackLogo from './JetpackLogo.svelte';
+
 	export let image: ComparedImage;
 
 	// Reactive variables because this component can be reused by Svelte.

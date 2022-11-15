@@ -1,6 +1,6 @@
 <script lang="ts">
+	import type { ComparedImage } from '../types';
 	import state from './StateStore';
-	import type { ComparedImage } from '../Measurements';
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
 	export let images: ComparedImage[];
@@ -22,7 +22,7 @@
 			{/each}
 		</div>
 		{#if show !== false}
-			<ImageGuide bind:image={show} />
+			<ImageGuide image={show} />
 		{/if}
 	</div>
 {/if}
