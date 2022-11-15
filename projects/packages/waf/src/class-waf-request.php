@@ -185,45 +185,47 @@ class Waf_Request {
 	 * @return array{ 0: string, 1: string, 2: string }
 	 */
 	protected function get_url() {
-		if ( null === $this->url ) {
-			$uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_DEFAULT ) : '/';
-			if ( false !== strpos( $uri, '?' ) ) {
-				// remove the query string (we'll pull it from elsewhere later)
-				$uri = substr( $uri, 0, strpos( $uri, '?' ) );
-			}
-			$query_string = isset( $_SERVER['QUERY_STRING'] ) ? '?' . filter_var( wp_unslash( $_SERVER['QUERY_STRING'] ), FILTER_DEFAULT ) : '';
-			if ( 1 === preg_match( '/^https?:\/\//', $uri ) ) {
-				// sometimes $_SERVER[REQUEST_URI] already includes the full domain name
-				$uri_host  = substr( $uri, 0, strpos( $uri, '/', 8 ) );
-				$uri_path  = substr( $uri, strlen( $uri_host ) );
-				$this->url = array( $uri_host, $uri_path, $query_string );
-			} else {
-				// otherwise build the URI manually
-				$uri_scheme = ( ! empty( $_SERVER['HTTPS'] ) && 'on' === $_SERVER['HTTPS'] )
-					? 'https'
-					: 'http';
-				$uri_host   = isset( $_SERVER['HTTP_HOST'] )
-					? filter_var( wp_unslash( $_SERVER['HTTP_HOST'] ), FILTER_DEFAULT )
-					: (
-						isset( $_SERVER['SERVER_NAME'] )
-							? filter_var( wp_unslash( $_SERVER['SERVER_NAME'] ), FILTER_DEFAULT )
-							: ''
-					);
-				$uri_port   = isset( $_SERVER['SERVER_PORT'] )
-					? filter_var( wp_unslash( $_SERVER['SERVER_PORT'] ), FILTER_SANITIZE_NUMBER_INT )
-					: '';
-				// we only need to include the port if it's non-standard
-				if ( $uri_port && ( 'http' === $uri_scheme && '80' !== $uri_port || 'https' === $uri_scheme && '443' !== $uri_port ) ) {
-					$uri_port = ':' . $uri_port;
-				} else {
-					$uri_port = '';
-				}
-				$this->url = array(
-					$uri_scheme . '://' . $uri_host . $uri_port,
-					$uri,
-					$query_string,
+		if ( null !== $this->url ) {
+			return $this->url;
+		}
+
+		$uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_DEFAULT ) : '/';
+		if ( false !== strpos( $uri, '?' ) ) {
+			// remove the query string (we'll pull it from elsewhere later)
+			$uri = substr( $uri, 0, strpos( $uri, '?' ) );
+		}
+		$query_string = isset( $_SERVER['QUERY_STRING'] ) ? '?' . filter_var( wp_unslash( $_SERVER['QUERY_STRING'] ), FILTER_DEFAULT ) : '';
+		if ( 1 === preg_match( '/^https?:\/\//', $uri ) ) {
+			// sometimes $_SERVER[REQUEST_URI] already includes the full domain name
+			$uri_host  = substr( $uri, 0, strpos( $uri, '/', 8 ) );
+			$uri_path  = substr( $uri, strlen( $uri_host ) );
+			$this->url = array( $uri_host, $uri_path, $query_string );
+		} else {
+			// otherwise build the URI manually
+			$uri_scheme = ( ! empty( $_SERVER['HTTPS'] ) && 'on' === $_SERVER['HTTPS'] )
+				? 'https'
+				: 'http';
+			$uri_host   = isset( $_SERVER['HTTP_HOST'] )
+				? filter_var( wp_unslash( $_SERVER['HTTP_HOST'] ), FILTER_DEFAULT )
+				: (
+					isset( $_SERVER['SERVER_NAME'] )
+						? filter_var( wp_unslash( $_SERVER['SERVER_NAME'] ), FILTER_DEFAULT )
+						: ''
 				);
+			$uri_port   = isset( $_SERVER['SERVER_PORT'] )
+				? filter_var( wp_unslash( $_SERVER['SERVER_PORT'] ), FILTER_SANITIZE_NUMBER_INT )
+				: '';
+			// we only need to include the port if it's non-standard
+			if ( $uri_port && ( 'http' === $uri_scheme && '80' !== $uri_port || 'https' === $uri_scheme && '443' !== $uri_port ) ) {
+				$uri_port = ':' . $uri_port;
+			} else {
+				$uri_port = '';
 			}
+			$this->url = array(
+				$uri_scheme . '://' . $uri_host . $uri_port,
+				$uri,
+				$query_string,
+			);
 		}
 		return $this->url;
 	}
