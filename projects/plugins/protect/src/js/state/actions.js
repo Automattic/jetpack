@@ -50,29 +50,29 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 				path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
 				method: 'GET',
 			} )
-				// .then( status => {
-				// 	const checkStatus = ( status, attempts = 0 ) => {
-				// 		return new Promise( ( resolve, reject ) => {
-				// 			if ( 'unavailable' === status.status && attempts <= 3 ) {
-				// 				setTimeout( () => {
-				// 					console.log( 'Attempt ' + attempts );
-				// 					dispatch( refreshStatus( true ) ).then( newStatus =>
-				// 						checkStatus( newStatus, attempts + 1 )
-				// 					);
-				// 				}, 5000 );
-				// 			} else {
-				// 				resolve( status );
-				// 			}
-				// 		} );
-				// 	};
-				// 	return checkStatus( status );
-				// } )
-
 				.then( status => {
-					if ( 'unavailable' === status.status ) {
-						dispatch( checkUnavailableStatus() );
-					}
+					const checkStatus = ( status, attempts = 0 ) => {
+						return new Promise( resolveCheckStatus => {
+							if ( 'unavailable' === status.status && attempts <= 3 ) {
+								setTimeout( () => {
+									console.log( 'Attempt ' + attempts );
+									apiFetch( {
+										path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
+										method: 'GET',
+									} ).then( newStatus => checkStatus( newStatus, attempts + 1 ) );
+								}, 5000 );
+							} else {
+								resolveCheckStatus( status );
+							}
+						} );
+					};
+					return checkStatus( status );
 				} )
+				// .then( status => {
+				// 	if ( 'unavailable' === status.status ) {
+				// 		dispatch( checkUnavailableStatus() );
+				// 	}
+				// } )
 				.then( status => {
 					dispatch( setStatus( camelize( status ) ) );
 					dispatch( setStatusIsFetching( false ) );
