@@ -76,10 +76,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
 			// Token not valid. We bail even unless the post can be accessed publicly.
-			return self::user_has_access( $access_level, false, false );
+			return $this->user_has_access( $access_level, false, false );
 		}
 
-		return self::user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber );
+		return $this->user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber );
 	}
 
 	/**
@@ -87,11 +87,11 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @param string $access_level Post or blog access level.
 	 * @param bool   $is_blog_subscrber Is user a subscriber of the blog.
-	 * @param bool   $is_paid_subscriber Is user a paidsubscriber of the blog.
+	 * @param bool   $is_paid_subscriber Is user a paid subscriber of the blog.
 	 *
 	 * @return bool does the user have access to the post/blog.
 	 */
-	protected static function user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber ) {
+	protected function user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber ) {
 
 		if ( is_user_logged_in() && current_user_can( 'edit_post' ) ) {
 			// Admin has access

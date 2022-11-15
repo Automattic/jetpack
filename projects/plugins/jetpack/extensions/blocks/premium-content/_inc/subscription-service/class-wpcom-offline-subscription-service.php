@@ -63,7 +63,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * @return bool
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
-	public static function subscriber_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
+	public function subscriber_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
 		switch_to_blog( $blog_id );
 
 		$previous_user = wp_get_current_user();
@@ -71,10 +71,10 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 
 		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
 		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$is_paid_subscriber = static::visitor_can_view_content( $valid_plan_ids, $access_level );
+		$is_paid_subscriber = $this->visitor_can_view_content( $valid_plan_ids, $access_level );
 
 		// All the users here are subscribers
-		$allowed = static::user_has_access( $access_level, true, $is_paid_subscriber );
+		$allowed = $this->user_has_access( $access_level, true, $is_paid_subscriber );
 
 		wp_set_current_user( $previous_user );
 		restore_current_blog();
