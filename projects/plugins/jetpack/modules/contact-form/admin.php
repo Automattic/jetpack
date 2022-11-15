@@ -536,6 +536,11 @@ function grunion_source_filter_results( $query ) {
 		return;
 	}
 
+	// Don't apply to the filter dropdown query
+	if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		return;
+	}
+
 	$query->query_vars['post_parent'] = $parent_id;
 }
 
