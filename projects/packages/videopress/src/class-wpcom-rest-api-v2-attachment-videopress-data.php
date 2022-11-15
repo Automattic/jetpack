@@ -205,19 +205,19 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		$video_privacy_setting          = ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting );
 		$all_videos_are_private_on_site = Data::get_videopress_videos_private_for_site();
 
-		// decide if the video is private based on the site privacy setting as well as the video privacy setting
-		$video_is_private = $all_videos_are_private_on_site ? true : ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+		// decide if the video needs a playback token based on the site privacy setting as well as the video privacy setting
+		$video_needs_playback_token = $all_videos_are_private_on_site ? true : ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE );
 
 		return array(
-			'title'            => $title,
-			'description'      => $description,
-			'caption'          => $caption,
-			'guid'             => $info->guid,
-			'rating'           => $info->rating,
-			'allow_download'   =>
+			'title'                => $title,
+			'description'          => $description,
+			'caption'              => $caption,
+			'guid'                 => $info->guid,
+			'rating'               => $info->rating,
+			'allow_download'       =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'privacy_setting'  => $video_privacy_setting,
-			'video_is_private' => $video_is_private,
+			'privacy_setting'      => $video_privacy_setting,
+			'needs_playback_token' => $video_needs_playback_token,
 		);
 	}
 
