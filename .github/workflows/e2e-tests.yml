@@ -15,9 +15,11 @@ on:
     types: [completed]
     workflows: ["Build"]
     branches: [ 'trunk', '*/branch-*' ]
+  repository_dispatch:
+    types: ['e2e tests**']
 
 concurrency:
-  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
 jobs:
@@ -90,6 +92,13 @@ jobs:
         run_id: ${{ github.event.workflow_run.id }}
         path: build-output
 
+    - name: Checkout mirror repo
+      if: github.event_name == 'repository_dispatch'
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ github.event.client_payload.repository }}
+        path: build-output/build/${{ github.event.client_payload.repository }}
+
     - name: Prepare build
       env:
         COMPOSER_ROOT_VERSION: "dev-trunk"
@@ -98,6 +107,12 @@ jobs:
       run: |
         if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
           echo "::group::Prepare build artefacts"
+          tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
+          echo "::endgroup::"
+        fi
+
+        if [ "$GITHUB_EVENT_NAME" == workflow_run ] || [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
+          echo "::group::Update volume mapping"
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else

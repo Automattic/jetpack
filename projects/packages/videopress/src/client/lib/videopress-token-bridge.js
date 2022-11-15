@@ -13,6 +13,17 @@
 			return;
 		}
 
+		// acknowledge receipt of message so player knows if it can expect a response or if it should try again later.
+		// Important for situations where the iframe loads prior to the bridge being ready.
+		event.source.postMessage(
+			{
+				event: 'videopress_token_request_ack',
+				guid: event.data.guid,
+				requestId: event.data.requestId,
+			},
+			'*'
+		);
+
 		const fetchData = {
 			action: 'videopress-get-playback-jwt',
 			guid: event.data.guid,
@@ -37,6 +48,7 @@
 							event: 'videopress_token_received',
 							guid: fetchData.guid,
 							jwt: jsonResponse.data.jwt,
+							requestId: event.data.requestId,
 						},
 						'*'
 					);
@@ -45,6 +57,7 @@
 						{
 							event: 'videopress_token_error',
 							guid: fetchData.guid,
+							requestId: event.data.requestId,
 						},
 						'*'
 					);

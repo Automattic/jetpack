@@ -1,5 +1,5 @@
-=== VaultPress ===
-Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
+=== Jetpack VaultPress ===
+Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, initsogar, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
 Tested up to: 6.1
@@ -7,15 +7,13 @@ Stable tag: 2.2.0
 Requires PHP: 5.6
 License: GPLv2
 
-VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.
+Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.
 
 == Description ==
 
-[VaultPress](http://vaultpress.com/plans) is a real-time backup and security scanning service designed and built by [Automattic](http://automattic.com/), the same company that operates (and backs up!) millions of sites on WordPress.com.
-
-VaultPress is now powered by Jetpack and effortlessly backs up every post, comment, media file, revision, and dashboard setting on your site to our servers. With VaultPress you're protected against hackers, malware, accidental damage, and host outages.
-
-To subscribe visit [VaultPress.com](http://vaultpress.com/plans).
+**Please note:** This plugin is no longer actively supported for new customers. 
+	
+For the next generation of VaultPress technology, **we recommend** [Jetpack Security](https://jetpack.com/features/security/). It includes real-time backups, malware scanning, anti-spam comment protection, and a new Web Application Firewall (WAF) for ultimate WordPress site security.
 
 == Installation ==
 
@@ -29,23 +27,9 @@ If you run into any difficulties please [contact us](https://vaultpress.com/cont
 
 View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaultpress.com/faq/?utm_source=plugin-readme&utm_medium=faq&utm_campaign=1.0)
 
-= What’s included in each plan? =
-
-All plans include automated daily backups (unlimited storage space) of your entire site, 1-click restores, stats, priority support, brute force attack protection, uptime monitoring, spam protection, site migration, and an activity log.
-
-The Personal and Premium plans are limited to a 30-day backup archive while Professional is unlimited.
-
-The Premium and Professional plans also offer automated security scanning against malware and infiltrations with the Professional plan also offering automated threat resolution.
-
-[Visit our site](https://vaultpress.com/contact/) for more detail and up-to-date information.
-
 = How many sites can I protect with VaultPress? =
 
-A VaultPress subscription is for a single WordPress site. You can purchase additional subscriptions for each of your WordPress sites, and manage them all with in one place.
-
-= Does VaultPress work with WordPress 3.0 Multisite installs? =
-
-Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
+A Jetpack VaultPress subscription is for a single WordPress site. 
 
 == Changelog ==
 ### 2.2.2 - 2022-07-06

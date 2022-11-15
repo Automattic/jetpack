@@ -12,7 +12,11 @@
 			"customThankyouRedirect": "",
 			"formTitle": "",
 			"jetpackCRM": true,
-			"className": "noodles"
+			"className": "noodles",
+			"salesforceData": {
+				"organizationId": "",
+				"sendToSalesforce": false
+			}
 		},
 		"innerBlocks": [],
 		"originalContent": "<div class=\"wp-block-jetpack-contact-form noodles\">\n\n\n    \n\n    \n</div>"

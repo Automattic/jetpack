@@ -1105,6 +1105,9 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/stats-admin:
+    specifiers: {}
+
   projects/packages/transport-helper:
     specifiers: {}
 
@@ -1134,6 +1137,7 @@ importers:
       '@types/wordpress__components': 19.10.0
       '@types/wordpress__url': 2.14.0
       '@wordpress/api-fetch': 6.18.0
+      '@wordpress/block-editor': 10.4.0
       '@wordpress/blocks': 11.20.0
       '@wordpress/browserslist-config': 5.4.0
       '@wordpress/components': 22.0.0
@@ -1171,6 +1175,7 @@ importers:
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@storybook/addon-actions': 6.5.13_sfoxds7t5ydpegc3knd667wn6m
       '@wordpress/api-fetch': 6.18.0
+      '@wordpress/block-editor': 10.4.0_5xvcrqeokx2za2xvbyf5xkapim
       '@wordpress/blocks': 11.20.0_react@17.0.2
       '@wordpress/components': 22.0.0_5xvcrqeokx2za2xvbyf5xkapim
       '@wordpress/compose': 5.19.0_react@17.0.2
@@ -3680,6 +3685,7 @@ packages:
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+    requiresBuild: true
     dev: true
 
   /@dabh/diagnostics/2.0.3:
@@ -8571,7 +8577,7 @@ packages:
       '@wordpress/element': 4.19.0
       '@wordpress/keycodes': 3.21.0
       react: 17.0.2
-      rememo: 4.0.1
+      rememo: 4.0.2
 
   /@wordpress/keycodes/3.21.0:
     resolution: {integrity: sha512-0qFdzNjIKR55vHtL4iOQ7gDiMITT9vlQ68H0qMfJ3zaqJpNXeDwa244URMEhClwKTWEK0/yP5QNijfHNCWJ+IQ==}
