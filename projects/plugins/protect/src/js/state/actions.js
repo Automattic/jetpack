@@ -87,7 +87,6 @@ const checkStatus = ( currentStatus, attempts = 0 ) => async ( { dispatch } ) =>
 					setTimeout( () => {
 						dispatch( checkStatus( newStatus, attempts + 1 ) );
 					}, 5000 );
-					return;
 				} )
 				.catch( reject );
 		} else {
