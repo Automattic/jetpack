@@ -118,7 +118,7 @@ const ProtectAdminPage = () => {
 	// retry fetching status if it is not available
 	useEffect( () => {
 		if ( ! statusIsFetching && status.status === 'unavailable' ) {
-			console.log( 'First attempt' );
+			// console.log( 'First attempt' );
 			refreshStatus( true );
 		}
 	}, [ statusIsFetching, status.status, refreshStatus ] );
