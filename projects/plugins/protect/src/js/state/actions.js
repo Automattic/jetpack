@@ -59,9 +59,7 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
 		return fetchStatus( hardRefresh )
 			.then( status => {
-				if ( 'unavailable' === status.status ) {
-					return dispatch( checkStatus() );
-				}
+				return dispatch( checkStatus( status ) );
 			} )
 			.then( status => {
 				dispatch( setStatus( camelize( status ) ) );
@@ -74,26 +72,30 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	} );
 };
 
-const checkStatus = ( attempts = 0 ) => async ( { dispatch } ) => {
+/**
+ * Check Status
+ *
+ * @param {object} currentStatus - The status.
+ * @param {number} attempts - The amount of recursive attempts that have already been made.
+ * @returns {Promise} - Promise which resolves with the status once it has been checked.
+ */
+const checkStatus = ( currentStatus, attempts = 0 ) => async ( { dispatch } ) => {
 	return await new Promise( ( resolve, reject ) => {
-		fetchStatus( true )
-			.then( status => {
-				if ( 'unavailable' === status.status && attempts < 3 ) {
+		if ( 'unavailable' === currentStatus.status && attempts < 3 ) {
+			fetchStatus( true )
+				.then( newStatus => {
 					setTimeout( () => {
-						// console.log( 'Attempt ' + attempts );
-						dispatch( checkStatus( attempts + 1 ) );
+						dispatch( checkStatus( newStatus, attempts + 1 ) );
 					}, 5000 );
-				} else {
-					if ( 'unavailable' === status.status ) {
-						// console.log( 'Set scan as unavailable' );
-						dispatch( setScanIsUnavailable( true ) );
-					}
-					resolve( status );
-				}
-			} )
-			.catch( error => {
-				reject( error );
-			} );
+					return;
+				} )
+				.catch( reject );
+		} else {
+			if ( 'unavailable' === currentStatus.status ) {
+				dispatch( setScanIsUnavailable( true ) );
+			}
+			resolve( currentStatus );
+		}
 	} );
 };
 
