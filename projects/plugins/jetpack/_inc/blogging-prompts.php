@@ -125,7 +125,7 @@ function jetpack_has_posts_page() {
 		return true;
 	}
 
-	// They are choosing to set the posts to be set to 0.
+	// There is a page set to show posts.
 	$is_posts_page_set = (int) get_option( 'page_for_posts' ) > 0;
 	if ( $is_posts_page_set ) {
 		return true;
