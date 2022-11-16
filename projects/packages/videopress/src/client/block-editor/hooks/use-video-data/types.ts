@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { VideoGUID, VideoId } from '../../blocks/video/types';
 
 export type UseVideoDataArgumentsProps = {
