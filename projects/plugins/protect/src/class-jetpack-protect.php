@@ -20,7 +20,6 @@ use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Protect\Credentials;
 use Automattic\Jetpack\Protect\Plan;
-use Automattic\Jetpack\Protect\Protect_Status;
 use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect\Status;
@@ -39,6 +38,7 @@ class Jetpack_Protect {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
 
 		// Init Jetpack packages
 		add_action(
@@ -93,6 +93,22 @@ class Jetpack_Protect {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+		// Add custom WP REST API endoints.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+
+		My_Jetpack_Initializer::init();
+		Site_Health::init();
+
+		// Sets up JITMS.
+		JITM::configure();
+	}
+
+	/**
+	 * Initialize the admin page resources.
+	 */
+	public function admin_page_init() {
 		$total_threats = Status::get_total_threats();
 		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
 		if ( $total_threats ) {
@@ -107,25 +123,8 @@ class Jetpack_Protect {
 			array( $this, 'plugin_settings_page' ),
 			99
 		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
-		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-		// Add custom WP REST API endoints.
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
-
-		My_Jetpack_Initializer::init();
-		Site_Health::init();
-
-		// Sets up JITMS.
-		JITM::configure();
-	}
-
-	/**
-	 * Initialize the admin resources.
-	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
@@ -174,11 +173,13 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
-		$initial_state = array(
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
+		$initial_state             = array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'            => Status::get_status(),
+			'status'            => Status::get_status( $refresh_status_from_wpcom ),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
@@ -186,6 +187,7 @@ class Jetpack_Protect {
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
+			'hasRequiredPlan'   => Plan::has_required_plan(),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
@@ -255,10 +257,10 @@ class Jetpack_Protect {
 	public static function register_rest_endpoints() {
 		register_rest_route(
 			'jetpack-protect/v1',
-			'plan',
+			'check-plan',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_get_plan',
+				'callback'            => __CLASS__ . '::api_check_plan',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -355,11 +357,10 @@ class Jetpack_Protect {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_get_plan() {
-		$plan                 = My_Jetpack_Products::get_product( 'scan' );
-		$plan['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
+	public static function api_check_plan() {
+		$has_required_plan = Plan::has_required_plan();
 
-		return rest_ensure_response( $plan, 200 );
+		return rest_ensure_response( $has_required_plan, 200 );
 	}
 
 	/**
@@ -370,11 +371,7 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_get_status( $request ) {
-		if ( $request['hard_refresh'] ) {
-			Scan_Status::delete_option();
-			Protect_Status::delete_option();
-		}
-		$status = Status::get_status();
+		$status = Status::get_status( $request['hard_refresh'] );
 		return rest_ensure_response( $status, 200 );
 	}
 

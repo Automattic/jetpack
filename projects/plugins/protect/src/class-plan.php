@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Protect;
 
+use Automattic\Jetpack\Current_Plan;
+
 /**
  * The Plan class.
  */
@@ -85,5 +87,25 @@ class Plan {
 				'request' => $wpcom_request,
 			)
 		);
+	}
+
+	/**
+	 * Has Required Plan
+	 *
+	 * @param bool $force_refresh Refresh the local plan cache from wpcom.
+	 * @return bool True when the site has a plan or product that supports the paid Protect tier.
+	 */
+	public static function has_required_plan( $force_refresh = false ) {
+		static $has_scan = null;
+		if ( null === $has_scan || $force_refresh ) {
+			$products = array_column( Current_Plan::get_products(), 'product_slug' );
+
+			// Check for a plan or product that enables scan.
+			$plan_supports_scan = Current_Plan::supports( 'scan', true );
+			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
+			$has_scan           = $plan_supports_scan || $has_scan_product;
+		}
+
+		return $has_scan;
 	}
 }

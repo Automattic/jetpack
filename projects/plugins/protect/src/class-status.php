@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Protect;
 
-use Automattic\Jetpack\My_Jetpack\Products\Scan;
-
 /**
  * Class that handles fetching and caching the Status of vulnerabilities check from the WPCOM servers
  */
@@ -51,10 +49,11 @@ class Status {
 	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
+	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
 	 * @return Status_Model
 	 */
-	public static function get_status() {
-		$use_scan_status = Scan::has_required_plan();
+	public static function get_status( $refresh_from_wpcom = false ) {
+		$use_scan_status = Plan::has_required_plan();
 
 		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
 			if ( 'scan_api' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {
@@ -66,7 +65,7 @@ class Status {
 			}
 		}
 
-		self::$status = $use_scan_status ? Scan_Status::get_status() : Protect_Status::get_status();
+		self::$status = $use_scan_status ? Scan_Status::get_status( $refresh_from_wpcom ) : Protect_Status::get_status( $refresh_from_wpcom );
 		return self::$status;
 	}
 

@@ -169,7 +169,10 @@ const ProtectAdminPage = () => {
 	}
 
 	// When there's no information yet. Usually when the plugin was just activated
-	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
+	if (
+		[ 'scheduled', 'scanning', 'optimistically_scanning' ].indexOf( status.status ) >= 0 ||
+		! lastChecked
+	) {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
@@ -279,6 +282,9 @@ const useStatusPolling = () => {
 		const pollStatus = () => {
 			refreshStatus( true )
 				.then( latestStatus => {
+					if ( latestStatus.status.error ) {
+						throw latestStatus.status.errorMessage;
+					}
 					if (
 						[ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ||
 						! latestStatus.status.lastChecked
@@ -306,23 +312,27 @@ const Admin = () => {
 	useRegistrationWatcher();
 	useStatusPolling();
 
-	const { refreshPlan } = useDispatch( STORE_ID );
+	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
 		siteProductAvailabilityHandler: async () =>
 			apiFetch( {
-				path: 'jetpack-protect/v1/plan',
+				path: 'jetpack-protect/v1/check-plan',
 				method: 'GET',
-			} ).then( jetpackScan => jetpackScan?.has_required_plan ),
+			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
 
 	useEffect( () => {
 		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
-			refreshPlan();
+			startScanOptimistically();
+			setTimeout( () => {
+				refreshPlan();
+				refreshStatus( true );
+			}, 5000 );
 		}
-	}, [ refreshPlan ] );
+	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
 
 	/*
 	 * Show interstital page when

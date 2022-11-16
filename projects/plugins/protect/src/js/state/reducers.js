@@ -16,6 +16,7 @@ import {
 	SET_NOTICE,
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
+	SET_HAS_REQUIRED_PLAN,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -39,7 +40,7 @@ const status = ( state = {}, action ) => {
 		case SET_STATUS:
 			return action.status;
 		case START_SCAN_OPTIMISTICALLY:
-			return { ...state, status: 'scanning' };
+			return { ...state, status: 'optimistically_scanning' };
 	}
 	return state;
 };
@@ -134,6 +135,14 @@ const notice = ( state = {}, action ) => {
 	return state;
 };
 
+const hasRequiredPlan = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_HAS_REQUIRED_PLAN:
+			return action.hasRequiredPlan;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	credentials,
 	credentialsIsFetching,
@@ -149,6 +158,7 @@ const reducers = combineReducers( {
 	modal,
 	notice,
 	setThreatsFixing,
+	hasRequiredPlan,
 } );
 
 export default reducers;

@@ -14,6 +14,7 @@ const selectors = {
 	getModalProps: state => state.modal?.props || {},
 	getNotice: state => state.notice || null,
 	getThreatsAreFixing: state => state.threatsAreFixing || [],
+	hasRequiredPlan: state => state.hasRequiredPlan || false,
 };
 
 export default selectors;

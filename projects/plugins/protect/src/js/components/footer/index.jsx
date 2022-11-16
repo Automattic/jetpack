@@ -24,8 +24,7 @@ const ProductPromotion = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
 
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = useProtectData();
 
 	if ( hasRequiredPlan ) {
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: siteSuffix } );
@@ -70,9 +69,7 @@ const ProductPromotion = () => {
 };
 
 const FooterInfo = () => {
-	// TODO: Update with new paid Protect product
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = useProtectData();
 
 	if ( hasRequiredPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );

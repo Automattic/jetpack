@@ -18,6 +18,7 @@ const SET_THREATS_ARE_FIXING = 'SET_THREATS_ARE_FIXING';
 const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
+const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -29,9 +30,9 @@ const startScanOptimistically = () => {
 
 const refreshPlan = () => ( { dispatch } ) => {
 	apiFetch( {
-		path: 'jetpack-protect/v1/plan',
+		path: 'jetpack-protect/v1/check-plan',
 		method: 'GET',
-	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
+	} ).then( hasRequiredPlan => dispatch( setHasRequiredPlan( hasRequiredPlan ) ) );
 };
 
 /**
@@ -304,6 +305,10 @@ const clearNotice = () => {
 	return { type: CLEAR_NOTICE };
 };
 
+const setHasRequiredPlan = hasRequiredPlan => {
+	return { type: SET_HAS_REQUIRED_PLAN, hasRequiredPlan };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -326,6 +331,7 @@ const actions = {
 	scan,
 	setThreatsAreFixing,
 	refreshPlan,
+	setHasRequiredPlan,
 };
 
 export {
@@ -345,5 +351,6 @@ export {
 	SET_NOTICE,
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
+	SET_HAS_REQUIRED_PLAN,
 	actions as default,
 };
