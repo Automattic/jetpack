@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
 import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
@@ -23,7 +24,7 @@ import useVideoData from '../use-video-data';
  * @param {number} id - Media ID.
  * @returns {Function}  Update Promise handler.
  */
-export default function useMediaItemUpdate( id ) {
+export default function useMediaDataUpdate( id ) {
 	const updateMediaItem = data => {
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
@@ -44,16 +45,27 @@ export default function useMediaItemUpdate( id ) {
 	return updateMediaItem;
 }
 
+/*
+ * Fields list to keep in sync with block attributes.
+ */
+const videoFieldsToUpdate = [ 'privacy_setting' ];
+
+/*
+ * Map object from video field name to block attribute name.
+ */
+const mapFieldsToAttributes = {
+	privacy_setting: 'privacySetting',
+};
+
 /**
  * React hook to keep the data in-sync
  * between the media item and the block attributes.
  *
- * @param {object} attributes        - Block attributes.
- * @param {Function} setAttributes   - Block attributes setter.
- * @param {Array} attributesToUpdate - Block attributes list to update.
- * @returns {object}                   Hook API object.
+ * @param {object} attributes      - Block attributes.
+ * @param {Function} setAttributes - Block attributes setter.
+ * @returns {object}                 Hook API object.
  */
-export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
+export function useSyncMedia( attributes, setAttributes ) {
 	const { id, guid } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( id );
 
@@ -61,7 +73,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
-	const [ initialState, setState ] = useState();
+	const [ initialState, setState ] = useState( {} );
 
 	const updateInitialState = useCallback( data => {
 		setState( current => ( { ...current, ...data } ) );
@@ -69,7 +81,8 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 
 	/*
 	 * Populate block attributes with the media data,
-	 * provided by the VideoPress API (useVideoData hook).
+	 * provided by the VideoPress API (useVideoData hook),
+	 * when the block is mounted.
 	 */
 	useEffect( () => {
 		if ( isRequestingVideoData ) {
@@ -80,29 +93,31 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 			return;
 		}
 
-		// Build the attributes object to update.
-		const initialAttributesState = attributesToUpdate.reduce( ( acc, key ) => {
+		// Build an object with video data to use for the initial state.
+		const initialVideoData = videoFieldsToUpdate.reduce( ( acc, key ) => {
 			acc[ key ] = videoData[ key ];
 			return acc;
 		}, {} );
 
-		if ( ! Object.keys( initialAttributesState ).length ) {
+		if ( ! Object.keys( initialVideoData ).length ) {
 			return;
 		}
 
-		// Let's set the internal initial state.
-		setState( initialAttributesState );
+		// Let's set the internal initial state...
+		setState( initialVideoData );
 
-		// And udpate the block attribute with fresh data.
-		setAttributes( initialAttributesState );
+		// ...and udpate the block attributes with fresh data.
+		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
+		setAttributes( initialAttributesValues );
 	}, [ videoData, isRequestingVideoData ] );
 
-	const updateMediaHandler = useMediaItemUpdate( id );
+	const updateMediaHandler = useMediaDataUpdate( id );
 
 	/*
 	 * Compare the current attribute values of the block
-	 * with the initial state, and update the media data
-	 * in case it detects changes on it (via the VideoPress API).
+	 * with the initial state,
+	 * and update the media data if it detects changes on it
+	 * (via the VideoPress API) when the post saves.
 	 */
 	useEffect( () => {
 		if ( ! isSaving || wasSaving ) {
@@ -113,10 +128,15 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 			return;
 		}
 
-		// Filter the attributes that have changed their values.
-		const dataToUpdate = attributesToUpdate.reduce( ( acc, key ) => {
-			if ( initialState[ key ] !== attributes[ key ] ) {
-				acc[ key ] = attributes[ key ];
+		/*
+		 * Filter the attributes that have changed their values,
+		 * based on the initial state.
+		 */
+		const dataToUpdate = videoFieldsToUpdate.reduce( ( acc, key ) => {
+			const attrName = mapFieldsToAttributes[ key ];
+
+			if ( initialState[ key ] !== attributes[ attrName ] ) {
+				acc[ key ] = attributes[ attrName ];
 			}
 			return acc;
 		}, {} );
@@ -126,6 +146,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 			return;
 		}
 
+		// Sync (POST request) the block attributes data with the VideoPress API.
 		updateMediaHandler( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
 
 		// | Video Chapters feature |
@@ -174,7 +195,7 @@ export function useSyncMedia( attributes, setAttributes, attributesToUpdate ) {
 		updateInitialState,
 		attributes,
 		invalidateResolution,
-		attributesToUpdate,
+		videoFieldsToUpdate,
 	] );
 
 	return {

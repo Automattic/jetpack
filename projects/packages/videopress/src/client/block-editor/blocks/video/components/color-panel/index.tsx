@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PlaybackControlProps } from '../../types';
+import { VideoControlProps } from '../../types';
 import { VideoPressPlayerColorProps } from './types';
 import type React from 'react';
 import './style.scss';
@@ -17,10 +17,10 @@ import './style.scss';
 /**
  * Sidebar Control component.
  *
- * @param {PlaybackControlProps} props - Component props.
+ * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function ColorPanel( { attributes, setAttributes }: PlaybackControlProps ) {
+export default function ColorPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;
 
 	const initialColorState: VideoPressPlayerColorProps = {

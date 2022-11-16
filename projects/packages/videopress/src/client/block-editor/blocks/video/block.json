@@ -81,6 +81,10 @@
 				"type": "object"
 			},
 			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
 		}
 	},
 	"textdomain": "jetpack-videopress",
