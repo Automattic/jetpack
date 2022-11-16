@@ -35,8 +35,8 @@ window.addEventListener( 'load', async () => {
 /**
  * Watch for new images.
  */
-createImageObserver( async ( nodes: Element[] ) => {
-	const images = await load( nodes );
-	const measuredImages = measure( images );
-	attachGuides( measuredImages );
-} );
+// createImageObserver( async ( nodes: Element[] ) => {
+// 	const images = await load( nodes );
+// 	const measuredImages = measure( images );
+// 	attachGuides( measuredImages );
+// } );
