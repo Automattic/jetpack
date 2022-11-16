@@ -13,14 +13,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { getVideoPressUrl } from '../../../lib/url';
 import {
-	wpcomV2VideopressGetMetaEndpointResponseProps,
-	wpcomV2VideopressPostMetaEndpointBodyProps,
+	WPComV2VideopressGetMetaEndpointResponseProps,
+	WPComV2VideopressPostMetaEndpointBodyProps,
 } from '../../../types';
 import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
-	videoId,
+	VideoId,
 } from '../../blocks/video/types';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
@@ -32,10 +32,10 @@ import { UseSyncMediaProps } from './types';
 /**
  * Hook to update the media data by hitting the VideoPress API.
  *
- * @param {videoId} id - Media ID.
+ * @param {VideoId} id - Media ID.
  * @returns {Function}  Update Promise handler.
  */
-export default function useMediaDataUpdate( id: videoId ) {
+export default function useMediaDataUpdate( id: VideoId ) {
 	const updateMediaItem = data => {
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
@@ -43,7 +43,7 @@ export default function useMediaDataUpdate( id: videoId ) {
 				method: 'POST',
 				data: { id, ...data },
 			} )
-				.then( ( result: wpcomV2VideopressGetMetaEndpointResponseProps ) => {
+				.then( ( result: WPComV2VideopressGetMetaEndpointResponseProps ) => {
 					if ( 200 !== result?.data ) {
 						return reject( result );
 					}
@@ -147,7 +147,7 @@ export function useSyncMedia(
 		 * Filter the attributes that have changed their values,
 		 * based on the initial state.
 		 */
-		const dataToUpdate: wpcomV2VideopressPostMetaEndpointBodyProps = videoFieldsToUpdate.reduce(
+		const dataToUpdate: WPComV2VideopressPostMetaEndpointBodyProps = videoFieldsToUpdate.reduce(
 			( acc, key ) => {
 				const attrName = mapFieldsToAttributes[ key ] || key;
 

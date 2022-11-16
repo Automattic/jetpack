@@ -4,24 +4,24 @@
  * '1': private
  * '2': site default
  */
-type privacySettingProp = '0' | '1' | '2';
+type PrivacySettingProp = '0' | '1' | '2';
 
-export type wpcomV2VideopressGetMetaEndpointResponseProps = {
+export type WPComV2VideopressGetMetaEndpointResponseProps = {
 	code: string;
 	data: 200 | number; // <- check other data variants
 	message: string;
 };
 
-export type wpcomV2VideopressPostMetaEndpointBodyProps = {
+export type WPComV2VideopressPostMetaEndpointBodyProps = {
 	title?: string;
 	description?: string;
-	privacy_setting?: privacySettingProp;
+	privacy_setting?: PrivacySettingProp;
 };
 
 /*
  * 'wp/v2/media/${ id }'
  */
-export type wpV2mediaGetEndpointResponseProps = {
+export type WPV2mediaGetEndpointResponseProps = {
 	jetpack_videopress?: {
 		title: string;
 		description: string;

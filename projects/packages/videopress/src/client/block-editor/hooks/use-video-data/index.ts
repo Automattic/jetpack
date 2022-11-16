@@ -6,17 +6,17 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Types
  */
-import { wpV2mediaGetEndpointResponseProps } from '../../../types';
-import { videoId } from '../../blocks/video/types';
+import { WPV2mediaGetEndpointResponseProps } from '../../../types';
+import { VideoId } from '../../blocks/video/types';
 import { UseVideoDataProps } from './types';
 
 /**
  * React hook to fetch the video data from the media library.
  *
- * @param {videoId}             id - The video id.
+ * @param {VideoId}             id - The video id.
  * @returns {UseVideoDataProps}      Hook API object.
  */
-export default function useVideoData( id: videoId ): UseVideoDataProps {
+export default function useVideoData( id: VideoId ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
@@ -26,7 +26,7 @@ export default function useVideoData( id: videoId ): UseVideoDataProps {
 		 */
 		async function fetchVideoItem() {
 			try {
-				const response: wpV2mediaGetEndpointResponseProps = await apiFetch( {
+				const response: WPV2mediaGetEndpointResponseProps = await apiFetch( {
 					path: `/wp/v2/media/${ id }`,
 				} );
 
