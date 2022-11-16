@@ -9,8 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { VideoControlProps } from '../../types';
-import { VideoPressPlayerColorProps } from './types';
+import { VideoBlockColorAttributesProps, VideoControlProps } from '../../types';
 import type React from 'react';
 import './style.scss';
 
@@ -23,7 +22,7 @@ import './style.scss';
 export default function ColorPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;
 
-	const initialColorState: VideoPressPlayerColorProps = {
+	const initialColorState: VideoBlockColorAttributesProps = {
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		seekbarColor,

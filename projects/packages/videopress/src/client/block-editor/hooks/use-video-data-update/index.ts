@@ -12,19 +12,30 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+import {
+	WPComV2VideopressGetMetaEndpointResponseProps,
+	WPComV2VideopressPostMetaEndpointBodyProps,
+} from '../../../types';
 import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import {
+	VideoBlockAttributes,
+	VideoBlockSetAttributesProps,
+	VideoId,
+} from '../../blocks/video/types';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
 import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
+import { UploadTrackDataProps } from '../../plugins/video-chapters/utils/tracks-editor/types';
 import useVideoData from '../use-video-data';
+import { UseSyncMediaProps } from './types';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
  *
- * @param {number} id - Media ID.
+ * @param {VideoId} id - Media ID.
  * @returns {Function}  Update Promise handler.
  */
-export default function useMediaDataUpdate( id ) {
+export default function useMediaDataUpdate( id: VideoId ) {
 	const updateMediaItem = data => {
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {
@@ -32,7 +43,7 @@ export default function useMediaDataUpdate( id ) {
 				method: 'POST',
 				data: { id, ...data },
 			} )
-				.then( result => {
+				.then( ( result: WPComV2VideopressGetMetaEndpointResponseProps ) => {
 					if ( 200 !== result?.data ) {
 						return reject( result );
 					}
@@ -64,9 +75,12 @@ const mapFieldsToAttributes = {
  *
  * @param {object} attributes      - Block attributes.
  * @param {Function} setAttributes - Block attributes setter.
- * @returns {object}                 Hook API object.
+ * @returns {UseSyncMediaProps}      Hook API object.
  */
-export function useSyncMedia( attributes, setAttributes ) {
+export function useSyncMedia(
+	attributes: VideoBlockAttributes,
+	setAttributes: VideoBlockSetAttributesProps
+): UseSyncMediaProps {
 	const { id, guid } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( id );
 
@@ -133,14 +147,17 @@ export function useSyncMedia( attributes, setAttributes ) {
 		 * Filter the attributes that have changed their values,
 		 * based on the initial state.
 		 */
-		const dataToUpdate = videoFieldsToUpdate.reduce( ( acc, key ) => {
-			const attrName = mapFieldsToAttributes[ key ] || key;
+		const dataToUpdate: WPComV2VideopressPostMetaEndpointBodyProps = videoFieldsToUpdate.reduce(
+			( acc, key ) => {
+				const attrName = mapFieldsToAttributes[ key ] || key;
 
-			if ( initialState[ key ] !== attributes[ attrName ] ) {
-				acc[ key ] = attributes[ attrName ];
-			}
-			return acc;
-		}, {} );
+				if ( initialState[ key ] !== attributes[ attrName ] ) {
+					acc[ key ] = attributes[ attrName ];
+				}
+				return acc;
+			},
+			{}
+		);
 
 		// When nothing to update, bail out early.
 		if ( ! Object.keys( dataToUpdate ).length ) {
@@ -155,14 +172,14 @@ export function useSyncMedia( attributes, setAttributes ) {
 			// Upload .vtt file if its description contains chapters
 			const chapters = extractVideoChapters( dataToUpdate.description );
 			if ( chapters?.length ) {
-				const track = {
+				const track: UploadTrackDataProps = {
 					label: __( 'English', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
 					kind: 'chapters',
 					tmpFile: generateChaptersFile( dataToUpdate.description ),
 				};
 
-				uploadTrackForGuid( track, guid ).then( src => {
+				uploadTrackForGuid( track, guid ).then( ( src: string ) => {
 					// Update block track attribute
 					setAttributes( {
 						tracks: [
