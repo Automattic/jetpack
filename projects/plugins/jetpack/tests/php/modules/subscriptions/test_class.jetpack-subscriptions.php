@@ -33,7 +33,7 @@ abstract class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
 		);
-		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $product_id );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $product_id );
 
 		$this->regular_non_subscriber_id = $this->factory->user->create(
 			array(
