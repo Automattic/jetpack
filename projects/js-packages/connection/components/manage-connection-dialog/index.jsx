@@ -112,17 +112,17 @@ const ManageConnectionDialog = props => {
 
 const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', action } ) => {
 	return (
-		<div className="jp-connection__action-card card">
-			<div className="jp-connection__action-card__card-content">
+		<div className="jp-connection__manage-dialog__action-card card">
+			<div className="jp-connection__manage-dialog__action-card__card-content">
 				<a
 					href={ link }
-					className={ `jp-connection__action-card__card-headline ${ action }` }
+					className={ `jp-connection__manage-dialog__action-card__card-headline ${ action }` }
 					onClick={ onClick }
 				>
 					{ title }
 					<Icon
 						icon={ action === 'disconnect' ? chevronRight : external }
-						className="jp-connection__action-card__icon"
+						className="jp-connection__manage-dialog__action-card__icon"
 					/>
 				</a>
 			</div>

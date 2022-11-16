@@ -6,11 +6,21 @@
 	width: 1200px;
 	border-radius: 3px;
 
-	h1 {
-		margin: 0;
-		font-size: var( --font-title-large );
-		font-weight: 600;
-		line-height: 1.2;
+	&__content{
+		background: var( --jp-white-off );
+		padding: 80px;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		h1 {
+			margin: 0;
+			font-size: var( --font-title-large );
+			font-weight: bold;
+			line-height: 1.2;
+		}
 	}
 
 	&__large-text {
@@ -20,16 +30,39 @@
 		font-size: 1.25rem;
 	}
 
-	.components-modal__header{
-		border: none;
+	&__actions{
+		background: var( --jp-white );
+		margin:0px !important;
+		border-top: 1px solid var( --jp-gray );
+		max-width: 1200px !important;
+		padding: calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 5 );
+		align-items:center;
+		position: sticky;
+		bottom: 0;
+
+		p {
+			font-size: var( --font-body );
+		}
 	}
 
-	.components-modal__content{
-		margin: 0;
-		padding:0;
+	&__link {
+		color: var( --jp-black );
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+		}
 	}
 
-	.jp-connection__action-card {
+	&__button-wrap button{
+		float:right;
+	}
+
+	&__action-card {
 		background-color: var( --jp-white );
 		width: 750px;
 		max-width: 100%;
@@ -46,6 +79,10 @@
 			text-decoration: none;
 		}
 
+		&__icon {
+			float:right;
+		}
+
 		.transfer {
 			color:var( --jp-black );
 			fill: var( --jp-black );
@@ -55,51 +92,16 @@
 			color: var( --jp-red );
 			fill: var( --jp-red );
 		}
-
-		&__icon {
-			float:right;
-		}
 	}
 
-	&__content{
-		background: var( --jp-white-off );
-		padding: 80px;
-		text-align: center;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
-
-	&__actions{
-		background: var( --jp-white );
-		margin:0px !important;
-		border-top: 1px solid var( --jp-gray );
-		max-width: 1200px !important;
-		padding: calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 5 );
-		align-items:center;
-		position: sticky;
-		bottom: 0;
-		p {
-			font-size: var( --font-body );
-		}
-	}
-
-	&__link {
-		color: var( --jp-black );
-		//font: inherit;
-
-		&:hover {
-			color: var( --jp-black );
-			text-decoration-thickness: var( --jp-underline-thickness );
+	.components-modal {
+		&__header {
+			border: none;
 		}
 
-		&:focus {
-			color: var( --jp-black );
+		&__content {
+			margin: 0;
+			padding:0;
 		}
-	}
-
-	&__button-wrap button{
-		float:right;
 	}
 }
