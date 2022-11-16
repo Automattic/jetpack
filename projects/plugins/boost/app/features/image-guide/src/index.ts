@@ -1,5 +1,4 @@
 import { attachGuides } from './Attach';
-import { createImageObserver } from './ImageObserver';
 import { load } from './Images';
 import { measure } from './Measurements';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
@@ -31,12 +30,3 @@ window.addEventListener( 'load', async () => {
 	const measuredImages = measure( images );
 	attachGuides( measuredImages );
 } );
-
-/**
- * Watch for new images.
- */
-// createImageObserver( async ( nodes: Element[] ) => {
-// 	const images = await load( nodes );
-// 	const measuredImages = measure( images );
-// 	attachGuides( measuredImages );
-// } );

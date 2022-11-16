@@ -1,3 +1,11 @@
+/**
+ *
+ *
+ * ! MutationObserver is currently not used.
+ * ! This needs significant improvement before we can use it.
+ *
+ *
+ */
 type ImageCallback = ( images: HTMLElement[] ) => void;
 
 const onChange = ( callback: ImageCallback ): MutationCallback => mutationList => {
