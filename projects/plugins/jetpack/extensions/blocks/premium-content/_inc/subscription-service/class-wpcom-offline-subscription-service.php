@@ -51,7 +51,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
 		/** This filter is already documented in projects/plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/class-token-subscription-service.php */
-		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, get_current_blog_id() );
+		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
 		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
@@ -106,6 +106,15 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 			}
 		}
 		return $subscriptions;
+	}
+
+	/**
+	 * Get the site ID.
+	 *
+	 * @return int The site ID.
+	 */
+	public function get_site_id() {
+		return get_current_blog_id();
 	}
 
 }

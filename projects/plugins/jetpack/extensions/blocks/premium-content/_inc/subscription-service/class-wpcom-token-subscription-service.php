@@ -26,6 +26,15 @@ class WPCOM_Token_Subscription_Service extends Token_Subscription_Service {
 	}
 
 	/**
+	 * Is get_site_id()
+	 *
+	 * @inheritDoc
+	 */
+	public function get_site_id() {
+		return get_current_blog_id();
+	}
+
+	/**
 	 * Is get_key()
 	 *
 	 * @inheritDoc
