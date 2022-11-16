@@ -1953,7 +1953,7 @@ class Grunion_Contact_Form_Plugin {
 				'<option value="%s" %s>%s</option>',
 				esc_attr( $post->ID ),
 				$selected_id === $post->ID ? 'selected' : '',
-				esc_html( $post->post_title )
+				! empty( $post->post_title ) ? esc_html( $post->post_title ) : esc_html__( '(Untitled)', 'jetpack' )
 			);
 		}
 
