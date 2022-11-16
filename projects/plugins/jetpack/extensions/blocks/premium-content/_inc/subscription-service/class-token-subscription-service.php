@@ -104,7 +104,9 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			// format the subscriptions so that they can be validated.
 			$subscriptions = self::abbreviate_subscriptions( $subscriptions );
 		} else {
-			return false;
+			// When a user subscribes to a post with an access level of
+			// 'subscribers' allow the user to view the post immediately
+			return 'subscribers' === $access_level && 'confirming' === $this->get_blog_sub_query_param();
 		}
 
 		return $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
@@ -198,6 +200,18 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			}
 		}
 		return $token;
+	}
+
+	/**
+	 * Get the blogsub query param
+	 *
+	 * @return ?string
+	 */
+	private function get_blog_sub_query_param() {
+		if ( isset( $_GET['blogsub'] ) ) {
+			return sanitize_text_field( wp_unslash( $_GET['blogsub'] ) );
+		}
+		return null;
 	}
 
 	/**
