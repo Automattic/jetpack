@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
+import { PanelBody, TextareaControl, TextControl, Button } from '@wordpress/components';
+import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { DetailsPanelProps } from '../../types';
+import LearnHowModal from './learn-how-notice';
 import type React from 'react';
 
 const CHARACTERS_PER_LINE = 31;
@@ -24,6 +26,7 @@ export default function DetailsPanel( {
 	isRequestingVideoData,
 }: DetailsPanelProps ) {
 	const { title, description } = attributes;
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	// Expands the description textarea to accommodate the description
 	const minRows = 4;
@@ -36,6 +39,16 @@ export default function DetailsPanel( {
 		: minRows;
 
 	const descriptionControlRows = Math.min( maxRows, Math.max( rows, minRows ) );
+
+	const descriptionHelp = createInterpolateElement(
+		__(
+			'Did you know you can now add Chapters to your videos? <link>Learn how</link>',
+			'jetpack-videopress-pkg'
+		),
+		{
+			link: <Button variant="link" onClick={ () => setIsModalOpen( isOpen => ! isOpen ) } />,
+		}
+	);
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
@@ -56,7 +69,10 @@ export default function DetailsPanel( {
 				onChange={ value => setAttributes( { description: value } ) }
 				rows={ descriptionControlRows }
 				disabled={ isRequestingVideoData }
+				help={ descriptionHelp }
 			/>
+
+			<LearnHowModal onClose={ () => setIsModalOpen( false ) } isOpen={ isModalOpen } />
 		</PanelBody>
 	);
 }
