@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Guide;
+namespace Automattic\Jetpack_Boost\Features\Image_Guide;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Admin\Admin;
