@@ -15,6 +15,7 @@ import classNames from 'classnames';
 import { getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ColorPanel from './components/color-panel';
+import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
@@ -98,7 +99,8 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 	} );
 
-	useSyncMedia( attributes, setAttributes );
+	const { videoData, isRequestingVideoData } = useSyncMedia( attributes, setAttributes );
+	const { filename } = videoData;
 
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
@@ -313,9 +315,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			} ) }
 		>
 			<InspectorControls>
-				<PlaybackPanel attributes={ attributes } setAttributes={ setAttributes } />
-				<ColorPanel attributes={ attributes } setAttributes={ setAttributes } />
-				<PrivacyAndRatingPanel attributes={ attributes } setAttributes={ setAttributes } />
+				<DetailsPanel
+					filename={ filename }
+					{ ...{ attributes, setAttributes, isRequestingVideoData } }
+				/>
+				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<PrivacyAndRatingPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
 
 			<PosterImageBlockControl

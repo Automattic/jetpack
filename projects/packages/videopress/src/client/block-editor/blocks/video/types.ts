@@ -19,6 +19,10 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	id?: VideoId;
 	guid?: string;
 	src?: string;
+
+	title?: string;
+	description?: string;
+
 	poster?: string;
 	videoRatio?: number;
 	tracks?: Array< Track >;
@@ -53,6 +57,12 @@ export type VideoControlProps = {
 	attributes: VideoBlockAttributes;
 
 	setAttributes: VideoBlockSetAttributesProps;
+
+	isRequestingVideoData: boolean;
 };
 
 export type VideoEditProps = VideoControlProps;
+
+export type DetailsPanelProps = VideoControlProps & {
+	filename: string;
+};

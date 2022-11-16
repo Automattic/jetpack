@@ -22,8 +22,15 @@ export type WPComV2VideopressPostMetaEndpointBodyProps = {
  * 'wp/v2/media/${ id }'
  */
 export type WPV2mediaGetEndpointResponseProps = {
+	source_url: string;
 	jetpack_videopress?: {
+		guid: string;
 		title: string;
 		description: string;
+		caption: string;
+		allow_download: 0 | 1;
+		needs_playback_token: boolean;
+		privacy_setting: PrivacySettingProp;
+		rating: string;
 	};
 };

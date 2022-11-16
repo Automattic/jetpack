@@ -59,7 +59,13 @@ export default function useMediaDataUpdate( id: VideoId ) {
 /*
  * Fields list to keep in sync with block attributes.
  */
-const videoFieldsToUpdate = [ 'privacy_setting', 'rating', 'allow_download' ];
+const videoFieldsToUpdate = [
+	'title',
+	'description',
+	'privacy_setting',
+	'rating',
+	'allow_download',
+];
 
 /*
  * Map object from video field name to block attribute name.
