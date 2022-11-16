@@ -2730,7 +2730,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
-			'calypso_stats'                        => array(
+			'enable_calypso_stats'                 => array(
 				'description'       => esc_html__( 'Preview new Jetpack Stats experience (Experimental).', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,

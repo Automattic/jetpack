@@ -243,12 +243,13 @@ class SiteStatsComponent extends React.Component {
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
-						<FormFieldset>
+						{ /* We hide the new Stats option till we lauch it to the general public. */ }
+						<FormFieldset style={ { display: 'none' } }>
 							<CompactFormToggle
-								checked={ !! this.props.getOptionValue( 'calypso_stats' ) }
+								checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
 								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'stats', 'calypso_stats' ] ) }
-								onChange={ this.handleStatsOptionToggle( 'calypso_stats' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
+								onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Preview new Jetpack Stats experience (Experimental)', 'jetpack' ) }
