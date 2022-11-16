@@ -1,7 +1,7 @@
 /vendor
 /release
 /app/assets/dist
-/app/features/guide/dist
+/app/features/image-guide/dist
 /node_modules
 .phpunit.result.cache
 .DS_Store
