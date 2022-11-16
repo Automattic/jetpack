@@ -10,6 +10,7 @@ abstract class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	protected $paid_subscriber_id;
 	protected $admin_user_id;
 	protected $plan_id;
+	protected $product_id = 1234;
 
 	public function setUp(): void {
 		parent::setUp();
@@ -25,7 +26,6 @@ abstract class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	}
 
 	protected function setup_jetpack_paid_newsletters( $subscription_end_date = null ) {
-		$product_id = 1234;
 
 		// We create a plan
 		$this->plan_id = $this->factory->post->create(
@@ -33,7 +33,7 @@ abstract class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
 		);
-		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $product_id );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $this->product_id );
 
 		$this->regular_non_subscriber_id = $this->factory->user->create(
 			array(
@@ -62,6 +62,7 @@ abstract class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		// Fake subscription for the paid user
 		$paid_subscriber_id = $this->paid_subscriber_id;
+		$product_id         = $this->product_id;
 		add_filter(
 			'earn_get_user_subscriptions_for_site_id',
 			static function ( $subscriptions, $subscriber_id ) use ( $paid_subscriber_id, $product_id, $subscription_end_date ) {
