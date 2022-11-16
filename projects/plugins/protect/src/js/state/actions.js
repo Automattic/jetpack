@@ -7,6 +7,7 @@ const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
+const SET_SCAN_IS_UNAVAILABLE = 'SET_SCAN_IS_UNAVAILABLE';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
@@ -36,6 +37,18 @@ const refreshPlan = () => ( { dispatch } ) => {
 };
 
 /**
+ * Fetch Status
+ *
+ * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
+ * @returns {Promise} - Promise which resolves with the status request results.
+ */
+const fetchStatus = hardRefresh =>
+	apiFetch( {
+		path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
+		method: 'GET',
+	} );
+
+/**
  * Side effect action which will fetch the status from the server
  *
  * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
@@ -44,10 +57,10 @@ const refreshPlan = () => ( { dispatch } ) => {
 const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
-		return apiFetch( {
-			path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
-			method: 'GET',
-		} )
+		return fetchStatus( hardRefresh )
+			.then( status => {
+				return dispatch( checkStatus( status ) );
+			} )
 			.then( status => {
 				dispatch( setStatus( camelize( status ) ) );
 				dispatch( setStatusIsFetching( false ) );
@@ -56,6 +69,30 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 			.catch( error => {
 				reject( error );
 			} );
+	} );
+};
+
+/**
+ * Check Status
+ *
+ * @param {object} currentStatus - The status.
+ * @param {number} attempts - The amount of recursive attempts that have already been made.
+ * @returns {Promise} - Promise which resolves with the status once it has been checked.
+ */
+const checkStatus = ( currentStatus, attempts = 0 ) => async ( { dispatch } ) => {
+	return await new Promise( ( resolve, reject ) => {
+		if ( 'unavailable' === currentStatus.status && attempts < 3 ) {
+			fetchStatus( true )
+				.then( newStatus => {
+					setTimeout( () => {
+						dispatch( checkStatus( newStatus, attempts + 1 ) );
+					}, 5000 );
+				} )
+				.catch( reject );
+		} else {
+			dispatch( setScanIsUnavailable( 'unavailable' === currentStatus.status ) );
+			resolve( currentStatus );
+		}
 	} );
 };
 
@@ -94,6 +131,10 @@ const setCredentials = credentials => {
 
 const setStatusIsFetching = status => {
 	return { type: SET_STATUS_IS_FETCHING, status };
+};
+
+const setScanIsUnavailable = status => {
+	return { type: SET_SCAN_IS_UNAVAILABLE, status };
 };
 
 const setScanIsEnqueuing = isEnqueuing => {
@@ -340,6 +381,7 @@ export {
 	SET_STATUS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_UNAVAILABLE,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,

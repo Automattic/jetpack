@@ -5,6 +5,7 @@ const selectors = {
 	getInstalledThemes: state => state.installedThemes || {},
 	getStatus: state => state.status || {},
 	getStatusIsFetching: state => state.statusIsFetching || false,
+	getScanIsUnavailable: state => state.scanIsUnavailable || false,
 	getScanIsEnqueuing: state => state.scanIsEnqueuing || false,
 	getWpVersion: state => state.wpVersion || '',
 	getJetpackScan: state => state.jetpackScan || {},

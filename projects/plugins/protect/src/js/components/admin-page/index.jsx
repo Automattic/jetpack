@@ -107,11 +107,23 @@ const useCredentials = () => {
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const status = useSelect( select => select( STORE_ID ).getStatus() );
+	const { refreshStatus } = useDispatch( STORE_ID );
+	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
+		status: select( STORE_ID ).getStatus(),
+	} ) );
 	useCredentials();
 
+	// retry fetching status if it is not available
+	useEffect( () => {
+		if ( ! statusIsFetching && 'unavailable' === status.status ) {
+			refreshStatus( true );
+		}
+	}, [ statusIsFetching, status.status, refreshStatus ] );
+
 	let currentScanStatus;
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		currentScanStatus = 'error';
 	} else if ( ! lastChecked ) {
 		currentScanStatus = 'in_progress';
@@ -128,7 +140,7 @@ const ProtectAdminPage = () => {
 	} );
 
 	// Error
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		let displayErrorMessage = errorMessage
 			? `${ errorMessage } (${ errorCode }).`
 			: __( 'We are having problems scanning your site.', 'jetpack-protect' );

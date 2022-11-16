@@ -5,6 +5,7 @@ import {
 	SET_STATUS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_UNAVAILABLE,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
@@ -48,6 +49,14 @@ const status = ( state = {}, action ) => {
 const statusIsFetching = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_STATUS_IS_FETCHING:
+			return action.status;
+	}
+	return state;
+};
+
+const scanIsUnavailable = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_SCAN_IS_UNAVAILABLE:
 			return action.status;
 	}
 	return state;
@@ -148,6 +157,7 @@ const reducers = combineReducers( {
 	credentialsIsFetching,
 	status,
 	statusIsFetching,
+	scanIsUnavailable,
 	scanIsEnqueuing,
 	installedPlugins,
 	installedThemes,
