@@ -71,7 +71,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $is_valid_token ) {
-			$is_blog_subscriber  = 'active' === $payload['blog_sub'];
+			$is_blog_subscriber = 'active' === $payload['blog_sub'];
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
@@ -177,6 +177,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return void
 	 */
 	private function set_token_cookie( $token ) {
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
 		if ( ! empty( $token ) ) {
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
 		}

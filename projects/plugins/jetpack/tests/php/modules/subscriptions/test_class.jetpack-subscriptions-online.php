@@ -5,7 +5,7 @@ require_once __DIR__ . '/test_class.jetpack-subscriptions.php';
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 
-define( 'EARN_JWT_SIGNING_KEY', 'whatever' );
+define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
 /**
  * This will test the WPCOM_Token_Subscription_Service and stubs the token logic.
@@ -22,12 +22,12 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 	/**
 	 * Stubs WPCOM_Token_Subscription_Service in order to return the provided token.
 	 *
-	 * @param $decodedToken
+	 * @param array $payload
 	 * @return mixed
 	 */
 	private function setReturnedToken( $payload ) {
 		$service       = new WPCOM_Token_Subscription_Service();
-		$_GET['token'] = urldecode( urlencode( JWT::encode( $payload, $service->get_key() ) ) );
+		$_GET['token'] = JWT::encode( $payload, $service->get_key() );
 		return $service;
 	}
 
@@ -42,7 +42,7 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 
 		$token_subscription_service = $this->setReturnedToken(
 			array(
-				'blog_subs'     => 'inactive',
+				'blog_sub'      => 'inactive',
 				'subscriptions' => array(),
 			)
 		);
@@ -66,7 +66,7 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 
 		$token_subscription_service = $this->setReturnedToken(
 			array(
-				'blog_subs'     => 'active',
+				'blog_sub'      => 'active',
 				'subscriptions' => array(),
 			)
 		);
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 
 		$token_subscription_service = $this->setReturnedToken(
 			array(
-				'blog_subs'     => 'inactive',
+				'blog_sub'      => 'inactive',
 				'subscriptions' => array(
 					array(
 						'status'     => 'active',
@@ -120,16 +120,19 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 
 		$token_subscription_service = $this->setReturnedToken(
 			array(
-				'status'     => 'active',
-				'end_date'   => time() - HOUR_IN_SECONDS,
-				'product_id' => $this->product_id,
+				'blog_sub'      => 'inactive',
+				'subscriptions' => array(
+					'status'     => 'active',
+					'end_date'   => time() - HOUR_IN_SECONDS,
+					'product_id' => $this->product_id,
+				),
 			)
 		);
 
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), '' ) );
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'everybody' ) );
 		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'subscribers' ) );
-		$this->assertTrue( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
+		$this->assertFalse( $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), 'paid_subscribers' ) );
 
 		wp_set_current_user( $previous_user->ID );
 	}
@@ -145,7 +148,7 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 
 		$token_subscription_service = $this->setReturnedToken(
 			array(
-				'blog_subs'     => 'inactive',
+				'blog_sub'      => 'inactive',
 				'subscriptions' => array(),
 			)
 		);
@@ -169,7 +172,7 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 	//
 	// $token_subscription_service = $this->setReturnedToken(
 	// [
-	// 'blog_subs' => 'true',
+	// 'blog_sub' => 'true',
 	// 'subscriptions' => [],
 	// ]
 	// );
