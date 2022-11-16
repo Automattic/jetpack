@@ -48,10 +48,11 @@ export default function useMediaDataUpdate( id ) {
 /*
  * Fields list to keep in sync with block attributes.
  */
-const videoFieldsToUpdate = [ 'privacy_setting' ];
+const videoFieldsToUpdate = [ 'privacy_setting', 'rating' ];
 
 /*
  * Map object from video field name to block attribute name.
+ * Only register those fields that have a different attribute name.
  */
 const mapFieldsToAttributes = {
 	privacy_setting: 'privacySetting',
@@ -133,7 +134,7 @@ export function useSyncMedia( attributes, setAttributes ) {
 		 * based on the initial state.
 		 */
 		const dataToUpdate = videoFieldsToUpdate.reduce( ( acc, key ) => {
-			const attrName = mapFieldsToAttributes[ key ];
+			const attrName = mapFieldsToAttributes[ key ] || key;
 
 			if ( initialState[ key ] !== attributes[ attrName ] ) {
 				acc[ key ] = attributes[ attrName ];
@@ -150,44 +151,36 @@ export function useSyncMedia( attributes, setAttributes ) {
 		updateMediaHandler( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
 
 		// | Video Chapters feature |
-		if ( ! attributes?.guid ) {
-			return;
+		if ( attributes?.guid && dataToUpdate?.description?.length ) {
+			// Upload .vtt file if its description contains chapters
+			const chapters = extractVideoChapters( dataToUpdate.description );
+			if ( chapters?.length ) {
+				const track = {
+					label: __( 'English', 'jetpack-videopress-pkg' ),
+					srcLang: 'en',
+					kind: 'chapters',
+					tmpFile: generateChaptersFile( dataToUpdate.description ),
+				};
+
+				uploadTrackForGuid( track, guid ).then( src => {
+					// Update block track attribute
+					setAttributes( {
+						tracks: [
+							{
+								label: track.label,
+								srcLang: track.srcLang,
+								kind: track.kind,
+								src,
+							},
+						],
+					} );
+				} );
+			}
 		}
 
-		if ( ! dataToUpdate?.description?.length ) {
-			return;
-		}
-
-		// Upload .vtt file if its description contains chapters
-		const chapters = extractVideoChapters( dataToUpdate.description );
-		if ( ! chapters?.length ) {
-			return;
-		}
-
-		const track = {
-			label: __( 'English', 'jetpack-videopress-pkg' ),
-			srcLang: 'en',
-			kind: 'chapters',
-			tmpFile: generateChaptersFile( dataToUpdate.description ),
-		};
-
-		uploadTrackForGuid( track, guid ).then( src => {
-			// Update block track attribute
-			setAttributes( {
-				tracks: [
-					{
-						label: track.label,
-						srcLang: track.srcLang,
-						kind: track.kind,
-						src,
-					},
-				],
-			} );
-
-			// Re-render video player
-			const videoPressUrl = getVideoPressUrl( guid, attributes );
-			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-		} );
+		// Re-render video player
+		const videoPressUrl = getVideoPressUrl( guid, attributes );
+		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 	}, [
 		isSaving,
 		wasSaving,

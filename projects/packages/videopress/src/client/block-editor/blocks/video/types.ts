@@ -31,6 +31,8 @@ export type VideoBlockAttributes = {
 
 	// Privacy and Rating types
 	privacySetting?: number;
+
+	rating?: string;
 };
 
 export type VideoControlProps = {

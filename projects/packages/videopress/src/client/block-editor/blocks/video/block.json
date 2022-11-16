@@ -85,6 +85,9 @@
 		"privacySetting": {
 			"type": "number",
 			"default": 1
+		},
+		"rating": {
+			"type": "string"
 		}
 	},
 	"textdomain": "jetpack-videopress",

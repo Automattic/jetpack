@@ -82,7 +82,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 		align,
 		videoRatio,
-		privacySetting,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -97,7 +96,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		seekbarPlayedColor,
 		useAverageColor,
 		poster,
-		privacySetting,
 	} );
 
 	useSyncMedia( attributes, setAttributes );
