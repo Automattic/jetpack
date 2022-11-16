@@ -86,6 +86,10 @@
 			"type": "number",
 			"default": 1
 		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
 		"rating": {
 			"type": "string"
 		}

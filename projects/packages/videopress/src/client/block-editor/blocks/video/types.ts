@@ -40,6 +40,7 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 
 	// Privacy and Rating types
 	privacySetting?: number;
+	allowDownload?: boolean;
 	rating?: string;
 };
 

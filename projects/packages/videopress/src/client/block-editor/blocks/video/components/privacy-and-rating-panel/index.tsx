@@ -1,7 +1,7 @@
 /**
  *External dependencies
  */
-import { PanelBody, SelectControl } from '@wordpress/components';
+import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -25,7 +25,7 @@ import type React from 'react';
  * @returns {React.ReactElement}    Component template
  */
 export default function PrivacyAndRatingPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { privacySetting, rating } = attributes;
+	const { privacySetting, rating, allowDownload } = attributes;
 
 	return (
 		<PanelBody title={ __( 'Privacy and rating', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
@@ -79,6 +79,14 @@ export default function PrivacyAndRatingPanel( { attributes, setAttributes }: Vi
 						label: _x( 'Private', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
 					},
 				] }
+			/>
+
+			<ToggleControl
+				label={ __( 'Allow download', 'jetpack-videopress-pkg' ) }
+				checked={ allowDownload }
+				onChange={ value => {
+					setAttributes( { allowDownload: value } );
+				} }
 			/>
 		</PanelBody>
 	);
