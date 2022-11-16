@@ -40,7 +40,7 @@
 		bottom: 0;
 		width: 100%;
 		height: 100%;
-		z-index: 9000;
+		z-index: 8000;
 		padding: 15px;
 		background-color: transparent;
 		will-change: background-color;
@@ -49,6 +49,7 @@
 
 		&.show {
 			background-color: hsl( 0 90% 5% / 0.55 );
+			z-index: 9000;
 		}
 
 		// Important statements to override theme styles

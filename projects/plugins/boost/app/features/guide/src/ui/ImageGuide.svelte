@@ -110,6 +110,7 @@
 			display: block;
 		}
 	}
+
 	:global( .jetpack-boost-guide.relative ) {
 		position: relative;
 	}
@@ -141,7 +142,6 @@
 		font-size: 15px;
 
 		position: relative;
-		isolation: isolate;
 		overflow: hidden;
 
 		text-align: left;
