@@ -3,16 +3,9 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
-import useProtectData from '../../hooks/use-protect-data';
 import styles from './styles.module.scss';
 
-const FirewallHeader = () => {
-	// TODO: Update placeholder with actual WAF data
-	const status = 'off';
-
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
-
+const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 	if ( 'on' === status ) {
 		return (
 			<AdminSectionHero>
