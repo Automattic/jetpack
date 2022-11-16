@@ -1284,7 +1284,7 @@ class Grunion_Contact_Form_Plugin {
 	public static function form_posts_dropdown( $selected_id ) {
 		?>
 		<select name="jetpack_form_parent_id">
-			<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
+			<option value="all"><?php esc_html_e( 'All sources', 'jetpack' ); ?></option>
 			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
 		</select>
 		<?php
