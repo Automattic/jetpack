@@ -63,15 +63,13 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * Check if the subscriber can receive the newsletter
 	 *
 	 * @param int $user_id User id.
-	 * @param int $blog_id Blog id.
 	 * @param int $post_id Post id.
 	 *
 	 * @return bool
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
-	public function subscriber_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
+	public function subscriber_can_receive_post_by_mail( $user_id, $post_id ) {
 		$this->post_id = $post_id;
-		switch_to_blog( $blog_id );
 
 		$previous_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
@@ -81,7 +79,6 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 		$allowed        = $this->visitor_can_view_content( $valid_plan_ids, $access_level );
 
 		wp_set_current_user( $previous_user->ID );
-		restore_current_blog();
 
 		return $allowed;
 	}
