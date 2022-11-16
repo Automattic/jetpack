@@ -22,3 +22,5 @@ export interface ImageComponentConfig {
 		images: MeasuredImage[];
 	};
 }
+
+export type GuideSize = 'normal' | 'small' | 'micro';

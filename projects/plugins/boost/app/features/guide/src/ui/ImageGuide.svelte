@@ -2,16 +2,17 @@
 	import { fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	import JetpackLogo from './JetpackLogo.svelte';
-	import { MeasuredImage } from '../types';
+	import { GuideSize, MeasuredImage } from '../types';
 
 	export let image: MeasuredImage;
+	export let size: GuideSize;
 
 	// Reactive variables because this component can be reused by Svelte.
 	$: imageName = image.url.split( '/' ).pop();
 	$: ratio = image.scaling.oversizedBy.toFixed( 2 );
 	$: potentialSavings = Math.round( image.fileSize - image.fileSize / image.scaling.oversizedBy );
 
-	const previewWidth = 100;
+	const previewWidth = size === 'normal' ? 100 : 50;
 	const previewHeight = Math.floor( previewWidth / ( image.width / image.height ) );
 
 	$: origin = new URL( window.location.href ).origin;
@@ -128,6 +129,8 @@
 		}
 	}
 
+
+
 	.details {
 		color: #3c434a;
 		padding: 25px;
@@ -139,12 +142,16 @@
 		width: fit-content;
 		min-width: 320px;
 		border-radius: 6px;
-		font-size: 15px;
 
 		position: relative;
 		overflow: hidden;
 
 		text-align: left;
+
+	}
+
+	.description {
+		font-size: 0.9em;
 	}
 
 	.row {
@@ -166,5 +173,18 @@
 		opacity: 0.04;
 		transform: rotate( 15deg );
 		z-index: -1;
+	}
+
+	:global(.guide.small) {
+		.preview {
+			gap: 8px;
+		}
+
+		.details {
+			max-width: 300px;
+			min-width: 200px;
+			padding: 15px;
+		}
+
 	}
 </style>

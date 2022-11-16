@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { MeasuredImage } from '../types';
+	import type { GuideSize, MeasuredImage } from '../types';
 	import state from './StateStore';
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
@@ -12,10 +12,19 @@
 		}
 	}
 	$: show = $state === 'Always On' ? images[ 0 ] : false;
+
+	let size: GuideSize = 'normal';
+	let image = images[0];
+	// Looking at the first image in the set is fine, at least for now.
+	if( image.onScreen.width < 200 || image.onScreen.height < 200 ) {
+		size = 'micro';
+	} else if( image.onScreen.width < 400 || image.onScreen.height < 400 ) {
+		size = 'small';
+	}
 </script>
 
 {#if $state === 'Active' || $state === 'Always On'}
-	<div class="guide" class:show={show !== false} on:mouseleave={onMouseLeave}>
+	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each images as image, index}
 				<Bubble
@@ -26,7 +35,7 @@
 			{/each}
 		</div>
 		{#if show !== false}
-			<ImageGuide image={show} />
+			<ImageGuide {size} image={show} />
 		{/if}
 	</div>
 {/if}
@@ -41,11 +50,20 @@
 		width: 100%;
 		height: 100%;
 		z-index: 8000;
-		padding: 15px;
 		background-color: transparent;
 		will-change: background-color;
 		transition: background-color 100ms ease-out;
 		line-height: 1.55;
+		padding: 15px;
+		&.small {
+			font-size: 13px;
+			padding: 15px;
+		}
+
+		&.micro {
+			font-size: 13px;
+			padding: 10px;
+		}
 
 		&.show {
 			background-color: hsl( 0 90% 5% / 0.55 );

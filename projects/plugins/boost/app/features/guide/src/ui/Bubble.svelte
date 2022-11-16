@@ -5,6 +5,7 @@
 
 	export let oversizedBy: number;
 	export let index: number;
+
 	const severity = oversizedBy > 4 ? 'high' : oversizedBy > 2 ? 'medium' : 'normal';
 
 	let mounted = false;
@@ -20,38 +21,72 @@
 </script>
 
 {#if mounted}
-	<div class="preview {severity}" on:mouseenter transition:fly={scaleConfig}>
-		<div class="bubble">{overiszedLabel}</div>
+	<div class="bubble {severity}" on:mouseenter transition:fly={scaleConfig}>
+		<span class="label">{overiszedLabel}</span>
 	</div>
 {/if}
 
 <style lang="scss">
-	.preview {
+	.bubble {
+		padding: 15px;
+		// Offset .guide
+		margin-left: -15px;
+		margin-top: -15px;
+		margin-bottom: -15px;
+	}
+	.label {
 		background-color: #069e08;
 		color: white;
 
 		font-weight: 700;
 		font-family: sans-serif;
-		font-size: 11px;
-
-		padding: 3px;
-		width: 32px;
-		height: 32px;
-		border-radius: 50%;
+		font-size: .8em;
 
 		display: flex;
 		justify-content: center;
 		align-items: center;
 
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		text-align: center;
+
 		text-shadow: 0 0 1px rgba( 0, 0, 0, 0.25 );
 		cursor: default;
 
-		&.high {
+		.high & {
 			background-color: #e52e00;
 		}
 
-		&.medium {
+		.medium & {
 			background-color: #e98800;
+		}
+	}
+
+	:global(.guide.small) {
+		.bubble {
+			padding: 15px;
+		}
+
+		.label {
+			width: 28px;
+			height: 28px;
+		}
+
+		font-size: 9px;
+	}
+
+	:global(.guide.micro) {
+		.bubble {
+			padding: 10px;
+			// Offset .guide
+			margin-left: -10px;
+			margin-top: -10px
+		}
+		.label {
+			font-size: 0px;
+			width: 14px;
+			height: 14px;
 		}
 	}
 </style>
