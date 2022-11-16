@@ -156,7 +156,6 @@ const Admin = () => {
 
 			{ showPricingSection ? (
 				<AdminSectionHero>
-					<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
 							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
@@ -166,7 +165,6 @@ const Admin = () => {
 			) : (
 				<>
 					<AdminSectionHero>
-						<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 							{ hasConnectionError && (
 								<Col>
@@ -212,7 +210,6 @@ const Admin = () => {
 						</Container>
 					</AdminSectionHero>
 					<AdminSection>
-						<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 							{ hasVideos ? (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
