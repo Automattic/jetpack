@@ -14,11 +14,11 @@
 	$: show = $state === 'Always On' ? images[ 0 ] : false;
 
 	let size: GuideSize = 'normal';
-	let image = images[0];
+	let image = images[ 0 ];
 	// Looking at the first image in the set is fine, at least for now.
-	if( image.onScreen.width < 200 || image.onScreen.height < 200 ) {
+	if ( image.onScreen.width < 200 || image.onScreen.height < 200 ) {
 		size = 'micro';
-	} else if( image.onScreen.width < 400 || image.onScreen.height < 400 ) {
+	} else if ( image.onScreen.width < 400 || image.onScreen.height < 400 ) {
 		size = 'small';
 	}
 </script>

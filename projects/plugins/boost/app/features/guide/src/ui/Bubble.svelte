@@ -17,7 +17,8 @@
 		easing: backOut,
 	};
 
-	$: overiszedLabel = oversizedBy < 9 ? oversizedBy.toFixed(1) : `${Math.floor( oversizedBy )}+`;
+	$: overiszedLabel =
+		oversizedBy < 9 ? oversizedBy.toFixed( 1 ) : `${ Math.floor( oversizedBy ) }+`;
 </script>
 
 {#if mounted}
@@ -40,7 +41,7 @@
 
 		font-weight: 700;
 		font-family: sans-serif;
-		font-size: .8em;
+		font-size: 0.8em;
 
 		display: flex;
 		justify-content: center;
@@ -63,7 +64,7 @@
 		}
 	}
 
-	:global(.guide.small) {
+	:global( .guide.small ) {
 		.bubble {
 			padding: 15px;
 		}
@@ -76,12 +77,12 @@
 		font-size: 9px;
 	}
 
-	:global(.guide.micro) {
+	:global( .guide.micro ) {
 		.bubble {
 			padding: 10px;
 			// Offset .guide
 			margin-left: -10px;
-			margin-top: -10px
+			margin-top: -10px;
 		}
 		.label {
 			font-size: 0px;

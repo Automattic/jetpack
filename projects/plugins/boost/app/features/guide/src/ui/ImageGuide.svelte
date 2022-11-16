@@ -129,8 +129,6 @@
 		}
 	}
 
-
-
 	.details {
 		color: #3c434a;
 		padding: 25px;
@@ -147,7 +145,6 @@
 		overflow: hidden;
 
 		text-align: left;
-
 	}
 
 	.description {
@@ -175,7 +172,7 @@
 		z-index: -1;
 	}
 
-	:global(.guide.small) {
+	:global( .guide.small ) {
 		.preview {
 			gap: 8px;
 		}
@@ -185,6 +182,5 @@
 			min-width: 200px;
 			padding: 15px;
 		}
-
 	}
 </style>
