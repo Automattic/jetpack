@@ -15,9 +15,15 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 	/**
 	 * Set up before class.
 	 */
-	public static function set_up_before_class() {
+	public static function setUpBeforeClass() {
 		parent::set_up_before_class();
 		Jetpack_Subscriptions::init();
+		add_filter( 'tests_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
+	}
+
+	public static function tearDownAfterClass() {
+		remove_all_filters( 'tests_jetpack_is_supported_jetpack_recurring_payments' );
+		parent::tearDownAfterClass();
 	}
 
 	public function test_publishing_post_first_time_does_not_set_do_not_send_subscription_flag() {
@@ -75,7 +81,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 	 * Jetpack public newletters.
 	 */
 	public function test_jetpack_paid_newsletters_non_gated_post() {
-		add_filter( 'tests_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		$blog_id = get_current_blog_id();
 
 		$post_id = $this->factory->post->create();
@@ -90,14 +95,12 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		remove_all_filters( 'tests_jetpack_is_supported_jetpack_recurring_payments' );
 	}
 
 	/**
 	 * Jetpack public newletters.
 	 */
 	public function test_jetpack_paid_newsletters_gated_public_newsletter() {
-		add_filter( 'tests_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		$blog_id = get_current_blog_id();
 
 		$post_id = $this->factory->post->create();
@@ -114,8 +117,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-
-		remove_all_filters( 'tests_jetpack_is_supported_jetpack_recurring_payments' );
 	}
 
 	/**
@@ -127,7 +128,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		$this->setup_jetpack_paid_newsletters();
 
 		update_post_meta( $post_id, '_jetpack_newsletter_access', 'paid_subscribers' );
-		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 
 		$subscription_service = new WPCOM_Offline_Subscription_Service();
 		// All subscribers should see the post
@@ -137,7 +137,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $blog_id, $post_id ) );
 
 		// Clean up
-		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 	}
 
@@ -145,7 +144,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 	 * Jetpack subscribed newletters.
 	 */
 	public function test_jetpack_paid_newsletters_gated_subscribers_newsletter() {
-		add_filter( 'tests_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		$blog_id = get_current_blog_id();
 		$post_id = $this->factory->post->create();
 		$this->setup_jetpack_paid_newsletters();
@@ -161,7 +159,5 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		remove_all_filters( 'tests_jetpack_is_supported_jetpack_recurring_payments' );
 	}
-
 }
