@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, dateI18n } from '@wordpress/date';
-import { createInterpolateElement, useEffect, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { BACKUP_STATE } from '../constants';
 import useAnalytics from '../hooks/useAnalytics';
@@ -22,11 +22,7 @@ import UploadsIcon from './icons/uploads.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
-	const { backupState, fetchBackupsState, latestTime, progress, stats } = useBackupsState();
-	// Loads data on startup and whenever progress updates.
-	useEffect( () => {
-		fetchBackupsState();
-	}, [ fetchBackupsState ] );
+	const { backupState, latestTime, progress, stats } = useBackupsState();
 
 	return (
 		<div className="jp-wrap jp-content">

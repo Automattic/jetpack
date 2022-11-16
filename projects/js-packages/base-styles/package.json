@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-base-styles",
-	"version": "0.3.12",
+	"version": "0.3.14",
 	"description": "Jetpack components base styles",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/base-styles/#readme",
 	"bugs": {
@@ -20,7 +20,7 @@
 		"build-production-js": "echo 'Not implemented.'"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "4.10.0"
+		"@wordpress/base-styles": "4.12.0"
 	},
 	"engines": {
 		"node": "^16.13.2",

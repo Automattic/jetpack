@@ -1,9 +1,22 @@
 <?php
-require __DIR__ . '/../../../../modules/publicize.php';
+
+if ( ! function_exists( 'publicize_init' ) ) {
+	/**
+	 * Some tests rely on this function which won't get defined unless we mock lots
+	 * of things and require the module code. Instead we'll define it here.
+	 *
+	 * @return Publicize Object
+	 */
+	function publicize_init() {
+		global $publicize;
+
+		return $publicize;
+	}
+}
 
 /**
  * @group publicize
- * @covers Publicize
+ * @covers Jetpack_Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 

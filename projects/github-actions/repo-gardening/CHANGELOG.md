@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2022-11-01
+### Added
+- Add new task to gather support references in a separate comment.
+- assignLabels: Add a '[Status] Needs Test Review' to PRs touching tests
+- Automated triaging: add Platform label to new issues based on info provided in issue.
+- Gather support references: add a specific label to an issue once it has gathered more than 10 issues.
+- Gather support references: add option to send a Slack message when issuees start gathering a lot of tickets, and would need to be escalated.
+- Labels: add [Status] In Progress label for draft PRs
+- New task: Reply to customers Reminder -- Sends a Slack message to remind triage teams to reply to customers once an issue has been closed.
+- Tooling: enable automatic GitHub releases when a new version of the action is tagged, so the new version can be made available in the GitHub Actions marketplace.
+
+### Changed
+- Documentation: update node version recommended in code sample
+- Gather Support References / Reply to Customers: ping the right DRIs for Satellite products.
+- Gather support references: add clarification that the comment is automated and should not be edited.
+- Gather support references: stop gathering Live Chat references.
+- General: disable Slack link and media previews in messages that are already custom-formatted.
+- General: move all utilities into their own directory to keep things ordered
+- Updated package dependencies.
+
+### Fixed
+- Ensure multiple plugins can be provided and then added as labels
+- Gather Support References: avoid sending reminders for closed issues.
+- Gather Support References: avoid throwing an error when an issue has no content.
+
 ## [3.0.0] - 2022-07-06
 ### Added
 - Automatically add a Priority label based off the contents of an issue. [#24841]
@@ -103,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[3.1.0]: https://github.com/Automattic/action-repo-gardening/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/Automattic/action-repo-gardening/compare/v2.0.0...v2.0.1

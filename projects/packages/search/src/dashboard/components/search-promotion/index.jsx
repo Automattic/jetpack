@@ -19,7 +19,7 @@ export default function SearchPromotion() {
 			</h3>
 			<ul className="jp-product-promote">
 				<li>{ __( 'Customizable filtering', 'jetpack-search-pkg' ) }</li>
-				<li>{ __( 'Support for 29 languages', 'jetpack-search-pkg' ) }</li>
+				<li>{ __( 'Support for 38 languages', 'jetpack-search-pkg' ) }</li>
 				<li>
 					{ __( 'Content displayed within results is updated in real-time', 'jetpack-search-pkg' ) }
 				</li>

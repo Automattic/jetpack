@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.4
-Requires at least: 5.9
+Stable tag: 11.5.1
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
+Tested up to: 6.1
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,10 +242,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.5-a.9 - 2022-10-19
+### 11.6-a.3 - 2022-11-07
+#### Enhancements
+- Form block: add support links to form type selector.
+- Form block: register Jetpack forms in the pattern inserter.
+
+#### Improved compatibility
+- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar.
+- VideoPress (beta): introduce Video Chapters beta block.
+
 #### Bug fixes
-- Contact Form: display consent form field result in notification emails and feedback views.
-- Contact Form: remove overlay causing issues with the block inserter hover behavior.
+- Customizer: make sure the menu item is shown for block themes.
+- Image Editor: fix issue where users are not able to edit/crop and restore images.
+- Related Posts Block: when 3 posts are output, increase the width closer to 100%.
 
 --------
 

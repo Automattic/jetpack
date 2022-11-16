@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
@@ -9,16 +10,27 @@ import { useParams, useHistory } from 'react-router-dom';
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
 import { STORE_ID } from '../../../state';
+import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 
-const useMetaEdit = ( { videoId, data, video, updateData } ) => {
+const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	const updateMeta = useMetaUpdate( videoId );
 
-	const metaChanged =
-		data?.title !== video?.title ||
-		data?.description !== video?.description ||
-		data?.caption !== video?.caption;
+	const isEmpty = value => {
+		return value === undefined || value === '';
+	};
+
+	const hasFieldChanged = field => {
+		const formDataField = formData?.[ field ];
+		const videoField = video?.[ field ];
+		const isDifferent = formDataField !== videoField;
+		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
+	};
+
+	const metaChanged = [ 'title', 'description', 'caption' ].some( field =>
+		hasFieldChanged( field )
+	);
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -35,7 +47,7 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 	const handleMetaUpdate = () => {
 		return new Promise( ( resolve, reject ) => {
 			if ( metaChanged ) {
-				updateMeta( data ).then( resolve ).catch( reject );
+				updateMeta( formData ).then( resolve ).catch( reject );
 			} else {
 				resolve( null );
 			}
@@ -54,10 +66,17 @@ const useMetaEdit = ( { videoId, data, video, updateData } ) => {
 export default () => {
 	const history = useHistory();
 	const dispatch = useDispatch( STORE_ID );
+	const { isRegistered } = useConnection();
+
+	if ( ! isRegistered ) {
+		history.push( '/' );
+	}
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video, isFetching } = useVideo( Number( videoId ) );
+	const { data: video, isFetching, processing } = useVideo( Number( videoId ) );
+
+	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
@@ -65,15 +84,16 @@ export default () => {
 	>( null );
 
 	const [ updating, setUpdating ] = useState( false );
+	const [ updated, setUpdated ] = useState( false );
 
-	const [ data, setData ] = useState( {
+	const [ formData, setFormData ] = useState( {
 		title: video?.title,
 		description: video?.description,
 		caption: video?.caption,
 	} );
 
 	const updateData = newData => {
-		setData( current => ( { ...current, ...newData } ) );
+		setFormData( current => ( { ...current, ...newData } ) );
 	};
 
 	const {
@@ -88,7 +108,7 @@ export default () => {
 	const { metaChanged, handleMetaUpdate, ...metaEditData } = useMetaEdit( {
 		videoId,
 		video,
-		data,
+		formData,
 		updateData,
 	} );
 
@@ -124,13 +144,13 @@ export default () => {
 
 		// TODO: handle errors
 		Promise.allSettled( promises ).then( () => {
-			const videoData = { ...video, ...data };
+			const videoData = { ...video, ...formData };
 			// posterImage already set by the action
 			delete videoData.posterImage;
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
-			history.push( '/' );
+			setUpdated( true );
 		} );
 	};
 
@@ -139,15 +159,15 @@ export default () => {
 
 	const initialLoading =
 		isFetching &&
-		data?.title === undefined &&
-		data?.description === undefined &&
-		data?.caption === undefined;
+		formData?.title === undefined &&
+		formData?.description === undefined &&
+		formData?.caption === undefined;
 
 	useEffect( () => {
 		let mounted = true;
 
 		if ( ! initialLoading && mounted ) {
-			setData( {
+			setFormData( {
 				title: video?.title,
 				description: video?.description,
 				caption: video?.caption,
@@ -162,15 +182,19 @@ export default () => {
 	}, [ initialLoading ] );
 
 	return {
+		playbackToken,
+		isFetchingPlaybackToken,
 		...video,
-		...data, // data is the local representation of the video
+		...formData, // formData is the local representation of the video
 		hasChanges,
 		posterImageSource,
 		libraryAttachment,
 		selectPosterImageFromLibrary,
 		handleSaveChanges,
 		isFetching,
+		processing,
 		updating,
+		updated,
 		selectedTime,
 		...metaEditData,
 		...posterEditData,

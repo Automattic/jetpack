@@ -6,7 +6,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { uploadVideo as videoPressUpload, getJWT } from '../hooks/use-uploader';
+import { uploadVideo as videoPressUpload, getJWT, uploadFromLibrary } from '../hooks/use-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -40,8 +40,39 @@ import {
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
 	SET_USERS_PAGINATION,
+	SET_LOCAL_VIDEO_UPLOADED,
+	SET_IS_FETCHING_PLAYBACK_TOKEN,
+	SET_PLAYBACK_TOKEN,
+	EXPIRE_PLAYBACK_TOKEN,
+	SET_VIDEO_UPLOAD_PROGRESS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
+
+/**
+ * Utility function to pool the video data until poster is ready.
+ */
+
+const pollingUploadedVideoData = async data => {
+	const response = await apiFetch( {
+		path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
+	} );
+
+	const video = mapVideoFromWPV2MediaEndpoint( response );
+
+	if ( video?.posterImage !== null && video?.posterImage !== '' ) {
+		return Promise.resolve( video );
+	}
+
+	return new Promise( ( resolve, reject ) => {
+		setTimeout( () => {
+			pollingUploadedVideoData( data ).then( resolve ).catch( reject );
+		}, 2000 );
+	} );
+};
+
+/**
+ * ACTIONS
+ */
 
 const setIsFetchingVideos = isFetching => {
 	return { type: SET_IS_FETCHING_VIDEOS, isFetching };
@@ -104,7 +135,7 @@ const setVideosStorageUsed = used => {
 	return { type: SET_VIDEOS_STORAGE_USED, used };
 };
 
-const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
+const updateVideoPrivacy = ( id, level ) => async ( { dispatch, select, resolveSelect } ) => {
 	const privacySetting = Number( level );
 	if ( isNaN( privacySetting ) ) {
 		throw new Error( `Invalid privacy level: '${ level }'` );
@@ -113,6 +144,12 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch } ) => {
 	if ( 0 > privacySetting || privacySetting >= VIDEO_PRIVACY_LEVELS.length ) {
 		// @todo: implement error handling / UI
 		throw new Error( `Invalid privacy level: '${ level }'` );
+	}
+
+	// Request a video token asap when it becomes private.
+	if ( level === 1 ) {
+		const video = await select.getVideo( id );
+		await resolveSelect.getPlaybackToken( video?.guid );
 	}
 
 	// Let's be optimistic and update the UI right away.
@@ -196,20 +233,6 @@ const deleteVideo = id => async ( { dispatch } ) => {
 const uploadVideo = file => async ( { dispatch } ) => {
 	const tempId = uid();
 
-	const pollingUploadedVideoData = async data => {
-		const response = await apiFetch( {
-			path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ data?.id }` ),
-		} );
-
-		const video = mapVideoFromWPV2MediaEndpoint( response );
-
-		if ( video?.posterImage !== null ) {
-			dispatch( { type: UPLOADED_VIDEO, video } );
-		} else {
-			setTimeout( () => pollingUploadedVideoData( video ), 2000 );
-		}
-	};
-
 	// @todo: implement progress and error handler
 	const noop = () => {};
 
@@ -218,16 +241,39 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	// @todo: this should be stored in the state
 	const jwt = await getJWT();
 
+	const onSuccess = async data => {
+		dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+		const video = await pollingUploadedVideoData( data );
+		dispatch( { type: UPLOADED_VIDEO, video } );
+	};
+
+	const onProgress = ( bytesSent, bytesTotal ) => {
+		dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
+	};
+
 	videoPressUpload( {
 		data: jwt,
 		file,
 		onError: noop,
-		onProgress: noop,
-		onSuccess: data => {
-			dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
-			pollingUploadedVideoData( data );
-		},
+		onProgress,
+		onSuccess,
 	} );
+};
+
+/**
+ * Thunk action to upload local videos for VideoPress.
+ *
+ * @param {object} file - File data
+ * @returns {Function} Thunk action
+ */
+const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
+	const tempId = uid();
+	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.title } );
+	const data = await uploadFromLibrary( file?.id );
+	dispatch( { type: SET_LOCAL_VIDEO_UPLOADED, id: file?.id } );
+	dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+	const video = await pollingUploadedVideoData( data );
+	dispatch( { type: UPLOADED_VIDEO, video } );
 };
 
 const setIsFetchingPurchases = isFetching => {
@@ -249,7 +295,16 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 				if ( resp?.data?.generating ) {
 					pollPoster();
 				} else {
-					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+					const poster = resp?.data?.poster;
+					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
+					apiFetch( {
+						path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
+						method: 'POST',
+						data: {
+							id,
+							poster,
+						},
+					} );
 				}
 			} catch ( error ) {
 				// @todo implement error handling / UI
@@ -285,6 +340,18 @@ const setUsersPagination = pagination => {
 	return { type: SET_USERS_PAGINATION, pagination };
 };
 
+const setIsFetchingPlaybackToken = isFetching => {
+	return { type: SET_IS_FETCHING_PLAYBACK_TOKEN, isFetching };
+};
+
+const setPlaybackToken = playbackToken => {
+	return { type: SET_PLAYBACK_TOKEN, playbackToken };
+};
+
+const expirePlaybackToken = guid => {
+	return { type: EXPIRE_PLAYBACK_TOKEN, guid };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -311,6 +378,8 @@ const actions = {
 	deleteVideo,
 
 	uploadVideo,
+	uploadVideoFromLibrary,
+
 	setIsFetchingPurchases,
 	setPurchases,
 
@@ -318,6 +387,10 @@ const actions = {
 
 	setUsers,
 	setUsersPagination,
+
+	setIsFetchingPlaybackToken,
+	setPlaybackToken,
+	expirePlaybackToken,
 };
 
 export { actions as default };

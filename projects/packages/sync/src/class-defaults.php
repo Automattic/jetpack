@@ -57,6 +57,7 @@ class Defaults {
 		'disabled_reblogs',
 		'disallowed_keys',
 		'enable_header_ad',
+		'featured_image_email_enabled',
 		'gmt_offset',
 		'gravatar_disable_hovercards',
 		'highlander_comment_form_prompt',
@@ -173,6 +174,7 @@ class Defaults {
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
 		'videopress_private_enabled_for_site',
+		'wpcom_gifting_subscription',
 	);
 
 	/**

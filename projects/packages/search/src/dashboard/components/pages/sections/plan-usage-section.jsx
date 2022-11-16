@@ -138,7 +138,7 @@ const upgradeMessageRequests = apiData => {
 		'jetpack-search-pkg'
 	);
 	const ctaUpgradeToContinue = __(
-		'Upgrade now to contineu using Jetpack Search.',
+		'Upgrade now to continue using Jetpack Search.',
 		'jetpack-search-pkg'
 	);
 	// Pick the appropriate CTA.
