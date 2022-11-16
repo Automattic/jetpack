@@ -1,3 +1,7 @@
+.wpcom-coming-soon-body .wpcomsh-expiring-nudge {
+	display: none;
+}
+
 .wpcomsh-expiring-nudge {
     background: #000;
     color: #fff;
