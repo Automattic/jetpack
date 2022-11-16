@@ -320,9 +320,9 @@ class REST_Endpoints {
 		// Reset Sync locks.
 		register_rest_route(
 			'jetpack/v4',
-			'/sync/reset-locks',
+			'/sync/locks',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => __CLASS__ . '::reset_locks',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 			)

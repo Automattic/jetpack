@@ -42,7 +42,7 @@
 		"automattic/jetpack-stats": "0.3.x-dev",
 		"automattic/jetpack-stats-admin": "0.1.x-dev",
 		"automattic/jetpack-status": "1.15.x-dev",
-		"automattic/jetpack-sync": "1.42.x-dev",
+		"automattic/jetpack-sync": "1.43.x-dev",
 		"automattic/jetpack-videopress": "0.8.x-dev",
 		"automattic/jetpack-waf": "0.6.x-dev",
 		"automattic/jetpack-wordads": "0.2.x-dev",
