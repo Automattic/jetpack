@@ -211,38 +211,19 @@ for SLUG in "${SLUGS[@]}"; do
 	fi
 	debug "Checking dependencies of $SLUG"
 	PACKAGES_CHECK_ALLOWED_SEL=
+	PACKAGES_UPDATE_SEL='"@dev"'
+	PACKAGES_CHECK_SEL='[ "@dev" ]'
+	JSPACKAGES="$JSPACKAGES_STAR"
+	DOCL=false
 	if [[ "$SLUG" == monorepo ]]; then
-		PACKAGES_UPDATE_SEL='$packages[e.key].trunk'
-		PACKAGES_CHECK_SEL='[ $packages[.key].trunk ]'
-		JSPACKAGES="$JSPACKAGES_PROJ"
-		DOCL=false
 		DIR=.
 	elif [[ "$SLUG" == nonproject:* ]]; then
-		PACKAGES_UPDATE_SEL='"@dev"'
-		PACKAGES_CHECK_SEL='[ "@dev" ]'
-		JSPACKAGES="$JSPACKAGES_STAR"
-		if [[ "$SLUG" == nonproject:tools/cli/skeletons/* ]]; then
-			PACKAGES_UPDATE_SEL='$packages[e.key].trunk'
-			PACKAGES_CHECK_SEL='[ $packages[.key].trunk ]'
-			JSPACKAGES="$JSPACKAGES_PROJ"
-			if [[ "$SLUG" == "nonproject:tools/cli/skeletons/packages" ]]; then
-				PACKAGES_UPDATE_SEL='$packages[e.key].dep'
-				PACKAGES_CHECK_SEL='[ $packages[.key].dep, $packages[.key].dep2 ]'
-			fi
-		fi
-		DOCL=false
 		DIR="${SLUG#nonproject:}"
 	else
-		PACKAGES_UPDATE_SEL='$packages[e.key].trunk'
-		PACKAGES_CHECK_SEL='[ $packages[.key].trunk ]'
-		JSPACKAGES="$JSPACKAGES_PROJ"
-		if [[ "$SLUG" == packages/* ]]; then
-			PACKAGES_UPDATE_SEL='$packages[e.key].dep'
-			PACKAGES_CHECK_SEL='[ $packages[.key].dep, $packages[.key].dep2 ]'
-		elif [[ "$SLUG" == plugins/* ]]; then
-			PACKAGES_UPDATE_SEL='( if e.value | endswith( "-dev" ) then $packages[e.key].trunk else $packages[e.key].dep2 end )'
-			PACKAGES_CHECK_SEL='( if .value | endswith( "-dev" ) then [ $packages[.key].trunk ] else [ $packages[.key].dep2 ] end )'
-			PACKAGES_CHECK_ALLOWED_SEL='[ $packages[.key].trunk, $packages[.key].dep2 ]'
+		if [[ "$SLUG" == plugins/* ]]; then
+			PACKAGES_UPDATE_SEL='( if e.value | endswith( "@dev" ) then "@dev" else $packages[e.key].dep2 end )'
+			PACKAGES_CHECK_SEL='( if .value | endswith( "@dev" ) then [ "@dev" ] else [ $packages[.key].dep2 ] end )'
+			PACKAGES_CHECK_ALLOWED_SEL='[ "@dev", $packages[.key].dep2 ]'
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
