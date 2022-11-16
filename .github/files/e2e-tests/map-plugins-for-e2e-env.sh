@@ -8,6 +8,8 @@ if [[ -z "$PROJECT_PATH" ]]; then
 	exit 1
 fi
 
+ls "$BUILD_DIR/build/Automattic"
+
 SLUG=$(jq -r -e ".ci.pluginSlug" "$PROJECT_PATH/package.json")
 MIRROR=$(jq -r -e ".ci.mirrorName" "$PROJECT_PATH/package.json")
 
