@@ -30,8 +30,8 @@ class Image_Guide implements Feature {
 	}
 
 	public function enqueue_assets() {
-		wp_enqueue_script( 'guide', plugins_url( 'dist/guide.js', __FILE__ ), array(), JETPACK_BOOST_VERSION, true );
-		wp_enqueue_style( 'guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
+		wp_enqueue_script( 'jetpack-boost-image-guide', plugins_url( 'dist/guide.js', __FILE__ ), array(), JETPACK_BOOST_VERSION, true );
+		wp_enqueue_style( 'jetpack-boost-image-guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
 	}
 
 	/**
