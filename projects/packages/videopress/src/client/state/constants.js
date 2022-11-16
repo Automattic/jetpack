@@ -83,3 +83,7 @@ export const VIDEO_PRIVACY_LEVELS = [
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 ];
+
+export const VIDEO_RATING_G = 'G';
+export const VIDEO_RATING_PG_13 = 'PG-13';
+export const VIDEO_RATING_R_17 = 'R-17';

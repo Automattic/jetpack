@@ -68,6 +68,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
 			disabled={ disabled }
+			aria-disabled={ disabled }
 			isDestructive={ isDestructive }
 			text={ text }
 			{ ...componentProps }

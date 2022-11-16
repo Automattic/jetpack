@@ -81,6 +81,17 @@
 				"type": "object"
 			},
 			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
+		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
+		"rating": {
+			"type": "string"
 		}
 	},
 	"textdomain": "jetpack-videopress",
