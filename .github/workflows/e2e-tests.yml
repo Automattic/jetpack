@@ -97,34 +97,30 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: ${{ github.event.client_payload.repository }}
-        path: build-output/${{ github.event.client_payload.repository }}
+        path: build-output/build/${{ github.event.client_payload.repository }}
 
     - name: Prepare build
       env:
         COMPOSER_ROOT_VERSION: "dev-trunk"
+        BUILD_DIR: ./build-output
         PROJECT_PATH: ${{ matrix.path }}
       run: |
-        case "$GITHUB_EVENT_NAME" in
-          workflow_run)
-            echo "::group::Prepare build artefacts"
-            tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
-            BUILD_DIR=./build-output/build/Automattic .github/files/e2e-tests/map-plugins-for-e2e-env.sh
-            echo "::endgroup::"
-            ;;
+        if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
+          echo "::group::Prepare build artefacts"
+          tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
+          echo "::endgroup::"
+        fi
 
-          repository_dispatch)
-            echo "::group::Prepare build artefacts"
-            BUILD_DIR=./build-output/automattic .github/files/e2e-tests/map-plugins-for-e2e-env.sh
-            echo "::endgroup::"
-            ;;
-
-          *)
-            echo "::group::Build plugin(s)"
-            cd $PROJECT_PATH
-            pnpm run build
-            echo "::endgroup::"
-            ;;
-        esac
+        if [ "$GITHUB_EVENT_NAME" == workflow_run ] || [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
+          echo "::group::Update volume mapping"
+          .github/files/e2e-tests/map-plugins-for-e2e-env.sh
+          echo "::endgroup::"
+        else
+          echo "::group::Build plugin(s)"
+          cd $PROJECT_PATH
+          pnpm run build
+          echo "::endgroup::"
+        fi
 
     - name: Test environment set-up
       working-directory: ${{ matrix.path }}

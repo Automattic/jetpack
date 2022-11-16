@@ -71,8 +71,6 @@ export default function DashboardPage( { isLoading = false } ) {
 		select( STORE_ID ).isInstantSearchPromotionActive()
 	);
 
-	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
-
 	const supportsOnlyClassicSearch = useSelect( select =>
 		select( STORE_ID ).supportsOnlyClassicSearch()
 	);
@@ -150,7 +148,6 @@ export default function DashboardPage( { isLoading = false } ) {
 							domain={ domain }
 							isDisabledFromOverLimit={ isDisabledFromOverLimitOnFreePlan }
 							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-							upgradeBillPeriod={ upgradeBillPeriod }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 							supportsSearch={ supportsSearch }
 							supportsInstantSearch={ supportsInstantSearch }
