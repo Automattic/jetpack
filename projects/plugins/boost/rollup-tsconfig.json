@@ -3,7 +3,7 @@
 	"include": [
 		"app/assets/src/js/**/*",
 		"../../js-packages/components/**/*",
-		"app/features/guide/src/**/*"
+		"app/features/image-guide/src/**/*"
 	],
 	"compilerOptions": {
 		"jsx": "react-jsx"
