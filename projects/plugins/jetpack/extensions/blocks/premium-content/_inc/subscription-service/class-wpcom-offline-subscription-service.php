@@ -70,13 +70,13 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 		wp_set_current_user( $user_id );
 
 		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$is_paid_subscriber = $this->visitor_can_view_content( $valid_plan_ids, $access_level );
+		$valid_plan_ids     = Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
+		$is_paid_subscriber = $this->visitor_can_view_content( $valid_plan_ids, $access_level, $post_id );
 
 		// All the users here are subscribers
-		$allowed = $this->user_has_access( $access_level, true, $is_paid_subscriber );
+		$allowed = $this->user_has_access( $access_level, true, $is_paid_subscriber, $post_id );
 
-		wp_set_current_user( $previous_user );
+		wp_set_current_user( $previous_user->ID );
 		restore_current_blog();
 
 		return $allowed;
