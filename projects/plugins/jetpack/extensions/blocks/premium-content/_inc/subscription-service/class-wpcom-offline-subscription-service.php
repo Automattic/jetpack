@@ -19,6 +19,14 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Service {
 
 	/**
+	 * Current post ID.
+	 * It prevents changing the signatuire of visitor_can_view_content().
+	 *
+	 * @var int
+	 */
+	private $post_id;
+
+	/**
 	 * Is available()
 	 *
 	 * @return bool
@@ -42,15 +50,16 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * @return bool
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
-
 		/** This filter is already documented in projects/plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/class-token-subscription-service.php */
 		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, get_current_blog_id() );
 		if ( empty( $subscriptions ) ) {
 			return false;
 		}
 		// format the subscriptions so that they can be validated.
-		$subscriptions = self::abbreviate_subscriptions( $subscriptions );
-		return $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
+		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+
+		return $this->user_has_access( $access_level, true, $is_paid_subscriber, $this->post_id );
 	}
 
 	/**
@@ -64,17 +73,15 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
 	public function subscriber_can_receive_post_by_mail( $user_id, $blog_id, $post_id ) {
+		$this->post_id = $post_id;
 		switch_to_blog( $blog_id );
 
 		$previous_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
-		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-		$valid_plan_ids     = Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$is_paid_subscriber = $this->visitor_can_view_content( $valid_plan_ids, $access_level, $post_id );
-
-		// All the users here are subscribers
-		$allowed = $this->user_has_access( $access_level, true, $is_paid_subscriber, $post_id );
+		$access_level   = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
+		$valid_plan_ids = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
+		$allowed        = $this->visitor_can_view_content( $valid_plan_ids, $access_level );
 
 		wp_set_current_user( $previous_user->ID );
 		restore_current_blog();
