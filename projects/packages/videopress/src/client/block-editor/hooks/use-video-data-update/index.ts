@@ -12,20 +12,20 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+import { uploadTrackForGuid } from '../../../lib/video-tracks';
+import { UploadTrackDataProps } from '../../../lib/video-tracks/types';
 import {
 	WPComV2VideopressGetMetaEndpointResponseProps,
 	WPComV2VideopressPostMetaEndpointBodyProps,
 } from '../../../types';
+import extractVideoChapters from '../../../utils/extract-video-chapters';
+import generateChaptersFile from '../../../utils/generate-chapters-file';
 import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
 	VideoId,
 } from '../../blocks/video/types';
-import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
-import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
-import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
-import { UploadTrackDataProps } from '../../plugins/video-chapters/utils/tracks-editor/types';
 import useVideoData from '../use-video-data';
 import { UseSyncMediaProps } from './types';
 

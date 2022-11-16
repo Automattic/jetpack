@@ -1,4 +1,4 @@
-import { generateChaptersFileContent } from '../generate-chapters-file';
+import { generateChaptersFileContent } from '..';
 
 describe( 'generateChaptersFileContent', () => {
 	describe( 'with video duration', () => {

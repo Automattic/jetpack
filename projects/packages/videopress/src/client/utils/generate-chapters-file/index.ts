@@ -1,4 +1,4 @@
-import { extractVideoChapters } from './extract-video-chapters';
+import { extractVideoChapters } from '../extract-video-chapters';
 
 /**
  * Converts milliseconds duration to a string in the hh:mm:ss format

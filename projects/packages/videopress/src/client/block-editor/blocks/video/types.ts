@@ -1,4 +1,4 @@
-import { trackKindOptionProps } from '../../plugins/video-chapters/utils/tracks-editor/types';
+import { trackKindOptionProps } from '../../../lib/video-tracks/types';
 
 export type VideoId = number;
 export type VideoGUID = string;
