@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4406815f741a8a0d16ea25c1a5dcbfa7",
+    "content-hash": "b749512e25f2738c2d00145e1a743547",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -361,7 +361,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "449305963c262301f7ced8a2e274048621bb55e2"
+                "reference": "49a3e67111b6d7bf7a7b1c67ee0cd24e34208911"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -371,7 +371,7 @@
                 "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.46",
                 "automattic/jetpack-identity-crisis": "^0.8",
-                "automattic/jetpack-my-jetpack": "^2.3",
+                "automattic/jetpack-my-jetpack": "^2.4",
                 "automattic/jetpack-status": "^1.15",
                 "automattic/jetpack-sync": "^1.42"
             },
@@ -1206,7 +1206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "2dde4b0b1e42b49923897d0ec6f327623992a7da"
+                "reference": "682c254c3c4ed63b91d9e8e782b240d9056c3f7d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -1232,7 +1232,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.4.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1790,14 +1790,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "5cbf091cc896dddfe5cacb411471941e0e46e686"
+                "reference": "c9ec319b2a4c2d1407e6fc1d328e6e5623c31600"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.46",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-my-jetpack": "^2.3",
+                "automattic/jetpack-my-jetpack": "^2.4",
                 "automattic/jetpack-status": "^1.15"
             },
             "require-dev": {

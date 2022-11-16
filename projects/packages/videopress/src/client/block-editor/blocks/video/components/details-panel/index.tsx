@@ -26,7 +26,6 @@ export default function DetailsPanel( {
 	isRequestingVideoData,
 }: DetailsPanelProps ) {
 	const { title, description } = attributes;
-
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	// Expands the description textarea to accommodate the description

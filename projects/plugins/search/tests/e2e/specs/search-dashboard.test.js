@@ -34,7 +34,7 @@ test.describe( 'Search Dashboard', () => {
 		await searchDashboard.waitForNetworkIdle();
 	} );
 
-	test.skip( 'Can manage search module and instant search.', async () => {
+	test( 'Can manage search module and instant search.', async () => {
 		await test.step( 'Can display dashboard correctly', async () => {
 			expect(
 				await searchDashboard.isSearchModuleToggleVisibile(),
