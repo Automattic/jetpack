@@ -33,6 +33,7 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Domine',
 	'EB Garamond',
 	'Fira Sans',
+	'Fraunces',
 	'IBM Plex Mono',
 	'IBM Plex Sans',
 	'Inter',
@@ -64,7 +65,6 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Texturina',
 	'Uncut Sans',
 	'Work Sans',
-	"Fraunces",
 );
 
 /**
