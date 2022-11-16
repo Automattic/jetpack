@@ -71,7 +71,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $is_valid_token ) {
-			$is_blog_subscrber  = 'active' === $payload['blog_sub'];
+			$is_blog_subscriber  = 'active' === $payload['blog_sub'];
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
@@ -79,7 +79,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			return $this->user_has_access( $access_level, false, false, get_the_ID() );
 		}
 
-		return $this->user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber, get_the_ID() );
+		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
 	}
 
 	/**
