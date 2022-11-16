@@ -13,10 +13,12 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ColorPanel from './components/color-panel';
 import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
+import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
@@ -80,6 +82,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		poster,
 		align,
 		videoRatio,
+		privacySetting,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -94,7 +97,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		seekbarPlayedColor,
 		useAverageColor,
 		poster,
+		privacySetting,
 	} );
+
+	useSyncMedia( attributes, setAttributes );
 
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
@@ -311,6 +317,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			<InspectorControls>
 				<PlaybackPanel attributes={ attributes } setAttributes={ setAttributes } />
 				<ColorPanel attributes={ attributes } setAttributes={ setAttributes } />
+				<PrivacyAndRatingPanel attributes={ attributes } setAttributes={ setAttributes } />
 			</InspectorControls>
 
 			<PosterImageBlockControl

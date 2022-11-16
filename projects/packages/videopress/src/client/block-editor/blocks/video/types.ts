@@ -28,9 +28,12 @@ export type VideoBlockAttributes = {
 	seekbarLoadingColor?: string;
 	seekbarColor?: string;
 	useAverageColor?: boolean;
+
+	// Privacy and Rating types
+	privacySetting?: number;
 };
 
-export type PlaybackControlProps = {
+export type VideoControlProps = {
 	/**
 	 * Block Attributes object.
 	 */
