@@ -164,8 +164,15 @@ export function useSyncMedia(
 			return;
 		}
 
-		// Sync (POST request) the block attributes data with the VideoPress API.
-		updateMediaHandler( dataToUpdate ).then( () => updateInitialState( dataToUpdate ) );
+		// Sync the block attributes data with the video data
+		updateMediaHandler( dataToUpdate ).then( () => {
+			// Update local state with fresh video data.
+			updateInitialState( dataToUpdate );
+
+			// Re-render video player once the data has been updated.
+			const videoPressUrl = getVideoPressUrl( guid, attributes );
+			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+		} );
 
 		// | Video Chapters feature |
 		if ( attributes?.guid && dataToUpdate?.description?.length ) {
