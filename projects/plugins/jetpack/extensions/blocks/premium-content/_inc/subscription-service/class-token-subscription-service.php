@@ -17,10 +17,14 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
  */
 abstract class Token_Subscription_Service implements Subscription_Service {
 
-	const JWT_AUTH_TOKEN_COOKIE_NAME = 'jp-premium-content-session';
-	const DECODE_EXCEPTION_FEATURE   = 'memberships';
-	const DECODE_EXCEPTION_MESSAGE   = 'Problem decoding provided token';
-	const REST_URL_ORIGIN            = 'https://subscribe.wordpress.com/';
+	const JWT_AUTH_TOKEN_COOKIE_NAME      = 'jp-premium-content-session';
+	const DECODE_EXCEPTION_FEATURE        = 'memberships';
+	const DECODE_EXCEPTION_MESSAGE        = 'Problem decoding provided token';
+	const REST_URL_ORIGIN                 = 'https://subscribe.wordpress.com/';
+	const BLOG_SUB_CONFIRMING_QUERY_PARAM = 'active';
+	const SUBSCRIBE_SUCCESS_QUERY_PARAM   = 'success';
+	const BLOG_SUB_CONFIRMING             = 'confirming';
+	const POST_ACCESS_LEVEL_SUBSCRIBERS   = 'subscribers';
 
 	/**
 	 * Initialize the token subscription service.
@@ -71,8 +75,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $is_valid_token ) {
-			if ( 'subscribers' === $access_level ) {
-				return 'active' === $payload['blog_sub'];
+			if ( self::POST_ACCESS_LEVEL_SUBSCRIBERS === $access_level ) {
+				return self::BLOG_SUB_ACTIVE === $payload['blog_sub'];
 			}
 			$subscriptions = (array) $payload['subscriptions'];
 		} elseif ( is_user_logged_in() ) {
@@ -106,7 +110,17 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		} else {
 			// When a user subscribes to a post with an access level of
 			// 'subscribers' allow the user to view the post immediately
-			return 'subscribers' === $access_level && 'confirming' === $this->get_blog_sub_query_param();
+			if ( self::POST_ACCESS_LEVEL_SUBSCRIBERS === $access_level ) {
+
+				if ( self::BLOG_SUB_CONFIRMING_QUERY_PARAM === $this->get_blog_sub_query_param() ) {
+					return true;
+				}
+
+				if ( self::SUBSCRIBE_SUCCESS_QUERY_PARAM === $this->get_subscribe_query_param() ) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		return $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
@@ -210,6 +224,18 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	private function get_blog_sub_query_param() {
 		if ( isset( $_GET['blogsub'] ) ) {
 			return sanitize_text_field( wp_unslash( $_GET['blogsub'] ) );
+		}
+		return null;
+	}
+
+	/**
+	 * Get the subscribe query param
+	 *
+	 * @return ?string
+	 */
+	private function get_subscribe_query_param() {
+		if ( isset( $_GET['subscribe'] ) ) {
+			return sanitize_text_field( wp_unslash( $_GET['subscribe'] ) );
 		}
 		return null;
 	}
