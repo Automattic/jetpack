@@ -18,16 +18,16 @@ import {
 } from '../../../types';
 import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import {
-	videoBlockAttributes,
-	videoBlockSetAttributesProps,
+	VideoBlockAttributes,
+	VideoBlockSetAttributesProps,
 	videoId,
 } from '../../blocks/video/types';
 import extractVideoChapters from '../../plugins/video-chapters/utils/extract-video-chapters';
 import generateChaptersFile from '../../plugins/video-chapters/utils/generate-chapters-file';
 import { uploadTrackForGuid } from '../../plugins/video-chapters/utils/tracks-editor';
-import { uploadTrackDataProps } from '../../plugins/video-chapters/utils/tracks-editor/types';
+import { UploadTrackDataProps } from '../../plugins/video-chapters/utils/tracks-editor/types';
 import useVideoData from '../use-video-data';
-import { useSyncMediaProps } from './types';
+import { UseSyncMediaProps } from './types';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
@@ -75,12 +75,12 @@ const mapFieldsToAttributes = {
  *
  * @param {object} attributes      - Block attributes.
  * @param {Function} setAttributes - Block attributes setter.
- * @returns {useSyncMediaProps}      Hook API object.
+ * @returns {UseSyncMediaProps}      Hook API object.
  */
 export function useSyncMedia(
-	attributes: videoBlockAttributes,
-	setAttributes: videoBlockSetAttributesProps
-): useSyncMediaProps {
+	attributes: VideoBlockAttributes,
+	setAttributes: VideoBlockSetAttributesProps
+): UseSyncMediaProps {
 	const { id, guid } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( id );
 
@@ -172,7 +172,7 @@ export function useSyncMedia(
 			// Upload .vtt file if its description contains chapters
 			const chapters = extractVideoChapters( dataToUpdate.description );
 			if ( chapters?.length ) {
-				const track: uploadTrackDataProps = {
+				const track: UploadTrackDataProps = {
 					label: __( 'English', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
 					kind: 'chapters',

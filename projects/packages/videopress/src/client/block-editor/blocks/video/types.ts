@@ -2,26 +2,26 @@ import { trackKindOptionProps } from '../../plugins/video-chapters/utils/tracks-
 
 export type videoId = number;
 
-type track = {
+type Track = {
 	label: string;
 	srcLang: string;
 	kind: trackKindOptionProps;
 	src: string;
 };
 
-export type videoBlockColorAttributesProps = {
+export type VideoBlockColorAttributesProps = {
 	seekbarPlayedColor?: string;
 	seekbarLoadingColor?: string;
 	seekbarColor?: string;
 };
 
-export type videoBlockAttributes = videoBlockColorAttributesProps & {
+export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	id?: videoId;
 	guid?: string;
 	src?: string;
 	poster?: string;
 	videoRatio?: number;
-	tracks?: Array< track >;
+	tracks?: Array< Track >;
 
 	// Playback types
 	autoplay?: boolean;
@@ -43,15 +43,15 @@ export type videoBlockAttributes = videoBlockColorAttributesProps & {
 	rating?: string;
 };
 
-export type videoBlockSetAttributesProps = ( attributes: videoBlockAttributes ) => void;
+export type VideoBlockSetAttributesProps = ( attributes: VideoBlockAttributes ) => void;
 
-export type videoControlProps = {
+export type VideoControlProps = {
 	/**
 	 * Block Attributes object.
 	 */
-	attributes: videoBlockAttributes;
+	attributes: VideoBlockAttributes;
 
-	setAttributes: videoBlockSetAttributesProps;
+	setAttributes: VideoBlockSetAttributesProps;
 };
 
-export type VideoEditProps = videoControlProps;
+export type VideoEditProps = VideoControlProps;

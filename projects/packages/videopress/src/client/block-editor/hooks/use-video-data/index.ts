@@ -8,15 +8,15 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import { wpV2mediaGetEndpointResponseProps } from '../../../types';
 import { videoId } from '../../blocks/video/types';
-import { useVideoDataProps } from './types';
+import { UseVideoDataProps } from './types';
 
 /**
  * React hook to fetch the video data from the media library.
  *
  * @param {videoId}             id - The video id.
- * @returns {useVideoDataProps}      Hook API object.
+ * @returns {UseVideoDataProps}      Hook API object.
  */
-export default function useVideoData( id: videoId ): useVideoDataProps {
+export default function useVideoData( id: videoId ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 

@@ -3,7 +3,7 @@ export type videoDataProps = {
 	description?: string;
 };
 
-export type useVideoDataProps = {
+export type UseVideoDataProps = {
 	videoData: videoDataProps;
 	isRequestingVideoData: boolean;
 };

@@ -15,16 +15,16 @@ import {
 	VIDEO_RATING_PG_13,
 	VIDEO_RATING_R_17,
 } from '../../../../../state/constants';
-import { videoControlProps } from '../../types';
+import { VideoControlProps } from '../../types';
 import type React from 'react';
 
 /**
  * Sidebar Control component.
  *
- * @param {videoControlProps} props - Component props.
+ * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function PrivacyAndRatingPanel( { attributes, setAttributes }: videoControlProps ) {
+export default function PrivacyAndRatingPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { privacySetting, rating } = attributes;
 
 	return (

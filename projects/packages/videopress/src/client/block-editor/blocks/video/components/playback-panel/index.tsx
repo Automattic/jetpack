@@ -7,7 +7,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { videoControlProps } from '../../types';
+import { VideoControlProps } from '../../types';
 import type React from 'react';
 
 export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
@@ -21,10 +21,10 @@ export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
 /**
  * Sidebar Control component.
  *
- * @param {videoControlProps} props - Component props.
+ * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function PlaybackPanel( { attributes, setAttributes }: videoControlProps ) {
+export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(

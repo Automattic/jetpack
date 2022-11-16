@@ -1,9 +1,9 @@
 import { TRACK_KIND_OPTIONS } from '.';
 
-type trackKindOptionsProps = typeof TRACK_KIND_OPTIONS;
-export type trackKindOptionProps = trackKindOptionsProps[ number ];
+type TrackKindOptionsProps = typeof TRACK_KIND_OPTIONS;
+export type trackKindOptionProps = TrackKindOptionsProps[ number ];
 
-export type uploadTrackDataProps = {
+export type UploadTrackDataProps = {
 	label: string;
 	srcLang: string;
 	kind: trackKindOptionProps;
