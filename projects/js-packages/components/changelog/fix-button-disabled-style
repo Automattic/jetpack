@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RNA: Add aria-disabled property to Button when disabled
