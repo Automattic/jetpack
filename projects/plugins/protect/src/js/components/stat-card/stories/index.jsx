@@ -45,7 +45,7 @@ export const Disabled = () => {
 		icon: <Icon icon={ shield } />,
 		label: 'Blocked requests',
 		period: 'Last 30 days',
-		value: 10,
+		value: 0,
 		variant: 'square',
 		disabled: true,
 	};
