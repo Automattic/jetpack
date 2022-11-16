@@ -51,7 +51,7 @@ jobs:
         env:
           CRON: ${{ github.event.schedule }}
         run: |
-          TEST_PLAN="$(.github/files/e2e-tests/create-e2e-projects-matrix.sh)"
+          TEST_PLAN="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$TEST_PLAN"
 
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
