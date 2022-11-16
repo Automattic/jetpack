@@ -7,7 +7,7 @@ export default {
 	component: StatCard,
 	decorators: [
 		Story => (
-			<div style={ { display: 'inline-flex' } }>
+			<div>
 				<Story />
 			</div>
 		),
