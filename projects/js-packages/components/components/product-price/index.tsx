@@ -37,7 +37,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	showNotOffPrice = showNotOffPrice && offPrice != null;
 
 	const discount =
-		! isNaN( price ) && ! isNaN( offPrice )
+		typeof price === 'number' && typeof offPrice === 'number'
 			? Math.floor( ( ( price - offPrice ) / price ) * 100 )
 			: 0;
 
