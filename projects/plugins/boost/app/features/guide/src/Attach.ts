@@ -86,10 +86,20 @@ function findContainer( image: Image ): Element | undefined {
 	return node.parentNode as Element;
 }
 
+/**
+ * This gets a little tricky because of the various layout positions
+ * the images can be in.
+ *
+ * For example, images can be positioned with static, absolute, fixed, etc.
+ * But on top of that, they can be a part of a parent that has that positioning.
+ * And to make things even more complex, they can change dynamically, for example in a slider.
+ *
+ * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
+ */
 export function attachGuides( images: MeasuredImage[] ) {
 	type ComponentConfig = Record< number, ImageComponentConfig >;
 
-	const componentConfiguration = images.reduce( ( acc, image, index ): ComponentConfig => {
+	const componentConfiguration = images.reduce( ( acc, image ): ComponentConfig => {
 		if (
 			( image.fileSize < 10 && image.fileSize >= 0 ) ||
 			( image.width < 250 && image.height < 100 )
@@ -110,6 +120,7 @@ export function attachGuides( images: MeasuredImage[] ) {
 			return acc;
 		}
 
+		// Don't create new entry for Svelte component configuration.
 		// Use the index in the array as a unique identifier.
 		let id = parseInt( container?.dataset?.jetpackBoostGuideId );
 		const images = acc[ id ]?.props.images || [];
@@ -128,6 +139,7 @@ export function attachGuides( images: MeasuredImage[] ) {
 		return acc;
 	}, {} as Record< number, ImageComponentConfig > );
 
+	// Take the component configuration and create the Svelte components.
 	return Object.values( componentConfiguration ).map( data => {
 		const instance = new Main( data );
 		return instance;
