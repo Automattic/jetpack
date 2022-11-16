@@ -186,7 +186,8 @@ function get_element_styles_from_attributes( $attributes ) {
 	}
 
 	if ( has_attribute( $attributes, 'buttonWidth' ) ) {
-		$submit_button_wrapper_styles .= sprintf( 'width: %s; max-width: 100%;', get_attribute( $attributes, 'buttonWidth' ) );
+		$submit_button_wrapper_styles .= sprintf( 'width: %s;', get_attribute( $attributes, 'buttonWidth' ) );
+		$submit_button_wrapper_styles .= 'max-width: 100%;';
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
