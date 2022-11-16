@@ -81,7 +81,7 @@ async function getBackgroundImage( el: Element ): Promise< Image | false > {
 }
 
 function backgroundImageSrc( backgroundValue: string ): string | false {
-	if ( ! isImageURL( backgroundValue ) ) {
+	if ( ! imageLikeURL( backgroundValue ) ) {
 		return false;
 	}
 
@@ -93,21 +93,40 @@ function backgroundImageSrc( backgroundValue: string ): string | false {
 	return false;
 }
 
-function isImageURL( url: string ): boolean {
-	const ignore = [ 'data:image', 'gradient', '.svg', 'none', 'initial', 'inherit' ];
-	if ( ignore.some( ignore => url.includes( ignore ) ) ) {
-		return false;
+/**
+ * This function ensures that the value passed in looks like a URL.
+ * This is because `background: url(...)` and `src="..."` can
+ * contain various values that are not URLs, like:
+ * - none
+ * - linear-gradient(...)
+ * - data:image/png;base64,...
+ * - ...
+ *
+ * For the purposes of analyzing image sizes,
+ * we also don't consider SVGs to be images.
+ */
+function imageLikeURL( value: string ): boolean {
+	// Look for relative URLs that are not SVGs
+	// Intentionally not using an allow-list because images may
+	// be served from weird URLs like /images/1234?size=large
+	if ( value.startsWith( '/' ) ) {
+		return value.endsWith( '.svg' );
 	}
 
-	return true;
+	try {
+		const url = new URL( value );
+		return url.protocol === 'http:' || url.protocol === 'https:';
+	} catch ( e ) {
+		return false;
+	}
 }
 
 async function getImg( el: HTMLImageElement ): Promise< Image | false > {
 	// Get the currently used image source in srcset if it's available.
-	const url = el.currentSrc && isImageURL( el.currentSrc ) ? el.currentSrc : el.src;
+	const url = el.currentSrc && imageLikeURL( el.currentSrc ) ? el.currentSrc : el.src;
 	const type = el.srcset ? 'srcset' : 'img';
 
-	if ( ! url || ! isImageURL( url ) ) {
+	if ( ! url || ! imageLikeURL( url ) ) {
 		return false;
 	}
 
