@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
 import FirewallHeader from '../firewall-header';
@@ -9,9 +10,20 @@ import FirewallHeader from '../firewall-header';
 const FirewallPage = () => {
 	const wafSeen = useSelect( select => select( STORE_ID ).getWafSeen() );
 	const { setWafSeen } = useDispatch( STORE_ID );
+	const { moduleIsEnabled } = useWafData();
 
-	// TODO: Update placeholder with actual WAF data
-	const wafStatus = 'off';
+	let currentWafStatus;
+	switch ( moduleIsEnabled ) {
+		case true:
+			currentWafStatus = 'on';
+			break;
+		case false:
+			currentWafStatus = 'off';
+			break;
+		default:
+			currentWafStatus = 'loading';
+	}
+
 	const { hasRequiredPlan } = useProtectData();
 
 	useEffect( () => {
@@ -31,7 +43,7 @@ const FirewallPage = () => {
 
 	return (
 		<AdminPage>
-			<FirewallHeader status={ wafStatus } hasRequiredPlan={ hasRequiredPlan } />
+			<FirewallHeader status={ currentWafStatus } hasRequiredPlan={ hasRequiredPlan } />
 		</AdminPage>
 	);
 };
