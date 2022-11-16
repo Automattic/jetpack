@@ -86,13 +86,13 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * Return if the user has access to the content depending on the access level and the user rights
 	 *
 	 * @param string $access_level Post or blog access level.
-	 * @param bool   $is_blog_subscrber Is user a subscriber of the blog.
+	 * @param bool   $is_blog_subscriber Is user a subscriber of the blog.
 	 * @param bool   $is_paid_subscriber Is user a paid subscriber of the blog.
 	 * @param int    $post_id Post ID.
 	 *
 	 * @return bool does the user have access to the post/blog.
 	 */
-	protected function user_has_access( $access_level, $is_blog_subscrber, $is_paid_subscriber, $post_id ) {
+	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
 
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access
@@ -105,7 +105,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $access_level === 'subscribers' ) {
-			return $is_blog_subscrber || $is_paid_subscriber;
+			return $is_blog_subscriber || $is_paid_subscriber;
 		}
 
 		if ( $access_level === 'paid_subscribers' ) {
