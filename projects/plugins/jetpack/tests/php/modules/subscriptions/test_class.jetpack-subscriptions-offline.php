@@ -11,17 +11,17 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 	private $paid_subscriber_id;
 	private $admin_user_id;
 
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass(): void {
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		parent::setUpBeforeClass();
 	}
 
-	public static function tearDownAfterClass() {
+	public static function tearDownAfterClass(): void {
 		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
 		parent::tearDownAfterClass();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		$this->tearDown();
