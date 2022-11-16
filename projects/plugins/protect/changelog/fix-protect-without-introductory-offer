@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed pricing table rendering when no introductory offer is present
