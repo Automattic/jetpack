@@ -1,113 +1,48 @@
 @import '@automattic/jetpack-base-styles/style';
+
 .jp-connection__manage-dialog {
 	--spacing-base: 8px;
-	background-color: var( --jp-white-off );
-	width: 1200px;
-	max-width: 100%;
-	padding: 0px;
-	border: none;
-	border-radius: 3px;
-	//box-shadow: 0 0 15px var( --jp-gray-off );
 	margin: auto;
+	width: 1200px;
+	border-radius: 3px;
 
 	h1 {
 		margin: 0;
-		line-height: 1.2;
 		font-size: var( --font-title-large );
-		font-weight: 700;
+		font-weight: 600;
+		line-height: 1.2;
 	}
 
 	&__large-text {
-		font-size: 1.25rem;
 		margin-bottom: calc( var( --spacing-base ) * 4 );
 		max-width: 60%;
-		font-weight:600;
+		font-weight: 600;
+		font-size: 1.25rem;
 	}
 
-	&__link,
-	.jp-connection__manage-dialog__link {
-		font-size: var( --font-body );
-		color: var( --jp-black );
-		font: inherit;
-
-		&:hover {
-			color: var( --jp-black );
-			text-decoration-thickness: var( --jp-underline-thickness );
-		}
-
-		&:focus {
-			color: var( --jp-black );
-		}
+	.components-modal__header{
+		border: none;
 	}
 
-	.components-modal{
-		&__content{
-			display: flex;
-			flex-direction: column;
-			flex-grow: 1;
-			margin: 0;
-			padding:0;
-		}
-	}
-	.jp-row {
-		align-items: center;
-	}
-
-	&__content{
-		background: var( --jp-white-off );
+	.components-modal__content{
 		margin: 0;
-		padding: 80px;
-		border-radius: 4px;
-		text-align: center;
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+		padding:0;
 	}
-
-	&__actions{
-		background: var( --jp-white );
-		padding: 2rem 0;
-		margin:0px !important;
-		position: sticky;
-		bottom: 0;
-		border: 1px solid var( --jp-gray );
-		align-items: center;
-		max-width: 1200px !important;
-		width:100%;
-		padding: calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 5 );
-	}
-
-	&__button-wrap button{
-		float:right;
-
-	}
-	&__text-wrap {
-		float:left;
-		}
 
 	.jp-connection__action-card {
 		background-color: var( --jp-white );
 		width: 750px;
 		max-width: 100%;
 		padding: 1rem 2rem;
-		border: none;
 		border-radius: 3px;
 		box-shadow: 0 0 15px var( --jp-gray-off );
-		margin-left: auto;
-		margin-right: auto;
-		margin-top: 0;
-		margin-bottom: 1rem;
+		margin: var( --spacing-base ) auto;
 		text-align: left;
+		border: none;
 
-		&__card-headline,
-		.jp-connection__action-card__card-headline { // Override rule from disconnect-modal
-			font-size: 1.25rem;
+		&__card-headline {
+			font-size: var( --font-body );
 			font-weight: 600;
-			margin-top: 0;
-			flex-shrink: 0;
-			margin-bottom: 0;
 			text-decoration: none;
 		}
 
@@ -124,5 +59,47 @@
 		&__icon {
 			float:right;
 		}
+	}
+
+	&__content{
+		background: var( --jp-white-off );
+		padding: 80px;
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	&__actions{
+		background: var( --jp-white );
+		margin:0px !important;
+		border-top: 1px solid var( --jp-gray );
+		max-width: 1200px !important;
+		padding: calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 5 );
+		align-items:center;
+		position: sticky;
+		bottom: 0;
+		p {
+			font-size: var( --font-body );
+		}
+	}
+
+	&__link {
+		color: var( --jp-black );
+		//font: inherit;
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+		}
+	}
+
+	&__button-wrap button{
+		float:right;
 	}
 }
