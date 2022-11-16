@@ -860,10 +860,6 @@ function grunion_ajax_spam() {
  * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
  */
 function grunion_enable_spam_recheck() {
-	if ( ! defined( 'AKISMET_VERSION' ) ) {
-		return;
-	}
-
 	$screen = get_current_screen();
 
 	// Only add to feedback, only to non-spam view
@@ -871,9 +867,13 @@ function grunion_enable_spam_recheck() {
 		return;
 	}
 
-	// Add the actual "Check for Spam" button.
+	// Add the export feedback button
 	add_action( 'admin_head', 'grunion_export_button' );
-	add_action( 'admin_head', 'grunion_check_for_spam_button' );
+
+	// Add the check for spam button
+	if ( defined( 'AKISMET_VERSION' ) ) {
+		add_action( 'admin_head', 'grunion_check_for_spam_button' );
+	}
 }
 
 add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
