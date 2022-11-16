@@ -1,0 +1,106 @@
+/* This file was automatically generated on Nov 16 2022 17:56:20 */
+
+/* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
+
+.wpcom-coming-soon-body .wpcom-gifting-banner {
+	display: none;
+}
+
+.wpcom-gifting-banner {
+	background: #000;
+	color: #fff;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu",
+	"Cantarell", "Helvetica Neue", sans-serif;
+}
+
+.wpcom-gifting-banner__img {
+	width: 21px;
+	height: 21px;
+	margin: 0 10px;
+}
+
+.wpcom-gifting-banner__inner {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 12px;
+}
+
+.wpcom-gifting-banner__logo {
+	width: 28px;
+	height: 28px;
+	margin-left: 8px;
+	fill: #fff;
+	display: block;
+	overflow: visible;
+}
+
+.wpcom-gifting-banner__wrapper {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.wpcom-gifting-banner__title,
+.wpcom-gifting-banner__subtitle {
+	font-size: 18px;
+	line-height: 22px;
+	margin: 0;
+}
+
+.wpcom-gifting-banner__title {
+	font-weight: 800;
+}
+
+.wpcom-gifting-banner__subtitle {
+	font-weight: 400;
+}
+
+.wpcom-gifting-banner__button {
+	cursor: pointer;
+	background: #fff;
+	color: #000;
+	border: none;
+	border-radius: 2px;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 20px;
+	height: 32px;
+	min-width: 90px;
+	margin-right: 12px;
+	padding: 6px 24px 6px 24px;
+}
+
+.wpcom-gifting-banner__button:hover {
+	background: #fff;
+	color: #000;
+}
+
+@media (max-width: 480px) {
+	.wpcom-gifting-banner__inner {
+		padding: 16px 14px 16px 14px;
+	}
+
+	.wpcom-gifting-banner__logo {
+		width: 26px;
+		height: 26px;
+	}
+
+	.wpcom-gifting-banner__img {
+		height: 16px;
+		width: 16px;
+	}
+
+	.wpcom-gifting-banner__title,
+	.wpcom-gifting-banner__subtitle {
+		font-size: 12px;
+		line-height: 15px;
+	}
+
+	.wpcom-gifting-banner__title {
+		font-weight: 600;
+	}
+
+	.wpcom-gifting-banner__button {
+		font-size: 12px;
+	}
+}

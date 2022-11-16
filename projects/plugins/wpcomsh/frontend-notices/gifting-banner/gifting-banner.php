@@ -3,7 +3,7 @@
  * Show the gifting banner on Simple & Atomic sites.
  * This file is duplicated in WPCOM and WPCOMSH.
  * WPCOM: public_html/wp-content/blog-plugins/gifting-banner.php
- * WPCOMSH: wpcomsh/frontend-notices/gifting-banner.php
+ * WPCOMSH: wpcomsh/frontend-notices/gifting-banner/gifting-banner.php
  * See: p9Jlb4-5v7-p2
  *
  * @package gifting-banner
@@ -135,12 +135,10 @@ class Gifting_Banner {
 			),
 		);
 
-		wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), WPCOMSH_VERSION );
-		wp_enqueue_style( 'expiring-site-style', plugins_url( 'expiring-plan-notices.css', __FILE__ ), array(), WPCOMSH_VERSION );
-		wp_register_script( 'expiring-site-actions', plugins_url( 'expiring-actions.js', __FILE__ ), array(), WPCOMSH_VERSION, false );
-		wp_enqueue_script( 'expiring-site-actions', plugins_url( 'expiring-actions.js', __FILE__ ), array(), WPCOMSH_VERSION, false );
-		wp_localize_script( 'expiring-site-actions', 'wpcomsh_expiring_data', $data );
-		wp_set_script_translations( 'expiring-site-actions', 'wpcomsh' );
+		wp_enqueue_style( 'gifting-banner', plugins_url( 'css/gifting-banner.css', __FILE__ ), array(), WPCOMSH_VERSION );
+		wp_enqueue_script( 'gifting-banner', plugins_url( 'js/gifting-banner.js', __FILE__ ), array(), WPCOMSH_VERSION, true );
+		wp_localize_script( 'gifting-banner', 'gifting_banner', $data );
+		wp_set_script_translations( 'gifting-banner', 'wpcomsh' );
 	}
 
 	/**
