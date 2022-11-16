@@ -15,11 +15,13 @@
 		y: 2,
 		easing: backOut,
 	};
+
+	$: overiszedLabel = oversizedBy < 9 ? oversizedBy.toFixed(1) : `${Math.floor( oversizedBy )}+`;
 </script>
 
 {#if mounted}
 	<div class="preview {severity}" on:mouseenter transition:fly={scaleConfig}>
-		<div class="bubble">{oversizedBy.toFixed( 2 )}</div>
+		<div class="bubble">{overiszedLabel}</div>
 	</div>
 {/if}
 
