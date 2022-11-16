@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PanelBody, TextareaControl, TextControl, Button } from '@wordpress/components';
+import { PanelBody, TextareaControl, TextControl, Button, Notice } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { DetailsPanelProps } from '../../types';
 import LearnHowModal from './learn-how-notice';
+import './styles.scss';
 import type React from 'react';
 
 const CHARACTERS_PER_LINE = 31;
@@ -71,6 +72,12 @@ export default function DetailsPanel( {
 				disabled={ isRequestingVideoData }
 				help={ descriptionHelp }
 			/>
+
+			<Notice status="info" className="learn-how-notice" isDismissible={ false }>
+				<p className="learn-how-notice__message">
+					{ __( 'You already have a vtt file', 'jetpack-videopress-pkg' ) }
+				</p>
+			</Notice>
 
 			<LearnHowModal onClose={ () => setIsModalOpen( false ) } isOpen={ isModalOpen } />
 		</PanelBody>
