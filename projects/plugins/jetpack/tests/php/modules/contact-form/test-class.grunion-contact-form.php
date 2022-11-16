@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 /**
  * Test class for Grunion_Contact_Form
