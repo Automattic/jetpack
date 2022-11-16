@@ -50,6 +50,7 @@ jobs:
         id: evaluate
         env:
           CRON: ${{ github.event.schedule }}
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
         run: |
           TEST_PLAN="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$TEST_PLAN"

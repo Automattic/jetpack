@@ -58,7 +58,6 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				runConfig.matrix.push( project );
 			}
 		}
-
 		break;
 	}
 	case 'workflow_run': {
@@ -66,10 +65,42 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		break;
 	}
 	case 'repository_dispatch':
-		// repository_dispatch
+		if ( process.env.DISPATCH_REPO ) {
+			const repoName = process.env.DISPATCH_REPO.split( '/' )[ 1 ];
+			runConfig.run = repoName;
+
+			for ( const project of projects ) {
+				const packageJson = JSON.parse(
+					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
+				);
+
+				if ( packageJson?.ci?.mirrorName === repoName ) {
+					runConfig.matrix.push( project );
+				}
+			}
+		} else {
+			// eslint-disable-next-line no-console
+			console.error( 'Undefined DISPATCH_REPO!' );
+		}
 		break;
 	case 'schedule':
-		// schedule
+		// gutenberg scheduled run
+		if ( process.env.CRON === '0 */12 * * *' ) {
+			runConfig.matrix.push( {
+				project: 'Jetpack with Gutenberg',
+				path: 'projects/plugins/jetpack/tests/e2e',
+				testArgs: [ 'blocks', '--retries=1' ],
+			} );
+		}
+
+		// atomic scheduled run
+		if ( process.env.CRON === '30 */4 * * *' ) {
+			runConfig.matrix.push( {
+				project: 'Jetpack on Atomic',
+				path: 'projects/plugins/jetpack/tests/e2e',
+				testArgs: [ 'blocks', '--retries=1' ],
+			} );
+		}
 		break;
 	default:
 		// eslint-disable-next-line no-console
