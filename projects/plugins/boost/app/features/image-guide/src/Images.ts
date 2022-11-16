@@ -25,7 +25,6 @@ export async function load( domElements: Element[] ) {
 
 async function getImageSize( url ) {
 	const response = await fetch( url, { method: 'HEAD', mode: 'no-cors' } );
-	console.log( 'Loading using fetch', response );
 	if ( ! response.url ) {
 		console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
 		return -1;
