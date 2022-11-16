@@ -6,28 +6,23 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Off
 
 class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 
-	private $regular_non_subscriber_id;
-	private $regular_subscriber_id;
-	private $paid_subscriber_id;
-	private $admin_user_id;
+	private $regular_subscriber_id = 0;
+	private $paid_subscriber_id    = 0;
+	private $admin_user_id         = 0;
 
-	public static function setUpBeforeClass(): void {
+	public function setUp(): void {
+		parent::setUp();
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
-		parent::setUpBeforeClass();
-	}
-
-	public static function tearDownAfterClass(): void {
-		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
-		parent::tearDownAfterClass();
 	}
 
 	public function tearDown(): void {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		$this->tearDown();
+		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
+		parent::tearDown();
 	}
 
-	private function setup_jetpack_paid_newsletters() {
+	private function setup_jetpack_paid_newsletters( $subscription_end_date = null ) {
 		$product_id = 1234;
 
 		// We create a plan
@@ -38,22 +33,18 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		);
 		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $product_id );
 
-		$this->regular_subscriber_id     = $this->factory->user->create(
+		$this->regular_subscriber_id = $this->factory->user->create(
 			array(
 				'user_email' => 'test@example.com',
 			)
 		);
-		$this->paid_subscriber_id        = $this->factory->user->create(
+		$this->paid_subscriber_id    = $this->factory->user->create(
 			array(
 				'user_email' => 'test-paid@example.com',
 			)
 		);
-		$this->regular_non_subscriber_id = $this->factory->user->create(
-			array(
-				'user_email' => 'test-member@example.com',
-			)
-		);
-		$this->admin_user_id             = $this->factory->user->create(
+
+		$this->admin_user_id = $this->factory->user->create(
 			array(
 				'user_email' => 'test-admin@example.com',
 			)
@@ -65,12 +56,12 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		$paid_subscriber_id = $this->paid_subscriber_id;
 		add_filter(
 			'earn_get_user_subscriptions_for_site_id',
-			static function ( $subscriptions, $subscriber_id ) use ( $paid_subscriber_id, $product_id ) {
+			static function ( $subscriptions, $subscriber_id ) use ( $paid_subscriber_id, $product_id, $subscription_end_date ) {
 				if ( $subscriber_id === $paid_subscriber_id ) {
 					$subscriptions[] =
 						array(
 							'status'     => 'active',
-							'end_time'   => time() + HOUR_IN_SECONDS,
+							'end_date'   => $subscription_end_date ?? time() + HOUR_IN_SECONDS,
 							'product_id' => $product_id,
 						);
 				}
@@ -93,8 +84,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		$post_id = $this->setup_jetpack_paid_newsletters();
 
 		$subscription_service = new WPCOM_Offline_Subscription_Service();
-		// All subscribers should see the post
-		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_non_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $blog_id, $post_id ) );
@@ -110,11 +99,9 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		update_post_meta( $post_id, '_jetpack_newsletter_access', 'everybody' );
 
 		$subscription_service = new WPCOM_Offline_Subscription_Service();
-		// All subscribers should see the post
-		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_non_subscriber_id, $blog_id, $post_id ) );
+		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $blog_id, $post_id ) );
-		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $blog_id, $post_id ) );
 	}
 
 	/**
@@ -127,11 +114,24 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 		update_post_meta( $post_id, '_jetpack_newsletter_access', 'paid_subscribers' );
 
 		$subscription_service = new WPCOM_Offline_Subscription_Service();
-		// All subscribers should see the post
-		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $blog_id, $post_id ) );
-		$this->assertFalse( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_non_subscriber_id, $blog_id, $post_id ) );
 		$this->assertFalse( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_subscriber_id, $blog_id, $post_id ) );
+		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $blog_id, $post_id ) );
+	}
+
+	/**
+	 * Jetpack paid newletters with outdated paid subscriptions
+	 */
+	public function test_jetpack_paid_newsletters_gated_paid_subscribers_newsletter_with_outdated_subscription() {
+		$blog_id = get_current_blog_id();
+
+		// Create an outdated subscription
+		$post_id = $this->setup_jetpack_paid_newsletters( time() - HOUR_IN_SECONDS );
+		update_post_meta( $post_id, '_jetpack_newsletter_access', 'paid_subscribers' );
+
+		$subscription_service = new WPCOM_Offline_Subscription_Service();
+		// All subscribers should not see the post
+		$this->assertFalse( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $blog_id, $post_id ) );
 	}
 
 	/**
@@ -145,7 +145,6 @@ class WP_Test_Jetpack_Subscriptions_Offline extends WP_UnitTestCase {
 
 		$subscription_service = new WPCOM_Offline_Subscription_Service();
 		// All subscribers should see the post
-		$this->assertFalse( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_non_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $blog_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $blog_id, $post_id ) );
