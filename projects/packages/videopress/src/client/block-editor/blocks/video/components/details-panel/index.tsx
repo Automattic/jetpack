@@ -42,7 +42,9 @@ export default function DetailsPanel( {
 			<TextControl
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				value={ title }
-				placeholder={ `${ filename } video` }
+				placeholder={
+					filename?.length ? `${ filename } video` : __( 'Video title', 'jetpack-videopress-pkg' )
+				}
 				onChange={ value => setAttributes( { title: value } ) }
 				disabled={ isRequestingVideoData }
 			/>
