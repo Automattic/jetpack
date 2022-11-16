@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
-import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -13,13 +13,16 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+import { useSyncMedia } from '../../hooks/use-video-data-update';
+import ColorPanel from './components/color-panel';
+import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
-import VideoPressInspectorControls from './components/inspector-controls';
+import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
+import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
-
 import './editor.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
@@ -95,6 +98,9 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		useAverageColor,
 		poster,
 	} );
+
+	const { videoData, isRequestingVideoData } = useSyncMedia( attributes, setAttributes );
+	const { filename } = videoData;
 
 	// Get video preview status.
 	const { preview, isRequestingEmbedPreview } = useSelect(
@@ -308,7 +314,16 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				'is-updating-preview': ! previewHtml,
 			} ) }
 		>
-			<VideoPressInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
+			<InspectorControls>
+				<DetailsPanel
+					filename={ filename }
+					{ ...{ attributes, setAttributes, isRequestingVideoData } }
+				/>
+				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<PrivacyAndRatingPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+			</InspectorControls>
+
 			<PosterImageBlockControl
 				attributes={ attributes }
 				setAttributes={ setAttributes }

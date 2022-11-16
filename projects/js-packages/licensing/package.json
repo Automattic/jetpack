@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.6.5-alpha",
+	"version": "0.6.6-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
@@ -22,7 +22,7 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
 		"@automattic/jetpack-api": "workspace:* || ^0.14",
-		"@automattic/jetpack-components": "workspace:* || ^0.24",
+		"@automattic/jetpack-components": "workspace:* || ^0.25",
 		"@wordpress/components": "22.0.0",
 		"@wordpress/element": "4.19.0",
 		"@wordpress/i18n": "4.21.0",

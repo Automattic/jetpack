@@ -34,6 +34,11 @@ declare global {
 		showScorePromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];
 		dismissedScorePrompts: string[];
+		superCache: {
+			pluginActive: boolean;
+			cacheEnabled: boolean;
+			disableCacheKey?: string;
+		};
 		site: {
 			domain: string;
 			url: string;

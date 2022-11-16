@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.5.4-alpha",
+	"version": "1.5.5-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -15,7 +15,7 @@
 		"svelte-navigator": "3.1.5"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.24",
+		"@automattic/jetpack-components": "workspace:* || ^0.25",
 		"@babel/core": "7.20.2",
 		"@babel/preset-env": "7.20.2",
 		"@babel/preset-react": "7.18.6",
