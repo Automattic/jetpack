@@ -123,15 +123,15 @@ function get_element_class_names_from_attributes( $attributes ) {
 
 	$submit_button_classes = array_filter(
 		array(
-			'wp-block-button__link' => true,
-			'no-border-radius'      => 0 === get_attribute( $attributes, 'borderRadius', 0 ),
-			$font_size_class        => true,
-			$border_class           => true,
-			'has-text-color'        => ! empty( $text_color_class ),
-			$text_color_class       => true,
-			'has-background'        => ! empty( $button_background_class ) || ! empty( $button_gradient_class ),
-			$button_background_class,
-			$button_gradient_class,
+			'wp-block-button__link'  => true,
+			'no-border-radius'       => 0 === get_attribute( $attributes, 'borderRadius', 0 ),
+			$font_size_class         => true,
+			$border_class            => true,
+			'has-text-color'         => ! empty( $text_color_class ),
+			$text_color_class        => true,
+			'has-background'         => ! empty( $button_background_class ) || ! empty( $button_gradient_class ),
+			$button_background_class => ! empty( $button_background_class ),
+			$button_gradient_class   => ! empty( $button_gradient_class ),
 		)
 	);
 
@@ -213,6 +213,12 @@ function get_element_styles_from_attributes( $attributes ) {
 	} else {
 		$submit_button_styles .= 'margin: 0px; '; // Reset Safari's 2px default margin for buttons affecting input and button union
 		$submit_button_styles .= sprintf( 'margin-left: %dpx;', $button_spacing );
+	}
+
+	if ( has_attribute( $attributes, 'borderColor' ) ) {
+		$style                 = sprintf( 'border-color: %s;', get_attribute( $attributes, 'borderColor', '' ) );
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 
 	$style                 = sprintf( 'border-radius: %dpx;', get_attribute( $attributes, 'borderRadius', DEFAULT_BORDER_RADIUS_VALUE ) );
