@@ -1,4 +1,4 @@
-import type { MeasuredImage, Image, ImageComponentConfig } from './types';
+import type { MeasuredImage, ImageComponentConfig } from './types';
 import Main from './ui/Main.svelte';
 
 function closestStableParent( node: Element, distance = 0 ): Element | null {
@@ -35,7 +35,7 @@ function closestStableParent( node: Element, distance = 0 ): Element | null {
  *
  */
 let wrapperID = 0;
-function findContainer( image: Image ): Element | undefined {
+function findContainer( image: MeasuredImage ): Element | undefined {
 	const node = image.node;
 
 	if (
@@ -101,8 +101,8 @@ export function attachGuides( images: MeasuredImage[] ) {
 
 	const componentConfiguration = images.reduce( ( acc, image ): ComponentConfig => {
 		if (
-			( image.fileSize < 10 && image.fileSize >= 0 ) ||
-			( image.width < 250 && image.height < 100 )
+			( image.fileSize.weight < 10 && image.fileSize.weight >= 0 ) ||
+			( image.fileSize.width < 250 && image.fileSize.height < 100 )
 		) {
 			console.info( `Skipping ${ image.url } because it's too small` );
 			return acc;

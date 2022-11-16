@@ -1,10 +1,12 @@
 export type MeasuredImage = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
-	width: number;
-	height: number;
 	node: Element;
-	fileSize: number;
+	fileSize: {
+		width: number;
+		height: number;
+		weight: number;
+	};
 	onScreen: {
 		width: number;
 		height: number;

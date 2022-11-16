@@ -1,10 +1,12 @@
 type Image = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
-	width: number;
-	height: number;
 	node: Element;
-	fileSize: number;
+	fileSize: {
+		width: number;
+		height: number;
+		weight: number;
+	};
 };
 export async function load( domElements: Element[] ) {
 	const parsedNodes = domElements.map( async ( el: Element ) => {
@@ -48,15 +50,15 @@ async function getImageDimensions( url ) {
 }
 
 async function measurementsFromURL( url: string ) {
-	const [ fileSize, { width, height } ] = await Promise.all( [
+	const [ weight, { width, height } ] = await Promise.all( [
 		getImageSize( url ),
 		getImageDimensions( url ),
 	] );
 
 	return {
-		fileSize,
 		width,
 		height,
+		weight,
 	};
 }
 
@@ -68,14 +70,16 @@ async function getBackgroundImage( el: Element ): Promise< Image | false > {
 		return false;
 	}
 
-	const { width, height, fileSize } = await measurementsFromURL( url );
+	const { width, height, weight } = await measurementsFromURL( url );
 
 	return {
 		type: 'background',
-		width,
-		height,
 		url,
-		fileSize,
+		fileSize: {
+			width,
+			height,
+			weight,
+		},
 		node: el,
 	};
 }
@@ -130,14 +134,16 @@ async function getImg( el: HTMLImageElement ): Promise< Image | false > {
 		return false;
 	}
 
-	const { width, height, fileSize } = await measurementsFromURL( url );
+	const { width, height, weight } = await measurementsFromURL( url );
 
 	return {
 		type,
-		width,
-		height,
 		url,
-		fileSize,
+		fileSize: {
+			width,
+			height,
+			weight,
+		},
 		node: el,
 	};
 }

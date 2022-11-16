@@ -10,10 +10,14 @@
 	// Reactive variables because this component can be reused by Svelte.
 	$: imageName = image.url.split( '/' ).pop();
 	$: ratio = image.scaling.oversizedBy.toFixed( 2 );
-	$: potentialSavings = Math.round( image.fileSize - image.fileSize / image.scaling.oversizedBy );
+	$: potentialSavings = Math.round(
+		image.fileSize.weight - image.fileSize.weight / image.scaling.oversizedBy
+	);
 
 	const previewWidth = size === 'normal' ? 100 : 50;
-	const previewHeight = Math.floor( previewWidth / ( image.width / image.height ) );
+	const previewHeight = Math.floor(
+		previewWidth / ( image.fileSize.width / image.fileSize.height )
+	);
 
 	$: origin = new URL( window.location.href ).origin;
 	$: imageOrigin = new URL( image.url ).origin;
@@ -40,16 +44,16 @@
 	</div>
 
 	<div class="meta">
-		{#if image.fileSize > 0}
+		{#if image.fileSize.weight > 0}
 			<div class="row">
 				<div class="label">Image Size</div>
-				<div class="value">{Math.round( image.fileSize )}kb</div>
+				<div class="value">{Math.round( image.fileSize.weight )}kb</div>
 			</div>
 		{/if}
 
 		<div class="row">
 			<div class="label">Image Dimensions</div>
-			<div class="value">{image.width} x {image.height}</div>
+			<div class="value">{image.fileSize.width} x {image.fileSize.height}</div>
 		</div>
 
 		<div class="row">

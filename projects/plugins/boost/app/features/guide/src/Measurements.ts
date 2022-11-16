@@ -13,9 +13,9 @@ export function measure( images: Image[] ): MeasuredImage[] {
 				height: Math.round( height ),
 			},
 			scaling: {
-				width: image.width / width,
-				height: image.height / height,
-				oversizedBy: ( image.width * image.height ) / ( width * height ),
+				width: image.fileSize.width / width,
+				height: image.fileSize.height / height,
+				oversizedBy: ( image.fileSize.width * image.fileSize.height ) / ( width * height ),
 			},
 		};
 	} );
