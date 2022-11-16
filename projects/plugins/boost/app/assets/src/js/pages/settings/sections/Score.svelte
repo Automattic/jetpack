@@ -125,6 +125,7 @@
 </script>
 
 <div class="jb-container">
+	<div id="jp-admin-notices" class="jetpack-boost-jitm-card" />
 	<div class="jb-site-score" class:loading={$isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">

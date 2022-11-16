@@ -136,11 +136,6 @@ const Admin = () => {
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 			header={ <Logo /> }
 		>
-			<Container horizontalSpacing={ 0 }>
-				<Col>
-					<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
-				</Col>
-			</Container>
 			<div
 				className={ classnames( styles[ 'files-overlay' ], {
 					[ styles.hover ]: isDraggingOver && canUpload && ! loading,
@@ -162,6 +157,7 @@ const Admin = () => {
 			{ showPricingSection ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
 							<PricingSection onRedirecting={ () => setShowPricingSection( true ) } />
 						</Col>
@@ -171,6 +167,7 @@ const Admin = () => {
 				<>
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+							<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
 							{ hasConnectionError && (
 								<Col>
 									<ConnectionError />
@@ -216,6 +213,7 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
+							<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
 							{ hasVideos ? (
 								<Col sm={ 4 } md={ 6 } lg={ 12 }>
 									<VideoPressLibrary
