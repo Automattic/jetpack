@@ -244,6 +244,18 @@ class SiteStatsComponent extends React.Component {
 							</CompactFormToggle>
 						</FormFieldset>
 						<FormFieldset>
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'calypso_stats' ) }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'calypso_stats' ] ) }
+								onChange={ this.handleStatsOptionToggle( 'calypso_stats' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Preview new Jetpack Stats experience (Experimental)', 'jetpack' ) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
+						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
 								<CompactFormToggle
