@@ -17,13 +17,13 @@
 		easing: backOut,
 	};
 
-	$: overiszedLabel =
+	$: oversizedLabel =
 		oversizedBy < 9 ? oversizedBy.toFixed( 1 ) : `${ Math.floor( oversizedBy ) }+`;
 </script>
 
 {#if mounted}
 	<div class="bubble {severity}" on:mouseenter transition:fly={scaleConfig}>
-		<span class="label">{overiszedLabel}</span>
+		<span class="label">{oversizedLabel}</span>
 	</div>
 {/if}
 
