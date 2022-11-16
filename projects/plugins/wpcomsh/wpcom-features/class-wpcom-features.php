@@ -111,6 +111,8 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
 	private const JETPACK_SOCIAL_BASIC                        = 'jetpack_social_basic_yearly'; // 2503
 	private const JETPACK_SOCIAL_BASIC_MONTHLY                = 'jetpack_social_basic_monthly'; // 2504
+	private const JETPACK_SOCIAL_ADVANCED                     = 'jetpack_social_advanced_yearly'; // 2602
+	private const JETPACK_SOCIAL_ADVANCED_MONTHLY             = 'jetpack_social_advanced_monthly'; // 2603
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -145,7 +147,8 @@ class WPCOM_Features {
 
 	private const JETPACK_SCAN_PLANS = array( self::JETPACK_SCAN, self::JETPACK_SCAN_MONTHLY, self::JETPACK_SCAN_REALTIME, self::JETPACK_SCAN_REALTIME_MONTHLY );
 
-	private const JETPACK_SOCIAL_PLANS = array( self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
+	private const JETPACK_SOCIAL_PLANS          = array( self::JETPACK_SOCIAL_BASIC, self::JETPACK_SOCIAL_BASIC_MONTHLY, self::JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY );
+	private const JETPACK_SOCIAL_ADVANCED_PLANS = array( self::JETPACK_SOCIAL_ADVANCED, self::JETPACK_SOCIAL_ADVANCED_MONTHLY );
 
 	private const JETPACK_BACKUP_DAILY_PLANS    = array( self::JETPACK_BACKUP_DAILY, self::JETPACK_BACKUP_DAILY_MONTHLY );
 	private const JETPACK_BACKUP_REALTIME_PLANS = array( self::JETPACK_BACKUP_REALTIME, self::JETPACK_BACKUP_REALTIME_MONTHLY );
@@ -258,6 +261,7 @@ class WPCOM_Features {
 	public const SIMPLE_PAYMENTS               = 'simple-payments';
 	public const SOCIAL_PREVIEWS               = 'social-previews';
 	public const SOCIAL_SHARES_1000            = 'social-shares-1000';
+	public const SOCIAL_ENHANCED_PUBLISHING    = 'social-enhanced-publishing';
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SSH                           = 'ssh';
@@ -709,10 +713,17 @@ class WPCOM_Features {
 		 */
 		self::SOCIAL_SHARES_1000            => array(
 			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_PREMIUM_PLANS,
+		),
+
+		self::SOCIAL_ENHANCED_PUBLISHING    => array(
+			self::JETPACK_SOCIAL_ADVANCED_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::BUNDLE_ENTERPRISE,
 		),
 
 		self::SPACE                         => array(
