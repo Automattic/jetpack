@@ -310,6 +310,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 		} )
 			.then( () => {
 				dispatch( startScanOptimistically() );
+				setTimeout( () => dispatch( refreshStatus( true ) ), 5000 );
 			} )
 			.catch( () => {
 				return dispatch(
