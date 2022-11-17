@@ -1,7 +1,14 @@
 import Main from './ui/Main.svelte';
 import type { MeasuredImage, ImageComponentConfig } from './types';
 
-function closestStableParent( node: HTMLElement, distance = 0 ): HTMLElement | null {
+
+/**
+ * This function looks for the closest parent that is
+ * able to contain the image guide component.
+ *
+ * @param  node The node to start looking from
+ */
+function closestStableParent( node: HTMLElement ): HTMLElement | null {
 	if ( ! node.parentNode ) {
 		return null;
 	}
@@ -23,7 +30,7 @@ function closestStableParent( node: HTMLElement, distance = 0 ): HTMLElement | n
 		return node.parentNode;
 	}
 
-	return closestStableParent( node.parentNode, ++distance );
+	return closestStableParent( node.parentNode );
 }
 
 /**
