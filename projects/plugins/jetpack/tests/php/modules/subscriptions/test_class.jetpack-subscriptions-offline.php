@@ -26,9 +26,9 @@ class WP_Test_Jetpack_Subscriptions_Offline extends \WP_Test_Jetpack_Subscriptio
 		update_post_meta( $post_id, '_jetpack_newsletter_access', 'everybody' );
 
 		$subscription_service = new WPCOM_Offline_Subscription_Service();
-		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->regular_subscriber_id, $post_id ) );
 		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->paid_subscriber_id, $post_id ) );
+		$this->assertTrue( $subscription_service->subscriber_can_receive_post_by_mail( $this->admin_user_id, $post_id ) );
 	}
 
 	/**
