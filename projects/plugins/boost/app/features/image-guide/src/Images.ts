@@ -1,31 +1,36 @@
 type Image = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
-	node: Element;
+	node: HTMLElement;
 	fileSize: {
 		width: number;
 		height: number;
 		weight: number;
 	};
 };
-export async function load( domElements: Element[] ) {
-	const parsedNodes = domElements.map( async ( el: Element ) => {
+export async function load( domElements: Element[] ): Promise< Image[] > {
+	const parsedNodes = domElements.map( async ( el: Element ): Promise< Image | false > => {
 		// Handle <img> tags first.
-		if ( el.tagName === 'IMG' ) {
-			return getImg( el as HTMLImageElement );
+		if ( el.tagName === 'IMG' && el instanceof HTMLImageElement ) {
+			return getImg( el );
 		}
 
-		// Check for background images
-		// in all other elements.
-		return getBackgroundImage( el );
+		if ( el instanceof HTMLElement ) {
+			// Check for background images
+			// in all other elements.
+			return getBackgroundImage( el );
+		}
+
+		return false;
 	}, [] );
 
-	return ( await Promise.all( parsedNodes ) ).filter( Boolean ) as Image[];
+	return ( await Promise.all( parsedNodes ) ).filter( ( el ): el is Image => !! el );
 }
 
 async function getImageSize( url ) {
 	const response = await fetch( url, { method: 'HEAD', mode: 'no-cors' } );
 	if ( ! response.url ) {
+		// eslint-disable-next-line no-console
 		console.log( `Can't get image size for ${ url } likely due to a CORS error.` );
 		return -1;
 	}
@@ -61,7 +66,7 @@ async function measurementsFromURL( url: string ) {
 	};
 }
 
-async function getBackgroundImage( el: Element ): Promise< Image | false > {
+async function getBackgroundImage( el: HTMLElement ): Promise< Image | false > {
 	const style = getComputedStyle( el );
 	const url = backgroundImageSrc( style.backgroundImage );
 
@@ -107,6 +112,8 @@ function backgroundImageSrc( backgroundValue: string ): string | false {
  *
  * For the purposes of analyzing image sizes,
  * we also don't consider SVGs to be images.
+ *
+ * @param  value string to check
  */
 function imageLikeURL( value: string ): boolean {
 	// Look for relative URLs that are not SVGs
