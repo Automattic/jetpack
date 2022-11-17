@@ -162,8 +162,9 @@ jobs:
     - name: Write report metadata
       working-directory: ${{ matrix.path }}
       env:
-        PROJECT: ${{ matrix }}
-      run: echo "$PROJECT" >> "output/report-metadata.json"
+        RUN_ID: ${{ matrix.runId }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: .github/files/e2e-tests/report-metadata.sh
 
     - name: Test environment tear-down
       if: ${{ always() }}
