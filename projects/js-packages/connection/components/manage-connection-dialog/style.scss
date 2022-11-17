@@ -24,6 +24,7 @@
 	}
 
 	&__large-text {
+		margin-top: calc( var( --spacing-base ) * 3 );
 		margin-bottom: calc( var( --spacing-base ) * 4 );
 		max-width: 60%;
 		font-weight: 600;
@@ -35,12 +36,12 @@
 		margin:0px !important;
 		border-top: 1px solid var( --jp-gray );
 		max-width: 1200px !important;
-		padding: calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 5 );
+		padding: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 5 );
 		align-items:center;
 		position: sticky;
 		bottom: 0;
 
-		p {
+		Text {
 			font-size: var( --font-body );
 		}
 	}

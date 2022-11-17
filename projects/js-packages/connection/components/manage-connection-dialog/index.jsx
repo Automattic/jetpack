@@ -1,10 +1,17 @@
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+/**
+ * External dependencies
+ */
+import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import DisconnectDialog from '../disconnect-dialog';
 import './style.scss';
 
@@ -69,12 +76,12 @@ const ManageConnectionDialog = props => {
 					>
 						<div className="jp-connection__manage-dialog__content">
 							<h1 id="jp-connection__manage-dialog__heading">{ title }</h1>
-							<p className="jp-connection__manage-dialog__large-text">
+							<Text className="jp-connection__manage-dialog__large-text">
 								{ __(
 									'At least one user must be connected for your Jetpack products to work properly.',
 									'jetpack'
 								) }
-							</p>
+							</Text>
 							<ManageConnectionActionCard
 								title={ __( 'Transfer ownership to another admin', 'jetpack' ) }
 								link={ getRedirectUrl( 'calypso-settings-manage-connection', {
@@ -116,7 +123,10 @@ const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', 
 			<div className="jp-connection__manage-dialog__action-card__card-content">
 				<a
 					href={ link }
-					className={ `jp-connection__manage-dialog__action-card__card-headline ${ action }` }
+					className={ classNames(
+						'jp-connection__manage-dialog__action-card__card-headline',
+						action
+					) }
 					onClick={ onClick }
 				>
 					{ title }
@@ -134,7 +144,7 @@ const HelpFooter = ( { onClose } ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
 			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-8 md-col-span-6 sm-col-span-3">
-				<p>
+				<Text>
 					{ createInterpolateElement(
 						__(
 							'<strong>Need help?</strong> Learn more about the <connectionInfoLink>Jetpack connection</connectionInfoLink> or <supportLink>contact Jetpack support</supportLink>',
@@ -164,7 +174,7 @@ const HelpFooter = ( { onClose } ) => {
 							),
 						}
 					) }
-				</p>
+				</Text>
 			</div>
 			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-4 md-col-span-2 sm-col-span-1">
 				<Button

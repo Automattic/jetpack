@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { STORE_ID } from '../../state/store';
 import ConnectUser from '../connect-user';
-//import DisconnectDialog from '../disconnect-dialog';
-import ManageConnectionDialog from '../manage-connection-dialog';
+import DisconnectDialog from '../disconnect-dialog';
 import useConnection from '../use-connection';
 import './style.scss';
 
@@ -131,20 +130,7 @@ const ConnectionStatusCard = props => {
 					>
 						{ __( 'Disconnect', 'jetpack' ) }
 					</Button>
-					{ /*
 					<DisconnectDialog
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnectedCallback }
-						connectedPlugins={ connectedPlugins }
-						connectedSiteId={ connectedSiteId }
-						connectedUser={ userConnectionData }
-						isOpen={ isDisconnectDialogOpen }
-						onClose={ closeDisconnectDialog }
-						context={ context }
-					/>
-				*/ }
-					<ManageConnectionDialog
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnectedCallback }
