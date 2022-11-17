@@ -111,7 +111,7 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 == Changelog ==
 ## 1.1.0 - 2022-11-17
 ### Added
-- Added features for paid Jetpack Scan users; including file and database threats, on-demand scanning, and threat auto-fixers.
+- Add features for paid Jetpack Scan users, including file and database threats, on-demand scanning, and threat auto-fixers.
 
 ### Changed
 - Compatibility: WordPress 6.1 compatibility
