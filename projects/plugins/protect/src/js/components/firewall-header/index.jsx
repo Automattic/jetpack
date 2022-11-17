@@ -1,11 +1,24 @@
 import { AdminSectionHero, Container, Col, Text, H3, Button } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import { JETPACK_SCAN } from '../admin-page';
 import styles from './styles.module.scss';
 
 const FirewallHeader = ( { status, hasRequiredPlan } ) => {
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: JETPACK_SCAN,
+		redirectUrl: adminUrl,
+	} );
+
+	const { recordEventHandler } = useAnalyticsTracks();
+	const getScan = recordEventHandler( 'jetpack_protect_waf_header_get_scan_link_click', run );
+
 	if ( 'on' === status ) {
 		return (
 			<AdminSectionHero>
@@ -53,7 +66,9 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 									</Text>
 									<Icon icon={ help } />
 								</div>
-								<Button>{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }</Button>
+								<Button onClick={ getScan }>
+									{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
+								</Button>
 							</>
 						) }
 					</Col>
