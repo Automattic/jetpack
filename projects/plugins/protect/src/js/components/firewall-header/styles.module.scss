@@ -7,7 +7,7 @@
         border-radius: 50%;
         height: 8px;
         width: 8px;
-        margin-right: var(--spacing-base);
+        margin-right: var(--spacing-base); // 8px
         background: var( --jp-gray-50 );
     }
 
@@ -31,11 +31,10 @@ svg.spinner {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    margin-bottom: calc( var( --spacing-base ) * 3 );
+    margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
 
-    > .icon-popover {
-        display: flex;
-        margin-left: calc( var( --spacing-base ) * .5 );
+    > svg {
+        margin-left: calc( var( --spacing-base ) * .5 ); // 4px
         fill: var( --jp-gray-20 );
     }
 }
@@ -53,7 +52,17 @@ svg.spinner {
     flex-wrap: wrap;
 
     >:first-child {
-        margin-right: calc( var( --spacing-base ) * 3 );
+        margin-right: calc( var( --spacing-base ) * 3 ); // 24p
+    }
+}
+
+@media ( max-width: 999px ) {
+    .firewall-header {
+        display: inline-block;
+    }
+
+    .stat-card-wrapper {
+        margin-top: calc( var( --spacing-base ) * 3 ); // 24px
     }
 }
 
@@ -68,11 +77,10 @@ svg.spinner {
     }
     
     .stat-card-wrapper {
-        margin-top: calc( var( --spacing-base ) * 3 );
 
         >:first-child {
             margin-right: 0;
-            margin-bottom: calc( var( --spacing-base ) * 1 );
+            margin-bottom: calc( var( --spacing-base ) * 1 ); // 8px
         }
     }
 }
