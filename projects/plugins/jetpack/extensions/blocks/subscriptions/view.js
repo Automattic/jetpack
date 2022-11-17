@@ -54,10 +54,6 @@ domReady( function () {
 						// User just aborted.
 						window.removeEventListener( 'message', handleIframeResult );
 						tb_remove();
-					} else if ( data && data.action === 'jetpack_subscribe_continue' ) {
-						// User chose free option for subscribing, so we want to continue default behaviour of using the subscribe form.
-						form.resubmitted = true;
-						form.querySelector( '#subscribe-submit button' ).click();
 					}
 				}
 			};
