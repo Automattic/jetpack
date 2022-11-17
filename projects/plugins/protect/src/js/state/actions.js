@@ -62,11 +62,13 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 			.then( status => {
 				dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
 				dispatch( setStatus( camelize( status ) ) );
-				dispatch( setStatusIsFetching( false ) );
 				resolve( status );
 			} )
 			.catch( error => {
 				reject( error );
+			} )
+			.finally( () => {
+				dispatch( setStatusIsFetching( false ) );
 			} );
 	} );
 };
@@ -374,6 +376,7 @@ const actions = {
 	setThreatsAreFixing,
 	refreshPlan,
 	setHasRequiredPlan,
+	setScanIsUnavailable,
 };
 
 export {
