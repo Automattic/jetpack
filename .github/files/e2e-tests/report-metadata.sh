@@ -14,5 +14,5 @@ if [[ -z "$SUITE" ]]; then
 	fi
 fi
 
-jq -n --arg runId "$SUITE" '{suite:$suite}' >"$OUTPUT_PATH/output/report-metadata.json"
+jq -n --arg suite "$SUITE" '{suite:$suite}' >"$OUTPUT_PATH/output/report-metadata.json"
 cat report-metadata.json
