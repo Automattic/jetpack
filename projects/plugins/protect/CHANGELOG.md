@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatibility: WordPress 6.1 compatibility
 
 ### Fixed
-- Adjusted alignment of spinner icon and loading text on the in-progress scan screen.
+- Adjust alignment of spinner icon and loading text on the in-progress scan screen.
 
 ## 1.0.4 - 2022-08-29
 ### Fixed
