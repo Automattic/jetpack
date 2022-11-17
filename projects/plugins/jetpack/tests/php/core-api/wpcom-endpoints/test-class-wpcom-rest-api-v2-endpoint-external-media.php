@@ -69,7 +69,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_list_pexels_empty() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_pexels' ), 10, 3 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/list/pexels' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/list/pexels' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -88,7 +88,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_list_google_photos_unauthenticated() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_google_photos_unauthenticated' ), 10, 3 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/list/google_photos' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/list/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$error    = $response->get_data();
 
@@ -114,7 +114,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
 		$request->set_body_params(
 			array(
 				'media' => array(
@@ -160,7 +160,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
 		$request->set_body_params(
 			array(
 				'media' => array(
@@ -223,7 +223,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
 		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
-		$request = wp_rest_request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
 		$request->set_body_params(
 			array(
 				'media' => array(
@@ -262,7 +262,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_connection_google_photos() {
 		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_connection_google_photos' ), 10, 3 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$data     = json_decode( wp_remote_retrieve_body( $response->get_data() ) );
 
@@ -280,7 +280,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_delete_connection_google_photos() {
 		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_response_delete_connection_google_photos' ), 10, 3 );
 
-		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/external-media/connection/google_photos' );
+		$request  = new WP_REST_Request( Requests::DELETE, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$data     = json_decode( wp_remote_retrieve_body( $response->get_data() ) );
 
@@ -301,7 +301,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_connection_google_photos_with_error( $method ) {
 		add_filter( 'rest_pre_dispatch', array( $this, 'mock_wpcom_api_external_media_connection_response_with_error' ), 10, 3 );
 
-		$request  = wp_rest_request( $method, '/wpcom/v2/external-media/connection/google_photos' );
+		$request  = new WP_REST_Request( $method, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$data     = json_decode( wp_remote_retrieve_body( $response->get_data() ) );
 

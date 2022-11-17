@@ -1,16 +1,9 @@
-export type WPV2MediaAPIResponseProps = {
-	jetpack_videopress?: {
-		title: string;
-		description: string;
-	};
-};
-
-export type VideoData = {
+export type videoDataProps = {
 	title?: string;
 	description?: string;
 };
 
-export type useVideoDataProps = {
-	videoData: VideoData;
+export type UseVideoDataProps = {
+	videoData: videoDataProps;
 	isRequestingVideoData: boolean;
 };

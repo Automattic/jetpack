@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( '_inc/lib/class.media-extractor.php' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 
 class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
