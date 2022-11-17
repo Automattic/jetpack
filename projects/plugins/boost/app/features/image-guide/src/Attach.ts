@@ -1,7 +1,6 @@
 import Main from './ui/Main.svelte';
 import type { MeasuredImage, ImageComponentConfig } from './types';
 
-
 /**
  * This function looks for the closest parent that is
  * able to contain the image guide component.
