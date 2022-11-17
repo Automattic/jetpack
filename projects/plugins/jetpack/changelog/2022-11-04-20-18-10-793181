@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Shortcodes: fix content_width handling for various shortcodes.

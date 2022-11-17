@@ -133,7 +133,18 @@ class Admin_Sidebar_Link {
 			return false;
 		}
 
-		return $this->has_scan() || $this->should_show_backup();
+		return $this->should_show_scan() || $this->should_show_backup();
+	}
+
+	/**
+	 * Check if we should display the Scan menu item.
+	 *
+	 * It will only be displayed if site has Scan enabled and the stand-alone Protect plugin is not active, because it will have a menu item of its own.
+	 *
+	 * @return boolean
+	 */
+	private function should_show_scan() {
+		return $this->has_scan() && ! $this->has_protect_plugin();
 	}
 
 	/**
@@ -156,6 +167,15 @@ class Admin_Sidebar_Link {
 		$this->maybe_refresh_transient_cache();
 		$scan_state = get_transient( 'jetpack_scan_state' );
 		return ! $scan_state || 'unavailable' !== $scan_state->state;
+	}
+
+	/**
+	 * Detects if Protect plugin is active.
+	 *
+	 * @return boolean
+	 */
+	private function has_protect_plugin() {
+		return class_exists( 'Jetpack_Protect' );
 	}
 
 	/**

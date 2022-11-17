@@ -16,10 +16,10 @@ on:
     workflows: ["Build"]
     branches: [ 'trunk', '*/branch-*' ]
   repository_dispatch:
-    types: ['tba'] #use a type that will not trigger anything yet. to be updated after #27288 is merged
+    types: ['e2e tests**']
 
 concurrency:
-  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}
+  group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
 jobs:
@@ -50,8 +50,9 @@ jobs:
         id: evaluate
         env:
           CRON: ${{ github.event.schedule }}
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
         run: |
-          TEST_PLAN="$(.github/files/e2e-tests/create-e2e-projects-matrix.sh)"
+          TEST_PLAN="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$TEST_PLAN"
 
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
@@ -92,6 +93,14 @@ jobs:
         run_id: ${{ github.event.workflow_run.id }}
         path: build-output
 
+    - name: Checkout mirror repo
+      if: github.event_name == 'repository_dispatch'
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ github.event.client_payload.repository }}
+        ref: ${{ github.event.client_payload.ref_name }}
+        path: build-output/build/${{ github.event.client_payload.repository }}
+
     - name: Prepare build
       env:
         COMPOSER_ROOT_VERSION: "dev-trunk"
@@ -100,13 +109,21 @@ jobs:
       run: |
         if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
           echo "::group::Prepare build artefacts"
+          tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
+          echo "::endgroup::"
+        fi
+
+        if [ "$GITHUB_EVENT_NAME" == workflow_run ] || [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
+          echo "::group::Update volume mapping"
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          echo "::group::Build plugin(s)"
-          cd $PROJECT_PATH
-          pnpm run build
-          echo "::endgroup::"
+          if [ "${RUN_NAME}" != atomic ]; then
+            echo "::group::Build plugin(s)"
+            cd $PROJECT_PATH
+            pnpm run build
+            echo "::endgroup::"
+          fi
         fi
 
     - name: Test environment set-up
