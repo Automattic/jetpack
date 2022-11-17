@@ -5,7 +5,7 @@ export function getSubscriberCount( successCallback, failureCallback ) {
 		path: '/wpcom/v2/subscribers/count?include_publicize_subscribers=false',
 	} ).then( ( { count } = {} ) => {
 		// Handle error condition
-		if ( typeof count !== 'undefined' ) {
+		if ( Number.isFinite( count ) ) {
 			successCallback( count );
 		} else {
 			failureCallback();
