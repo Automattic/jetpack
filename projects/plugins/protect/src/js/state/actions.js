@@ -58,10 +58,9 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
 		return fetchStatus( hardRefresh )
+			.then( checkStatus )
 			.then( status => {
-				return dispatch( checkStatus( status ) );
-			} )
-			.then( status => {
+				dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
 				dispatch( setStatus( camelize( status ) ) );
 				dispatch( setStatusIsFetching( false ) );
 				resolve( status );
@@ -79,18 +78,19 @@ const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
  * @param {number} attempts - The amount of recursive attempts that have already been made.
  * @returns {Promise} - Promise which resolves with the status once it has been checked.
  */
-const checkStatus = ( currentStatus, attempts = 0 ) => async ( { dispatch } ) => {
-	return await new Promise( ( resolve, reject ) => {
+const checkStatus = ( currentStatus, attempts = 0 ) => {
+	return new Promise( ( resolve, reject ) => {
 		if ( 'unavailable' === currentStatus.status && attempts < 3 ) {
 			fetchStatus( true )
 				.then( newStatus => {
 					setTimeout( () => {
-						dispatch( checkStatus( newStatus, attempts + 1 ) );
+						checkStatus( newStatus, attempts + 1 )
+							.then( result => resolve( result ) )
+							.catch( error => reject( error ) );
 					}, 5000 );
 				} )
 				.catch( reject );
 		} else {
-			dispatch( setScanIsUnavailable( 'unavailable' === currentStatus.status ) );
 			resolve( currentStatus );
 		}
 	} );
@@ -310,6 +310,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 		} )
 			.then( () => {
 				dispatch( startScanOptimistically() );
+				setTimeout( () => dispatch( refreshStatus( true ) ), 5000 );
 			} )
 			.catch( () => {
 				return dispatch(
