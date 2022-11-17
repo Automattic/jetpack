@@ -87,15 +87,15 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				if ( packageJson?.ci?.mirrorName === repoName ) {
 					matrix.push( project );
 				}
+			}
 
-				if ( repoName === 'jetpack-production' ) {
-					matrix.push( {
-						project: 'Jetpack on Atomic',
-						path: 'projects/plugins/jetpack/tests/e2e',
-						testArgs: [ 'blocks', '--retries=1' ],
-						suite: 'atomic',
-					} );
-				}
+			if ( repoName === 'jetpack-production' ) {
+				matrix.push( {
+					project: 'Jetpack on Atomic',
+					path: 'projects/plugins/jetpack/tests/e2e',
+					testArgs: [ 'blocks', '--retries=1' ],
+					suite: 'atomic',
+				} );
 			}
 		} else {
 			// eslint-disable-next-line no-console
