@@ -221,8 +221,8 @@ for SLUG in "${SLUGS[@]}"; do
 		DIR="${SLUG#nonproject:}"
 	else
 		if [[ "$SLUG" == plugins/* ]]; then
-			PACKAGES_UPDATE_SEL='( if e.value | endswith( "@dev" ) then "@dev" else $packages[e.key].dep2 end )'
-			PACKAGES_CHECK_SEL='( if .value | endswith( "@dev" ) then [ "@dev" ] else [ $packages[.key].dep2 ] end )'
+			PACKAGES_UPDATE_SEL='( if e.value | endswith( "@dev" ) or endswith( "-dev" ) then "@dev" else $packages[e.key].dep2 end )'
+			PACKAGES_CHECK_SEL='( if .value | endswith( "@dev" ) or endswith( "-dev" ) then [ "@dev" ] else [ $packages[.key].dep2 ] end )'
 			PACKAGES_CHECK_ALLOWED_SEL='[ "@dev", $packages[.key].dep2 ]'
 		fi
 		DOCL=$DOCL_EVER
