@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
-require_jetpack_file( 'modules/widgets/contact-info.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/widgets/contact-info.php';
 
 /**
  * Test class for the Contact Info & Map Widget.

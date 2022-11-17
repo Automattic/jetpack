@@ -15,6 +15,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
@@ -29,7 +30,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '2.3.6-alpha';
+	const PACKAGE_VERSION = '2.4.0-alpha';
 
 	/**
 	 * Initialize My Jetapack
@@ -159,6 +160,7 @@ class Initializer {
 				'purchases'             => array(
 					'items' => array(),
 				),
+				'plugins'               => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),

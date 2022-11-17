@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Added support for falsey non-zero values for offPrice

@@ -286,8 +286,27 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
-const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
+const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, resolveSelect } ) => {
 	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
+
+	const getPlaybackTokenIfNeeded = async () => {
+		const video = await resolveSelect.getVideo( id );
+
+		if ( ! video.needsPlaybackToken ) {
+			return null;
+		}
+
+		const playbackToken = await resolveSelect.getPlaybackToken( video.guid );
+		return playbackToken?.token;
+	};
+
+	const addPlaybackTokenToURLIfNeeded = ( poster, token ) => {
+		if ( ! poster || ! token ) {
+			return poster;
+		}
+
+		return `${ poster }?metadata_token=${ token }`;
+	};
 
 	const pollPoster = () => {
 		setTimeout( async () => {
@@ -297,8 +316,14 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 				if ( resp?.data?.generating ) {
 					pollPoster();
 				} else {
+					const playbackToken = await getPlaybackTokenIfNeeded();
 					const poster = resp?.data?.poster;
-					dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
+
+					dispatch( {
+						type: UPDATE_VIDEO_POSTER,
+						id,
+						poster: addPlaybackTokenToURLIfNeeded( poster, playbackToken ),
+					} );
 					apiFetch( {
 						path: WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 						method: 'POST',
@@ -327,7 +352,10 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch } ) => {
 			return;
 		}
 
-		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster: resp?.data?.poster } );
+		const playbackToken = await getPlaybackTokenIfNeeded();
+		const poster = addPlaybackTokenToURLIfNeeded( resp?.data?.poster, playbackToken );
+
+		return dispatch( { type: UPDATE_VIDEO_POSTER, id, poster } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console

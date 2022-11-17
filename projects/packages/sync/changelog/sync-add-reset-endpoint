@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Jetpack Sync: Add new endpoint for resetting Sync locks.
