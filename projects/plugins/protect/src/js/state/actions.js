@@ -84,7 +84,9 @@ const checkStatus = ( currentStatus, attempts = 0 ) => {
 			fetchStatus( true )
 				.then( newStatus => {
 					setTimeout( () => {
-						checkStatus( newStatus, attempts + 1 );
+						checkStatus( newStatus, attempts + 1 )
+							.then( result => resolve( result ) )
+							.catch( error => reject( error ) );
 					}, 5000 );
 				} )
 				.catch( reject );
