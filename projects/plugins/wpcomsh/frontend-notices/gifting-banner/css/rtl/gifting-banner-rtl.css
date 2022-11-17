@@ -1,4 +1,4 @@
-/* This file was automatically generated on Nov 16 2022 17:56:20 */
+/* This file was automatically generated on Nov 16 2022 20:29:39 */
 
 /* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
 
@@ -70,7 +70,7 @@
 	padding: 6px 24px 6px 24px;
 }
 
-.wpcom-gifting-banner__button:hover {
+.wpcom-gifting-banner .wpcom-gifting-banner__button:hover {
 	background: #fff;
 	color: #000;
 }

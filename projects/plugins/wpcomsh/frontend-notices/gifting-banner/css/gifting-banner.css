@@ -68,7 +68,7 @@
 	padding: 6px 24px 6px 24px;
 }
 
-.wpcom-gifting-banner__button:hover {
+.wpcom-gifting-banner .wpcom-gifting-banner__button:hover {
 	background: #fff;
 	color: #000;
 }
