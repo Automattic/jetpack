@@ -109,7 +109,13 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.4 - 2022-08-29
-#### Fixed
-- Fixed NaN error that prevented the pricing interstitial from rendering.
+## 1.1.0 - 2022-11-17
+### Added
+- Added features for paid Jetpack Scan users; including file and database threats, on-demand scanning, and threat auto-fixers.
+
+### Changed
+- Compatibility: WordPress 6.1 compatibility
+
+### Fixed
+- Adjusted alignment of spinner icon and loading text on the in-progress scan screen.
 
