@@ -238,7 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "a8f27f4eb2455a4121e1b0f85c0031143c89f12b"
+                "reference": "02a9aa8b5a9b4fd3a8d78acb0155bd9066ccd8d8"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -250,7 +250,7 @@
                 "automattic/jetpack-identity-crisis": "^0.8",
                 "automattic/jetpack-my-jetpack": "^2.4",
                 "automattic/jetpack-status": "^1.15",
-                "automattic/jetpack-sync": "^1.42"
+                "automattic/jetpack-sync": "^1.43"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.2",
