@@ -6,41 +6,41 @@ const projects = [
 		project: 'Jetpack connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/connection', '--retries=1' ],
-		runId: '',
+		suite: '',
 	},
 	{
 		project: 'Jetpack pre-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
-		runId: '',
+		suite: '',
 	},
 	{
 		project: 'Jetpack post-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/post-connection', '--retries=1' ],
-		runId: '',
+		suite: '',
 	},
 	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync', '--retries=1' ],
-		runId: '',
+		suite: '',
 	},
 	{
 		project: 'Jetpack blocks',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/blocks', '--retries=1' ],
-		runId: '',
+		suite: '',
 	},
-	{ project: 'Boost', path: 'projects/plugins/boost/tests/e2e', testArgs: [], runId: '' },
-	{ project: 'Search', path: 'projects/plugins/search/tests/e2e', testArgs: [], runId: '' },
+	{ project: 'Boost', path: 'projects/plugins/boost/tests/e2e', testArgs: [], suite: '' },
+	{ project: 'Search', path: 'projects/plugins/search/tests/e2e', testArgs: [], suite: '' },
 	{
 		project: 'VideoPress',
 		path: 'projects/plugins/videopress/tests/e2e',
 		testArgs: [],
-		runId: '',
+		suite: '',
 	},
-	{ project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], runId: '' },
+	{ project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], suite: '' },
 ];
 
 const matrix = [];
@@ -83,7 +83,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
 				);
 
-				project.runId = repoName;
+				project.suite = repoName;
 				if ( packageJson?.ci?.mirrorName === repoName ) {
 					matrix.push( project );
 				}
@@ -93,7 +93,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 						project: 'Jetpack on Atomic',
 						path: 'projects/plugins/jetpack/tests/e2e',
 						testArgs: [ 'blocks', '--retries=1' ],
-						runId: 'atomic',
+						suite: 'atomic',
 					} );
 				}
 			}
@@ -109,7 +109,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 				project: 'Jetpack with Gutenberg',
 				path: 'projects/plugins/jetpack/tests/e2e',
 				testArgs: [ 'blocks', '--retries=1' ],
-				runId: 'gutenberg',
+				suite: 'gutenberg',
 			} );
 		}
 		break;

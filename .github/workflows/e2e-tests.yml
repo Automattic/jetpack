@@ -97,7 +97,7 @@ jobs:
         COMPOSER_ROOT_VERSION: "dev-trunk"
         BUILD_DIR: ./build-output
         PROJECT_PATH: ${{ matrix.path }}
-        RUN_ID: ${{ matrix.runId }}
+        SUITE: ${{ matrix.suite }}
       run: |
         if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
           echo "::group::Prepare build artefacts"
@@ -110,7 +110,7 @@ jobs:
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          if [ "${RUN_ID}" != atomic ]; then
+          if [ "${SUITE}" != atomic ]; then
             echo "::group::Build plugin(s)"
             cd $PROJECT_PATH
             pnpm run build
@@ -122,14 +122,14 @@ jobs:
       working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        RUN_ID: ${{ matrix.runId }}
+        SUITE: ${{ matrix.suite }}
         PROJECT_NAME:  ${{ matrix.project }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
         echo "::endgroup::"
 
-        if [ "${RUN_ID}" != atomic ]; then
+        if [ "${SUITE}" != atomic ]; then
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -141,7 +141,7 @@ jobs:
           echo "TEST_SITE=atomic" >> $GITHUB_ENV
         fi
 
-        if [ "${RUN_ID}" == gutenberg ]; then
+        if [ "${SUITE}" == gutenberg ]; then
             echo "::group::Setting up Gutenberg"
             pnpm e2e-env gb-setup
             echo "::endgroup::"
@@ -162,7 +162,7 @@ jobs:
     - name: Write report metadata
       working-directory: ${{ matrix.path }}
       env:
-        RUN_ID: ${{ matrix.runId }}
+        SUITE: ${{ matrix.suite }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: .github/files/e2e-tests/report-metadata.sh
 
