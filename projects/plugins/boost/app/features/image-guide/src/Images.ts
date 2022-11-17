@@ -24,7 +24,7 @@ export async function load( domElements: Element[] ): Promise< Image[] > {
 		return false;
 	}, [] );
 
-	return ( await Promise.all( parsedNodes ) ).filter( ( el ): el is Image => !! el );
+	return ( await Promise.all( parsedNodes ) ).filter( ( el ): el is Image => false !== el );
 }
 
 async function getImageSize( url ) {
