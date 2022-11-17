@@ -21,11 +21,9 @@
 		oversizedBy < 9 ? oversizedBy.toFixed( 1 ) : `${ Math.floor( oversizedBy ) }+`;
 </script>
 
-{#if mounted}
-	<div class="bubble {severity}" on:mouseenter transition:fly={scaleConfig}>
-		<span class="label">{oversizedLabel}</span>
-	</div>
-{/if}
+<div class="bubble {severity}" on:mouseenter transition:fly={scaleConfig}>
+	<span class="label">{oversizedLabel}</span>
+</div>
 
 <style lang="scss">
 	.bubble {

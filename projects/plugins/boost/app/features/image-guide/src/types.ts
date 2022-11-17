@@ -1,3 +1,5 @@
+import type { ComponentConstructorOptions } from 'svelte';
+
 export type MeasuredImage = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
@@ -18,7 +20,7 @@ export type MeasuredImage = {
 	};
 };
 
-export interface ImageComponentConfig {
+export interface ImageComponentConfig extends ComponentConstructorOptions {
 	target: HTMLElement;
 	props: {
 		images: MeasuredImage[];

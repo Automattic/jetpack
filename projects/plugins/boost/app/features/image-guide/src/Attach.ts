@@ -136,6 +136,8 @@ export function attachGuides( measuredImages: MeasuredImage[] ) {
 		if ( images.length === 1 ) {
 			acc[ id ] = {
 				target: container,
+				// This triggers the nice fade-in animation as soon as the component is attached.
+				intro: true,
 				props: {
 					images,
 				},
