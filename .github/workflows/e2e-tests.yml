@@ -147,10 +147,6 @@ jobs:
             echo "::endgroup::"
         fi
 
-        if [ "${PROJECT_NAME}" == "Jetpack update" ]; then
-            echo "SKIP_ENV_CLEAN=true" >> $GITHUB_ENV
-        fi
-
     - name: Run ${{ matrix.project }} tests
       working-directory: ${{ matrix.path }}
       env:
