@@ -224,7 +224,6 @@ class Dashboard {
 			'google_maps_and_places_api_key' => '',
 			'i18n_default_locale_slug'       => 'en',
 			'i18n_locale_slug'               => static::get_site_locale(),
-			'is_running_in_jetpack_site'     => true,
 			'mc_analytics_enabled'           => false,
 			'meta'                           => array(),
 			'nonce'                          => wp_create_nonce( 'wp_rest' ),
@@ -236,6 +235,7 @@ class Dashboard {
 				'stats/new-main-chart'             => true,
 				'stats/new-stats-module-component' => true,
 				'stats/show-traffic-highlights'    => true,
+				'is_running_in_jetpack_site'       => true,
 			),
 			'intial_state'                   => array(
 				'currentUser' => array(
