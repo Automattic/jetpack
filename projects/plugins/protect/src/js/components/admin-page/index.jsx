@@ -319,7 +319,11 @@ const useStatusPolling = () => {
 					} )
 					.catch( () => {
 						// Keep trying when unable to fetch the status.
-						setTimeout( pollStatus, 5000 );
+						setTimeout( () => {
+							pollStatus()
+								.then( result => resolve( result ) )
+								.catch( error => reject( error ) );
+						}, 5000 );
 					} );
 			} );
 		};
