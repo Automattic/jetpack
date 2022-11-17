@@ -1831,55 +1831,6 @@ class Jetpack_Custom_CSS {
 	}
 }
 
-/**
- * The Safe CSS Class.
- */
-class Jetpack_Safe_CSS { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
-	/**
-	 * Filter attriburtes.
-	 *
-	 * @param string $css - the CSS.
-	 * @param string $element - the HTML element.
-	 *
-	 * @return string
-	 */
-	public static function filter_attr( $css, $element = 'div' ) {
-		safecss_class();
-
-		$css = $element . ' {' . $css . '}';
-
-		$csstidy           = new csstidy();
-		$csstidy->optimise = new safecss( $csstidy );
-		$csstidy->set_cfg( 'remove_bslash', false );
-		$csstidy->set_cfg( 'compress_colors', false );
-		$csstidy->set_cfg( 'compress_font-weight', false );
-		$csstidy->set_cfg( 'discard_invalid_properties', true );
-		$csstidy->set_cfg( 'merge_selectors', false );
-		$csstidy->set_cfg( 'remove_last_;', false );
-		$csstidy->set_cfg( 'css_level', 'CSS3.0' );
-
-		// Turn off css shorthands and leading zero removal as it breaks block validation.
-		$csstidy->set_cfg( 'optimise_shorthands', 0 );
-		$csstidy->set_cfg( 'preserve_leading_zeros', true );
-
-		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );
-		$css = wp_kses_split( $css, array(), array() );
-		$csstidy->parse( $css );
-
-		$css = $csstidy->print->plain();
-
-		$css = str_replace( array( "\n", "\r", "\t" ), '', $css );
-
-		preg_match( "/^{$element}\s*{(.*)}\s*$/", $css, $matches );
-
-		if ( empty( $matches[1] ) ) {
-			return '';
-		}
-
-		return $matches[1];
-	}
-}
-
 if ( ! function_exists( 'safecss_class' ) ) :
 	/**
 	 * Setup safecss class.
@@ -1937,18 +1888,5 @@ if ( ! function_exists( 'safecss_class' ) ) :
 		}
 	}
 endif;
-
-if ( ! function_exists( 'safecss_filter_attr' ) ) {
-
-	/**
-	 * Filter safecss attriburtes.
-	 *
-	 * @param string $css - the CSS.
-	 * @param string $element - the HTML element.
-	 */
-	function safecss_filter_attr( $css, $element = 'div' ) {
-		return Jetpack_Safe_CSS::filter_attr( $css, $element );
-	}
-}
 
 require_once __DIR__ . '/custom-css/preprocessors.php';
