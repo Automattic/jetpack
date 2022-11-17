@@ -1,7 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"include": [ "src/assets/js/**/*" ],
-	"exclude": [ "node_modules/*", "src/assets/dist/*" ],
 	"compilerOptions": {
 		"typeRoots": [ "./node_modules/@types/", "src/assets/js" ],
 		"sourceMap": true,
