@@ -47,6 +47,7 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	SET_VIDEOPRESS_SETTINGS,
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+	WP_REST_API_VIDEOPRESS_MEDIA_ENDPOINT,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -207,7 +208,7 @@ const deleteVideo = id => async ( { dispatch } ) => {
 
 	try {
 		const resp = await apiFetch( {
-			path: `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }`,
+			path: `${ WP_REST_API_VIDEOPRESS_MEDIA_ENDPOINT }/${ id }`,
 			method: 'DELETE',
 			data: {
 				id,
