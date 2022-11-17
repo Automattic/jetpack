@@ -118,10 +118,10 @@ const ProtectAdminPage = () => {
 
 	// retry fetching status if it is not available
 	useEffect( () => {
-		if ( ! statusIsFetching && 'unavailable' === status.status ) {
+		if ( ! statusIsFetching && 'unavailable' === status.status && ! scanIsUnavailable ) {
 			refreshStatus( true );
 		}
-	}, [ statusIsFetching, status.status, refreshStatus ] );
+	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
 
 	let currentScanStatus;
 	if ( 'error' === currentStatus || scanIsUnavailable ) {
