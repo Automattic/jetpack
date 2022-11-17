@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Remove the logic to override `kses`'s `safecss_filter_attr` from `custom-css.php` and other unused entities. There's no real need to override the `safecss_filter_attr` in Jetpack-powered sites anymore. This function should come verbatim from core.
