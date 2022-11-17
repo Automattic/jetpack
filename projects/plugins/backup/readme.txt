@@ -108,7 +108,9 @@ If you don’t have Backups as part of your Jetpack plan, [visit Jetpack.com to 
 
 As soon as you purchase Jetpack VaultPress Backup, it will be activated, and the first backup will be completed. There are barely any settings to configure, and you don’t need coding experience.
 
-Daily backups will take place approximately 24 hours from the previous backup. They occur automatically – you don’t need to create a specific time for backups to run.
+For plans with daily backups, a new backup will take place approximately 24 hours from the previous backup. They occur automatically – you don’t need to create a specific time for backups to run. 
+
+For plans with real-time backups, a new backup will be performed each time a change is made to to WordPress core's database tables, WooCommerce database tables, and any associated file changes. All other changes are backed up daily.
 
 You’ll know your WordPress backup has been created if you see a **Backup complete** event in the activity log.
 
