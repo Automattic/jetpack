@@ -160,10 +160,10 @@ jobs:
         pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Write report metadata
-      working-directory: ${{ matrix.path }}
       env:
         SUITE: ${{ matrix.suite }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        OUTPUT_PATH: ${{ matrix.path }}
       run: .github/files/e2e-tests/report-metadata.sh
 
     - name: Test environment tear-down

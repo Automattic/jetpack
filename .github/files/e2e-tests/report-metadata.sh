@@ -14,5 +14,5 @@ if [[ -z "$RUN_ID" ]]; then
 	fi
 fi
 
-jq -n --arg runId "$RUN_ID" '{runId:$runId}' > report-metadata.json
+jq -n --arg runId "$RUN_ID" '{runId:$runId}' > "$OUTPUT_PATH/output/report-metadata.json"
 cat report-metadata.json
