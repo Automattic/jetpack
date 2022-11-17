@@ -42,6 +42,7 @@ export const CheckboxCheckmark = ( props: {
 	label?: string;
 	for: string;
 	checked?: boolean;
+	disabled?: boolean;
 	onChange?: ( checked: boolean ) => void;
 } ): JSX.Element => {
 	return (
@@ -51,6 +52,7 @@ export const CheckboxCheckmark = ( props: {
 				className={ styles.checkbox }
 				onChange={ props.onChange }
 				checked={ props.checked }
+				disabled={ props.disabled }
 			/>
 			<span className={ styles[ 'checkbox-checkmark' ] } />
 			<Text variant="body-small">{ props.label }</Text>

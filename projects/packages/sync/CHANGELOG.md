@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.42.0] - 2022-11-14
+### Changed
+- Save attached media to post meta [#26930]
+
 ## [1.41.0] - 2022-11-07
 ### Changed
 - Jetpack Sync: add Updates module in required Sync modules. [#27182]
@@ -752,6 +756,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.42.0]: https://github.com/Automattic/jetpack-sync/compare/v1.41.0...v1.42.0
 [1.41.0]: https://github.com/Automattic/jetpack-sync/compare/v1.40.3...v1.41.0
 [1.40.3]: https://github.com/Automattic/jetpack-sync/compare/v1.40.2...v1.40.3
 [1.40.2]: https://github.com/Automattic/jetpack-sync/compare/v1.40.1...v1.40.2

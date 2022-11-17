@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.6-a.5 - 2022-11-14
+### Enhancements
+- Form Block: add block alignment control for the form wrapper: center, wide and full [#27151]
+- Form Block: remove connection button from the Form block toolbar [#27301]
+
+### Improved compatibility
+- Sitemaps: improve compatibility with recent Google Image Sitemap changes. [#24341]
+
+### Bug fixes
+- Dashboard: prevent scrolling to the active settings menu item on page load. [#27347]
+- VideoPress: fix issue with uploading VideoPress videos in the Full Site Editor. [#27339]
+- Shortcodes: fix content_width handling for various shortcodes. [#27276]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Action Bar: disable experimental feature for now until the team returns to work on it. [#27358]
+- Dashboard: removing the user license activation notice. [#27329]
+- Updated package dependencies. [#26930]
+- Update the default value of subscription gifting option. [#27374]
+
 ## 11.6-a.3 - 2022-11-07
 ### Enhancements
 - Form block: add support links to form type selector. [#27134]
