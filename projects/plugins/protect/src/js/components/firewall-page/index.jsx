@@ -12,8 +12,6 @@ const FirewallPage = () => {
 	const { setWafSeen } = useDispatch( STORE_ID );
 	const { waf, wafIsFetching } = useWafData();
 
-	console.log( useWafData() );
-
 	let currentWafStatus;
 	if ( wafIsFetching ) {
 		currentWafStatus = 'loading';
