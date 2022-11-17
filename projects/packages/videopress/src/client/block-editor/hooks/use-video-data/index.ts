@@ -3,6 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+import getMediaToken from '../../../lib/get-media-token';
 /**
  * Types
  */
@@ -32,8 +33,11 @@ export default function useVideoData( {
 		async function fetchVideoItem() {
 			if ( guid ) {
 				try {
+					const { token } = await getMediaToken( 'playback', { id, guid } );
+					const params = token ? new URLSearchParams( { metadata_token: token } ).toString() : '';
+
 					const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
-						url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }`,
+						url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }?${ params }`,
 						credentials: 'omit',
 					} );
 
