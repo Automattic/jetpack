@@ -88,14 +88,10 @@ async function getBackgroundImage( el: HTMLElement ): Promise< Image | false > {
 	};
 }
 
-function backgroundImageSrc( backgroundValue: string ): string | false {
-	if ( ! imageLikeURL( backgroundValue ) ) {
-		return false;
-	}
-
-	const url = backgroundValue.match( /url\(.?(.*?).?\)/i );
-	if ( url && url[ 1 ] ) {
-		return url[ 1 ];
+function backgroundImageSrc( value: string ): string | false {
+	const url = value.match( /url\(.?(.*?).?\)/i );
+	if ( url && url[ 1 ] && imageLikeURL( url[ 1 ] ) ) {
+		return url [ 1 ]
 	}
 
 	return false;
