@@ -172,6 +172,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				},
 			)
 		);
+
+		// Media Route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/media/(?P<id>\d+)',
+			array(
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => array( $this, 'videopress_delete_media' ),
+				'permission_callback' => function () {
+					return Data::can_perform_action();
+				},
+			)
+		);
 	}
 
 	/**
@@ -541,6 +554,35 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					$response_body->data
 				)
 			);
+		}
+	}
+
+	/**
+	 * Endpoint to delete a video
+	 *
+	 * @param WP_REST_Request $request the request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function videopress_delete_media( $request ) {
+		try {
+			$media_id = $request->get_param( 'id' );
+
+			if ( ! current_user_can( 'delete_post', $media_id ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+			}
+
+			$guid   = get_post_meta( $media_id, 'videopress_guid', true );
+			$data   = array(
+				'previous' => videopress_get_video_details( $guid ),
+				'deleted'  => (bool) wp_delete_post( $media_id, true ),
+			);
+			$status = 200;
+
+			return rest_ensure_response(
+				new WP_REST_Response( $data, $status )
+			);
+		} catch ( \Exception $e ) {
+			return rest_ensure_response( new WP_Error( 'videopress_delete_media_error', $e->getMessage() ) );
 		}
 	}
 }
