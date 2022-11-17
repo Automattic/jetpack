@@ -456,7 +456,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
 					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
 					?>
 				</div>
 			<?php } ?>
