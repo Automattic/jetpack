@@ -131,7 +131,7 @@ jobs:
 
         if [ "${SUITE}" != atomic ]; then
           echo "::group::Start docker environment"
-          #pnpm run env:up
+          pnpm run env:up
           echo "::endgroup::"
 
           echo "::group::Create tunnel"
@@ -157,7 +157,7 @@ jobs:
         JSON_ARGS: ${{ toJSON(matrix.testArgs) }}
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
-        #pnpm run test:run "${TEST_ARGS[@]}"
+        pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Write report metadata
       env:
