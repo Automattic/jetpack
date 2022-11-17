@@ -113,10 +113,15 @@ const notices = ( state = { global: {} }, action ) => {
 	}
 };
 
+const plugins = ( state = {} ) => {
+	return state;
+};
+
 const reducers = combineReducers( {
 	products,
 	purchases,
 	notices,
+	plugins,
 } );
 
 export default reducers;
