@@ -6,7 +6,17 @@ import ConnectionIcon from '../connection-icon';
 import './style.scss';
 
 const ConnectionToggle = props => {
-	const { className, checked, id, disabled, onChange, serviceName, label, profilePicture } = props;
+	const {
+		className,
+		checked,
+		id,
+		disabled,
+		onChange,
+		serviceName,
+		label,
+		profilePicture,
+		followerCount,
+	} = props;
 
 	const wrapperClasses = classnames( 'components-connection-toggle', {
 		'is-not-checked': ! checked,
@@ -20,7 +30,9 @@ const ConnectionToggle = props => {
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
+				followerCount={ followerCount }
 			/>
+
 			<FormToggle
 				id={ id }
 				className={ className }
@@ -41,6 +53,7 @@ ConnectionToggle.propTypes = {
 	serviceName: PropTypes.string,
 	label: PropTypes.string,
 	profilePicture: PropTypes.string,
+	followerCount: PropTypes.number,
 };
 
 export default ConnectionToggle;

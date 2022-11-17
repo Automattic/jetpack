@@ -44,10 +44,10 @@ export default function PublicizeForm( {
 		hasConnections,
 		enabledConnections,
 	} = useSocialMediaConnections();
+
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
-
 	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
 
 	const outOfConnections =
@@ -111,6 +111,7 @@ export default function PublicizeForm( {
 									toggleable,
 									profile_picture,
 									is_healthy,
+									follower_count,
 								} ) => (
 									<PublicizeConnection
 										disabled={
@@ -125,6 +126,7 @@ export default function PublicizeForm( {
 										name={ service_name }
 										toggleConnection={ toggleById }
 										profilePicture={ profile_picture }
+										followerCount={ follower_count }
 									/>
 								)
 							) }
