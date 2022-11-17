@@ -38,7 +38,7 @@ const timeSince = date => {
 	if ( interval > 1 ) {
 		return sprintf(
 			// translators: placeholder is a number amount of years i.e. "5 years ago".
-			_n( '%s year ago', '%s years ago', 'jetpack-protect', 'jetpack-protect' ),
+			_n( '%s year ago', '%s years ago', Math.floor( interval ), 'jetpack-protect' ),
 			Math.floor( interval )
 		);
 	}
@@ -47,7 +47,7 @@ const timeSince = date => {
 	if ( interval > 1 ) {
 		return sprintf(
 			// translators: placeholder is a number amount of months i.e. "5 months ago".
-			_n( '%s month ago', '%s months ago', 'jetpack-protect', 'jetpack-protect' ),
+			_n( '%s month ago', '%s months ago', Math.floor( interval ), 'jetpack-protect' ),
 			Math.floor( interval )
 		);
 	}
@@ -56,7 +56,7 @@ const timeSince = date => {
 	if ( interval > 1 ) {
 		return sprintf(
 			// translators: placeholder is a number amount of days i.e. "5 days ago".
-			_n( '%s day ago', '%s days ago', 'jetpack-protect', 'jetpack-protect' ),
+			_n( '%s day ago', '%s days ago', Math.floor( interval ), 'jetpack-protect' ),
 			Math.floor( interval )
 		);
 	}
@@ -65,7 +65,7 @@ const timeSince = date => {
 	if ( interval > 1 ) {
 		return sprintf(
 			// translators: placeholder is a number amount of hours i.e. "5 hours ago".
-			_n( '%s hour ago', '%s hours ago', 'jetpack-protect', 'jetpack-protect' ),
+			_n( '%s hour ago', '%s hours ago', Math.floor( interval ), 'jetpack-protect' ),
 			Math.floor( interval )
 		);
 	}
@@ -74,7 +74,7 @@ const timeSince = date => {
 	if ( interval > 1 ) {
 		return sprintf(
 			// translators: placeholder is a number amount of minutes i.e. "5 minutes ago".
-			_n( '%s minute ago', '%s minutes ago', 'jetpack-protect', 'jetpack-protect' ),
+			_n( '%s minute ago', '%s minutes ago', Math.floor( interval ), 'jetpack-protect' ),
 			Math.floor( interval )
 		);
 	}
