@@ -63,7 +63,7 @@ function jetpack_get_daily_blogging_prompts() {
 	// Include prompts from yesterday, just in case someone has an outdated prompt id from a previous day.
 	$one_day       = date_interval_create_from_date_string( '1 day' );
 	$yesterday     = date_format( date_create( $today )->sub( $one_day ), $date_format );
-	$locale        = get_locale();
+	$locale        = jetpack_get_mag16_locale();
 	$transient_key = 'jetpack_blogging_prompt_' . $yesterday . '_' . $locale;
 	$prompts_today = get_transient( $transient_key );
 
@@ -105,6 +105,29 @@ function jetpack_get_daily_blogging_prompts() {
 	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
 
 	return $prompts;
+}
+
+/**
+ * Trim language code for to match one of the 16 languages translated for WP.com
+ *
+ * The blogging-prompts API currently only has translations for these languages, and
+ * won't fall back to generic versions. e.g. fr_BE will return English, so we trim to
+ * fr to get the French translations.
+ *
+ * @return string
+ */
+function jetpack_get_mag16_locale() {
+	$locale = get_locale();
+
+	if ( ! in_array( strtolower( $locale ), array( 'zh_cn', 'zh_tw', 'pt_br' ), true ) ) {
+		// Trim the locale from the end of the language code, unless we specifically translate that version of the language.
+		return preg_replace( '/(_.*)$/i', '', $locale );
+	} elseif ( 'pt' === $locale ) {
+		// We have Portuguese (Brazil), but not Portuguese (Portugal) translations.
+		return 'pt_br';
+	}
+
+	return $locale;
 }
 
 /**
