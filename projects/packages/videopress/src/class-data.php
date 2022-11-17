@@ -193,6 +193,19 @@ class Data {
 	}
 
 	/**
+	 * Checks if the user is able to perform actions that modify data
+	 */
+	public static function can_perform_action() {
+		$connection = new Connection_Manager();
+
+		return (
+			$connection->is_connected() &&
+			self::has_connected_owner() &&
+			$connection->is_user_connected()
+		);
+	}
+
+	/**
 	 * Return the initial state of the VideoPress app,
 	 * used to render initially the app in the frontend.
 	 *

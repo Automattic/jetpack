@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
@@ -110,6 +111,8 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_loaded', $this );
 
 		My_Jetpack_Initializer::init();
+
+		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 	}
 
 	/**

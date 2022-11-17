@@ -7,7 +7,7 @@ Stable tag: 2.2.0
 Requires PHP: 5.6
 License: GPLv2
 
-Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.
+(DEPRECATED: Please install "Jetpack VaultPress Backup" instead) Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.
 
 == Description ==
 

@@ -1,8 +1,14 @@
 /**
  *External dependencies
  */
-import { Tooltip, PanelBody, ToggleControl, SelectControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import {
+	ExternalLink,
+	PanelBody,
+	SelectControl,
+	ToggleControl,
+	Tooltip,
+} from '@wordpress/components';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -122,6 +128,12 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 						: null
 				}
 			/>
+			{ createInterpolateElement(
+				__( 'Send us your <a>VideoPress feedback</a>', 'jetpack-videopress-pkg' ),
+				{
+					a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
+				}
+			) }
 		</PanelBody>
 	);
 }

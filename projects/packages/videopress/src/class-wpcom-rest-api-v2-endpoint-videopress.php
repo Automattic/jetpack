@@ -96,7 +96,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_block_update_meta' ),
 				'permission_callback' => function () {
-					return current_user_can( 'edit_posts' );
+					return Data::can_perform_action() && current_user_can( 'edit_posts' );
 				},
 			)
 		);
@@ -141,7 +141,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'videopress_block_update_poster' ),
 					'permission_callback' => function () {
-						return current_user_can( 'upload_files' );
+						return Data::can_perform_action() && current_user_can( 'upload_files' );
 					},
 				),
 			)
@@ -155,7 +155,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_upload_jwt' ),
 				'permission_callback' => function () {
-					return current_user_can( 'upload_files' );
+					return Data::can_perform_action() && current_user_can( 'upload_files' );
 				},
 			)
 		);
