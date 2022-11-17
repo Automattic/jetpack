@@ -117,5 +117,5 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 - Compatibility: WordPress 6.1 compatibility
 
 ### Fixed
-- Adjusted alignment of spinner icon and loading text on the in-progress scan screen.
+- Adjust alignment of spinner icon and loading text on the in-progress scan screen.
 
