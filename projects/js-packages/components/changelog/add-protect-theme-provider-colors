@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added additional color studio colors to the ThemeProvider component for use in Jetpack Protect.

@@ -6,7 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import getMediaToken from '../../../../../lib/get-media-token';
-import { TrackDataProps } from './types';
+import { UploadTrackDataProps } from './types';
 
 export const TRACK_KIND_OPTIONS = [
 	'subtitles',
@@ -20,7 +20,7 @@ const shouldUseJetpackVideoFetch = () => {
 	return window?.videoPressEditorState?.siteType !== 'simple';
 };
 
-const videoPressUploadTrack = function ( track: TrackDataProps, guid: string ) {
+const videoPressUploadTrack = function ( track: UploadTrackDataProps, guid: string ) {
 	return new Promise( function ( resolve, reject ) {
 		const { kind, srcLang, label, tmpFile: vttFile } = track;
 
@@ -61,7 +61,7 @@ const videoPressUploadTrack = function ( track: TrackDataProps, guid: string ) {
  * @param {string} guid - the video guid
  * @returns {Promise} the api request promise
  */
-export const uploadTrackForGuid = ( track: TrackDataProps, guid: string ) => {
+export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) => {
 	const { kind, srcLang, label, tmpFile } = track;
 
 	if ( shouldUseJetpackVideoFetch() ) {

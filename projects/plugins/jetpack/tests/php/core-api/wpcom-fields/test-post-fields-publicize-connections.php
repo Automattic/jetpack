@@ -308,7 +308,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_posts() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/posts' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
@@ -319,7 +319,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-with' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -331,7 +331,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_custom_post_type_without_custom_fields_support() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-without' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
@@ -342,7 +342,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_response() {
-		$request  = wp_rest_request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -357,7 +357,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_message() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'meta' => array(
@@ -372,7 +372,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_connections_by_id() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(
@@ -394,7 +394,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_connections_by_service_name() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(

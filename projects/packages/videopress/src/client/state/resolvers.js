@@ -65,6 +65,10 @@ async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
 		video.thumbnail += `?metadata_token=${ playbackToken.token }`;
 	}
 
+	if ( ! /metadata_token=/.test( video.url ) ) {
+		video.url += `?metadata_token=${ playbackToken.token }`;
+	}
+
 	return video;
 }
 

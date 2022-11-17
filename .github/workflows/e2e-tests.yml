@@ -50,8 +50,9 @@ jobs:
         id: evaluate
         env:
           CRON: ${{ github.event.schedule }}
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
         run: |
-          TEST_PLAN="$(.github/files/e2e-tests/create-e2e-projects-matrix.sh)"
+          TEST_PLAN="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$TEST_PLAN"
 
           MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
@@ -97,6 +98,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: ${{ github.event.client_payload.repository }}
+        ref: ${{ github.event.client_payload.ref_name }}
         path: build-output/build/${{ github.event.client_payload.repository }}
 
     - name: Prepare build
@@ -116,10 +118,12 @@ jobs:
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          echo "::group::Build plugin(s)"
-          cd $PROJECT_PATH
-          pnpm run build
-          echo "::endgroup::"
+          if [ "${RUN_NAME}" != atomic ]; then
+            echo "::group::Build plugin(s)"
+            cd $PROJECT_PATH
+            pnpm run build
+            echo "::endgroup::"
+          fi
         fi
 
     - name: Test environment set-up
