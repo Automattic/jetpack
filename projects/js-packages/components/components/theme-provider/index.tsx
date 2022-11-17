@@ -31,9 +31,11 @@ export const colors = {
 	'--jp-gray-60': '#50575E',
 	'--jp-gray-70': '#3C434A',
 	'--jp-gray-80': '#2C3338',
+	'--jp-gray-90': '#1d2327',
 	'--jp-gray-off': '#e2e2df',
 	// Red
 	'--jp-red-0': '#F7EBEC',
+	'--jp-red-5': '#FACFD2',
 	'--jp-red-40': '#E65054',
 	'--jp-red-50': '#D63638',
 	'--jp-red-60': '#B32D2E',
@@ -41,9 +43,13 @@ export const colors = {
 	'--jp-red-80': '#691C1C',
 	'--jp-red': '#d63639',
 	// Yellow
+	'--jp-yellow-5': '#F5E6B3',
 	'--jp-yellow-10': '#F2CF75',
 	'--jp-yellow-20': '#F0C930',
+	'--jp-yellow-30': '#DEB100',
 	'--jp-yellow-40': '#C08C00',
+	'--jp-yellow-50': '#9D6E00',
+	'--jp-yellow-60': '#7D5600',
 	// Blue
 	'--jp-blue-20': '#68B3E8',
 	'--jp-blue-40': '#1689DB',

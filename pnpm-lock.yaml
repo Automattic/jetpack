@@ -1683,9 +1683,11 @@ importers:
       '@wordpress/element': 4.19.0
       '@wordpress/i18n': 4.21.0
       '@wordpress/icons': 9.12.0
+      '@wordpress/url': 3.22.0
       camelize: 1.0.0
       classnames: 2.3.1
       concurrently: 6.0.2
+      diff: ^4.0.2
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
@@ -1705,8 +1707,10 @@ importers:
       '@wordpress/element': 4.19.0
       '@wordpress/i18n': 4.21.0
       '@wordpress/icons': 9.12.0
+      '@wordpress/url': 3.22.0
       camelize: 1.0.0
       classnames: 2.3.1
+      diff: 4.0.2
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2

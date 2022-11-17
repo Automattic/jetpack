@@ -13,9 +13,11 @@ import {
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
+import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import classnames from 'classnames';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -26,11 +28,11 @@ import Footer from '../footer';
 import Interstitial from '../interstitial';
 import Logo from '../logo';
 import Summary from '../summary';
-import VulnerabilitiesList from '../vulnerabilities-list';
+import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 
-export const SECURITY_BUNDLE = 'jetpack_security_t1_yearly';
+export const JETPACK_SCAN = 'jetpack_scan';
 
 /**
  * SeventyFive layout meta component
@@ -79,26 +81,49 @@ export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile 
 
 const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			showHeader={ false }
-			showBackground={ false }
-		>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col sm={ 4 } md={ 8 } lg={ 12 }>
-					<Interstitial onSecurityAdd={ run } securityJustAdded={ hasCheckoutStarted } />
-				</Col>
-			</Container>
+		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<AdminSectionHero>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col sm={ 4 } md={ 8 } lg={ 12 }>
+						<Interstitial onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />
+					</Col>
+				</Container>
+			</AdminSectionHero>
 		</AdminPage>
 	);
+};
+
+const useCredentials = () => {
+	const { checkCredentials } = useDispatch( STORE_ID );
+	const credentials = useSelect( select => select( STORE_ID ).getCredentials() );
+
+	useEffect( () => {
+		if ( ! credentials ) {
+			checkCredentials();
+		}
+	}, [ checkCredentials, credentials ] );
 };
 
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { refreshStatus } = useDispatch( STORE_ID );
+	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
+		status: select( STORE_ID ).getStatus(),
+	} ) );
+	useCredentials();
+
+	// retry fetching status if it is not available
+	useEffect( () => {
+		if ( ! statusIsFetching && 'unavailable' === status.status ) {
+			refreshStatus( true );
+		}
+	}, [ statusIsFetching, status.status, refreshStatus ] );
 
 	let currentScanStatus;
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		currentScanStatus = 'error';
 	} else if ( ! lastChecked ) {
 		currentScanStatus = 'in_progress';
@@ -115,7 +140,7 @@ const ProtectAdminPage = () => {
 	} );
 
 	// Error
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		let displayErrorMessage = errorMessage
 			? `${ errorMessage } (${ errorCode }).`
 			: __( 'We are having problems scanning your site.', 'jetpack-protect' );
@@ -156,7 +181,10 @@ const ProtectAdminPage = () => {
 	}
 
 	// When there's no information yet. Usually when the plugin was just activated
-	if ( ! lastChecked ) {
+	if (
+		[ 'scheduled', 'scanning', 'optimistically_scanning' ].indexOf( status.status ) >= 0 ||
+		! lastChecked
+	) {
 		return (
 			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 				<AdminSectionHero>
@@ -227,7 +255,7 @@ const ProtectAdminPage = () => {
 						<Summary />
 					</Col>
 					<Col>
-						<VulnerabilitiesList />
+						<ThreatsList />
 					</Col>
 				</Container>
 			</AdminSectionHero>
@@ -264,9 +292,15 @@ const useStatusPolling = () => {
 		let pollTimeout;
 
 		const pollStatus = () => {
-			refreshStatus()
+			refreshStatus( true )
 				.then( latestStatus => {
-					if ( 'scheduled' === latestStatus.status ) {
+					if ( latestStatus.status.error ) {
+						throw latestStatus.status.errorMessage;
+					}
+					if (
+						[ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ||
+						! latestStatus.status.lastChecked
+					) {
 						clearTimeout( pollTimeout );
 						pollTimeout = setTimeout( pollStatus, pollingDuration );
 					}
@@ -278,7 +312,7 @@ const useStatusPolling = () => {
 				} );
 		};
 
-		if ( 'scheduled' === status.status ) {
+		if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 ) {
 			pollTimeout = setTimeout( pollStatus, pollingDuration );
 		}
 
@@ -289,11 +323,28 @@ const useStatusPolling = () => {
 const Admin = () => {
 	useRegistrationWatcher();
 	useStatusPolling();
+
+	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: SECURITY_BUNDLE,
-		redirectUrl: adminUrl,
+		productSlug: JETPACK_SCAN,
+		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
+		siteProductAvailabilityHandler: async () =>
+			apiFetch( {
+				path: 'jetpack-protect/v1/check-plan',
+				method: 'GET',
+			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
+
+	useEffect( () => {
+		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
+			startScanOptimistically();
+			setTimeout( () => {
+				refreshPlan();
+				refreshStatus( true );
+			}, 5000 );
+		}
+	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
 
 	/*
 	 * Show interstital page when
