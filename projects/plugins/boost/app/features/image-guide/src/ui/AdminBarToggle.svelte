@@ -1,6 +1,6 @@
 <script lang="ts">
 	import JetpackLogo from './JetpackLogo.svelte';
-	import state from './StateStore';
+	import { state, label } from './StateStore';
 
 	export let href: string;
 
@@ -9,15 +9,9 @@
 	}
 </script>
 
-<a
-	id="jetpack-boost-bar"
-	{href}
-	class="ab-item"
-	class:paused={$state === 'Paused'}
-	on:click|preventDefault={toggleUI}
->
+<a id="jetpack-boost-bar" {href} class="ab-item {state}" on:click|preventDefault={toggleUI}>
 	<JetpackLogo />
-	<span>Image Guide: {$state}</span>
+	<span>Image Guide: {$label}</span>
 </a>
 
 <style lang="scss">

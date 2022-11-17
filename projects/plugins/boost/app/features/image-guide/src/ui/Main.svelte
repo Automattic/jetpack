@@ -1,17 +1,17 @@
 <script lang="ts">
 	import type { GuideSize, MeasuredImage } from '../types';
-	import state from './StateStore';
+	import { state } from './StateStore';
 	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
 	export let images: MeasuredImage[];
 	let show: MeasuredImage | false = false;
 
 	function onMouseLeave() {
-		if ( $state !== 'Always On' ) {
+		if ( $state !== 'always_on' ) {
 			show = false;
 		}
 	}
-	$: show = $state === 'Always On' ? images[ 0 ] : false;
+	$: show = $state === 'always_on' ? images[ 0 ] : false;
 
 	let size: GuideSize = 'normal';
 	let image = images[ 0 ];
@@ -23,7 +23,7 @@
 	}
 </script>
 
-{#if $state === 'Active' || $state === 'Always On'}
+{#if $state === 'active' || $state === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each images as image, index}

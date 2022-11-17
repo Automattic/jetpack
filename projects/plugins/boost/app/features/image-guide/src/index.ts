@@ -2,7 +2,7 @@ import { attachGuides } from './Attach';
 import { load } from './Images';
 import { measure } from './Measurements';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
-import state from './ui/StateStore';
+import { state } from './ui/StateStore';
 
 /**
  * Initialize the admin bar toggle.
@@ -28,7 +28,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
  */
 window.addEventListener( 'load', () => {
 	state.subscribe( async $state => {
-		if ( $state === 'Paused' ) {
+		if ( $state === 'paused' ) {
 			return;
 		}
 		const nodes = document.querySelectorAll(
