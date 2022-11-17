@@ -1,7 +1,7 @@
 export type MeasuredImage = {
 	type: 'img' | 'srcset' | 'background';
 	url: string;
-	node: Element;
+	node: HTMLElement;
 	fileSize: {
 		width: number;
 		height: number;
@@ -19,7 +19,7 @@ export type MeasuredImage = {
 };
 
 export interface ImageComponentConfig {
-	target: Element;
+	target: HTMLElement;
 	props: {
 		images: MeasuredImage[];
 	};

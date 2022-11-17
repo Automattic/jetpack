@@ -1,12 +1,12 @@
-import type { MeasuredImage, ImageComponentConfig } from './types';
 import Main from './ui/Main.svelte';
+import type { MeasuredImage, ImageComponentConfig } from './types';
 
-function closestStableParent( node: Element, distance = 0 ): Element | null {
+function closestStableParent( node: HTMLElement, distance = 0 ): HTMLElement | null {
 	if ( ! node.parentNode ) {
 		return null;
 	}
 
-	if ( ! ( node.parentNode instanceof Element ) ) {
+	if ( ! ( node.parentNode instanceof HTMLElement ) ) {
 		return null;
 	}
 
@@ -35,7 +35,7 @@ function closestStableParent( node: Element, distance = 0 ): Element | null {
  *
  */
 let wrapperID = 0;
-function findContainer( image: MeasuredImage ): Element | undefined {
+function findContainer( image: MeasuredImage ): HTMLElement | undefined {
 	const node = image.node;
 
 	if (
@@ -63,7 +63,7 @@ function findContainer( image: MeasuredImage ): Element | undefined {
 			const existing = Array.from( parent.children ).find( child =>
 				child.classList.contains( 'jetpack-boost-guide' )
 			);
-			if ( existing ) {
+			if ( existing && existing instanceof HTMLElement ) {
 				return existing;
 			}
 		}
@@ -82,8 +82,7 @@ function findContainer( image: MeasuredImage ): Element | undefined {
 		return wrapper;
 	}
 
-	// @TODO: Fix HTML Types
-	return node.parentNode as Element;
+	return node.parentElement;
 }
 
 /**
@@ -95,11 +94,11 @@ function findContainer( image: MeasuredImage ): Element | undefined {
  * And to make things even more complex, they can change dynamically, for example in a slider.
  *
  * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
+ *
+ * @param  images
  */
 export function attachGuides( images: MeasuredImage[] ) {
-	type ComponentConfig = Record< number, ImageComponentConfig >;
-
-	const componentConfiguration = images.reduce( ( acc, image ): ComponentConfig => {
+	const componentConfiguration = images.reduce( ( acc, image ) => {
 		if (
 			( image.fileSize.weight < 10 && image.fileSize.weight >= 0 ) ||
 			( image.fileSize.width < 250 && image.fileSize.height < 100 )
@@ -122,7 +121,7 @@ export function attachGuides( images: MeasuredImage[] ) {
 
 		// Don't create new entry for Svelte component configuration.
 		// Use the index in the array as a unique identifier.
-		let id = parseInt( container?.dataset?.jetpackBoostGuideId );
+		const id = parseInt( container.dataset.jetpackBoostGuideId || '' );
 		const images = acc[ id ]?.props.images || [];
 		images.push( image );
 
