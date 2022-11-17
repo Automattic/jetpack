@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Add backend verification on update routes when user is disconnected
