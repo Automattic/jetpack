@@ -38,9 +38,13 @@ let wrapperID = 0;
 function findContainer( image: MeasuredImage ): HTMLElement | undefined {
 	const node = image.node;
 
+	/**
+	 * If the image is a background image and if it's not pulled out of the flow,
+	 * the same node can be used to insert the guide component,
+	 */
 	if (
 		image.type === 'background' &&
-		! [ 'absolute', 'fixed' ].includes( getComputedStyle( node ).position )
+		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
 		return node;
 	}
