@@ -58,7 +58,7 @@ abstract class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			)
 		);
 
-		grant_super_admin( $this->admin_user_id );
+		get_user_by( 'id', $this->admin_user_id )->add_role( 'administrator' );
 
 		// Fake subscription for the paid user
 		$paid_subscriber_id = $this->paid_subscriber_id;
