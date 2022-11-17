@@ -289,6 +289,9 @@ const useStatusPolling = () => {
 	const { setStatus, setStatusIsFetching, setScanIsUnavailable } = useDispatch( STORE_ID );
 
 	useEffect( () => {
+		let pollTimeout;
+		const pollDuration = 10000;
+
 		const statusIsInProgress = currentStatus =>
 			[ 'scheduled', 'scanning' ].indexOf( currentStatus ) >= 0;
 
@@ -304,11 +307,11 @@ const useStatusPolling = () => {
 						}
 
 						if ( statusIsInProgress( newStatus?.status ) ) {
-							setTimeout( () => {
+							pollTimeout = setTimeout( () => {
 								pollStatus()
 									.then( result => resolve( result ) )
 									.catch( error => reject( error ) );
-							}, 10000 );
+							}, pollDuration );
 							return;
 						}
 
@@ -325,15 +328,19 @@ const useStatusPolling = () => {
 			return;
 		}
 
-		setStatusIsFetching( true );
-		pollStatus()
-			.then( newStatus => {
-				setScanIsUnavailable( 'unavailable' === newStatus.status );
-				setStatus( camelize( newStatus ) );
-			} )
-			.finally( () => {
-				setStatusIsFetching( false );
-			} );
+		pollTimeout = setTimeout( () => {
+			setStatusIsFetching( true );
+			pollStatus()
+				.then( newStatus => {
+					setScanIsUnavailable( 'unavailable' === newStatus.status );
+					setStatus( camelize( newStatus ) );
+				} )
+				.finally( () => {
+					setStatusIsFetching( false );
+				} );
+		}, pollDuration );
+
+		return () => clearTimeout( pollTimeout );
 	}, [ status.status, setScanIsUnavailable, setStatus, setStatusIsFetching ] );
 };
 
