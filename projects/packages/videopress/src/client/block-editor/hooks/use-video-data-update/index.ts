@@ -131,11 +131,6 @@ export function useSyncMedia(
 		// ...and udpate the block attributes with fresh data.
 		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
 
-		// Cast/tweak response body => block attributes.
-		if ( typeof initialAttributesValues.allowDownload !== 'undefined' ) {
-			initialAttributesValues.allowDownload = !! initialAttributesValues.allowDownload;
-		}
-
 		setAttributes( initialAttributesValues );
 	}, [ videoData, isRequestingVideoData ] );
 
