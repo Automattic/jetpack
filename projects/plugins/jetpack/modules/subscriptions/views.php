@@ -331,12 +331,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	public static function get_subscriber_count( $instance ) {
 		$counts = self::fetch_subscriber_counts();
+
 		if ( $instance['include_social_followers'] ) {
 			$subscriber_count = $counts['value']['email_subscribers'] + $counts['value']['social_followers'];
 		} else {
 			$subscriber_count = $counts['value']['email_subscribers'];
 		}
-
 		return $subscriber_count;
 	}
 
@@ -647,8 +647,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		if ( self::is_wpcom() ) {
 			$subs_count = array(
-				'email_subscribers' => wpcom_subs_total_for_blog(),
-				'social_followers'  => wpcom_social_followers_total_for_blog(),
+				'value' => array(
+					'email_subscribers' => wpcom_subs_total_for_blog(),
+					'social_followers'  => wpcom_social_followers_total_for_blog(),
+				),
 			);
 		}
 
