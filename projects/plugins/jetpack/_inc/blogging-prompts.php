@@ -54,11 +54,14 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
 /**
  * Retrieve a daily blogging prompt from the wpcom API and cache it.
  *
+ * @param int $time Unix timestamp representing the day for which to get blogging prompts.
  * @return stdClass[] Array of blogging prompt objects.
  */
-function jetpack_get_daily_blogging_prompts() {
+function jetpack_get_daily_blogging_prompts( $time = 0 ) {
+	// Default to the time in the site's timezone.
+	$timestamp   = $time ? $time : current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 	$date_format = 'Y-m-d';
-	$today       = date_i18n( $date_format, true );
+	$today       = date_i18n( $date_format, $timestamp );
 
 	// Include prompts from yesterday, just in case someone has an outdated prompt id from a previous day.
 	$one_day       = date_interval_create_from_date_string( '1 day' );
