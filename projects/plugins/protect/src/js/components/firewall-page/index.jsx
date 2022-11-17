@@ -10,18 +10,17 @@ import FirewallHeader from '../firewall-header';
 const FirewallPage = () => {
 	const wafSeen = useSelect( select => select( STORE_ID ).getWafSeen() );
 	const { setWafSeen } = useDispatch( STORE_ID );
-	const { moduleIsEnabled } = useWafData();
+	const { waf, wafIsFetching } = useWafData();
+
+	console.log( useWafData() );
 
 	let currentWafStatus;
-	switch ( moduleIsEnabled ) {
-		case true:
-			currentWafStatus = 'on';
-			break;
-		case false:
-			currentWafStatus = 'off';
-			break;
-		default:
-			currentWafStatus = 'loading';
+	if ( wafIsFetching ) {
+		currentWafStatus = 'loading';
+	} else if ( waf ) {
+		currentWafStatus = 'on';
+	} else {
+		currentWafStatus = 'off';
 	}
 
 	const { hasRequiredPlan } = useProtectData();

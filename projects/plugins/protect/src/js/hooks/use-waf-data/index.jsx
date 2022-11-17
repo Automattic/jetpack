@@ -9,8 +9,6 @@ const useWafData = () => {
 		waf: select( STORE_ID ).getWaf(),
 		wafIsFetching: select( STORE_ID ).getWafIsFetching(),
 	} ) );
-	// TODO: Update placeholder with actual WAF data
-	const moduleIsEnabled = true;
 
 	useEffect( () => {
 		if ( waf === undefined && ! wafIsFetching ) {
@@ -26,7 +24,6 @@ const useWafData = () => {
 	return {
 		waf,
 		wafIsFetching,
-		moduleIsEnabled,
 	};
 };
 
