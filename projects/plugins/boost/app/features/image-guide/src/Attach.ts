@@ -12,7 +12,7 @@ function closestStableParent( node: HTMLElement, distance = 0 ): HTMLElement | n
 
 	// Stop searching at body.
 	if ( node.parentNode.tagName === 'BODY' ) {
-		node.parentNode;
+		return node.parentNode;
 	}
 	if ( node.parentNode.classList.contains( 'jetpack-boost-guide' ) ) {
 		return node.parentNode;
@@ -95,19 +95,21 @@ function findContainer( image: MeasuredImage ): HTMLElement | undefined {
  *
  * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
  *
- * @param  images
+ * @param  measuredImages
  */
-export function attachGuides( images: MeasuredImage[] ) {
-	const componentConfiguration = images.reduce( ( acc, image ) => {
+export function attachGuides( measuredImages: MeasuredImage[] ) {
+	const componentConfiguration = measuredImages.reduce( ( acc, image ) => {
 		if (
 			( image.fileSize.weight < 10 && image.fileSize.weight >= 0 ) ||
 			( image.fileSize.width < 250 && image.fileSize.height < 100 )
 		) {
+			// eslint-disable-next-line no-console
 			console.info( `Skipping ${ image.url } because it's too small` );
 			return acc;
 		}
 
 		if ( ! image.node.parentNode ) {
+			// eslint-disable-next-line no-console
 			console.error( `Image has no parent`, image.node );
 			return acc;
 		}
@@ -115,6 +117,7 @@ export function attachGuides( images: MeasuredImage[] ) {
 		const container = findContainer( image );
 
 		if ( ! container ) {
+			// eslint-disable-next-line no-console
 			console.error( `Could not find a parent for image`, image );
 			return acc;
 		}
