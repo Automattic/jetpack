@@ -52,31 +52,31 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  */
 
 /**
- * Retrieve a daily blogging prompt from the wpcom API and cache it.
+ * Retrieve daily blogging prompts from the wpcom API and cache them.
  *
  * @param int $time Unix timestamp representing the day for which to get blogging prompts.
  * @return stdClass[] Array of blogging prompt objects.
  */
 function jetpack_get_daily_blogging_prompts( $time = 0 ) {
-	// Default to the time in the site's timezone.
+	// Default to the current time in the site's timezone.
 	$timestamp   = $time ? $time : current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 	$date_format = 'Y-m-d';
-	$today       = date_i18n( $date_format, $timestamp );
+	$day         = date_i18n( $date_format, $timestamp );
 
-	// Include prompts from yesterday, just in case someone has an outdated prompt id from a previous day.
+	// Include prompts from the previous day, just in case someone has an outdated prompt id.
 	$one_day       = date_interval_create_from_date_string( '1 day' );
-	$yesterday     = date_format( date_create( $today )->sub( $one_day ), $date_format );
+	$day_before    = date_format( date_create( $day )->sub( $one_day ), $date_format );
 	$locale        = jetpack_get_mag16_locale();
-	$transient_key = 'jetpack_blogging_prompt_' . $yesterday . '_' . $locale;
-	$prompts_today = get_transient( $transient_key );
+	$transient_key = 'jetpack_blogging_prompt_' . $day_before . '_' . $locale;
+	$daily_prompts = get_transient( $transient_key );
 
 	// Return the cached prompt, if we have it. Otherwise fetch it from the API.
-	if ( false !== $prompts_today ) {
-		return $prompts_today;
+	if ( false !== $daily_prompts ) {
+		return $daily_prompts;
 	}
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $yesterday . '&number=10&_locale=' . $locale;
+	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $day_before . '&number=10&_locale=' . $locale;
 	$args    = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
