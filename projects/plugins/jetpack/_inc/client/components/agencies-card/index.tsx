@@ -45,6 +45,11 @@ const AgenciesCard: FC< Props > = ( {
 		[ path, isUserLinked, isOwner ]
 	);
 
+	const handleClick = useCallback( () => {
+		// 2022-11-18: Updating the event name with `-2` prefix to differentiate from the original event (before fix).
+		trackEvent( 'learn-more-click-2' );
+	}, [ trackEvent ] );
+
 	const handleDismiss = useCallback( () => {
 		dismiss();
 		trackEvent( 'learn-more-dismiss' );
@@ -81,7 +86,7 @@ const AgenciesCard: FC< Props > = ( {
 					<p className="jp-agencies-card__link-button">
 						<Button>
 							<ExternalLink
-								onClick={ trackEvent( 'learn-more-click' ) }
+								onClick={ handleClick }
 								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
 								target="_blank"
 								rel="noreferrer"
