@@ -65,7 +65,7 @@ function generateChaptersFileContent(
  */
 export default function generateChaptersFile(
 	description: string,
-	videoDuration: number
+	videoDuration?: number
 ): File | null {
 	const content = generateChaptersFileContent( description, videoDuration );
 

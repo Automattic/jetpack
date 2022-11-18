@@ -10,7 +10,6 @@ on:
     - '**.md'
   schedule:
     - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
-    - cron: '30 */4 * * *' # atomic run, every 4 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
   workflow_run:
     types: [completed]
     workflows: ["Build"]
@@ -29,7 +28,6 @@ jobs:
     timeout-minutes: 3
     outputs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
-      runName: ${{ steps.evaluate.outputs.runName }}
     steps:
       - uses: actions/checkout@v3
 
@@ -50,17 +48,11 @@ jobs:
         id: evaluate
         env:
           CRON: ${{ github.event.schedule }}
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
         run: |
-          TEST_PLAN="$(.github/files/e2e-tests/create-e2e-projects-matrix.sh)"
-          echo "$TEST_PLAN"
-
-          MATRIX=$(jq -r -c ".matrix" <<<"$TEST_PLAN")
+          MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$MATRIX"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
-
-          RUN_NAME=$(jq -r -c ".run" <<<"$TEST_PLAN")
-          echo "$RUN_NAME"
-          echo "runName=$RUN_NAME" >> "$GITHUB_OUTPUT"
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
@@ -97,6 +89,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: ${{ github.event.client_payload.repository }}
+        ref: ${{ github.event.client_payload.ref_name }}
         path: build-output/build/${{ github.event.client_payload.repository }}
 
     - name: Prepare build
@@ -104,6 +97,7 @@ jobs:
         COMPOSER_ROOT_VERSION: "dev-trunk"
         BUILD_DIR: ./build-output
         PROJECT_PATH: ${{ matrix.path }}
+        SUITE: ${{ matrix.suite }}
       run: |
         if [ "$GITHUB_EVENT_NAME" == workflow_run ]; then
           echo "::group::Prepare build artefacts"
@@ -116,24 +110,26 @@ jobs:
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          echo "::group::Build plugin(s)"
-          cd $PROJECT_PATH
-          pnpm run build
-          echo "::endgroup::"
+          if [ "${SUITE}" != atomic ]; then
+            echo "::group::Build plugin(s)"
+            cd $PROJECT_PATH
+            pnpm run build
+            echo "::endgroup::"
+          fi
         fi
 
     - name: Test environment set-up
       working-directory: ${{ matrix.path }}
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        RUN_NAME: ${{ needs.create-test-matrix.outputs.runName }}
+        SUITE: ${{ matrix.suite }}
         PROJECT_NAME:  ${{ matrix.project }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
         echo "::endgroup::"
 
-        if [ "${RUN_NAME}" != atomic ]; then
+        if [ "${SUITE}" != atomic ]; then
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -145,14 +141,10 @@ jobs:
           echo "TEST_SITE=atomic" >> $GITHUB_ENV
         fi
 
-        if [ "${RUN_NAME}" == gutenberg ]; then
+        if [ "${SUITE}" == gutenberg ]; then
             echo "::group::Setting up Gutenberg"
             pnpm e2e-env gb-setup
             echo "::endgroup::"
-        fi
-
-        if [ "${PROJECT_NAME}" == "Jetpack update" ]; then
-            echo "SKIP_ENV_CLEAN=true" >> $GITHUB_ENV
         fi
 
     - name: Run ${{ matrix.project }} tests
@@ -162,6 +154,13 @@ jobs:
       run: |
         mapfile -t TEST_ARGS < <(jq -r '.[]' <<<"$JSON_ARGS")
         pnpm run test:run "${TEST_ARGS[@]}"
+
+    - name: Write report metadata
+      env:
+        SUITE: ${{ matrix.suite }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        OUTPUT_PATH: ${{ matrix.path }}
+      run: .github/files/e2e-tests/report-metadata.sh
 
     - name: Test environment tear-down
       if: ${{ always() }}
@@ -194,7 +193,6 @@ jobs:
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           event_type: e2e
-          report_name: ${{needs.create-test-matrix.outputs.runName}}
 
   slack-notification:
     name: "Slack notification"
@@ -234,7 +232,6 @@ jobs:
           slack_token: ${{ secrets.SLACK_TOKEN }}
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
           slack_icon_emoji: ":jetpack:"
-          suite_name: ${{needs.create-test-matrix.outputs.runName}}
           playwright_report_path: test-output/**/summary.json
           playwright_output_dir: test-output/**/results
           rules_configuration_path: .github/files/e2e-tests/notification-rules.json

@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
-require_jetpack_file( 'modules/widgets/social-icons.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/widgets/social-icons.php';
 
 /**
  * Test class for the Social Icons Widget.

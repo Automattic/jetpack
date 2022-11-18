@@ -8,8 +8,8 @@
 use Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-domain-only-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-domain-only-admin-menu.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/modules/masterbar/data/admin-menu.php';
 
 /**
  * Class Test_Domain_Only_Admin_Menu.

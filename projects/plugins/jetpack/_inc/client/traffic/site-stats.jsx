@@ -172,12 +172,12 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<a>Activate Jetpack Stats</a> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
 											'jetpack'
 										),
 										{
-											a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
-											a1: (
+											Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
+											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 													target="_blank"

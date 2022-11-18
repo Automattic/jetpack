@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bcf3baa9f0c1cbd82da02e9a683c8dc5",
+    "content-hash": "28a153320a88b0aa8d6d75271e1ee330",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -745,7 +745,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "2dde4b0b1e42b49923897d0ec6f327623992a7da"
+                "reference": "682c254c3c4ed63b91d9e8e782b240d9056c3f7d"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.2",
@@ -771,7 +771,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.4.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1096,14 +1096,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "5cbf091cc896dddfe5cacb411471941e0e46e686"
+                "reference": "c9ec319b2a4c2d1407e6fc1d328e6e5623c31600"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17",
                 "automattic/jetpack-config": "^1.11",
                 "automattic/jetpack-connection": "^1.46",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-my-jetpack": "^2.3",
+                "automattic/jetpack-my-jetpack": "^2.4",
                 "automattic/jetpack-status": "^1.15"
             },
             "require-dev": {
@@ -1290,7 +1290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "1ce60308ee856a01f8fb5374bec9481b9c53e18d"
+                "reference": "f8e69adfe597f0dc304fd6bf78e3ec70f5929ffc"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.46",
@@ -1317,7 +1317,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.42.x-dev"
+                    "dev-trunk": "1.43.x-dev"
                 }
             },
             "autoload": {
