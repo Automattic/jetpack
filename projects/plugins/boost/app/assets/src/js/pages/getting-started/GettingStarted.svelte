@@ -22,6 +22,11 @@
 		navigate( '/' );
 	};
 
+	onMount( () => {
+		// Throw away promise, as we don't need to wait for it.
+		void recordBoostEvent( 'view_getting_started_page_in_plugin', {} );
+	} );
+
 	const choosePaidPlan = async () => {
 		await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
 		window.location.href = getUpgradeURL();
