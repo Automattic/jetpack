@@ -1,6 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
-	"include": [ "app/assets/src/js/**/*" ],
+	"include": [ "app/assets/src/js/**/*", "app/features/image-guide/src/**/*" ],
 	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
 		"types": [ "svelte" ],
@@ -9,6 +9,7 @@
 		 * Values from "@tsconfig/svelte/tsconfig.json"
 		 */
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"rootDir": "."
 	}
 }

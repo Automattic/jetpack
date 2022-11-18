@@ -1,0 +1,19 @@
+name: End to end tests
+
+on:
+  push:
+
+jobs:
+  run-tests:
+    name: "Trigger e2e tests in Jetpack monorepo"
+    runs-on: ubuntu-latest
+    if: github.repository == 'automattic/jetpack-production'
+
+    steps:
+      - name: Create a repository dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: automattic/jetpack
+          event-type: e2e tests at ${{github.event_name}} on ${{github.repository}} ${{github.ref_name}} ${{github.ref_type}}
+          client-payload: '{"repository": "${{github.repository}}", "ref_name": "${{github.ref_name}}", "ref_type": "${{github.ref_type}}"}'

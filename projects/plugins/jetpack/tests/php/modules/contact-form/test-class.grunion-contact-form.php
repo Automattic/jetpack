@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 /**
  * Test class for Grunion_Contact_Form
@@ -736,7 +736,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'id'          => 'funID',
 		);
 
-		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
 		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
