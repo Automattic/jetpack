@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Subscriptions_Online extends WP_Test_Jetpack_Subscriptions
 	/**
 	 * Jetpack regular user.
 	 */
-	public function test_jetpack_regular_user() {
+	public function test_jetpack_non_subscriber_user() {
 		$post_id         = $this->setup_jetpack_paid_newsletters();
 		$GLOBALS['post'] = get_post( $post_id );
 
