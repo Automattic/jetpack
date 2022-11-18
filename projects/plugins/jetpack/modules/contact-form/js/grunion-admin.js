@@ -121,4 +121,61 @@ jQuery( function ( $ ) {
 				}
 			} );
 	}
+
+	// Async handling for response table actions
+	$( document ).ready( function () {
+		function updateStatus( postId, status, indicatorColor ) {
+			$.post(
+				ajaxurl,
+				{
+					action: 'grunion_ajax_spam',
+					post_id: postId,
+					make_it: status,
+					sub_menu: jQuery( '.subsubsub .current' ).attr( 'href' ),
+					_ajax_nonce: window.__grunionPostStatusNonce,
+				},
+				function ( response ) {
+					$( '#post-' + postId )
+						.css( { backgroundColor: indicatorColor } )
+						.fadeOut( 350, function () {
+							$( this ).remove();
+							$( '.subsubsub' ).html( response );
+						} );
+				}
+			);
+		}
+
+		$( 'tr.type-feedback .row-actions a' ).click( function ( e ) {
+			e.preventDefault();
+
+			var postRowId = $( e.target ).closest( 'tr.type-feedback' ).attr( 'id' );
+			var match = postRowId.match( /^post\-(\d+)/ );
+
+			if ( ! match ) {
+				return;
+			}
+
+			var postId = parseInt( match[ 1 ], 10 );
+
+			if ( $( e.target ).parent().hasClass( 'spam' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'spam', '#FF7979' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'trash' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'trash', '#FF7979' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'unspam' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'ham', '#59C859' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'untrash' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'publish', '#59C859' );
+			}
+		} );
+	} );
 } );
