@@ -59,13 +59,10 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  */
 function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 	// Default to the current time in the site's timezone.
-	$timestamp   = $time ? $time : current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
-	$date_format = 'Y-m-d';
-	$day         = date_i18n( $date_format, $timestamp );
+	$timestamp = $time ? $time : current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
 	// Include prompts from the previous day, just in case someone has an outdated prompt id.
-	$one_day       = date_interval_create_from_date_string( '1 day' );
-	$day_before    = date_format( date_create( $day )->sub( $one_day ), $date_format );
+	$day_before    = date_i18n( 'Y-m-d', $timestamp - DAY_IN_SECONDS );
 	$locale        = jetpack_get_mag16_locale();
 	$transient_key = 'jetpack_blogging_prompt_' . $day_before . '_' . $locale;
 	$daily_prompts = get_transient( $transient_key );
