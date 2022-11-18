@@ -79,7 +79,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				 * Allow access to the content if:
 				 *
 				 * Active: user has a valid subscription
-				 * Pending: user has subscribed for a free plan
+				 * Pending: user has subscribed to a free plan
 				 */
 				return in_array(
 					$payload['blog_sub'],
