@@ -120,7 +120,7 @@ class Share_Limits {
 
 		Assets::register_script(
 			'jetpack-social-classic-editor-share-limits',
-			'../build/classic-editor.js',
+			'../build/classic-editor-share-limits.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,

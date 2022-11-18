@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import '../editor.scss';
-import { pickGUIDFromUrl } from '../../../utils/url/index.js';
+import { pickGUIDFromUrl } from '../../../lib/url';
 
 const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockEdit => {
 	return props => {
@@ -64,9 +64,7 @@ const withCoreEmbedVideoPressBlock = createHigherOrderComponent( CoreEmbedBlockE
 				'jetpack-videopress-pkg'
 			),
 			{
-				moreAboutVideoPressLink: (
-					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
-				),
+				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
 			}
 		);
 

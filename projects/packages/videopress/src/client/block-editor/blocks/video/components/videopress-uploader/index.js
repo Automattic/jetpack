@@ -11,7 +11,7 @@ import { useRef } from 'react';
 /**
  * Internal dependencies
  */
-import { useResumableUploader } from '../../../../../hooks/use-uploader';
+import { uploadFromLibrary, useResumableUploader } from '../../../../../hooks/use-uploader';
 import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
@@ -120,8 +120,9 @@ const VideoPressUploader = ( {
 	 * Handler to add a video via an URL.
 	 *
 	 * @param {string} videoUrl - URL of the video to attach
+	 * @param {string} id - Attachment ID if available
 	 */
-	function onSelectURL( videoUrl ) {
+	function onSelectURL( videoUrl, id = undefined ) {
 		const videoGuid = getGuidFromVideoUrl( videoUrl );
 		if ( ! videoGuid ) {
 			setUploadErrorDataState( {
@@ -131,7 +132,7 @@ const VideoPressUploader = ( {
 		}
 
 		// Update guid based on the URL.
-		setAttributes( { guid: videoGuid, src: videoUrl } );
+		setAttributes( { guid: videoGuid, src: videoUrl, id } );
 		handleDoneUpload();
 	}
 
@@ -150,32 +151,12 @@ const VideoPressUploader = ( {
 	};
 
 	const startUploadFromLibrary = attachmentId => {
-		const path = `videopress/v1/upload/${ attachmentId }`;
-		apiFetch( { path, method: 'POST' } )
+		uploadFromLibrary( attachmentId )
 			.then( result => {
-				if ( 'uploading' === result.status ) {
-					startUploadFromLibrary( attachmentId );
-				} else if ( 'complete' === result.status ) {
-					handleUploadSuccess( {
-						guid: result.uploaded_details.guid,
-						id: result.uploaded_details.media_id,
-						src: result.uploaded_details.src,
-					} );
-				} else if ( 'error' === result.status ) {
-					setUploadErrorDataState( {
-						data: { message: result.error },
-					} );
-				} else {
-					setUploadErrorDataState( {
-						// Should never happen.
-						data: { message: __( 'Unexpected error uploading video.', 'jetpack-videopress-pkg' ) },
-					} );
-				}
+				handleUploadSuccess( result );
 			} )
 			.catch( error => {
-				setUploadErrorDataState( {
-					data: { message: error.message },
-				} );
+				setUploadErrorDataState( error );
 			} );
 	};
 
@@ -196,12 +177,16 @@ const VideoPressUploader = ( {
 	 * @returns {void}
 	 */
 	function onSelectVideo( media ) {
-		const isFileUploading = null !== media && media instanceof FileList;
+		/*
+		 * Allow uploading only (the first) one file
+		 * @todo: Allow uploading multiple files
+		 */
+		media = media?.[ 0 ] ? media[ 0 ] : media;
 
+		const isFileUploading = media instanceof File;
 		// Handle upload by selecting a File
 		if ( isFileUploading ) {
-			const file = media[ 0 ];
-			startUpload( file );
+			startUpload( media );
 			return;
 		}
 
@@ -209,7 +194,7 @@ const VideoPressUploader = ( {
 		if ( media.videopress_guid ) {
 			const videoGuid = media.videopress_guid[ 0 ];
 			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
-			onSelectURL( videoUrl );
+			onSelectURL( videoUrl, media?.id );
 			return;
 		}
 
@@ -270,9 +255,7 @@ const VideoPressUploader = ( {
 			),
 			{
 				connectLink: <a href={ jwtError?.data?.connect_url } rel="noreferrer noopener" />,
-				moreAboutVideoPressLink: (
-					<ExternalLink href={ getRedirectUrl( 'jetpack-videopress-about-page' ) } />
-				),
+				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
 			}
 		);
 

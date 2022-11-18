@@ -7,38 +7,23 @@
 
 namespace Automattic\Jetpack\Protect;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Sync\Functions as Sync_Functions;
-use Jetpack_Options;
-use WP_Error;
-
 /**
  * Class that handles fetching and caching the Status of vulnerabilities check from the WPCOM servers
  */
 class Status {
-
-	/**
-	 * WPCOM endpoint
-	 *
-	 * @var string
-	 */
-	const REST_API_BASE = '/sites/%d/jetpack-protect-status';
-
 	/**
 	 * Name of the option where status is stored
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'jetpack_protect_status';
+	const OPTION_NAME = '';
 
 	/**
 	 * Name of the option where the timestamp of the status is stored
 	 *
 	 * @var string
 	 */
-	const OPTION_TIMESTAMP_NAME = 'jetpack_protect_status_time';
+	const OPTION_TIMESTAMP_NAME = '';
 
 	/**
 	 * Time in seconds that the cache should last
@@ -57,121 +42,31 @@ class Status {
 	/**
 	 * Memoization for the current status
 	 *
-	 * @var null|array
+	 * @var null|Status_Model
 	 */
 	public static $status = null;
 
 	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
-	 * @return array
+	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
+	 * @return Status_Model
 	 */
-	public static function get_status() {
-		if ( self::$status !== null ) {
-			return self::$status;
-		}
+	public static function get_status( $refresh_from_wpcom = false ) {
+		$use_scan_status = Plan::has_required_plan();
 
-		if ( ! self::should_use_cache() || self::is_cache_expired() ) {
-			$status = self::fetch_from_server();
-		} else {
-			$status = self::get_from_options();
-		}
+		if ( defined( 'JETPACK_PROTECT_DEV__DATA_SOURCE' ) ) {
+			if ( 'scan_api' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {
+				$use_scan_status = true;
+			}
 
-		if ( is_wp_error( $status ) ) {
-			$status = array(
-				'error'         => true,
-				'error_code'    => $status->get_error_code(),
-				'error_message' => $status->get_error_message(),
-			);
-		} else {
-			$status = self::normalize_report_data( $status );
-		}
-
-		self::$status = $status;
-		return $status;
-	}
-
-	/**
-	 * Checks the current status to see if there are any vulnerabilities found
-	 *
-	 * @return boolean
-	 */
-	public static function has_vulnerabilities() {
-		return 0 < self::get_total_vulnerabilities();
-	}
-
-	/**
-	 * Gets the total number of vulnerabilities found
-	 *
-	 * @return integer
-	 */
-	public static function get_total_vulnerabilities() {
-		$status = self::get_status();
-		return isset( $status->num_vulnerabilities ) && is_int( $status->num_vulnerabilities ) ? $status->num_vulnerabilities : 0;
-	}
-
-	/**
-	 * Get all vulnerabilities combined
-	 *
-	 * @return array
-	 */
-	public static function get_all_vulnerabilities() {
-		return array_merge(
-			self::get_wordpress_vulnerabilities(),
-			self::get_themes_vulnerabilities(),
-			self::get_plugins_vulnerabilities()
-		);
-	}
-
-	/**
-	 * Get vulnerabilities found for WordPress core
-	 *
-	 * @return array
-	 */
-	public static function get_wordpress_vulnerabilities() {
-		return self::get_vulnerabilities( 'core' );
-	}
-
-	/**
-	 * Get vulnerabilities found for themes
-	 *
-	 * @return array
-	 */
-	public static function get_themes_vulnerabilities() {
-		return self::get_vulnerabilities( 'themes' );
-	}
-
-	/**
-	 * Get vulnerabilities found for plugins
-	 *
-	 * @return array
-	 */
-	public static function get_plugins_vulnerabilities() {
-		return self::get_vulnerabilities( 'plugins' );
-	}
-
-	/**
-	 * Get the vulnerabilities for one type of extension or core
-	 *
-	 * @param string $type What vulnerabilities you want to get. Possible values are 'core', 'themes' and 'plugins'.
-	 *
-	 * @return array
-	 */
-	public static function get_vulnerabilities( $type ) {
-		$status = self::get_status();
-		if ( 'core' === $type ) {
-			return isset( $status->$type ) && ! empty( $status->$type->vulnerabilities ) ? $status->$type->vulnerabilities : array();
-		}
-
-		$vuls = array();
-		if ( isset( $status->$type ) ) {
-			foreach ( (array) $status->$type as $item ) {
-				if ( ! empty( $item->vulnerabilities ) ) {
-					$vuls = array_merge( $vuls, $item->vulnerabilities );
-				}
+			if ( 'protect_report' === JETPACK_PROTECT_DEV__DATA_SOURCE ) {
+				$use_scan_status = false;
 			}
 		}
-		return $vuls;
+
+		self::$status = $use_scan_status ? Scan_Status::get_status( $refresh_from_wpcom ) : Protect_Status::get_status( $refresh_from_wpcom );
+		return self::$status;
 	}
 
 	/**
@@ -180,7 +75,7 @@ class Status {
 	 * @return boolean
 	 */
 	public static function is_cache_expired() {
-		$option_timestamp = get_option( self::OPTION_TIMESTAMP_NAME );
+		$option_timestamp = get_option( static::OPTION_TIMESTAMP_NAME );
 
 		if ( ! $option_timestamp ) {
 			return true;
@@ -199,60 +94,12 @@ class Status {
 	}
 
 	/**
-	 * Gets the WPCOM API endpoint
-	 *
-	 * @return WP_Error|string
-	 */
-	public static function get_api_url() {
-		$blog_id      = Jetpack_Options::get_option( 'id' );
-		$is_connected = ( new Connection_Manager() )->is_connected();
-
-		if ( ! $blog_id || ! $is_connected ) {
-			return new WP_Error( 'site_not_connected' );
-		}
-
-		$api_url = sprintf( self::REST_API_BASE, $blog_id );
-
-		return $api_url;
-	}
-
-	/**
-	 * Fetches the status from WPCOM servers
-	 *
-	 * @return WP_Error|array
-	 */
-	public static function fetch_from_server() {
-		$api_url = self::get_api_url();
-		if ( is_wp_error( $api_url ) ) {
-			return $api_url;
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog(
-			self::get_api_url(),
-			'2',
-			array( 'method' => 'GET' ),
-			null,
-			'wpcom'
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return new WP_Error( 'failed_fetching_status', 'Failed to fetch Protect Status data from server', array( 'status' => $response_code ) );
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
-		self::update_option( $body );
-		return $body;
-	}
-
-	/**
 	 * Gets the current cached status
 	 *
 	 * @return bool|array False if value is not found. Array with values if cache is found.
 	 */
 	public static function get_from_options() {
-		return get_option( self::OPTION_NAME );
+		return maybe_unserialize( get_option( static::OPTION_NAME ) );
 	}
 
 	/**
@@ -263,9 +110,9 @@ class Status {
 	 */
 	public static function update_option( $status ) {
 		// TODO: Sanitize $status.
-		update_option( self::OPTION_NAME, $status );
+		update_option( static::OPTION_NAME, $status );
 		$end_date = self::get_cache_end_date_by_status( $status );
-		update_option( self::OPTION_TIMESTAMP_NAME, $end_date );
+		update_option( static::OPTION_TIMESTAMP_NAME, $end_date );
 	}
 
 	/**
@@ -278,94 +125,175 @@ class Status {
 	 */
 	public static function get_cache_end_date_by_status( $status ) {
 		if ( ! is_object( $status ) || empty( $status->last_checked ) ) {
-			return time() + self::INITIAL_OPTION_EXPIRES_AFTER;
+			return time() + static::INITIAL_OPTION_EXPIRES_AFTER;
 		}
-		return time() + self::OPTION_EXPIRES_AFTER;
+		return time() + static::OPTION_EXPIRES_AFTER;
 	}
 
 	/**
 	 * Delete the cached status and its timestamp
 	 *
-	 * @return void
+	 * @return bool Whether all related status options were successfully deleted.
 	 */
 	public static function delete_option() {
-		delete_option( self::OPTION_NAME );
-		delete_option( self::OPTION_TIMESTAMP_NAME );
+		$option_deleted           = delete_option( static::OPTION_NAME );
+		$option_timestamp_deleted = delete_option( static::OPTION_TIMESTAMP_NAME );
+
+		return $option_deleted && $option_timestamp_deleted;
 	}
 
 	/**
-	 * Prepare the report data for the UI
+	 * Checks the current status to see if there are any threats found
 	 *
-	 * @param string $report_data The report status report response.
-	 * @return object The normalized report data.
+	 * @return boolean
 	 */
-	private static function normalize_report_data( $report_data ) {
-		$installed_plugins    = Plugins_Installer::get_plugins();
-		$last_report_plugins  = isset( $report_data->plugins ) ? $report_data->plugins : new \stdClass();
-		$report_data->plugins = self::merge_installed_and_checked_lists( $installed_plugins, $last_report_plugins, array( 'type' => 'plugin' ) );
+	public static function has_threats() {
+		return 0 < self::get_total_threats();
+	}
 
-		$installed_themes    = Sync_Functions::get_themes();
-		$last_report_themes  = isset( $report_data->themes ) ? $report_data->themes : new \stdClass();
-		$report_data->themes = self::merge_installed_and_checked_lists( $installed_themes, $last_report_themes, array( 'type' => 'theme' ) );
+	/**
+	 * Gets the total number of threats found
+	 *
+	 * @return integer
+	 */
+	public static function get_total_threats() {
+		$status = static::get_status();
+		return isset( $status->num_threats ) && is_int( $status->num_threats ) ? $status->num_threats : 0;
+	}
 
-		$report_data->core = self::normalize_core_information( isset( $report_data->core ) ? $report_data->core : new \stdClass() );
-
-		$all_items       = array_merge( $report_data->plugins, $report_data->themes, array( $report_data->core ) );
-		$unchecked_items = array_filter(
-			$all_items,
-			function ( $item ) {
-				return ! isset( $item->checked ) || ! $item->checked;
-			}
+	/**
+	 * Get all threats combined
+	 *
+	 * @return array
+	 */
+	public static function get_all_threats() {
+		return array_merge(
+			self::get_wordpress_threats(),
+			self::get_themes_threats(),
+			self::get_plugins_threats(),
+			self::get_files_threats(),
+			self::get_database_threats()
 		);
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$report_data->hasUncheckedItems = ! empty( $unchecked_items );
-
-		return $report_data;
 	}
 
 	/**
-	 * Merges the list of installed extensions with the list of extensions that were checked for known vulnerabilities and return a normalized list to be used in the UI
+	 * Get threats found for WordPress core
 	 *
-	 * @param array $installed The list of installed extensions, where each attribute key is the extension slug.
-	 * @param array $checked   The list of checked extensions.
-	 * @param array $append    Additional data to append to each result in the list.
-	 * @return array Normalized list of extensions.
+	 * @return array
 	 */
-	private static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
-		$new_list = array();
-		foreach ( $installed as $slug => $item ) {
-			if ( isset( $checked->{ $slug } ) && $checked->{ $slug }->version === $installed[ $slug ]['Version'] ) {
-				$new_list[] = (object) array_merge(
-					array(
-						'name'            => $installed[ $slug ]['Name'],
-						'version'         => $checked->{ $slug }->version,
-						'slug'            => $slug,
-						'vulnerabilities' => $checked->{ $slug }->vulnerabilities,
-						'checked'         => true,
-					),
-					$append
-				);
-			} else {
-				$new_list[] = (object) array_merge(
-					array(
-						'name'            => $installed[ $slug ]['Name'],
-						'version'         => $installed[ $slug ]['Version'],
-						'slug'            => $slug,
-						'vulnerabilities' => array(),
-						'checked'         => false,
-					),
-					$append
-				);
+	public static function get_wordpress_threats() {
+		return self::get_threats( 'core' );
+	}
+
+	/**
+	 * Get threats found for themes
+	 *
+	 * @return array
+	 */
+	public static function get_themes_threats() {
+		return self::get_threats( 'themes' );
+	}
+
+	/**
+	 * Get threats found for plugins
+	 *
+	 * @return array
+	 */
+	public static function get_plugins_threats() {
+		return self::get_threats( 'plugins' );
+	}
+
+	/**
+	 * Get threats found for files
+	 *
+	 * @return array
+	 */
+	public static function get_files_threats() {
+		return self::get_threats( 'files' );
+	}
+
+	/**
+	 * Get threats found for plugins
+	 *
+	 * @return array
+	 */
+	public static function get_database_threats() {
+		return self::get_threats( 'database' );
+	}
+
+	/**
+	 * Get the threats for one type of extension or core
+	 *
+	 * @param string $type What threats you want to get. Possible values are 'core', 'themes' and 'plugins'.
+	 *
+	 * @return array
+	 */
+	public static function get_threats( $type ) {
+		$status = static::get_status();
+
+		if ( 'core' === $type ) {
+			return isset( $status->$type ) && ! empty( $status->$type->threats ) ? $status->$type->threats : array();
+		}
+
+		if ( 'files' === $type || 'database' === $type ) {
+			return isset( $status->$type ) && ! empty( $status->$type ) ? $status->$type : array();
+		}
+
+		$threats = array();
+		if ( isset( $status->$type ) ) {
+			foreach ( (array) $status->$type as $item ) {
+				if ( ! empty( $item->threats ) ) {
+					$threats = array_merge( $threats, $item->threats );
+				}
 			}
 		}
+		return $threats;
+	}
+
+	/**
+	 * Check if the WordPress version that was checked matches the current installed version.
+	 *
+	 * @param object $core_check The object returned by Protect wpcom endpoint.
+	 * @return object The object representing the current status of core checks.
+	 */
+	protected static function normalize_core_information( $core_check ) {
+		global $wp_version;
+
+		$core = new Extension_Model(
+			array(
+				'type'    => 'core',
+				'name'    => 'WordPress',
+				'version' => $wp_version,
+				'checked' => false,
+			)
+		);
+
+		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
+			if ( is_array( $core_check->vulnerabilities ) ) {
+				$core->checked = true;
+				$core->set_threats( $core_check->vulnerabilities );
+			}
+		}
+
+		return $core;
+	}
+
+	/**
+	 * Sort By Threats
+	 *
+	 * @param array<object> $threats Array of threats to sort.
+	 *
+	 * @return array<object> The sorted $threats array.
+	 */
+	protected static function sort_threats( $threats ) {
 		usort(
-			$new_list,
+			$threats,
 			function ( $a, $b ) {
-				// sort primarily based on the presence of vulnerabilities
-				if ( ! empty( $a->vulnerabilities ) && empty( $b->vulnerabilities ) ) {
+				// sort primarily based on the presence of threats
+				if ( ! empty( $a->threats ) && empty( $b->threats ) ) {
 					return -1;
 				}
-				if ( empty( $a->vulnerabilities ) && ! empty( $b->vulnerabilities ) ) {
+				if ( empty( $a->threats ) && ! empty( $b->threats ) ) {
 					return 1;
 				}
 				// sort secondarily on whether the item has been checked
@@ -379,31 +307,8 @@ class Status {
 				return 0;
 			}
 		);
-		return $new_list;
-	}
 
-	/**
-	 * Check if the WordPress version that was checked matches the current installed version.
-	 *
-	 * @param object $core_check The object returned by Protect wpcom endpoint.
-	 * @return object The object representing the current status of core checks.
-	 */
-	private static function normalize_core_information( $core_check ) {
-		global $wp_version;
-
-		$core = new \stdClass();
-		if ( isset( $core_check->version ) && $core_check->version === $wp_version ) {
-			$core       = $core_check;
-			$core->name = 'WordPress';
-			$core->type = 'core';
-		} else {
-			$core->version         = $wp_version;
-			$core->vulnerabilities = array();
-			$core->checked         = false;
-			$core->name            = 'WordPress';
-			$core->type            = 'core';
-		}
-		return $core;
+		return $threats;
 	}
 
 }

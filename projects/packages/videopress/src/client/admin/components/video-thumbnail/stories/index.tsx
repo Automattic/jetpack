@@ -48,6 +48,10 @@ Default.args = {
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
 	editable: true,
+	loading: false,
+	uploading: false,
+	processing: false,
+	uploadProgress: 0.5,
 };
 
 export const Placeholder = VideoThumbnailTemplate.bind( {} );

@@ -52,13 +52,13 @@ class Jetpack_Admin {
 
 	/** Constructor. */
 	private function __construct() {
-		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$this->jetpack_react = new Jetpack_React_Page();
 
-		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
 		$this->fallback_page = new Jetpack_Settings_Page();
 
-		jetpack_require_lib( 'admin-pages/class-jetpack-about-page' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-about-page.php';
 		$this->jetpack_about = new Jetpack_About_Page();
 
 		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
@@ -126,7 +126,7 @@ class Jetpack_Admin {
 	/**
 	 * Handle our Additional CSS menu item and legacy page declaration.
 	 *
-	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php.
+	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php (now custom-css.php).
 	 */
 	public static function additional_css_menu() {
 
@@ -154,7 +154,7 @@ class Jetpack_Admin {
 	 * Handle the redirect for the customizer.  This is necessary because
 	 * we can't directly add customizer links to the admin menu.
 	 *
-	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php.
+	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php (now custom-css.php).
 	 *
 	 * There is a core patch in trac that would make this unnecessary.
 	 *
@@ -549,7 +549,7 @@ class Jetpack_Admin {
 	 * Add debugger admin menu.
 	 */
 	public function admin_menu_debugger() {
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page(
 			null,
@@ -577,7 +577,7 @@ class Jetpack_Admin {
 	 * Display debugger page.
 	 */
 	public function debugger_page() {
-		jetpack_require_lib( 'debugger' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 

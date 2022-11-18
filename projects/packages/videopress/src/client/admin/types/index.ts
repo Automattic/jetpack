@@ -21,6 +21,10 @@ export type OriginalVideoPressVideo = {
 		 */
 		height: number;
 		/**
+		 * Media length.
+		 */
+		length: number;
+		/**
 		 * Data related specific with videopress.
 		 */
 		videopress: {
@@ -35,7 +39,7 @@ export type OriginalVideoPressVideo = {
 			/**
 			 * Video uploaded date in UTC
 			 */
-			upload_date: number;
+			upload_date: string;
 			/**
 			 * Video duration, in milliseconds
 			 */
@@ -105,7 +109,21 @@ export type OriginalVideoPressVideo = {
 		 * - 2 `site-default`
 		 */
 		privacy_setting?: 0 | 1 | 2;
+		/**
+		 * If a playback token is needed when fetching the video
+		 * resources, taking the video privacy setting and the
+		 * VideoPress site privacy setting into account.
+		 */
+		needs_playback_token?: boolean;
 	};
+	/**
+	 * Video source URL
+	 */
+	source_url: string;
+	/**
+	 * Video date
+	 */
+	date: string;
 	/**
 	 * Video guid
 	 */
@@ -113,40 +131,75 @@ export type OriginalVideoPressVideo = {
 };
 
 export type VideoPressVideo = {
-	uploading: boolean;
+	width?: OriginalVideoPressVideo[ 'media_details' ][ 'width' ];
+	height?: OriginalVideoPressVideo[ 'media_details' ][ 'height' ];
 	id: OriginalVideoPressVideo[ 'id' ];
-	guid: OriginalVideoPressVideo[ 'jetpack_videopress_guid' ];
+	guid?: OriginalVideoPressVideo[ 'jetpack_videopress_guid' ];
 	title: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'title' ];
 	description: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'description' ];
 	caption: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'caption' ];
 	url: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'original' ];
 	uploadDate: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'upload_date' ];
 	duration: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'duration' ];
-	isPrivate: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'is_private' ];
-	posterImage: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
-	allowDownload: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
-	rating: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'rating' ];
-	privacySetting: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'privacy_setting' ];
-	poster: {
+	isPrivate?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'is_private' ];
+	posterImage?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
+	allowDownload?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
+	rating?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'rating' ];
+	privacySetting?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'privacy_setting' ];
+	needsPlaybackToken?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'needs_playback_token' ];
+	poster?: {
 		src: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 		width: OriginalVideoPressVideo[ 'media_details' ][ 'width' ];
 		height: OriginalVideoPressVideo[ 'media_details' ][ 'height' ];
 	};
+	finished?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
+	filename?: OriginalVideoPressVideo[ 'slug' ];
 	thumbnail?: string;
-	finished: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
+	uploading?: boolean;
 	plays?: number; // Not provided yet
-	filename: OriginalVideoPressVideo[ 'slug' ];
 };
 
 export type LocalVideo = {
+	/**
+	 * Video ID
+	 */
+	id: number | string;
 	/**
 	 * Video title
 	 */
 	title: string;
 	/**
+	 * Video description
+	 */
+	description: string;
+	/**
+	 * Video caption
+	 */
+	caption: string;
+	/**
+	 * Media width.
+	 */
+	width: number;
+	/**
+	 * Media height.
+	 */
+	height: number;
+	/**
+	 * Video URL.
+	 */
+	url: string;
+	/**
 	 * Video uploaded date
 	 */
 	uploadDate: string;
+	/**
+	 * Video duration, in milliseconds
+	 */
+	duration: number;
+	/**
+	 * Flag to indicate if the video is already uploaded or not to VideoPress.
+	 */
+	isUploadedToVideoPress: boolean;
 };
 
 export type MetadataVideo = {
@@ -158,9 +211,15 @@ export type MetadataVideo = {
 	processing?: boolean;
 	isUpdatingPrivacy?: boolean;
 	isUpdatingPoster?: boolean;
+	uploadProgress?: number;
+};
+
+export type VideoPressSettings = {
+	videoPressVideosPrivateForSite: boolean;
 };
 
 export type VideopressSelectors = {
+	isFetchingPurchases: () => boolean;
 	getVideo: ( id: number | string ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
@@ -168,5 +227,10 @@ export type VideopressSelectors = {
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
 
+	getPlaybackToken: ( guid: string ) => { guid: string; token: string };
+	isFetchingPlaybackToken: () => boolean;
+
 	getUploadedLocalVideoCount: () => number;
+
+	getVideoPressSettings: () => VideoPressSettings;
 };

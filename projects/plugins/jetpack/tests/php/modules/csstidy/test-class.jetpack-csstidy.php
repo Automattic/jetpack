@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/custom-css/csstidy/class.csstidy.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/custom-css/csstidy/class.csstidy.php';
 
 /**
  * Class WP_Test_Jetpack_CSSTidy

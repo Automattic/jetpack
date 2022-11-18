@@ -14,7 +14,7 @@
 
 // Alert section
 .main-content {
-	padding: calc( var( --spacing-base ) * 7 ) 0;
+	padding: calc( var( --spacing-base ) * 7 ) 0; // 56px | 0px
 }
 
 .loading-content {
@@ -37,10 +37,10 @@
 .is-viewport-small {
 	// Add spacing between main and secondary in "sm" viewport size
 	.main {
-		margin-bottom: calc( var( --spacing-base ) * 3 );
+		margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
 	}
 }
 
 .connection-error-col {
-	margin-top: 25px;
+	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
 }

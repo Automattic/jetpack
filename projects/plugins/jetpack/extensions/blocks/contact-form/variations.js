@@ -1,9 +1,23 @@
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { compact } from 'lodash';
+import { compact, map } from 'lodash';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import { childBlocks } from './child-blocks';
+
+const defaultBlockStyling = {
+	style: {
+		spacing: {
+			padding: {
+				top: '16px',
+				right: '16px',
+				bottom: '16px',
+				left: '16px',
+			},
+		},
+	},
+};
 
 const variations = compact( [
 	{
@@ -20,9 +34,9 @@ const variations = compact( [
 			'-4 -4 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-textarea', {} ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack' ) } ],
 			[
 				'jetpack/button',
 				{
@@ -32,6 +46,9 @@ const variations = compact( [
 				},
 			],
 		],
+		attributes: {
+			...defaultBlockStyling,
+		},
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
@@ -50,8 +67,8 @@ const variations = compact( [
 			'-6 -6 92 92'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[ 'jetpack/field-consent', {} ],
 			[
 				'jetpack/button',
@@ -62,6 +79,9 @@ const variations = compact( [
 				},
 			],
 		],
+		attributes: {
+			...defaultBlockStyling,
+		},
 	},
 	{
 		name: 'rsvp-form',
@@ -77,8 +97,8 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[
 				'jetpack/field-radio',
 				{
@@ -98,6 +118,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new RSVP from your website', 'jetpack' ),
 		},
 	},
@@ -115,9 +136,9 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-telephone', { label: __( 'Phone Number', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-telephone', { label: __( 'Phone', 'jetpack' ) } ],
 			[
 				'jetpack/field-select',
 				{
@@ -142,6 +163,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new registration from your website', 'jetpack' ),
 		},
 	},
@@ -159,9 +181,9 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
-			[ 'jetpack/field-telephone', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-telephone', { required: true, label: __( 'Phone', 'jetpack' ) } ],
 			[ 'jetpack/field-date', { label: __( 'Date', 'jetpack' ), required: true } ],
 			[
 				'jetpack/field-radio',
@@ -182,6 +204,7 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'A new appointment booked from your website', 'jetpack' ),
 		},
 	},
@@ -199,8 +222,8 @@ const variations = compact( [
 			'-4 -3 32 32'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true } ],
-			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
 			[
 				'jetpack/field-radio',
 				{
@@ -226,9 +249,34 @@ const variations = compact( [
 			],
 		],
 		attributes: {
+			...defaultBlockStyling,
 			subject: __( 'New feedback received from your website', 'jetpack' ),
 		},
 	},
+
+	// This will take all child blocks
+	// and make then visible in the Block Library.
+	// The 'hiddenFromPicker' property will prevent
+	// them to show up in the Form placeholder
+	...map( childBlocks, block => ( {
+		name: block.name,
+		title: block.settings.title,
+		description: block.settings.description,
+		icon: block.settings.icon,
+		keywords: block.settings.keywords,
+		innerBlocks: [
+			[ `jetpack/${ block.name }`, { required: true } ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Submit', 'jetpack' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			],
+		],
+		hiddenFromPicker: true,
+	} ) ),
 ] );
 
 export default variations;

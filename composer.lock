@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "233df78529be4e06bbe35075284e3735",
+    "content-hash": "9871531e0ab22cf9992c8cb16332b05f",
     "packages": [],
     "packages-dev": [
         {
@@ -61,12 +61,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "e03e50b16ed5287a50de5b630696c84360f53260"
+                "reference": "651a48d51ca4f9e16c264b580ec908167b100d17"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "mediawiki/mediawiki-codesniffer": "^39.0",
+                "mediawiki/mediawiki-codesniffer": "^40.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^2.3"
@@ -84,7 +84,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.6.x-dev"
+                    "dev-trunk": "2.7.x-dev"
                 }
             },
             "autoload": {
@@ -453,16 +453,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v39.0.0",
+            "version": "v40.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "9d6d7ea4314f928e8967bb386bb54c17bb96fb77"
+                "reference": "e7f3cf56e5afcb626cbbc99069746c028ca27231"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/9d6d7ea4314f928e8967bb386bb54c17bb96fb77",
-                "reference": "9d6d7ea4314f928e8967bb386bb54c17bb96fb77",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/e7f3cf56e5afcb626cbbc99069746c028ca27231",
+                "reference": "e7f3cf56e5afcb626cbbc99069746c028ca27231",
                 "shasum": ""
             },
             "require": {
@@ -470,15 +470,16 @@
                 "composer/spdx-licenses": "~1.5.2",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": ">=7.2.0",
-                "squizlabs/php_codesniffer": "3.6.2"
+                "php": ">=7.4.0",
+                "squizlabs/php_codesniffer": "3.7.1",
+                "symfony/polyfill-php80": "^1.26.0"
             },
             "require-dev": {
-                "mediawiki/mediawiki-phan-config": "0.11.1",
+                "mediawiki/mediawiki-phan-config": "0.12.0",
                 "mediawiki/minus-x": "1.1.1",
                 "php-parallel-lint/php-console-highlighter": "1.0.0",
                 "php-parallel-lint/php-parallel-lint": "1.3.2",
-                "phpunit/phpunit": "^8.5"
+                "phpunit/phpunit": "^9.5"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -498,9 +499,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v39.0.0"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v40.0.1"
             },
-            "time": "2022-05-04T16:19:01+00:00"
+            "time": "2022-11-01T20:02:35+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
@@ -623,16 +624,16 @@
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
-            "version": "1.3.1",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie.git",
-                "reference": "ddabec839cc003651f2ce695c938686d1086cf43"
+                "reference": "bba5a9dfec7fcfbd679cfaf611d86b4d3759da26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/ddabec839cc003651f2ce695c938686d1086cf43",
-                "reference": "ddabec839cc003651f2ce695c938686d1086cf43",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/bba5a9dfec7fcfbd679cfaf611d86b4d3759da26",
+                "reference": "bba5a9dfec7fcfbd679cfaf611d86b4d3759da26",
                 "shasum": ""
             },
             "require": {
@@ -669,26 +670,27 @@
                 "paragonie",
                 "phpcs",
                 "polyfill",
-                "standards"
+                "standards",
+                "static analysis"
             ],
             "support": {
                 "issues": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie/issues",
                 "source": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie"
             },
-            "time": "2021-02-15T10:24:51+00:00"
+            "time": "2022-10-25T01:46:02+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-wp",
-            "version": "2.1.3",
+            "version": "2.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibilityWP.git",
-                "reference": "d55de55f88697b9cdb94bccf04f14eb3b11cf308"
+                "reference": "b6c1e3ee1c35de6c41a511d5eb9bd03e447480a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityWP/zipball/d55de55f88697b9cdb94bccf04f14eb3b11cf308",
-                "reference": "d55de55f88697b9cdb94bccf04f14eb3b11cf308",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityWP/zipball/b6c1e3ee1c35de6c41a511d5eb9bd03e447480a5",
+                "reference": "b6c1e3ee1c35de6c41a511d5eb9bd03e447480a5",
                 "shasum": ""
             },
             "require": {
@@ -723,13 +725,14 @@
                 "compatibility",
                 "phpcs",
                 "standards",
+                "static analysis",
                 "wordpress"
             ],
             "support": {
                 "issues": "https://github.com/PHPCompatibility/PHPCompatibilityWP/issues",
                 "source": "https://github.com/PHPCompatibility/PHPCompatibilityWP"
             },
-            "time": "2021-12-30T16:37:40+00:00"
+            "time": "2022-10-24T09:00:36+00:00"
         },
         {
             "name": "phpcsstandards/phpcsextra",
@@ -789,32 +792,38 @@
         },
         {
             "name": "phpcsstandards/phpcsutils",
-            "version": "1.0.0-alpha3",
+            "version": "1.0.0-alpha4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHPCSUtils.git",
-                "reference": "a16c989b8421e29c336ece5c4099b48585994673"
+                "reference": "37c6da9a0aede973974ae02ef1af2dd641355e86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/a16c989b8421e29c336ece5c4099b48585994673",
-                "reference": "a16c989b8421e29c336ece5c4099b48585994673",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/37c6da9a0aede973974ae02ef1af2dd641355e86",
+                "reference": "37c6da9a0aede973974ae02ef1af2dd641355e86",
                 "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.1 || ^0.5 || ^0.6.2 || ^0.7",
                 "php": ">=5.4",
-                "squizlabs/php_codesniffer": "^2.6.0 || ^3.1.0 || 4.0.x-dev@dev"
-            },
-            "conflict": {
-                "squizlabs/php_codesniffer": "3.5.3"
+                "squizlabs/php_codesniffer": "^3.7.1 || 4.0.x-dev@dev"
             },
             "require-dev": {
-                "php-parallel-lint/php-console-highlighter": "^0.5",
-                "php-parallel-lint/php-parallel-lint": "^1.2.0",
-                "phpunit/phpunit": "^4.5 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
+                "ext-filter": "*",
+                "php-parallel-lint/php-console-highlighter": "^1.0",
+                "php-parallel-lint/php-parallel-lint": "^1.3.2",
+                "phpcsstandards/phpcsdevcs": "^1.1.3",
+                "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.3",
+                "yoast/phpunit-polyfills": "^1.0.1"
             },
             "type": "phpcodesniffer-standard",
+            "extra": {
+                "branch-alias": {
+                    "dev-stable": "1.x-dev",
+                    "dev-develop": "1.x-dev"
+                }
+            },
             "autoload": {
                 "classmap": [
                     "PHPCSUtils/"
@@ -842,9 +851,9 @@
                 "phpcbf",
                 "phpcodesniffer-standard",
                 "phpcs",
-                "phpcs2",
                 "phpcs3",
                 "standards",
+                "static analysis",
                 "tokens",
                 "utility"
             ],
@@ -853,7 +862,7 @@
                 "issues": "https://github.com/PHPCSStandards/PHPCSUtils/issues",
                 "source": "https://github.com/PHPCSStandards/PHPCSUtils"
             },
-            "time": "2020-06-28T21:57:33+00:00"
+            "time": "2022-10-25T13:57:45+00:00"
         },
         {
             "name": "sirbrillig/phpcs-changed",
@@ -972,16 +981,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.6.2",
+            "version": "3.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/PHP_CodeSniffer",
-                "reference": "ea57e56ab3b5e23fe543c6a47154e2a17728a03f"
+                "reference": "1ca0780d9347aa161d63fc7329357fd4c09328f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/ea57e56ab3b5e23fe543c6a47154e2a17728a03f",
-                "reference": "ea57e56ab3b5e23fe543c6a47154e2a17728a03f",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/1ca0780d9347aa161d63fc7329357fd4c09328f3",
+                "reference": "1ca0780d9347aa161d63fc7329357fd4c09328f3",
                 "shasum": ""
             },
             "require": {
@@ -1024,6 +1033,89 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer"
             },
             "time": "2021-05-24T17:35:41+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php80",
+            "version": "v1.26.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php80.git",
+                "reference": "cfa0ae98841b9e461207c13ab093d76b0fa7bace"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/cfa0ae98841b9e461207c13ab093d76b0fa7bace",
+                "reference": "cfa0ae98841b9e461207c13ab093d76b0fa7bace",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.26-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php80\\": ""
+                },
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ion Bazan",
+                    "email": "ion.bazan@gmail.com"
+                },
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.26.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-05-10T07:21:04+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",

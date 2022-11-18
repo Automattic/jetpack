@@ -4,148 +4,172 @@ export const jetpackProtectInitialState = {
 	registrationNonce: 'c923ca109f',
 	status: {
 		last_checked: '2022-05-05 20:56:27',
-		num_vulnerabilities: 6,
-		num_plugins_vulnerabilities: 3,
-		num_themes_vulnerabilities: 3,
+		num_threats: 6,
+		num_plugins_threats: 3,
+		num_themes_threats: 3,
 		status: 'scheduled',
 		wordpress: {
 			version: '5.9.3',
-			vulnerabilities: [],
+			threats: [],
 		},
-		themes: {
-			twentynineteen: {
+		themes: [
+			{
+				slug: 'twentynineteen',
 				version: '2.2',
-				vulnerabilities: [
+				threats: [
 					{
 						id: '1fd6742e-1a32-446d-be3d-7cce44f8f416',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
-			twentytwenty: {
+			{
+				slug: 'twentytwenty',
 				version: '1.9',
-				vulnerabilities: [
+				threats: [
 					{
 						id: '1ac912c1-5e29-41ac-8f76-a062de254c09',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 					{
 						id: '6e61b246-5af1-4a4f-9ca8-a8c87eb2e499',
-						title: 'Sample Vulnerability number 2 with a long title',
+						title: 'Sample Threat number 2 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
-			twentytwentyone: {
+			{
+				slug: 'twentytwentyone',
 				version: '1.5',
-				vulnerabilities: [],
+				threats: [],
 			},
-			twentytwentytwo: {
+			{
+				slug: 'twentytwentytwo',
 				version: '1.1',
-				vulnerabilities: [],
+				threats: [],
 			},
-		},
-		plugins: {
-			'akismet/akismet.php': {
+		],
+		plugins: [
+			{
+				slug: 'akismet/akismet.php',
 				version: '4.2.3',
-				vulnerabilities: [
+				threats: [
 					{
 						id: '36e3817f-7fcc-4a97-9ea2-e5e3b01f93a1',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
-			'always-use-jetpack-open-graph/always-use-jetpack-open-graph.php': {
+			{
+				slug: 'always-use-jetpack-open-graph/always-use-jetpack-open-graph.php',
 				version: '1.0.2-alpha',
-				vulnerabilities: [
+				threats: [
 					{
 						id: 'd442acac-4394-45e4-b6bb-adf4a40960fb',
-						title: 'Sample Vulnerability number 1 with a long title',
+						title: 'Sample Threat number 1 with a long title',
 						fixed_in: '3.14.2',
 					},
 					{
 						id: '0c980e1c-d4dc-4b96-b0ce-282289674f55',
-						title: 'Sample Vulnerability number 2 with a long title',
+						title: 'Sample Threat number 2 with a long title',
 						fixed_in: '3.14.2',
 					},
 				],
 			},
-			'core-control/core-control.php': {
+			{
+				slug: 'core-control/core-control.php',
 				version: '1.2.1',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'creative-mail-by-constant-contact/creative-mail-plugin.php': {
+			{
+				slug: 'creative-mail-by-constant-contact/creative-mail-plugin.php',
 				version: '1.4.9',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'gutenberg/gutenberg.php': {
+			{
+				slug: 'gutenberg/gutenberg.php',
 				version: '12.7.1',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'jetpack/jetpack.php': {
+			{
+				slug: 'jetpack/jetpack.php',
 				version: '11.0-a.2',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'backup/jetpack-backup.php': {
+			{
+				slug: 'backup/jetpack-backup.php',
 				version: '1.3.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'beta/jetpack-beta.php': {
+			{
+				slug: 'beta/jetpack-beta.php',
 				version: '3.1.2-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'boost/jetpack-boost.php': {
+			{
+				slug: 'boost/jetpack-boost.php',
 				version: '1.4.3-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'jetpack-boost/jetpack-boost.php': {
+			{
+				slug: 'jetpack-boost/jetpack-boost.php',
 				version: '1.4.0',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'zero-bs-crm/ZeroBSCRM.php': {
+			{
+				slug: 'zero-bs-crm/ZeroBSCRM.php',
 				version: '4.9.0',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'debug-helper/plugin.php': {
+			{
+				slug: 'debug-helper/plugin.php',
 				version: '1.4.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'protect/jetpack-protect.php': {
+			{
+				slug: 'protect/jetpack-protect.php',
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'search/jetpack-search.php': {
+			{
+				slug: 'search/jetpack-search.php',
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'social/jetpack-social.php': {
+			{
+				slug: 'social/jetpack-social.php',
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'starter-plugin/jetpack-starter-plugin.php': {
+			{
+				slug: 'starter-plugin/jetpack-starter-plugin.php',
 				version: '0.1.0-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'qr-block/qr-block.php': {
+			{
+				slug: 'qr-block/qr-block.php',
 				version: '0.0.10',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'query-monitor/query-monitor.php': {
+			{
+				slug: 'query-monitor/query-monitor.php',
 				version: '3.8.2',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'vaultpress/vaultpress.php': {
+			{
+				slug: 'vaultpress/vaultpress.php',
 				version: '2.2.2-alpha',
-				vulnerabilities: [],
+				threats: [],
 			},
-			'wp-crontrol/wp-crontrol.php': {
+			{
+				slug: 'wp-crontrol/wp-crontrol.php',
 				version: '1.12.0',
-				vulnerabilities: [],
+				threats: [],
 			},
-		},
+		],
 	},
 	installedPlugins: {
 		'akismet/akismet.php': {
@@ -559,35 +583,58 @@ export const jetpackProtectInitialState = {
 	},
 	wpVersion: '5.9.3',
 	adminUrl: 'http://localhost/wp-admin/admin.php?page=jetpack-protect',
-	securityBundle: {
-		slug: 'security',
-		name: 'Security',
-		title: 'Security',
-		description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
-		long_description: 'Comprehensive site security, including Backup, Scan, and Anti-spam.',
+	siteSuffix: 'localhost',
+	jetpackScan: {
+		slug: 'scan',
+		name: 'Scan',
+		title: 'Jetpack Scan',
+		description: 'Stay one step ahead of threats',
+		long_description:
+			'Automatic scanning and one-click fixes keep your site one step ahead of security threats and malware.',
 		features: [
-			'Real-time cloud backups with 10GB storage',
-			'Automated real-time malware scan',
-			'One-click fixes for most threats',
-			'Comment & form spam protection',
+			'Automated daily scanning',
+			'One-click fixes for most issues',
+			'Instant email notifications',
+			'Access to latest Firewall rules',
 		],
 		status: 'needs_purchase',
-		pricing_for_ui: {
+		pricingForUi: {
+			productId: 2106,
+			productName: 'Jetpack Scan Daily',
+			productSlug: 'jetpack_scan',
+			description: '',
+			productType: 'jetpack',
 			available: true,
-			wpcom_product_slug: 'jetpack_security_t1_yearly',
-			currency_code: 'USD',
-			full_price: 299.4,
-			discount_price: 107.4,
+			billingProductSlug: 'jetpack-scan',
+			isDomainRegistration: false,
+			costDisplay: 'C$155.40',
+			combinedCostDisplay: 'C$155.40',
+			cost: 155.4,
+			costSmallestUnit: 15540,
+			currencyCode: 'CAD',
+			priceTierList: [],
+			priceTierUsageQuantity: null,
+			productTerm: 'year',
+			priceTiers: [],
+			priceTierSlug: '',
+			introductoryOffer: {
+				intervalUnit: 'year',
+				intervalCount: 1,
+				usageLimit: null,
+				costPerInterval: 83.4,
+				transitionAfterRenewalCount: 0,
+				shouldProrateWhenOfferEnds: false,
+			},
 		},
-		is_bundle: true,
-		is_upgradable_by_bundle: false,
-		supported_products: [ 'backup', 'scan', 'anti-spam' ],
-		wpcom_product_slug: 'jetpack_security_t1_yearly',
+		is_bundle: false,
+		is_upgradable_by_bundle: [ 'security' ],
+		supported_products: [ 'scan' ],
+		wpcom_product_slug: 'jetpack_scan',
 		requires_user_connection: true,
 		has_required_plan: false,
 		manage_url: '',
 		post_activation_url: '',
-		class: 'Automattic\\Jetpack\\My_Jetpack\\Products\\Security',
+		class: 'Automattic\\Jetpack\\My_Jetpack\\Products\\Scan',
 	},
 	productData: {
 		slug: 'protect',

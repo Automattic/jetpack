@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Introduce GET param just_upgraded and localStorage upgrade_tooltip_finished to determine the tooltips showing.

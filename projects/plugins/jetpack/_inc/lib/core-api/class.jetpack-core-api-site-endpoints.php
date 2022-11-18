@@ -162,7 +162,7 @@ class Jetpack_Core_API_Site_Endpoint {
 		if ( $has_stats && $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
-				'title'       => esc_html__( 'Site Stats', 'jetpack' ),
+				'title'       => esc_html__( 'Jetpack Stats', 'jetpack' ),
 				'description' => esc_html__( 'Visitors tracked by Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->visitors ),
 			);

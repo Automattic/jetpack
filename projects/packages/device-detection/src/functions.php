@@ -13,14 +13,18 @@ namespace Automattic\Jetpack\Device_Detection;
  * Even though PHP itself dropped the option to add slashes to superglobals a decade ago,
  * WordPress still does it through some misguided extreme backwards compatibility. 🙄
  *
- * If WordPress's function exists, assume it needs to be called. If not, assume it doesn't.
+ * If WordPress's function exists, assume it needs to be called.
+ * Else if on WordPress.com, do a simplified version because we're running really early.
+ * Else, assume it's not needed.
  *
- * @param string|array $value String or array of data to unslash.
- * @return string|array Possibly unslashed $value.
+ * @param string $value String of data to unslash.
+ * @return string Possibly unslashed $value.
  */
 function wp_unslash( $value ) {
 	if ( function_exists( '\\wp_unslash' ) ) {
 		return \wp_unslash( $value );
+	} elseif ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return stripslashes( $value );
 	} else {
 		return $value;
 	}

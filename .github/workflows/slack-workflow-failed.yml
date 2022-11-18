@@ -18,12 +18,13 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'issues' && github.event.workflow_run.event != 'issue_comment' }}
 
     steps:
+      - uses: actions/checkout@v3
       - name: Generate message
         id: message
         run: |
           source .github/files/gh-funcs.sh
 
-          set_output message "$(
+          gh_set_output message "$(
             jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | $e.workflow_run as $run | {
               icon_emoji: ":github-rejected:",
               text: "*\( $e.workflow.name ) failed on \( $run.head_branch )*\n<\( $run.html_url )|Run #\( $run.id )>",
@@ -90,7 +91,7 @@ jobs:
           )"
 
       - name: Send message to alerts channel
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.23.0
         if: github.event.workflow_run.head_branch == 'trunk'
         with:
           channel-id: ${{ secrets.SLACK_JP_ALERTS_CHANNEL }}
@@ -99,7 +100,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.23.0
         if: contains( github.event.workflow_run.head_branch, '/branch-' )
         with:
           channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}

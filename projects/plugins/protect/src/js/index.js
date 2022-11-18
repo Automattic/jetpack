@@ -2,6 +2,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AdminPage from './components/admin-page';
+import Modal from './components/modal';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
@@ -21,6 +22,7 @@ function render() {
 	ReactDOM.render(
 		<ThemeProvider>
 			<AdminPage />
+			<Modal />
 		</ThemeProvider>,
 		container
 	);
