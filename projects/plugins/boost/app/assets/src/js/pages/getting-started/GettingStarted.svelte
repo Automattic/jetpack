@@ -23,7 +23,8 @@
 	};
 
 	onMount( () => {
-		recordBoostEvent( 'view_getting_started_page_in_plugin', {} );
+		// Throw away promise, as we don't need to wait for it.
+		void recordBoostEvent( 'view_getting_started_page_in_plugin', {} );
 	} );
 
 	const choosePaidPlan = async () => {

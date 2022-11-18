@@ -8,7 +8,8 @@
 	const { navigate } = routerHistory;
 
 	onMount( () => {
-		recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
+		// Throw away promise, as we don't need to wait for it.
+		void recordBoostEvent( 'view_upsell_cta_in_settings_page_in_plugin', {} );
 	} );
 
 	function showBenefits() {
