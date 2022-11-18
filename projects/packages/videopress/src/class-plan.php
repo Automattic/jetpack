@@ -65,6 +65,9 @@ class Plan {
 
 		if ( 200 === $response_code ) {
 			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			if ( ! isset( $products->jetpack_videopress ) || ! isset( $products->jetpack_videopress_monthly ) ) {
+				return array();
+			}
 
 			// Pick the desired product...
 			$product = $products->jetpack_videopress;
