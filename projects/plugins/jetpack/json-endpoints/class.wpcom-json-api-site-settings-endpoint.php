@@ -436,7 +436,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
-						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'wpcom_gifting_subscription'       => (bool) ( 'on' === get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ) ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
