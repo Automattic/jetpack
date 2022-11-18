@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
-	import JetpackLogo from './JetpackLogo.svelte';
+	import { fly } from 'svelte/transition';
 	import { GuideSize, MeasuredImage } from '../types';
+	import JetpackLogo from './JetpackLogo.svelte';
 
 	export let image: MeasuredImage;
 	export let size: GuideSize;

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type { GuideSize, MeasuredImage } from '../types';
-	import { state } from './StateStore';
-	import ImageGuide from './ImageGuide.svelte';
 	import Bubble from './Bubble.svelte';
+	import ImageGuide from './ImageGuide.svelte';
+	import { state } from './StateStore';
+	import type { GuideSize, MeasuredImage } from '../types';
+
 	export let images: MeasuredImage[];
 	let show: MeasuredImage | false = false;
 
@@ -14,7 +15,7 @@
 	$: show = $state === 'always_on' ? images[ 0 ] : false;
 
 	let size: GuideSize = 'normal';
-	let image = images[ 0 ];
+	const image = images[ 0 ];
 	// Looking at the first image in the set is fine, at least for now.
 	if ( image.onScreen.width < 200 || image.onScreen.height < 200 ) {
 		size = 'micro';
