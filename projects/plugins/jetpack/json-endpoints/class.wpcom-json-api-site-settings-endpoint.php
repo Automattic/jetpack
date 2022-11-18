@@ -900,13 +900,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
-					// get_option returns false if the option doesn't exist, otherwise it returns a string value.
+
+					/*
+					 * get_option returns a boolean false if the option doesn't exist, otherwise it always returns
+					 * a serialized value. Knowing that we can check if the option already exists.
+					 */
 					$gift_toggle = get_option( $key );
-					// If the option doesn't exist, we add it and set the value to the inverse of auto_renew.
-					if ( $gift_toggle === false ) {
-						add_option( $key, $coerce_value );
+					if ( false === $gift_toggle ) {
+						// update_option will not create a new option if the initial value is false. So use add_option.
+						if ( add_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
 					} else {
-						update_option( $key, $coerce_value );
+						// If the option already exists use update_option.
+						if ( update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
 					}
 					break;
 
