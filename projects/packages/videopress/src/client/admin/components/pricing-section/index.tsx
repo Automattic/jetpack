@@ -20,8 +20,8 @@ import { usePlan } from '../../hooks/use-plan';
 const PricingPage = ( { onRedirecting } ) => {
 	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
+	// const { pricingForUi } = siteProduct;
 	const { productPrice } = product;
-	const { pricingForUi } = siteProduct;
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
 		from: 'jetpack-videopress',
@@ -41,17 +41,23 @@ const PricingPage = ( { onRedirecting } ) => {
 	 * Fallback to the product price if the site product price is not available.
 	 * This can happen when the site is not connected yet.
 	 */
+	const pricingForUi: {
+		available?: boolean;
+		currencyCode?: string;
+		discountPrice?: number;
+		fullPrice?: number;
+		wpcomProductSlug?: string;
+	} = {}; // @todo: tackle getting this value from the MyJetpack
+
 	if ( ! pricingForUi?.fullPrice ) {
+		pricingForUi.currencyCode = product.currencyCode;
+		pricingForUi.discountPrice = null;
+
 		if ( productPrice ) {
-			pricingForUi.fullPrice = productPrice.monthly.price;
-			pricingForUi.discountPrice = productPrice.yearly.priceByMonth;
-			pricingForUi.currencyCode = product.currencyCode;
+			pricingForUi.fullPrice = productPrice.yearly.priceByMonth;
 		} else {
 			// Let's hard code these values for now,
-			// in case the data is still cached.
-			pricingForUi.fullPrice = 20;
-			pricingForUi.discountPrice = 10;
-			pricingForUi.currencyCode = product.currencyCode;
+			pricingForUi.fullPrice = 10;
 		}
 	}
 
@@ -62,6 +68,9 @@ const PricingPage = ( { onRedirecting } ) => {
 					<ProductPrice
 						price={ pricingForUi.fullPrice }
 						offPrice={ pricingForUi.discountPrice }
+						promoLabel={
+							pricingForUi.discountPrice ? __( '50% off', 'jetpack-videopress-pkg' ) : null
+						}
 						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
