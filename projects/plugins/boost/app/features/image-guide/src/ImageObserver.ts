@@ -21,13 +21,13 @@ const onChange = ( callback: ImageCallback ): MutationCallback => mutationList =
 
 			// New image elements are added to the DOM
 			if ( mutation.type === 'childList' && mutation.addedNodes.length > 0 ) {
-				for ( const node of mutation.addedNodes ) {
+				mutation.addedNodes.forEach( node => {
 					if ( node instanceof HTMLImageElement ) {
 						return true;
 					}
 
 					/**
-					 * @TODO:
+					 * TODO:
 					 * MutationObserver only detects the parent node that was added.
 					 * Any child nodes that were added are not detected.
 					 */
@@ -39,7 +39,7 @@ const onChange = ( callback: ImageCallback ): MutationCallback => mutationList =
 							return true;
 						}
 					}
-				}
+				} );
 			}
 
 			if ( mutation.type === 'attributes' ) {
@@ -50,7 +50,7 @@ const onChange = ( callback: ImageCallback ): MutationCallback => mutationList =
 
 				// Mutations that add a background image
 				if ( mutation.attributeName === 'style' ) {
-					getComputedStyle( mutation.target as Element ).backgroundImage !== 'none';
+					return getComputedStyle( mutation.target as Element ).backgroundImage !== 'none';
 				}
 			}
 
@@ -59,14 +59,14 @@ const onChange = ( callback: ImageCallback ): MutationCallback => mutationList =
 		} )
 		.map( mutation => {
 			if ( mutation.type === 'attributes' ) {
-				return mutation.target;
+				return mutation.target as HTMLElement;
 			}
 			if ( mutation.type === 'childList' ) {
 				const images = Array.from( mutation.addedNodes ).filter(
 					node => node instanceof HTMLImageElement
 				);
 				if ( images.length > 0 ) {
-					return images;
+					return images as HTMLElement[];
 				}
 			}
 			const walker = document.createTreeWalker( mutation.target, NodeFilter.SHOW_ELEMENT );
@@ -75,7 +75,10 @@ const onChange = ( callback: ImageCallback ): MutationCallback => mutationList =
 					return walker.currentNode;
 				}
 			}
-		} );
+
+			return [];
+		} )
+		.flat();
 
 	if ( mutations.length > 0 ) {
 		callback( mutations );
@@ -83,7 +86,7 @@ const onChange = ( callback: ImageCallback ): MutationCallback => mutationList =
 };
 
 export async function createImageObserver( callback: ImageCallback ) {
-	var target = document.body;
+	const target = document.body;
 	const config = { childList: true, characterData: false, subtree: true, attributes: true };
 
 	const observer = new MutationObserver( onChange( callback ) );
