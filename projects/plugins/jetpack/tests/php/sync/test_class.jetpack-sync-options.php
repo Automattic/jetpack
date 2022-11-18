@@ -227,6 +227,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'videopress_private_enabled_for_site'          => false,
 			'featured_image_email_enabled'                 => false,
 			'wpcom_gifting_subscription'                   => true,
+			'launch-status'                                => 'unlaunched',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

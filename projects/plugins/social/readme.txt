@@ -91,16 +91,14 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.5.0-beta - 2022-10-27
+### 1.5.0 - 2022-11-08
 #### Added
 - Display broken connections to user in editor
 - Integrate the ConnectionError react component to the Social plugin.
 - Reshare: Added the reshare UI to the block editor extension
-
 #### Changed
-- Updated package dependencies.
+- Compatibility: WordPress 6.1 compatibility
 
 #### Fixed
 - Social: Fix the connection test endpoint URL
 - Social: Fix the path to the connections URL in the editor
-

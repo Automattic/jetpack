@@ -94,6 +94,7 @@ class Config {
 				$allowed_modals  = array(
 					'score-increase',
 					'score-decrease',
+					'super-cache-not-enabled',
 				);
 				if ( ! in_array( $modal_to_banish, $allowed_modals, true ) ) {
 					$error = new \WP_Error( 'authorization', __( 'This modal is not dismissable.', 'jetpack-boost' ) );
@@ -178,7 +179,7 @@ class Config {
 	 */
 	public static function is_getting_started() {
 		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
-		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
+		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
