@@ -65,6 +65,7 @@ const videoFieldsToUpdate = [
 	'privacy_setting',
 	'rating',
 	'allow_download',
+	'isPrivate',
 ];
 
 /*
