@@ -3,16 +3,20 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { VideoId } from '../../plugins/video-chapters/types';
-import { useVideoDataProps, WPV2MediaAPIResponseProps } from './types';
+/**
+ * Types
+ */
+import { WPV2mediaGetEndpointResponseProps } from '../../../types';
+import { VideoId } from '../../blocks/video/types';
+import { UseVideoDataProps } from './types';
 
 /**
  * React hook to fetch the video data from the media library.
  *
- * @param {number|string} id - The video id.
- * @returns {Object}           Hook API object.
+ * @param {VideoId}             id - The video id.
+ * @returns {UseVideoDataProps}      Hook API object.
  */
-export default function useVideoData( id: VideoId ): useVideoDataProps {
+export default function useVideoData( id: VideoId ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
@@ -22,7 +26,7 @@ export default function useVideoData( id: VideoId ): useVideoDataProps {
 		 */
 		async function fetchVideoItem() {
 			try {
-				const response: WPV2MediaAPIResponseProps = await apiFetch( {
+				const response: WPV2mediaGetEndpointResponseProps = await apiFetch( {
 					path: `/wp/v2/media/${ id }`,
 				} );
 
@@ -31,7 +35,13 @@ export default function useVideoData( id: VideoId ): useVideoDataProps {
 					return;
 				}
 
-				setVideoData( response.jetpack_videopress );
+				// Pick filename from the source_url.
+				const filename = response?.source_url?.split( '/' )?.at( -1 );
+
+				// Pick isPrivate
+				const is_private = response?.media_details?.videopress?.is_private;
+
+				setVideoData( { ...response.jetpack_videopress, filename, is_private } );
 			} catch ( error ) {
 				setIsRequestingVideoData( false );
 				throw new Error( error );

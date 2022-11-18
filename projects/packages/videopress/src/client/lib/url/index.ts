@@ -1,7 +1,8 @@
 import { addQueryArgs } from '@wordpress/url';
+import { VideoBlockAttributes } from '../../block-editor/blocks/video/types';
 
 export const getVideoPressUrl = (
-	guid,
+	guid: string,
 	{
 		autoplay,
 		controls,
@@ -14,7 +15,7 @@ export const getVideoPressUrl = (
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		useAverageColor,
-	}
+	}: VideoBlockAttributes
 ) => {
 	if ( ! guid ) {
 		return null;
