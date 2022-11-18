@@ -55,16 +55,15 @@ class Plan {
 	 * @return array
 	 */
 	public static function get_product() {
-		if ( ! self::is_cache_old() ) {
-			return self::get_product_from_cache();
-		}
-
 		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 
 		if ( 200 === $response_code ) {
 			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			if ( ! isset( $products->jetpack_videopress ) || ! isset( $products->jetpack_videopress_monthly ) ) {
+				return array();
+			}
 
 			// Pick the desired product...
 			$product = $products->jetpack_videopress;
