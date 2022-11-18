@@ -391,7 +391,7 @@ const NoBackupCapabilities = () => {
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ price }
-					title={ __( 'Jetpack VaultPress Backup', 'jetpack-backup-pkg' ) }
+					title={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 				/>
 			</Col>
 		</Container>
