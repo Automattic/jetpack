@@ -26,8 +26,8 @@ export async function refreshConnectionTestResults() {
 			done: false,
 			enabled: true,
 			toggleable: true,
+			follower_count: 0,
 		};
-
 		/*
 		 * Iterate connection by connection,
 		 * in order to refresh or update current connections.
@@ -43,6 +43,7 @@ export async function refreshConnectionTestResults() {
 				done,
 				enabled,
 				toggleable,
+				follower_count: freshConnection.follower_count,
 				is_healthy: freshConnection.test_success,
 			};
 

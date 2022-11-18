@@ -745,6 +745,7 @@ abstract class Publicize_Base {
 	 *     @type bool   'done'             Has this connection already been publicized to?
 	 *     @type bool   'toggleable'       Is the user allowed to change the value for the connection?
 	 *     @type bool   'global'           Is this connection a global one?
+	 *     @type int    'follower_count'   Follower count for the connection.
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
@@ -872,6 +873,7 @@ abstract class Publicize_Base {
 					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
+					'follower_count'  => ! empty( $connection_data['meta']['follower_count'] ) ? $connection_data['meta']['follower_count'] : 0,
 					'global'          => 0 == $connection_data['user_id'], // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,WordPress.PHP.StrictComparisons.LooseComparison -- Other types can be used at times.
 				);
 			}

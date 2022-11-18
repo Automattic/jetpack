@@ -18,6 +18,7 @@
  *     enabled:         (boolean) Is this connection slated to be shared to? context=edit only
  *     done:            (boolean) Is this post (or connection) done sharing? context=edit only
  *     toggleable:      (boolean) Can the current user change the `enabled` setting for this Connection+Post? context=edit only
+ *     follower_count:  (int)     Number of followers of the user/connection on Service
  *   }
  *   ...
  *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
@@ -144,6 +145,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				'toggleable'      => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
 					'type'        => 'boolean',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
+				),
+				'follower_count'  => array(
+					'description' => __( 'Number of followers for the connected account', 'jetpack' ),
+					'type'        => 'integer',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),

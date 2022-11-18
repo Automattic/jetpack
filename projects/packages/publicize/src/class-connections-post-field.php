@@ -122,6 +122,12 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'follower_count'  => array(
+					'description' => __( 'Number of followers for the connected account', 'jetpack-publicize-pkg' ),
+					'type'        => 'integer',
+					'context'     => array( 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}

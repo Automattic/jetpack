@@ -59,7 +59,7 @@ class PublicizeConnection extends Component {
 	}
 
 	render() {
-		const { disabled, enabled, id, label, name, profilePicture } = this.props;
+		const { disabled, enabled, followerCount, id, label, name, profilePicture } = this.props;
 		const fieldId = 'connection-' + name + '-' + id;
 		// Genericon names are dash separated
 		const serviceName = name.replace( '_', '-' );
@@ -74,6 +74,7 @@ class PublicizeConnection extends Component {
 				serviceName={ serviceName }
 				label={ label }
 				profilePicture={ profilePicture }
+				followerCount={ followerCount }
 			/>
 		);
 
