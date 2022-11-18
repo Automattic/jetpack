@@ -39,6 +39,7 @@ import {
 	SET_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
 	EXPIRE_PLAYBACK_TOKEN,
+	SET_VIDEOPRESS_SETTINGS,
 } from './constants';
 
 /**
@@ -647,12 +648,29 @@ const playbackTokens = ( state, action ) => {
 	}
 };
 
+const siteSettings = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_VIDEOPRESS_SETTINGS: {
+			const { videoPressSettings } = action;
+
+			return {
+				...state,
+				...videoPressSettings,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	videos,
 	localVideos,
 	purchases,
 	users,
 	playbackTokens,
+	siteSettings,
 } );
 
 export default reducers;

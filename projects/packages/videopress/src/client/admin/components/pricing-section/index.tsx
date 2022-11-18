@@ -20,6 +20,7 @@ import { usePlan } from '../../hooks/use-plan';
 const PricingPage = ( { onRedirecting } ) => {
 	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
+	const { productPrice } = product;
 	const { pricingForUi } = siteProduct;
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
@@ -41,9 +42,17 @@ const PricingPage = ( { onRedirecting } ) => {
 	 * This can happen when the site is not connected yet.
 	 */
 	if ( ! pricingForUi?.fullPrice ) {
-		pricingForUi.fullPrice = product.cost;
-		pricingForUi.discountPrice = product.introductoryOffer.costPerInterval;
-		pricingForUi.currencyCode = product.currencyCode;
+		if ( productPrice ) {
+			pricingForUi.fullPrice = productPrice.monthly.price;
+			pricingForUi.discountPrice = productPrice.yearly.priceByMonth;
+			pricingForUi.currencyCode = product.currencyCode;
+		} else {
+			// Let's hard code these values for now,
+			// in case the data is still cached.
+			pricingForUi.fullPrice = 20;
+			pricingForUi.discountPrice = 10;
+			pricingForUi.currencyCode = product.currencyCode;
+		}
 	}
 
 	return (
@@ -53,7 +62,6 @@ const PricingPage = ( { onRedirecting } ) => {
 					<ProductPrice
 						price={ pricingForUi.fullPrice }
 						offPrice={ pricingForUi.discountPrice }
-						promoLabel={ __( '50% off', 'jetpack-videopress-pkg' ) }
 						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
