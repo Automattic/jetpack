@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
@@ -35,6 +36,10 @@ class Optimizations implements Has_Setup {
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 		);
+
+		if ( defined( 'JETPACK_BOOST_IMAGE_GUIDE' ) && JETPACK_BOOST_IMAGE_GUIDE ) {
+			$features[] = new Image_Guide();
+		}
 
 		foreach ( $features as $feature ) {
 			$slug                    = $feature->get_slug();

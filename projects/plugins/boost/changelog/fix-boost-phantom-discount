@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent displaying of "discounted from" price when there is no discount

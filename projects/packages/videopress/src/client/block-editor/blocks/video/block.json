@@ -98,6 +98,9 @@
 		},
 		"rating": {
 			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
 		}
 	},
 	"textdomain": "jetpack-videopress",

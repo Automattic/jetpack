@@ -45,7 +45,7 @@ class VideoPress_Rest_Api_V1_Settings {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( static::class, 'update_settings' ),
 					'permission_callback' => function () {
-						return current_user_can( 'manage_options' );
+						return Data::can_perform_action() && current_user_can( 'manage_options' );
 					},
 					'args'                => array(
 						'videopress_videos_private_for_site' => array(
