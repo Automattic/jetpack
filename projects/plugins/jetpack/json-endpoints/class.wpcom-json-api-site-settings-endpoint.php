@@ -512,14 +512,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			foreach ( $purchases as $purchase ) {
 				if ( wpcom_purchase_has_feature( $purchase, \WPCOM_Features::SUBSCRIPTION_GIFTING ) ) {
 					if ( isset( $purchase->auto_renew ) ) {
-						return ! $purchase->auto_renew;
+						return ! $purchase->auto_renew ? 'on' : 'off';
 					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
-						return ! $purchase->user_allows_auto_renew;
+						return ! $purchase->user_allows_auto_renew ? 'on' : 'off';
 					}
 				}
 			}
 		}
-		return false;
+		return 'off';
 	}
 
 	/**
@@ -888,14 +888,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
 						$updated[ $key ] = $verification_codes;
 					}
+
 					break;
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
-				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
+					}
+					break;
+
+				case 'wpcom_gifting_subscription':
+					// settings are stored as on|off to allow both options to be set
+					// from an initial not set state.
+					$coerce_value = ( $value ) ? 'on' : 'off';
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $value;
 					}
 					break;
 
