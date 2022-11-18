@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.5.5-alpha",
+	"version": "1.6.0-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
