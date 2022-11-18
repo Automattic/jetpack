@@ -20,7 +20,7 @@ import { usePlan } from '../../hooks/use-plan';
 const PricingPage = ( { onRedirecting } ) => {
 	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
-	const { pricingForUi } = siteProduct;
+	// const { pricingForUi } = siteProduct;
 	const { productPrice } = product;
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
@@ -41,6 +41,7 @@ const PricingPage = ( { onRedirecting } ) => {
 	 * Fallback to the product price if the site product price is not available.
 	 * This can happen when the site is not connected yet.
 	 */
+	const pricingForUi = {}; // @todo: tackle getting this value from the MyJetpack
 	if ( ! pricingForUi?.fullPrice ) {
 		pricingForUi.currencyCode = product.currencyCode;
 		pricingForUi.discountPrice = null;
