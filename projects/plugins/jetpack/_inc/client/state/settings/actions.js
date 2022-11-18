@@ -111,7 +111,6 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		dispatch( removeNotice( 'module-setting-update-success' ) );
 
 		const suppressNoticeFor = [
-			'dismiss_dash_app_card',
 			'dismiss_empty_stats_card',
 			'dismiss_dash_backup_getting_started',
 			'dismiss_dash_agencies_learn_more',

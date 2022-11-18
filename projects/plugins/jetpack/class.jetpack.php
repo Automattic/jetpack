@@ -30,6 +30,7 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats_Admin\Main as StatsAdminMain;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -186,14 +187,6 @@ class Jetpack {
 		),
 		'comment-likes'      => array(
 			'Epoch' => 'epoch/plugincore.php',
-		),
-		'contact-form'       => array(
-			'Contact Form 7'           => 'contact-form-7/wp-contact-form-7.php',
-			'Gravity Forms'            => 'gravityforms/gravityforms.php',
-			'Contact Form Plugin'      => 'contact-form-plugin/contact_form.php',
-			'Easy Contact Forms'       => 'easy-contact-forms/easy-contact-forms.php',
-			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
-			'Ninja Forms'              => 'ninja-forms/ninja-forms.php',
 		),
 		'latex'              => array(
 			'LaTeX for WordPress'     => 'latex/latex.php',
@@ -737,7 +730,7 @@ class Jetpack {
 			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
 			 * so they point moderation links on emails to Calypso.
 			 */
-			jetpack_require_lib( 'functions.wp-notify' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/functions.wp-notify.php';
 			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
 			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
 		}
@@ -830,15 +823,12 @@ class Jetpack {
 				'sync',
 				'waf',
 				'videopress',
+				'stats',
+				'stats_admin',
 			)
 			as $feature
 		) {
 			$config->ensure( $feature );
-		}
-
-		$modules = new Automattic\Jetpack\Modules();
-		if ( $modules->is_active( 'publicize' ) ) {
-			$config->ensure( 'publicize' );
 		}
 
 		$config->ensure(
@@ -866,6 +856,11 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
+		}
+
+		$modules = new Automattic\Jetpack\Modules();
+		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
+			$config->ensure( 'publicize' );
 		}
 
 		/*
@@ -911,6 +906,9 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
+
+		// We will change to use the config package.
+		StatsAdminMain::init();
 	}
 
 	/**
@@ -3275,6 +3273,7 @@ p {
 
 		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
+			Jetpack_Connection_Widget::init();
 		}
 
 		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
@@ -6545,17 +6544,16 @@ endif;
 		if ( ! static::connection()->has_connected_owner() ) {
 			return false;
 		}
-
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
-		if ( false === $rewind_enabled ) {
-			jetpack_require_lib( 'class.core-rest-api-endpoints' );
+		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $rewind_enabled;
+		if ( false === $rewind_enabled || $recheck ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
 				&& ! empty( $rewind_data['state'] )
 				&& 'active' === $rewind_data['state'] )
 				? 1
 				: 0;
-
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;
@@ -6759,7 +6757,7 @@ endif;
 			'features'          => array(
 				_x( 'Instant search and indexing', 'Search Product Feature', 'jetpack' ),
 				_x( 'Powerful filtering', 'Search Product Feature', 'jetpack' ),
-				_x( 'Supports 29 languages', 'Search Product Feature', 'jetpack' ),
+				_x( 'Supports 38 languages', 'Search Product Feature', 'jetpack' ),
 				_x( 'Spelling correction', 'Search Product Feature', 'jetpack' ),
 			),
 		);

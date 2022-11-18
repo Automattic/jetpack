@@ -96,7 +96,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Node.js is used in the build process of some of our tools. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version](https://nodejs.org/).
 
-	You'll find the minimum required version in the engines section of package.json.
+	You'll find the minimum required version in the [engines section](https://github.com/Automattic/jetpack/blob/trunk/package.json#L36) of package.json.
 
 	We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing different Node versions on the same environment.
 
@@ -104,7 +104,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 	Pnpm is a Node.js package manager and it's used to install packages that are required to run development tools and build projects. To install it, either run `npm install -g pnpm` or you can [visit the Installation page of the project](https://pnpm.io/installation) for other methods.
 
-	You'll find the minimum required version in the engines section of package.json.
+	You'll find the minimum required version in the [engines section](https://github.com/Automattic/jetpack/blob/trunk/package.json#L36) of package.json.
 
 * #### PHP
 
@@ -155,7 +155,7 @@ tools/check-development-environment.sh
 
 Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development.
 
-If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
+If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
 
 # Development workflow
 

@@ -45,6 +45,7 @@
 	],
 	"beta": [
 		"amazon",
+		"contact-form/salesforce-lead-form",
 		"google-docs-embed",
 		"recipe",
 		"videopress/video",

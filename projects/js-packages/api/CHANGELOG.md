@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.14.5 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.14.4 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.14.3 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## 0.14.2 - 2022-10-11
+### Fixed
+- Fix Jetpack Search dashboard for WPCOM simple sites by allowing using different API root for search endpoints. [#26713]
+
+## 0.14.1 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
 ## 0.14.0 - 2022-09-27
 ### Removed
 - Mobile Login Email: Remove unused code [#26311]

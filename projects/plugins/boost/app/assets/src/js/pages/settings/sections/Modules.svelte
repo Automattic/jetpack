@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import { modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
 		pollCloudCssStatus,
@@ -13,6 +14,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -20,9 +22,15 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
+
+	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
 </script>
 
 <div class="jb-container--narrow">
+	{#if ! cloudCssAvailable}
+		<PremiumCTA />
+	{/if}
+
 	<Module
 		slug={'critical-css'}
 		on:enabled={maybeGenerateCriticalCss}
@@ -43,7 +51,6 @@
 
 		<div slot="meta">
 			<CriticalCssMeta />
-			<PremiumCTA />
 		</div>
 	</Module>
 
@@ -98,4 +105,6 @@
 			/>
 		</p>
 	</Module>
+
+	<SuperCacheInfo />
 </div>

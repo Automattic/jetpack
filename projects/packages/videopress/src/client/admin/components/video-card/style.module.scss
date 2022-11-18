@@ -15,7 +15,8 @@
 		}
 	}
 
-	&:not(.disabled):hover {
+	&:not(.disabled):hover,
+	&:not(.disabled):focus-within {
 		.video-card__background {
 			opacity: 1;
 			z-index: 1;
@@ -25,7 +26,7 @@
 		}
 
 		.video-card__thumbnail {
-			z-index: 2;
+			z-index: 3;
 		}
 
 		.video-card__quick-actions-section {
@@ -57,6 +58,7 @@
 	margin-top: calc( var( --spacing-base ) * 2 );
 	margin-bottom: calc( var( --spacing-base ) * 2 );
 	justify-content: space-between;
+	gap: var(--spacing-base);
 }
 
 .video-card__title {

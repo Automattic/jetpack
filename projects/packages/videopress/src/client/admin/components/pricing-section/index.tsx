@@ -17,14 +17,18 @@ import { useState } from 'react';
  */
 import { usePlan } from '../../hooks/use-plan';
 
-const PricingPage = () => {
-	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
+const PricingPage = ( { onRedirecting } ) => {
+	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { siteProduct, product } = usePlan();
 	const { pricingForUi } = siteProduct;
-	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
-	const [ isConnecting, setIsConnection ] = useState( false );
+	const { handleRegisterSite, userIsConnecting } = useConnection( {
+		redirectUri: adminUri,
+		from: 'jetpack-videopress',
+		registrationNonce,
+	} );
+	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	const { run } = useProductCheckoutWorkflow( {
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUri,
@@ -50,10 +54,18 @@ const PricingPage = () => {
 						price={ pricingForUi.fullPrice }
 						offPrice={ pricingForUi.discountPrice }
 						promoLabel={ __( '50% off', 'jetpack-videopress-pkg' ) }
-						leyend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
+						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
 						currency={ pricingForUi.currencyCode }
 					/>
-					<Button onClick={ run } fullWidth disabled={ isConnecting }>
+					<Button
+						onClick={ () => {
+							onRedirecting?.();
+							run();
+						} }
+						isLoading={ hasCheckoutStarted }
+						fullWidth
+						disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
+					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</PricingTableHeader>
@@ -64,16 +76,22 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+					<ProductPrice
+						price={ 0 }
+						legend=""
+						currency={ pricingForUi.currencyCode }
+						hidePriceFraction
+					/>
 					<Button
 						fullWidth
 						variant="secondary"
 						onClick={ () => {
-							setIsConnection( true );
+							setIsConnecting( true );
 							handleRegisterSite();
+							onRedirecting?.();
 						} }
 						isLoading={ userIsConnecting || isConnecting }
-						disabled={ userIsConnecting || isConnecting }
+						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
 					</Button>

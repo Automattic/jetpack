@@ -15,7 +15,6 @@
 		grid-auto-flow: column;
 		grid-template-rows: repeat( var( --rows ), minmax( min-content, max-content ) );
 		column-gap: var( --gap );
-		overflow: hidden;
 	}
 }
 
@@ -59,6 +58,9 @@
 
 .header {
 	padding: var( --padding );
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 
 .item {
@@ -78,12 +80,17 @@
 			right: var(--padding);
 			height: 1px;
 			.is-viewport-large & {
-				width: 150%;
-				left: unset;
+				width: calc( 100% + var(--gap) );
+				left: 0;
 				right: unset;
 			}
 			z-index: 5;
 			background-color: var( --jp-gray );
+
+			// Last pricing column doesn't have any grid gap on the right. So override the default width specified above.
+			.is-viewport-large .table > :last-child & {
+				width: 100%;
+			}
 		}
 	}
 
