@@ -1,5 +1,5 @@
 === Jetpack Protect ===
-Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline
+Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline, dkmyta
 Tags: jetpack, protect, security, malware, scan
 Requires at least: 6.0
 Requires PHP: 5.6
@@ -109,13 +109,7 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-## 1.1.0 - 2022-11-17
-### Added
-- Add features for paid Jetpack Scan users, including file and database threats, on-demand scanning, and threat auto-fixers.
-
-### Changed
-- Compatibility: WordPress 6.1 compatibility
-
+## 1.1.1 - 2022-11-18
 ### Fixed
-- Adjust alignment of spinner icon and loading text on the in-progress scan screen.
+- Fix issue with plugin activation.
 
