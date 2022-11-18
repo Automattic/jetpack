@@ -64,21 +64,16 @@ if ( ! production ) {
 	} );
 }
 
+const GUIDE_PATH = `app/features/image-guide`;
+
 export default [
-	{
-		input: 'app/assets/src/css/admin-banner.scss',
-		output: {
-			file: 'app/assets/dist/admin-banner.css',
-			format: 'es',
-		},
-		plugins: [
-			postcss( {
-				extract: true,
-				minimize: production,
-				sourceMap: ! production,
-			} ),
-		],
-	},
+	/**
+	 *
+	 *
+	 * Jetpack Boost Dashboard UI
+	 *
+	 *
+	 */
 	{
 		input: 'app/assets/src/js/index.ts',
 		output: {
@@ -126,6 +121,125 @@ export default [
 			postcss( {
 				extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
 				extract: path.resolve( 'app/assets/dist/jetpack-boost.css' ),
+				minimize: production,
+			} ),
+
+			svelteSVG(),
+			svelte( {
+				preprocess: sveltePreprocess( { sourceMap: ! production } ),
+				compilerOptions: {
+					// enable run-time checks when not in production
+					dev: ! production,
+				},
+			} ),
+
+			typescript( {
+				sourceMap: ! production,
+				inlineSources: ! production,
+				// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
+				// we need to include those here and pass the custom tsconfig as well
+				include: tsconfig.include,
+				tsconfig: 'rollup-tsconfig.json',
+			} ),
+
+			copy( {
+				targets: copyTargets,
+			} ),
+
+			// In dev mode, call `npm run start` once
+			// the bundle has been generated
+			runServer && serve(),
+
+			// If we're building for production (npm run build
+			// instead of npm run dev), minify
+			production && terser(),
+		],
+		watch: {
+			clearScreen: false,
+		},
+
+		onwarn: ( warning, defaultHandler ) => {
+			// Ignore unused external imports for known problem React / ReactDOM imports.
+			if ( warning.code === 'UNUSED_EXTERNAL_IMPORT' ) {
+				const ignoredImports = [
+					'createPortal',
+					'findDOMNode',
+					'render',
+					'unmountComponentAtNode',
+					'createRef',
+					'memo',
+					'useImperativeHandle',
+					'useDebugValue',
+					'lazy',
+					'Suspense',
+				];
+
+				const unignoredWarnings = warning.names.filter( name => ! ignoredImports.includes( name ) );
+				if ( unignoredWarnings.length === 0 ) {
+					return;
+				}
+			}
+
+			defaultHandler( warning );
+		},
+	},
+
+	/**
+	 * Admin banner styles for use outside Jetpack Boost Dashboard UI
+	 */
+	{
+		input: 'app/assets/src/css/admin-banner.scss',
+		output: {
+			file: 'app/assets/dist/admin-banner.css',
+			format: 'es',
+		},
+		plugins: [
+			postcss( {
+				extract: true,
+				minimize: production,
+				sourceMap: ! production,
+			} ),
+		],
+	},
+
+	/**
+	 *
+	 *
+	 * Jetpack Boost Guide
+	 *
+	 *
+	 */
+	{
+		input: `${ GUIDE_PATH }/src/index.ts`,
+		output: {
+			sourcemap: ! production,
+			format: 'iife',
+			name: 'app',
+			file: `${ GUIDE_PATH }/dist/guide.js`,
+		},
+		plugins: [
+			resolve( {
+				browser: true,
+				preferBuiltins: false,
+				dedupe: [ 'svelte' ],
+			} ),
+
+			commonjs(),
+			globals(),
+			json(),
+
+			babel( {
+				exclude: 'node_modules/**',
+				presets: [ '@babel/preset-react' ],
+				babelHelpers: 'bundled',
+				compact: true,
+			} ),
+
+			// we'll extract any component CSS out into
+			// a separate file - better for performance
+			postcss( {
+				extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
+				extract: path.resolve( `${ GUIDE_PATH }/dist/guide.css` ),
 				minimize: production,
 			} ),
 
