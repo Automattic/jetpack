@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { date } from '@wordpress/date';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { BACKUP_STATE } from '../constants';
 
 const useBackupsState = () => {
@@ -15,7 +15,6 @@ const useBackupsState = () => {
 		themes: 0,
 		warnings: false,
 	} );
-	const [ trackProgress, setTrackProgress ] = useState( 0 );
 
 	const fetchBackupsState = () =>
 		apiFetch( { path: '/jetpack/v4/backups' } ).then(
@@ -70,7 +69,7 @@ const useBackupsState = () => {
 				if ( res.length === 0 || 'started' === latestBackup.status ) {
 					// Grab progress and update every progressInterval until complete.
 					setTimeout( () => {
-						setTrackProgress( trackProgress + 1 );
+						fetchBackupsState();
 					}, progressInterval );
 				}
 			},
@@ -78,6 +77,12 @@ const useBackupsState = () => {
 				setBackupState( BACKUP_STATE.NO_GOOD_BACKUPS );
 			}
 		);
+
+	// Start the initial state fetch
+	useEffect( () => {
+		fetchBackupsState();
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
 	return {
 		backupState,
 		fetchBackupsState,

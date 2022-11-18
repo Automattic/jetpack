@@ -267,6 +267,14 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Search', 'jetpack' ),
 				};
 
+			case 'is-free-search-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
+					title: __( 'Jetpack Search Free', 'jetpack' ),
+				};
+
 			case 'is-scan-plan':
 				return {
 					...productProps,
@@ -341,6 +349,19 @@ class MyPlanHeader extends React.Component {
 					details: [ activation, expiration ],
 					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
 					title: __( 'Jetpack VideoPress', 'jetpack' ),
+				};
+
+			case 'is-jetpack-social-basic-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You can automatically share your content to social media sites.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Social Basic', 'jetpack' ), {
+						em: <em />,
+					} ),
 				};
 
 			default:

@@ -7,7 +7,9 @@ import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useEffect } from 'react';
-/** */
+/**
+ * Internal dependencies
+ */
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import {
@@ -16,11 +18,17 @@ import {
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
+import { useActionItem } from '../../hooks/use-action-item';
+import { usePermission } from '../../hooks/use-permission';
+import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import {
 	ActionItemProps,
 	PopoverWithAnchorProps,
@@ -30,17 +38,29 @@ import {
 	ConnectVideoQuickActionsProps,
 } from './types';
 
-const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorProps ) => {
-	if ( ! anchorRef ) {
+const PopoverWithAnchor = ( {
+	showPopover = false,
+	isAnchorFocused = false,
+	anchor,
+	children = null,
+}: PopoverWithAnchorProps ) => {
+	if ( ! anchor || ! showPopover ) {
 		return null;
 	}
+
+	useEffect( () => {
+		if ( showPopover && ! isAnchorFocused ) {
+			( anchor?.querySelector( '.components-popover' ) as HTMLElement | null )?.focus();
+		}
+	}, [ showPopover ] );
+
 	const popoverProps = {
-		anchorRef,
+		anchor,
 		offset: 15,
 	};
 
 	return (
-		<Popover position="top center" noArrow { ...popoverProps }>
+		<Popover position="top center" noArrow focusOnMount={ false } { ...popoverProps }>
 			<Text variant="body-small" className={ styles.popover }>
 				{ children }
 			</Text>
@@ -49,20 +69,35 @@ const PopoverWithAnchor = ( { anchorRef, children = null }: PopoverWithAnchorPro
 };
 
 const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
+	const {
+		setAnchor,
+		setIsFocused,
+		setIsHovering,
+		anchor,
+		isFocused,
+		showPopover,
+	} = useActionItem();
 
 	return (
-		<div ref={ setAnchorRef } className={ className }>
+		<div ref={ setAnchor } className={ className }>
 			<Button
 				size="small"
 				variant="tertiary"
 				icon={ icon }
-				onMouseEnter={ () => setShowPopover( true ) }
-				onMouseLeave={ () => setShowPopover( false ) }
+				onMouseEnter={ () => setIsHovering( true ) }
+				onMouseLeave={ () => setIsHovering( false ) }
+				onFocus={ () => setIsFocused( true ) }
+				onBlur={ () => setIsFocused( false ) }
+				disabled={ props.disabled }
 				{ ...props }
 			/>
-			{ showPopover && <PopoverWithAnchor anchorRef={ anchorRef }>{ children }</PopoverWithAnchor> }
+			<PopoverWithAnchor
+				showPopover={ showPopover }
+				anchor={ anchor }
+				isAnchorFocused={ isFocused }
+			>
+				{ children }
+			</PopoverWithAnchor>
 		</div>
 	);
 };
@@ -71,17 +106,24 @@ const ThumbnailActionsDropdown = ( {
 	description,
 	onUpdate,
 	isUpdatingPoster,
+	disabled,
 }: ThumbnailActionsDropdownProps ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
+	const {
+		setAnchor,
+		setIsFocused,
+		setIsHovering,
+		setShowPopover,
+		anchor,
+		isFocused,
+		showPopover,
+	} = useActionItem();
 
 	return (
 		<Dropdown
 			position="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
-				<>
+				<div ref={ setAnchor }>
 					<Button
-						ref={ setAnchorRef }
 						size="small"
 						variant="tertiary"
 						icon={ image }
@@ -90,13 +132,20 @@ const ThumbnailActionsDropdown = ( {
 							onToggle();
 						} }
 						aria-expanded={ isOpen }
-						onMouseEnter={ () => setShowPopover( true ) }
-						onMouseLeave={ () => setShowPopover( false ) }
+						onMouseEnter={ () => setIsHovering( true ) }
+						onMouseLeave={ () => setIsHovering( false ) }
+						onFocus={ () => setIsFocused( true ) }
+						onBlur={ () => setIsFocused( false ) }
+						disabled={ disabled }
 					/>
-					{ showPopover && (
-						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
-					) }
-				</>
+					<PopoverWithAnchor
+						showPopover={ showPopover && ! isOpen }
+						anchor={ anchor }
+						isAnchorFocused={ isFocused }
+					>
+						{ description }
+					</PopoverWithAnchor>
+				</div>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<VideoThumbnailDropdownButtons
@@ -116,9 +165,17 @@ const PrivacyActionsDropdown = ( {
 	privacySetting,
 	isUpdatingPrivacy,
 	onUpdate,
+	disabled,
 }: PrivacyActionsDropdownProps ) => {
-	const [ anchorRef, setAnchorRef ] = useState( null );
-	const [ showPopover, setShowPopover ] = useState( false );
+	const {
+		setAnchor,
+		setIsFocused,
+		setIsHovering,
+		setShowPopover,
+		anchor,
+		isFocused,
+		showPopover,
+	} = useActionItem();
 
 	let currentPrivacyIcon = siteDefaultPrivacyIcon;
 	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
@@ -131,9 +188,8 @@ const PrivacyActionsDropdown = ( {
 		<Dropdown
 			position="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
-				<>
+				<div ref={ setAnchor }>
 					<Button
-						ref={ setAnchorRef }
 						size="small"
 						variant="tertiary"
 						icon={ currentPrivacyIcon }
@@ -142,14 +198,20 @@ const PrivacyActionsDropdown = ( {
 							onToggle();
 						} }
 						aria-expanded={ isOpen }
-						onMouseEnter={ () => setShowPopover( true ) }
-						onMouseLeave={ () => setShowPopover( false ) }
-						disabled={ isUpdatingPrivacy }
+						onMouseEnter={ () => setIsHovering( true ) }
+						onMouseLeave={ () => setIsHovering( false ) }
+						onFocus={ () => setIsFocused( true ) }
+						onBlur={ () => setIsFocused( false ) }
+						disabled={ disabled || isUpdatingPrivacy }
 					/>
-					{ showPopover && (
-						<PopoverWithAnchor anchorRef={ anchorRef }>{ description }</PopoverWithAnchor>
-					) }
-				</>
+					<PopoverWithAnchor
+						showPopover={ showPopover && ! isOpen }
+						anchor={ anchor }
+						isAnchorFocused={ isFocused }
+					>
+						{ description }
+					</PopoverWithAnchor>
+				</div>
 			) }
 			renderContent={ ( { onClose } ) => (
 				<div className={ styles[ 'dropdown-content' ] }>
@@ -209,12 +271,15 @@ const VideoQuickActions = ( {
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
 }: VideoQuickActionsProps ) => {
+	const { canPerformAction } = usePermission();
+
 	return (
 		<div className={ classNames( styles.actions, className ) }>
 			<ThumbnailActionsDropdown
 				onUpdate={ onUpdateVideoThumbnail }
 				description={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
 				isUpdatingPoster={ isUpdatingPoster }
+				disabled={ ! canPerformAction }
 			/>
 
 			<PrivacyActionsDropdown
@@ -222,9 +287,15 @@ const VideoQuickActions = ( {
 				privacySetting={ privacySetting }
 				isUpdatingPrivacy={ isUpdatingPrivacy }
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+				disabled={ ! canPerformAction }
 			/>
 
-			<ActionItem icon={ trash } className={ styles.trash } onClick={ onDeleteVideo }>
+			<ActionItem
+				icon={ trash }
+				className={ styles.trash }
+				onClick={ onDeleteVideo }
+				disabled={ ! canPerformAction }
+			>
 				{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
 			</ActionItem>
 		</div>
@@ -241,6 +312,8 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy, isUpdatingPoster } = useVideo(
 		videoId
 	);
+
+	const { isFetchingPlaybackToken } = usePlaybackToken( data );
 
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
 	const {
@@ -333,7 +406,7 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 			onUpdateVideoThumbnail={ onUpdateVideoThumbnail }
 			onDeleteVideo={ () => setShowDeleteModal( true ) }
 			privacySetting={ privacySetting }
-			isUpdatingPrivacy={ isUpdatingPrivacy }
+			isUpdatingPrivacy={ isUpdatingPrivacy || isFetchingPlaybackToken }
 			isUpdatingPoster={ isUpdatingPoster }
 		/>
 	);

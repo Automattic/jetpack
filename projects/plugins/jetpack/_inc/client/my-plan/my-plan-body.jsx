@@ -562,6 +562,7 @@ class MyPlanBody extends React.Component {
 			case 'is-backup-t1-plan':
 			case 'is-backup-t2-plan':
 			case 'is-search-plan':
+			case 'is-free-search-plan':
 			case 'offline':
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.

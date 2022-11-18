@@ -4,6 +4,7 @@ import {
 	Button,
 	Container,
 	Col,
+	getProductCheckoutUrl,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -13,8 +14,7 @@ import Loading from 'components/loading';
 import MockedSearch from 'components/mocked-search';
 import ModuleControl from 'components/module-control';
 import RecordMeter from 'components/record-meter';
-import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { STORE_ID } from 'store';
 import FirstRunSection from './sections/first-run-section';
 import PlanUsageSection from './sections/plan-usage-section';
@@ -32,25 +32,20 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
 	const { hasConnectionError } = useConnectionErrorNotice();
 
-	// Prepare Checkout action and loading status
-	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
-	const checkSiteHasSearchProduct = useCallback(
-		() => fetchSearchPlanInfo().then( response => response?.supports_search ),
-		[ fetchSearchPlanInfo ]
-	);
-	const { run: sendPaidPlanToCart, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_search',
-		redirectUrl: `${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
-		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
-		from: 'jetpack-search',
-		siteSuffix: domain,
-		isWpcom,
-	} );
+	const sendPaidPlanToCart = () => {
+		const checkoutProductUrl = getProductCheckoutUrl(
+			'jetpack_search',
+			domain,
+			`${ siteAdminUrl }admin.php?page=jetpack-search&just_upgraded=1`,
+			true
+		);
+
+		window.location.href = checkoutProductUrl;
+	};
 
 	const isPageLoading = useSelect(
 		select =>
@@ -60,25 +55,21 @@ export default function DashboardPage( { isLoading = false } ) {
 			! select( STORE_ID ).hasStartedResolution( 'getSearchStats' ) ||
 			select( STORE_ID ).isResolving( 'getSearchPlanInfo' ) ||
 			! select( STORE_ID ).hasStartedResolution( 'getSearchPlanInfo' ) ||
-			isLoading ||
-			hasCheckoutStarted,
-		[ isLoading, hasCheckoutStarted ]
+			isLoading,
+		[ isLoading ]
 	);
 
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
-	const tierSlug = useSelect( select => select( STORE_ID ).getTierSlug() );
+	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan() );
+	const isOverLimit = useSelect( select => select( STORE_ID ).isOverLimit() );
+	const isDisabledFromOverLimitOnFreePlan = isOverLimit && isFreePlan;
 
-	const isDisabledFromOverLimit = useSelect( select =>
-		select( STORE_ID ).getDisabledFromOverLimit()
-	);
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
 		select( STORE_ID ).isInstantSearchPromotionActive()
 	);
-
-	const upgradeBillPeriod = useSelect( select => select( STORE_ID ).getUpgradeBillPeriod() );
 
 	const supportsOnlyClassicSearch = useSelect( select =>
 		select( STORE_ID ).supportsOnlyClassicSearch()
@@ -119,7 +110,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<Header
-						isUpgradable={ isNewPricing && ! tierSlug }
+						isUpgradable={ ( isNewPricing && isFreePlan ) || ! supportsInstantSearch }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
 					/>
 					{ hasConnectionError && (
@@ -133,15 +124,15 @@ export default function DashboardPage( { isLoading = false } ) {
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
-					{ isNewPricing && (
+					{ isNewPricing && supportsInstantSearch && (
 						<PlanInfo
 							hasIndex={ postCount !== 0 }
 							recordMeterInfo={ recordMeterInfo }
-							tierSlug={ tierSlug }
+							isFreePlan={ isFreePlan }
 							sendPaidPlanToCart={ sendPaidPlanToCart }
 						/>
 					) }
-					{ ! isNewPricing && (
+					{ ! isNewPricing && supportsInstantSearch && (
 						<RecordMeter
 							postCount={ postCount }
 							postTypeBreakdown={ postTypeBreakdown }
@@ -155,9 +146,8 @@ export default function DashboardPage( { isLoading = false } ) {
 							siteAdminUrl={ siteAdminUrl }
 							updateOptions={ updateOptions }
 							domain={ domain }
-							isDisabledFromOverLimit={ isDisabledFromOverLimit }
+							isDisabledFromOverLimit={ isDisabledFromOverLimitOnFreePlan }
 							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-							upgradeBillPeriod={ upgradeBillPeriod }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 							supportsSearch={ supportsSearch }
 							supportsInstantSearch={ supportsInstantSearch }
@@ -179,7 +169,7 @@ export default function DashboardPage( { isLoading = false } ) {
 	);
 }
 
-const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } ) => {
+const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart } ) => {
 	// Site Info
 	// TODO: Investigate why this isn't returning anything useful.
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle() ) || 'your site';
@@ -187,7 +177,7 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } )
 	const currentPlan = useSelect( select => select( STORE_ID ).getCurrentPlan() );
 	const currentUsage = useSelect( select => select( STORE_ID ).getCurrentUsage() );
 	const latestMonthRequests = useSelect( select => select( STORE_ID ).getLatestMonthRequests() );
-	const planInfo = { currentPlan, currentUsage, latestMonthRequests, tierSlug };
+	const planInfo = { currentPlan, currentUsage, latestMonthRequests, isFreePlan };
 
 	const isPlanJustUpgraded = useSelect( select => select( STORE_ID ).isPlanJustUpgraded(), [] );
 
@@ -197,9 +187,10 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, tierSlug, sendPaidPlanToCart } )
 			{ hasIndex && (
 				<>
 					<PlanUsageSection
+						isFreePlan={ isFreePlan }
+						isPlanJustUpgraded={ isPlanJustUpgraded }
 						planInfo={ planInfo }
 						sendPaidPlanToCart={ sendPaidPlanToCart }
-						isPlanJustUpgraded={ isPlanJustUpgraded }
 					/>
 					<RecordMeter
 						postCount={ recordMeterInfo.postCount }

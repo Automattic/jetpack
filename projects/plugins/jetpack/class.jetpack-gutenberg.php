@@ -695,6 +695,7 @@ class Jetpack_Gutenberg {
 				 * @module publicize
 				 *
 				 * @since 10.3.0
+				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
@@ -711,8 +712,9 @@ class Jetpack_Gutenberg {
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
 			$initial_state['social'] = array(
-				'sharesData'  => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan' => $publicize->has_paid_plan(),
+				'sharesData'                  => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                 => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( $blog_id ),
 			);
 		}
 

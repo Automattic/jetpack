@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import { hasPrioritySupport, openPaidSupport } from '../../../utils/paid-plan';
 </script>

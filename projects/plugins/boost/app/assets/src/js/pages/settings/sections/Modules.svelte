@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
@@ -14,6 +14,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -104,4 +105,6 @@
 			/>
 		</p>
 	</Module>
+
+	<SuperCacheInfo />
 </div>

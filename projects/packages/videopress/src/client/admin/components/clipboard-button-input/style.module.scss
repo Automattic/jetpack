@@ -8,6 +8,10 @@
 	padding-left: calc( var( --spacing-base ) * 1.5 );
 	background-color: var( --jp-white );
 
+	&:focus-within {
+		box-shadow: 0 0 0 1px var( --jp-black ) inset;
+	}
+
 	> input {
 		all: unset;
 		width: 100%;
@@ -17,6 +21,12 @@
 		outline: none;
 		text-overflow: ellipsis;
 		cursor: default;
+
+		&:focus {
+			outline: none;
+			box-shadow: none;
+			border: none;
+		}
 	}
 
 	.button-wrapper {
