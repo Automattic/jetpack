@@ -455,7 +455,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 
 						if (
-							( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta['meta_key'] || Jetpack_SEO_Posts::HTML_TITLE_META_KEY === $meta['meta_key'] ) &&
+							in_array( $meta['meta_key'], Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
 							! Jetpack_SEO_Utils::is_enabled_jetpack_seo()
 						) {
 							$show = false;
