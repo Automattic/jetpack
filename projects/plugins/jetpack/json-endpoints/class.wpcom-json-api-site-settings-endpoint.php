@@ -892,10 +892,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
-				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
+					}
+					break;
+
+				case 'wpcom_gifting_subscription':
+					$coerce_value = (bool) $value;
+					// get_option returns false if the option doesn't exist, otherwise it returns a string value.
+					$gift_toggle = get_option( $key );
+					// If the option doesn't exist, we add it and set the value to the inverse of auto_renew.
+					if ( $gift_toggle === false ) {
+						add_option( $key, $coerce_value );
+					} else {
+						update_option( $key, $coerce_value );
 					}
 					break;
 
