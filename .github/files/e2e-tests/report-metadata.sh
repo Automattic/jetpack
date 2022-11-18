@@ -14,5 +14,6 @@ if [[ -z "$SUITE" ]]; then
 	fi
 fi
 
+mkdir -p "$OUTPUT_PATH/output"
 jq -n --arg suite "$SUITE" '{suite:$suite}' >"$OUTPUT_PATH/output/report-metadata.json"
 cat "$OUTPUT_PATH/output/report-metadata.json"
