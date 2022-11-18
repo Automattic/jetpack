@@ -1926,7 +1926,7 @@ class Grunion_Contact_Form_Plugin {
 		$options = '';
 
 		// Get the feedbacks' parents' post IDs
-		$feedbacks = get_posts(
+		$feedbacks  = get_posts(
 			array(
 				'fields'           => 'id=>parent',
 				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
@@ -1935,25 +1935,18 @@ class Grunion_Contact_Form_Plugin {
 				'suppress_filters' => false,
 			)
 		);
-		$parents   = array_unique( array_values( $feedbacks ) );
-
-		$posts = get_posts(
-			array(
-				'orderby'          => 'ID',
-				'posts_per_page'   => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'post_type'        => 'any',
-				'post__in'         => array_values( $parents ),
-				'suppress_filters' => false,
-			)
-		);
+		$parent_ids = array_unique( array_values( $feedbacks ) );
 
 		// creates the string of <option> elements
-		foreach ( $posts as $post ) {
+		foreach ( $parent_ids as $parent_id ) {
+			$parent_url = get_permalink( $parent_id );
+			$parsed_url = wp_parse_url( $parent_url );
+
 			$options .= sprintf(
-				'<option value="%s" %s>%s</option>',
-				esc_attr( $post->ID ),
-				$selected_id === $post->ID ? 'selected' : '',
-				! empty( $post->post_title ) ? esc_html( $post->post_title ) : esc_html__( '(Untitled)', 'jetpack' )
+				'<option value="%s" %s>/%s</option>',
+				esc_attr( $parent_id ),
+				$selected_id === $parent_id ? 'selected' : '',
+				esc_html( basename( $parsed_url['path'] ) )
 			);
 		}
 
