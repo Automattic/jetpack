@@ -65,7 +65,7 @@ const videoFieldsToUpdate = [
 	'privacy_setting',
 	'rating',
 	'allow_download',
-	'isPrivate',
+	'is_private',
 ];
 
 /*
@@ -75,6 +75,7 @@ const videoFieldsToUpdate = [
 const mapFieldsToAttributes = {
 	privacy_setting: 'privacySetting',
 	allow_download: 'allowDownload',
+	is_private: 'isPrivate',
 };
 
 /**
