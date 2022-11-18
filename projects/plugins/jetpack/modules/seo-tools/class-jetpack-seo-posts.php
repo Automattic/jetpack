@@ -26,7 +26,7 @@ class Jetpack_SEO_Posts {
 	 *
 	 * @return string Post description or empty string.
 	 */
-	public static function get_post_description( $post ) {
+	public static function get_post_description( $post = null ) {
 		$post = get_post( $post );
 		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
