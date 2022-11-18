@@ -72,7 +72,7 @@
 }
 
 .message {
-	margin-right: 10px;
+        margin-right: var( --spacing-base ); // 8px
 	flex-grow: 1;
 	display: flex;
 
