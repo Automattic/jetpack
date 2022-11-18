@@ -38,7 +38,7 @@ export default function useVideoData( id: VideoId ): UseVideoDataProps {
 				// Pick filename from the source_url.
 				const filename = response?.source_url?.split( '/' )?.at( -1 );
 
-				// Pick isProvate
+				// Pick isPrivate
 				const is_private = response?.media_details?.videopress?.is_private;
 
 				setVideoData( { ...response.jetpack_videopress, filename, is_private } );
