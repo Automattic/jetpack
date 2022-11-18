@@ -33,4 +33,9 @@ export type WPV2mediaGetEndpointResponseProps = {
 		privacy_setting: PrivacySettingProp;
 		rating: string;
 	};
+	media_details: {
+		videopress?: {
+			is_private: boolean;
+		};
+	};
 };

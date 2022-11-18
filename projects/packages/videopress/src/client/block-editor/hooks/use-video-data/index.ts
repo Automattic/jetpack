@@ -35,10 +35,13 @@ export default function useVideoData( id: VideoId ): UseVideoDataProps {
 					return;
 				}
 
-				// pick filename from the source_url
+				// Pick filename from the source_url.
 				const filename = response?.source_url?.split( '/' )?.at( -1 );
 
-				setVideoData( { ...response.jetpack_videopress, filename } );
+				// Pick isPrivate
+				const is_private = response?.media_details?.videopress?.is_private;
+
+				setVideoData( { ...response.jetpack_videopress, filename, is_private } );
 			} catch ( error ) {
 				setIsRequestingVideoData( false );
 				throw new Error( error );
