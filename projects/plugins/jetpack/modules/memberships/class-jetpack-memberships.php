@@ -479,13 +479,9 @@ class Jetpack_Memberships {
 	 * Whether the site's plan supports the Recurring Payments block.
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
-
-		$is_supported_jetpack_recurring_payments = apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', false );
-
-		return $is_supported_jetpack_recurring_payments || (
-			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
-			Jetpack_Plan::supports( 'recurring-payments' )
-		);
+		$api_available     = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		$supported_in_plan = Jetpack_Plan::supports( 'recurring-payments' );
+		return apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', $api_available && $supported_in_plan );
 	}
 
 	/**
