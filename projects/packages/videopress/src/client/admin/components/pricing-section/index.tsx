@@ -41,7 +41,14 @@ const PricingPage = ( { onRedirecting } ) => {
 	 * Fallback to the product price if the site product price is not available.
 	 * This can happen when the site is not connected yet.
 	 */
-	const pricingForUi = {}; // @todo: tackle getting this value from the MyJetpack
+	const pricingForUi: {
+		available?: boolean;
+		currencyCode?: string;
+		discountPrice?: number;
+		fullPrice?: number;
+		wpcomProductSlug?: string;
+	} = {}; // @todo: tackle getting this value from the MyJetpack
+
 	if ( ! pricingForUi?.fullPrice ) {
 		pricingForUi.currencyCode = product.currencyCode;
 		pricingForUi.discountPrice = null;
