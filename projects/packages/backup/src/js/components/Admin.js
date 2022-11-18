@@ -42,7 +42,7 @@ const Admin = () => {
 		<AdminPage
 			showHeader={ isFullyConnected }
 			showFooter={ isFullyConnected }
-			moduleName={ __( 'Jetpack VaultPress Backup', 'jetpack-backup-pkg' ) }
+			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
