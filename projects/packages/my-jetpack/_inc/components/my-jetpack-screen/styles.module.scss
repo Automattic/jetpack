@@ -61,7 +61,7 @@
 		padding: 8px 24px;
 		margin-top: 24px;
 		background: #000000;
-		border-radius: 4px;
+                border-radius: var( --jp-border-radius );
 		height: auto;
 
 		@include break-medium {
