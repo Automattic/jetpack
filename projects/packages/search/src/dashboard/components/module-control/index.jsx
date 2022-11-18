@@ -1,5 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getProductCheckoutUrl } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -8,6 +10,7 @@ import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import React, { Fragment, useCallback } from 'react';
+import { STORE_ID } from 'store';
 
 import 'scss/rna-styles.scss';
 import './style.scss';
@@ -30,7 +33,6 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {object} props - Component properties.
  * @param {string} props.domain - Calypso slug.
  * @param {string} props.siteAdminUrl - site admin URL.
- * @param {string} props.upgradeBillPeriod - billing cycle for upgrades.
  * @param {Function} props.updateOptions - function to update settings.
  * @param {boolean} props.isDisabledFromOverLimit - true if the subscription is invalid to manipulate controls.
  * @param {boolean} props.isSavingEitherOption - true if Saving options.
@@ -53,16 +55,23 @@ export default function SearchModuleControl( {
 	isModuleEnabled,
 	isInstantSearchEnabled,
 	isInstantSearchPromotionActive,
-	upgradeBillPeriod,
 	supportsOnlyClassicSearch,
 	supportsSearch,
 	supportsInstantSearch,
 	isTogglingModule,
 	isTogglingInstantSearch,
 } ) {
-	const upgradeUrl = getRedirectUrl(
-		upgradeBillPeriod === 'monthly' ? 'jetpack-search-monthly' : 'jetpack-search',
-		{ site: domain }
+	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	const { isUserConnected } = useConnection( {
+		redirectUri: `${ adminUrl }admin.php?page=jetpack-search`,
+		from: 'jetpack-search',
+	} );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
+	const upgradeUrl = getProductCheckoutUrl(
+		'jetpack_search_free',
+		domain,
+		`${ adminUrl }admin.php?page=jetpack-search`,
+		isUserConnected || isWpcom
 	);
 
 	const toggleSearchModule = useCallback( () => {

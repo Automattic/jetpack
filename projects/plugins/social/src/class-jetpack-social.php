@@ -291,13 +291,14 @@ class Jetpack_Social {
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
-					'sharesData'              => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'   => '/jetpack/v4/publicize/connection-test-results',
-					'resharePath'             => '/jetpack/v4/publicize/{postId}',
-					'publicizeConnectionsUrl' => esc_url_raw(
+					'sharesData'                  => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'connectionRefreshPath'       => '/jetpack/v4/publicize/connection-test-results',
+					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
+					'publicizeConnectionsUrl'     => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
-					'hasPaidPlan'             => $publicize->has_paid_plan(),
+					'hasPaidPlan'                 => $publicize->has_paid_plan(),
+					'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
 				),
 			)
 		);

@@ -14,6 +14,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -104,4 +105,35 @@
 			/>
 		</p>
 	</Module>
+
+	<div class="settings">
+		<Module slug={'image-guide'}>
+			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+			<p slot="description">
+				{__(
+					`Detect images that are too large on the site to help you catch images that are too large while you browse the site.`,
+					'jetpack-boost'
+				)}
+			</p>
+		</Module>
+
+		<SuperCacheInfo />
+	</div>
 </div>
+
+<style lang="scss">
+	.settings {
+		border-top: 1px solid hsl( 0, 0%, 90% );
+		padding-top: 20px;
+	}
+	.beta {
+		background: hsl( 0, 0%, 90% );
+		color: hsl( 0, 0%, 20% );
+		padding: 2px 5px;
+		border-radius: 3px;
+		font-size: 0.8rem;
+		margin-left: 10px;
+		transform: translateY( -4.5px );
+		display: inline-block;
+	}
+</style>

@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.25.0 - 2022-11-17
+### Added
+- Added additional color studio colors to the ThemeProvider component for use in Jetpack Protect. [#26069]
+- Added a new component for Admin Notices [#26736]
+
+### Fixed
+- Added support for falsey non-zero values for offPrice [#27456]
+- RNA: Add aria-disabled property to Button when disabled [#27449]
+
+## 0.24.5 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.24.4 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
 ## 0.24.3 - 2022-11-01
 ### Changed
 - Updated package dependencies.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Set the playback token on the video URL and the new poster URL when the video needs it.

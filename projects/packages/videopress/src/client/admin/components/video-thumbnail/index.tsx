@@ -28,7 +28,9 @@ export const VideoThumbnailDropdownButtons = ( {
 } ) => {
 	return (
 		<>
+			{ /* TODO: Implement use default and remove disabled class */ }
 			<Button
+				className={ styles.disabled }
 				weight="regular"
 				fullWidth
 				variant="tertiary"
@@ -78,13 +80,12 @@ export const VideoThumbnailDropdown = ( {
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
 				position="bottom left"
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
-						onClick={ onUploadImage }
+						onClick={ onToggle }
 						aria-expanded={ isOpen }
 					/>
 				) }

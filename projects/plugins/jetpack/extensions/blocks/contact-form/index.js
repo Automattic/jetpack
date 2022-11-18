@@ -40,6 +40,7 @@ export const settings = {
 			padding: true,
 			margin: true,
 		},
+		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
 	edit,
@@ -52,7 +53,7 @@ export const settings = {
 		);
 	},
 	variations,
-	category: 'grow',
+	category: 'contact-form',
 	transforms,
 	deprecated,
 };
