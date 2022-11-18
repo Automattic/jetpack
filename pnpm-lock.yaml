@@ -8340,7 +8340,7 @@ packages:
       '@wordpress/server-side-render': 3.19.0_5xvcrqeokx2za2xvbyf5xkapim
       '@wordpress/url': 3.22.0
       '@wordpress/wordcount': 3.21.0
-      classnames: 2.3.2
+      classnames: 2.3.1
       date-fns: 2.29.3
       escape-html: 1.0.3
       lodash: 4.17.21
@@ -8348,7 +8348,7 @@ packages:
       react: 17.0.2
       react-autosize-textarea: 7.1.0_sfoxds7t5ydpegc3knd667wn6m
       react-dom: 17.0.2_react@17.0.2
-      rememo: 4.0.2
+      rememo: 4.0.1
       remove-accents: 0.4.3
     transitivePeerDependencies:
       - '@babel/core'
@@ -8674,7 +8674,7 @@ packages:
       '@wordpress/element': 4.19.0
       '@wordpress/i18n': 4.21.0
       '@wordpress/icons': 9.12.0
-      classnames: 2.3.2
+      classnames: 2.3.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     transitivePeerDependencies:
@@ -18558,7 +18558,6 @@ packages:
 
   /rememo/4.0.1:
     resolution: {integrity: sha512-x/T5q/pCDh8k4OlvJGqkI3eO+O8hmJv9HhJHo4avwlluwUpDbteDvyqw1PTarEITkeH9bfW6GSKeRke+XKgykw==}
-    dev: false
 
   /rememo/4.0.2:
     resolution: {integrity: sha512-NVfSP9NstE3QPNs/TnegQY0vnJnstKQSpcrsI2kBTB3dB2PkdfKdTa+abbjMIDqpc63fE5LfjLgfMst0ULMFxQ==}
