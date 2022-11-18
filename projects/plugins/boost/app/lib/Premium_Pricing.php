@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status;
 
 class Premium_Pricing {
 	const PRODUCT_SLUG_BASE = 'jetpack_boost';
@@ -17,7 +18,10 @@ class Premium_Pricing {
 		$yearly_pricing       = Wpcom_Products::get_product_pricing( $yearly_pricing_slug );
 
 		if ( empty( $yearly_pricing ) ) {
-			Analytics::record_user_event( 'upgrade_price_missing', array( 'error_message' => 'Missing pricing information on benefits interstitial page.' ) );
+			// In offline mode, we don't have access to the pricing data and it's not an error.
+			if ( ! ( new Status() )->is_offline_mode() ) {
+				Analytics::record_user_event( 'upgrade_price_missing', array( 'error_message' => 'Missing pricing information on benefits interstitial page.' ) );
+			}
 			return $constants;
 		}
 

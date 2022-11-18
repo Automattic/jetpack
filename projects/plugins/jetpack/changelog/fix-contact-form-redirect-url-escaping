@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Prevent grunion contact form from escaping valid URL characters in the redirect URL

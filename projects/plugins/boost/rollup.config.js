@@ -185,6 +185,24 @@ export default [
 	},
 
 	/**
+	 * Admin banner styles for use outside Jetpack Boost Dashboard UI
+	 */
+	{
+		input: 'app/assets/src/css/admin-banner.scss',
+		output: {
+			file: 'app/assets/dist/admin-banner.css',
+			format: 'es',
+		},
+		plugins: [
+			postcss( {
+				extract: true,
+				minimize: production,
+				sourceMap: ! production,
+			} ),
+		],
+	},
+
+	/**
 	 *
 	 *
 	 * Jetpack Boost Guide

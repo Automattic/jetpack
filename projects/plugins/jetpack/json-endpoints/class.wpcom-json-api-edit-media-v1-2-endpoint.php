@@ -2,7 +2,7 @@
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
-define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 0 );
+define( 'REVISION_HISTORY_MAXIMUM_AMOUNT', 5 );
 define( 'WP_ATTACHMENT_IMAGE_ALT', '_wp_attachment_image_alt' );
 
 new WPCOM_JSON_API_Edit_Media_v1_2_Endpoint(
@@ -346,6 +346,38 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	}
 
 	/**
+	 * Restore the original media file.
+	 *
+	 * @param  {Number} $media_id       - media post ID.
+	 * @param  {Object} $original_media - orginal media data.
+	 * @return {Array}                  - restore media info.
+	 */
+	private function restore_original( $media_id, $original_media ) {
+		$revisions = (array) Jetpack_Media::get_revision_history( $media_id );
+		$revisions = array_filter(
+			$revisions,
+			function ( $revision ) use ( $original_media ) {
+				return $revision->file !== $original_media->file;
+			}
+		);
+		$criteria  = array(
+			'from' => 0,
+			'to'   => REVISION_HISTORY_MAXIMUM_AMOUNT,
+		);
+
+		Jetpack_Media::remove_items_from_revision_history( $media_id, $criteria, $revisions );
+		$file           = get_attached_file( $media_id );
+		$file_parts     = pathinfo( $file );
+		$orginal_file   = path_join( $file_parts['dirname'], $original_media->file );
+		$restored_media = array(
+			'file' => $orginal_file,
+			'type' => $original_media->mime_type,
+		);
+
+		return $restored_media;
+	}
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.
@@ -402,7 +434,12 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 				return $temporal_file;
 			}
 
-			$uploaded_file = $this->save_temporary_file( $temporal_file, $media_id );
+			// edited media is sent as $media_file and restored media is sent as $media_url
+			$should_restore = isset( $media_url ) && ! isset( $media_file ) && $has_original_media;
+
+			$uploaded_file = $should_restore
+				? $this->restore_original( $media_id, $has_original_media )
+				: $this->save_temporary_file( $temporal_file, $media_id );
 
 			if ( is_wp_error( $uploaded_file ) ) {
 				return $uploaded_file;
