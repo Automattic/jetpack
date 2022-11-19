@@ -8,7 +8,7 @@
 .notice {
 	box-sizing: border-box;
 	margin: 0;
-	padding: 12px 20px 12px 14px;
+        padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px | 16px | 24px
 	font-size: 16px;
 	line-height: 22px;
 	color: var( --jp-gray-80 );
