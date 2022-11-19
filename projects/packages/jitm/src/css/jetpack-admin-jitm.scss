@@ -31,7 +31,7 @@ $blue-grey-light:        #f6f7f7;
 $blue-medium-dark:       #2271b1;
 
 .jitm-button {
-	background: $blue-grey-light;
+	background: black;
 	border-color: $blue-medium-dark;
 	border-style: solid;
 	border-width: 1px;
@@ -41,7 +41,6 @@ $blue-medium-dark:       #2271b1;
 	margin: 0;
 	outline: 0;
 	overflow: hidden;
-	font-size: 14px;
 	text-overflow: ellipsis;
 	text-decoration: none;
 	vertical-align: top;
@@ -72,10 +71,9 @@ $blue-medium-dark:       #2271b1;
 		box-shadow: 0 0 0 1px $blue-medium-dark;
 	}
 	&.is-compact {
-		padding: 7px;
-		font-size: 11px;
+		padding: 12px;
+		font-size: 14px;
 		line-height: 1;
-		text-transform: uppercase;
 		white-space: nowrap;
 
 		&:disabled {
@@ -105,14 +103,14 @@ $blue-medium-dark:       #2271b1;
 
 // Primary buttons
 .jitm-button.is-primary {
-	background: $blue-medium;
+	background: black;
 	border-color: $blue-medium;
 	color: $white;
-
+	font-weight: 600;
 	&:hover,
 	&:focus {
 		border-color: $blue-medium-dark;
-		background: $blue-medium-dark;
+		background: $gray-dark;
 		color: $white;
 	}
 	&:focus {
@@ -138,7 +136,7 @@ $blue-medium-dark:       #2271b1;
 	clear: both;
 	position: relative;
 	margin: rem( 48px ) rem( 20px ) 0 auto;
-	padding: rem( 16px );
+	padding: 16px ;
 	box-sizing: border-box;
 	background: $white;
 	box-shadow:
@@ -199,13 +197,11 @@ $blue-medium-dark:       #2271b1;
 .jitm-banner.jitm-card {
 	border-left: 4px solid;
 	display: flex;
-	padding: rem( 12px ) rem( 6px ) rem( 12px ) rem( 12px );
 	position: relative;
 	z-index: 2;
 
 	@include breakpoint( "<480px" ) {
 		display: flex;
-		padding: rem( 12px );
 		flex-direction: column;
 	}
 
@@ -222,7 +218,7 @@ $blue-medium-dark:       #2271b1;
 		@include jitm-banner-color( $alert-yellow );
 	}
 	&.is-upgrade-premium {
-		@include jitm-banner-color( $alert-green );
+		@include jitm-banner-color( #069e08 );
 	}
 	&.is-upgrade-business,
 	&.woo-jitm {
@@ -257,8 +253,7 @@ $blue-medium-dark:       #2271b1;
 .jitm-banner__buttons_container {
 	display: grid;
 	height: 50%;
-	margin-top: auto;
-	margin-bottom: auto;
+	margin: auto 16px auto;
 
 	@include breakpoint( ">480px" ) {
 		display: flex;
@@ -329,7 +324,7 @@ $blue-medium-dark:       #2271b1;
 
 		.jitm-jp-logo {
 			height: inherit;
-			width: 6rem;
+			width: rem( 42px );
 			fill: inherit;
 		}
 	}
@@ -376,18 +371,19 @@ $blue-medium-dark:       #2271b1;
 	}
 
 	.jitm-banner__title,
-	.jitm-banner__description {
+	.jitm-banner__description,
+	.jitm-banner__description a {
 		color: $gray-dark;
 	}
 
 	.jitm-banner__title {
-		font-size: 14px;
-		font-weight: 500;
+		font-size: 16px;
+		font-weight: 700;
 	}
 
 	.jitm-banner__description {
-		font-size: rem( 12px );
-		line-height: 1.5;
+		font-size: rem( 14px );
+		line-height: 1.4;
 		margin-top: rem( 6px );
 	}
 

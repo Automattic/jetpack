@@ -64,11 +64,17 @@ class Logo {
 	/**
 	 * Return string containing the Jetpack logo in a slightly larger format than get_jp_emblem().
 	 *
+	 * @since 1.1.4
+	 * @param bool $logotype Should we use the full logotype (logo + text). Default to false.
 	 * @return string
 	 */
-	public function get_jp_emblem_larger() {
+	public function get_jp_emblem_larger( $logotype = false ) {
 		$logo_text = $this->get_jp_logo_parts();
-		return '<svg class="jitm-jp-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">' . $logo_text['logo'] . $logo_text['text'] . '</svg>';
+		return sprintf(
+			'<svg class="jitm-jp-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 %1$s 32">%2$s</svg>',
+			( true === $logotype ? '118' : '32' ),
+			( true === $logotype ? $logo_text['logo'] . $logo_text['text'] : $logo_text['logo'] )
+		);
 	}
 
 	/**
