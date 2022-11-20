@@ -208,9 +208,9 @@
 }
 
 #adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img {
-	width: 24px;
-	height: 24px;
-	padding: 4px;
+	width: 18px;
+	height: 18px;
+	padding: 7px;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image img,
