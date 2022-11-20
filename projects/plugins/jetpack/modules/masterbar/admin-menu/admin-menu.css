@@ -207,10 +207,10 @@
 	background-color: #c3c4c7;
 }
 
-#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img[src^="data:image/svg"] {
-	height: auto;
-	padding-top: 7px;
-	width: 18px;
+#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img {
+	width: 24px;
+	height: 24px;
+	padding: 4px;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image img,
