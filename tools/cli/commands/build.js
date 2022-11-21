@@ -1,5 +1,7 @@
-import { constants as fsconstants } from 'fs';
+import { constants as fsconstants, createReadStream } from 'fs';
 import fs from 'fs/promises';
+import { once } from 'node:events';
+import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
 import execa from 'execa';
@@ -773,6 +775,26 @@ async function buildProject( t ) {
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
+
+		// Update '@dev' dependency version numbers in composer.json.
+		const composerDepTyes = [ 'require', 'require-dev' ];
+		for ( const key of composerDepTyes ) {
+			if ( composerJson[ key ] ) {
+				for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
+					if ( ver === '@dev' ) {
+						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+							if ( ctxPkg.name === pkg ) {
+								let massagedVer = ctxPkg.version;
+								massagedVer = `^${ massagedVer }`;
+								composerJson[ key ][ pkg ] = massagedVer;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
 		await writeFileAtomic(
 			`${ buildDir }/composer.json`,
 			JSON.stringify( composerJson, null, '\t' ) + '\n',
@@ -781,8 +803,9 @@ async function buildProject( t ) {
 	}
 
 	// Remove engines and workspace refs from package.json.
+	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
-		const packageJson = JSON.parse(
+		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
 
@@ -798,10 +821,15 @@ async function buildProject( t ) {
 		for ( const key of depTypes ) {
 			if ( packageJson[ key ] ) {
 				for ( const [ pkg, ver ] of Object.entries( packageJson[ key ] ) ) {
-					if ( ver.startsWith( 'workspace:* || ' ) ) {
-						packageJson[ key ][ pkg ] = ver.substring( 15 );
-					} else if ( ver === 'workspace:*' ) {
-						delete packageJson[ key ][ pkg ];
+					if ( ver === 'workspace:*' ) {
+						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+							if ( ctxPkg.jsName === pkg ) {
+								let massagedVer = ctxPkg.version;
+								massagedVer = `^${ massagedVer }`;
+								packageJson[ key ][ pkg ] = massagedVer;
+								break;
+							}
+						}
 					}
 				}
 			}
@@ -836,10 +864,35 @@ async function buildProject( t ) {
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
 	}
 
+	// Get the project version number from the changelog.md file.
+	let projectVersionNumber = '';
+	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
+	const rl = rlcreateInterface( {
+		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
+			encoding: 'utf8',
+		} ),
+		crlfDelay: Infinity,
+	} );
+
+	rl.on( 'line', line => {
+		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
+		if ( match && match[ 1 ] ) {
+			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
+			rl.close();
+			rl.removeAllListeners();
+		}
+	} );
+	await once( rl, 'close' );
+
+	if ( ! projectVersionNumber ) {
+		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
+	}
+
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
-		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
+		jsName: packageJson?.name,
+		version: projectVersionNumber,
 	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
