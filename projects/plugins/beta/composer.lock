@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "bc17ef85f618a5c89c38402694e061e658eba6e7"
+                "reference": "7275ea50ff5331b82d9726e13d616bc4b4f27785"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -30,7 +30,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.12.x-dev"
+                    "dev-trunk": "2.11.x-dev"
                 }
             },
             "autoload": {
