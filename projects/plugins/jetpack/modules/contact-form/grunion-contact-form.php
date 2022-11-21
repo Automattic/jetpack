@@ -954,7 +954,7 @@ class Grunion_Contact_Form_Plugin {
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
-			echo '<h4>' . esc_html__( 'Message Sent', 'jetpack' ) . '</h4>' . wp_kses(
+			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack' ) . '</h4>' . wp_kses(
 				$submission_result,
 				array(
 					'br'         => array(),
@@ -2459,7 +2459,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
-			'customThankyouHeading'  => __( 'Message Sent', 'jetpack' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack' ), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
