@@ -1715,6 +1715,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
+      react-router-dom: 6.2.2
       sass: 1.43.3
       sass-loader: 12.4.0
       webpack: 5.72.1
@@ -1738,6 +1739,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-router-dom: 6.2.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.20.2
