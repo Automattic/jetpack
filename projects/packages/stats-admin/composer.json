@@ -4,12 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev"
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-options": "^1.16"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {

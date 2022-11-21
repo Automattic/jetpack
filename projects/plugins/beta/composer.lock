@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7b8ce066f47ddea0c60dd1c0104ed54",
+    "content-hash": "c4ba4210658a692d632e046edcc89ceb",
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
@@ -12,13 +12,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "7275ea50ff5331b82d9726e13d616bc4b4f27785"
+                "reference": "54d19e9ca258cd1731dc5f4a2be175204b93625f"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-changelogger": "^3.2",
                 "yoast/phpunit-polyfills": "1.0.3"
             },
             "type": "composer-plugin",

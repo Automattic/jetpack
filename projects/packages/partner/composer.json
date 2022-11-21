@@ -4,13 +4,13 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-connection": "^1.46",
+		"automattic/jetpack-status": "^1.15"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {

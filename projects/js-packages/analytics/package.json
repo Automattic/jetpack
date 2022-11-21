@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-analytics",
-	"version": "0.1.20-alpha",
+	"version": "0.1.19",
 	"description": "Jetpack Analytics Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",

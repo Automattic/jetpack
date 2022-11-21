@@ -8,8 +8,8 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require-dev": {
-		"automattic/jetpack-codesniffer": "@dev",
-		"automattic/jetpack-phpcs-filter": "@dev",
+		"automattic/jetpack-codesniffer": "2.7.x-dev",
+		"automattic/jetpack-phpcs-filter": "1.0.x-dev",
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.2",
 		"php-parallel-lint/php-parallel-lint": "1.3.2",
 		"sirbrillig/phpcs-changed": "2.10.0",

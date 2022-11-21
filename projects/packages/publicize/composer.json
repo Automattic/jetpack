@@ -4,15 +4,15 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-redirect": "@dev"
+		"automattic/jetpack-connection": "^1.46",
+		"automattic/jetpack-autoloader": "^2.11",
+		"automattic/jetpack-config": "^1.11",
+		"automattic/jetpack-assets": "^1.17",
+		"automattic/jetpack-redirect": "^1.7"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^3.2",
 		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
