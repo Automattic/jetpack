@@ -450,14 +450,11 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post() {
-		$newsletter_access_level = self::get_newsletter_access_level();
-		if ( 'everybody' === $newsletter_access_level || empty( $newsletter_access_level ) ) {
-			return true;
-		}
-
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
+
+		$newsletter_access_level = self::get_newsletter_access_level();
+		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level, get_the_ID() );
 	}
 
 	/**
@@ -482,10 +479,9 @@ class Jetpack_Memberships {
 	 * Whether the site's plan supports the Recurring Payments block.
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
-		return (
-			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
-			Jetpack_Plan::supports( 'recurring-payments' )
-		);
+		$api_available     = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		$supported_in_plan = Jetpack_Plan::supports( 'recurring-payments' );
+		return apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', $api_available && $supported_in_plan );
 	}
 
 	/**
