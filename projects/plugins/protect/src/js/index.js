@@ -1,13 +1,27 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import AdminPage from './components/admin-page';
+import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
 // Initialize Jetpack Protect store
 initStore();
+
+/**
+ * Component to scroll window to top on route change.
+ *
+ * @returns {null} Null.
+ */
+function ScrollToTop() {
+	const location = useLocation();
+	useEffect( () => window.scrollTo( 0, 0 ), [ location ] );
+
+	return null;
+}
 
 /**
  * Initial render function.
@@ -21,7 +35,13 @@ function render() {
 
 	ReactDOM.render(
 		<ThemeProvider>
-			<AdminPage />
+			<HashRouter>
+				<ScrollToTop />
+				<Routes>
+					<Route path="/" element={ <AdminPage /> } />
+					<Route path="/firewall" element={ <FirewallPage /> } />
+				</Routes>
+			</HashRouter>
 			<Modal />
 		</ThemeProvider>,
 		container
