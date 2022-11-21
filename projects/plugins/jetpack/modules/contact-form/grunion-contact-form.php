@@ -2618,11 +2618,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
 			$r       .= '<div class="contact-form-submission">';
 
-			$r_success_message =
+			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack' ) . '</a> </p>';
+
+			$r_success_message .=
 				'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 				"</h4>\n\n";
-
-			$r_go_back_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack' ) . '</a> </p>';
 
 			// Don't show the feedback details unless the nonce matches
 			if ( $feedback_id && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -2639,7 +2639,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * @param string $r_success_message Success message.
 			 */
 			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
-			$r .= $r_go_back_message;
 			$r .= '</div>';
 		} else {
 			// Nothing special - show the normal contact form
