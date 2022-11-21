@@ -1,5 +1,23 @@
 import { exec } from './system-tools';
 
+// Cache the docker container id
+let containerId: string | undefined;
+
+export async function getContainerId(): Promise< string > {
+	if ( ! containerId ) {
+		const { stdout } = await exec(
+			'docker',
+			'ps',
+			'-q',
+			'--filter',
+			'ancestor=super-cache-e2e_wordpress '
+		);
+		containerId = stdout.trim();
+	}
+
+	return containerId;
+}
+
 /**
  * Run the given command in the test Docker instance.
  *
@@ -11,7 +29,7 @@ export async function dockerExec( ...command: string[] ) {
 		'exec',
 		'-u',
 		'www-data',
-		'super-cache-e2e_wordpress_1',
+		await getContainerId(),
 		...command
 	);
 
