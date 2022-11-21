@@ -23,7 +23,7 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<ConnectedPricingTable onScanAdd={ onScanAdd } scanJustAdded={ scanJustAdded } />;
+						<ConnectedPricingTable onScanAdd={ onScanAdd } scanJustAdded={ scanJustAdded } />
 					</Col>
 				</Container>
 			</AdminSectionHero>

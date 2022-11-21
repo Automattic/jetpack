@@ -61,7 +61,7 @@ const AdminPage = ( { children } ) => {
 	 * - Checkout workflow has started
 	 */
 	if ( ! isRegistered || hasCheckoutStarted ) {
-		return <InterstitialPage run={ run } hasCheckoutStarted={ hasCheckoutStarted } />;
+		return <InterstitialPage onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />;
 	}
 
 	return (
