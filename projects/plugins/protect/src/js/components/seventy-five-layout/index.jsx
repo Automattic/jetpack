@@ -1,7 +1,5 @@
 import { Container, Col, useBreakpointMatch } from '@automattic/jetpack-components';
-import classnames from 'classnames';
-import React from 'react';
-import styles from './styles.module.scss';
+import { React } from 'react';
 
 /**
  * SeventyFive layout meta component
@@ -18,11 +16,7 @@ import styles from './styles.module.scss';
  * @returns {React.ReactNode} 					    - React meta-component
  */
 const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false } ) => {
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-
-	const classNames = classnames( {
-		[ styles[ 'is-viewport-small' ] ]: isSmall,
-	} );
+	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
 
 	/*
 	 * By convention, secondary section is not shown when:
@@ -32,13 +26,14 @@ const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false
 	const hideSecondarySection = ! preserveSecondaryOnMobile && isSmall;
 
 	return (
-		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
+		<Container horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
 			{ ! hideSecondarySection && (
 				<>
-					<Col sm={ 4 } md={ 4 } className={ styles.main }>
+					<Col sm={ 12 } md={ 4 } lg={ 6 }>
 						{ main }
 					</Col>
-					<Col sm={ 4 } md={ 4 } className={ styles.secondary }>
+					{ isLarge && <Col lg={ 1 } /> }
+					<Col sm={ 12 } md={ 4 } lg={ 5 }>
 						{ secondary }
 					</Col>
 				</>
