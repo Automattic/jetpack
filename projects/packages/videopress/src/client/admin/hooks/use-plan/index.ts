@@ -52,6 +52,7 @@ export const usePlan = (): usePlanProps => {
 		'jetpack_videopress_monthly',
 		'jetpack_complete',
 		'jetpack_complete_monthly',
+		'business-bundle',
 	].some( plan => hasPurchase( plan ) );
 
 	return {
