@@ -1,20 +1,40 @@
-import restApi from '@automattic/jetpack-api';
 import { Button, H3, Text } from '@automattic/jetpack-components';
 import {
 	DisconnectDialog,
 	useConnection,
-	ConnectUser,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { Icon, info, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
 import jetpack from './jetpack.svg';
 import styles from './styles.module.scss';
+
+const ConnectionListItem = ( { text, actionText, onClick, status } ) => (
+	<div className={ styles[ 'list-item' ] }>
+		<Text
+			className={ classNames( styles[ 'list-item-text' ], {
+				[ styles.error ]: status === 'error',
+			} ) }
+		>
+			<Icon
+				icon={ status === 'error' ? info : check }
+				className={ classNames( { [ styles.info ]: status === 'error' } ) }
+			/>
+			{ text }
+		</Text>
+		{ actionText && (
+			<Button variant="link" weight="regular" onClick={ onClick }>
+				{ actionText }
+			</Button>
+		) }
+	</div>
+);
 
 /**
  * The RNA Connection Status Card component.
@@ -35,34 +55,21 @@ const ConnectionStatusCard = props => {
 		connectedSiteId,
 		context,
 		onConnectUser,
-		requiresUserConnection,
+		// requiresUserConnection,
 	} = props;
 
-	const {
-		isRegistered,
-		isUserConnected,
-		userConnectionData,
-		hasConnectedOwner,
-		userIsConnecting,
-	} = useConnection( {
+	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
 		apiRoot,
 		apiNonce,
+		redirectUri,
 	} );
 
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const handleConnectUser = onConnectUser || setUserIsConnecting;
+	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
-	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
-	// const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
-
-	/**
-	 * Initialize the REST API.
-	 */
-	useEffect( () => {
-		restApi.setApiRoot( apiRoot );
-		restApi.setApiNonce( apiNonce );
-	}, [ apiRoot, apiNonce ] );
+	// const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
 
 	/**
 	 * Open the Disconnect Dialog.
@@ -99,7 +106,9 @@ const ConnectionStatusCard = props => {
 		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
 
-			<Text variant="body">{ connectionInfoText }</Text>
+			<Text variant="body" mb={ 3 }>
+				{ connectionInfoText }
+			</Text>
 
 			<div className={ styles.status }>
 				<img src={ cloud } alt="" className={ styles.cloud } />
@@ -110,61 +119,63 @@ const ConnectionStatusCard = props => {
 				/>
 				<div className={ styles[ 'avatar-wrapper' ] }>
 					<img src={ jetpack } alt="" className={ styles.jetpack } />
-					<img src={ emptyAvatar } alt="" className={ styles.avatar } />
+					<img
+						src={ isUserConnected && avatar ? avatar : emptyAvatar }
+						alt=""
+						className={ styles.avatar }
+					/>
 				</div>
 			</div>
 
-			<ul className="jp-connection-status-card--list">
-				<li className="jp-connection-status-card--list-item-success">
-					{ __( 'Site connected.', 'jetpack-my-jetpack' ) }&nbsp;
-					<Button
-						variant="link"
-						weight="regular"
-						onClick={ openDisconnectDialog }
-						className="jp-connection__disconnect-dialog__link"
-					>
-						{ __( 'Disconnect', 'jetpack-my-jetpack' ) }
-					</Button>
-					<DisconnectDialog
-						apiRoot={ apiRoot }
-						apiNonce={ apiNonce }
-						onDisconnected={ onDisconnectedCallback }
-						connectedPlugins={ connectedPlugins }
-						connectedSiteId={ connectedSiteId }
-						connectedUser={ userConnectionData }
-						isOpen={ isDisconnectDialogOpen }
-						onClose={ closeDisconnectDialog }
-						context={ context }
+			<div>
+				{ ! isRegistered ? (
+					<ConnectionListItem
+						onClick={ handleConnectUser }
+						text={ __( 'Jetpack is not connected.', 'jetpack-my-jetpack' ) }
+						actionText={ __( 'Connect', 'jetpack-my-jetpack' ) }
+						status="error"
 					/>
-				</li>
-
-				{ isUserConnected && (
-					<li className="jp-connection-status-card--list-item-success">
-						{ __( 'Logged in as', 'jetpack-my-jetpack' ) }{ ' ' }
-						{ userConnectionData.currentUser?.wpcomUser?.display_name }
-					</li>
+				) : (
+					<>
+						<ConnectionListItem
+							onClick={ openDisconnectDialog }
+							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
+							actionText={ ! isUserConnected ? __( 'Disconnect', 'jetpack-my-jetpack' ) : null }
+						/>
+						{ isUserConnected && (
+							<ConnectionListItem
+								onClick={ openDisconnectDialog }
+								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
+								text={ sprintf(
+									/* translators: placeholder is user name */
+									__( 'Connected as %s.', 'jetpack-my-jetpack' ),
+									userConnectionData.currentUser?.wpcomUser?.display_name
+								) }
+							/>
+						) }
+						{ ( ! isUserConnected || ! hasConnectedOwner ) && (
+							<ConnectionListItem
+								onClick={ handleConnectUser }
+								text={ __( 'You’re not connected.', 'jetpack-my-jetpack' ) }
+								actionText={ __( 'Connect', 'jetpack-my-jetpack' ) }
+								status="error"
+							/>
+						) }
+					</>
 				) }
+			</div>
 
-				{ ( ! isUserConnected || ! hasConnectedOwner ) && (
-					<li
-						className={ `jp-connection-status-card--list-item-${
-							missingConnectedOwner ? 'error' : 'info'
-						}` }
-					>
-						{ missingConnectedOwner && __( 'Requires user connection.', 'jetpack-my-jetpack' ) }{ ' ' }
-						<Button
-							variant="link"
-							disabled={ userIsConnecting }
-							onClick={ handleConnectUser }
-							className="jp-connection-status-card--btn-connect-user"
-						>
-							{ __( 'Connect your user account', 'jetpack-my-jetpack' ) }
-						</Button>
-					</li>
-				) }
-			</ul>
-
-			{ userIsConnecting && <ConnectUser redirectUri={ redirectUri } /> }
+			<DisconnectDialog
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				onDisconnected={ onDisconnectedCallback }
+				connectedPlugins={ connectedPlugins }
+				connectedSiteId={ connectedSiteId }
+				connectedUser={ userConnectionData }
+				isOpen={ isDisconnectDialogOpen }
+				onClose={ closeDisconnectDialog }
+				context={ context }
+			/>
 		</div>
 	);
 };

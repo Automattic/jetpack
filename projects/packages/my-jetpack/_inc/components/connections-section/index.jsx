@@ -13,6 +13,7 @@ import ConnectionStatusCard from '../connection-status-card';
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();
 	const navigate = useMyJetpackNavigate( '/connection' );
+	const onDisconnected = () => document?.location?.reload( true ); // TODO: replace with a better experience.
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
@@ -25,6 +26,8 @@ export default function ConnectionsSection() {
 			onConnectUser={ navigate }
 			connectedPlugins={ connectedPlugins }
 			requiresUserConnection={ productsThatRequiresUserConnection.length > 0 }
+			// eslint-disable-next-line react/jsx-no-bind
+			onDisconnected={ onDisconnected }
 		/>
 	);
 }
