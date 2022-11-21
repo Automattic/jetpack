@@ -1,4 +1,4 @@
-import apiFetch from '@wordpress/api-fetch/build-types';
+import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import camelize from 'camelize';
 import { useEffect } from 'react';
