@@ -54,6 +54,36 @@ export const usePlan = (): usePlanProps => {
 		'jetpack_videopress_monthly',
 		'jetpack_complete',
 		'jetpack_complete_monthly',
+		'jetpack_business',
+		'jetpack_business_monthly',
+		'jetpack_personal',
+		'jetpack_personal_monthly',
+		'jetpack_premium',
+		'jetpack_premium_monthly',
+		'videopress',
+		'videopress-pro',
+		'wp_p2_plus_monthly',
+
+		// WPCOM Premium plans
+		'bundle_pro',
+		'value_bundle',
+		'value_bundle_monthly',
+		'value_bundle-2y',
+
+		// WPCOM PRO plans
+		'pro-plan',
+		'pro-plan-monthly',
+		'pro-plan-2y',
+
+		// WPCOM Business plans
+		'business-bundle',
+		'business-bundle-monthly',
+		'business-bundle-2y',
+
+		// WPCOM eCommerce plans
+		'ecommerce-bundle',
+		'ecommerce-bundle-monthly',
+		'ecommerce-bundle-2y',
 	].some( plan => hasPurchase( plan ) );
 
 	return {
