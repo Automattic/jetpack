@@ -5,7 +5,6 @@ import {
 	Col,
 	H3,
 	Text,
-	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -19,80 +18,21 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import camelize from 'camelize';
-import classnames from 'classnames';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AlertSVGIcon from '../alert-icon';
 import Footer from '../footer';
-import Interstitial from '../interstitial';
+import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
+import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 
 export const JETPACK_SCAN = 'jetpack_scan';
-
-/**
- * SeventyFive layout meta component
- * The component name references to
- * the sections disposition of the layout.
- * FiftyFifty, 75, thus 7|5 means the cols numbers
- * for main and secondary sections respectively,
- * in large lg viewport size.
- *
- * @param {object} props                            - Component props
- * @param {React.ReactNode} props.main              - Main section component
- * @param {React.ReactNode} props.secondary         - Secondary section component
- * @param {boolean} props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
- * @returns {React.ReactNode} 					    - React meta-component
- */
-export const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false } ) => {
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-
-	const classNames = classnames( {
-		[ styles[ 'is-viewport-small' ] ]: isSmall,
-	} );
-
-	/*
-	 * By convention, secondary section is not shown when:
-	 * - preserveSecondaryOnMobile is false
-	 * - on mobile breakpoint (sm)
-	 */
-	const hideSecondarySection = ! preserveSecondaryOnMobile && isSmall;
-
-	return (
-		<Container className={ classNames } horizontalSpacing={ 0 } horizontalGap={ 0 } fluid={ false }>
-			{ ! hideSecondarySection && (
-				<>
-					<Col sm={ 4 } md={ 4 } className={ styles.main }>
-						{ main }
-					</Col>
-					<Col sm={ 4 } md={ 4 } className={ styles.secondary }>
-						{ secondary }
-					</Col>
-				</>
-			) }
-			{ hideSecondarySection && <Col>{ main }</Col> }
-		</Container>
-	);
-};
-
-const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
-	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Interstitial onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />
-					</Col>
-				</Container>
-			</AdminSectionHero>
-		</AdminPage>
-	);
-};
 
 const useCredentials = () => {
 	const { checkCredentials } = useDispatch( STORE_ID );
@@ -380,7 +320,7 @@ const Admin = () => {
 	 * - Checkout workflow has started
 	 */
 	if ( ! isRegistered || hasCheckoutStarted ) {
-		return <InterstitialPage run={ run } hasCheckoutStarted={ hasCheckoutStarted } />;
+		return <InterstitialPage onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />;
 	}
 
 	return <ProtectAdminPage />;
