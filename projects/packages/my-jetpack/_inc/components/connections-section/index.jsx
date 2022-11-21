@@ -1,9 +1,9 @@
-import { ConnectionStatusCard } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { STORE_ID } from '../../state/store';
+import ConnectionStatusCard from '../connection-status-card';
 
 /**
  * Plan section component.
