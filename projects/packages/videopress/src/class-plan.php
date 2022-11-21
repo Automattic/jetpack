@@ -91,7 +91,7 @@ class Plan {
 	 * @param {object} $product - The product object.
 	 * @return {integer} Discount percentage.
 	 */
-	public static function populate_with_discount( $product ) {
+	public static function get_coupon_discount( $product ) {
 		// Check whether the product has a coupon.
 		if ( ! isset( $product->sale_coupon ) ) {
 			return false;
@@ -136,7 +136,7 @@ class Plan {
 
 			if ( isset( $products->jetpack_videopress ) ) {
 				$videopress_yearly = $products->jetpack_videopress;
-				// populate_with_discount
+				// get_coupon_discount
 				$products_list['yearly'] = array(
 					'name'         => $videopress_yearly->product_name,
 					'slug'         => $videopress_yearly->product_slug,
@@ -145,7 +145,7 @@ class Plan {
 					'currency'     => $videopress_yearly->currency_code,
 				);
 
-				$discount = self::populate_with_discount( $videopress_yearly );
+				$discount = self::get_coupon_discount( $videopress_yearly );
 
 				if ( $discount ) {
 					$products_list['yearly']['discount']         = $discount;
