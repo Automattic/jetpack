@@ -1,0 +1,21 @@
+// seventy-five layout
+// Handle large lg size from here,
+// adding a gap on one column
+// in between main and secondary sections.
+@media ( min-width: 960px ) {
+	.main {
+		grid-column: 1 / span 6;
+	}
+
+	.secondary {
+		grid-column: 8 / span 5;
+	}
+}
+
+// Viewport breakpoints.
+.is-viewport-small {
+	// Add spacing between main and secondary in "sm" viewport size
+	.main {
+		margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
+    }
+}

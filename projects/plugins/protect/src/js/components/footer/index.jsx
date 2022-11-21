@@ -10,7 +10,8 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
-import { JETPACK_SCAN, SeventyFiveLayout } from '../admin-page';
+import { JETPACK_SCAN } from '../admin-page';
+import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
