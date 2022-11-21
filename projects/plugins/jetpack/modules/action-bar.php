@@ -14,7 +14,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Action_Bar;
+use Automattic\Jetpack\ActionBar\Action_Bar;
 
 return; // Return out early for now. The module is not ready for production yet.
 
