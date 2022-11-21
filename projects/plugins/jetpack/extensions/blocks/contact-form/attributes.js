@@ -31,4 +31,13 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	// salesforce integration: these don't make sense except on the variation.
+	// needed to persist in order show editor options and backend submit process
+	salesforceData: {
+		type: 'object',
+		default: {
+			organizationId: '',
+			sendToSalesforce: false,
+		},
+	},
 };

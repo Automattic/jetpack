@@ -14,6 +14,12 @@
 		"autoplay": {
 			"type": "boolean"
 		},
+		"title": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
 		"caption": {
 			"type": "string",
 			"source": "html",
@@ -81,6 +87,20 @@
 				"type": "object"
 			},
 			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
+		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
+		"rating": {
+			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
 		}
 	},
 	"textdomain": "jetpack-videopress",

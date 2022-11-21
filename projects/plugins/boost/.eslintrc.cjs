@@ -45,6 +45,7 @@ module.exports = {
 			},
 		],
 
+		'no-nested-ternary': 0,
 		'prettier/prettier': 0,
 		camelcase: 0,
 	},

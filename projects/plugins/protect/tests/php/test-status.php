@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 
@@ -25,27 +26,27 @@ class Test_Status extends BaseTestCase {
 	 */
 	protected function set_up() {
 		parent::setUp();
-		Status::$status = null;
+		Protect_Status::$status = null;
 	}
 
 	/**
 	 * Get a sample checked theme result
 	 *
 	 * @param string $id The unique theme ID.
-	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
+	 * @param bool   $with_threats Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_theme( $id, $with_vuls = true ) {
+	public function get_sample_theme( $id, $with_threats = true ) {
 		$item = (object) array(
-			'version'         => '1.0.2',
-			'name'            => 'Sample Theme',
-			'checked'         => true,
-			'type'            => 'theme',
-			'vulnerabilities' => array(),
-			'slug'            => "theme-$id",
+			'version' => '1.0.2',
+			'name'    => 'Sample Theme',
+			'checked' => true,
+			'type'    => 'themes',
+			'threats' => array(),
+			'slug'    => "theme-$id",
 		);
-		if ( $with_vuls ) {
-			$item->vulnerabilities[] = $this->get_sample_vul();
+		if ( $with_threats ) {
+			$item->threats[] = $this->get_sample_threat();
 		}
 		return $item;
 	}
@@ -54,20 +55,20 @@ class Test_Status extends BaseTestCase {
 	 * Get a sample checked plugin result
 	 *
 	 * @param string $id The unique plugin ID.
-	 * @param bool   $with_vuls Whether the sample should include a vulnerability.
+	 * @param bool   $with_threats Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_plugin( $id, $with_vuls = true ) {
+	public function get_sample_plugin( $id, $with_threats = true ) {
 		$item = (object) array(
-			'version'         => '1.0.2',
-			'name'            => 'Sample Plugin',
-			'checked'         => true,
-			'type'            => 'plugin',
-			'vulnerabilities' => array(),
-			'slug'            => "plugin-$id",
+			'version' => '1.0.2',
+			'name'    => 'Sample Plugin',
+			'checked' => true,
+			'type'    => 'plugins',
+			'threats' => array(),
+			'slug'    => "plugin-$id",
 		);
-		if ( $with_vuls ) {
-			$item->vulnerabilities[] = $this->get_sample_vul();
+		if ( $with_threats ) {
+			$item->threats[] = $this->get_sample_threat();
 		}
 		return $item;
 	}
@@ -75,21 +76,21 @@ class Test_Status extends BaseTestCase {
 	/**
 	 * Get a sample checked core result
 	 *
-	 * @param bool $with_vuls Whether the sample should include a vulnerability.
+	 * @param bool $with_threats Whether the sample should include a vulnerability.
 	 * @return object
 	 */
-	public function get_sample_core( $with_vuls = true ) {
+	public function get_sample_core( $with_threats = true ) {
 		global $wp_version;
 
 		$item = (object) array(
-			'version'         => $wp_version,
-			'vulnerabilities' => array(),
-			'checked'         => true,
-			'name'            => 'WordPress',
-			'type'            => 'core',
+			'version' => $wp_version,
+			'threats' => array(),
+			'checked' => true,
+			'name'    => 'WordPress',
+			'type'    => 'core',
 		);
-		if ( $with_vuls ) {
-			$item->vulnerabilities[] = $this->get_sample_vul();
+		if ( $with_threats ) {
+			$item->threats[] = $this->get_sample_threat();
 		}
 
 		return $item;
@@ -109,13 +110,33 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
+	 * Get a sample threat
+	 *
+	 * @return object
+	 */
+	public function get_sample_threat() {
+		$id = 'asdasdasd-123123-asdasd';
+
+		return new Threat_Model(
+			array(
+				'id'       => $id,
+				'title'    => 'Sample Vul',
+				'fixed_in' => '2.0.0',
+				'source'   => Redirect::get_url( 'jetpack-protect-vul-info', array( 'path' => $id ) ),
+			)
+		);
+	}
+
+	/**
 	 * Get a sample empty response
 	 *
 	 * @return object
 	 */
 	public function get_sample_empty_response() {
-		return (object) array(
-			'last_checked' => '',
+		return new Status_Model(
+			array(
+				'last_checked' => '',
+			)
 		);
 	}
 
@@ -125,44 +146,77 @@ class Test_Status extends BaseTestCase {
 	 * @return object
 	 */
 	public function get_sample_response() {
+		global $wp_version;
+
 		return (object) array(
 			'last_checked'                => '2003-03-03 03:03:03',
 			'num_vulnerabilities'         => 3,
 			'num_themes_vulnerabilities'  => 1,
 			'num_plugins_vulnerabilities' => 1,
 			'themes'                      => (object) array(
-				'theme-1' => $this->get_sample_theme( '1' ),
+				'theme-1' => (object) array(
+					'slug'            => 'theme-1',
+					'name'            => 'Sample Theme',
+					'version'         => '1.0.2',
+					'checked'         => true,
+					'vulnerabilities' => array(
+						$this->get_sample_vul(),
+					),
+				),
 			),
 			'plugins'                     => (object) array(
-				'plugin-1' => $this->get_sample_plugin( '1' ),
-				'plugin-2' => $this->get_sample_plugin( '2', false ),
+				'plugin-1' => (object) array(
+					'slug'            => 'plugin-1',
+					'name'            => 'Sample Plugin',
+					'version'         => '1.0.2',
+					'checked'         => true,
+					'vulnerabilities' => array(
+						$this->get_sample_vul(),
+					),
+				),
+				'plugin-2' => (object) array(
+					'slug'            => 'plugin-2',
+					'name'            => 'Sample Plugin',
+					'version'         => '1.0.2',
+					'checked'         => true,
+					'vulnerabilities' => array(),
+				),
 			),
-			'core'                        => $this->get_sample_core(),
-			'wordpress'                   => $this->get_sample_core(),
+			'core'                        => (object) array(
+				'version'         => $wp_version,
+				'checked'         => true,
+				'vulnerabilities' => array(
+					$this->get_sample_vul(),
+				),
+				'name'            => 'WordPress',
+			),
 		);
 	}
 
 	/**
-	 * Get a sample result of Status::get_status().
+	 * Get a sample result of Protect_Status::get_status().
 	 *
 	 * @return object
 	 */
 	public function get_sample_status() {
-		return (object) array(
-			'plugins'                     => array(
-				$this->get_sample_plugin( '1' ),
-				$this->get_sample_plugin( '2', false ),
-			),
-			'themes'                      => array(
-				$this->get_sample_theme( '1' ),
-			),
-			'core'                        => $this->get_sample_core(),
-			'wordpress'                   => $this->get_sample_core(),
-			'last_checked'                => '2003-03-03 03:03:03',
-			'num_vulnerabilities'         => 3,
-			'num_themes_vulnerabilities'  => 1,
-			'num_plugins_vulnerabilities' => 1,
-			'hasUncheckedItems'           => false,
+		return new Status_Model(
+			array(
+				'data_source'         => 'protect_report',
+				'plugins'             => array(
+					new Extension_Model( $this->get_sample_plugin( '1' ) ),
+					new Extension_Model( $this->get_sample_plugin( '2', false ) ),
+				),
+				'themes'              => array(
+					new Extension_Model( $this->get_sample_theme( '1' ) ),
+				),
+				'core'                => new Extension_Model( $this->get_sample_core() ),
+				'wordpress'           => $this->get_sample_core(),
+				'last_checked'        => '2003-03-03 03:03:03',
+				'num_threats'         => 3,
+				'num_themes_threats'  => 1,
+				'num_plugins_threats' => 1,
+				'has_unchecked_items' => false,
+			)
 		);
 	}
 
@@ -250,6 +304,7 @@ class Test_Status extends BaseTestCase {
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		// to do - mock a scan plan
 	}
 
 	/**
@@ -259,15 +314,15 @@ class Test_Status extends BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_status();
+		$status = Protect_Status::get_status();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
-		$this->assertSame( 'site_not_connected', $status['error_code'] );
+		$this->assertSame( 'site_not_connected', $status->error_code );
 
 		// Make sure this was not cached
-		$this->assertFalse( Status::get_from_options() );
+		$this->assertFalse( Protect_Status::get_from_options() );
 	}
 
 	/**
@@ -279,7 +334,7 @@ class Test_Status extends BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_status();
+		$status = Protect_Status::get_status();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
@@ -287,17 +342,18 @@ class Test_Status extends BaseTestCase {
 		$this->assertEquals( $this->get_sample_status(), $status );
 
 		// Make sure this was cached
-		$this->assertEquals( $this->get_sample_response(), Status::get_from_options() );
+		$this->assertEquals( $this->get_sample_response(), Protect_Status::get_from_options() );
+
 	}
 
 	/**
-	 * Test get total vuls
+	 * Test get total threats
 	 */
-	public function test_get_total_vuls() {
+	public function test_get_total_threats() {
 		$this->mock_connection();
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
-		$status = Status::get_total_vulnerabilities();
+		$status = Protect_Status::get_total_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
 		$this->assertSame( 3, $status );
@@ -305,21 +361,21 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
-	 * Test get total vuls
+	 * Test get all threats
 	 */
-	public function test_get_all_vuls() {
+	public function test_get_all_threats() {
 		$this->mock_connection();
 
 		$expected = array(
-			$this->get_sample_vul(),
-			$this->get_sample_vul(),
-			$this->get_sample_vul(),
+			$this->get_sample_threat(),
+			$this->get_sample_threat(),
+			$this->get_sample_threat(),
 		);
 
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
-		$status = Status::get_all_vulnerabilities();
+		$status = Protect_Status::get_all_threats();
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 		remove_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
@@ -347,8 +403,8 @@ class Test_Status extends BaseTestCase {
 	 * @dataProvider is_cache_expired_data
 	 */
 	public function test_is_cache_expired( $expected, $cache_timestamp ) {
-		update_option( Status::OPTION_TIMESTAMP_NAME, $cache_timestamp );
-		$this->assertSame( $expected, Status::is_cache_expired() );
+		update_option( Protect_Status::OPTION_TIMESTAMP_NAME, $cache_timestamp );
+		$this->assertSame( $expected, Protect_Status::is_cache_expired() );
 	}
 
 	/**
@@ -379,12 +435,12 @@ class Test_Status extends BaseTestCase {
 	 * @dataProvider get_cache_end_date_by_status_data
 	 */
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
-		$timestamp = Status::get_cache_end_date_by_status( $status );
+		$timestamp = Protect_Status::get_cache_end_date_by_status( $status );
 		if ( 'initial' === $check_type ) {
-			$this->assertSame( time() + Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
+			$this->assertSame( time() + Protect_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
 		}
 		if ( 'full' === $check_type ) {
-			$this->assertSame( time() + Status::OPTION_EXPIRES_AFTER, $timestamp );
+			$this->assertSame( time() + Protect_Status::OPTION_EXPIRES_AFTER, $timestamp );
 		}
 	}
 }

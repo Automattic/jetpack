@@ -11,6 +11,7 @@ import {
 import {
 	BaseControl,
 	Button,
+	ExternalLink,
 	PanelBody,
 	ResizableBox,
 	SandBox,
@@ -27,7 +28,7 @@ import {
 	withInstanceId,
 } from '@wordpress/compose';
 import { useSelect, withDispatch, withSelect } from '@wordpress/data';
-import { Component, createRef, Fragment } from '@wordpress/element';
+import { Component, createInterpolateElement, createRef, Fragment } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
@@ -603,6 +604,12 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
+							{ createInterpolateElement(
+								__( 'Send us your <a>VideoPress feedback</a>', 'jetpack' ),
+								{
+									a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
+								}
+							) }
 						</PanelBody>
 
 						<SeekbarColorSettings

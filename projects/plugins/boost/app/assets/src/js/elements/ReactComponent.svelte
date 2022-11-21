@@ -9,7 +9,9 @@
 		ReactDOM.render( React.createElement( component, props, children ), container );
 	} );
 	onDestroy( () => {
-		ReactDOM.unmountComponentAtNode( container );
+		if ( container ) {
+			ReactDOM.unmountComponentAtNode( container );
+		}
 	} );
 </script>
 

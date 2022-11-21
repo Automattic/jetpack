@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Fixes an issue with private VideoPress videos timing out when script loading is delayed.
