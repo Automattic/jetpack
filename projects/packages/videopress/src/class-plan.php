@@ -52,23 +52,33 @@ class Plan {
 	/**
 	 * Gets the product data
 	 *
-	 * @param string $wpcom_product The product slug.
 	 * @return array
 	 */
-	public static function get_product( $wpcom_product = 'jetpack_videopress' ) {
-		if ( ! self::is_cache_old() ) {
-			return self::get_product_from_cache();
-		}
-
+	public static function get_product() {
 		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 
 		if ( 200 === $response_code ) {
 			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+			if ( ! isset( $products->jetpack_videopress ) || ! isset( $products->jetpack_videopress_monthly ) ) {
+				return array();
+			}
 
 			// Pick the desired product...
-			$product = $products->{$wpcom_product};
+			$product = $products->jetpack_videopress;
+
+			$product->product_price = array(
+				'yearly'  => array(
+					'price'        => $products->jetpack_videopress->cost,
+					'priceByMonth' => round( $products->jetpack_videopress->cost / 12, 2 ),
+					'currency'     => $products->jetpack_videopress->currency_code,
+				),
+				'monthly' => array(
+					'price'    => $products->jetpack_videopress_monthly->cost,
+					'currency' => $products->jetpack_videopress_monthly->currency_code,
+				),
+			);
 
 			// ... and store it into the cache.
 			update_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, time() );

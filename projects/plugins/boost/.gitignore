@@ -1,6 +1,7 @@
 /vendor
 /release
 /app/assets/dist
+/app/features/image-guide/dist
 /app/deactivation/dist
 /node_modules
 .phpunit.result.cache

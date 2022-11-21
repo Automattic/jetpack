@@ -286,7 +286,7 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! isset( $_GET['calypso_stats'] ) ) {
+	if ( ! Stats_Options::get_option( 'enable_calypso_stats' ) ) {
 		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
