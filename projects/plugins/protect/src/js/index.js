@@ -2,9 +2,9 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
-import AdminPage from './components/admin-page';
 import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
+import ScanPage from './components/scan-page';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
@@ -38,7 +38,7 @@ function render() {
 			<HashRouter>
 				<ScrollToTop />
 				<Routes>
-					<Route path="/" element={ <AdminPage /> } />
+					<Route path="/" element={ <ScanPage /> } />
 					<Route path="/firewall" element={ <FirewallPage /> } />
 				</Routes>
 			</HashRouter>
