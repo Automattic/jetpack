@@ -91,7 +91,7 @@ export function useSyncMedia(
 	setAttributes: VideoBlockSetAttributesProps
 ): UseSyncMediaProps {
 	const { id, guid } = attributes;
-	const { videoData, isRequestingVideoData } = useVideoData( id );
+	const { videoData, isRequestingVideoData } = useVideoData( { guid } );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
@@ -132,11 +132,6 @@ export function useSyncMedia(
 
 		// ...and udpate the block attributes with fresh data.
 		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
-
-		// Cast/tweak response body => block attributes.
-		if ( typeof initialAttributesValues.allowDownload !== 'undefined' ) {
-			initialAttributesValues.allowDownload = !! initialAttributesValues.allowDownload;
-		}
 
 		setAttributes( initialAttributesValues );
 	}, [ videoData, isRequestingVideoData ] );

@@ -83,7 +83,7 @@ importers:
 
   projects/js-packages/api:
     specifiers:
-      '@automattic/jetpack-config': workspace:* || ^0.1
+      '@automattic/jetpack-config': workspace:*
       '@wordpress/url': 3.22.0
       fetch-mock-jest: 1.5.1
       jest: 28.1.0
@@ -120,7 +120,7 @@ importers:
   projects/js-packages/components:
     specifiers:
       '@automattic/format-currency': 1.0.1
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
+      '@automattic/jetpack-base-styles': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-react': 7.18.6
       '@jest/globals': 28.1.0
@@ -204,11 +204,11 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-config': workspace:* || ^0.1
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-react': 7.18.6
       '@storybook/addon-actions': 6.5.13
@@ -327,10 +327,10 @@ importers:
 
   projects/js-packages/idc:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-react': 7.18.6
       '@wordpress/base-styles': 4.12.0
@@ -366,10 +366,10 @@ importers:
 
   projects/js-packages/licensing:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-react': 7.18.6
       '@testing-library/dom': 8.16.0
@@ -409,10 +409,10 @@ importers:
 
   projects/js-packages/partner-coupon:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-react': 7.18.6
       '@testing-library/dom': 8.16.0
@@ -457,10 +457,10 @@ importers:
   projects/js-packages/publicize-components:
     specifiers:
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.6
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/social-previews': 1.1.5
       '@babel/core': 7.20.2
       '@babel/plugin-transform-react-jsx': 7.19.0
@@ -561,7 +561,7 @@ importers:
 
   projects/js-packages/storybook:
     specifiers:
-      '@automattic/jetpack-components': workspace:* || ^0.25
+      '@automattic/jetpack-components': workspace:*
       '@babel/core': 7.20.2
       '@babel/plugin-syntax-jsx': 7.18.6
       '@babel/preset-react': 7.18.6
@@ -659,9 +659,9 @@ importers:
   projects/js-packages/webpack-config:
     specifiers:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
-      '@automattic/babel-plugin-replace-textdomain': workspace:* || ^1.0
-      '@automattic/i18n-check-webpack-plugin': workspace:* || ^1.0
-      '@automattic/i18n-loader-webpack-plugin': workspace:* || ^2.0
+      '@automattic/babel-plugin-replace-textdomain': workspace:*
+      '@automattic/i18n-check-webpack-plugin': workspace:*
+      '@automattic/i18n-loader-webpack-plugin': workspace:*
       '@automattic/webpack-rtl-plugin': 6.0.0
       '@babel/compat-data': 7.20.1
       '@babel/core': 7.20.2
@@ -715,7 +715,7 @@ importers:
 
   projects/packages/action-bar:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@wordpress/browserslist-config': 5.4.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.4.0
@@ -740,7 +740,7 @@ importers:
 
   projects/packages/assets:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       '@wordpress/browserslist-config': 5.4.0
       jest: 28.1.0
       md5-es: 1.8.2
@@ -756,12 +756,12 @@ importers:
 
   projects/packages/backup:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
@@ -807,7 +807,7 @@ importers:
 
   projects/packages/connection:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       '@wordpress/browserslist-config': 5.4.0
       webpack: 5.72.1
       webpack-cli: 4.9.1
@@ -822,8 +822,8 @@ importers:
 
   projects/packages/identity-crisis:
     specifiers:
-      '@automattic/jetpack-idc': workspace:* || ^0.10
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-idc': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
@@ -857,7 +857,7 @@ importers:
 
   projects/packages/jitm:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       '@wordpress/browserslist-config': 5.4.0
       sass: 1.43.3
       sass-loader: 12.4.0
@@ -873,7 +873,7 @@ importers:
 
   projects/packages/lazy-images:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       '@wordpress/browserslist-config': 5.4.0
       copy-webpack-plugin: 11.0.0
       intersection-observer: 0.12.0
@@ -890,12 +890,12 @@ importers:
   projects/packages/my-jetpack:
     specifiers:
       '@automattic/format-currency': 1.0.1
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-licensing': workspace:* || ^0.6
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-licensing': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@storybook/addons': 6.5.13
@@ -971,7 +971,7 @@ importers:
 
   projects/packages/plugin-deactivation:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       sass: 1.56.1
       sass-loader: 12.4.0
       tslib: 2.3.1
@@ -989,7 +989,7 @@ importers:
 
   projects/packages/publicize:
     specifiers:
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-webpack-config': workspace:*
       '@wordpress/i18n': 4.21.0
       concurrently: 7.4.0
       webpack: 5.72.1
@@ -1007,12 +1007,12 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
       '@automattic/format-currency': 1.0.1
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6
       '@babel/plugin-transform-react-jsx': 7.19.0
@@ -1134,12 +1134,12 @@ importers:
   projects/packages/videopress:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-react': 7.18.6
       '@jest/globals': 28.1.0
@@ -1252,10 +1252,10 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6
       '@babel/plugin-transform-react-jsx': 7.19.0
@@ -1365,8 +1365,8 @@ importers:
 
   projects/plugins/boost:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/preset-react': 7.18.6
@@ -1460,18 +1460,18 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 2.0.1
       '@automattic/format-currency': 1.0.1
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-api': workspace:* || ^0.14
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-licensing': workspace:* || ^0.6
-      '@automattic/jetpack-partner-coupon': workspace:* || ^0.2
-      '@automattic/jetpack-publicize-components': workspace:* || ^0.9
-      '@automattic/jetpack-shared-extension-utils': workspace:* || ^0.6
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-api': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-licensing': workspace:*
+      '@automattic/jetpack-partner-coupon': workspace:*
+      '@automattic/jetpack-publicize-components': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/popup-monitor': 1.0.2
-      '@automattic/remove-asset-webpack-plugin': workspace:* || ^1.0
+      '@automattic/remove-asset-webpack-plugin': workspace:*
       '@automattic/request-external-access': 1.0.0
       '@automattic/social-previews': 1.1.5
       '@automattic/viewport': 1.0.0
@@ -1690,11 +1690,11 @@ importers:
 
   projects/plugins/protect:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:* || ^0.1
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
@@ -1770,11 +1770,11 @@ importers:
     specifiers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-publicize-components': workspace:* || ^0.9
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-publicize-components': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
@@ -1843,10 +1843,10 @@ importers:
 
   projects/plugins/starter-plugin:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
@@ -1923,10 +1923,10 @@ importers:
 
   projects/plugins/videopress:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:* || ^0.3
-      '@automattic/jetpack-components': workspace:* || ^0.25
-      '@automattic/jetpack-connection': workspace:* || ^0.22
-      '@automattic/jetpack-webpack-config': workspace:* || ^1.3
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.2
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9

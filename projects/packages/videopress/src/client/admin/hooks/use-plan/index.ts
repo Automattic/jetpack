@@ -16,12 +16,14 @@ import {
 	productOriginalProps,
 	siteProductOriginalProps,
 	usePlanProps,
+	productPriceOriginalProps,
 } from './types';
 
 const {
 	paidFeatures = <paidFeaturesProp>{},
 	siteProductData = <siteProductOriginalProps>{},
 	productData = <productOriginalProps>{},
+	productPrice = <productPriceOriginalProps>{},
 } = window && window.jetpackVideoPressInitialState ? window.jetpackVideoPressInitialState : {};
 
 export const usePlan = (): usePlanProps => {
@@ -58,6 +60,7 @@ export const usePlan = (): usePlanProps => {
 		features: paidFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 		product: videoPressProduct,
+		productPrice,
 
 		// Site purchases
 		purchases: purchasesCamelCase,
