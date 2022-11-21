@@ -1,5 +1,5 @@
 import { Container, Col, useBreakpointMatch } from '@automattic/jetpack-components';
-import { React } from 'react';
+import React from 'react';
 
 /**
  * SeventyFive layout meta component
