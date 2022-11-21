@@ -29,4 +29,4 @@ add_action(
 	}
 );
 
-echo("<script>console.log('test-plugin/test-plugin.php')</script>");
+echo("<script>console.log('test-plugin/test-plugin.php')</script>"); // this runs

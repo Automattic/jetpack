@@ -6,10 +6,12 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
 
 export const name = 'test-plugin';
 
-console.log( 'test-plugin/index.js' );
+console.log( 'test-plugin/index.js' ); // this runs
 
 export const settings = {
 	render: function TestPlugin() {
+		console.log( 'inside render' ); // this doesn't run
+
 		const panelBodyProps = {
 			name: 'test-plugin',
 			title: __( 'Test Plugin', 'jetpack' ),
