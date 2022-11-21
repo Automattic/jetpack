@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Adjust dev package version detection for Automattic/jetpack/pull/27043
