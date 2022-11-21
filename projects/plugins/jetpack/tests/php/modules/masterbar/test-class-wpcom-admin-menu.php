@@ -191,7 +191,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'site-card',
 			'menu-top toplevel_page_' . $home_url,
 			'toplevel_page_' . $home_url,
-			trailingslashit( $home_url ) . 'wp-content/plugins/jetpack/modules/masterbar/admin-menu/globe-icon.svg',
+			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
 		);
 
 		$this->assertEquals( $menu[1], $site_card_menu_item );
