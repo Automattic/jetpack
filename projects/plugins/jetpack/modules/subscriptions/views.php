@@ -362,6 +362,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
+		$post_access_level            = self::get_post_access_level();
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -376,6 +377,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				method="post"
 				accept-charset="utf-8"
 				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
@@ -476,8 +478,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			 */
 			$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 
-			$form_id           = self::get_redirect_fragment( $widget_id );
-			$post_access_level = self::get_post_access_level();
+			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
 			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>"
