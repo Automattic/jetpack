@@ -1,11 +1,4 @@
-import {
-	AdminPage,
-	AdminSectionHero,
-	Container,
-	Col,
-	H3,
-	Text,
-} from '@automattic/jetpack-components';
+import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -14,9 +7,9 @@ import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
+import AdminPage from '../admin-page';
 import AlertSVGIcon from '../alert-icon';
 import Footer from '../footer';
-import Logo from '../logo';
 import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
@@ -71,7 +64,7 @@ const ScanPage = () => {
 		displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
 
 		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<AdminPage>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 0 }>
 						{ hasConnectionError && (
@@ -110,7 +103,7 @@ const ScanPage = () => {
 		! lastChecked
 	) {
 		return (
-			<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<AdminPage>
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 0 }>
 						{ hasConnectionError && (
@@ -162,7 +155,7 @@ const ScanPage = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+		<AdminPage>
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 0 }>
 					{ hasConnectionError && (
