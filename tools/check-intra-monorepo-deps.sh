@@ -135,15 +135,14 @@ function get_packages {
 		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
 	else
 		for PKG in "${PKGS[@]}"; do
-			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | .extra["branch-alias"]["dev-trunk"] as $trunkver | ( $trunkver | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "\(.v)" ) ) as $depver | $packages | .[$k] |= { rel: $ver, trunk: ( $trunkver // "@dev" ), dep: "^\( $depver )", dep2: ( "^" + if $ver[0:($depver | length + 1)] == "\( $depver )." then $ver else $depver end ) }' "$PKG")
+			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
 		done
 		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
 			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
 		fi
 	fi
 
-	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
-	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
+	JSPACKAGES=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:*" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 }
 
 get_packages
@@ -213,7 +212,6 @@ for SLUG in "${SLUGS[@]}"; do
 	PACKAGES_CHECK_ALLOWED_SEL=
 	PACKAGES_UPDATE_SEL='"@dev"'
 	PACKAGES_CHECK_SEL='[ "@dev" ]'
-	JSPACKAGES="$JSPACKAGES_STAR"
 	DOCL=false
 	if [[ "$SLUG" == monorepo ]]; then
 		DIR=.
@@ -221,9 +219,9 @@ for SLUG in "${SLUGS[@]}"; do
 		DIR="${SLUG#nonproject:}"
 	else
 		if [[ "$SLUG" == plugins/* ]]; then
-			PACKAGES_UPDATE_SEL='( if e.value | endswith( "@dev" ) or endswith( "-dev" ) then "@dev" else $packages[e.key].dep2 end )'
-			PACKAGES_CHECK_SEL='( if .value | endswith( "@dev" ) or endswith( "-dev" ) then [ "@dev" ] else [ $packages[.key].dep2 ] end )'
-			PACKAGES_CHECK_ALLOWED_SEL='[ "@dev", $packages[.key].dep2 ]'
+			PACKAGES_UPDATE_SEL='( if e.value | endswith( "@dev" ) or endswith( "-dev" ) then "@dev" else $packages[e.key].dep end )'
+			PACKAGES_CHECK_SEL='( if .value | endswith( "@dev" ) or endswith( "-dev" ) then [ "@dev" ] else [ $packages[.key].dep ] end )'
+			PACKAGES_CHECK_ALLOWED_SEL='[ "@dev", $packages[.key].dep ]'
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
@@ -254,7 +252,7 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		fi
 		if [[ -e "$JSFILE" ]]; then
-			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
+			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
 			if [[ "$JSON" != "$(<"$JSFILE")" ]]; then
 				info "JS dependencies of $SLUG changed!"
 				echo "$JSON" > "$JSFILE"
