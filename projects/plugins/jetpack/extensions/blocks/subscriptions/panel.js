@@ -19,7 +19,7 @@ import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
-	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 
 	const accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
