@@ -15,7 +15,8 @@ For example, you can run: `git checkout trunk` and then `git checkout -b fix/wha
 
 The Jetpack repo uses the following "reserved" branch name conventions:
 
-* `{something}/branch-{X.Y|something}` -- Used for release branches
+* `prerelease` -- Used for the release process.
+* `{something}/branch-{X.Y|something}` -- Used for release branches.
 * `feature/{something}` -- Used for feature branches for larger feature projects when anticipated there will be multiple PRs into that feature branch.
 
 ## Mind your commits
