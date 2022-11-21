@@ -24,7 +24,7 @@ import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AlertSVGIcon from '../alert-icon';
 import Footer from '../footer';
-import Interstitial from '../interstitial';
+import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
 import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
@@ -33,20 +33,6 @@ import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 
 export const JETPACK_SCAN = 'jetpack_scan';
-
-const InterstitialPage = ( { run, hasCheckoutStarted } ) => {
-	return (
-		<AdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
-			<AdminSectionHero>
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Interstitial onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />
-					</Col>
-				</Container>
-			</AdminSectionHero>
-		</AdminPage>
-	);
-};
 
 const useCredentials = () => {
 	const { checkCredentials } = useDispatch( STORE_ID );
