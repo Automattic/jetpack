@@ -22,6 +22,7 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps } from './types';
 export default function useVideoData( {
 	id,
 	guid,
+	isPrivate,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
@@ -33,11 +34,16 @@ export default function useVideoData( {
 		async function fetchVideoItem() {
 			if ( guid ) {
 				try {
-					const { token } = await getMediaToken( 'playback', { id, guid } );
-					const params = token ? new URLSearchParams( { metadata_token: token } ).toString() : '';
+					let params = '';
+					if ( isPrivate ) {
+						const tokenData = await getMediaToken( 'playback', { id, guid } );
+						params += tokenData?.token
+							? `?${ new URLSearchParams( { metadata_token: tokenData.token } ).toString() }`
+							: '';
+					}
 
 					const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
-						url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }?${ params }`,
+						url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ params }`,
 						credentials: 'omit',
 					} );
 
@@ -58,7 +64,7 @@ export default function useVideoData( {
 					} );
 				} catch ( error ) {
 					setIsRequestingVideoData( false );
-					throw new Error( error );
+					throw new Error( error?.message ?? error );
 				}
 			}
 
