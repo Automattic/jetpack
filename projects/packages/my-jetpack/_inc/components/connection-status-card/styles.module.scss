@@ -1,4 +1,41 @@
-.jp-connection-status-card {
+.connection-status-card {
+
+	.status {
+		display: flex;
+		align-items: center;
+		gap: var( --spacing-base );
+
+		.avatar-wrapper {
+			position: relative;
+		}
+
+		.cloud {
+			width: 32px;
+		}
+
+		.jetpack {
+			width: 30px;
+		}
+
+		.avatar {
+			width: 32px;
+			position: absolute;
+			margin-left: -10px;
+		}
+
+		.line {
+			width: 67px;
+			height: 0;
+			border-top: 2px solid var( --jp-black );
+			border-top-style: dashed;
+		}
+
+		.disconnected {
+			border-color: var( --jp-red );
+		}
+	}
+
+
 	h3 {
 		font-size: var(--font-title-large);
 		font-weight: 700;
@@ -60,15 +97,6 @@
 		background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23fff'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.498 27.123C6.038 24.165 10.916 21.5 16 21.5c5.084 0 9.963 2.665 11.502 5.623a15.952 15.952 0 01-11.257 4.875L16 32l-.245-.002a15.952 15.952 0 01-11.257-4.875zM16 8a6 6 0 110 12 6 6 0 010-12z' fill='%23A2AAB2'/%3E%3C/svg%3E%0A");
 	}
 
-	&--line {
-		width: 67px;
-		height: 0;
-		border-top: 2px solid var( --jp-black );
-
-		&.jp-connection-status-card--site-only {
-			border-top-style: dashed;
-		}
-	}
 
 	&--list {
 		margin: 16px 0;

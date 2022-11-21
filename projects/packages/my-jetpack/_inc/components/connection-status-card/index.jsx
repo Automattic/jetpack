@@ -6,11 +6,15 @@ import {
 	ConnectUser,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import './style.scss';
+import React, { useEffect, useState, useCallback } from 'react';
+import cloud from './cloud.svg';
+import emptyAvatar from './empty-avatar.svg';
+import jetpack from './jetpack.svg';
+import styles from './styles.module.scss';
 
 /**
  * The RNA Connection Status Card component.
@@ -34,29 +38,23 @@ const ConnectionStatusCard = props => {
 		requiresUserConnection,
 	} = props;
 
-	const { isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
+	const {
+		isRegistered,
+		isUserConnected,
+		userConnectionData,
+		hasConnectedOwner,
+		userIsConnecting,
+	} = useConnection( {
 		apiRoot,
 		apiNonce,
 	} );
 
-	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
-	const avatarRef = useRef();
-	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
-
-	// Update avatar if we have one.
-	useEffect( () => {
-		if ( avatar ) {
-			avatarRef.current.style.backgroundImage = `url('${ avatar }')`;
-		}
-	}, [ avatar ] );
-
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
-	const userIsConnecting = useSelect(
-		select => select( CONNECTION_STORE_ID ).getUserIsConnecting(),
-		[]
-	);
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const handleConnectUser = onConnectUser || setUserIsConnecting;
+
+	const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
+	// const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
 	/**
 	 * Initialize the REST API.
@@ -91,32 +89,29 @@ const ConnectionStatusCard = props => {
 	const onDisconnectedCallback = useCallback(
 		e => {
 			e && e.preventDefault();
-
 			setConnectionStatus( { isActive: false, isRegistered: false, isUserConnected: false } );
-
-			if ( onDisconnected && {}.toString.call( onDisconnected ) === '[object Function]' ) {
-				onDisconnected();
-			}
+			onDisconnected?.();
 		},
 		[ onDisconnected, setConnectionStatus ]
 	);
 
 	return (
-		<div className="jp-connection-status-card">
+		<div className={ styles[ 'connection-status-card' ] }>
 			<H3>{ title }</H3>
 
 			<Text variant="body">{ connectionInfoText }</Text>
 
-			<div className="jp-connection-status-card--status">
-				<div className="jp-connection-status-card--cloud"></div>
+			<div className={ styles.status }>
+				<img src={ cloud } alt="" className={ styles.cloud } />
 				<div
-					className={
-						'jp-connection-status-card--line' +
-						( isUserConnected ? '' : ' jp-connection-status-card--site-only' )
-					}
-				></div>
-				<div className="jp-connection-status-card--jetpack-logo"></div>
-				<div className="jp-connection-status-card--avatar" ref={ avatarRef }></div>
+					className={ classNames( styles.line, {
+						[ styles.disconnected ]: ! isRegistered || ! isUserConnected,
+					} ) }
+				/>
+				<div className={ styles[ 'avatar-wrapper' ] }>
+					<img src={ jetpack } alt="" className={ styles.jetpack } />
+					<img src={ emptyAvatar } alt="" className={ styles.avatar } />
+				</div>
 			</div>
 
 			<ul className="jp-connection-status-card--list">
@@ -202,7 +197,7 @@ ConnectionStatusCard.propTypes = {
 ConnectionStatusCard.defaultProps = {
 	title: __( 'Connection', 'jetpack-my-jetpack' ),
 	connectionInfoText: __(
-		'Leverages the cloud for more powerful Jetpack features.',
+		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
 		'jetpack-my-jetpack'
 	),
 	redirectUri: null,
