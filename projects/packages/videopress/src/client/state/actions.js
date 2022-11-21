@@ -286,11 +286,11 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
-const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, resolveSelect } ) => {
+const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, select, resolveSelect } ) => {
 	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
 
 	const getPlaybackTokenIfNeeded = async () => {
-		const video = await resolveSelect.getVideo( id );
+		const video = await select.getVideo( id );
 
 		if ( ! video.needsPlaybackToken ) {
 			return null;
