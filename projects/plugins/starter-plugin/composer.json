@@ -4,19 +4,19 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-admin-ui": "0.2.x-dev",
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.11.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "2.4.x-dev",
-		"automattic/jetpack-plugins-installer": "0.2.x-dev",
-		"automattic/jetpack-sync": "1.43.x-dev"
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-sync": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "3.2.x-dev",
+		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {

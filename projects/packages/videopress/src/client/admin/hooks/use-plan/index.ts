@@ -16,12 +16,14 @@ import {
 	productOriginalProps,
 	siteProductOriginalProps,
 	usePlanProps,
+	productPriceOriginalProps,
 } from './types';
 
 const {
 	paidFeatures = <paidFeaturesProp>{},
 	siteProductData = <siteProductOriginalProps>{},
 	productData = <productOriginalProps>{},
+	productPrice = <productPriceOriginalProps>{},
 } = window && window.jetpackVideoPressInitialState ? window.jetpackVideoPressInitialState : {};
 
 export const usePlan = (): usePlanProps => {
@@ -47,15 +49,22 @@ export const usePlan = (): usePlanProps => {
 		return purchasesCamelCase.some( product => product.productSlug === productSlug );
 	}
 
+	const hasVideoPressPurchase = [
+		'jetpack_videopress',
+		'jetpack_videopress_monthly',
+		'jetpack_complete',
+		'jetpack_complete_monthly',
+	].some( plan => hasPurchase( plan ) );
+
 	return {
 		features: paidFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 		product: videoPressProduct,
+		productPrice,
 
 		// Site purchases
 		purchases: purchasesCamelCase,
-		hasVideoPressPurchase:
-			hasPurchase( 'jetpack_videopress' ) || hasPurchase( 'jetpack_videopress_monthly' ),
+		hasVideoPressPurchase,
 		isFetchingPurchases,
 	};
 };

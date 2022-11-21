@@ -3,12 +3,25 @@ import apiFetch from '@wordpress/api-fetch';
 export function getSubscriberCount( successCallback, failureCallback ) {
 	return apiFetch( {
 		path: '/wpcom/v2/subscribers/count?include_publicize_subscribers=false',
-	} ).then( count => {
+	} ).then( ( { count } = {} ) => {
 		// Handle error condition
-		if ( ! count.hasOwnProperty( 'count' ) ) {
-			failureCallback();
+		if ( Number.isFinite( count ) ) {
+			successCallback( count );
 		} else {
-			successCallback( count.count );
+			failureCallback();
+		}
+	} );
+}
+
+export function getSubscriberCounts( successCallback, failureCallback ) {
+	return apiFetch( {
+		path: '/wpcom/v2/subscribers/counts',
+	} ).then( ( { counts } = {} ) => {
+		// Handle error condition
+		if ( counts ) {
+			successCallback( counts );
+		} else {
+			failureCallback();
 		}
 	} );
 }
