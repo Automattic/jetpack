@@ -68,18 +68,6 @@ class Plan {
 			// Pick the desired product...
 			$product = $products->jetpack_videopress;
 
-			$product->product_price = array(
-				'yearly'  => array(
-					'price'        => $products->jetpack_videopress->cost,
-					'priceByMonth' => round( $products->jetpack_videopress->cost / 12, 2 ),
-					'currency'     => $products->jetpack_videopress->currency_code,
-				),
-				'monthly' => array(
-					'price'    => $products->jetpack_videopress_monthly->cost,
-					'currency' => $products->jetpack_videopress_monthly->currency_code,
-				),
-			);
-
 			// ... and store it into the cache.
 			update_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, time() );
 			update_user_meta( get_current_user_id(), self::CACHE_META_NAME, $product );
