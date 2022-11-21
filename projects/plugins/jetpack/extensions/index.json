@@ -50,7 +50,8 @@
 		"post-publish-promote-post-panel",
 		"recipe",
 		"videopress/video",
-		"videopress/video-chapters"
+		"videopress/video-chapters",
+		"launchpad-save-modal"
 	],
 	"experimental": [
 		"anchor-fm",
