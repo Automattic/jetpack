@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { createAsyncFactory } from '@async-options/factory';
+import { z } from 'zod';
 
 const Jetpack_Boost_Options = z.object( {
 	rest_api: z.object( {
