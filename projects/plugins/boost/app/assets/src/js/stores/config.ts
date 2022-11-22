@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import api from '../api/api';
-import { saveGetStarted } from '../api/get-started';
+import { makeAdminAjaxRequest } from '../utils/make-admin-ajax-request';
 
 const { subscribe, update } = writable( Jetpack_Boost );
 
@@ -16,8 +16,16 @@ const dismissedPopOutStore = writable( Jetpack_Boost.dismissedScorePrompts );
 
 export const dismissedPopOuts = {
 	subscribe: dismissedPopOutStore.subscribe,
-	dismiss: ( name: string ) => {
+	dismiss: async ( name: string ) => {
 		dismissedPopOutStore.update( dismissals => [ ...dismissals, name ] );
+
+		await makeAdminAjaxRequest( {
+			action: 'set_show_score_prompt',
+			id: name,
+			value: 'false',
+			// eslint-disable-next-line camelcase
+			nonce: Jetpack_Boost.showScorePromptNonce,
+		} );
 	},
 };
 
@@ -29,7 +37,6 @@ export const markGetStartedComplete = () => {
 			getStarted: false,
 		},
 	} ) );
-	return saveGetStarted();
 };
 
 export default {

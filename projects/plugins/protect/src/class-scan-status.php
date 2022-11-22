@@ -50,14 +50,15 @@ class Scan_Status extends Status {
 	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
+	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
 	 * @return Status_Model
 	 */
-	public static function get_status() {
+	public static function get_status( $refresh_from_wpcom = false ) {
 		if ( self::$status !== null ) {
 			return self::$status;
 		}
 
-		if ( ! self::should_use_cache() || self::is_cache_expired() ) {
+		if ( $refresh_from_wpcom || ! self::should_use_cache() || self::is_cache_expired() ) {
 			$status = self::fetch_from_api();
 		} else {
 			$status = self::get_from_options();
@@ -288,6 +289,13 @@ class Scan_Status extends Status {
 		$installed_themes = Sync_Functions::get_themes();
 		$status->themes   = self::merge_installed_and_checked_lists( $installed_themes, $status->themes, array( 'type' => 'themes' ), true );
 
+		foreach ( array_merge( $status->themes, $status->plugins ) as $extension ) {
+			if ( ! $extension->checked ) {
+				$status->has_unchecked_items = true;
+				break;
+			}
+		}
+
 		return $status;
 	}
 
@@ -301,28 +309,44 @@ class Scan_Status extends Status {
 	 */
 	protected static function merge_installed_and_checked_lists( $installed, $checked, $append ) {
 		$new_list = array();
+		$checked  = (object) $checked;
+
 		foreach ( array_keys( $installed ) as $slug ) {
+			/**
+			 * Extension Type Map
+			 *
+			 * @var array $extension_type_map Key value pairs of extension types and their corresponding
+			 *                                 identifier used by the Scan API data source.
+			 */
+			$extension_type_map = array(
+				'themes'  => 'r1',
+				'plugins' => 'r2',
+			);
 
-			$checked = (object) $checked;
-
-			$short_slug = str_replace( '.php', '', explode( '/', $slug )[0] );
+			$version        = $installed[ $slug ]['Version'];
+			$short_slug     = str_replace( '.php', '', explode( '/', $slug )[0] );
+			$scanifest_slug = $extension_type_map[ $append['type'] ] . ":$short_slug@$version";
 
 			$extension = new Extension_Model(
 				array_merge(
 					array(
 						'name'    => $installed[ $slug ]['Name'],
-						'version' => $installed[ $slug ]['Version'],
+						'version' => $version,
 						'slug'    => $slug,
 						'threats' => array(),
-						'checked' => true, // to do: default to false once Scan API has manifest
+						'checked' => false,
 					),
 					$append
 				)
 			);
 
-			if ( isset( $checked->{ $short_slug } ) && $checked->{ $short_slug }->version === $installed[ $slug ]['Version'] ) {
+			if ( ! isset( $checked->extensions ) // no extension data available from Scan API
+				|| is_array( $checked->extensions ) && in_array( $scanifest_slug, $checked->extensions, true ) // extension data matches Scan API
+			) {
 				$extension->checked = true;
-				$extension->threats = $checked->{ $short_slug }->threats;
+				if ( isset( $checked->{ $short_slug }->threats ) ) {
+					$extension->threats = $checked->{ $short_slug }->threats;
+				}
 			}
 
 			$new_list[] = $extension;

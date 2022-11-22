@@ -65,7 +65,7 @@ function jetpack_facebook_embed_handler( $matches, $attr, $url ) {
 		$width = 552; // As of 01/2017, the default width of Facebook embeds when no width attribute provided.
 
 		global $content_width;
-		if ( isset( $content_width ) ) {
+		if ( is_numeric( $content_width ) && $content_width > 0 ) {
 			$width = min( $width, $content_width );
 		}
 

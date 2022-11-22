@@ -18,6 +18,7 @@ import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
+import camelize from 'camelize';
 import classnames from 'classnames';
 import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -108,11 +109,23 @@ const useCredentials = () => {
 const ProtectAdminPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const status = useSelect( select => select( STORE_ID ).getStatus() );
+	const { refreshStatus } = useDispatch( STORE_ID );
+	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
+		status: select( STORE_ID ).getStatus(),
+	} ) );
 	useCredentials();
 
+	// retry fetching status if it is not available
+	useEffect( () => {
+		if ( ! statusIsFetching && 'unavailable' === status.status && ! scanIsUnavailable ) {
+			refreshStatus( true );
+		}
+	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
+
 	let currentScanStatus;
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		currentScanStatus = 'error';
 	} else if ( ! lastChecked ) {
 		currentScanStatus = 'in_progress';
@@ -129,7 +142,7 @@ const ProtectAdminPage = () => {
 	} );
 
 	// Error
-	if ( 'error' === currentStatus ) {
+	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		let displayErrorMessage = errorMessage
 			? `${ errorMessage } (${ errorCode }).`
 			: __( 'We are having problems scanning your site.', 'jetpack-protect' );
@@ -169,8 +182,11 @@ const ProtectAdminPage = () => {
 		);
 	}
 
-	// When there's a scan in progress or no information yet.
-	if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 || ! lastChecked ) {
+	// When there's no information yet. Usually when the plugin was just activated
+	if (
+		[ 'scheduled', 'scanning', 'optimistically_scanning' ].indexOf( status.status ) >= 0 ||
+		! lastChecked
+	) {
 		const { currentProgress } = status;
 		const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
 		const scanning = __( 'Scannning your site…', 'jetpack-protect' );
@@ -273,63 +289,97 @@ const useRegistrationWatcher = () => {
 /**
  * Use Status Polling
  *
- * When the status is 'scheduled', re-checks the status periodically until it isn't.
+ * When the status is 'scheduled' or 'scanning', re-checks the status periodically until it isn't.
  */
 const useStatusPolling = () => {
-	const pollingDuration = 10000;
-	const { refreshStatus } = useDispatch( STORE_ID );
 	const status = useSelect( select => select( STORE_ID ).getStatus() );
+	const { setStatus, setStatusIsFetching, setScanIsUnavailable } = useDispatch( STORE_ID );
 
 	useEffect( () => {
 		let pollTimeout;
+		const pollDuration = 10000;
+
+		const statusIsInProgress = currentStatus =>
+			[ 'scheduled', 'scanning' ].indexOf( currentStatus ) >= 0;
 
 		const pollStatus = () => {
-			refreshStatus( true )
-				.then( latestStatus => {
-					if (
-						[ 'scheduled', 'scanning' ].indexOf( latestStatus.status ) >= 0 ||
-						! latestStatus.status.lastChecked
-					) {
-						clearTimeout( pollTimeout );
-						pollTimeout = setTimeout( pollStatus, pollingDuration );
-					}
+			return new Promise( ( resolve, reject ) => {
+				apiFetch( {
+					path: 'jetpack-protect/v1/status?hard_refresh=true',
+					method: 'GET',
 				} )
-				.catch( () => {
-					// Keep trying when unable to fetch the status.
-					clearTimeout( pollTimeout );
-					pollTimeout = setTimeout( pollStatus, pollingDuration );
-				} );
+					.then( newStatus => {
+						if ( newStatus?.error ) {
+							throw newStatus?.errorMessage;
+						}
+
+						if ( statusIsInProgress( newStatus?.status ) ) {
+							pollTimeout = setTimeout( () => {
+								pollStatus()
+									.then( result => resolve( result ) )
+									.catch( error => reject( error ) );
+							}, pollDuration );
+							return;
+						}
+
+						resolve( newStatus );
+					} )
+					.catch( () => {
+						// Keep trying when unable to fetch the status.
+						setTimeout( () => {
+							pollStatus()
+								.then( result => resolve( result ) )
+								.catch( error => reject( error ) );
+						}, 5000 );
+					} );
+			} );
 		};
 
-		if ( [ 'scheduled', 'scanning' ].indexOf( status.status ) >= 0 ) {
-			pollTimeout = setTimeout( pollStatus, pollingDuration );
+		if ( ! statusIsInProgress( status?.status ) ) {
+			return;
 		}
 
+		pollTimeout = setTimeout( () => {
+			setStatusIsFetching( true );
+			pollStatus()
+				.then( newStatus => {
+					setScanIsUnavailable( 'unavailable' === newStatus.status );
+					setStatus( camelize( newStatus ) );
+				} )
+				.finally( () => {
+					setStatusIsFetching( false );
+				} );
+		}, pollDuration );
+
 		return () => clearTimeout( pollTimeout );
-	}, [ status.status, refreshStatus ] );
+	}, [ status.status, setScanIsUnavailable, setStatus, setStatusIsFetching ] );
 };
 
 const Admin = () => {
 	useRegistrationWatcher();
 	useStatusPolling();
 
-	const { refreshPlan } = useDispatch( STORE_ID );
+	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
 		siteProductAvailabilityHandler: async () =>
 			apiFetch( {
-				path: 'jetpack-protect/v1/plan',
+				path: 'jetpack-protect/v1/check-plan',
 				method: 'GET',
-			} ).then( jetpackScan => jetpackScan?.has_required_plan ),
+			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
 
 	useEffect( () => {
 		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
-			refreshPlan();
+			startScanOptimistically();
+			setTimeout( () => {
+				refreshPlan();
+				refreshStatus( true );
+			}, 5000 );
 		}
-	}, [ refreshPlan ] );
+	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
 
 	/*
 	 * Show interstital page when

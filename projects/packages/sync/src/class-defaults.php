@@ -102,6 +102,7 @@ class Defaults {
 		'jetpack_wga',
 		'large_size_h',
 		'large_size_w',
+		'launch-status',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
@@ -724,6 +725,7 @@ class Defaults {
 		'_wpas_feature_enabled',
 		'_wpas_is_tweetstorm',
 		'_wpas_mess',
+		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',

@@ -5,16 +5,19 @@ import {
 	SET_STATUS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_UNAVAILABLE,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
 	SET_JETPACK_SCAN,
+	SET_PRODUCT_DATA,
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
+	SET_HAS_REQUIRED_PLAN,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -38,7 +41,7 @@ const status = ( state = {}, action ) => {
 		case SET_STATUS:
 			return action.status;
 		case START_SCAN_OPTIMISTICALLY:
-			return { ...state, currentProgress: 0, status: 'scanning' };
+			return { ...state, status: 'optimistically_scanning' };
 	}
 	return state;
 };
@@ -46,6 +49,14 @@ const status = ( state = {}, action ) => {
 const statusIsFetching = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_STATUS_IS_FETCHING:
+			return action.status;
+	}
+	return state;
+};
+
+const scanIsUnavailable = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_SCAN_IS_UNAVAILABLE:
 			return action.status;
 	}
 	return state;
@@ -93,7 +104,7 @@ const jetpackScan = ( state = {}, action ) => {
 
 const productData = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_JETPACK_SCAN:
+		case SET_PRODUCT_DATA:
 			return action.productData;
 	}
 	return state;
@@ -133,11 +144,20 @@ const notice = ( state = {}, action ) => {
 	return state;
 };
 
+const hasRequiredPlan = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_HAS_REQUIRED_PLAN:
+			return action.hasRequiredPlan;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	credentials,
 	credentialsIsFetching,
 	status,
 	statusIsFetching,
+	scanIsUnavailable,
 	scanIsEnqueuing,
 	installedPlugins,
 	installedThemes,
@@ -148,6 +168,7 @@ const reducers = combineReducers( {
 	modal,
 	notice,
 	setThreatsFixing,
+	hasRequiredPlan,
 } );
 
 export default reducers;

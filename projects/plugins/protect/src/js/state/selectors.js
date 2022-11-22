@@ -5,6 +5,7 @@ const selectors = {
 	getInstalledThemes: state => state.installedThemes || {},
 	getStatus: state => state.status || {},
 	getStatusIsFetching: state => state.statusIsFetching || false,
+	getScanIsUnavailable: state => state.scanIsUnavailable || false,
 	getScanIsEnqueuing: state => state.scanIsEnqueuing || false,
 	getWpVersion: state => state.wpVersion || '',
 	getJetpackScan: state => state.jetpackScan || {},
@@ -14,6 +15,7 @@ const selectors = {
 	getModalProps: state => state.modal?.props || {},
 	getNotice: state => state.notice || null,
 	getThreatsAreFixing: state => state.threatsAreFixing || [],
+	hasRequiredPlan: state => state.hasRequiredPlan || false,
 };
 
 export default selectors;

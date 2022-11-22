@@ -12,8 +12,7 @@ import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
-	const { jetpackScan } = useProtectData();
-	const { hasRequiredPlan } = jetpackScan;
+	const { hasRequiredPlan } = useProtectData();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 

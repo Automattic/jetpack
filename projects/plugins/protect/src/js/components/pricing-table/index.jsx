@@ -35,7 +35,7 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 
 	// Compute the price per month.
 	const price = pricingForUi.cost ? Math.ceil( ( pricingForUi.cost / 12 ) * 100 ) / 100 : null;
-	const offPrice = introductoryOffer.costPerInterval
+	const offPrice = introductoryOffer?.costPerInterval
 		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
 

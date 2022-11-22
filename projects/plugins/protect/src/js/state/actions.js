@@ -7,6 +7,7 @@ const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
+const SET_SCAN_IS_UNAVAILABLE = 'SET_SCAN_IS_UNAVAILABLE';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
@@ -18,6 +19,7 @@ const SET_THREATS_ARE_FIXING = 'SET_THREATS_ARE_FIXING';
 const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
+const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -29,10 +31,22 @@ const startScanOptimistically = () => {
 
 const refreshPlan = () => ( { dispatch } ) => {
 	apiFetch( {
-		path: 'jetpack-protect/v1/plan',
+		path: 'jetpack-protect/v1/check-plan',
 		method: 'GET',
-	} ).then( jetpackScan => dispatch( setJetpackScan( camelize( jetpackScan ) ) ) );
+	} ).then( hasRequiredPlan => dispatch( setHasRequiredPlan( hasRequiredPlan ) ) );
 };
+
+/**
+ * Fetch Status
+ *
+ * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
+ * @returns {Promise} - Promise which resolves with the status request results.
+ */
+const fetchStatus = hardRefresh =>
+	apiFetch( {
+		path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
+		method: 'GET',
+	} );
 
 /**
  * Side effect action which will fetch the status from the server
@@ -43,18 +57,44 @@ const refreshPlan = () => ( { dispatch } ) => {
 const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
 	dispatch( setStatusIsFetching( true ) );
 	return await new Promise( ( resolve, reject ) => {
-		return apiFetch( {
-			path: `jetpack-protect/v1/status${ hardRefresh ? '?hard_refresh=true' : '' }`,
-			method: 'GET',
-		} )
+		return fetchStatus( hardRefresh )
+			.then( checkStatus )
 			.then( status => {
+				dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
 				dispatch( setStatus( camelize( status ) ) );
-				dispatch( setStatusIsFetching( false ) );
 				resolve( status );
 			} )
 			.catch( error => {
 				reject( error );
+			} )
+			.finally( () => {
+				dispatch( setStatusIsFetching( false ) );
 			} );
+	} );
+};
+
+/**
+ * Check Status
+ *
+ * @param {object} currentStatus - The status.
+ * @param {number} attempts - The amount of recursive attempts that have already been made.
+ * @returns {Promise} - Promise which resolves with the status once it has been checked.
+ */
+const checkStatus = ( currentStatus, attempts = 0 ) => {
+	return new Promise( ( resolve, reject ) => {
+		if ( 'unavailable' === currentStatus.status && attempts < 3 ) {
+			fetchStatus( true )
+				.then( newStatus => {
+					setTimeout( () => {
+						checkStatus( newStatus, attempts + 1 )
+							.then( result => resolve( result ) )
+							.catch( error => reject( error ) );
+					}, 5000 );
+				} )
+				.catch( reject );
+		} else {
+			resolve( currentStatus );
+		}
 	} );
 };
 
@@ -93,6 +133,10 @@ const setCredentials = credentials => {
 
 const setStatusIsFetching = status => {
 	return { type: SET_STATUS_IS_FETCHING, status };
+};
+
+const setScanIsUnavailable = status => {
+	return { type: SET_SCAN_IS_UNAVAILABLE, status };
 };
 
 const setScanIsEnqueuing = isEnqueuing => {
@@ -268,6 +312,7 @@ const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
 		} )
 			.then( () => {
 				dispatch( startScanOptimistically() );
+				setTimeout( () => dispatch( refreshStatus( true ) ), 5000 );
 			} )
 			.catch( () => {
 				return dispatch(
@@ -304,6 +349,10 @@ const clearNotice = () => {
 	return { type: CLEAR_NOTICE };
 };
 
+const setHasRequiredPlan = hasRequiredPlan => {
+	return { type: SET_HAS_REQUIRED_PLAN, hasRequiredPlan };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -326,6 +375,8 @@ const actions = {
 	scan,
 	setThreatsAreFixing,
 	refreshPlan,
+	setHasRequiredPlan,
+	setScanIsUnavailable,
 };
 
 export {
@@ -334,15 +385,18 @@ export {
 	SET_STATUS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
+	SET_SCAN_IS_UNAVAILABLE,
 	SET_SCAN_IS_ENQUEUING,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
 	SET_JETPACK_SCAN,
+	SET_PRODUCT_DATA,
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
+	SET_HAS_REQUIRED_PLAN,
 	actions as default,
 };
