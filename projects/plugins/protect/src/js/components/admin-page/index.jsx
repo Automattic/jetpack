@@ -28,7 +28,7 @@ import AlertSVGIcon from '../alert-icon';
 import Footer from '../footer';
 import Interstitial from '../interstitial';
 import Logo from '../logo';
-import ProtectProgressBar from '../progress-bar';
+import ProgressBar from '../progress-bar';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
 import inProgressImage from './in-progress.png';
@@ -221,7 +221,7 @@ const ProtectAdminPage = () => {
 									</Col>
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
-										{ currentProgress >= 0 && <ProtectProgressBar value={ currentProgress } /> }
+										{ currentProgress >= 0 && <ProgressBar value={ currentProgress } /> }
 										<Text>
 											{ __(
 												'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',

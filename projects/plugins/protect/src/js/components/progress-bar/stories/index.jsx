@@ -1,9 +1,9 @@
 import React from 'react';
-import ProtectProgressBar from '../index.jsx';
+import ProgressBar from '../index.jsx';
 
 export default {
 	title: 'Plugins/Protect/Progress Bar',
-	component: ProtectProgressBar,
+	component: ProgressBar,
 	parameters: {
 		layout: 'centered',
 	},
@@ -16,6 +16,6 @@ export default {
 	],
 };
 
-export const Initial = () => <ProtectProgressBar value={ 0 } />;
-export const Halfway = () => <ProtectProgressBar value={ 50 } />;
-export const Complete = () => <ProtectProgressBar value={ 100 } />;
+export const Initial = () => <ProgressBar value={ 0 } />;
+export const Halfway = () => <ProgressBar value={ 50 } />;
+export const Complete = () => <ProgressBar value={ 100 } />;

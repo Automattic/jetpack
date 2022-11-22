@@ -15,9 +15,9 @@ import styles from './style.module.scss';
  * @param {string} props.className - Additional classnames
  * @param {number} props.total     - Total integer
  * @param {number} props.value     - Progress integer
- * @returns {object}                    ProtectProgressBar react component.
+ * @returns {object}                    ProgressBar react component.
  */
-const ProtectProgressBar = ( { className, total = 100, value } ) => {
+const ProgressBar = ( { className, total = 100, value } ) => {
 	if ( value == null ) {
 		return null;
 	}
@@ -44,4 +44,4 @@ const ProtectProgressBar = ( { className, total = 100, value } ) => {
 	);
 };
 
-export default ProtectProgressBar;
+export default ProgressBar;
