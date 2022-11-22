@@ -18,7 +18,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	protected $plan_id;
 	protected $product_id = 1234;
 
-	public function setUp(): void {
+	public function setUp() {
 		parent::setUp();
 		Jetpack_Subscriptions::init();
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		get_user_by( 'id', $this->admin_user_id )->add_role( 'administrator' );
 	}
 
-	public function tearDown(): void {
+	public function tearDown() {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
@@ -123,13 +123,13 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * A simple helpful function to get the parameters name when filling the array
 	 *
-	 * @param $user_id
-	 * @param $logged
-	 * @param $token_set
-	 * @param $post_access_level
-	 * @param $is_email_sent
-	 * @param $does_user_access_post
-	 * @param $subscription_end_date
+	 * @param string    $user_id
+	 * @param bool      $logged
+	 * @param bool      $token_set
+	 * @param bool      $post_access_level
+	 * @param bool      $is_email_sent
+	 * @param bool      $does_user_access_post
+	 * @param bool|null $subscription_end_date
 	 * @return array
 	 */
 	private function accessUseCase( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date = null ) {
@@ -247,11 +247,11 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param int  $subscription_end_date
 	 * @return array
 	 */
-	private function getPayload( $is_subscribed, $is_paid_subscriber, $subscription_end_date ): array {
+	private function getPayload( $is_subscribed, $is_paid_subscriber, $subscription_end_date ) {
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
 			$this->product_id => array(
-				'status'     => $status ?? 'active',
-				'end_date'   => $subscription_end_date ?? time() + HOUR_IN_SECONDS,
+				'status'     => 'active',
+				'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
 				'product_id' => $this->product_id,
 			),
 		);
