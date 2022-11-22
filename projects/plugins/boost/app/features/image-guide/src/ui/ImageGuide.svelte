@@ -21,6 +21,7 @@
 
 	$: origin = new URL( window.location.href ).origin;
 	$: imageOrigin = new URL( image.url ).origin;
+
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -173,7 +174,7 @@
 		right: -50px;
 		opacity: 0.04;
 		transform: rotate( 15deg );
-		z-index: -1;
+		pointer-events: none;
 	}
 
 	:global( .guide.small ) {
