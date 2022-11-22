@@ -12,7 +12,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"rootDir": ".",
 		"paths": {
-			"@async-options/*": [ "./package/Async_Option/scripts/*" ]
+			"@async-options/*": [ "./packages/Async_Option/scripts/*" ]
 		}
 	}
 }
