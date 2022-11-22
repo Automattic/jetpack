@@ -30,9 +30,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Disconnect" button', () => {
+		it( 'renders the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Requires user connection" error list item', () => {
@@ -65,9 +65,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Disconnect" button', () => {
+		it( 'renders the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'Doesn\'t render the "Requires user connection" error list item', () => {
@@ -100,9 +100,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Disconnect" button', () => {
+		it( 'renders the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Disconnect' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Logged in as" success list item', () => {

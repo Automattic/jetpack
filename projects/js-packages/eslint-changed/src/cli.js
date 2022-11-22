@@ -6,7 +6,7 @@ import { Command } from 'commander';
 import { ESLint } from 'eslint';
 import parseDiff from 'parse-diff';
 
-const APP_VERSION = '2.0.4';
+const APP_VERSION = '2.0.5-alpha';
 
 /**
  * Create a Commander instance.

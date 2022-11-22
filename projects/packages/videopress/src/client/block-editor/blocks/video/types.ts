@@ -1,6 +1,7 @@
 import { trackKindOptionProps } from '../../plugins/video-chapters/utils/tracks-editor/types';
 
 export type VideoId = number;
+export type VideoGUID = string;
 
 type Track = {
 	label: string;
@@ -17,7 +18,7 @@ export type VideoBlockColorAttributesProps = {
 
 export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	id?: VideoId;
-	guid?: string;
+	guid?: VideoGUID;
 	src?: string;
 
 	title?: string;
@@ -46,6 +47,8 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	privacySetting?: number;
 	allowDownload?: boolean;
 	rating?: string;
+
+	isPrivate?: boolean;
 };
 
 export type VideoBlockSetAttributesProps = ( attributes: VideoBlockAttributes ) => void;

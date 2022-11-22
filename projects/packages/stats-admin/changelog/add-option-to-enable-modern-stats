@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Stats: add stats option `enable_calypso_stats` to allow users to enable the new Calypso Stats experience
