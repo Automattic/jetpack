@@ -35,14 +35,14 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 			<AdminSectionHero>
 				<Container
 					className={ styles[ 'firewall-header' ] }
-					horizontalSpacing={ 6 }
+					horizontalSpacing={ 7 }
 					horizontalGap={ 0 }
 				>
 					<Col>
 						<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
 							{ __( 'Active', 'jetpack-protect' ) }
 						</Text>
-						<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
+						<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 							{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
 						</H3>
 					</Col>
@@ -59,7 +59,7 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 			<AdminSectionHero>
 				<Container
 					className={ styles[ 'firewall-header' ] }
-					horizontalSpacing={ 6 }
+					horizontalSpacing={ 7 }
 					horizontalGap={ 0 }
 				>
 					<Col>
@@ -72,7 +72,7 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 						{ ! hasRequiredPlan && (
 							<>
 								<div className={ styles[ 'manual-rules-notice' ] }>
-									<Text variant={ 'body-small' } weight={ 600 }>
+									<Text weight={ 600 }>
 										{ __( 'Only manual rules will be applied', 'jetpack-protect' ) }
 									</Text>
 									<div
@@ -115,7 +115,7 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 		<AdminSectionHero>
 			<Container
 				className={ styles[ 'firewall-header' ] }
-				horizontalSpacing={ 6 }
+				horizontalSpacing={ 7 }
 				horizontalGap={ 0 }
 			>
 				<Col>
@@ -123,7 +123,7 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 					<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
 						{ __( 'Automatic firewall is being set up', 'jetpack-protect' ) }
 					</H3>
-					<Text variant={ 'body-small' } weight={ 600 }>
+					<Text className={ styles[ 'loading-text' ] } weight={ 600 }>
 						{ __( 'Please wait…', 'jetpack-protect' ) }
 					</Text>
 				</Col>
