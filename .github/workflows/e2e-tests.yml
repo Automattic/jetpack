@@ -110,7 +110,7 @@ jobs:
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          if [ "${SUITE}" != atomic ]; then
+          if [[ "${SUITE}" != atomic* ]]; then
             echo "::group::Build plugin(s)"
             cd $PROJECT_PATH
             pnpm run build
@@ -124,12 +124,13 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         SUITE: ${{ matrix.suite }}
         PROJECT_NAME:  ${{ matrix.project }}
+        DISPATCH_REF: ${{ github.event.client_payload.ref_name }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
         echo "::endgroup::"
 
-        if [ "${SUITE}" != atomic ]; then
+        if [[ "${SUITE}" != atomic* ]]; then
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -137,8 +138,14 @@ jobs:
           echo "::group::Create tunnel"
           pnpm run tunnel:up
           echo "::endgroup::"
-        else
-          echo "TEST_SITE=atomic" >> $GITHUB_ENV
+        fi
+
+        if [[ "${SUITE}" == atomic* ]]; then
+          echo "TEST_SITE=${SUITE}" >> $GITHUB_ENV
+          if [[ "${SUITE}" == atomicRc ]]; then
+            # Wait for the site to pick up latest tag version (DISPATCH_REF)
+            node ./bin/wait-for-atomic-site.cjs
+          fi
         fi
 
         if [ "${SUITE}" == gutenberg ]; then

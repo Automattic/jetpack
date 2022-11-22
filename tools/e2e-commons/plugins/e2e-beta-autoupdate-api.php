@@ -72,7 +72,7 @@ class E2eJetpackBetaAutoupdateApi {
 		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error(
 				'rest_cannot_manage_plugins',
-				__( 'Sorry, you are not allowed to manage plugins for this site.', '' ),
+				__( 'Sorry, you are not allowed to manage plugins for this site.', 'e2e' ), // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
