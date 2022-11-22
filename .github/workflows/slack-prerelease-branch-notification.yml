@@ -1,0 +1,67 @@
+name: Slack prerelease branch notification
+on:
+  create:
+    branches:
+      - 'prerelease'
+  delete:
+    branches:
+      - 'prerelease'
+
+jobs:
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: trunk
+      - name: Generate message
+        id: message
+        run: |
+          source .github/files/gh-funcs.sh
+
+          if [[ "$GITHUB_EVENT_NAME" == 'create' ]]; then
+            gh_set_output message "$(
+              jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | {
+                icon_emoji: ":lock:",
+                text: "Incoming release! Prerelease branch was created by \( $e.sender.login ).",
+                blocks: [
+                  {
+                    type: "section",
+                    text: {
+                      type: "mrkdwn",
+                      text: ":holdontoyourbutts: Incoming release! Prerelease branch was created by \( $e.sender.login ).",
+                    },
+                  }
+                ],
+              }'
+            )"
+          elif [[ "$GITHUB_EVENT_NAME" == 'delete' ]]; then
+            gh_set_output message "$(
+              jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | {
+                icon_emoji: ":unlock:",
+                text: "Prerelease branch was deleted by \( $e.sender.login ).",
+                blocks: [
+                  {
+                    type: "section",
+                    text: {
+                      type: "mrkdwn",
+                      text: "Prerelease branch was deleted by \( $e.sender.login ).",
+                    },
+                  }
+                ],
+              }'
+            )"
+          else
+            echo "::error::Unknown event \"$GITHUB_EVENT_NAME\""
+            exit 1
+          fi
+
+      - name: Send message to releases channel
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}
+          payload: ${{ steps.message.outputs.message }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}

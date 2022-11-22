@@ -12,7 +12,8 @@ jobs:
     if: github.event_name == 'delete' && github.repository == 'Automattic/jetpack'
     steps:
       - uses: actions/checkout@v3
-        ref: trunk
+        with:
+          ref: trunk
       - name: Delete branches
         env:
           TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
