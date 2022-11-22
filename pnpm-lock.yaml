@@ -905,6 +905,7 @@ importers:
       '@storybook/testing-react': 1.2.3
       '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.1
       '@testing-library/user-event': 14.2.1
       '@wordpress/api-fetch': 6.18.0
       '@wordpress/components': 22.0.0
@@ -952,6 +953,7 @@ importers:
       '@storybook/testing-react': 1.2.3_hvojoefknjusjfxoi4u3b4bzg4
       '@testing-library/dom': 8.16.0
       '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
+      '@testing-library/react-hooks': 8.0.1_7qv3rjnqa3j7exc7qtvho7thru
       '@testing-library/user-event': 14.2.1_gwcpuyfvwbszhlmedmugzivgzu
       jest: 28.1.0
       jest-environment-jsdom: 28.1.0
