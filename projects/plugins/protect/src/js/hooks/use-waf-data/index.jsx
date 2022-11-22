@@ -13,7 +13,7 @@ const useWafData = () => {
 	useEffect( () => {
 		if ( waf === undefined && ! wafIsFetching ) {
 			apiFetch( {
-				path: 'jetpack/v4/waf',
+				path: 'jetpack-protect/v1/waf',
 				method: 'GET',
 			} ).then( response => {
 				setWaf( response );
