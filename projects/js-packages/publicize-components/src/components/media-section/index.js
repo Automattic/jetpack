@@ -105,7 +105,7 @@ export default function MediaSection() {
 			}
 
 			// Do not select media if criteria is not met
-			if ( media.filesizeInBytes > getMaxImageSize( RESTRICTIONS, enabledConnections ) ) {
+			if ( media.filesizeInBytes > maxImageSize ) {
 				updateAttachedMedia( [] );
 				setShotNotice( true );
 				return;
@@ -114,7 +114,7 @@ export default function MediaSection() {
 			updateAttachedMedia( [ media.id ] );
 			setShotNotice( false );
 		},
-		[ updateAttachedMedia, enabledConnections ]
+		[ updateAttachedMedia, maxImageSize ]
 	);
 
 	const setMediaRender = useCallback(
