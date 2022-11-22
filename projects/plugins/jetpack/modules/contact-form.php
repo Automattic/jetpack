@@ -162,7 +162,7 @@ function jetpack_form_register_pattern() {
 									<!-- /wp:column -->
 									<!-- wp:column {"verticalAlignment":"top"} -->
 									<div class="wp-block-column is-vertically-aligned-top">
-										<!-- wp:jetpack/contact-form {"subject":"[atomicsitecrowdsignal] New Form Patterns","to":"thomas.schinabeck@gmail.com","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
+										<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
 										<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
 											<!-- wp:jetpack/field-email {"required":true} /-->
 											<!-- wp:jetpack/field-consent {"width":75} /-->
@@ -231,7 +231,7 @@ function jetpack_form_register_pattern() {
 							<!-- wp:spacer {"height":"4px"} -->
 							<div style="height:4px" aria-hidden="true" class="wp-block-spacer"></div>
 							<!-- /wp:spacer -->
-							<!-- wp:jetpack/contact-form {"subject":"[atomicsitecrowdsignal] New Form Patterns","to":"thomas.schinabeck@gmail.com","style":{"spacing":{"padding":{"top":"0px","right":"0px","bottom":"0px","left":"0px"}}}} -->
+							<!-- wp:jetpack/contact-form {"style":{"spacing":{"padding":{"top":"0px","right":"0px","bottom":"0px","left":"0px"}}}} -->
 							<div class="wp-block-jetpack-contact-form" style="padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px">
 								<!-- wp:jetpack/field-name {"required":true} /-->
 								<!-- wp:jetpack/field-telephone {"required":true} /-->
@@ -317,7 +317,7 @@ function jetpack_form_register_pattern() {
 			'title'      => 'Appointment Form',
 			'blockTypes' => array( 'jetpack/contact-form' ),
 			'categories' => array( $category_slug ),
-			'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","to":"cgastrell@gmail.com","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
+			'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
 				<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
 					<!-- wp:jetpack/field-name {"required":true} /-->
 					<!-- wp:jetpack/field-email {"required":true} /-->
