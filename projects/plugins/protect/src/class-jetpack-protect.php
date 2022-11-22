@@ -353,6 +353,18 @@ class Jetpack_Protect {
 
 		register_rest_route(
 			'jetpack-protect/v1',
+			'waf',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::api_get_waf',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
 			'waf-seen',
 			array(
 				'methods'             => \WP_REST_SERVER::READABLE,
@@ -505,6 +517,22 @@ class Jetpack_Protect {
 		}
 
 		return new WP_REST_Response( 'Scan enqueued.' );
+	}
+
+	/**
+	 * Get WAF data for the API endpoint
+	 *
+	 * @return bool Whether the current user has viewed the WAF screen.
+	 */
+	public static function api_get_waf() {
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/waf' );
+		$response = rest_do_request( $request );
+
+		if ( $response->status !== 200 ) {
+			return new WP_REST_Response( 'An error occured while attempting to load Firewall settings', 500 );
+		}
+
+		return new WP_REST_Response( $response );
 	}
 
 	/**
