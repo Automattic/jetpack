@@ -65,8 +65,8 @@ class Test_Plan extends Stats_Test_Case {
 		$this->assertArrayHasKey( 'google_maps_and_places_api_key', $data );
 		$this->assertArrayHasKey( 'i18n_default_locale_slug', $data );
 		$this->assertArrayHasKey( 'nonce', $data );
-		$this->assertArrayHasKey( 'is_running_in_jetpack_site', $data );
 		$this->assertArrayHasKey( 'site_name', $data );
 		$this->assertArrayHasKey( 'intial_state', $data );
+		$this->assertEmpty( $data->features );
 	}
 }

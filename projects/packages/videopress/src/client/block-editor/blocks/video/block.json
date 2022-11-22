@@ -8,7 +8,11 @@
 	"icon": "smiley",
 	"description": "Embed a video from your media library or upload a new one with VideoPress.",
 	"supports": {
-		"align": true
+		"align": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
 	},
 	"attributes": {
 		"autoplay": {
@@ -98,6 +102,9 @@
 		},
 		"rating": {
 			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
 		}
 	},
 	"textdomain": "jetpack-videopress",

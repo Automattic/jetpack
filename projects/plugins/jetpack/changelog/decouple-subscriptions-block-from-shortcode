@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Decouple the Jetpack subscription block rendering logic from Jetpack Subscription Widget shortcode
