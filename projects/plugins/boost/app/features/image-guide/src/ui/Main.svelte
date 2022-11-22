@@ -3,7 +3,7 @@
 	import ImageGuide from './ImageGuide.svelte';
 	import { state } from './StateStore';
 	import type { GuideSize, MeasuredImage } from '../types';
-  import { measure } from '../Measurements';
+	import { measure } from '../Measurements';
 
 	export let images: MeasuredImage[];
 	let show: MeasuredImage | false = false;
@@ -24,26 +24,27 @@
 		size = 'small';
 	}
 
-	$: if( show ) {
+	$: if ( show ) {
 		images.forEach( image => {
 			image.node.classList.add( 'jetpack-boost-image-guide-backdrop' );
-		});
+		} );
 	} else {
 		images.forEach( image => {
 			image.node.classList.remove( 'jetpack-boost-image-guide-backdrop' );
-		});
+		} );
 	}
 
 	let debounce: number;
 	function updateDimensions() {
-		if( debounce ) {
+		if ( debounce ) {
 			clearTimeout( debounce );
 		}
-		debounce = setTimeout(() => {
-			images = measure(images);
-		}, 500);
+		debounce = setTimeout( () => {
+			images = measure( images );
+		}, 500 );
 	}
 </script>
+
 <svelte:window on:resize={updateDimensions} />
 
 {#if $state === 'active' || $state === 'always_on'}
@@ -95,7 +96,7 @@
 			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
 	}
 
-	:global(.jetpack-boost-image-guide-backdrop) {
+	:global( .jetpack-boost-image-guide-backdrop ) {
 		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
 		filter: brightness( 0.3 );
 	}

@@ -21,7 +21,6 @@
 
 	$: origin = new URL( window.location.href ).origin;
 	$: imageOrigin = new URL( image.url ).origin;
-
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
