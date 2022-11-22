@@ -1,16 +1,14 @@
-name: Slack prerelease branch notification
+name: Slack branch existence notification
 on:
   create:
-    branches:
-      - 'prerelease'
   delete:
-    branches:
-      - 'prerelease'
 
 jobs:
   notify:
     name: Notify
     runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2022-11-22: Shouldn't take long.
+    if: github.event.ref == 'prerelease'
 
     steps:
       - uses: actions/checkout@v3

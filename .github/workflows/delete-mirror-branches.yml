@@ -1,15 +1,13 @@
 name: Delete mirror branches
 on:
   delete:
-    branches:
-      - 'prerelease'
 
 jobs:
   delete:
     name: Delete `${{ github.event.ref }}`
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2022-11-21: Shouldn't take long.
-    if: github.event_name == 'delete' && github.repository == 'Automattic/jetpack'
+    if: github.event_name == 'delete' && github.repository == 'Automattic/jetpack' && github.event.ref == 'prerelease'
     steps:
       - uses: actions/checkout@v3
         with:
