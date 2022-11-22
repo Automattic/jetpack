@@ -91,7 +91,7 @@ export function useSyncMedia(
 	setAttributes: VideoBlockSetAttributesProps
 ): UseSyncMediaProps {
 	const { id, guid } = attributes;
-	const { videoData, isRequestingVideoData } = useVideoData( id );
+	const { videoData, isRequestingVideoData } = useVideoData( { id, guid } );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
@@ -132,11 +132,6 @@ export function useSyncMedia(
 
 		// ...and udpate the block attributes with fresh data.
 		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
-
-		// Cast/tweak response body => block attributes.
-		if ( typeof initialAttributesValues.allowDownload !== 'undefined' ) {
-			initialAttributesValues.allowDownload = !! initialAttributesValues.allowDownload;
-		}
 
 		setAttributes( initialAttributesValues );
 	}, [ videoData, isRequestingVideoData ] );
@@ -184,16 +179,11 @@ export function useSyncMedia(
 			// Update local state with fresh video data.
 			updateInitialState( dataToUpdate );
 
-			// Re-render video player once the data has been updated.
-			const videoPressUrl = getVideoPressUrl( guid, attributes );
-			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-		} );
-
-		// | Video Chapters feature |
-		if ( attributes?.guid && dataToUpdate?.description?.length ) {
 			// Upload .vtt file if its description contains chapters
 			const chapters = extractVideoChapters( dataToUpdate.description );
-			if ( chapters?.length ) {
+
+			// | Video Chapters feature |
+			if ( attributes?.guid && dataToUpdate?.description?.length && chapters?.length ) {
 				const track: UploadTrackDataProps = {
 					label: __( 'English', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
@@ -213,13 +203,15 @@ export function useSyncMedia(
 							},
 						],
 					} );
-				} );
-			}
-		}
 
-		// Re-render video player
-		const videoPressUrl = getVideoPressUrl( guid, attributes );
-		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+					const videoPressUrl = getVideoPressUrl( guid, attributes );
+					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				} );
+			} else {
+				const videoPressUrl = getVideoPressUrl( guid, attributes );
+				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+			}
+		} );
 	}, [
 		isSaving,
 		wasSaving,
