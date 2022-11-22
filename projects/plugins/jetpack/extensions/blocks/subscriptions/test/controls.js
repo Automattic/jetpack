@@ -208,7 +208,7 @@ describe( 'Inspector controls', () => {
 			await user.click( screen.getByLabelText( 'Include social followers in count' ) );
 
 			expect( setAttributes ).toHaveBeenCalledWith( {
-				includeSocialFollowers: false,
+				includeSocialFollowers: true,
 			} );
 		} );
 

@@ -9,6 +9,7 @@
 			"buttonOnNewLine": true,
 			"submitButtonText": "Sign Up",
 			"fontSize": "33px",
+			"includeSocialFollowers": true,
 			"customFontSize": "33px",
 			"borderRadius": 8,
 			"borderWeight": 3,
