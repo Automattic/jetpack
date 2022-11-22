@@ -21,6 +21,8 @@ const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
 const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
 const SET_WAF_SEEN = 'SET_WAF_SEEN';
+const SET_WAF_IS_FETCHING = 'SET_WAF_IS_FETCHING';
+const SET_WAF = 'SET_WAF';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -358,6 +360,14 @@ const setWafSeen = seen => {
 	return { type: SET_WAF_SEEN, seen };
 };
 
+const setWafIsFetching = isFetching => {
+	return { type: SET_WAF_IS_FETCHING, isFetching };
+};
+
+const setWaf = waf => {
+	return { type: SET_WAF, waf };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -383,6 +393,8 @@ const actions = {
 	setHasRequiredPlan,
 	setScanIsUnavailable,
 	setWafSeen,
+	setWafIsFetching,
+	setWaf,
 };
 
 export {
@@ -405,5 +417,7 @@ export {
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
 	SET_WAF_SEEN,
+	SET_WAF_IS_FETCHING,
+	SET_WAF,
 	actions as default,
 };
