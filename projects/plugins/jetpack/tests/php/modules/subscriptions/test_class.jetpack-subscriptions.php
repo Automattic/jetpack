@@ -18,11 +18,18 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	protected $plan_id;
 	protected $product_id = 1234;
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		Jetpack_Subscriptions::init();
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		$this->setUpUsers();
+	}
+
+	public function tearDown(): void {
+		// Clean up
+		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
+		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
+		parent::tearDown();
 	}
 
 	private function setUpUsers() {
@@ -50,13 +57,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		);
 
 		get_user_by( 'id', $this->admin_user_id )->add_role( 'administrator' );
-	}
-
-	public function tearDown() {
-		// Clean up
-		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
-		parent::tearDown();
 	}
 
 	/**
@@ -123,17 +123,18 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * A simple helpful function to get the parameters name when filling the array
 	 *
-	 * @param string    $user_id
-	 * @param bool      $logged
-	 * @param bool      $token_set
-	 * @param bool      $post_access_level
-	 * @param bool      $is_email_sent
-	 * @param bool      $does_user_access_post
-	 * @param bool|null $subscription_end_date
+	 * @param string      $user_id
+	 * @param bool        $logged
+	 * @param bool        $token_set
+	 * @param bool        $post_access_level
+	 * @param bool        $is_email_sent
+	 * @param bool        $does_user_access_post
+	 * @param string|null $subscription_end_date
+	 * @param string|null $status
 	 * @return array
 	 */
-	private function accessUseCase( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date = null ) {
-		return array( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date );
+	private function accessUseCase( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date = null, $status = null ) {
+		return array( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date, $status );
 	}
 
 	public function matrixAccess() {
