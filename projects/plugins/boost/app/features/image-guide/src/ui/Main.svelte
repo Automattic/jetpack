@@ -3,6 +3,7 @@
 	import ImageGuide from './ImageGuide.svelte';
 	import { state } from './StateStore';
 	import type { GuideSize, MeasuredImage } from '../types';
+  import { measure } from '../Measurements';
 
 	export let images: MeasuredImage[];
 	let show: MeasuredImage | false = false;
@@ -32,7 +33,18 @@
 			image.node.classList.remove( 'jetpack-boost-image-guide-backdrop' );
 		});
 	}
+
+	let debounce: number;
+	function updateDimensions() {
+		if( debounce ) {
+			clearTimeout( debounce );
+		}
+		debounce = setTimeout(() => {
+			images = measure(images);
+		}, 500);
+	}
 </script>
+<svelte:window on:resize={updateDimensions} />
 
 {#if $state === 'active' || $state === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
