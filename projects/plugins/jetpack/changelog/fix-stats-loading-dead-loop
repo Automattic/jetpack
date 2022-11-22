@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: stop stats loading indefinitely when a hashtag exists

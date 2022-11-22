@@ -156,6 +156,7 @@ jobs:
         pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Write report metadata
+      if: ${{ always() }}
       env:
         SUITE: ${{ matrix.suite }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
