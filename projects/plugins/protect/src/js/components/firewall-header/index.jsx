@@ -6,6 +6,8 @@ import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 import { JETPACK_SCAN } from '../admin-page';
 import styles from './styles.module.scss';
 
@@ -135,4 +137,21 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 	);
 };
 
-export default FirewallHeader;
+const ConnectedFirewallHeader = () => {
+	const { waf, wafIsFetching } = useWafData();
+
+	let currentWafStatus;
+	if ( wafIsFetching ) {
+		currentWafStatus = 'loading';
+	} else if ( waf ) {
+		currentWafStatus = 'on';
+	} else {
+		currentWafStatus = 'off';
+	}
+
+	const { hasRequiredPlan } = useProtectData();
+
+	return <FirewallHeader status={ currentWafStatus } hasRequiredPlan={ hasRequiredPlan } />;
+};
+
+export default ConnectedFirewallHeader;
