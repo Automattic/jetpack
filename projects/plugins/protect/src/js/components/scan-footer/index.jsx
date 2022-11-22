@@ -110,7 +110,7 @@ const FooterInfo = () => {
 	);
 };
 
-const Footer = () => {
+const ScanFooter = () => {
 	return (
 		<SeventyFiveLayout
 			main={ <ProductPromotion /> }
@@ -120,4 +120,4 @@ const Footer = () => {
 	);
 };
 
-export default Footer;
+export default ScanFooter;

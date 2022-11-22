@@ -3,6 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
+import FirewallFooter from '../firewall-footer';
 import ConnectedFirewallHeader from '../firewall-header';
 
 const FirewallPage = () => {
@@ -27,6 +28,7 @@ const FirewallPage = () => {
 	return (
 		<AdminPage>
 			<ConnectedFirewallHeader />
+			<FirewallFooter />
 		</AdminPage>
 	);
 };

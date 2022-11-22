@@ -9,7 +9,7 @@ import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
 import AlertSVGIcon from '../alert-icon';
-import Footer from '../footer';
+import ScanFooter from '../scan-footer';
 import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
 import ThreatsList from '../threats-list';
@@ -92,7 +92,7 @@ const ScanPage = () => {
 						preserveSecondaryOnMobile={ false }
 					/>
 				</AdminSectionHero>
-				<Footer />
+				<ScanFooter />
 			</AdminPage>
 		);
 	}
@@ -149,7 +149,7 @@ const ScanPage = () => {
 						preserveSecondaryOnMobile={ false }
 					/>
 				</AdminSectionHero>
-				<Footer />
+				<ScanFooter />
 			</AdminPage>
 		);
 	}
@@ -176,7 +176,7 @@ const ScanPage = () => {
 					</Col>
 				</Container>
 			</AdminSectionHero>
-			<Footer />
+			<ScanFooter />
 		</AdminPage>
 	);
 };
