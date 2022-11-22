@@ -73,7 +73,7 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.1.0 - 2022-11-22
+### 1.1.0-beta - 2022-11-22
 
 #### Added
 - Added VideoPress feedback link to the VideoPress block.
