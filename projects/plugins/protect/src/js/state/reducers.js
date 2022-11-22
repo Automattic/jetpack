@@ -18,6 +18,7 @@ import {
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
+	SET_WAF_SEEN,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -152,6 +153,14 @@ const hasRequiredPlan = ( state = false, action ) => {
 	return state;
 };
 
+const wafSeen = ( state = undefined, action ) => {
+	switch ( action.type ) {
+		case SET_WAF_SEEN:
+			return action.seen;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	credentials,
 	credentialsIsFetching,
@@ -169,6 +178,7 @@ const reducers = combineReducers( {
 	notice,
 	setThreatsFixing,
 	hasRequiredPlan,
+	wafSeen,
 } );
 
 export default reducers;

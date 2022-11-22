@@ -20,6 +20,7 @@ const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
 const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
+const SET_WAF_SEEN = 'SET_WAF_SEEN';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -353,6 +354,10 @@ const setHasRequiredPlan = hasRequiredPlan => {
 	return { type: SET_HAS_REQUIRED_PLAN, hasRequiredPlan };
 };
 
+const setWafSeen = seen => {
+	return { type: SET_WAF_SEEN, seen };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -377,6 +382,7 @@ const actions = {
 	refreshPlan,
 	setHasRequiredPlan,
 	setScanIsUnavailable,
+	setWafSeen,
 };
 
 export {
@@ -398,5 +404,6 @@ export {
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
+	SET_WAF_SEEN,
 	actions as default,
 };
