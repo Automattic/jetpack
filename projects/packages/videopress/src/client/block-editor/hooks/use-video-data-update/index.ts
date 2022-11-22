@@ -179,16 +179,11 @@ export function useSyncMedia(
 			// Update local state with fresh video data.
 			updateInitialState( dataToUpdate );
 
-			// Re-render video player once the data has been updated.
-			const videoPressUrl = getVideoPressUrl( guid, attributes );
-			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-		} );
-
-		// | Video Chapters feature |
-		if ( attributes?.guid && dataToUpdate?.description?.length ) {
 			// Upload .vtt file if its description contains chapters
 			const chapters = extractVideoChapters( dataToUpdate.description );
-			if ( chapters?.length ) {
+
+			// | Video Chapters feature |
+			if ( attributes?.guid && dataToUpdate?.description?.length && chapters?.length ) {
 				const track: UploadTrackDataProps = {
 					label: __( 'English', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
@@ -208,13 +203,15 @@ export function useSyncMedia(
 							},
 						],
 					} );
-				} );
-			}
-		}
 
-		// Re-render video player
-		const videoPressUrl = getVideoPressUrl( guid, attributes );
-		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+					const videoPressUrl = getVideoPressUrl( guid, attributes );
+					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				} );
+			} else {
+				const videoPressUrl = getVideoPressUrl( guid, attributes );
+				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+			}
+		} );
 	}, [
 		isSaving,
 		wasSaving,
