@@ -615,7 +615,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 *
 	 * @return array containing ['email_subscribers' => 0, 'social_followers' => 0]
 	 */
-	public static function() {
+	public static function fetch_subscriber_counts() {
 		$subs_count = 0;
 		if ( self::is_jetpack() ) {
 			$cache_key  = 'wpcom_subscribers_totals';
@@ -650,7 +650,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				'value' => array(
 					'email_subscribers' => wpcom_subs_total_for_blog(),
 					'social_followers'  => wpcom_social_followers_total_for_blog(),
-				)
+				),
 			);
 		}
 
