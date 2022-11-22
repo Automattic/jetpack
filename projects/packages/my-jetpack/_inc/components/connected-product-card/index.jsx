@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
-import ProductCard, { PRODUCT_STATUSES } from '../product-card';
+import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( { admin, slug } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
@@ -26,20 +26,12 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 	 * Redirect only if connected
 	 */
 	const callOnlyIfAllowed = callback => () => {
-		if (
-			status !== PRODUCT_STATUSES.NEEDS_PURCHASE &&
-			status !== PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE
-		) {
-			callback();
+		if ( ! isRegistered || ! isUserConnected ) {
+			navigateToConnectionPage();
 			return;
 		}
 
-		if ( isRegistered && isUserConnected ) {
-			callback();
-			return;
-		}
-
-		navigateToConnectionPage();
+		callback();
 	};
 
 	const Icon = getIconBySlug( slug );
