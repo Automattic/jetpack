@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-plugin-deactivation",
-	"version": "0.1.1",
+	"version": "0.1.2-alpha",
 	"description": "Intercept plugin deactivation with a dialog",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/plugin-deactivation/#readme",
 	"bugs": {
