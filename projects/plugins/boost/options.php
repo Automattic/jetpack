@@ -29,6 +29,10 @@ function jetpack_boost_update_option( $option, $value ) {
 	return jetpack_boost_option( $option )->set( $value );
 }
 
+function jetpack_boost_delete_option( $option ) {
+	return jetpack_boost_option( $option )->delete();
+}
+
 /**
  * Ensure that Async Options are passed to the relevant scripts.
  */
