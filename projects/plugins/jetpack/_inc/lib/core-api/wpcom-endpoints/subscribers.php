@@ -95,10 +95,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 			delete_transient( 'wpcom_subscribers_totals' );
 		}
 
-		$subscriber_info  = Jetpack_Subscriptions_Widget::fetch_subscriber_counts();
-		$subscriber_count = $subscriber_info['value'];
+		$subscriber_info   = Jetpack_Subscriptions_Widget::fetch_subscriber_counts();
+		$subscriber_counts = $subscriber_info['value'];
 
-		return array( 'counts' => $subscriber_count );
+		return array( 'counts' => $subscriber_counts );
 	}
 }
 
