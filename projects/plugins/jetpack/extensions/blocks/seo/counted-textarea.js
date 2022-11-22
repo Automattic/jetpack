@@ -1,5 +1,5 @@
 import { TextareaControl } from '@wordpress/components';
-import { _n, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import React from 'react';
 
 export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps } ) => {
@@ -10,7 +10,11 @@ export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps }
 					_n( '%d character', '%d characters', value.length, 'jetpack' ),
 					value.length
 			  )
-			: sprintf( "It's recommended to use less than %d characters in this field.", suggestedLimit );
+			: sprintf(
+					/* translators: Placeholder is a number of characters in a sentence. */
+					__( "It's recommended to use less than %d characters in this field.", 'jetpack' ),
+					suggestedLimit
+			  );
 
 	return (
 		<div className="jetpack-seo-message-box">
