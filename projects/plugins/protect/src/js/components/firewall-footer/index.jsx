@@ -21,7 +21,7 @@ const StandaloneMode = () => {
 	return (
 		<div className={ styles[ 'standalone-mode-section' ] }>
 			<Title>{ __( 'Standalone mode', 'jetpack-protect' ) }</Title>
-			<Text mb={ 3 }>
+			<Text mb={ 2 }>
 				{ __(
 					'Learn how you can execute the firewall before WordPress initializes. This mode offers the most protection.',
 					'jetpack-protect'
@@ -42,8 +42,9 @@ const StandaloneMode = () => {
 const ShareData = () => {
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
-			<Title>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
+			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
+				{ /* To-Do: Add checkbox functionality */ }
 				<CheckboxControl checked={ true } />
 				<Text>
 					{ __(
