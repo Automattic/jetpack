@@ -40,12 +40,26 @@ const StandaloneMode = () => {
 };
 
 const ShareData = () => {
+	const { wafShareData } = window.jetpackProtectInitialState || false;
+	let shareDataEnabled = false;
+	if ( '1' === wafShareData ) {
+		shareDataEnabled = true;
+	}
+
+	const onChange = checked => {
+		if ( checked ) {
+			console.log( "Set jetpack_waf_share_data option to '1' - ON" );
+		} else {
+			console.log( "Set jetpack_waf_share_data option to '' - OFF" );
+		}
+	};
+
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
 			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
 				{ /* To-Do: Add checkbox functionality */ }
-				<CheckboxControl checked={ true } />
+				<CheckboxControl checked={ shareDataEnabled } onChange={ onChange } />
 				<Text>
 					{ __(
 						'Allow Jetpack to collect data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
@@ -58,6 +72,7 @@ const ShareData = () => {
 };
 
 const FirewallFooter = () => {
+	console.log( window.jetpackProtectInitialState );
 	return (
 		<AdminSectionHero>
 			<SeventyFiveLayout

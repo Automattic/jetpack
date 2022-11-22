@@ -203,6 +203,7 @@ class Jetpack_Protect {
 				'isLoading' => false,
 				'config'    => Waf_Runner::get_config(),
 			),
+			'wafShareData'      => get_option( 'jetpack_waf_share_data' ),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
