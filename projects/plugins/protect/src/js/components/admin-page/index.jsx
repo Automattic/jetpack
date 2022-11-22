@@ -1,4 +1,4 @@
-import { AdminPage as JetpackAdminPage } from '@automattic/jetpack-components';
+import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
@@ -8,6 +8,8 @@ import React, { useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
+import Tabs, { Tab } from '../tabs';
+import styles from './styles.module.scss';
 import useRegistrationWatcher from './use-registration-watcher';
 
 export const JETPACK_SCAN = 'jetpack_scan';
@@ -48,6 +50,12 @@ const AdminPage = ( { children } ) => {
 
 	return (
 		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
+			<Container horizontalSpacing={ 0 }>
+				<Tabs className={ styles.navigation }>
+					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
+					<Tab link="/firewall" label={ __( 'Firewall', 'jetpack-protect' ) } />
+				</Tabs>
+			</Container>
 			{ children }
 		</JetpackAdminPage>
 	);
