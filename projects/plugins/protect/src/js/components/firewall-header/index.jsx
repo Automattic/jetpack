@@ -13,10 +13,11 @@ import styles from './styles.module.scss';
 
 const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const FirewallUrl = adminUrl + '#/firewall';
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
-		redirectUrl: adminUrl,
+		redirectUrl: FirewallUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
@@ -93,13 +94,17 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 							) }
 						</>
 					) }
-					<Spinner className={ styles.spinner } />
-					<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-						{ __( 'Automatic firewall is being set up', 'jetpack-protect' ) }
-					</H3>
-					<Text className={ styles[ 'loading-text' ] } weight={ 600 }>
-						{ __( 'Please wait…', 'jetpack-protect' ) }
-					</Text>
+					{ 'loading' === status && (
+						<>
+							<Spinner className={ styles.spinner } />
+							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
+								{ __( 'Automatic firewall is being set up', 'jetpack-protect' ) }
+							</H3>
+							<Text className={ styles[ 'loading-text' ] } weight={ 600 }>
+								{ __( 'Please wait…', 'jetpack-protect' ) }
+							</Text>
+						</>
+					) }
 				</Col>
 				<Col>
 					<div className={ styles[ 'stat-card-wrapper' ] }></div>
@@ -110,12 +115,11 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { waf, wafIsFetching } = useWafData();
+	const { waf } = useWafData();
 
+	// To Do: Add loading status
 	let currentWafStatus;
-	if ( wafIsFetching ) {
-		currentWafStatus = 'loading';
-	} else if ( waf ) {
+	if ( waf ) {
 		currentWafStatus = 'on';
 	} else {
 		currentWafStatus = 'off';
