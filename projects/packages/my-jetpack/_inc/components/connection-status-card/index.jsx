@@ -57,7 +57,7 @@ const ConnectionStatusCard = props => {
 		onConnectUser,
 	} = props;
 
-	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
+	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
 		apiRoot,
 		apiNonce,
 		redirectUri,
@@ -150,7 +150,7 @@ const ConnectionStatusCard = props => {
 								) }
 							/>
 						) }
-						{ ( ! isUserConnected || ! hasConnectedOwner ) && (
+						{ ! isUserConnected && (
 							<ConnectionListItem
 								onClick={ handleConnectUser }
 								text={ __( 'You’re not connected.', 'jetpack-my-jetpack' ) }
