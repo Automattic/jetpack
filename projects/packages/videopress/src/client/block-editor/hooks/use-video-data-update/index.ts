@@ -27,7 +27,7 @@ import {
 	VideoId,
 } from '../../blocks/video/types';
 import useVideoData from '../use-video-data';
-import { UseSyncMediaOptionsProps, UseSyncMediaProps } from './types';
+import { UseSyncMediaProps, UseSyncMediaOptionsProps } from './types';
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
@@ -121,6 +121,10 @@ export function useSyncMedia(
 
 		// Build an object with video data to use for the initial state.
 		const initialVideoData = videoFieldsToUpdate.reduce( ( acc, key ) => {
+			if ( typeof videoData[ key ] === 'undefined' ) {
+				return acc;
+			}
+
 			acc[ key ] = videoData[ key ];
 			return acc;
 		}, {} );
@@ -134,6 +138,22 @@ export function useSyncMedia(
 
 		// ...and udpate the block attributes with fresh data.
 		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
+
+		// Update block track attribute
+		const tracks = [];
+		Object.keys( videoData.tracks ).forEach( kind => {
+			for ( const srcLang in videoData.tracks[ kind ] ) {
+				const track = videoData.tracks[ kind ][ srcLang ];
+				tracks.push( {
+					src: track.src,
+					kind,
+					srcLang,
+					label: track.label,
+				} );
+			}
+		} );
+
+		initialAttributesValues.tracks = tracks;
 
 		setAttributes( initialAttributesValues );
 	}, [ videoData, isRequestingVideoData ] );
