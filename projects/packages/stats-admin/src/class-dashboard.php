@@ -229,7 +229,7 @@ class Dashboard {
 			'nonce'                          => wp_create_nonce( 'wp_rest' ),
 			'site_name'                      => \get_bloginfo( 'name' ),
 			'sections'                       => array(),
-			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70051
+			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70122
 			'features'                       => array(),
 			'intial_state'                   => array(
 				'currentUser' => array(
