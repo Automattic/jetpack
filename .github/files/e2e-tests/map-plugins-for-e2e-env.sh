@@ -8,7 +8,7 @@ if [[ -z "$PROJECT_PATH" ]]; then
 	exit 1
 fi
 
-tar --xz -xf "$BUILD_DIR/jetpack-build/build.tar.xz" -C "$BUILD_DIR"
+ls "$BUILD_DIR/build/Automattic"
 
 SLUG=$(jq -r -e ".ci.pluginSlug" "$PROJECT_PATH/package.json")
 MIRROR=$(jq -r -e ".ci.mirrorName" "$PROJECT_PATH/package.json")

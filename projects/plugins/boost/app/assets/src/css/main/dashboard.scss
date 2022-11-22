@@ -19,6 +19,11 @@
 	padding-top: $padding;
 	padding-bottom: $padding;
 	isolation: isolate;
+
+	.jetpack-boost-jitm-card .jitm-card {
+		margin: 0 0 2.5rem auto;
+	}
+
 }
 
 .jb-link{

@@ -13,7 +13,6 @@ export const WP_REST_API_VIDEOPRESS_ENDPOINT = 'wpcom/v2/videopress';
 export const WP_REST_API_VIDEOPRESS_META_ENDPOINT = 'wpcom/v2/videopress/meta';
 export const WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT = 'wpcom/v2/videopress/playback-jwt';
 export const WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT = 'videopress/v1/settings';
-export const REST_API_SITE_PURCHASES_ENDPOINT = 'my-jetpack/v1/site/purchases';
 export const REST_API_SITE_INFO_ENDPOINT = 'videopress/v1/site';
 
 /*
@@ -83,3 +82,7 @@ export const VIDEO_PRIVACY_LEVELS = [
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 ];
+
+export const VIDEO_RATING_G = 'G';
+export const VIDEO_RATING_PG_13 = 'PG-13';
+export const VIDEO_RATING_R_17 = 'R-17';

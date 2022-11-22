@@ -171,8 +171,12 @@ class Data {
 	 */
 	public static function get_connected_initial_state() {
 		return array(
-			'videos' => array(
+			'videos'    => array(
 				'storageUsed' => self::get_storage_used(),
+			),
+			'purchases' => array(
+				'items'      => Site::get_purchases(),
+				'isFetching' => false,
 			),
 		);
 	}
@@ -190,6 +194,19 @@ class Data {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks if the user is able to perform actions that modify data
+	 */
+	public static function can_perform_action() {
+		$connection = new Connection_Manager();
+
+		return (
+			$connection->is_connected() &&
+			self::has_connected_owner() &&
+			$connection->is_user_connected()
+		);
 	}
 
 	/**

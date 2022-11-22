@@ -68,20 +68,21 @@ class Admin_UI {
 	 * @return array
 	 */
 	public static function get_allowed_video_extensions() {
-		$allowed_mime_types       = get_allowed_mime_types();
-		$allowed_video_extensions = array();
-
-		foreach ( $allowed_mime_types as $possible_extensions => $mime_type ) {
-			if ( strpos( $mime_type, 'video/' ) !== false ) {
-				$extensions = explode( '|', $possible_extensions );
-
-				foreach ( $extensions as $extension ) {
-					$allowed_video_extensions[ $extension ] = $mime_type;
-				}
-			}
-		}
-
-		return $allowed_video_extensions;
+		return array(
+			'3g2'  => 'video/3gpp2',
+			'3gp'  => 'video/3gpp',
+			'3gp2' => 'video/3gpp2',
+			'3gpp' => 'video/3gpp',
+			'avi'  => 'video/avi',
+			'm4v'  => 'video/mp4',
+			'mov'  => 'video/quicktime',
+			'mp4'  => 'video/mp4',
+			'mpe'  => 'video/mpeg',
+			'mpeg' => 'video/mpeg',
+			'mpg'  => 'video/mpeg',
+			'ogv'  => 'video/ogg',
+			'wmv'  => 'video/x-ms-wmv',
+		);
 	}
 
 	/**
@@ -178,9 +179,10 @@ class Admin_UI {
 				'isVideoPress1TBSupported'       => Current_Plan::supports( 'videopress-1tb-storage' ),
 				'isVideoPressUnlimitedSupported' => Current_Plan::supports( 'videopress-unlimited-storage' ),
 			),
-			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
 			'siteSuffix'             => ( new Status() )->get_site_suffix(),
 			'productData'            => Plan::get_product(),
+			'productPrice'           => Plan::get_product_price(),
+			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
 			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
 			'initialState'           => Data::get_initial_state(),
 		);

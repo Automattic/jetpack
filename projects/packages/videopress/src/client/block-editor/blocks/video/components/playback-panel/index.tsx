@@ -1,13 +1,19 @@
 /**
  *External dependencies
  */
-import { Tooltip, PanelBody, ToggleControl, SelectControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import {
+	ExternalLink,
+	PanelBody,
+	SelectControl,
+	ToggleControl,
+	Tooltip,
+} from '@wordpress/components';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { PlaybackControlProps } from '../../types';
+import { VideoControlProps } from '../../types';
 import type React from 'react';
 
 export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
@@ -21,10 +27,10 @@ export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
 /**
  * Sidebar Control component.
  *
- * @param {PlaybackControlProps} props - Component props.
+ * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function PlaybackPanel( { attributes, setAttributes }: PlaybackControlProps ) {
+export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(
@@ -122,6 +128,12 @@ export default function PlaybackPanel( { attributes, setAttributes }: PlaybackCo
 						: null
 				}
 			/>
+			{ createInterpolateElement(
+				__( 'Send us your <a>VideoPress feedback</a>', 'jetpack-videopress-pkg' ),
+				{
+					a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
+				}
+			) }
 		</PanelBody>
 	);
 }
