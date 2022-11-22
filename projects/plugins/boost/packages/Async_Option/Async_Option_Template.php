@@ -12,14 +12,9 @@ use Automattic\Jetpack\Packages\Async_Option\Storage\WP_Option;
 abstract class Async_Option_Template {
 
 	/**
-	 * The default value if no option is found.
-	 */
-	public static $DEFAULT_VALUE = false;
-
-	/**
 	 * @var string[]
 	 */
-	private $errors = [];
+	private $errors = array();
 
 	/**
 	 * Setup storage mechanism that subscribes to `Storage` contract
@@ -70,6 +65,7 @@ abstract class Async_Option_Template {
 	 *
 	 * @return bool - Return true on success, false on failure.
 	 */
+	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function validate( $value ) {
 		return ! $this->has_errors();
 	}
@@ -86,9 +82,14 @@ abstract class Async_Option_Template {
 	 *
 	 * @return mixed
 	 */
-	abstract function sanitize( $value );
+	abstract public function sanitize( $value );
 
-
+	/**
+	 * The default value if no option is found.
+	 */
+	public static function get_default_value() {
+		return false;
+	}
 
 	/**
 	 *

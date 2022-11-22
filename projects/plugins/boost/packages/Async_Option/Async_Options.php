@@ -24,6 +24,7 @@ class Async_Options {
 	 *
 	 * @return void
 	 */
+	// phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 	public function _print_options_script_tag() {
 		$data = array(
 			'rest_api' => array(

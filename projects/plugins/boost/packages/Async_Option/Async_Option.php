@@ -4,7 +4,6 @@ namespace Automattic\Jetpack\Packages\Async_Option;
 
 use Automattic\Jetpack\Packages\Async_Option\Storage\Storage;
 
-
 class Async_Option {
 
 	/**
@@ -26,17 +25,17 @@ class Async_Option {
 	/**
 	 * @param $namespace string
 	 * @param $key       string
-	 * @param $value     Async_Option_Template
+	 * @param $option     Async_Option_Template
 	 */
-	public function __construct( $namespace, $key, $value ) {
+	public function __construct( $namespace, $key, $option ) {
 		$this->key     = $key;
-		$this->option  = $value;
+		$this->option  = $option;
 		$this->storage = $this->option->setup_storage( $namespace );
 	}
 
 	public function get() {
 		return $this->option->transform(
-			$this->storage->get( $this->key, ($this->option)::$DEFAULT_VALUE )
+			$this->storage->get( $this->key, ( $this->option )::get_default_value() )
 		);
 	}
 
@@ -70,6 +69,5 @@ class Async_Option {
 	public function get_errors() {
 		return $this->option->get_errors();
 	}
-
 
 }
