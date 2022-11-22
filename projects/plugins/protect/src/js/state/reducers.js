@@ -19,6 +19,8 @@ import {
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
 	SET_WAF_SEEN,
+	SET_WAF_IS_FETCHING,
+	SET_WAF,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -161,6 +163,22 @@ const wafSeen = ( state = undefined, action ) => {
 	return state;
 };
 
+const waf = ( state = undefined, action ) => {
+	switch ( action.type ) {
+		case SET_WAF:
+			return action.waf;
+	}
+	return state;
+};
+
+const wafIsFetching = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_WAF_IS_FETCHING:
+			return action.isFetching;
+	}
+	return state;
+};
+
 const reducers = combineReducers( {
 	credentials,
 	credentialsIsFetching,
@@ -179,6 +197,8 @@ const reducers = combineReducers( {
 	setThreatsFixing,
 	hasRequiredPlan,
 	wafSeen,
+	waf,
+	wafIsFetching,
 } );
 
 export default reducers;
