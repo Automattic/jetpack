@@ -934,7 +934,7 @@ function grunion_check_for_spam_button() {
 	?>
 	<script type="text/javascript">
 		jQuery( function( $ ) {
-			$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
+			$( '.tablenav.bottom .bulkactions' ).append( <?php echo wp_json_encode( $button_html ); ?> );
 		} );
 	</script>
 	<?php
