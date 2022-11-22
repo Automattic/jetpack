@@ -18,14 +18,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	protected $plan_id;
 	protected $product_id = 1234;
 
-	public function setUp(): void {
+	public function set_up() {
 		parent::setUp();
 		Jetpack_Subscriptions::init();
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		$this->setUpUsers();
 	}
 
-	public function tearDown(): void {
+	public function tear_down() {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
