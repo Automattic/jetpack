@@ -28,6 +28,7 @@ export { ConnectionError } from './hooks/use-connection-error-notice';
 export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
 export { default as useConnection } from './components/use-connection';
+export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
 
 /**
  * Helpers.

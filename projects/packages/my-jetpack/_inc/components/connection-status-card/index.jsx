@@ -1,6 +1,6 @@
 import { Button, H3, Text } from '@automattic/jetpack-components';
 import {
-	DisconnectDialog,
+	ManageConnectionDialog,
 	useConnection,
 	CONNECTION_STORE_ID,
 } from '@automattic/jetpack-connection';
@@ -55,7 +55,6 @@ const ConnectionStatusCard = props => {
 		connectedSiteId,
 		context,
 		onConnectUser,
-		// requiresUserConnection,
 	} = props;
 
 	const { isRegistered, isUserConnected, userConnectionData, hasConnectedOwner } = useConnection( {
@@ -64,33 +63,31 @@ const ConnectionStatusCard = props => {
 		redirectUri,
 	} );
 
-	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
+	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
 	const handleConnectUser = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 
-	// const missingConnectedOwner = requiresUserConnection && ! hasConnectedOwner;
-
 	/**
-	 * Open the Disconnect Dialog.
+	 * Open the Manage Connection Dialog.
 	 */
-	const openDisconnectDialog = useCallback(
+	const openManageConnectionDialog = useCallback(
 		e => {
 			e && e.preventDefault();
-			setIsDisconnectDialogOpen( true );
+			setIsManageConnectionDialogOpen( true );
 		},
-		[ setIsDisconnectDialogOpen ]
+		[ setIsManageConnectionDialogOpen ]
 	);
 
 	/**
-	 * Close the Disconnect Dialog.
+	 * Close the Manage Connection Dialog.
 	 */
-	const closeDisconnectDialog = useCallback(
+	const closeManageConnectionDialog = useCallback(
 		e => {
 			e && e.preventDefault();
-			setIsDisconnectDialogOpen( false );
+			setIsManageConnectionDialogOpen( false );
 		},
-		[ setIsDisconnectDialogOpen ]
+		[ setIsManageConnectionDialogOpen ]
 	);
 
 	const onDisconnectedCallback = useCallback(
@@ -138,13 +135,13 @@ const ConnectionStatusCard = props => {
 				) : (
 					<>
 						<ConnectionListItem
-							onClick={ openDisconnectDialog }
+							onClick={ openManageConnectionDialog }
 							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
-							actionText={ ! isUserConnected ? __( 'Disconnect', 'jetpack-my-jetpack' ) : null }
+							actionText={ ! isUserConnected ? __( 'Manage', 'jetpack-my-jetpack' ) : null }
 						/>
 						{ isUserConnected && (
 							<ConnectionListItem
-								onClick={ openDisconnectDialog }
+								onClick={ openManageConnectionDialog }
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 								text={ sprintf(
 									/* translators: placeholder is user name */
@@ -165,15 +162,15 @@ const ConnectionStatusCard = props => {
 				) }
 			</div>
 
-			<DisconnectDialog
+			<ManageConnectionDialog
 				apiRoot={ apiRoot }
 				apiNonce={ apiNonce }
 				onDisconnected={ onDisconnectedCallback }
 				connectedPlugins={ connectedPlugins }
 				connectedSiteId={ connectedSiteId }
 				connectedUser={ userConnectionData }
-				isOpen={ isDisconnectDialogOpen }
-				onClose={ closeDisconnectDialog }
+				isOpen={ isManageConnectionDialogOpen }
+				onClose={ closeManageConnectionDialog }
 				context={ context }
 			/>
 		</div>
