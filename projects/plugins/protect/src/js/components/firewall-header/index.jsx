@@ -13,11 +13,11 @@ import styles from './styles.module.scss';
 
 const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const FirewallUrl = adminUrl + '#/firewall';
+	const firewallUrl = adminUrl + '#/firewall';
 
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN,
-		redirectUrl: FirewallUrl,
+		redirectUrl: firewallUrl,
 	} );
 
 	const { recordEventHandler } = useAnalyticsTracks();
