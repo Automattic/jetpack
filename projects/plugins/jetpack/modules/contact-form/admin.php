@@ -133,6 +133,10 @@ function grunion_admin_css() {
 .unspam a {
 	color: #D98500;
 }
+
+.post-type-feedback #jetpack-check-feedback-spam {
+	margin-top: 0;
+}
 </style>
 
 	<?php
