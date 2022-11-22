@@ -4,6 +4,7 @@
 
 app/assets/dist/**            production-include
 jetpack_vendor/**             production-include
+jetpack_vendor/automattic/jetpack-plugin-deactivation/build/** production-include
 vendor/autoload.php           production-include
 vendor/autoload_functions.php production-include
 vendor/autoload_packages.php  production-include
