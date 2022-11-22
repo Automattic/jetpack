@@ -32,87 +32,6 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 		setShowPopover( false );
 	}, [] );
 
-	if ( 'on' === status ) {
-		return (
-			<AdminSectionHero>
-				<Container
-					className={ styles[ 'firewall-header' ] }
-					horizontalSpacing={ 7 }
-					horizontalGap={ 0 }
-				>
-					<Col>
-						<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
-							{ __( 'Active', 'jetpack-protect' ) }
-						</Text>
-						<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-							{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
-						</H3>
-					</Col>
-					<Col>
-						<div className={ styles[ 'stat-card-wrapper' ] }></div>
-					</Col>
-				</Container>
-			</AdminSectionHero>
-		);
-	}
-
-	if ( 'off' === status ) {
-		return (
-			<AdminSectionHero>
-				<Container
-					className={ styles[ 'firewall-header' ] }
-					horizontalSpacing={ 7 }
-					horizontalGap={ 0 }
-				>
-					<Col>
-						<Text className={ styles.status } variant={ 'label' }>
-							{ __( 'Inactive', 'jetpack-protect' ) }
-						</Text>
-						<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-							{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
-						</H3>
-						{ ! hasRequiredPlan && (
-							<>
-								<div className={ styles[ 'manual-rules-notice' ] }>
-									<Text weight={ 600 }>
-										{ __( 'Only manual rules will be applied', 'jetpack-protect' ) }
-									</Text>
-									<div
-										className={ styles[ 'icon-popover' ] }
-										onMouseLeave={ handleOut }
-										onMouseEnter={ handleEnter }
-										onClick={ handleEnter }
-										onFocus={ handleEnter }
-										onBlur={ handleOut }
-										role="presentation"
-									>
-										<Icon icon={ help } />
-										{ showPopover && (
-											<Popover noArrow={ false } offset={ 5 }>
-												<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-													{ __(
-														'The free version of the firewall only allows for use of manual rules.',
-														'jetpack-protect'
-													) }
-												</Text>
-											</Popover>
-										) }
-									</div>
-								</div>
-								<Button onClick={ getScan }>
-									{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
-								</Button>
-							</>
-						) }
-					</Col>
-					<Col>
-						<div className={ styles[ 'stat-card-wrapper' ] }></div>
-					</Col>
-				</Container>
-			</AdminSectionHero>
-		);
-	}
-
 	return (
 		<AdminSectionHero>
 			<Container
@@ -121,6 +40,59 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 				horizontalGap={ 0 }
 			>
 				<Col>
+					{ 'on' === status && (
+						<>
+							<Text className={ classnames( styles.status, styles.active ) } variant={ 'label' }>
+								{ __( 'Active', 'jetpack-protect' ) }
+							</Text>
+							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
+								{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
+							</H3>
+						</>
+					) }
+					{ 'off' === status && (
+						<>
+							<Text className={ styles.status } variant={ 'label' }>
+								{ __( 'Inactive', 'jetpack-protect' ) }
+							</Text>
+							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
+								{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
+							</H3>
+							{ ! hasRequiredPlan && (
+								<>
+									<div className={ styles[ 'manual-rules-notice' ] }>
+										<Text weight={ 600 }>
+											{ __( 'Only manual rules will be applied', 'jetpack-protect' ) }
+										</Text>
+										<div
+											className={ styles[ 'icon-popover' ] }
+											onMouseLeave={ handleOut }
+											onMouseEnter={ handleEnter }
+											onClick={ handleEnter }
+											onFocus={ handleEnter }
+											onBlur={ handleOut }
+											role="presentation"
+										>
+											<Icon icon={ help } />
+											{ showPopover && (
+												<Popover noArrow={ false } offset={ 5 }>
+													<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
+														{ __(
+															'The free version of the firewall only allows for use of manual rules.',
+															'jetpack-protect'
+														) }
+													</Text>
+												</Popover>
+											) }
+										</div>
+									</div>
+									<Button onClick={ getScan }>
+										{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
+									</Button>
+								</>
+							) }
+						</>
+					) }
 					<Spinner className={ styles.spinner } />
 					<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
 						{ __( 'Automatic firewall is being set up', 'jetpack-protect' ) }
