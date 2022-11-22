@@ -1,8 +1,8 @@
-// Below call should be BEFORE requiring config, so library wil pick it up.
-process.env.NODE_CONFIG_DIR = path.resolve( __dirname, '../config' );
-
 const path = require( 'path' );
 const fetch = require( 'node-fetch' );
+
+// Below call should be BEFORE requiring config, so library wil pick it up.
+process.env.NODE_CONFIG_DIR = path.resolve( __dirname, '../config' );
 const { resolveSiteUrl, getSiteCredentials } = require( '../helpers/utils-helper.cjs' );
 
 function getAuthHeader() {
@@ -85,6 +85,9 @@ function main() {
 				forcePluginUpdates().then( () => {
 					waitForPluginUpdate( latestVersion );
 				} );
+			} else {
+				console.log( 'Already up to date' );
+				process.exit( 0 );
 			}
 		} );
 	} );
