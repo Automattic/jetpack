@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f67405fc38c3e000329f293fc3d200dd",
+    "content-hash": "761059936a99d856158cbd15090c604a",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -760,16 +760,16 @@
         },
         {
             "name": "automattic/jetpack-plugin-deactivation",
-            "version": "v0.1.0",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-plugin-deactivation.git",
-                "reference": "c91456501bd87f1f75c512f48817c86a2195916a"
+                "reference": "39b2c2ff554863f91245ff206186f0f1402c98ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-plugin-deactivation/zipball/c91456501bd87f1f75c512f48817c86a2195916a",
-                "reference": "c91456501bd87f1f75c512f48817c86a2195916a",
+                "url": "https://api.github.com/repos/Automattic/jetpack-plugin-deactivation/zipball/39b2c2ff554863f91245ff206186f0f1402c98ae",
+                "reference": "39b2c2ff554863f91245ff206186f0f1402c98ae",
                 "shasum": ""
             },
             "require": {
@@ -805,9 +805,9 @@
             ],
             "description": "Ask for feedback while deactivating a plugin",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-plugin-deactivation/tree/v0.1.0"
+                "source": "https://github.com/Automattic/jetpack-plugin-deactivation/tree/v0.1.1"
             },
-            "time": "2022-11-21T12:24:32+00:00"
+            "time": "2022-11-22T14:54:35+00:00"
         },
         {
             "name": "automattic/jetpack-plugins-installer",
