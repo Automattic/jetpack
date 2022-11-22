@@ -222,6 +222,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			$this->accessUseCase( 'paid_subscriber_id', false, true, 'subscribers', true, true, $time_outdated ),
 			$this->accessUseCase( 'paid_subscriber_id', false, true, 'paid_subscribers', false, false, $time_outdated ),
 
+			// inactive subscription status
+			$this->accessUseCase( 'paid_subscriber_id', true, false, 'paid_subscribers', false, false, null, 'inactive' ),
+
 		);
 	}
 
@@ -247,10 +250,10 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param int  $subscription_end_date
 	 * @return array
 	 */
-	private function getPayload( $is_subscribed, $is_paid_subscriber, $subscription_end_date ) {
+	private function getPayload( $is_subscribed, $is_paid_subscriber, $subscription_end_date, $status ) {
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
 			$this->product_id => array(
-				'status'     => 'active',
+				'status'     => $status ? $status : 'active',
 				'end_date'   => $subscription_end_date ? $subscription_end_date : time() + HOUR_IN_SECONDS,
 				'product_id' => $this->product_id,
 			),
@@ -267,7 +270,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 *
 	 * @dataProvider matrixAccess
 	 */
-	public function testSubscriberAccessLevel( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null ) {
+	public function testSubscriberAccessLevel( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
 		} else {
@@ -276,7 +279,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		$is_blog_subscriber = $user_id === $this->paid_subscriber_id || $user_id === $this->regular_subscriber_id;
 		$is_paid_subscriber = $user_id === $this->paid_subscriber_id;
-		$payload            = $this->getPayload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date );
+		$payload            = $this->getPayload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date, $status );
 
 		$post_id = $this->setup_jetpack_paid_newsletters();
 		$this->setReturnedSubscriptions( $payload );
