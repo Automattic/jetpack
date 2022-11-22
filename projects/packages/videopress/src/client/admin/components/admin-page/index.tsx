@@ -182,10 +182,12 @@ const Admin = () => {
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 
-								<ConnectVideoStorageMeter
-									className={ styles[ 'storage-meter' ] }
-									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-								/>
+								{ hasVideoPressPurchase && (
+									<ConnectVideoStorageMeter
+										className={ styles[ 'storage-meter' ] }
+										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+									/>
+								) }
 
 								<FormFileUpload
 									onChange={ evt =>
