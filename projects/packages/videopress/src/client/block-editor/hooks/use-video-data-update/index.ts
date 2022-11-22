@@ -203,10 +203,10 @@ export function useSyncMedia(
 							},
 						],
 					} );
-				} );
 
-				const videoPressUrl = getVideoPressUrl( guid, attributes );
-				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+					const videoPressUrl = getVideoPressUrl( guid, attributes );
+					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				} );
 			} else {
 				const videoPressUrl = getVideoPressUrl( guid, attributes );
 				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
