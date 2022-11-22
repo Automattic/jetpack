@@ -224,19 +224,13 @@ class Dashboard {
 			'google_maps_and_places_api_key' => '',
 			'i18n_default_locale_slug'       => 'en',
 			'i18n_locale_slug'               => static::get_site_locale(),
-			'is_running_in_jetpack_site'     => true,
 			'mc_analytics_enabled'           => false,
 			'meta'                           => array(),
 			'nonce'                          => wp_create_nonce( 'wp_rest' ),
 			'site_name'                      => \get_bloginfo( 'name' ),
 			'sections'                       => array(),
-			'features'                       => array(
-				'stats/new-all-time-highlights'    => true,
-				'stats/new-annual-highlights'      => true,
-				'stats/new-main-chart'             => true,
-				'stats/new-stats-module-component' => true,
-				'stats/show-traffic-highlights'    => true,
-			),
+			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70122
+			'features'                       => array(),
 			'intial_state'                   => array(
 				'currentUser' => array(
 					'id'   => 1000,

@@ -593,10 +593,55 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers
+	 *
+	 * @return array containing ['email_subscribers' => 0, 'social_followers' => 0]
+	 */
+	public static function fetch_subscriber_counts() {
+		$subs_count = 0;
+		if ( self::is_jetpack() ) {
+			$cache_key  = 'wpcom_subscribers_totals';
+			$subs_count = get_transient( $cache_key );
+			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
+				$xml = new Jetpack_IXR_Client();
+				$xml->query( 'jetpack.fetchSubscriberCounts' );
+
+				if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
+
+					$subs_count = array(
+						'status'  => 'failed',
+						'code'    => $xml->getErrorCode(),
+						'message' => $xml->getErrorMessage(),
+						'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
+							'email_subscribers' => 0,
+							'social_followers'  => 0,
+						),
+					);
+				} else {
+					$subs_count = array(
+						'status' => 'success',
+						'value'  => $xml->getResponse(),
+					);
+				}
+				set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
+			}
+		}
+
+		if ( self::is_wpcom() ) {
+			$subs_count = array(
+				'email_subscribers' => wpcom_subs_total_for_blog(),
+				'social_followers'  => wpcom_social_followers_total_for_blog(),
+			);
+		}
+
+		return $subs_count;
+	}
+
+	/**
 	 * Determine the amount of folks currently subscribed to the blog.
 	 *
 	 * @param bool $include_publicize_subscribers Include followers through Publicize.
-	 * @return int|array
+	 * @return int
 	 */
 	public static function fetch_subscriber_count( $include_publicize_subscribers = true ) {
 		$subs_count = 0;
