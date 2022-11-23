@@ -1,23 +1,14 @@
-import {
-	AdminSectionHero,
-	Container,
-	Col,
-	Text,
-	H3,
-	Button,
-	useBreakpointMatch,
-} from '@automattic/jetpack-components';
+import { AdminSectionHero, Container, Col, Text, H3, Button } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Spinner, Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, shield, chartBar, help } from '@wordpress/icons';
+import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { JETPACK_SCAN } from '../admin-page';
-import StatCard from '../stat-card';
 import styles from './styles.module.scss';
 
 const FirewallHeader = ( { status, hasRequiredPlan } ) => {
@@ -41,26 +32,6 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 	const handleOut = useCallback( () => {
 		setShowPopover( false );
 	}, [] );
-
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-
-	const lastThirtyArgs = {
-		icon: <Icon icon={ shield } />,
-		label: __( 'Blocked requests', 'jetpack-protect' ),
-		period: __( 'Last 30 days', 'jetpack-protect' ),
-		value: 0, // TODO: Update with actual WAF data when on
-		variant: isSmall ? 'horizontal' : 'square',
-		disabled: hasRequiredPlan ? false : true,
-	};
-
-	const allTimeArgs = {
-		icon: <Icon icon={ chartBar } />,
-		label: __( 'Blocked requests', 'jetpack-protect' ),
-		period: __( 'All time', 'jetpack-protect' ),
-		value: 0, // TODO: Update with actual WAF data when on
-		variant: isSmall ? 'horizontal' : 'square',
-		disabled: hasRequiredPlan ? false : true,
-	};
 
 	return (
 		<AdminSectionHero>
@@ -136,10 +107,7 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 					) }
 				</Col>
 				<Col>
-					<div className={ styles[ 'stat-card-wrapper' ] }>
-						<StatCard { ...lastThirtyArgs } />
-						<StatCard { ...allTimeArgs } />
-					</div>
+					<div className={ styles[ 'stat-card-wrapper' ] }></div>
 				</Col>
 			</Container>
 		</AdminSectionHero>
