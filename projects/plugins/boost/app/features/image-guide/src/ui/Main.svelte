@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { measure } from '../Measurements';
 	import Bubble from './Bubble.svelte';
 	import ImageGuide from './ImageGuide.svelte';
 	import { state } from './StateStore';
-	import { measure } from '../Measurements';
 	import type { GuideSize, MeasuredImage } from '../types';
 
 	export let images: MeasuredImage[];
