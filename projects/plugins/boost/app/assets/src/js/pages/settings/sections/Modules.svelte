@@ -22,7 +22,7 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
-	const isImageGuideActive = isModuleAvailableStore('image-guide')
+	const isImageGuideActive = isModuleAvailableStore( 'image-guide' );
 	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
 </script>
 
@@ -105,7 +105,6 @@
 			/>
 		</p>
 	</Module>
-
 
 	{#if $isImageGuideActive}
 		<div class="settings">
