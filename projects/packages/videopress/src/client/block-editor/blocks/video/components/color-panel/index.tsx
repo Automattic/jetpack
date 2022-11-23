@@ -43,7 +43,7 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 		<PanelBody title={ __( 'Color', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Dynamic color', 'jetpack-videopress-pkg' ) }
-				help={ __( 'Colors adapt to the video as it plays', 'jetpack-videopress-pkg' ) }
+				help={ __( 'Colors adapt to the video as it plays.', 'jetpack-videopress-pkg' ) }
 				onChange={ newUseAverageColor => setAttributes( { useAverageColor: newUseAverageColor } ) }
 				checked={ useAverageColor }
 			/>

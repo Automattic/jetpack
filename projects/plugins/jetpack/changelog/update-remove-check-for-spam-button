@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Removed the 'check for spam' button from the feedback page as all feedback is already ran through Akismet by default.

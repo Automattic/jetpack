@@ -61,7 +61,7 @@ export default function useVideoData( {
 			}
 		}
 
-		if ( id || guid ) {
+		if ( guid ) {
 			setIsRequestingVideoData( true );
 			fetchVideoItem();
 		}
