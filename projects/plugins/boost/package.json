@@ -9,6 +9,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@wordpress/components": "22.0.0",
 		"@wordpress/element": "4.19.0",
+		"eslint-import-resolver-typescript": "3.5.2",
 		"history": "5.3.0",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.4",
 		"prettier": "2.6.2",
