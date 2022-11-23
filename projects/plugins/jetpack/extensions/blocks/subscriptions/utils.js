@@ -20,9 +20,10 @@ export const encodeValueForShortcodeAttribute = value => {
 		.replace( /\u200b/g, '&#x200b;' );
 };
 
-export const getPaidPlanLink = hasNewsletterPlans => {
+export const getPaidPlanLink = () => {
 	const link = 'https://wordpress.com/earn/payments-plans/' + location.hostname;
-	return hasNewsletterPlans ? link : link + '#add-newsletter-payment-plan';
+	// Add the flag to enable newsletter
+	return link + '#add-newsletter-payment-plan';
 };
 
 export const isNewsletterFeatureEnabled = () => {
@@ -38,14 +39,14 @@ export default function GetAddPaidPlanButton( { context = 'other', hasNewsletter
 
 	if ( 'toolbar' === context ) {
 		return (
-			<ToolbarButton href={ getPaidPlanLink( hasNewsletterPlans ) } target="_blank">
+			<ToolbarButton href={ getPaidPlanLink() } target="_blank">
 				{ addPaidPlanButtonText }
 			</ToolbarButton>
 		);
 	}
 
 	return (
-		<Button variant="primary" href={ getPaidPlanLink( hasNewsletterPlans ) } target="_blank">
+		<Button variant="primary" href={ getPaidPlanLink() } target="_blank">
 			{ addPaidPlanButtonText }
 		</Button>
 	);
