@@ -24,7 +24,7 @@ function wp_super_cache_blogs_field( $name, $blog_id ) {
 
 	if ( isset( $_GET['id'], $_GET['action'], $_GET['_wpnonce'] )
 		&& $blog_id === filter_input( INPUT_GET, 'id', FILTER_VALIDATE_INT )
-		&& wp_verify_nonce( $_GET['_wpnonce'], 'wp-cache' . $blog_id )
+		&& wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'wp-cache' . $blog_id )
 	) {
 		if ( 'disable_cache' === filter_input( INPUT_GET, 'action' ) ) {
 			add_blog_option( $blog_id, 'wp_super_cache_disabled', 1 );
@@ -34,31 +34,37 @@ function wp_super_cache_blogs_field( $name, $blog_id ) {
 	}
 
 	if ( 1 === (int) get_blog_option( $blog_id, 'wp_super_cache_disabled' ) ) {
-		echo '<a href="' . wp_nonce_url(
-			add_query_arg(
-				array(
-					'action' => 'enable_cache',
-					'id'     => $blog_id,
-				)
-			),
-			'wp-cache' . $blog_id
-		) . '">' . __( 'Enable', 'wp-super-cache' ) . '</a>';
+		echo '<a href="' . esc_attr(
+			wp_nonce_url(
+				add_query_arg(
+					array(
+						'action' => 'enable_cache',
+						'id'     => $blog_id,
+					)
+				),
+				'wp-cache' . $blog_id
+			)
+		) . '">' . esc_html( __( 'Enable', 'wp-super-cache' ) ) . '</a>';
 	} else {
-		echo '<a href="' . wp_nonce_url(
-			add_query_arg(
-				array(
-					'action' => 'disable_cache',
-					'id'     => $blog_id,
-				)
-			),
-			'wp-cache' . $blog_id
-		) . '">' . __( 'Disable', 'wp-super-cache' ) . '</a>';
+		echo '<a href="' . esc_attr(
+			wp_nonce_url(
+				add_query_arg(
+					array(
+						'action' => 'disable_cache',
+						'id'     => $blog_id,
+					)
+				),
+				'wp-cache' . $blog_id
+			)
+		) . '">' . esc_html( __( 'Disable', 'wp-super-cache' ) ) . '</a>';
 	}
 }
 
 function wp_super_cache_multisite_notice() {
 	if ( 'wpsupercache' === filter_input( INPUT_GET, 'page' ) ) {
-		echo '<div class="error"><p><strong>' . __( 'Caching has been disabled on this blog on the Network Admin Sites page.', 'wp-super-cache' ) . '</strong></p></div>';
+		echo '<div class="error"><p><strong>';
+		esc_html_e( 'Caching has been disabled on this blog on the Network Admin Sites page.', 'wp-super-cache' );
+		echo '</strong></p></div>';
 	}
 }
 
