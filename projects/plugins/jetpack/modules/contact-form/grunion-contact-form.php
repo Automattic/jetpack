@@ -405,84 +405,72 @@ class Grunion_Contact_Form_Plugin {
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-name',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-email',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-url',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-date',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-telephone',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-textarea',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox-multiple',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-select',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-consent',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_consent' ),
 			)
 		);
