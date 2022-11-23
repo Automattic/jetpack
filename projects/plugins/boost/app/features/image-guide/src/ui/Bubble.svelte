@@ -6,7 +6,7 @@
 	export let oversizedBy: number;
 	export let index: number;
 
-	const severity = oversizedBy > 4 ? 'high' : oversizedBy > 2 ? 'medium' : 'normal';
+	const severity = oversizedBy > 8 ? 'high' : oversizedBy > 4 ? 'medium' : 'normal';
 
 	let mounted = false;
 	onMount( () => ( mounted = true ) );
