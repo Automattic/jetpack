@@ -32,8 +32,8 @@ function wpsc_admin_bar_render( $wp_admin_bar ) {
 
 	$path_to_home = wpsc_get_home_path();
 	if ( ( is_singular() || is_archive() || is_front_page() || is_search() ) && current_user_can( 'delete_others_posts' ) ) {
-		$request_uri = empty( $_SERVER['REQUEST_URI'] ) ? '/' : $_SERVER['REQUEST_URI'];
-		$path = wpsc_get_relative_path( $request_uri, $path_to_home );
+		$request_uri = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$path        = wpsc_get_relative_path( $request_uri, $path_to_home );
 
 		$wp_admin_bar->add_menu(
 			array(
@@ -73,14 +73,14 @@ function wpsc_delete_cache_scripts() {
 		return;
 	}
 
-	$path_to_home = rtrim( (string) parse_url( get_option( 'home' ), PHP_URL_PATH ), '/' );
+	$path_to_home = wpsc_get_home_path();
 
 	wp_enqueue_script( 'delete-cache-button', plugins_url( '/delete-cache-button.js', __FILE__ ), array( 'jquery' ), '1.0', 1 );
 
 	if ( ( is_singular() || is_archive() || is_front_page() || is_search() ) && current_user_can( 'delete_others_posts' ) ) {
-		$site_regex   = preg_quote( $path_to_home, '`' );
-		$req_uri      = preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI'] );
-		$path_to_home = preg_replace( '`^' . $site_regex . '`', '', $req_uri );
+		// TODO: I suspect this codepath is never called, as this is only used from admin_enqueue_scripts action.
+		$request_uri  = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$path_to_home = wpsc_get_relative_path( $request_uri, $path_to_home );
 		$admin        = 0;
 	} else {
 		$admin = 1;
@@ -120,6 +120,10 @@ function wpsc_admin_bar_delete_cache_ajax() {
 	}
 }
 
+function wpsc_delete_path_nonce_key( $path, $admin ) {
+	return 'delete-cache-' . $path . '_' . $admin;
+}
+
 function wpsc_admin_bar_delete_cache() {
 	$referer = wp_get_referer();
 
@@ -129,13 +133,18 @@ function wpsc_admin_bar_delete_cache() {
 
 	foreach ( array( 'path', 'nonce', 'admin' ) as $part ) {
 		if ( isset( $_GET[ $part ] ) ) {
+			// Copying GET to POST. TODO: Surely we could just use REQUEST instead.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			$_POST[ $part ] = $_GET[ $part ];
 		}
 	}
+
 	wpsc_delete_cache_directory();
 
-	$req_path    = isset( $_POST['path'] ) ? sanitize_text_field( stripslashes( $_POST['path'] ) ) : '';
-	$valid_nonce = ( $req_path && isset( $_POST['nonce'] ) ) ? wp_verify_nonce( $_POST['nonce'], 'delete-cache-' . $_POST['path'] . '_' . $_POST['admin'] ) : false;
+	$req_path    = isset( $_POST['path'] ) ? sanitize_text_field( wp_unslash( $_POST['path'] ) ) : '';
+	$nonce       = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+	$admin       = isset( $_POST['admin'] ) ? sanitize_key( $_POST['admin'] ) : '';
+	$valid_nonce = $req_path && wp_verify_nonce( $nonce, wpsc_delete_path_nonce_key( $req_path, $admin ) );
 
 	if (
 		$valid_nonce
@@ -156,7 +165,7 @@ function wpsc_admin_bar_delete_cache() {
 		 */
 		do_action( 'wpsc_after_delete_cache_admin_bar', $req_path, $referer );
 
-		if ( $_POST['admin'] ) {
+		if ( isset( $_POST['admin'] ) && intval( $_POST['admin'] ) > 0 ) {
 			wp_safe_redirect( $referer );
 		} else {
 			wp_safe_redirect( esc_url_raw( home_url( $req_path ) ) );
@@ -176,8 +185,10 @@ function wpsc_delete_cache_directory() {
 		return false;
 	}
 
-	$req_path    = isset( $_POST['path'] ) ? sanitize_text_field( stripslashes( $_POST['path'] ) ) : '';
-	$valid_nonce = ( $req_path && isset( $_POST['nonce'] ) ) ? wp_verify_nonce( $_POST['nonce'], 'delete-cache-' . $_POST['path'] . '_' . $_POST['admin'] ) : false;
+	$req_path    = isset( $_POST['path'] ) ? sanitize_text_field( wp_unslash( $_POST['path'] ) ) : '';
+	$nonce       = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
+	$admin       = isset( $_POST['admin'] ) ? sanitize_key( $_POST['admin'] ) : '';
+	$valid_nonce = $req_path && wp_verify_nonce( $nonce, wpsc_delete_path_nonce_key( $req_path, $admin ) );
 
 	if ( ! $valid_nonce ) {
 		wp_cache_debug( 'wpsc_delete_cache_directory: nonce was not valid' );
@@ -206,6 +217,6 @@ function wpsc_delete_cache_directory() {
 		wpsc_delete_files( $path );
 		return;
 	} else {
-		wp_cache_debug( 'wpsc_delete_cache_directory: Could not delete directory. It does not exist: ' . esc_attr( $_POST['path'] ) );
+		wp_cache_debug( 'wpsc_delete_cache_directory: Could not delete directory. It does not exist: ' . esc_attr( $req_path ) );
 	}
 }
