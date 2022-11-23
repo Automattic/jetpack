@@ -16,7 +16,8 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-transport-helper": "@dev",
 		"automattic/jetpack-plans": "@dev",
-		"automattic/jetpack-waf": "@dev"
+		"automattic/jetpack-waf": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
