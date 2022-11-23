@@ -32,7 +32,7 @@ add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_me
  * @return void
  */
 function jetpack_setup_blogging_prompt_response( $post_id ) {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, etc and only setups up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
 	$prompt_id = isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : false;
 
 	if ( ! jetpack_is_new_post_screen() || ! $prompt_id ) {

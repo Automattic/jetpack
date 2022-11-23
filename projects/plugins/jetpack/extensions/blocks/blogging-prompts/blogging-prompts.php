@@ -63,7 +63,7 @@ function inject_blogging_prompts() {
 function should_load_blogging_prompts() {
 	return jetpack_has_write_intent() ||
 			jetpack_has_posts_page() ||
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, etc and only setups up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
 			( isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) );
 }
 
