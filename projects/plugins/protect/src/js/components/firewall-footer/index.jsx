@@ -58,8 +58,7 @@ const ShareData = () => {
 		<div className={ styles[ 'share-data-section' ] }>
 			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
-				{ /* To-Do: Add checkbox functionality */ }
-				<CheckboxControl checked={ shareDataEnabled } onChange={ onChange } />
+				<CheckboxControl checked={ wafShareData } onChange={ toggleShareData } />
 				<Text>
 					{ __(
 						'Allow Jetpack to collect data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
