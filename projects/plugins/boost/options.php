@@ -9,7 +9,7 @@ use Automattic\Jetpack\Packages\Async_Option\Registry;
  */
 function jetpack_boost_register_option( $name, $handler ) {
 	return Registry::get_instance( 'jetpack_boost' )
-				   ->register( $name, $handler );
+				->register( $name, $handler );
 }
 
 /**
@@ -43,5 +43,3 @@ add_action(
 		add_action( 'jetpack_page_jetpack-boost', array( $options, '_print_options_script_tag' ) );
 	}
 );
-
-
