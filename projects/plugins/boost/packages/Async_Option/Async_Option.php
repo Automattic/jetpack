@@ -33,8 +33,11 @@ class Async_Option {
 	}
 
 	public function get() {
+		// php 5.6 compatibility - Dealing with unexpected '::' (T_PAAMAYIM_NEKUDOTAYIM)
+		$option = $this->option;
+
 		return $this->option->transform(
-			$this->storage->get( $this->key, ( $this->option )::get_default_value() )
+			$this->storage->get( $this->key, $option::get_default_value() )
 		);
 	}
 

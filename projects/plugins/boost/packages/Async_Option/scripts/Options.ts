@@ -27,7 +27,7 @@ export class Options< T extends AO.Options > {
 		return this.options[ key ].value;
 	}
 
-	private compare( a: any, b: any ) {
+	private compare( a: unknown, b: unknown ) {
 		if ( typeof a === 'object' && typeof b === 'object' ) {
 			return Object.entries( a ).sort().toString() === Object.entries( b ).sort().toString();
 		}

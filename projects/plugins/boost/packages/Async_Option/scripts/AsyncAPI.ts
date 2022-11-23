@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { maybeStringify } from '@async-options/utils';
 
-type RequestParams = string | { [ key: string ]: any };
+type RequestParams = string | { [ key: string ]: unknown };
 
 export default class AsyncAPI {
 	// I don't think this is a useless constructor...
@@ -40,9 +40,7 @@ export default class AsyncAPI {
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
 		}
 
-		/**
-		 * @TODO: Add zod to the received data.
-		 */
+		// @TODO: Add zod to the received data.
 		return ( data as unknown ) as T;
 	}
 

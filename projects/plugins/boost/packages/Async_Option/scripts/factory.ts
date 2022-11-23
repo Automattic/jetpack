@@ -28,7 +28,7 @@ export function getOptionsFromGlobal< T extends z.ZodTypeAny >(
 }
 
 type valueChangedCallback = ( params: {
-	value: any;
+	value: unknown;
 	nonce: string;
 } ) => Promise< typeof params.value >;
 
