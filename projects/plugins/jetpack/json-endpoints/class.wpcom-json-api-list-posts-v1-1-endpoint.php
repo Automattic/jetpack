@@ -19,6 +19,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 		),
 
 		'allow_fallback_to_jetpack_blog_token' => true,
+		'allow_jetpack_site_auth'              => true,
 
 		'query_parameters'                     => array(
 			'number'          => '(int=20) The number of posts to return. Limit: 100.',
