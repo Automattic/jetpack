@@ -28,7 +28,7 @@ export const renderControlLabelWithTooltip = ( label, tooltipText ) => {
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    Component template
+ * @returns {React.ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;

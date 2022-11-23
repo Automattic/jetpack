@@ -5,23 +5,26 @@ import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import { ToolbarButton, Dropdown, NavigableMenu, MenuItem } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
+import { VideoControlProps } from '../../types';
 /**
  * Internal dependencies
  */
 import styles from './style.module.scss';
+import type React from 'react';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 /**
  * Poster image control react component.
  *
- * @param {object} props                 - Component props.
- * @param {object} props.attributes      - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {string} props.clientId        - Block client ID.
- * @returns {object}                     - React component.
+ * @param {VideoControlProps} props - Component props.
+ * @returns {React.ReactElement}      PosterImageBlockControl block control
  */
-export default function PosterImageBlockControl( { attributes, setAttributes, clientId } ) {
+export default function PosterImageBlockControl( {
+	attributes,
+	setAttributes,
+	clientId,
+}: VideoControlProps ) {
 	const { poster } = attributes;
 	const onSelectPoster = image => {
 		setAttributes( { poster: image.url } );
@@ -88,11 +91,7 @@ export default function PosterImageBlockControl( { attributes, setAttributes, cl
 										>
 											{ ! poster
 												? __( 'Select Poster Image', 'jetpack-videopress-pkg' )
-												: __(
-														'Replace Poster image',
-														'jetpack-videopress-pkg',
-														/* dummy arg to avoid bad minification */ 0
-												  ) }
+												: __( 'Replace Poster image', 'jetpack-videopress-pkg' ) }
 											<p id={ videoPosterDescription } hidden>
 												{ poster
 													? sprintf(
