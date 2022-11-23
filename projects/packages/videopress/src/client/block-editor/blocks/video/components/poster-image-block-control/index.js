@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { MediaUploadCheck, BlockControls, MediaUpload } from '@wordpress/block-editor';
+import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import { ToolbarButton, Dropdown, NavigableMenu, MenuItem } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
@@ -55,83 +55,78 @@ export default function PosterImageBlockControl( { attributes, setAttributes, cl
 	};
 
 	return (
-		<BlockControls group="block">
-			<Dropdown
-				contentClassName={ styles.dropdown_content }
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					<ToolbarButton
-						label={ __( 'Poster image', 'jetpack-videopress-pkg' ) }
-						showTooltip
-						aria-expanded={ isOpen }
-						aria-haspopup="true"
-						onClick={ onToggle }
-						icon={ imageIcon }
-					/>
-				) }
-				renderContent={ ( { onClose } ) => {
-					const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
-					return (
-						<>
-							<NavigableMenu className="block-editor-media-replace-flow__media-upload-menu">
-								<MediaUploadCheck>
-									<MediaUpload
-										title={ __( 'Select Poster Image', 'jetpack-videopress-pkg' ) }
-										onSelect={ image => {
-											onSelectPoster( image );
-											onClose();
-										} }
-										allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
-										render={ ( { open } ) => (
-											<MenuItem
-												icon={ imageIcon }
-												onClick={ open }
-												aria-describedby={ videoPosterDescription }
-											>
-												{ ! poster
-													? __( 'Select Poster Image', 'jetpack-videopress-pkg' )
+		<Dropdown
+			contentClassName={ styles.dropdown_content }
+			renderToggle={ ( { isOpen, onToggle } ) => (
+				<ToolbarButton
+					label={ __( 'Poster image', 'jetpack-videopress-pkg' ) }
+					showTooltip
+					aria-expanded={ isOpen }
+					aria-haspopup="true"
+					onClick={ onToggle }
+					icon={ imageIcon }
+				/>
+			) }
+			renderContent={ ( { onClose } ) => {
+				const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
+				return (
+					<>
+						<NavigableMenu className="block-editor-media-replace-flow__media-upload-menu">
+							<MediaUploadCheck>
+								<MediaUpload
+									title={ __( 'Select Poster Image', 'jetpack-videopress-pkg' ) }
+									onSelect={ image => {
+										onSelectPoster( image );
+										onClose();
+									} }
+									allowedTypes={ VIDEO_POSTER_ALLOWED_MEDIA_TYPES }
+									render={ ( { open } ) => (
+										<MenuItem
+											icon={ imageIcon }
+											onClick={ open }
+											aria-describedby={ videoPosterDescription }
+										>
+											{ ! poster
+												? __( 'Select Poster Image', 'jetpack-videopress-pkg' )
+												: __(
+														'Replace Poster image',
+														'jetpack-videopress-pkg',
+														/* dummy arg to avoid bad minification */ 0
+												  ) }
+											<p id={ videoPosterDescription } hidden>
+												{ poster
+													? sprintf(
+															/* translators: Placeholder is an image URL. */
+															__( 'The current poster image url is %s', 'jetpack-videopress-pkg' ),
+															poster
+													  )
 													: __(
-															'Replace Poster image',
-															'jetpack-videopress-pkg',
-															/* dummy arg to avoid bad minification */ 0
+															'There is no poster image currently selected',
+															'jetpack-videopress-pkg'
 													  ) }
-												<p id={ videoPosterDescription } hidden>
-													{ poster
-														? sprintf(
-																/* translators: Placeholder is an image URL. */
-																__(
-																	'The current poster image url is %s',
-																	'jetpack-videopress-pkg'
-																),
-																poster
-														  )
-														: __(
-																'There is no poster image currently selected',
-																'jetpack-videopress-pkg'
-														  ) }
-												</p>
-											</MenuItem>
-										) }
-									/>
-								</MediaUploadCheck>
+											</p>
+										</MenuItem>
+									) }
+								/>
+							</MediaUploadCheck>
 
-								{ !! poster && (
-									<MenuItem
-										onClick={ () => {
-											onRemovePoster();
-											onClose();
-										} }
-										icon={ linkOff }
-									>
-										{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
-									</MenuItem>
-								) }
-							</NavigableMenu>
+							{ !! poster && (
+								<MenuItem
+									onClick={ () => {
+										onRemovePoster();
+										onClose();
+									} }
+									icon={ linkOff }
+								>
+									{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
+								</MenuItem>
+							) }
+						</NavigableMenu>
 
-							<div className={ styles.current_media }>{ currentImage() }</div>
-						</>
-					);
-				} }
-			/>
-		</BlockControls>
+						<div className={ styles.current_media }>{ currentImage() }</div>
+					</>
+				);
+			} }
+		/>
 	);
 }
