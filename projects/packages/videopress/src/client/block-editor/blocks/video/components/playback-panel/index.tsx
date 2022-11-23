@@ -62,7 +62,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				label={ __( 'Loop', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'loop' ) }
 				checked={ loop }
-				help={ __( 'Restarts the video when it reaches the end', 'jetpack-videopress-pkg' ) }
+				help={ __( 'Restarts the video when it reaches the end.', 'jetpack-videopress-pkg' ) }
 			/>
 
 			<ToggleControl
@@ -75,7 +75,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				label={ __( 'Show Controls', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'controls' ) }
 				checked={ controls }
-				help={ __( 'Display the video playback controls', 'jetpack-videopress-pkg' ) }
+				help={ __( 'Display the video playback controls.', 'jetpack-videopress-pkg' ) }
 			/>
 
 			<ToggleControl
@@ -83,7 +83,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				onChange={ handleAttributeChange( 'playsinline' ) }
 				checked={ playsinline }
 				help={ __(
-					'Play the video inline instead of full-screen on mobile devices',
+					'Play the video inline instead of full-screen on mobile devices.',
 					'jetpack-videopress-pkg'
 				) }
 			/>
@@ -109,7 +109,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				help={
 					<>
 						<span className={ styles[ 'help-message' ] }>
-							{ __( 'Content to download before the video is played', 'jetpack-videopress-pkg' ) }
+							{ __( 'Content to download before the video is played.', 'jetpack-videopress-pkg' ) }
 						</span>
 						{ preload === 'auto' && (
 							<span className={ styles[ 'help-message' ] }>
