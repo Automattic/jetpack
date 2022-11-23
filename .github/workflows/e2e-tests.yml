@@ -122,7 +122,8 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         SUITE: ${{ matrix.suite }}
         PROJECT_NAME:  ${{ matrix.project }}
-        DISPATCH_REF: ${{ github.event.client_payload.ref_name }}
+        DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
+        DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
@@ -139,11 +140,13 @@ jobs:
         fi
 
         if [[ "${SUITE}" == atomic* ]]; then
-          echo "TEST_SITE=${SUITE}" >> $GITHUB_ENV
-          if [[ "${SUITE}" == atomicRc ]]; then
-            # Wait for the site to pick up latest tag version (DISPATCH_REF)
-            node ./bin/wait-for-atomic-site.cjs
+          if [[ "${DISPATCH_REF_TYPE}" == tag ]]; then
+            SUITE="atomicRc"
           fi
+          echo "TEST_SITE=${SUITE}" >> $GITHUB_ENV
+
+          # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
+          node ./bin/wait-for-atomic-site.cjs $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
         fi
 
         if [ "${SUITE}" == gutenberg ]; then

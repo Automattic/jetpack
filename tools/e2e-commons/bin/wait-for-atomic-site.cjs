@@ -50,10 +50,15 @@ async function forcePluginUpdates() {
 	console.log( await response.json() );
 }
 
-async function getLatestVersion( type = 'rc' ) {
+async function getLatestVersion() {
+	const type = getVersionType();
 	const response = await fetch( 'https://betadownload.jetpack.me/jetpack-branches.json' );
 	const manifest = await response.json();
-	return manifest[ type ].version;
+
+	if ( type === 'rc' || type === 'trunk' || type === 'master' ) {
+		return manifest[ type ].version;
+	}
+	return manifest.pr.type.version;
 }
 
 async function waitForPluginUpdate( expectedVersion ) {
@@ -73,6 +78,19 @@ async function waitForPluginUpdate( expectedVersion ) {
 			process.exit( 1 );
 		}
 	}, 5000 );
+}
+
+function getVersionType() {
+	const refType = process.argv[ 2 ];
+	const refName = process.argv[ 3 ];
+
+	if ( refName === 'trunk' && refType === 'branch' ) {
+		return 'trunk';
+	} else if ( refType === 'tag' ) {
+		return 'rc';
+	}
+	console.error( 'Invalid version type: ' + refType + ' ' + refName );
+	process.exit( 1 );
 }
 
 function main() {
