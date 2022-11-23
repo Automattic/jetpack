@@ -11,6 +11,11 @@ describe( 'generateChaptersFileContent', () => {
 			const videoDuration = 300000; // 5 minutes
 			const expectedResult = `WEBVTT
 
+NOTE
+videopress-chapters-auto-generated
+This file was auto-generated based on Video description.
+For more information, see https://jetpack.com/support/jetpack-videopress/jetpack-videopress-customizing-your-videos/#adding-subtitles-captions-or-chapters-within-a-video
+
 1
 00:00:00.000 --> 00:01:42.000
 Chapter 1
@@ -36,6 +41,11 @@ Chapter 3 - Revolutions
 4:44 Chapter 3 - Revolutions
 `;
 			const expectedResult = `WEBVTT
+
+NOTE
+videopress-chapters-auto-generated
+This file was auto-generated based on Video description.
+For more information, see https://jetpack.com/support/jetpack-videopress/jetpack-videopress-customizing-your-videos/#adding-subtitles-captions-or-chapters-within-a-video
 
 1
 00:00:00.000 --> 00:01:42.000
