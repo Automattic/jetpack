@@ -2,7 +2,12 @@
  * WordPress dependencies
  */
 
-import { BlockIcon, useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockIcon,
+	useBlockProps,
+	InspectorControls,
+	BlockControls,
+} from '@wordpress/block-editor';
 import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -379,6 +384,14 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				'is-updating-preview': ! previewHtml,
 			} ) }
 		>
+			<BlockControls group="block">
+				<PosterImageBlockControl
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
+				/>
+			</BlockControls>
+
 			<InspectorControls>
 				<DetailsPanel
 					filename={ filename }
@@ -390,12 +403,6 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				<PrivacyAndRatingPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
-
-			<PosterImageBlockControl
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				clientId={ clientId }
-			/>
 
 			<VideoPressPlayer
 				html={ html }
