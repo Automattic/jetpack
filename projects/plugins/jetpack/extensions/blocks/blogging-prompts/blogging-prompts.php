@@ -48,7 +48,7 @@ function inject_blogging_prompts() {
 		if ( $daily_prompts ) {
 			wp_add_inline_script(
 				'jetpack-blocks-editor',
-				'var Jetpack_BloggingPrompts = ' . wp_json_encode( $daily_prompts, JSON_HEX_TAG ) . ';',
+				'var Jetpack_BloggingPrompts = ' . wp_json_encode( $daily_prompts, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 				'before'
 			);
 		}

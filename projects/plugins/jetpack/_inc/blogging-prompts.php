@@ -72,7 +72,7 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 	}
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = rawurldecode( '/sites/' . $blog_id . '/blogging-prompts?from=' . $day_before . '&number=10&_locale=' . $locale );
+	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts?from=' . rawurldecode( $day_before ) . '&number=10&_locale=' . rawurldecode( $locale );
 	$args    = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
