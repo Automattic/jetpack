@@ -1,7 +1,11 @@
 import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-components';
+import apiFetch from '@wordpress/api-fetch';
 import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import camelize from 'camelize';
+import { useState, useEffect, useCallback } from 'react';
+import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
@@ -40,25 +44,47 @@ const StandaloneMode = () => {
 };
 
 const ShareData = () => {
-	const { wafShareData } = window.jetpackProtectInitialState || false;
-	let shareDataEnabled = false;
-	if ( '1' === wafShareData ) {
-		shareDataEnabled = true;
-	}
+	const { waf } = useWafData();
+	const { jetpackWafShareData } = waf || {};
 
-	const onChange = checked => {
-		if ( checked ) {
-			console.log( "Set jetpack_waf_share_data option to '1' - ON" );
-		} else {
-			console.log( "Set jetpack_waf_share_data option to '' - OFF" );
-		}
-	};
+	const { setWaf } = useDispatch( STORE_ID );
+
+	const [ settings, setSettings ] = useState( {
+		jetpack_waf_share_data: jetpackWafShareData,
+	} );
+	const [ settingsAreUpdating, setSettingsAreUpdating ] = useState( false );
+
+	const toggleShareData = useCallback( () => {
+		setSettings( {
+			jetpack_waf_share_data: ! jetpackWafShareData,
+		} );
+		setSettingsAreUpdating( true );
+		apiFetch( {
+			method: 'POST',
+			path: 'jetpack/v4/waf',
+			data: {
+				jetpack_waf_share_data: ! jetpackWafShareData,
+			},
+		} )
+			.then( updatedWaf => setWaf( { ...waf, ...camelize( updatedWaf ) } ) )
+			.finally( () => setSettingsAreUpdating( false ) );
+	}, [ jetpackWafShareData, setWaf, waf ] );
+
+	useEffect( () => {
+		setSettings( {
+			jetpack_waf_share_data: jetpackWafShareData,
+		} );
+	}, [ jetpackWafShareData ] );
 
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
 			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
-				<CheckboxControl checked={ wafShareData } onChange={ toggleShareData } />
+				<CheckboxControl
+					checked={ Boolean( settings.jetpack_waf_share_data ) }
+					onChange={ toggleShareData }
+					disabled={ settingsAreUpdating }
+				/>
 				<Text>
 					{ __(
 						'Allow Jetpack to collect data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
@@ -71,7 +97,6 @@ const ShareData = () => {
 };
 
 const FirewallFooter = () => {
-	console.log( window.jetpackProtectInitialState );
 	return (
 		<AdminSectionHero>
 			<SeventyFiveLayout
