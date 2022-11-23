@@ -6,27 +6,16 @@
 		"../../js-packages/components/**/*",
 		"packages/**/*"
 	],
-	"exclude": [
-		"node_modules/*",
-		"app/assets/dist/*",
-		"tests/e2e/*"
-	],
+	"exclude": [ "node_modules/*", "app/assets/dist/*", "tests/e2e/*" ],
 	"compilerOptions": {
-		"types": [
-			"svelte"
-		],
-		"typeRoots": [
-			"./node_modules/@types/",
-			"./app/assets/src/js"
-		],
+		"types": [ "svelte" ],
+		"typeRoots": [ "./node_modules/@types/", "./app/assets/src/js" ],
 		"jsx": "react-jsx",
 		"sourceMap": true,
 		"forceConsistentCasingInFileNames": true,
 		"rootDir": ".",
 		"paths": {
-			"@async-options/*": [
-				"packages/Async_Option/scripts/*"
-			]
+			"@async-options/*": [ "packages/Async_Option/scripts/*" ]
 		}
 	}
 }
