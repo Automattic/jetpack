@@ -3,13 +3,6 @@ const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 module.exports = {
 	root: true,
-	plugins: ['import'],
-	"import/resolver": {
-		"typescript": {
-			"alwaysTryTypes": true,
-			"project": ".",
-		}
-	},
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
@@ -55,5 +48,10 @@ module.exports = {
 		'no-nested-ternary': 0,
 		'prettier/prettier': 0,
 		camelcase: 0,
+		/**
+		 * Disabling this rule because it's not compatible
+		 * with TypeScript aliases.
+		 */
+		'import/no-unresolved': 0,
 	},
 };
