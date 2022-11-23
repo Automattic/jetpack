@@ -2,8 +2,8 @@
 	import Bubble from './Bubble.svelte';
 	import ImageGuide from './ImageGuide.svelte';
 	import { state } from './StateStore';
-	import type { GuideSize, MeasuredImage } from '../types';
 	import { measure } from '../Measurements';
+	import type { GuideSize, MeasuredImage } from '../types';
 
 	export let images: MeasuredImage[];
 	let show: MeasuredImage | false = false;
@@ -25,13 +25,9 @@
 	}
 
 	$: if ( show ) {
-		images.forEach( image => {
-			image.node.classList.add( 'jetpack-boost-image-guide-backdrop' );
-		} );
+		images.forEach( i => i.node.classList.add( 'jetpack-boost-image-guide-backdrop' ) );
 	} else {
-		images.forEach( image => {
-			image.node.classList.remove( 'jetpack-boost-image-guide-backdrop' );
-		} );
+		images.forEach( i => i.node.classList.remove( 'jetpack-boost-image-guide-backdrop' ) );
 	}
 
 	let debounce: number;
