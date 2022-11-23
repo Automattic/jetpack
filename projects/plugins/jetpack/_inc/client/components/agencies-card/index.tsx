@@ -46,8 +46,7 @@ const AgenciesCard: FC< Props > = ( {
 	);
 
 	const handleClick = useCallback( () => {
-		// 2022-11-18: Updating the event name with `-2` prefix to differentiate from the original event (before fix).
-		trackEvent( 'learn-more-click-2' );
+		trackEvent( 'learn-more-click' );
 	}, [ trackEvent ] );
 
 	const handleDismiss = useCallback( () => {
