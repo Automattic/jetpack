@@ -393,7 +393,9 @@ function stats_js_load_page_via_ajax() {
 /* <![CDATA[ */
 if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
-		$.get( document.location.href + '&noheader', function( responseText ) {
+		const loadStatsUrl = new URL( document.location.href );
+		loadStatsUrl.searchParams.append( 'noheader', 1 );
+		$.get( loadStatsUrl.toString(), function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
 			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
