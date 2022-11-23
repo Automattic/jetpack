@@ -103,7 +103,7 @@ class Gifting_Banner {
 				'gifting-banner'
 			),
 			'button_text' => __(
-				'Renew',
+				'Gift',
 				'gifting-banner'
 			),
 		);
@@ -130,7 +130,7 @@ class Gifting_Banner {
 				'wpcomsh'
 			),
 			'button_text' => __(
-				'Renew',
+				'Gift',
 				'wpcomsh'
 			),
 		);
