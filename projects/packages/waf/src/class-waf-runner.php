@@ -16,6 +16,7 @@ use Jetpack_Options;
  */
 class Waf_Runner {
 
+	const WAF_MODULE_NAME               = 'waf';
 	const WAF_RULES_VERSION             = '1.0.0';
 	const MODE_OPTION_NAME              = 'jetpack_waf_mode';
 	const IP_LISTS_ENABLED_OPTION_NAME  = 'jetpack_waf_ip_list';
@@ -129,10 +130,64 @@ class Waf_Runner {
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// so we can check to see if the waf module is activated.
 		if ( defined( 'ABSPATH' ) ) {
-			return ( new Modules() )->is_active( 'waf' );
+			return ( new Modules() )->is_active( self::WAF_MODULE_NAME );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Enables the WAF module on the site.
+	 */
+	public static function enable() {
+		return ( new Modules() )->activate( self::WAF_MODULE_NAME );
+	}
+
+	/**
+	 * Disabled the WAF module on the site.
+	 */
+	public static function disable() {
+		return ( new Modules() )->deactivate( self::WAF_MODULE_NAME );
+	}
+
+	public static function get_options() {
+		return array(
+			self::IP_LISTS_ENABLED_OPTION_NAME => get_option( self::IP_LISTS_ENABLED_OPTION_NAME ),
+			self::IP_ALLOW_LIST_OPTION_NAME    => get_option( self::IP_ALLOW_LIST_OPTION_NAME ),
+			self::IP_BLOCK_LIST_OPTION_NAME    => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
+			self::SHARE_DATA_OPTION_NAME       => get_option( self::SHARE_DATA_OPTION_NAME ),
+		);
+	}
+
+	public static function get_settings() {
+		return array_merge(
+			self::get_options(),
+			array(
+				'moduleIsEnabled' => self::is_enabled(),
+				'bootstrapPath'   => self::get_bootstrap_file_path(),
+				'hasRulesAccess'  => self::has_rules_access(),
+			)
+		);
+	}
+
+	/**
+	 * Get Bootstrap File Path
+	 *
+	 * @return string The path to the Jetpack Firewall's bootstrap.php file.
+	 */
+	private static function get_bootstrap_file_path() {
+		$bootstrap = new Waf_Standalone_Bootstrap();
+		return $bootstrap->get_bootstrap_file_path();
+	}
+
+	/**
+	 * Has Rules Access
+	 *
+	 * @return bool True when the current site has access to latest firewall rules.
+	 */
+	private static function has_rules_access() {
+		// any site with Jetpack Scan can download new WAF rules
+		return \Jetpack_Plan::supports( 'scan' );
 	}
 
 	/**

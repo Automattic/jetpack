@@ -12,11 +12,14 @@ const FormToggle = ( {
 	switchClassNames = '',
 	toggling,
 } ) => {
-	const onClick = useCallback( () => {
-		if ( ! disabled ) {
-			onChange();
-		}
-	}, [ disabled, onChange ] );
+	const onClick = useCallback(
+		event => {
+			if ( ! disabled ) {
+				onChange( event );
+			}
+		},
+		[ disabled, onChange ]
+	);
 
 	const handleKeyDown = useCallback(
 		event => {
@@ -26,7 +29,7 @@ const FormToggle = ( {
 
 			if ( event.key === 'Enter' || event.key === ' ' ) {
 				event.preventDefault();
-				onChange();
+				onChange( event );
 			}
 
 			onKeyDown( event );

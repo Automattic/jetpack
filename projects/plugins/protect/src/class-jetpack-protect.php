@@ -27,6 +27,7 @@ use Automattic\Jetpack\Protect\Threats;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Class Jetpack_Protect
@@ -188,6 +189,8 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
+			'waf'               => Waf_Runner::get_settings(),
+			'wafSeen'           => self::get_waf_seen_status(),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
@@ -345,6 +348,18 @@ class Jetpack_Protect {
 			array(
 				'methods'             => \WP_REST_SERVER::EDITABLE,
 				'callback'            => __CLASS__ . '::api_scan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'toggle-waf',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_toggle_waf',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -519,20 +534,21 @@ class Jetpack_Protect {
 		return new WP_REST_Response( 'Scan enqueued.' );
 	}
 
+	public static function api_toggle_waf() {
+		if ( Waf_Runner::is_enabled() ) {
+			return Waf_Runner::disable();
+		}
+
+		return Waf_Runner::enable();
+	}
+
 	/**
 	 * Get WAF data for the API endpoint
 	 *
 	 * @return bool Whether the current user has viewed the WAF screen.
 	 */
 	public static function api_get_waf() {
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/waf' );
-		$response = rest_do_request( $request );
-
-		if ( $response->status !== 200 ) {
-			return new WP_REST_Response( 'An error occured while attempting to load Firewall settings', 500 );
-		}
-
-		return new WP_REST_Response( $response );
+		return new WP_REST_Response( Waf_Runner::get_settings() );
 	}
 
 	/**
