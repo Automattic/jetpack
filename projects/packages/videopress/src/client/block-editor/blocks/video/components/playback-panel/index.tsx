@@ -8,6 +8,7 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { VideoControlProps } from '../../types';
+import styles from './style.module.scss';
 /**
  * Types
  */
@@ -39,19 +40,19 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				checked={ autoplay }
 				help={
 					<>
-						<p>
+						<span className={ styles[ 'help-message' ] }>
 							{ __(
 								'Start playing the video as soon as the page loads.',
 								'jetpack-videopress-pkg'
 							) }
-						</p>
+						</span>
 						{ autoplay && (
-							<p>
+							<span className={ styles[ 'help-message' ] }>
 								{ __(
 									'Note: Autoplaying videos may cause usability issues for some visitors.',
 									'jetpack-videopress-pkg'
 								) }
-							</p>
+							</span>
 						) }
 					</>
 				}
@@ -107,16 +108,16 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				] }
 				help={
 					<>
-						<p>
+						<span className={ styles[ 'help-message' ] }>
 							{ __( 'Content to download before the video is played', 'jetpack-videopress-pkg' ) }
-						</p>
+						</span>
 						{ preload === 'auto' && (
-							<p>
+							<span className={ styles[ 'help-message' ] }>
 								{ __(
 									'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
 									'jetpack-videopress-pkg'
 								) }
-							</p>
+							</span>
 						) }
 					</>
 				}
