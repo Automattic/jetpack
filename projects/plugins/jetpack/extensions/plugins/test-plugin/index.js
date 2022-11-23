@@ -1,46 +1,53 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
-import { PanelBody, PanelRow } from '@wordpress/components';
+/**
+ * External dependencies
+ */
+import { Modal, Button } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
+import { useEffect, useRef, useState } from 'react';
 
 export const name = 'test-plugin';
 
-console.log( 'test-plugin/index.js' ); // this runs
-
 export const settings = {
-	render: function TestPlugin() {
-		console.log( 'inside render' ); // this doesn't run
+	render: function PluginPostPublishPanelQRPost() {
+		const isPostPublished = useSelect(
+			select => select( editorStore ).isCurrentPostPublished(),
+			[]
+		);
+		const [ showModal, setShowModal ] = useState( false );
 
-		const panelBodyProps = {
-			name: 'test-plugin',
-			title: __( 'Test Plugin', 'jetpack' ),
-			className: 'test-plugin',
-			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
-		};
-
-		function TestPluginBodyContent() {
-			return (
-				<>
-					<PanelRow>
-						<p>Test Plugin Body Content</p>
-					</PanelRow>
-				</>
-			);
-		}
+		useEffect( () => {
+			setShowModal( true );
+		}, [ isPostPublished ] );
 
 		return (
-			<>
-				<PluginPostPublishPanel { ...panelBodyProps }>
-					<TestPluginBodyContent />
-				</PluginPostPublishPanel>
-
-				<JetpackPluginSidebar>
-					<PanelBody { ...panelBodyProps }>
-						<TestPluginBodyContent />
-					</PanelBody>
-				</JetpackPluginSidebar>
-			</>
+			showModal && (
+				<Modal
+					isDismissible={ true }
+					className="learn-how-modal"
+					onRequestClose={ () => setShowModal( false ) }
+				>
+					<h1>{ __( 'Your site is ready to launch!', 'jetpack' ) }</h1>
+					<p>
+						{ __(
+							'Launching your Link in Bio will allow you to share a link with others and promote your site.',
+							'jetpack'
+						) }
+					</p>
+					<div>
+						<Button size="normal" variant="primary" onClick={ () => {} }>
+							{ ' ' }
+							Back to Edit{ ' ' }
+						</Button>
+						<Button size="normal" variant="secondary" onClick={ () => {} }>
+							{ ' ' }
+							Launch Site{ ' ' }
+						</Button>
+					</div>
+				</Modal>
+			)
 		);
 	},
 };
