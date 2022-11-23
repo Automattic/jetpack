@@ -87,7 +87,7 @@ export default function DetailsPanel( {
 					<p className="learn-how-notice__message">
 						{ createInterpolateElement(
 							__(
-								'You already have chapter information on a attached VTT file, so adding chapters to the description will not change the original ones. <link>Learn more</link>',
+								'You already have chapter information on an attached VTT file, so adding chapters to the description will not change the original ones. <link>Learn more</link>',
 								'jetpack-videopress-pkg'
 							),
 							{
