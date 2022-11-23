@@ -1,4 +1,4 @@
-import { extractSingleChapter, extractVideoChapters } from '../extract-video-chapters';
+import { extractSingleChapter, extractVideoChapters } from '..';
 
 describe( 'extractSingleChapter', () => {
 	const testCases = [
