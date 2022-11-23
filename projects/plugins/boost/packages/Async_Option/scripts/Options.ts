@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 // @TODO: need feedback on this: 👇
-import type { AsyncOptions as AO } from '@async-options/types';
 import { writable } from 'svelte/store';
+import type { AsyncOptions as AO } from '@async-options/types';
 
 export class Options< T extends AO.Options > {
 	private options: T;
@@ -27,7 +28,7 @@ export class Options< T extends AO.Options > {
 	}
 
 	private compare( a: any, b: any ) {
-		if ( typeof a == 'object' && typeof b == 'object' ) {
+		if ( typeof a === 'object' && typeof b === 'object' ) {
 			return Object.entries( a ).sort().toString() === Object.entries( b ).sort().toString();
 		}
 		return a === b;
@@ -41,7 +42,7 @@ export class Options< T extends AO.Options > {
 		const pending = this.createPendingStore();
 
 		let requestLock = false;
-		let debounce = 0;
+		let debounce: ReturnType< typeof setTimeout > | null = null;
 
 		// Sync the value to the API
 		// And make sure that the value
@@ -53,14 +54,15 @@ export class Options< T extends AO.Options > {
 			}
 
 			// If UI Changes rapidly, wait for it to settle before issuing the request.
-			if ( debounce ) {
+			if ( debounce !== null ) {
 				clearTimeout( debounce );
+				debounce = null;
 			}
 
 			// Sync the setting to the server
 			debounce = setTimeout( async () => {
 				requestLock = true;
-				let result = await updateCallback( {
+				const result = await updateCallback( {
 					...this.options[ key ],
 					value,
 				} );
@@ -92,7 +94,7 @@ export class Options< T extends AO.Options > {
 
 		return {
 			value: store,
-			pending: pending,
+			pending,
 		};
 	}
 }

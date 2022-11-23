@@ -17,6 +17,8 @@ export type JSONSchema = z.infer< typeof jsonSchema >;
 
 /**
  * Export maybeStringify function
+ *
+ * @param  value
  */
 export function maybeStringify< T >( value: JSONSchema | string ): string | T {
 	if ( typeof value === 'string' ) {

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { z } from 'zod';
 
 export function getOptionsFromGlobal< T extends z.ZodTypeAny >(
@@ -10,12 +11,11 @@ export function getOptionsFromGlobal< T extends z.ZodTypeAny >(
 	}
 
 	// Ignore TypeScript complaints just this once.
-	// @ts-ignore
 	const obj = window[ key ];
 	const result = parser.safeParse( obj );
 
 	if ( ! result.success ) {
-		console.error( 'Error parsing options for', key, result.error );
+		console.error( 'Error parsing options for', key, result );
 
 		// @TODO: Maybe no options are found, return everything as false?
 		// That way at least it's not a fatal?

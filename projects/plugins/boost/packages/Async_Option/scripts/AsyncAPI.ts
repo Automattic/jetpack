@@ -1,17 +1,20 @@
+/* eslint-disable no-console */
 import { maybeStringify } from '@async-options/utils';
 
 type RequestParams = string | { [ key: string ]: any };
 
 export default class AsyncAPI {
+	// I don't think this is a useless constructor...
+	// eslint-disable-next-line no-useless-constructor
 	constructor( private baseUrl: string, private restNonce: string ) {}
 
 	private async request< T >(
 		endpoint: string,
 		method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',
-		nonce: string = '',
+		nonce = '',
 		params?: RequestParams
 	): Promise< T > {
-		let url = `${ this.baseUrl }/${ endpoint }`;
+		const url = `${ this.baseUrl }/${ endpoint }`;
 
 		const result = await fetch( url, {
 			method,
@@ -43,11 +46,7 @@ export default class AsyncAPI {
 		return ( data as unknown ) as T;
 	}
 
-	public async GET< T >(
-		endpoint: string,
-		nonce: string = '',
-		params?: RequestParams
-	): Promise< T > {
+	public async GET< T >( endpoint: string, nonce = '', params?: RequestParams ): Promise< T > {
 		return await this.request( endpoint, 'GET', nonce, params );
 	}
 
@@ -55,7 +54,7 @@ export default class AsyncAPI {
 		return await this.request( endpoint, 'POST', nonce, params );
 	}
 
-	public async DELETE( endpoint: string, nonce: string = '' ) {
+	public async DELETE( endpoint: string, nonce = '' ) {
 		return await this.request( endpoint, 'DELETE', nonce );
 	}
 }

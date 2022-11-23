@@ -1,7 +1,8 @@
-import type { z } from 'zod';
-import type { AsyncOptions as AO } from '@async-options/types';
-import { Options } from '@async-options/Options';
+/* eslint-disable no-console */
 import AsyncAPI from '@async-options/AsyncAPI';
+import { Options } from '@async-options/Options';
+import type { AsyncOptions as AO } from '@async-options/types';
+import type { z } from 'zod';
 
 export function getOptionsFromGlobal< T extends z.ZodTypeAny >(
 	key: string,
@@ -16,7 +17,7 @@ export function getOptionsFromGlobal< T extends z.ZodTypeAny >(
 	const result = parser.safeParse( obj );
 
 	if ( ! result.success ) {
-		console.error( 'Error parsing options for', key, result.error );
+		console.error( 'Error parsing options for', key, result );
 
 		// @TODO: Maybe no options are found, return everything as false?
 		// That way at least it's not a fatal?
