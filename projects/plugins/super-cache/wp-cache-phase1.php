@@ -1,14 +1,14 @@
 <?php
 
 if ( ! function_exists( 'wp_cache_phase2' ) ) {
-	require_once __DIR__. '/wp-cache-phase2.php';
+	require_once __DIR__ . '/wp-cache-phase2.php';
 }
 
 // error_reporting(E_ERROR | E_PARSE); // uncomment to debug this file!
 // directory where the configuration file lives.
-if ( !defined( 'WPCACHECONFIGPATH' ) ) {
-  define( 'WPCACHECONFIGPATH', WP_CONTENT_DIR );
-} 
+if ( ! defined( 'WPCACHECONFIGPATH' ) ) {
+	define( 'WPCACHECONFIGPATH', WP_CONTENT_DIR );
+}
 
 if ( ! @include WPCACHECONFIGPATH . '/wp-cache-config.php' ) {
 	return false;
@@ -70,9 +70,9 @@ if ( is_array( $plugins ) ) {
 
 // Load plugins from an array of php scripts. This needs to be documented.
 if ( isset( $wpsc_plugins ) && is_array( $wpsc_plugins ) ) {
-	foreach( $wpsc_plugins as $plugin_file ) {
+	foreach ( $wpsc_plugins as $plugin_file ) {
 		if ( file_exists( ABSPATH . $plugin_file ) ) {
-			include_once( ABSPATH . $plugin_file );
+			include_once ABSPATH . $plugin_file;
 		}
 	}
 }

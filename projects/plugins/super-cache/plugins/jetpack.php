@@ -36,10 +36,20 @@ function wp_super_cache_jetpack_admin() {
 	if ( false === file_exists( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' ) ) {
 		echo '<strong>' . sprintf( __( 'Jetpack not found in %s. Install it and enable the mobile theme and this helper plugin to cache visits by mobile visitors.', 'wp-super-cache' ), dirname( WPCACHEHOME ) ) . '</strong>';
 	} else {
-	?>
+		?>
 		<form name="wp_manager" action="" method="post">
-		<label><input type="radio" name="cache_jetpack" value="1" <?php if ( $cache_jetpack ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
-		<label><input type="radio" name="cache_jetpack" value="0" <?php if ( ! $cache_jetpack ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
+		<label><input type="radio" name="cache_jetpack" value="1" 
+		<?php
+		if ( $cache_jetpack ) {
+			echo 'checked="checked" '; }
+		?>
+		/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
+		<label><input type="radio" name="cache_jetpack" value="0" 
+		<?php
+		if ( ! $cache_jetpack ) {
+			echo 'checked="checked" '; }
+		?>
+		/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
 		<?php
 		echo '<p>' . __( 'Provides support for the <a href="https://wordpress.org/plugins/jetpack/">Jetpack</a> mobile theme and plugin. PHP caching mode and mobile support will be enabled too.', 'wp-super-cache' ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
@@ -61,7 +71,7 @@ function wp_super_cache_jetpack_admin() {
 add_cacheaction( 'cache_admin_page', 'wp_super_cache_jetpack_admin' );
 
 function wp_super_cache_jetpack_cookie_check( $cache_key ) {
-	if ( isset ( $_COOKIE['akm_mobile'] ) ) {
+	if ( isset( $_COOKIE['akm_mobile'] ) ) {
 		if ( $_COOKIE['akm_mobile'] == 'true' ) {
 			return 'mobile';
 		} elseif ( $_COOKIE['akm_mobile'] == 'false' ) {

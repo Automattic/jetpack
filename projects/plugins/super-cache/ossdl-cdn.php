@@ -278,42 +278,64 @@ function scossdl_off_options() {
 	$example_cdn_uri .= '/wp-includes/js/jquery/jquery-migrate.js';
 	$example_cdn_uri  = esc_url( $example_cdn_uri );
 	?>
-		<h3><?php _e( 'Jetpack CDN' ); ?></h3>
-		<p><?php printf(
+		<h3><?php _e( 'Jetpack CDN', 'wp-super-cache' ); ?></h3>
+		<p>
+		<?php
+		printf(
 			__( 'The free %1$sJetpack plugin%2$s has a %3$sSite Accelerator%2$s feature that is easier to use than the CDN functionality in this plugin. However files will be cached "forever" and will not update if you update the local file. Files will need to be renamed to refresh them. The %3$sJetpack documentation%2$s explains more about this.', 'wp-super-cache' ),
 			'<a href="https://jetpack.com/">',
 			'</a>',
 			'<a href="https://jetpack.com/support/site-accelerator/">'
-		); ?></p>
+		);
+		?>
+			</p>
 	<?php
 	if ( class_exists( 'Jetpack' ) ) {
 		if ( Jetpack::is_module_active( 'photon' ) ) {
-			?><p><strong><?php printf(
+			?>
+			<p><strong>
+			<?php
+			printf(
 				__( 'You already have Jetpack installed and %1$sSite Accelerator%2$s enabled on this blog. The CDN here is disabled to avoid conflicts with Jetpack.', 'wp-super-cache' ),
 				'<a href="https://jetpack.com/support/site-accelerator/">',
 				'</a>'
-			); ?></strong></p><?php
+			);
+			?>
+						</strong></p>
+			<?php
 		} else {
-			?><p><?php printf(
+			?>
+			<p>
+			<?php
+			printf(
 				__( 'You already have Jetpack installed but %1$sSite Accelerator%2$s is disabled on this blog. Enable it on the %3$sJetpack settings page%2$s.', 'wp-super-cache' ),
 				'<a href="https://jetpack.com/support/site-accelerator/">',
 				'</a>',
 				'<a href="' . admin_url( 'admin.php?page=jetpack#/settings' ) . '">'
-			); ?></p><?php
+			);
+			?>
+				</p>
+			<?php
 		}
 	} else {
-			?><p><strong><?php printf(
+		?>
+			<p><strong>
+			<?php
+			printf(
 				__( '%1$sJetpack%2$s was not found on your site but %3$syou can install it%2$s. The Site Accelerator feature is free to use on any WordPress site and offers the same benefit as other CDN services. You should give it a try!', 'wp-super-cache' ),
 				'<a href="https://jetpack.com/">',
 				'</a>',
 				'<a href="' . admin_url( 'plugin-install.php?s=jetpack&tab=search&type=term' ) . '">'
-			); ?></strong></p><?php
+			);
+			?>
+						</strong></p>
+			<?php
 	}
 	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'photon' ) ) {
 		return;
 	}
 	?>
-		<h3><?php _e( 'Simple CDN' ); ?></h3>
+		<h3><?php _e( 'Simple CDN', 'wp-super-cache' ); ?></h3>
 		<p><?php _e( 'Your website probably uses lots of static files. Image, Javascript and CSS files are usually static files that could just as easily be served from another site or CDN. Therefore, this plugin replaces any links in the <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) on your site with the URL you provide below. That way you can either copy all the static content to a dedicated host or mirror the files to a CDN by <a href="https://www.google.com/search?q=cdn+origin+pull" target="_blank">origin pull</a>.', 'wp-super-cache' ); ?></p>
 		<p><?php printf( __( '<strong style="color: red">WARNING:</strong> Test some static urls e.g., %s  to ensure your CDN service is fully working before saving changes.', 'wp-super-cache' ), '<code>' . esc_html( $example_cdn_uri ) . '</code>' ); ?></p>
 
