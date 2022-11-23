@@ -145,28 +145,9 @@ class Dashboard {
 			'before'
 		);
 
-		add_action(
-			'admin_head',
-			function () {
-				echo '<style>
-				.jp-stats-dashboard .card {
-					border:0;
-					max-width: initial;
-					min-width: initial;
-				}
-				ul.wp-submenu, ul.wp-submenu-wrap {
-					margin-left: 0;
-				}
-				.jp-stats-dashboard .followers-count {
-					display: none;
-				}
-				.jp-stats-dashboard .layout__content {
-					padding-top: 32px;
-				}
-				</style>';
-			},
-			100
-		);
+		// Load the style sheet to customize the look of the dashboard in Jetpack.
+		wp_register_style( 'jp-stats-dashboard-style-override', plugins_url( '../assets/style.css', __FILE__ ), array(), filemtime( plugin_dir_path( __FILE__ ) . '../assets/style.css' ) );
+		wp_enqueue_style( 'jp-stats-dashboard-style-override' );
 	}
 
 	/**
