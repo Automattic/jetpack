@@ -1,10 +1,17 @@
+/**
+ * External dependencies
+ */
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
 import { useState, useRef } from 'react';
-import privacy from '../../../components/icons/crossed-eye-icon';
+/**
+ * Internal dependencies
+ */
+import privateIcon from '../../../components/icons/crossed-eye-icon';
+import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
@@ -12,6 +19,9 @@ import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import StatsBase from './stats';
 import styles from './style.module.scss';
+/**
+ * Types
+ */
 import { VideoRowProps } from './types';
 
 const millisecondsToMinutesAndSeconds = ( milliseconds?: number ) => {
@@ -48,7 +58,7 @@ const Stats = ( {
 			<span>{ isPrivate ? privateLabel : publicLabel }</span>
 		</>
 	) : (
-		<>{ isPrivate && <Icon icon={ privacy } /> }</>
+		isPrivate && <Icon icon={ privateIcon } />
 	);
 
 	const durationElement =
@@ -80,6 +90,7 @@ const Stats = ( {
 			plays={ playsElement }
 			upload={ uploadElement }
 			loading={ loading }
+			className={ classNames( { [ styles[ 'mobile-stats' ] ]: isSmall } ) }
 		/>
 	);
 };
@@ -113,8 +124,9 @@ export const VideoRow = ( {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
 
+	const { canPerformAction } = usePermission();
+
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
-	const [ showActionsState, setShowActions ] = useState( false );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
 
@@ -123,11 +135,8 @@ export const VideoRow = ( {
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;
-	const showActions =
-		showActionsState && ( showActionButton || showQuickActions ) && ! loading && ! disabled;
-	const showStats = ( ! showActions && ! isSmall ) || ( isSmall && expanded ) || loading;
-	const showBottom = ! isSmall || ( isSmall && expanded );
-
+	const showActions = ( showActionButton || showQuickActions ) && ! loading && ! disabled;
+	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
 		! loading &&
@@ -160,7 +169,7 @@ export const VideoRow = ( {
 		<Button
 			size="small"
 			onClick={ handleClickWithStopPropagation( onActionClick ) }
-			disabled={ disableActionButton }
+			disabled={ ! canPerformAction || disableActionButton }
 		>
 			{ actionButtonLabel }
 		</Button>
@@ -193,29 +202,20 @@ export const VideoRow = ( {
 		}
 	};
 
-	const handleOver = () => {
-		setShowActions( true );
-	};
-
-	const handleLeave = () => {
-		setShowActions( false );
-	};
-
 	return (
 		<div
 			role="button"
 			tabIndex={ 0 }
 			onKeyDown={ isSmall ? null : handleKeyDown }
 			onKeyUp={ isSmall ? null : handleKeyUp }
-			onMouseOver={ hoverDisabled ? null : handleOver }
-			onMouseLeave={ hoverDisabled ? null : handleLeave }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
 			className={ classNames(
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
-					[ styles.disabled ]: hoverDisabled,
+					[ styles.disabled ]: disabled,
+					[ styles[ 'hover-disabled' ] ]: hoverDisabled,
 				},
 				className
 			) }
@@ -245,8 +245,8 @@ export const VideoRow = ( {
 						<div className={ styles.poster }>
 							<VideoThumbnail
 								thumbnail={ thumbnail }
-								loading={ loading }
-								uploading={ uploading || isUpdatingPoster }
+								loading={ loading || isUpdatingPoster }
+								uploading={ uploading }
 								processing={ processing }
 								blankIconSize={ 28 }
 								uploadProgress={ uploadProgress }
@@ -288,21 +288,19 @@ export const VideoRow = ( {
 				</div>
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
-						{ showActions && (
+						{ ! isSmall && showActions && (
 							<div className={ styles.actions }>
 								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }
-						{ showStats && (
-							<Stats
-								duration={ durationInMinutesAndSeconds }
-								uploadDate={ uploadDateFormatted }
-								plays={ plays }
-								isPrivate={ isPrivate }
-								loading={ loading }
-							/>
-						) }
+						<Stats
+							duration={ durationInMinutesAndSeconds }
+							uploadDate={ uploadDateFormatted }
+							plays={ plays }
+							isPrivate={ isPrivate }
+							loading={ loading }
+						/>
 						{ isSmall && (
 							<div className={ styles[ 'mobile-actions' ] }>
 								{ showActionButton && actionButton }

@@ -3,13 +3,21 @@ import {
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, ToolbarGroup, ToolbarButton, Path } from '@wordpress/components';
+import {
+	PanelBody,
+	TextControl,
+	ToggleControl,
+	ToolbarGroup,
+	ToolbarButton,
+	Path,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldWidth from './jetpack-field-width';
+import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
-const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
+const JetpackFieldControls = ( { setAttributes, width, id, required, placeholder } ) => {
 	return (
 		<>
 			<BlockControls>
@@ -31,6 +39,9 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 			</BlockControls>
 
 			<InspectorControls>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+					<JetpackManageResponsesSettings isChildBlock />
+				</PanelBody>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack' ) }
@@ -39,6 +50,16 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 						onChange={ value => setAttributes( { required: value } ) }
 						help={ __(
 							'Does this field have to be completed for the form to be submitted?',
+							'jetpack'
+						) }
+					/>
+
+					<TextControl
+						label={ __( 'Placeholder text', 'jetpack' ) }
+						value={ placeholder }
+						onChange={ value => setAttributes( { placeholder: value } ) }
+						help={ __(
+							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
 							'jetpack'
 						) }
 					/>

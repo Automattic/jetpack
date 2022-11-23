@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from '@wordpress/data';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
@@ -37,6 +38,8 @@ import {
 	SET_IS_FETCHING_PLAYBACK_TOKEN,
 	SET_PLAYBACK_TOKEN,
 	SET_VIDEO_UPLOAD_PROGRESS,
+	EXPIRE_PLAYBACK_TOKEN,
+	SET_VIDEOPRESS_SETTINGS,
 } from './constants';
 
 /**
@@ -316,6 +319,7 @@ const videos = ( state, action ) => {
 			const { id, title } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
+			const sanitizedTitle = cleanForSlug( title );
 
 			return {
 				...state,
@@ -324,7 +328,7 @@ const videos = ( state, action ) => {
 					items: {
 						...currentMetaItems,
 						[ id ]: {
-							title,
+							title: sanitizedTitle,
 							uploading: true,
 						},
 					},
@@ -340,7 +344,9 @@ const videos = ( state, action ) => {
 			const items = [ ...( state?.items ?? [] ) ];
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
-			const title = currentMetaItems[ id ]?.title || '';
+			const title =
+				data?.src?.split( '/' )?.slice( -1 )?.[ 0 ] || currentMetaItems[ id ]?.title || '';
+			const sanitizedTitle = cleanForSlug( title );
 
 			let total = state?.uploadedVideoCount ?? 0;
 
@@ -356,7 +362,7 @@ const videos = ( state, action ) => {
 					id: data.id,
 					guid: data.guid,
 					url: data.src,
-					title,
+					title: sanitizedTitle,
 					posterImage: null,
 					finished: false,
 				} );
@@ -620,6 +626,39 @@ const playbackTokens = ( state, action ) => {
 			};
 		}
 
+		case EXPIRE_PLAYBACK_TOKEN: {
+			const { guid } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const playbackTokenIndex = items.findIndex( item => item.guid === guid );
+
+			if ( playbackTokenIndex > -1 ) {
+				// Remove it from the array
+				items.splice( playbackTokenIndex, 1 );
+			}
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
+const siteSettings = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_VIDEOPRESS_SETTINGS: {
+			const { videoPressSettings } = action;
+
+			return {
+				...state,
+				...videoPressSettings,
+			};
+		}
+
 		default:
 			return state;
 	}
@@ -631,6 +670,7 @@ const reducers = combineReducers( {
 	purchases,
 	users,
 	playbackTokens,
+	siteSettings,
 } );
 
 export default reducers;

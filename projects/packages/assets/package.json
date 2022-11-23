@@ -12,8 +12,8 @@
 		"validate": "pnpm exec validate-es build/"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:* || ^1.3",
-		"@wordpress/browserslist-config": "5.2.0",
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "5.4.0",
 		"md5-es": "1.8.2",
 		"jest": "28.1.0",
 		"webpack": "5.72.1",

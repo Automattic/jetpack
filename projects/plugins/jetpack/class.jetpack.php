@@ -30,6 +30,7 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats_Admin\Main as StatsAdminMain;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -729,7 +730,7 @@ class Jetpack {
 			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
 			 * so they point moderation links on emails to Calypso.
 			 */
-			jetpack_require_lib( 'functions.wp-notify' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/functions.wp-notify.php';
 			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
 			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
 		}
@@ -823,6 +824,7 @@ class Jetpack {
 				'waf',
 				'videopress',
 				'stats',
+				'stats_admin',
 			)
 			as $feature
 		) {
@@ -904,6 +906,9 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
+
+		// We will change to use the config package.
+		StatsAdminMain::init();
 	}
 
 	/**
@@ -6542,7 +6547,7 @@ endif;
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
 		$recheck        = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && '0' === $rewind_enabled;
 		if ( false === $rewind_enabled || $recheck ) {
-			jetpack_require_lib( 'class.core-rest-api-endpoints' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 			$rewind_data    = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
 			$rewind_enabled = ( ! is_wp_error( $rewind_data )
 				&& ! empty( $rewind_data['state'] )

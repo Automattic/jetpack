@@ -162,6 +162,7 @@ class Jetpack_Widget_Conditions {
 			'core/tag-cloud',
 			'core/page-list',
 			'core/latest-posts',
+			'woocommerce/product-categories',
 		);
 
 		$filter_metadata_registration = function ( $settings, $metadata ) use ( $blocks_to_add_visibility_conditions ) {

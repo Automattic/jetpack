@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-jetpack_require_lib( 'class.jetpack-photon-image' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image.php';
 
 /**
  * Class Jetpack_Photon_ImageSizes

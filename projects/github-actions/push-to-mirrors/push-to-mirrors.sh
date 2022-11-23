@@ -70,11 +70,15 @@ while read -r GIT_SLUG; do
 	# Initialize the directory as a git repo, and set the remote
 	git init -b "$BRANCH" .
 	git remote add origin "https://github.com/${GIT_SLUG}"
-	git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
+	if [[ -n "$API_TOKEN_GITHUB" ]]; then
+		git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
+	fi
 
 	# Check if a remote exists for that mirror.
 	if ! git ls-remote -h origin >/dev/null 2>&1; then
-		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
+		echo "::error::Mirror repo for ${GIT_SLUG} does not exist."
+		echo "Skipping."
+		EXIT=1
 		continue
 	fi
 

@@ -446,7 +446,11 @@ const newPricingArgs = {
 						'Language support for English, Spanish, French, Portuguese, Hindi, Japanese, among others.',
 						'jetpack-search-pkg'
 					) }{ ' ' }
-					<a href="#" rel="external noopener noreferrer nofollow" target="_blank">
+					<a
+						href="https://jetpack.com/support/search/jetpack-search-plugin/#faq"
+						rel="external noopener noreferrer nofollow"
+						target="_blank"
+					>
 						{ __( 'See all supported languanges', 'jetpack-search-pkg' ) }
 					</a>
 				</>

@@ -25,7 +25,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 			$this->is_wpcom = true;
 
 			if ( ! class_exists( 'WPCOM_Gather_Tweetstorm' ) ) {
-				\jetpack_require_lib( 'gather-tweetstorm' );
+				\require_lib( 'gather-tweetstorm' );
 			}
 		}
 

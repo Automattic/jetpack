@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/seo-tools/class-jetpack-seo-titles.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-titles.php';
 
 /**
  * Class WP_Test_Jetpack_SEO_Titles
