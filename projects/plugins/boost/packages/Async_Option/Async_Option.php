@@ -21,7 +21,6 @@ class Async_Option {
 	 */
 	protected $option;
 
-
 	/**
 	 * @param $namespace string
 	 * @param $key       string
