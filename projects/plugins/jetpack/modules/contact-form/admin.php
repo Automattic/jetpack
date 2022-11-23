@@ -877,8 +877,6 @@ function grunion_ajax_spam() {
 	exit;
 }
 
-
-
 add_action( 'admin_enqueue_scripts', 'grunion_enable_export_button' );
 /**
  * Add the scripts that will add the "Export" button to the Feedbacks dashboard page.
