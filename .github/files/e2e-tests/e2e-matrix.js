@@ -90,27 +90,24 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			}
 
 			if ( repoName === 'jetpack-production' ) {
-				matrix.push( {
-					project: 'Jetpack on Atomic',
-					path: 'projects/plugins/jetpack/tests/e2e',
-					testArgs: [ 'blocks', '--retries=1' ],
-					suite: 'atomic',
-				} );
+				matrix.push(
+					{
+						project: 'Jetpack on Atomic',
+						path: 'projects/plugins/jetpack/tests/e2e',
+						testArgs: [ 'blocks', '--retries=1' ],
+						suite: 'atomic',
+					},
+					{
+						project: 'Blocks with latest Gutenberg',
+						path: 'projects/plugins/jetpack/tests/e2e',
+						testArgs: [ 'blocks', '--retries=1' ],
+						suite: 'gutenberg',
+					}
+				);
 			}
 		} else {
 			// eslint-disable-next-line no-console
 			console.error( 'Undefined DISPATCH_REPO!' );
-		}
-		break;
-	case 'schedule':
-		// gutenberg scheduled run
-		if ( process.env.CRON === '0 */12 * * *' ) {
-			matrix.push( {
-				project: 'Jetpack with Gutenberg',
-				path: 'projects/plugins/jetpack/tests/e2e',
-				testArgs: [ 'blocks', '--retries=1' ],
-				suite: 'gutenberg',
-			} );
 		}
 		break;
 	default:

@@ -79,11 +79,16 @@ export type siteProductProps = {
 	wpcomProductSlug: string;
 };
 
-export type ProductPriceOriginalProps = {
+export type productPriceOriginalProps = {
 	yearly: {
+		name: string;
+		slug: string;
 		price: number;
+		salePrice: number;
 		priceByMonth: number;
+		salePriceByMonth: number;
 		currency: string;
+		discount: number;
 	};
 	monthly: {
 		price: number;
@@ -113,13 +118,13 @@ export type productProps = {
 		transitionAfterRenewalCount: number;
 		shouldProrateWhenOfferEnds: boolean;
 	};
-	productPrice: ProductPriceOriginalProps;
 };
 
 export type usePlanProps = {
 	features?: paidFeaturesProp;
 	siteProduct?: siteProductProps;
 	product?: productProps;
+	productPrice?: productPriceOriginalProps;
 
 	purchases?: Array< object >;
 	hasVideoPressPurchase: boolean;

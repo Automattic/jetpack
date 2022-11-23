@@ -173,7 +173,7 @@
 		right: -50px;
 		opacity: 0.04;
 		transform: rotate( 15deg );
-		z-index: -1;
+		pointer-events: none;
 	}
 
 	:global( .guide.small ) {

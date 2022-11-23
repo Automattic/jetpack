@@ -50,6 +50,25 @@
 		line-height: 24px;
 	}
 
+	&--btn-manage-connection {
+		font-size: var( --font-body );
+		color: var( --jp-black );
+		text-decoration: underline;
+		height: auto;
+		font: inherit;
+		padding: 0;
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+			box-shadow: none !important;
+		}
+	}
+
 	&--avatar {
 		border: 0;
 		border-radius: 20px;
