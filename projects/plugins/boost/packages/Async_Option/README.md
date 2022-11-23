@@ -24,7 +24,7 @@ As an example, I'm going to set-up a new option called `widget_status` that will
 The snippet below is going to:
 
 - Ensure that the value is sanitized both when saving and when retrieving the option from the database.
-- Create an endpoint `/wp-json/widget-plugin/widget-status` that's going to accept al REST API requests.
+- Create an endpoint `/wp-json/widget-plugin/widget-status` that's going to accept all REST API requests.
 - Setup and take care of nonce validation
 
 ```php
