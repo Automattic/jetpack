@@ -14,7 +14,6 @@ import {
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
-	useConnection,
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
@@ -30,6 +29,7 @@ import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
@@ -105,14 +105,14 @@ const Admin = () => {
 		hasVideoPressPurchase,
 	} = useDashboardVideos();
 
-	const { isRegistered, hasConnectedOwner } = useConnection();
+	const { canPerformAction, isRegistered, hasConnectedOwner, isUserConnected } = usePermission();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const canDrop = ( hasVideoPressPurchase || ! hasVideos ) && isRegistered && ! loading;
+	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
 
 	const {
 		isDraggingOver,
@@ -120,7 +120,7 @@ const Admin = () => {
 		handleFileInputChangeEvent,
 		filterVideoFiles,
 	} = useSelectVideoFiles( {
-		canDrop,
+		canDrop: canUpload && ! loading,
 		dropElement: document,
 		onSelectFiles: handleFilesUpload,
 	} );
@@ -138,7 +138,7 @@ const Admin = () => {
 		>
 			<div
 				className={ classnames( styles[ 'files-overlay' ], {
-					[ styles.hover ]: isDraggingOver && canDrop,
+					[ styles.hover ]: isDraggingOver && canUpload && ! loading,
 				} ) }
 			>
 				<Text className={ styles[ 'drop-text' ] } variant="headline-medium">
@@ -172,7 +172,7 @@ const Admin = () => {
 								</Col>
 							) }
 
-							{ ! hasConnectedOwner && (
+							{ ( ! hasConnectedOwner || ! isUserConnected ) && (
 								<Col sm={ 4 } md={ 8 } lg={ 12 }>
 									<NeedUserConnectionGlobalNotice />
 								</Col>
@@ -182,10 +182,12 @@ const Admin = () => {
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 
-								<ConnectVideoStorageMeter
-									className={ styles[ 'storage-meter' ] }
-									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-								/>
+								{ hasVideoPressPurchase && (
+									<ConnectVideoStorageMeter
+										className={ styles[ 'storage-meter' ] }
+										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+									/>
+								) }
 
 								<FormFileUpload
 									onChange={ evt =>
@@ -198,7 +200,7 @@ const Admin = () => {
 											fullWidth={ isSm }
 											onClick={ openFileDialog }
 											isLoading={ loading }
-											disabled={ ! hasVideoPressPurchase && hasVideos }
+											disabled={ ! canUpload }
 										>
 											{ addVideoLabel }
 										</Button>

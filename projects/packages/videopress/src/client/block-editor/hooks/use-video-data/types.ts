@@ -1,16 +1,17 @@
-export type WPV2MediaAPIResponseProps = {
-	jetpack_videopress?: {
-		title: string;
-		description: string;
-	};
+import { VideoGUID, VideoId } from '../../blocks/video/types';
+
+export type UseVideoDataArgumentsProps = {
+	id?: VideoId;
+	guid?: VideoGUID;
+	isPrivate?: boolean;
 };
 
-export type VideoData = {
+export type videoDataProps = {
 	title?: string;
 	description?: string;
 };
 
-export type useVideoDataProps = {
-	videoData: VideoData;
+export type UseVideoDataProps = {
+	videoData: videoDataProps;
 	isRequestingVideoData: boolean;
 };

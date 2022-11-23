@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.12] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
 ## [1.7.11] - 2022-10-25
 ### Changed
 - Updated package dependencies. [#26705]
@@ -218,6 +222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[1.7.12]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.11...v1.7.12
 [1.7.11]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.10...v1.7.11
 [1.7.10]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.9...v1.7.10
 [1.7.9]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.8...v1.7.9

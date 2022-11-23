@@ -19,6 +19,7 @@ import {
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 } from '../../../state/constants';
 import { useActionItem } from '../../hooks/use-action-item';
+import { usePermission } from '../../hooks/use-permission';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
@@ -87,6 +88,7 @@ const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) 
 				onMouseLeave={ () => setIsHovering( false ) }
 				onFocus={ () => setIsFocused( true ) }
 				onBlur={ () => setIsFocused( false ) }
+				disabled={ props.disabled }
 				{ ...props }
 			/>
 			<PopoverWithAnchor
@@ -104,6 +106,7 @@ const ThumbnailActionsDropdown = ( {
 	description,
 	onUpdate,
 	isUpdatingPoster,
+	disabled,
 }: ThumbnailActionsDropdownProps ) => {
 	const {
 		setAnchor,
@@ -133,6 +136,7 @@ const ThumbnailActionsDropdown = ( {
 						onMouseLeave={ () => setIsHovering( false ) }
 						onFocus={ () => setIsFocused( true ) }
 						onBlur={ () => setIsFocused( false ) }
+						disabled={ disabled }
 					/>
 					<PopoverWithAnchor
 						showPopover={ showPopover && ! isOpen }
@@ -161,6 +165,7 @@ const PrivacyActionsDropdown = ( {
 	privacySetting,
 	isUpdatingPrivacy,
 	onUpdate,
+	disabled,
 }: PrivacyActionsDropdownProps ) => {
 	const {
 		setAnchor,
@@ -197,7 +202,7 @@ const PrivacyActionsDropdown = ( {
 						onMouseLeave={ () => setIsHovering( false ) }
 						onFocus={ () => setIsFocused( true ) }
 						onBlur={ () => setIsFocused( false ) }
-						disabled={ isUpdatingPrivacy }
+						disabled={ disabled || isUpdatingPrivacy }
 					/>
 					<PopoverWithAnchor
 						showPopover={ showPopover && ! isOpen }
@@ -266,12 +271,15 @@ const VideoQuickActions = ( {
 	onUpdateVideoPrivacy,
 	onDeleteVideo,
 }: VideoQuickActionsProps ) => {
+	const { canPerformAction } = usePermission();
+
 	return (
 		<div className={ classNames( styles.actions, className ) }>
 			<ThumbnailActionsDropdown
 				onUpdate={ onUpdateVideoThumbnail }
 				description={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }
 				isUpdatingPoster={ isUpdatingPoster }
+				disabled={ ! canPerformAction }
 			/>
 
 			<PrivacyActionsDropdown
@@ -279,9 +287,15 @@ const VideoQuickActions = ( {
 				privacySetting={ privacySetting }
 				isUpdatingPrivacy={ isUpdatingPrivacy }
 				description={ __( 'Update privacy', 'jetpack-videopress-pkg' ) }
+				disabled={ ! canPerformAction }
 			/>
 
-			<ActionItem icon={ trash } className={ styles.trash } onClick={ onDeleteVideo }>
+			<ActionItem
+				icon={ trash }
+				className={ styles.trash }
+				onClick={ onDeleteVideo }
+				disabled={ ! canPerformAction }
+			>
 				{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
 			</ActionItem>
 		</div>

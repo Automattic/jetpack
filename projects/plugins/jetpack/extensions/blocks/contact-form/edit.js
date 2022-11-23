@@ -4,12 +4,14 @@ import {
 	InspectorControls,
 	URLInput,
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
+	Button,
 	ExternalLink,
-	Flex,
+	Modal,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
@@ -17,7 +19,7 @@ import {
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
@@ -27,6 +29,9 @@ import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
+import SalesforceLeadFormSettings, {
+	salesforceLeadFormVariation,
+} from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
@@ -75,11 +80,21 @@ export function JetpackContactFormEdit( {
 		customThankyouRedirect,
 		jetpackCRM,
 		formTitle,
+		salesforceData,
 	} = attributes;
+
+	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
 	const formClassnames = classnames( className, 'jetpack-contact-form', {
 		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 	} );
+	const isSalesForceExtensionEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
+		'contact-form/salesforce-lead-form'
+	];
+
+	if ( isSalesForceExtensionEnabled ) {
+		variations = [ ...variations, salesforceLeadFormVariation ];
+	}
 
 	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
@@ -186,14 +201,32 @@ export function JetpackContactFormEdit( {
 						setVariation( nextVariation );
 					} }
 				/>
-				<Flex>
-					<ExternalLink className="form-placeholder__external-link" href={ CUSTOMIZING_FORMS_URL }>
-						{ __( 'Learn more about customizing forms.', 'jetpack' ) }
-					</ExternalLink>
-					<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
-						{ __( 'View and export your form responses here.', 'jetpack' ) }
-					</ExternalLink>
-				</Flex>
+				<div className="form-placeholder__footer">
+					<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
+						{ __( 'Explore Form Patterns', 'jetpack' ) }
+					</Button>
+					<div className="form-placeholder__footer-links">
+						<ExternalLink
+							className="form-placeholder__external-link"
+							href={ CUSTOMIZING_FORMS_URL }
+						>
+							{ __( 'Learn more about customizing forms.', 'jetpack' ) }
+						</ExternalLink>
+						<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
+							{ __( 'View and export your form responses here.', 'jetpack' ) }
+						</ExternalLink>
+					</div>
+				</div>
+				{ isPatternsModalOpen && (
+					<Modal
+						className="form-placeholder__patterns-modal"
+						title={ __( 'Choose a pattern', 'jetpack' ) }
+						closeLabel={ __( 'Cancel', 'jetpack' ) }
+						onRequestClose={ () => setIsPatternsModalOpen( false ) }
+					>
+						<BlockPatternSetup blockName={ 'jetpack/contact-form' } clientId={ clientId } />
+					</Modal>
+				) }
 			</div>
 		);
 	};
@@ -220,6 +253,14 @@ export function JetpackContactFormEdit( {
 						setAttributes={ setAttributes }
 					/>
 				</PanelBody>
+
+				{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
+					<SalesforceLeadFormSettings
+						salesforceData={ salesforceData }
+						setAttributes={ setAttributes }
+						instanceId={ instanceId }
+					/>
+				) }
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (

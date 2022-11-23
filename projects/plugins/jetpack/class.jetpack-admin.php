@@ -126,7 +126,7 @@ class Jetpack_Admin {
 	/**
 	 * Handle our Additional CSS menu item and legacy page declaration.
 	 *
-	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php.
+	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php (now custom-css.php).
 	 */
 	public static function additional_css_menu() {
 
@@ -154,7 +154,7 @@ class Jetpack_Admin {
 	 * Handle the redirect for the customizer.  This is necessary because
 	 * we can't directly add customizer links to the admin menu.
 	 *
-	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php.
+	 * @since 11.0 . Prior to that, this function was located in custom-css-4.7.php (now custom-css.php).
 	 *
 	 * There is a core patch in trac that would make this unnecessary.
 	 *

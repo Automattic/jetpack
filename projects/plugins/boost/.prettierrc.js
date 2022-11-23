@@ -4,5 +4,4 @@ module.exports = {
 	svelteStrictMode: false,
 	svelteBracketNewLine: true,
 	svelteIndentScriptAndStyle: true,
-	svelteSortOrder: 'options-scripts-styles-markup',
 };
