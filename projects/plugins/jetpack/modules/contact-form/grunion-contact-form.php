@@ -954,7 +954,7 @@ class Grunion_Contact_Form_Plugin {
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
-			echo '<h3>' . esc_html__( 'Message Sent', 'jetpack' ) . '</h3>' . wp_kses(
+			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack' ) . '</h4>' . wp_kses(
 				$submission_result,
 				array(
 					'br'         => array(),
@@ -2458,7 +2458,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
-			'customThankyouHeading'  => __( 'Message Sent', 'jetpack' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack' ), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
@@ -2616,11 +2616,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
+			$r       .= '<div class="contact-form-submission">';
 
-			$r_success_message =
-				'<h3>' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
-				' (<a href="' . esc_url( $back_url ) . '">' . esc_html__( 'go back', 'jetpack' ) . '</a>)' .
-				"</h3>\n\n";
+			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack' ) . '</a> </p>';
+
+			$r_success_message .=
+				'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+				"</h4>\n\n";
 
 			// Don't show the feedback details unless the nonce matches
 			if ( $feedback_id && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -2637,6 +2639,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * @param string $r_success_message Success message.
 			 */
 			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
+			$r .= '</div>';
 		} else {
 			// Nothing special - show the normal contact form
 			if ( $form->get_attribute( 'widget' )
@@ -2766,9 +2769,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<blockquote class="contact-form-submission">'
-			. '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>'
-			. '</blockquote>';
+			$message = '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
 		}
 
 		return wp_kses(
@@ -2777,6 +2778,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'br'         => array(),
 				'blockquote' => array( 'class' => array() ),
 				'p'          => array(),
+				'div'        => array(
+					'class' => array(),
+					'style' => array(),
+				),
 			)
 		);
 	}
@@ -2852,7 +2857,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'], true );
 				$compiled_form[ $field_index ] = sprintf(
-					'<b>%1$s:</b> %2$s<br /><br />',
+					'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
 					self::escape_and_sanitize_field_value( $value )
 				);
@@ -2879,7 +2884,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$label = $field->get_attribute( 'label' );
 
 					$compiled_form[ $field_index ] = sprintf(
-						'<b>%1$s:</b> %2$s<br /><br />',
+						'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
