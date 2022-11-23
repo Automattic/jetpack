@@ -47,6 +47,8 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	privacySetting?: number;
 	allowDownload?: boolean;
 	rating?: string;
+
+	isPrivate?: boolean;
 };
 
 export type VideoBlockSetAttributesProps = ( attributes: VideoBlockAttributes ) => void;
