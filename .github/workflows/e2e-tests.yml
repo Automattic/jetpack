@@ -186,14 +186,17 @@ jobs:
 
     steps:
       - name: Set report context
+        env:
+          DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
         run: |
           REPOSITORY=$GITHUB_REPOSITORY
 
           if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
             BRANCH=$GITHUB_HEAD_REF
           elif [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
-            BRANCH=${{ github.event.client_payload.ref_name }}
-            REPOSITORY=${{ github.event.client_payload.repository }}
+            BRANCH=$DISPATCH_REF_NAME
+            REPOSITORY=$DISPATCH_REPO
           else
             BRANCH=${GITHUB_REF:11}
           fi
@@ -201,14 +204,15 @@ jobs:
           echo "EVENT_TYPE=e2e run $GITHUB_RUN_ID at $GITHUB_EVENT_NAME on $GITHUB_REPOSITORY" >> "$GITHUB_ENV"
           echo "REPOSITORY=$REPOSITORY" >> "$GITHUB_ENV"
           echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
-          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> "$GITHUB_ENV"
-          echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> "$GITHUB_ENV"
 
       - name: Trigger test report workflow
         uses: peter-evans/repository-dispatch@v2
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
-          repository: automattic/jetpack
+          repository: automattic/jetpack-e2e-reports
           event-type: ${{ env.EVENT_TYPE }}
           client-payload: '{"repository": "${{ env.REPOSITORY }}", "branch": "${{ env.BRANCH }}", "pr_title": "${{ env.PR_TITLE }}", "pr_number": "${{ env.PR_NUMBER }}", "run_id": "${{ env.GITHUB_RUN_ID }}"}'
 
