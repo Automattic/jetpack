@@ -1,5 +1,9 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+.videopress-block-tracks-control__track_list__no-tracks {
+	padding: 8px;
+}
+
 // TrackItem
 .videopress-block__track-item {
 	display: flex;
