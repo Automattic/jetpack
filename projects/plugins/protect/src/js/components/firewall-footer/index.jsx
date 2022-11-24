@@ -3,7 +3,6 @@ import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
-import API from '../../api';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
@@ -43,22 +42,17 @@ const StandaloneMode = () => {
 };
 
 const ShareData = () => {
-	const { waf } = useWafData();
-	const { jetpackWafShareData } = waf || {};
-
-	const { refreshWaf } = useDispatch( STORE_ID );
+	const { config, isLoading, toggleShareData } = useWafData();
+	const { jetpackWafShareData } = config || {};
 
 	const [ settings, setSettings ] = useState( {
 		jetpack_waf_share_data: jetpackWafShareData,
 	} );
-	const [ settingsAreUpdating, setSettingsAreUpdating ] = useState( false );
 
-	const toggleShareData = useCallback( () => {
-		setSettingsAreUpdating( true );
-		API.updateWaf( { jetpack_waf_share_data: ! jetpackWafShareData } )
-			.then( refreshWaf )
-			.finally( () => setSettingsAreUpdating( false ) );
-	}, [ refreshWaf, jetpackWafShareData ] );
+	const handleShareDataChange = useCallback( () => {
+		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
+		toggleShareData();
+	}, [ settings, toggleShareData ] );
 
 	useEffect( () => {
 		setSettings( {
@@ -72,8 +66,8 @@ const ShareData = () => {
 			<div className={ styles[ 'footer-checkbox' ] }>
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_data ) }
-					onChange={ toggleShareData }
-					disabled={ settingsAreUpdating }
+					onChange={ handleShareDataChange }
+					disabled={ isLoading }
 				/>
 				<Text>
 					{ __(
