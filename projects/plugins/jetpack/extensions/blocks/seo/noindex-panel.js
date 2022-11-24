@@ -13,7 +13,7 @@ const SeoNoindexPanel = () => {
 
 	return (
 		<CheckboxControl
-			label={ __( 'Hide this page from search engines', 'jetpack' ) }
+			label={ __( 'Hide page from search engines', 'jetpack' ) }
 			help={ __(
 				"If selected, a 'noindex' tag will help instruct search engines to not include this page in search results. This page will also be removed from the Jetpack sitemap.",
 				'jetpack'
