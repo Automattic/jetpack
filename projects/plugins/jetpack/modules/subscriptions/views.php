@@ -410,6 +410,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							placeholder="%3$s"
 							value=""
 							id="%4$s"
+							required
 						/>',
 						( ! empty( $email_field_classes )
 							? 'class="' . esc_attr( $email_field_classes ) . '"'
