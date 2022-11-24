@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	protected $product_id = 1234;
 
 	public function set_up() {
-		parent::setUp();
+		parent::set_up();
 		Jetpack_Subscriptions::init();
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
 		$this->set_up_users();
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	private function set_up_users() {
