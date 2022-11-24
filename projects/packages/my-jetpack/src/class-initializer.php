@@ -240,11 +240,6 @@ class Initializer {
 			$should = false;
 		}
 
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			$should = false;
-		}
-
 		/**
 		 * Allows filtering whether My Jetpack should be initialized.
 		 *
