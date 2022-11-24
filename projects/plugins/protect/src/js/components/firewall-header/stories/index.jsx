@@ -7,6 +7,10 @@ export default {
 };
 
 export const FirewallOn = () => {
+	return <FirewallHeader status={ 'on' } hasRequiredPlan={ false } />;
+};
+
+export const FirewallOnPaid = () => {
 	return <FirewallHeader status={ 'on' } hasRequiredPlan={ true } />;
 };
 
