@@ -74,7 +74,7 @@ function TrackList( { tracks, guid }: TrackListProps ): React.ReactElement {
 			label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
 		>
 			{ tracks.map( ( track: TrackProps, index ) => {
-				return <TrackItem key={ index } track={ track } guid={ guid } />;
+				return <TrackItem key={ `${ track.kind }-${ index }` } track={ track } guid={ guid } />;
 			} ) }
 		</MenuGroup>
 	);
