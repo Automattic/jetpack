@@ -1,22 +1,27 @@
 import type { MeasuredImage } from './types';
 
-type Image = Omit< MeasuredImage, 'scaling' | 'onScreen' >;
+type Image = Omit<MeasuredImage, 'scaling' | 'onScreen'>;
 
-export function measure( images: Image[] ): MeasuredImage[] {
-	return images.map( image => {
-		const { width, height } = image.node.getBoundingClientRect();
+export function measure(images: Image[], dpr = window.devicePixelRatio || 1): MeasuredImage[] {
+	return images.map(image => {
+		const { width: sWidth, height: sHeight } = image.node.getBoundingClientRect();
+		const oversizedBy =
+			// Loaded image pixel count
+			(image.fileSize.width * image.fileSize.height) /
+			// Image size on screen pixel count, multiplied by pixel density
+			(sWidth * dpr * sHeight * dpr);
 
 		return {
 			...image,
+			oversizedBy,
 			onScreen: {
-				width: Math.round( width ),
-				height: Math.round( height ),
+				width: Math.round(sWidth),
+				height: Math.round(sHeight),
 			},
-			scaling: {
-				width: image.fileSize.width / width,
-				height: image.fileSize.height / height,
-				oversizedBy: ( image.fileSize.width * image.fileSize.height ) / ( width * height ),
+			expected: {
+				width: Math.round(sWidth * dpr),
+				height: Math.round(sHeight * dpr),
 			},
 		};
-	} );
+	});
 }

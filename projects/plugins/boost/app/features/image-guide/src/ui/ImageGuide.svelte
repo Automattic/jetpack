@@ -9,9 +9,9 @@
 
 	// Reactive variables because this component can be reused by Svelte.
 	$: imageName = image.url.split( '/' ).pop();
-	$: ratio = image.scaling.oversizedBy.toFixed( 2 );
+	$: ratio = image.oversizedBy.toFixed( 2 );
 	$: potentialSavings = Math.round(
-		image.fileSize.weight - image.fileSize.weight / image.scaling.oversizedBy
+		image.fileSize.weight - image.fileSize.weight / image.oversizedBy
 	);
 
 	const previewWidth = size === 'normal' ? 100 : 50;
@@ -57,7 +57,12 @@
 		</div>
 
 		<div class="row">
-			<div class="label">Image Dimensions on screen</div>
+			<div class="label">Expected Dimensions</div>
+			<div class="value">{image.expected.width} x {image.expected.height}</div>
+		</div>
+
+		<div class="row">
+			<div class="label">Size on screen</div>
 			<div class="value">{image.onScreen.width} x {image.onScreen.height}</div>
 		</div>
 

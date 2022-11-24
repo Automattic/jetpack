@@ -49,7 +49,7 @@
 			{#each images as image, index}
 				<Bubble
 					{index}
-					oversizedBy={image.scaling.oversizedBy}
+					oversizedBy={image.oversizedBy}
 					on:mouseenter={() => ( show = images[ index ] )}
 				/>
 			{/each}
