@@ -1,7 +1,14 @@
 /**
  * External dependencies
  */
-import { NavigableMenu, MenuItem, MenuGroup, ToolbarButton, Dropdown } from '@wordpress/components';
+import {
+	NavigableMenu,
+	MenuItem,
+	MenuGroup,
+	ToolbarButton,
+	Dropdown,
+	Button,
+} from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
@@ -23,8 +30,13 @@ import type React from 'react';
 function TrackItem( { label, kind }: TrackProps ): React.ReactElement {
 	return (
 		<div className="videopress-block__track-item">
-			{ label }
-			<span className="videopress-block__track-item-kind"> ({ kind })</span>
+			<div className="videopress-block__track-item-label">
+				{ label }
+				<span className="videopress-block__track-item-kind"> ({ kind })</span>
+			</div>
+			<Button variant="link" isDestructive>
+				{ __( 'Delete', 'jetpack-videopress-pkg' ) }
+			</Button>
 		</div>
 	);
 }
