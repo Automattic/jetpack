@@ -14,18 +14,9 @@ export const name = 'seo';
 
 export const settings = {
 	render: () => {
-		const generalPanelProps = {
-			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
-		};
-
 		const jetpackSeoPanelProps = {
-			...generalPanelProps,
+			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 			title: __( 'Jetpack SEO', 'jetpack' ),
-		};
-
-		const noindexPanelProps = {
-			...generalPanelProps,
-			title: __( 'SEO Indexing', 'jetpack' ),
 		};
 
 		return (
@@ -38,9 +29,9 @@ export const settings = {
 						<PanelRow>
 							<SeoDescriptionPanel />
 						</PanelRow>
-					</PanelBody>
-					<PanelBody { ...noindexPanelProps }>
-						<SeoNoindexPanel />
+						<PanelRow>
+							<SeoNoindexPanel />
+						</PanelRow>
 					</PanelBody>
 				</JetpackPluginSidebar>
 
@@ -52,10 +43,10 @@ export const settings = {
 						<PanelRow>
 							<SeoDescriptionPanel />
 						</PanelRow>
+						<PanelRow>
+							<SeoNoindexPanel />
+						</PanelRow>
 					</Fragment>
-				</PluginPrePublishPanel>
-				<PluginPrePublishPanel { ...noindexPanelProps }>
-					<SeoNoindexPanel />
 				</PluginPrePublishPanel>
 			</Fragment>
 		);
