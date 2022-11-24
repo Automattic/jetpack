@@ -84,7 +84,7 @@ class Gifting_Banner {
 	 * Get checkout link.
 	 */
 	public function get_checkout_link() {
-		return 'https://wordpress.com/checkout/' . $this->current_plan->product_slug . '/gift/' . $this->current_plan->subscription_id;
+		return 'https://wordpress.com/checkout/' . $this->current_plan->product_slug . '/gift/' . $this->current_plan->subscription_id . '?cancel_to=/home';
 	}
 
 	/**
