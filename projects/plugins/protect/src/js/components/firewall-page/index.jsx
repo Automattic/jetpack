@@ -1,8 +1,7 @@
 import { Button, Col, Container, Text } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import camelize from 'camelize';
 import { useCallback, useEffect, useState } from 'react';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
@@ -14,11 +13,9 @@ import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
 const FirewallPage = () => {
-	const { waf, fetchWaf } = useWafData();
-	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList, moduleIsEnabled } =
-		waf || {};
-	const wafSeen = useSelect( select => select( STORE_ID ).getWafSeen() );
-	const { setWaf, setWafSeen } = useDispatch( STORE_ID );
+	const { config, fetchWaf, isSeen: wafSeen, isEnabled: wafIsEnabled } = useWafData();
+	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
+	const { setWafIsSeen } = useDispatch( STORE_ID );
 
 	const [ settings, setSettings ] = useState( {
 		jetpack_waf_ip_list: jetpackWafIpList,
@@ -34,20 +31,27 @@ const FirewallPage = () => {
 		} ).finally( fetchWaf );
 	}, [ fetchWaf ] );
 
-	const saveChanges = useCallback(
-		newSettings => {
-			setSettings( { ...settings, ...newSettings } );
-			setSettingsAreUpdating( true );
-			apiFetch( {
-				method: 'POST',
-				path: 'jetpack/v4/waf',
-				data: { ...settings, ...newSettings },
-			} )
-				.then( updatedWaf => setWaf( { ...waf, ...camelize( updatedWaf ) } ) )
-				.finally( () => setSettingsAreUpdating( false ) );
-		},
-		[ settings, setWaf, waf ]
-	);
+	const toggleManualRules = useCallback( () => {
+		setSettingsAreUpdating( true );
+		apiFetch( {
+			method: 'POST',
+			path: 'jetpack/v4/waf',
+			data: { jetpack_waf_ip_list: ! jetpackWafIpList },
+		} )
+			.then( fetchWaf )
+			.finally( () => setSettingsAreUpdating( false ) );
+	}, [ fetchWaf, jetpackWafIpList ] );
+
+	const saveChanges = useCallback( () => {
+		setSettingsAreUpdating( true );
+		apiFetch( {
+			method: 'POST',
+			path: 'jetpack/v4/waf',
+			data: settings,
+		} )
+			.then( fetchWaf )
+			.finally( () => setSettingsAreUpdating( false ) );
+	}, [ settings, fetchWaf ] );
 
 	const handleChange = useCallback(
 		event => {
@@ -77,14 +81,14 @@ const FirewallPage = () => {
 		}
 
 		// remove the "new" badge immediately
-		setWafSeen( true );
+		setWafIsSeen( true );
 
 		// update the meta value in the background
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf-seen',
 			method: 'POST',
 		} );
-	}, [ wafSeen, setWafSeen ] );
+	}, [ wafSeen, setWafIsSeen ] );
 
 	return (
 		<AdminPage>
@@ -94,7 +98,7 @@ const FirewallPage = () => {
 					<div className={ styles[ 'toggle-section' ] }>
 						<div>
 							<FormToggle
-								checked={ moduleIsEnabled }
+								checked={ wafIsEnabled }
 								onChange={ toggleWaf }
 								disabled={ settingsAreUpdating }
 							/>
@@ -114,14 +118,14 @@ const FirewallPage = () => {
 							</Text>
 						</div>
 					</div>
-					{ moduleIsEnabled && (
+					{ wafIsEnabled && (
 						<>
 							<div className={ styles[ 'toggle-section' ] }>
 								<div>
 									<FormToggle
 										id="jetpack_waf_ip_list"
 										checked={ Boolean( settings.jetpack_waf_ip_list ) }
-										onChange={ handleChange }
+										onChange={ toggleManualRules }
 										disabled={ settingsAreUpdating }
 									/>
 								</div>

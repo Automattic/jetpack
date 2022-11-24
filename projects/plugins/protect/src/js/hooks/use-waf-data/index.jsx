@@ -5,35 +5,29 @@ import { useCallback, useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 
 const useWafData = () => {
-	const { setWaf, setWafIsFetching } = useDispatch( STORE_ID );
-	const { waf, wafIsFetching } = useSelect( select => ( {
-		waf: select( STORE_ID ).getWaf(),
-		wafIsFetching: select( STORE_ID ).getWafIsFetching(),
-	} ) );
+	const { setWafConfig, setWafIsEnabled, setWafIsLoading } = useDispatch( STORE_ID );
+	const waf = useSelect( select => select( STORE_ID ).getWaf() );
 
 	const fetchWaf = useCallback( () => {
-		setWafIsFetching( true );
+		setWafIsLoading( true );
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf',
 			method: 'GET',
-		} )
-			.then( response => {
-				setWaf( camelize( response.data ) );
-			} )
-			.catch( () => {
-				setWaf( false );
-			} );
-	}, [ setWaf, setWafIsFetching ] );
+		} ).then( response => {
+			response = camelize( response );
+			setWafIsEnabled( response?.isEnabled );
+			setWafConfig( camelize( response?.config ) );
+		} );
+	}, [ setWafConfig, setWafIsEnabled, setWafIsLoading ] );
 
 	useEffect( () => {
-		if ( waf === undefined && ! wafIsFetching ) {
+		if ( waf.config === undefined && ! waf.isFetching ) {
 			fetchWaf();
 		}
-	}, [ fetchWaf, waf, wafIsFetching ] );
+	}, [ waf.config, waf.isFetching, fetchWaf ] );
 
 	return {
-		waf,
-		wafIsFetching,
+		...waf,
 		fetchWaf,
 	};
 };

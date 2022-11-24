@@ -76,7 +76,7 @@ class REST_Controller {
 	 * WAF Endpoint
 	 */
 	public static function waf() {
-		return rest_ensure_response( Waf_Runner::get_settings() );
+		return rest_ensure_response( Waf_Runner::get_config() );
 	}
 
 	/**

@@ -189,8 +189,12 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
-			'waf'               => Waf_Runner::get_settings(),
-			'wafSeen'           => self::get_waf_seen_status(),
+			'waf'               => array(
+				'isSeen'    => self::get_waf_seen_status(),
+				'isEnabled' => Waf_Runner::is_enabled(),
+				'isLoading' => false,
+				'config'    => Waf_Runner::get_config(),
+			),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
@@ -534,21 +538,34 @@ class Jetpack_Protect {
 		return new WP_REST_Response( 'Scan enqueued.' );
 	}
 
+	/**
+	 * Toggles the WAF module on or off for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
 	public static function api_toggle_waf() {
 		if ( Waf_Runner::is_enabled() ) {
-			return Waf_Runner::disable();
+			Waf_Runner::disable();
+			return rest_ensure_response( true, 200 );
 		}
 
-		return Waf_Runner::enable();
+		Waf_Runner::enable();
+		return rest_ensure_response( true, 200 );
 	}
 
 	/**
 	 * Get WAF data for the API endpoint
 	 *
-	 * @return bool Whether the current user has viewed the WAF screen.
+	 * @return WP_Rest_Response
 	 */
 	public static function api_get_waf() {
-		return new WP_REST_Response( Waf_Runner::get_settings() );
+		return new WP_REST_Response(
+			array(
+				'is_seen'    => self::get_waf_seen_status(),
+				'is_enabled' => Waf_Runner::is_enabled(),
+				'config'     => Waf_Runner::get_config(),
+			)
+		);
 	}
 
 	/**

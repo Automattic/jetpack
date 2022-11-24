@@ -20,9 +20,11 @@ const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
 const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
-const SET_WAF_SEEN = 'SET_WAF_SEEN';
-const SET_WAF_IS_FETCHING = 'SET_WAF_IS_FETCHING';
-const SET_WAF = 'SET_WAF';
+
+const SET_WAF_IS_SEEN = 'SET_WAF_IS_SEEN';
+const SET_WAF_IS_ENABLED = 'SET_WAF_IS_ENABLED';
+const SET_WAF_IS_LOADING = 'SET_WAF_IS_LOADING';
+const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -356,16 +358,20 @@ const setHasRequiredPlan = hasRequiredPlan => {
 	return { type: SET_HAS_REQUIRED_PLAN, hasRequiredPlan };
 };
 
-const setWafSeen = seen => {
-	return { type: SET_WAF_SEEN, seen };
+const setWafIsEnabled = isEnabled => {
+	return { type: SET_WAF_IS_ENABLED, isEnabled };
 };
 
-const setWafIsFetching = isFetching => {
-	return { type: SET_WAF_IS_FETCHING, isFetching };
+const setWafIsSeen = isSeen => {
+	return { type: SET_WAF_IS_SEEN, isSeen };
 };
 
-const setWaf = waf => {
-	return { type: SET_WAF, waf };
+const setWafIsLoading = isLoading => {
+	return { type: SET_WAF_IS_LOADING, isLoading };
+};
+
+const setWafConfig = config => {
+	return { type: SET_WAF_CONFIG, config };
 };
 
 const actions = {
@@ -392,9 +398,10 @@ const actions = {
 	refreshPlan,
 	setHasRequiredPlan,
 	setScanIsUnavailable,
-	setWafSeen,
-	setWafIsFetching,
-	setWaf,
+	setWafIsEnabled,
+	setWafIsSeen,
+	setWafIsLoading,
+	setWafConfig,
 };
 
 export {
@@ -416,8 +423,9 @@ export {
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
-	SET_WAF_SEEN,
-	SET_WAF_IS_FETCHING,
-	SET_WAF,
+	SET_WAF_IS_SEEN,
+	SET_WAF_IS_ENABLED,
+	SET_WAF_IS_LOADING,
+	SET_WAF_CONFIG,
 	actions as default,
 };

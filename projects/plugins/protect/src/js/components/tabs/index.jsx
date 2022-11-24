@@ -13,7 +13,6 @@ export const Tab = ( { label, link } ) => {
 			className={ ( { isActive } ) =>
 				isActive ? `${ styles.tab } ${ styles[ 'tab--active' ] }` : styles.tab
 			}
-			activeClassName={ styles[ 'tab--active' ] }
 		>
 			{ label }
 		</NavLink>

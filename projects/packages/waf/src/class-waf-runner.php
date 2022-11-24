@@ -150,23 +150,19 @@ class Waf_Runner {
 		return ( new Modules() )->deactivate( self::WAF_MODULE_NAME );
 	}
 
-	public static function get_options() {
+	/**
+	 * Get Config
+	 *
+	 * @return array The WAF settings and current configuration data.
+	 */
+	public static function get_config() {
 		return array(
 			self::IP_LISTS_ENABLED_OPTION_NAME => get_option( self::IP_LISTS_ENABLED_OPTION_NAME ),
 			self::IP_ALLOW_LIST_OPTION_NAME    => get_option( self::IP_ALLOW_LIST_OPTION_NAME ),
 			self::IP_BLOCK_LIST_OPTION_NAME    => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME       => get_option( self::SHARE_DATA_OPTION_NAME ),
-		);
-	}
-
-	public static function get_settings() {
-		return array_merge(
-			self::get_options(),
-			array(
-				'moduleIsEnabled' => self::is_enabled(),
-				'bootstrapPath'   => self::get_bootstrap_file_path(),
-				'hasRulesAccess'  => self::has_rules_access(),
-			)
+			'bootstrap_path'                   => self::get_bootstrap_file_path(),
+			'has_rules_access'                 => self::has_rules_access(),
 		);
 	}
 
