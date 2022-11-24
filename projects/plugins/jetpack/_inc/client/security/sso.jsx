@@ -102,8 +102,7 @@ export const SSO = withModuleSettingsFormHelpers(
 								onChange={ this.handleMatchByEmailToggleChange }
 							>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Match accounts using email addresses', 'jetpack' ) } (
-									{ this.state.jetpack_sso_match_by_email ? 'yes1' : 'no2' })
+									{ __( 'Match accounts using email addresses', 'jetpack' ) } 
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
