@@ -1,5 +1,5 @@
 === Jetpack VideoPress  ===
-Contributors: automattic, retrofox, oskosk, dhasilva, renatoagds, lhkowalski, nunyvega, leogermani
+Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
 Requires at least: 6.0
@@ -73,7 +73,27 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.0.0 - 2022-10-25
+### 1.1.0-beta - 2022-11-22
+
 #### Added
-- Initial release.
+- Added VideoPress feedback link to the VideoPress block.
+- Added Download, Details, Privacy, Rating and Dimensions panel to block.
+- Added rating control to the block's admin page details panel.
+- Added file drop support also after first video on admin page.
+- Added thumbnail selection from video frame on quick action and in edit details view for the admin page.
+
+#### Changed
+
+- Updated Color Panel on block.
+- Allowed keyboard navigation on video quick actions.
+- Renamed "Match video title" setting for "Dynamic color" in block settings panel.
+
+#### Fixed
+
+- Fixed recognition of Jetpack Complete plan.
+- Fixed issue when setting video privacy.
+- Introduced a static list of video extensions allowed on VideoPress.
+- Mitigated video re-rendering flicker.
+- Fixed an issue with private VideoPress videos timing out when script loading is delayed.
+- Added Site Settings section for controlling site-wide privacy for videos.
 

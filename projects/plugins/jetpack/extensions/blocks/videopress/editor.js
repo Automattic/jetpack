@@ -74,9 +74,11 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 			handleUpload: false,
 			disableDropZone: true,
 			onSelect: selected => {
-				if ( selected instanceof FileList ) {
+				if ( undefined !== selected.length ) {
+					// Browser file upload
 					onFilesSelected( selected );
 				} else {
+					// WP Media Library item selected
 					onMediaItemSelected( selected );
 				}
 			},

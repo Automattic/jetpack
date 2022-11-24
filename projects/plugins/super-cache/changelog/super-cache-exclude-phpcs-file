@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Added .phpcs.dir.xml git attributes to exclude it from production builds
+
+

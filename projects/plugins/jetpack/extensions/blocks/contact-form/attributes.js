@@ -13,7 +13,7 @@ export default {
 	},
 	customThankyouHeading: {
 		type: 'string',
-		default: __( 'Message Sent', 'jetpack' ),
+		default: __( 'Your message has been sent', 'jetpack' ),
 	},
 	customThankyouMessage: {
 		type: 'string',
@@ -30,5 +30,14 @@ export default {
 	formTitle: {
 		type: 'string',
 		default: '',
+	},
+	// salesforce integration: these don't make sense except on the variation.
+	// needed to persist in order show editor options and backend submit process
+	salesforceData: {
+		type: 'object',
+		default: {
+			organizationId: '',
+			sendToSalesforce: false,
+		},
 	},
 };

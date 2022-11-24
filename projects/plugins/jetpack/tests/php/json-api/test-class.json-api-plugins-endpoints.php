@@ -2,8 +2,8 @@
 
 use Automattic\Jetpack\Constants;
 
-require_jetpack_file( 'class.json-api.php' );
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 	private static $super_admin_user_id;

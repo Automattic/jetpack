@@ -7,12 +7,16 @@
 			"subject": "Your lasagne order",
 			"to": "test@example.com",
 			"customThankyou": "message",
-			"customThankyouHeading": "Message Sent",
+			"customThankyouHeading": "Your message has been sent",
 			"customThankyouMessage": "Thanks for speaking our linguine!",
 			"customThankyouRedirect": "",
 			"formTitle": "",
 			"jetpackCRM": true,
-			"className": "noodles"
+			"className": "noodles",
+			"salesforceData": {
+				"organizationId": "",
+				"sendToSalesforce": false
+			}
 		},
 		"innerBlocks": [],
 		"originalContent": ""

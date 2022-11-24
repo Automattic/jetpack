@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/google-analytics/wp-google-analytics.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/google-analytics/wp-google-analytics.php';
 
 /**
  * Class WP_Test_Jetpack_Google_Analytics.

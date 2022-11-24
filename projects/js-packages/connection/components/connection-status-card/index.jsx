@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { STORE_ID } from '../../state/store';
 import ConnectUser from '../connect-user';
-import DisconnectDialog from '../disconnect-dialog';
+import ManageConnectionDialog from '../manage-connection-dialog';
 import useConnection from '../use-connection';
 import './style.scss';
 
@@ -48,7 +48,7 @@ const ConnectionStatusCard = props => {
 		}
 	}, [ avatar ] );
 
-	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
+	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
 	const userIsConnecting = useSelect( select => select( STORE_ID ).getUserIsConnecting(), [] );
 	const { setConnectionStatus, setUserIsConnecting } = useDispatch( STORE_ID );
 	const handleConnectUser = onConnectUser || setUserIsConnecting;
@@ -62,25 +62,25 @@ const ConnectionStatusCard = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	/**
-	 * Open the Disconnect Dialog.
+	 * Open the Manage Connection Dialog.
 	 */
-	const openDisconnectDialog = useCallback(
+	const openManageConnectionDialog = useCallback(
 		e => {
 			e && e.preventDefault();
-			setIsDisconnectDialogOpen( true );
+			setIsManageConnectionDialogOpen( true );
 		},
-		[ setIsDisconnectDialogOpen ]
+		[ setIsManageConnectionDialogOpen ]
 	);
 
 	/**
-	 * Close the Disconnect Dialog.
+	 * Close the Manage Connection Dialog.
 	 */
-	const closeDisconnectDialog = useCallback(
+	const closeManageConnectionDialog = useCallback(
 		e => {
 			e && e.preventDefault();
-			setIsDisconnectDialogOpen( false );
+			setIsManageConnectionDialogOpen( false );
 		},
-		[ setIsDisconnectDialogOpen ]
+		[ setIsManageConnectionDialogOpen ]
 	);
 
 	const onDisconnectedCallback = useCallback(
@@ -125,20 +125,20 @@ const ConnectionStatusCard = props => {
 					<Button
 						variant="link"
 						weight="regular"
-						onClick={ openDisconnectDialog }
-						className="jp-connection__disconnect-dialog__link"
+						onClick={ openManageConnectionDialog }
+						className="jp-connection-status-card--btn-manage-connection"
 					>
-						{ __( 'Disconnect', 'jetpack' ) }
+						{ __( 'Manage', 'jetpack' ) }
 					</Button>
-					<DisconnectDialog
+					<ManageConnectionDialog
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnectedCallback }
 						connectedPlugins={ connectedPlugins }
 						connectedSiteId={ connectedSiteId }
 						connectedUser={ userConnectionData }
-						isOpen={ isDisconnectDialogOpen }
-						onClose={ closeDisconnectDialog }
+						isOpen={ isManageConnectionDialogOpen }
+						onClose={ closeManageConnectionDialog }
 						context={ context }
 					/>
 				</li>

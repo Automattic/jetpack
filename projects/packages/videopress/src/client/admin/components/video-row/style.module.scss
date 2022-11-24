@@ -5,12 +5,12 @@
 
 	display: flex;
 	align-items: center;
-	padding: calc( var(--spacing-base) * 2 ) var(--spacing-base); // 16px | 8px
-	background-color: var(--jp-white);
-	gap: calc( var(--spacing-base) * 2 ); // 16px
+	padding: calc( var( --spacing-base ) * 2 ) var( --spacing-base ); // 16px | 8px
+	background-color: var( --jp-white );
+	gap: calc( var( --spacing-base ) * 2 ); // 16px
 
 	&.disabled {
-		color: var(--jp-gray-10);
+		color: var( --jp-gray-10 );
 	}
 
 	&:not(.disabled) {
@@ -18,11 +18,25 @@
 	}
 
 	&:hover:not(.disabled),
+	&:focus-within:not(.disabled),
 	&.pressed:not(.disabled) {
-		background-color: var(--jp-gray-0);
+		background-color: var( --jp-gray-0 );
+
+		.stats:not(.mobile-stats) {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.actions {
+			opacity: 1;
+			width: unset;
+			height: unset;
+		}
 	}
 
-	&:focus {
+	&:focus,
+	&:focus-within {
 		outline: 1px solid black;
 	}
 }
@@ -30,7 +44,7 @@
 // CHECKBOX
 
 .checkbox-wrapper-small {
-	height: var(--content-height);
+	height: var( --content-height );
 	align-self: flex-start;
 	display: flex;
 	align-items: center;
@@ -42,7 +56,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: calc( var(--spacing-base) * 2 ); // 16px
+	gap: calc( var( --spacing-base ) * 2 ); // 16px
 	border: none;
 	min-width: 0; // Allows flex to be smaller than the content
 	flex: 1;
@@ -59,10 +73,10 @@
 .info-wrapper {
 	display: flex;
 	align-items: center;
-	gap: calc( var(--spacing-base) * 3 ); // 24px
+	gap: calc( var( --spacing-base ) * 3 ); // 24px
 	min-width: 0; // Allows flex to be smaller than the content
 	position: relative;
-	height: var(--content-height);
+	height: var( --content-height );
 	width: 100%;
 
 	&.small {
@@ -74,11 +88,11 @@
 	--width: 90px;
 	--height: 50px;
 
-	max-width: var(--width);
-	min-width: var(--width);
-	max-height: var(--height);
-	min-height: var(--height);
-	border-radius: var(--jp-border-radius);
+	max-width: var( --width );
+	min-width: var( --width );
+	max-height: var( --height );
+	min-height: var( --height );
+	border-radius: var( --jp-border-radius );
 }
 
 .title-wrapper {
@@ -95,9 +109,9 @@
 		opacity: 0;
 		position: absolute;
 		top: -10px;
-		background: var(--jp-yellow-20);
-		padding: 0px var(--spacing-base); // 0 | 8px
-		font-size: var(--font-body-extra-small);
+		background: var( --jp-yellow-20 );
+		padding: 0px var( --spacing-base ); // 0 | 8px
+		font-size: var( --font-body-extra-small );
 		border-radius: 4px;
 		line-height: 20px;
 		transition: opacity .5s;
@@ -122,7 +136,7 @@
 .stats {
 	display: flex;
 	align-items: center;
-	gap: calc( var(--spacing-base) * 3 ); // 24px
+	gap: calc( var( --spacing-base ) * 3 ); // 24px
 
 	& > * {
 		flex: 1;
@@ -138,13 +152,13 @@
 	&.small {
 		flex-direction: column;
 		align-items: flex-start;
-		margin-bottom: var(--spacing-base); // 8px
+		margin-bottom: var( --spacing-base ); // 8px
 		gap: 0;
 
 		& > * {
 			display: flex;
 			width: 100%;
-			margin-bottom: var(--spacing-base); // 8px
+			margin-bottom: var( --spacing-base ); // 8px
 
 			& > * {
 				flex: 1;
@@ -157,8 +171,11 @@
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
-	gap: calc( var(--spacing-base) * 3 ); // 24px
-	margin-right: calc( var(--spacing-base) * 3 ); // 24px
+	gap: calc( var( --spacing-base ) * 3 ); // 24px
+	margin-right: calc( var( --spacing-base ) * 3 ); // 24px
+	width: 0;
+	height: 0;
+	opacity: 0;
 }
 
 .mobile-actions {
