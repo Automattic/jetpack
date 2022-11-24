@@ -82,6 +82,13 @@ jobs:
         run_id: ${{ github.event.workflow_run.id }}
         path: build-output
 
+    - name: Checkout jetpack-production
+      if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
+      uses: actions/checkout@v3
+      with:
+        repository: Automattic/jetpack-production
+        path: build-output/build/Automattic/jetpack-production
+
     - name: Checkout mirror repo
       if: github.event_name == 'repository_dispatch'
       uses: actions/checkout@v3
