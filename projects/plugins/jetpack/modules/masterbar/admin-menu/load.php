@@ -50,10 +50,23 @@ function get_admin_menu_class() {
 		// DIFM Lite In Progress Atomic Sites. Uses the same menu used for domain-only sites.
 		// Ignore this check if we are in a support session.
 		$is_difm_lite_in_progress = wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
-		$is_support_session       = class_exists( 'WPCOMSH_Support_Session_Detect' ) && WPCOMSH_Support_Session_Detect::is_probably_support_session();
-		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
-			require_once __DIR__ . '/class-domain-only-admin-menu.php';
-			return Domain_Only_Admin_Menu::class;
+		if ( $is_difm_lite_in_progress ) {
+			$is_class_exist = class_exists( 'WPCOMSH_Support_Session_Detect' );
+			if ( $is_class_exist ) {
+				error_log( '=============================> Class exists' );
+				error_log( '=============================> Redirect to detect support' );
+				$is_class_exist && \WPCOMSH_Support_Session_Detect::handle_detection_redirect();
+				error_log( '=============================> Checking cookie' );
+				$is_support_session = $is_class_exist && \WPCOMSH_Support_Session_Detect::is_probably_support_session();
+				if ( ! $is_support_session ) {
+					error_log( '=============================> Not support session' );
+					require_once __DIR__ . '/class-domain-only-admin-menu.php';
+					return Domain_Only_Admin_Menu::class;
+				}
+				error_log( '=============================> IS support session' );
+
+			}
+			error_log( '=============================> Class does not exist' );
 		}
 
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
