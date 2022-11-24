@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
+use Jetpack_Options;
 
 /**
  * Registers the REST routes for Purchases.
@@ -24,6 +26,16 @@ class REST_Purchases {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_current_purchases',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'/refresh-plan-data',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::refresh_plan_data',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -72,5 +84,45 @@ class REST_Purchases {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Refresh plan data.
+	 */
+	public static function refresh_plan_data() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => __( 'site_id_missing', 'jetpack-my-jetpack' ) ) );
+		}
+
+		$args = array( 'headers' => array() );
+
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
+			$secret                    = filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) );
+			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = $body ? json_decode( $body ) : null;
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+			} elseif ( $data && ! empty( $data->error ) ) {
+				$error_info['api_error_code'] = $data->error;
+			}
+
+			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
+		}
+
+		Current_Plan::update_from_sites_response( $response );
 	}
 }
