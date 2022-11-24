@@ -372,6 +372,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 1 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Reading', 'jetpack' ), __( 'Reading', 'jetpack' ), 'manage_options', 'http://calypso.localhost:3000/settings/reading/' . $this->domain, null, 1 );
 	}
 
 	/**
