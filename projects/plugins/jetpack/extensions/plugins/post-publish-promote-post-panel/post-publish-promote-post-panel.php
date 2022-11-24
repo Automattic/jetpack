@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Extensions\PromotePosts;
 
+use Automattic\Jetpack\Connection\Manager;
+
 // Feature name.
 const FEATURE_NAME = 'post-publish-promote-post-panel';
 
@@ -27,6 +29,7 @@ add_filter(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
+
+		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME ) && $isWpcom;
 	}
 );
