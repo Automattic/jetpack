@@ -140,7 +140,7 @@ class Waf_Runner {
 	 * Enables the WAF module on the site.
 	 */
 	public static function enable() {
-		return ( new Modules() )->activate( self::WAF_MODULE_NAME );
+		return ( new Modules() )->activate( self::WAF_MODULE_NAME, false, false );
 	}
 
 	/**
