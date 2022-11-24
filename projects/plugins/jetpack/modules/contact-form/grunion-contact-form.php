@@ -302,8 +302,7 @@ class Grunion_Contact_Form_Plugin {
 
 		// Export to CSV feature
 		if ( is_admin() ) {
-			add_action( 'admin_post_feedback_export', array( $this, 'download_feedback_as_csv' ) );
-			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -1265,54 +1264,17 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Prints the menu
+	 * Prints a dropdown of posts with forms.
+	 *
+	 * @param int $selected_id Currently selected post ID.
+	 * @return void
 	 */
-	public function export_form() {
-		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'export' ) ) {
-			return;
-		}
-
-		// if there aren't any feedbacks, bail out
-		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
-			return;
-		}
+	public static function form_posts_dropdown( $selected_id ) {
 		?>
-
-		<div id="feedback-export" style="display:none">
-			<h2><?php esc_html_e( 'Export responses as CSV', 'jetpack' ); ?></h2>
-			<div class="clear"></div>
-			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="form">
-				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
-
-				<input name="action" value="feedback_export" type="hidden">
-				<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
-				<select name="post">
-					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
-					<?php echo $this->get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
-				</select>
-
-				<br><br>
-				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Download', 'jetpack' ); ?>">
-			</form>
-		</div>
-
-		<?php
-		// There aren't any usable actions in core to output the "export feedback" form in the correct place,
-		// so this inline JS moves it from the top of the page to the bottom.
-		?>
-		<script type='text/javascript'>
-			var menu = document.getElementById( 'feedback-export' ),
-				wrapper = document.getElementsByClassName( 'wrap' )[0];
-			<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
-			wrapper.appendChild(menu);
-			<?php endif; ?>
-			menu.style.display = 'block';
-		</script>
+		<select name="jetpack_form_parent_id">
+			<option value="all"><?php esc_html_e( 'All sources', 'jetpack' ); ?></option>
+			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
+		</select>
 		<?php
 	}
 
@@ -1822,6 +1784,7 @@ class Grunion_Contact_Form_Plugin {
 			'order'            => 'ASC',
 			'fields'           => 'ids',
 			'suppress_filters' => false,
+			'date_query'       => array(),
 		);
 
 		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
@@ -1830,6 +1793,25 @@ class Grunion_Contact_Form_Plugin {
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
 			$filename            = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+		}
+
+		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
+			$args['date_query']['year'] = intval( $_POST['year'] );
+		}
+
+		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
+			$args['date_query']['month'] = intval( $_POST['month'] );
+		}
+
+		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
+			$args['include'] = array_filter(
+				array_map(
+					function ( $selected ) {
+						return intval( $selected );
+					},
+					$_POST['selected'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				)
+			);
 		}
 
 		$feedbacks = get_posts( $args );
@@ -1925,13 +1907,14 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Returns a string of HTML <option> items from an array of posts
 	 *
+	 * @param int $selected_id Currently selected post ID.
 	 * @return string a string of HTML <option> items
 	 */
-	protected function get_feedbacks_as_options() {
+	protected static function get_feedbacks_as_options( $selected_id = 0 ) {
 		$options = '';
 
 		// Get the feedbacks' parents' post IDs
-		$feedbacks = get_posts(
+		$feedbacks  = get_posts(
 			array(
 				'fields'           => 'id=>parent',
 				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
@@ -1940,21 +1923,19 @@ class Grunion_Contact_Form_Plugin {
 				'suppress_filters' => false,
 			)
 		);
-		$parents   = array_unique( array_values( $feedbacks ) );
-
-		$posts = get_posts(
-			array(
-				'orderby'          => 'ID',
-				'posts_per_page'   => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'post_type'        => 'any',
-				'post__in'         => array_values( $parents ),
-				'suppress_filters' => false,
-			)
-		);
+		$parent_ids = array_unique( array_values( $feedbacks ) );
 
 		// creates the string of <option> elements
-		foreach ( $posts as $post ) {
-			$options .= sprintf( '<option value="%s">%s</option>', esc_attr( $post->ID ), esc_html( $post->post_title ) );
+		foreach ( $parent_ids as $parent_id ) {
+			$parent_url = get_permalink( $parent_id );
+			$parsed_url = wp_parse_url( $parent_url );
+
+			$options .= sprintf(
+				'<option value="%s" %s>/%s</option>',
+				esc_attr( $parent_id ),
+				$selected_id === $parent_id ? 'selected' : '',
+				esc_html( basename( $parsed_url['path'] ) )
+			);
 		}
 
 		return $options;
