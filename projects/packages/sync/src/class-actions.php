@@ -1056,8 +1056,8 @@ class Actions {
 		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' );
 		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' );
 		// Retry after locks.
-		delete_option( self::RETRY_AFTER_PREFIX . '_sync' );
-		delete_option( self::RETRY_AFTER_PREFIX . '_full_sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
 		// Dedicated sync lock.
 		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
 		// Queue locks.

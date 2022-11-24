@@ -133,6 +133,10 @@ function grunion_admin_css() {
 .unspam a {
 	color: #D98500;
 }
+
+.post-type-feedback #jetpack-check-feedback-spam {
+	margin-top: 0;
+}
 </style>
 
 	<?php
@@ -463,6 +467,46 @@ function grunion_manage_post_columns( $col, $post_id ) { // phpcs:ignore Variabl
 			grunion_manage_post_column_source( $post );
 			return;
 	}
+}
+
+add_action( 'restrict_manage_posts', 'grunion_source_filter' );
+/**
+ * Add a post filter dropdown at the top of the admin page.
+ *
+ * @return void
+ */
+function grunion_source_filter() {
+	$screen = get_current_screen();
+
+	if ( 'edit-feedback' !== $screen->id ) {
+		return;
+	}
+
+	$parent_id = intval( isset( $_GET['jetpack_form_parent_id'] ) ? $_GET['jetpack_form_parent_id'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	\Grunion_Contact_Form_Plugin::form_posts_dropdown( $parent_id );
+}
+
+add_action( 'pre_get_posts', 'grunion_source_filter_results' );
+/**
+ * Filter feedback posts by parent_id if present.
+ *
+ * @param WP_Query $query Current query.
+ *
+ * @return void
+ */
+function grunion_source_filter_results( $query ) {
+	$parent_id = intval( isset( $_GET['jetpack_form_parent_id'] ) ? $_GET['jetpack_form_parent_id'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( ! $parent_id || $query->query_vars['post_type'] !== 'feedback' ) {
+		return;
+	}
+
+	// Don't apply to the filter dropdown query
+	if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		return;
+	}
+
+	$query->query_vars['post_parent'] = $parent_id;
 }
 
 add_filter( 'post_row_actions', 'grunion_manage_post_row_actions', 10, 2 );
@@ -837,6 +881,43 @@ function grunion_ajax_spam() {
 	exit;
 }
 
+add_action( 'admin_enqueue_scripts', 'grunion_enable_export_button' );
+/**
+ * Add the scripts that will add the "Export" button to the Feedbacks dashboard page.
+ */
+function grunion_enable_export_button() {
+	$screen = get_current_screen();
+
+	// Only add to feedback, only to non-spam view
+	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
+		return;
+	}
+
+	// Add the export feedback button
+	add_action( 'admin_head', 'grunion_export_button' );
+}
+
+/**
+ * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
+ */
+function grunion_enable_spam_recheck() {
+	if ( ! defined( 'AKISMET_VERSION' ) ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+
+	// Only add to feedback, only to non-spam view
+	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
+		return;
+	}
+
+	// Add the actual "Check for Spam" button.
+	add_action( 'admin_head', 'grunion_check_for_spam_button' );
+}
+
+add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
+
 /**
  * Add the JS and CSS necessary for the Feedback admin page to function.
  */
@@ -888,6 +969,158 @@ function grunion_add_admin_scripts() {
 }
 
 add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
+
+/**
+ * Adds the 'Export' button to the feedback dashboard page.
+ *
+ * @return void
+ */
+function grunion_export_button() {
+	$current_screen = get_current_screen();
+	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'export' ) ) {
+		return;
+	}
+
+	// if there aren't any feedbacks, bail out
+	if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+		return;
+	}
+
+	$nonce_name = 'feedback_export_nonce';
+
+	$button_html = get_submit_button(
+		__( 'Export', 'jetpack' ),
+		'primary',
+		'jetpack-export-feedback',
+		false,
+		array(
+			'data-nonce-name' => $nonce_name,
+		)
+	);
+
+	$button_html .= wp_nonce_field( 'feedback_export', $nonce_name, false, false );
+	?>
+	<script type="text/javascript">
+		jQuery( function ( $ ) {
+			$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
+		} );
+	</script>
+	<?php
+}
+
+/**
+ * Add the "Check for Spam" button to the Feedbacks dashboard page.
+ */
+function grunion_check_for_spam_button() {
+	// Nonce name.
+	$nonce_name = 'jetpack_check_feedback_spam_' . (string) get_current_blog_id();
+	// Get HTML for the button.
+	$button_html  = get_submit_button(
+		__( 'Check for Spam', 'jetpack' ),
+		'secondary',
+		'jetpack-check-feedback-spam',
+		false,
+		array(
+			'data-failure-url' => add_query_arg( 'jetpack_check_feedback_spam_error', '1' ), // Refresh the current page and show an error.
+			'data-nonce-name'  => $nonce_name,
+		)
+	);
+	$button_html .= '<span class="jetpack-check-feedback-spam-spinner"></span>';
+	$button_html .= wp_nonce_field( 'grunion_recheck_queue', $nonce_name, false, false );
+
+	// Add the button next to the filter button via js.
+	?>
+	<script type="text/javascript">
+		jQuery( function( $ ) {
+			$( '.tablenav.bottom .bulkactions' ).append( <?php echo wp_json_encode( $button_html ); ?> );
+		} );
+	</script>
+	<?php
+}
+
+/**
+ * Recheck all approved feedbacks for spam.
+ */
+function grunion_recheck_queue() {
+	$blog_id = get_current_blog_id();
+
+	if (
+		empty( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] )
+		|| ! wp_verify_nonce( sanitize_key( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] ), 'grunion_recheck_queue' )
+	) {
+		wp_send_json_error(
+			__( 'You aren’t authorized to do that.', 'jetpack' ),
+			403
+		);
+
+		return;
+	}
+
+	if ( ! current_user_can( 'delete_others_posts' ) ) {
+		wp_send_json_error(
+			__( 'You don’t have permission to do that.', 'jetpack' ),
+			403
+		);
+
+		return;
+	}
+
+	$query = 'post_type=feedback&post_status=publish';
+
+	if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
+		$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
+	}
+
+	$approved_feedbacks = get_posts( $query );
+
+	foreach ( $approved_feedbacks as $feedback ) {
+		$meta = get_post_meta( $feedback->ID, '_feedback_akismet_values', true );
+
+		if ( ! $meta ) {
+			// _feedback_akismet_values is eventually deleted when it's no longer
+			// within a reasonable time period to check the feedback for spam, so
+			// if it's gone, don't attempt a spam recheck.
+			continue;
+		}
+
+		$meta['recheck_reason'] = 'recheck_queue';
+
+		/**
+		 * Filter whether the submitted feedback is considered as spam.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param bool false Is the submitted feedback spam? Default to false.
+		 * @param array $meta Feedack values returned by the Akismet plugin.
+		 */
+		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $meta );
+
+		if ( $is_spam ) {
+			wp_update_post(
+				array(
+					'ID'          => $feedback->ID,
+					'post_status' => 'spam',
+				)
+			);
+			/** This action is already documented in modules/contact-form/admin.php */
+			do_action( 'contact_form_akismet', 'spam', $meta );
+		}
+	}
+
+	wp_send_json(
+		array(
+			'processed' => count( $approved_feedbacks ),
+		)
+	);
+}
+
+add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
 
 /**
  * Delete a number of spam feedbacks via an AJAX request.

@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-It is now considered an error if the mirror repo does not exist.

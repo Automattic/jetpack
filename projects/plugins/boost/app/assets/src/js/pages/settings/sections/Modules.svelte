@@ -2,7 +2,7 @@
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import { modules } from '../../../stores/modules';
+	import { isModuleAvailableStore, modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
 		pollCloudCssStatus,
@@ -22,7 +22,7 @@
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
-
+	const isImageGuideActive = isModuleAvailableStore( 'image-guide' );
 	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
 </script>
 
@@ -106,19 +106,20 @@
 		</p>
 	</Module>
 
-	<div class="settings">
-		<Module slug={'image-guide'}>
-			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
-			<p slot="description">
-				{__(
-					`Detect images that are too large on the site to help you catch images that are too large while you browse the site.`,
-					'jetpack-boost'
-				)}
-			</p>
-		</Module>
-
-		<SuperCacheInfo />
-	</div>
+	{#if $isImageGuideActive}
+		<div class="settings">
+			<Module slug={'image-guide'}>
+				<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+				<p slot="description">
+					{__(
+						`Detect images that are too large on the site to help you catch images that are too large while you browse the site.`,
+						'jetpack-boost'
+					)}
+				</p>
+			</Module>
+		</div>
+	{/if}
+	<SuperCacheInfo />
 </div>
 
 <style lang="scss">

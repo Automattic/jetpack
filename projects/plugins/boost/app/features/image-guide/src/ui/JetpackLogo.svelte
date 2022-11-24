@@ -12,3 +12,11 @@
 		<path d="M52.7 64.1V13.4L26.6 64.1H52.7Z" fill="white" />
 	</svg>
 </div>
+
+<style>
+	div {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+</style>
