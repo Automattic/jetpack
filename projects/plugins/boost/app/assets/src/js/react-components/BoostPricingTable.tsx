@@ -57,6 +57,8 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 		? __( 'First Year Discount', 'jetpack-boost' )
 		: '';
 
+	const isDiscounted = pricing.yearly.priceBefore > pricing.yearly.priceAfter;
+
 	return (
 		<PricingTable
 			title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
@@ -83,7 +85,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 				<PricingTableHeader>
 					<ProductPrice
 						price={ pricing.yearly.priceBefore / 12 }
-						offPrice={ pricing.yearly.priceAfter / 12 }
+						offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
 						currency={ pricing.yearly.currencyCode }
 						hideDiscountLabel={ false }
 						promoLabel={ promoLabel }

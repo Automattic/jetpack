@@ -82,7 +82,7 @@ test.describe( 'Critical CSS module', () => {
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
-		await themesPage.activateTheme( 'twentytwenty' );
+		await themesPage.activateTheme( 'twentytwentytwo' );
 		expect(
 			await themesPage.isElementVisible( 'text=Jetpack Boost - Action Required' )
 		).toBeTruthy();

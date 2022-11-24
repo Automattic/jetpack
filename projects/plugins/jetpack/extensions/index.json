@@ -45,12 +45,19 @@
 	],
 	"beta": [
 		"amazon",
+		"contact-form/salesforce-lead-form",
 		"google-docs-embed",
 		"recipe",
 		"videopress/video",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
+	"experimental": [
+		"anchor-fm",
+		"blogging-prompts",
+		"premium-content",
+		"conversation",
+		"dialogue"
+	],
 	"no-post-editor": [
 		"business-hours",
 		"button",

@@ -34,6 +34,9 @@ export default function addVideoPressVideoChaptersSupport( settings, name ) {
 		description: {
 			type: 'string',
 		},
+		videoChaptersClientId: {
+			type: 'string',
+		},
 	};
 
 	return {

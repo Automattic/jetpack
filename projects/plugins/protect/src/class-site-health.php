@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Protect;
 /**
  * Site_Health.
  *
- * Displays vulnerabilities in WordPress site health page.
+ * Displays threats in WordPress site health page.
  */
 class Site_Health {
 
@@ -50,20 +50,20 @@ class Site_Health {
 	 * @return array
 	 */
 	public static function do_checks() {
-		$total_vuls = Status::get_total_vulnerabilities();
-		$vulns      = Status::get_all_vulnerabilities();
-		$vulns      = array_map(
+		$total_threats = Status::get_total_threats();
+		$threats       = Status::get_all_threats();
+		$threats       = array_map(
 			function ( $v ) {
 				return $v->title;
 			},
-			$vulns
+			$threats
 		);
 
 		/**
-		 * Default, no vulnerabilities found
+		 * Default, no threats found
 		 */
 		$result = array(
-			'label'       => __( 'No known vulnerabilities found', 'jetpack-protect' ),
+			'label'       => __( 'No known threats found', 'jetpack-protect' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => __( 'Security', 'jetpack-protect' ),
@@ -71,25 +71,25 @@ class Site_Health {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'Jetpack Protect did not find any known vulnerabilities in your site. Vulnerabilities can be exploited by hackers and cause harm to your website.', 'jetpack-protect' )
+				__( 'Jetpack Protect did not find any known threats in your site. Threats can be exploited by hackers and cause harm to your website.', 'jetpack-protect' )
 			),
 			'actions'     => '',
 			'test'        => 'jetpack_protect_checks',
 		);
 
 		/**
-		 * If vulnerabilities found.
+		 * If threats found.
 		 */
-		if ( $total_vuls ) {
+		if ( $total_threats ) {
 			$result['status'] = 'critical';
-			/* translators: $d is the number of vulnerabilities found. */
-			$result['label']       = sprintf( _n( 'Your site is affected by %d security vulnerability', 'Your site is affected by %d security vulnerabilities', $total_vuls, 'jetpack-protect' ), $total_vuls );
-			$result['description'] = __( 'Jetpack Protect detected the following security vulnerabilities in your site:', 'jetpack-protect' );
+			/* translators: $d is the number of threats found. */
+			$result['label']       = sprintf( _n( 'Your site is affected by %d security threat', 'Your site is affected by %d security threats', $total_threats, 'jetpack-protect' ), $total_threats );
+			$result['description'] = __( 'Jetpack Protect detected the following security threats in your site:', 'jetpack-protect' );
 
-			foreach ( $vulns as $vuln ) {
+			foreach ( $threats as $threat ) {
 				$result['description'] .= '<p>';
 				$result['description'] .= "<span class='dashicons dashicons-warning' style='color: crimson;'></span> &nbsp";
-				$result['description'] .= wp_kses( $vuln, array( 'a' => array( 'href' => array() ) ) ); // Only allow a href HTML tags.
+				$result['description'] .= wp_kses( $threat, array( 'a' => array( 'href' => array() ) ) ); // Only allow a href HTML tags.
 				$result['description'] .= '</p>';
 			}
 			$result['description'] .= '<p>';

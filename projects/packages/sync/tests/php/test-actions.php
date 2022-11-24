@@ -120,6 +120,35 @@ class Test_Actions extends BaseTestCase {
 	}
 
 	/**
+	 * Tests reset_sync_locks method.
+	 */
+	public function test_reset_sync_locks() {
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync', 'dummy' );
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync', 'dummy' );
+		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue', 'dummy' );
+		// Retry after locks.
+		update_option( Actions::RETRY_AFTER_PREFIX . '_sync', 'dummy' );
+		update_option( Actions::RETRY_AFTER_PREFIX . '_full_sync', 'dummy' );
+		// Dedicated sync lock.
+		\Jetpack_Options::update_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'dummy' );
+		// Queue locks.
+		$sync_queue = new Queue( 'sync' );
+		$this->assertTrue( $sync_queue->lock() );
+		$full_sync_queue = new Queue( 'full_sync' );
+		$this->assertTrue( $full_sync_queue->lock() );
+
+		Actions::reset_sync_locks();
+
+		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' ) );
+		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' ) );
+		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' ) );
+		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . '_sync' ) );
+		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . '_full_sync' ) );
+		$this->assertFalse( $sync_queue->is_locked() );
+		$this->assertFalse( $full_sync_queue->is_locked() );
+	}
+
+	/**
 	 * Intercept jetpack.syncActions XML-RPC request and return 'Jetpack-Dedicated-Sync' header with value 'off'.
 	 *
 	 * @param false  $preempt A preemptive return value of an HTTP request.

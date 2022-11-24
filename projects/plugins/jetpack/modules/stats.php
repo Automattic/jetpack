@@ -22,6 +22,7 @@ use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
 use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
@@ -284,8 +285,15 @@ function stats_admin_menu() {
 		}
 	}
 
-	$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
-	add_action( "load-$hook", 'stats_reports_load' );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! Stats_Options::get_option( 'enable_calypso_stats' ) ) {
+		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
+		add_action( "load-$hook", 'stats_reports_load' );
+	} else {
+		$stats_dashboard = new StatsDashboard();
+		$hook            = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
+		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+	}
 }
 
 /**
@@ -385,7 +393,9 @@ function stats_js_load_page_via_ajax() {
 /* <![CDATA[ */
 if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
-		$.get( document.location.href + '&noheader', function( responseText ) {
+		const loadStatsUrl = new URL( document.location.href );
+		loadStatsUrl.searchParams.append( 'noheader', 1 );
+		$.get( loadStatsUrl.toString(), function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
 			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
