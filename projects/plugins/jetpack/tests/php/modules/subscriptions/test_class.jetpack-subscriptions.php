@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		parent::setUp();
 		Jetpack_Subscriptions::init();
 		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
-		$this->setUpUsers();
+		$this->set_up_users();
 	}
 
 	public function tear_down() {
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	private function setUpUsers() {
+	private function set_up_users() {
 		$this->regular_non_subscriber_id = $this->factory->user->create(
 			array(
 				'user_email' => 'test@example.com',
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		wp_set_current_user( 0 );
 
-		$token_subscription_service = $this->setReturnedToken(
+		$token_subscription_service = $this->set_returned_token(
 			array(
 				'blog_sub'      => 'inactive',
 				'subscriptions' => array(
@@ -133,98 +133,98 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param string|null $status
 	 * @return array
 	 */
-	private function accessUseCase( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date = null, $status = null ) {
+	private function access_use_case( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date = null, $status = null ) {
 		return array( $user_id, $logged, $token_set, $post_access_level, $is_email_sent, $does_user_access_post, $subscription_end_date, $status );
 	}
 
-	public function matrixAccess() {
+	public function matrix_access() {
 		$time_outdated = time() - HOUR_IN_SECONDS;
 
 		return array(
 			// The follow use cases are mainly yot be thourough and probably duplicates some former use cases
 			// Admin
 				// not-logged / no jwt
-			$this->accessUseCase( 'admin_user_id', false, false, '', true, true ),
-			$this->accessUseCase( 'admin_user_id', false, false, 'everybody', true, true ),
-			$this->accessUseCase( 'admin_user_id', false, false, 'subscribers', true, false ),
-			$this->accessUseCase( 'admin_user_id', false, false, 'paid_subscribers', true, false ),
+			$this->access_use_case( 'admin_user_id', false, false, '', true, true ),
+			$this->access_use_case( 'admin_user_id', false, false, 'everybody', true, true ),
+			$this->access_use_case( 'admin_user_id', false, false, 'subscribers', true, false ),
+			$this->access_use_case( 'admin_user_id', false, false, 'paid_subscribers', true, false ),
 			// logged
-			$this->accessUseCase( 'admin_user_id', true, false, '', true, true ),
-			$this->accessUseCase( 'admin_user_id', true, false, 'everybody', true, true ),
-			$this->accessUseCase( 'admin_user_id', true, false, 'subscribers', true, true ),
-			$this->accessUseCase( 'admin_user_id', true, false, 'paid_subscribers', true, true ),
+			$this->access_use_case( 'admin_user_id', true, false, '', true, true ),
+			$this->access_use_case( 'admin_user_id', true, false, 'everybody', true, true ),
+			$this->access_use_case( 'admin_user_id', true, false, 'subscribers', true, true ),
+			$this->access_use_case( 'admin_user_id', true, false, 'paid_subscribers', true, true ),
 			// token set
-			$this->accessUseCase( 'admin_user_id', false, true, '', true, true ),
-			$this->accessUseCase( 'admin_user_id', false, true, 'everybody', true, true ),
+			$this->access_use_case( 'admin_user_id', false, true, '', true, true ),
+			$this->access_use_case( 'admin_user_id', false, true, 'everybody', true, true ),
 			// Skipped as there is no way to know this is admin from the JWT token
 			// $this->accessUseCase( 'admin_user_id', false, true, 'subscribers', true,  true ),
 			// $this->accessUseCase( 'admin_user_id', false, true, 'paid_subscribers', true,  true ),
 
 			// Regular user
 				// not-logged / no jwt
-			$this->accessUseCase( 'regular_non_subscriber_id', false, false, '', false, true ),
-			$this->accessUseCase( 'regular_non_subscriber_id', false, false, 'everybody', false, true ),
-			$this->accessUseCase( 'regular_non_subscriber_id', false, false, 'subscribers', false, false ),
-			$this->accessUseCase( 'regular_non_subscriber_id', false, false, 'paid_subscribers', false, false ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, false, '', false, true ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, false, 'everybody', false, true ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, false, 'subscribers', false, false ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, false, 'paid_subscribers', false, false ),
 			// logged
-			$this->accessUseCase( 'regular_non_subscriber_id', true, false, '', false, true ),
-			$this->accessUseCase( 'regular_non_subscriber_id', true, false, 'everybody', false, true ),
-			$this->accessUseCase( 'regular_non_subscriber_id', true, false, 'subscribers', false, false ),
-			$this->accessUseCase( 'regular_non_subscriber_id', true, false, 'paid_subscribers', false, false ),
+			$this->access_use_case( 'regular_non_subscriber_id', true, false, '', false, true ),
+			$this->access_use_case( 'regular_non_subscriber_id', true, false, 'everybody', false, true ),
+			$this->access_use_case( 'regular_non_subscriber_id', true, false, 'subscribers', false, false ),
+			$this->access_use_case( 'regular_non_subscriber_id', true, false, 'paid_subscribers', false, false ),
 			// token set
-			$this->accessUseCase( 'regular_non_subscriber_id', false, true, '', false, true ),
-			$this->accessUseCase( 'regular_non_subscriber_id', false, true, 'everybody', false, true ),
-			$this->accessUseCase( 'regular_non_subscriber_id', false, true, 'subscribers', false, false ),
-			$this->accessUseCase( 'regular_non_subscriber_id', false, true, 'paid_subscribers', false, false ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, true, '', false, true ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, true, 'everybody', false, true ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, true, 'subscribers', false, false ),
+			$this->access_use_case( 'regular_non_subscriber_id', false, true, 'paid_subscribers', false, false ),
 
 			// Subscriber user
 				// not-logged / no jwt
-			$this->accessUseCase( 'regular_subscriber_id', false, false, '', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', false, false, 'everybody', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', false, false, 'subscribers', true, false ),
-			$this->accessUseCase( 'regular_subscriber_id', false, false, 'paid_subscribers', false, false ),
+			$this->access_use_case( 'regular_subscriber_id', false, false, '', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', false, false, 'everybody', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', false, false, 'subscribers', true, false ),
+			$this->access_use_case( 'regular_subscriber_id', false, false, 'paid_subscribers', false, false ),
 			// logged
-			$this->accessUseCase( 'regular_subscriber_id', true, false, '', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', true, false, 'everybody', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', true, false, 'subscribers', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', true, false, 'paid_subscribers', false, false ),
+			$this->access_use_case( 'regular_subscriber_id', true, false, '', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', true, false, 'everybody', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', true, false, 'subscribers', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', true, false, 'paid_subscribers', false, false ),
 			// token set
-			$this->accessUseCase( 'regular_subscriber_id', false, true, '', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', false, true, 'everybody', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', false, true, 'subscribers', true, true ),
-			$this->accessUseCase( 'regular_subscriber_id', false, true, 'paid_subscribers', false, false ),
+			$this->access_use_case( 'regular_subscriber_id', false, true, '', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', false, true, 'everybody', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', false, true, 'subscribers', true, true ),
+			$this->access_use_case( 'regular_subscriber_id', false, true, 'paid_subscribers', false, false ),
 
 			// Paid Subscriber user
 				// not-logged / no jwt
-			$this->accessUseCase( 'paid_subscriber_id', false, false, '', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', false, false, 'everybody', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', false, false, 'subscribers', true, false ),
-			$this->accessUseCase( 'paid_subscriber_id', false, false, 'paid_subscribers', true, false ),
+			$this->access_use_case( 'paid_subscriber_id', false, false, '', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, false, 'everybody', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, false, 'subscribers', true, false ),
+			$this->access_use_case( 'paid_subscriber_id', false, false, 'paid_subscribers', true, false ),
 			// logged
-			$this->accessUseCase( 'paid_subscriber_id', true, false, '', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'everybody', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'subscribers', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'paid_subscribers', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, '', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'everybody', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'subscribers', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'paid_subscribers', true, true ),
 			// token set
-			$this->accessUseCase( 'paid_subscriber_id', false, true, '', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', false, true, 'everybody', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', false, true, 'subscribers', true, true ),
-			$this->accessUseCase( 'paid_subscriber_id', false, true, 'paid_subscribers', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, '', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'everybody', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'subscribers', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', true, true ),
 
 			// Outdated paid subscription --  only matters for 'paid_subscribers' post - they are treated as normal "subscribers"
 				// loggued
-			$this->accessUseCase( 'paid_subscriber_id', true, false, '', true, true, $time_outdated ),
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'everybody', true, true, $time_outdated ),
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'subscribers', true, true, $time_outdated ),
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'paid_subscribers', false, false, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, '', true, true, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'everybody', true, true, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'subscribers', true, true, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'paid_subscribers', false, false, $time_outdated ),
 			// token
-			$this->accessUseCase( 'paid_subscriber_id', true, false, '', true, true, $time_outdated ),
-			$this->accessUseCase( 'paid_subscriber_id', false, true, 'everybody', true, true, $time_outdated ),
-			$this->accessUseCase( 'paid_subscriber_id', false, true, 'subscribers', true, true, $time_outdated ),
-			$this->accessUseCase( 'paid_subscriber_id', false, true, 'paid_subscribers', false, false, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, '', true, true, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'everybody', true, true, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'subscribers', true, true, $time_outdated ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', false, false, $time_outdated ),
 
 			// inactive subscription status
-			$this->accessUseCase( 'paid_subscriber_id', true, false, 'paid_subscribers', false, false, null, 'inactive' ),
+			$this->access_use_case( 'paid_subscriber_id', true, false, 'paid_subscribers', false, false, null, 'inactive' ),
 
 		);
 	}
@@ -235,7 +235,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param array $payload
 	 * @return mixed
 	 */
-	private function setReturnedToken( $payload ) {
+	private function set_returned_token( $payload ) {
 		// We remove anything else
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		$service       = new WPCOM_Token_Subscription_Service();
@@ -251,7 +251,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param int  $subscription_end_date
 	 * @return array
 	 */
-	private function getPayload( $is_subscribed, $is_paid_subscriber, $subscription_end_date, $status ) {
+	private function get_payload( $is_subscribed, $is_paid_subscriber, $subscription_end_date, $status ) {
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
 			$this->product_id => array(
 				'status'     => $status ? $status : 'active',
@@ -269,9 +269,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * Test the whole matrix access
 	 *
-	 * @dataProvider matrixAccess
+	 * @dataProvider matrix_access
 	 */
-	public function testSubscriberAccessLevel( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
+	public function test_subscriber_access_level( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
 		} else {
@@ -280,7 +280,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		$is_blog_subscriber = $user_id === $this->paid_subscriber_id || $user_id === $this->regular_subscriber_id;
 		$is_paid_subscriber = $user_id === $this->paid_subscriber_id;
-		$payload            = $this->getPayload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date, $status );
+		$payload            = $this->get_payload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date, $status );
 
 		$post_id = $this->setup_jetpack_paid_newsletters();
 		$this->setReturnedSubscriptions( $payload );
@@ -301,7 +301,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		}
 
 		if ( $token_set ) {
-			$this->setReturnedToken( $payload );
+			$this->set_returned_token( $payload );
 			$online_subscription_service = new WPCOM_Token_Subscription_Service();
 			$result                      = $online_subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level );
 		} else {
