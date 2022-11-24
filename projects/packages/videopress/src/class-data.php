@@ -38,6 +38,17 @@ class Data {
 	}
 
 	/**
+	 * Gets the VideoPress Settings.
+	 *
+	 * @return array The settings as an associative array.
+	 */
+	public static function get_videopress_settings() {
+		return array(
+			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
+		);
+	}
+
+	/**
 	 * Gets the video data
 	 *
 	 * @param boolean $is_videopress - True when getting VideoPress data.
