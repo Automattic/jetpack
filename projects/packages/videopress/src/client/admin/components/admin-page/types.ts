@@ -1,4 +1,8 @@
-import { productOriginalProps, siteProductOriginalProps } from '../../hooks/use-plan/types';
+import {
+	productOriginalProps,
+	ProductPriceOriginalProps,
+	siteProductOriginalProps,
+} from '../../hooks/use-plan/types';
 import { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
@@ -17,6 +21,7 @@ declare global {
 			};
 			siteProductData: siteProductOriginalProps;
 			productData?: productOriginalProps;
+			productPrice?: ProductPriceOriginalProps;
 			adminUrl: string;
 			adminUri: string;
 			siteSuffix: string;

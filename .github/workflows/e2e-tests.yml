@@ -8,8 +8,6 @@ on:
     branches: [ 'trunk', '*/branch-*' ]
     paths-ignore:
     - '**.md'
-  schedule:
-    - cron: '0 */12 * * *' # gutenberg run, every 12 hours - if you update this, also update it in .github/files/e2e-tests/create-e2e-projects-matrix.sh
   workflow_run:
     types: [completed]
     workflows: ["Build"]
@@ -156,6 +154,7 @@ jobs:
         pnpm run test:run "${TEST_ARGS[@]}"
 
     - name: Write report metadata
+      if: ${{ always() }}
       env:
         SUITE: ${{ matrix.suite }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
