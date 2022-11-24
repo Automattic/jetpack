@@ -55,8 +55,10 @@ async function getLatestVersion() {
 	const response = await fetch( 'https://betadownload.jetpack.me/jetpack-branches.json' );
 	const manifest = await response.json();
 
-	if ( type === 'rc' || type === 'trunk' || type === 'master' ) {
+	if ( type === 'rc' || type === 'master' ) {
 		return manifest[ type ].version;
+	} else if ( type === 'trunk' ) {
+		return manifest.master.version;
 	}
 	return manifest.pr.type.version;
 }
