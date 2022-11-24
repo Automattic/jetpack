@@ -9,3 +9,8 @@ export type UploadTrackDataProps = {
 	kind: trackKindOptionProps;
 	tmpFile: File;
 };
+
+export type DeleteTrackDataProps = {
+	kind: trackKindOptionProps;
+	srcLang: string;
+};
