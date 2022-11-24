@@ -96,7 +96,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 	}, [ tracks, domain ] );
 
 	return (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
 			<Col lg={ 6 } md={ 4 }>
 				<h2>{ __( "Your site's heartbeat", 'jetpack-backup-pkg' ) }</h2>
 				<p>

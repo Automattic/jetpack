@@ -25,7 +25,7 @@ const Backups = () => {
 	const { backupState, latestTime, progress, stats } = useBackupsState();
 
 	return (
-		<div className="jp-wrap jp-content">
+		<div className="jp-wrap jp-content backup-panel">
 			{ BACKUP_STATE.LOADING === backupState && <Loading /> }
 			{ BACKUP_STATE.NO_BACKUPS === backupState && <InProgressBackup progress={ progress } /> }
 			{ BACKUP_STATE.NO_BACKUPS_RETRY === backupState && (

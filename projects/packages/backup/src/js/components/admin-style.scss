@@ -62,6 +62,10 @@
 		&:focus {
 			outline-color: var( --jp-black );
 		}
+
+		svg.components-external-link__icon {
+			margin-left: 4px;
+		}
 	}
 
 	.button {
