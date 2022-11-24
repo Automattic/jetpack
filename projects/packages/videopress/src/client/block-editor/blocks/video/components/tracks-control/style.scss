@@ -1,0 +1,17 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.videopress-block-tracks-control {
+	padding: 8px;
+}
+
+.videopress-block__track-item {
+	line-height: 28px;
+}
+
+.videopress-block-tracks-control__track_list {
+	padding: 8px;
+}
+
+.videopress-block__track-item-kind {
+	color: $gray-700;
+}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { VideoGUID, VideoId } from '../../blocks/video/types';
+import { TrackProps, VideoGUID, VideoId } from '../../blocks/video/types';
 
 export type UseVideoDataArgumentsProps = {
 	id?: VideoId;
@@ -9,20 +9,13 @@ export type UseVideoDataArgumentsProps = {
 	isPrivate?: boolean;
 };
 
-type TrackProps = {
-	src: string;
-	kind: string;
-	srcLang: string;
-	label: string;
-};
-
-export type videoDataProps = {
+export type VideoDataProps = {
 	title?: string;
 	description?: string;
-	tracks: Array< TrackProps >;
+	tracks?: Array< TrackProps >;
 };
 
 export type UseVideoDataProps = {
-	videoData: videoDataProps;
+	videoData: VideoDataProps;
 	isRequestingVideoData: boolean;
 };
