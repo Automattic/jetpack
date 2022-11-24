@@ -21,11 +21,7 @@ import { getSitePlan, siteHasFeature } from 'state/site';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import Textarea from '../components/textarea';
-import {
-	getWafBootstrapPath,
-	getWafHasRulesAccess,
-	isFetchingWafSettings,
-} from '../state/waf/reducer';
+import { getWafBootstrapPath, isFetchingWafSettings } from '../state/waf/reducer';
 
 export const Waf = class extends Component {
 	/**
@@ -307,7 +303,6 @@ export default connect( state => {
 	return {
 		hasScan: siteHasFeature( state, 'scan' ),
 		bootstrapPath: getWafBootstrapPath( state ),
-		hasRulesAccess: getWafHasRulesAccess( state ),
 		isFetchingWafSettings: isFetchingWafSettings( state ),
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		sitePlan,
