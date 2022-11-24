@@ -1,10 +1,9 @@
 import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
 import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import camelize from 'camelize';
 import { useState, useEffect, useCallback } from 'react';
+import API from '../../api';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
@@ -47,7 +46,7 @@ const ShareData = () => {
 	const { waf } = useWafData();
 	const { jetpackWafShareData } = waf || {};
 
-	const { setWaf } = useDispatch( STORE_ID );
+	const { refreshWaf } = useDispatch( STORE_ID );
 
 	const [ settings, setSettings ] = useState( {
 		jetpack_waf_share_data: jetpackWafShareData,
@@ -55,20 +54,11 @@ const ShareData = () => {
 	const [ settingsAreUpdating, setSettingsAreUpdating ] = useState( false );
 
 	const toggleShareData = useCallback( () => {
-		setSettings( {
-			jetpack_waf_share_data: ! jetpackWafShareData,
-		} );
 		setSettingsAreUpdating( true );
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack/v4/waf',
-			data: {
-				jetpack_waf_share_data: ! jetpackWafShareData,
-			},
-		} )
-			.then( updatedWaf => setWaf( { ...waf, ...camelize( updatedWaf ) } ) )
+		API.updateWaf( { jetpack_waf_share_data: ! jetpackWafShareData } )
+			.then( refreshWaf )
 			.finally( () => setSettingsAreUpdating( false ) );
-	}, [ jetpackWafShareData, setWaf, waf ] );
+	}, [ refreshWaf, jetpackWafShareData ] );
 
 	useEffect( () => {
 		setSettings( {
