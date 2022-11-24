@@ -146,7 +146,7 @@ class Dashboard {
 		);
 
 		// Load the style sheet to customize the look of the dashboard in Jetpack.
-		wp_register_style( 'jp-stats-dashboard-style-override', plugins_url( '../assets/style.css', __FILE__ ), array(), filemtime( plugin_dir_path( __FILE__ ) . '../assets/style.css' ) );
+		wp_register_style( 'jp-stats-dashboard-style-override', plugins_url( '../assets/style.css', __FILE__ ), array(), filemtime( __DIR__ . '/../assets/style.css' ) );
 		wp_enqueue_style( 'jp-stats-dashboard-style-override' );
 	}
 
