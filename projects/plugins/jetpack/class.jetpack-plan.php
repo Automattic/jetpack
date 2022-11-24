@@ -47,7 +47,7 @@ class Jetpack_Plan {
 				'whatsapp-button',
 				'social-previews',
 				'videopress',
-				'test-plugin',
+				'launchpad-post-save-modal',
 
 				'core/video',
 				'core/cover',
