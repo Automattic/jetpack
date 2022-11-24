@@ -44,7 +44,7 @@ export default function SearchResultExpanded( props ) {
 								//eslint-disable-next-line react/no-danger
 								dangerouslySetInnerHTML={ { __html: highlight.title } }
 							/>
-							{ fields.resolved === 'yes' && (
+							{ fields[ 'forum.topic_resolved' ] === 'yes' && (
 								<span className="jetpack-instant-search__search-result-title-checkmark" />
 							) }
 						</a>
