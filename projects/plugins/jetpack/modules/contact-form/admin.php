@@ -65,84 +65,15 @@ function grunion_admin_css() {
 	}
 
 	wp_enqueue_script( 'wp-lists' );
-	?>
 
-<style type='text/css'>
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 {
-	display: none
-}
+	wp_register_style( 'grunion-admin.css', plugin_dir_url( __FILE__ ) . 'css/grunion-admin.css', array(), JETPACK__VERSION );
+	wp_style_add_data( 'grunion-admin.css', 'rtl', 'replace' );
 
-.column-feedback_from img {
-	float:left;
-	margin-right:10px;
-	margin-top:3px;
-}
-
-.widefat .column-feedback_from,
-.widefat .column-feedback_date,
-.widefat .column-feedback_source {
-	width: 17%;
-}
-.widefat .column-feedback_response {
-	width: 100%;
-}
-
-.widefat .column-feedback_response::before {
-	display: none !important;
-}
-
-@media screen and (max-width: 782px) {
-	.widefat .column-feedback_response {
-		padding-left: 8px !important;
-	}
-}
-
-.column-feedback_response .feedback_response__item {
-	display: grid;
-	grid-template-columns: 35% 1fr;
-	grid-row-gap: 8px;
-}
-.column-feedback_response .feedback_response__item-key,
-.column-feedback_response .feedback_response__item-value {
-	align-items: flex-start;
-	display: flex;
-	word-break: break-word;
-}
-.column-feedback_response .feedback_response__item-value {
-	font-weight: bold;
-}
-
-.column-feedback_response .feedback_response__mobile-separator {
-	display: block;
-}
-
-@media screen and (min-width: 783px) {
-	.column-feedback_response .feedback_response__mobile-separator {
-		display: none;
-	}
-}
-
-.spam a {
-	color: #BC0B0B;
-}
-
-.untrash a {
-	color: #D98500;
-}
-
-.unspam a {
-	color: #D98500;
-}
-
-.post-type-feedback #jetpack-check-feedback-spam {
-	margin-top: 0;
-}
-</style>
-
-	<?php
+	wp_enqueue_style( 'grunion-admin.css' );
 }
 
 add_action( 'admin_print_scripts', 'grunion_admin_js' );
+
 /**
  * Enqueue scripts.
  *
@@ -155,11 +86,8 @@ function grunion_admin_js() {
 		return;
 	}
 
-	?>
-<script>
-	var __grunionPostStatusNonce = <?php echo wp_json_encode( wp_create_nonce( 'grunion-post-status' ) ); ?>;
-</script>
-	<?php
+	$script = 'var __grunionPostStatusNonce = ' . wp_json_encode( wp_create_nonce( 'grunion-post-status' ) ) . ';';
+	wp_add_inline_script( 'grunion-admin', $script, 'before' );
 }
 
 add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
@@ -1126,7 +1054,7 @@ add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
  * Delete a number of spam feedbacks via an AJAX request.
  */
 function grunion_delete_spam_feedbacks() {
-	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either. 
+	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either.
 		wp_send_json_error(
 			__( 'You aren’t authorized to do that.', 'jetpack' ),
 			403
