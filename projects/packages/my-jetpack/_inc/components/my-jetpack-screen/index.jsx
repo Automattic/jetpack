@@ -13,7 +13,6 @@ import { Icon, warning, info } from '@wordpress/icons';
 import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
@@ -53,13 +52,6 @@ export default function MyJetpackScreen() {
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
-
-	// No render when site is not connected.
-	const { isSiteConnected } = useMyJetpackConnection();
-
-	if ( ! isSiteConnected ) {
-		return null;
-	}
 
 	return (
 		<AdminPage>
