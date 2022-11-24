@@ -469,6 +469,46 @@ function grunion_manage_post_columns( $col, $post_id ) { // phpcs:ignore Variabl
 	}
 }
 
+add_action( 'restrict_manage_posts', 'grunion_source_filter' );
+/**
+ * Add a post filter dropdown at the top of the admin page.
+ *
+ * @return void
+ */
+function grunion_source_filter() {
+	$screen = get_current_screen();
+
+	if ( 'edit-feedback' !== $screen->id ) {
+		return;
+	}
+
+	$parent_id = intval( isset( $_GET['jetpack_form_parent_id'] ) ? $_GET['jetpack_form_parent_id'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	\Grunion_Contact_Form_Plugin::form_posts_dropdown( $parent_id );
+}
+
+add_action( 'pre_get_posts', 'grunion_source_filter_results' );
+/**
+ * Filter feedback posts by parent_id if present.
+ *
+ * @param WP_Query $query Current query.
+ *
+ * @return void
+ */
+function grunion_source_filter_results( $query ) {
+	$parent_id = intval( isset( $_GET['jetpack_form_parent_id'] ) ? $_GET['jetpack_form_parent_id'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( ! $parent_id || $query->query_vars['post_type'] !== 'feedback' ) {
+		return;
+	}
+
+	// Don't apply to the filter dropdown query
+	if ( $query->query_vars['fields'] === 'id=>parent' ) {
+		return;
+	}
+
+	$query->query_vars['post_parent'] = $parent_id;
+}
+
 add_filter( 'post_row_actions', 'grunion_manage_post_row_actions', 10, 2 );
 /**
  * Add actions to feedback response rows in WP Admin.
@@ -841,6 +881,22 @@ function grunion_ajax_spam() {
 	exit;
 }
 
+add_action( 'admin_enqueue_scripts', 'grunion_enable_export_button' );
+/**
+ * Add the scripts that will add the "Export" button to the Feedbacks dashboard page.
+ */
+function grunion_enable_export_button() {
+	$screen = get_current_screen();
+
+	// Only add to feedback, only to non-spam view
+	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
+		return;
+	}
+
+	// Add the export feedback button
+	add_action( 'admin_head', 'grunion_export_button' );
+}
+
 /**
  * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
  */
@@ -913,6 +969,48 @@ function grunion_add_admin_scripts() {
 }
 
 add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
+
+/**
+ * Adds the 'Export' button to the feedback dashboard page.
+ *
+ * @return void
+ */
+function grunion_export_button() {
+	$current_screen = get_current_screen();
+	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'export' ) ) {
+		return;
+	}
+
+	// if there aren't any feedbacks, bail out
+	if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+		return;
+	}
+
+	$nonce_name = 'feedback_export_nonce';
+
+	$button_html = get_submit_button(
+		__( 'Export', 'jetpack' ),
+		'primary',
+		'jetpack-export-feedback',
+		false,
+		array(
+			'data-nonce-name' => $nonce_name,
+		)
+	);
+
+	$button_html .= wp_nonce_field( 'feedback_export', $nonce_name, false, false );
+	?>
+	<script type="text/javascript">
+		jQuery( function ( $ ) {
+			$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
+		} );
+	</script>
+	<?php
+}
 
 /**
  * Add the "Check for Spam" button to the Feedbacks dashboard page.
