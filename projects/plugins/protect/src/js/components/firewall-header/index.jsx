@@ -49,6 +49,39 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
 							</H3>
+							{ ! hasRequiredPlan && (
+								<>
+									<div className={ styles[ 'manual-rules-notice' ] }>
+										<Text weight={ 600 }>
+											{ __( 'Only manual rules will be applied', 'jetpack-protect' ) }
+										</Text>
+										<div
+											className={ styles[ 'icon-popover' ] }
+											onMouseLeave={ handleOut }
+											onMouseEnter={ handleEnter }
+											onClick={ handleEnter }
+											onFocus={ handleEnter }
+											onBlur={ handleOut }
+											role="presentation"
+										>
+											<Icon icon={ help } />
+											{ showPopover && (
+												<Popover noArrow={ false } offset={ 5 }>
+													<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
+														{ __(
+															'The free version of the firewall only allows for use of manual rules.',
+															'jetpack-protect'
+														) }
+													</Text>
+												</Popover>
+											) }
+										</div>
+									</div>
+									<Button onClick={ getScan }>
+										{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
+									</Button>
+								</>
+							) }
 						</>
 					) }
 					{ 'off' === status && (
