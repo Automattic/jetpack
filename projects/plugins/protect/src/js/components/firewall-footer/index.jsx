@@ -81,11 +81,13 @@ const ShareData = () => {
 };
 
 const FirewallFooter = () => {
+	const { isEnabled } = useWafData();
+
 	return (
 		<AdminSectionHero>
 			<SeventyFiveLayout
 				main={ <StandaloneMode /> }
-				secondary={ <ShareData /> }
+				secondary={ isEnabled && <ShareData /> }
 				preserveSecondaryOnMobile={ true }
 			/>
 		</AdminSectionHero>
