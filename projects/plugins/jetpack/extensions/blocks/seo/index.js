@@ -15,6 +15,10 @@ export const name = 'seo';
 export const settings = {
 	render: () => {
 		const jetpackSeoPanelProps = {
+			title: __( 'Jetpack SEO', 'jetpack' ),
+		};
+
+		const jetpackSeoPrePublishPanelProps = {
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 			title: __( 'Jetpack SEO', 'jetpack' ),
 		};
@@ -35,7 +39,7 @@ export const settings = {
 					</PanelBody>
 				</JetpackPluginSidebar>
 
-				<PluginPrePublishPanel { ...jetpackSeoPanelProps }>
+				<PluginPrePublishPanel { ...jetpackSeoPrePublishPanelProps }>
 					<Fragment>
 						<PanelRow>
 							<SeoTitlePanel />
