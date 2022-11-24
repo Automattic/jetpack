@@ -32,14 +32,23 @@
 }
 
 .form-toggle {
+
 	&:checked {
-		+ .form-toggle__switch:after {
+
+		& + .form-toggle__switch:after {
 			left: 22px;
 		}
-	}
 
-	&:checked:not( :disabled ) {
-		+ .form-toggle__switch {
+		&:disabled + .form-toggle__switch {
+			border-color: var( --jp-black );
+			background-color: var( --jp-black );
+
+			&:after {
+				background-color: var( --jp-white );
+			}
+		}
+
+		&:not( :disabled ) + .form-toggle__switch {
 			border-color: var( --jp-green );
 			background-color: var( --jp-green );
 
@@ -47,24 +56,14 @@
 				background-color: var( --jp-white );
 			}
 		}
+
 	}
+
 
 	&:disabled {
 		+ span.form-toggle__switch {
 			opacity: 0.25;
 			cursor: default;
-		}
-	}
-}
-
-// Classes for toggle state before action is complete (updating plugin or something)
-.form-toggle.is-toggling {
-	+ .form-toggle__switch {
-		background: var( --jp-green-30 );
-	}
-	&:checked {
-		+ .form-toggle__switch {
-			background: var( --jp-gray-90 );
 		}
 	}
 }

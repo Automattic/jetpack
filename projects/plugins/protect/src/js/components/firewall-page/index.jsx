@@ -13,15 +13,7 @@ import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
 const FirewallPage = () => {
-	const {
-		config,
-		isSeen,
-		isEnabled,
-		isLoading,
-		toggleWaf,
-		toggleManualRules,
-		updateConfig,
-	} = useWafData();
+	const { config, isSeen, isEnabled, toggleWaf, toggleManualRules, updateConfig } = useWafData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen } = useDispatch( STORE_ID );
 
@@ -31,9 +23,11 @@ const FirewallPage = () => {
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
 	} );
+	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
 
 	const saveChanges = useCallback( () => {
-		updateConfig( settings );
+		setSettingsIsUpdating( true );
+		updateConfig( settings ).finally( () => setSettingsIsUpdating( false ) );
 	}, [ settings, updateConfig ] );
 
 	const handleChange = useCallback(
@@ -45,13 +39,15 @@ const FirewallPage = () => {
 	);
 
 	const handleEnabledChange = useCallback( () => {
+		setSettingsIsUpdating( true );
 		setSettings( { ...settings, module_enabled: ! settings.module_enabled } );
-		toggleWaf();
+		toggleWaf().finally( () => setSettingsIsUpdating( false ) );
 	}, [ settings, toggleWaf ] );
 
 	const handleManualRulesChange = useCallback( () => {
+		setSettingsIsUpdating( true );
 		setSettings( { ...settings, jetpack_waf_ip_list: ! settings.jetpack_waf_ip_list } );
-		toggleManualRules();
+		toggleManualRules().finally( () => setSettingsIsUpdating( false ) );
 	}, [ settings, toggleManualRules ] );
 
 	/**
@@ -91,7 +87,7 @@ const FirewallPage = () => {
 							<FormToggle
 								checked={ settings.module_enabled }
 								onChange={ handleEnabledChange }
-								disabled={ isLoading }
+								disabled={ settingsIsUpdating }
 							/>
 						</div>
 						<div>
@@ -117,7 +113,7 @@ const FirewallPage = () => {
 										id="jetpack_waf_ip_list"
 										checked={ Boolean( settings.jetpack_waf_ip_list ) }
 										onChange={ handleManualRulesChange }
-										disabled={ isLoading }
+										disabled={ settingsIsUpdating }
 									/>
 								</div>
 								<div>
@@ -144,7 +140,7 @@ const FirewallPage = () => {
 											rows={ 3 }
 											value={ settings.jetpack_waf_ip_block_list }
 											onChange={ handleChange }
-											disabled={ isLoading }
+											disabled={ settingsIsUpdating }
 										/>
 									</div>
 									<div className={ styles[ 'manual-rule-section' ] }>
@@ -157,10 +153,14 @@ const FirewallPage = () => {
 											rows={ 3 }
 											value={ settings.jetpack_waf_ip_allow_list }
 											onChange={ handleChange }
-											disabled={ isLoading }
+											disabled={ settingsIsUpdating }
 										/>
 									</div>
-									<Button onClick={ saveChanges } isLoading={ isLoading } disabled={ isLoading }>
+									<Button
+										onClick={ saveChanges }
+										isLoading={ settingsIsUpdating }
+										disabled={ settingsIsUpdating }
+									>
 										{ __( 'Save changes', 'jetpack-protect' ) }
 									</Button>
 								</>
