@@ -1,8 +1,8 @@
 import { Button, Col, Container, Text } from '@automattic/jetpack-components';
-import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
+import API from '../../api';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
@@ -13,7 +13,7 @@ import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
 const FirewallPage = () => {
-	const { config, fetchWaf, isSeen: wafSeen, isEnabled: wafIsEnabled } = useWafData();
+	const { config, isSeen: wafSeen, isEnabled: wafIsEnabled, refreshWaf } = useWafData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen } = useDispatch( STORE_ID );
 
@@ -25,33 +25,22 @@ const FirewallPage = () => {
 	const [ settingsAreUpdating, setSettingsAreUpdating ] = useState( false );
 
 	const toggleWaf = useCallback( () => {
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack-protect/v1/toggle-waf',
-		} ).finally( fetchWaf );
-	}, [ fetchWaf ] );
+		API.toggleWaf().finally( refreshWaf );
+	}, [ refreshWaf ] );
 
 	const toggleManualRules = useCallback( () => {
 		setSettingsAreUpdating( true );
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack/v4/waf',
-			data: { jetpack_waf_ip_list: ! jetpackWafIpList },
-		} )
-			.then( fetchWaf )
+		API.updateWaf( { jetpack_waf_ip_list: ! jetpackWafIpList } )
+			.then( refreshWaf )
 			.finally( () => setSettingsAreUpdating( false ) );
-	}, [ fetchWaf, jetpackWafIpList ] );
+	}, [ refreshWaf, jetpackWafIpList ] );
 
 	const saveChanges = useCallback( () => {
 		setSettingsAreUpdating( true );
-		apiFetch( {
-			method: 'POST',
-			path: 'jetpack/v4/waf',
-			data: settings,
-		} )
-			.then( fetchWaf )
+		API.updateWaf( settings )
+			.then( refreshWaf )
 			.finally( () => setSettingsAreUpdating( false ) );
-	}, [ settings, fetchWaf ] );
+	}, [ settings, refreshWaf ] );
 
 	const handleChange = useCallback(
 		event => {
@@ -84,10 +73,7 @@ const FirewallPage = () => {
 		setWafIsSeen( true );
 
 		// update the meta value in the background
-		apiFetch( {
-			path: 'jetpack-protect/v1/waf-seen',
-			method: 'POST',
-		} );
+		API.wafSeen();
 	}, [ wafSeen, setWafIsSeen ] );
 
 	return (

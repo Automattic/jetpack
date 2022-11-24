@@ -19,7 +19,6 @@ const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
 	const { isSeen: wafSeen } = useWafData();
-	const { setWafIsSeen } = useDispatch( STORE_ID );
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
@@ -41,20 +40,6 @@ const AdminPage = ( { children } ) => {
 			}, 5000 );
 		}
 	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
-
-	/**
-	 * Check whether the WAF tab has been visited before.
-	 */
-	useEffect( () => {
-		if ( wafSeen === undefined ) {
-			apiFetch( {
-				path: 'jetpack-protect/v1/waf-seen',
-				method: 'GET',
-			} ).then( response => {
-				setWafIsSeen( response );
-			} );
-		}
-	}, [ wafSeen, setWafIsSeen ] );
 
 	/*
 	 * Show interstital page when
