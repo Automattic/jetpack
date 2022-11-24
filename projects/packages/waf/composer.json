@@ -4,7 +4,8 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"wikimedia/aho-corasick": "^1.0"
+		"wikimedia/aho-corasick": "^1.0",
+		"automattic/jetpack-plans": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
