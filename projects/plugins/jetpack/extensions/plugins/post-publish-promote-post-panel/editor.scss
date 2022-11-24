@@ -1,0 +1,17 @@
+.post-publish-promote-post-panel {
+	.components-panel__body-toggle {
+		> svg {
+			margin-left: 5px;
+		}
+	}
+
+	.components-panel__row {
+		.components-button {
+			flex-grow: 1;
+			padding: 3px 10px 4px;
+			margin: 5px;
+			justify-content: center;
+			text-align: center;
+		}
+	}
+}
