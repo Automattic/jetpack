@@ -68,7 +68,7 @@ function TrackList( { tracks }: TrackListProps ): React.ReactElement {
 }
 
 /**
- * Poster image control react component.
+ * Tracks control react component.
  *
  * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}      TracksControl block control
