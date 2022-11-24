@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import getMediaToken from '../../../../../lib/get-media-token';
+import getMediaToken from '../get-media-token';
 import { UploadTrackDataProps } from './types';
 
 export const TRACK_KIND_OPTIONS = [
