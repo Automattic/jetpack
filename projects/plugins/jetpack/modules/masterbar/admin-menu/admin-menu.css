@@ -205,6 +205,8 @@
 
 #adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image {
 	background-color: #c3c4c7;
+	height: 32px;
+	width: 32px;
 }
 
 #adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img {
