@@ -265,8 +265,9 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
 	Jetpack_Subscriptions_Widget::$instance_count++;
 
-	$classes = get_element_class_names_from_attributes( $attributes );
-	$styles  = get_element_styles_from_attributes( $attributes );
+	$classes                  = get_element_class_names_from_attributes( $attributes );
+	$styles                   = get_element_styles_from_attributes( $attributes );
+	$include_social_followers = isset( $attributes['includeSocialFollowers'] ) ? (bool) get_attribute( $attributes, 'includeSocialFollowers' ) : true;
 
 	$data = array(
 		'widget_id'              => Jetpack_Subscriptions_Widget::$instance_count,
@@ -277,7 +278,6 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 				'class' => $classes['block_wrapper'],
 			)
 		),
-
 		'subscribe_placeholder'  => get_attribute( $attributes, 'subscribePlaceholder', esc_html__( 'Type your email…', 'jetpack' ) ),
 		'submit_button_text'     => get_attribute( $attributes, 'submitButtonText', esc_html__( 'Subscribe', 'jetpack' ) ),
 		'success_message'        => get_attribute(
@@ -286,8 +286,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total' => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
-		'subscribers_total'      => Jetpack_Subscriptions_Widget::fetch_subscriber_count( false ),
-
+		'subscribers_total'      => Jetpack_Subscriptions_Widget::get_subscriber_count( array( 'include_social_followers' => $include_social_followers ) ),
 		'referer'                => esc_url_raw(
 			( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) .
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
@@ -430,7 +429,6 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	$form_id            = sprintf( 'subscribe-blog-%s', $data['widget_id'] );
 	$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $data['widget_id'] );
-
 	ob_start();
 
 	Jetpack_Subscriptions_Widget::render_widget_status_messages(
@@ -500,7 +498,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 					<div class="wp-block-jetpack-subscriptions__subscount">
 						<?php
 						/* translators: %s: number of folks following the blog */
-						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total']['value'], 'jetpack' ), number_format_i18n( $data['subscribers_total']['value'] ) ) );
+						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $data['subscribers_total'], 'jetpack' ), number_format_i18n( $data['subscribers_total'] ) ) );
 						?>
 					</div>
 				<?php endif; ?>
