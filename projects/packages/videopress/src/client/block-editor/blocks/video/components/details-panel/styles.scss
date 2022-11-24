@@ -1,0 +1,11 @@
+.learn-how-notice {
+	margin: 0;
+
+	&.is-dismissible {
+		padding-right: 12px;
+	}
+
+	.learn-how-notice__message {
+		margin: 0;
+	}
+}

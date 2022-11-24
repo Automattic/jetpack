@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - trunk
+      - prerelease
       - '*/branch-*'
 
 jobs:
@@ -33,11 +34,11 @@ jobs:
           if [[ -e composer.json ]]; then
             PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
           fi
-          if [[ -z "$PREFIX" && "$GITHUB_REF" != "refs/heads/trunk" ]]; then
-            echo "::error::Expected to be called for \"refs/heads/trunk\", not \"$GITHUB_REF\""
+          if [[ -z "$PREFIX" && "$GITHUB_REF" != "refs/heads/trunk" && "$GITHUB_REF" != "refs/heads/prerelease" ]]; then
+            echo "::error::Expected to be called for \"refs/heads/trunk\" or \"refs/heads/prerelease\", not \"$GITHUB_REF\""
             exit 1
-          elif [[ -n "$PREFIX" && "$GITHUB_REF" == "refs/heads/trunk" ]]; then
-            echo "::notice::Ignoring push to trunk, as this project has a release branch prefix set (\"$PREFIX\")"
+          elif [[ -n "$PREFIX" && ( "$GITHUB_REF" == "refs/heads/trunk" || "$GITHUB_REF" == "refs/heads/prerelease" ) ]]; then
+            echo "::notice::Ignoring push to $GITHUB_REF, as this project has a release branch prefix set (\"$PREFIX\")"
             echo "run=false" >> "$GITHUB_OUTPUT"
           elif [[ -n "$PREFIX" && "$GITHUB_REF" != "refs/heads/$PREFIX/branch-"* ]]; then
             echo "::error::Expected to be called for \"refs/heads/$PREFIX/branch-*\", not \"$GITHUB_REF\""

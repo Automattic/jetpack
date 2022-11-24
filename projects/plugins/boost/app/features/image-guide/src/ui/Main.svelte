@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { measure } from '../Measurements';
 	import Bubble from './Bubble.svelte';
 	import ImageGuide from './ImageGuide.svelte';
 	import { state } from './StateStore';
@@ -22,7 +23,25 @@
 	} else if ( image.onScreen.width < 400 || image.onScreen.height < 400 ) {
 		size = 'small';
 	}
+
+	$: if ( show ) {
+		images.forEach( i => i.node.classList.add( 'jetpack-boost-image-guide-backdrop' ) );
+	} else {
+		images.forEach( i => i.node.classList.remove( 'jetpack-boost-image-guide-backdrop' ) );
+	}
+
+	let debounce: number;
+	function updateDimensions() {
+		if ( debounce ) {
+			clearTimeout( debounce );
+		}
+		debounce = setTimeout( () => {
+			images = measure( images );
+		}, 500 );
+	}
 </script>
+
+<svelte:window on:resize={updateDimensions} />
 
 {#if $state === 'active' || $state === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
@@ -51,9 +70,6 @@
 		width: 100%;
 		height: 100%;
 		z-index: 8000;
-		background-color: transparent;
-		will-change: background-color;
-		transition: background-color 100ms ease-out;
 		line-height: 1.55;
 		padding: 15px;
 		&.small {
@@ -67,7 +83,6 @@
 		}
 
 		&.show {
-			background-color: hsl( 0 90% 5% / 0.55 );
 			z-index: 9000;
 		}
 
@@ -75,6 +90,11 @@
 		font-size: 15px !important;
 		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans',
 			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
+	}
+
+	:global( .jetpack-boost-image-guide-backdrop ) {
+		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+		filter: brightness( 0.3 );
 	}
 
 	.previews {

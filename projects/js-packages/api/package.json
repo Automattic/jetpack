@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.14.6-alpha",
+	"version": "0.14.7-alpha",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -10,8 +10,8 @@
 	},
 	"devDependencies": {
 		"fetch-mock-jest": "1.5.1",
-		"jest": "28.1.0",
-		"jest-environment-jsdom": "28.1.0",
+		"jest": "29.3.1",
+		"jest-environment-jsdom": "29.3.1",
 		"node-fetch": "2.6.7"
 	},
 	"type": "module",
