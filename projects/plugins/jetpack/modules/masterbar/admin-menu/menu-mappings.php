@@ -16,6 +16,7 @@ $common_mappings = array(
 	'options-general.php'                    => 'https://wordpress.com/settings/general/',
 	'options-discussion.php'                 => 'https://wordpress.com/settings/discussion/',
 	'options-writing.php'                    => 'https://wordpress.com/settings/writing/',
+	'options-reading.php'                    => 'https://wordpress.com/settings/reading/',
 	'themes.php'                             => 'https://wordpress.com/themes/',
 	'edit-tags.php?taxonomy=category'        => 'https://wordpress.com/settings/taxonomies/category/',
 	'edit-tags.php?taxonomy=post_tag'        => 'https://wordpress.com/settings/taxonomies/post_tag/',
