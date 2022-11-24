@@ -274,6 +274,7 @@ function generateApiQueryString( {
 		'category.name.default',
 		'post_type',
 		'shortcode_types',
+		'meta.topic_resolved.value',
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 

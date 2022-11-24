@@ -103,9 +103,15 @@ class SearchResultMinimal extends Component {
 						className="jetpack-instant-search__search-result-title-link jetpack-instant-search__search-result-minimal-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
-						//eslint-disable-next-line react/no-danger
-						dangerouslySetInnerHTML={ { __html: highlight.title } }
-					/>
+					>
+						<span
+							//eslint-disable-next-line react/no-danger
+							dangerouslySetInnerHTML={ { __html: highlight.title } }
+						/>
+						{ fields.resolved === 'yes' && (
+							<span className="jetpack-instant-search__search-result-title-checkmark" />
+						) }
+					</a>
 				</h3>
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
 				<SearchResultComments comments={ highlight && highlight.comments } />
