@@ -15,6 +15,11 @@ class Jetpack_SEO_Posts {
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
 	const HTML_TITLE_META_KEY  = 'jetpack_seo_html_title';
 	const NOINDEX_META_KEY     = 'jetpack_seo_noindex';
+	const POST_META_KEYS_ARRAY = array(
+		self::DESCRIPTION_META_KEY,
+		self::HTML_TITLE_META_KEY,
+		self::NOINDEX_META_KEY,
+	);
 
 	/**
 	 * Build meta description for post SEO.
@@ -23,7 +28,7 @@ class Jetpack_SEO_Posts {
 	 *
 	 * @return string Post description or empty string.
 	 */
-	public static function get_post_description( $post ) {
+	public static function get_post_description( $post = null ) {
 		$post = get_post( $post );
 		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';

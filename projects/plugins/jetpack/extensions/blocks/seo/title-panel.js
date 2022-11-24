@@ -5,8 +5,8 @@ import { CountedTextArea } from './counted-textarea';
 import { withSeoHelper } from './with-seo-helper';
 
 class SeoTitlePanel extends Component {
-	onTitleChange = event => {
-		this.props.updateMetaValue( event.target.value );
+	onTitleChange = value => {
+		this.props.updateMetaValue( value );
 	};
 
 	render() {
@@ -15,6 +15,7 @@ class SeoTitlePanel extends Component {
 			<CountedTextArea
 				value={ metaValue }
 				onChange={ this.onTitleChange }
+				label={ __( 'SEO Title', 'jetpack' ) }
 				placeholder={ __( 'Write a title…', 'jetpack' ) }
 				suggestedLimit={ 70 }
 				rows={ 2 }

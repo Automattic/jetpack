@@ -4,8 +4,8 @@ import { CountedTextArea } from './counted-textarea';
 import { withSeoHelper } from './with-seo-helper';
 
 class SeoDescriptionPanel extends Component {
-	onMessageChange = event => {
-		this.props.updateMetaValue( event.target.value );
+	onMessageChange = value => {
+		this.props.updateMetaValue( value );
 	};
 
 	render() {
@@ -15,6 +15,7 @@ class SeoDescriptionPanel extends Component {
 			<CountedTextArea
 				value={ metaValue }
 				onChange={ this.onMessageChange }
+				label={ __( 'SEO Description', 'jetpack' ) }
 				placeholder={ __( 'Write a description…', 'jetpack' ) }
 				rows={ 4 }
 			/>

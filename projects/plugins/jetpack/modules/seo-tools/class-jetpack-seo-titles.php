@@ -102,7 +102,7 @@ class Jetpack_SEO_Titles {
 			$post = get_post();
 			if ( $post instanceof WP_Post ) {
 				$custom_title = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );
-				if ( $custom_title ) {
+				if ( ! empty( trim( $custom_title ) ) ) {
 					return esc_html( $custom_title );
 				}
 			}
