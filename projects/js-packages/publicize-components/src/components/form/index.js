@@ -9,8 +9,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
-import { Fragment, createInterpolateElement } from '@wordpress/element';
-import { _n, sprintf } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
+import { _n, sprintf, __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import PublicizeConnection from '../connection';
@@ -53,6 +54,19 @@ export default function PublicizeForm( {
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
 
+	const { isEditedPostDirty } = useSelect( 'core/editor' );
+	const { autosave } = useDispatch( 'core/editor' );
+	const autosaveAndRedirect = useCallback(
+		async ev => {
+			if ( isEditedPostDirty() ) {
+				ev.preventDefault();
+				await autosave();
+				window.location.href = ev.target.href;
+			}
+		},
+		[ autosave, isEditedPostDirty ]
+	);
+
 	return (
 		<Wrapper>
 			{ hasConnections && (
@@ -60,28 +74,47 @@ export default function PublicizeForm( {
 					{ numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
-								{ createInterpolateElement(
-									sprintf(
+								<Fragment>
+									{ createInterpolateElement(
+										sprintf(
+											/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
+											_n(
+												'You have %d share remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+												'You have %d shares remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+												numberOfSharesRemaining,
+												'jetpack'
+											),
+											numberOfSharesRemaining
+										),
+										{
+											upgradeLink: (
+												<a
+													href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+														site: getSiteFragment(),
+														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+													} ) }
+													onClick={ autosaveAndRedirect }
+												/>
+											),
+										}
+									) }
+									<br />
+									{ createInterpolateElement(
 										/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
-										_n(
-											'You have %d share remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-											'You have %d shares remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-											numberOfSharesRemaining,
-											'jetpack'
-										),
-										numberOfSharesRemaining
-									),
-									{
-										upgradeLink: (
-											<a
-												href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-													site: getSiteFragment(),
-													query: 'redirect_to=' + window.location.href,
-												} ) }
-											/>
-										),
-									}
-								) }
+										__( '<moreLink>More about Jetpack Social</moreLink>.', 'jetpack' ),
+										{
+											moreLink: (
+												<a
+													href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
+														site: getSiteFragment(),
+														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+													} ) }
+													onClick={ autosaveAndRedirect }
+												/>
+											),
+										}
+									) }
+								</Fragment>
 							</Notice>
 						</PanelRow>
 					) }
