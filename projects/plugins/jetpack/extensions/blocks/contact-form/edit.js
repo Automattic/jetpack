@@ -1,4 +1,5 @@
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import apiFetch from '@wordpress/api-fetch';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -24,6 +25,7 @@ import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
 import InspectorHint from '../../shared/components/inspector-hint';
+import isCurrentUserConnected from '../../shared/is-current-user-connected';
 import { childBlocks } from './child-blocks';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
@@ -115,6 +117,30 @@ export function JetpackContactFormEdit( {
 
 		selectBlock( clientId );
 	};
+
+	/// TEST
+	const accessToken = 'hola';
+	const currentUserConnected = isCurrentUserConnected();
+	useEffect( () => {
+		// if ( accessToken || ! currentUserConnected ) {
+		// 	return;
+		// }
+		console.log( currentUserConnected );
+
+		// setIsRequestingConnections( true );
+		apiFetch( { path: '/jetpack/v4/connections/google-drive' } )
+			.then( connections => {
+				console.log( connections );
+				// setIsRequestingConnections( false );
+				// setUserConnections( connections );
+			} )
+			.catch( e => {
+				console.error( e );
+				// setIsRequestingConnections( false );
+				// setUserConnections( [] );
+			} );
+	}, [ accessToken, currentUserConnected ] );
+	/// /TEST
 
 	useEffect( () => {
 		// Populate default variation on older versions of WP or GB that don't support variations.

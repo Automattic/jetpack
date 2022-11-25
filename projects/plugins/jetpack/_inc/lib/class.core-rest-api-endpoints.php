@@ -748,6 +748,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		// Get Google Drive connection from /me/connections
+		register_rest_route(
+			'jetpack/v4',
+			'/connections/google-drive',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => function ( $request ) {
+					$blog_id = Jetpack_Options::get_option( 'id' );
+					if ( ! $blog_id ) {
+						return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
+					}
+
+					$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+					if ( ! $user_connected ) {
+						return wp_json_encode( null );
+					}
+
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+					$google_drive_connection = Jetpack_Google_Drive_Helper::get_connection();
+
+					return rest_ensure_response( wp_json_encode( $google_drive_connection ) );
+				},
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	/**
