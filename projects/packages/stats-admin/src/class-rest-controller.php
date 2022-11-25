@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -26,12 +27,28 @@ class REST_Controller {
 	public static $namespace = 'jetpack/v4/stats-app';
 
 	/**
+	 * Hold an instance of WPCOM_Stats.
+	 *
+	 * @var WPCOM_Stats
+	 */
+	protected $wpcom_stats;
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		$this->wpcom_stats = new WPCOM_Stats();
+	}
+
+	/**
+
 	 * Registers the REST routes for Stats.
 	 *
 	 * @access public
 	 * @static
 	 */
 	public function register_rest_routes() {
+		// Stats for single resource type.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
@@ -41,33 +58,41 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// Stats for a resource type.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/stats/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_stats_resource_from_wpcom' ),
+				'callback'            => array( $this, 'get_stats_resource' ),
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// Single post info.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)/(?P<sub_resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/posts/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_site_sub_resource_from_wpcom' ),
+				'callback'            => array( $this, 'get_single_post' ),
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// Single post likes.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/(?P<resource>[\-\w]+)/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/posts/(?P<resource_id>[\d]+)/likes', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_site_single_resource_from_wpcom' ),
+				'callback'            => array( $this, 'get_single_post_likes' ),
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// Required site endpoints for the Stats app.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/sites/%d/(?P<resource>[\-\w]+)', Jetpack_Options::get_option( 'id' ) ),
@@ -77,15 +102,8 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
-		register_rest_route(
-			static::$namespace,
-			sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ),
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'site' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
-			)
-		);
+
+		// TODO remove call to the endpoint from the frontend.
 		register_rest_route(
 			static::$namespace,
 			sprintf( '/jetpack-blogs/%d/rest-api/', Jetpack_Options::get_option( 'id' ) ),
@@ -95,6 +113,8 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// TODO remove call to the endpoint from the frontend.
 		register_rest_route(
 			static::$namespace,
 			'/me/connections',
@@ -107,7 +127,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Only administrators can access the API.
+	 * Only users with capability `view_stats` can access the API.
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
@@ -120,27 +140,47 @@ class REST_Controller {
 	}
 
 	/**
-	 * Resource endpoint.
+	 * Stats resource endpoint.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_stats_resource_from_wpcom( $req ) {
-		if ( 'file-downloads' === $req->get_param( 'resource' ) ) {
-			return $this->empty_result();
+	public function get_stats_resource( $req ) {
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'file-downloads':
+			case 'video-plays':
+			case 'clicks':
+			case 'search-terms':
+			case 'top-authors':
+			case 'country-views':
+			case 'referrers':
+			case 'top-posts':
+			case 'publicize':
+			case 'followers':
+			case 'tags':
+			case 'visits':
+			case 'comments':
+			case 'comment-followers':
+			case 'streak':
+			case 'insights':
+			case 'highlights':
+				return static::request_as_blog_cached(
+					sprintf(
+						'/sites/%d/stats/%s?%s',
+						Jetpack_Options::get_option( 'id' ),
+						$req->get_param( 'resource' ),
+						http_build_query(
+							$req->get_params()
+						)
+					),
+					'1.1',
+					array( 'timeout' => 30 )
+				);
+
+			default:
+				return $this->get_forbidden_error();
 		}
-		return static::request_as_blog_cached(
-			sprintf(
-				'/sites/%d/stats/%s?%s',
-				Jetpack_Options::get_option( 'id' ),
-				$req->get_param( 'resource' ),
-				http_build_query(
-					$req->get_params()
-				)
-			),
-			'1.1',
-			array( 'timeout' => 30 )
-		);
+
 	}
 
 	/**
@@ -149,14 +189,12 @@ class REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_site_sub_resource_from_wpcom( $req ) {
+	public function get_single_post_likes( $req ) {
 		return static::request_as_blog_cached(
 			sprintf(
-				'/sites/%d/%s/%d/%s?%s',
+				'/sites/%d/posts/%d/likes?%s',
 				Jetpack_Options::get_option( 'id' ),
-				$req->get_param( 'resource' ),
 				$req->get_param( 'resource_id' ),
-				$req->get_param( 'sub_resource' ),
 				http_build_query(
 					$req->get_params()
 				)
@@ -173,19 +211,26 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_stats_single_resource_from_wpcom( $req ) {
-		return static::request_as_blog_cached(
-			sprintf(
-				'/sites/%d/stats/%s/%d?%s',
-				Jetpack_Options::get_option( 'id' ),
-				$req->get_param( 'resource' ),
-				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
-				)
-			),
-			'1.1',
-			array( 'timeout' => 30 )
-		);
+		switch ( $req->get_param( 'resource' ) ) {
+			case 'post':
+				return $this->wpcom_stats->get_post_views(
+					intval( $req->get_param( 'resource_id' ) ),
+					http_build_query(
+						$req->get_params()
+					)
+				);
+
+			case 'video':
+				return $this->wpcom_stats->get_video_details(
+					intval( $req->get_param( 'resource_id' ) ),
+					http_build_query(
+						$req->get_params()
+					)
+				);
+
+			default:
+				return $this->get_forbidden_error();
+		}
 	}
 
 	/**
@@ -194,19 +239,17 @@ class REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_site_single_resource_from_wpcom( $req ) {
-		return static::request_as_blog_cached(
-			sprintf(
-				'/sites/%d/%s/%d?%s',
-				Jetpack_Options::get_option( 'id' ),
-				$req->get_param( 'resource' ),
-				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
-				)
-			),
-			'1.1',
-			array( 'timeout' => 30 )
+	public function get_single_post( $req ) {
+		$post = get_post( intval( $req->get_param( 'resource_id' ) ), 'OBJECT', 'display' );
+		if ( is_wp_error( $post ) || empty( $post ) ) {
+			return $post;
+		}
+
+		// TODO: do we need to check if the post is public?
+		return array(
+			'ID'    => $post->ID,
+			'title' => $post->post_title,
+			'URL'   => get_permalink( $post->ID ),
 		);
 	}
 
@@ -226,32 +269,24 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_resource_from_wpcom( $req ) {
-		// so currently it returns 403 for posts.
 		$resource = $req->get_param( 'resource' );
 		switch ( $resource ) {
 			case 'site-has-never-published-post':
 				return $this->get_has_never_published_post( $req );
 
+			// TODO: remove the following calls from the frontend.
+			case 'posts':
 			case 'sharing-buttons':
 			case 'plugins':
 			case 'keyrings':
 			case 'rewind':
 				return $this->empty_result();
 
-			default:
-				return static::request_as_blog_cached(
-					sprintf(
-						'/sites/%d/%s?%s',
-						Jetpack_Options::get_option( 'id' ),
-						$req->get_param( 'resource' ),
-						http_build_query(
-							$req->get_params()
-						)
-					),
-					'1.1',
-					array( 'timeout' => 30 )
-				);
+			case 'stats':
+				return $this->wpcom_stats->get_stats();
 
+			default:
+				return $this->get_forbidden_error();
 		}
 	}
 

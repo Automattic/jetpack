@@ -904,6 +904,8 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
+
+		Automattic\Jetpack\Stats_Admin\Main::init();
 	}
 
 	/**
