@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Use a generic filter message when there are no videos available and a search term is not present.

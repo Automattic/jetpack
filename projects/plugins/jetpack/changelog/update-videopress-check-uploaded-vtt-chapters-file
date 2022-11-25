@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+VideoPress: detect if the video has a vtt chapters file

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.1] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
 ## [1.43.0] - 2022-11-17
 ### Added
 - Added new sync option for launch-status [#27434]
@@ -761,6 +765,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.43.1]: https://github.com/Automattic/jetpack-sync/compare/v1.43.0...v1.43.1
 [1.43.0]: https://github.com/Automattic/jetpack-sync/compare/v1.42.0...v1.43.0
 [1.42.0]: https://github.com/Automattic/jetpack-sync/compare/v1.41.0...v1.42.0
 [1.41.0]: https://github.com/Automattic/jetpack-sync/compare/v1.40.3...v1.41.0

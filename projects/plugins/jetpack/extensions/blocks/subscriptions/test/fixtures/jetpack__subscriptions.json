@@ -4,18 +4,18 @@
 		"name": "jetpack/subscriptions",
 		"isValid": true,
 		"attributes": {
-			"subscribePlaceholder": "Type your email…",
+			"subscribePlaceholder": "Enter your email address",
 			"showSubscribersTotal": true,
-			"includeSocialFollowers": true,
-			"buttonOnNewLine": false,
-			"submitButtonText": "Subscribe",
-			"fontSize": "1.75rem",
-			"customFontSize": "1.75rem",
-			"borderRadius": 13,
-			"padding": 19,
-			"successMessage": "Aloha! You have mail."
+			"buttonOnNewLine": true,
+			"submitButtonText": "Sign Up",
+			"fontSize": "33px",
+			"customFontSize": "33px",
+			"borderRadius": 8,
+			"borderWeight": 3,
+			"padding": 18,
+			"successMessage": "Volla, you subscribed to our blog!"
 		},
 		"innerBlocks": [],
-		"originalContent": "<div class=\"wp-block-jetpack-subscriptions wp-block-jetpack-subscriptions__supports-newline wp-block-jetpack-subscriptions__show-subs\">[jetpack_subscription_form show_subscribers_total=\"true\" include_social_followers=\"true\" button_on_newline=\"false\" custom_font_size=\"1.75rem\" custom_border_radius=\"13\" custom_border_weight=\"1\" custom_padding=\"19\" custom_spacing=\"10\" submit_button_classes=\"has-1-75-rem-font-size\" email_field_classes=\"has-1-75-rem-font-size\" show_only_email_and_button=\"true\" success_message=\"Aloha! You have mail.\"]</div>"
+		"originalContent": ""
 	}
 ]

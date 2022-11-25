@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.22.10 - 2022-11-22
+### Added
+- Add Manage Connection dialog to My Jetpack [#27476]
+
+### Changed
+- Updated package dependencies. [#27043]
+
 ## 0.22.9 - 2022-11-17
 ### Changed
 - Updated package dependencies. [#26736]

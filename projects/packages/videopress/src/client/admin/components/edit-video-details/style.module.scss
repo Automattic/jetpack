@@ -1,3 +1,18 @@
+
+:global {
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
+	}
+
+	.jetpack-videopress-jitm-card {
+		.jitm-card {
+			margin-right: 0;
+		}
+	}
+}
+
 .header-wrapper {
 	&:not( .small ) {
 		display: flex;
