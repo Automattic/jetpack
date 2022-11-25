@@ -25,6 +25,7 @@
 }
 
 .wpcom-gifting-banner__logo {
+	min-width: 28px;
 	width: 28px;
 	height: 28px;
 	margin-right: 8px;
@@ -51,6 +52,7 @@
 
 .wpcom-gifting-banner__subtitle {
 	font-weight: 400;
+	text-align: left;
 }
 
 .wpcom-gifting-banner__button {
@@ -79,6 +81,7 @@
 	}
 
 	.wpcom-gifting-banner__logo {
+		min-width: 26px;
 		width: 26px;
 		height: 26px;
 	}
