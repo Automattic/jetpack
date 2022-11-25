@@ -59,6 +59,25 @@ PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.jso
 WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 [[ -n "$WPSLUG" ]] || die "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot deploy."
 
+# Check build dir.
+if [[ -z "$BUILD_DIR" ]]; then
+	TMPDIR="${TMPDIR:-/tmp}"
+	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/update-tag.XXXXXXXX")
+elif [[ ! -e "$BUILD_DIR" ]]; then
+	mkdir -p "$BUILD_DIR"
+else
+	if [[ ! -d "$BUILD_DIR" ]]; then
+		proceed_p "$BUILD_DIR already exists, and is not a directory." "Delete it?"
+	elif [[ $(ls -A -- "$BUILD_DIR") ]]; then
+		proceed_p "Directory $BUILD_DIR already exists, and is not empty." "Delete it?"
+	fi
+	rm -rf "$BUILD_DIR"
+	mkdir -p "$BUILD_DIR"
+fi
+cd "$BUILD_DIR"
+DIR=$(pwd)
+
+
 # Get JSON
 JSON=$(curl -s "http://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
 if ! jq -e '.' <<<"$JSON" &>/dev/null; then
@@ -100,6 +119,27 @@ if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURREN
 	red "${SVN_LATEST}"
 	proceed_p "" "Continue?"
 	echo ""
+
+	info "Checking out SVN shallowly to $DIR"
+	svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
+	success "Done!"
+
+	info "Checking out SVN trunk to $DIR/trunk"
+	svn -q up trunk
+	success "Done!"
+
+	# Update trunk to point to the last stable tag.
+	info "Modifying 'Stable tag:' value in trunk readme.txt"
+	sed -i.bak -e "s/Stable tag: .*/Stable tag: $SVN_LATEST/" trunk/readme.txt
+	rm trunk/readme.txt.bak # We need a backup file because macOS requires it.
+	echo ""
+	yellow "The diff you are about to commit:"
+	svn diff
+
+	echo ""
+	proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?"
+	 svn ci -m "Update stable tag"
+	
 	elif [[ "$SVN_LATEST" == "$CURRENT_STABLE_VERSION" ]] && [[ "$GH_LATEST" == "$CURRENT_STABLE_VERSION" ]] 
 		then echo "All versions are the same. Nothing to update."
 		exit
