@@ -337,6 +337,16 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $next_sync_time < time() + 15 );
 	}
 
+	public function test_expires_next_sync_time_if_more_than_one_hour() {
+		$this->sender->set_next_sync_time( time() + HOUR_IN_SECONDS );
+
+		self::factory()->post->create();
+		$this->sender->do_sync();
+
+		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
+		$this->assertSame( 0, $next_sync_time );
+	}
+
 	public function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
 		$processed_item_ids = $this->server->receive( $data, null, $sent_timestamp );
 
