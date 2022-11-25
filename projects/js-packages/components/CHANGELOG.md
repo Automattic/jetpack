@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.25.1 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
 ## 0.25.0 - 2022-11-17
 ### Added
 - Added additional color studio colors to the ThemeProvider component for use in Jetpack Protect. [#26069]

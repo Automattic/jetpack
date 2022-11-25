@@ -16,7 +16,7 @@ export default function useConnectionWatcher() {
 	const productsThatRequiresUserConnection = useSelect( select =>
 		select( STORE_ID ).getProductsThatRequiresUserConnection()
 	);
-	const { isSiteConnected, topJetpackMenuItemUrl, hasConnectedOwner } = useMyJetpackConnection();
+	const { isSiteConnected, hasConnectedOwner } = useMyJetpackConnection();
 
 	const requiresUserConnection =
 		! hasConnectedOwner && productsThatRequiresUserConnection.length > 0;
@@ -30,26 +30,35 @@ export default function useConnectionWatcher() {
 		productsThatRequiresUserConnection[ 0 ]
 	);
 
-	const message =
+	const needsUserConnectionMessage =
 		productsThatRequiresUserConnection.length > 1
 			? __(
 					'Some products need a user connection to WordPress.com to be able to work.',
 					'jetpack-my-jetpack'
 			  )
 			: oneProductMessage;
+	const needsSiteConnectionMessage = __(
+		'Some products need a connection to WordPress.com to be able to work.',
+		'jetpack-my-jetpack'
+	);
 
-	/*
-	 * When the site is not connect, redirect to the Jetpack dashboard.
-	 */
 	useEffect( () => {
-		if ( ! isSiteConnected && topJetpackMenuItemUrl ) {
-			window.location = topJetpackMenuItemUrl;
+		if ( ! isSiteConnected ) {
+			setGlobalNotice( needsSiteConnectionMessage, {
+				status: 'warning',
+				actions: [
+					{
+						label: __( 'Connect your site to fix this', 'jetpack-my-jetpack' ),
+						onClick: navToConnection,
+						variant: 'link',
+						noDefaultClasses: true,
+					},
+				],
+			} );
+			return;
 		}
-	}, [ isSiteConnected, topJetpackMenuItemUrl ] );
-
-	useEffect( () => {
 		if ( requiresUserConnection ) {
-			setGlobalNotice( message, {
+			setGlobalNotice( needsUserConnectionMessage, {
 				status: 'error',
 				actions: [
 					{
@@ -60,5 +69,12 @@ export default function useConnectionWatcher() {
 				],
 			} );
 		}
-	}, [ message, requiresUserConnection, navToConnection, setGlobalNotice ] );
+	}, [
+		isSiteConnected,
+		needsSiteConnectionMessage,
+		needsUserConnectionMessage,
+		requiresUserConnection,
+		navToConnection,
+		setGlobalNotice,
+	] );
 }

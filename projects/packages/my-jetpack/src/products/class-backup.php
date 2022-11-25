@@ -50,7 +50,7 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Backup', 'jetpack-my-jetpack' );
+		return __( 'VaultPress Backup', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -59,7 +59,7 @@ class Backup extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Jetpack Backup', 'jetpack-my-jetpack' );
+		return __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' );
 	}
 
 	/**
