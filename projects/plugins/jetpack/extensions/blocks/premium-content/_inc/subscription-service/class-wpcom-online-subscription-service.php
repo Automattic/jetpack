@@ -85,6 +85,12 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
 	public function subscriber_can_receive_post_by_mail( $user_id, $post_id ) {
+
+		if ( 0 === $user_id || empty( $user_id ) ) {
+			// Email cannot be sent to non-users
+			return false;
+		}
+
 		$previous_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
