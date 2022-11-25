@@ -91,8 +91,9 @@ function getVersionType() {
 	} else if ( refType === 'tag' ) {
 		return 'rc';
 	}
+	// TODO: cover the case for non-trunk branches, such as pushes to release branches.
 	console.error( 'Invalid version type: ' + refType + ' ' + refName );
-	process.exit( 1 );
+	process.exit( 0 );
 }
 
 function main() {
