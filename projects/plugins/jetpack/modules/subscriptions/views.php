@@ -258,7 +258,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					break;
 				case 'success':
 					?>
-					<div class="success"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ), 'post' ); ?></div>
+					<div class="success"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total ), $success_message ) ), 'post' ); ?></div>
 					<?php
 					break;
 				default:
@@ -324,23 +324,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Returns subscriber count based on include_social_followers attribute
-	 *
-	 * @param array $instance The settings for the particular instance of the widget.
-	 * @return int
-	 */
-	public static function get_subscriber_count( $instance ) {
-		$counts = self::fetch_subscriber_counts();
-
-		if ( $instance['include_social_followers'] ) {
-			$subscriber_count = $counts['value']['email_subscribers'] + $counts['value']['social_followers'];
-		} else {
-			$subscriber_count = $counts['value']['email_subscribers'];
-		}
-		return $subscriber_count;
-	}
-
-	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array  $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -350,7 +333,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function render_widget_subscription_form( $args, $instance, $subscribe_email ) {
 		$show_only_email_and_button   = $instance['show_only_email_and_button'];
 		$show_subscribers_total       = (bool) $instance['show_subscribers_total'];
-		$subscribers_total            = self::get_subscriber_count( $instance );
+		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_text               = empty( $instance['show_only_email_and_button'] ) ?
 			stripslashes( $instance['subscribe_text'] ) :
 			false;
@@ -611,53 +594,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers
-	 *
-	 * @return array containing ['email_subscribers' => 0, 'social_followers' => 0]
-	 */
-	public static function fetch_subscriber_counts() {
-		$subs_count = 0;
-		if ( self::is_jetpack() ) {
-			$cache_key  = 'wpcom_subscribers_totals';
-			$subs_count = get_transient( $cache_key );
-			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
-				$xml = new Jetpack_IXR_Client();
-				$xml->query( 'jetpack.fetchSubscriberCounts' );
-
-				if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
-
-					$subs_count = array(
-						'status'  => 'failed',
-						'code'    => $xml->getErrorCode(),
-						'message' => $xml->getErrorMessage(),
-						'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
-							'email_subscribers' => 0,
-							'social_followers'  => 0,
-						),
-					);
-				} else {
-					$subs_count = array(
-						'status' => 'success',
-						'value'  => $xml->getResponse(),
-					);
-				}
-				set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
-			}
-		}
-
-		if ( self::is_wpcom() ) {
-			$subs_count = array(
-				'value' => array(
-					'email_subscribers' => wpcom_subs_total_for_blog(),
-					'social_followers'  => wpcom_social_followers_total_for_blog(),
-				),
-			);
-		}
-
-		return $subs_count;
-	}
-
-	/**
 	 * Determine the amount of folks currently subscribed to the blog.
 	 *
 	 * @param bool $include_publicize_subscribers Include followers through Publicize.
@@ -688,6 +624,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 				set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
 			}
+			return $subs_count['value'];
 		}
 
 		if ( self::is_wpcom() ) {
@@ -697,8 +634,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				$subs_count = wpcom_subs_total_for_blog();
 			}
 		}
-
-		return $subs_count;
 	}
 
 	/**
@@ -769,7 +704,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_text      = esc_attr( stripslashes( $instance['subscribe_text'] ) );
 			$subscribe_logged_in = esc_attr( stripslashes( $instance['subscribe_logged_in'] ) );
 			$subscribe_button    = esc_attr( stripslashes( $instance['subscribe_button'] ) );
-			$subscribers_total   = self::get_subscriber_count( $instance );
+			$subscribers_total   = self::fetch_subscriber_count();
 		}
 
 		if ( self::is_jetpack() ) {
@@ -778,7 +713,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_placeholder = stripslashes( $instance['subscribe_placeholder'] );
 			$subscribe_button      = stripslashes( $instance['subscribe_button'] );
 			$success_message       = stripslashes( $instance['success_message'] );
-			$subscribers_total     = self::get_subscriber_count( $instance );
+			$subscribers_total     = self::fetch_subscriber_count();
 		}
 
 		if ( self::is_wpcom() ) :

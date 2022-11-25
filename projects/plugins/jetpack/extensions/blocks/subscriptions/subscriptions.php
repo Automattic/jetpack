@@ -62,6 +62,66 @@ function is_wpcom() {
 }
 
 /**
+ * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers
+ *
+ * @return array containing ['value' => ['email_subscribers' => 0, 'social_followers' => 0]]
+ */
+function fetch_subscriber_counts() {
+	$subs_count = 0;
+	if ( is_wpcom() ) {
+		$subs_count = array(
+			'value' => array(
+				'email_subscribers' => \wpcom_subs_total_for_blog(),
+				'social_followers'  => \wpcom_social_followers_total_for_blog(),
+			),
+		);
+	} else {
+		$cache_key  = 'wpcom_subscribers_totals';
+		$subs_count = get_transient( $cache_key );
+		if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
+			$xml = new \Jetpack_IXR_Client();
+			$xml->query( 'jetpack.fetchSubscriberCounts' );
+
+			if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
+				$subs_count = array(
+					'status'  => 'failed',
+					'code'    => $xml->getErrorCode(),
+					'message' => $xml->getErrorMessage(),
+					'value'   => ( isset( $subs_count['value'] ) ) ? $subs_count['value'] : array(
+						'email_subscribers' => 0,
+						'social_followers'  => 0,
+					),
+				);
+			} else {
+				$subs_count = array(
+					'status' => 'success',
+					'value'  => $xml->getResponse(),
+				);
+			}
+			set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
+		}
+	}
+	return $subs_count;
+}
+
+/**
+ * Returns subscriber count based on include_social_followers attribute
+ *
+ * @param bool $include_social_followers Whether to include social followers in the count.
+ * @return int
+ */
+function get_subscriber_count( $include_social_followers ) {
+	$counts = fetch_subscriber_counts();
+
+	if ( $include_social_followers ) {
+		$subscriber_count = $counts['value']['email_subscribers'] + $counts['value']['social_followers'];
+	} else {
+		$subscriber_count = $counts['value']['email_subscribers'];
+	}
+	return $subscriber_count;
+}
+
+/**
  * Returns true if the block attributes contain a value for the given key.
  *
  * @param array  $attributes Array containing the block attributes.
@@ -286,7 +346,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 			esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' )
 		),
 		'show_subscribers_total' => (bool) get_attribute( $attributes, 'showSubscribersTotal' ),
-		'subscribers_total'      => Jetpack_Subscriptions_Widget::get_subscriber_count( array( 'include_social_followers' => $include_social_followers ) ),
+		'subscribers_total'      => get_subscriber_count( $include_social_followers ),
 		'referer'                => esc_url_raw(
 			( is_ssl() ? 'https' : 'http' ) . '://' . ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) .
 			( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' )
