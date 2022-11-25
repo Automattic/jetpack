@@ -157,8 +157,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			$this->access_use_case( 'admin_user_id', false, true, '', true, true ),
 			$this->access_use_case( 'admin_user_id', false, true, 'everybody', true, true ),
 			// Skipped as there is no way to know this is admin from the JWT token
-			// $this->accessUseCase( 'admin_user_id', false, true, 'subscribers', true,  true ),
-			// $this->accessUseCase( 'admin_user_id', false, true, 'paid_subscribers', true,  true ),
+			// $this->accessUseCase( 'admin_user_id', false, true, 'subscribers', true,  true ), // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// $this->accessUseCase( 'admin_user_id', false, true, 'paid_subscribers', true,  true ), // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 
 			// Regular user
 				// not-logged / no jwt
