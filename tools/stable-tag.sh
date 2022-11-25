@@ -5,9 +5,9 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
-. "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/proceed_p.sh"
+. "$BASE/tools/includes/version-compare.sh"
 
 # Instructions
 function usage {
@@ -62,11 +62,66 @@ WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 # Get JSON
 JSON=$(curl -s "http://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
 if ! jq -e '.' <<<"$JSON" &>/dev/null; then
-	die "Failed to retrieve JSON data from http://api.wordpress.org/plugins/info/1.0/$WPSLUG.json"
+	die "Failed to retrieve JSON data from http://api.wordpress.org/plugins/info/1.1/$WPSLUG.json"
 fi
 
 # Current stable version
 CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
 
+# Get all versions, strip anything with alpha characters such as -beta or trunk.
+SVN_TAGS=$(jq -r '.versions | delpaths([paths | select(.[] | test("[A-Za-z]+"; "i"))]) | keys[]' <<<"$JSON")
 
-echo $CURRENT_STABLE_VERSION
+# Sort and create an array
+SVN_TAGS=( $(printf "%s\n" $SVN_TAGS | sort -V) )
+COUNT=${#SVN_TAGS[@]}
+SVN_LATEST=${SVN_TAGS[@]:$COUNT-1:1}
+
+# Get mirror repo
+
+MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
+
+# Current release on GH
+
+GH_JSON=$(curl -s "https://api.github.com/repos/$MIRROR/releases/latest")
+if ! jq -e '.' <<<"$JSON" &>/dev/null; then
+	die "Failed to retrieve JSON data from https://api.github.com/repos/$MIRROR/releases/latest"
+fi
+
+GH_LATEST=$(jq -r '. .tag_name' <<<"$GH_JSON")
+
+yellow "Current stable tag: ${CURRENT_STABLE_VERSION}"
+yellow "Latest tag in SVN: ${SVN_LATEST}"
+yellow "Latest release tag in GH: ${GH_LATEST}"
+
+# Compare versions and abort if things look wrong
+
+if version_compare "$SVN_LATEST" "$CURRENT_STABLE_VERSION" "1" && version_compare "$GH_LATEST" "$CURRENT_STABLE_VERSION" "1"
+	then echo "Updating the stable tag for ${WPSLUG} to:"
+	red "${SVN_LATEST}"
+	proceed_p "" "Continue?"
+	echo ""
+	elif [[ "$SVN_LATEST" == "$CURRENT_STABLE_VERSION" ]] && [[ "$GH_LATEST" == "$CURRENT_STABLE_VERSION" ]] 
+		then echo "All versions are the same. Nothing to update."
+		exit
+	else die "Something doesn’t look right with versions. Please make sure the release was creted on GH and pushed to SVN."
+fi
+
+info "Checking out SVN shallowly to $DIR"
+svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
+success "Done!"
+
+info "Checking out SVN trunk to $DIR/trunk"
+svn -q up trunk
+success "Done!"
+
+# Update trunk to point to the last stable tag.
+info "Modifying 'Stable tag:' value in trunk readme.txt"
+sed -i.bak -e "s/Stable tag: .*/Stable tag: $SVN_LATEST/" trunk/readme.txt
+rm trunk/readme.txt.bak # We need a backup file because macOS requires it.
+echo ""
+yellow "The diff you are about to commit:"
+svn diff
+
+echo ""
+proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?"
+svn ci -m "Update stable tag"
