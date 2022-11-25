@@ -89,10 +89,6 @@ fi
 
 GH_LATEST=$(jq -r '. .tag_name' <<<"$GH_JSON")
 
-GH_LATEST=1.5.4
-SVN_LATEST=1.5.4
-CURRENT_STABLE_VERSION=1.5.5
-
 yellow "Current stable tag: ${CURRENT_STABLE_VERSION}"
 yellow "Latest tag in SVN: ${SVN_LATEST}"
 yellow "Latest release tag in GH: ${GH_LATEST}"
