@@ -89,13 +89,17 @@ fi
 
 GH_LATEST=$(jq -r '. .tag_name' <<<"$GH_JSON")
 
+GH_LATEST=1.5.4
+SVN_LATEST=1.5.4
+CURRENT_STABLE_VERSION=1.5.5
+
 yellow "Current stable tag: ${CURRENT_STABLE_VERSION}"
 yellow "Latest tag in SVN: ${SVN_LATEST}"
 yellow "Latest release tag in GH: ${GH_LATEST}"
 
 # Compare versions and abort if things look wrong
 
-if version_compare "$SVN_LATEST" "$CURRENT_STABLE_VERSION" "1" && version_compare "$GH_LATEST" "$CURRENT_STABLE_VERSION" "1"
+if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURRENT_STABLE_VERSION" "1"
 	then echo "Updating the stable tag for ${WPSLUG} to:"
 	red "${SVN_LATEST}"
 	proceed_p "" "Continue?"
@@ -105,23 +109,3 @@ if version_compare "$SVN_LATEST" "$CURRENT_STABLE_VERSION" "1" && version_compar
 		exit
 	else die "Something doesn’t look right with versions. Please make sure the release was creted on GH and pushed to SVN."
 fi
-
-info "Checking out SVN shallowly to $DIR"
-svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
-success "Done!"
-
-info "Checking out SVN trunk to $DIR/trunk"
-svn -q up trunk
-success "Done!"
-
-# Update trunk to point to the last stable tag.
-info "Modifying 'Stable tag:' value in trunk readme.txt"
-sed -i.bak -e "s/Stable tag: .*/Stable tag: $SVN_LATEST/" trunk/readme.txt
-rm trunk/readme.txt.bak # We need a backup file because macOS requires it.
-echo ""
-yellow "The diff you are about to commit:"
-svn diff
-
-echo ""
-proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?"
-svn ci -m "Update stable tag"
