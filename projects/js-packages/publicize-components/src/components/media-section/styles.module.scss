@@ -19,6 +19,17 @@
 	position: relative;
 }
 
+.notice {
+	margin: 0 0 8px 0;
+	padding-right: 8px !important;
+	padding-bottom: 0;
+}
+
+.max_notice {
+	padding: 0 0 0 8px;
+	margin: 0;
+}
+
 .toggle,
 .preview {
 	display: block;
