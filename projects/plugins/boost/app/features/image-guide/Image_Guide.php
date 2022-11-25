@@ -12,7 +12,6 @@ class Image_Guide implements Feature {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$override = defined( 'JETPACK_BOOST_IMAGE_GUIDE' ) && JETPACK_BOOST_IMAGE_GUIDE && isset( $_GET['jb-debug-ig'] );
 
-
 		// Show the UI only when the user is logged in, with sufficient permissions and isn't looking at the dashboard.
 		if ( true !== $override && ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
 			return;
