@@ -37,7 +37,6 @@ export default function Save( { className, attributes } ) {
 	const {
 		subscribePlaceholder,
 		showSubscribersTotal,
-		includeSocialFollowers,
 		buttonOnNewLine,
 		submitButtonText,
 		emailFieldBackgroundColor,
@@ -126,7 +125,6 @@ export default function Save( { className, attributes } ) {
 				? subscribePlaceholder
 				: undefined,
 		show_subscribers_total: showSubscribersTotal,
-		include_social_followers: includeSocialFollowers,
 		button_on_newline: buttonOnNewLine,
 		submit_button_text:
 			submitButtonText !== defaultAttributes.submitButtonText.default

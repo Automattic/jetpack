@@ -11,8 +11,8 @@ import deprecatedV8 from './v8';
 // deprecations to run are the most recent. This ordering makes the process
 // a little more performant.
 export default [
-	deprecatedV7,
 	deprecatedV8,
+	deprecatedV7,
 	deprecatedV6,
 	deprecatedV5,
 	deprecatedV4,
