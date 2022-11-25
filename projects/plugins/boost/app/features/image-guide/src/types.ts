@@ -13,7 +13,7 @@ export type MeasuredImage = {
 		width: number;
 		height: number;
 	};
-	oversizedBy: number,
+	oversizedBy: number;
 	expected: {
 		width: number;
 		height: number;

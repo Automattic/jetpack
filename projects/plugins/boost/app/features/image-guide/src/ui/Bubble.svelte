@@ -16,13 +16,18 @@
 		y: 2,
 		easing: backOut,
 	};
-
-	$: oversizedLabel =
-		oversizedBy < 9 ? oversizedBy.toFixed( 1 ) : `${ Math.floor( oversizedBy ) }+`;
 </script>
 
 <div class="bubble {severity}" on:mouseenter transition:fly={scaleConfig}>
-	<span class="label">{oversizedLabel}</span>
+	<span class="label">
+		{#if oversizedBy > 9}
+			{Math.floor( oversizedBy )}x
+		{:else if oversizedBy > 1}
+			{oversizedBy.toFixed( 1 )}x
+		{:else}
+			<span style="font-size: 0.75em;">&lt;</span> 1x
+		{/if}
+	</span>
 </div>
 
 <style lang="scss">

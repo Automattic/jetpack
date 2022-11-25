@@ -8,19 +8,30 @@
 	export let size: GuideSize;
 
 	// Reactive variables because this component can be reused by Svelte.
-	$: imageName = image.url.split( '/' ).pop();
-	$: ratio = image.oversizedBy.toFixed( 2 );
+	$: imageName = image.url.split('/').pop();
+	$: ratio = maybeDecimals(image.oversizedBy);
 	$: potentialSavings = Math.round(
 		image.fileSize.weight - image.fileSize.weight / image.oversizedBy
 	);
 
 	const previewWidth = size === 'normal' ? 100 : 50;
-	const previewHeight = Math.floor(
-		previewWidth / ( image.fileSize.width / image.fileSize.height )
-	);
+	const previewHeight = Math.floor(previewWidth / (image.fileSize.width / image.fileSize.height));
 
-	$: origin = new URL( window.location.href ).origin;
-	$: imageOrigin = new URL( image.url ).origin;
+	$: origin = new URL(window.location.href).origin;
+	$: imageOrigin = new URL(image.url).origin;
+
+	let ratioLabel;
+	$: if (ratio < 1) {
+		ratioLabel = `${(1 / ratio).toFixed(2)}x smaller`;
+	} else if (ratio >= 1 && ratio < 1.2) {
+		ratioLabel = `${ratio.toFixed(2)}x Perfect!`;
+	} else {
+		ratioLabel = `${ratio.toFixed(2)}x larger`;
+	}
+
+	function maybeDecimals(num: number) {
+		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
+	}
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -30,9 +41,38 @@
 
 	<div class="preview">
 		<div class="description">
-			<b>{ratio}x larger</b><br />
-			The image loaded over the network is {ratio}x larger than it appears in the browser.
-			<br />
+			{#if ratio >= 1.3}
+				<div class="title">
+					{ratio}x larger
+				</div>
+				<div class="explanation">
+					The image loaded is {ratio}x larger than it appears in the browser.
+				</div>
+			{:else if ratio === 1}
+				<div class="title">
+					{ratio}x Perfect!
+				</div>
+				<div class="explanation">
+					The image loaded is the same size as it appears in the browser.
+				</div>
+			{:else if ratio > 1 && ratio < 1.3}
+				<div class="title">
+					{ratio}x Good
+				</div>
+				<div class="explanation">
+					Images may not always be perfectly sized on all screen sizes, so this is probably ok
+					The image loaded is {ratio}x larger than it appears in the browser.
+				</div>
+			{:else}
+				{@const stretchedBy = maybeDecimals(1 / ratio)}
+				<div class="title">
+					Stretched by {stretchedBy}x
+				</div>
+				<div class="explanation">
+					<!-- Calculate how many times the image is smaller -->
+					The image loaded is stretched by {stretchedBy}x to fit the available space.
+				</div>
+			{/if}
 		</div>
 		<img
 			src={image.url}
@@ -44,13 +84,6 @@
 	</div>
 
 	<div class="meta">
-		{#if image.fileSize.weight > 0}
-			<div class="row">
-				<div class="label">Image Size</div>
-				<div class="value">{Math.round( image.fileSize.weight )}kb</div>
-			</div>
-		{/if}
-
 		<div class="row">
 			<div class="label">Image Dimensions</div>
 			<div class="value">{image.fileSize.width} x {image.fileSize.height}</div>
@@ -66,62 +99,49 @@
 			<div class="value">{image.onScreen.width} x {image.onScreen.height}</div>
 		</div>
 
-		{#if potentialSavings > 0}
-			<div class="row">
-				<div class="label">Potential savings</div>
-				<div class="value"><strong>{potentialSavings} KB</strong></div>
+		<div class="row">
+			<div class="label">Image Size</div>
+			<div class="value">
+				{#if image.fileSize.weight > 0}
+					{Math.round(image.fileSize.weight)}
+				{:else}
+					--
+				{/if}
+				KB
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="label">Potential savings</div>
+			<div class="value">
+				{#if potentialSavings > 0}
+					<strong>{potentialSavings} KB</strong>
+				{:else}
+					-- KB
+				{/if}
+			</div>
+		</div>
+		{#if imageOrigin !== origin}
+			<div class="info">
+				Unable to estimate file size savings because the image is hosted on a different domain.
 			</div>
 		{/if}
 	</div>
-
-	{#if imageOrigin !== origin}
-		<div class="origin">
-			<p>
-				<strong>Image Source</strong>
-				Unable to fetch image size because the image is hosted on a different domain.
-			</p>
-			<div class="row">
-				<div class="label">Image hosted on</div>
-				<div class="value">{imageOrigin}</div>
-			</div>
-			<div class="row">
-				<div class="label">Current page served from</div>
-				<div class="value">{origin}</div>
-			</div>
-		</div>
-	{/if}
 </div>
 
 <style lang="scss">
 	:root {
 		--shadow-color: 97deg 21% 44%;
-		--shadow: 0px 0px 0px hsl( var( --shadow-color ) / 0.35 ),
-			0px 0px 0.5px -0.3px hsl( var( --shadow-color ) / 0.34 ),
-			0px 0px 2px -0.4px hsl( var( --shadow-color ) / 0.27 ),
-			0px 0px 0px -1.9px hsl( var( --shadow-color ) / 0.27 ),
-			0px 0px 0px -2.6px hsl( var( --shadow-color ) / 0.25 ),
-			0px 0px 0px -3.2px hsl( var( --shadow-color ) / 0.19 ),
-			0.1px 0px 0.1px -3.8px hsl( var( --shadow-color ) / 0.14 );
-	}
-	.origin {
-		margin-top: 30px;
-		max-width: 400px;
-		background-color: hsl( 240deg 0% 100% / 55% );
-		background: linear-gradient(
-			70deg,
-			#f6f6f4 7.24%,
-			hsla( 46, 45%, 94%, 0.8 ) 64.73%,
-			hsla( 100, 40%, 88%, 0.725 ) 116.53%
-		);
-		padding: 20px;
-		border-radius: 7px;
-		box-shadow: var( --shadow );
-		strong {
-			display: block;
-		}
+		--shadow: 0px 0px 0px hsl(var(--shadow-color) / 0.35),
+			0px 0px 0.5px -0.3px hsl(var(--shadow-color) / 0.34),
+			0px 0px 2px -0.4px hsl(var(--shadow-color) / 0.27),
+			0px 0px 0px -1.9px hsl(var(--shadow-color) / 0.27),
+			0px 0px 0px -2.6px hsl(var(--shadow-color) / 0.25),
+			0px 0px 0px -3.2px hsl(var(--shadow-color) / 0.19),
+			0.1px 0px 0.1px -3.8px hsl(var(--shadow-color) / 0.14);
 	}
 
-	:global( .jetpack-boost-guide.relative ) {
+	:global(.jetpack-boost-guide.relative) {
 		position: relative;
 	}
 
@@ -134,16 +154,21 @@
 		width: 100%;
 		img {
 			border-radius: 3px;
-			box-shadow: 0 0 2px 1px hsl( 0deg 0% 95% );
+			box-shadow: 0 0 2px 1px hsl(0deg 0% 95%);
 		}
+	}
+
+	.info {
+		margin-top: 15px;
+		font-size: 0.9em;
 	}
 
 	.details {
 		color: #3c434a;
 		padding: 25px;
 		font-family: sans-serif;
-		background-color: rgb( 255, 255, 255 );
-		background: linear-gradient( 159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53% );
+		background-color: rgb(255, 255, 255);
+		background: linear-gradient(159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53%);
 		margin-bottom: 10px;
 
 		width: fit-content;
@@ -156,6 +181,13 @@
 		text-align: left;
 	}
 
+	.title {
+		font-weight: 600;
+	}
+	.explanation {
+		margin-top: 5px;
+	}
+
 	.description {
 		font-size: 0.9em;
 	}
@@ -165,7 +197,7 @@
 		gap: 10px;
 		justify-content: space-between;
 		margin-bottom: 5px;
-		border-bottom: 1px dotted hsl( 0deg 0% 85% );
+		border-bottom: 1px dotted hsl(0deg 0% 85%);
 		font-size: 14px;
 		&:last-child {
 			border-bottom: none;
@@ -177,11 +209,11 @@
 		bottom: -25px;
 		right: -50px;
 		opacity: 0.04;
-		transform: rotate( 15deg );
+		transform: rotate(15deg);
 		pointer-events: none;
 	}
 
-	:global( .guide.small ) {
+	:global(.guide.small) {
 		.preview {
 			gap: 8px;
 		}
