@@ -227,7 +227,7 @@ class Sender {
 	/**
 	 * Retrieve the next sync time.
 	 *
-	 * Update @since $$next-version%%
+	 * Update @since $$next-version$$
 	 * Sometimes when we process Sync requests in Jetpack, the server clock can be a
 	 * bit in the future and this can lock Sync to not send stuff for a while.
 	 * We are introducing an extra check, to make sure to limit the next_sync_time
