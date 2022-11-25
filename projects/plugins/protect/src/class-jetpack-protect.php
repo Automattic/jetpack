@@ -56,27 +56,7 @@ class Jetpack_Protect {
 					)
 				);
 				// Sync package.
-				$config->ensure(
-					'sync',
-					array(
-						'jetpack_sync_modules'             => array(
-							'Automattic\\Jetpack\\Sync\\Modules\\Options',
-							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
-							'Automattic\\Jetpack\\Sync\\Modules\\Users',
-						),
-						'jetpack_sync_callable_whitelist'  => array(
-							'main_network_site' => array( 'Automattic\\Jetpack\\Connection\\Urls', 'main_network_site_url' ),
-							'get_plugins'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
-							'get_themes'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
-							'wp_version'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
-						),
-						'jetpack_sync_options_contentless' => array(),
-						'jetpack_sync_options_whitelist'   => array(
-							'active_plugins',
-							'stylesheet',
-						),
-					)
-				);
+				$config->ensure( 'sync' );
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
