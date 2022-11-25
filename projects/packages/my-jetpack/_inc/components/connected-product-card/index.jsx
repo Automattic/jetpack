@@ -9,7 +9,7 @@ import ProductCard from '../product-card';
 const ConnectedProductCard = ( { admin, slug } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
-	const { name, description, manageUrl } = detail;
+	const { name, description, manageUrl, requiresUserConnection } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 
@@ -26,7 +26,7 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 	 * Redirect only if connected
 	 */
 	const callOnlyIfAllowed = callback => () => {
-		if ( ! isRegistered || ! isUserConnected ) {
+		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
 			navigateToConnectionPage();
 			return;
 		}
@@ -46,7 +46,7 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			slug={ slug }
-			onActivate={ activate }
+			onActivate={ callOnlyIfAllowed( activate ) }
 			onAdd={ callOnlyIfAllowed( navigateToAddProductPage ) }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
