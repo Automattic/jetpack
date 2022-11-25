@@ -117,11 +117,13 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 	};
 
 	const betaBadgeStyle = {
-		padding: '4px',
-		'border-radius': '2px',
+		padding: '3px 6px',
+		'border-radius': '4px',
 		background: '#2FB41F',
 		color: 'white',
 		display: 'block',
+		'font-weight': 600,
+		'font-size': '11px',
 	};
 
 	return (
@@ -144,7 +146,10 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 							) }
 						</HelpMessage>
 					) }
-					<p style={ { display: 'flex', 'font-size': '12px', gap: '8px' } }>
+					<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
+						{ __( 'Where to find your Salesforce Organization ID', 'jetpack' ) }
+					</ExternalLink>
+					<p style={ { 'margin-top': '32px', display: 'flex', 'font-size': '12px', gap: '8px' } }>
 						<div>
 							<span style={ betaBadgeStyle }>BETA</span>
 						</div>
@@ -152,9 +157,6 @@ export default ( { salesforceData, setAttributes, instanceId } ) => {
 							{ __( 'This premium feature is currently free to use as it is in beta.', 'jetpack' ) }
 						</div>
 					</p>
-					<ExternalLink href="https://help.salesforce.com/s/articleView?id=000325251&type=1">
-						{ __( 'Where to find your Salesforce Organization ID', 'jetpack' ) }
-					</ExternalLink>
 				</BaseControl>
 			</PanelBody>
 		</Fragment>
