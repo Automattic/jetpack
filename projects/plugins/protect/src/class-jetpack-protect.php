@@ -108,6 +108,7 @@ class Jetpack_Protect {
 
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+		Waf_Runner::initialize();
 
 		// Sets up JITMS.
 		JITM::configure();
