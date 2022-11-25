@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Include videos with Site Default privacy setting on the search results, choosing between the public or private filter based on the site default privacy setting.
