@@ -1,13 +1,5 @@
-type Image = {
-	type: 'img' | 'srcset' | 'background';
-	url: string;
-	node: HTMLElement;
-	fileSize: {
-		width: number;
-		height: number;
-		weight: number;
-	};
-};
+import type { Image } from './types';
+
 export async function load( domElements: Element[] ): Promise< Image[] > {
 	const parsedNodes = domElements.map( async ( el: Element ): Promise< Image | false > => {
 		// Handle <img> tags first.

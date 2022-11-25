@@ -20,6 +20,8 @@ export type MeasuredImage = {
 	};
 };
 
+export type Image = Omit< MeasuredImage, 'expected' | 'onScreen' | 'oversizedBy' >;
+
 export interface ImageComponentConfig extends ComponentConstructorOptions {
 	target: HTMLElement;
 	props: {

@@ -1,6 +1,4 @@
-import type { MeasuredImage } from './types';
-
-type Image = Omit< MeasuredImage, 'scaling' | 'onScreen' >;
+import type { Image, MeasuredImage } from './types';
 
 export function measure( images: Image[], dpr = window.devicePixelRatio || 1 ): MeasuredImage[] {
 	return images.map( image => {
