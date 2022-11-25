@@ -9,6 +9,7 @@ describe( 'ActivationScreenControls', () => {
 			disabled: false,
 			isActivating: false,
 			license: 'test',
+			availableLicenses: [],
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
 		};
@@ -25,6 +26,7 @@ describe( 'ActivationScreenControls', () => {
 			disabled: true,
 			isActivating: false,
 			license: 'test',
+			availableLicenses: [],
 			licenseError: 'Invalid license.',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
@@ -46,6 +48,27 @@ describe( 'ActivationScreenControls', () => {
 			expect(
 				// eslint-disable-next-line testing-library/no-node-access
 				node.closest( '.jp-license-activation-screen-controls--license-field-error' )
+			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Render the ActivationScreenControls with the license key selector', () => {
+		const testProps = {
+			activateLicense: () => null,
+			disabled: true,
+			isActivating: false,
+			license: 'test',
+			availableLicenses: [ { product: 'jetpack-complete', license_key: 'key' } ],
+			onLicenseChange: () => null,
+			siteUrl: 'jetpack.com',
+		};
+
+		it( 'Select componet is shown', () => {
+			render( <ActivationScreenControls { ...testProps } /> );
+			const input = screen.getByText( 'jetpack-complete - key' );
+			expect(
+				// eslint-disable-next-line testing-library/no-node-access
+				input.closest( 'select' )
 			).toBeInTheDocument();
 		} );
 	} );

@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import ActivationScreen from '..';
@@ -14,15 +14,19 @@ describe( 'ActivationScreen', () => {
 		successImage: '/success.png',
 	};
 
+	jest.spyOn( restApi, 'getUserLicenses' ).mockResolvedValue( { items: [] } );
 	const apiStub = jest.spyOn( restApi, 'attachLicenses' ).mockReset();
 
 	afterEach( () => {
 		apiStub.mockReset();
 	} );
 
-	it( 'should render ActivationScreenControls first', () => {
+	it( 'should render ActivationScreenControls first', async () => {
 		render( <ActivationScreen { ...testProps } /> );
-		expect( screen.getByLabelText( 'License key' ) ).toBeInTheDocument();
+
+		await act( async () => {
+			expect( screen.getByLabelText( 'License key' ) ).toBeInTheDocument();
+		} );
 	} );
 
 	it( 'should render an error from API', async () => {
