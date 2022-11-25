@@ -633,6 +633,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			} elseif ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
 				$subs_count = wpcom_subs_total_for_blog();
 			}
+			return $subs_count;
 		}
 	}
 
