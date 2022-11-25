@@ -17,7 +17,7 @@ import { upload } from '@wordpress/icons';
  */
 import { deleteTrackForGuid } from '../../../../../lib/video-tracks';
 import { TrackProps, VideoControlProps, VideoId } from '../../types';
-import { captionIcon } from '../icons';
+import { tracksIcon } from '../icons';
 import './style.scss';
 import { TrackItemProps, TrackListProps } from './types';
 import type React from 'react';
@@ -103,7 +103,7 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 					aria-expanded={ isOpen }
 					aria-haspopup="true"
 					onClick={ onToggle }
-					icon={ captionIcon }
+					icon={ tracksIcon }
 				/>
 			) }
 			renderContent={ () => {

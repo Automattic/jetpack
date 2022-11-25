@@ -14,7 +14,7 @@ export const VideoPressIcon = (
 	</SVG>
 );
 
-export const captionIcon = (
+export const tracksIcon = (
 	<SVG width="18" height="14" viewBox="0 0 18 14" role="img" fill="none">
 		<Rect
 			x="0.75"
