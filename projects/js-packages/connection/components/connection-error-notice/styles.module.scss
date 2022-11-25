@@ -59,11 +59,13 @@
 		justify-content: center;
 		align-items: center;
 		padding: 8px 24px;
+		margin-left: 40px;
 		margin-top: 24px;
 		background: #000000;
 		border-radius: 4px;
 
 		@include break-medium {
+			margin-left: 0;
 			margin-top: 0;
 			white-space: nowrap;
 		}
@@ -88,10 +90,5 @@
 		flex-shrink: 0;
 		align-self: flex-start;
 		margin-right: 16px;
-		margin-bottom: 24px;
-
-		@include break-medium {
-			margin-bottom: 0;
-		}
 	}
 }

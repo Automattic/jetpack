@@ -48,7 +48,7 @@
 		align-self: center;
 	}
 
-	button, button:visited, button:active, button:hover {
+	& :global(.components-notice__action) {
 		color: var( --jp-white );
 		font-weight: 600;
 		font-size: 16px;
@@ -59,12 +59,14 @@
 		justify-content: center;
 		align-items: center;
 		padding: 8px 24px;
+		margin-left: calc( var( --spacing-base ) * 2 + 24px ); // 16px
 		margin-top: 24px;
 		background: #000000;
 		border-radius: var( --jp-border-radius );
 		height: auto;
 
 		@include break-medium {
+			margin-left: 0;
 			margin-top: 0;
 			white-space: nowrap;
 		}
@@ -82,14 +84,9 @@
 		flex-shrink: 0;
 		align-self: flex-start;
 		margin-right: calc( var( --spacing-base ) * 2 ); // 16px
-		margin-right: calc( var( --spacing-base ) * 3 ); // 24px
 
 		&.nofill {
 			fill: none;
-		}
-
-		@include break-medium {
-			margin-bottom: 0;
 		}
 	}
 }
