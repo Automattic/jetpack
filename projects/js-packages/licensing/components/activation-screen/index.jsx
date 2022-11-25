@@ -2,7 +2,7 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
@@ -65,6 +65,30 @@ const ActivationScreen = props => {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
+	const [ fetchingAvailableLicenses, setFetchingAvailableLicenses ] = useState( false );
+	const [ availableLicenses, setAvailableLicenses ] = useState( [] );
+
+	useEffect( () => {
+		const { apiRoot, apiNonce } = window?.myJetpackRest || {};
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+
+		setFetchingAvailableLicenses( true );
+		return restApi
+			.getUserLicenses()
+			.then( ( { items } ) => {
+				const detachedLicenses = items
+					? items.filter( ( { attached_at } ) => attached_at === null )
+					: [];
+
+				if ( detachedLicenses.length ) {
+					setLicense( detachedLicenses[ 0 ].license_key );
+					setAvailableLicenses( detachedLicenses );
+				}
+			} )
+			.finally( () => setFetchingAvailableLicenses( false ) );
+	}, [] );
+
 	const activateLicense = useCallback( () => {
 		if ( isSaving ) {
 			return Promise.resolve();
@@ -118,6 +142,8 @@ const ActivationScreen = props => {
 				siteUrl={ siteRawUrl }
 				licenseError={ licenseError }
 				isActivating={ isSaving }
+				availableLicenses={ availableLicenses }
+				fetchingAvailableLicenses={ fetchingAvailableLicenses }
 			/>
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
 		</div>
