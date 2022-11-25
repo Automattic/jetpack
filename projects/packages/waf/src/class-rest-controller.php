@@ -115,12 +115,12 @@ class REST_Controller {
 	 * @return bool|WP_Error True if user can view the Jetpack admin page.
 	 */
 	public static function waf_permissions_callback() {
-		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
 		return new WP_Error(
-			'invalid_user_permission_manage_modules',
+			'invalid_user_permission_manage_options',
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
