@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Path, SVG, Rect } from '@wordpress/components';
+import { Path, SVG } from '@wordpress/components';
 
 export const VideoPressIcon = (
 	<SVG width="29" height="21" viewBox="0 0 29 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,18 +15,14 @@ export const VideoPressIcon = (
 );
 
 export const tracksIcon = (
-	<SVG width="18" height="14" viewBox="0 0 18 14" role="img" fill="none">
-		<Rect
-			x="0.75"
-			y="0.75"
-			width="16.5"
-			height="12.5"
-			rx="1.25"
-			stroke="black"
-			strokeWidth="1.5"
-			fill="none"
+	<SVG width="18" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<Path d="M8 14.5H16V16H8V14.5Z" fill="black" />
+		<Path d="M16 12H8V13.5H16V12Z" fill="black" />
+		<Path
+			fillRule="evenodd"
+			clipRule="evenodd"
+			d="M4 6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V18C20 18.5304 19.7893 19.0391 19.4142 19.4142C19.0391 19.7893 18.5304 20 18 20H6C5.46957 20 4.96086 19.7893 4.58579 19.4142C4.21071 19.0391 4 18.5304 4 18V6ZM6 5.5H18C18.1326 5.5 18.2598 5.55268 18.3536 5.64645C18.4473 5.74021 18.5 5.86739 18.5 6V18C18.5 18.1326 18.4473 18.2598 18.3536 18.3536C18.2598 18.4473 18.1326 18.5 18 18.5H6C5.86739 18.5 5.74021 18.4473 5.64645 18.3536C5.55268 18.2598 5.5 18.1326 5.5 18V6C5.5 5.86739 5.55268 5.74021 5.64645 5.64645C5.74021 5.55268 5.86739 5.5 6 5.5Z"
+			fill="black"
 		/>
-		<Path d="M3 7H15" stroke="black" strokeWidth="1.5" />
-		<Path d="M3 10L15 10" stroke="black" strokeWidth="1.5" />
 	</SVG>
 );
