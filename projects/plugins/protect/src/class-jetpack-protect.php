@@ -34,6 +34,8 @@ use Automattic\Jetpack\Waf\Waf_Runner;
  */
 class Jetpack_Protect {
 
+	const JETPACK_WAF_MODULE_SLUG = 'waf';
+
 	/**
 	 * Constructor.
 	 */
@@ -83,6 +85,8 @@ class Jetpack_Protect {
 			},
 			1
 		);
+
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -254,6 +258,16 @@ class Jetpack_Protect {
 
 			$wp_admin_bar->add_node( $args );
 		}
+	}
+
+	/**
+	 * Adds module to the list of available modules
+	 *
+	 * @param array $modules The available modules.
+	 * @return array
+	 */
+	public function protect_filter_available_modules( $modules ) {
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
 	}
 
 	/**
