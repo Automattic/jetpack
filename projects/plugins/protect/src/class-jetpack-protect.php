@@ -82,6 +82,9 @@ class Jetpack_Protect {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
+
+				// Web application firewall package.
+				$config->ensure( 'waf' );
 			},
 			1
 		);
