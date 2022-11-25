@@ -306,45 +306,6 @@ class WPCOM_Stats {
 	}
 
 	/**
-	 * Get the streak for the site.
-	 *
-	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
-	 */
-	public function get_streak( $args = array() ) {
-
-		$this->resource = 'streak';
-
-		return $this->fetch_stats( $args );
-	}
-
-	/**
-	 * Get the insights for the site.
-	 *
-	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
-	 */
-	public function get_insights( $args = array() ) {
-
-		$this->resource = 'insights';
-
-		return $this->fetch_stats( $args );
-	}
-
-	/**
-	 * Get the highlights for the site.
-	 *
-	 * @param array $args Optional query parameters.
-	 * @return array|WP_Error
-	 */
-	public function get_highlights( $args = array() ) {
-
-		$this->resource = 'highlights';
-
-		return $this->fetch_stats( $args );
-	}
-
-	/**
 	 * Build WPCOM REST API endpoint.
 	 *
 	 * @return string
