@@ -24,12 +24,12 @@ import './style.scss';
 const ActivationScreenControls = props => {
 	const {
 		activateLicense,
+		availableLicenses,
+		fetchingAvailableLicenses,
 		isActivating,
 		license,
 		licenseError,
 		onLicenseChange,
-		availableLicenses,
-		fetchingAvailableLicenses,
 	} = props;
 	const hasLicenseError = licenseError !== null && licenseError !== undefined;
 
@@ -135,13 +135,13 @@ const ActivationScreenControls = props => {
 
 ActivationScreenControls.propTypes = {
 	activateLicense: PropTypes.func.isRequired,
+	availableLicenses: PropTypes.array,
+	fetchingAvailableLicenses: PropTypes.bool,
 	isActivating: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
 	licenseError: PropTypes.string,
 	onLicenseChange: PropTypes.func.isRequired,
 	siteUrl: PropTypes.string.isRequired,
-	availableLicenses: PropTypes.array,
-	fetchingAvailableLicenses: PropTypes.bool,
 };
 
 export default ActivationScreenControls;

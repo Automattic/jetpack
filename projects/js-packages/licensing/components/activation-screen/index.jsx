@@ -136,14 +136,14 @@ const ActivationScreen = props => {
 	const renderActivationControl = () => (
 		<div className="jp-license-activation-screen">
 			<ActivationScreenControls
-				license={ license }
-				onLicenseChange={ setLicense }
 				activateLicense={ activateLicense }
-				siteUrl={ siteRawUrl }
-				licenseError={ licenseError }
-				isActivating={ isSaving }
 				availableLicenses={ availableLicenses }
 				fetchingAvailableLicenses={ fetchingAvailableLicenses }
+				isActivating={ isSaving }
+				license={ license }
+				licenseError={ licenseError }
+				onLicenseChange={ setLicense }
+				siteUrl={ siteRawUrl }
 			/>
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
 		</div>

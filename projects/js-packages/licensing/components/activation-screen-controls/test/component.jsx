@@ -6,10 +6,10 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with fresh props', () => {
 		const testProps = {
 			activateLicense: () => null,
+			availableLicenses: [],
 			disabled: false,
 			isActivating: false,
 			license: 'test',
-			availableLicenses: [],
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
 		};
@@ -23,10 +23,10 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with license error', () => {
 		const testProps = {
 			activateLicense: () => null,
+			availableLicenses: [],
 			disabled: true,
 			isActivating: false,
 			license: 'test',
-			availableLicenses: [],
 			licenseError: 'Invalid license.',
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
@@ -55,10 +55,10 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with the license key selector', () => {
 		const testProps = {
 			activateLicense: () => null,
+			availableLicenses: [ { product: 'jetpack-complete', license_key: 'key' } ],
 			disabled: true,
 			isActivating: false,
 			license: 'test',
-			availableLicenses: [ { product: 'jetpack-complete', license_key: 'key' } ],
 			onLicenseChange: () => null,
 			siteUrl: 'jetpack.com',
 		};
