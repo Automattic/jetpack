@@ -162,7 +162,6 @@ class Waf_Runner {
 			self::IP_BLOCK_LIST_OPTION_NAME    => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME       => get_option( self::SHARE_DATA_OPTION_NAME ),
 			'bootstrap_path'                   => self::get_bootstrap_file_path(),
-			'has_rules_access'                 => self::has_rules_access(),
 		);
 	}
 
@@ -174,16 +173,6 @@ class Waf_Runner {
 	private static function get_bootstrap_file_path() {
 		$bootstrap = new Waf_Standalone_Bootstrap();
 		return $bootstrap->get_bootstrap_file_path();
-	}
-
-	/**
-	 * Has Rules Access
-	 *
-	 * @return bool True when the current site has access to latest firewall rules.
-	 */
-	private static function has_rules_access() {
-		// any site with Jetpack Scan can download new WAF rules
-		return \Jetpack_Plan::supports( 'scan' );
 	}
 
 	/**
