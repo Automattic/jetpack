@@ -51,6 +51,18 @@ const useWafData = () => {
 			.finally( () => setWafIsLoading( false ) );
 	}, [ refreshWaf, setWafIsLoading, waf.config.jetpackWafIpList ] );
 
+	/**
+	 * Toggle Share Data
+	 *
+	 * Flips the switch on the share data option, and then refreshes the data.
+	 */
+	const toggleShareData = useCallback( () => {
+		setWafIsLoading( true );
+		return API.updateWaf( { jetpack_waf_share_data: ! waf.config.jetpackWafShareData } )
+			.then( refreshWaf )
+			.finally( () => setWafIsLoading( false ) );
+	}, [ refreshWaf, setWafIsLoading, waf.config.jetpackWafShareData ] );
+
 	const updateConfig = useCallback(
 		update => {
 			setWafIsLoading( true );
@@ -75,6 +87,7 @@ const useWafData = () => {
 		refreshWaf,
 		toggleWaf,
 		toggleManualRules,
+		toggleShareData,
 		updateConfig,
 	};
 };

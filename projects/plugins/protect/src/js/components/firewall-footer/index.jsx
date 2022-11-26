@@ -2,6 +2,8 @@ import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-compo
 import { CheckboxControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useState, useEffect, useCallback } from 'react';
+import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
@@ -40,12 +42,33 @@ const StandaloneMode = () => {
 };
 
 const ShareData = () => {
+	const { config, isLoading, toggleShareData } = useWafData();
+	const { jetpackWafShareData } = config || {};
+
+	const [ settings, setSettings ] = useState( {
+		jetpack_waf_share_data: jetpackWafShareData,
+	} );
+
+	const handleShareDataChange = useCallback( () => {
+		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
+		toggleShareData();
+	}, [ settings, toggleShareData ] );
+
+	useEffect( () => {
+		setSettings( {
+			jetpack_waf_share_data: jetpackWafShareData,
+		} );
+	}, [ jetpackWafShareData ] );
+
 	return (
 		<div className={ styles[ 'share-data-section' ] }>
 			<Title mb={ 2 }>{ __( ' Share data with Jetpack', 'jetpack-protect' ) }</Title>
 			<div className={ styles[ 'footer-checkbox' ] }>
-				{ /* To-Do: Add checkbox functionality */ }
-				<CheckboxControl checked={ true } />
+				<CheckboxControl
+					checked={ Boolean( settings.jetpack_waf_share_data ) }
+					onChange={ handleShareDataChange }
+					disabled={ isLoading }
+				/>
 				<Text>
 					{ __(
 						'Allow Jetpack to collect data to improve firewall protection and rules. Collected data is also used to display advanced usage metrics.',
@@ -58,11 +81,13 @@ const ShareData = () => {
 };
 
 const FirewallFooter = () => {
+	const { isEnabled } = useWafData();
+
 	return (
 		<AdminSectionHero>
 			<SeventyFiveLayout
 				main={ <StandaloneMode /> }
-				secondary={ <ShareData /> }
+				secondary={ isEnabled && <ShareData /> }
 				preserveSecondaryOnMobile={ true }
 			/>
 		</AdminSectionHero>
