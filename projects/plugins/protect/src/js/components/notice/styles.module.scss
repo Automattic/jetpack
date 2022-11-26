@@ -9,6 +9,17 @@
         border-left: 4px solid var( --jp-yellow-20 );
         margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
     }
+
+    &.notice--floating {
+        position: fixed;
+        top: calc( var( --spacing-base ) * 6 ); // 48px
+        right: calc( var( --spacing-base ) * 3 ); // 24px
+        margin-left: calc( var( --spacing-base ) * 3 ); // 24px
+
+        @media ( max-width: 782px ) {
+            top: calc( var( --spacing-base ) * 8 ); // 72px
+        }
+    }
 }
 
 .notice__icon {
@@ -41,4 +52,15 @@
         color: var( --jp-gray-90 );
         background-color: var( --jp-yellow-5 );
     }
+}
+
+.notice__close {
+    fill: var( --jp-gray );
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc( var( --spacing-base ) * 1.5 ); // 12px
+    background: transparent;
+    border: none;
 }

@@ -1,5 +1,5 @@
 import { Button, Col, Container, Text } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import API from '../../api';
@@ -9,13 +9,15 @@ import AdminPage from '../admin-page';
 import FirewallFooter from '../firewall-footer';
 import ConnectedFirewallHeader from '../firewall-header';
 import FormToggle from '../form-toggle';
+import Notice from '../notice';
 import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
 const FirewallPage = () => {
+	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const { config, isSeen, isEnabled, toggleWaf, toggleManualRules, updateConfig } = useWafData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
-	const { setWafIsSeen } = useDispatch( STORE_ID );
+	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
 
 	const [ settings, setSettings ] = useState( {
 		module_enabled: isEnabled,
@@ -25,10 +27,29 @@ const FirewallPage = () => {
 	} );
 	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
 
+	const successNoticeDuration = 5000;
+
 	const saveChanges = useCallback( () => {
 		setSettingsIsUpdating( true );
-		updateConfig( settings ).finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, updateConfig ] );
+		updateConfig( settings )
+			.then( () =>
+				setNotice( {
+					type: 'success',
+					duration: successNoticeDuration,
+					message: __( 'Changes saved.', 'jetpack-protect' ),
+				} )
+			)
+			.catch( () => {
+				setNotice( {
+					type: 'error',
+					message: __(
+						'An error ocurred. Please try again or contact support.',
+						'jetpack-protect'
+					),
+				} );
+			} )
+			.finally( () => setSettingsIsUpdating( false ) );
+	}, [ settings, updateConfig, setNotice ] );
 
 	const handleChange = useCallback(
 		event => {
@@ -39,16 +60,56 @@ const FirewallPage = () => {
 	);
 
 	const handleEnabledChange = useCallback( () => {
+		const newWafStatus = ! settings.module_enabled;
 		setSettingsIsUpdating( true );
-		setSettings( { ...settings, module_enabled: ! settings.module_enabled } );
-		toggleWaf().finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleWaf ] );
+		setSettings( { ...settings, module_enabled: newWafStatus } );
+		toggleWaf()
+			.then( () =>
+				setNotice( {
+					type: 'success',
+					duration: successNoticeDuration,
+					message: newWafStatus
+						? __( `Firewall is active.`, 'jetpack-protect' )
+						: __( `Firewall is disabled.`, 'jetpack-protect' ),
+				} )
+			)
+			.catch( () => {
+				setNotice( {
+					type: 'error',
+					message: __(
+						'An error ocurred. Please try again or contact support.',
+						'jetpack-protect'
+					),
+				} );
+			} )
+			.finally( () => setSettingsIsUpdating( false ) );
+	}, [ settings, toggleWaf, setNotice ] );
 
 	const handleManualRulesChange = useCallback( () => {
+		const newManualRulesStatus = ! settings.jetpack_waf_ip_list;
 		setSettingsIsUpdating( true );
-		setSettings( { ...settings, jetpack_waf_ip_list: ! settings.jetpack_waf_ip_list } );
-		toggleManualRules().finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleManualRules ] );
+		setSettings( { ...settings, jetpack_waf_ip_list: newManualRulesStatus } );
+		toggleManualRules()
+			.then( () =>
+				setNotice( {
+					type: 'success',
+					duration: successNoticeDuration,
+					message: newManualRulesStatus
+						? __( 'Manual rules are active.', 'jetpack-protect' )
+						: __( 'Manual rules are disabled.', 'jetpack-protect' ),
+				} )
+			)
+			.catch( () => {
+				setNotice( {
+					type: 'error',
+					message: __(
+						'An error ocurred. Please try again or contact support.',
+						'jetpack-protect'
+					),
+				} );
+			} )
+			.finally( () => setSettingsIsUpdating( false ) );
+	}, [ settings, toggleManualRules, setNotice ] );
 
 	/**
 	 * Sync state.settings with application state WAF config
@@ -79,6 +140,7 @@ const FirewallPage = () => {
 
 	return (
 		<AdminPage>
+			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<ConnectedFirewallHeader />
 			<Container className={ styles.container } horizontalSpacing={ 8 }>
 				<Col>

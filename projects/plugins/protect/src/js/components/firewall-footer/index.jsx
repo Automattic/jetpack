@@ -44,6 +44,7 @@ const StandaloneMode = () => {
 const ShareData = () => {
 	const { config, isLoading, toggleShareData } = useWafData();
 	const { jetpackWafShareData } = config || {};
+	const { setNotice } = useDispatch( STORE_ID );
 
 	const [ settings, setSettings ] = useState( {
 		jetpack_waf_share_data: jetpackWafShareData,
@@ -51,8 +52,26 @@ const ShareData = () => {
 
 	const handleShareDataChange = useCallback( () => {
 		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
-		toggleShareData();
-	}, [ settings, toggleShareData ] );
+		toggleShareData()
+			.then( () =>
+				setNotice( {
+					type: 'success',
+					duration: 5000,
+					dismissable: true,
+					message: __( 'Changes saved.', 'jetpack-protect' ),
+				} )
+			)
+			.catch( () => {
+				setNotice( {
+					type: 'error',
+					dismissable: true,
+					message: __(
+						'An error ocurred. Please try again or contact support.',
+						'jetpack-protect'
+					),
+				} );
+			} );
+	}, [ settings, toggleShareData, setNotice ] );
 
 	useEffect( () => {
 		setSettings( {
