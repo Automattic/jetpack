@@ -18,9 +18,10 @@ import {
 	CLEAR_NOTICE,
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
-	SET_WAF_SEEN,
-	SET_WAF_IS_FETCHING,
-	SET_WAF,
+	SET_WAF_IS_SEEN,
+	SET_WAF_IS_ENABLED,
+	SET_WAF_IS_LOADING,
+	SET_WAF_CONFIG,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -155,26 +156,22 @@ const hasRequiredPlan = ( state = false, action ) => {
 	return state;
 };
 
-const wafSeen = ( state = undefined, action ) => {
-	switch ( action.type ) {
-		case SET_WAF_SEEN:
-			return action.seen;
-	}
-	return state;
+const defaultWaf = {
+	isSeen: false,
+	isEnabled: false,
+	isLoading: false,
+	config: undefined,
 };
-
-const waf = ( state = undefined, action ) => {
+const waf = ( state = defaultWaf, action ) => {
 	switch ( action.type ) {
-		case SET_WAF:
-			return action.waf;
-	}
-	return state;
-};
-
-const wafIsFetching = ( state = false, action ) => {
-	switch ( action.type ) {
-		case SET_WAF_IS_FETCHING:
-			return action.isFetching;
+		case SET_WAF_IS_SEEN:
+			return { ...state, isSeen: action.isSeen };
+		case SET_WAF_IS_ENABLED:
+			return { ...state, isEnabled: action.isEnabled };
+		case SET_WAF_CONFIG:
+			return { ...state, config: action.config };
+		case SET_WAF_IS_LOADING:
+			return { ...state, isLoading: action.isLoading };
 	}
 	return state;
 };
@@ -196,9 +193,7 @@ const reducers = combineReducers( {
 	notice,
 	setThreatsFixing,
 	hasRequiredPlan,
-	wafSeen,
 	waf,
-	wafIsFetching,
 } );
 
 export default reducers;

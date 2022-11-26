@@ -27,11 +27,14 @@ use Automattic\Jetpack\Protect\Threats;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Class Jetpack_Protect
  */
 class Jetpack_Protect {
+
+	const JETPACK_WAF_MODULE_SLUG = 'waf';
 
 	/**
 	 * Constructor.
@@ -79,9 +82,14 @@ class Jetpack_Protect {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
+
+				// Web application firewall package.
+				$config->ensure( 'waf' );
 			},
 			1
 		);
+
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -100,6 +108,7 @@ class Jetpack_Protect {
 
 		My_Jetpack_Initializer::init();
 		Site_Health::init();
+		Waf_Runner::initialize();
 
 		// Sets up JITMS.
 		JITM::configure();
@@ -188,6 +197,12 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
+			'waf'               => array(
+				'isSeen'    => self::get_waf_seen_status(),
+				'isEnabled' => Waf_Runner::is_enabled(),
+				'isLoading' => false,
+				'config'    => Waf_Runner::get_config(),
+			),
 		);
 
 		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
@@ -247,6 +262,16 @@ class Jetpack_Protect {
 
 			$wp_admin_bar->add_node( $args );
 		}
+	}
+
+	/**
+	 * Adds module to the list of available modules
+	 *
+	 * @param array $modules The available modules.
+	 * @return array
+	 */
+	public function protect_filter_available_modules( $modules ) {
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
 	}
 
 	/**
@@ -345,6 +370,18 @@ class Jetpack_Protect {
 			array(
 				'methods'             => \WP_REST_SERVER::EDITABLE,
 				'callback'            => __CLASS__ . '::api_scan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'toggle-waf',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_toggle_waf',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -520,19 +557,33 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Get WAF data for the API endpoint
+	 * Toggles the WAF module on or off for the API endpoint
 	 *
-	 * @return bool Whether the current user has viewed the WAF screen.
+	 * @return WP_REST_Response
 	 */
-	public static function api_get_waf() {
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/waf' );
-		$response = rest_do_request( $request );
-
-		if ( $response->status !== 200 ) {
-			return new WP_REST_Response( 'An error occured while attempting to load Firewall settings', 500 );
+	public static function api_toggle_waf() {
+		if ( Waf_Runner::is_enabled() ) {
+			Waf_Runner::disable();
+			return rest_ensure_response( true, 200 );
 		}
 
-		return new WP_REST_Response( $response );
+		Waf_Runner::enable();
+		return rest_ensure_response( true, 200 );
+	}
+
+	/**
+	 * Get WAF data for the API endpoint
+	 *
+	 * @return WP_Rest_Response
+	 */
+	public static function api_get_waf() {
+		return new WP_REST_Response(
+			array(
+				'is_seen'    => self::get_waf_seen_status(),
+				'is_enabled' => Waf_Runner::is_enabled(),
+				'config'     => Waf_Runner::get_config(),
+			)
+		);
 	}
 
 	/**

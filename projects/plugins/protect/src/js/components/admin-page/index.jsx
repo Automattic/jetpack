@@ -1,10 +1,11 @@
 import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import React, { useEffect } from 'react';
+import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
@@ -17,8 +18,7 @@ export const JETPACK_SCAN = 'jetpack_scan';
 const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
-	const wafSeen = useSelect( select => select( STORE_ID ).getWafSeen() );
-	const { setWafSeen } = useDispatch( STORE_ID );
+	const { isSeen: wafSeen } = useWafData();
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
@@ -40,20 +40,6 @@ const AdminPage = ( { children } ) => {
 			}, 5000 );
 		}
 	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
-
-	/**
-	 * Check whether the WAF tab has been visited before.
-	 */
-	useEffect( () => {
-		if ( wafSeen === undefined ) {
-			apiFetch( {
-				path: 'jetpack-protect/v1/waf-seen',
-				method: 'GET',
-			} ).then( response => {
-				setWafSeen( response );
-			} );
-		}
-	}, [ wafSeen, setWafSeen ] );
 
 	/*
 	 * Show interstital page when

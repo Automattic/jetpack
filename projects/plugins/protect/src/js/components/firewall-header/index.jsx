@@ -118,19 +118,11 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { waf } = useWafData();
-
-	// To Do: Add loading status
-	let currentWafStatus;
-	if ( waf ) {
-		currentWafStatus = 'on';
-	} else {
-		currentWafStatus = 'off';
-	}
-
+	const { isEnabled } = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 
-	return <FirewallHeader status={ currentWafStatus } hasRequiredPlan={ hasRequiredPlan } />;
+	// To Do: Add loading status
+	return <FirewallHeader status={ isEnabled ? 'on' : 'off' } hasRequiredPlan={ hasRequiredPlan } />;
 };
 
 export default ConnectedFirewallHeader;
