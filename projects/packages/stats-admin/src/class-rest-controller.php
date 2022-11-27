@@ -215,17 +215,13 @@ class REST_Controller {
 			case 'post':
 				return $this->wpcom_stats->get_post_views(
 					intval( $req->get_param( 'resource_id' ) ),
-					http_build_query(
-						$req->get_params()
-					)
+					$req->get_params()
 				);
 
 			case 'video':
 				return $this->wpcom_stats->get_video_details(
 					intval( $req->get_param( 'resource_id' ) ),
-					http_build_query(
-						$req->get_params()
-					)
+					$req->get_params()
 				);
 
 			default:
@@ -283,7 +279,7 @@ class REST_Controller {
 				return $this->empty_result();
 
 			case 'stats':
-				return $this->wpcom_stats->get_stats();
+				return $this->wpcom_stats->get_stats( $req->get_params() );
 
 			default:
 				return $this->get_forbidden_error();
