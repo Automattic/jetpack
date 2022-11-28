@@ -8,7 +8,7 @@ Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack Protect - Free malware scan and WordPress site security
+Free daily malware scanning and WordPress site security. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand, that has over 25,000 registered malware and vulnerabilities. No configuration required!
 
 == Description ==
 

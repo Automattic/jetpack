@@ -9,3 +9,8 @@ export type TrackListProps = {
 	tracks: TrackProps[];
 	guid: VideoGUID;
 };
+
+export type TrackFormProps = {
+	onCancel: () => void;
+	tracks: TrackProps[];
+};

@@ -1,36 +1,49 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, PanelRow } from '@wordpress/components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import SeoPanel from './panel';
+import SeoDescriptionPanel from './description-panel';
+import SeoTitlePanel from './title-panel';
 
 import './editor.scss';
 
 export const name = 'seo';
 
 export const settings = {
-	render: function JetpackSEODescriptionPanel() {
+	render: () => {
 		const generalPanelProps = {
-			title: __( 'SEO Description', 'jetpack' ),
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 		};
 
-		const prePublishPanelProps = {
+		const jetpackSeoPanelProps = {
 			...generalPanelProps,
-			id: 'seo-title',
+			title: __( 'Jetpack SEO', 'jetpack' ),
 		};
 
 		return (
 			<Fragment>
 				<JetpackPluginSidebar>
-					<PanelBody { ...generalPanelProps }>
-						<SeoPanel />
+					<PanelBody className="jetpack-seo-panel" { ...jetpackSeoPanelProps }>
+						<PanelRow>
+							<SeoTitlePanel />
+						</PanelRow>
+						<PanelRow>
+							<SeoDescriptionPanel />
+						</PanelRow>
 					</PanelBody>
 				</JetpackPluginSidebar>
-				<PluginPrePublishPanel { ...prePublishPanelProps }>
-					<SeoPanel />
+
+				<PluginPrePublishPanel { ...jetpackSeoPanelProps }>
+					<Fragment>
+						<PanelRow>
+							<SeoTitlePanel />
+						</PanelRow>
+						<PanelRow>
+							<SeoDescriptionPanel />
+						</PanelRow>
+					</Fragment>
 				</PluginPrePublishPanel>
 			</Fragment>
 		);
