@@ -148,34 +148,55 @@ class REST_Controller {
 	public function get_stats_resource( $req ) {
 		switch ( $req->get_param( 'resource' ) ) {
 			case 'file-downloads':
+				return $this->stats->get_file_downloads( $req->get_params() );
+
 			case 'video-plays':
+				return $this->stats->get_video_plays( $req->get_params() );
+
 			case 'clicks':
+				return $this->stats->get_clicks( $req->get_params() );
+
 			case 'search-terms':
+				return $this->stats->get_search_terms( $req->get_params() );
+
 			case 'top-authors':
+				return $this->stats->get_top_authors( $req->get_params() );
+
 			case 'country-views':
+				return $this->stats->get_views_by_country( $req->get_params() );
+
 			case 'referrers':
+				return $this->stats->get_referrers( $req->get_params() );
+
 			case 'top-posts':
+				return $this->stats->get_top_posts( $req->get_params() );
+
 			case 'publicize':
+				return $this->stats->get_publicize_followers( $req->get_params() );
+
 			case 'followers':
+				return $this->stats->get_followers( $req->get_params() );
+
 			case 'tags':
+				return $this->stats->get_tags( $req->get_params() );
+
 			case 'visits':
+				return $this->stats->get_visits( $req->get_params() );
+
 			case 'comments':
+				return $this->stats->get_top_comments( $req->get_params() );
+
 			case 'comment-followers':
+				return $this->stats->get_comment_followers( $req->get_params() );
+
 			case 'streak':
+				return $this->stats->get_streak( $req->get_params() );
+
 			case 'insights':
+				return $this->stats->get_insights( $req->get_params() );
+
 			case 'highlights':
-				return static::request_as_blog_cached(
-					sprintf(
-						'/sites/%d/stats/%s?%s',
-						Jetpack_Options::get_option( 'id' ),
-						$req->get_param( 'resource' ),
-						http_build_query(
-							$req->get_params()
-						)
-					),
-					'1.1',
-					array( 'timeout' => 30 )
-				);
+				return $this->stats->get_highlights( $req->get_params() );
 
 			default:
 				return $this->get_forbidden_error();
@@ -278,6 +299,7 @@ class REST_Controller {
 			case 'rewind':
 				return $this->empty_result();
 
+			// General stats endpiont.
 			case 'stats':
 				return $this->wpcom_stats->get_stats( $req->get_params() );
 
