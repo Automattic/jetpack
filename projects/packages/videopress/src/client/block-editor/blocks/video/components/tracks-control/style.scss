@@ -1,5 +1,10 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
+.video-tracks-control__track_list,
+.video-tracks-control__track-form {
+	min-width: 360px;
+}
+
 // Tracklist
 .video-tracks-control__track_list__no-tracks {
 	padding: 8px;
@@ -14,13 +19,10 @@
 
 .video-tracks-control__track-item-kind {
 	color: $gray-700;
+	margin-left: 4px;
 }
 
 // TrackFrom
-.video-tracks-control__track-form {
-	min-width: 360px;
-}
-
 .video-tracks-control__track-form-container {
 	padding: 0 8px;
 }
@@ -31,7 +33,7 @@
 }
 
 .video-tracks-control__track-form-upload-file-help {
-	margin-top: calc(8px);
+	margin-top: 8px;
 	font-size: 12px;
 	font-style: normal;
 	color: rgb(117, 117, 117);
@@ -59,6 +61,15 @@
 
 .video-tracks-control__track-form-buttons-container {
 	display: flex;
-	justify-content: flex-end;
-	gap: 16px
+	gap: 16px;
+	align-items: center;
+
+	&:not( .track-exists ) {
+		justify-content: end;
+	}
+
+	.video-tracks-control__track-form-toggle {
+		flex-grow: 2;
+		margin-bottom: 0;
+	}
 }
