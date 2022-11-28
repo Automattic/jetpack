@@ -15,7 +15,7 @@ import { upload } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { deleteTrackForGuid } from '../../../../../lib/video-tracks';
+import { deleteTrackForGuid, uploadTrackForGuid } from '../../../../../lib/video-tracks';
 import { TrackProps, VideoControlProps } from '../../types';
 import { captionIcon } from '../icons';
 import './style.scss';
@@ -90,6 +90,13 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
 
+	const uploadNewTrackFile = useCallback( newTrack => {
+		uploadTrackForGuid( newTrack, guid ).then( () => {
+			setIsUploadingNewTrack( false );
+		} );
+		setIsUploadingNewTrack( true );
+	}, [] );
+
 	return (
 		<Dropdown
 			renderToggle={ ( { isOpen, onToggle } ) => (
@@ -109,7 +116,7 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 							onCancel={ () => {
 								setIsUploadingNewTrack( false );
 							} }
-							tracks={ tracks }
+							onSave={ uploadNewTrackFile }
 						/>
 					);
 				}
