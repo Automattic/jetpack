@@ -27,7 +27,7 @@ There have been some new changes to SEO options available in the editor. One all
 	- If there is, double check your "Search engine visibility" in Reading settings: /wp-admin/options-reading.php
 - Now edit the same post and check the "Hide page from search engines" checkbox and save the post.
 - Refresh the post on the frontend to examine that it has a `<meta name="robots" content="noindex" />` tag.
-- Using a plugin like "WP Crontrol" or wp-cli commands, run the jp_sitemap_cron_hook event.
+- Using a plugin like "WP Crontrol" or wp-cli commands, run the `jp_sitemap_cron_hook` event so that the Jetpack sitemap is generated.
 - Examine your Jetpack sitemap for the now non-indexed post, it should be absent from the freshly generated sitemap.
 - Setting the Jetpack SEO options should work equally from both the Jetpack sidebar menu and the pre-publish panel
 
