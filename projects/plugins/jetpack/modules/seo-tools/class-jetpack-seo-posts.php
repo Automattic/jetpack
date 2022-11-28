@@ -1,12 +1,12 @@
 <?php
 /**
- * Class containing utility static methods for managing SEO custom descriptions for Posts and Pages.
+ * Class containing utility static methods for managing SEO options for Posts and Pages.
  *
  * @package automattic/jetpack
  */
 
 /**
- * Provides static utility methods for managing SEO custom descriptions for Posts and Pages.
+ * Provides static utility methods for managing SEO options for Posts and Pages.
  */
 class Jetpack_SEO_Posts {
 	/**
@@ -14,9 +14,11 @@ class Jetpack_SEO_Posts {
 	 */
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
 	const HTML_TITLE_META_KEY  = 'jetpack_seo_html_title';
+	const NOINDEX_META_KEY     = 'jetpack_seo_noindex';
 	const POST_META_KEYS_ARRAY = array(
 		self::DESCRIPTION_META_KEY,
 		self::HTML_TITLE_META_KEY,
+		self::NOINDEX_META_KEY,
 	);
 
 	/**
@@ -97,6 +99,46 @@ class Jetpack_SEO_Posts {
 	}
 
 	/**
+	 * Gets the `jetpack_seo_noindex` setting for a post, if
+	 * SEO tools are enabled for the current blog.
+	 *
+	 * @param WP_Post|null $post Provided post or defaults to the global post.
+	 *
+	 * @return bool True if post should be marked as noindex, false otherwise.
+	 */
+	public static function get_post_noindex_setting( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return false;
+		}
+
+		$mark_as_noindex = get_post_meta( $post->ID, self::NOINDEX_META_KEY, true );
+
+		if ( empty( $mark_as_noindex ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			return false;
+		}
+
+		return (bool) $mark_as_noindex;
+	}
+
+	/**
+	 * Filter callback for `jetpack_sitemap_skip_post`; if a post has `jetpack_seo_noindex` set to true,
+	 * then exclude that post from the Jetpack sitemap.
+	 *
+	 * @param bool    $skip Whether to skip the post in the sitemap.
+	 * @param WP_Post $post The post to check.
+	 *
+	 * @return bool
+	 */
+	public static function exclude_noindex_posts_from_jetpack_sitemap( $skip, $post ) {
+		$exclude = self::get_post_noindex_setting( $post );
+		if ( $exclude ) {
+			$skip = true;
+		}
+		return $skip;
+	}
+
+	/**
 	 * Registers the following meta keys for use in the REST API:
 	 *   - self::DESCRIPTION_META_KEY
 	 *   - self::HTML_TITLE_META_KEY
@@ -122,8 +164,19 @@ class Jetpack_SEO_Posts {
 			),
 		);
 
-		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
+		$noindex_args = array(
+			'type'         => 'boolean',
+			'description'  => __( 'Whether to hide the post from search engines and the Jetpack sitemap.', 'jetpack' ),
+			'single'       => true,
+			'default'      => false,
+			'show_in_rest' => array(
+				'name' => self::NOINDEX_META_KEY,
+			),
+		);
+
 		register_meta( 'post', self::DESCRIPTION_META_KEY, $description_args );
+		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
+		register_meta( 'post', self::NOINDEX_META_KEY, $noindex_args );
 	}
 
 	/**
