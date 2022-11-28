@@ -43,7 +43,7 @@ Other notes for the new meta field that you can check out:
 
 - If you have the Jetpack social connections module enabled, you should also see the og:title meta tag updated to contain your custom title string.
 - There were some small modifications to how the custom SEO description is fetched, please check that adding custom SEO descriptions still work as expected for posts and pages.
-- Change a post status to "Draft", then in the editor click "Publish". The sidebar should be presented with both SEO Page Title and SEO Description fields.
+- Change a post status to "Draft", then in the editor click "Publish". The pre-publish sidebar should contain the "Jetpack SEO" menu item.
 
 ### And More!
 
