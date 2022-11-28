@@ -38,7 +38,7 @@ const KIND_OPTIONS = [
  * @param {TrackFormProps} props - Component props.
  * @returns {React.ReactElement}   Track form react component.
  */
-export default function TrackForm( { onCancel }: TrackFormProps ): React.ReactElement {
+export default function TrackForm( { onCancel, onSave }: TrackFormProps ): React.ReactElement {
 	const [ errorMessage ] = useState( '' );
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
 	const [ track, setTrack ] = useState< UploadTrackDataProps >( {
@@ -63,7 +63,8 @@ export default function TrackForm( { onCancel }: TrackFormProps ): React.ReactEl
 
 	const onSaveHandler = useCallback( () => {
 		setIsSavingTrack( true );
-	}, [] );
+		onSave( track );
+	}, [ track ] );
 
 	if ( ! mediaUpload ) {
 		return null;

@@ -90,6 +90,11 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
 
+	const uploadNewTrackFile = useCallback( newTrack => {
+		console.log( { newTrack } ); // eslint-disable-line no-console
+		setIsUploadingNewTrack( true );
+	}, [] );
+
 	return (
 		<Dropdown
 			renderToggle={ ( { isOpen, onToggle } ) => (
@@ -109,6 +114,7 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 							onCancel={ () => {
 								setIsUploadingNewTrack( false );
 							} }
+							onSave={ uploadNewTrackFile }
 							tracks={ tracks }
 						/>
 					);
