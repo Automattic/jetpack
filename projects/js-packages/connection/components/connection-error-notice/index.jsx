@@ -1,4 +1,4 @@
-import { Spinner } from '@automattic/jetpack-components';
+import { Spinner, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -18,6 +18,10 @@ const ConnectionErrorNotice = props => {
 		restoreConnectionCallback,
 		restoreConnectionError,
 	} = props;
+
+	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
+	const wrapperClassName =
+		styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' );
 
 	const icon = (
 		<Icon
@@ -47,12 +51,11 @@ const ConnectionErrorNotice = props => {
 
 	if ( isRestoringConnection ) {
 		return (
-			<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
+			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
-					{ icon }
+					<Spinner color="#B32D2E" size={ 24 } />
 					{ __( 'Reconnecting Jetpack', 'jetpack' ) }
 				</div>
-				<Spinner color="#B32D2E" />
 			</Notice>
 		);
 	}
@@ -61,7 +64,7 @@ const ConnectionErrorNotice = props => {
 		<Notice
 			status={ 'error' }
 			isDismissible={ false }
-			className={ styles.notice + ' ' + styles.error }
+			className={ wrapperClassName + ' ' + styles.error }
 		>
 			<div className={ styles.message }>
 				{ icon }
@@ -77,7 +80,7 @@ const ConnectionErrorNotice = props => {
 	return (
 		<>
 			{ errorRender }
-			<Notice status={ 'error' } isDismissible={ false } className={ styles.notice }>
+			<Notice status={ 'error' } isDismissible={ false } className={ wrapperClassName }>
 				<div className={ styles.message }>
 					{ icon }
 					{ message }

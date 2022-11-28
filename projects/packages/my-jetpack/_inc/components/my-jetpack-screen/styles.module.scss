@@ -29,11 +29,6 @@
 		padding: 12px 4px;
 		flex-direction: column;
 		align-items: start;
-
-		@include break-medium {
-			flex-direction: row;
-			align-items: center;
-		}
 	}
 
 	// action button
@@ -64,11 +59,18 @@
 		background: #000000;
 		border-radius: var( --jp-border-radius );
 		height: auto;
+	}
 
-		@include break-medium {
+	&.bigger-than-medium {
+		& :global(.components-notice__action) {
 			margin-left: 0;
 			margin-top: 0;
 			white-space: nowrap;
+		}
+
+		& :global(.components-notice__content) {
+			flex-direction: row;
+			align-items: center;
 		}
 	}
 }

@@ -5,6 +5,7 @@ import {
 	Container,
 	Col,
 	Text,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
@@ -20,6 +21,8 @@ import ProductCardsSection from '../product-cards-section';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
+	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
+
 	/*
 	 * Map Notice statuses with Icons.
 	 * `success`, `info`, `warning`, `error`
@@ -47,7 +50,14 @@ const GlobalNotice = ( { message, options, clean } ) => {
 	};
 
 	return (
-		<Notice isDismissible={ false } { ...options } onRemove={ clean } className={ styles.notice }>
+		<Notice
+			isDismissible={ false }
+			{ ...options }
+			onRemove={ clean }
+			className={
+				styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' )
+			}
+		>
 			<div className={ styles.message }>
 				{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
 				{ message }
