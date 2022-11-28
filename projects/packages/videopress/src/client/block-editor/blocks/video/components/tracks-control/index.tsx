@@ -15,7 +15,7 @@ import { upload } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { deleteTrackForGuid } from '../../../../../lib/video-tracks';
+import { deleteTrackForGuid, uploadTrackForGuid } from '../../../../../lib/video-tracks';
 import { TrackProps, VideoControlProps } from '../../types';
 import { captionIcon } from '../icons';
 import './style.scss';
@@ -91,7 +91,9 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
 
 	const uploadNewTrackFile = useCallback( newTrack => {
-		console.log( { newTrack } ); // eslint-disable-line no-console
+		uploadTrackForGuid( newTrack, guid ).then( () => {
+			setIsUploadingNewTrack( false );
+		} );
 		setIsUploadingNewTrack( true );
 	}, [] );
 
@@ -115,7 +117,6 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 								setIsUploadingNewTrack( false );
 							} }
 							onSave={ uploadNewTrackFile }
-							tracks={ tracks }
 						/>
 					);
 				}
