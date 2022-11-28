@@ -272,7 +272,7 @@ class Broken_Token {
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="set_current_master_user">
 			<?php wp_nonce_field( 'set-current-master-user' ); ?>
-			<input type="submit" value="Set Current Primary User" class="button button-primary button-break-it">
+			<input type="submit" value="Set current user as Primary User" class="button button-primary button-break-it">
 		</form>
 
 		<p><strong>Break the blog ID:</strong></p>
