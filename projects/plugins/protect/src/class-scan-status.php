@@ -145,7 +145,6 @@ class Scan_Status extends Status {
 		$status->num_threats         = 0;
 		$status->num_themes_threats  = 0;
 		$status->num_plugins_threats = 0;
-		// to do: check for unchecked items once Scan API has manifest
 		$status->has_unchecked_items = false;
 		$status->current_progress    = isset( $scan_data->current->progress ) ? $scan_data->current->progress : null;
 
