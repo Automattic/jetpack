@@ -37,8 +37,8 @@ export function connectModuleOptions( Component ) {
 				},
 				getOptionCurrentValue: ( module_slug, option_name ) =>
 					getModuleOption( state, module_slug, option_name ),
-				getSettingCurrentValue: ( setting_name, moduleName = '' ) =>
-					getSetting( state, setting_name, moduleName ),
+				getSettingCurrentValue: ( setting_name, moduleName = '', ignoreDisabledModules = true ) =>
+					getSetting( state, setting_name, moduleName, ignoreDisabledModules ),
 				getSiteRoles: () => getSiteRoles( state ),
 				isUpdating: settingName => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),

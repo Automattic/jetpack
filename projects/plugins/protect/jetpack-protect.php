@@ -1,12 +1,11 @@
 <?php
 /**
- *
  * Plugin Name: Jetpack Protect
  * Plugin URI: https://wordpress.org/plugins/jetpack-protect
  * Description: Security tools that keep your site safe and sound, from posts to plugins.
  * Version: 1.2.0-alpha
- * Author: Automattic
- * Author URI: https://jetpack.com/
+ * Author: Automattic - Jetpack Security team
+ * Author URI: https://jetpack.com/protect/
  * License: GPLv2 or later
  * Text Domain: jetpack-protect
  *

@@ -95,11 +95,40 @@
 .contact-form-submission {
 	margin-bottom: 4em;
 	padding: 1.5em 1em;
+	width: 100%;
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #000;
 }
 
 .contact-form-submission p {
 	margin: 0 auto;
 	word-wrap: break-word;
+}
+
+.contact-form-submission h4 {
+	margin-top: 32px;
+	margin-bottom: 32px;
+	font-weight: 200;
+}
+
+.contact-form-submission .go-back-message {
+	margin-top: 20px;
+	margin-bottom: 32px;
+	text-align: left;
+}
+
+.contact-form-submission .go-back-message .link {
+	font-weight: 200;
+	color: #000;
+}
+
+.contact-form-submission .field-name {
+	font-weight: 200;
+}
+
+.contact-form-submission .field-value {
+	margin-bottom: 20px;
+	font-weight: 600;
 }
 
 .form-errors .form-error-message {
@@ -137,15 +166,14 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
+.wp-block-jetpack-contact-form > * {
+	flex: 0 0 100%;
+}
+
 /* Added circa Nov 2022: container class assigned to topmost block div */
 .wp-block-jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
 	padding-right: 0;
 	padding-left: 0;
-}
-
-.wp-block-jetpack-contact-form .grunion-field-wrap,
-.wp-block-jetpack-button {
-	flex: 0 0 100%;
 }
 
 .wp-block-jetpack-button.alignright button {

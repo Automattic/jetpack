@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Limit next_sync_time lock to be at most 1 hour in the future

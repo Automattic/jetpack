@@ -700,6 +700,11 @@ async function buildProject( t ) {
 		);
 	}
 
+	// Copy e2e tests workflow if tests exist
+	if ( await fsExists( `${ t.cwd }/tests/e2e` ) ) {
+		await copyDirectory( '.github/files/gh-e2e', npath.join( buildDir, '.github' ) );
+	}
+
 	// Copy license.
 	if ( composerJson.license ) {
 		t.output( `License: ${ composerJson.license }\n` );

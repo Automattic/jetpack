@@ -157,16 +157,18 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 				library
 			) : (
 				<Text>
-					{ createInterpolateElement(
-						sprintf(
-							/* translators: placeholder is the search term */
-							__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
-							search
-						),
-						{
-							em: <em className={ styles[ 'query-no-results' ] } />,
-						}
-					) }
+					{ search.trim()
+						? createInterpolateElement(
+								sprintf(
+									/* translators: placeholder is the search term */
+									__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
+									search
+								),
+								{
+									em: <em className={ styles[ 'query-no-results' ] } />,
+								}
+						  )
+						: __( 'No videos match your filtering criteria.', 'jetpack-videopress-pkg' ) }
 				</Text>
 			) }
 			<ConnectPagination className={ styles.pagination } />

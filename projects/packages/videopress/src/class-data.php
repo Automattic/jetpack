@@ -38,6 +38,17 @@ class Data {
 	}
 
 	/**
+	 * Gets the VideoPress Settings.
+	 *
+	 * @return array The settings as an associative array.
+	 */
+	public static function get_videopress_settings() {
+		return array(
+			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
+		);
+	}
+
+	/**
 	 * Gets the video data
 	 *
 	 * @param boolean $is_videopress - True when getting VideoPress data.
@@ -319,9 +330,14 @@ class Data {
 			$videopress_data['videos']
 		);
 
+		$site_settings = self::get_videopress_settings();
+
 		$initial_state = array(
-			'users'       => self::get_user_data(),
-			'videos'      => array(
+			'users'        => self::get_user_data(),
+			'siteSettings' => array(
+				'videoPressVideosPrivateForSite' => $site_settings['videopress_videos_private_for_site'],
+			),
+			'videos'       => array(
 				'uploadedVideoCount'           => $videopress_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
@@ -335,7 +351,7 @@ class Data {
 					'relyOnInitialState' => true,
 				),
 			),
-			'localVideos' => array(
+			'localVideos'  => array(
 				'uploadedVideoCount'           => $local_videos_data['total'],
 				'items'                        => $local_videos,
 				'isFetching'                   => false,

@@ -1,4 +1,5 @@
 import { getIconBySlug } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
@@ -6,10 +7,12 @@ import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( { admin, slug } ) => {
+	const { isRegistered, isUserConnected } = useConnection();
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
+
 	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
 
 	/*
@@ -18,6 +21,18 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 	const onManage = useCallback( () => {
 		window.location = manageUrl;
 	}, [ manageUrl ] );
+
+	/*
+	 * Redirect only if connected
+	 */
+	const callOnlyIfAllowed = callback => () => {
+		if ( ! isRegistered || ! isUserConnected ) {
+			navigateToConnectionPage();
+			return;
+		}
+
+		callback();
+	};
 
 	const Icon = getIconBySlug( slug );
 
@@ -32,9 +47,9 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ activate }
-			onAdd={ navigateToAddProductPage }
-			onFixConnection={ navigateToConnectionPage }
+			onAdd={ callOnlyIfAllowed( navigateToAddProductPage ) }
 			onManage={ onManage }
+			onFixConnection={ navigateToConnectionPage }
 		/>
 	);
 };
