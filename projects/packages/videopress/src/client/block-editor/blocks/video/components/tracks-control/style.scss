@@ -61,6 +61,15 @@
 
 .video-tracks-control__track-form-buttons-container {
 	display: flex;
-	justify-content: flex-end;
-	gap: 16px
+	gap: 16px;
+	align-items: center;
+
+	&:not( .track-exists ) {
+		justify-content: end;
+	}
+
+	.video-tracks-control__track-form-toggle {
+		flex-grow: 2;
+		margin-bottom: 0;
+	}
 }

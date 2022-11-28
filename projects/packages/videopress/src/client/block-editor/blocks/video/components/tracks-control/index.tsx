@@ -108,6 +108,7 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 								setIsUploadingNewTrack( false );
 							} }
 							onSave={ uploadNewTrackFile }
+							tracks={ tracks }
 						/>
 					);
 				}

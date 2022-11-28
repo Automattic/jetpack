@@ -8,9 +8,10 @@ import {
 	TextControl,
 	SelectControl,
 	MenuGroup,
+	ToggleControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -37,9 +38,14 @@ const KIND_OPTIONS = [
  * @param {TrackFormProps} props - Component props.
  * @returns {React.ReactElement}   Track form react component.
  */
-export default function TrackForm( { onCancel, onSave }: TrackFormProps ): React.ReactElement {
-	const [ errorMessage ] = useState( '' );
+export default function TrackForm( {
+	onCancel,
+	onSave,
+	tracks,
+}: TrackFormProps ): React.ReactElement {
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
+	const [ trackExists, setTrackExists ] = useState( false );
+	const [ replaceTrack, setReplaceTrack ] = useState( false );
 	const [ track, setTrack ] = useState< UploadTrackDataProps >( {
 		kind: DEFAULT_KIND,
 		srcLang: '',
@@ -53,6 +59,11 @@ export default function TrackForm( { onCancel, onSave }: TrackFormProps ): React
 		},
 		[ track ]
 	);
+
+	useEffect( () => {
+		const exists = tracks.some( t => t.srcLang === track.srcLang && t.kind === track.kind );
+		setTrackExists( exists );
+	}, [ track, tracks ] );
 
 	const fileName = track.tmpFile?.name;
 
@@ -140,11 +151,23 @@ export default function TrackForm( { onCancel, onSave }: TrackFormProps ): React
 					onChange={ newKind => updateTrack( 'kind', newKind ) }
 					disabled={ isSavingTrack }
 				/>
-				<div className="video-tracks-control__track-form-buttons-container">
+				<div
+					className={ `video-tracks-control__track-form-buttons-container ${
+						trackExists ? ' track-exists' : ''
+					}` }
+				>
+					{ trackExists && (
+						<ToggleControl
+							className="video-tracks-control__track-form-toggle"
+							label={ __( 'Track exists. Replace?', 'jetpack-videopress-pkg' ) }
+							checked={ replaceTrack }
+							onChange={ setReplaceTrack }
+						/>
+					) }
 					<Button
 						isBusy={ isSavingTrack }
 						variant="secondary"
-						disabled={ ! track.tmpFile || isSavingTrack }
+						disabled={ ! track.tmpFile || isSavingTrack || ( trackExists && ! replaceTrack ) }
 						onClick={ onSaveHandler }
 					>
 						{ __( 'Save', 'jetpack-videopress-pkg' ) }
@@ -154,14 +177,6 @@ export default function TrackForm( { onCancel, onSave }: TrackFormProps ): React
 						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</div>
-				{ errorMessage && (
-					<div className="video-tracks-control__track-form-error">
-						{
-							/* translators: %s: An error message returned after a failed video track file upload." */
-							sprintf( __( 'Error: %s', 'jetpack-videopress-pkg' ), errorMessage )
-						}
-					</div>
-				) }
 			</div>
 		</MenuGroup>
 	);
