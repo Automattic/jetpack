@@ -189,7 +189,7 @@ const ProtectAdminPage = () => {
 	) {
 		const { currentProgress } = status;
 		const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
-		const scanning = __( 'Scannning your site…', 'jetpack-protect' );
+		const scanning = __( 'Scanning your site…', 'jetpack-protect' );
 		const heading = currentProgress === 0 ? preparing : scanning;
 
 		return (
