@@ -1,14 +1,14 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.22.9",
+	"version": "0.22.10",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:* || ^0.1",
-		"@automattic/jetpack-api": "workspace:* || ^0.14",
-		"@automattic/jetpack-components": "workspace:* || ^0.25",
-		"@automattic/jetpack-config": "workspace:* || ^0.1",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-config": "workspace:*",
 		"@wordpress/base-styles": "4.12.0",
 		"@wordpress/browserslist-config": "5.4.0",
 		"@wordpress/components": "22.0.0",
@@ -20,7 +20,7 @@
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@automattic/jetpack-base-styles": "workspace:*",
 		"@babel/core": "7.20.2",
 		"@babel/preset-react": "7.18.6",
 		"@storybook/addon-actions": "6.5.13",

@@ -83,9 +83,6 @@ for PKG in "$BASE"/projects/packages/*/composer.json; do
 	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.[$k] |= $v' <<<"$PACKAGES")
 done
 
-# Get current packages and their versions from the target project.
-OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and $packages[.key] ) )' "$DIR/composer.json")
-
 # Update the versions in composer.json, without actually updating them yet.
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and $packages[.key] ) | "\(.key)=^\($packages[.key])"' "$DIR/composer.json")
