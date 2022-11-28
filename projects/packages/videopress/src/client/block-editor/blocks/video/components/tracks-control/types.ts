@@ -7,11 +7,13 @@ import { TrackProps, VideoGUID } from '../../types';
 export type TrackItemProps = {
 	track: TrackProps;
 	guid: VideoGUID;
+	onDelete?: ( track: TrackProps ) => void;
 };
 
 export type TrackListProps = {
 	tracks: TrackProps[];
 	guid: VideoGUID;
+	onDeleteTrack?: ( track: TrackProps ) => void;
 };
 
 export type TrackFormProps = {
