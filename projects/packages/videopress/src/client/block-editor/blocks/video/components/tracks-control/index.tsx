@@ -85,7 +85,7 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 
 	const uploadNewTrackFile = useCallback( newTrack => {
 		uploadTrackForGuid( newTrack, guid ).then( () => {
-			setIsUploadingNewTrack( false );
+			setIsUploadingNewTrack( true );
 		} );
 	}, [] );
 
