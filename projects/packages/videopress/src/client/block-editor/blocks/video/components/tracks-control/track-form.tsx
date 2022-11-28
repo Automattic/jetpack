@@ -50,7 +50,7 @@ export default function TrackForm( { onCancel }: TrackFormProps ): React.ReactEl
 
 	const updateTrack = useCallback(
 		( key: 'kind' | 'srcLang' | 'label' | 'tmpFile', value: string | File ) => {
-			setTrack( { ...track, [ key ]: value } );
+			setTrack( prev => ( { ...prev, [ key ]: value } ) );
 		},
 		[ track ]
 	);
