@@ -4,11 +4,11 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/ignorefile": "^1.0",
+		"automattic/ignorefile": "@dev",
 		"squizlabs/php_codesniffer": "^3.6.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.0.3"
 	},
 	"autoload": {

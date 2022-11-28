@@ -23,7 +23,9 @@
  *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
  *     jetpack_publicize_feature_enabled: (boolean) Is this publicize feature enabled?
  *     jetpack_publicize_message: (string) The message to use instead of the post's title when sharing.
- *   }
+ *     jetpack_social_options: {
+ *       attached_media: (array) List of media IDs that will be attached to the social media post.
+ *     }
  *   ...
  * }
  *
@@ -141,12 +143,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 				),
 				'toggleable'      => array(
 					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
-				'is_healthy'      => array(
-					'description' => __( 'Whether the connection is healthy or broken', 'jetpack' ),
 					'type'        => 'boolean',
 					'context'     => array( 'edit' ),
 					'readonly'    => true,

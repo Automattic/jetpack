@@ -76,7 +76,7 @@ describe( 'Dashboard Stats', () => {
 	describe( 'Initially', () => {
 		it( 'renders header and card', () => {
 			render( <DashStats { ...testProps } />, { initialState } );
-			expect( screen.getByRole( 'heading', { name: 'Site Stats' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'heading', { name: 'Jetpack Stats' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'View detailed stats' } ) ).toBeInTheDocument();
 		} );
 

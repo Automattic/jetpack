@@ -17,6 +17,8 @@ import storeHolder from './store-holder';
  */
 export const stateDebug = debugFactory( 'videopress/media:state' );
 
+const initialState = window.jetpackVideoPressInitialState?.initialState || {};
+
 /**
  * jetpack-videopress redux initializer
  */
@@ -29,7 +31,7 @@ function initStore() {
 		actions,
 		selectors,
 		resolvers,
-		initialState: window.jetpackVideoPressInitialState.initialState || {},
+		initialState,
 	} );
 }
 

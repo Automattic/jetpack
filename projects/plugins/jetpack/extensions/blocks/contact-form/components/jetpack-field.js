@@ -28,6 +28,7 @@ export default function JetpackField( props ) {
 				required={ required }
 				width={ width }
 				setAttributes={ setAttributes }
+				placeholder={ placeholder }
 			/>
 		</>
 	);

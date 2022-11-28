@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
@@ -9,12 +9,15 @@
 {#if $criticalCssStatus.status === 'requesting'}
 	<div class="jb-critical-css-progress">
 		<span class="jb-critical-css-progress__label">
-			{__( 'Generating Critical CSS…', 'jetpack-boost' )}
+			{__(
+				'Generating Critical CSS. Please don’t leave this page until completed.',
+				'jetpack-boost'
+			)}
 		</span>
 		<div
 			role="progressbar"
-			aria-valuemax="100"
-			aria-valuemin="0"
+			aria-valuemax={100}
+			aria-valuemin={0}
 			aria-valuenow={$criticalCssStatus.progress}
 			class="jb-progress-bar"
 		>
@@ -28,5 +31,5 @@
 {:else if $showError}
 	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
 {:else}
-	<CriticalCssStatus on:retry={generateCriticalCss} />
+	<CriticalCssStatus on:retry={() => generateCriticalCss()} />
 {/if}

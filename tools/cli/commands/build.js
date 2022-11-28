@@ -1,7 +1,8 @@
-import { constants as fsconstants } from 'fs';
+import { constants as fsconstants, createReadStream } from 'fs';
 import fs from 'fs/promises';
+import { once } from 'node:events';
+import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
-import readline from 'readline';
 import chalk from 'chalk';
 import execa from 'execa';
 import inquirer from 'inquirer';
@@ -11,9 +12,9 @@ import UpdateRenderer from 'listr-update-renderer';
 import ListrState from 'listr/lib/state.js';
 import pLimit from 'p-limit';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
-import FilterStream from '../helpers/filter-stream.js';
 import formatDuration from '../helpers/format-duration.js';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
+import { listProjectFiles } from '../helpers/list-project-files.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects, allProjectsByType } from '../helpers/projectHelpers.js';
@@ -699,6 +700,11 @@ async function buildProject( t ) {
 		);
 	}
 
+	// Copy e2e tests workflow if tests exist
+	if ( await fsExists( `${ t.cwd }/tests/e2e` ) ) {
+		await copyDirectory( '.github/files/gh-e2e', npath.join( buildDir, '.github' ) );
+	}
+
 	// Copy license.
 	if ( composerJson.license ) {
 		t.output( `License: ${ composerJson.license }\n` );
@@ -769,6 +775,26 @@ async function buildProject( t ) {
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
+
+		// Update '@dev' dependency version numbers in composer.json.
+		const composerDepTyes = [ 'require', 'require-dev' ];
+		for ( const key of composerDepTyes ) {
+			if ( composerJson[ key ] ) {
+				for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
+					if ( ver === '@dev' ) {
+						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+							if ( ctxPkg.name === pkg ) {
+								let massagedVer = ctxPkg.version;
+								massagedVer = `^${ massagedVer }`;
+								composerJson[ key ][ pkg ] = massagedVer;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
 		await writeFileAtomic(
 			`${ buildDir }/composer.json`,
 			JSON.stringify( composerJson, null, '\t' ) + '\n',
@@ -777,8 +803,9 @@ async function buildProject( t ) {
 	}
 
 	// Remove engines and workspace refs from package.json.
+	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
-		const packageJson = JSON.parse(
+		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
 		);
 
@@ -794,10 +821,15 @@ async function buildProject( t ) {
 		for ( const key of depTypes ) {
 			if ( packageJson[ key ] ) {
 				for ( const [ pkg, ver ] of Object.entries( packageJson[ key ] ) ) {
-					if ( ver.startsWith( 'workspace:* || ' ) ) {
-						packageJson[ key ][ pkg ] = ver.substring( 15 );
-					} else if ( ver === 'workspace:*' ) {
-						delete packageJson[ key ][ pkg ];
+					if ( ver === 'workspace:*' ) {
+						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
+							if ( ctxPkg.jsName === pkg ) {
+								let massagedVer = ctxPkg.version;
+								massagedVer = `^${ massagedVer }`;
+								packageJson[ key ][ pkg ] = massagedVer;
+								break;
+							}
+						}
 					}
 				}
 			}
@@ -832,72 +864,38 @@ async function buildProject( t ) {
 		await fs.writeFile( `${ buildDir }/.gitattributes`, rules, { encoding: 'utf8' } );
 	}
 
+	// Get the project version number from the changelog.md file.
+	let projectVersionNumber = '';
+	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
+	const rl = rlcreateInterface( {
+		input: createReadStream( `${ t.cwd }/${ changelogFileName }`, {
+			encoding: 'utf8',
+		} ),
+		crlfDelay: Infinity,
+	} );
+
+	rl.on( 'line', line => {
+		const match = line.match( /^## +(\[?[^\] ]+\]?)/ );
+		if ( match && match[ 1 ] ) {
+			projectVersionNumber = match[ 1 ].replace( /[[\]]/g, '' );
+			rl.close();
+			rl.removeAllListeners();
+		}
+	} );
+	await once( rl, 'close' );
+
+	if ( ! projectVersionNumber ) {
+		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
+	}
+
 	// Build succeeded! Now do some bookkeeping.
 	t.ctx.versions[ t.project ] = {
 		name: composerJson.name,
-		version: composerJson.extra?.[ 'branch-alias' ]?.[ 'dev-trunk' ] || 'dev-trunk',
+		jsName: packageJson?.name,
+		version: projectVersionNumber,
 	};
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
 	} );
-}
-
-/**
- * List project files to be mirrored.
- *
- * @param {string} src - Source directory.
- * @param {Function} spawn - `execa` spawn function.
- * @yields {string} File name.
- */
-async function* listProjectFiles( src, spawn ) {
-	// Lots of process plumbing going on here.
-	//  {
-	//    ls-files
-	//    ls-files --ignored | check-attr production-include | filter
-	//  } | check-attr production-exclude | filter
-
-	const lsFiles = spawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
-		cwd: src,
-		stdio: [ 'ignore', 'pipe', null ],
-	} );
-	const lsIgnoredFiles = spawn(
-		'git',
-		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-		{ cwd: src, stdio: [ 'ignore', 'pipe', null ] }
-	);
-	const checkAttrInclude = spawn(
-		'git',
-		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
-		{ cwd: src, stdio: [ lsIgnoredFiles.stdout, 'pipe', null ] }
-	);
-	const checkAttrExclude = spawn(
-		'git',
-		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
-		{ cwd: src, stdio: [ 'pipe', 'pipe', null ] }
-	);
-	const filterProductionInclude = new FilterStream(
-		s => s.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ]
-	);
-	const filterProductionExclude = new FilterStream(
-		s => s.match( /^(.*): production-exclude: (?:unspecified|unset)/ )?.[ 1 ]
-	);
-
-	// Pipe lsFiles to checkAttrExclude first, then lsIgnoredFiles+checkAttrInclude+filterProductionInclude after that.
-	lsFiles.stdout.on( 'end', () => {
-		// prettier-ignore
-		checkAttrInclude.stdout
-			.pipe( filterProductionInclude )
-			.pipe( checkAttrExclude.stdin, { end: true } );
-	} );
-	lsFiles.stdout.pipe( checkAttrExclude.stdin, { end: false } );
-
-	const rl = readline.createInterface( {
-		input: checkAttrExclude.stdout.pipe( filterProductionExclude ),
-		crlfDelay: Infinity,
-	} );
-
-	yield* rl;
-
-	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
 }

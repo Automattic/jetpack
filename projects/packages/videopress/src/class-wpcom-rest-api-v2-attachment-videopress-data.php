@@ -41,6 +41,10 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_fields' ) );
 
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			add_action( 'rest_api_init', array( $this, 'add_jetpack_videopress_custom_query_filters' ) );
+		}
+
 		// do this again later to collect any CPTs that get registered later.
 		add_action( 'restapi_theme_init', array( $this, 'register_fields' ), 20 );
 	}
@@ -66,6 +70,88 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		);
 
 		add_filter( 'rest_prepare_attachment', array( $this, 'remove_field_for_non_videos' ), 10, 2 );
+	}
+
+	/**
+	 * Adds the custom query filters
+	 */
+	public function add_jetpack_videopress_custom_query_filters() {
+		add_filter( 'rest_attachment_query', array( $this, 'filter_attachments_by_jetpack_videopress_fields' ), 999, 2 );
+	}
+
+	/**
+	 * Filter request args to handle the custom VideoPress query filters
+	 *
+	 * Possible filters:
+	 *
+	 * `no_videopress`: the returned attachments should not have a videopress_guid
+	 *
+	 * @param array      $args The original list of args before the filtering.
+	 * @param WP_Request $request The original request data.
+	 */
+	public function filter_attachments_by_jetpack_videopress_fields( $args, $request ) {
+
+		if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+			$args['meta_query'] = array();
+		}
+
+		/* To ignore all VideoPress videos, select only attachments without videopress_guid meta field */
+		if ( isset( $request['no_videopress'] ) ) {
+			$args['meta_query'][] = array(
+				'key'     => 'videopress_guid',
+				'compare' => 'NOT EXISTS',
+			);
+		}
+
+		/* Filter using privacy setting meta key */
+		if ( isset( $request['videopress_privacy_setting'] ) ) {
+			$videopress_privacy_setting = sanitize_text_field( $request['videopress_privacy_setting'] );
+
+			/* Allows the filtering to happens using a list of privacy settings separated by comma */
+			$videopress_privacy_setting_list = explode( ',', $videopress_privacy_setting );
+
+			$site_default_is_private = Data::get_videopress_videos_private_for_site();
+
+			if ( $site_default_is_private ) {
+				/**
+				 * If the search is looking for private videos and the site default is private,
+				 * the site default setting should be included on the search.
+				 */
+				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PRIVATE ), $videopress_privacy_setting_list, true ) ) {
+					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+				}
+			} else {
+				/**
+				 * If the search is looking for public videos and the site default is public,
+				 * the site default setting should be included on the search.
+				 */
+				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PUBLIC ), $videopress_privacy_setting_list, true ) ) {
+					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+				}
+			}
+
+			$args['meta_query'][] = array(
+				'key'     => 'videopress_privacy_setting',
+				'value'   => $videopress_privacy_setting_list,
+				'compare' => 'IN',
+			);
+		}
+
+		/* Filter using rating meta key */
+		if ( isset( $request['videopress_rating'] ) ) {
+			$videopress_rating = sanitize_text_field( $request['videopress_rating'] );
+
+			/* Allows the filtering to happens using a list of ratings separated by comma */
+			$videopress_rating_list = explode( ',', $videopress_rating );
+
+			$args['meta_query'][] = array(
+				'key'     => 'videopress_rating',
+				'value'   => $videopress_rating_list,
+				'compare' => 'IN',
+			);
+		}
+
+		return $args;
 	}
 
 	/**
@@ -136,15 +222,22 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			$caption     = $info->caption;
 		}
 
+		$video_privacy_setting          = ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting );
+		$all_videos_are_private_on_site = Data::get_videopress_videos_private_for_site();
+
+		// decide if the video needs a playback token based on the site privacy setting as well as the video privacy setting
+		$video_needs_playback_token = $all_videos_are_private_on_site ? true : ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+
 		return array(
-			'title'           => $title,
-			'description'     => $description,
-			'caption'         => $caption,
-			'guid'            => $info->guid,
-			'rating'          => $info->rating,
-			'allow_download'  =>
+			'title'                => $title,
+			'description'          => $description,
+			'caption'              => $caption,
+			'guid'                 => $info->guid,
+			'rating'               => $info->rating,
+			'allow_download'       =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'privacy_setting' => ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
+			'privacy_setting'      => $video_privacy_setting,
+			'needs_playback_token' => $video_needs_playback_token,
 		);
 	}
 

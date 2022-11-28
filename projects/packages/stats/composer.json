@@ -4,12 +4,13 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.45",
-		"automattic/jetpack-constants": "^1.6"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
@@ -42,8 +43,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-stats",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
+		},
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"textdomain": "jetpack-stats"
 	},

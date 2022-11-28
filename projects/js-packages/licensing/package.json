@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-licensing",
-	"version": "0.5.15-alpha",
+	"version": "0.6.8-alpha",
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
 	"bugs": {
@@ -20,23 +20,24 @@
 		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"dependencies": {
-		"@automattic/jetpack-api": "workspace:* || ^0.14",
-		"@automattic/jetpack-components": "workspace:* || ^0.22",
-		"@wordpress/components": "20.0.0",
-		"@wordpress/element": "4.14.0",
-		"@wordpress/i18n": "4.16.0",
-		"@wordpress/icons": "9.7.0",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@wordpress/components": "22.0.0",
+		"@wordpress/element": "4.19.0",
+		"@wordpress/i18n": "4.21.0",
+		"@wordpress/icons": "9.12.0",
 		"prop-types": "15.7.2"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
-		"@babel/core": "7.18.13",
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@babel/core": "7.20.2",
 		"@babel/preset-react": "7.18.6",
 		"@testing-library/dom": "8.16.0",
 		"@testing-library/react": "12.1.5",
 		"@testing-library/user-event": "14.2.1",
-		"jest": "28.1.0",
-		"jest-environment-jsdom": "28.1.0",
+		"jest": "29.3.1",
+		"jest-environment-jsdom": "29.3.1",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-test-renderer": "17.0.2"

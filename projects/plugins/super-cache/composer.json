@@ -3,10 +3,12 @@
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-device-detection": "@dev"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "3.2.x-dev"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -50,5 +52,8 @@
 		"release-branch-prefix": "super-cache",
 		"wp-plugin-slug": "wp-super-cache",
 		"wp-svn-autopublish": true
+	},
+	"config": {
+		"autoloader-suffix": "6fe342bc02f0b440f7b3c8d8ade42286_super_cacheⓥ1_9_1_alpha"
 	}
 }

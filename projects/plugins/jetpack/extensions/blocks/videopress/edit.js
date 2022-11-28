@@ -11,6 +11,7 @@ import {
 import {
 	BaseControl,
 	Button,
+	ExternalLink,
 	PanelBody,
 	ResizableBox,
 	SandBox,
@@ -27,10 +28,10 @@ import {
 	withInstanceId,
 } from '@wordpress/compose';
 import { useSelect, withDispatch, withSelect } from '@wordpress/data';
-import { Component, createRef, Fragment } from '@wordpress/element';
+import { Component, createInterpolateElement, createRef, Fragment } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Icon, pencil } from '@wordpress/icons';
+import { Icon } from '@wordpress/icons';
 import classnames from 'classnames';
 import { get, indexOf } from 'lodash';
 import { useEffect } from 'react';
@@ -494,9 +495,8 @@ const VideoPressEdit = CoreVideoEdit =>
 						<ToolbarGroup>
 							<ToolbarButton
 								className="components-icon-button components-toolbar__control"
-								label={ __( 'Edit video', 'jetpack' ) }
+								text={ __( 'Replace', 'jetpack' ) }
 								onClick={ this.switchToEditing }
-								icon={ <Icon icon={ pencil } /> }
 							/>
 						</ToolbarGroup>
 					</BlockControls>
@@ -604,6 +604,12 @@ const VideoPressEdit = CoreVideoEdit =>
 									) }
 								</BaseControl>
 							</MediaUploadCheck>
+							{ createInterpolateElement(
+								__( 'Send us your <a>VideoPress feedback</a>', 'jetpack' ),
+								{
+									a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
+								}
+							) }
 						</PanelBody>
 
 						<SeekbarColorSettings
@@ -841,7 +847,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				saveEditorData();
 			};
 
-			const isResumableUploading = null !== fileForUpload && fileForUpload instanceof File;
+			const isResumableUploading = null !== fileForUpload && fileForUpload.name;
 
 			if ( isResumableUploading || this.state.isEditingWhileUploading ) {
 				const title = this.state.title ?? filename;

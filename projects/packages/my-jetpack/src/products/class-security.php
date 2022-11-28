@@ -56,7 +56,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack-my-jetpack' );
+		return __( 'Comprehensive site security, including VaultPress Backup, Scan, and Akismet Anti-spam.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -65,7 +65,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack-my-jetpack' );
+		return __( 'Comprehensive site security, including VaultPress Backup, Scan, and Akismet Anti-spam.', 'jetpack-my-jetpack' );
 	}
 
 	/**

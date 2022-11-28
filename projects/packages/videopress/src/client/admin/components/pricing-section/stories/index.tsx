@@ -8,6 +8,8 @@ import PricingSection from '..';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 window.jetpackVideoPressInitialState = {
+	allowedVideoExtensions: {},
+	adminUri: 'admin-uri',
 	apiNonce: 'nonce',
 	apiRoot: 'https://api-root.com',
 	registrationNonce: 'registration-nonce',

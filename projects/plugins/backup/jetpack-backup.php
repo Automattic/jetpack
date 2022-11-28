@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Plugin Name: Jetpack Backup
+ * Plugin Name: Jetpack VaultPress Backup
  * Plugin URI: https://jetpack.com/jetpack-backup
  * Description: Easily restore or download a backup of your site from a specific moment in time.
  * Version: 1.4.2-alpha
@@ -57,7 +57,7 @@ function jetpack_backup_requirements_check() {
 	if ( version_compare( $jetpack_plugin_data['Version'], JETPACK_BACKUP_REQUIRED_JETPACK_VERSION, '<' ) ) {
 		return new WP_Error(
 			'incompatible_jetpack_version',
-			__( 'The Jetpack Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' )
+			__( 'The Jetpack VaultPress Backup plugin requires version 10 or higher of the Jetpack plugin. Please update your Jetpack plugin to continue.', 'jetpack-backup' )
 		);
 	}
 	return true;
@@ -93,7 +93,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else { // Something very unexpected. Error out gently with an admin_notice and exit loading.
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Backup plugin', 'jetpack-backup' )
+			__( 'Error loading autoloader file for Jetpack VaultPress Backup plugin', 'jetpack-backup' )
 		);
 	}
 
@@ -107,7 +107,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				printf(
 					wp_kses(
 						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack Backup is incomplete. If you installed Jetpack Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
+						__( 'Your installation of Jetpack VaultPress Backup is incomplete. If you installed Jetpack VaultPress Backup from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack VaultPress Backup must have Composer dependencies installed and built via the build command.', 'jetpack-backup' ),
 						array(
 							'a' => array(
 								'href'   => array(),

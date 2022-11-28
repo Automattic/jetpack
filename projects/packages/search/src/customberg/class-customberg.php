@@ -44,6 +44,8 @@ class Customberg {
 	 */
 	public function init_hooks() {
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_page' ), 999 );
+		add_filter( 'pre_option_jetpack_search_show_powered_by', array( $this, 'get_show_powered_by' ) );
+		$this->plan = new Plan();
 	}
 
 	/**
@@ -66,6 +68,18 @@ class Customberg {
 
 		add_action( "admin_print_scripts-$hook", array( $this, 'load_assets' ) );
 		add_action( 'admin_footer', array( 'Automattic\Jetpack\Search\Helper', 'print_instant_search_sidebar' ) );
+	}
+
+	/**
+	 * Force option value to be true if in free plan.
+	 *
+	 * @param string $value The incoming value to be replaced.
+	 */
+	public function get_show_powered_by( $value ) {
+		if ( $this->plan->is_free_plan() ) {
+			return true;
+		}
+		return $value;
 	}
 
 	/**
