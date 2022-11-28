@@ -180,7 +180,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function render_widget_status_messages( $instance ) {
 		if ( self::is_jetpack() && isset( $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 			$success_message   = isset( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
-			$subscribers_total = self::get_subscribers_count( $instance );
+			$subscribers_total = self::fetch_subscriber_count();
 
 			switch ( $_GET['subscribe'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'invalid_email':
