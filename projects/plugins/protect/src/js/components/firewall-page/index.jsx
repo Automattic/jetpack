@@ -1,8 +1,11 @@
 import { Button, Col, Container, Text } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import API from '../../api';
+import { PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
@@ -29,6 +32,16 @@ const FirewallPage = () => {
 
 	const successNoticeDuration = 5000;
 
+	const errorMessage = createInterpolateElement(
+		__(
+			'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
+			'jetpack-protect'
+		),
+		{
+			supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+		}
+	);
+
 	const saveChanges = useCallback( () => {
 		setSettingsIsUpdating( true );
 		updateConfig( settings )
@@ -42,14 +55,11 @@ const FirewallPage = () => {
 			.catch( () => {
 				setNotice( {
 					type: 'error',
-					message: __(
-						'An error ocurred. Please try again or contact support.',
-						'jetpack-protect'
-					),
+					message: errorMessage,
 				} );
 			} )
 			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, updateConfig, setNotice ] );
+	}, [ settings, updateConfig, setNotice, errorMessage ] );
 
 	const handleChange = useCallback(
 		event => {
@@ -76,14 +86,11 @@ const FirewallPage = () => {
 			.catch( () => {
 				setNotice( {
 					type: 'error',
-					message: __(
-						'An error ocurred. Please try again or contact support.',
-						'jetpack-protect'
-					),
+					message: errorMessage,
 				} );
 			} )
 			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleWaf, setNotice ] );
+	}, [ settings, toggleWaf, setNotice, errorMessage ] );
 
 	const handleManualRulesChange = useCallback( () => {
 		const newManualRulesStatus = ! settings.jetpack_waf_ip_list;
@@ -102,14 +109,11 @@ const FirewallPage = () => {
 			.catch( () => {
 				setNotice( {
 					type: 'error',
-					message: __(
-						'An error ocurred. Please try again or contact support.',
-						'jetpack-protect'
-					),
+					message: errorMessage,
 				} );
 			} )
 			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleManualRules, setNotice ] );
+	}, [ settings, toggleManualRules, setNotice, errorMessage ] );
 
 	/**
 	 * Sync state.settings with application state WAF config

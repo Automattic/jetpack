@@ -20,6 +20,14 @@
             top: calc( var( --spacing-base ) * 8 ); // 72px
         }
     }
+
+    a,
+    a:link,
+    a:hover,
+    a:visited,
+    a:active {
+        color: var( --jp-white );
+    }
 }
 
 .notice__icon {

@@ -1,8 +1,10 @@
 import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-components';
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
+import { PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
@@ -65,9 +67,14 @@ const ShareData = () => {
 				setNotice( {
 					type: 'error',
 					dismissable: true,
-					message: __(
-						'An error ocurred. Please try again or contact support.',
-						'jetpack-protect'
+					message: createInterpolateElement(
+						__(
+							'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
+							'jetpack-protect'
+						),
+						{
+							supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+						}
 					),
 				} );
 			} );
