@@ -31,7 +31,7 @@ There have been some new changes to SEO options available in the editor. One all
 - Examine your Jetpack sitemap at `yourdomain/sitemap.xml` for the now non-indexed post, it should be absent from the freshly generated sitemap.
 - Setting the Jetpack SEO options should work equally well from both the Jetpack sidebar menu and the pre-publish panel (sidebar shown when publishing a new post).
 
-We also have a new meta field in the SEO module that allows a custom value for the <title> tag to be specified at the post level.
+We also have a new meta field in the SEO module that allows a custom value for the HTML `<title>` tag to be specified at the post/page level.
 
 - Before beginning the test, make sure the SEO module is enabled by navigating to "Jetpack > Settings" and searching for "SEO". Turn this module on by clicking on the toggle:
 - Open an individual post on the front end of the site and take note of the page title displaying in the HTML/browser tab. This should be the default HTML title.
