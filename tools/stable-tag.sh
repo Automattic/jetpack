@@ -87,17 +87,15 @@ fi
 # Current stable version
 CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
 
-# Get all versions, strip anything with alpha characters such as -beta or trunk.
-SVN_TAGS=$(jq -r '.versions | delpaths([paths | select(.[] | test("[A-Za-z]+"; "i"))]) | keys[]' <<<"$JSON")
-
-# Sort and create an array
-SVN_TAGS=( $(printf "%s\n" $SVN_TAGS | sort -V) )
-COUNT=${#SVN_TAGS[@]}
-SVN_LATEST=${SVN_TAGS[@]:$COUNT-1:1}
+# Get all versions, strip anything with alpha characters such as -beta or trunk. Sort and create an array.
+SVN_TMP=$(jq -r '.versions | keys[] | select( test( "^[0-9]+(\\.[0-9]+)+$" ) )' <<<"$JSON"  | sort -V )
+mapfile -t SVN_TAGS <<<"$SVN_TMP"
+SVN_LATEST=${SVN_TAGS[-1]}
 
 # Get mirror repo
 
 MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
+[[ -n "$MIRROR" ]] || die "Plugin $WPSLUG has no mirror repo."
 
 # Current release on GH
 
