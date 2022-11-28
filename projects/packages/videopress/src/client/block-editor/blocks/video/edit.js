@@ -26,6 +26,7 @@ import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
+import TracksControl from './components/tracks-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
@@ -390,6 +391,8 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					setAttributes={ setAttributes }
 					clientId={ clientId }
 				/>
+
+				<TracksControl attributes={ attributes } />
 			</BlockControls>
 
 			<InspectorControls>

@@ -178,4 +178,44 @@ jQuery( function ( $ ) {
 			}
 		} );
 	} );
+
+	// Handle export
+	$( document ).on( 'click', '#jetpack-export-feedback', function ( e ) {
+		e.preventDefault();
+
+		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
+		var nonce = $( '#' + nonceName ).attr( 'value' );
+
+		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
+		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+
+		var selected = [];
+		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
+		} );
+
+		$.post(
+			ajaxurl,
+			{
+				action: 'feedback_export',
+				year: date ? date[ 2 ].substr( 0, 4 ) : '',
+				month: date ? date[ 2 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				selected: selected,
+				[ nonceName ]: nonce,
+			},
+			function ( response ) {
+				var blob = new Blob( [ response ], { type: 'application/octetstream' } );
+
+				var a = document.createElement( 'a' );
+				a.href = window.URL.createObjectURL( blob );
+				a.download = 'feedback.csv';
+
+				document.body.appendChild( a );
+				a.click();
+				document.body.removeChild( a );
+				window.URL.revokeObjectURL( a.href );
+			}
+		);
+	} );
 } );
