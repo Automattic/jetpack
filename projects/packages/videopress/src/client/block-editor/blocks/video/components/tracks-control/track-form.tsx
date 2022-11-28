@@ -3,7 +3,6 @@
  */
 import { MediaUploadCheck, store as blockEditorStore } from '@wordpress/block-editor';
 import {
-	NavigableMenu,
 	FormFileUpload,
 	Button,
 	TextControl,
@@ -77,95 +76,93 @@ export default function TrackForm( { onCancel, onSave }: TrackFormProps ): React
 	);
 
 	return (
-		<NavigableMenu>
-			<MenuGroup
-				className="video-tracks-control__track-form"
-				label={ __( 'Upload track', 'jetpack-videopress-pkg' ) }
-			>
-				<div className="video-tracks-control__track-form-container">
-					<div className="video-tracks-control__track-form-upload-file">
-						<div className="video-tracks-control__track-form-upload-file-label">
-							<span>{ __( 'File', 'jetpack-videopress-pkg' ) }:</span>
-							{ fileName && <strong>{ fileName }</strong> }
-							<MediaUploadCheck>
-								<FormFileUpload
-									onChange={ event => {
-										const files = event.target.files;
-										if ( ! files?.length ) {
-											return;
-										}
+		<MenuGroup
+			className="video-tracks-control__track-form"
+			label={ __( 'Upload track', 'jetpack-videopress-pkg' ) }
+		>
+			<div className="video-tracks-control__track-form-container">
+				<div className="video-tracks-control__track-form-upload-file">
+					<div className="video-tracks-control__track-form-upload-file-label">
+						<span>{ __( 'File', 'jetpack-videopress-pkg' ) }:</span>
+						{ fileName && <strong>{ fileName }</strong> }
+						<MediaUploadCheck>
+							<FormFileUpload
+								onChange={ event => {
+									const files = event.target.files;
+									if ( ! files?.length ) {
+										return;
+									}
 
-										updateTrack( 'tmpFile', files[ 0 ] );
-									} }
-									accept={ ACCEPTED_FILE_TYPES }
-									render={ ( { openFileDialog } ) => {
-										return (
-											<Button
-												variant="link"
-												onClick={ () => {
-													openFileDialog();
-												} }
-											>
-												{ __( 'Select track', 'jetpack-videopress-pkg' ) }
-											</Button>
-										);
-									} }
-								/>
-							</MediaUploadCheck>
-						</div>
-						<div className="video-tracks-control__track-form-upload-file-help">{ help }</div>
+									updateTrack( 'tmpFile', files[ 0 ] );
+								} }
+								accept={ ACCEPTED_FILE_TYPES }
+								render={ ( { openFileDialog } ) => {
+									return (
+										<Button
+											variant="link"
+											onClick={ () => {
+												openFileDialog();
+											} }
+										>
+											{ __( 'Select track', 'jetpack-videopress-pkg' ) }
+										</Button>
+									);
+								} }
+							/>
+						</MediaUploadCheck>
 					</div>
-					<div className="video-tracks-control__track-form-label-language">
-						<TextControl
-							onChange={ newLabel => updateTrack( 'label', newLabel ) }
-							label={ __( 'Label', 'jetpack-videopress-pkg' ) }
-							value={ track.label }
-							help={ __( 'Title of track', 'jetpack-videopress-pkg' ) }
-							disabled={ isSavingTrack }
-						/>
-						<TextControl
-							className="video-tracks-control__track-form-language-tag"
-							label={ __( 'Source language', 'jetpack-videopress-pkg' ) }
-							value={ track.srcLang }
-							onChange={ newSrcLang => updateTrack( 'srcLang', newSrcLang ) }
-							help={ __( 'Language (en, fr, etc.)', 'jetpack-videopress-pkg' ) }
-							disabled={ isSavingTrack }
-						/>
-					</div>
-					<SelectControl
-						options={ KIND_OPTIONS }
-						value={ track.kind }
-						label={
-							/* translators: %s: The kind of video text track e.g: "Subtitles, Captions" */
-							__( 'Kind', 'jetpack-videopress-pkg' )
-						}
-						onChange={ newKind => updateTrack( 'kind', newKind ) }
+					<div className="video-tracks-control__track-form-upload-file-help">{ help }</div>
+				</div>
+				<div className="video-tracks-control__track-form-label-language">
+					<TextControl
+						onChange={ newLabel => updateTrack( 'label', newLabel ) }
+						label={ __( 'Label', 'jetpack-videopress-pkg' ) }
+						value={ track.label }
+						help={ __( 'Title of track', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
 					/>
-					<div className="video-tracks-control__track-form-buttons-container">
-						<Button
-							isBusy={ isSavingTrack }
-							variant="secondary"
-							disabled={ ! track.tmpFile || isSavingTrack }
-							onClick={ onSaveHandler }
-						>
-							{ __( 'Save', 'jetpack-videopress-pkg' ) }
-						</Button>
-
-						<Button variant="link" onClick={ onCancel }>
-							{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</div>
-					{ errorMessage && (
-						<div className="video-tracks-control__track-form-error">
-							{
-								/* translators: %s: An error message returned after a failed video track file upload." */
-								sprintf( __( 'Error: %s', 'jetpack-videopress-pkg' ), errorMessage )
-							}
-						</div>
-					) }
+					<TextControl
+						className="video-tracks-control__track-form-language-tag"
+						label={ __( 'Source language', 'jetpack-videopress-pkg' ) }
+						value={ track.srcLang }
+						onChange={ newSrcLang => updateTrack( 'srcLang', newSrcLang ) }
+						help={ __( 'Language (en, fr, etc.)', 'jetpack-videopress-pkg' ) }
+						disabled={ isSavingTrack }
+					/>
 				</div>
-			</MenuGroup>
-		</NavigableMenu>
+				<SelectControl
+					options={ KIND_OPTIONS }
+					value={ track.kind }
+					label={
+						/* translators: %s: The kind of video text track e.g: "Subtitles, Captions" */
+						__( 'Kind', 'jetpack-videopress-pkg' )
+					}
+					onChange={ newKind => updateTrack( 'kind', newKind ) }
+					disabled={ isSavingTrack }
+				/>
+				<div className="video-tracks-control__track-form-buttons-container">
+					<Button
+						isBusy={ isSavingTrack }
+						variant="secondary"
+						disabled={ ! track.tmpFile || isSavingTrack }
+						onClick={ onSaveHandler }
+					>
+						{ __( 'Save', 'jetpack-videopress-pkg' ) }
+					</Button>
+
+					<Button variant="link" onClick={ onCancel }>
+						{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</div>
+				{ errorMessage && (
+					<div className="video-tracks-control__track-form-error">
+						{
+							/* translators: %s: An error message returned after a failed video track file upload." */
+							sprintf( __( 'Error: %s', 'jetpack-videopress-pkg' ), errorMessage )
+						}
+					</div>
+				) }
+			</div>
+		</MenuGroup>
 	);
 }

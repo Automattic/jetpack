@@ -1,14 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	NavigableMenu,
-	MenuItem,
-	MenuGroup,
-	ToolbarButton,
-	Dropdown,
-	Button,
-} from '@wordpress/components';
+import { MenuItem, MenuGroup, ToolbarDropdownMenu, Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
@@ -98,18 +91,14 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 	}, [] );
 
 	return (
-		<Dropdown
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				<ToolbarButton
-					label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
-					showTooltip
-					aria-expanded={ isOpen }
-					aria-haspopup="true"
-					onClick={ onToggle }
-					icon={ captionIcon }
-				/>
-			) }
-			renderContent={ () => {
+		<ToolbarDropdownMenu
+			icon={ captionIcon }
+			label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
+			popoverProps={ {
+				variant: 'toolbar',
+			} }
+		>
+			{ () => {
 				if ( isUploadingNewTrack ) {
 					return (
 						<TrackForm
@@ -121,9 +110,8 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 					);
 				}
 				return (
-					<NavigableMenu>
+					<>
 						<TrackList tracks={ tracks } guid={ guid } />
-
 						<MenuGroup
 							label={ __( 'Add tracks', 'jetpack-videopress-pkg' ) }
 							className="video-tracks-control"
@@ -132,9 +120,9 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 								{ __( 'Upload track', 'jetpack-videopress-pkg' ) }
 							</MenuItem>
 						</MenuGroup>
-					</NavigableMenu>
+					</>
 				);
 			} }
-		/>
+		</ToolbarDropdownMenu>
 	);
 }
