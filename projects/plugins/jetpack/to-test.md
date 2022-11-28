@@ -22,7 +22,7 @@ The Form Block received several updates and bug fixes in this version. To test, 
 There have been some new changes to SEO options available in the editor. One allows you to set a post or page as "noindex", meaning search engine's shouldn't crawl that page. To test:
 
 - Make sure SEO and Sitemaps features are turned on in: /wp-admin/admin.php?page=jetpack#/traffic
-- Create a new test post or page and publish it without using the new "SEO Indexing" checkbox from this PR.
+- Create a new test post or page and publish it without using the new "Hide page from search engines" checkbox feature.
 - Examine the published post source on the frontend and make sure there is not any `<meta name='robots' content='noindex'`... or similar.
 	- If there is, double check your "Search engine visibility" in Reading settings: /wp-admin/options-reading.php
 - Now edit the same post and tick the "Hide this page from search engines" checkbox and save.
