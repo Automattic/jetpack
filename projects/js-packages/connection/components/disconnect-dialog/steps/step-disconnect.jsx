@@ -3,7 +3,7 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
@@ -45,6 +45,23 @@ const StepDisconnect = props => {
 		},
 		[ trackModalClick, onDisconnect ]
 	);
+	const handleEscapePress = useCallback(
+		event => {
+			if ( event.key === 'Escape' ) {
+				handleStayConnectedClick();
+			}
+		},
+		[ handleStayConnectedClick ]
+	);
+
+	useEffect( () => {
+		document.addEventListener( 'keydown', handleEscapePress, false );
+
+		return () => {
+			document.removeEventListener( 'keydown', handleEscapePress, false );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	/**
 	 * Render the disconnect button, allows for some variance based on context.
