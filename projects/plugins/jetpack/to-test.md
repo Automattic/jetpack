@@ -37,7 +37,7 @@ We also have a new meta field in the SEO module that allows a custom value for t
 - Open an individual post on the front end of the site and take note of the page title displaying in the HTML/browser tab. This should be the default HTML title.
 - In the post editor, click on the Jetpack icon in the upper right-hand corner, this will show Jetpack-specific settings in the post editor sidebar.
 - Expand the "Jetpack SEO" menu item and in the "SEO title" field, set a custom title and then choose "Update" to update the post.
-- Refresh the post on the front-end of the site and confirm that the <title> tag and browser tab now display your custom title.
+- Refresh the post on the frontend of the site and confirm that the `<title>` tag and browser tab now display your custom title.
 
 Other notes for the new meta field that you can check out:
 
