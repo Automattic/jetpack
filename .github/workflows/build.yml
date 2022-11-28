@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'trunk'
+      - 'prerelease'
       # The `**/*/` works around the fact that GitHub considers a leading `**/` as meaning "zero or more path components" where we want "one or more".
       - '**/*/branch-**'
   pull_request:

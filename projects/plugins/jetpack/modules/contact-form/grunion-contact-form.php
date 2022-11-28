@@ -302,8 +302,7 @@ class Grunion_Contact_Form_Plugin {
 
 		// Export to CSV feature
 		if ( is_admin() ) {
-			add_action( 'admin_post_feedback_export', array( $this, 'download_feedback_as_csv' ) );
-			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
+			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -405,84 +404,72 @@ class Grunion_Contact_Form_Plugin {
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_text' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-name',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_name' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-email',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_email' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-url',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_url' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-date',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_date' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-telephone',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_telephone' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-textarea',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_textarea' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox-multiple',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_checkbox_multiple' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-select',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_select' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-consent',
 			array(
-				'parent'          => array( 'jetpack/contact-form' ),
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_consent' ),
 			)
 		);
@@ -954,7 +941,7 @@ class Grunion_Contact_Form_Plugin {
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
-			echo '<h3>' . esc_html__( 'Message Sent', 'jetpack' ) . '</h3>' . wp_kses(
+			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack' ) . '</h4>' . wp_kses(
 				$submission_result,
 				array(
 					'br'         => array(),
@@ -1277,54 +1264,17 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Prints the menu
+	 * Prints a dropdown of posts with forms.
+	 *
+	 * @param int $selected_id Currently selected post ID.
+	 * @return void
 	 */
-	public function export_form() {
-		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'export' ) ) {
-			return;
-		}
-
-		// if there aren't any feedbacks, bail out
-		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
-			return;
-		}
+	public static function form_posts_dropdown( $selected_id ) {
 		?>
-
-		<div id="feedback-export" style="display:none">
-			<h2><?php esc_html_e( 'Export responses as CSV', 'jetpack' ); ?></h2>
-			<div class="clear"></div>
-			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="form">
-				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
-
-				<input name="action" value="feedback_export" type="hidden">
-				<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
-				<select name="post">
-					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
-					<?php echo $this->get_feedbacks_as_options(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
-				</select>
-
-				<br><br>
-				<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Download', 'jetpack' ); ?>">
-			</form>
-		</div>
-
-		<?php
-		// There aren't any usable actions in core to output the "export feedback" form in the correct place,
-		// so this inline JS moves it from the top of the page to the bottom.
-		?>
-		<script type='text/javascript'>
-			var menu = document.getElementById( 'feedback-export' ),
-				wrapper = document.getElementsByClassName( 'wrap' )[0];
-			<?php if ( 'edit-feedback' === $current_screen->id ) : ?>
-			wrapper.appendChild(menu);
-			<?php endif; ?>
-			menu.style.display = 'block';
-		</script>
+		<select name="jetpack_form_parent_id">
+			<option value="all"><?php esc_html_e( 'All sources', 'jetpack' ); ?></option>
+			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
+		</select>
 		<?php
 	}
 
@@ -1834,6 +1784,7 @@ class Grunion_Contact_Form_Plugin {
 			'order'            => 'ASC',
 			'fields'           => 'ids',
 			'suppress_filters' => false,
+			'date_query'       => array(),
 		);
 
 		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
@@ -1842,6 +1793,25 @@ class Grunion_Contact_Form_Plugin {
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
 			$filename            = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+		}
+
+		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
+			$args['date_query']['year'] = intval( $_POST['year'] );
+		}
+
+		if ( ! empty( $_POST['month'] ) && intval( $_POST['month'] ) > 0 ) {
+			$args['date_query']['month'] = intval( $_POST['month'] );
+		}
+
+		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
+			$args['include'] = array_filter(
+				array_map(
+					function ( $selected ) {
+						return intval( $selected );
+					},
+					$_POST['selected'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				)
+			);
 		}
 
 		$feedbacks = get_posts( $args );
@@ -1937,13 +1907,14 @@ class Grunion_Contact_Form_Plugin {
 	/**
 	 * Returns a string of HTML <option> items from an array of posts
 	 *
+	 * @param int $selected_id Currently selected post ID.
 	 * @return string a string of HTML <option> items
 	 */
-	protected function get_feedbacks_as_options() {
+	protected static function get_feedbacks_as_options( $selected_id = 0 ) {
 		$options = '';
 
 		// Get the feedbacks' parents' post IDs
-		$feedbacks = get_posts(
+		$feedbacks  = get_posts(
 			array(
 				'fields'           => 'id=>parent',
 				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
@@ -1952,21 +1923,19 @@ class Grunion_Contact_Form_Plugin {
 				'suppress_filters' => false,
 			)
 		);
-		$parents   = array_unique( array_values( $feedbacks ) );
-
-		$posts = get_posts(
-			array(
-				'orderby'          => 'ID',
-				'posts_per_page'   => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'post_type'        => 'any',
-				'post__in'         => array_values( $parents ),
-				'suppress_filters' => false,
-			)
-		);
+		$parent_ids = array_unique( array_values( $feedbacks ) );
 
 		// creates the string of <option> elements
-		foreach ( $posts as $post ) {
-			$options .= sprintf( '<option value="%s">%s</option>', esc_attr( $post->ID ), esc_html( $post->post_title ) );
+		foreach ( $parent_ids as $parent_id ) {
+			$parent_url = get_permalink( $parent_id );
+			$parsed_url = wp_parse_url( $parent_url );
+
+			$options .= sprintf(
+				'<option value="%s" %s>/%s</option>',
+				esc_attr( $parent_id ),
+				$selected_id === $parent_id ? 'selected' : '',
+				esc_html( basename( $parsed_url['path'] ) )
+			);
 		}
 
 		return $options;
@@ -2021,11 +1990,10 @@ class Grunion_Contact_Form_Plugin {
 		$lines        = array();
 
 		if ( count( $content ) > 1 ) {
-			$content  = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			$one_line = preg_replace( '/\s+/', ' ', $content );
-			$one_line = preg_replace( '/.*Array \( (.*)\)/', '$1', $one_line );
+			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
+			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-			preg_match_all( '/\[([^\]]+)\] =\&gt\; ([^\[]+)/', $one_line, $matches );
+			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 			if ( count( $matches ) > 1 ) {
 				$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
@@ -2459,7 +2427,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
-			'customThankyouHeading'  => __( 'Message Sent', 'jetpack' ), // The text to show above customThankyouMessage.
+			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack' ), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
@@ -2617,11 +2585,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
+			$r       .= '<div class="contact-form-submission">';
 
-			$r_success_message =
-				'<h3>' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
-				' (<a href="' . esc_url( $back_url ) . '">' . esc_html__( 'go back', 'jetpack' ) . '</a>)' .
-				"</h3>\n\n";
+			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack' ) . '</a> </p>';
+
+			$r_success_message .=
+				'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
+				"</h4>\n\n";
 
 			// Don't show the feedback details unless the nonce matches
 			if ( $feedback_id && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -2638,6 +2608,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * @param string $r_success_message Success message.
 			 */
 			$r .= apply_filters( 'grunion_contact_form_success_message', $r_success_message );
+			$r .= '</div>';
 		} else {
 			// Nothing special - show the normal contact form
 			if ( $form->get_attribute( 'widget' )
@@ -2767,9 +2738,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<blockquote class="contact-form-submission">'
-			. '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>'
-			. '</blockquote>';
+			$message = '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
 		}
 
 		return wp_kses(
@@ -2778,6 +2747,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'br'         => array(),
 				'blockquote' => array( 'class' => array() ),
 				'p'          => array(),
+				'div'        => array(
+					'class' => array(),
+					'style' => array(),
+				),
 			)
 		);
 	}
@@ -2853,7 +2826,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'], true );
 				$compiled_form[ $field_index ] = sprintf(
-					'<b>%1$s:</b> %2$s<br /><br />',
+					'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
 					wp_kses( $field->get_attribute( 'label' ), array() ),
 					self::escape_and_sanitize_field_value( $value )
 				);
@@ -2880,7 +2853,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$label = $field->get_attribute( 'label' );
 
 					$compiled_form[ $field_index ] = sprintf(
-						'<b>%1$s:</b> %2$s<br /><br />',
+						'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);

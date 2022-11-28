@@ -74,6 +74,7 @@
 			font-size: var( --font-body );
 			font-weight: 600;
 			text-decoration: none;
+			line-height: calc( var(--spacing-base) * 3 );
 		}
 
 		&__icon {
@@ -93,7 +94,7 @@
 
 	.components-modal {
 		&__header {
-			border: none;
+			display: none;
 		}
 
 		&__content {

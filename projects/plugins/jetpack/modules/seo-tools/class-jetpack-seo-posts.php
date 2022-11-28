@@ -10,19 +10,25 @@
  */
 class Jetpack_SEO_Posts {
 	/**
-	 * Key of the post meta value that will be used to store post custom description.
+	 * Key of the post meta values that will be used to store post custom data.
 	 */
 	const DESCRIPTION_META_KEY = 'advanced_seo_description';
+	const HTML_TITLE_META_KEY  = 'jetpack_seo_html_title';
+	const POST_META_KEYS_ARRAY = array(
+		self::DESCRIPTION_META_KEY,
+		self::HTML_TITLE_META_KEY,
+	);
 
 	/**
 	 * Build meta description for post SEO.
 	 *
-	 * @param WP_Post $post Source of data for custom description.
+	 * @param WP_Post|null $post Source of data for custom description.
 	 *
 	 * @return string Post description or empty string.
 	 */
-	public static function get_post_description( $post ) {
-		if ( empty( $post ) ) {
+	public static function get_post_description( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
 		}
 
@@ -48,12 +54,13 @@ class Jetpack_SEO_Posts {
 	 * Returns post's custom meta description if it is set, and if
 	 * SEO tools are enabled for current blog.
 	 *
-	 * @param WP_Post $post Source of data for custom description.
+	 * @param WP_Post|null $post Source of data for custom description.
 	 *
 	 * @return string Custom description or empty string
 	 */
-	public static function get_post_custom_description( $post ) {
-		if ( empty( $post ) ) {
+	public static function get_post_custom_description( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
 			return '';
 		}
 
@@ -67,10 +74,35 @@ class Jetpack_SEO_Posts {
 	}
 
 	/**
-	 * Registers the self::DESCRIPTION_META_KEY post_meta for use in the REST API.
+	 * Gets a custom HTML title for a post if one is set, and if
+	 * SEO tools are enabled for the current blog.
+	 *
+	 * @param WP_Post|null $post Source of data for the custom HTML title.
+	 *
+	 * @return string Custom HTML title or an empty string if not set.
+	 */
+	public static function get_post_custom_html_title( $post = null ) {
+		$post = get_post( $post );
+		if ( ! ( $post instanceof WP_Post ) ) {
+			return '';
+		}
+
+		$custom_html_title = get_post_meta( $post->ID, self::HTML_TITLE_META_KEY, true );
+
+		if ( empty( $custom_html_title ) || ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			return '';
+		}
+
+		return $custom_html_title;
+	}
+
+	/**
+	 * Registers the following meta keys for use in the REST API:
+	 *   - self::DESCRIPTION_META_KEY
+	 *   - self::HTML_TITLE_META_KEY
 	 */
 	public static function register_post_meta() {
-		$args = array(
+		$description_args = array(
 			'type'         => 'string',
 			'description'  => __( 'Custom post description to be used in HTML <meta /> tag.', 'jetpack' ),
 			'single'       => true,
@@ -80,7 +112,18 @@ class Jetpack_SEO_Posts {
 			),
 		);
 
-		register_meta( 'post', self::DESCRIPTION_META_KEY, $args );
+		$html_title_args = array(
+			'type'         => 'string',
+			'description'  => __( 'Custom title to be used in HTML <title /> tag.', 'jetpack' ),
+			'single'       => true,
+			'default'      => '',
+			'show_in_rest' => array(
+				'name' => self::HTML_TITLE_META_KEY,
+			),
+		);
+
+		register_meta( 'post', self::HTML_TITLE_META_KEY, $html_title_args );
+		register_meta( 'post', self::DESCRIPTION_META_KEY, $description_args );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Expose the array of VideoPress settings on the client initial state.
