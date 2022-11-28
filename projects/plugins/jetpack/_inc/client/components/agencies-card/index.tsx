@@ -83,9 +83,8 @@ const AgenciesCard: FC< Props > = ( {
 						) }
 					</p>
 					<p className="jp-agencies-card__link-button">
-						<Button>
+						<Button onClick={ handleClick }>
 							<ExternalLink
-								onClick={ handleClick }
 								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
 								target="_blank"
 								rel="noreferrer"
