@@ -176,7 +176,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.6.0-beta - 2022-11-21
+### 1.6.0-beta - 2022-11-28
 #### Added
 - General: New deactivation survey.
 - General: New tracks events for upgrade CTA impressions.
