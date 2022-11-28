@@ -14,7 +14,7 @@ The Form Block received several updates and bug fixes in this version. To test, 
 - Test much of the existing functionality as well as any new Form block features:
   - Try the new "Explore Forms Patterns" button when adding the block.
   - Try updating placeholder text.
-  - Make sure the new form submission confirmation text styling looks good
+  - The page shown to visitors after submitting a form has had the design slightly modified for better readability across various themes. Check to make sure that the post-submission design looks good on your test site.
   - After submitting forms, check out wp-admin -> Feedback and check out the new layout to make sure things look good.
 
 ### SEO
