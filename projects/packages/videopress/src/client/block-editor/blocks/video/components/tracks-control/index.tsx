@@ -1,21 +1,14 @@
 /**
  * External dependencies
  */
-import {
-	NavigableMenu,
-	MenuItem,
-	MenuGroup,
-	ToolbarButton,
-	Dropdown,
-	Button,
-} from '@wordpress/components';
+import { MenuItem, MenuGroup, ToolbarDropdownMenu, Button } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { deleteTrackForGuid } from '../../../../../lib/video-tracks';
+import { deleteTrackForGuid, uploadTrackForGuid } from '../../../../../lib/video-tracks';
 import { TrackProps, VideoControlProps } from '../../types';
 import { captionIcon } from '../icons';
 import './style.scss';
@@ -90,33 +83,35 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
 
+	const uploadNewTrackFile = useCallback( newTrack => {
+		uploadTrackForGuid( newTrack, guid ).then( () => {
+			setIsUploadingNewTrack( false );
+		} );
+		setIsUploadingNewTrack( true );
+	}, [] );
+
 	return (
-		<Dropdown
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				<ToolbarButton
-					label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
-					showTooltip
-					aria-expanded={ isOpen }
-					aria-haspopup="true"
-					onClick={ onToggle }
-					icon={ captionIcon }
-				/>
-			) }
-			renderContent={ () => {
+		<ToolbarDropdownMenu
+			icon={ captionIcon }
+			label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
+			popoverProps={ {
+				variant: 'toolbar',
+			} }
+		>
+			{ () => {
 				if ( isUploadingNewTrack ) {
 					return (
 						<TrackForm
 							onCancel={ () => {
 								setIsUploadingNewTrack( false );
 							} }
-							tracks={ tracks }
+							onSave={ uploadNewTrackFile }
 						/>
 					);
 				}
 				return (
-					<NavigableMenu>
+					<>
 						<TrackList tracks={ tracks } guid={ guid } />
-
 						<MenuGroup
 							label={ __( 'Add tracks', 'jetpack-videopress-pkg' ) }
 							className="video-tracks-control"
@@ -125,9 +120,9 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 								{ __( 'Upload track', 'jetpack-videopress-pkg' ) }
 							</MenuItem>
 						</MenuGroup>
-					</NavigableMenu>
+					</>
 				);
 			} }
-		/>
+		</ToolbarDropdownMenu>
 	);
 }

@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
 import { TrackProps, VideoGUID } from '../../types';
 
 export type TrackItemProps = {
@@ -12,5 +16,5 @@ export type TrackListProps = {
 
 export type TrackFormProps = {
 	onCancel: () => void;
-	tracks: TrackProps[];
+	onSave: ( track: UploadTrackDataProps ) => void;
 };
