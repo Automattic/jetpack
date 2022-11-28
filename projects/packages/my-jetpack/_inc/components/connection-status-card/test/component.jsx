@@ -1,9 +1,9 @@
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
-import { STORE_ID } from '../../../state/store';
 import ConnectionStatusCard from '../index';
 
 // TODO Mock requests with dummy data.
@@ -17,7 +17,7 @@ describe( 'ConnectionStatusCard', () => {
 	describe( 'When the user has not connected their WordPress.com account', () => {
 		const setup = () => {
 			let storeSelect;
-			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+			renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 			jest
 				.spyOn( storeSelect, 'getConnectionStatus' )
 				.mockReset()
@@ -35,23 +35,21 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Requires user connection" error list item', () => {
+		it( 'renders the "You’re not connected" error list item', () => {
 			setup();
-			expect( screen.getByText( 'Requires user connection.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'You’re not connected.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Connect your user account" button', () => {
 			setup();
-			expect(
-				screen.getByRole( 'button', { name: 'Connect your user account' } )
-			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
 		} );
 	} );
 
 	describe( "When the user has not connected their WordPress.com account but the site has an owner and we don't need a user connection", () => {
 		const setup = () => {
 			let storeSelect;
-			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+			renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 			jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( {
 				isRegistered: true,
 				isUserConnected: false,
@@ -70,23 +68,23 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'Doesn\'t render the "Requires user connection" error list item', () => {
+		it( 'Render the "You’re not connected" error list item', () => {
 			setup();
-			expect( screen.queryByText( 'Requires user connection.' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'You’re not connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Connect your user account" button', () => {
+		it( 'renders the "Connect" button', () => {
 			setup();
-			expect(
-				screen.getByRole( 'button', { name: 'Connect your user account' } )
-			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
 		} );
+
+		it.todo( 'Render the "Also connected:" error list item' );
 	} );
 
 	describe( 'When the user has connected their WordPress.com account', () => {
 		const setup = () => {
 			let storeSelect;
-			renderHook( () => useSelect( select => ( storeSelect = select( STORE_ID ) ) ) );
+			renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 			jest.spyOn( storeSelect, 'getConnectionStatus' ).mockReset().mockReturnValue( {
 				isRegistered: true,
 				isUserConnected: true,
@@ -107,7 +105,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the "Logged in as" success list item', () => {
 			setup();
-			expect( screen.getByText( /Logged in as/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
 		} );
 
 		it( 'Doesn\'t render the "Requires user connection" error list item', () => {
@@ -117,9 +115,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'doesn\'t render the "Connect your WordPress.com account" button', () => {
 			setup();
-			expect(
-				screen.queryByRole( 'button', { name: 'Connect your user account' } )
-			).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Connect' } ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

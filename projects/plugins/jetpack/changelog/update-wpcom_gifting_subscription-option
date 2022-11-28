@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Update how wpcom_gifting_subscription is saved so an option value of false can be created

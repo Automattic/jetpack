@@ -1049,21 +1049,26 @@ class Actions {
 	 * @access public
 	 * @static
 	 * @since 1.43.0
+	 *
+	 * @param bool $unlock_queues Whether to unlock Sync queues. Defaults to true.
 	 */
-	public static function reset_sync_locks() {
+	public static function reset_sync_locks( $unlock_queues = true ) {
 		// Next sync locks.
 		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' );
 		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' );
 		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' );
 		// Retry after locks.
-		delete_option( self::RETRY_AFTER_PREFIX . '_sync' );
-		delete_option( self::RETRY_AFTER_PREFIX . '_full_sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
 		// Dedicated sync lock.
 		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
 		// Queue locks.
-		$sync_queue = new Queue( 'sync' );
-		$sync_queue->unlock();
-		$full_sync_queue = new Queue( 'full_sync' );
-		$full_sync_queue->unlock();
+		// Note that we are just unlocking the queues here, not reseting them.
+		if ( $unlock_queues ) {
+			$sync_queue = new Queue( 'sync' );
+			$sync_queue->unlock();
+			$full_sync_queue = new Queue( 'full_sync' );
+			$full_sync_queue->unlock();
+		}
 	}
 }

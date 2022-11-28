@@ -16,11 +16,35 @@
 	overflow-wrap: break-word;
 
 	.jetpack-instant-search__search-result-title-link {
+		display: flex;
+		align-items: center;
 		text-decoration: none;
 
 		&:hover,
 		&:focus {
 			text-decoration: underline;
+		}
+	}
+
+	.jetpack-instant-search__search-result-title-checkmark {
+		position: relative;
+		background-color: $color-checkmark-background;
+		border-radius: 50%;
+		width: 30px;
+		height: 30px;
+		margin-left: 0.35em;
+
+		&:after {
+			content: "";
+			position: absolute;
+			top: 6px;
+			left: 11px;
+			height: 16px;
+			width: 8px;
+			border-bottom: 3px solid;
+			border-right: 3px solid;
+			border-color: $color-checkmark;
+			transform: rotate(40deg);
 		}
 	}
 }

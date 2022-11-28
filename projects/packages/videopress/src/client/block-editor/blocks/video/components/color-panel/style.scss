@@ -4,3 +4,8 @@
 		border-top: 0;
 	}
 }
+
+.videopress-dynamic-color-example {
+	--spacing-base: 8px;
+	margin-top: var( --spacing-base );
+}
