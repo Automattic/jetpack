@@ -47,6 +47,27 @@ function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_so
 add_filter( 'option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_persistent_data' );
 
 /**
+ * Returns Atomic persistent data value for wpcom_public_preview_links.
+ *
+ * @param string $wpcom_public_preview_links Value for the preview links option.
+ *
+ * @return string The value of WPCOM_PUBLIC_PREVIEW_LINKS if set, otherwise the option value.
+ */
+function wpcomsh_public_preview_links_get_atomic_persistent_data( $wpcom_public_preview_links ) {
+	$persistent_data                            = new Atomic_Persistent_Data();
+	$persistent_data_public_preview_links_value = $persistent_data->WPCOM_PUBLIC_PREVIEW_LINKS; // phpcs:ignore WordPress.NamingConventions.ValidVariableName
+
+	if ( $persistent_data_public_preview_links_value !== null ) {
+		return json_decode( $persistent_data_public_preview_links_value );
+	}
+
+	return $wpcom_public_preview_links;
+}
+// need to hook to default_option_* too because if this option doesn't exist, the hook wouldn't run.
+add_filter( 'default_option_wpcom_public_preview_links', 'wpcomsh_public_preview_links_get_atomic_persistent_data' );
+add_filter( 'option_wpcom_public_preview_links', 'wpcomsh_public_preview_links_get_atomic_persistent_data' );
+
+/**
  * Replaces the Yoast SEO error notice from that warns of SEO issues
  * when the site is in Coming Soon mode,
  * or when search engines are discouraged from indexing the site.
