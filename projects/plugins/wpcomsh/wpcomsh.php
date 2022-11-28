@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.4.19
+ * Version: 3.4.20
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.4.19' );
+define( 'WPCOMSH_VERSION', '3.4.20' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -191,6 +191,12 @@ add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cook
  * If a user is logged in to WordPress.com, log him in automatically to wp-login
  */
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+
+/**
+ * Overwrite the default value of SSO "Match by Email" setting.
+ * p9o2xV-2zY-p2
+ */
+add_filter( 'default_option_jetpack_sso_match_by_email', '__return_true' );
 
 /**
  * Admin enqueue style
