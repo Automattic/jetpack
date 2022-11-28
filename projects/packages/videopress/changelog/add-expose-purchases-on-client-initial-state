@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-VideoPress: exposed the site purchases list on the client initial state, dropping the need of a request to the My Jetpack purchases endpoint.

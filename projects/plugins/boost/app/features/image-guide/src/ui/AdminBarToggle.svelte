@@ -9,7 +9,7 @@
 	}
 </script>
 
-<a id="jetpack-boost-bar" {href} class="ab-item {state}" on:click|preventDefault={toggleUI}>
+<a id="jetpack-boost-bar" {href} class="ab-item {$state}" on:click|preventDefault={toggleUI}>
 	<JetpackLogo />
 	<span>Image Guide: {$label}</span>
 </a>
