@@ -1,8 +1,10 @@
 import { AdminSectionHero, Title, Text, Button } from '@automattic/jetpack-components';
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
+import { PLUGIN_SUPPORT_URL } from '../../constants';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
@@ -44,6 +46,7 @@ const StandaloneMode = () => {
 const ShareData = () => {
 	const { config, isLoading, toggleShareData } = useWafData();
 	const { jetpackWafShareData } = config || {};
+	const { setNotice } = useDispatch( STORE_ID );
 
 	const [ settings, setSettings ] = useState( {
 		jetpack_waf_share_data: jetpackWafShareData,
@@ -51,8 +54,31 @@ const ShareData = () => {
 
 	const handleShareDataChange = useCallback( () => {
 		setSettings( { ...settings, jetpack_waf_share_data: ! settings.jetpack_waf_share_data } );
-		toggleShareData();
-	}, [ settings, toggleShareData ] );
+		toggleShareData()
+			.then( () =>
+				setNotice( {
+					type: 'success',
+					duration: 5000,
+					dismissable: true,
+					message: __( 'Changes saved.', 'jetpack-protect' ),
+				} )
+			)
+			.catch( () => {
+				setNotice( {
+					type: 'error',
+					dismissable: true,
+					message: createInterpolateElement(
+						__(
+							'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
+							'jetpack-protect'
+						),
+						{
+							supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+						}
+					),
+				} );
+			} );
+	}, [ settings, toggleShareData, setNotice ] );
 
 	useEffect( () => {
 		setSettings( {
