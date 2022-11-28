@@ -3022,9 +3022,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			case 'textarea':
 				$str = __( 'Message', 'jetpack' );
 				break;
-			case 'checkbox':
-				$str = __( 'Checkbox', 'jetpack' );
-				break;
 			case 'checkbox-multiple':
 				$str = __( 'Choose several', 'jetpack' );
 				break;
