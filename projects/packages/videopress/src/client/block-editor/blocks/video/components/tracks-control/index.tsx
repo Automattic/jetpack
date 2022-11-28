@@ -87,7 +87,6 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 		uploadTrackForGuid( newTrack, guid ).then( () => {
 			setIsUploadingNewTrack( false );
 		} );
-		setIsUploadingNewTrack( true );
 	}, [] );
 
 	return (
