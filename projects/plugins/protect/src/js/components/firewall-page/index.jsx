@@ -80,7 +80,11 @@ const FirewallPage = () => {
 					duration: successNoticeDuration,
 					message: newWafStatus
 						? __( `Firewall is active.`, 'jetpack-protect' )
-						: __( `Firewall is disabled.`, 'jetpack-protect' ),
+						: __(
+								`Firewall is disabled.`,
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
 				} )
 			)
 			.catch( () => {
@@ -103,7 +107,11 @@ const FirewallPage = () => {
 					duration: successNoticeDuration,
 					message: newManualRulesStatus
 						? __( 'Manual rules are active.', 'jetpack-protect' )
-						: __( 'Manual rules are disabled.', 'jetpack-protect' ),
+						: __(
+								'Manual rules are disabled.',
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
 				} )
 			)
 			.catch( () => {
