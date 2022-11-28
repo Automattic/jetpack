@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
@@ -68,7 +68,7 @@ elif [[ ! -e "$BUILD_DIR" ]]; then
 else
 	if [[ ! -d "$BUILD_DIR" ]]; then
 		proceed_p "$BUILD_DIR already exists, and is not a directory." "Delete it?"
-	elif [[ $(ls -A -- "$BUILD_DIR") ]]; then
+	elif [[ -n $(ls -A -- "$BUILD_DIR") ]]; then
 		proceed_p "Directory $BUILD_DIR already exists, and is not empty." "Delete it?"
 	fi
 	rm -rf "$BUILD_DIR"
@@ -79,9 +79,9 @@ DIR=$(pwd)
 
 
 # Get JSON
-JSON=$(curl -s "http://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
+JSON=$(curl -s "https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
 if ! jq -e '.' <<<"$JSON" &>/dev/null; then
-	die "Failed to retrieve JSON data from http://api.wordpress.org/plugins/info/1.1/$WPSLUG.json"
+	die "Failed to retrieve JSON data from https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json"
 fi
 
 # Current stable version
@@ -106,7 +106,7 @@ if ! jq -e '.' <<<"$JSON" &>/dev/null; then
 	die "Failed to retrieve JSON data from https://api.github.com/repos/$MIRROR/releases/latest"
 fi
 
-GH_LATEST=$(jq -r '. .tag_name' <<<"$GH_JSON")
+GH_LATEST=$(jq -r '.tag_name' <<<"$GH_JSON")
 
 yellow "Current stable tag: ${CURRENT_STABLE_VERSION}"
 yellow "Latest tag in SVN: ${SVN_LATEST}"
@@ -114,8 +114,8 @@ yellow "Latest release tag in GH: ${GH_LATEST}"
 
 # Compare versions and abort if things look wrong
 
-if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURRENT_STABLE_VERSION" "1"
-	then echo "Updating the stable tag for ${WPSLUG} to:"
+if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURRENT_STABLE_VERSION" "1"; then
+	echo "Updating the stable tag for ${WPSLUG} to:"
 	red "${SVN_LATEST}"
 	proceed_p "" "Continue?"
 	echo ""
@@ -138,10 +138,11 @@ if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURREN
 
 	echo ""
 	proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?"
-	 svn ci -m "Update stable tag"
-	
-	elif [[ "$SVN_LATEST" == "$CURRENT_STABLE_VERSION" ]] && [[ "$GH_LATEST" == "$CURRENT_STABLE_VERSION" ]] 
-		then echo "All versions are the same. Nothing to update."
-		exit
-	else die "Something doesn’t look right with versions. Please make sure the release was creted on GH and pushed to SVN."
+	svn ci -m "Update stable tag"
+
+elif [[ "$SVN_LATEST" == "$CURRENT_STABLE_VERSION" && "$GH_LATEST" == "$CURRENT_STABLE_VERSION" ]]; then
+	echo "All versions are the same. Nothing to update."
+	exit
+else
+	die "Something doesn’t look right with versions. Please make sure the release was creted on GH and pushed to SVN."
 fi
