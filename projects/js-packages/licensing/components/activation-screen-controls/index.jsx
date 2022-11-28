@@ -73,7 +73,11 @@ const ActivationScreenControls = props => {
 			{
 				label: fetchingAvailableLicenses
 					? __( 'Fetching available licenses…', 'jetpack' )
-					: __( 'I want to add a license key manually', 'jetpack' ),
+					: __(
+							'I want to add a license key manually',
+							'jetpack',
+							/* dummy arg to avoid bad minification */ 0
+					  ),
 				value: '',
 			},
 		],
