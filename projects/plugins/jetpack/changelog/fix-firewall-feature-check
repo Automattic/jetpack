@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix bug where firewall settings shows upgrade prompt regardless of site plan.
