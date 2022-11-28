@@ -111,7 +111,7 @@ class Dedicated_Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @param \Automattic\Jetpack\Sync\Queue $queue Queue object.
 	 *
 	 * @return boolean|WP_Error True if spawned, WP_Error otherwise.
 	 */
@@ -138,6 +138,44 @@ class Dedicated_Sender {
 		$sync_next_time = Sender::get_instance()->get_next_sync_time( $queue->id );
 		if ( $sync_next_time > microtime( true ) ) {
 			return new WP_Error( 'sync_throttled_' . $queue->id );
+		}
+		/**
+		 * Check if Dedicated Sync is healthy and revert to Default Sync if such case is detected.
+		 */
+		$last_successful_queue_send_time = Sender::get_last_successful_send_time_for_queue( $queue->id );
+
+		$queue_send_time_threshold = 1 * HOUR_IN_SECONDS;
+
+		if ( $last_successful_queue_send_time === null ) {
+						/**
+			 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
+			 *
+			 * Let's try to figure out what case we're in. The easiest approach would be to check the queue age.
+			 *
+			 * If it's more than the threshold value we check for here, then it's safe to say the site is stuck.
+			 */
+			$queue_lag = $queue->lag();
+
+			if ( $queue_lag > $queue_send_time_threshold ) {
+				// We're in a stuck state, let's revert
+				self::disable_dedicated_sync();
+
+				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+			}
+		} else {
+			/**
+			 * We have recorded a successful sending of events. Let's see if that is not too long ago in the past.
+			 */
+			$time_since_last_succesful_send = time() - $last_successful_queue_send_time;
+
+			// TODO There needs to be a check for the queue lag here as sometimes sites can go a long time without new events.
+
+			if ( $time_since_last_succesful_send > $queue_send_time_threshold ) {
+				// We haven't successfully sent stuff in more than 1 hour. Revert to Default Sync
+				self::disable_dedicated_sync();
+
+				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+			}
 		}
 
 		/**
@@ -311,5 +349,45 @@ class Dedicated_Sender {
 		}
 
 		return self::DEDICATED_SYNC_VALIDATION_STRING === $dedicated_sync_response_body;
+	}
+
+	/**
+	 * Disable dedicated sync and set a transient to prevent re-enabling it for some time.
+	 *
+	 * @return void
+	 */
+	public static function disable_dedicated_sync() {
+		set_transient( 'jetpack_sync_dedicated_sync_temp_disable', true, 6 * HOUR_IN_SECONDS );
+
+		Settings::update_settings(
+			array(
+				'dedicated_sync_enabled' => 0,
+			)
+		);
+	}
+
+	/**
+	 * Disable or enable Dedicated Sync sender based on the header value returned from WordPress.com
+	 *
+	 * @param string $dedicated_sync_header The Dedicated Sync header value - `on` or `off`.
+	 *
+	 * @return bool Whether Dedicated Sync is going to be enabled or not.
+	 */
+	public static function maybe_enable_dedicated_sync( $dedicated_sync_header ) {
+		$check_transient = get_transient( 'jetpack_sync_dedicated_sync_temp_disable' );
+
+		if ( $check_transient ) {
+			// Something happened and Dedicated Sync should not be automatically re-enabled.
+			return false;
+		}
+
+		$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
+		Settings::update_settings(
+			array(
+				'dedicated_sync_enabled' => $dedicated_sync_enabled,
+			)
+		);
+
+		return (bool) $dedicated_sync_enabled;
 	}
 }

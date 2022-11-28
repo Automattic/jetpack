@@ -494,12 +494,7 @@ class Actions {
 		// Enable/Disable Dedicated Sync flow via response headers.
 		$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
 		if ( false !== $dedicated_sync_header ) {
-			$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
-			Settings::update_settings(
-				array(
-					'dedicated_sync_enabled' => $dedicated_sync_enabled,
-				)
-			);
+			Dedicated_Sender::maybe_enable_dedicated_sync( $dedicated_sync_header );
 		}
 
 		if ( ! $result ) {
