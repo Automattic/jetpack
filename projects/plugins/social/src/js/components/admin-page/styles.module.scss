@@ -1,3 +1,17 @@
+:global {
+	#wpbody-content {
+		& > .notice {
+			display: none;
+		}
+	}
+
+	.jetpack-social-jitm-card {
+		.jitm-card {
+			margin-right: 0;
+		}
+	}
+}
+
 // This is a temporary fix because `<Container>` is missing this.
 * {
 	box-sizing: border-box;

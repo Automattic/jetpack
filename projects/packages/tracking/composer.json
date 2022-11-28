@@ -4,12 +4,12 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-status": "^1.14",
-		"automattic/jetpack-connection": "^1.42"
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-connection": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [

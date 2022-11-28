@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Use ThemeProvider when rendering Starter Plugin AdminPage

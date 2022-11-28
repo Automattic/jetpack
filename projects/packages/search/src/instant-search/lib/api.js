@@ -86,6 +86,12 @@ function generateAggregation( filter ) {
 		case 'post_type': {
 			return { terms: { field: filter.type, size: filter.count } };
 		}
+		case 'author': {
+			return { terms: { field: 'author_login_slash_name', size: filter.count } };
+		}
+		case 'blog_id': {
+			return { terms: { field: filter.type, size: filter.count } };
+		}
 	}
 }
 
@@ -125,6 +131,12 @@ export function generateDateRangeFilter( fieldName, input, type ) {
 const filterKeyToEsFilter = new Map( [
 	// Post type
 	[ 'post_types', postType => ( { term: { post_type: postType } } ) ],
+
+	// Author
+	[ 'authors', author => ( { term: { author_login: author } } ) ],
+
+	// Blog ID
+	[ 'blog_ids', blogId => ( { term: { blog_id: blogId } } ) ],
 
 	// Built-in taxonomies
 	[ 'category', category => ( { term: { 'category.slug': category } } ) ],
@@ -249,6 +261,7 @@ function generateApiQueryString( {
 	postsPerPage = 10,
 	adminQueryFilter,
 	isInCustomizer = false,
+	additionalBlogIds = [],
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -261,6 +274,7 @@ function generateApiQueryString( {
 		'category.name.default',
 		'post_type',
 		'shortcode_types',
+		'forum.topic_resolved',
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 
@@ -311,6 +325,13 @@ function generateApiQueryString( {
 		page_handle: pageHandle,
 		size: postsPerPage,
 	};
+
+	// Support search through multiple blogs.
+	if ( additionalBlogIds?.length > 0 ) {
+		// `blog_id` is required when additional_blog_ids is set.
+		params.fields = fields.concat( [ 'author', 'blog_name', 'blog_icon_url', 'blog_id' ] );
+		params.additional_blog_ids = additionalBlogIds;
+	}
 
 	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
 		params = {

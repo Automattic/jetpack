@@ -11,14 +11,18 @@ import {
 	getStep,
 	getSummaryFeatureSlugs,
 	getSummaryResourceSlugs,
+	getSummaryPrimarySections,
 	getUpsell,
 	isUpdatingRecommendationsStep,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
+	getIsOnboardingActive,
 } from 'state/recommendations';
 import { getSettings } from 'state/settings';
 import { getPluginsData } from 'state/site/plugins';
 import { FeatureSummary } from '../feature-summary';
 import './style.scss';
+import { PrimarySummary } from '../feature-summary/primary';
 import { ResourceSummary } from '../feature-summary/resource';
 import { MobileApp } from '../sidebar/mobile-app';
 import { OneClickRestores } from '../sidebar/one-click-restores';
@@ -30,16 +34,20 @@ const SummaryComponent = props => {
 	const {
 		isFetchingMainData,
 		isFetchingSidebarData,
-		sidebarCardSlug,
+		isFetchingBottomSectionData,
+		sidebarCardsSlug,
 		siteTitle,
 		summaryFeatureSlugs,
 		summaryResourceSlugs,
+		summaryPrimarySections,
 		updateRecommendationsStep,
 		addViewedRecommendation,
 		upsell,
+		isOnboardingActive,
 		newRecommendations,
 		stateStepSlug,
 		updatingStep,
+		updateOnboardingData,
 	} = props;
 
 	useEffect( () => {
@@ -49,6 +57,12 @@ const SummaryComponent = props => {
 			addViewedRecommendation( 'summary' );
 		}
 	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
+
+	useEffect( () => {
+		if ( isOnboardingActive ) {
+			updateOnboardingData( { active: null } );
+		}
+	}, [ updateOnboardingData, isOnboardingActive ] );
 
 	const isNew = stepSlug => {
 		return newRecommendations.includes( stepSlug );
@@ -66,25 +80,41 @@ const SummaryComponent = props => {
 						siteTitle
 					) }
 				</h1>
-				<section aria-labelledby="enabled-recommendations">
-					<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
-					<div>
-						{ summaryFeatureSlugs.selected.length > 0 ? (
-							summaryFeatureSlugs.selected.map( slug => (
-								<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
-							) )
-						) : (
-							<p className="jp-recommendations-summary__recommendation-notice">
-								<em>
-									{ __(
-										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
-										'jetpack'
-									) }
-								</em>
-							</p>
-						) }
-					</div>
-				</section>
+				{ summaryPrimarySections.map( ( { name, slugs } ) => (
+					<section key={ name } aria-labelledby={ `primary-onboarding-${ name }` }>
+						<h2 id={ `primary-onboarding-${ name }` }>
+							{ sprintf(
+								/* translators: %s is the jetpack plan name */
+								__( 'Part of your %s plan', 'jetpack' ),
+								name
+							) }
+						</h2>
+						{ slugs.map( slug => (
+							<PrimarySummary key={ slug } slug={ slug } />
+						) ) }
+					</section>
+				) ) }
+				{ ( summaryFeatureSlugs.selected.length > 0 || summaryFeatureSlugs.skipped.length > 0 ) && (
+					<section aria-labelledby="enabled-recommendations">
+						<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
+						<div>
+							{ summaryFeatureSlugs.selected.length > 0 ? (
+								summaryFeatureSlugs.selected.map( slug => (
+									<FeatureSummary key={ slug } featureSlug={ slug } isNew={ isNew( slug ) } />
+								) )
+							) : (
+								<p className="jp-recommendations-summary__recommendation-notice">
+									<em>
+										{ __(
+											'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
+											'jetpack'
+										) }
+									</em>
+								</p>
+							) }
+						</div>
+					</section>
+				) }
 				{ summaryFeatureSlugs.skipped.length > 0 && (
 					<section aria-labelledby="skipped-recommendations">
 						<h2 id="skipped-recommendations">{ __( 'Recommendations skipped', 'jetpack' ) }</h2>
@@ -109,48 +139,73 @@ const SummaryComponent = props => {
 		</>
 	);
 
-	let sidebarCard;
+	let sidebarCards;
+	let undersideCards;
 
 	if ( isFetchingSidebarData ) {
-		sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+		sidebarCards = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
 	} else {
-		switch ( sidebarCardSlug ) {
+		switch ( sidebarCardsSlug ) {
 			case 'loading':
-				sidebarCard = <JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />;
+				sidebarCards = (
+					<JetpackLoadingIcon altText={ __( 'Loading recommendations', 'jetpack' ) } />
+				);
 				break;
 			case 'upsell':
-				sidebarCard = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
+				sidebarCards = upsell.hide_upsell ? <ProductCardUpsellNoPrice /> : <SummaryUpsell />;
+				undersideCards = <MobileApp slug={ sidebarCardsSlug } underside />;
 				break;
 			case 'one-click-restores':
-				sidebarCard = <OneClickRestores />;
+				sidebarCards = (
+					<>
+						<OneClickRestores />
+						<MobileApp slug={ sidebarCardsSlug } />
+					</>
+				);
 				break;
 			case 'manage-security':
-				sidebarCard = <Security />;
+				sidebarCards = (
+					<>
+						<Security />
+						<MobileApp slug={ sidebarCardsSlug } />
+					</>
+				);
 				break;
 			case 'download-app':
-				sidebarCard = <MobileApp />;
+				sidebarCards = <MobileApp slug={ sidebarCardsSlug } />;
 				break;
 			default:
-				throw `Unknown sidebarCardSlug in SummaryComponent: ${ sidebarCardSlug }`;
+				sidebarCards = <MobileApp slug={ 'unknown' } />;
 		}
 	}
 
 	return (
 		<div className="jp-recommendations-summary">
-			<div
-				className={ classNames( 'jp-recommendations-summary__content', {
-					isLoading: isFetchingMainData,
-				} ) }
-			>
-				{ mainContent }
+			<div className="jp-recommendations-summary__main">
+				<div
+					className={ classNames( 'jp-recommendations-summary__content', {
+						isLoading: isFetchingMainData,
+					} ) }
+				>
+					{ mainContent }
+				</div>
+				<div
+					className={ classNames( 'jp-recommendations-summary__sidebar', {
+						isLoading: isFetchingSidebarData,
+					} ) }
+				>
+					{ sidebarCards }
+				</div>
 			</div>
-			<div
-				className={ classNames( 'jp-recommendations-summary__sidebar', {
-					isLoading: isFetchingSidebarData,
-				} ) }
-			>
-				{ sidebarCard }
-			</div>
+			{ undersideCards && (
+				<div
+					className={ classNames( 'jp-recommendations-summary__underside', {
+						isLoading: isFetchingBottomSectionData,
+					} ) }
+				>
+					{ undersideCards }
+				</div>
+			) }
 		</div>
 	);
 };
@@ -166,21 +221,27 @@ const Summary = connect(
 		const upsell = getUpsell( state );
 		const isFetchingMainData = isEmpty( settings ) || isEmpty( pluginsData );
 		const isFetchingSidebarData = isEmpty( upsell );
+		const isFetchingBottomSectionData = isEmpty( upsell );
 
 		return {
 			isFetchingMainData,
 			isFetchingSidebarData,
-			sidebarCardSlug: getSidebarCardSlug( state ),
+			isFetchingBottomSectionData,
+			sidebarCardsSlug: getSidebarCardSlug( state ),
 			siteTitle: getSiteTitle( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),
 			summaryResourceSlugs: getSummaryResourceSlugs( state ),
+			summaryPrimarySections: getSummaryPrimarySections( state ),
 			stateStepSlug: getStep( state ),
 			updatingStep: isUpdatingRecommendationsStep( state ),
+			isOnboardingActive: getIsOnboardingActive( state ),
 			upsell,
 		};
 	},
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		updateOnboardingData: onboardingData =>
+			dispatch( updateRecommendationsOnboardingDataAction( onboardingData ) ),
 		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 	} )
 )( SummaryComponent );

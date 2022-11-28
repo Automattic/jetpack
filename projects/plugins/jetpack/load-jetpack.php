@@ -10,12 +10,15 @@
  * in require_lib().
  *
  * @since 4.0.2
+ * @deprecated since 11.3 Use `JETPACK__PLUGIN_DIR . '_inc/lib/'` instead.
+ * @todo Remove this in Jetpack 11.9 (started issuing warnings in 11.6).
  *
  * @return string Location of Jetpack library directory.
  *
  * @filter require_lib_dir
  */
 function jetpack_require_lib_dir() {
+	_deprecated_function( __FUNCTION__, 'Jetpack 11.3', '`JETPACK__PLUGIN_DIR . \'_inc/lib/\'`' );
 	return JETPACK__PLUGIN_DIR . '_inc/lib';
 }
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
@@ -55,6 +58,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 // Used by the API endpoints.
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
@@ -68,12 +72,12 @@ Jetpack_XMLRPC_Methods::init();
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-status.php';
 Jetpack_Connection_Status::init();
 
-jetpack_require_lib( 'class-jetpack-recommendations' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-recommendations-banner.php';
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-	jetpack_require_lib( 'debugger' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
 }
 
 // Play nice with https://wp-cli.org/.

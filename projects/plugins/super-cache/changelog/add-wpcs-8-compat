@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-PHP 8 Support: Ensure the expected value for the $auto_release in sem_get is used.

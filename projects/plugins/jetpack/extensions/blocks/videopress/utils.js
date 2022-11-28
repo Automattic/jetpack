@@ -59,3 +59,7 @@ export function getClassNames( html, existingClassNames = '', allowResponsive = 
 
 	return existingClassNames;
 }
+
+export const removeFileNameExtension = name => {
+	return name.replace( /\.[^/.]+$/, '' );
+};

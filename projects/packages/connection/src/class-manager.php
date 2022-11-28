@@ -15,6 +15,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -363,6 +364,8 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		$error_type = 'xmlrpc';
+
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -373,7 +376,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || (string) $jetpack_api_version !== $version ) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -385,7 +388,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -395,20 +398,20 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					compact( 'signature_details' )
+					compact( 'signature_details', 'error_type' )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( compact( 'signature_details' ) );
+			$token->add_data( compact( 'signature_details', 'error_type' ) );
 			return $token;
 		} elseif ( ! $token ) {
 			return new \WP_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -450,7 +453,7 @@ class Manager {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
 			return $signature;
@@ -466,7 +469,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -480,7 +483,7 @@ class Manager {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				compact( 'signature_details' )
+				compact( 'signature_details', 'error_type' )
 			);
 		}
 
@@ -829,7 +832,12 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
-		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$user_id         = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$is_primary_user = Jetpack_Options::get_option( 'master_user' ) === $user_id;
+
+		if ( $is_primary_user && ! $can_overwrite_primary_user ) {
+			return false;
+		}
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
@@ -837,7 +845,7 @@ class Manager {
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
 			// Disconnect the user locally.
-			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
 
 			if ( $is_disconnected_locally ) {
 				// Delete cached connected user data.
@@ -853,6 +861,10 @@ class Manager {
 				 * @param int $user_id The current user's ID.
 				 */
 				do_action( 'jetpack_unlinked_user', $user_id );
+
+				if ( $is_primary_user ) {
+					Jetpack_Options::delete_option( 'master_user' );
+				}
 			}
 		}
 
@@ -862,15 +874,13 @@ class Manager {
 	/**
 	 * Request to wpcom for a user to be unlinked from their WordPress.com account
 	 *
-	 * @access public
+	 * @param int $user_id The user identifier.
 	 *
-	 * @param Integer $user_id the user identifier.
-	 *
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @return bool Whether the disconnection of the user was successful.
 	 */
 	public function unlink_user_from_wpcom( $user_id ) {
 		// Attempt to disconnect the user from WordPress.com.
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+		$xml = new Jetpack_IXR_Client();
 
 		$xml->query( 'jetpack.unlink_user', $user_id );
 		if ( $xml->isError() ) {
@@ -2413,6 +2423,8 @@ class Manager {
 		if ( empty( $json->jetpack_secret ) || ! is_scalar( $json->jetpack_secret ) ) {
 			return new WP_Error( 'jetpack_secret', '', $code );
 		}
+
+		Error_Handler::get_instance()->delete_all_errors();
 
 		return $this->get_tokens()->update_blog_token( (string) $json->jetpack_secret );
 	}

@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 /**
  * Test class for Grunion_Contact_Form
@@ -44,13 +44,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$this->set_globals();
 
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'user_email' => 'john@example.com',
 			)
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => (string) $author_id,
@@ -340,10 +340,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$email      = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<div class="field-name">Name:</div> <div class="field-value">John Doe</div>';
+		$expected .= '<div class="field-name">Dropdown:</div> <div class="field-value">First option</div>';
+		$expected .= '<div class="field-name">Radio:</div> <div class="field-value">Second option</div>';
+		$expected .= '<div class="field-name">Text:</div> <div class="field-value">Texty text</div><br />';
 
 		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
 
@@ -393,10 +393,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<div class="field-name">Name:</div> <div class="field-value">John Doe</div>';
+		$expected .= '<div class="field-name">Dropdown:</div> <div class="field-value">First option</div>';
+		$expected .= '<div class="field-name">Radio:</div> <div class="field-value">Second option</div>';
+		$expected .= '<div class="field-name">Text:</div> <div class="field-value">Texty text</div><br />';
 
 		// Divides email by the first empty line.
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
@@ -525,7 +525,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'     => 'feedback',
 				'post_status'   => 'spam',
@@ -544,7 +544,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'   => 'feedback',
 				'post_status' => 'spam',
@@ -736,7 +736,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'id'          => 'funID',
 		);
 
-		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
 		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
 	}
 

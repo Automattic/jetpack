@@ -1,0 +1,115 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "videopress/video",
+	"version": "0.1.0",
+	"title": "VideoPress",
+	"category": "media",
+	"icon": "smiley",
+	"description": "Embed a video from your media library or upload a new one with VideoPress.",
+	"supports": {
+		"align": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"autoplay": {
+			"type": "boolean"
+		},
+		"title": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"caption": {
+			"type": "string",
+			"source": "html",
+			"selector": "figcaption"
+		},
+		"controls": {
+			"type": "boolean",
+			"default": true
+		},
+		"loop": {
+			"type": "boolean"
+		},
+		"maxWidth": {
+			"type": "string",
+			"default": "100%"
+		},
+		"muted": {
+			"type": "boolean"
+		},
+		"playsinline": {
+			"type": "boolean"
+		},
+		"preload": {
+			"type": "string",
+			"default": "metadata"
+		},
+		"seekbarPlayedColor": {
+			"type": "string",
+			"default": ""
+		},
+		"seekbarLoadingColor": {
+			"type": "string",
+			"default": ""
+		},
+		"seekbarColor": {
+			"type": "string",
+			"default": ""
+		},
+		"useAverageColor": {
+			"type": "boolean",
+			"default": true
+		},
+		"id": {
+			"type": "number"
+		},
+		"guid": {
+			"type": "string"
+		},
+		"src": {
+			"type": "string"
+		},
+		"cacheHtml": {
+			"type": "string",
+			"default": ""
+		},
+		"poster": {
+			"type": "string"
+		},
+		"videoRatio": {
+			"type": "number"
+		},
+		"tracks": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
+		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
+		"rating": {
+			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
+		}
+	},
+	"textdomain": "jetpack-videopress",
+	"editorScript": "file:../../../../../build/block-editor/index.js",
+	"editorStyle": "file:../../../../../build/block-editor/index.css",
+	"style": "file:../../../../../build/block-editor/style-index.css",
+	"viewScript": "file:../../../../../build/block-editor/view.js"
+}

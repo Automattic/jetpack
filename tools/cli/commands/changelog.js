@@ -720,7 +720,7 @@ async function promptChangelog( argv, needChangelog ) {
 		{
 			type: 'string',
 			name: 'changelogName',
-			message: 'Name your change file:',
+			message: 'Name your changelog file:',
 			default: gitBranch,
 			validate: input => {
 				const fileExists = doesFilenameExist( input, needChangelog );

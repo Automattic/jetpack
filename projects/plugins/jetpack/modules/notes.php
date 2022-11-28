@@ -195,7 +195,7 @@ class Jetpack_Notifications {
 			}
 		}
 
-		$third_party_cookie_check_iframe = '<iframe src="https://widgets.wp.com/3rd-party-cookie-check/index.html" style="display:none"></iframe>';
+		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
 		$classes = 'wpnt-loading wpn-read';
 		$wp_admin_bar->add_menu(

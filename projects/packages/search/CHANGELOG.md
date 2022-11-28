@@ -5,6 +5,180 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.2] - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+### Fixed
+- Jetpack Search: Fixed link to language support documentation [#27287]
+
+## [0.30.1] - 2022-11-07
+### Changed
+- Updated package dependencies. [#27278]
+
+## [0.30.0] - 2022-11-01
+### Added
+- Search: add blog ID filtering and `blogIdFilteringLabels` option [#27120]
+
+### Changed
+- Updated package dependencies. [#27089]
+
+## [0.29.2] - 2022-10-26
+### Fixed
+- Search: Fix typo in CTA [#27044]
+- Search: hide meters etc for Classic Search [#27073]
+
+## [0.29.1] - 2022-10-25
+### Added
+- Search: add purchase tracking [#26981]
+
+### Changed
+- Search: now support 38 languages [#27025]
+- Tweak colophon link to Search upgrade page [#26952]
+- Updated package dependencies. [#26705]
+
+### Fixed
+- Hide Jetpack logo toggle, enforce display for free plans [#26951]
+- Search: Hide post-purchase tooltips for free plan activation [#26953]
+
+## [0.29.0] - 2022-10-19
+### Added
+- Search: enable new pricing if pricing_version is set to 202208 from API [#26900]
+
+### Changed
+- Updated package dependencies. [#26808]
+- Use API values for paid allowance limits shown in the new pricing table [#26895]
+
+## [0.28.0] - 2022-10-17
+### Changed
+- Check free plan by product_slug and disable Module Control only on free plan. [#26849]
+- Fetch checkoutProductUrl for upgrade flow redirection. [#26848]
+- Introduce GET param just_upgraded and localStorage upgrade_tooltip_finished to determine the tooltips showing. [#26828]
+- Refactor upgrade tooltips. [#26851]
+- Search: always add Search Dashboard page even when submenu is hidden [#26807]
+- Search Dashboard: Add missing CTAs and associated logic. [#26852]
+- Search Dashboard: Add siteTitle to plugin/package data. [#26816]
+- Search Dashboard: Better handling of "Unlimited" requests. [#26813]
+- Search Dashboard: Disable adaptive colors for Unlimited requests state. [#26850]
+- Search Dashboard: Fix responsive layouts for usage meters. [#26815]
+- Search Dashboard: Remove code duplication for support link. [#26811]
+- Search Dashboard: Update Plan Usage section to remove info icons. [#26812]
+- Updated package dependencies. [#26851]
+- Use adaptive coloring for donut meters in search dashboard [#26847]
+
+## [0.27.0] - 2022-10-13
+### Added
+- Add connection error notice to the Search plugin. [#26778]
+- Introduce shadowed IconTooltips to tooltips for highlighting upgraded usage limits. [#26790]
+
+### Changed
+- Add upgrade button link with applying upgrade actions. [#26737]
+- Search Dashboard: Update Plan Usage section to more closely match design. [#26783]
+- Updated package dependencies. [#26790]
+
+### Fixed
+- Search: wpcom sites should not be considered as connected [#26835]
+
+## [0.26.0] - 2022-10-11
+### Added
+- Search Dashboard: Add support for conditional CUTs. [#26656]
+
+### Changed
+- Apply ContextualUpgradeTrigger with checkout CTA [#26633]
+- Apply tier and latest month usage to plan summary [#26695]
+- Apply upgrade trigger displaying conditions and messages from API data [#26712]
+- Stop controls when usage over plan limit months. [#26732]
+- Updated package dependencies. [#26640]
+
+### Fixed
+- Fixed search dashboard for simple sites. [#26713]
+- Search Dashboard: Add support link for plan limits. [#26694]
+- Search Dashboard: Refactoring of new UI components. [#26723]
+- Search Dashboard: Rename variables to avoid jargon. [#26691]
+
+## [0.25.0] - 2022-10-05
+### Added
+- Added string translations used for the new pricing table [#26595]
+- Components: Added UsageMeter along with DonutMeterContainer JS component. [#26344]
+- Search: add post type breakdown endpoint [#26463]
+
+### Changed
+- Apply JetpackSearchLogo and replace footer link to upsell page [#26481]
+- Search: add connection support for new pricing page [#26573]
+- Search Dashboard: Added first run and usage section components. [#26639]
+- Updated package dependencies. [#26457]
+- Use library method for number formatting. [#26636]
+
+### Fixed
+- Search: fix redirection after purchase [#26598]
+
+## [0.24.0] - 2022-10-03
+### Changed
+- Fix styles of Control components on page side to avoid deprecating component styles affecting. [#26567]
+
+## [0.23.0] - 2022-09-27
+### Added
+- Added stories for the NoticeBox component [#26367]
+- Search: added free_tier and new_pricing_202208 to gate new pricing features [#26338]
+
+### Changed
+- Introduce PricingTable to update Upsell page [#26408]
+- Move JetpackColophon to bottom of SearchResults [#26320]
+- Updated mentions of "Search" with "Jetpack Search" as part of rebranding project [#26410]
+- Updated package dependencies.
+
+### Fixed
+- Fix error message styling in Instant Search overlay. [#26339]
+
+## [0.22.2] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixes the issue where search results are not loaded in customizer [#26212]
+
+## [0.22.1] - 2022-09-13
+### Changed
+- Updated package dependencies. [#26176]
+
+## [0.22.0] - 2022-09-08
+### Added
+- Search: added support to search through multiple sites [#26046]
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Instant Search: Update CSS styles to removes uses of "!important" where possible. [#25825]
+- Search: Allow non-owner admins to see search dashboard [#26100]
+- Search: fixed Automattic link in footer when Jetpack plugin does not exist [#26045]
+
+## [0.21.1] - 2022-08-30
+### Added
+- Instant Search: add focus border to search input field [#25304]
+
+### Changed
+- Updated package dependencies. [#25694]
+
+### Fixed
+- Keep widget preview with settings [#25778]
+
+## [0.21.0] - 2022-08-25
+### Changed
+- Search: revert "Search should not require user connection" [#25802]
+- Updated package dependencies. [#25814]
+
+## [0.20.0] - 2022-08-23
+### Added
+- Add author filtering support [#25409]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25628, #25762, #25769]
+
+### Fixed
+- Instant Search: Add focus styles for easier keyboard navigation. (a11y) [#25671]
+- Instant Search: Remove redundant links from search results. (a11y) [#25699]
+
 ## [0.19.0] - 2022-08-16
 ### Added
 - Instant Search: always use submit overlay trigger if user prefers reduced motion. [#25413]
@@ -436,6 +610,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.30.2]: https://github.com/Automattic/jetpack-search/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-search/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/Automattic/jetpack-search/compare/v0.29.2...v0.30.0
+[0.29.2]: https://github.com/Automattic/jetpack-search/compare/v0.29.1...v0.29.2
+[0.29.1]: https://github.com/Automattic/jetpack-search/compare/v0.29.0...v0.29.1
+[0.29.0]: https://github.com/Automattic/jetpack-search/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/jetpack-search/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-search/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/jetpack-search/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/jetpack-search/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/jetpack-search/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-search/compare/v0.22.2...v0.23.0
+[0.22.2]: https://github.com/Automattic/jetpack-search/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-search/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-search/compare/v0.21.1...v0.22.0
+[0.21.1]: https://github.com/Automattic/jetpack-search/compare/v0.21.0...v0.21.1
+[0.21.0]: https://github.com/Automattic/jetpack-search/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/jetpack-search/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Automattic/jetpack-search/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-search/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/Automattic/jetpack-search/compare/v0.17.0...v0.17.1

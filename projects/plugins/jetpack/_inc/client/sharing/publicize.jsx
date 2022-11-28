@@ -54,7 +54,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ _x( 'Publicize connections', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Jetpack Social connections', 'Settings header', 'jetpack' ) }
 					module="publicize"
 					hideButton
 				>
@@ -92,7 +92,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ ! isLinked && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="publicize"
-							featureLabel={ __( 'Publicize', 'jetpack' ) }
+							featureLabel={ __( 'Jetpack Social', 'jetpack' ) }
 							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
 						/>
 					) }

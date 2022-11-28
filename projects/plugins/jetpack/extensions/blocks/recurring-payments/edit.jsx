@@ -1,5 +1,5 @@
 import { getJetpackExtensionAvailability } from '@automattic/jetpack-shared-extension-utils';
-import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
+import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -10,14 +10,17 @@ import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
+import useWidth from '../../shared/use-width';
+import { WidthPanel } from '../../shared/width-panel';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import { getBlockStyles } from './util';
 import { icon, title } from './';
 
 // If we use the name on index.js and the block name changes the events block name will also change.
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
-	const { planId } = attributes;
+	const { align, planId, width } = attributes;
 	const { isPremiumContentChild } = context;
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
@@ -48,22 +51,34 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		updateSubscriptionPlan( planId );
 	}, [ planId, updateSubscriptionPlan ] );
 
-	/**
-	 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
-	 * We supply true as the first argument since we should always show the controls by default.
-	 *
-	 * @param {boolean} showControls - Whether inspectors controls are shown.
-	 * @param {string} showControls - Block ID.
-	 */
-	const showControls = applyFilters( 'jetpack.RecurringPayments.showControls', true, clientId );
-
 	const availability = getJetpackExtensionAvailability( 'recurring-payments' );
 	const hasWpcomUpgradeNudge =
 		! availability.available && 'missing_plan' === availability.unavailableReason;
 	const showJetpackUpgradeNudge =
 		!! upgradeUrl && ! hasWpcomUpgradeNudge && ! isPremiumContentChild;
 
-	const blockProps = useBlockProps();
+	/**
+	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
+	 *
+	 * @param {object} editorSettings - An object with the block settings.
+	 * @param {boolean} editorSettings.showProductManagementControls - Whether the product management block controls should be shown.
+	 * @param {boolean} editorSettings.showStripeNudge - Whether the action to connect to Stripe should be shown.
+	 * @param {boolean} editorSettings.showUpgradeNudge - Whether the plan upgrade nudge should be shown.
+	 * @param {string} clientId - Block ID.
+	 */
+	const { showProductManagementControls, showStripeNudge, showUpgradeNudge } = applyFilters(
+		'jetpack.recurringPayments.editorSettings',
+		{
+			showProductManagementControls: true,
+			showStripeNudge: true,
+			showUpgradeNudge: showJetpackUpgradeNudge,
+		},
+		clientId
+	);
+
+	useWidth( { attributes, setAttributes } );
+
+	const blockProps = useBlockProps( { style: getBlockStyles( { width } ) } );
 	const innerBlocksProps = useInnerBlocksProps(
 		{},
 		{
@@ -86,7 +101,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 
 	return (
 		<div { ...blockProps }>
-			{ showControls && (
+			{ showProductManagementControls && (
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
@@ -94,7 +109,14 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					setSelectedProductId={ updateSubscriptionPlan }
 				/>
 			) }
-			{ showJetpackUpgradeNudge && (
+			<InspectorControls>
+				<WidthPanel
+					align={ align }
+					width={ width }
+					onChange={ newWidth => setAttributes( { width: newWidth } ) }
+				/>
+			</InspectorControls>
+			{ showUpgradeNudge && (
 				<Placeholder
 					icon={ icon }
 					instructions={ __(
@@ -113,7 +135,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 					</div>
 				</Placeholder>
 			) }
-			<StripeNudge blockName={ BLOCK_NAME } />
+			{ showStripeNudge && <StripeNudge blockName={ BLOCK_NAME } /> }
 			<div { ...innerBlocksProps } />
 		</div>
 	);

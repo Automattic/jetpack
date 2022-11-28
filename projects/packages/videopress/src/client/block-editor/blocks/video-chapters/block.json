@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "videopress/video-chapters",
+	"version": "0.1.0",
+	"title": "Video Chapters",
+	"category": "media",
+	"icon": "smiley",
+	"description": "Display the chapters of a VideoPress video.",
+	"supports": {
+		"align": true
+	},
+	"attributes": {
+		"videoPressBlockId": {
+			"type": "string"
+		},
+		"style": {
+			"type": "string",
+			"default": "list"
+		}
+	},
+	"textdomain": "jetpack-videopress",
+	"editorScript": "file:../../../../../build/block-editor/video-chapters/index.js",
+	"editorStyle": "file:../../../../../build/block-editor/video-chapters/index.css",
+	"style": "file:../../../../../build/block-editor/video-chapters/style-index.css",
+	"viewScript": "file:../../../../../build/block-editor/video-chapters/view.js"
+}

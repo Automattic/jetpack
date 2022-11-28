@@ -148,6 +148,26 @@ if ( value === 'foo' ) {
 }
 ```
 
+This can also happen if you use different translator comments for the same string in multiple places, whether in the same file or different files.
+```js
+export const usedFunction = v => {
+	return sprintf(
+		/* translators: A thing */
+		__( 'Thing: %s', 'domain' ),
+		v
+	);
+};
+
+export const unusedFunction = v => {
+	return sprintf(
+		/* translators: A munged thing */
+		__( 'Thing: %s', 'domain' ),
+		munge( v )
+	);
+};
+```
+In that case a good fix would be to use identical translator comments for all instances of the string. Or, if the comments need to be different, that's a good sign you should be using `_x()` with differing contexts too.
+
 ## Caveats
 
 Certain situations cannot be detected by the plugin:

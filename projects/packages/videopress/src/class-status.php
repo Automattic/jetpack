@@ -38,6 +38,6 @@ class Status {
 	 * @return boolean
 	 */
 	public static function is_standalone_plugin_active() {
-		return class_exists( 'Jetpack_Videopress_Plugin' );
+		return class_exists( 'Jetpack_VideoPress_Plugin' );
 	}
 }

@@ -22,6 +22,7 @@ export default ( {
 		userIsConnecting,
 		userConnectionData,
 		connectedPlugins,
+		connectionErrors,
 		isRegistered,
 		isUserConnected,
 		hasConnectedOwner,
@@ -30,6 +31,7 @@ export default ( {
 		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
 		userConnectionData: select( STORE_ID ).getUserConnectionData(),
 		connectedPlugins: select( STORE_ID ).getConnectedPlugins(),
+		connectionErrors: select( STORE_ID ).getConnectionErrors(),
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
@@ -102,5 +104,6 @@ export default ( {
 		userConnectionData,
 		hasConnectedOwner,
 		connectedPlugins,
+		connectionErrors,
 	};
 };

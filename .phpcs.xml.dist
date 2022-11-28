@@ -26,9 +26,4 @@
 		<exclude name="Generic.PHP.Syntax" />
 	</rule>
 
-	<!-- Temporarily disable this until it passes. -->
-	<rule ref="WordPress.DB.DirectDatabaseQuery">
-		<exclude name="WordPress.DB.DirectDatabaseQuery"/>
-	</rule>
-
 </ruleset>

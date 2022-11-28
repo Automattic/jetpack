@@ -34,7 +34,7 @@ DisconnectCard.propTypes = {
 	/** Optional value/ statistic to show. */
 	value: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),
 	/** Description to go with the stat value. */
-	description: PropTypes.number,
+	description: PropTypes.string,
 };
 
 export default DisconnectCard;

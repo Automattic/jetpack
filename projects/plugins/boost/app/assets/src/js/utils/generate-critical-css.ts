@@ -1,3 +1,4 @@
+import { get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import {
@@ -6,14 +7,13 @@ import {
 	storeGenerateError,
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
-import { modules, isEnabled } from '../stores/modules';
+import { modules, isModuleEnabledStore } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';
 import { isSameOrigin } from './is-same-origin';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
-import { removeShownAdminNotices } from './remove-admin-notices';
 import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
 
@@ -84,8 +84,6 @@ export default async function generateCriticalCss(
 			return;
 		}
 
-		removeShownAdminNotices( 'critical-css' );
-
 		updateGenerateStatus( { status: 'requesting', progress: 0 } );
 
 		// Load Critical CSS gen library if not already loaded.
@@ -95,7 +93,7 @@ export default async function generateCriticalCss(
 		// percent. Also check for module deactivation and cancel if need be.
 		const offset = cssStatus.success_count || 0;
 		const wrappedCallback = wrapCallback( offset, percent => {
-			if ( ! isEnabled( 'critical-css' ) ) {
+			if ( ! get( isModuleEnabledStore( 'critical-css' ) ) ) {
 				cancelling = true;
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
 			}

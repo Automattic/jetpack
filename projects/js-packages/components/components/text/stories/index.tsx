@@ -1,4 +1,4 @@
-import Text, { BOX_MODEL_VALUES, H2, H3, Title } from '../index';
+import Text, { BOX_MODEL_VALUES, H2, H3, Title, VARIANTS_MAPPING } from '../index';
 import TextMDXDocumentation from './Text-MDX-Documentation.mdx';
 import styles from './style.module.scss';
 import type { SpacingValue } from '../types';
@@ -18,6 +18,12 @@ export default {
 			} ),
 			{}
 		),
+		variant: {
+			control: {
+				type: 'select',
+				options: Object.keys( VARIANTS_MAPPING ),
+			},
+		},
 	},
 	subcomponents: { H2, H3, Title },
 	parameters: {

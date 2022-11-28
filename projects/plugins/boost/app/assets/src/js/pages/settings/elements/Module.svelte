@@ -1,17 +1,20 @@
-<script>
+<script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { derived } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import { modules, updateModuleState } from '../../../stores/modules';
+	import {
+		isModuleAvailableStore,
+		isModuleEnabledStore,
+		updateModuleState,
+	} from '../../../stores/modules';
 
 	export let slug;
 
 	const dispatch = createEventDispatcher();
 
-	const isEnabled = derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
-	const isAvailable = derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );
+	const isEnabled = isModuleEnabledStore( slug );
+	const isAvailable = isModuleAvailableStore( slug );
 
 	let error = null;
 	let isLoading = false;

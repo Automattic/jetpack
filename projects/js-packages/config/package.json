@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-config",
-	"version": "0.1.13",
+	"version": "0.1.16-alpha",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
@@ -19,8 +19,8 @@
 		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"devDependencies": {
-		"jest": "28.1.0",
-		"jest-environment-jsdom": "28.1.0"
+		"jest": "29.3.1",
+		"jest-environment-jsdom": "29.3.1"
 	},
 	"engines": {
 		"node": "^16.13.2",

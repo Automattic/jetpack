@@ -8,8 +8,8 @@
 use Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-wpcom-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-wpcom-admin-menu.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/modules/masterbar/data/admin-menu.php';
 
 /**
  * Class Test_WPcom_Admin_Menu.
@@ -122,7 +122,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 0, $menu );
 
 		// Give user a second site.
-		$blog_id = $this->factory->blog->create();
+		$blog_id = self::factory()->blog->create();
 		add_user_to_blog( $blog_id, get_current_user_id(), 'editor' );
 
 		static::$admin_menu->add_browse_sites_link();
@@ -130,10 +130,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$browse_sites_menu_item = array(
 			'Browse sites',
 			'read',
-			'https://wordpress.com/home',
+			'https://wordpress.com/sites',
 			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/home',
-			'toplevel_page_https://wordpress.com/home',
+			'menu-top toplevel_page_https://wordpress.com/sites',
+			'toplevel_page_https://wordpress.com/sites',
 			'dashicons-arrow-left-alt2',
 		);
 		$this->assertSame( $menu[0], $browse_sites_menu_item );
@@ -191,7 +191,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'site-card',
 			'menu-top toplevel_page_' . $home_url,
 			'toplevel_page_' . $home_url,
-			'data:image/svg+xml,%3Csvg%20class%3D%22gridicon%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ctitle%3EGlobe%3C%2Ftitle%3E%3Crect%20fill-opacity%3D%220%22%20x%3D%220%22%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3Cg%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M12%202C6.477%202%202%206.477%202%2012s4.477%2010%2010%2010%2010-4.477%2010-10S17.523%202%2012%202zm0%2018l2-2%201-1v-2h-2v-1l-1-1H9v3l2%202v1.93c-3.94-.494-7-3.858-7-7.93l1%201h2v-2h2l3-3V6h-2L9%205v-.41C9.927%204.21%2010.94%204%2012%204s2.073.212%203%20.59V6l-1%201v2l1%201%203.13-3.13c.752.897%201.304%201.964%201.606%203.13H18l-2%202v2l1%201h2l.286.286C18.03%2018.06%2015.24%2020%2012%2020z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E',
+			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
 		);
 
 		$this->assertEquals( $menu[1], $site_card_menu_item );

@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../../modules/protect.php';
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sends_failed_login_message() {
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		$user = get_userdata( $user_id );
 
@@ -25,7 +25,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_do_not_send_failed_login_message() {
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		$user = get_userdata( $user_id );
 		Constants::set_constant( 'XMLRPC_REQUEST', true ); // fake xmlrpc request

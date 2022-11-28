@@ -2,3 +2,7 @@
 
 /tests/e2e/config/**
 !/app/assets/src/js/**/*.d.ts
+jetpack_vendor/
+vendor/
+wordpress/
+tests/e2e/output/

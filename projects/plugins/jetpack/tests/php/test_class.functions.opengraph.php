@@ -165,11 +165,11 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 			'height' => 250,
 		);
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$image_urls = array();
 		for ( $i = 1; $i <= $number_of_images; $i++ ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				'image' . $i . '.jpg',
 				$post_id,
 				array(
@@ -191,7 +191,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 			);
 		}
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array( 'post_content' => $post_html )
 		);
 

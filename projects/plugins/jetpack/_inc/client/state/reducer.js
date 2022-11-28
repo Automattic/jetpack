@@ -8,7 +8,6 @@ import { initialState } from 'state/initial-state/reducer';
 import { reducer as introOffers } from 'state/intro-offers';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as licensing } from 'state/licensing/reducer';
-import { reducer as mobile } from 'state/mobile/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as plans } from 'state/plans/reducer';
 import { reducer as products } from 'state/products/reducer';
@@ -46,7 +45,6 @@ const jetpackReducer = combineReducers( {
 	siteVerify,
 	disconnectSurvey,
 	trackingSettings,
-	mobile,
 	licensing,
 	waf,
 	introOffers,

@@ -127,8 +127,7 @@ class Jetpack_Options {
 			'partner_coupon',                      // (string) A Jetpack partner issued coupon to promote a sale together with Jetpack.
 			'partner_coupon_added',                // (string) A date for when `partner_coupon` was added, so we can auto-purge after a certain time interval.
 			'dismissed_backup_review_restore',     // (bool) Determines if the component review request is dismissed for successful restore requests.
-			'dismissed_backup_review_time_based',  // (bool) Determines if the component review request is dismissed for subscription time based requests.
-
+			'dismissed_backup_review_backups',     // (bool) Determines if the component review request is dismissed for successful backup requests.
 		);
 	}
 

@@ -54,7 +54,7 @@
 	$the_search.on( 'keyup search', function ( e ) {
 		// Don't trigger change on tab, since it's only used for accessibility
 		// anyway, and will remove all checked boxes
-		if ( e.keyCode !== 9 ) {
+		if ( e.code !== 'Tab' ) {
 			modules.trigger( 'change' );
 		}
 	} );

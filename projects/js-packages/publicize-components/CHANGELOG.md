@@ -5,6 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2022-11-14
+### Added
+- Added media section to Jetpack Social panel [#26930]
+
+### Changed
+- Updated package dependencies. [#27319]
+
+## [0.8.3] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [0.8.2] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [0.8.1] - 2022-10-27
+### Fixed
+- Publicize Components: Fix the panel component refactor [#27095]
+
+## [0.8.0] - 2022-10-25
+### Added
+- Display broken connections to user in editor [#25803]
+
+### Changed
+- Reshare: Refactored the config logic and moved in the additional components for resharing [#25993]
+
+### Fixed
+- Social: Fix the path to the connections URL in the editor [#26932]
+
+## [0.7.4] - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## [0.7.3] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## [0.7.2] - 2022-10-06
+### Changed
+- Do not open upgrade links from Jetpack Social in a new tab [#26649]
+
+## [0.7.1] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26457]
+
+## [0.7.0] - 2022-09-27
+### Added
+- Publicize Components: Move the usePublciizeConfig hook to the package [#26420]
+
+### Changed
+- Updated package dependencies.
+
+## [0.6.0] - 2022-09-20
+### Added
+- Added Jetpack social redirect urls. [#26135]
+
+### Changed
+- Updated package dependencies. [#26081]
+
+## [0.5.2] - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## [0.5.1] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [0.5.0] - 2022-08-31
+### Added
+- Added Social Previews components. [#25931]
+
+## [0.4.0] - 2022-08-30
+### Added
+- Enforce sharing limits for Jetpack Social in the block editor, if it is enabled for a site. [#25661]
+
+### Changed
+- Rebrand Publicize to Jetpack Social [#25787]
+- Updated package dependencies. [#25814]
+
+## [0.3.6] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762]
+
 ## [0.3.5] - 2022-08-03
 ### Changed
 - Updated package dependencies. [#25281]
@@ -55,6 +138,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.9.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.8.3...v0.9.0
+[0.8.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.8.2...v0.8.3
+[0.8.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.7.4...v0.8.0
+[0.7.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.5.2...v0.6.0
+[0.5.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.3.6...v0.4.0
+[0.3.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.3.2...v0.3.3

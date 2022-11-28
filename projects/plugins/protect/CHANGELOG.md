@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0 - 2022-11-17
+### Added
+- Add features for paid Jetpack Scan users, including file and database threats, on-demand scanning, and threat auto-fixers.
+
+### Changed
+- Compatibility: WordPress 6.1 compatibility
+
+### Fixed
+- Adjust alignment of spinner icon and loading text on the in-progress scan screen.
+
+## 1.0.4 - 2022-08-29
+### Fixed
+- Fixed NaN error that prevented the pricing interstitial from rendering.
+
+## 1.0.3 - 2022-08-26
+### Added
+- Added a default 'See all results' label to the mobile navigation button.
+- Added a spinner to the in progress scan page in admin
+- Added JITM functionality
+- Added threat descriptions.
+- My Jetpack includes JITMs
+
+### Changed
+- Add condition to check plugin activation context before redirecting
+
+### Fixed
+- Fixed alignment of long navigation item labels on mobile screen sizes.
+
 ## 1.0.2 - 2022-07-27
 ### Changed
 - Updated package dependencies.

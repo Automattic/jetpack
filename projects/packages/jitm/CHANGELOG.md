@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.34] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [2.2.33] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [2.2.32] - 2022-11-07
+### Changed
+- Updated package dependencies. [#27278]
+
+## [2.2.31] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [2.2.30] - 2022-10-25
+### Changed
+- Updated package dependencies. [#26705]
+
+## [2.2.29] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## [2.2.28] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
+## [2.2.27] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [2.2.26] - 2022-08-29
+### Changed
+- Updated package dependencies.
+
+## [2.2.25] - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## [2.2.24] - 2022-08-23
+### Added
+- Add custom styling rules for the JITMs displayed in My Jetpack. [#22452]
+- Updated JITM readme. [#25739]
+
+### Changed
+- Updated package dependencies. [#25628]
+
 ## [2.2.23] - 2022-08-03
 ### Changed
 - Updated package dependencies. [#25300, #25315]
@@ -462,6 +510,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.34]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.33...v2.2.34
+[2.2.33]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.32...v2.2.33
+[2.2.32]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.31...v2.2.32
+[2.2.31]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.30...v2.2.31
+[2.2.30]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.29...v2.2.30
+[2.2.29]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.28...v2.2.29
+[2.2.28]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.27...v2.2.28
+[2.2.27]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.26...v2.2.27
+[2.2.26]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.25...v2.2.26
+[2.2.25]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.24...v2.2.25
+[2.2.24]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.23...v2.2.24
 [2.2.23]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.22...v2.2.23
 [2.2.22]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.21...v2.2.22
 [2.2.21]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.20...v2.2.21

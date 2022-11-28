@@ -7,16 +7,14 @@ import {
 	getRedirectUrl,
 	PricingCard,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import {
-	JETPACK_PLANS_WITH_BACKUP,
-	JETPACK_BACKUP_PRODUCTS,
-} from '../../../../../../projects/plugins/jetpack/_inc/client/lib/plans/constants';
 import useAnalytics from '../hooks/useAnalytics';
+import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
@@ -27,67 +25,52 @@ import './masthead/masthead-style.scss';
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
 	const [ connectionStatus ] = useConnection();
-	const [ capabilities, setCapabilities ] = useState( [] );
-	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
-	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
-	const [ showHeaderFooter, setShowHeaderFooter ] = useState( true );
 	const { tracks } = useAnalytics();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
+	const isFullyConnected =
+		connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
 
 	useEffect( () => {
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	useEffect( () => {
-		if ( ! connectionLoaded ) {
-			return;
-		}
-
-		apiFetch( { path: '/jetpack/v4/backup-capabilities' } ).then(
-			res => {
-				setCapabilities( res.capabilities );
-				setCapabilitiesLoaded( true );
-			},
-			() => {
-				setCapabilitiesLoaded( true );
-				setCapabilitiesError( 'Failed to fetch site capabilities' );
-			}
-		);
-	}, [ connectionLoaded ] );
-
-	const isFullyConnected = () => {
-		return connectionLoaded && connectionStatus.isUserConnected && connectionStatus.isRegistered;
-	};
-
-	const hasBackupPlan = () => {
-		return capabilities.includes( 'backup' );
-	};
+	const { capabilities, capabilitiesError, capabilitiesLoaded, hasBackupPlan } = useCapabilities();
 
 	return (
 		<AdminPage
-			withHeader={ false }
-			withFooter={ false }
-			moduleName={ __( 'Jetpack Backup', 'jetpack-backup-pkg' ) }
-			a8cLogoHref="https://www.jetpack.com"
+			showHeader={ isFullyConnected }
+			showFooter={ isFullyConnected }
+			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
 					<AdminSectionHero>
+						<Container horizontalSpacing={ 0 }>
+							{ hasConnectionError && (
+								<Col className="jetpack-connection-verified-error">
+									<ConnectionError />
+								</Col>
+							) }
+							<Col>
+								<div id="jp-admin-notices" className="jetpack-backup-jitm-card" />
+							</Col>
+						</Container>
 						<LoadedState
 							connectionLoaded={ connectionLoaded }
 							connectionStatus={ connectionStatus }
-							showHeaderFooter={ showHeaderFooter }
-							setShowHeaderFooter={ setShowHeaderFooter }
 							capabilitiesLoaded={ capabilitiesLoaded }
-							hasBackupPlan={ hasBackupPlan() }
+							hasBackupPlan={ hasBackupPlan }
 							capabilitiesError={ capabilitiesError }
+							capabilities={ capabilities }
+							isFullyConnected={ isFullyConnected }
 						/>
 					</AdminSectionHero>
 					<AdminSection>
-						{ isFullyConnected() && (
+						{ isFullyConnected && (
 							<BackupSegments
-								hasBackupPlan={ hasBackupPlan() }
+								hasBackupPlan={ hasBackupPlan }
 								connectionLoaded={ connectionLoaded }
 							/>
 						) }
@@ -100,6 +83,7 @@ const Admin = () => {
 
 // Renders additional segments under the jp-hero area condition on having a backup plan
 const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
+	const [ connectionStatus ] = useConnection();
 	const { tracks } = useAnalytics();
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
@@ -143,7 +127,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 						'jetpack-backup-pkg'
 					) }
 				</p>
-				{ hasBackupPlan && (
+				{ hasBackupPlan && connectionStatus.isUserConnected && (
 					<p>
 						<ExternalLink
 							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
@@ -163,7 +147,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 						'jetpack-backup-pkg'
 					) }
 				</p>
-				{ hasBackupPlan && (
+				{ hasBackupPlan && connectionStatus.isUserConnected && (
 					<p>
 						<ExternalLink
 							href={ getRedirectUrl( 'backup-plugin-activity-log', { site: domain } ) }
@@ -181,7 +165,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 
 const ReviewMessage = connectionLoaded => {
 	const [ restores ] = useRestores( connectionLoaded );
-	const [ purchases ] = usePurchases( connectionLoaded );
+	const [ backups ] = useBackups( connectionLoaded );
 	const { tracks } = useAnalytics();
 	let requestReason = '';
 	let reviewText = '';
@@ -200,49 +184,48 @@ const ReviewMessage = connectionLoaded => {
 		return false;
 	};
 
-	// Check if the site has an active Backup subscription older than 3 months
-	const hasThreeMonthsSub = () => {
-		if ( ! Array.isArray( purchases ) || purchases.length === 0 ) {
+	// Check if the last 5 backups were successful
+	const hasFiveSuccessfulBackups = () => {
+		if ( ! Array.isArray( backups ) || backups.length < 5 ) {
 			return false;
 		}
 
-		for ( const purchase of purchases ) {
-			const isActive = purchase.subscription_status === 'active';
-			const isBackupPlan =
-				JETPACK_BACKUP_PRODUCTS.includes( purchase.product_slug ) ||
-				JETPACK_PLANS_WITH_BACKUP.includes( purchase.product_slug );
-
-			if ( isBackupPlan && isActive ) {
-				const subscriptionTimeInDays =
-					( new Date() - Date.parse( purchase.subscribed_date ) ) / 86400000;
-
-				if ( subscriptionTimeInDays > 90 ) {
-					return true;
-				}
+		let fiveSuccessfulBackups = true;
+		backups.slice( 0, 5 ).forEach( backup => {
+			if ( ! 'finished' === backup.status || ! backup.stats ) {
+				fiveSuccessfulBackups = false;
 			}
-		}
+		} );
 
-		return false;
+		return fiveSuccessfulBackups;
 	};
 
 	const trackSendToReview = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
 
+	const tracksDismissReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_dismiss_review_click' );
+	}, [ tracks ] );
+
 	if ( hasRecentSuccesfulRestore() ) {
 		requestReason = 'restore';
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
-	} else if ( hasThreeMonthsSub() ) {
-		requestReason = 'time_based';
-		reviewText = __( 'Are you happy with Jetpack Backup?', 'jetpack-backup-pkg' );
+	} else if ( hasFiveSuccessfulBackups() ) {
+		requestReason = 'backups';
+		reviewText = __(
+			'Do you enjoy the peace of mind of having real-time backups?',
+			'jetpack-backup-pkg'
+		);
 	}
 
 	const [ dismissedReview, dismissMessage ] = useDismissedReviewRequest(
 		connectionLoaded,
-		requestReason
+		requestReason,
+		tracksDismissReview
 	);
 
-	if ( ! hasRecentSuccesfulRestore() && ! hasThreeMonthsSub() ) {
+	if ( ! hasRecentSuccesfulRestore() && ! hasFiveSuccessfulBackups() ) {
 		return null;
 	}
 
@@ -292,29 +275,28 @@ const useRestores = connectionLoaded => {
 	return [ restores, setRestores ];
 };
 
-// eslint-disable-next-line react-hooks/exhaustive-deps
-const usePurchases = connectionLoaded => {
-	const [ purchases, setPurchases ] = useState( [] );
+const useBackups = connectionLoaded => {
+	const [ backups, setBackups ] = useState( [] );
 
 	useEffect( () => {
 		if ( ! connectionLoaded ) {
+			setBackups( [] );
 			return;
 		}
-
-		apiFetch( { path: '/jetpack/v4/site/current-purchases' } ).then(
+		apiFetch( { path: '/jetpack/v4/backups' } ).then(
 			res => {
-				setPurchases( res );
+				setBackups( res );
 			},
 			() => {
-				setPurchases( [] );
+				setBackups( [] );
 			}
 		);
-	}, [ setPurchases, connectionLoaded ] );
+	}, [ setBackups, connectionLoaded ] );
 
-	return [ purchases, setPurchases ];
+	return [ backups, setBackups ];
 };
 
-const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
+const useDismissedReviewRequest = ( connectionLoaded, requestReason, tracksDismissReview ) => {
 	const [ dismissedReview, setDismissedReview ] = useState( true );
 
 	useEffect( () => {
@@ -340,6 +322,7 @@ const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
 
 	const dismissMessage = e => {
 		e.preventDefault();
+		tracksDismissReview();
 		apiFetch( {
 			path: '/jetpack/v4/site/dismissed-review-request',
 			method: 'POST',
@@ -401,14 +384,14 @@ const NoBackupCapabilities = () => {
 			<Col lg={ 1 } md={ 1 } sm={ 0 } />
 			<Col lg={ 5 } md={ 6 } sm={ 4 }>
 				<PricingCard
-					ctaText={ __( 'Get Jetpack Backup', 'jetpack-backup-pkg' ) }
+					ctaText={ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
 					icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='m21.092 15.164.019-1.703v-.039c0-1.975-1.803-3.866-4.4-3.866-2.17 0-3.828 1.351-4.274 2.943l-.426 1.524-1.581-.065a2.92 2.92 0 0 0-.12-.002c-1.586 0-2.977 1.344-2.977 3.133 0 1.787 1.388 3.13 2.973 3.133H22.399c1.194 0 2.267-1.016 2.267-2.4 0-1.235-.865-2.19-1.897-2.368l-1.677-.29Zm-10.58-3.204a4.944 4.944 0 0 0-.201-.004c-2.75 0-4.978 2.298-4.978 5.133s2.229 5.133 4.978 5.133h12.088c2.357 0 4.267-1.97 4.267-4.4 0-2.18-1.538-3.99-3.556-4.339v-.06c0-3.24-2.865-5.867-6.4-5.867-2.983 0-5.49 1.871-6.199 4.404Z' fill='%23000'/%3E%3C/svg%3E"
 					infoText={ priceAfter === price ? basicInfoText : introductoryInfoText }
 					// eslint-disable-next-line react/jsx-no-bind
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ price }
-					title={ __( 'Jetpack Backup', 'jetpack-backup-pkg' ) }
+					title={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 				/>
 			</Col>
 		</Container>
@@ -416,40 +399,26 @@ const NoBackupCapabilities = () => {
 };
 
 const LoadedState = ( {
-	connectionLoaded,
-	showHeaderFooter,
-	setShowHeaderFooter,
 	capabilitiesLoaded,
 	hasBackupPlan,
 	capabilitiesError,
+	capabilities,
+	isFullyConnected,
 } ) => {
-	const [ connectionStatus, renderConnectScreen ] = useConnection();
+	const [ , BackupConnectionScreen ] = useConnection();
 
-	if (
-		! connectionLoaded ||
-		! connectionStatus.isUserConnected ||
-		! connectionStatus.isRegistered
-	) {
-		if ( showHeaderFooter ) {
-			setShowHeaderFooter( false );
-		}
-
+	if ( ! isFullyConnected ) {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col lg={ 12 } md={ 8 } sm={ 4 }>
-					{ renderConnectScreen() }
+					<BackupConnectionScreen />
 				</Col>
 			</Container>
 		);
 	}
 
-	// Show header and footer on all screens except ConnectScreen
-	if ( ! showHeaderFooter ) {
-		setShowHeaderFooter( true );
-	}
-
 	if ( ! capabilitiesLoaded ) {
-		return <div></div>;
+		return null;
 	}
 
 	if ( hasBackupPlan ) {
@@ -461,19 +430,33 @@ const LoadedState = ( {
 			</Container>
 		);
 	}
-
 	// Render an error state, this shouldn't occurr since we've passed userConnected checks
-	if ( capabilitiesError ) {
+	if ( capabilitiesError === 'is_unlinked' ) {
 		return (
 			<Container horizontalSpacing={ 3 }>
 				<Col lg={ 12 } md={ 8 } sm={ 4 }>
-					{ capabilitiesError }
+					<h2>
+						{ __(
+							"Site backups are managed by the owner of this site's Jetpack connection.",
+							'jetpack-backup-pkg'
+						) }
+					</h2>
 				</Col>
 			</Container>
 		);
+	} else if ( capabilitiesError === 'fetch_capabilities_failed' ) {
+		return (
+			<Container horizontalSpacing={ 3 }>
+				<Col lg={ 12 } md={ 8 } sm={ 4 }>
+					<h2>{ __( 'Failed to fetch site capabilities', 'jetpack-backup-pkg' ) }</h2>
+				</Col>
+			</Container>
+		);
+	} else if ( Array.isArray( capabilities ) && capabilities.length === 0 ) {
+		return <NoBackupCapabilities />;
 	}
 
-	return <NoBackupCapabilities />;
+	return null;
 };
 
 export default Admin;

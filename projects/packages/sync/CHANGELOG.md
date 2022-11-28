@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.43.1] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.43.0] - 2022-11-17
+### Added
+- Added new sync option for launch-status [#27434]
+- Jetpack Sync: Add new endpoint for resetting Sync locks. [#27446]
+
+## [1.42.0] - 2022-11-14
+### Changed
+- Save attached media to post meta [#26930]
+
+## [1.41.0] - 2022-11-07
+### Changed
+- Jetpack Sync: add Updates module in required Sync modules. [#27182]
+- Updated package dependencies. [#27278]
+
+## [1.40.3] - 2022-11-01
+### Added
+- Adds wpcom_gifting_subscription option for syncing [#27116]
+
+## [1.40.2] - 2022-10-27
+### Fixed
+- Check $action_links is still array after plugin_action_links filter has been applied. [#27076]
+
+## [1.40.1] - 2022-10-25
+### Added
+- Added featured_image_email_enabled option for syncing [#27009]
+
+### Changed
+- Search Sync Settings :: Add Marketplace product extra fields meta to allow list [#26927]
+- Updated package dependencies. [#26705]
+
+## [1.40.0] - 2022-10-17
+### Added
+- Adding the `sl-insta-media` post type to the Sync blacklist as the post type data isn't relevant to Sync and takes up non-trivial resources. [#26826]
+
+## [1.39.0] - 2022-10-11
+### Added
+- Added some taxonomies to be indexed by Search. [#26683]
+
+## [1.38.4] - 2022-09-20
+### Added
+- Gutenberg Support: add additional theme_supports items to our synced allowlist. [#26239]
+
+### Changed
+- Default Theme Support: Add support for new feature added in WP 6.1 [#26236]
+- Theme Supports: updated allowed values list to align with a Core change r54159-core [#26220]
+
+## [1.38.3] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## [1.38.2] - 2022-08-29
+### Changed
+- Updated package dependencies.
+
+## [1.38.1] - 2022-08-25
+### Changed
+- Search Sync Settings :: Add Marketplace related meta fields and taxonomies to allow list [#25376]
+
+## [1.38.0] - 2022-08-23
+### Added
+- Search: add product-brand to taxonomy sync list to support WooCommerce Brands plugin. [#25665]
+
+### Changed
+- Updated package dependencies. [#25628]
+
 ## [1.37.1] - 2022-08-03
 ### Changed
 - Updated package dependencies. [#25300, #25315]
@@ -696,6 +765,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.43.1]: https://github.com/Automattic/jetpack-sync/compare/v1.43.0...v1.43.1
+[1.43.0]: https://github.com/Automattic/jetpack-sync/compare/v1.42.0...v1.43.0
+[1.42.0]: https://github.com/Automattic/jetpack-sync/compare/v1.41.0...v1.42.0
+[1.41.0]: https://github.com/Automattic/jetpack-sync/compare/v1.40.3...v1.41.0
+[1.40.3]: https://github.com/Automattic/jetpack-sync/compare/v1.40.2...v1.40.3
+[1.40.2]: https://github.com/Automattic/jetpack-sync/compare/v1.40.1...v1.40.2
+[1.40.1]: https://github.com/Automattic/jetpack-sync/compare/v1.40.0...v1.40.1
+[1.40.0]: https://github.com/Automattic/jetpack-sync/compare/v1.39.0...v1.40.0
+[1.39.0]: https://github.com/Automattic/jetpack-sync/compare/v1.38.4...v1.39.0
+[1.38.4]: https://github.com/Automattic/jetpack-sync/compare/v1.38.3...v1.38.4
+[1.38.3]: https://github.com/Automattic/jetpack-sync/compare/v1.38.2...v1.38.3
+[1.38.2]: https://github.com/Automattic/jetpack-sync/compare/v1.38.1...v1.38.2
+[1.38.1]: https://github.com/Automattic/jetpack-sync/compare/v1.38.0...v1.38.1
+[1.38.0]: https://github.com/Automattic/jetpack-sync/compare/v1.37.1...v1.38.0
 [1.37.1]: https://github.com/Automattic/jetpack-sync/compare/v1.37.0...v1.37.1
 [1.37.0]: https://github.com/Automattic/jetpack-sync/compare/v1.36.1...v1.37.0
 [1.36.1]: https://github.com/Automattic/jetpack-sync/compare/v1.36.0...v1.36.1

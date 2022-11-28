@@ -579,7 +579,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_site_icon_url_returns_core_site_icon_url_when_set() {
-		$attachment_id = $this->factory->post->create(
+		$attachment_id = self::factory()->post->create(
 			array(
 				'post_type'      => 'attachment',
 				'post_mime_type' => 'image/png',
@@ -1058,7 +1058,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * Mock authenticated XML RPC.
 	 */
 	public function mock_authenticated_xml_rpc() {
-		self::$admin_id  = $this->factory->user->create(
+		self::$admin_id  = self::factory()->user->create(
 			array(
 				'role' => 'administrator',
 			)
@@ -1271,7 +1271,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$main_network_wpcom_id = 12345;
 		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
 
-		$user_id = $this->factory->user->create();
+		$user_id = self::factory()->user->create();
 
 		// NOTE this is necessary because WPMU causes certain assumptions about transients.
 		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6 .

@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'trunk'
+      - 'prerelease'
       # The `**/*/` works around the fact that GitHub considers a leading `**/` as meaning "zero or more path components" where we want "one or more".
       - '**/*/branch-**'
   pull_request:
@@ -26,6 +27,7 @@ jobs:
       TEST_COMMENT_INDICATOR: "<!-- wpcom-reminder-comment -->"
     outputs:
       any_plugins: ${{ steps.plugins.outputs.any }}
+      changed_projects: ${{ steps.changed.outputs.projects }}
 
     steps:
       - uses: actions/checkout@v3
@@ -48,16 +50,18 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
-          echo "::set-output name=projects::${CHANGED}"
+          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        env:
+          CHANGED: ${{ steps.changed.outputs.projects }}
         with:
           result-encoding: string
           script: |
-            const checkTestReminderComment = require('.github/actions/build/check-test-reminder-comment.js')
+            const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
             const commentId = await checkTestReminderComment( github, context, core );
             return commentId;
 
@@ -89,10 +93,10 @@ jobs:
           done > "$BUILD_BASE/plugins.tsv"
           if [[ -s "$BUILD_BASE/plugins.tsv" ]]; then
             cat "$BUILD_BASE/plugins.tsv"
-            echo "::set-output name=any::true"
+            echo "any=true" >> "$GITHUB_OUTPUT"
           else
             echo "No plugins were built"
-            echo "::set-output name=any::false"
+            echo "any=false" >> "$GITHUB_OUTPUT"
           fi
 
       # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
@@ -112,7 +116,7 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 0 }}
+        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
           COMMENT_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
@@ -120,7 +124,7 @@ jobs:
           script: |
             const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started.`;
+            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. More details: p9dueE-5Nn-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -255,7 +259,7 @@ jobs:
           if [[ "$PLUGIN_DATA" == "{}" ]]; then
             echo "No plugins were built"
           fi
-          echo "::set-output name=plugin-data::$PLUGIN_DATA"
+          echo "plugin-data=$PLUGIN_DATA" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
         uses: actions/upload-artifact@v3
@@ -279,6 +283,30 @@ jobs:
             --form-string "branch=${GITHUB_REF#refs/heads/}" \
             --form-string "plugins=$PLUGIN_DATA" \
             --form-string "secret=$SECRET"
+
+  teamcity_trigger:
+    name: "Trigger TeamCity build"
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ fromJSON(needs.build.outputs.changed_projects)['plugins/jetpack'] == true }}
+
+    steps:
+      - name: Trigger TeamCity build
+        env:
+          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
+          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
+          PR: ${{ github.event_name == 'push' && github.ref_name || github.event.number }}
+          SHA: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
+        run: |
+          response=$(curl --fail -L \
+            --url "$URL" \
+            --form-string "pr-number=$PR" \
+            --form-string "sha=$SHA" \
+            --form-string "secret=$SECRET")
+
+          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
+          echo
+          echo "If you would like to restart the tests, please re-run this job."
 
   update_mirrors:
     name: Push to mirror repos

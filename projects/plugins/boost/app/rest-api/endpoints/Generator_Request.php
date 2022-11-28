@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
@@ -18,11 +18,9 @@ class Generator_Request implements Endpoint {
 	public function response( $request ) {
 		$reset = ! empty( $request['reset'] );
 
-		$cleared_critical_css_reason = \get_option( Critical_CSS::RESET_REASON_STORAGE_KEY );
-		$generator                   = new Generator();
+		$generator = new Generator();
 
-		if ( $reset || $cleared_critical_css_reason ) {
-
+		if ( $reset ) {
 			$storage         = new Critical_CSS_Storage();
 			$recommendations = new Recommendations();
 
@@ -30,7 +28,7 @@ class Generator_Request implements Endpoint {
 			$storage->clear();
 			$generator->make_generation_request();
 			$recommendations->reset();
-			Critical_CSS::clear_reset_reason();
+			Regenerate_Admin_Notice::dismiss();
 		}
 
 		return rest_ensure_response(

@@ -1606,19 +1606,28 @@
 				var grandparent = parent.parentElement;
 
 				// If Gallery is made up of individual Image blocks check for custom link before
-				// loading carousel.
+				// loading carousel. The custom link may be the parent or could be a descendant
+				// of the parent if the image has rounded corners.
+				var parentHref = null;
 				if ( grandparent && grandparent.classList.contains( 'wp-block-image' ) ) {
-					var parentHref = parent.getAttribute( 'href' );
+					parentHref = parent.getAttribute( 'href' );
+				} else if (
+					parent &&
+					parent.classList.contains( 'wp-block-image' ) &&
+					parent.querySelector( ':scope > a' )
+				) {
+					parentHref = parent.querySelector( ':scope > a' ).getAttribute( 'href' );
+				}
 
-					// If the link does not point to the attachment or media file then assume Image has
-					// a custom link so don't load the carousel.
-					if (
-						parentHref.split( '?' )[ 0 ] !==
-							target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-						parentHref !== target.getAttribute( 'data-permalink' )
-					) {
-						return;
-					}
+				// If the link does not point to the attachment or media file then assume Image has
+				// a custom link so don't load the carousel.
+				if (
+					parentHref &&
+					parentHref.split( '?' )[ 0 ] !==
+						target.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== target.getAttribute( 'data-permalink' )
+				) {
+					return;
 				}
 
 				// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.

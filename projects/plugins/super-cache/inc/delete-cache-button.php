@@ -108,7 +108,25 @@ function wpsc_admin_bar_delete_cache() {
 	$req_path = isset( $_POST['path'] ) ? sanitize_text_field( stripslashes( $_POST['path'] ) ) : '';
 	$valid_nonce = ( $req_path && isset( $_POST['nonce'] ) ) ? wp_verify_nonce( $_POST['nonce'], 'delete-cache-' . $_POST['path'] . '_' . $_POST['admin'] ) : false;
 
-	if ( $valid_nonce && $referer && $req_path && ( false !== stripos( $referer, $req_path ) || 0 === stripos( $referer, wp_login_url() ) ) ) {
+	if (
+		$valid_nonce
+		&& $referer
+		&& $req_path
+		&& (
+			false !== stripos( $referer, $req_path )
+			|| 0 === stripos( $referer, wp_login_url() )
+		)
+	) {
+		/**
+		 * Hook into the cache deletion process after a successful cache deletion from the admin bar button.
+		 *
+		 * @since 1.9
+		 *
+		 * @param string $req_path Path of the page where the cache flush was requested.
+		 * @param string $referer  Referer URL.
+		 */
+		do_action( 'wpsc_after_delete_cache_admin_bar', $req_path, $referer );
+
 		if ( $_POST['admin'] ) {
 			wp_safe_redirect( $referer );
 		} else {

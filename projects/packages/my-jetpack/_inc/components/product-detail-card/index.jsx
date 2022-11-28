@@ -86,10 +86,12 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const {
 		isFree,
+		trialAvailable,
 		fullPricePerMonth: price,
 		currencyCode,
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
+		wpcomFreeProductSlug,
 	} = pricingForUi;
 	const { isUserConnected } = useMyJetpackConnection();
 
@@ -105,6 +107,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	const addProductUrl =
 		needsPurchase && wpcomProductSlug
 			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
+			: null;
+
+	const addFreeProductUrl =
+		trialAvailable && wpcomFreeProductSlug
+			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
 			: null;
 
 	// Suppported products icons.
@@ -131,10 +138,13 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		if ( onClick ) {
-			onClick();
-		}
-	}, [ onClick, trackButtonClick ] );
+		onClick?.( addProductUrl );
+	}, [ onClick, trackButtonClick, addProductUrl ] );
+
+	const trialClickHandler = useCallback( () => {
+		trackButtonClick( wpcomFreeProductSlug );
+		onClick?.( addFreeProductUrl );
+	}, [ onClick, trackButtonClick, addFreeProductUrl, wpcomFreeProductSlug ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -200,7 +210,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ needsPurchase && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
-							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							{ discountPrice < price && (
+								<Price value={ price } currency={ currencyCode } isOld={ true } />
+							) }
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
 						<Text className={ styles[ 'price-description' ] }>
@@ -245,6 +257,21 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							/* translators: placeholder is product name. */
 							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
 						}
+					</Text>
+				) }
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable && (
+					<Text
+						component={ ProductDetailButton }
+						onClick={ trialClickHandler }
+						isLoading={ isFetching }
+						disabled={ cantInstallPlugin }
+						isPrimary={ false }
+						href={ onClick ? undefined : addFreeProductUrl }
+						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
+						variant="body"
+					>
+						{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 					</Text>
 				) }
 

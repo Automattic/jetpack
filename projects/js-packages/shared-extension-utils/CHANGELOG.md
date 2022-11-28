@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.8] - 2022-11-14
+### Changed
+- Updated package dependencies. [#27319]
+
+## [0.6.7] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [0.6.6] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [0.6.5] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## [0.6.4] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
+## [0.6.3] - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## [0.6.2] - 2022-08-30
+### Changed
+- Updated package dependencies. [#25814]
+
+## [0.6.1] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25762]
+
 ## [0.6.0] - 2022-08-03
 ### Fixed
 - Change Site Editor route to `site-editor.php` [#25281]
@@ -104,6 +136,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.6.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.7...0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.6...0.6.7
+[0.6.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.5...0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.4...0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.3...0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.2...0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.1...0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.13...0.5.0
 [0.4.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.4.12...0.4.13

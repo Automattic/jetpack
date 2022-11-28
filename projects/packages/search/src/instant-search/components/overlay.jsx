@@ -47,7 +47,7 @@ const Overlay = props => {
 
 		const closeWithOutsideClick = event => {
 			const resultsContainer = document.getElementsByClassName(
-				'jetpack-instant-search__search-results'
+				'jetpack-instant-search__search-results-wrapper'
 			)[ 0 ];
 			if (
 				event.target?.isConnected && // Ensure that the click target is still connected to DOM.

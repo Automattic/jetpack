@@ -10,22 +10,11 @@ Jetpack VideoPress plugin
 
 Build the plugin
 
-```cli
-jetpack build plugins/videopress
-```
-
 When testing locally, the first time, don't forget to link the plugin:
 
 ```cli
 jetpack docker link-plugin videopress
 ```
-
-Build refreshing deeply all dependencies
-
-```cli
-jetpack build --deps plugins/videopress
-```
-
 
 ## Contribute
 

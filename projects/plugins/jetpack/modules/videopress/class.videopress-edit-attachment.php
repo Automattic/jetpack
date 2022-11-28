@@ -186,7 +186,7 @@ class VideoPress_Edit_Attachment {
 
 		$fields['post_excerpt']['label'] = _x( 'Description', 'A header for the short description display', 'jetpack' );
 		$fields['post_excerpt']['input'] = 'textarea';
-		$fields['post_excerpt']['value'] = ! empty( $info->description ) ? $info->descrption : '';
+		$fields['post_excerpt']['value'] = ! empty( $info->description ) ? $info->description : '';
 
 		$fields['is_videopress_attachment'] = array(
 			'input' => 'hidden',

@@ -212,7 +212,7 @@ if ( is_multisite() ) :
 			$test_cap        = array( 'test_cap' );
 			$expected_output = $disconnect_allowed ? $test_cap : array( 'do_not_allow' );
 
-			$user_id = $this->factory->user->create( array( 'user_login' => 'test_user' ) );
+			$user_id = self::factory()->user->create( array( 'user_login' => 'test_user' ) );
 			wp_set_current_user( $user_id );
 			if ( $is_super_admin ) {
 				grant_super_admin( $user_id );

@@ -168,6 +168,14 @@ $blue-medium-dark:       #2271b1;
 	}
 }
 
+// Minor adjustments for the display in My Jetpack.
+.my-jetpack-jitm-card {
+	.jitm-card {
+		margin-right: 0;
+		margin-bottom: 0;
+	}
+}
+
 // if JITM appears directly below WordPress "help" menu adjust margins
 #screen-meta-links+.jitm-card {
 	margin: rem( 40px ) 1.5385em 0 auto;

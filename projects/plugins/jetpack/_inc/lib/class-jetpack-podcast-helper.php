@@ -18,7 +18,7 @@ class Jetpack_Podcast_Helper {
 
 	/**
 	 * The number of seconds to cache the podcast feed data.
-	 * This value defaults to null, so we don't override the core filters for RSS feeds in WordPress.
+	 * This value defaults to 1 hour specifically for podcast feeds.
 	 * The value can be overridden specifically for podcasts using the
 	 * `jetpack_podcast_feed_cache_timeout` filter. Note that the cache timeout value
 	 * for all RSS feeds can be modified using the `wp_feed_cache_transient_lifetime`
@@ -29,7 +29,7 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * @var int|null
 	 */
-	protected $cache_timeout = null;
+	protected $cache_timeout = HOUR_IN_SECONDS;
 
 	/**
 	 * Initialize class.
@@ -390,7 +390,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	public static function set_podcast_locator( &$feed ) {
 		if ( ! class_exists( 'Jetpack_Podcast_Feed_Locator' ) ) {
-			jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator.php';
 		}
 
 		$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' );

@@ -1,7 +1,7 @@
 <?php
 
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-	jetpack_require_lib( 'class.media-summary' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }
 
 class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 	 * @todo find a better way to test this large function
 	 */
 	public function test_mediasummary_get() {
-		$post_id = $this->factory->post->create( array() );
+		$post_id = self::factory()->post->create( array() );
 
 		$get_obj = Jetpack_Media_Summary::get( $post_id );
 

@@ -202,7 +202,7 @@ done
 # Update branch-alias in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"
 debug "$OPING branch-alias version, if any"
-jsver "$FILE" '.extra["branch-alias"]["dev-trunk"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
+jsver "$FILE" '.extra["branch-alias"]["dev-trunk"]' "$(sed -E 's/^([0-9]+\.[0-9]+)(\.[0-9]+)*([-+].*)?$/\1.x-dev/' <<<"$SEMVERSION")"
 
 # Update autoloader-suffix in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"

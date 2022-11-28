@@ -22,11 +22,11 @@ async function fetchReviewers() {
 			per_page: 100,
 		} ) ) {
 			res.data.forEach( review => {
-				// Looks like GitHub may return more than one review per user, but only counts the last for each.
-				// "APPROVED" allows merging, while anything else (e.g. "CHANGED_REQUESTED" or "DISMISSED") doesn't.
+				// GitHub may return more than one review per user, but only counts the last non-comment one for each.
+				// "APPROVED" allows merging, while "CHANGES_REQUESTED" and "DISMISSED" do not.
 				if ( review.state === 'APPROVED' ) {
 					reviewers.add( review.user.login );
-				} else {
+				} else if ( review.state !== 'COMMENTED' ) {
 					reviewers.delete( review.user.login );
 				}
 			} );

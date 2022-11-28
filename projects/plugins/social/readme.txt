@@ -1,10 +1,10 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, danielpost, siddarthan
+Contributors: automattic, pabline, danielpost, siddarthan, gmjuhasz
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 5.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
-Stable tag: 1.2.0
+Tested up to: 6.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,6 +12,8 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 
 == Description ==
 ### Write once, publish everywhere.
+
+*Share up to 30 times per month for free with Jetpack Social, and upgrade to share as many times as you want!*
 
 **Grow your following by sharing your content with Jetpack Social!**
 
@@ -89,11 +91,14 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.2.0 - 2022-08-03
+### 1.5.0 - 2022-11-08
 #### Added
-- Dashboard: Add stats about the number of posts published.
-
+- Display broken connections to user in editor
+- Integrate the ConnectionError react component to the Social plugin.
+- Reshare: Added the reshare UI to the block editor extension
 #### Changed
-- Dashboard: Improve performance when fetching data.
-- Dashboard: Update wording.
-- Dashboard: Improve design for stats about the number of shares.
+- Compatibility: WordPress 6.1 compatibility
+
+#### Fixed
+- Social: Fix the connection test endpoint URL
+- Social: Fix the path to the connections URL in the editor

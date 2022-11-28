@@ -1,0 +1,18 @@
+@keyframes pulse {
+  0% {
+    opacity: .6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: .6;
+  }
+}
+
+.placeholder {
+  background-color: var(--jp-gray);
+  animation: pulse 1.5s infinite;
+  height: 100%;
+  width: 100%;
+}

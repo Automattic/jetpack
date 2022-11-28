@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Only user facing pieces of Publicize are found here.
  */
@@ -115,14 +117,14 @@ class Publicize_UI {
 	 */
 	public function admin_page() {
 		?>
-		<h2 id="publicize"><?php esc_html_e( 'Publicize', 'jetpack-publicize-pkg' ); ?></h2>
+		<h2 id="publicize"><?php esc_html_e( 'Jetpack Social', 'jetpack-publicize-pkg' ); ?></h2>
 		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack-publicize-pkg' ); ?></p>
 		<h4>
 			<?php
 			printf(
 				wp_kses(
 					/* translators: %s is the link to the Publicize page in Calypso */
-					__( "We've made some updates to Publicize. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your publicize connections or use the button below.", 'jetpack-publicize-pkg' ),
+					__( "We've made some updates to Jetpack Social. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your Jetpack Social connections or use the button below.", 'jetpack-publicize-pkg' ),
 					array(
 						'a' => array(
 							'href'               => array(),
@@ -136,7 +138,7 @@ class Publicize_UI {
 			?>
 		</h4>
 
-		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Publicize Settings', 'jetpack-publicize-pkg' ); ?></a>
+		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Jetpack Social Settings', 'jetpack-publicize-pkg' ); ?></a>
 		<?php
 	}
 
@@ -150,6 +152,27 @@ class Publicize_UI {
 		if ( $current_screen && $current_screen->is_block_editor ) {
 			return;
 		}
+
+		Assets::register_script(
+			'jetpack-social-classic-editor-connections',
+			'../build/classic-editor-connections.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'enqueue'    => true,
+				'textdomain' => 'jetpack-publicize-pkg',
+			)
+		);
+		wp_add_inline_script(
+			'jetpack-social-classic-editor-connections',
+			'var jetpackSocialClassicEditorConnections = ' . wp_json_encode(
+				array(
+					'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+					'connectionsUrl' => esc_url( $this->publicize_settings_url ),
+				)
+			),
+			'before'
+		);
 
 		$default_prefix = $this->publicize->default_prefix;
 		$default_prefix = preg_replace( '/%([0-9])\$s/', "' + %\\1\$s + '", esc_js( $default_prefix ) );
@@ -253,6 +276,7 @@ jQuery( function($) {
 		return false;
 	} );
 
+
 	$('#publicize-form-hide').click( function() {
 		var newList = $.map( $('#publicize-form').slideUp( 'fast' ).find( ':checked' ), function( el ) {
 			return $.trim( $(el).parent( 'label' ).text() );
@@ -284,99 +308,6 @@ jQuery( function($) {
 			fakebox = '<input id="wpas-submit-' + service + '" type="hidden" value="1" name="wpas[submit][' + service + ']" />';
 		$( '#add-publicize-check' ).append( fakebox );
 	} );
-
-	publicizeConnTestStart = function() {
-		$( '#pub-connection-tests' )
-			.removeClass( 'below-h2' )
-			.removeClass( 'error' )
-			.removeClass( 'publicize-token-refresh-message' )
-			.addClass( 'test-in-progress' )
-			.html( '' );
-		$.post( ajaxurl, { action: 'test_publicize_conns' }, publicizeConnTestComplete );
-	}
-
-	publicizeConnRefreshClick = function( event ) {
-		event.preventDefault();
-		var popupURL = event.currentTarget.href;
-		var popupTitle = event.currentTarget.title;
-		// open a popup window
-		// when it is closed, kick off the tests again
-		var popupWin = window.open( popupURL, popupTitle, '' );
-		var popupWinTimer= window.setInterval( function() {
-			if ( popupWin.closed !== false ) {
-				window.clearInterval( popupWinTimer );
-				publicizeConnTestStart();
-			}
-		}, 500 );
-	}
-
-	publicizeConnTestComplete = function( response ) {
-		var testsSelector = $( '#pub-connection-tests' );
-		testsSelector
-			.removeClass( 'test-in-progress' )
-			.removeClass( 'below-h2' )
-			.removeClass( 'error' )
-			.removeClass( 'publicize-token-refresh-message' )
-			.html( '' );
-
-		// If any of the tests failed, show some stuff
-		var somethingShownAlready = false;
-		var facebookNotice = false;
-		$.each( response.data, function( index, testResult ) {
-			// find the li for this connection
-			if ( ! testResult.connectionTestPassed && testResult.userCanRefresh ) {
-				if ( ! somethingShownAlready ) {
-					testsSelector
-						.addClass( 'below-h2' )
-						.addClass( 'error' )
-						.addClass( 'publicize-token-refresh-message' )
-						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:', 'jetpack-publicize-pkg' ) ); ?></p>" );
-					somethingShownAlready = true;
-				}
-
-				if ( testResult.userCanRefresh ) {
-					testsSelector.append( '<p/>' );
-					$( '<a/>', {
-						'class'  : 'pub-refresh-button button',
-						'title'  : testResult.refreshText,
-						'href'   : testResult.refreshURL,
-						'text'   : testResult.refreshText,
-						'target' : '_refresh_' + testResult.serviceName
-					} )
-						.appendTo( testsSelector.children().last() )
-						.click( publicizeConnRefreshClick );
-				}
-			}
-
-			if( ! testResult.connectionTestPassed && ! testResult.userCanRefresh ) {
-				$( '#wpas-submit-' + testResult.unique_id ).prop( "checked", false ).prop( "disabled", true );
-				if ( ! facebookNotice ) {
-					var message = '<p>'
-						+ testResult.connectionTestMessage
-						+ '</p><p>'
-						+ ' <a class="button" href="<?php echo esc_url( $this->publicize_settings_url ); ?>" rel="noopener noreferrer" target="_blank">'
-						+ '<?php echo esc_html( __( 'Update Your Sharing Settings', 'jetpack-publicize-pkg' ) ); ?>'
-						+ '</a>'
-						+ '<p>';
-
-					testsSelector
-						.addClass( 'below-h2' )
-						.addClass( 'error' )
-						.addClass( 'publicize-token-refresh-message' )
-						.append( message );
-					facebookNotice = true;
-				}
-			}
-		} );
-	}
-
-	$( document ).ready( function() {
-		// If we have the #pub-connection-tests div present, kick off the connection test
-		if ( $( '#pub-connection-tests' ).length ) {
-			publicizeConnTestStart();
-		}
-	} );
-
 } );
 </script>
 
@@ -397,6 +328,9 @@ jQuery( function($) {
 #publicize ul.not-connected {
 	list-style: square;
 	padding-left: 1em;
+}
+.wpas-disabled {
+	color: #999;
 }
 .publicize__notice-warning {
 	display: block;
@@ -506,7 +440,7 @@ jQuery( function($) {
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<span id="publicize-title">
 			<?php
-			esc_html_e( 'Publicize:', 'jetpack-publicize-pkg' );
+			esc_html_e( 'Jetpack Social:', 'jetpack-publicize-pkg' );
 
 			if ( ! empty( $connections_data ) ) :
 				$publicize_form = $this->get_metabox_form_connected( $connections_data );
@@ -518,7 +452,7 @@ jQuery( function($) {
 						<span class="notice-warning publicize__notice-warning">
 							<?php
 								printf(
-									/* translators: %s is the name of a Publicize service like "LinkedIn" */
+									/* translators: %s is the name of a Jetpack Social service like "LinkedIn" */
 									esc_html__(
 										'Your %s connection needs to be reauthenticated to continue working – head to Sharing to take care of it.',
 										'jetpack-publicize-pkg'
@@ -542,7 +476,7 @@ jQuery( function($) {
 				$labels = array();
 
 				foreach ( $connections_data as $connection_data ) {
-					if ( ! $connection_data['enabled'] ) {
+					if ( ! $connection_data['enabled'] || ( isset( $connection_data['is_healthy'] ) && false === $connection_data['is_healthy'] ) ) {
 						continue;
 					}
 
@@ -555,7 +489,7 @@ jQuery( function($) {
 				?>
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- labels are already escaped above ?>
 					<span id="publicize-defaults"><?php echo join( ', ', $labels ); ?></span>
-					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />				
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack-publicize-pkg' ); ?></a>&nbsp;<a href="<?php echo esc_url( $this->publicize->publicize_connections_url( 'jetpack-social-connections-classic-editor' ) ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Settings', 'jetpack-publicize-pkg' ); ?></a><br />
 					<?php
 			else :
 				$publicize_form = $this->get_metabox_form_disconnected( $available_services );
@@ -569,6 +503,14 @@ jQuery( function($) {
 			</span>
 			<?php
 			/**
+			 * Fires right before rendering the Publicize form in the Classic
+			 * Editor.
+			 *
+			 * @since 0.14.0
+			 */
+			do_action( 'publicize_classic_editor_form_before' );
+
+			/**
 			 * Filter the Publicize details form.
 			 *
 			 * @since 0.1.0
@@ -577,6 +519,14 @@ jQuery( function($) {
 			 * @param string $publicize_form Publicize Details form appearing above Publish button in the editor.
 			 */
 			echo apply_filters( 'publicize_form', $publicize_form ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Parts of the form are escaped individually in the code above.
+
+			/**
+			 * Fires right after rendering the Publicize form in the Classic
+			 * Editor.
+			 *
+			 * @since 0.14.0
+			 */
+			do_action( 'publicize_classic_editor_form_after' );
 			?>
 		</div>
 		<?php
@@ -607,6 +557,7 @@ jQuery( function($) {
 
 		$all_done             = $this->publicize->post_is_done_sharing();
 		$all_connections_done = true;
+		$broken_connections   = array();
 
 		ob_start();
 
@@ -617,10 +568,18 @@ jQuery( function($) {
 
 		foreach ( $connections_data as $connection_data ) {
 			$all_connections_done = $all_connections_done && $connection_data['done'];
+			$connection_healthy   = ! isset( $connection_data['is_healthy'] ) || $connection_data['is_healthy'];
+			if ( ! $connection_healthy ) {
+				$broken_connections[] = $connection_data;
+
+			}
 			?>
 
 			<li>
-				<label for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>">
+				<label
+					for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>"
+					<?php echo ! $connection_data['toggleable'] ? 'class="wpas-disabled"' : ''; ?>
+				>
 					<input
 						type="checkbox"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
@@ -628,11 +587,11 @@ jQuery( function($) {
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
 					<?php
-						checked( true, $connection_data['enabled'] );
-						disabled( false, $connection_data['toggleable'] );
+						checked( true, $connection_data['enabled'] && $connection_healthy );
+						disabled( false, $connection_data['toggleable'] && $connection_healthy );
 					?>
 					/>
-				<?php if ( $connection_data['enabled'] && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
+				<?php if ( $connection_data['enabled'] && $connection_healthy && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
 					<input
 						type="hidden"
 						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
@@ -666,7 +625,33 @@ jQuery( function($) {
 		</div>
 
 		<?php if ( ! $all_done ) : ?>
-			<div id="pub-connection-tests"></div>
+			<?php if ( $broken_connections ) : ?>
+				<div id="pub-connection-tests" class="error below-h2 publicize-token-refresh-message">
+					<?php
+						printf(
+							wp_kses(
+								/* translators: %s is the link to the connections page in Calypso */
+								_n(
+									'One of your social connections is broken. Reconnect it on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+									'Some of your social connections are broken. Reconnect them on the <a href="%s" rel="noopener noreferrer" target="_blank">connection management</a> page.',
+									count( $broken_connections ),
+									'jetpack-publicize-pkg'
+								),
+								array(
+									'a' => array(
+										'href'   => array(),
+										'target' => array(),
+										'rel'    => array(),
+									),
+								)
+							),
+							esc_url( $this->publicize->publicize_connections_url() )
+						);
+					?>
+				</div>
+			<?php else : ?>
+				<div id="pub-connection-tests"></div>
+			<?php endif; ?>
 		<?php endif; ?>
 		<?php
 

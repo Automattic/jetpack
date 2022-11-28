@@ -478,7 +478,7 @@ class MyPlanBody extends React.Component {
 											src={ imagePath + '/jetpack-google-analytics.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
-												'Site stats showing an evolution in traffic and engagement',
+												'Charts depicting an evolution in traffic and engagement',
 												'jetpack'
 											) }
 										/>
@@ -547,7 +547,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
@@ -562,6 +562,7 @@ class MyPlanBody extends React.Component {
 			case 'is-backup-t1-plan':
 			case 'is-backup-t2-plan':
 			case 'is-search-plan':
+			case 'is-free-search-plan':
 			case 'offline':
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
@@ -660,7 +661,7 @@ class MyPlanBody extends React.Component {
 									src={ imagePath + '/jetpack-performance-icon.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
-										'Site stats showing an evolution in traffic and engagement',
+										'Jetpack Stats showing an evolution in traffic and engagement',
 										'jetpack'
 									) }
 								/>
@@ -690,7 +691,7 @@ class MyPlanBody extends React.Component {
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
 										>
-											{ __( 'Activate Publicize', 'jetpack' ) }
+											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
 									) }
 								</div>

@@ -1,0 +1,139 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+// Progress Footer
+
+.videopress-uploader-progress {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	border-top: 1px solid $gray-200;
+	padding: 1em;
+	margin: 0 -1em -1em;
+	min-height: 27px;
+
+	&__file-info {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+	}
+
+	&__file-size {
+		color: $gray-600;
+	}
+
+	&__progress {
+		height: 8px;
+		background: #D2D2D2;
+		width: 150px;
+		border-radius: 4px;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
+
+	&__progress-loaded {
+		background: var(--wp-admin-theme-color);
+		text-align: center;
+		color: white;
+		height: 100%;
+		min-height: 8px;
+		transition: width 0.3s ease;
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+}
+
+// Uploader Editor
+
+.uploading-editor {
+	width: 100%;
+	margin-bottom: 20px;
+
+	.components-base-control__label {
+		font-weight: 600;
+	}
+
+	&__title {
+		margin-bottom: 15px;
+	}
+
+	&__upload-link {
+		color: var(--wp-admin-theme-color);
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	&__scrubber-help {
+		color: $gray-700;
+	}
+
+	&__poster-buttons {
+		margin-top: 15px;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	&__poster-container {
+		position: relative;
+	}
+
+	&__poster-image {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		overflow: hidden;
+
+		& > img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__hide {
+		visibility: hidden;
+	}
+
+	&__play-icon {
+		width: 130px;
+		height: 130px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		margin: -65px 0 0 -65px;
+		opacity: 1;
+		transition: opacity 0.3s ease-out;
+	}
+}
+
+// Notices and errors
+
+.wp-block-videopress-video .components-notice {
+	padding-left: 15px;
+
+	.components-notice__content {
+		margin-top: 4px;
+		margin-bottom: 4px;
+		line-height: 1.8;
+
+	}
+
+	&.is-error {
+		background-color: $gray-100;
+		border-left-color: $alert-red;
+		border-radius: 2px;
+		position: relative;
+	}
+
+	&.is-dismissible {
+		padding-right: 12px;
+	}
+}

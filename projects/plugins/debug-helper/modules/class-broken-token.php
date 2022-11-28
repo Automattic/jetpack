@@ -12,7 +12,7 @@
 /**
  * Require the XMLRPC functionality.
  */
-require __DIR__ . '/inc/class-broken-token-xmlrpc.php';
+require __DIR__ . '/inc/class-broken-token-connection-errors.php';
 
 /**
  * Class Broken_Token
@@ -572,7 +572,7 @@ function register_broken_token() {
 	if ( class_exists( 'Jetpack_Options' ) ) {
 		new Broken_Token();
 		if ( class_exists( 'Automattic\Jetpack\Connection\Error_Handler' ) ) {
-			new Broken_Token_XmlRpc();
+			new Broken_Token_Connection_Errors();
 		}
 	} else {
 		add_action( 'admin_notices', 'broken_token_jetpack_not_active' );

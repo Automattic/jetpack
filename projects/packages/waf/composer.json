@@ -8,11 +8,10 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"files": [
-			"actions.php",
 			"cli.php"
 		],
 		"classmap": [

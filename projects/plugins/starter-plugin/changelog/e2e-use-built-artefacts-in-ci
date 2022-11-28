@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+E2E tests: use CI build artifacts in e2e tests

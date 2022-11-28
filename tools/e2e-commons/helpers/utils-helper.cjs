@@ -111,11 +111,17 @@ async function activateModule( page, module ) {
 async function execWpCommand( wpCmd, sendUrl = true ) {
 	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
 	const cmd = `${ BASE_DOCKER_CMD } wp -- ${ wpCmd } ${ urlArgument }`;
-	const result = await execShellCommand( cmd );
+	let result = await execShellCommand( cmd );
 
-	// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.replace( '#!/usr/bin/env php\n', '' ).trim();
+		// Something in playwright 1.26 has started outputting these warnings. Strip them off.
+		result = result.replace(
+			/^(\(node:\d+\) ExperimentalWarning: Custom ESM Loaders is an experimental feature\. This feature could change at any time\n\(Use `node --trace-warnings \.\.\.` to show where the warning was created\)\n)+/,
+			''
+		);
+
+		// Jetpack's `wp` command outputs a script header for some reason. Let's clean it up.
+		result = result.replace( '#!/usr/bin/env php\n', '' ).trim();
 	}
 
 	return result;

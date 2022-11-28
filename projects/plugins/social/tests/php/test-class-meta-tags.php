@@ -208,41 +208,49 @@ class Meta_Tags_Test extends BaseTestCase {
 	 */
 	public function get_description_data_provider() {
 		return array(
-			'empty'                  => array(
+			'empty'                                       => array(
 				'',
 				'Visit the post for more.',
 			),
-			'no_entities'            => array(
+			'null'                                        => array(
+				null,
+				'Visit the post for more.',
+			),
+			'no_entities'                                 => array(
 				"OpenGraph's test",
 				'OpenGraph&#8217;s test',
 			),
-			'too_many_words'         => array(
+			'too_many_words'                              => array(
 				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam consectetur quam eget finibus consectetur. Donec sollicitudin finibus massa, ut cursus elit. Mauris dictum quam eu ullamcorper feugiat. Proin id ante purus. Aliquam lorem libero, tempus id dictum non, feugiat vel eros. Sed sed viverra libero. Praesent eu lacinia felis, et tempus turpis. Proin bibendum, ligula. These last sentence should be removed.',
-				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam consectetur quam eget finibus consectetur. Donec sollicitudin finibus massa, ut cursus elit. Mauris dictum quam eu ullamcorper feugiat. Proin id ante purus. Aliquam lorem libero, tempus id dictum non, feugiat vel eros. Sed sed viverra libero. Praesent eu lacinia felis, et tempus turpis. Proin bibendum, ligula.&hellip;',
+				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam consectetur quam eget finibus consectetur. Donec sollicitudin finibus massa, ut cursus elit. Mauris dictum quam eu ullamcorper feugia…',
 			),
-			'no_tags'                => array(
+			'no_tags'                                     => array(
 				'A post description<script>alert("hello");</script>',
 				'A post description',
 			),
-			'no_shortcodes'          => array(
+			'no_shortcodes'                               => array(
 				'[foo test="true"]A post description',
 				'A post description',
 			),
-			'no_links'               => array(
+			'no_links'                                    => array(
 				'A post description https://jetpack.com',
 				'A post description',
 			),
-			'no_html'                => array(
+			'no_html'                                     => array(
 				'<strong>A post description</strong>',
 				'A post description',
 			),
-			'image_then_text'        => array(
+			'image_then_text'                             => array(
 				'<img src="https://example.org/jetpack-icon.jpg" />A post description',
 				'A post description',
 			),
-			'linked_image_then_text' => array(
+			'linked_image_then_text'                      => array(
 				'<a href="https://jetpack.com"><img src="https://example.org/jetpack-icon.jpg" /></a>A post description',
 				'A post description',
+			),
+			'removed_tags_dont_count_for_character_limit' => array(
+				'<img src="https://example.org/jetpack-icon.jpg" />This string is exactly 197 characters long if you ignore the HTML tags, which should be removed by the function—after which we start enforcing the limit. Just making sure it works the way it should',
+				'This string is exactly 197 characters long if you ignore the HTML tags, which should be removed by the function—after which we start enforcing the limit. Just making sure it works the way it should',
 			),
 		);
 	}

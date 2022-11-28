@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 /**
  * Jetpack_Carousel class.
@@ -110,10 +111,17 @@ class Jetpack_Carousel {
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
-			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
 			add_filter( 'jetpack_tiled_galleries_block_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
+			}
+
+			if (
+				! class_exists( 'Jetpack_AMP_Support' )
+				|| ! Jetpack_AMP_Support::is_amp_request()
+			) {
+				add_filter( 'render_block_core/gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
+				add_filter( 'render_block_jetpack/tiled-gallery', array( $this, 'filter_gallery_block_render' ), 10, 2 );
 			}
 		}
 
@@ -287,12 +295,15 @@ class Jetpack_Carousel {
 	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
 	 *
 	 * @since 6.8.0
+	 * @deprecated since 11.3 We now hook into the 'block_render_{block_name}' hook to add markup.
 	 *
 	 * @param string $content Post content.
 	 *
 	 * @return string $content Post content.
 	 */
 	public function check_content_for_blocks( $content ) {
+		_deprecated_function( __METHOD__, 'jetpack-11.3' );
+
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -304,7 +315,79 @@ class Jetpack_Carousel {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
+
 		return $content;
+	}
+
+	/**
+	 * Enrich the gallery block content using the render_block_{$this->name} filter.
+	 * This function is triggered after block render to make sure we track galleries within
+	 * reusable blocks.
+	 *
+	 * @see https://developer.wordpress.org/reference/hooks/render_block_this-name/
+	 *
+	 * @param string $block_content The rendered HTML for the carousel or gallery block.
+	 * @param array  $block         The parsed block details for the block.
+	 * @return string The fully-processed HTML for the carousel or gallery block.
+	 *
+	 * @since 11.3
+	 */
+	public function filter_gallery_block_render( $block_content, $block ) {
+		global $post;
+
+		if ( empty( $block['blockName'] ) || ! in_array( $block['blockName'], array( 'core/gallery', 'jetpack/tiled-gallery' ), true ) ) {
+			return $block_content;
+		}
+
+		$this->enqueue_assets();
+
+		if ( ! isset( $post ) ) {
+			return $block_content;
+		}
+
+		$blog_id = (int) get_current_blog_id();
+
+		$extra_data = array(
+			'data-carousel-extra' => array(
+				'blog_id'   => $blog_id,
+				'permalink' => get_permalink( $post->ID ),
+			),
+		);
+
+		/**
+		 * Filter the data added to the Gallery container.
+		 *
+		 * @module carousel
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param array $extra_data Array of data about the site and the post.
+		 */
+		$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
+		$extra_data = (array) $extra_data;
+
+		if ( empty( $extra_data ) ) {
+			return $block_content;
+		}
+
+		$extra_attributes = implode(
+			' ',
+			array_map(
+				function ( $data_key, $data_values ) {
+					return esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "'";
+				},
+				array_keys( $extra_data ),
+				array_values( $extra_data )
+			)
+		);
+
+		// Add extra attributes to first HTML element (which may have leading whitespace)
+		return preg_replace(
+			'/^(\s*<(div|ul|figure))/',
+			'$1 ' . $extra_attributes . ' ',
+			$block_content,
+			1
+		);
 	}
 
 	/**
@@ -394,9 +477,9 @@ class Jetpack_Carousel {
 				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
-				if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
-					$stats_options        = stats_get_options();
-					$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+				if ( is_user_logged_in() ) {
+					$stats_options        = Stats_Options::get_options();
+					$track_loggedin_users = isset( $stats_options['count_roles'] ) ? (bool) $stats_options['count_roles'] : false;
 
 					if ( ! $track_loggedin_users ) {
 						$localize_strings['stats'] = '';

@@ -32,6 +32,13 @@
 	line-height: 32px;
 }
 
+/* Emerald Typography/Title Medium Semi Bold */
+.title-medium-semi-bold {
+	font-size: var(--font-title-medium);
+	font-weight: 600;
+	line-height: 32px;
+}
+
 /* Emerald Typography/Title Small */
 .title-small {
 	font-size: var(--font-title-small);
@@ -57,6 +64,13 @@
 .body-extra-small {
 	font-size: var(--font-body-extra-small);
 	font-weight: 400;
+	line-height: 20px;
+}
+
+/* Emerald Typography/Body Extra Small Bold */
+.body-extra-small-bold {
+	font-size: var(--font-body-extra-small);
+	font-weight: 700;
 	line-height: 20px;
 }
 

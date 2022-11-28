@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -61,6 +62,13 @@ abstract class Publicize_Base {
 	 * @var string
 	 */
 	const POST_PUBLICIZE_FEATURE_ENABLED = '_wpas_feature_enabled';
+
+	/**
+	 * Post meta key for Jetpack Social options.
+	 *
+	 * @var string
+	 */
+	const POST_JETPACK_SOCIAL_OPTIONS = '_wpas_options';
 
 	/**
 	 * Connection ID appended to indicate that a connection should NOT be publicized to.
@@ -861,7 +869,6 @@ abstract class Publicize_Base {
 					'service_label'   => $this->get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
-
 					'enabled'         => $enabled,
 					'done'            => $done,
 					'toggleable'      => $toggleable,
@@ -1007,7 +1014,7 @@ abstract class Publicize_Base {
 	public function register_post_meta() {
 		$message_args = array(
 			'type'          => 'string',
-			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack-publicize-pkg' ),
+			'description'   => __( 'The message to use instead of the title when sharing to Jetpack Social services', 'jetpack-publicize-pkg' ),
 			'single'        => true,
 			'default'       => '',
 			'show_in_rest'  => array(
@@ -1038,6 +1045,28 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$jetpack_social_options_args = array(
+			'type'          => 'object',
+			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => array(),
+			'show_in_rest'  => array(
+				'name'   => 'jetpack_social_options',
+				'schema' => array(
+					'type'       => 'object',
+					'properties' => array(
+						'attached_media' => array(
+							'type'  => 'array',
+							'items' => array(
+								'type' => 'number',
+							),
+						),
+					),
+				),
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 				continue;
@@ -1046,10 +1075,12 @@ abstract class Publicize_Base {
 			$message_args['object_subtype']                  = $post_type;
 			$tweetstorm_args['object_subtype']               = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
+			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
+			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 		}
 	}
 
@@ -1444,13 +1475,21 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Call the WPCOM REST API to get the Publicize shares info.
+	 * Get the Jetpack Social info from the API.
 	 *
-	 * @param string $blog_id The blog_id.
+	 * @param int $blog_id The WPCOM blog_id for the current blog.
 	 * @return array
 	 */
-	public function get_publicize_shares_info( $blog_id ) {
-		$response        = Client::wpcom_json_api_request_as_blog(
+	public function get_api_data( $blog_id ) {
+		static $api_data_response = null;
+		$key                      = 'jetpack_social_api_data';
+
+		if ( isset( $api_data_response ) ) {
+			return ! is_wp_error( $api_data_response ) ? $api_data_response : array();
+		}
+
+		$rest_controller   = new REST_Controller();
+		$response          = Client::wpcom_json_api_request_as_blog(
 			sprintf( 'sites/%d/jetpack-social', absint( $blog_id ) ),
 			'2',
 			array(
@@ -1460,8 +1499,51 @@ abstract class Publicize_Base {
 			null,
 			'wpcom'
 		);
-		$rest_controller = new REST_Controller();
-		return $rest_controller->make_proper_response( $response );
+		$api_data_response = $rest_controller->make_proper_response( $response );
+
+		if ( ! is_wp_error( $api_data_response ) ) {
+			set_transient( $key, $api_data_response, DAY_IN_SECONDS );
+			return $api_data_response;
+		}
+
+		$cached_response = get_transient( $key );
+		if ( ! empty( $cached_response ) ) {
+			return $cached_response;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get the Publicize shares info.
+	 *
+	 * @param string $blog_id The WPCOM blog_id for the current blog.
+	 * @return ?array
+	 */
+	public function get_publicize_shares_info( $blog_id ) {
+		$data = $this->get_api_data( $blog_id );
+
+		if ( empty( $data ) ) {
+			return null;
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Check if enhanced publishing is enabled.
+	 *
+	 * @param int $blog_id The blog ID for the current blog.
+	 * @return bool
+	 */
+	public function is_enhanced_publishing_enabled( $blog_id ) {
+		$data = $this->get_api_data( $blog_id );
+
+		if ( empty( $data ) ) {
+			return false;
+		}
+
+		return ! empty( $data['is_enhanced_publishing_enabled'] );
 	}
 
 	/**
@@ -1482,6 +1564,21 @@ abstract class Publicize_Base {
 		);
 		$rest_controller = new REST_Controller();
 		return $rest_controller->make_proper_response( $response );
+	}
+
+	/**
+	 * Check if we have a paid Jetpack Social plan.
+	 *
+	 * @param bool $refresh_from_wpcom Whether to force refresh the plan check.
+	 *
+	 * @return bool True if we have a paid plan, false otherwise.
+	 */
+	public function has_paid_plan( $refresh_from_wpcom = false ) {
+		static $has_paid_plan = null;
+		if ( ! $has_paid_plan ) {
+			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
+		}
+		return $has_paid_plan;
 	}
 }
 

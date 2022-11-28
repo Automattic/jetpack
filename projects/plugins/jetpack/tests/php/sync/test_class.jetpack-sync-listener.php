@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 
 		$this->assertSame( 0, $queue->size() );
 	}
@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 
 		$this->assertSame( 0, $queue->size() );
 	}
@@ -92,13 +92,13 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_does_listener_add_actor_to_queue() {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 		$current_user = wp_get_current_user();
 
 		$roles         = new Roles();
@@ -127,7 +127,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_does_listener_add_actor_user_data_for_login_events() {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
 		$queue = $this->listener->get_sync_queue();
@@ -168,7 +168,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_does_listener_exclude_actor_ip_if_filter_is_present() {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
 		$queue = $this->listener->get_sync_queue();
@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	public function test_does_set_silent_flag_true_while_importing() {
 		Settings::set_importing( true );
 
-		$this->factory->post->create();
+		self::factory()->post->create();
 
 		$this->sender->do_sync();
 

@@ -25,6 +25,7 @@ export default function JetpackFieldTextarea( props ) {
 				required={ required }
 				setAttributes={ setAttributes }
 				width={ width }
+				placeholder={ placeholder }
 			/>
 		</>
 	);

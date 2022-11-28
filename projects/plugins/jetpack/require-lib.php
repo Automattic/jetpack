@@ -8,11 +8,16 @@
 /**
  * Function for loading library files.
  *
+ * @deprecated since 11.3 Load libraries directly (from `JETPACK__PLUGIN_DIR . '_inc/lib/'`) instead.
+ * @todo Remove this in Jetpack 11.9 (started issuing warnings in 11.6).
+ *
  * @param string $slug Library slug.
  * @return void
  */
 function jetpack_require_lib( $slug ) {
 	static $loaded = array();
+
+	_deprecated_function( __FUNCTION__, 'Jetpack 11.3', 'libraries directly (from `JETPACK__PLUGIN_DIR . \'_inc/lib/\'`)' );
 
 	if ( defined( 'ABSPATH' ) && ! defined( 'WP_CONTENT_DIR' ) ) {
 		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' ); // no trailing slash, full paths only - WP_CONTENT_URL is defined further down
@@ -24,10 +29,11 @@ function jetpack_require_lib( $slug ) {
 	 * Filter the location of the library directory.
 	 *
 	 * @since 2.5.0
+	 * @deprecated since 11.3
 	 *
 	 * @param string $lib_dir Path to the library directory.
 	 */
-	$lib_dir = apply_filters( 'jetpack_require_lib_dir', $lib_dir );
+	$lib_dir = apply_filters_deprecated( 'jetpack_require_lib_dir', array( $lib_dir ), 'Jetpack 11.3' );
 
 	$loaded_key = "{$lib_dir}{$slug}";
 	if ( ! empty( $loaded[ $loaded_key ] ) ) {

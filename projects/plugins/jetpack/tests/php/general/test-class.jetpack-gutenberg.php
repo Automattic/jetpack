@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 			return;
 		}
 		// Create a user and set it up as current.
-		$this->master_user_id = $this->factory->user->create( array( 'user_login' => 'current_master' ) );
+		$this->master_user_id = self::factory()->user->create( array( 'user_login' => 'current_master' ) );
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $this->master_user_id );
 		Jetpack_Options::update_option( 'id', 1234 );

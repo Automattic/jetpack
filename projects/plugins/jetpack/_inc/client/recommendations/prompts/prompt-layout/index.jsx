@@ -87,7 +87,7 @@ PromptLayoutComponent.propTypes = {
 	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 	illustration: PropTypes.string,
 	illustrationClassName: PropTypes.string,
-	progressBar: PropTypes.element.isRequired,
+	progressBar: PropTypes.element,
 	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 	content: PropTypes.element,
 	sidebarCard: PropTypes.element,

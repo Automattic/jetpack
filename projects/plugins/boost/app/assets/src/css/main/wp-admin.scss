@@ -3,6 +3,10 @@
 	box-sizing: border-box;
 }
 
+p {
+	font-size: 16px;
+	color: $gray_80;
+}
 
 // Override WordPress component styles
 .jb-settings {
@@ -11,27 +15,44 @@
 	--wp-admin-theme-color-darker-10: #{$jetpack_green_60};
 	--wp-admin-theme-color-darker-20: #{$jetpack_green_70};
 
+	--font-headline-medium: 48px;
+	--font-title-medium: 24px;
+	--font-body-small: 14px;
+	--spacing-base: 8px;
+
 	a {
-		color: var(--wp-admin-theme-link-color)
+		color: var( --wp-admin-theme-link-color );
 	}
 
-	.components-button.is-primary, {
+	.components-button.is-jb-primary {
+		background-color: #000;
 		background-color: $jetpack_green;
 		border-radius: $border-radius;
 		font-weight: 600;
 		margin-bottom: 1.5rem;
+		white-space: nowrap;
+		color: #fff;
+		text-decoration: none;
+		text-shadow: none;
+		outline: 1px solid transparent;
 	}
 
 	.components-button.is-link {
-		color: var(--wp-admin-theme-link-color);
+		color: var( --wp-admin-theme-link-color );
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		margin: 0;
 		color: $primary-black;
 		line-height: 1.3;
 		font-weight: 500;
-	  	outline-color: transparent;
+		outline-color: transparent;
+		outline-style: none;
 	}
 
 	h2 {
@@ -43,11 +64,8 @@
 		font-size: 24px;
 	}
 
-	p {
-		color: $gray_80;
-	}
-
-	button.secondary, a.button-secondary {
+	button.secondary,
+	a.button-secondary {
 		color: $primary-black;
 		background: none;
 		border: 1px solid $primary-black;

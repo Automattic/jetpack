@@ -20,7 +20,7 @@ const FEATURE_NAME = 'map';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-	\jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 }
 
 /**
@@ -50,7 +50,7 @@ function wpcom_load_event( $access_token_source ) {
 
 	$event_name = 'map_block_mapbox_wpcom_key_load';
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		jetpack_require_lib( 'tracks/client' );
+		require_lib( 'tracks/client' );
 		tracks_record_event( wp_get_current_user(), $event_name );
 	} elseif ( ( new Host() )->is_woa_site() && Jetpack::is_connection_ready() ) {
 		$tracking = new Tracking();

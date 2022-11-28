@@ -465,13 +465,14 @@ class Jetpack_Memberships {
 		}
 
 		if ( self::is_enabled_jetpack_recurring_payments() ) {
-			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
-			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback' => array( $this, 'render_button' ),
-					$uses             => array( 'isPremiumContentChild' ),
+					'render_callback'  => array( $this, 'render_button' ),
+					'uses_context'     => array( 'isPremiumContentChild' ),
+					'provides_context' => array(
+						'jetpack/parentBlockWidth' => 'width',
+					),
 				)
 			);
 		} else {

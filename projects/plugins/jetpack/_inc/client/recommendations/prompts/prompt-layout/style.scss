@@ -67,13 +67,18 @@
 .jp-recommendations-question__description-list {
 	color: var( --jp-gray-100 );
 	font-size: 16px;
-	margin: 0 32px 0 32px;
+	margin: 0 32px 32px 32px;
 	list-style: disc;
 	padding-left: 16px;
 
 	@include breakpoint( '<480px' ) {
 		margin: 0 16px 0 16px;
 	}
+}
+
+// When a description section follows the list, remove the extra margin from the top of the description.
+.jp-recommendations-question__description-list + .jp-recommendations-question__description {
+	margin-top: 0;
 }
 
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {

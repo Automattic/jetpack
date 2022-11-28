@@ -194,7 +194,7 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		$this->assertSame( 'Requires a connected WordPress.com account', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_no_user_testing_mode', '__return_true' );
 		// Mock a user connection.
-		$user = $this->factory->user->create_and_get(
+		$user = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)

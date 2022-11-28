@@ -4,7 +4,6 @@ import ConnectButton from 'components/connect-button';
 import DashItem from 'components/dash-item';
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import Gridicon from 'components/gridicon';
-import MobileMagicLink from 'components/mobile-magic-link';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -170,7 +169,6 @@ export class DashConnections extends Component {
 						</div>
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
-					<MobileMagicLink />
 				</div>
 			);
 		}

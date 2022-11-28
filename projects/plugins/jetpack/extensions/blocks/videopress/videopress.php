@@ -41,3 +41,11 @@ function load_assets( $attrs, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_FOLDER );
 	return $content;
 }
+
+// Set the videopress/video-chapters feature availability.
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'videopress/video-chapters' );
+	}
+);

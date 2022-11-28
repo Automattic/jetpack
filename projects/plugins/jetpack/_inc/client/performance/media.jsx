@@ -158,8 +158,7 @@ export default connect( state => {
 		hasVideoPressFeature:
 			siteHasFeature( state, 'videopress-1tb-storage' ) ||
 			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
-			siteHasFeature( state, 'videopress' ) ||
-			siteHasFeature( state, 'video-hosting' ),
+			siteHasFeature( state, 'videopress' ),
 		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		isOffline: isOfflineMode( state ),

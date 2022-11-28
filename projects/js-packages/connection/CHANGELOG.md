@@ -2,6 +2,93 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.22.10 - 2022-11-22
+### Added
+- Add Manage Connection dialog to My Jetpack [#27476]
+
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.22.9 - 2022-11-17
+### Changed
+- Updated package dependencies. [#26736]
+
+## 0.22.8 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.22.7 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.22.6 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.22.5 - 2022-10-25
+### Added
+- Connection: add getWpcomUser() and getBlogId() selectors. [#26978]
+
+## 0.22.4 - 2022-10-19
+### Changed
+- Updated package dependencies. [#26883]
+
+## 0.22.3 - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## 0.22.2 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## 0.22.1 - 2022-10-11
+### Changed
+- Updated package dependencies.
+
+## 0.22.0 - 2022-10-05
+### Added
+- Trigger restore connection flow. [#26489]
+
+### Changed
+- Updated package dependencies. [#26457]
+
+## 0.21.0 - 2022-09-27
+### Added
+- Added connection hook useConnectionErrorNotice to more-easily integrate the ConnectionErrorNotice component with minimal processing logic at the point of integration. [#26400]
+
+### Changed
+- Updated package dependencies.
+- Updated the ConnectionErrorNotice react component to use a required message property. [#26305]
+
+### Removed
+- Removed connection-ui package dependency [#26381]
+
+### Fixed
+- Disconnect Dialog: Fixed the prop types to avoid warnings from React [#26340]
+
+## 0.20.0 - 2022-09-20
+### Added
+- Added the ConnectionErrorNotice React component. [#26259]
+- Add Restore Connection functionality extracted from Jetpack. [#26034]
+
+### Changed
+- Updated package dependencies. [#26081]
+
+## 0.19.0 - 2022-09-08
+### Added
+- Add React variables as part of the project to have consistent connection errors across monorepo projects. [#25934]
+
+### Changed
+- Updated package dependencies.
+
+## 0.18.12 - 2022-08-25
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.18.11 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762, #25764]
+
 ## 0.18.10 - 2022-07-26
 ### Changed
 - Updated package dependencies. [#25147]

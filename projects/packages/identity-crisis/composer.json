@@ -4,14 +4,14 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.42",
-		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-status": "^1.14",
-		"automattic/jetpack-logo": "^1.5",
-		"automattic/jetpack-assets": "^1.17"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/wordbless": "@dev"
 	},
@@ -36,7 +36,8 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"

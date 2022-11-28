@@ -86,11 +86,21 @@ if ( ! function_exists( 'wp_startswith' ) ) :
 	/**
 	 * Check whether a string starts with a specific substring.
 	 *
-	 * @param var    $haystack String we are filtering.
+	 * @param string $haystack String we are filtering.
 	 * @param string $needle The substring we are looking for.
 	 * @return bool
 	 */
 	function wp_startswith( $haystack, $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_starts_with' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_starts_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
+		}
 		return 0 === strpos( $haystack, $needle );
 	}
 endif;
@@ -99,11 +109,22 @@ if ( ! function_exists( 'wp_endswith' ) ) :
 	/**
 	 * Check whether a string ends with a specific substring.
 	 *
-	 * @param var    $haystack String we are filtering.
+	 * @param string $haystack String we are filtering.
 	 * @param string $needle The substring we are looking for.
 	 * @return bool
 	 */
 	function wp_endswith( $haystack, $needle ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_ends_with' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_ends_with( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
+
+		}
 		return $needle === substr( $haystack, -strlen( $needle ) );
 	}
 endif;
@@ -113,10 +134,21 @@ if ( ! function_exists( 'wp_in' ) ) :
 	 * Checks whether a string contains a specific substring.
 	 *
 	 * @param string $needle The substring we are looking for.
-	 * @param var    $haystack String we are filtering.
+	 * @param string $haystack String we are filtering.
 	 * @return bool
 	 */
 	function wp_in( $needle, $haystack ) {
+		if ( ! $haystack || ! $needle || ! is_scalar( $haystack ) || ! is_scalar( $needle ) ) {
+			return false;
+		}
+
+		$haystack = (string) $haystack;
+		$needle   = (string) $needle;
+
+		if ( function_exists( 'str_contains' ) ) { // remove when PHP 8.0 is the minimum supported.
+			return str_contains( $haystack, $needle ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions
+		}
+
 		return false !== strpos( $haystack, $needle );
 	}
 endif;

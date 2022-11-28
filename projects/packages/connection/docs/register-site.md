@@ -4,7 +4,7 @@ This means registering the site with WordPress.com. It will create a "site (or '
 
 The blog token is required in order to [authenticate at a user level](authorize-user.md) later (link to user auth docs here), so let's learn the simplest way we can do that in your plugin.
 
-### Install the right packages
+## Install the right packages
 
 First, let's make sure that the `automattic/jetpack-connection` package is set up in your composer.json file:
 
@@ -32,7 +32,7 @@ We recommend that you always use the latest published versions of our packages, 
 }
 ```
 
-### Initialize the package
+## Initialize the package
 
 Second, we must initialize ("configure") the `jetpack-connection` package within your plugin, and provide the information about it.
 
@@ -59,6 +59,12 @@ function jpcs_load_plugin() {
 
 add_action( 'plugins_loaded', 'jpcs_load_plugin', 1 );
 ```
+
+## Connecting the site and the users
+
+In the JS connection package (see js-packages/connection folder in the monorepo) you'll find the React components that handle all the connection process for you out of the box. If you can, prefer to use them.
+
+If you need to build your own connection flow from scratch, here is how to do it:
 
 ### Make an API call to register the site
 
@@ -123,20 +129,16 @@ $manager->disconnect_site_wpcom();
 $manager->delete_all_connection_tokens();
 ```
 
-#### Using the connection
-If the plugin was *softly* disconnected, the access tokens will still be accessible.
-However, the user explicitly requested the plugin to be disabled, so you need to check for that before you utilize the connection in any way:
-```php
-$manager = new Manager( 'plugin-slug' );
+### Using the connection
 
-if ( $manager->is_plugin_enabled() && ( new Tokens() )->get_access_token() ) {
-	// Perform the API requests.
-} else {
-	// Assume the plugin is disconnected, no matter if the tokens actually exist.
-}
-```
+The `Connection::Manager` class gives you several methods to check on the connection status and act accordingly. Here are some of the most useful methods:
 
-#### Reconnecting
+* `is_connected()`: Checks if the site has a site-level connection. aka has a blog token.
+* `has_connected_owner()`: Checks if the site has an admin connected and marked as the connection owner.
+* `is_user_connected()`: Checks if the current user (or any given user) is connected (authorized in wpcom).
+* `is_site_connection()`: Checks if the site is connected only at a site level. Similar to `is_connected` but will diferentiate if this is truly a site-only connection and not a site that has a broken user connection.
+
+### Reconnecting
 
 There's a method that handles reconnection in case you need to refresh your connection. This will destroy the connection and start a new connection flow. Note that you still need to authorize the user after reconnecting.
 

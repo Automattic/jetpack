@@ -37,6 +37,10 @@ class Attachment_Handler {
 		add_filter( 'wp_mime_type_icon', array( __CLASS__, 'wp_mime_type_icon' ), 10, 3 );
 		add_filter( 'wp_video_extensions', array( __CLASS__, 'add_videopress_extenstion' ) );
 
+		add_filter( 'wp_prepare_attachment_for_js', array( __CLASS__, 'prepare_attachment_for_js' ) );
+		add_filter( 'ajax_query_attachments_args', array( __CLASS__, 'ajax_query_attachments_args' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'media_list_table_query' ) );
+
 	}
 
 	/**
@@ -178,6 +182,79 @@ class Attachment_Handler {
 	public static function add_videopress_extenstion( $extensions ) {
 		$extensions[] = 'videopress';
 		return $extensions;
+	}
+
+	/**
+	 * Make sure that any Video that has a VideoPress GUID passes that data back.
+	 *
+	 * @param WP_Post $post Attachment object.
+	 */
+	public static function prepare_attachment_for_js( $post ) {
+		if ( 'video' === $post['type'] ) {
+			$guid = get_post_meta( $post['id'], 'videopress_guid' );
+			if ( $guid ) {
+				$post['videopress_guid'] = $guid;
+			}
+		}
+		return $post;
+	}
+
+	/**
+	 * Media Grid:
+	 * Filter out any videopress video posters that we've downloaded,
+	 * so that they don't seem to display twice.
+	 *
+	 * @param array $args Query variables.
+	 */
+	public static function ajax_query_attachments_args( $args ) {
+		$meta_query = array(
+			array(
+				'key'     => 'videopress_poster_image',
+				'compare' => 'NOT EXISTS',
+			),
+		);
+
+		// If there was already a meta query, let's AND it via
+		// nesting it with our new one. No need to specify the
+		// relation, as it defaults to AND.
+		if ( ! empty( $args['meta_query'] ) ) {
+			$meta_query[] = $args['meta_query'];
+		}
+		$args['meta_query'] = $meta_query;
+
+		return $args;
+	}
+
+	/**
+	 * Media List:
+	 * Do the same as `videopress_ajax_query_attachments_args()` but for the list view.
+	 *
+	 * @param array $query WP_Query instance.
+	 */
+	public static function media_list_table_query( $query ) {
+
+		if (
+			! function_exists( 'get_current_screen' )
+			|| get_current_screen() === null
+		) {
+			return;
+		}
+
+		if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
+			$meta_query = array(
+				array(
+					'key'     => 'videopress_poster_image',
+					'compare' => 'NOT EXISTS',
+				),
+			);
+
+			$old_meta_query = $query->get( 'meta_query' );
+			if ( $old_meta_query ) {
+				$meta_query[] = $old_meta_query;
+			}
+
+			$query->set( 'meta_query', $meta_query );
+		}
 	}
 
 }

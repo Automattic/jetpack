@@ -253,7 +253,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_generate_user_returns_user_if_username_exists_and_has_tries() {
 		add_filter( 'jetpack_sso_allowed_username_generate_retries', array( $this, 'return_one' ) );
-		$this->factory->user->create( array( 'user_login' => $this->user_data->login ) );
+		self::factory()->user->create( array( 'user_login' => $this->user_data->login ) );
 
 		$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
 
@@ -271,7 +271,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	 */
 	public function test_generate_user_returns_false_when_no_more_tries_and_username_exists() {
 		add_filter( 'jetpack_sso_allowed_username_generate_retries', '__return_zero' );
-		$this->factory->user->create( array( 'user_login' => $this->user_data->login ) );
+		self::factory()->user->create( array( 'user_login' => $this->user_data->login ) );
 		$this->assertFalse( Jetpack_SSO_Helpers::generate_user( $this->user_data ) );
 	}
 

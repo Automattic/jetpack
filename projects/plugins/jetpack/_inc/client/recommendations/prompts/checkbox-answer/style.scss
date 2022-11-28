@@ -4,9 +4,7 @@
 .jp-checkbox-answer__container {
 	position: relative;
 
-	@include breakpoint( '<480px' ) {
-		margin-bottom: 1rem;
-	}
+	margin-bottom: 1rem;
 }
 
 .jp-checkbox-answer__checkbox {
@@ -22,7 +20,7 @@
 	background: var( --jp-white );
 	border: 1px solid var( --jp-gray-5 );
 	border-radius: var( --jp-border-radius );
-	color: var( --jp-gray-100 ); 
+	color: var( --jp-gray-100 );
 
 	&:focus-within {
 		border-color: currentColor;
@@ -38,15 +36,33 @@
 	align-items: center;
 	flex: 1;
 
-	width: 100%;
-	margin-inline-start: 1rem;
+	box-sizing: border-box;
+	height: 100%;
+	padding: 0.875rem 1rem;
+	// Box padding + icon width + icon/text padding
+	padding-inline-end: calc( 1rem + 18px + 0.5rem);
+
+	background: var( --jp-white );
+	border: 1px solid var( --jp-gray-5 );
+	border-radius: var( --jp-border-radius );
+	color: var( --jp-gray-100 );
+
+	&:focus-within {
+		border-color: currentColor;
+	}
+
+	&.checked {
+		background: var( --jp-gray-0 );
+	}
 }
 
 .jp-checkbox-answer__checkbox-input {
 	&[type=checkbox], &[type=radio] {
 		width: 20px;
+		min-width: 20px;
 		height: 20px;
 		margin: 0;
+		margin-inline-end: 1rem;
 
 		border: 1px solid currentColor;
 		border-radius: 2px;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.23
+// @version      1.24
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -224,10 +224,6 @@
 								{
 									label: 'WP Super Cache',
 									name: 'wp-super-cache',
-								},
-								{
-									label: 'WP Log Viewer',
-									name: 'wp-log-viewer',
 								},
 								{
 									label: 'WP Job Manager',

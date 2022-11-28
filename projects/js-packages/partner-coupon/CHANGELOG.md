@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.32 - 2022-11-14
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.2.31 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.2.30 - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## 0.2.29 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## 0.2.28 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26457]
+
+## 0.2.27 - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+## 0.2.26 - 2022-09-20
+### Changed
+- Updated package dependencies. [#26034]
+
+## 0.2.25 - 2022-09-13
+### Changed
+- Updated package dependencies. [#26072]
+
+## 0.2.24 - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+## 0.2.23 - 2022-08-30
+### Changed
+- Updated package dependencies. [#25814]
+
+## 0.2.22 - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25762]
+
 ## 0.2.21 - 2022-07-26
 ### Changed
 - Updated package dependencies. [#25147]

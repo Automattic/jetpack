@@ -631,7 +631,7 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 		),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLinkUrl: post?.link,
+		postLinkUrl: post?.guid?.raw,
 		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};
 } );

@@ -103,11 +103,30 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns an array of blogging prompt settings. Only applicable on WordPress.com.
+	 *
+	 * Data comes from .com since the fearture requires a .com connection to work.
+	 *
+	 * @param int $user_id the current user_id.
+	 * @param int $blog_id the blog id in this context.
+	 */
+	public function get_blogging_prompts_settings( $user_id, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false;
+	}
+
+	/**
 	 * Returns true if a site has the 'videopress' option enabled, false otherwise.
 	 *
 	 * @see class.json-api-site-jetpack.php for implementation.
 	 */
 	abstract public function has_videopress();
+
+	/**
+	 * Returns VideoPress storage used, in MB.
+	 *
+	 * @see class.json-api-site-jetpack-shadow.php on WordPress.com for implementation. Only applicable on WordPress.com.
+	 */
+	abstract public function get_videopress_storage_used();
 
 	/**
 	 * Sets the upgraded_filetypes_enabled Jetpack option to true as a default. Only relevant for WordPress.com sites.
@@ -381,6 +400,13 @@ abstract class SAL_Site {
 	abstract protected function is_a8c_publication( $post_id );
 
 	/**
+	 * Return the user interactions with a site. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function get_user_interactions();
+
+	/**
 	 * Defines a filter to set whether a site is an automated_transfer site or not.
 	 *
 	 * Default is false.
@@ -431,6 +457,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get details used to render a thumbnail of the site. P2020 themed sites only.
+	 *
+	 * @return ?array
+	 */
+	public function get_p2_thumbnail_elements() {
+		return null;
+	}
+
+	/**
 	 * Detect whether a site is a WordPress.com on Atomic site.
 	 *
 	 * @return bool
@@ -459,6 +494,15 @@ abstract class SAL_Site {
 	 */
 	public function woocommerce_is_active() {
 		return false;
+	}
+
+	/**
+	 * Whether the Editing Toolkit plugin is active (relevant only on WordPress.com).
+	 *
+	 * @return true
+	 */
+	public function editing_toolkit_is_active() {
+		return true;
 	}
 
 	/**
@@ -1297,6 +1341,17 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether a site has Vertical ID (used for Starter Templates) - default to only applicable on WordPress.com
+	 *
+	 * @see /wpcom/public.api/rest/sal/class.json-api-site-wpcom.php
+	 *
+	 * @return false
+	 */
+	public function get_site_vertical_id() {
+		return false;
+	}
+
+	/**
 	 * Whether a site has a 'site_creation_flow' option set (eg gutenboarding, mobile) - only applicable on WordPress.com
 	 *
 	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
@@ -1317,6 +1372,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Return true if the site design was created with a Blank Canvas (empty homepage template), false otherwise.
+	 *
+	 * @return bool
+	 */
+	public function was_created_with_blank_canvas_design() {
+		return (bool) get_option( 'was_created_with_blank_canvas_design' );
+	}
+
+	/**
 	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
 	 *
 	 * @return string
@@ -1333,8 +1397,20 @@ abstract class SAL_Site {
 	public function is_difm_lite_in_progress() {
 		if ( function_exists( 'has_blog_sticker' ) ) {
 			return has_blog_sticker( 'difm-lite-in-progress' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		}
 		return false;
+	}
+
+	/**
+	 * The site options for DIFM lite in the design picker step
+	 *
+	 * @return string
+	 */
+	public function get_difm_lite_site_options() {
+		return get_option( 'difm_lite_site_options' );
 	}
 
 	/**
@@ -1345,5 +1421,28 @@ abstract class SAL_Site {
 	public function get_site_intent() {
 		return get_option( 'site_intent', '' );
 	}
-}
 
+	/**
+	 * Get site option to determine if and how to display launchpad onboarding
+	 *
+	 * @return string
+	 */
+	public function get_launchpad_screen() {
+		return get_option( 'launchpad_screen' );
+	}
+
+	/**
+	 * Get site option for completed launchpad checklist tasks
+	 *
+	 * @return string
+	 */
+	public function get_launchpad_checklist_tasks_statuses() {
+		$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
+
+		if ( is_array( $launchpad_checklist_tasks_statuses_option ) ) {
+			return $launchpad_checklist_tasks_statuses_option;
+		}
+
+		return array();
+	}
+}

@@ -21,9 +21,8 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
+import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
-import './v6/editor';
-
 import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
@@ -75,9 +74,11 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
 			handleUpload: false,
 			disableDropZone: true,
 			onSelect: selected => {
-				if ( selected instanceof FileList ) {
+				if ( undefined !== selected.length ) {
+					// Browser file upload
 					onFilesSelected( selected );
 				} else {
+					// WP Media Library item selected
 					onMediaItemSelected( selected );
 				}
 			},
@@ -387,3 +388,50 @@ const addVideoPressSupport = ( settings, name ) => {
  * @see packages/block-editor/src/hooks/align.js
  */
 addFilter( 'blocks.registerBlockType', 'jetpack/videopress', addVideoPressSupport, 5 );
+
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/add-wp-chapters-support',
+	addVideoPressVideoChaptersSupport
+);
+
+/**
+ * Extend videopress/video transform to/from core/video block.
+ *
+ * @param {object} settings - Block settings.
+ * @param {string} name     - Block name.
+ * @returns {object} Modified block settings.
+ */
+function addVideoPressCoreVideoTransform( settings, name ) {
+	if ( name !== 'videopress/video' ) {
+		return settings;
+	}
+
+	return {
+		...settings,
+		transforms: {
+			from: [
+				...( settings.transforms?.from || [] ),
+				{
+					type: 'block',
+					blocks: [ 'core/video' ],
+					transform: attrs => createBlock( 'videopress/video', attrs ),
+				},
+			],
+			to: [
+				...( settings.transforms?.to || [] ),
+				{
+					type: 'block',
+					blocks: [ 'core/video' ],
+					transform: attrs => createBlock( 'core/video', attrs ),
+				},
+			],
+		},
+	};
+}
+
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/add-core-video-transform',
+	addVideoPressCoreVideoTransform
+);

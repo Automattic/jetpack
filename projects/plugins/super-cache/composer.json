@@ -3,10 +3,12 @@
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-device-detection": "@dev"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -23,6 +25,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-e2e": [
+			"cd tests/e2e && pnpm i && pnpm env:up && pnpm test:run"
+		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'"
 	},
@@ -38,12 +43,17 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/wp-super-cache",
+		"autorelease": true,
+		"autotagger": true,
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}",
-			"versioning": "wordpress"
+			"link-template": "https://github.com/Automattic/wp-super-cache/compare/v${old}...v${new}"
 		},
+		"mirror-repo": "Automattic/wp-super-cache",
 		"release-branch-prefix": "super-cache",
-		"wp-plugin-slug": "wp-super-cache"
+		"wp-plugin-slug": "wp-super-cache",
+		"wp-svn-autopublish": true
+	},
+	"config": {
+		"autoloader-suffix": "6fe342bc02f0b440f7b3c8d8ade42286_super_cacheⓥ1_9_1_alpha"
 	}
 }

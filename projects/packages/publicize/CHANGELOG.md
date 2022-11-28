@@ -5,6 +5,86 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2022-11-14
+### Changed
+- Save attached media to post meta [#26930]
+
+## [0.17.3] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [0.17.2] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [0.17.1] - 2022-10-28
+### Fixed
+- Classic Editor: fix the is_healthy logic that disabled connections. [#27159]
+- Include built JavaScript bundles in the package. [#27152]
+
+## [0.17.0] - 2022-10-25
+### Added
+- Cache connection testing results during an HTTP request. [#26955]
+- Social: Add the reshare endpoint for proxying the request to WPCOM [#25993]
+
+### Changed
+- Updated package dependencies. [#26705]
+
+### Fixed
+- Display error for broken connections in editor [#25803]
+
+## [0.16.2] - 2022-10-11
+### Changed
+- Updated package dependencies. [#26640]
+
+## [0.16.1] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26569]
+
+## [0.16.0] - 2022-09-27
+### Added
+- Add caching to shares info check [#26449]
+
+### Changed
+- Move share limits code to the Publicize package [#26294]
+- Social: Aligned Jetpack and Social to use the connection-test-results endpoint in the block editor [#26274]
+- Updated package dependencies. [#26294]
+
+## [0.15.0] - 2022-09-20
+### Added
+- Added is-healthy endpoint to post field [#26216]
+
+## [0.14.0] - 2022-09-13
+### Added
+- Added hooks for Publicize form in Classic Editor [#26039]
+
+## [0.13.2] - 2022-09-08
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed wrong permissions check for contributors [#26025]
+
+## [0.13.1] - 2022-08-31
+### Removed
+- Removed errant code change.
+
+## [0.13.0] - 2022-08-31
+### Changed
+- Updated package dependencies. [#25931]
+
+## [0.12.0] - 2022-08-30
+### Changed
+- Rebrand Publicize to Jetpack Social [#25787]
+- Updated package dependencies. [#25694]
+
+### Fixed
+- Post field: Allow for the filter which could make the connections default to disabled. [#24617]
+
+## [0.11.1] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25628]
+
 ## [0.11.0] - 2022-08-09
 ### Added
 - Added scheduled post calculation on plugin activation [#25334]
@@ -107,6 +187,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.18.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.17.3...v0.18.0
+[0.17.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.17.2...v0.17.3
+[0.17.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.17.1...v0.17.2
+[0.17.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.16.2...v0.17.0
+[0.16.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.14.0...v0.15.0
+[0.14.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.13.2...v0.14.0
+[0.13.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.11.1...v0.12.0
+[0.11.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.9.0...v0.10.0

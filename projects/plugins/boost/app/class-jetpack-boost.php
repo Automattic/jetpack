@@ -13,10 +13,12 @@
 namespace Automattic\Jetpack_Boost;
 
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Admin\Config;
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
@@ -97,6 +99,10 @@ class Jetpack_Boost {
 
 		// Initialize the Admin experience.
 		$this->init_admin( $optimizations );
+
+		// Add the setup prompt.
+		Setup::add( new Setup_Prompt() );
+
 		add_action( 'init', array( $this, 'init_textdomain' ) );
 
 		add_action( 'handle_environment_change', array( $this, 'handle_environment_change' ) );
@@ -105,6 +111,8 @@ class Jetpack_Boost {
 		do_action( 'jetpack_boost_loaded', $this );
 
 		My_Jetpack_Initializer::init();
+
+		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 	}
 
 	/**
@@ -116,12 +124,20 @@ class Jetpack_Boost {
 	}
 
 	/**
+	 * Plugin activation handler.
+	 */
+	public static function activate() {
+		// Make sure user sees the "Get Started" when first time opening.
+		Config::set_getting_started( true );
+	}
+
+	/**
 	 * Plugin deactivation handler. Clear cache, and reset admin notices.
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
+		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
-		Admin::clear_dismissed_notices();
 	}
 
 	/**
@@ -173,8 +189,7 @@ class Jetpack_Boost {
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
 	public function handle_environment_change() {
-		Admin::clear_dismissed_notice( Regenerate_Admin_Notice::SLUG );
-		\update_option( Critical_CSS::RESET_REASON_STORAGE_KEY, Regenerate_Admin_Notice::REASON_THEME_CHANGE, false );
+		Regenerate_Admin_Notice::enable();
 	}
 
 	/**
@@ -199,5 +214,8 @@ class Jetpack_Boost {
 		( new Critical_CSS_Storage() )->clear();
 		// Delete all transients created by boost.
 		Transient::delete_by_prefix( '' );
+
+		// Clear getting started value
+		Config::clear_getting_started();
 	}
 }

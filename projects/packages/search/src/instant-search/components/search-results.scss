@@ -2,22 +2,47 @@
 
 $modal-max-width: 1080px;
 $modal-max-width-lg: 95%;
+$colophon-height: 40px;
+
+.jetpack-instant-search__search-results-wrapper {
+	position: relative;
+	max-width: $modal-max-width;
+	height: 100%;
+	margin: 0 auto;
+	border-radius: 4px;
+	overflow: hidden;
+
+	@include break-large-up() {
+		max-width: $modal-max-width-lg;
+	}
+
+	&.has-colophon {
+		padding-bottom: $colophon-height;
+	}
+}
+
+.jetpack-instant-search__jetpack-colophon {
+	position: absolute;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	height: $colophon-height;
+	width: 100%;
+	margin: 0;
+	background-color: $studio-white;
+	border-top: 1px solid $color-layout-borders;
+}
 
 .jetpack-instant-search__search-results {
+	overflow-y: auto;
+	height: 100%;
 	background: $color-modal-background;
-	border-radius: 3px;
 	min-height: 100%;
-	margin: 0 auto;
-	max-width: $modal-max-width;
 	position: relative;
 	z-index: 10;
 
 	@include break-small-down() {
 		border-radius: 0;
-	}
-
-	@include break-large-up() {
-		max-width: $modal-max-width-lg;
 	}
 
 	mark {
@@ -36,11 +61,13 @@ $modal-max-width-lg: 95%;
 		font-weight: 400;
 		margin-right: 4px;
 		margin-bottom: 4px;
+		padding: 4px 6px;
 		width: 1px;
 		overflow: hidden;
 		clip: rect( 1px, 1px, 1px, 1px );
 
 		&:focus {
+			@include apply-overlay-focus-styling();
 			clip: auto !important;
 			clip-path: none;
 			width: auto;
@@ -159,14 +186,6 @@ $modal-max-width-lg: 95%;
 				max-height: 80vh;
 			}
 
-			.jetpack-instant-search__jetpack-colophon {
-				margin-bottom: 1em;
-			}
-
-			.jetpack-instant-search__jetpack-colophon-text {
-				font-size: 0.8em;
-			}
-
 			.jetpack-instant-search__overlay--no-sidebar & {
 				display: none;
 			}
@@ -251,8 +270,7 @@ button.jetpack-instant-search__overlay-close {
 	background-color: transparent !important;
 
 	&:focus {
-		outline: 1px auto Highlight;
-		outline: 1px auto -webkit-focus-ring-color !important; /* this won't work without !important */
+		@include apply-overlay-focus-styling();
 	}
 
 	svg.gridicon {
@@ -276,7 +294,7 @@ button.jetpack-instant-search__overlay-close {
 }
 
 // Only show animation to users who have not chosen reduced motion
-@media (prefers-reduced-motion: no-preference) {
+@media ( prefers-reduced-motion: no-preference ) {
 	.jetpack-instant-search__search-results-filter-button {
 		transition: background-color 0.25s ease-in-out;
 	}

@@ -184,14 +184,14 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	 * Set up.
 	 */
 	public function set_up() {
-		$this->draft_id = $this->factory->post->create(
+		parent::set_up();
+
+		$this->draft_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => self::$user_id,
 			)
 		);
-
-		parent::set_up();
 
 		$this->setup_fields();
 
@@ -202,6 +202,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		// phpunit --filter=Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		// but fails when:
 		// phpunit --group=rest-api
+
+		$this->setup_publicize_mock();
 
 		$this->publicize = publicize_init();
 		$this->publicize->register_post_meta();
@@ -287,8 +289,26 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		unset( $GLOBALS['wpcom_rest_api_v2_plugins']['WPCOM_REST_API_V2_Post_Publicize_Connections_Field'] );
 	}
 
+	private function setup_publicize_mock() {
+		global $publicize;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/admin-plugins/publicize.php';
+			$mockbuilder = $this->getMockBuilder( 'Publicize' );
+		} else {
+			$mockbuilder = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' );
+		}
+
+		$this->publicize = $mockbuilder->setMethods( array( 'test_connection' ) )->getMock();
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
+		$publicize = $this->publicize;
+	}
+
 	public function test_register_fields_posts() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/posts' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
@@ -299,7 +319,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-with' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -311,7 +331,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_register_fields_custom_post_type_without_custom_fields_support() {
-		$request  = wp_rest_request( 'OPTIONS', '/wp/v2/example-without' );
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$schema   = $data['schema'];
@@ -322,7 +342,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_response() {
-		$request  = wp_rest_request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -337,7 +357,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_message() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'meta' => array(
@@ -352,7 +372,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_connections_by_id() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(
@@ -374,7 +394,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 	}
 
 	public function test_update_connections_by_service_name() {
-		$request = wp_rest_request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
+		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$request->set_body_params(
 			array(
 				'jetpack_publicize_connections' => array(

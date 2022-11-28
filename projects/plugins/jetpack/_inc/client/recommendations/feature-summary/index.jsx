@@ -5,9 +5,15 @@ import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import InstallButton from 'components/install-button';
 import analytics from 'lib/analytics';
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { isFeatureActive, stepToRoute } from 'state/recommendations';
+import {
+	startFeatureInstall as startFeatureInstallAction,
+	endFeatureInstall as endFeatureInstallAction,
+	isFeatureActive,
+	isInstallingRecommendedFeature,
+	stepToRoute,
+} from 'state/recommendations';
 import { mapDispatchToProps, mapStateToSummaryFeatureProps } from '../feature-utils';
 import './style.scss';
 
@@ -21,9 +27,10 @@ const FeatureSummaryComponent = props => {
 		stepRoute,
 		summaryActivateButtonLabel,
 		isNew,
+		isInstalling,
+		startFeatureInstall,
+		endFeatureInstall,
 	} = props;
-
-	const [ isInstalling, setIsInstalling ] = useState( false );
 
 	const onConfigureClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_configure_click', {
@@ -35,11 +42,11 @@ const FeatureSummaryComponent = props => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_enable_click', {
 			feature: featureSlug,
 		} );
-		setIsInstalling( true );
+		startFeatureInstall( featureSlug );
 		activateFeature().finally( () => {
-			setIsInstalling( false );
+			endFeatureInstall( featureSlug );
 		} );
-	}, [ activateFeature, featureSlug, setIsInstalling ] );
+	}, [ activateFeature, featureSlug, startFeatureInstall, endFeatureInstall ] );
 
 	const onStepNameClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_step_name_click', {
@@ -110,12 +117,15 @@ const FeatureSummaryComponent = props => {
 
 const FeatureSummary = connect(
 	( state, ownProps ) => ( {
+		isInstalling: isInstallingRecommendedFeature( state, ownProps.featureSlug ),
 		isFeatureActive: isFeatureActive( state, ownProps.featureSlug ),
 		...mapStateToSummaryFeatureProps( state, ownProps.featureSlug ),
 		stepRoute: stepToRoute[ ownProps.featureSlug ],
 	} ),
 	( dispatch, ownProps ) => ( {
 		...mapDispatchToProps( dispatch, ownProps.featureSlug ),
+		startFeatureInstall: step => dispatch( startFeatureInstallAction( step ) ),
+		endFeatureInstall: step => dispatch( endFeatureInstallAction( step ) ),
 	} )
 )( FeatureSummaryComponent );
 
