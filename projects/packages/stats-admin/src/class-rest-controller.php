@@ -280,7 +280,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Empty result.
+	 * Get a resource under site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
