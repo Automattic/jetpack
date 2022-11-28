@@ -221,7 +221,7 @@ const ProtectAdminPage = () => {
 									</Col>
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
-										{ currentProgress >= 0 && <ProgressBar value={ currentProgress } /> }
+										{ { currentProgress !== null && currentProgress >= 0 && <ProgressBar value={ currentProgress } /> }
 										<Text>
 											{ __(
 												'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
