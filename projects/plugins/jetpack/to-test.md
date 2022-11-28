@@ -23,7 +23,7 @@ There have been some new changes to SEO options available in the editor. One all
 
 - Make sure SEO and Sitemaps features are turned on in: /wp-admin/admin.php?page=jetpack#/traffic
 - Create a new test post or page and publish it without using the new "Hide page from search engines" checkbox feature.
-- Examine the published post source on the frontend and make sure there is not any `<meta name='robots' content='noindex'`... or similar.
+- Examine the published post source on the frontend and make sure there is not any `<meta name='robots' content='noindex'` or similar.
 	- If there is, double check your "Search engine visibility" in Reading settings: /wp-admin/options-reading.php
 - Now edit the same post and check the "Hide page from search engines" checkbox and save the post.
 - Refresh the post on the frontend to examine that it has a `<meta name="robots" content="noindex" />` tag.
