@@ -259,7 +259,7 @@ class Attachment_Handler {
 	}
 
 	/**
-	 * Filter to disable the `delete_posts` capability
+	 * Filter to disable the `delete_post` capability
 	 * for VideoPress attachments if the current user is
 	 * not connected.
 	 *
@@ -272,7 +272,7 @@ class Attachment_Handler {
 	 */
 	public static function disable_delete_if_disconnected( $allcaps, $cap, $args ) {
 
-		// Only apply this filter to `delete_posts` checks
+		// Only apply this filter to `delete_post` checks
 		if ( 'delete_post' !== $args[0] ) {
 			return $allcaps;
 		}
