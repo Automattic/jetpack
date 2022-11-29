@@ -23,15 +23,19 @@ import type React from 'react';
  * @returns {React.ReactElement}   TrackItem react component
  */
 function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElement {
+	const [ isDeleting, setIsDeleting ] = useState( false );
 	const { kind, label, srcLang } = track;
 
 	const deleteTrackHandler = () => {
-		deleteTrackForGuid( track, guid ).then( () => onDelete?.( track ) );
-		onDelete?.( track );
+		setIsDeleting( true );
+		deleteTrackForGuid( track, guid ).then( () => {
+			setIsDeleting( false );
+			onDelete?.( track );
+		} );
 	};
 
 	return (
-		<div className="video-tracks-control__track-item">
+		<div className={ `video-tracks-control__track-item ${ isDeleting ? 'is-deleting' : '' }` }>
 			<div className="video-tracks-control__track-item-label">
 				<strong>{ label }</strong>
 				<span className="video-tracks-control__track-item-kind">
@@ -39,7 +43,8 @@ function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElem
 					{ srcLang?.length ? ` [${ srcLang }]` : '' }
 				</span>
 			</div>
-			<Button variant="link" isDestructive onClick={ deleteTrackHandler }>
+
+			<Button variant="link" isDestructive onClick={ deleteTrackHandler } disabled={ isDeleting }>
 				{ __( 'Delete', 'jetpack-videopress-pkg' ) }
 			</Button>
 		</div>
