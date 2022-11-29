@@ -34,7 +34,7 @@ async function getJetpackVersionFromSite() {
 		// console.log(jetpackDev);
 		return jetpackDev.version;
 	} catch ( error ) {
-		console.error( `Logging environment details failed! ${ error }` );
+		console.error( `Failed to get Jetpack version from atomic site: ${ error }` );
 		return '';
 	}
 }
