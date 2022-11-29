@@ -1,7 +1,7 @@
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { check, close, info, warning, Icon } from '@wordpress/icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { STORE_ID } from '../../state/store';
 import styles from './styles.module.scss';
 
@@ -13,7 +13,6 @@ const Notice = ( {
 	type = 'success',
 } ) => {
 	const { clearNotice } = useDispatch( STORE_ID );
-	const [ timeoutStarted, setTimeoutStarted ] = useState( false );
 
 	let icon;
 	switch ( type ) {
@@ -38,13 +37,12 @@ const Notice = ( {
 	useEffect( () => {
 		let timeout;
 
-		if ( duration && ! timeoutStarted ) {
+		if ( duration ) {
 			timeout = setTimeout( clearNotice, duration );
-			setTimeoutStarted( true );
 		}
 
 		return () => clearTimeout( timeout );
-	}, [ clearNotice, duration, timeoutStarted ] );
+	}, [ clearNotice, duration, message ] );
 
 	return (
 		<div
