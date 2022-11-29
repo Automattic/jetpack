@@ -22,15 +22,20 @@ import type React from 'react';
  * @param {TrackItemProps} props - Component props.
  * @returns {React.ReactElement}   TrackItem react component
  */
-function TrackItem( { track, guid }: TrackItemProps ): React.ReactElement {
+function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElement {
+	const [ isDeleting, setIsDeleting ] = useState( false );
 	const { kind, label, srcLang } = track;
 
-	const deleteTrackHandler = useCallback( () => {
-		deleteTrackForGuid( track, guid );
-	}, [] );
+	const deleteTrackHandler = () => {
+		setIsDeleting( true );
+		deleteTrackForGuid( track, guid ).then( () => {
+			setIsDeleting( false );
+			onDelete?.( track );
+		} );
+	};
 
 	return (
-		<div className="video-tracks-control__track-item">
+		<div className={ `video-tracks-control__track-item ${ isDeleting ? 'is-deleting' : '' }` }>
 			<div className="video-tracks-control__track-item-label">
 				<strong>{ label }</strong>
 				<span className="video-tracks-control__track-item-kind">
@@ -38,7 +43,8 @@ function TrackItem( { track, guid }: TrackItemProps ): React.ReactElement {
 					{ srcLang?.length ? ` [${ srcLang }]` : '' }
 				</span>
 			</div>
-			<Button variant="link" isDestructive onClick={ deleteTrackHandler }>
+
+			<Button variant="link" isDestructive onClick={ deleteTrackHandler } disabled={ isDeleting }>
 				{ __( 'Delete', 'jetpack-videopress-pkg' ) }
 			</Button>
 		</div>
@@ -51,7 +57,7 @@ function TrackItem( { track, guid }: TrackItemProps ): React.ReactElement {
  * @param {TrackListProps} props - Component props.
  * @returns {React.ReactElement}   TracksControl block control
  */
-function TrackList( { tracks, guid }: TrackListProps ): React.ReactElement {
+function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React.ReactElement {
 	if ( ! tracks?.length ) {
 		return (
 			<MenuGroup className="video-tracks-control__track_list__no-tracks">
@@ -63,13 +69,28 @@ function TrackList( { tracks, guid }: TrackListProps ): React.ReactElement {
 		);
 	}
 
+	const onDeleteTrackHandler = useCallback(
+		( deletedTrack: TrackProps ) => {
+			const updatedTrackList = [ ...tracks ].filter( t => t !== deletedTrack );
+			onTrackListUpdate( updatedTrackList );
+		},
+		[ tracks ]
+	);
+
 	return (
 		<MenuGroup
 			className="video-tracks-control__track_list"
 			label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
 		>
 			{ tracks.map( ( track: TrackProps, index ) => {
-				return <TrackItem key={ `${ track.kind }-${ index }` } track={ track } guid={ guid } />;
+				return (
+					<TrackItem
+						key={ `${ track.kind }-${ index }` }
+						track={ track }
+						guid={ guid }
+						onDelete={ onDeleteTrackHandler }
+					/>
+				);
 			} ) }
 		</MenuGroup>
 	);
@@ -81,7 +102,10 @@ function TrackList( { tracks, guid }: TrackListProps ): React.ReactElement {
  * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}      TracksControl block control
  */
-export default function TracksControl( { attributes }: VideoControlProps ): React.ReactElement {
+export default function TracksControl( {
+	attributes,
+	setAttributes,
+}: VideoControlProps ): React.ReactElement {
 	const { tracks, guid } = attributes;
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
@@ -92,6 +116,13 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 		} );
 		setIsUploadingNewTrack( true );
 	}, [] );
+
+	const onUpdateTrackListHandler = useCallback(
+		( updatedTracks: TrackProps[] ) => {
+			setAttributes( { tracks: updatedTracks } );
+		},
+		[ tracks ]
+	);
 
 	return (
 		<ToolbarDropdownMenu
@@ -115,7 +146,12 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 				}
 				return (
 					<>
-						<TrackList tracks={ tracks } guid={ guid } />
+						<TrackList
+							tracks={ tracks }
+							guid={ guid }
+							onTrackListUpdate={ onUpdateTrackListHandler }
+						/>
+
 						<MenuGroup
 							label={ __( 'Add tracks', 'jetpack-videopress-pkg' ) }
 							className="video-tracks-control"
