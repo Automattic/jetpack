@@ -14,7 +14,6 @@ describe( 'ActivationScreen', () => {
 		successImage: '/success.png',
 	};
 
-	jest.spyOn( restApi, 'getUserLicenses' ).mockResolvedValue( { items: [] } );
 	const apiStub = jest.spyOn( restApi, 'attachLicenses' ).mockReset();
 
 	afterEach( () => {

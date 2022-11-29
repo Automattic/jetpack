@@ -42,12 +42,12 @@ export default function AddLicenseScreen() {
 				</Col>
 				<Col>
 					<ActivationScreen
-						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						currentRecommendationsStep={ null }
+						detachedLicenses={ detachedLicenses }
+						fetchingDetachedLicenses={ fetchingDetachedLicenses }
 						onActivationSuccess={ undefined }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-						currentRecommendationsStep={ null }
-						availableLicenses={ detachedLicenses }
-						fetchingAvailableLicenses={ fetchingDetachedLicenses }
+						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 					/>
 				</Col>
 			</Container>

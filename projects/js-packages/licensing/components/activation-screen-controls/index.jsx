@@ -24,8 +24,8 @@ import './style.scss';
 const ActivationScreenControls = props => {
 	const {
 		activateLicense,
-		availableLicenses,
-		fetchingAvailableLicenses,
+		detachedLicenses,
+		fetchingDetachedLicenses,
 		isActivating,
 		license,
 		licenseError,
@@ -44,8 +44,8 @@ const ActivationScreenControls = props => {
 	const [ selectionMode, setSelectionMode ] = useState( false );
 
 	useEffect( () => {
-		setSelectionMode( availableLicenses && availableLicenses.length );
-	}, [ availableLicenses ] );
+		setSelectionMode( detachedLicenses && detachedLicenses.length );
+	}, [ detachedLicenses ] );
 
 	const onLicenseSelectionChange = useCallback(
 		val => {
@@ -59,7 +59,7 @@ const ActivationScreenControls = props => {
 
 	const options = useMemo(
 		() => [
-			...availableLicenses.map( ( { product, license_key } ) => {
+			...detachedLicenses.map( ( { product, license_key } ) => {
 				return {
 					label: sprintf(
 						/* translators: placeholder is the product name and license key */
@@ -71,7 +71,7 @@ const ActivationScreenControls = props => {
 				};
 			} ),
 			{
-				label: fetchingAvailableLicenses
+				label: fetchingDetachedLicenses
 					? __( 'Fetching available licenses…', 'jetpack' )
 					: __(
 							'I want to add a license key manually',
@@ -81,7 +81,7 @@ const ActivationScreenControls = props => {
 				value: '',
 			},
 		],
-		[ availableLicenses, fetchingAvailableLicenses ]
+		[ detachedLicenses, fetchingDetachedLicenses ]
 	);
 
 	return (
@@ -100,10 +100,10 @@ const ActivationScreenControls = props => {
 						}
 					) }
 				</p>
-				{ fetchingAvailableLicenses || selectionMode ? (
+				{ fetchingDetachedLicenses || selectionMode ? (
 					<SelectControl
 						className={ className }
-						disabled={ fetchingAvailableLicenses || isActivating }
+						disabled={ fetchingDetachedLicenses || isActivating }
 						label={ __( 'License key', 'jetpack' ) }
 						value={ license }
 						options={ options }
@@ -139,8 +139,8 @@ const ActivationScreenControls = props => {
 
 ActivationScreenControls.propTypes = {
 	activateLicense: PropTypes.func.isRequired,
-	availableLicenses: PropTypes.array,
-	fetchingAvailableLicenses: PropTypes.bool,
+	detachedLicenses: PropTypes.array,
+	fetchingDetachedLicenses: PropTypes.bool,
 	isActivating: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
 	licenseError: PropTypes.string,
