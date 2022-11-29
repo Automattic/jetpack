@@ -1,26 +1,27 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 /**
  * These restrictions were updated on: November 18, 2022
  *
  * Image size is in MB
  */
+const allowedImageTypes = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 const RESTRICTIONS = {
 	twitter: {
-		maxImageSize: 2,
-		allowedImageTypes: [ 'image/jpeg', 'image/jpg', 'image/png' ],
+		maxImageSize: 5,
+		allowedImageTypes,
 	},
 	facebook: {
-		maxImageSize: 1,
-		allowedImageTypes: [ 'image/jpeg', 'image/jpg', 'image/png' ],
+		maxImageSize: 4,
+		allowedImageTypes,
 	},
 	tumblr: {
 		maxImageSize: 20,
-		allowedImageTypes: [ 'image/jpeg', 'image/png' ],
+		allowedImageTypes,
 	},
 	linkedin: {
 		maxImageSize: 5,
-		allowedImageTypes: [ 'image/jpeg', 'image/png' ],
+		allowedImageTypes,
 	},
 };
 
@@ -35,10 +36,12 @@ export default function useMediaRestrictions( enabledConnections ) {
 		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].maxImageSize )
 	);
 
-	const typeArrays = Object.keys( RESTRICTIONS ).map(
-		service => RESTRICTIONS[ service ].allowedImageTypes
-	);
-	const allowedImageTypes = typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
+	const allowedMediaTypes = useMemo( () => {
+		const typeArrays = Object.keys( RESTRICTIONS ).map(
+			service => RESTRICTIONS[ service ].allowedImageTypes
+		);
+		return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
+	}, [] );
 
 	/**
 	 * This function is used to check if the provided image is valid based on it's size and type.
@@ -51,7 +54,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 		( sizeInBytes, mime ) => {
 			const sizeInMb = sizeInBytes / Math.pow( 1000, 2 );
 
-			if ( ! allowedImageTypes.includes( mime.toLowerCase() ) ) {
+			if ( ! allowedMediaTypes.includes( mime.toLowerCase() ) ) {
 				return 1;
 			}
 
@@ -61,12 +64,12 @@ export default function useMediaRestrictions( enabledConnections ) {
 
 			return null;
 		},
-		[ maxImageSize, allowedImageTypes ]
+		[ maxImageSize, allowedMediaTypes ]
 	);
 
 	return {
 		maxImageSize,
-		allowedImageTypes,
+		allowedMediaTypes,
 		getValidationError,
 	};
 }

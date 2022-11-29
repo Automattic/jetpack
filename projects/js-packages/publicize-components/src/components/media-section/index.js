@@ -28,6 +28,8 @@ const getMediaDetails = media => {
 			mediaWidth: media.media_details.width,
 			mediaHeight: media.media_details.height,
 			mediaSourceUrl: media.source_url,
+			fullFileSize: media.media_details.filesize,
+			mime: media.mime_type,
 		};
 	}
 
@@ -37,12 +39,16 @@ const getMediaDetails = media => {
 		mediaWidth: mediaObject.width,
 		mediaHeight: mediaObject.height,
 		mediaSourceUrl: mediaObject.source_url,
+		fullFileSize: media.media_details.filesize,
+		mime: media.mime_type,
 	};
 };
 
 const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
 const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
 const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
+const FILE_TYPE_ERROR_CODE = 1;
+const FILE_SIZE_ERROR_CODE = 2;
 
 /**
  * Wrapper that handles media-related functionality.
@@ -52,29 +58,32 @@ const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
 export default function MediaSection() {
 	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
-	const { connections } = useSocialMediaConnections();
-	const enabledConnections = connections.filter( connection => connection.enabled );
+	const { enabledConnections } = useSocialMediaConnections();
 
-	const { maxImageSize, allowedImageTypes, getValidationError } = useMediaRestrictions(
+	const { maxImageSize, allowedMediaTypes, getValidationError } = useMediaRestrictions(
 		enabledConnections
 	);
 
-	const mediaObject = useSelect( select =>
-		select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } )
+	const mediaObject = useSelect(
+		select => select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } ),
+		[ attachedMedia[ 0 ] ]
 	);
-	const { mediaWidth, mediaHeight, mediaSourceUrl } = getMediaDetails( mediaObject );
+	const { mediaWidth, mediaHeight, mediaSourceUrl, fullFileSize, mime } = getMediaDetails(
+		mediaObject
+	);
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
 		if ( ! mediaObject ) {
 			return;
 		}
-		const error = getValidationError( mediaObject.media_details?.filesize, mediaObject.mime_type );
+
+		const error = getValidationError( fullFileSize, mime );
 		if ( error ) {
 			setValidationError( error );
 			updateAttachedMedia( [] );
 		}
-	}, [ updateAttachedMedia, mediaObject, getValidationError ] );
+	}, [ updateAttachedMedia, mediaObject, getValidationError, fullFileSize, mime ] );
 
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
@@ -90,9 +99,9 @@ export default function MediaSection() {
 			}
 
 			updateAttachedMedia( [ media.id ] );
-			validationError && setValidationError( null );
+			setValidationError( null );
 		},
-		[ updateAttachedMedia, getValidationError, validationError ]
+		[ updateAttachedMedia, getValidationError ]
 	);
 
 	const setMediaRender = useCallback(
@@ -128,7 +137,7 @@ export default function MediaSection() {
 				<MediaUpload
 					title={ ADD_MEDIA_LABEL }
 					onSelect={ onUpdateMedia }
-					allowedTypes={ allowedImageTypes }
+					allowedTypes={ allowedMediaTypes }
 					render={ setMediaRender }
 					value={ attachedMedia[ 0 ] }
 				/>
@@ -137,7 +146,7 @@ export default function MediaSection() {
 						<MediaUpload
 							title={ REPLACE_MEDIA_LABEL }
 							onSelect={ onUpdateMedia }
-							allowedTypes={ allowedImageTypes }
+							allowedTypes={ allowedMediaTypes }
 							render={ replaceMediaRender }
 						/>
 						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
@@ -152,10 +161,12 @@ export default function MediaSection() {
 						onDismiss={ onDismissClick }
 						status="warning"
 					>
-						{ validationError === 1 && (
-							<p>{ __( 'The selected media type not accepted by these platforms.', 'jetpack' ) }</p>
+						{ validationError === FILE_TYPE_ERROR_CODE && (
+							<p>
+								{ __( 'The selected media type is not accepted by these platforms.', 'jetpack' ) }
+							</p>
 						) }
-						{ validationError === 2 && (
+						{ validationError === FILE_SIZE_ERROR_CODE && (
 							<p>{ __( 'The selected media size is too big for these platforms.', 'jetpack' ) }</p>
 						) }
 					</Notice>
@@ -168,7 +179,7 @@ export default function MediaSection() {
 						</Notice>
 						<Text variant="title-small">{ __( 'Allowed types', 'jetpack' ) }</Text>
 						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ allowedImageTypes.join( ', ' ) }` }</Text>
+							<Text>{ ` ${ allowedMediaTypes.join( ', ' ) }` }</Text>
 						</Notice>
 					</Fragment>
 				) }
