@@ -38,6 +38,17 @@ const ManageConnectionDialog = props => {
 	const [ isDisconnectDialogOpen, setIsDisconnectDialogOpen ] = useState( false );
 
 	/**
+	 * Open the Disconnect Dialog.
+	 */
+	const openDisconnectDialog = useCallback(
+		e => {
+			e && e.preventDefault();
+			setIsDisconnectDialogOpen( true );
+		},
+		[ setIsDisconnectDialogOpen ]
+	);
+
+	/**
 	 * Close the Disconnect Dialog.
 	 */
 	const closeDisconnectDialog = useCallback(
@@ -47,32 +58,6 @@ const ManageConnectionDialog = props => {
 		},
 		[ setIsDisconnectDialogOpen ]
 	);
-
-	const handleEscapePress = useCallback(
-		event => {
-			if ( event.key === 'Escape' ) {
-				document.removeEventListener( 'keydown', handleEscapePress, false );
-				closeDisconnectDialog();
-			}
-		},
-		[ closeDisconnectDialog ]
-	);
-
-	/**
-	 * Open the Disconnect Dialog.
-	 */
-	const openDisconnectDialog = useCallback(
-		e => {
-			e && e.preventDefault();
-			setIsDisconnectDialogOpen( true );
-			document.addEventListener( 'keydown', handleEscapePress, false );
-		},
-		[ setIsDisconnectDialogOpen, handleEscapePress ]
-	);
-
-	const onDisconnecting = useCallback( () => {
-		document.removeEventListener( 'keydown', handleEscapePress, false );
-	}, [ handleEscapePress ] );
 
 	return (
 		<>
@@ -119,7 +104,6 @@ const ManageConnectionDialog = props => {
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnected }
-						onDisconnecting={ onDisconnecting }
 						connectedPlugins={ connectedPlugins }
 						connectedSiteId={ connectedSiteId }
 						connectedUser={ connectedUser }
