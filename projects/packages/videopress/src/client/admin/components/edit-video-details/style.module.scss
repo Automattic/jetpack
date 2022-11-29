@@ -9,6 +9,7 @@
 	.jetpack-videopress-jitm-card {
 		.jitm-card {
 			margin-right: 0;
+			margin-bottom: 0;
 		}
 	}
 }
@@ -51,6 +52,8 @@
 }
 
 .back-link {
+	display: flex;
+
 	.icon {
 		width: 16px;
 		margin-right: 4px;
