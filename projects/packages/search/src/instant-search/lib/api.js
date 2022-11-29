@@ -274,6 +274,7 @@ function generateApiQueryString( {
 		'category.name.default',
 		'post_type',
 		'shortcode_types',
+		'forum.topic_resolved',
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 

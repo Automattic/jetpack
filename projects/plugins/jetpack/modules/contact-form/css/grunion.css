@@ -166,15 +166,14 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
+.wp-block-jetpack-contact-form > * {
+	flex: 0 0 100%;
+}
+
 /* Added circa Nov 2022: container class assigned to topmost block div */
 .wp-block-jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
 	padding-right: 0;
 	padding-left: 0;
-}
-
-.wp-block-jetpack-contact-form .grunion-field-wrap,
-.wp-block-jetpack-button {
-	flex: 0 0 100%;
 }
 
 .wp-block-jetpack-button.alignright button {

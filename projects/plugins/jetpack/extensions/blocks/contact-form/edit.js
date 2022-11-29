@@ -24,6 +24,7 @@ import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
 import InspectorHint from '../../shared/components/inspector-hint';
+import { childBlocks } from './child-blocks';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
@@ -34,13 +35,18 @@ import SalesforceLeadFormSettings, {
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
+	...map( childBlocks, block => `jetpack/${ block.name }` ),
 	'core/audio',
+	'core/columns',
+	'core/group',
 	'core/heading',
 	'core/image',
 	'core/list',
 	'core/paragraph',
+	'core/row',
 	'core/separator',
 	'core/spacer',
+	'core/stack',
 	'core/subhead',
 	'core/video',
 ];

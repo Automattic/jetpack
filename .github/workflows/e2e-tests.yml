@@ -82,6 +82,13 @@ jobs:
         run_id: ${{ github.event.workflow_run.id }}
         path: build-output
 
+    - name: Checkout jetpack-production
+      if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
+      uses: actions/checkout@v3
+      with:
+        repository: Automattic/jetpack-production
+        path: build-output/build/Automattic/jetpack-production
+
     - name: Checkout mirror repo
       if: github.event_name == 'repository_dispatch'
       uses: actions/checkout@v3
@@ -108,7 +115,7 @@ jobs:
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          if [ "${SUITE}" != atomic ]; then
+          if [[ "${SUITE}" != atomic ]]; then
             echo "::group::Build plugin(s)"
             cd $PROJECT_PATH
             pnpm run build
@@ -122,12 +129,14 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         SUITE: ${{ matrix.suite }}
         PROJECT_NAME:  ${{ matrix.project }}
+        DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
+        DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
         echo "::endgroup::"
 
-        if [ "${SUITE}" != atomic ]; then
+        if [[ "${SUITE}" != atomic ]]; then
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -135,8 +144,16 @@ jobs:
           echo "::group::Create tunnel"
           pnpm run tunnel:up
           echo "::endgroup::"
-        else
-          echo "TEST_SITE=atomic" >> $GITHUB_ENV
+        fi
+
+        if [[ "${SUITE}" == atomic ]]; then
+          if [[ "${DISPATCH_REF_TYPE}" == tag ]]; then
+            SUITE="atomicRc"
+          fi
+          echo "TEST_SITE=${SUITE}" >> $GITHUB_ENV
+
+          # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
+          node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
         fi
 
         if [ "${SUITE}" == gutenberg ]; then
@@ -185,13 +202,37 @@ jobs:
     needs: [create-test-matrix, e2e-tests]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Set report context
+        env:
+          DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
+          DISPATCH_REPO: ${{ github.event.client_payload.repository }}
+        run: |
+          REPOSITORY=$GITHUB_REPOSITORY
+
+          if [ "$GITHUB_EVENT_NAME" == pull_request ]; then
+            BRANCH=$GITHUB_HEAD_REF
+          elif [ "$GITHUB_EVENT_NAME" == repository_dispatch ]; then
+            BRANCH=$DISPATCH_REF_NAME
+            REPOSITORY=$DISPATCH_REPO
+          else
+            BRANCH=${GITHUB_REF:11}
+          fi
+
+          echo "EVENT_TYPE=e2e run $GITHUB_RUN_ID at $GITHUB_EVENT_NAME on $GITHUB_REPOSITORY" >> "$GITHUB_ENV"
+          echo "REPOSITORY=$REPOSITORY" >> "$GITHUB_ENV"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+          echo "RUN_ID=$GITHUB_RUN_ID" >> "$GITHUB_ENV"
 
       - name: Trigger test report workflow
-        uses: ./.github/actions/test-report-dispatch
+        uses: peter-evans/repository-dispatch@v2
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         with:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
-          event_type: e2e
+          repository: automattic/jetpack-e2e-reports
+          event-type: ${{ env.EVENT_TYPE }}
+          client-payload: '{"repository": "${{ env.REPOSITORY }}", "branch": "${{ env.BRANCH }}", "pr_title": "${{ env.PR_TITLE }}", "pr_number": "${{ env.PR_NUMBER }}", "run_id": "${{ env.RUN_ID }}"}'
 
   slack-notification:
     name: "Slack notification"
