@@ -205,24 +205,24 @@ class REST_Controller {
 	}
 
 	/**
-	 * Sub Resource endpoint e.g. posts/121/likes.
+	 * Redirect to post likes API which is public.
 	 *
 	 * @param WP_REST_Request $req The request object.
-	 * @return array
 	 */
 	public function get_single_post_likes( $req ) {
-		return static::request_as_blog_cached(
+		// It's a fixed host, so we could use wp_redirect() here.
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect(
 			sprintf(
-				'/sites/%d/posts/%d/likes?%s',
+				'https://public-api.wordpress.com/rest/v1.2/sites/%d/posts/%d/likes?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
 				http_build_query(
 					$req->get_params()
 				)
-			),
-			'1.2',
-			array( 'timeout' => 30 )
+			)
 		);
+		exit;
 	}
 
 	/**
