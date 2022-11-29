@@ -70,6 +70,10 @@ const ManageConnectionDialog = props => {
 		[ setIsDisconnectDialogOpen, handleEscapePress ]
 	);
 
+	const onDisconnecting = useCallback( () => {
+		document.removeEventListener( 'keydown', handleEscapePress, false );
+	}, [ handleEscapePress ] );
+
 	return (
 		<>
 			{ isOpen && (
@@ -115,6 +119,7 @@ const ManageConnectionDialog = props => {
 						apiRoot={ apiRoot }
 						apiNonce={ apiNonce }
 						onDisconnected={ onDisconnected }
+						onDisconnecting={ onDisconnecting }
 						connectedPlugins={ connectedPlugins }
 						connectedSiteId={ connectedSiteId }
 						connectedUser={ connectedUser }

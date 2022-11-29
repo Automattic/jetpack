@@ -32,6 +32,7 @@ const DisconnectDialog = props => {
 		title,
 		pluginScreenDisconnectCallback,
 		onDisconnected,
+		onDisconnecting,
 		onError,
 		disconnectStepComponent,
 		context,
@@ -196,6 +197,8 @@ const DisconnectDialog = props => {
 			setDisconnectError( false );
 			setIsDisconnecting( true );
 
+			onDisconnecting && onDisconnecting();
+
 			// Detect the plugin context, where the plugin needs to be deactivated.
 			if ( context === 'plugins' ) {
 				// Use a callback function to handle deactivating the plugin.
@@ -210,7 +213,14 @@ const DisconnectDialog = props => {
 			// Default to making the disconnect API call here.
 			_disconnect();
 		},
-		[ setDisconnectError, setIsDisconnecting, pluginScreenDisconnectCallback, context, _disconnect ]
+		[
+			setDisconnectError,
+			setIsDisconnecting,
+			pluginScreenDisconnectCallback,
+			context,
+			_disconnect,
+			onDisconnecting,
+		]
 	);
 
 	const trackModalClick = useCallback(
@@ -378,6 +388,8 @@ DisconnectDialog.propTypes = {
 	title: PropTypes.string,
 	/** The callback to be called upon disconnection success. */
 	onDisconnected: PropTypes.func,
+	/** The callback to be called when disconnecting is initiated. */
+	onDisconnecting: PropTypes.func,
 	/** The callback to be called upon disconnection failure. */
 	onError: PropTypes.func,
 	/** The context in which this component is being used. */
