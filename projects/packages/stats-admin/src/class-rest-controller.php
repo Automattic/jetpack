@@ -214,7 +214,8 @@ class REST_Controller {
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		wp_redirect(
 			sprintf(
-				'https://public-api.wordpress.com/rest/v1.2/sites/%d/posts/%d/likes?%s',
+				'%s/rest/v1.2/sites/%d/posts/%d/likes?%s',
+				JETPACK__WPCOM_JSON_API_BASE,
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
 				http_build_query(
