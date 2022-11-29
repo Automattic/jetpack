@@ -19,8 +19,8 @@ export const tracksIcon = (
 		<Path d="M7 15.5H17V17H7V15.5Z" fill="black" />
 		<Path d="M17 12.5H7V14H17V12.5Z" fill="black" />
 		<Path
-			fill-rule="evenodd"
-			clip-rule="evenodd"
+			fillRule="evenodd"
+			clipRule="evenodd"
 			d="M18.7 3H5.3C4 3 3 4 3 5.3V18.7C3 20 4 21 5.3 21H18.7C20 21 21 20 21 18.7V5.3C21 4 20 3 18.7 3ZM19.5 18.7C19.5 19.1 19.1 19.5 18.7 19.5H5.3C4.9 19.5 4.5 19.1 4.5 18.7V5.3C4.5 4.9 4.9 4.5 5.3 4.5H18.7C19.1 4.5 19.5 4.9 19.5 5.3V18.7Z"
 			fill="black"
 		/>
