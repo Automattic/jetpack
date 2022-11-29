@@ -63,11 +63,13 @@ function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElem
 function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React.ReactElement {
 	if ( ! tracks?.length ) {
 		return (
-			<MenuGroup className="video-tracks-control__track_list__no-tracks">
-				{ __(
-					'Tracks can be subtitles, captions, chapters, or descriptions. They help make your content more accessible to a wider range of users.',
-					'jetpack-videopress-pkg'
-				) }
+			<MenuGroup>
+				<div className="video-tracks-control__track_list__no-tracks">
+					{ __(
+						'Tracks can be subtitles, captions, chapters, or descriptions. They help make your content more accessible to a wider range of users.',
+						'jetpack-videopress-pkg'
+					) }
+				</div>
 			</MenuGroup>
 		);
 	}
