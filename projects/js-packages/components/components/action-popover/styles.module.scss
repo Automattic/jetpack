@@ -15,16 +15,20 @@
 		}
 	
 		.close-button {
-			width: calc( var( --spacing-base ) * 3 ); // 24px
 			height: calc( var( --spacing-base ) * 3 ); // 24px
-			fill: var( --jp-gray-90 );
+			width: calc( var( --spacing-base ) * 3 ); // 24px
+			min-width: unset;
+			color: var( --jp-gray-90 );
 		
 			flex-shrink: 0;
-			padding: 0;
-			background-color: transparent;
-			border: none;
-			cursor: pointer;
-			outline: none;
+
+			&:hover:not(:focus) {
+				box-shadow: none;
+			}
+
+			&:active {
+				background: unset;
+			}
 		}
 	}
 

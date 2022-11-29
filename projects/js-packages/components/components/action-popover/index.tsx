@@ -3,7 +3,7 @@
  */
 import { Popover } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, close } from '@wordpress/icons';
+import { close } from '@wordpress/icons';
 import Button from '../button';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';
@@ -57,9 +57,17 @@ const ActionPopover = ( {
 						{ title }
 					</Text>
 					{ ! hideCloseButton && (
-						<button aria-label="close" className={ styles[ 'close-button' ] } onClick={ onClose }>
-							<Icon icon={ close } size={ 16 } />
-						</button>
+						<>
+							<Button
+								size="small"
+								variant="tertiary"
+								aria-label="close"
+								className={ styles[ 'close-button' ] }
+								icon={ close }
+								iconSize={ 16 }
+								onClick={ onClose }
+							/>
+						</>
 					) }
 				</div>
 				{ children }
