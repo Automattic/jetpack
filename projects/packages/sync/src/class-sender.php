@@ -657,7 +657,7 @@ class Sender {
 					return new WP_Error( 'wpcom_error', $wp_error->get_error_code() );
 				}
 
-				self::update_last_successful_send_time_for_queue( $queue );
+				self::update_last_successful_send_time_for_queue( $queue->id );
 			}
 		}
 
