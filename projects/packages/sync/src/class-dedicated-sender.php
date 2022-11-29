@@ -162,7 +162,7 @@ class Dedicated_Sender {
 				/**
 				 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
 				 */
-				self::disable_dedicated_sync();
+				self::on_dedicated_sync_lag_not_sending_threshold_reached();
 
 				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
 			} else {
@@ -173,7 +173,7 @@ class Dedicated_Sender {
 
 				if ( $time_since_last_succesful_send > $queue_send_time_threshold ) {
 					// We haven't successfully sent stuff in more than 30 minutes. Revert to Default Sync
-					self::disable_dedicated_sync();
+					self::on_dedicated_sync_lag_not_sending_threshold_reached();
 
 					return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
 				}
@@ -358,7 +358,7 @@ class Dedicated_Sender {
 	 *
 	 * @return void
 	 */
-	public static function disable_dedicated_sync() {
+	public static function on_dedicated_sync_lag_not_sending_threshold_reached() {
 		set_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true, 6 * HOUR_IN_SECONDS );
 
 		Settings::update_settings(
