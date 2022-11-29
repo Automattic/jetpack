@@ -205,7 +205,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Redirect to post likes API which is public.
+	 * Return likes of a single post.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 */
