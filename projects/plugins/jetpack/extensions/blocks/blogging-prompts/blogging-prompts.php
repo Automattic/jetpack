@@ -2,7 +2,7 @@
 /**
  * Blogging prompts.
  *
- * @since $$next-version$$
+ * @since 11.6
  *
  * @package automattic/jetpack
  */

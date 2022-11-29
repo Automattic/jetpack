@@ -23,7 +23,7 @@ import type React from 'react';
  * @returns {React.ReactElement}   TrackItem react component
  */
 function TrackItem( { track, guid }: TrackItemProps ): React.ReactElement {
-	const { kind, label } = track;
+	const { kind, label, srcLang } = track;
 
 	const deleteTrackHandler = useCallback( () => {
 		deleteTrackForGuid( track, guid );
@@ -32,8 +32,11 @@ function TrackItem( { track, guid }: TrackItemProps ): React.ReactElement {
 	return (
 		<div className="video-tracks-control__track-item">
 			<div className="video-tracks-control__track-item-label">
-				{ label }
-				<span className="video-tracks-control__track-item-kind"> ({ kind })</span>
+				<strong>{ label }</strong>
+				<span className="video-tracks-control__track-item-kind">
+					{ kind }
+					{ srcLang?.length ? ` [${ srcLang }]` : '' }
+				</span>
 			</div>
 			<Button variant="link" isDestructive onClick={ deleteTrackHandler }>
 				{ __( 'Delete', 'jetpack-videopress-pkg' ) }
@@ -106,6 +109,7 @@ export default function TracksControl( { attributes }: VideoControlProps ): Reac
 								setIsUploadingNewTrack( false );
 							} }
 							onSave={ uploadNewTrackFile }
+							tracks={ tracks }
 						/>
 					);
 				}
