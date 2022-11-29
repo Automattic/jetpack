@@ -6,6 +6,8 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import API from '../../api';
 import { PLUGIN_SUPPORT_URL } from '../../constants';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
@@ -19,6 +21,7 @@ import styles from './styles.module.scss';
 const FirewallPage = () => {
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
 	const { config, isSeen, isEnabled, toggleWaf, toggleManualRules, updateConfig } = useWafData();
+	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
 
@@ -29,6 +32,14 @@ const FirewallPage = () => {
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
 	} );
 	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
+
+	// Track view for Protect WAF page.
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_waf',
+		pageViewEventProperties: {
+			has_plan: hasRequiredPlan,
+		},
+	} );
 
 	const successNoticeDuration = 5000;
 

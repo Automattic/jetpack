@@ -21,7 +21,7 @@ import useStatusPolling from './use-status-polling';
 export const JETPACK_SCAN = 'jetpack_scan';
 
 const ScanPage = () => {
-	const { lastChecked, currentStatus, errorCode, errorMessage } = useProtectData();
+	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
 	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
@@ -53,6 +53,7 @@ const ScanPage = () => {
 		pageViewEventName: 'protect_admin',
 		pageViewEventProperties: {
 			check_status: currentScanStatus,
+			has_plan: hasRequiredPlan,
 		},
 	} );
 

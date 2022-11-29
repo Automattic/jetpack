@@ -65,7 +65,7 @@ const ThreatAccordionItem = ( {
 			fixable={ fixable }
 			severity={ severity }
 			onOpen={ useCallback( () => {
-				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
+				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
 				}
 				recordEvent( `jetpack_protect_${ type }_threat_open` );
