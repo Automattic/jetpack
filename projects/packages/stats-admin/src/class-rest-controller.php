@@ -210,9 +210,7 @@ class REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 */
 	public function get_single_post_likes( $req ) {
-		// It's a fixed host, so we could use wp_redirect() here.
-		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-		wp_redirect(
+		$response = wp_remote_get(
 			sprintf(
 				'%s/rest/v1.2/sites/%d/posts/%d/likes?%s',
 				JETPACK__WPCOM_JSON_API_BASE,
@@ -221,9 +219,22 @@ class REST_Controller {
 				http_build_query(
 					$req->get_params()
 				)
-			)
+			),
+			array( 'timeout' => 5 )
 		);
-		exit;
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
+			return is_wp_error( $response ) ? $response : new WP_Error(
+				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
+				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				array( 'status' => $response_code )
+			);
+
+		}
+
+		return $response_body;
 	}
 
 	/**
