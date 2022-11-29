@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added full response logging for failed Sync data requests.
