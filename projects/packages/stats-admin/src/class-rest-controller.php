@@ -274,7 +274,7 @@ class REST_Controller {
 			return $post;
 		}
 
-		// TODO: do we need to check if the post is public?
+		// It shouldn't be a problem because only title and ID are exposed.
 		return array(
 			'ID'    => $post->ID,
 			'title' => $post->post_title,
