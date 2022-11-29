@@ -4,7 +4,6 @@
 
 .toggle-section {
     display: flex;
-    margin-bottom: calc( var( --spacing-base ) * 4 ); // 32px
 
     > *:first-child {
         padding-top: calc( var( --spacing-base ) / 2 ); // 4px
@@ -17,9 +16,44 @@
             margin-right: calc( var( --spacing-base ) * 5 ); // 48px
         }
     }
+
+    & .disabled {
+        opacity: 0.5;
+    }
+}
+
+.upgrade-trigger-section {
+    margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
+
+    @media ( min-width: 600px ) {
+        margin-left: calc( var( --spacing-base ) * 11 ); // 88px
+    }
+}
+
+.upgrade-trigger {
+    margin-top: calc( var( --spacing-base ) * 3 ); // 24px
+}
+
+.edit-manual-rules-section {
+    color: var( --jp-gray-50 );
+    margin-left: calc( var( --spacing-base ) * 8 ); // 64px
+    // margin-top: calc( var( --spacing-base ) * 2 ); // 16px
+
+    >:last-child {
+        margin-top: calc( var( --spacing-base ) * 2 );
+    }
+
+    @media ( min-width: 600px ) {
+        display: flex;
+        justify-content: space-between;
+        margin-left: calc( var( --spacing-base ) * 11 ); // 88px
+    }
 }
 
 .manual-rule-section {
     margin-bottom: calc( var( --spacing-base ) * 4 ); // 32px
 }
 
+.go-back-button {
+    margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -2 );
+}
