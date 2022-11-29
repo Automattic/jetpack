@@ -2,12 +2,15 @@
  * External dependencies
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu, Button } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { getVideoPressUrl } from '../../../../../lib/url';
 import { deleteTrackForGuid, uploadTrackForGuid } from '../../../../../lib/video-tracks';
 import { TrackProps, VideoControlProps } from '../../types';
 import { tracksIcon } from '../icons';
@@ -109,6 +112,7 @@ export default function TracksControl( {
 	const { tracks, guid } = attributes;
 
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
+	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
 	const uploadNewTrackFile = useCallback( newTrack => {
 		uploadTrackForGuid( newTrack, guid ).then( () => {
@@ -120,6 +124,8 @@ export default function TracksControl( {
 	const onUpdateTrackListHandler = useCallback(
 		( updatedTracks: TrackProps[] ) => {
 			setAttributes( { tracks: updatedTracks } );
+			const videoPressUrl = getVideoPressUrl( guid, attributes );
+			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 		},
 		[ tracks ]
 	);
