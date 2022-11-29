@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { jest } from '@jest/globals';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import ActivationScreen from '..';
@@ -21,12 +21,9 @@ describe( 'ActivationScreen', () => {
 		apiStub.mockReset();
 	} );
 
-	it( 'should render ActivationScreenControls first', async () => {
+	it( 'should render ActivationScreenControls first', () => {
 		render( <ActivationScreen { ...testProps } /> );
-
-		await act( async () => {
-			expect( screen.getByLabelText( 'License key' ) ).toBeInTheDocument();
-		} );
+		expect( screen.getByLabelText( 'License key' ) ).toBeInTheDocument();
 	} );
 
 	it( 'should render an error from API', async () => {

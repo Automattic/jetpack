@@ -53,11 +53,13 @@ const parseAttachLicensesResult = result => {
  */
 const ActivationScreen = props => {
 	const {
+		availableLicenses = [],
+		currentRecommendationsStep,
+		fetchingAvailableLicenses = false,
 		onActivationSuccess = () => null,
+		siteAdminUrl,
 		siteRawUrl,
 		startingLicense,
-		siteAdminUrl,
-		currentRecommendationsStep,
 	} = props;
 
 	const [ license, setLicense ] = useState( startingLicense ?? '' );
@@ -65,28 +67,10 @@ const ActivationScreen = props => {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
-	const [ fetchingAvailableLicenses, setFetchingAvailableLicenses ] = useState( false );
-	const [ availableLicenses, setAvailableLicenses ] = useState( [] );
-
 	useEffect( () => {
 		const { apiRoot, apiNonce } = window?.myJetpackRest || {};
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
-
-		setFetchingAvailableLicenses( true );
-		return restApi
-			.getUserLicenses()
-			.then( ( { items } ) => {
-				const detachedLicenses = items
-					? items.filter( ( { attached_at } ) => attached_at === null )
-					: [];
-
-				if ( detachedLicenses.length ) {
-					setLicense( detachedLicenses[ 0 ].license_key );
-					setAvailableLicenses( detachedLicenses );
-				}
-			} )
-			.finally( () => setFetchingAvailableLicenses( false ) );
 	}, [] );
 
 	const activateLicense = useCallback( () => {
@@ -153,11 +137,13 @@ const ActivationScreen = props => {
 };
 
 ActivationScreen.propTypes = {
+	availableLicenses: PropTypes.array,
+	currentRecommendationsStep: PropTypes.string,
+	fetchingAvailableLicenses: PropTypes.bool,
 	onActivationSuccess: PropTypes.func,
+	siteAdminUrl: PropTypes.string.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
-	siteAdminUrl: PropTypes.string.isRequired,
-	currentRecommendationsStep: PropTypes.string,
 };
 
 export default ActivationScreen;
