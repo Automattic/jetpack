@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import {
@@ -55,6 +56,29 @@ const myJetpackResolvers = {
 						status: 'error',
 					}
 				);
+		}
+	},
+
+	getDetachedLicenses: () => async ( { dispatch } ) => {
+		dispatch.setDetachedLicensesIsFetching( true );
+
+		try {
+			const { apiRoot, apiNonce } = window?.myJetpackRest || {};
+			restApi.setApiRoot( apiRoot );
+			restApi.setApiNonce( apiNonce );
+			const result = await restApi.getUserLicenses();
+
+			if ( result && result.items ) {
+				dispatch.setDetachedLicenses(
+					result.items.filter( ( { attached_at } ) => attached_at === null )
+				);
+			} else {
+				dispatch.setDetachedLicenses( [] );
+			}
+		} catch ( error ) {
+			dispatch.setDetachedLicenses( [] );
+		} finally {
+			dispatch.setDetachedLicensesIsFetching( false );
 		}
 	},
 };

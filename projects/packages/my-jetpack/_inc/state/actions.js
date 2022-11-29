@@ -9,6 +9,9 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
 const FETCH_PURCHASES = 'FETCH_PURCHASES';
 const SET_PURCHASES = 'SET_PURCHASES';
+const SET_DETACHED_LICENSES_IS_FETCHING = 'SET_DETACHED_LICENSES_IS_FETCHING';
+const FETCH_DETACHED_LICENSES = 'FETCH_DETACHED_LICENSES';
+const SET_DETACHED_LICENSES = 'SET_DETACHED_LICENSES';
 const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
 const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
@@ -28,6 +31,18 @@ const fetchPurchases = () => {
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const setDetachedLicensesIsFetching = isFetching => {
+	return { type: SET_DETACHED_LICENSES_IS_FETCHING, isFetching };
+};
+
+const fetchDetachedLicenses = () => {
+	return { type: FETCH_DETACHED_LICENSES };
+};
+
+const setDetachedLicenses = detachedLicenses => {
+	return { type: SET_DETACHED_LICENSES, detachedLicenses };
 };
 
 const setProduct = product => ( { type: SET_PRODUCT, product } );
@@ -151,6 +166,9 @@ const actions = {
 	setPurchasesIsFetching,
 	fetchPurchases,
 	setPurchases,
+	setDetachedLicensesIsFetching,
+	fetchDetachedLicenses,
+	setDetachedLicenses,
 	...noticeActions,
 	...productActions,
 };
@@ -159,6 +177,9 @@ export {
 	SET_PURCHASES_IS_FETCHING,
 	FETCH_PURCHASES,
 	SET_PURCHASES,
+	SET_DETACHED_LICENSES_IS_FETCHING,
+	FETCH_DETACHED_LICENSES,
+	SET_DETACHED_LICENSES,
 	SET_PRODUCT,
 	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,

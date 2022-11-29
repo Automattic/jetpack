@@ -2,6 +2,8 @@ import { combineReducers } from '@wordpress/data';
 import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,
+	SET_DETACHED_LICENSES,
+	SET_DETACHED_LICENSES_IS_FETCHING,
 	SET_PRODUCT,
 	SET_PRODUCT_STATUS,
 	SET_IS_FETCHING_PRODUCT,
@@ -88,6 +90,25 @@ const purchases = ( state = {}, action ) => {
 	}
 };
 
+const detachedLicenses = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_DETACHED_LICENSES_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_DETACHED_LICENSES:
+			return {
+				...state,
+				items: action?.detachedLicenses || [],
+			};
+
+		default:
+			return state;
+	}
+};
+
 const notices = ( state = { global: {} }, action ) => {
 	switch ( action.type ) {
 		case SET_GLOBAL_NOTICE: {
@@ -120,6 +141,7 @@ const plugins = ( state = {} ) => {
 const reducers = combineReducers( {
 	products,
 	purchases,
+	detachedLicenses,
 	notices,
 	plugins,
 } );
