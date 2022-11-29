@@ -5,11 +5,7 @@ import { boostPrerequisitesBuilder } from './env/prerequisites.js';
 export default async function () {
 	const browser = await chromium.launch();
 	const page = await browser.newPage();
-	await prerequisitesBuilder( page )
-		.withLoggedIn( true )
-		.withActivePlugins( [ 'boost' ] )
-		.withInactivePlugins( [ 'jetpack' ] )
-		.build();
+	await prerequisitesBuilder( page ).withLoggedIn( true ).withActivePlugins( [ 'boost' ] ).build();
 	await boostPrerequisitesBuilder( page )
 		.withCleanEnv( true )
 		.withSpeedScoreMocked( true )
