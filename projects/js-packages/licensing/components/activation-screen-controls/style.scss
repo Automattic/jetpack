@@ -38,9 +38,9 @@
 
 	.jp-license-activation-screen-controls--license-field,
 	.jp-license-activation-screen-controls--license-field-with-error {
-		label {
-			font-weight: 600 !important;
-			font-size: var(--font-body) !important;
+		.components-input-control__label.components-input-control__label.components-input-control__label {
+			font-weight: 600;
+			font-size: var(--font-body);
 		}
 
 		input.components-text-control__input,
