@@ -51,6 +51,11 @@ class Dedicated_Sender {
 	const DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME = 'request_lock_id';
 
 	/**
+	 * The name of the transient to use to temporarily disable enabling of Dedicated sync.
+	 */
+	const DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG = 'jetpack_sync_dedicated_sync_temp_disable';
+
+	/**
 	 * Filter a URL to check if Dedicated Sync is enabled.
 	 * We need to remove slashes and then run it through `urldecode` as sometimes the
 	 * URL is in an encoded form, depending on server configuration.
@@ -354,7 +359,7 @@ class Dedicated_Sender {
 	 * @return void
 	 */
 	public static function disable_dedicated_sync() {
-		set_transient( 'jetpack_sync_dedicated_sync_temp_disable', true, 6 * HOUR_IN_SECONDS );
+		set_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true, 6 * HOUR_IN_SECONDS );
 
 		Settings::update_settings(
 			array(
@@ -383,7 +388,7 @@ class Dedicated_Sender {
 	 * @return bool Whether Dedicated Sync is going to be enabled or not.
 	 */
 	public static function maybe_enable_dedicated_sync( $dedicated_sync_header ) {
-		$check_transient = get_transient( 'jetpack_sync_dedicated_sync_temp_disable' );
+		$check_transient = get_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 
 		if ( $check_transient ) {
 			// Something happened and Dedicated Sync should not be automatically re-enabled.

@@ -1055,15 +1055,20 @@ class Actions {
 		// Retry after locks.
 		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
 		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
-		// Dedicated sync lock.
+		// Dedicated sync locks.
 		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+
 		// Queue locks.
 		// Note that we are just unlocking the queues here, not reseting them.
 		if ( $unlock_queues ) {
 			$sync_queue = new Queue( 'sync' );
 			$sync_queue->unlock();
+			delete_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'sync' );
+
 			$full_sync_queue = new Queue( 'full_sync' );
 			$full_sync_queue->unlock();
+			delete_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'full_sync' );
 		}
 	}
 }

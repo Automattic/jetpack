@@ -41,7 +41,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		delete_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'sync' );
 
 		// Delete the timeout Dedicated Sync enable transient to avoid side effects
-		delete_transient( 'jetpack_sync_dedicated_sync_temp_disable' );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 	}
 	/**
 	 * Returning the environment into its initial state.
@@ -128,7 +128,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'dedicated_sync_not_sending', $result->get_error_code() );
 
-		$dedicated_sync_transient = get_transient( 'jetpack_sync_dedicated_sync_temp_disable' );
+		$dedicated_sync_transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 		$this->assertTrue( $dedicated_sync_transient );
 	}
 
@@ -151,7 +151,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
 		$this->assertFalse( (bool) $dedicated_sync_status );
 
-		$dedicated_sync_transient = get_transient( 'jetpack_sync_dedicated_sync_temp_disable' );
+		$dedicated_sync_transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 		$this->assertTrue( $dedicated_sync_transient );
 	}
 
@@ -159,7 +159,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 * Tests Dedicated_Sender::maybe_enable_dedicated_sync when Sync has not been sending for a while.
 	 */
 	public function test_enable_dedicated_sync_when_temporary_disabled() {
-		set_transient( 'jetpack_sync_dedicated_sync_temp_disable', true );
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true );
 
 		$result = Dedicated_Sender::maybe_enable_dedicated_sync( 'on' );
 
