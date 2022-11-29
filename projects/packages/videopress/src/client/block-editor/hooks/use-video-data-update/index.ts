@@ -21,7 +21,7 @@ import {
 } from '../../../types';
 import extractVideoChapters from '../../../utils/extract-video-chapters';
 import generateChaptersFile from '../../../utils/generate-chapters-file';
-import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import { snakeToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
@@ -122,27 +122,38 @@ export function useSyncMedia(
 			return;
 		}
 
-		// Build an object with video data to use for the initial state.
-		const initialVideoData = videoFieldsToUpdate.reduce( ( acc, key ) => {
-			if ( typeof videoData[ key ] === 'undefined' ) {
-				return acc;
-			}
+		const attributesToUpdate: VideoBlockAttributes = {};
 
-			acc[ key ] = videoData[ key ];
-			return acc;
-		}, {} );
+		// Build an object with video data to use for the initial state.
+		const initialVideoData = videoFieldsToUpdate.reduce(
+			( acc, key ) => {
+				if ( typeof videoData[ key ] === 'undefined' ) {
+					return acc;
+				}
+
+				acc[ key ] = videoData[ key ];
+				const attrName = snakeToCamel( key );
+
+				if ( videoData[ key ] !== attributes[ attrName ] ) {
+					debug(
+						'%o is out of sync. Updating %o attr from %o to %o ',
+						key,
+						attrName,
+						attributes[ attrName ],
+						videoData[ key ]
+					);
+					attributesToUpdate[ attrName ] = videoData[ key ];
+				}
+				return acc;
+			},
+			{
+				tracks: [],
+			}
+		);
 
 		if ( ! Object.keys( initialVideoData ).length ) {
 			return;
 		}
-
-		debug( 'initialVideoData', initialVideoData );
-
-		// Let's set the internal initial state...
-		setState( initialVideoData );
-
-		// ...and udpate the block attributes with fresh data.
-		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
 
 		// Update block track attribute
 		const tracks = [];
@@ -161,9 +172,9 @@ export function useSyncMedia(
 			} );
 		}
 
-		initialAttributesValues.tracks = tracks;
+		attributesToUpdate.tracks = tracks;
 
-		setAttributes( initialAttributesValues );
+		setAttributes( attributesToUpdate );
 	}, [ videoData, isRequestingVideoData ] );
 
 	const updateMediaHandler = useMediaDataUpdate( id );
