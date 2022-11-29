@@ -364,6 +364,18 @@ class Dedicated_Sender {
 				'dedicated_sync_enabled' => 0,
 			)
 		);
+
+		// Inform that we had to temporarily disable Dedicated Sync
+		$data = array(
+			'timestamp'      => microtime( true ),
+
+			// Send the flow type that was attempted.
+			'sync_flow_type' => 'dedicated',
+		);
+
+		$sender = Sender::get_instance();
+
+		$sender->send_action( 'jetpack_sync_flow_error_temp_disable', $data );
 	}
 
 	/**
