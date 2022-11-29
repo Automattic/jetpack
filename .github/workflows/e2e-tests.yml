@@ -149,7 +149,7 @@ jobs:
           echo "TEST_SITE=${SUITE}" >> $GITHUB_ENV
 
           # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
-          node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
+          node "TEST_SITE=${SUITE} $GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
         fi
 
         if [ "${SUITE}" == gutenberg ]; then
