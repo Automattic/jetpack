@@ -162,7 +162,7 @@ const FirewallPage = () => {
 
 	const [ showManualRules, setShowManualRules ] = useState( false );
 
-	const handleClick = useCallback( () => {
+	const handleShowManualRulesClick = useCallback( () => {
 		if ( showManualRules ) {
 			return setShowManualRules( false );
 		}
@@ -251,7 +251,7 @@ const FirewallPage = () => {
 										{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
 									</Text>
 									<Button variant={ 'link' }>
-										<Text variant={ 'body-small' } onClick={ handleClick }>
+										<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
 											{ __( 'Edit manual rules', 'jetpack-protect' ) }
 										</Text>
 									</Button>
@@ -264,7 +264,7 @@ const FirewallPage = () => {
 								className={ styles[ 'go-back-button' ] }
 								variant={ 'icon' }
 								icon={ arrowLeft }
-								onClick={ handleClick }
+								onClick={ handleShowManualRulesClick }
 							>
 								<Text>{ __( 'Go back', 'jetpack-protect' ) }</Text>
 							</Button>
