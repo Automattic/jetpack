@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.14.7 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
 ## 0.14.6 - 2022-11-22
 ### Changed
 - Updated package dependencies. [#27043]
