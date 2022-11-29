@@ -199,6 +199,18 @@
 .backup-panel {
 	padding-top: 8px;
 	padding-bottom: 24px;
+
+	a.button {
+		height: auto;
+		line-height: 24px;
+		width: auto;
+		text-align: center;
+
+		@include for-tablet-down {
+			width: 100%;
+			
+		}
+	}
 }
 
 .backup-segments {

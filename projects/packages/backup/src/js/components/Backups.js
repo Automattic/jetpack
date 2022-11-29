@@ -138,7 +138,7 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 						{
 							Button: (
 								<a
-									className="button is-full-width"
+									className="button"
 									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
 									onClick={ trackSeeBackupsCtaClick }
 									target="_blank"
