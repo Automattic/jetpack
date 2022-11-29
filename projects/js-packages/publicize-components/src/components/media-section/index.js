@@ -4,10 +4,10 @@ import { Button, ResponsiveWrapper, Spinner, Notice } from '@wordpress/component
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { MediaValidator } from './MediaValidator';
 import styles from './styles.module.scss';
 
 /**
@@ -50,14 +50,14 @@ const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
  * @returns {object} The media section.
  */
 export default function MediaSection() {
-	const [ showNotice, setShotNotice ] = useState( false );
+	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { connections } = useSocialMediaConnections();
 	const enabledConnections = connections.filter( connection => connection.enabled );
 
-	const mediaValidator = useMemo( () => new MediaValidator( enabledConnections ), [
-		enabledConnections,
-	] );
+	const { maxImageSize, allowedImageTypes, getValidationError } = useMediaRestrictions(
+		enabledConnections
+	);
 
 	const mediaObject = useSelect( select =>
 		select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } )
@@ -66,14 +66,15 @@ export default function MediaSection() {
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if (
-			mediaObject &&
-			! mediaValidator.isImageValid( mediaObject.media_details?.filesize, mediaObject.mime_type )
-		) {
-			updateAttachedMedia( [] );
-			setShotNotice( true );
+		if ( ! mediaObject ) {
+			return;
 		}
-	}, [ updateAttachedMedia, mediaObject, mediaValidator ] );
+		const error = getValidationError( mediaObject.media_details?.filesize, mediaObject.mime_type );
+		if ( error ) {
+			setValidationError( error );
+			updateAttachedMedia( [] );
+		}
+	}, [ updateAttachedMedia, mediaObject, getValidationError ] );
 
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
@@ -81,16 +82,17 @@ export default function MediaSection() {
 			// allowedTypes doesn't properly disallow uploaded media types.
 			// See: https://github.com/WordPress/gutenberg/issues/25130
 			// Do not select media if criteria is not met
-			if ( ! mediaValidator.isImageValid( media.filesizeInBytes, media.mime ) ) {
+			const error = getValidationError( media.filesizeInBytes, media.mime );
+			if ( error ) {
 				updateAttachedMedia( [] );
-				setShotNotice( true );
+				setValidationError( error );
 				return;
 			}
 
 			updateAttachedMedia( [ media.id ] );
-			setShotNotice( false );
+			validationError && setValidationError( null );
 		},
-		[ updateAttachedMedia, mediaValidator ]
+		[ updateAttachedMedia, getValidationError, validationError ]
 	);
 
 	const setMediaRender = useCallback(
@@ -118,7 +120,7 @@ export default function MediaSection() {
 		[]
 	);
 
-	const onDismissClick = useCallback( () => setShotNotice( false ), [] );
+	const onDismissClick = useCallback( () => setValidationError( null ), [] );
 
 	return (
 		<div className={ styles.wrapper }>
@@ -126,7 +128,7 @@ export default function MediaSection() {
 				<MediaUpload
 					title={ ADD_MEDIA_LABEL }
 					onSelect={ onUpdateMedia }
-					allowedTypes={ mediaValidator.allowedImageTypes }
+					allowedTypes={ allowedImageTypes }
 					render={ setMediaRender }
 					value={ attachedMedia[ 0 ] }
 				/>
@@ -135,7 +137,7 @@ export default function MediaSection() {
 						<MediaUpload
 							title={ REPLACE_MEDIA_LABEL }
 							onSelect={ onUpdateMedia }
-							allowedTypes={ mediaValidator.allowedImageTypes }
+							allowedTypes={ allowedImageTypes }
 							render={ replaceMediaRender }
 						/>
 						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
@@ -143,25 +145,30 @@ export default function MediaSection() {
 						</Button>
 					</>
 				) }
-				{ showNotice && (
+				{ validationError && (
 					<Notice
 						className={ styles.notice }
 						isDismissible={ true }
 						onDismiss={ onDismissClick }
 						status="warning"
 					>
-						<p>{ __( 'The selected media size is too big for these platforms.', 'jetpack' ) }</p>
+						{ validationError === 1 && (
+							<p>{ __( 'The selected media type not accepted by these platforms.', 'jetpack' ) }</p>
+						) }
+						{ validationError === 2 && (
+							<p>{ __( 'The selected media size is too big for these platforms.', 'jetpack' ) }</p>
+						) }
 					</Notice>
 				) }
 				{ ! mediaObject && (
 					<Fragment>
 						<Text variant="title-small">{ __( 'Max image size', 'jetpack' ) }</Text>
 						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ mediaValidator.maxImageSize } Mb` }</Text>
+							<Text>{ ` ${ maxImageSize } Mb` }</Text>
 						</Notice>
 						<Text variant="title-small">{ __( 'Allowed types', 'jetpack' ) }</Text>
 						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ mediaValidator.allowedImageTypes.join( ', ' ) }` }</Text>
+							<Text>{ ` ${ allowedImageTypes.join( ', ' ) }` }</Text>
 						</Notice>
 					</Fragment>
 				) }
