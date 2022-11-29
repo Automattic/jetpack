@@ -14,7 +14,7 @@ export const VideoPressIcon = (
 	</SVG>
 );
 
-export const captionIcon = (
+export const tracksIcon = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<Path d="M7 15.5H17V17H7V15.5Z" fill="black" />
 		<Path d="M17 12.5H7V14H17V12.5Z" fill="black" />

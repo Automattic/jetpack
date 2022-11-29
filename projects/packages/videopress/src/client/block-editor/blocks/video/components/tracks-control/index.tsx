@@ -10,7 +10,7 @@ import { upload } from '@wordpress/icons';
  */
 import { deleteTrackForGuid, uploadTrackForGuid } from '../../../../../lib/video-tracks';
 import { TrackProps, VideoControlProps } from '../../types';
-import { captionIcon } from '../icons';
+import { tracksIcon } from '../icons';
 import './style.scss';
 import TrackForm from './track-form';
 import { TrackItemProps, TrackListProps } from './types';
@@ -126,7 +126,7 @@ export default function TracksControl( {
 
 	return (
 		<ToolbarDropdownMenu
-			icon={ captionIcon }
+			icon={ tracksIcon }
 			label={ __( 'Text tracks', 'jetpack-videopress-pkg' ) }
 			popoverProps={ {
 				variant: 'toolbar',
