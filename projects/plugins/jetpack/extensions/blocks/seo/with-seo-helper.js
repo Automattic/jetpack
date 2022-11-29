@@ -3,6 +3,10 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import { get } from 'lodash';
 
 const validate = value => {
+	if ( typeof value === 'boolean' ) {
+		return true;
+	}
+
 	if ( typeof value !== 'string' ) {
 		return false;
 	}
