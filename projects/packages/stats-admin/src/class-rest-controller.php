@@ -374,7 +374,7 @@ class REST_Controller {
 		if ( $use_cache ) {
 			$response_body = get_transient( $cache_key );
 			if ( false !== $response_body ) {
-				return $response_body;
+				return json_decode( $response_body, true );
 			}
 		}
 
@@ -385,13 +385,14 @@ class REST_Controller {
 			$body,
 			$base_api_path = 'rest'
 		);
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+		$response_code       = wp_remote_retrieve_response_code( $response );
+		$response_body       = wp_remote_retrieve_body( $response );
+		$response_body_array = json_decode( $response_body, true );
 
-		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
+		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body_array ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error(
-				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				isset( $response_body_array['error'] ) ? 'remote-error-' . $response_body_array['error'] : 'remote-error',
+				isset( $response_body_array['message'] ) ? $response_body_array['message'] : 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 
