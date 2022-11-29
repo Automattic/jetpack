@@ -25,14 +25,20 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 	/*
 	 * Redirect only if connected
 	 */
-	const callOnlyIfAllowed = callback => () => {
+	const handleActivate = useCallback( () => {
 		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
 			navigateToConnectionPage();
 			return;
 		}
 
-		callback();
-	};
+		activate();
+	}, [
+		activate,
+		isRegistered,
+		isUserConnected,
+		requiresUserConnection,
+		navigateToConnectionPage,
+	] );
 
 	const Icon = getIconBySlug( slug );
 
@@ -46,8 +52,8 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 			isFetching={ isFetching }
 			onDeactivate={ deactivate }
 			slug={ slug }
-			onActivate={ callOnlyIfAllowed( activate ) }
-			onAdd={ callOnlyIfAllowed( navigateToAddProductPage ) }
+			onActivate={ handleActivate }
+			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
 		/>
