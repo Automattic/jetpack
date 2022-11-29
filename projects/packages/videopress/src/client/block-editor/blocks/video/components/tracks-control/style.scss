@@ -15,6 +15,10 @@
 	display: flex;
 	justify-content: space-between;
 	padding: 8px;
+
+	&.is-deleting {
+		opacity: 0.5;
+	}
 }
 
 .video-tracks-control__track-item-kind {
