@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
@@ -354,52 +353,6 @@ class REST_Controller {
 		}
 
 		return rest_ensure_response( $has_never_published_post );
-	}
-
-	/**
-	 * Query the WordPress.com REST API using the blog token
-	 *
-	 * @param String $path The API endpoint relative path.
-	 * @param String $version The API version.
-	 * @param array  $args Request arguments.
-	 * @param String $body Request body.
-	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
-	 * @param bool   $use_cache (optional) default to true.
-	 * @return array|WP_Error $response Data.
-	 */
-	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true ) {
-		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
-
-		if ( $use_cache ) {
-			$response_body = get_transient( $cache_key );
-			if ( false !== $response_body ) {
-				return json_decode( $response_body, true );
-			}
-		}
-
-		$response          = Client::wpcom_json_api_request_as_blog(
-			$path,
-			$version,
-			$args,
-			$body,
-			$base_api_path = 'rest'
-		);
-		$response_code       = wp_remote_retrieve_response_code( $response );
-		$response_body       = wp_remote_retrieve_body( $response );
-		$response_body_array = json_decode( $response_body, true );
-
-		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body_array ) ) {
-			return is_wp_error( $response ) ? $response : new WP_Error(
-				isset( $response_body_array['error'] ) ? 'remote-error-' . $response_body_array['error'] : 'remote-error',
-				isset( $response_body_array['message'] ) ? $response_body_array['message'] : 'unknown remote error',
-				array( 'status' => $response_code )
-			);
-
-		}
-
-		set_transient( $cache_key, $response_body, 5 * MINUTE_IN_SECONDS );
-		return $response_body;
 	}
 
 	/**
