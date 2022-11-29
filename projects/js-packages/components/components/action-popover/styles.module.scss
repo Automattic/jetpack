@@ -1,0 +1,49 @@
+.wrapper {
+	width: 304px;
+	min-height: 230px;
+	padding: calc( var( --spacing-base ) * 3 ); // 24px;
+	display: flex;
+	flex-direction: column;
+
+	.header {
+		display: flex;
+		margin-bottom: calc( var( --spacing-base ) * 2 ); // 16px
+		justify-content: space-between;
+
+		.title {
+			max-width: 226px;
+		}
+	
+		.close-button {
+			width: calc( var( --spacing-base ) * 3 ); // 24px
+			height: calc( var( --spacing-base ) * 3 ); // 24px
+			fill: var( --jp-gray-90 );
+		
+			flex-shrink: 0;
+			padding: 0;
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+			outline: none;
+		}
+	}
+
+	.footer {
+		height: calc( var( --spacing-base ) * 6 ); // 48px
+		margin-top: calc( var( --spacing-base ) * 2 ); // 16px
+		display: flex;
+		justify-content: flex-end;
+		align-items: flex-end;
+		flex-grow: 1;
+
+		.steps {
+			color: var( --jp-gray-60 );
+			flex-grow: 1;
+			margin-bottom: var( --spacing-base );
+		}
+
+		.action-button {
+			flex-shrink: 0;
+		}
+	}
+}
