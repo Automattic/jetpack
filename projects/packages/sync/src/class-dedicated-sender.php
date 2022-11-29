@@ -387,21 +387,25 @@ class Dedicated_Sender {
 	 *
 	 * @return bool Whether Dedicated Sync is going to be enabled or not.
 	 */
-	public static function maybe_enable_dedicated_sync( $dedicated_sync_header ) {
-		$check_transient = get_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+	public static function maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header ) {
+		$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
 
-		if ( $check_transient ) {
-			// Something happened and Dedicated Sync should not be automatically re-enabled.
-			return false;
+		// Prevent enabling of Dedicated sync via header flag if we're in an autoheal timeout.
+		if ( $dedicated_sync_enabled ) {
+			$check_transient = get_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+
+			if ( $check_transient ) {
+				// Something happened and Dedicated Sync should not be automatically re-enabled.
+				return false;
+			}
 		}
 
-		$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
 		Settings::update_settings(
 			array(
 				'dedicated_sync_enabled' => $dedicated_sync_enabled,
 			)
 		);
 
-		return (bool) $dedicated_sync_enabled;
+		return Settings::is_dedicated_sync_enabled();
 	}
 }

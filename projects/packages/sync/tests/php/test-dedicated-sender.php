@@ -161,7 +161,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_enable_dedicated_sync_when_temporary_disabled() {
 		set_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true );
 
-		$result = Dedicated_Sender::maybe_enable_dedicated_sync( 'on' );
+		$result = Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( 'on' );
 
 		$this->assertFalse( $result );
 

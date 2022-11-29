@@ -494,7 +494,7 @@ class Actions {
 		// Enable/Disable Dedicated Sync flow via response headers.
 		$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
 		if ( false !== $dedicated_sync_header ) {
-			Dedicated_Sender::maybe_enable_dedicated_sync( $dedicated_sync_header );
+			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
 		}
 
 		if ( ! $result ) {
