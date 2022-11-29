@@ -255,24 +255,34 @@ export function useSyncMedia(
 				chapters?.length
 			) {
 				const track: UploadTrackDataProps = {
-					label: __( 'English', 'jetpack-videopress-pkg' ),
+					label: __( 'English (auto-generated)', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
 					kind: 'chapters',
 					tmpFile: generateChaptersFile( dataToUpdate.description ),
 				};
 
 				uploadTrackForGuid( track, guid ).then( ( src: string ) => {
+					const autoGeneratdTrackIndex = attributes.tracks.findIndex(
+						t => t.kind === 'chapters' && t.srcLang === 'en'
+					);
+
+					const uploadedTrack = {
+						...track,
+						src,
+					};
+
+					const tracks = [ ...attributes.tracks ];
+
+					if ( autoGeneratdTrackIndex > -1 ) {
+						debug( 'Updating auto-generated track' );
+						tracks[ autoGeneratdTrackIndex ] = uploadedTrack;
+					} else {
+						debug( 'Adding auto-generated track' );
+						tracks.push( uploadedTrack );
+					}
+
 					// Update block track attribute
-					setAttributes( {
-						tracks: [
-							{
-								label: track.label,
-								srcLang: track.srcLang,
-								kind: track.kind,
-								src,
-							},
-						],
-					} );
+					setAttributes( { tracks } );
 
 					const videoPressUrl = getVideoPressUrl( guid, attributes );
 					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
