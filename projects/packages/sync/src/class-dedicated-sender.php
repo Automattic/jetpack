@@ -144,37 +144,34 @@ class Dedicated_Sender {
 		 */
 		$last_successful_queue_send_time = Sender::get_last_successful_send_time_for_queue( $queue->id );
 
-		$queue_send_time_threshold = 1 * HOUR_IN_SECONDS;
+		/**
+		 * How much time to wait before we start suspecting Dedicated Sync is in trouble.
+		 */
+		$queue_send_time_threshold = 30 * MINUTE_IN_SECONDS;
 
-		if ( $last_successful_queue_send_time === null ) {
-						/**
-			 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
-			 *
-			 * Let's try to figure out what case we're in. The easiest approach would be to check the queue age.
-			 *
-			 * If it's more than the threshold value we check for here, then it's safe to say the site is stuck.
-			 */
-			$queue_lag = $queue->lag();
+		$queue_lag = $queue->lag();
 
-			if ( $queue_lag > $queue_send_time_threshold ) {
-				// We're in a stuck state, let's revert
+		// Only check if we're failing to send events if the queue lag is longer than the threshold.
+		if ( $queue_lag > $queue_send_time_threshold ) {
+			if ( $last_successful_queue_send_time === null ) {
+				/**
+				 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
+				 */
 				self::disable_dedicated_sync();
 
 				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
-			}
-		} else {
-			/**
-			 * We have recorded a successful sending of events. Let's see if that is not too long ago in the past.
-			 */
-			$time_since_last_succesful_send = time() - $last_successful_queue_send_time;
+			} else {
+				/**
+				 * We have recorded a successful sending of events. Let's see if that is not too long ago in the past.
+				 */
+				$time_since_last_succesful_send = time() - $last_successful_queue_send_time;
 
-			// TODO There needs to be a check for the queue lag here as sometimes sites can go a long time without new events.
+				if ( $time_since_last_succesful_send > $queue_send_time_threshold ) {
+					// We haven't successfully sent stuff in more than 30 minutes. Revert to Default Sync
+					self::disable_dedicated_sync();
 
-			if ( $time_since_last_succesful_send > $queue_send_time_threshold ) {
-				// We haven't successfully sent stuff in more than 1 hour. Revert to Default Sync
-				self::disable_dedicated_sync();
-
-				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+					return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+				}
 			}
 		}
 

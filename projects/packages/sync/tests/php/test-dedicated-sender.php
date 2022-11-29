@@ -121,7 +121,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	public function test_spawn_sync_with_laggy_queue_disable_dedicated_sync() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 
-		$this->queue->method( 'lag' )->will( $this->returnValue( 3 * HOUR_IN_SECONDS ) );
+		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
 
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 
@@ -137,6 +137,8 @@ class Test_Dedicated_Sender extends BaseTestCase {
 	 */
 	public function test_spawn_sync_with_sync_not_sending_disable_dedicated_sync() {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
 
 		// Set the last succesful sync time to be 3 hours ago, since the threshold is 1 hour.
 		update_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'sync', time() - 3 * HOUR_IN_SECONDS, false );
