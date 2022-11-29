@@ -8,6 +8,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -28,6 +29,8 @@ import {
 } from '../../blocks/video/types';
 import useVideoData from '../use-video-data';
 import { UseSyncMediaProps, UseSyncMediaOptionsProps } from './types';
+
+const debug = debugFactory( 'videopress:video:use-sync-media' );
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
@@ -132,6 +135,8 @@ export function useSyncMedia(
 		if ( ! Object.keys( initialVideoData ).length ) {
 			return;
 		}
+
+		debug( 'initialVideoData', initialVideoData );
 
 		// Let's set the internal initial state...
 		setState( initialVideoData );
