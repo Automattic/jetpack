@@ -110,6 +110,26 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			/* Allows the filtering to happens using a list of privacy settings separated by comma */
 			$videopress_privacy_setting_list = explode( ',', $videopress_privacy_setting );
 
+			$site_default_is_private = Data::get_videopress_videos_private_for_site();
+
+			if ( $site_default_is_private ) {
+				/**
+				 * If the search is looking for private videos and the site default is private,
+				 * the site default setting should be included on the search.
+				 */
+				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PRIVATE ), $videopress_privacy_setting_list, true ) ) {
+					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+				}
+			} else {
+				/**
+				 * If the search is looking for public videos and the site default is public,
+				 * the site default setting should be included on the search.
+				 */
+				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PUBLIC ), $videopress_privacy_setting_list, true ) ) {
+					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+				}
+			}
+
 			$args['meta_query'][] = array(
 				'key'     => 'videopress_privacy_setting',
 				'value'   => $videopress_privacy_setting_list,
@@ -202,15 +222,22 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			$caption     = $info->caption;
 		}
 
+		$video_privacy_setting          = ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting );
+		$all_videos_are_private_on_site = Data::get_videopress_videos_private_for_site();
+
+		// decide if the video needs a playback token based on the site privacy setting as well as the video privacy setting
+		$video_needs_playback_token = $all_videos_are_private_on_site ? true : ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+
 		return array(
-			'title'           => $title,
-			'description'     => $description,
-			'caption'         => $caption,
-			'guid'            => $info->guid,
-			'rating'          => $info->rating,
-			'allow_download'  =>
+			'title'                => $title,
+			'description'          => $description,
+			'caption'              => $caption,
+			'guid'                 => $info->guid,
+			'rating'               => $info->rating,
+			'allow_download'       =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'privacy_setting' => ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
+			'privacy_setting'      => $video_privacy_setting,
+			'needs_playback_token' => $video_needs_playback_token,
 		);
 	}
 

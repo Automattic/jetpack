@@ -14,6 +14,7 @@ import { _n, sprintf } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import PublicizeConnection from '../connection';
+import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
 import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
@@ -26,13 +27,15 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
- * @param {string} props.connectionsAdminUrl               - URL to the Admin connections page
+ * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
+ * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
 	isPublicizeEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
+	isEnhancedPublishingEnabled = false,
 	connectionsAdminUrl,
 } ) {
 	const {
@@ -61,8 +64,8 @@ export default function PublicizeForm( {
 									sprintf(
 										/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
 										_n(
-											'You have %d share remaining. <upgradeLink>Upgrade</upgradeLink> to share to all your social media accounts.',
-											'You have %d shares remaining. <upgradeLink>Upgrade</upgradeLink> to share to all your social media accounts.',
+											'You have %d share remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+											'You have %d shares remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
 											numberOfSharesRemaining,
 											'jetpack'
 										),
@@ -135,11 +138,14 @@ export default function PublicizeForm( {
 					<PublicizeSettingsButton />
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
-						<MessageBoxControl
-							maxLength={ maxLength }
-							onChange={ updateMessage }
-							message={ message }
-						/>
+						<>
+							<MessageBoxControl
+								maxLength={ maxLength }
+								onChange={ updateMessage }
+								message={ message }
+							/>
+							{ isEnhancedPublishingEnabled && <MediaSection /> }
+						</>
 					) }
 				</Fragment>
 			) }

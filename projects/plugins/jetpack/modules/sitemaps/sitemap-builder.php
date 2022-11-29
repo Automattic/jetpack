@@ -1246,9 +1246,6 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			),
 		);
 
-		$item_array['url']['image:image']['image:title']   = $post->post_title;
-		$item_array['url']['image:image']['image:caption'] = $post->post_excerpt;
-
 		/**
 		 * Filter associative array with data to build <url> node
 		 * and its descendants for current post in image sitemap.

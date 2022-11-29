@@ -3,12 +3,17 @@
  */
 import { Col, Container, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 /**
  * Internal dependencies
  */
+import { usePermission } from '../../hooks/use-permission';
+import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import { CheckboxCheckmark } from '../video-filter';
 import { SiteSettingsSectionProps } from './types';
+/**
+ * Types
+ */
+import type React from 'react';
 
 /**
  * VideoPress SettingsSection component
@@ -17,8 +22,11 @@ import { SiteSettingsSectionProps } from './types';
  * @returns {React.ReactElement}   Component template
  */
 const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
-	onPrivacySettingsChange,
+	videoPressVideosPrivateForSite,
+	onPrivacyChange,
 } ) => {
+	const { canPerformAction } = usePermission();
+
 	return (
 		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
 			<Col>
@@ -33,10 +41,27 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 						'Video Privacy: Restrict views to members of this site',
 						'jetpack-videopress-pkg'
 					) }
-					onChange={ onPrivacySettingsChange }
+					onChange={ onPrivacyChange }
+					checked={ videoPressVideosPrivateForSite }
+					disabled={ ! canPerformAction }
 				/>
 			</Col>
 		</Container>
+	);
+};
+
+export const ConnectSiteSettingsSection = () => {
+	const { settings, onUpdate } = useVideoPressSettings();
+	const { videoPressVideosPrivateForSite } = settings;
+	return (
+		<SiteSettingsSection
+			videoPressVideosPrivateForSite={ videoPressVideosPrivateForSite }
+			onPrivacyChange={ newPrivacyValue => {
+				onUpdate( {
+					videoPressVideosPrivateForSite: newPrivacyValue,
+				} );
+			} }
+		/>
 	);
 };
 

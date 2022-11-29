@@ -1,12 +1,12 @@
 {
 	"name": "jetpack-boost",
-	"version": "1.5.4-alpha",
+	"version": "1.6.1-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
 	},
 	"dependencies": {
-		"@automattic/jetpack-base-styles": "workspace:* || ^0.3",
+		"@automattic/jetpack-base-styles": "workspace:*",
 		"@wordpress/components": "22.0.0",
 		"@wordpress/element": "4.19.0",
 		"history": "5.3.0",
@@ -15,7 +15,7 @@
 		"svelte-navigator": "3.1.5"
 	},
 	"devDependencies": {
-		"@automattic/jetpack-components": "workspace:* || ^0.24",
+		"@automattic/jetpack-components": "workspace:*",
 		"@babel/core": "7.20.2",
 		"@babel/preset-env": "7.20.2",
 		"@babel/preset-react": "7.18.6",

@@ -5,7 +5,12 @@ export type SiteSettingsSectionProps = {
 	className?: string;
 
 	/**
+	 * Define if the videos are private at the site level.
+	 */
+	videoPressVideosPrivateForSite: boolean;
+
+	/**
 	 * Callback function to be invoked when the privacy settings changes.
 	 */
-	onPrivacySettingsChange?: ( isPrivate: boolean ) => void;
+	onPrivacyChange?: ( isPrivate: boolean ) => void;
 };

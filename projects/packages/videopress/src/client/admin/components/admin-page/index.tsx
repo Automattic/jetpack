@@ -14,7 +14,6 @@ import {
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
-	useConnection,
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
@@ -30,13 +29,14 @@ import { STORE_ID } from '../../../state';
 import uid from '../../../utils/uid';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useDropFiles from '../../hooks/use-drop-files';
+import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import Logo from '../logo';
 import PricingSection from '../pricing-section';
-import SettingsSection from '../site-settings-section';
+import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
 import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
@@ -47,6 +47,7 @@ const useDashboardVideos = () => {
 
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
+	const { hasVideoPressPurchase } = usePlan();
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
@@ -54,11 +55,13 @@ const useDashboardVideos = () => {
 	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
-	const handleFilesUpload = ( files: FileList | File[] ) => {
-		const file = files instanceof FileList || Array.isArray( files ) ? files[ 0 ] : files; // @todo support multiple files upload
-
-		if ( file ) {
-			uploadVideo( file );
+	const handleFilesUpload = ( files: File[] ) => {
+		if ( hasVideoPressPurchase ) {
+			files.forEach( file => {
+				uploadVideo( file );
+			} );
+		} else if ( files.length > 0 ) {
+			uploadVideo( files[ 0 ] );
 		}
 	};
 
@@ -83,6 +86,7 @@ const useDashboardVideos = () => {
 		handleLocalVideoUpload,
 		loading: isFetching,
 		uploading: uploading?.length > 0,
+		hasVideoPressPurchase,
 	};
 };
 
@@ -98,21 +102,25 @@ const Admin = () => {
 		handleLocalVideoUpload,
 		loading,
 		uploading,
+		hasVideoPressPurchase,
 	} = useDashboardVideos();
 
-	const { hasVideoPressPurchase } = usePlan();
-
-	const { isRegistered, hasConnectedOwner } = useConnection();
+	const { canPerformAction, isRegistered, hasConnectedOwner, isUserConnected } = usePermission();
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
 
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const canDrop = hasVideoPressPurchase && isRegistered && hasVideos && ! loading;
+	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
 
-	const { isDraggingOver, inputRef, handleFileInputChangeEvent } = useDropFiles( {
-		canDrop,
+	const {
+		isDraggingOver,
+		inputRef,
+		handleFileInputChangeEvent,
+		filterVideoFiles,
+	} = useSelectVideoFiles( {
+		canDrop: canUpload && ! loading,
 		dropElement: document,
 		onSelectFiles: handleFilesUpload,
 	} );
@@ -130,7 +138,7 @@ const Admin = () => {
 		>
 			<div
 				className={ classnames( styles[ 'files-overlay' ], {
-					[ styles.hover ]: isDraggingOver && canDrop,
+					[ styles.hover ]: isDraggingOver && canUpload && ! loading,
 				} ) }
 			>
 				<Text className={ styles[ 'drop-text' ] } variant="headline-medium">
@@ -157,6 +165,12 @@ const Admin = () => {
 			) : (
 				<>
 					<AdminSectionHero>
+						<Container horizontalSpacing={ 0 }>
+							<Col>
+								<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
+							</Col>
+						</Container>
+
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 							{ hasConnectionError && (
 								<Col>
@@ -164,30 +178,36 @@ const Admin = () => {
 								</Col>
 							) }
 
-							{ ! hasConnectedOwner && (
+							{ ( ! hasConnectedOwner || ! isUserConnected ) && (
 								<Col sm={ 4 } md={ 8 } lg={ 12 }>
 									<NeedUserConnectionGlobalNotice />
 								</Col>
 							) }
+
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
 								</Text>
 
-								<ConnectVideoStorageMeter
-									className={ styles[ 'storage-meter' ] }
-									progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
-								/>
+								{ hasVideoPressPurchase && (
+									<ConnectVideoStorageMeter
+										className={ styles[ 'storage-meter' ] }
+										progressBarClassName={ styles[ 'storage-meter__progress-bar' ] }
+									/>
+								) }
 
 								<FormFileUpload
-									onChange={ evt => handleFilesUpload( evt.currentTarget.files ) }
+									onChange={ evt =>
+										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+									}
 									accept={ fileInputExtensions }
+									multiple={ hasVideoPressPurchase }
 									render={ ( { openFileDialog } ) => (
 										<Button
 											fullWidth={ isSm }
 											onClick={ openFileDialog }
 											isLoading={ loading }
-											disabled={ ! hasVideoPressPurchase && hasVideos }
+											disabled={ ! canUpload }
 										>
 											{ addVideoLabel }
 										</Button>
@@ -233,12 +253,12 @@ const Admin = () => {
 							) }
 						</Container>
 					</AdminSection>
+
+					<AdminSection>
+						<SettingsSection />
+					</AdminSection>
 				</>
 			) }
-
-			<AdminSection>
-				<SettingsSection />
-			</AdminSection>
 		</AdminPage>
 	);
 };

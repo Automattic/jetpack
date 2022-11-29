@@ -239,11 +239,11 @@ export class DashStats extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate Jetpack Stats</a> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+									Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
 									a1: (
 										<a
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }

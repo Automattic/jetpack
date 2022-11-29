@@ -172,12 +172,12 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<a>Activate Jetpack Stats</a> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
 											'jetpack'
 										),
 										{
-											a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
-											a1: (
+											Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
+											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 													target="_blank"
@@ -240,6 +240,19 @@ class SiteStatsComponent extends React.Component {
 										'Include a small chart in your admin bar with a 48-hour traffic snapshot',
 										'jetpack'
 									) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
+						{ /* We hide the new Stats option till we lauch it to the general public. */ }
+						<FormFieldset style={ { display: 'none' } }>
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
+								onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Preview new Jetpack Stats experience (Experimental)', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>

@@ -11,7 +11,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
-import { getSubscriberCount } from './api';
+import { getSubscriberCounts } from './api';
 import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
@@ -19,13 +19,17 @@ import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
+	const [ followerCount, setFollowerCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 
 	const accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
 
 	useEffect( () => {
-		getSubscriberCount( count => setSubscriberCount( count ) );
+		getSubscriberCounts( counts => {
+			setSubscriberCount( counts.email_subscribers );
+			setFollowerCount( counts.social_followers );
+		} );
 	}, [] );
 
 	// Only show this for posts for now (subscriptions are only available on posts).
@@ -52,7 +56,10 @@ export default function SubscribePanels() {
 	}
 
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
-	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
+	const showNotices =
+		( Number.isFinite( subscriberCount ) && subscriberCount > 0 ) ||
+		( Number.isFinite( followerCount ) && followerCount > 0 );
+
 	return (
 		<>
 			{ isNewsletterFeatureEnabled() && (
@@ -71,14 +78,18 @@ export default function SubscribePanels() {
 					<InspectorNotice>
 						{ createInterpolateElement(
 							sprintf(
-								/* translators: %s is the number of subscribers */
-								_n(
-									'This post will be sent to <span>%s reader</span>',
-									'This post will be sent to <span>%s readers</span>',
-									subscriberCount,
-									'jetpack'
+								/* translators: 1$s will be email subscribers, %2$s will be social followers */
+								__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+								sprintf(
+									/* translators: %s will be a number of email subscribers */
+									_n( '%s email subscriber', '%s email subscribers', subscriberCount, 'jetpack' ),
+									numberFormat( subscriberCount )
 								),
-								numberFormat( subscriberCount )
+								sprintf(
+									/* translators: %s will be a number of social followers */
+									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+									numberFormat( followerCount )
+								)
 							),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }
@@ -94,14 +105,18 @@ export default function SubscribePanels() {
 					<InspectorNotice>
 						{ createInterpolateElement(
 							sprintf(
-								/* translators: %s is the number of subscribers */
-								_n(
-									'This post has been sent to <span>%s reader</span>',
-									'This post has been sent to <span>%s readers</span>',
-									subscriberCount,
-									'jetpack'
+								/* translators: 1$s will be email subscribers, %2$s will be social followers */
+								__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+								sprintf(
+									/* translators: %s will be a number of email subscribers */
+									_n( '%s email subscriber', '%s email subscribers', subscriberCount, 'jetpack' ),
+									numberFormat( subscriberCount )
 								),
-								numberFormat( subscriberCount )
+								sprintf(
+									/* translators: %s will be a number of social followers */
+									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+									numberFormat( followerCount )
+								)
 							),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }

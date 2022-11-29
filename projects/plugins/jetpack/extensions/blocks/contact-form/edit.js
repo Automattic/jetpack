@@ -1,47 +1,52 @@
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
-	BlockControls,
 	InnerBlocks,
 	InspectorControls,
 	URLInput,
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
+	Button,
 	ExternalLink,
-	Flex,
-	Icon,
+	Modal,
 	PanelBody,
 	SelectControl,
 	TextareaControl,
 	TextControl,
-	ToolbarGroup,
-	ToolbarItem,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
 import InspectorHint from '../../shared/components/inspector-hint';
-import { JetpackLogo, MailIcon, NewsletterIcon } from '../../shared/icons';
+import { childBlocks } from './child-blocks';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import JetpackFormSettingsDropdown from './components/jetpack-form-settings-dropdown';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
+import SalesforceLeadFormSettings, {
+	salesforceLeadFormVariation,
+} from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
+	...map( childBlocks, block => `jetpack/${ block.name }` ),
 	'core/audio',
+	'core/columns',
+	'core/group',
 	'core/heading',
 	'core/image',
 	'core/list',
 	'core/paragraph',
+	'core/row',
 	'core/separator',
 	'core/spacer',
+	'core/stack',
 	'core/subhead',
 	'core/video',
 ];
@@ -75,11 +80,21 @@ export function JetpackContactFormEdit( {
 		customThankyouRedirect,
 		jetpackCRM,
 		formTitle,
+		salesforceData,
 	} = attributes;
+
+	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
 	const formClassnames = classnames( className, 'jetpack-contact-form', {
 		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 	} );
+	const isSalesForceExtensionEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
+		'contact-form/salesforce-lead-form'
+	];
+
+	if ( isSalesForceExtensionEnabled ) {
+		variations = [ ...variations, salesforceLeadFormVariation ];
+	}
 
 	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
@@ -140,7 +155,7 @@ export function JetpackContactFormEdit( {
 					<TextControl
 						label={ __( 'Message Heading', 'jetpack' ) }
 						value={ customThankyouHeading }
-						placeholder={ __( 'Message Sent', 'jetpack' ) }
+						placeholder={ __( 'Your message has been sent', 'jetpack' ) }
 						onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
 					/>
 				) }
@@ -186,14 +201,32 @@ export function JetpackContactFormEdit( {
 						setVariation( nextVariation );
 					} }
 				/>
-				<Flex>
-					<ExternalLink className="form-placeholder__external-link" href={ CUSTOMIZING_FORMS_URL }>
-						{ __( 'Learn more about customizing forms.', 'jetpack' ) }
-					</ExternalLink>
-					<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
-						{ __( 'View and export your form responses here.', 'jetpack' ) }
-					</ExternalLink>
-				</Flex>
+				<div className="form-placeholder__footer">
+					<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
+						{ __( 'Explore Form Patterns', 'jetpack' ) }
+					</Button>
+					<div className="form-placeholder__footer-links">
+						<ExternalLink
+							className="form-placeholder__external-link"
+							href={ CUSTOMIZING_FORMS_URL }
+						>
+							{ __( 'Learn more about customizing forms.', 'jetpack' ) }
+						</ExternalLink>
+						<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
+							{ __( 'View and export your form responses here.', 'jetpack' ) }
+						</ExternalLink>
+					</div>
+				</div>
+				{ isPatternsModalOpen && (
+					<Modal
+						className="form-placeholder__patterns-modal"
+						title={ __( 'Choose a pattern', 'jetpack' ) }
+						closeLabel={ __( 'Cancel', 'jetpack' ) }
+						onRequestClose={ () => setIsPatternsModalOpen( false ) }
+					>
+						<BlockPatternSetup blockName={ 'jetpack/contact-form' } clientId={ clientId } />
+					</Modal>
+				) }
 			</div>
 		);
 	};
@@ -202,60 +235,8 @@ export function JetpackContactFormEdit( {
 		return renderVariationPicker();
 	}
 
-	const formSettingsSections = [
-		{
-			title: __( 'Email Connection', 'jetpack' ),
-			icon: <Icon icon={ MailIcon } />,
-			// eslint-disable-next-line no-shadow
-			content: ( { attributes, setAttributes } ) => (
-				<JetpackEmailConnectionSettings
-					emailAddress={ attributes.to }
-					emailSubject={ attributes.subject }
-					instanceId={ instanceId }
-					postAuthorEmail={ postAuthorEmail }
-					setAttributes={ setAttributes }
-				/>
-			),
-		},
-	];
-
-	if ( ! isSimpleSite() ) {
-		formSettingsSections.push( {
-			title: __( 'Newsletter Integration', 'jetpack' ),
-			icon: <Icon icon={ NewsletterIcon } />,
-			content: () => <NewsletterIntegrationSettings />,
-		} );
-
-		if ( canUserInstallPlugins ) {
-			formSettingsSections.push( {
-				title: 'Jetpack CRM',
-				icon: <JetpackLogo border={ 2 } />,
-				// eslint-disable-next-line no-shadow
-				content: ( { attributes, setAttributes } ) => (
-					<CRMIntegrationSettings
-						jetpackCRM={ attributes.jetpackCRM }
-						setAttributes={ setAttributes }
-					/>
-				),
-			} );
-		}
-	}
-
 	return (
 		<>
-			<BlockControls>
-				<ToolbarGroup>
-					<ToolbarItem>
-						{ () => (
-							<JetpackFormSettingsDropdown
-								attributes={ attributes }
-								setAttributes={ setAttributes }
-								settings={ formSettingsSections }
-							/>
-						) }
-					</ToolbarItem>
-				</ToolbarGroup>
-			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
@@ -272,6 +253,14 @@ export function JetpackContactFormEdit( {
 						setAttributes={ setAttributes }
 					/>
 				</PanelBody>
+
+				{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
+					<SalesforceLeadFormSettings
+						salesforceData={ salesforceData }
+						setAttributes={ setAttributes }
+						instanceId={ instanceId }
+					/>
+				) }
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (

@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
 
 /**
@@ -7,12 +8,15 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { statusIsFetching, status, securityBundle, productData } = useSelect( select => ( {
-		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
-		status: select( STORE_ID ).getStatus(),
-		securityBundle: select( STORE_ID ).getSecurityBundle(),
-		productData: select( STORE_ID ).getProductData(),
-	} ) );
+	const { statusIsFetching, status, jetpackScan, productData, hasRequiredPlan } = useSelect(
+		select => ( {
+			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+			status: select( STORE_ID ).getStatus(),
+			jetpackScan: select( STORE_ID ).getJetpackScan(),
+			productData: select( STORE_ID ).getProductData(),
+			hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
+		} )
+	);
 
 	let currentStatus = 'error';
 	if ( true === statusIsFetching ) {
@@ -21,20 +25,50 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
+	const numCoreThreats = useMemo( () => status.core?.threat?.length || 0, [ status.core ] );
+
+	const numPluginsThreats = useMemo(
+		() =>
+			( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
+				return numThreats + plugin.threats.length;
+			}, 0 ),
+		[ status.plugins ]
+	);
+
+	const numThemesThreats = useMemo(
+		() =>
+			( status.themes || [] ).reduce( ( numThreats, theme ) => {
+				return numThreats + theme.threats.length;
+			}, 0 ),
+		[ status.themes ]
+	);
+
+	const numFilesThreats = useMemo( () => status.files?.length || 0, [ status.files ] );
+
+	const numDatabaseThreats = useMemo( () => status.database?.length || 0, [ status.database ] );
+
+	const numThreats =
+		numCoreThreats + numPluginsThreats + numThemesThreats + numFilesThreats + numDatabaseThreats;
+
 	return {
-		numVulnerabilities: status.numVulnerabilities || 0,
-		numCoreVulnerabilities: status.core?.vulnerabilities?.length || 0,
-		numPluginsVulnerabilities: status.numPluginsVulnerabilities || 0,
-		numThemesVulnerabilities: status.numThemesVulnerabilities || 0,
+		numThreats,
+		numCoreThreats,
+		numPluginsThreats,
+		numThemesThreats,
+		numFilesThreats,
+		numDatabaseThreats,
 		lastChecked: status.lastChecked || null,
 		errorCode: status.errorCode || null,
 		errorMessage: status.errorMessage || null,
 		core: status.core || {},
 		plugins: status.plugins || [],
 		themes: status.themes || [],
+		files: { threats: status.files || [] },
+		database: { threats: status.database || [] },
 		currentStatus,
 		hasUncheckedItems: status.hasUncheckedItems,
-		securityBundle,
+		jetpackScan,
 		productData,
+		hasRequiredPlan,
 	};
 }

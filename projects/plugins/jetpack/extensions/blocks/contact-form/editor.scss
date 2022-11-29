@@ -18,14 +18,14 @@
 		}
 	}
 
-	.block-editor-block-list__layout {
+	> .block-editor-inner-blocks > .block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
 		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
-		.wp-block {
+		> .wp-block {
 			flex: 0 0 100%;
 			margin: 0;
 
@@ -83,6 +83,7 @@
 	.help-message,
 	.components-placeholder__fieldset {
 		text-align: left;
+		max-width: none;
 	}
 
 	.help-message {
@@ -105,6 +106,17 @@
 		margin-bottom: 16px;
 	}
 
+	.form-placeholder__footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.form-placeholder__footer-links {
+		display: flex;
+		flex-direction: column;
+	}
+
 	.form-placeholder__external-link {
 		font-size: 13px;
 
@@ -113,6 +125,41 @@
 			height: 1.4em;
 			margin-left: 2px;
 		}
+	}
+}
+
+.form-placeholder__patterns-modal {
+	max-width: 1200px;
+
+	@include break-small() {
+		width: calc(100% - #{ $grid-unit-20 * 2 });
+		height: calc(100% - #{ $header-height * 2 });
+	}
+	@include break-medium() {
+		width: $break-medium - $grid-unit-20 * 2;
+	}
+	@include break-large() {
+		height: 80%;
+		width: 80%;
+		max-height: none;
+	}
+
+	.components-modal__content {
+		padding: 0;
+
+		.view-mode-carousel {
+			.pattern-slide {
+				border: 1px solid #ddd;
+			}
+
+			.block-editor-block-pattern-setup__container {
+				padding: 0 32px;
+			}
+		}
+	}
+
+	.block-editor-block-pattern-setup__grid .block-editor-block-pattern-setup__container {
+		padding-bottom: 72px;
 	}
 }
 

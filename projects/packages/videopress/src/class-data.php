@@ -25,6 +25,30 @@ class Data {
 	}
 
 	/**
+	 * Gets the VideoPress site privacy configuration.
+	 *
+	 * @return boolean If all the videos are private on the site
+	 */
+	public static function get_videopress_videos_private_for_site() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', false ) );
+		} else {
+			return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
+		}
+	}
+
+	/**
+	 * Gets the VideoPress Settings.
+	 *
+	 * @return array The settings as an associative array.
+	 */
+	public static function get_videopress_settings() {
+		return array(
+			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
+		);
+	}
+
+	/**
 	 * Gets the video data
 	 *
 	 * @param boolean $is_videopress - True when getting VideoPress data.
@@ -158,8 +182,12 @@ class Data {
 	 */
 	public static function get_connected_initial_state() {
 		return array(
-			'videos' => array(
+			'videos'    => array(
 				'storageUsed' => self::get_storage_used(),
+			),
+			'purchases' => array(
+				'items'      => Site::get_purchases(),
+				'isFetching' => false,
 			),
 		);
 	}
@@ -177,6 +205,19 @@ class Data {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks if the user is able to perform actions that modify data
+	 */
+	public static function can_perform_action() {
+		$connection = new Connection_Manager();
+
+		return (
+			$connection->is_connected() &&
+			self::has_connected_owner() &&
+			$connection->is_user_connected()
+		);
 	}
 
 	/**
@@ -239,15 +280,16 @@ class Data {
 				$width                    = $media_details['width'];
 				$height                   = $media_details['height'];
 
-				$title           = $jetpack_videopress['title'];
-				$description     = $jetpack_videopress['description'];
-				$caption         = $jetpack_videopress['caption'];
-				$rating          = $jetpack_videopress['rating'];
-				$allow_download  = $jetpack_videopress['allow_download'];
-				$privacy_setting = $jetpack_videopress['privacy_setting'];
+				$title                = $jetpack_videopress['title'];
+				$description          = $jetpack_videopress['description'];
+				$caption              = $jetpack_videopress['caption'];
+				$rating               = $jetpack_videopress['rating'];
+				$allow_download       = $jetpack_videopress['allow_download'];
+				$privacy_setting      = $jetpack_videopress['privacy_setting'];
+				$needs_playback_token = $jetpack_videopress['needs_playback_token'];
 
 				$original      = $videopress_media_details['original'];
-				$poster        = $privacy_setting !== 1 ? $videopress_media_details['poster'] : null;
+				$poster        = ( ! $needs_playback_token ) ? $videopress_media_details['poster'] : null;
 				$upload_date   = $videopress_media_details['upload_date'];
 				$duration      = $videopress_media_details['duration'];
 				$is_private    = $videopress_media_details['is_private'];
@@ -262,34 +304,40 @@ class Data {
 				}
 
 				return array(
-					'id'             => $id,
-					'guid'           => $guid,
-					'title'          => $title,
-					'description'    => $description,
-					'caption'        => $caption,
-					'url'            => $original,
-					'uploadDate'     => $upload_date,
-					'duration'       => $duration,
-					'isPrivate'      => $is_private,
-					'posterImage'    => $poster,
-					'allowDownload'  => $allow_download,
-					'rating'         => $rating,
-					'privacySetting' => $privacy_setting,
-					'poster'         => array(
+					'id'                 => $id,
+					'guid'               => $guid,
+					'title'              => $title,
+					'description'        => $description,
+					'caption'            => $caption,
+					'url'                => $original,
+					'uploadDate'         => $upload_date,
+					'duration'           => $duration,
+					'isPrivate'          => $is_private,
+					'posterImage'        => $poster,
+					'allowDownload'      => $allow_download,
+					'rating'             => $rating,
+					'privacySetting'     => $privacy_setting,
+					'needsPlaybackToken' => $needs_playback_token,
+					'poster'             => array(
 						'src'    => $poster,
 						'width'  => $width,
 						'height' => $height,
 					),
-					'thumbnail'      => $thumbnail,
-					'finished'       => $finished,
+					'thumbnail'          => $thumbnail,
+					'finished'           => $finished,
 				);
 			},
 			$videopress_data['videos']
 		);
 
+		$site_settings = self::get_videopress_settings();
+
 		$initial_state = array(
-			'users'       => self::get_user_data(),
-			'videos'      => array(
+			'users'        => self::get_user_data(),
+			'siteSettings' => array(
+				'videoPressVideosPrivateForSite' => $site_settings['videopress_videos_private_for_site'],
+			),
+			'videos'       => array(
 				'uploadedVideoCount'           => $videopress_data['total'],
 				'items'                        => $videos,
 				'isFetching'                   => false,
@@ -303,8 +351,7 @@ class Data {
 					'relyOnInitialState' => true,
 				),
 			),
-
-			'localVideos' => array(
+			'localVideos'  => array(
 				'uploadedVideoCount'           => $local_videos_data['total'],
 				'items'                        => $local_videos,
 				'isFetching'                   => false,

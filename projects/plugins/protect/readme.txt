@@ -1,14 +1,14 @@
 === Jetpack Protect ===
-Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline
+Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline, dkmyta
 Tags: jetpack, protect, security, malware, scan
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.0.2
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack Protect - Free malware scan and WordPress site security
+Free daily malware scanning and WordPress site security. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand, that has over 25,000 registered malware and vulnerabilities. No configuration required!
 
 == Description ==
 
@@ -109,7 +109,7 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.4 - 2022-08-29
-#### Fixed
-- Fixed NaN error that prevented the pricing interstitial from rendering.
+## 1.1.1 - 2022-11-18
+### Fixed
+- Fix issue with plugin activation.
 
