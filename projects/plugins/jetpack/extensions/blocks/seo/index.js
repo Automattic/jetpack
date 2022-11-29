@@ -5,6 +5,7 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import SeoDescriptionPanel from './description-panel';
+import SeoNoindexPanel from './noindex-panel';
 import SeoTitlePanel from './title-panel';
 
 import './editor.scss';
@@ -13,12 +14,12 @@ export const name = 'seo';
 
 export const settings = {
 	render: () => {
-		const generalPanelProps = {
-			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+		const jetpackSeoPanelProps = {
+			title: __( 'Jetpack SEO', 'jetpack' ),
 		};
 
-		const jetpackSeoPanelProps = {
-			...generalPanelProps,
+		const jetpackSeoPrePublishPanelProps = {
+			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
 			title: __( 'Jetpack SEO', 'jetpack' ),
 		};
 
@@ -32,16 +33,22 @@ export const settings = {
 						<PanelRow>
 							<SeoDescriptionPanel />
 						</PanelRow>
+						<PanelRow>
+							<SeoNoindexPanel />
+						</PanelRow>
 					</PanelBody>
 				</JetpackPluginSidebar>
 
-				<PluginPrePublishPanel { ...jetpackSeoPanelProps }>
+				<PluginPrePublishPanel { ...jetpackSeoPrePublishPanelProps }>
 					<Fragment>
 						<PanelRow>
 							<SeoTitlePanel />
 						</PanelRow>
 						<PanelRow>
 							<SeoDescriptionPanel />
+						</PanelRow>
+						<PanelRow>
+							<SeoNoindexPanel />
 						</PanelRow>
 					</Fragment>
 				</PluginPrePublishPanel>

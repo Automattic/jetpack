@@ -289,9 +289,8 @@ const setPurchases = purchases => {
 const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, select, resolveSelect } ) => {
 	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
 
+	const video = await select.getVideo( id );
 	const getPlaybackTokenIfNeeded = async () => {
-		const video = await select.getVideo( id );
-
 		if ( ! video.needsPlaybackToken ) {
 			return null;
 		}
@@ -343,6 +342,18 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, select, reso
 
 	try {
 		dispatch( { type: SET_UPDATING_VIDEO_POSTER, id } );
+
+		/**
+		 * For some reason, the thumbnail generator fails when a time
+		 * too close to the end of the media is selected. This code is
+		 * detecting this scenario and is bringing back the selected frame
+		 * to a point where it will succeeed, but close enough to not affect
+		 * much the thumbnail itself.
+		 */
+		const poster_to_duration_threshold = video.duration - data.at_time;
+		if ( poster_to_duration_threshold < 50 ) {
+			data.at_time -= poster_to_duration_threshold + 50;
+		}
 
 		const resp = await apiFetch( { method: 'POST', path, data } );
 
