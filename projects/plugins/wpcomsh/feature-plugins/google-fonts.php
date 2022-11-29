@@ -41,3 +41,17 @@ function wpcomsh_rm_google_fonts_module_list( $items ) {
 	return $items;
 }
 add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_google_fonts_module_list' );
+
+/**
+ * Replaces Google Fonts API references in enqueued styles with our caching reverse proxy.
+ *
+ * @see pMz3w-g6E-p2#comment-103418
+ *
+ * @param string $src The source URL of the enqueued style.
+ * @return string
+ */
+function wpcomsh_google_fonts_proxy( $src ) {
+	return str_replace( 'fonts.googleapis.com', 'fonts-api.wp.com', $src );
+}
+add_filter( 'style_loader_src', 'wpcomsh_google_fonts_proxy' );
+add_filter( 'wp_resource_hints', 'wpcomsh_google_fonts_proxy' );
