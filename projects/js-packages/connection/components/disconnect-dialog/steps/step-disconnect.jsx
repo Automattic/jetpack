@@ -48,6 +48,7 @@ const StepDisconnect = props => {
 	const handleEscapePress = useCallback(
 		event => {
 			if ( event.key === 'Escape' ) {
+				document.removeEventListener( 'keydown', handleEscapePress, false );
 				handleStayConnectedClick();
 			}
 		},
