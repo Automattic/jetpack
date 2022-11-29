@@ -1064,11 +1064,9 @@ class Actions {
 		if ( $unlock_queues ) {
 			$sync_queue = new Queue( 'sync' );
 			$sync_queue->unlock();
-			delete_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'sync' );
 
 			$full_sync_queue = new Queue( 'full_sync' );
 			$full_sync_queue->unlock();
-			delete_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'full_sync' );
 		}
 	}
 }

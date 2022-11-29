@@ -25,16 +25,6 @@ class Sender {
 	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
 
 	/**
-	 * Name of the option name prefix that stores the time of last successful sending of events.
-	 * This is only the prefix. It will have the queue name appended to it when being used.
-	 *
-	 * @access public
-	 *
-	 * @var string
-	 */
-	const LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX = 'jetpack_sync_last_succesful_send_time_';
-
-	/**
 	 * Sync timeout after a WPCOM error.
 	 *
 	 * @access public
