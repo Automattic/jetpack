@@ -145,11 +145,6 @@ class Dedicated_Sender {
 			return new WP_Error( 'sync_throttled_' . $queue->id );
 		}
 		/**
-		 * Check if Dedicated Sync is healthy and revert to Default Sync if such case is detected.
-		 */
-		$last_successful_queue_send_time = get_option( Actions::LAST_SUCCESS_PREFIX . $queue->id, null );
-
-		/**
 		 * How much time to wait before we start suspecting Dedicated Sync is in trouble.
 		 */
 		$queue_send_time_threshold = 30 * MINUTE_IN_SECONDS;
@@ -158,6 +153,11 @@ class Dedicated_Sender {
 
 		// Only check if we're failing to send events if the queue lag is longer than the threshold.
 		if ( $queue_lag > $queue_send_time_threshold ) {
+			/**
+			 * Check if Dedicated Sync is healthy and revert to Default Sync if such case is detected.
+			 */
+			$last_successful_queue_send_time = get_option( Actions::LAST_SUCCESS_PREFIX . $queue->id, null );
+
 			if ( $last_successful_queue_send_time === null ) {
 				/**
 				 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
