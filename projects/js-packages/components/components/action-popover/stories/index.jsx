@@ -75,9 +75,7 @@ const Template = args => {
 	return (
 		<>
 			<div className={ styles.wrapper }>
-				<div ref={ setAnchor } className={ styles.anchor }>
-					⚓
-				</div>
+				<div ref={ setAnchor }>⚓</div>
 			</div>
 
 			<ActionPopover { ...args } anchor={ anchor } />

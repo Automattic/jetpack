@@ -1,11 +1,7 @@
 .wrapper {
 	height: 100vh;
-	width: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
-	.anchor {
-		display: flex;
-	}
+	background-color: var( --jp-gray-off );
 }
