@@ -116,12 +116,12 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test should display gift notice when monthly plan expiring under 7 days.
+	 * Test should display gift notice when monthly plan expiring under 5 days.
 	 */
-	public function test_should_display_gift_notice_when_monthly_plan_expiring_under_7_days() {
+	public function test_should_display_gift_notice_when_monthly_plan_expiring_under_5_days() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle-monthly',
-			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P6D' ) )->format( 'c' ),
+			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P4D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
@@ -130,12 +130,12 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test should not display gift notice when monthly plan expiring more than 7 days out.
+	 * Test should not display gift notice when monthly plan expiring more than 5 days out.
 	 */
-	public function test_should_not_display_gift_notice_when_monthly_plan_expiring_more_than_7_days_out() {
+	public function test_should_not_display_gift_notice_when_monthly_plan_expiring_more_than_5_days_out() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle-monthly',
-			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P8D' ) )->format( 'c' ),
+			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P6D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
@@ -144,12 +144,12 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test should display gift notice when annual plan expiring under 60 days.
+	 * Test should display gift notice when annual plan expiring under 54 days.
 	 */
-	public function test_should_display_gift_notice_when_annual_plan_expiring_under_60_days() {
+	public function test_should_display_gift_notice_when_annual_plan_expiring_under_54_days() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle',
-			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P59D' ) )->format( 'c' ),
+			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P53D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
@@ -158,12 +158,12 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test should not display gift notice when annual plan expiring more than 60 days out.
+	 * Test should not display gift notice when annual plan expiring more than 54 days out.
 	 */
-	public function test_should_not_display_gift_notice_when_annual_plan_expiring_more_than_60_days_out() {
+	public function test_should_not_display_gift_notice_when_annual_plan_expiring_more_than_54_days_out() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle',
-			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P61D' ) )->format( 'c' ),
+			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P55D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );

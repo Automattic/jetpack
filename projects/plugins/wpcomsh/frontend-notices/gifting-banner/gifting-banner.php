@@ -66,10 +66,10 @@ class Gifting_Banner {
 
 		/*
 		 * We will display the banner:
-		 * - 60 days before the annual plan expiration.
-		 * - 7 days before the monthly plan expiration.
+		 * - 54 days before the annual plan expiration.
+		 * - 5 days before the monthly plan expiration.
 		 */
-		$days_of_warning          = false !== strpos( $this->current_plan->product_slug, 'monthly' ) ? 7 : 60;
+		$days_of_warning          = false !== strpos( $this->current_plan->product_slug, 'monthly' ) ? 5 : 54;
 		$seconds_until_expiration = strtotime( $this->current_plan->expiry_date ) - time();
 
 		if ( $seconds_until_expiration < $days_of_warning * DAY_IN_SECONDS ) {
