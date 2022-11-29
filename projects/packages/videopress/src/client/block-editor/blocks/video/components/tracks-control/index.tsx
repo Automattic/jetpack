@@ -25,9 +25,10 @@ import type React from 'react';
 function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElement {
 	const { kind, label, srcLang } = track;
 
-	const deleteTrackHandler = useCallback( () => {
+	const deleteTrackHandler = () => {
 		deleteTrackForGuid( track, guid ).then( () => onDelete?.( track ) );
-	}, [] );
+		onDelete?.( track );
+	};
 
 	return (
 		<div className="video-tracks-control__track-item">
@@ -51,7 +52,7 @@ function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElem
  * @param {TrackListProps} props - Component props.
  * @returns {React.ReactElement}   TracksControl block control
  */
-function TrackList( { tracks, guid, onDeleteTrack }: TrackListProps ): React.ReactElement {
+function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React.ReactElement {
 	if ( ! tracks?.length ) {
 		return (
 			<MenuGroup className="video-tracks-control__track_list__no-tracks">
@@ -62,6 +63,14 @@ function TrackList( { tracks, guid, onDeleteTrack }: TrackListProps ): React.Rea
 			</MenuGroup>
 		);
 	}
+
+	const onDeleteTrackHandler = useCallback(
+		( deletedTrack: TrackProps ) => {
+			const updatedTrackList = [ ...tracks ].filter( t => t !== deletedTrack );
+			onTrackListUpdate( updatedTrackList );
+		},
+		[ tracks ]
+	);
 
 	return (
 		<MenuGroup
@@ -74,7 +83,7 @@ function TrackList( { tracks, guid, onDeleteTrack }: TrackListProps ): React.Rea
 						key={ `${ track.kind }-${ index }` }
 						track={ track }
 						guid={ guid }
-						onDelete={ onDeleteTrack }
+						onDelete={ onDeleteTrackHandler }
 					/>
 				);
 			} ) }
@@ -103,9 +112,12 @@ export default function TracksControl( {
 		setIsUploadingNewTrack( true );
 	}, [] );
 
-	const onDeleteTrackHandler = useCallback( ( track: TrackProps ) => {
-		setAttributes( { tracks: tracks.filter( t => t !== track ) } );
-	}, [] );
+	const onUpdateTrackListHandler = useCallback(
+		( updatedTracks: TrackProps[] ) => {
+			setAttributes( { tracks: updatedTracks } );
+		},
+		[ tracks ]
+	);
 
 	return (
 		<ToolbarDropdownMenu
@@ -129,7 +141,12 @@ export default function TracksControl( {
 				}
 				return (
 					<>
-						<TrackList tracks={ tracks } guid={ guid } onDeleteTrack={ onDeleteTrackHandler } />
+						<TrackList
+							tracks={ tracks }
+							guid={ guid }
+							onTrackListUpdate={ onUpdateTrackListHandler }
+						/>
+
 						<MenuGroup
 							label={ __( 'Add tracks', 'jetpack-videopress-pkg' ) }
 							className="video-tracks-control"

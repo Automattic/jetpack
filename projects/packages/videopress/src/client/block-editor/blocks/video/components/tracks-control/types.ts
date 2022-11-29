@@ -13,7 +13,7 @@ export type TrackItemProps = {
 export type TrackListProps = {
 	tracks: TrackProps[];
 	guid: VideoGUID;
-	onDeleteTrack?: ( track: TrackProps ) => void;
+	onTrackListUpdate?: ( tracks: TrackProps[] ) => void;
 };
 
 export type TrackFormProps = {
