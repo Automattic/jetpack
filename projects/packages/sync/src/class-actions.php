@@ -517,7 +517,9 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error_log[ (string) microtime( true ) ] = $rpc->get_jetpack_error();
+			$error = $rpc->get_jetpack_error();
+			$error->add_data( $rpc->get_last_response() );
+			$error_log[ (string) microtime( true ) ] = $error;
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 
