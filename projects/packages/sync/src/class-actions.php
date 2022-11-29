@@ -362,7 +362,7 @@ class Actions {
 			'queue_locked_sync'                     => $queue->is_locked(),
 			'queue_locked_full_sync'                => $full_queue->is_locked(),
 			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
-			'dedicated_sync_temporary_disable_flag' => Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG,
+			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
 		);
 
 		// Sync Logs.
