@@ -392,7 +392,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					clientId={ clientId }
 				/>
 
-				<TracksControl attributes={ attributes } />
+				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
 			<InspectorControls>
