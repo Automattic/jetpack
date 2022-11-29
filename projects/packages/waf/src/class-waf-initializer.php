@@ -19,6 +19,7 @@ class Waf_Initializer {
 	public static function init() {
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**
