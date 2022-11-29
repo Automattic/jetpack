@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Removes old save() implementation for the subscription block. Doesn't impact user experience as the block is already dynamic.

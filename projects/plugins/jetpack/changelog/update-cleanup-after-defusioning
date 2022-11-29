@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Tests: Clean up wpcom-compat functions no longer needed post-de-Fusioning.

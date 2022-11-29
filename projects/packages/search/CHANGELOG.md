@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2022-11-28
+### Added
+- Add an optional global flag that prevents instant search from modifying the url as the search query is being written or modified. [#27264]
+- Add prompt for Jetpack Search Free plan upgrade for users who exceed limits. [#27462]
+- Search: Add checkmark icon for resolved topics [#27586]
+
+### Changed
+- Suggest free Jetpack Search plan instead of the paid one to classic search users [#27372]
+- Updated package dependencies. [#26069]
+
 ## [0.30.2] - 2022-11-10
 ### Changed
 - Updated package dependencies. [#27319]
@@ -610,6 +620,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.31.0]: https://github.com/Automattic/jetpack-search/compare/v0.30.2...v0.31.0
 [0.30.2]: https://github.com/Automattic/jetpack-search/compare/v0.30.1...v0.30.2
 [0.30.1]: https://github.com/Automattic/jetpack-search/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/Automattic/jetpack-search/compare/v0.29.2...v0.30.0

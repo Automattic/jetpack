@@ -22,7 +22,7 @@ else
 	exit 1
 fi
 
-if [[ ! "$BRANCH" =~ /branch- ]]; then
+if [[ "$BRANCH" != "prerelease" && ! "$BRANCH" =~ /branch- ]]; then
 	echo "::error::Not a release branch, no filtering needed."
 	exit 0
 fi
@@ -40,12 +40,21 @@ while read -r GIT_SLUG; do
 	cd "${CLONE_DIR}"
 
 	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
-	if [[ -z "$PREFIX" ]]; then
-		echo "Not mirroring release branch $BRANCH to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
-	elif [[ "${BRANCH%%/branch-*}" != "$PREFIX" ]]; then
-		echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` != declared prefix \`$PREFIX\`"
+	if [[ "$BRANCH" == "prerelease" ]]; then
+		if [[ -n "$PREFIX" ]]; then
+			echo "Not mirroring prerelease branch to $GIT_SLUG: an .extra.release-branch-prefix is declared in composer.json"
+		else
+			echo "Mirroring prerelease branch to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
+			echo "$GIT_SLUG" >&4
+		fi
 	else
-		echo "Mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` == declared prefix \`$PREFIX\`"
-		echo "$GIT_SLUG" >&4
+		if [[ -z "$PREFIX" ]]; then
+			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
+		elif [[ "${BRANCH%%/branch-*}" != "$PREFIX" ]]; then
+			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` != declared prefix \`$PREFIX\`"
+		else
+			echo "Mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` == declared prefix \`$PREFIX\`"
+			echo "$GIT_SLUG" >&4
+		fi
 	fi
 done < "$BUILD_BASE/mirrors.txt.orig" 4> "$BUILD_BASE/mirrors.txt"
