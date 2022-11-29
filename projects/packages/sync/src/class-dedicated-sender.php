@@ -147,7 +147,7 @@ class Dedicated_Sender {
 		/**
 		 * Check if Dedicated Sync is healthy and revert to Default Sync if such case is detected.
 		 */
-		$last_successful_queue_send_time = Sender::get_last_successful_send_time_for_queue( $queue->id );
+		$last_successful_queue_send_time = get_option( Actions::LAST_SUCCESS_PREFIX . $queue->id, null );
 
 		/**
 		 * How much time to wait before we start suspecting Dedicated Sync is in trouble.

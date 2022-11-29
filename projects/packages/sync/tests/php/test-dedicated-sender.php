@@ -38,7 +38,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 			->getMock();
 
 		// Delete the Last successful sync option to make sure it's not causing side effects.
-		delete_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'sync' );
+		delete_option( Actions::LAST_SUCCESS_PREFIX . 'sync' );
 
 		// Delete the timeout Dedicated Sync enable transient to avoid side effects
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
@@ -141,7 +141,7 @@ class Test_Dedicated_Sender extends BaseTestCase {
 		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
 
 		// Set the last succesful sync time to be 3 hours ago, since the threshold is 1 hour.
-		update_option( Sender::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . 'sync', time() - 3 * HOUR_IN_SECONDS, false );
+		update_option( Actions::LAST_SUCCESS_PREFIX . 'sync', time() - 3 * HOUR_IN_SECONDS, false );
 
 		$result = Dedicated_Sender::spawn_sync( $this->queue );
 

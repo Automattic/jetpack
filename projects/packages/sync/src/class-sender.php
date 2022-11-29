@@ -656,39 +656,10 @@ class Sender {
 				if ( $had_wp_error ) {
 					return new WP_Error( 'wpcom_error', $wp_error->get_error_code() );
 				}
-
-				self::update_last_successful_send_time_for_queue( $queue->id );
 			}
 		}
 
 		return true;
-	}
-
-	/**
-	 * Updates the last successful send time for a specific queue.
-	 *
-	 * @param string $queue The queue that we should update for.
-	 *
-	 * @return void
-	 */
-	public static function update_last_successful_send_time_for_queue( $queue ) {
-		/**
-		 * Set the last time that we managed to successfully send sync events to now, so we can
-		 * act accordingly when detecting if Sync is stuck for some reason.
-		 */
-
-		update_option( self::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . $queue, time(), false );
-	}
-
-	/**
-	 * Return the last successful sync time for a queue.
-	 *
-	 * @param string $queue The queue to return the time for.
-	 *
-	 * @return string|null
-	 */
-	public static function get_last_successful_send_time_for_queue( $queue ) {
-		return get_option( self::LAST_SUCCESSFUL_SYNC_TIME_OPTION_PREFIX . $queue, null );
 	}
 
 	/**
