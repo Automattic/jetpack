@@ -355,13 +355,14 @@ class Actions {
 		$full_queue = self::$sender->get_full_sync_queue();
 
 		$debug['debug_details']['sync_locks'] = array(
-			'retry_time_sync'             => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
-			'retry_time_full_sync'        => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
-			'next_sync_time_sync'         => self::$sender->get_next_sync_time( 'sync' ),
-			'next_sync_time_full_sync'    => self::$sender->get_next_sync_time( 'full_sync' ),
-			'queue_locked_sync'           => $queue->is_locked(),
-			'queue_locked_full_sync'      => $full_queue->is_locked(),
-			'dedicated_sync_request_lock' => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
+			'retry_time_full_sync'                  => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
+			'next_sync_time_sync'                   => self::$sender->get_next_sync_time( 'sync' ),
+			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
+			'queue_locked_sync'                     => $queue->is_locked(),
+			'queue_locked_full_sync'                => $full_queue->is_locked(),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_temporary_disable_flag' => Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG,
 		);
 
 		// Sync Logs.
