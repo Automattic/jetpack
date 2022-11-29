@@ -158,10 +158,31 @@ export function useSyncMedia(
 		// Update block track attribute
 		const tracks = [];
 
+		/*
+		 * Re arragne the tracks to match the block attribute format.
+		 * Also, check if the track is out of sync with the media item.
+		 * If so, update the track attribute.
+		 */
+		let syncTracks = false;
+
 		if ( videoData?.tracks ) {
 			Object.keys( videoData.tracks ).forEach( kind => {
 				for ( const srcLang in videoData.tracks[ kind ] ) {
 					const track = videoData.tracks[ kind ][ srcLang ];
+					const trackExistsInBlock = attributes.tracks.find( t => {
+						return (
+							t.kind === kind &&
+							t.srcLang === srcLang &&
+							t.src === track.src &&
+							t.label === track.label
+						);
+					} );
+
+					if ( ! trackExistsInBlock ) {
+						debug( 'Track %o is out of sync. Updating tracks attr', track.src );
+						syncTracks = true;
+					}
+
 					tracks.push( {
 						src: track.src,
 						kind,
@@ -172,7 +193,11 @@ export function useSyncMedia(
 			} );
 		}
 
-		attributesToUpdate.tracks = tracks;
+		if ( syncTracks ) {
+			attributesToUpdate.tracks = tracks;
+		}
+
+		debug( 'attributesToUpdate: ', attributesToUpdate );
 
 		setAttributes( attributesToUpdate );
 	}, [ videoData, isRequestingVideoData ] );
