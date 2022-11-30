@@ -26,10 +26,16 @@ class Gifting_Banner {
 	 * Maybe show the gifting banner for the current site.
 	 */
 	public function maybe_show_gifting_banner() {
+		$blog_id         = null;
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( $jetpack_options ) {
+			$blog_id = (int) $jetpack_options['id'];
+		}
+
 		// Hide the gifting banner behind a8c proxy.
 		if ( ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ||
 			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST ) ||
-			0 === get_current_blog_id() % 10 ) {
+			( ! is_null( $blog_id ) && 0 === $blog_id % 10 ) ) {
 
 			if ( $this->should_display_expiring_plan_notice() ) {
 				// Inject the gifting banner after the launch banner.
