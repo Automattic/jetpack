@@ -29,9 +29,9 @@ import {
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
-	UPLOADING_VIDEO,
-	PROCESSING_VIDEO,
-	UPLOADED_VIDEO,
+	SET_VIDEO_UPLOADING,
+	SET_VIDEO_PROCESSING,
+	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
@@ -238,15 +238,15 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	// @todo: implement progress and error handler
 	const noop = () => {};
 
-	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.name } );
+	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 	// @todo: this should be stored in the state
 	const jwt = await getJWT();
 
 	const onSuccess = async data => {
-		dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+		dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 		const video = await pollingUploadedVideoData( data );
-		dispatch( { type: UPLOADED_VIDEO, video } );
+		dispatch( { type: SET_VIDEO_UPLOADED, video } );
 	};
 
 	const onProgress = ( bytesSent, bytesTotal ) => {
@@ -270,12 +270,12 @@ const uploadVideo = file => async ( { dispatch } ) => {
  */
 const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
 	const tempId = uid();
-	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.title } );
+	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.title } );
 	const data = await uploadFromLibrary( file?.id );
 	dispatch( { type: SET_LOCAL_VIDEO_UPLOADED, id: file?.id } );
-	dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+	dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 	const video = await pollingUploadedVideoData( data );
-	dispatch( { type: UPLOADED_VIDEO, video } );
+	dispatch( { type: SET_VIDEO_UPLOADED, video } );
 };
 
 const setIsFetchingPurchases = isFetching => {

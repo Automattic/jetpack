@@ -19,9 +19,9 @@ import {
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
-	UPLOADING_VIDEO,
-	PROCESSING_VIDEO,
-	UPLOADED_VIDEO,
+	SET_VIDEO_UPLOADING,
+	SET_VIDEO_PROCESSING,
+	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
@@ -315,7 +315,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case UPLOADING_VIDEO: {
+		case SET_VIDEO_UPLOADING: {
 			const { id, title } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
@@ -336,7 +336,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case PROCESSING_VIDEO: {
+		case SET_VIDEO_PROCESSING: {
 			const { id, data } = action;
 			const query = state?.query ?? getDefaultQuery();
 			const pagination = { ...state.pagination };
@@ -350,7 +350,7 @@ const videos = ( state, action ) => {
 
 			let total = state?.uploadedVideoCount ?? 0;
 
-			// Not update total and pagination if user is searching or not in the first page.
+			// Don't update total and pagination if user is searching or not in the first page.
 			if ( query?.page === 1 && ! query?.search ) {
 				// Updating pagination and count
 				total = ( state?.uploadedVideoCount ?? 0 ) + 1;
@@ -383,7 +383,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case UPLOADED_VIDEO: {
+		case SET_VIDEO_UPLOADED: {
 			const { video } = action;
 			const items = [ ...( state?.items ?? [] ) ];
 			const videoIndex = items.findIndex( item => item.id === video.id );
