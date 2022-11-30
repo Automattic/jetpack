@@ -8,18 +8,26 @@
 	export let store: MeasurableImageStore;
 	export let size: GuideSize;
 
-	const oversizedRatio = store.oversizedRatio;
-	const fileSize = store.fileSize;
-	const sizeOnPage = store.sizeOnPage;
-	const potentialSavings = store.potentialSavings;
-	const expectedSize = store.expectedSize;
-
-	const imageURL = store.url;
+	/**
+	 * This is assigning a lot of reactive variables
+	 * to avoid re-rendering the component
+	 * when multiple bubbles are active.
+	 *
+	 * Note that in Main.svelte only the properties of this component
+	 * change to avoid creating mulitple components.
+	*/
+	$: isLoading = store.loading;
+	$: oversizedRatio = store.oversizedRatio;
+	$: fileSize = store.fileSize;
+	$: sizeOnPage = store.sizeOnPage;
+	$: potentialSavings = store.potentialSavings;
+	$: expectedSize = store.expectedSize;
+	$: imageURL = store.url;
 	$: imageName = $imageURL.split('/').pop();
-	const isLoading = store.loading;
 
-	const origin = new URL(window.location.href).origin;
-	const imageOrigin = new URL($imageURL).origin;
+	// Get the image origin
+	$: origin = new URL(window.location.href).origin;
+	$: imageOrigin = new URL($imageURL).origin;
 
 	function maybeDecimals(num: number) {
 		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
@@ -30,7 +38,7 @@
 	$: ratio = maybeDecimals($oversizedRatio);
 </script>
 
-<div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
+<div class="details" in:fly={{ duration: 150, y: 4, easing: backOut }}>
 	<div class="logo">
 		<JetpackLogo size={250} />
 	</div>

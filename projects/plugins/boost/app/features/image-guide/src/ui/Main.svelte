@@ -55,11 +55,13 @@
 				<Bubble {index} {store} on:mouseenter={() => (show = index)} />
 			{/each}
 		</div>
-		{#each stores as store, index}
-			{#if show === index}
-				<Popup {store} {size} />
-			{/if}
-		{/each}
+		{#if show !== false}
+			<!--
+				Intentionally using only a single component here.
+				See <Popup> component source for details.
+			 -->
+			<Popup store={stores[show]} {size} />
+		{/if}
 	</div>
 {/if}
 
