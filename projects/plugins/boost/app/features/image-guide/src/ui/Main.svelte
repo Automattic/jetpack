@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Bubble from './Bubble.svelte';
-	import ImageGuide from './ImageGuide.svelte';
+	import Popup from './Popup.svelte';
 	import { state } from './StateStore';
 	import type { GuideSize } from '../types';
 	import type { MeasurableImageStore } from '../MeasurableImageStore';
@@ -33,6 +33,10 @@
 		stores.forEach( i => i.node.classList.remove( 'jetpack-boost-image-guide-backdrop' ) );
 	}
 
+	/**
+	 * This onMount is triggered when the window loads
+	 * and the Image Guide UI is first
+	*/
 	onMount( () => {
 		stores.forEach( store => store.updateWeight() );
 	} );
@@ -47,7 +51,7 @@
 		</div>
 		{#each stores as store, index}
 			{#if show === index}
-				<ImageGuide {store} {size} />
+				<Popup {store} {size} />
 			{/if}
 		{/each}
 	</div>
