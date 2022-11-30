@@ -1,7 +1,8 @@
 <?php
-require_jetpack_file( 'modules/subscriptions.php' );
-require_jetpack_file( 'extensions/blocks/premium-content/_inc/subscription-service/include.php' );
-require_jetpack_file( 'modules/memberships/class-jetpack-memberships.php' );
+
+require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
