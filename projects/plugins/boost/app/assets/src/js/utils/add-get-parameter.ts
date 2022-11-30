@@ -7,6 +7,8 @@
  * @return {string} - URL with the parameter added.
  */
 export function addGetParameter( url: string, key: string, value: string ): string {
-	const separator = url.indexOf( '?' ) === -1 ? '?' : '&';
-	return url + separator + key + '=' + encodeURIComponent( value );
+	const urlObject = new URL( url );
+	urlObject.searchParams.set( key, value );
+
+	return urlObject.toString();
 }
