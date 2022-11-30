@@ -9,9 +9,9 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 1.5.2-alpha
- * Author:            Automattic - Website Speed and Performance team
- * Author URI:        https://automattic.com
+ * Version: 1.6.1-alpha
+ * Author:            Automattic - Jetpack Site Speed team
+ * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       jetpack-boost
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '1.5.2-alpha' );
+define( 'JETPACK_BOOST_VERSION', '1.6.1-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -56,6 +56,9 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 	define( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 }
 
+if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
+	define( 'JETPACK_BOOST_PLUGINS_DIR_URL', plugin_dir_url( __FILE__ ) );
+}
 /**
  * Setup autoloading
  */
@@ -122,6 +125,8 @@ function run_jetpack_boost() {
 }
 
 add_action( 'plugins_loaded', '\Automattic\Jetpack_Boost\run_jetpack_boost', 1 );
+
+register_activation_hook( __FILE__, array( 'Automattic\Jetpack_Boost\Jetpack_Boost', 'activate' ) );
 
 /**
  * Extra tweaks to make Jetpack Boost work better with others.

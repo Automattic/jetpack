@@ -5,7 +5,7 @@ import BackupCard from './backup-card';
 import BoostCard from './boost-card';
 import CrmCard from './crm-card';
 import ExtrasCard from './extras-card';
-import ScanCard from './scan-card';
+import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
 import VideopressCard from './videopress-card';
@@ -22,7 +22,7 @@ const ProductCardsSection = () => {
 				<BackupCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<ScanCard admin={ true } />
+				<ScanAndProtectCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
 				<AntiSpamCard admin={ true } />

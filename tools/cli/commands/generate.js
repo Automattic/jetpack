@@ -511,12 +511,6 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
 			composerJson.type = 'jetpack-library';
-			composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ] =
-				'^' +
-				composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ].replace(
-					/\.x-dev$/,
-					''
-				);
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
@@ -689,9 +683,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.9\n' +
+		'Requires at least: 6.0\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.0\n' +
+		'Tested up to: 6.1\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

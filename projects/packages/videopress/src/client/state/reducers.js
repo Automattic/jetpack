@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from '@wordpress/data';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
@@ -31,6 +32,14 @@ import {
 	SET_VIDEOS_FILTER,
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
+	SET_USERS,
+	SET_USERS_PAGINATION,
+	SET_LOCAL_VIDEO_UPLOADED,
+	SET_IS_FETCHING_PLAYBACK_TOKEN,
+	SET_PLAYBACK_TOKEN,
+	SET_VIDEO_UPLOAD_PROGRESS,
+	EXPIRE_PLAYBACK_TOKEN,
+	SET_VIDEOPRESS_SETTINGS,
 } from './constants';
 
 /**
@@ -310,6 +319,7 @@ const videos = ( state, action ) => {
 			const { id, title } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
+			const sanitizedTitle = cleanForSlug( title );
 
 			return {
 				...state,
@@ -318,7 +328,7 @@ const videos = ( state, action ) => {
 					items: {
 						...currentMetaItems,
 						[ id ]: {
-							title,
+							title: sanitizedTitle,
 							uploading: true,
 						},
 					},
@@ -334,7 +344,9 @@ const videos = ( state, action ) => {
 			const items = [ ...( state?.items ?? [] ) ];
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = Object.assign( {}, currentMeta?.items || {} );
-			const title = currentMetaItems[ id ]?.title || '';
+			const title =
+				data?.src?.split( '/' )?.slice( -1 )?.[ 0 ] || currentMetaItems[ id ]?.title || '';
+			const sanitizedTitle = cleanForSlug( title );
 
 			let total = state?.uploadedVideoCount ?? 0;
 
@@ -350,7 +362,7 @@ const videos = ( state, action ) => {
 					id: data.id,
 					guid: data.guid,
 					url: data.src,
-					title,
+					title: sanitizedTitle,
 					posterImage: null,
 					finished: false,
 				} );
@@ -439,6 +451,28 @@ const videos = ( state, action ) => {
 			};
 		}
 
+		case SET_VIDEO_UPLOAD_PROGRESS: {
+			const { id, bytesSent, bytesTotal } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			const currentVideoMeta = currentMetaItems[ id ] || {};
+			const uploadProgress = bytesTotal > 0 ? bytesSent / bytesTotal : 0;
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentVideoMeta,
+							uploadProgress,
+						},
+					},
+				},
+			};
+		}
+
 		default:
 			return state;
 	}
@@ -488,9 +522,54 @@ const localVideos = ( state, action ) => {
 				},
 			};
 		}
+
+		case SET_LOCAL_VIDEO_UPLOADED: {
+			const { id } = action;
+			const items = [ ...( state?.items ?? [] ) ];
+			const index = items.findIndex( item => item.id === id );
+
+			if ( index === -1 ) {
+				return state;
+			}
+
+			items[ index ] = {
+				...items[ index ],
+				isUploadedToVideoPress: true,
+			};
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
 	}
 
 	return state;
+};
+
+const users = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_USERS: {
+			return {
+				...state,
+				items: action.users,
+			};
+		}
+
+		case SET_USERS_PAGINATION: {
+			return {
+				...state,
+				pagination: {
+					...( state?.pagination || {} ),
+					...action.pagination,
+				},
+			};
+		}
+
+		default:
+			return state;
+	}
 };
 
 const purchases = ( state, action ) => {
@@ -515,10 +594,83 @@ const purchases = ( state, action ) => {
 	}
 };
 
+const playbackTokens = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PLAYBACK_TOKEN: {
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+		}
+
+		case SET_PLAYBACK_TOKEN: {
+			const { playbackToken } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const playbackTokenIndex = items.findIndex( item => item.guid === playbackToken.guid );
+
+			if ( playbackTokenIndex === -1 ) {
+				// Add it to the array
+				items.unshift( playbackToken );
+			} else {
+				// Update it
+				items[ playbackTokenIndex ] = {
+					...items[ playbackTokenIndex ],
+					...playbackToken,
+				};
+			}
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		case EXPIRE_PLAYBACK_TOKEN: {
+			const { guid } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const playbackTokenIndex = items.findIndex( item => item.guid === guid );
+
+			if ( playbackTokenIndex > -1 ) {
+				// Remove it from the array
+				items.splice( playbackTokenIndex, 1 );
+			}
+
+			return {
+				...state,
+				items,
+				isFetching: false,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
+const siteSettings = ( state, action ) => {
+	switch ( action.type ) {
+		case SET_VIDEOPRESS_SETTINGS: {
+			const { videoPressSettings } = action;
+
+			return {
+				...state,
+				...videoPressSettings,
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	videos,
 	localVideos,
 	purchases,
+	users,
+	playbackTokens,
+	siteSettings,
 } );
 
 export default reducers;

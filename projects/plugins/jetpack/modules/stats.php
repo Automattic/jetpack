@@ -1,13 +1,13 @@
 <?php
 /**
- * Module Name: Site Stats
+ * Module Name: Jetpack Stats
  * Module Description: Collect valuable traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Site Stats, Recommended
+ * Module Tags: Jetpack Stats, Site Stats, Recommended
  * Feature: Engagement
  * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  *
@@ -22,6 +22,7 @@ use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
 use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
@@ -284,8 +285,15 @@ function stats_admin_menu() {
 		}
 	}
 
-	$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
-	add_action( "load-$hook", 'stats_reports_load' );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! Stats_Options::get_option( 'enable_calypso_stats' ) ) {
+		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
+		add_action( "load-$hook", 'stats_reports_load' );
+	} else {
+		$stats_dashboard = new StatsDashboard();
+		$hook            = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
+		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+	}
 }
 
 /**
@@ -385,7 +393,9 @@ function stats_js_load_page_via_ajax() {
 /* <![CDATA[ */
 if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
-		$.get( document.location.href + '&noheader', function( responseText ) {
+		const loadStatsUrl = new URL( document.location.href );
+		loadStatsUrl.searchParams.append( 'noheader', 1 );
+		$.get( loadStatsUrl.toString(), function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
 			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
@@ -462,8 +472,8 @@ function stats_reports_page( $main_chart_only = false ) {
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
 		<p style="font-size: 11pt; margin: 0;"><a href="<?php echo esc_url( $stats_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
-		<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
-		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
+		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
+		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
 	</div>
 		<?php
@@ -770,7 +780,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
 	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
 	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
-	$title      = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
+	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
 
 	$menu = array(
 		'id'    => 'stats',

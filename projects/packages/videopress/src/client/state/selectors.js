@@ -80,6 +80,28 @@ export const getLocalPagination = state => {
 	return state?.localVideos?.pagination;
 };
 
+export const getUsers = state => {
+	return state?.users?.items || [];
+};
+
+export const getUsersPagination = state => {
+	return state?.users?.pagination;
+};
+
+export const getPlaybackToken = ( state, guid ) => {
+	const tokens = state?.playbackTokens?.items || [];
+	const tokenData = tokens.find( t => t?.guid === guid );
+	return tokenData || {};
+};
+
+export const isFetchingPlaybackToken = state => {
+	return state?.playbackTokens?.isFetching;
+};
+
+export const getVideoPressSettings = state => {
+	return state?.siteSettings;
+};
+
 const selectors = {
 	// VideoPress videos
 	getVideos,
@@ -102,8 +124,16 @@ const selectors = {
 	getVideo,
 	getVideoStateMetadata,
 
+	getUsers,
+	getUsersPagination,
+
 	getPurchases,
 	isFetchingPurchases,
+
+	getPlaybackToken,
+	isFetchingPlaybackToken,
+
+	getVideoPressSettings,
 };
 
 export default selectors;

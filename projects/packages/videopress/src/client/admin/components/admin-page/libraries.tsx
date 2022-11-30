@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
@@ -20,7 +21,7 @@ import styles from './styles.module.scss';
 /**
  * Types
  */
-import { VideoLibraryProps } from './types';
+import { LocalLibraryProps, VideoLibraryProps } from './types';
 
 const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
@@ -103,7 +104,8 @@ const VideoLibraryWrapper = ( {
 };
 
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
-	const navigate = useNavigate();
+	const history = useHistory();
+	const { search } = useVideos();
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
 		LIBRARY_TYPE_LOCALSORAGE_KEY
@@ -124,8 +126,25 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	};
 
 	const handleClickEditDetails = video => {
-		navigate( `/video/${ video?.id }/edit` );
+		history.push( `/video/${ video?.id }/edit` );
 	};
+
+	const library =
+		libraryType === LibraryType.Grid ? (
+			<VideoGrid
+				videos={ videos }
+				onVideoDetailsClick={ handleClickEditDetails }
+				loading={ loading }
+				count={ uploading ? videos.length : 6 }
+			/>
+		) : (
+			<VideoList
+				videos={ videos }
+				onVideoDetailsClick={ handleClickEditDetails }
+				hidePlays
+				loading={ loading }
+			/>
+		);
 
 	return (
 		<VideoLibraryWrapper
@@ -134,47 +153,49 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
 		>
-			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid
-					videos={ videos }
-					onVideoDetailsClick={ handleClickEditDetails }
-					loading={ loading }
-					count={ uploading ? videos.length : 6 }
-				/>
+			{ videos.length > 0 || loading ? (
+				library
 			) : (
-				<VideoList
-					videos={ videos }
-					onVideoDetailsClick={ handleClickEditDetails }
-					hidePlays
-					loading={ loading }
-				/>
+				<Text>
+					{ search.trim()
+						? createInterpolateElement(
+								sprintf(
+									/* translators: placeholder is the search term */
+									__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
+									search
+								),
+								{
+									em: <em className={ styles[ 'query-no-results' ] } />,
+								}
+						  )
+						: __( 'No videos match your filtering criteria.', 'jetpack-videopress-pkg' ) }
+				</Text>
 			) }
 			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
+export const LocalLibrary = ( {
+	videos,
+	totalVideos,
+	loading,
+	uploading,
+	onUploadClick,
+}: LocalLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<LocalVideoList videos={ videos } loading={ loading } />
+			<LocalVideoList
+				videos={ videos }
+				loading={ loading }
+				onActionClick={ onUploadClick }
+				uploading={ uploading }
+			/>
 			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
-	);
-};
-
-export const ConnectLocalLibrary = () => {
-	const { items: videos, uploadedLocalVideoCount, isFetching } = useLocalVideos();
-
-	return (
-		<LocalLibrary
-			videos={ videos }
-			totalVideos={ uploadedLocalVideoCount }
-			loading={ isFetching }
-		/>
 	);
 };

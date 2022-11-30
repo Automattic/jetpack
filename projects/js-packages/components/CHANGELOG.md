@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.25.2 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## 0.25.1 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.25.0 - 2022-11-17
+### Added
+- Added additional color studio colors to the ThemeProvider component for use in Jetpack Protect. [#26069]
+- Added a new component for Admin Notices [#26736]
+
+### Fixed
+- Added support for falsey non-zero values for offPrice [#27456]
+- RNA: Add aria-disabled property to Button when disabled [#27449]
+
+## 0.24.5 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.24.4 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.24.3 - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## 0.24.2 - 2022-10-25
+### Changed
+- Fix visual issues in the Product Price component in Jetpack plugin [#27032]
+
+## 0.24.1 - 2022-10-19
+### Changed
+- RNA: move product labels next to `legend` text [#26877]
+- Updated package dependencies. [#26883]
+
+### Fixed
+- Fixed the tooltips being cut of on PricingTable [#26666]
+
+## 0.24.0 - 2022-10-17
+### Changed
+- Refactor IconTooltip with prop popoverAnchorStyle for alignment with Popover anchor. [#26851]
+
 ## 0.23.0 - 2022-10-13
 ### Changed
 - Add shadowAnchor and forceShow for pure Popover displaying within parent wrapper. [#26790]

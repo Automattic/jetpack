@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.1 - 2022-11-18
+### Fixed
+- Fix issue with plugin activation.
+
+## 1.1.0 - 2022-11-17
+### Added
+- Add features for paid Jetpack Scan users, including file and database threats, on-demand scanning, and threat auto-fixers.
+
+### Changed
+- Compatibility: WordPress 6.1 compatibility
+
+### Fixed
+- Adjust alignment of spinner icon and loading text on the in-progress scan screen.
+
 ## 1.0.4 - 2022-08-29
 ### Fixed
 - Fixed NaN error that prevented the pricing interstitial from rendering.

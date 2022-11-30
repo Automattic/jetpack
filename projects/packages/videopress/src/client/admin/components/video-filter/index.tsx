@@ -12,6 +12,7 @@ import { MouseEvent } from 'react';
  * Internal dependencies
  */
 import filterIcon from '../../../components/icons/filter-icon';
+import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import styles from './style.module.scss';
@@ -40,11 +41,19 @@ export const FilterButton = ( props: {
 export const CheckboxCheckmark = ( props: {
 	label?: string;
 	for: string;
+	checked?: boolean;
+	disabled?: boolean;
 	onChange?: ( checked: boolean ) => void;
 } ): JSX.Element => {
 	return (
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
-			<Checkbox id={ props.for } className={ styles.checkbox } onChange={ props.onChange } />
+			<Checkbox
+				id={ props.for }
+				className={ styles.checkbox }
+				onChange={ props.onChange }
+				checked={ props.checked }
+				disabled={ props.disabled }
+			/>
 			<span className={ styles[ 'checkbox-checkmark' ] } />
 			<Text variant="body-small">{ props.label }</Text>
 		</label>
@@ -52,9 +61,10 @@ export const CheckboxCheckmark = ( props: {
 };
 
 export const FilterSection = ( props: {
+	uploaders: Array< { id: number; name: string } >;
 	onChange?: (
-		filter: 'privacy' | 'rating',
-		value: 0 | 1 | 'PG-13' | 'G' | 'R-17',
+		filter: 'uploader' | 'privacy' | 'rating',
+		value: number | 'PG-13' | 'G' | 'R-17',
 		checked: boolean
 	) => void;
 	className?: string;
@@ -68,6 +78,14 @@ export const FilterSection = ( props: {
 					<Text variant="body-extra-small-bold" weight="bold">
 						{ __( 'Uploader', 'jetpack-videopress-pkg' ) }
 					</Text>
+					{ props.uploaders.map( uploader => (
+						<CheckboxCheckmark
+							key={ uploader.id }
+							label={ uploader.name }
+							for={ `uploader-${ uploader.id }` }
+							onChange={ checked => props.onChange?.( 'uploader', uploader.id, checked ) }
+						/>
+					) ) }
 				</Col>
 
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
@@ -113,5 +131,6 @@ export const FilterSection = ( props: {
 
 export const ConnectFilterSection = props => {
 	const { setFilter } = useVideos();
-	return <FilterSection { ...props } onChange={ setFilter } />;
+	const { items: users } = useUsers();
+	return <FilterSection { ...props } onChange={ setFilter } uploaders={ users } />;
 };

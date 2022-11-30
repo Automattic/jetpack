@@ -1,0 +1,79 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.video-tracks-control__track_list,
+.video-tracks-control__track-form {
+	min-width: 360px;
+}
+
+// Tracklist
+.video-tracks-control__track_list__no-tracks {
+	padding: 8px;
+}
+
+// TrackItem
+.video-tracks-control__track-item {
+	display: flex;
+	justify-content: space-between;
+	padding: 8px;
+
+	&.is-deleting {
+		opacity: 0.5;
+	}
+}
+
+.video-tracks-control__track-item-kind {
+	color: $gray-700;
+	margin-left: 4px;
+}
+
+// TrackFrom
+.video-tracks-control__track-form-container {
+	padding: 0 8px;
+}
+
+.video-tracks-control__track-form__description {
+	margin: 0 0 16px 0;
+	font-size: 12px;
+}
+
+.video-tracks-control__track-form-upload-file-help {
+	margin-top: 8px;
+	font-size: 12px;
+	font-style: normal;
+	color: rgb(117, 117, 117);
+	margin-bottom: revert;
+}
+
+.video-tracks-control__track-form-upload-file {
+	margin-bottom: 16px;
+}
+
+.video-tracks-control__track-form-upload-file-label {
+	display: flex;
+	gap: 4px;
+}
+
+.video-tracks-control__track-form-label-language {
+	display: flex;
+	margin-bottom: 16px;
+	gap: 16px;
+}
+
+.video-tracks-control__track-form-language-tag {
+	max-width: 150px;
+}
+
+.video-tracks-control__track-form-buttons-container {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+
+	&:not( .track-exists ) {
+		justify-content: end;
+	}
+
+	.video-tracks-control__track-form-toggle {
+		flex-grow: 2;
+		margin-bottom: 0;
+	}
+}

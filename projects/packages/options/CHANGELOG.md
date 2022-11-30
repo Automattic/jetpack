@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.4] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.16.3] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
 ## [1.16.2] - 2022-07-27
+### Changed
 - Updated package dependencies.
 
 ## [1.16.1] - 2022-06-29
@@ -173,6 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[1.16.4]: https://github.com/Automattic/jetpack-options/compare/v1.16.3...v1.16.4
+[1.16.3]: https://github.com/Automattic/jetpack-options/compare/v1.16.2...v1.16.3
 [1.16.2]: https://github.com/Automattic/jetpack-options/compare/v1.16.1...v1.16.2
 [1.16.1]: https://github.com/Automattic/jetpack-options/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/Automattic/jetpack-options/compare/v1.15.2...v1.16.0

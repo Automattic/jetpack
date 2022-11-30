@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Spinner from '../../../svg/spinner.svg';
 
 	export let score = 0;
