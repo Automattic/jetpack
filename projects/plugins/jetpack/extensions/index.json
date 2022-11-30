@@ -51,7 +51,7 @@
 		"recipe",
 		"videopress/video",
 		"videopress/video-chapters",
-		"launchpad-post-save-modal"
+		"launchpad-save-modal"
 	],
 	"experimental": [
 		"anchor-fm",

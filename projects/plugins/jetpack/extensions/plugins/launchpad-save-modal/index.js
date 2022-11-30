@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Modal, Button } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -9,10 +6,10 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import './editor.scss';
 
-export const name = 'launchpad-post-save-modal';
+export const name = 'launchpad-save-modal';
 
 export const settings = {
-	render: function LaunchpadPostSaveModal() {
+	render: function LaunchpadSaveModal() {
 		const isSaving = useSelect(
 			select => select( editorStore ).isSavingNonPostEntityChanges(),
 			[]
@@ -31,22 +28,22 @@ export const settings = {
 			showModal && (
 				<Modal
 					isDismissible={ true }
-					className="launchpad__post-save-modal"
+					className="launchpad__save-modal"
 					onRequestClose={ () => setShowModal( false ) }
 				>
-					<div className="launchpad__post-save-modal-body">
-						<div className="launchpad__post-save-modal-text">
-							<h1 className="launchpad__post-save-modal-heading">
+					<div className="launchpad__save-modal-body">
+						<div className="launchpad__save-modal-text">
+							<h1 className="launchpad__save-modal-heading">
 								{ __( 'Your site is ready to launch!', 'jetpack' ) }
 							</h1>
-							<p className="launchpad__post-save-modal-message">
+							<p className="launchpad__save-modal-message">
 								{ __(
 									'Launching your Link in Bio will allow you to share a link with others and promote your site.',
 									'jetpack'
 								) }
 							</p>
 						</div>
-						<div className="launchpad__post-save-modal-buttons">
+						<div className="launchpad__save-modal-buttons">
 							<Button size="normal" variant="secondary" onClick={ () => setShowModal( false ) }>
 								{ ' ' }
 								Back to Edit{ ' ' }

@@ -1,14 +1,14 @@
 <?php
 /**
- * Block Editor - QR Post feature.
+ * Launchpad Save Modal
  *
  * @package automattic/jetpack
  */
 
 // Feature name.
-const FEATURE_NAME = 'launchpad-post-save-modal';
+const FEATURE_NAME = 'launchpad-save-modal';
 
-// Populate the available extensions with launchpad-post-save-modal.
+// Populate the available extensions with launchpad-save-modal.
 add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
@@ -21,7 +21,7 @@ add_filter(
 	}
 );
 
-// Set the launchpad-post-save-modal availability, depending on the site plan.
+// Set the launchpad-save-modal availability, depending on the site plan.
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
