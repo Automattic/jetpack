@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Add a contact form button to the post composition screen
@@ -1128,3 +1129,90 @@ function grunion_feedback_admin_notice() {
 	}
 }
 add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
+
+
+add_action( 'admin_enqueue_scripts', array( 'Grunion_Admin', 'maybe_enable_gdrive_export_button' ) );
+add_action( 'wp_ajax_grunion_export_to_gdrive', array( 'Grunion_Admin', 'export_to_gdrive' ) );
+
+class Grunion_Admin {
+	public static function export_to_gdrive() {
+		error_log( 'export to gdrive ajax handler' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		$sheet_response = Jetpack_Google_Drive_Helper::create_sheet( 'Test N', [] );
+		wp_send_json(
+			array(
+				'success' => true,
+				'data'    => $sheet_response,
+			)
+		);
+	}
+
+	/**
+	 * (maybe) Add the script that will add the "Export to Google Drive" button to the Feedbacks dashboard page.
+	 */
+	public static function maybe_enable_gdrive_export_button() {
+		$screen = get_current_screen();
+
+		// Only add to feedback, only to non-spam view
+		if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
+			return;
+		}
+
+		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		if ( ! $user_connected ) {
+			error_log( 'Jetpack NOT connected' );
+			return;
+		}
+
+		// Add the export feedback button
+		add_action( 'admin_head', array( 'Grunion_Admin', 'print_export_gdrive_button' ) );
+	}
+
+	public static function print_export_gdrive_button() {
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
+
+		// if there aren't any feedbacks, bail out
+		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+			return;
+		}
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		$connection = Jetpack_Google_Drive_Helper::get_valid_connection();
+		$needs_connection = is_wp_error( $connection ) || empty( $connection['valid'] );
+		// hint user to connect at 'https://wordpress.com/marketing/connections'
+
+		$nonce_name = 'feedback_export_to_gdrive_nonce';
+
+		$attributes = array(
+			'data-nonce-name' => $nonce_name,
+		);
+
+		if ( $needs_connection ) {
+			$attributes['disabled'] = 'disabled';
+		}
+
+		$button_html = get_submit_button(
+			__( 'Export to Google Drive', 'jetpack' ),
+			'primary',
+			'jetpack-export-feedback-to-gdrive',
+			false,
+			$attributes,
+		);
+
+		$button_html .= wp_nonce_field( 'feedback_export_to_gdrive', $nonce_name, false, false );
+		?>
+		<script type="text/javascript">
+			jQuery( function ( $ ) {
+				$( '#posts-filter #post-query-submit' ).parent().append( <?php echo wp_json_encode( $button_html ); ?> );
+			} );
+		</script>
+		<?php
+	}
+}

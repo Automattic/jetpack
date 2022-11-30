@@ -177,6 +177,27 @@ jQuery( function ( $ ) {
 				updateStatus( postId, 'publish', '#59C859' );
 			}
 		} );
+
+	} );
+
+	// export to Google Drive handler
+	$( '#jetpack-export-feedback-to-gdrive' ).on( 'click', function( event ) {
+		event.preventDefault();
+		console.log( event );
+		$.post(
+			ajaxurl,
+			{
+				action: 'grunion_export_to_gdrive',
+				_ajax_nonce: window.__grunionPostStatusNonce,
+			},
+			function ( payload, status ) {
+				if ( status !== 'success' ) {
+					console.error( payload );
+					return;
+				}
+				console.log( payload );
+			}
+		)
 	} );
 
 	// Handle export
