@@ -4,7 +4,6 @@
 		"attrs": {
 			"subscribePlaceholder": "Enter your email address",
 			"showSubscribersTotal": true,
-			"includeSocialFollowers": false,
 			"buttonOnNewLine": true,
 			"submitButtonText": "Sign Up",
 			"fontSize": "33px",
