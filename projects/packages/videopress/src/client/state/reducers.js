@@ -350,6 +350,11 @@ const videos = ( state, action ) => {
 
 			let total = state?.uploadedVideoCount ?? 0;
 
+			let firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			if ( total === 0 ) {
+				firstUploadedVideoId = data.id;
+			}
+
 			// Don't update total and pagination if user is searching or not in the first page.
 			if ( query?.page === 1 && ! query?.search ) {
 				// Updating pagination and count
@@ -375,6 +380,7 @@ const videos = ( state, action ) => {
 				...state,
 				items,
 				uploadedVideoCount: total,
+				firstUploadedVideoId,
 				pagination,
 				_meta: {
 					...currentMeta,
