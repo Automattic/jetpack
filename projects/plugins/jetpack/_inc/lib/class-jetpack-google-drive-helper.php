@@ -51,7 +51,7 @@ class Jetpack_Google_Drive_Helper {
 				array( 'status' => $response_code )
 			);
 		}
-		return wp_json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+		return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class Jetpack_Google_Drive_Helper {
 				array( 'status' => $response_code )
 			);
 		}
-		return wp_json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+		return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
 	}
 
 	/**
