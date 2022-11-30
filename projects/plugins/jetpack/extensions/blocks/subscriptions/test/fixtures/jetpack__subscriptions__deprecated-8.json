@@ -1,10 +1,12 @@
 [
 	{
-		"blockName": "jetpack/subscriptions",
-		"attrs": {
+		"clientId": "_clientId_0",
+		"name": "jetpack/subscriptions",
+		"isValid": true,
+		"attributes": {
 			"subscribePlaceholder": "Enter your email address",
 			"showSubscribersTotal": true,
-			"includeSocialFollowers": false,
+			"includeSocialFollowers": true,
 			"buttonOnNewLine": true,
 			"submitButtonText": "Sign Up",
 			"fontSize": "33px",
@@ -15,7 +17,6 @@
 			"successMessage": "Volla, you subscribed to our blog!"
 		},
 		"innerBlocks": [],
-		"innerHTML": "",
-		"innerContent": []
+		"originalContent": ""
 	}
 ]
