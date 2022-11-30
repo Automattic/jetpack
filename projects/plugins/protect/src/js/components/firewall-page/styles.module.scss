@@ -75,3 +75,26 @@
     display: flex;
     align-items: center;
 }
+
+.popover {
+    width: 304px;
+    padding: calc( var( --spacing-base ) * 3 ); // 24px
+
+    > .popover-header {
+        display: flex;
+        justify-content: space-between;
+
+        > button {
+            margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -3 );
+
+            &:focus {
+                box-shadow: none;
+            }
+        }
+    }
+
+    > .popover-footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+}

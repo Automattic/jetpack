@@ -6,11 +6,11 @@ import {
 	ContextualUpgradeTrigger,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Popover } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { arrowLeft } from '@wordpress/icons';
+import { Icon, arrowLeft, closeSmall } from '@wordpress/icons';
 import { useCallback, useEffect, useState } from 'react';
 import API from '../../api';
 import { PLUGIN_SUPPORT_URL } from '../../constants';
@@ -196,6 +196,11 @@ const FirewallPage = () => {
 
 	const { hasRequiredPlan } = useProtectData();
 
+	const handleClosePopoverClick = useCallback( () => {
+		setWafUpgradeIsSeen( true );
+		API.wafUpgradeSeen();
+	}, [ setWafUpgradeIsSeen ] );
+
 	return (
 		<AdminPage>
 			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
@@ -211,6 +216,41 @@ const FirewallPage = () => {
 										onChange={ handleEnabledChange }
 										disabled={ ! hasRequiredPlan || settingsIsUpdating }
 									/>
+									{ hasRequiredPlan && upgradeIsSeen === false && (
+										<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
+											<div className={ styles.popover }>
+												<div className={ styles[ 'popover-header' ] }>
+													<Text className={ styles[ 'popover-title' ] } variant={ 'title-small' }>
+														{ __( 'Thanks for upgrading!', 'jetpack-protect' ) }
+													</Text>
+													<Button variant={ 'icon' }>
+														<Icon
+															onClick={ handleClosePopoverClick }
+															icon={ closeSmall }
+															size={ 24 }
+															aria-label={ __( 'Close Window', 'jetpack-protect' ) }
+														/>
+													</Button>
+												</div>
+												<Text
+													className={ styles[ 'popover-description' ] }
+													variant={ 'body' }
+													mt={ 2 }
+													mb={ 3 }
+												>
+													{ __(
+														'Turn on Jetpack Firewall to automatically protect your site with the latest security rules.',
+														'jetpack-protect'
+													) }
+												</Text>
+												<div className={ styles[ 'popover-footer' ] }>
+													<Button onClick={ handleClosePopoverClick }>
+														{ __( 'Got it', 'jetpack-protect' ) }
+													</Button>
+												</div>
+											</div>
+										</Popover>
+									) }
 								</div>
 								<div>
 									<div className={ styles[ 'toggle-section-title' ] }>
