@@ -43,6 +43,10 @@ export const getStorageUsed = state => {
 	};
 };
 
+export const getFirstUploadedVideoId = state => {
+	return state?.videos?.firstUploadedVideoId;
+};
+
 // Single Video stuff
 export const getVideo = ( state, id ) => {
 	const videos = getVideos( state );
@@ -113,6 +117,7 @@ const selectors = {
 	getIsFetching,
 	getIsFetchingUploadedVideoCount,
 	getStorageUsed,
+	getFirstUploadedVideoId,
 
 	// Local videos
 	getLocalVideos,
