@@ -18,7 +18,7 @@
 		"automattic/jetpack-plans": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
+		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.0"
 	},
@@ -80,6 +80,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_1_2"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_protectⓥ1_1_3_alpha"
 	}
 }
