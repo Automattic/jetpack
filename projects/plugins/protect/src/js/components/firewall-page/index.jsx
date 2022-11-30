@@ -182,6 +182,9 @@ const FirewallPage = () => {
 
 	const { hasRequiredPlan } = useProtectData();
 
+	// TO DO: Create action for tracking initial WAF UI view after upgrade
+	const wafUpgradeSeen = true;
+
 	return (
 		<AdminPage>
 			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
@@ -199,13 +202,19 @@ const FirewallPage = () => {
 									/>
 								</div>
 								<div>
-									<Text
-										className={ ! hasRequiredPlan ? styles.disabled : null }
-										variant="title-medium"
-										mb={ 2 }
-									>
-										{ __( 'Enable automatic rules', 'jetpack-protect' ) }
-									</Text>
+									<div className={ styles[ 'toggle-section-title' ] }>
+										<Text
+											className={ ! hasRequiredPlan ? styles.disabled : null }
+											variant="title-medium"
+										>
+											{ __( 'Enable automatic rules', 'jetpack-protect' ) }
+										</Text>
+										{ ! wafUpgradeSeen && (
+											<span className={ styles.badge }>
+												{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }
+											</span>
+										) }
+									</div>
 									<Text className={ ! hasRequiredPlan ? styles.disabled : null }>
 										{ __(
 											'Protect your site against untrusted traffic sources with automatic security rules.',
@@ -248,6 +257,7 @@ const FirewallPage = () => {
 							{ jetpackWafIpList && (
 								<div className={ styles[ 'edit-manual-rules-section' ] }>
 									<Text variant={ 'body-small' } mt={ 2 }>
+										{ /* // TO DO: Update or remove until ready for this */ }
 										{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
 									</Text>
 									<Button variant={ 'link' }>

@@ -20,6 +20,12 @@
     & .disabled {
         opacity: 0.5;
     }
+
+    &-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: calc( var( --spacing-base ) * 2 ); // 8px
+    }
 }
 
 .upgrade-trigger-section {
@@ -56,4 +62,16 @@
 
 .go-back-button {
     margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -2 );
+}
+
+.badge {
+    color: var( --jp-gray-30 );
+    font-size: 12px;
+    height: 21px;
+    padding: calc( var( --spacing-base ) / 2 ); // 4px
+    border: 1px solid var( --jp-gray-30 );
+    border-radius: 4px;
+    margin-left: var( --spacing-base ); // 8px
+    display: flex;
+    align-items: center;
 }
