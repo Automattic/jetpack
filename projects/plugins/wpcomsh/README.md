@@ -37,7 +37,7 @@ You will also need to install [Composer](https://getcomposer.org/)
 
 Note: if you decide to download the zip of wpcomsh from the GitHub repo, it won't work as that zip doesn't contain all the git submodules which wpcomsh depends on.
 
-If you want to add some new code to wpcomsh, create a new git branch, push to it and then create a Pull Request (PR) against the `master` branch on [wpcomsh GitHub](https://github.com/Automattic/wpcomsh/). Make sure to test thoroughly on a WoA dev blog and send the PR to your team for review.
+If you want to add some new code to wpcomsh, create a new git branch, push to it and then create a Pull Request (PR) against the `trunk` branch on [wpcomsh GitHub](https://github.com/Automattic/wpcomsh/). Make sure to test thoroughly on a WoA dev blog and send the PR to your team for review.
 
 When working on wpcomsh, follow the [WP.org coding standards](https://codex.wordpress.org/WordPress_Coding_Standards) and make sure to add enough logging (either by returning `WP_Error` and/or by using `error_log`) where needed.
 
@@ -112,7 +112,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Make sure there are no uncommitted changes
 - Run `bin/update-version.sh` and provide the new version. This will update the versions in `package.json`, `package-lock.json`, and `wpcomsh.php`. Make sure there are no other changes. Commit these changes and create a PR.
 - Once your PR has been reviewed and approved, “Squash and merge” your PR.
-- Now checkout the latest master branch with `git checkout master` and `git pull`.
+- Now checkout the latest trunk branch with `git checkout trunk` and `git pull`.
 - Tag the release with the command `make tag`.
 - Run the git push command suggested by make tag.
 - Run `bin/create-github-release.sh` to build a new release zip and create a GitHub release. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.

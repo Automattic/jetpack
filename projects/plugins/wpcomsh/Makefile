@@ -52,8 +52,8 @@ ifneq ($(GIT_STATUS), clean)
 endif
 
 checktagandblockonfail: git.fetch
-ifneq ($(GIT_BRANCH), master)
-	$(error make tag only supports tagging master)
+ifneq ($(GIT_BRANCH), trunk)
+	$(error make tag only supports tagging trunk)
 endif
 
 ifneq ($(strip $(shell awk '/define\([[:space:]]*\047WPCOMSH_VERSION.*\)/{print}' $(BUILD_SRC)/wpcomsh.php | grep -q $(PLUGIN_VERSION_STRING) 2>/dev/null; echo $$?)), 0)

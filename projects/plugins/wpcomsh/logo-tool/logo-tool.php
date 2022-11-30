@@ -15,7 +15,7 @@
  * IMPORTANT: All changes in this plugin should be synced between wpcom (Simple Sites) and wpcomsh (Atomic Sites).
  *
  * @see https://wpcom.trac.automattic.com/browser/trunk/wp-content/mu-plugins/logo-tool
- * @see https://github.com/Automattic/wpcomsh/tree/master/logo-tool
+ * @see https://github.com/Automattic/wpcomsh/tree/trunk/logo-tool
  */
 
 /**
