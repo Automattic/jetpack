@@ -64,7 +64,7 @@ addFilter(
 function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	const attrs = attributes || defaultAttributes;
 
-	// Upadte attributes names to match the new VideoPress Video block.
+	// Update attributes names to match the new VideoPress Video block.
 	if ( attrs?.videoPressTracks ) {
 		attrs.tracks = attrs.videoPressTracks || [];
 		delete attrs.videoPressTracks;
