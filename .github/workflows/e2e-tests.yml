@@ -261,6 +261,12 @@ jobs:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: ./.github/files/e2e-tests/encryption.sh decrypt
 
+      - name: Tag release candidate runs
+        if: github.event_name == 'repository_dispatch' && github.event.client_payload.ref_type == 'tag'
+        env:
+          VERSION: ${{ github.event.client_payload.ref_name }}
+        run: echo "NOTIFICATION_SUITE=rc-${VERSION}" >> $GITHUB_ENV
+
       - name: "Send notification"
         uses: ./projects/github-actions/test-results-to-slack
         with:
@@ -268,6 +274,7 @@ jobs:
           slack_token: ${{ secrets.SLACK_TOKEN }}
           slack_channel: ${{ secrets.SLACK_E2E_CHANNEL }}
           slack_icon_emoji: ":jetpack:"
+          suite_name: ${{ env.NOTIFICATION_SUITE }}
           playwright_report_path: test-output/**/summary.json
           playwright_output_dir: test-output/**/results
           rules_configuration_path: .github/files/e2e-tests/notification-rules.json
