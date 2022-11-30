@@ -201,6 +201,12 @@ const FirewallPage = () => {
 		API.wafUpgradeSeen();
 	}, [ setWafUpgradeIsSeen ] );
 
+	const [ dismissPopover, setDismissPopover ] = useState( false );
+
+	const handleDismissPopoverClick = useCallback( () => {
+		setDismissPopover( true );
+	}, [] );
+
 	return (
 		<AdminPage>
 			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
@@ -216,7 +222,7 @@ const FirewallPage = () => {
 										onChange={ handleEnabledChange }
 										disabled={ ! hasRequiredPlan || settingsIsUpdating }
 									/>
-									{ hasRequiredPlan && upgradeIsSeen === false && (
+									{ ! dismissPopover && hasRequiredPlan && upgradeIsSeen === false && (
 										<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
 											<div className={ styles.popover }>
 												<div className={ styles[ 'popover-header' ] }>
@@ -225,7 +231,7 @@ const FirewallPage = () => {
 													</Text>
 													<Button variant={ 'icon' }>
 														<Icon
-															onClick={ handleClosePopoverClick }
+															onClick={ handleDismissPopoverClick }
 															icon={ closeSmall }
 															size={ 24 }
 															aria-label={ __( 'Close Window', 'jetpack-protect' ) }
