@@ -105,6 +105,9 @@
 		},
 		"isPrivate": {
 			"type": "boolean"
+		},
+		"isExample": {
+			"type": "boolean"
 		}
 	},
 	"textdomain": "jetpack-videopress",
