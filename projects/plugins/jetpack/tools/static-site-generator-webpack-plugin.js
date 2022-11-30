@@ -1,249 +1,89 @@
-var RawSource = require('webpack-sources/lib/RawSource');
-var evaluate = require('eval');
-var path = require('path');
-var cheerio = require('cheerio');
-var url = require('url');
-var Promise = require('bluebird');
+// Derived from https://www.npmjs.com/package/static-site-generator-webpack-plugin
+// Then removed Webpack 4 support and a bunch of features we didn't use.
 
-function StaticSiteGeneratorWebpackPlugin(options) {
-  if (arguments.length > 1) {
-    options = legacyArgsToOptions.apply(null, arguments);
-  }
+const evaluate = require( 'eval' );
+const webpack = require( 'webpack' );
 
-  options = options || {};
+const RawSource = webpack.sources.RawSource;
 
-  this.entry = options.entry;
-  this.paths = Array.isArray(options.paths) ? options.paths : [options.paths || '/'];
-  this.locals = options.locals;
-  this.globals = options.globals;
-  this.crawl = Boolean(options.crawl);
-}
+class StaticSiteGeneratorWebpackPlugin {
+	constructor( options = {} ) {
+		this.entry = options.entry;
+		this.globals = options.globals;
+	}
 
-StaticSiteGeneratorWebpackPlugin.prototype.apply = function(compiler) {
-  var self = this;
+	apply( compiler ) {
+		compiler.hooks.thisCompilation.tap( 'static-site-generator-webpack-plugin', compilation => {
+			compilation.hooks.optimizeAssets.tapPromise(
+				'static-site-generator-webpack-plugin',
+				async () => {
+					const webpackStats = compilation.getStats();
+					const webpackStatsJson = webpackStats.toJson();
 
-  addThisCompilationHandler(compiler, function(compilation) {
-    addOptimizeAssetsHandler(compilation, function(_, done) {
-      var renderPromises;
+					try {
+						const asset = this.findAsset( compilation, webpackStatsJson );
 
-      var webpackStats = compilation.getStats();
-      var webpackStatsJson = webpackStats.toJson();
+						if ( asset == null ) {
+							throw new Error( `Source file not found: "${ this.entry }"` );
+						}
 
-      try {
-        var asset = findAsset(self.entry, compilation, webpackStatsJson);
+						let render = evaluate(
+							asset.source.source(),
+							/* filename: */ this.entry,
+							/* scope: */ this.globals,
+							/* includeGlobals: */ true
+						);
 
-        if (asset == null) {
-          throw new Error('Source file not found: "' + self.entry + '"');
-        }
+						if ( render.hasOwnProperty( 'default' ) ) {
+							render = render.default;
+						}
 
-        var assets = getAssetsFromCompilation(compilation, webpackStatsJson);
+						if ( typeof render !== 'function' ) {
+							throw new Error(
+								`Export from "${ this.entry }" must be a function that returns an HTML string. Is output.libraryTarget in the configuration set to "umd"?`
+							);
+						}
 
-        var source = asset.source();
-        var render = evaluate(source, /* filename: */ self.entry, /* scope: */ self.globals, /* includeGlobals: */ true);
+						for ( const [ assetName, rawSource ] of Object.entries( await render() ) ) {
+							compilation.emitAsset( assetName, new RawSource( rawSource ) );
+						}
+					} catch ( err ) {
+						compilation.errors.push( err.stack );
+					}
+				}
+			);
+		} );
+	}
 
-        if (render.hasOwnProperty('default')) {
-          render = render['default'];
-        }
+	findAsset( compilation, webpackStatsJson ) {
+		let src = this.entry;
 
-        if (typeof render !== 'function') {
-          throw new Error('Export from "' + self.entry + '" must be a function that returns an HTML string. Is output.libraryTarget in the configuration set to "umd"?');
-        }
+		if ( ! src ) {
+			const chunkNames = Object.keys( webpackStatsJson.assetsByChunkName );
 
-        renderPaths(self.crawl, self.locals, self.paths, render, assets, webpackStats, compilation)
-          .nodeify(done);
-      } catch (err) {
-        compilation.errors.push(err.stack);
-        done();
-      }
-    });
-  });
-};
+			src = chunkNames[ 0 ];
+		}
 
-function renderPaths(crawl, userLocals, paths, render, assets, webpackStats, compilation) {
-  var renderPromises = paths.map(function(outputPath) {
-    var locals = {
-      path: outputPath,
-      assets: assets,
-      webpackStats: webpackStats
-    };
+		const asset = compilation.getAsset( src );
 
-    for (var prop in userLocals) {
-      if (userLocals.hasOwnProperty(prop)) {
-        locals[prop] = userLocals[prop];
-      }
-    }
+		if ( asset ) {
+			return asset;
+		}
 
-    var renderPromise = render.length < 2 ?
-      Promise.resolve(render(locals)) :
-      Promise.fromNode(render.bind(null, locals));
+		let chunkValue = webpackStatsJson.assetsByChunkName[ src ];
 
-    return renderPromise
-      .then(function(output) {
-        var outputByPath = typeof output === 'object' ? output : makeObject(outputPath, output);
-
-        var assetGenerationPromises = Object.keys(outputByPath).map(function(key) {
-          var rawSource = outputByPath[key];
-          var assetName = pathToAssetName(key);
-
-          if (compilation.assets[assetName]) {
-            return;
-          }
-
-          compilation.assets[assetName] = new RawSource(rawSource);
-
-          if (crawl) {
-            var relativePaths = relativePathsFromHtml({
-              source: rawSource,
-              path: key
-            });
-
-            return renderPaths(crawl, userLocals, relativePaths, render, assets, webpackStats, compilation);
-          }
-        });
-
-        return Promise.all(assetGenerationPromises);
-      })
-      .catch(function(err) {
-        compilation.errors.push(err.stack);
-      });
-  });
-
-  return Promise.all(renderPromises);
-}
-
-var findAsset = function(src, compilation, webpackStatsJson) {
-  if (!src) {
-    var chunkNames = Object.keys(webpackStatsJson.assetsByChunkName);
-
-    src = chunkNames[0];
-  }
-
-  var asset = compilation.assets[src];
-
-  if (asset) {
-    return asset;
-  }
-
-  var chunkValue = webpackStatsJson.assetsByChunkName[src];
-
-  if (!chunkValue) {
-    return null;
-  }
-  // Webpack outputs an array for each chunk when using sourcemaps
-  if (chunkValue instanceof Array) {
-    // Is the main bundle always the first element?
-    chunkValue = chunkValue.find(function(filename) {
-      return /\.js$/.test(filename);
-    });
-  }
-  return compilation.assets[chunkValue];
-};
-
-// Shamelessly stolen from html-webpack-plugin - Thanks @ampedandwired :)
-var getAssetsFromCompilation = function(compilation, webpackStatsJson) {
-  var assets = {};
-  for (var chunk in webpackStatsJson.assetsByChunkName) {
-    var chunkValue = webpackStatsJson.assetsByChunkName[chunk];
-
-    // Webpack outputs an array for each chunk when using sourcemaps
-    if (chunkValue instanceof Array) {
-      // Is the main bundle always the first JS element?
-      chunkValue = chunkValue.find(function(filename) {
-        return /\.js$/.test(filename);
-      });
-    }
-
-    if (compilation.options.output.publicPath) {
-      chunkValue = compilation.options.output.publicPath + chunkValue;
-    }
-    assets[chunk] = chunkValue;
-  }
-
-  return assets;
-};
-
-function pathToAssetName(outputPath) {
-  var outputFileName = outputPath.replace(/^(\/|\\)/, ''); // Remove leading slashes for webpack-dev-server
-
-  if (!/\.(html?)$/i.test(outputFileName)) {
-    outputFileName = path.join(outputFileName, 'index.html');
-  }
-
-  return outputFileName;
-}
-
-function makeObject(key, value) {
-  var obj = {};
-  obj[key] = value;
-  return obj;
-}
-
-function relativePathsFromHtml(options) {
-  var html = options.source;
-  var currentPath = options.path;
-
-  var $ = cheerio.load(html);
-
-  var linkHrefs = $('a[href]')
-    .map(function(i, el) {
-      return $(el).attr('href');
-    })
-    .get();
-
-  var iframeSrcs = $('iframe[src]')
-    .map(function(i, el) {
-      return $(el).attr('src');
-    })
-    .get();
-
-  return []
-    .concat(linkHrefs)
-    .concat(iframeSrcs)
-    .map(function(href) {
-      if (href.indexOf('//') === 0) {
-        return null
-      }
-
-      var parsed = url.parse(href);
-
-      if (parsed.protocol || typeof parsed.path !== 'string') {
-        return null;
-      }
-
-      return parsed.path.indexOf('/') === 0 ?
-        parsed.path :
-        url.resolve(currentPath, parsed.path);
-    })
-    .filter(function(href) {
-      return href != null;
-    });
-}
-
-function legacyArgsToOptions(entry, paths, locals, globals) {
-  return {
-    entry: entry,
-    paths: paths,
-    locals: locals,
-    globals: globals
-  };
-}
-
-function addThisCompilationHandler(compiler, callback) {
-  if(compiler.hooks) {
-    /* istanbul ignore next */
-    compiler.hooks.thisCompilation.tap('static-site-generator-webpack-plugin', callback);
-  } else {
-    compiler.plugin('this-compilation', callback);
-  }
-}
-
-function addOptimizeAssetsHandler(compilation, callback) {
-  if(compilation.hooks) {
-    /* istanbul ignore next */
-    compilation.hooks.optimizeAssets.tapAsync('static-site-generator-webpack-plugin',callback);
-  } else {
-    compilation.plugin('optimize-assets', callback);
-  }
+		if ( ! chunkValue ) {
+			return null;
+		}
+		// Webpack outputs an array for each chunk when using sourcemaps
+		if ( chunkValue instanceof Array ) {
+			// Is the main bundle always the first element?
+			chunkValue = chunkValue.find( function ( filename ) {
+				return /\.js$/.test( filename );
+			} );
+		}
+		return compilation.getAsset( chunkValue );
+	}
 }
 
 module.exports = StaticSiteGeneratorWebpackPlugin;
