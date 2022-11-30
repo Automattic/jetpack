@@ -45,6 +45,10 @@ const AgenciesCard: FC< Props > = ( {
 		[ path, isUserLinked, isOwner ]
 	);
 
+	const handleClick = useCallback( () => {
+		trackEvent( 'learn-more-click' );
+	}, [ trackEvent ] );
+
 	const handleDismiss = useCallback( () => {
 		dismiss();
 		trackEvent( 'learn-more-dismiss' );
@@ -79,9 +83,8 @@ const AgenciesCard: FC< Props > = ( {
 						) }
 					</p>
 					<p className="jp-agencies-card__link-button">
-						<Button>
+						<Button onClick={ handleClick }>
 							<ExternalLink
-								onClick={ trackEvent( 'learn-more-click' ) }
 								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
 								target="_blank"
 								rel="noreferrer"
