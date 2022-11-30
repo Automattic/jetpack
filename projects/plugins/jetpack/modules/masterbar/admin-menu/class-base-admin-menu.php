@@ -275,8 +275,11 @@ abstract class Base_Admin_Menu {
 			'jetpack-admin-menu',
 			'jetpackAdminMenu',
 			array(
-				'upsellNudgeJitm'  => wp_create_nonce( 'upsell_nudge_jitm' ),
-				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
+				'upsellNudgeJitm'       => wp_create_nonce( 'upsell_nudge_jitm' ),
+				'jitmDismissNonce'      => wp_create_nonce( 'jitm_dismiss' ),
+				'launchpadScreenOption' => get_option( 'launchpad_screen' ),
+				'siteIntentOption'      => get_option( 'site_intent' ),
+				'siteUrlOption'         => get_option( 'siteurl' ),
 			)
 		);
 	}
