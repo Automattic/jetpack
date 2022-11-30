@@ -103,13 +103,16 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
 				);
 
-				if ( refName === 'trunk' ) {
-					project.suite = repoName;
-				} else if ( refType === 'tag' ) {
-					project.suite = `${ repoName }-${ refName }`;
-				} else {
-					project.suite = `${ repoName }-rc`;
+				let suiteName = project.suite ? project.suite : repoName;
+				if ( refType === 'tag' ) {
+					suiteName = `${ suiteName }-${ refName }`;
 				}
+
+				if ( refType === 'branch' && refName !== 'trunk' ) {
+					suiteName = `${ suiteName }-rc`;
+				}
+
+				project.suite = suiteName;
 
 				if ( packageJson?.ci?.mirrorName === repoName ) {
 					matrix.push( project );
