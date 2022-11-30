@@ -106,6 +106,8 @@ class REST_Controller {
 			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
 		}
 
+		Waf_Runner::update_waf();
+
 		return self::waf();
 	}
 
