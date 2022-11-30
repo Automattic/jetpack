@@ -83,7 +83,8 @@ const mapFieldsToAttributes = {
 };
 
 /**
- * Re-arrange video data tracks to match the block attributes.
+ * Re-arragne the tracks to match the block attribute format.
+ * Also, check if the tracks is out of sync with the media item.
  *
  * @param {VideoDataProps} videoData        - Video data, provided by server.
  * @param {VideoBlockAttributes} attributes - Block attributes.
@@ -98,7 +99,7 @@ function arrangeTracksAttributes(
 	}
 
 	const tracks = [];
-	let syncTracks = false;
+	let tracksOufOfSync = false;
 
 	Object.keys( videoData.tracks ).forEach( kind => {
 		for ( const srcLang in videoData.tracks[ kind ] ) {
@@ -110,8 +111,8 @@ function arrangeTracksAttributes(
 			} );
 
 			if ( ! trackExistsInBlock ) {
-				debug( 'Track %o is out of sync. Updating tracks attr', track.src );
-				syncTracks = true;
+				debug( 'Track %o is out of sync. Set tracks attr', track.src );
+				tracksOufOfSync = true;
 			}
 
 			tracks.push( {
@@ -123,7 +124,7 @@ function arrangeTracksAttributes(
 		}
 	} );
 
-	return [ tracks, syncTracks ];
+	return [ tracks, tracksOufOfSync ];
 }
 
 /**
@@ -209,23 +210,19 @@ export function useSyncMedia(
 			return;
 		}
 
-		/*
-		 * Re arragne the tracks to match the block attribute format.
-		 * Also, check if the track is out of sync with the media item.
-		 * If so, update the track attribute.
-		 */
-
-		const [ tracks, syncTracks ] = arrangeTracksAttributes( videoData, attributes );
+		const [ tracks, tracksOufOfSync ] = arrangeTracksAttributes( videoData, attributes );
 
 		// Sync video tracks if needed.
-		if ( syncTracks ) {
+		if ( tracksOufOfSync ) {
 			attributesToUpdate.tracks = tracks;
 		}
 
-		if ( Object.keys( attributesToUpdate ).length ) {
-			debug( 'attributesToUpdate: ', attributesToUpdate );
-			setAttributes( attributesToUpdate );
+		if ( ! Object.keys( attributesToUpdate ).length ) {
+			return;
 		}
+
+		debug( 'attributesToUpdate: ', attributesToUpdate );
+		setAttributes( attributesToUpdate );
 	}, [ videoData, isRequestingVideoData ] );
 
 	const updateMediaHandler = useMediaDataUpdate( id );
@@ -288,12 +285,15 @@ export function useSyncMedia(
 				dataToUpdate?.description?.length &&
 				chapters?.length
 			) {
+				debug( 'Processing auto-generated video chapter' );
 				const track: UploadTrackDataProps = {
 					label: __( 'English (auto-generated)', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
 					kind: 'chapters',
 					tmpFile: generateChaptersFile( dataToUpdate.description ),
 				};
+
+				debug( 'Auto-generated track: %o', track );
 
 				uploadTrackForGuid( track, guid ).then( ( src: string ) => {
 					const autoGeneratdTrackIndex = attributes.tracks.findIndex(
