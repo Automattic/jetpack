@@ -259,6 +259,7 @@ class WPCOM_Features {
 	public const SET_PRIMARY_CUSTOM_DOMAIN     = 'set-primary-custom-domain';
 	public const SFTP                          = 'sftp';
 	public const SIMPLE_PAYMENTS               = 'simple-payments';
+	public const SITE_PREVIEW_LINKS            = 'site-preview-links';
 	public const SOCIAL_PREVIEWS               = 'social-previews';
 	public const SOCIAL_SHARES_1000            = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING    = 'social-enhanced-publishing';
@@ -700,6 +701,9 @@ class WPCOM_Features {
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 			self::JETPACK_PREMIUM_AND_HIGHER,
+		),
+		self::SITE_PREVIEW_LINKS            => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::SOCIAL_PREVIEWS               => array(
 			self::WPCOM_PRO_PLANS,
