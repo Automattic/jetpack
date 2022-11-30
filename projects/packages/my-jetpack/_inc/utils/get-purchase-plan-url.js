@@ -11,5 +11,8 @@ import { MY_JETPACK_MY_PLANS_PURCHASE_SOURCE } from '../constants';
  */
 export default function () {
 	const site = window?.myJetpackInitialState?.siteSuffix;
-	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site } );
+	const query = window?.myJetpackInitialState?.topJetpackMenuItemUrl
+		? `redirect_to=${ window?.myJetpackInitialState?.topJetpackMenuItemUrl }`
+		: null;
+	return getRedirectUrl( MY_JETPACK_MY_PLANS_PURCHASE_SOURCE, { site, query } );
 }
