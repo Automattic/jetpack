@@ -201,10 +201,10 @@ const FirewallPage = () => {
 		API.wafUpgradeSeen();
 	}, [ setWafUpgradeIsSeen ] );
 
-	const [ dismissPopover, setDismissPopover ] = useState( false );
+	const [ popoverDismissed, setPopoverDismissed ] = useState( false );
 
 	const handleDismissPopoverClick = useCallback( () => {
-		setDismissPopover( true );
+		setPopoverDismissed( true );
 	}, [] );
 
 	return (
@@ -222,7 +222,7 @@ const FirewallPage = () => {
 										onChange={ handleEnabledChange }
 										disabled={ ! hasRequiredPlan || settingsIsUpdating }
 									/>
-									{ ! dismissPopover && hasRequiredPlan && upgradeIsSeen === false && (
+									{ ! popoverDismissed && hasRequiredPlan && upgradeIsSeen === false && (
 										<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
 											<div className={ styles.popover }>
 												<div className={ styles[ 'popover-header' ] }>
