@@ -28,7 +28,8 @@ class Gifting_Banner {
 	public function maybe_show_gifting_banner() {
 		// Hide the gifting banner behind a8c proxy.
 		if ( ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ||
-			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST ) ) {
+			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST ) ||
+			0 === get_current_blog_id() % 10 ) {
 
 			if ( $this->should_display_expiring_plan_notice() ) {
 				// Inject the gifting banner after the launch banner.
