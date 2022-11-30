@@ -43,6 +43,8 @@ jobs:
         env:
           CRON: ${{ github.event.schedule }}
           DISPATCH_REPO: ${{ github.event.client_payload.repository }}
+          REF_NAME: ${{ github.event.client_payload.ref_name }}
+          REF_TYPE: ${{ github.event.client_payload.ref_type }}
         run: |
           MATRIX="$(node .github/files/e2e-tests/e2e-matrix.js)"
           echo "$MATRIX"
@@ -111,7 +113,7 @@ jobs:
           .github/files/e2e-tests/map-plugins-for-e2e-env.sh
           echo "::endgroup::"
         else
-          if [[ "${SUITE}" != atomic ]]; then
+          if [[ "${SUITE}" != atomic* ]]; then
             echo "::group::Build plugin(s)"
             cd $PROJECT_PATH
             pnpm run build
@@ -125,14 +127,12 @@ jobs:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         SUITE: ${{ matrix.suite }}
         PROJECT_NAME:  ${{ matrix.project }}
-        DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
-        DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
       run: |
         echo "::group::Decrypt config"
         pnpm run config:decrypt
         echo "::endgroup::"
 
-        if [[ "${SUITE}" != atomic ]]; then
+        if [[ "${SUITE}" != atomic* ]]; then
           echo "::group::Start docker environment"
           pnpm run env:up
           echo "::endgroup::"
@@ -142,21 +142,29 @@ jobs:
           echo "::endgroup::"
         fi
 
-        if [[ "${SUITE}" == atomic ]]; then
-          if [[ "${DISPATCH_REF_TYPE}" == tag ]]; then
-            SUITE="atomicRc"
-          fi
-          echo "TEST_SITE=${SUITE}" >> $GITHUB_ENV
-
-          # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
-          TEST_SITE="${SUITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
-        fi
-
         if [ "${SUITE}" == gutenberg ]; then
             echo "::group::Setting up Gutenberg"
             pnpm e2e-env gb-setup
             echo "::endgroup::"
         fi
+
+    - name: Wait for atomic site to be ready
+      if: ${{ startsWith(matrix.suite, 'atomic') }}
+      working-directory: ${{ matrix.path }}
+      env:
+        DISPATCH_REF_NAME: ${{ github.event.client_payload.ref_name }}
+        DISPATCH_REF_TYPE: ${{ github.event.client_payload.ref_type }}
+      run: |
+        SITE="atomic"
+
+        if [[ "${DISPATCH_REF_NAME}" != trunk ]]; then
+            SITE="atomicRc"
+        fi
+
+        echo "TEST_SITE=${SITE}" >> $GITHUB_ENV
+
+        # Wait for the site to pick up latest tag version (DISPATCH_REF_NAME)
+        TEST_SITE="${SITE}" node "$GITHUB_WORKSPACE/tools/e2e-commons/bin/update-beta-version.cjs" $DISPATCH_REF_TYPE $DISPATCH_REF_NAME
 
     - name: Run ${{ matrix.project }} tests
       working-directory: ${{ matrix.path }}
