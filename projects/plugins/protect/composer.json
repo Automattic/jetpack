@@ -5,21 +5,21 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"ext-json": "*",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-admin-ui": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
-		"automattic/jetpack-my-jetpack": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-transport-helper": "@dev",
-		"automattic/jetpack-plans": "@dev"
+		"automattic/jetpack-assets": "^1.17.27",
+		"automattic/jetpack-admin-ui": "^0.2.13",
+		"automattic/jetpack-autoloader": "^2.11.12",
+		"automattic/jetpack-composer-plugin": "^1.1.6",
+		"automattic/jetpack-config": "^1.11.1",
+		"automattic/jetpack-identity-crisis": "^0.8.32",
+		"automattic/jetpack-my-jetpack": "^2.5.1",
+		"automattic/jetpack-plugins-installer": "^0.2.1",
+		"automattic/jetpack-sync": "^1.44.0",
+		"automattic/jetpack-transport-helper": "^0.1.1",
+		"automattic/jetpack-plans": "^0.2.7"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^3.2.1",
 		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
@@ -50,15 +50,7 @@
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
