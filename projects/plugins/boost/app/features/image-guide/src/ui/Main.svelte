@@ -9,44 +9,50 @@
 	export let stores: MeasurableImageStore[];
 	let show: number | false;
 
-	function onMouseLeave() {
-		if ( $state !== 'always_on' ) {
-			show = false;
-		}
-	}
-	$: show = $state === 'always_on' ? 0 : false;
-
-	let size: GuideSize = 'normal';
-	const image = stores[ 0 ];
-	const onPage = image.sizeOnPage;
-
-	// Looking at the first image in the set is fine, at least for now.
-	$: if ( $onPage.width < 200 || $onPage.height < 200 ) {
-		size = 'micro';
-	} else if ( $onPage.width < 400 || $onPage.height < 400 ) {
-		size = 'small';
-	}
-
-	$: if ( show !== false ) {
-		stores.forEach( i => i.node.classList.add( 'jetpack-boost-image-guide-backdrop' ) );
-	} else {
-		stores.forEach( i => i.node.classList.remove( 'jetpack-boost-image-guide-backdrop' ) );
-	}
-
 	/**
 	 * This onMount is triggered when the window loads
 	 * and the Image Guide UI is first
-	*/
-	onMount( () => {
-		stores.forEach( store => store.updateWeight() );
-	} );
+	 */
+	onMount(() => {
+		stores.forEach(store => store.updateWeight());
+	});
+
+	function onMouseLeave() {
+		if ($state !== 'always_on') {
+			show = false;
+		}
+	}
+
+	function getGuideSize(width = -1, height = -1): GuideSize {
+		if (width < 200 || height < 200) {
+			return 'micro';
+		} else if (width < 400 || height < 400) {
+			return 'small';
+		}
+		return 'normal';
+	}
+
+	function toggleBackdrop(on = false) {
+		if (on) {
+			stores.forEach(store => store.node.classList.add('jetpack-boost-image-guide-backdrop'));
+		} else {
+			stores.forEach(store => store.node.classList.remove('jetpack-boost-image-guide-backdrop'));
+		}
+	}
+
+	// Use the first image available in the stores to determine the guide size
+	const sizeOnPage = stores[0].sizeOnPage;
+	$: size = getGuideSize($sizeOnPage.width, $sizeOnPage.height);
+
+	$: show = $state === 'always_on' ? 0 : false;
+	$: toggleBackdrop(show !== false);
 </script>
 
 {#if $state === 'active' || $state === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each stores as store, index}
-				<Bubble {index} {store} on:mouseenter={() => ( show = index )} />
+				<Bubble {index} {store} on:mouseenter={() => (show = index)} />
 			{/each}
 		</div>
 		{#each stores as store, index}
@@ -83,15 +89,15 @@
 			z-index: 9000;
 		}
 
-		// Important statements to override theme styles
+		// !important statements override theme styles
 		font-size: 15px !important;
 		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans',
 			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
 	}
 
-	:global( .jetpack-boost-image-guide-backdrop ) {
+	:global(.jetpack-boost-image-guide-backdrop) {
 		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
-		filter: brightness( 0.3 );
+		filter: brightness(0.3);
 	}
 
 	.previews {
