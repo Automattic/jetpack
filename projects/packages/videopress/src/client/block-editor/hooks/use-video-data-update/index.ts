@@ -254,9 +254,8 @@ export function useSyncMedia(
 				const stateValue = initialState[ key ];
 				const attrValue = attributes[ attrName ];
 
-				debug( 'Checking %o: %o - %o: %o', attrName, attrValue, key, stateValue );
-
 				if ( initialState[ key ] !== attributes[ attrName ] ) {
+					debug( 'Syncing %o: %o => %o: %o', key, stateValue, attrName, attrValue );
 					acc[ key ] = attributes[ attrName ];
 				}
 				return acc;
@@ -268,8 +267,6 @@ export function useSyncMedia(
 		if ( ! Object.keys( dataToUpdate ).length ) {
 			return debug( 'No data to update. Bail early' );
 		}
-
-		debug( 'dataToUpdate: ', dataToUpdate );
 
 		// Sync the block attributes data with the video data
 		updateMediaHandler( dataToUpdate ).then( () => {
@@ -285,7 +282,7 @@ export function useSyncMedia(
 				dataToUpdate?.description?.length &&
 				chapters?.length
 			) {
-				debug( 'Processing auto-generated video chapter' );
+				debug( 'Auto-generated chapter detected. Processing...' );
 				const track: UploadTrackDataProps = {
 					label: __( 'English (auto-generated)', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
