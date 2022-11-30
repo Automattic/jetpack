@@ -179,6 +179,41 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
+	// export to Google Drive handler
+	$( document ).on( 'click', '#jetpack-export-feedback-to-gdrive', function ( event ) {
+		event.preventDefault();
+		var nonceName = $( event.target ).data( 'nonce-name' );
+		var nonce = $( '#' + nonceName ).attr( 'value' );
+		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
+		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+
+		var selected = [];
+		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
+		} );
+
+		$.post(
+			ajaxurl,
+			{
+				action: 'grunion_export_to_gdrive',
+				year: date ? date[ 2 ].substr( 0, 4 ) : '',
+				month: date ? date[ 2 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				selected: selected,
+				[ nonceName ]: nonce,
+			},
+			function ( payload, status ) {
+				if ( status !== 'success' ) {
+					window.alert( 'There was an error exporting your results' );
+					return;
+				}
+				if ( payload.data && payload.data.sheet_link ) {
+					window.open( payload.data.sheet_link, '_blank' );
+				}
+			}
+		);
+	} );
+
 	// Handle export
 	$( document ).on( 'click', '#jetpack-export-feedback', function ( e ) {
 		e.preventDefault();
