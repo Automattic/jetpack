@@ -83,7 +83,7 @@ const mapFieldsToAttributes = {
 };
 
 /**
- * Re-arragne the tracks to match the block attribute format.
+ * Re-arrange the tracks to match the block attribute format.
  * Also, check if the tracks is out of sync with the media item.
  *
  * @param {VideoDataProps} videoData        - Video data, provided by server.
