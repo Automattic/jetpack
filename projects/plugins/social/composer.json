@@ -38,6 +38,9 @@
 		"test-php": [
 			"@composer phpunit"
 		],
+		"test-js": [
+			"pnpm run test"
+		],
 		"build-development": [
 			"pnpm run build"
 		],
