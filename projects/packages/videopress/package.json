@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.8.2-alpha",
+	"version": "0.8.3-alpha",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
@@ -39,9 +39,7 @@
 		"@types/react-dom": "17.0.17",
 		"@types/react-test-renderer": "17.0.2",
 		"@types/testing-library__jest-dom": "5.14.1",
-		"@types/wordpress__api-fetch": "3.23.1",
 		"@types/wordpress__components": "19.10.0",
-		"@types/wordpress__url": "2.14.0",
 		"@wordpress/browserslist-config": "5.4.0",
 		"autoprefixer": "10.4.12",
 		"jest": "29.3.1",

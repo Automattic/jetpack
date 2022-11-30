@@ -141,17 +141,20 @@ export function useSyncMedia(
 
 		// Update block track attribute
 		const tracks = [];
-		Object.keys( videoData.tracks ).forEach( kind => {
-			for ( const srcLang in videoData.tracks[ kind ] ) {
-				const track = videoData.tracks[ kind ][ srcLang ];
-				tracks.push( {
-					src: track.src,
-					kind,
-					srcLang,
-					label: track.label,
-				} );
-			}
-		} );
+
+		if ( videoData?.tracks ) {
+			Object.keys( videoData.tracks ).forEach( kind => {
+				for ( const srcLang in videoData.tracks[ kind ] ) {
+					const track = videoData.tracks[ kind ][ srcLang ];
+					tracks.push( {
+						src: track.src,
+						kind,
+						srcLang,
+						label: track.label,
+					} );
+				}
+			} );
+		}
 
 		initialAttributesValues.tracks = tracks;
 

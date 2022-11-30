@@ -10,8 +10,12 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { VideoBlockColorAttributesProps, VideoControlProps } from '../../types';
-import type React from 'react';
+import dynamicColorsImage from './dynamic-colors.png';
 import './style.scss';
+/**
+ * Types
+ */
+import type React from 'react';
 
 /**
  * Sidebar Control component.
@@ -43,7 +47,19 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 		<PanelBody title={ __( 'Color', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Dynamic color', 'jetpack-videopress-pkg' ) }
-				help={ __( 'Colors adapt to the video as it plays.', 'jetpack-videopress-pkg' ) }
+				help={
+					<>
+						{ __(
+							'Playback bar colors adapt to the video as it plays.',
+							'jetpack-videopress-pkg'
+						) }
+						<img
+							className="videopress-dynamic-color-example"
+							src={ dynamicColorsImage }
+							alt={ __( 'Dynamic colors example', 'jetpack-videopress-pkg' ) }
+						></img>
+					</>
+				}
 				onChange={ newUseAverageColor => setAttributes( { useAverageColor: newUseAverageColor } ) }
 				checked={ useAverageColor }
 			/>

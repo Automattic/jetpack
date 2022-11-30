@@ -127,8 +127,8 @@ class Test_Actions extends BaseTestCase {
 		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync', 'dummy' );
 		update_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue', 'dummy' );
 		// Retry after locks.
-		update_option( Actions::RETRY_AFTER_PREFIX . '_sync', 'dummy' );
-		update_option( Actions::RETRY_AFTER_PREFIX . '_full_sync', 'dummy' );
+		update_option( Actions::RETRY_AFTER_PREFIX . 'sync', 'dummy' );
+		update_option( Actions::RETRY_AFTER_PREFIX . 'full_sync', 'dummy' );
 		// Dedicated sync lock.
 		\Jetpack_Options::update_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'dummy' );
 		// Queue locks.
@@ -142,8 +142,8 @@ class Test_Actions extends BaseTestCase {
 		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' ) );
 		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' ) );
 		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' ) );
-		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . '_sync' ) );
-		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . '_full_sync' ) );
+		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . 'sync' ) );
+		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . 'full_sync' ) );
 		$this->assertFalse( $sync_queue->is_locked() );
 		$this->assertFalse( $full_sync_queue->is_locked() );
 	}
