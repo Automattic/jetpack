@@ -1,62 +1,55 @@
 <script lang="ts">
-	import { measure } from '../Measurements';
 	import Bubble from './Bubble.svelte';
 	import ImageGuide from './ImageGuide.svelte';
 	import { state } from './StateStore';
-	import type { GuideSize, MeasuredImage } from '../types';
+	import type { GuideSize } from '../types';
+	import type { MeasurableImageStore } from '../MeasurableImageStore';
+  import { onMount } from 'svelte';
 
-	export let images: MeasuredImage[];
-	let show: MeasuredImage | false = false;
+	export let stores: MeasurableImageStore[];
+	let show: number | false;
 
 	function onMouseLeave() {
-		if ( $state !== 'always_on' ) {
+		if ($state !== 'always_on') {
 			show = false;
 		}
 	}
-	$: show = $state === 'always_on' ? images[ 0 ] : false;
+	$: show = $state === 'always_on' ? 0 : false;
 
 	let size: GuideSize = 'normal';
-	const image = images[ 0 ];
+	const image = stores[0];
+	const onPage = image.sizeOnPage;
+
 	// Looking at the first image in the set is fine, at least for now.
-	if ( image.onScreen.width < 200 || image.onScreen.height < 200 ) {
+	$: if ($onPage.width < 200 || $onPage.height < 200) {
 		size = 'micro';
-	} else if ( image.onScreen.width < 400 || image.onScreen.height < 400 ) {
+	} else if ($onPage.width < 400 || $onPage.height < 400) {
 		size = 'small';
 	}
 
-	$: if ( show ) {
-		images.forEach( i => i.node.classList.add( 'jetpack-boost-image-guide-backdrop' ) );
+	$: if (show !== false) {
+		stores.forEach(i => i.node.classList.add('jetpack-boost-image-guide-backdrop'));
 	} else {
-		images.forEach( i => i.node.classList.remove( 'jetpack-boost-image-guide-backdrop' ) );
+		stores.forEach(i => i.node.classList.remove('jetpack-boost-image-guide-backdrop'));
 	}
 
-	let debounce: number;
-	function updateDimensions() {
-		if ( debounce ) {
-			clearTimeout( debounce );
-		}
-		debounce = setTimeout( () => {
-			images = measure( images );
-		}, 500 );
-	}
+	onMount( () => {
+		stores.forEach( store => store.updateWeight() );
+	});
 </script>
-
-<svelte:window on:resize={updateDimensions} />
 
 {#if $state === 'active' || $state === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
-			{#each images as image, index}
-				<Bubble
-					{index}
-					oversizedBy={image.oversizedBy}
-					on:mouseenter={() => ( show = images[ index ] )}
-				/>
+			{#each stores as store, index}
+				<Bubble {index} {store} on:mouseenter={() => show = index} />
 			{/each}
 		</div>
-		{#if show !== false}
-			<ImageGuide {size} image={show} />
-		{/if}
+		{#each stores as store, index}
+			{#if show === index}
+				<ImageGuide {store} {size} />
+			{/if}
+		{/each}
 	</div>
 {/if}
 
@@ -92,9 +85,9 @@
 			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
 	}
 
-	:global( .jetpack-boost-image-guide-backdrop ) {
+	:global(.jetpack-boost-image-guide-backdrop) {
 		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
-		filter: brightness( 0.3 );
+		filter: brightness(0.3);
 	}
 
 	.previews {

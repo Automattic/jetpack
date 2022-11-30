@@ -1,37 +1,32 @@
 <script lang="ts">
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
-	import { GuideSize, MeasuredImage } from '../types';
+  	import type { MeasurableImageStore } from '../MeasurableImageStore';
+	import { GuideSize } from '../types';
 	import JetpackLogo from './JetpackLogo.svelte';
 
-	export let image: MeasuredImage;
+	export let store: MeasurableImageStore;
 	export let size: GuideSize;
 
-	// Reactive variables because this component can be reused by Svelte.
-	$: imageName = image.url.split('/').pop();
-	$: ratio = maybeDecimals(image.oversizedBy);
-	$: potentialSavings = Math.round(
-		image.fileSize.weight - image.fileSize.weight / image.oversizedBy
-	);
+	const oversizedRatio = store.oversizedRatio;
+	const fileSize = store.fileSize;
+	const sizeOnPage = store.sizeOnPage;
+	const potentialSavings = store.potentialSavings;
+	const expectedSize = store.expectedSize;
 
-	const previewWidth = size === 'normal' ? 100 : 50;
-	const previewHeight = Math.floor(previewWidth / (image.fileSize.width / image.fileSize.height));
+	const imageURL = store.image.getURL();
+	const imageName = imageURL.split('/').pop();
 
-	$: origin = new URL(window.location.href).origin;
-	$: imageOrigin = new URL(image.url).origin;
-
-	let ratioLabel;
-	$: if (ratio < 1) {
-		ratioLabel = `${(1 / ratio).toFixed(2)}x smaller`;
-	} else if (ratio >= 1 && ratio < 1.2) {
-		ratioLabel = `${ratio.toFixed(2)}x Perfect!`;
-	} else {
-		ratioLabel = `${ratio.toFixed(2)}x larger`;
-	}
+	const origin = new URL(window.location.href).origin;
+	const imageOrigin = new URL(imageURL).origin;
 
 	function maybeDecimals(num: number) {
 		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
 	}
+
+	const previewWidth = size === 'normal' ? 100 : 50;
+	$: previewHeight = Math.floor(previewWidth / ($fileSize.width / $fileSize.height));
+	$: ratio = maybeDecimals($oversizedRatio);
 </script>
 
 <div class="details" transition:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -64,7 +59,7 @@
 					The image loaded is {ratio}x larger than it appears in the browser.
 				</div>
 			{:else}
-				{@const stretchedBy = maybeDecimals(1 / ratio)}
+				{@const stretchedBy = maybeDecimals(1 / $oversizedRatio)}
 				<div class="title">
 					Stretched by {stretchedBy}x
 				</div>
@@ -74,36 +69,38 @@
 				</div>
 			{/if}
 		</div>
-		<img
-			src={image.url}
-			alt={imageName}
-			style="width: {previewWidth}px; height: {previewHeight}px;"
-			width={previewWidth}
-			height={previewHeight}
-		/>
+		{#if imageURL}
+			<img
+				src={imageURL}
+				alt={imageName}
+				style="width: {previewWidth}px; height: {previewHeight}px;"
+				width={previewWidth}
+				height={previewHeight}
+			/>
+		{/if}
 	</div>
 
 	<div class="meta">
 		<div class="row">
 			<div class="label">Image Dimensions</div>
-			<div class="value">{image.fileSize.width} x {image.fileSize.height}</div>
+			<div class="value">{$fileSize.width} x {$fileSize.height}</div>
 		</div>
 
 		<div class="row">
 			<div class="label">Expected Dimensions</div>
-			<div class="value">{image.expected.width} x {image.expected.height}</div>
+			<div class="value">{$expectedSize.width} x {$expectedSize.height}</div>
 		</div>
 
 		<div class="row">
 			<div class="label">Size on screen</div>
-			<div class="value">{image.onScreen.width} x {image.onScreen.height}</div>
+			<div class="value">{$sizeOnPage.width} x {$sizeOnPage.height}</div>
 		</div>
 
 		<div class="row">
 			<div class="label">Image Size</div>
 			<div class="value">
-				{#if image.fileSize.weight > 0}
-					{Math.round(image.fileSize.weight)}
+				{#if $fileSize.weight > 0}
+					{Math.round($fileSize.weight)}
 				{:else}
 					--
 				{/if}
@@ -114,8 +111,8 @@
 		<div class="row">
 			<div class="label">Potential savings</div>
 			<div class="value">
-				{#if potentialSavings > 0}
-					<strong>{potentialSavings} KB</strong>
+				{#if $potentialSavings > 0}
+					<strong>{$potentialSavings} KB</strong>
 				{:else}
 					-- KB
 				{/if}

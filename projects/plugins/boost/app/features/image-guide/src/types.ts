@@ -1,3 +1,4 @@
+import type { MeasurableImageStore } from './MeasurableImageStore';
 import type { ComponentConstructorOptions } from 'svelte';
 
 export type MeasuredImage = {
@@ -20,12 +21,12 @@ export type MeasuredImage = {
 	};
 };
 
-export type Image = Omit< MeasuredImage, 'expected' | 'onScreen' | 'oversizedBy' >;
+export type Image = Omit<MeasuredImage, 'expected' | 'onScreen' | 'oversizedBy'>;
 
 export interface ImageComponentConfig extends ComponentConstructorOptions {
 	target: HTMLElement;
 	props: {
-		images: MeasuredImage[];
+		stores: MeasurableImageStore[];
 	};
 }
 
