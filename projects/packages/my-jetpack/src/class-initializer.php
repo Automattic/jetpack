@@ -33,7 +33,7 @@ class Initializer {
 	const PACKAGE_VERSION = '2.5.1-alpha';
 
 	/**
-	 * Initialize My Jetapack
+	 * Initialize My Jetpack
 	 *
 	 * @return void
 	 */
