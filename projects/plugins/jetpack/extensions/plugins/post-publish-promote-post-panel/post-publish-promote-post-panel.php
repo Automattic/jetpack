@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Extensions\PromotePosts;
 const FEATURE_NAME = 'post-publish-promote-post-panel';
 
 // Populate the available extensions with post-publish-promote-post-panel.
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+// if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_filter(
 		'jetpack_set_available_extensions',
 		function ( $extensions ) {
@@ -31,4 +31,4 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 		}
 	);
-}
+	// }
