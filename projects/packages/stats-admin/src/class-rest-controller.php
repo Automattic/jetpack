@@ -126,7 +126,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Only users with capability `view_stats` can access the API.
+	 * Only administrators or users with capability `view_stats` can access the API.
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
