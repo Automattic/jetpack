@@ -14,17 +14,18 @@
 	const potentialSavings = store.potentialSavings;
 	const expectedSize = store.expectedSize;
 
-	const imageURL = store.image.getURL();
-	const imageName = imageURL.split('/').pop();
+	const imageURL = store.url;
+	$: imageName = $imageURL.split('/').pop();
+	const isLoading = store.loading;
 
 	const origin = new URL(window.location.href).origin;
-	const imageOrigin = new URL(imageURL).origin;
+	const imageOrigin = new URL($imageURL).origin;
 
 	function maybeDecimals(num: number) {
 		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
 	}
 
-	const previewWidth = size === 'normal' ? 100 : 50;
+	$: previewWidth = size === 'normal' ? 100 : 50;
 	$: previewHeight = Math.floor(previewWidth / ($fileSize.width / $fileSize.height));
 	$: ratio = maybeDecimals($oversizedRatio);
 </script>
@@ -36,42 +37,33 @@
 
 	<div class="preview">
 		<div class="description">
+			<div class="title">
+				<a href="{$imageURL}" target="_blank">{imageName}</a>
+			</div>
 			{#if ratio >= 1.3}
-				<div class="title">
-					{ratio}x larger
-				</div>
 				<div class="explanation">
-					The image loaded is {ratio}x larger than it appears in the browser.
+					The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
 				</div>
 			{:else if ratio === 1}
-				<div class="title">
-					{ratio}x Perfect!
-				</div>
 				<div class="explanation">
 					The image loaded is the same size as it appears in the browser.
 				</div>
 			{:else if ratio > 1 && ratio < 1.3}
-				<div class="title">
-					{ratio}x Good
-				</div>
 				<div class="explanation">
 					Images may not always be perfectly sized on all screen sizes, so this is probably ok
-					The image loaded is {ratio}x larger than it appears in the browser.
+					The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
 				</div>
 			{:else}
 				{@const stretchedBy = maybeDecimals(1 / $oversizedRatio)}
-				<div class="title">
-					Stretched by {stretchedBy}x
-				</div>
 				<div class="explanation">
 					<!-- Calculate how many times the image is smaller -->
 					The image loaded is stretched by {stretchedBy}x to fit the available space.
 				</div>
 			{/if}
 		</div>
-		{#if imageURL}
+		{#if $imageURL}
 			<img
-				src={imageURL}
+				src={$imageURL}
 				alt={imageName}
 				style="width: {previewWidth}px; height: {previewHeight}px;"
 				width={previewWidth}
@@ -83,7 +75,17 @@
 	<div class="meta">
 		<div class="row">
 			<div class="label">Image Dimensions</div>
+			{#if $fileSize.width > -1 && $fileSize.height > -1}
 			<div class="value">{$fileSize.width} x {$fileSize.height}</div>
+			{:else}
+			<div class="value">
+				{#if $isLoading}
+					Loading...
+				{:else}
+					<em>Unknown</em>
+				{/if}
+			</div>
+			{/if}
 		</div>
 
 		<div class="row">
@@ -100,11 +102,14 @@
 			<div class="label">Image Size</div>
 			<div class="value">
 				{#if $fileSize.weight > 0}
-					{Math.round($fileSize.weight)}
+					{Math.round($fileSize.weight)} KB
 				{:else}
-					--
+					{#if $isLoading}
+					Loading...
+					{:else}
+						<em>Unknown</em>
+					{/if}
 				{/if}
-				KB
 			</div>
 		</div>
 
@@ -114,7 +119,11 @@
 				{#if $potentialSavings > 0}
 					<strong>{$potentialSavings} KB</strong>
 				{:else}
-					-- KB
+					{#if $isLoading}
+						Loading...
+					{:else}
+						<em>--</em>
+					{/if}
 				{/if}
 			</div>
 		</div>
@@ -136,6 +145,11 @@
 			0px 0px 0px -2.6px hsl(var(--shadow-color) / 0.25),
 			0px 0px 0px -3.2px hsl(var(--shadow-color) / 0.19),
 			0.1px 0px 0.1px -3.8px hsl(var(--shadow-color) / 0.14);
+	}
+
+	a {
+		color: #069E08 !important;
+		font-weight: 600 !important;
 	}
 
 	:global(.jetpack-boost-guide.relative) {
