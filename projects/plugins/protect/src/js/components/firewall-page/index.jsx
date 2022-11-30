@@ -182,8 +182,8 @@ const FirewallPage = () => {
 
 	const { hasRequiredPlan } = useProtectData();
 
-	// TO DO: Create action for tracking initial WAF UI view after upgrade
-	const wafUpgradeSeen = true;
+	// TO DO: Create action for tracking initial WAF UI view after upgrade, until first enabling automatic rules
+	const wafUpgradeSeen = hasRequiredPlan ? true : false;
 
 	return (
 		<AdminPage>
@@ -209,7 +209,7 @@ const FirewallPage = () => {
 										>
 											{ __( 'Enable automatic rules', 'jetpack-protect' ) }
 										</Text>
-										{ ! wafUpgradeSeen && (
+										{ wafUpgradeSeen && (
 											<span className={ styles.badge }>
 												{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }
 											</span>
@@ -258,7 +258,9 @@ const FirewallPage = () => {
 								<div className={ styles[ 'edit-manual-rules-section' ] }>
 									<Text variant={ 'body-small' } mt={ 2 }>
 										{ /* // TO DO: Update or remove until ready for this */ }
-										{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
+										{ '' === jetpackWafIpAllowList &&
+											'' === jetpackWafIpBlockList &&
+											__( 'No manual rules are being applied.', 'jetpack-protect' ) }
 									</Text>
 									<Button variant={ 'link' }>
 										<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
