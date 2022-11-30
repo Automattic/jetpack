@@ -308,6 +308,8 @@ class WPCOM_Stats {
 	/**
 	 * Get streaks for the site.
 	 *
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/streak/
+	 *
 	 * @param array $args Optional query parameters.
 	 * @return array|WP_Error
 	 */
@@ -320,6 +322,8 @@ class WPCOM_Stats {
 
 	/**
 	 * Get the highlights for the site.
+	 *
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/highlights/
 	 *
 	 * @param array $args Optional query parameters.
 	 * @return array|WP_Error
