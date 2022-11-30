@@ -3,7 +3,6 @@ import Main from './ui/Main.svelte';
 import type { MeasurableImage } from './MeasurableImage';
 import type { ImageComponentConfig } from './types';
 
-
 /**
  * This function looks for the closest parent that is
  * able to contain the image guide component.
@@ -149,9 +148,11 @@ export function attachGuides( measuredImages: MeasurableImage[] ) {
 	}, {} as Record< number, ImageComponentConfig > );
 
 	// Take the component configuration and create the Svelte components.
-	return Object.values( componentConfiguration ).map( config => {
-		// eslint-disable-next-line no-new
-		new Main( config );
-		return config.props.stores;
-	} ).flat();
+	return Object.values( componentConfiguration )
+		.map( config => {
+			// eslint-disable-next-line no-new
+			new Main( config );
+			return config.props.stores;
+		} )
+		.flat();
 }

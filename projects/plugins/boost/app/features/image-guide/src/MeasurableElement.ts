@@ -16,18 +16,18 @@
  *
  * @param  value string to check
  */
-function imageLikeURL(value: string): boolean {
+function imageLikeURL( value: string ): boolean {
 	// Look for relative URLs that are not SVGs
 	// Intentionally not using an allow-list because images may
 	// be served from weird URLs like /images/1234?size=large
-	if (value.startsWith('/')) {
-		return value.endsWith('.svg');
+	if ( value.startsWith( '/' ) ) {
+		return value.endsWith( '.svg' );
 	}
 
 	try {
-		const url = new URL(value);
+		const url = new URL( value );
 		return url.protocol === 'http:' || url.protocol === 'https:';
-	} catch (e) {
+	} catch ( e ) {
 		return false;
 	}
 }
@@ -37,20 +37,19 @@ function imageLikeURL(value: string): boolean {
  * elements that can be measured in both DOM Dimensions and image weight.
  */
 export interface DOMElementWithImage {
-	readonly type: "img" | "background";
+	readonly type: 'img' | 'background';
 	readonly node: HTMLElement | HTMLImageElement;
 	getURL(): string | null;
 }
 
-
 export class ImageTag implements DOMElementWithImage {
 	readonly type = 'img';
-	constructor(readonly node: HTMLImageElement) {}
+	constructor( readonly node: HTMLImageElement ) {}
 	getURL() {
-		if (imageLikeURL(this.node.currentSrc)) {
+		if ( imageLikeURL( this.node.currentSrc ) ) {
 			return this.node.currentSrc;
 		}
-		if (imageLikeURL(this.node.src)) {
+		if ( imageLikeURL( this.node.src ) ) {
 			return this.node.src;
 		}
 
@@ -60,12 +59,12 @@ export class ImageTag implements DOMElementWithImage {
 
 export class BackgroundImage implements DOMElementWithImage {
 	readonly type = 'background';
-	constructor(readonly node: HTMLElement) {}
+	constructor( readonly node: HTMLElement ) {}
 	getURL() {
-		const src = getComputedStyle(this.node).backgroundImage;
-		const url = src.match(/url\(.?(.*?).?\)/i);
-		if (url && url[1] && imageLikeURL(url[1])) {
-			return url[1];
+		const src = getComputedStyle( this.node ).backgroundImage;
+		const url = src.match( /url\(.?(.*?).?\)/i );
+		if ( url && url[ 1 ] && imageLikeURL( url[ 1 ] ) ) {
+			return url[ 1 ];
 		}
 
 		return null;

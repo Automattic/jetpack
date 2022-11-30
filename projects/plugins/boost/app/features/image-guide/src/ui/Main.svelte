@@ -4,45 +4,45 @@
 	import { state } from './StateStore';
 	import type { GuideSize } from '../types';
 	import type { MeasurableImageStore } from '../MeasurableImageStore';
-  import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
 	export let stores: MeasurableImageStore[];
 	let show: number | false;
 
 	function onMouseLeave() {
-		if ($state !== 'always_on') {
+		if ( $state !== 'always_on' ) {
 			show = false;
 		}
 	}
 	$: show = $state === 'always_on' ? 0 : false;
 
 	let size: GuideSize = 'normal';
-	const image = stores[0];
+	const image = stores[ 0 ];
 	const onPage = image.sizeOnPage;
 
 	// Looking at the first image in the set is fine, at least for now.
-	$: if ($onPage.width < 200 || $onPage.height < 200) {
+	$: if ( $onPage.width < 200 || $onPage.height < 200 ) {
 		size = 'micro';
-	} else if ($onPage.width < 400 || $onPage.height < 400) {
+	} else if ( $onPage.width < 400 || $onPage.height < 400 ) {
 		size = 'small';
 	}
 
-	$: if (show !== false) {
-		stores.forEach(i => i.node.classList.add('jetpack-boost-image-guide-backdrop'));
+	$: if ( show !== false ) {
+		stores.forEach( i => i.node.classList.add( 'jetpack-boost-image-guide-backdrop' ) );
 	} else {
-		stores.forEach(i => i.node.classList.remove('jetpack-boost-image-guide-backdrop'));
+		stores.forEach( i => i.node.classList.remove( 'jetpack-boost-image-guide-backdrop' ) );
 	}
 
 	onMount( () => {
 		stores.forEach( store => store.updateWeight() );
-	});
+	} );
 </script>
 
 {#if $state === 'active' || $state === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each stores as store, index}
-				<Bubble {index} {store} on:mouseenter={() => show = index} />
+				<Bubble {index} {store} on:mouseenter={() => ( show = index )} />
 			{/each}
 		</div>
 		{#each stores as store, index}
@@ -85,9 +85,9 @@
 			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
 	}
 
-	:global(.jetpack-boost-image-guide-backdrop) {
+	:global( .jetpack-boost-image-guide-backdrop ) {
 		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
-		filter: brightness(0.3);
+		filter: brightness( 0.3 );
 	}
 
 	.previews {
