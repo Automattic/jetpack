@@ -197,11 +197,12 @@ class Jetpack_Protect {
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSeen'     => self::get_waf_seen_status(),
-				'isEnabled'  => Waf_Runner::is_enabled(),
-				'isLoading'  => false,
-				'isUpdating' => false,
-				'config'     => Waf_Runner::get_config(),
+				'isSeen'        => self::get_waf_seen_status(),
+				'upgradeIsSeen' => self::get_waf_upgrade_seen_status(),
+				'isEnabled'     => Waf_Runner::is_enabled(),
+				'isLoading'     => false,
+				'isUpdating'    => false,
+				'config'        => Waf_Runner::get_config(),
 			),
 		);
 
@@ -423,6 +424,30 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf-upgrade-seen',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::get_waf_upgrade_seen_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf-upgrade-seen',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::set_waf_upgrade_seen_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -602,5 +627,23 @@ class Jetpack_Protect {
 	 */
 	public static function set_waf_seen_status() {
 		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
+	}
+
+	/**
+	 * Get WAF Upgrade "Seen" Status
+	 *
+	 * @return bool Whether the current upgraded user has enabled the automatic rules feature.
+	 */
+	public static function get_waf_upgrade_seen_status() {
+		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_seen', true );
+	}
+
+	/**
+	 * Set WAF Upgrade "Seen" Status
+	 *
+	 * @return bool True if upgrade seen status updated to true, false on failure.
+	 */
+	public static function set_waf_upgrade_seen_status() {
+		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_seen', true );
 	}
 }
