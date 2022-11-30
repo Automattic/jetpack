@@ -562,16 +562,13 @@ class Jetpack_Protect {
 	 * @return WP_REST_Response
 	 */
 	public static function api_toggle_waf() {
+		if ( Waf_Runner::is_enabled() ) {
+			Waf_Runner::disable();
+			return rest_ensure_response( true, 200 );
+		}
 
-		return new WP_REST_Response( 'Error.', 500 );
-
-		// if ( Waf_Runner::is_enabled() ) {
-		// Waf_Runner::disable();
-		// return rest_ensure_response( true, 200 );
-		// }
-
-		// Waf_Runner::enable();
-		// return rest_ensure_response( true, 200 );
+		Waf_Runner::enable();
+		return rest_ensure_response( true, 200 );
 	}
 
 	/**
