@@ -40,6 +40,7 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEOPRESS_SETTINGS,
+	DISMISS_FIRST_VIDEO_POPOVER,
 } from './constants';
 
 /**
@@ -351,8 +352,10 @@ const videos = ( state, action ) => {
 			let total = state?.uploadedVideoCount ?? 0;
 
 			let firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let dismissedFirstVideoPopover = state?.dismissedFirstVideoPopover ?? false;
 			if ( total === 0 ) {
 				firstUploadedVideoId = data.id;
+				dismissedFirstVideoPopover = false;
 			}
 
 			// Don't update total and pagination if user is searching or not in the first page.
@@ -381,6 +384,7 @@ const videos = ( state, action ) => {
 				items,
 				uploadedVideoCount: total,
 				firstUploadedVideoId,
+				dismissedFirstVideoPopover,
 				pagination,
 				_meta: {
 					...currentMeta,
@@ -476,6 +480,14 @@ const videos = ( state, action ) => {
 						},
 					},
 				},
+			};
+		}
+
+		case DISMISS_FIRST_VIDEO_POPOVER: {
+			return {
+				...state,
+				dismissedFirstVideoPopover: true,
+				firstUploadedVideoId: null,
 			};
 		}
 

@@ -25,6 +25,7 @@ import {
 	DELETE_VIDEO,
 	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
+	DISMISS_FIRST_VIDEO_POPOVER,
 	SET_UPLOADED_VIDEO_COUNT,
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
@@ -432,6 +433,10 @@ const updateVideoPressSettings = settings => async ( { dispatch } ) => {
 	}
 };
 
+const dismissFirstVideoPopover = () => {
+	return { type: DISMISS_FIRST_VIDEO_POPOVER };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -439,6 +444,7 @@ const actions = {
 	setVideosPagination,
 	setVideosFilter,
 	setVideos,
+	dismissFirstVideoPopover,
 
 	setLocalVideos,
 	setIsFetchingLocalVideos,
