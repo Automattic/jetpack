@@ -14,12 +14,14 @@ function usage {
 
 		  Check that the project's versions are updated to the specified version.
 
-		usage: $0 [-f] [-v] -u version <slug>
+		usage: $0 [-f] [-C] [-v] -u version <slug>
 
 		  Update the versions of the specified project.
 
 		  Specifying -f updates the referenced version in other packages that depend
 		  on the updated package (see tools/check-intra-monorepo-deps.sh -ua).
+
+		  Specifying -C creates a changelog entry for the project's version bump.
 
 		The following version numbers are updated:
 		   - Version in the WordPress plugin header, if applicable.
@@ -39,7 +41,8 @@ fi
 OP=
 VERBOSE=false
 FIX_INTRA_MONOREPO_DEPS=false
-while getopts ":c:u:fvsh" opt; do
+DO_CHANGELOG=false
+while getopts ":c:u:fCvsh" opt; do
 	case ${opt} in
 		c)
 			[[ -z "$OP" ]] || die "Only one of -c or -u may be specified"
@@ -52,6 +55,9 @@ while getopts ":c:u:fvsh" opt; do
 			VERSION=$OPTARG
 			OP=update
 			OPING=Updating
+			;;
+		C)
+			DO_CHANGELOG=true
 			;;
 		f)
 			FIX_INTRA_MONOREPO_DEPS=true
@@ -236,6 +242,32 @@ while IFS=" " read -r C F; do
 	fi
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
 done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
+
+# Add change entry, if applicable
+
+if $DO_CHANGELOG; then
+	debug "Making sure changelogger is runnable"
+	CL="$BASE/projects/packages/changelogger/bin/changelogger"
+	if ! "$CL" &>/dev/null; then
+		(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
+		if ! "$CL" &>/dev/null; then
+			die "Changelogger is not runnable via $CL"
+		fi
+	fi
+
+	cd "$BASE/projects/$SLUG"
+
+	ARGS=()
+	ARGS=( add --no-interaction --significance=patch --filename=init-release-cycle --filename-auto-suffix )
+	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+	if [[ -n "$CLTYPE" ]]; then
+		ARGS+=( "--type=$CLTYPE" )
+	fi
+	ARGS+=( --entry="" --comment="Init $VERSION" )
+	"$CL" "${ARGS[@]}"
+
+	cd "$BASE"
+fi
 
 # Update other dependencies
 

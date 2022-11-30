@@ -77,8 +77,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 			delete_transient( 'wpcom_subscribers_total_no_publicize' );
 		}
 		$include_publicize_subscribers = isset( $request['include_publicize_subscribers'] ) ? rest_sanitize_boolean( $request['include_publicize_subscribers'] ) : true;
-		$subscriber_info               = Jetpack_Subscriptions_Widget::fetch_subscriber_count( $include_publicize_subscribers );
-		$subscriber_count              = $subscriber_info['value'];
+		$subscriber_count              = Jetpack_Subscriptions_Widget::fetch_subscriber_count( $include_publicize_subscribers );
 
 		return array(
 			'count' => $subscriber_count,
@@ -95,10 +94,10 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 			delete_transient( 'wpcom_subscribers_totals' );
 		}
 
-		$subscriber_info  = Jetpack_Subscriptions_Widget::fetch_subscriber_counts();
-		$subscriber_count = $subscriber_info['value'];
+		$subscriber_info   = Automattic\Jetpack\Extensions\Subscriptions\fetch_subscriber_counts();
+		$subscriber_counts = $subscriber_info['value'];
 
-		return array( 'counts' => $subscriber_count );
+		return array( 'counts' => $subscriber_counts );
 	}
 }
 
