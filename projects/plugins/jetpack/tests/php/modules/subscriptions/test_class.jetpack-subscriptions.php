@@ -304,7 +304,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		if ( $token_set ) {
 			$this->set_returned_token( $payload );
 			$online_subscription_service = new WPCOM_Token_Subscription_Service();
-			$result                      = $online_subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level );
+			var_dump( $this->plan_id );
+			var_dump( $post_access_level );
+			$result = $online_subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level );
 		} else {
 			if ( $logged ) {
 				wp_set_current_user( $user_id );

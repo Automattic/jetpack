@@ -109,6 +109,11 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return bool does the user have access to the post/blog.
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
+		var_dump( 'user_has_access' );
+
+		var_dump( is_user_logged_in() );
+		var_dump( current_user_can( 'edit_post', $post_id ) );
+		var_dump( $access_level );
 
 		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
 			// Admin has access

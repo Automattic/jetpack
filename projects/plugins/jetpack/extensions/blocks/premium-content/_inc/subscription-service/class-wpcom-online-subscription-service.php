@@ -51,6 +51,8 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 			}
 		}
 
+		var_dump( $is_blog_subscriber );
+
 		return $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, get_the_ID() );
 	}
 
@@ -65,11 +67,15 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 * @return bool
 	 */
 	private function user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id ) {
+		var_dump( 'user_can_view_content' );
 		/** This filter is already documented in projects/plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/class-token-subscription-service.php */
 		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
 		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+
+		var_dump( $subscriptions );
+		var_dump( $is_paid_subscriber );
 
 		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id );
 	}
