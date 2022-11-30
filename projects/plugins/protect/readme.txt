@@ -109,7 +109,8 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-## 1.1.1 - 2022-11-18
-### Fixed
-- Fix issue with plugin activation.
+### 1.1.2 - 2022-11-30
+#### Changed
+- changed description and author
+- Updated package dependencies.
 
