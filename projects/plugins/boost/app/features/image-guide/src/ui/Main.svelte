@@ -14,7 +14,7 @@
 	 * and the Image Guide UI is first
 	 */
 	onMount(() => {
-		stores.forEach(store => store.updateWeight());
+		stores.forEach(store => store.updateDimensions());
 	});
 
 	function onMouseLeave() {

@@ -29,6 +29,7 @@ export class MeasurableImageStore {
 
 	public async updateDimensions() {
 		this.image.updateSizeOnPage();
+		this.sizeOnPage.set(this.image.getSizeOnPage());
 
 		/**
 		 * Current source can change when resizing screen.
@@ -46,8 +47,8 @@ export class MeasurableImageStore {
 			this.potentialSavings.set(this.image.getPotentialSavings());
 		}
 
-		this.sizeOnPage.set(this.image.getSizeOnPage());
 		this.expectedSize.set(this.image.getExpectedSize());
+
 	}
 
 	public async updateWeight() {
