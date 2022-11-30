@@ -601,6 +601,7 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0
+      storybook-addon-mock: 2.0.2
       storybook-addon-turbo-build: 1.0.1
       style-loader: 2.0.0
       ts-dedent: 2.2.0
@@ -649,6 +650,7 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
+      storybook-addon-mock: 2.0.2_sfoxds7t5ydpegc3knd667wn6m
       storybook-addon-turbo-build: 1.0.1_webpack@5.72.1
       style-loader: 2.0.0_webpack@5.72.1
       ts-dedent: 2.2.0
@@ -923,7 +925,6 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0
-      storybook-addon-mock: 2.0.2
       typescript: 4.8.2
       webpack: 5.72.1
       webpack-cli: 4.9.1
@@ -963,7 +964,6 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
-      storybook-addon-mock: 2.0.2_sfoxds7t5ydpegc3knd667wn6m
       typescript: 4.8.2
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
