@@ -601,6 +601,7 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0
+      storybook-addon-mock: 2.0.2
       storybook-addon-turbo-build: 1.0.1
       style-loader: 2.0.0
       ts-dedent: 2.2.0
@@ -609,6 +610,7 @@ importers:
       webpack-cli: 4.9.1
     dependencies:
       '@wordpress/api-fetch': 6.18.0
+      storybook-addon-mock: 2.0.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
       '@automattic/jetpack-components': link:../components
       '@babel/core': 7.20.2
@@ -923,7 +925,6 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0
-      storybook-addon-mock: 2.0.2
       typescript: 4.8.2
       webpack: 5.72.1
       webpack-cli: 4.9.1
@@ -963,7 +964,6 @@ importers:
       require-from-string: 2.0.2
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
-      storybook-addon-mock: 2.0.2_sfoxds7t5ydpegc3knd667wn6m
       typescript: 4.8.2
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
@@ -13327,7 +13327,6 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-    dev: true
 
   /glob/8.0.3:
     resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
@@ -15988,7 +15987,6 @@ packages:
   /mock-xmlhttprequest/7.0.4:
     resolution: {integrity: sha512-hA0fIHy/74p5DE0rdmrpU0sV1U+gnWTcgShWequGRLy0L1eT+zY0ozFukawpLaxMwIA+orRcqFRElYwT+5p81A==}
     engines: {node: '>=10.0.0'}
-    dev: true
 
   /module-details-from-path/1.0.3:
     resolution: {integrity: sha512-ySViT69/76t8VhE1xXHK6Ch4NcDd26gx0MzKXLO+F7NOtnqH68d9zF94nT8ZWSxXh8ELOERsnJO/sWt1xZYw5A==}
@@ -16682,7 +16680,6 @@ packages:
 
   /path-to-regexp/6.2.1:
     resolution: {integrity: sha512-JLyh7xT1kizaEvcaXOQwOc2/Yhw6KZOvPf1S8401UyLk86CU79LN3vl7ztXGm/pZ+YjoyAJ4rxmHwbkBXJX+yw==}
-    dev: true
 
   /path-type/1.1.0:
     resolution: {integrity: sha512-S4eENJz1pkiQn9Znv33Q+deTOKmbl+jj1Fl+qiP/vYezj+S8x+J3Uo0ISrx/QoEvIlOaDWJhPaRd1flJ9HXZqg==}
@@ -17832,7 +17829,6 @@ packages:
       '@babel/runtime': 7.20.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-    dev: true
 
   /react-lifecycles-compat/3.0.4:
     resolution: {integrity: sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==}
@@ -18600,7 +18596,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.1.6
+      glob: 7.2.3
 
   /rollup-plugin-copy/3.4.0:
     resolution: {integrity: sha512-rGUmYYsYsceRJRqLVlE9FivJMxJ7X6jDlP79fmFkL8sJs7VVMSVyA2yfyL+PGyO/vJs4A87hwhgVfz61njI+uQ==}
@@ -19530,7 +19526,6 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-json-editor-ajrm: 2.5.13_sfoxds7t5ydpegc3knd667wn6m
-    dev: true
 
   /storybook-addon-turbo-build/1.0.1_webpack@5.72.1:
     resolution: {integrity: sha512-nuuwZGMmxl16g+qbwruC1zyp/QELdF6r59wFBMO2mjR07iSoKYJc2Z81tSEtLCvVrRl7jN5iFjlVJK5m2K6DmA==}
