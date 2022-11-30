@@ -41,7 +41,6 @@ jobs:
       - name: Create test plan
         id: evaluate
         env:
-          CRON: ${{ github.event.schedule }}
           DISPATCH_REPO: ${{ github.event.client_payload.repository }}
           REF_NAME: ${{ github.event.client_payload.ref_name }}
           REF_TYPE: ${{ github.event.client_payload.ref_type }}
