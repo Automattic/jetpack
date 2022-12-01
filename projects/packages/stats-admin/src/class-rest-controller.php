@@ -216,13 +216,17 @@ class REST_Controller {
 
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
-			return is_wp_error( $response ) ? $response : new WP_Error(
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
 				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
 				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
 				array( 'status' => $response_code )
 			);
-
 		}
 
 		return $response_body;
