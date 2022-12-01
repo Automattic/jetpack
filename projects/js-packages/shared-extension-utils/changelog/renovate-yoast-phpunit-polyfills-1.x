@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Move dependency
 
-
+Updated package dependencies.

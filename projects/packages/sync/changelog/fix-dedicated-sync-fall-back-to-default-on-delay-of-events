@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Make sure Dedicated Sync can revert back to Default Sync if it stops sending events for one reason or another.

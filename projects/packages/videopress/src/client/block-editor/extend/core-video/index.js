@@ -54,10 +54,34 @@ addFilter(
 	extendCoreVideoBlock
 );
 
+/**
+ * Organize the block attributes for the new videopress/video block
+ *
+ * @param {object} attributes        - core/video block attributes
+ * @param {object} defaultAttributes - default core/video block attributes
+ * @returns {object}                   The new attributes
+ */
+function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
+	const attrs = attributes || defaultAttributes;
+
+	// Update attributes names to match the new VideoPress Video block.
+	if ( attrs?.videoPressTracks ) {
+		attrs.tracks = attrs.videoPressTracks || [];
+		delete attrs.videoPressTracks;
+	}
+
+	if ( attrs?.isVideoPressExample ) {
+		attrs.isExample = attrs.isVideoPressExample || [];
+		delete attrs.isVideoPressExample;
+	}
+
+	return attrs;
+}
+
 const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { block, isValid } = props;
-		const { name, attributes, clientId } = block;
+		const { name, attributes, clientId, __unstableBlockSource } = block;
 		const { guid, videoPressTracks, poster } = attributes;
 
 		const { replaceBlock } = useDispatch( blockEditorStore );
@@ -85,8 +109,20 @@ const handleJetpackCoreVideoDeprecation = createHigherOrderComponent( BlockListB
 				return;
 			}
 
-			replaceBlock( clientId, createBlock( 'videopress/video', attributes ) );
-		}, [ clientId, shouldHandleConvertion, ignoreBlockRecovery, attributes ] );
+			replaceBlock(
+				clientId,
+				createBlock(
+					'videopress/video',
+					getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, attributes )
+				)
+			);
+		}, [
+			clientId,
+			shouldHandleConvertion,
+			ignoreBlockRecovery,
+			attributes,
+			__unstableBlockSource,
+		] );
 
 		if ( ! shouldHandleConvertion ) {
 			return <BlockListBlock { ...props } />;

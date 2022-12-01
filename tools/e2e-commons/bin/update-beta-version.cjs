@@ -63,10 +63,11 @@ async function getLatestVersion() {
 	return manifest.pr.type.version;
 }
 
-async function waitForPluginUpdate( expectedVersion ) {
+async function waitForPluginUpdate() {
 	let timesRun = 0;
 	const interval = setInterval( async () => {
 		console.log( 'Checking for update' );
+		const expectedVersion = await getLatestVersion();
 		const jpVersion = await getJetpackVersionFromSite();
 		if ( expectedVersion === jpVersion ) {
 			console.log( 'Update completed' );
@@ -103,9 +104,7 @@ function main() {
 
 			if ( latestVersion !== version ) {
 				console.log( 'Forcing plugin update' );
-				forcePluginUpdates().then( () => {
-					waitForPluginUpdate( latestVersion );
-				} );
+				forcePluginUpdates().then( () => waitForPluginUpdate() );
 			} else {
 				console.log( 'Already up to date' );
 				process.exit( 0 );
