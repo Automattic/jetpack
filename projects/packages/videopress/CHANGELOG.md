@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2022-11-28
+### Added
+- VideoPress: add example image to the dynamic colors panel [#27599]
+- VideoPress: add JITM wrapper [#27579]
+- VideoPress: add TrackForm component [#27627]
+- VideoPress: check auto-generated chapters file [#27544]
+- VideoPress: expose the array of VideoPress settings on the client initial state. [#27596]
+- VideoPress: implement tracks control implementation [#27578] [#27595]
+
+### Changed
+- Updated package dependencies. [#27575]
+- VideoPress: improve inline explanation for block panel options [#27563]
+- VideoPress: include videos with Site Default privacy setting on the search results, choosing between the public or private filter based on the site default privacy setting. [#27603]
+- VideoPress: use a generic filter message when there are no videos available and a search term is not present. [#27580]
+
+### Fixed
+- VideoPress: Fix go back link width [#27602]
+
+## [0.8.1] - 2022-11-22
+### Added
+- Added VideoPress feedback link to the VideoPress block. [#27450]
+- VideoPress: add "Details panel" to v6 [#27428]
+- VideoPress: Add "learn how" chapters modal [#27438]
+- VideoPress: add block editor dependencies [#27489]
+- VideoPress: add dimensions panel to video block [#27520]
+- VideoPress: add rating control to Details panel [#27415]
+- VideoPress: check $products data before to pick the prices [#27504]
+- VideoPress: fix issue when setting video privacy [#27435]
+- VideoPress: implement "Allow download" control to v6 [#27420]
+- VideoPress: implement Privacy control [#27401]
+- VideoPress: improve when re-rendering the video player [#27546]
+- VideoPress: register and sync isPrivate block attribute [#27493]
+- VideoPress: Sync video tracks data in video block [#27495]
+- VideoPress: Updated the list of plans that have VideoPress included. [#27536]
+
+### Changed
+- Updated package dependencies. [#26069]
+- Updated package dependencies. [#26736]
+- Updated package dependencies. [#27043]
+- VideoPress: exposed the site purchases list on the client initial state, dropping the need of a request to the My Jetpack purchases endpoint. [#27533]
+- VideoPress: Remove extra resize circle on block [#27498]
+- VideoPress: show pricing based on sale coupons [#27535]
+- VideoPress: switch to v1.1/videos when requesting video data [#27488]
+- VideoPress: TypeScriptify code [#27419]
+
+### Fixed
+- VideoPress: Add backend verification on update routes when user is disconnected [#27455]
+- VideoPress: Add Jetpack Complete plan to list of valid purchased plans [#27500]
+- VideoPress: Disable actions when user is not connected or there is no connected site owner [#27402]
+- VideoPress: fix product plan [#27502]
+- VideoPress: Fix video getter function call [#27534]
+- VideoPress: Remove storage meter on free plan [#27549]
+- VideoPress: Set a static list of allowed video extensions allowed on VideoPress. [#27457]
+- VideoPress: Set the playback token on the video URL and the new poster URL when the video needs it. [#27404]
+
 ## [0.8.0] - 2022-11-14
 ### Added
 - VideoPress: add Color Panel component [#27381]
@@ -432,6 +487,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.8.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.5...v0.7.0
 [0.6.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.6.4...v0.6.5
