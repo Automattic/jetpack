@@ -8,11 +8,7 @@ import type { MeasurableImageStore } from './stores/MeasurableImageStore';
 function discardSmallImages( images: MeasurableImage[] ) {
 	const minSize = 65;
 	const elements = images.filter( image => {
-		let { width, height } = image.getSizeOnPage();
-		if ( width < 0 ) {
-			image.updateSizeOnPage();
-			( { width, height } = image.getSizeOnPage() );
-		}
+		const { width, height } = image.getSizeOnPage();
 		if ( ! width || ! height ) {
 			return false;
 		}

@@ -1,19 +1,8 @@
 export type SourceCallbackFn = (node: HTMLElement) => string | null;
-
+export type Dimensions = { width: number; height: number };
+export type Weight = { weight: number };
 export class MeasurableImage {
 	readonly node: HTMLElement | HTMLImageElement;
-
-	private fileSize = {
-		width: -1,
-		height: -1,
-		weight: -1,
-	};
-
-	private sizeOnPage = {
-		width: -1,
-		height: -1,
-	};
-
 	private getURLCallback: SourceCallbackFn;
 
 	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn ) {
@@ -25,71 +14,47 @@ export class MeasurableImage {
 		return this.getURLCallback( this.node );
 	}
 
-	public updateSizeOnPage() {
+	public getSizeOnPage() {
 		const { width, height } = this.node.getBoundingClientRect();
 
-		this.sizeOnPage = {
+		return {
 			width: Math.round( width ),
 			height: Math.round( height ),
 		};
-
-		return true;
 	}
 
-	public async updateFileSize() {
-		const url = this.getURL();
-		if ( ! url ) {
-			return false;
-		}
-
+	public async getFileSize( url: string ) {
 		const [ weight, { width, height } ] = await Promise.all( [
 			this.fetchFileWeight( url ),
 			this.fetchFileDimensions( url ),
 		] );
 
-		this.fileSize = {
+		return {
 			width,
 			height,
 			weight,
 		};
-
-		return true;
 	}
 
-	public getPotentialSavings() {
-		if ( ! this.fileSize || ! this.sizeOnPage ) {
-			return -1;
-		}
-		const oversizedRatio = this.getOversizedRatio();
+	public getPotentialSavings( fileSize: Dimensions & Weight, sizeOnPage: Dimensions ) {
+		const oversizedRatio = this.getOversizedRatio(fileSize, sizeOnPage);
 		if ( oversizedRatio <= 1 ) {
 			return null;
 		}
-		return Math.round( this.fileSize.weight - this.fileSize.weight / oversizedRatio );
+		return Math.round( fileSize.weight - fileSize.weight / oversizedRatio );
 	}
 
-	public getFileSize() {
-		return this.fileSize;
-	}
-
-	public getSizeOnPage() {
-		return this.sizeOnPage;
-	}
-
-	public getExpectedSize() {
+	public getExpectedSize(sizeOnPage: Dimensions) {
 		const dpr = window.devicePixelRatio || 1;
 		return {
-			width: Math.round( this.sizeOnPage.width * dpr ),
-			height: Math.round( this.sizeOnPage.height * dpr ),
+			width: Math.round( sizeOnPage.width * dpr ),
+			height: Math.round( sizeOnPage.height * dpr ),
 		};
 	}
 
-	public getOversizedRatio() {
-		if ( ! this.fileSize || ! this.sizeOnPage ) {
-			return -1;
-		}
-		const { width, height } = this.getExpectedSize();
-		const { width: fileWidth, height: fileHeight } = this.fileSize;
-		return ( fileWidth * fileHeight ) / ( width * height );
+	public getOversizedRatio(fileSize: Dimensions, sizeOnPage: Dimensions) {
+		const { width, height } = this.getExpectedSize( sizeOnPage );
+		return ( fileSize.width * fileSize.height ) / ( width * height );
 	}
 
 	/**
