@@ -34,9 +34,9 @@
 
 	function toggleBackdrop(on = false) {
 		if (on) {
-			stores.forEach(store => store.node.classList.add('jetpack-boost-image-guide-backdrop'));
+			stores.forEach(store => store.node.classList.add('jetpack-boost-guide__backdrop'));
 		} else {
-			stores.forEach(store => store.node.classList.remove('jetpack-boost-image-guide-backdrop'));
+			stores.forEach(store => store.node.classList.remove('jetpack-boost-guide__backdrop'));
 		}
 	}
 
@@ -97,11 +97,6 @@
 			'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif !important;
 	}
 
-	:global(.jetpack-boost-image-guide-backdrop) {
-		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
-		filter: brightness(0.3);
-	}
-
 	.previews {
 		width: 100%;
 		display: flex;
@@ -109,4 +104,10 @@
 		flex-wrap: wrap;
 		margin-bottom: 15px;
 	}
+
+	:global(.jetpack-boost-guide__backdrop) {
+		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
+		filter: brightness(0.3);
+	}
+
 </style>

@@ -9,13 +9,13 @@
 	}
 </script>
 
-<a id="jetpack-boost-bar" {href} class="ab-item {$state}" on:click|preventDefault={toggleUI}>
+<a id="jetpack-boost-guide-bar" {href} class="ab-item {$state}" on:click|preventDefault={toggleUI}>
 	<JetpackLogo />
 	<span>Image Guide: {$label}</span>
 </a>
 
 <style lang="scss">
-	#jetpack-boost-bar.ab-item {
+	#jetpack-boost-guide-bar.ab-item {
 		display: flex; // Overriding #wpadminbar style
 		gap: 10px;
 		align-items: center;

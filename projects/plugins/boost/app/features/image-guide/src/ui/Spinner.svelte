@@ -23,7 +23,4 @@
 			}
 		}
 	}
-	.spinner.paused {
-		animation-play-state: paused;
-	}
 </style>
