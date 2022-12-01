@@ -1,7 +1,7 @@
-import { DOMElementWithImage } from './MeasurableElement';
+export type SourceCallbackFn = (node: HTMLElement) => string | null;
 
 export class MeasurableImage {
-	readonly element: DOMElementWithImage;
+	readonly node: HTMLElement | HTMLImageElement;
 
 	private fileSize = {
 		width: -1,
@@ -14,21 +14,19 @@ export class MeasurableImage {
 		height: -1,
 	};
 
-	constructor( element: DOMElementWithImage ) {
-		this.element = element;
+	private getURLCallback: SourceCallbackFn;
+
+	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn ) {
+		this.node = node;
+		this.getURLCallback = getURL;
 	}
 
-	/**
-	 * The URL might change, so we need to get it every time it's needed.
-	 * For example,
-	 * adjusting the window width might change the srcset.
-	 */
 	public getURL() {
-		return this.element.getURL();
+		return this.getURLCallback( this.node );
 	}
 
 	public updateSizeOnPage() {
-		const { width, height } = this.element.node.getBoundingClientRect();
+		const { width, height } = this.node.getBoundingClientRect();
 
 		this.sizeOnPage = {
 			width: Math.round( width ),

@@ -44,14 +44,14 @@ function closestStableParent( node: HTMLElement ): HTMLElement | null {
  */
 let wrapperID = 0;
 function findContainer( image: MeasurableImage ): HTMLElement | undefined {
-	const node = image.element.node;
+	const node = image.node;
 
 	/**
 	 * If the image is a background image and if it's not pulled out of the flow,
 	 * the same node can be used to insert the guide component,
 	 */
 	if (
-		image.element.type === 'background' &&
+		!( image.node instanceof HTMLImageElement ) &&
 		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
 		return node;
@@ -111,9 +111,9 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
  */
 export function attachGuides( measuredImages: MeasurableImage[] ) {
 	const componentConfiguration = measuredImages.reduce( ( acc, image ) => {
-		if ( ! image.element.node.parentNode ) {
+		if ( ! image.node.parentNode ) {
 			// eslint-disable-next-line no-console
-			console.error( `Image has no parent`, image.element.node );
+			console.error( `Image has no parent`, image.node );
 			return acc;
 		}
 

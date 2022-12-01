@@ -11,13 +11,13 @@ export class MeasurableImageStore {
 	readonly url: Writable<string>;
 
 	readonly image: MeasurableImage;
-	readonly node: MeasurableImage['element']['node'];
+	readonly node: MeasurableImage['node'];
 
 	private currentSrc = '';
 
 	constructor(measurableImage: MeasurableImage) {
 		this.image = measurableImage;
-		this.node = measurableImage.element.node;
+		this.node = measurableImage.node;
 
 		this.fileSize = writable(measurableImage.getFileSize());
 		this.sizeOnPage = writable(measurableImage.getSizeOnPage());
