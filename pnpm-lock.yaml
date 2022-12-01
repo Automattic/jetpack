@@ -131,7 +131,7 @@ importers:
       '@types/jest': 29.2.3
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.52
-      '@types/react-dom': 17.0.17
+      '@types/react-dom': 17.0.18
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0
@@ -179,7 +179,7 @@ importers:
       '@types/jest': 29.2.3
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.52
-      '@types/react-dom': 17.0.17
+      '@types/react-dom': 17.0.18
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0_sfoxds7t5ydpegc3knd667wn6m
@@ -1158,7 +1158,7 @@ importers:
       '@testing-library/react': 12.1.5
       '@types/jest': 29.2.3
       '@types/react': 17.0.52
-      '@types/react-dom': 17.0.17
+      '@types/react-dom': 17.0.18
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0
@@ -1234,7 +1234,7 @@ importers:
       '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
       '@types/jest': 29.2.3
       '@types/react': 17.0.52
-      '@types/react-dom': 17.0.17
+      '@types/react-dom': 17.0.18
       '@types/react-test-renderer': 17.0.2
       '@types/testing-library__jest-dom': 5.14.1
       '@types/wordpress__components': 19.10.0_sfoxds7t5ydpegc3knd667wn6m
@@ -6817,7 +6817,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.1
       '@testing-library/dom': 8.16.0
-      '@types/react-dom': 17.0.17
+      '@types/react-dom': 17.0.18
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     dev: true
@@ -7076,8 +7076,8 @@ packages:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
     dev: true
 
-  /@types/react-dom/17.0.17:
-    resolution: {integrity: sha512-VjnqEmqGnasQKV0CWLevqMTXBYG9GbwuE6x3VetERLh0cq2LTptFE73MrQi2S7GkKXCf2GgwItB/melLnxfnsg==}
+  /@types/react-dom/17.0.18:
+    resolution: {integrity: sha512-rLVtIfbwyur2iFKykP2w0pl/1unw26b5td16d5xMgp7/yjTHomkyxPYChFoCr/FtEX1lN9wY6lFj1qvKdS5kDw==}
     dependencies:
       '@types/react': 17.0.52
 
@@ -8501,7 +8501,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.1
       '@types/react': 17.0.52
-      '@types/react-dom': 17.0.17
+      '@types/react-dom': 17.0.18
       '@wordpress/escape-html': 2.21.0
       change-case: 4.1.2
       is-plain-object: 5.0.0
