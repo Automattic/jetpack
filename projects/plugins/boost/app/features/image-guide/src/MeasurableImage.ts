@@ -1,10 +1,20 @@
-export type SourceCallbackFn = (node: HTMLElement) => string | null;
+export type SourceCallbackFn = ( node: HTMLElement ) => string | null;
 export type Dimensions = { width: number; height: number };
 export type Weight = { weight: number };
+
+/**
+ * A class that represents a DOM Element that
+ * has an image that should be measured and
+ * provides measurement utilities.
+ */
 export class MeasurableImage {
 	readonly node: HTMLElement | HTMLImageElement;
 	private getURLCallback: SourceCallbackFn;
 
+	/**
+	 * @param  node   The DOM Element that contains the image.
+	 * @param  getURL A function that takes in the node and returns the URL of the image.
+	 */
 	constructor( node: HTMLElement | HTMLImageElement, getURL: SourceCallbackFn ) {
 		this.node = node;
 		this.getURLCallback = getURL;
@@ -37,14 +47,14 @@ export class MeasurableImage {
 	}
 
 	public getPotentialSavings( fileSize: Dimensions & Weight, sizeOnPage: Dimensions ) {
-		const oversizedRatio = this.getOversizedRatio(fileSize, sizeOnPage);
+		const oversizedRatio = this.getOversizedRatio( fileSize, sizeOnPage );
 		if ( oversizedRatio <= 1 ) {
 			return null;
 		}
 		return Math.round( fileSize.weight - fileSize.weight / oversizedRatio );
 	}
 
-	public getExpectedSize(sizeOnPage: Dimensions) {
+	public getExpectedSize( sizeOnPage: Dimensions ) {
 		const dpr = window.devicePixelRatio || 1;
 		return {
 			width: Math.round( sizeOnPage.width * dpr ),
@@ -52,7 +62,7 @@ export class MeasurableImage {
 		};
 	}
 
-	public getOversizedRatio(fileSize: Dimensions, sizeOnPage: Dimensions) {
+	public getOversizedRatio( fileSize: Dimensions, sizeOnPage: Dimensions ) {
 		const { width, height } = this.getExpectedSize( sizeOnPage );
 		return ( fileSize.width * fileSize.height ) / ( width * height );
 	}

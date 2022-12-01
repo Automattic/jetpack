@@ -1,10 +1,17 @@
 import { MeasurableImage } from './MeasurableImage';
-import { attachGuides } from './attach-guides';
 import { getMeasurableImages } from './find-image-elements';
+import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 import type { MeasurableImageStore } from './stores/MeasurableImageStore';
 
+/**
+ * A helper function to filter out images
+ * that are too small, for example
+ * avatars, icons, etc.
+ *
+ * @param  images An array of images to filter
+ */
 function discardSmallImages( images: MeasurableImage[] ) {
 	const minSize = 65;
 	const elements = images.filter( image => {
@@ -19,7 +26,7 @@ function discardSmallImages( images: MeasurableImage[] ) {
 }
 
 /**
- * Initialize the admin bar toggle.
+ * Initialize the AdminBarToggle component when the DOM is ready.
  */
 document.addEventListener( 'DOMContentLoaded', () => {
 	const adminBarToggle = document.getElementById( 'wp-admin-bar-jetpack-boost-image-guide' );
@@ -42,7 +49,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
  */
 const stores: MeasurableImageStore[] = [];
 
-function debouncedStoreUpdate() {
+/**
+ * Guides need to recaculate dimensions and possibly weights.
+ * This is done when the window is resized,
+ * but because that event is fired multiple times,
+ * it's better to debounce it.
+ */
+function debounceDimensionUpdates() {
 	let debounce: number;
 	return () => {
 		if ( debounce ) {
@@ -56,6 +69,14 @@ function debouncedStoreUpdate() {
 	};
 }
 
+/**
+ * Initialize the guides when window is loaded.
+ *
+ * Subscribing to the Guide State ensures
+ * that whenever the state is changed,
+ * the DOM will be re-queried
+ * to look for new images.
+ */
 function initialize() {
 	guideState.subscribe( async $state => {
 		if ( $state === 'paused' ) {
@@ -73,7 +94,12 @@ function initialize() {
 	} );
 }
 
+/**
+ * Initialize the guides after window has loaded,
+ * we don't need the guides sooner because
+ * images have likely not loaded yet.
+ */
 window.addEventListener( 'load', () => {
 	initialize();
-	window.addEventListener( 'resize', debouncedStoreUpdate() );
+	window.addEventListener( 'resize', debounceDimensionUpdates() );
 } );

@@ -1,7 +1,7 @@
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
 import type { MeasurableImage } from './MeasurableImage';
-import type { ImageComponentConfig } from './types';
+import type { ImageGuideConfig } from './types';
 
 /**
  * This function looks for the closest parent that is
@@ -51,7 +51,7 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 	 * the same node can be used to insert the guide component,
 	 */
 	if (
-		!( image.node instanceof HTMLImageElement ) &&
+		! ( image.node instanceof HTMLImageElement ) &&
 		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
 		return node;
@@ -145,7 +145,7 @@ export function attachGuides( measuredImages: MeasurableImage[] ) {
 		}
 
 		return acc;
-	}, {} as Record< number, ImageComponentConfig > );
+	}, {} as Record< number, ImageGuideConfig > );
 
 	// Take the component configuration and create the Svelte components.
 	return Object.values( componentConfiguration )

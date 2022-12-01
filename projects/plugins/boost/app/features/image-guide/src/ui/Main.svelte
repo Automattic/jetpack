@@ -13,46 +13,46 @@
 	 * This onMount is triggered when the window loads
 	 * and the Image Guide UI is first
 	 */
-	onMount(() => {
-		stores.forEach(store => store.updateDimensions());
-	});
+	onMount( () => {
+		stores.forEach( store => store.updateDimensions() );
+	} );
 
 	function onMouseLeave() {
-		if ($guideState !== 'always_on') {
+		if ( $guideState !== 'always_on' ) {
 			show = false;
 		}
 	}
 
-	function getGuideSize(width = -1, height = -1): GuideSize {
-		if (width < 200 || height < 200) {
+	function getGuideSize( width = -1, height = -1 ): GuideSize {
+		if ( width < 200 || height < 200 ) {
 			return 'micro';
-		} else if (width < 400 || height < 400) {
+		} else if ( width < 400 || height < 400 ) {
 			return 'small';
 		}
 		return 'normal';
 	}
 
-	function toggleBackdrop(on = false) {
-		if (on) {
-			stores.forEach(store => store.node.classList.add('jetpack-boost-guide__backdrop'));
+	function toggleBackdrop( on = false ) {
+		if ( on ) {
+			stores.forEach( store => store.node.classList.add( 'jetpack-boost-guide__backdrop' ) );
 		} else {
-			stores.forEach(store => store.node.classList.remove('jetpack-boost-guide__backdrop'));
+			stores.forEach( store => store.node.classList.remove( 'jetpack-boost-guide__backdrop' ) );
 		}
 	}
 
 	// Use the first image available in the stores to determine the guide size
-	const sizeOnPage = stores[0].sizeOnPage;
-	$: size = getGuideSize($sizeOnPage.width, $sizeOnPage.height);
+	const sizeOnPage = stores[ 0 ].sizeOnPage;
+	$: size = getGuideSize( $sizeOnPage.width, $sizeOnPage.height );
 
 	$: show = $guideState === 'always_on' ? 0 : false;
-	$: toggleBackdrop(show !== false);
+	$: toggleBackdrop( show !== false );
 </script>
 
 {#if $guideState === 'active' || $guideState === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each stores as store, index}
-				<Bubble {index} {store} on:mouseenter={() => (show = index)} />
+				<Bubble {index} {store} on:mouseenter={() => ( show = index )} />
 			{/each}
 		</div>
 		{#if show !== false}
@@ -60,7 +60,7 @@
 				Intentionally using only a single component here.
 				See <Popup> component source for details.
 			 -->
-			<Popup store={stores[show]} {size} />
+			<Popup store={stores[ show ]} {size} />
 		{/if}
 	</div>
 {/if}
@@ -105,9 +105,8 @@
 		margin-bottom: 15px;
 	}
 
-	:global(.jetpack-boost-guide__backdrop) {
+	:global( .jetpack-boost-guide__backdrop ) {
 		transition: opacity 0.2s ease-in-out, filter 0.2s ease-in-out;
-		filter: brightness(0.3);
+		filter: brightness( 0.3 );
 	}
-
 </style>

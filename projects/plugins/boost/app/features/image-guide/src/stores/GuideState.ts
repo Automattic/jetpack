@@ -1,5 +1,13 @@
 import { derived, Writable, writable } from 'svelte/store';
 
+/**
+ * Guide State is a Svelte Store that keeps track
+ * whether the guide is active, paused or always active.
+ *
+ * It also persists the current state in LocalStorage,
+ * and provides a `cycle()` method to cycle through the states.
+ */
+
 const LS_KEY = 'jetpack-boost-guide';
 const store = {
 	active: 'Active',

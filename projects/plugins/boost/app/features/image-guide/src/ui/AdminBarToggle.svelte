@@ -9,7 +9,12 @@
 	}
 </script>
 
-<a id="jetpack-boost-guide-bar" {href} class="ab-item {$guideState}" on:click|preventDefault={toggleUI}>
+<a
+	id="jetpack-boost-guide-bar"
+	{href}
+	class="ab-item {$guideState}"
+	on:click|preventDefault={toggleUI}
+>
 	<JetpackLogo />
 	<span>Image Guide: {$guideLabel}</span>
 </a>

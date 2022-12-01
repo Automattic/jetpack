@@ -1,16 +1,21 @@
 import { MeasurableImage } from './MeasurableImage';
 
-export function findMeasurableElements(nodes: Element[]): HTMLElement[] | HTMLImageElement[] {
-	return nodes.filter((el): el is HTMLElement | HTMLImageElement => {
-		if (el instanceof HTMLImageElement) {
+/**
+ * Get elements that either are image tags or have a background image.
+ *
+ * @param  nodes A list of nodes to filter
+ */
+export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTMLImageElement[] {
+	return nodes.filter( ( el ): el is HTMLElement | HTMLImageElement => {
+		if ( el instanceof HTMLImageElement ) {
 			return true;
 		}
-		if (el instanceof HTMLElement) {
-			const style = getComputedStyle(el);
+		if ( el instanceof HTMLElement ) {
+			const style = getComputedStyle( el );
 			return 'none' !== style.backgroundImage;
 		}
 		return false;
-	});
+	} );
 }
 
 /**
@@ -18,11 +23,11 @@ export function findMeasurableElements(nodes: Element[]): HTMLElement[] | HTMLIm
  *
  * @param  node HTMLImageElement
  */
-export function imageTagSource(node: HTMLImageElement) {
-	if (imageLikeURL(node.currentSrc)) {
+export function imageTagSource( node: HTMLImageElement ) {
+	if ( imageLikeURL( node.currentSrc ) ) {
 		return node.currentSrc;
 	}
-	if (imageLikeURL(node.src)) {
+	if ( imageLikeURL( node.src ) ) {
 		return node.src;
 	}
 
@@ -34,22 +39,28 @@ export function imageTagSource(node: HTMLImageElement) {
  *
  * @param  node HTMLElement
  */
-export function backgroundImageSource(node: HTMLElement) {
-	const src = getComputedStyle(node).backgroundImage;
-	const url = src.match(/url\(.?(.*?).?\)/i);
-	if (url && url[1] && imageLikeURL(url[1])) {
-		return url[1];
+export function backgroundImageSource( node: HTMLElement ) {
+	const src = getComputedStyle( node ).backgroundImage;
+	const url = src.match( /url\(.?(.*?).?\)/i );
+	if ( url && url[ 1 ] && imageLikeURL( url[ 1 ] ) ) {
+		return url[ 1 ];
 	}
 }
 
-export function getMeasurableImages(domNodes: Element[]): MeasurableImage[] {
-	const nodes = findMeasurableElements(domNodes);
+/**
+ * Create MeasurableImage objects from a list of nodes
+ * and remove any nodes that can't be measured.
+ *
+ * @param  domNodes A list of nodes to measure
+ */
+export function getMeasurableImages( domNodes: Element[] ): MeasurableImage[] {
+	const nodes = findMeasurableElements( domNodes );
 	return nodes
-		.map(node => {
-			if (node instanceof HTMLImageElement) {
-				return new MeasurableImage(node, imageTagSource);
-			} else if (node instanceof HTMLElement) {
-				if (!backgroundImageSource(node)) {
+		.map( node => {
+			if ( node instanceof HTMLImageElement ) {
+				return new MeasurableImage( node, imageTagSource );
+			} else if ( node instanceof HTMLElement ) {
+				if ( ! backgroundImageSource( node ) ) {
 					/**
 					 * Background elements that have no valid URL
 					 * shouldn't be measured.
@@ -57,12 +68,12 @@ export function getMeasurableImages(domNodes: Element[]): MeasurableImage[] {
 					return null;
 				}
 
-				return new MeasurableImage(node, backgroundImageSource);
+				return new MeasurableImage( node, backgroundImageSource );
 			}
 
 			return null;
-		})
-		.filter(image => image !== null);
+		} )
+		.filter( image => image !== null );
 }
 
 /**
@@ -81,18 +92,18 @@ export function getMeasurableImages(domNodes: Element[]): MeasurableImage[] {
  *
  * @param  value string to check
  */
-function imageLikeURL(value: string): boolean {
+function imageLikeURL( value: string ): boolean {
 	// Look for relative URLs that are not SVGs
 	// Intentionally not using an allow-list because images may
 	// be served from weird URLs like /images/1234?size=large
-	if (value.startsWith('/')) {
-		return value.endsWith('.svg');
+	if ( value.startsWith( '/' ) ) {
+		return value.endsWith( '.svg' );
 	}
 
 	try {
-		const url = new URL(value);
+		const url = new URL( value );
 		return url.protocol === 'http:' || url.protocol === 'https:';
-	} catch (e) {
+	} catch ( e ) {
 		return false;
 	}
 }
