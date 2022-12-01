@@ -61,6 +61,10 @@ export const settings = {
 
 		const hasPromotedPosts = isUserAdmin && isContentAllowed && isWPCOMSite && ! isPrivateSite();
 
+		const goToTarget = () => {
+			window.location.href = targetLink;
+		};
+
 		function PromotePostPanelBodyContent() {
 			return (
 				<>
@@ -73,7 +77,7 @@ export const settings = {
 						</p>
 					</PanelRow>
 					<div className="qr-post-button">
-						<Button isSecondary href={ targetLink }>
+						<Button isSecondary onClick={ goToTarget }>
 							{ __( 'Promote Post', 'jetpack' ) }
 						</Button>
 					</div>
