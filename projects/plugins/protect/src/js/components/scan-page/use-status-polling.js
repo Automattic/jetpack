@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import camelize from 'camelize';
 import { useEffect } from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { STORE_ID } from '../../state/store';
 
 /**
@@ -10,6 +11,7 @@ import { STORE_ID } from '../../state/store';
  * When the status is 'scheduled' or 'scanning', re-checks the status periodically until it isn't.
  */
 const useStatusPolling = () => {
+	const { recordEvent } = useAnalyticsTracks();
 	const status = useSelect( select => select( STORE_ID ).getStatus() );
 	const { setStatus, setStatusIsFetching, setScanIsUnavailable } = useDispatch( STORE_ID );
 
@@ -63,6 +65,9 @@ const useStatusPolling = () => {
 				.then( newStatus => {
 					setScanIsUnavailable( 'unavailable' === newStatus.status );
 					setStatus( camelize( newStatus ) );
+					recordEvent( 'jetpack_protect_scan_completed', {
+						scan_status: newStatus.status,
+					} );
 				} )
 				.finally( () => {
 					setStatusIsFetching( false );
@@ -70,7 +75,7 @@ const useStatusPolling = () => {
 		}, pollDuration );
 
 		return () => clearTimeout( pollTimeout );
-	}, [ status.status, setScanIsUnavailable, setStatus, setStatusIsFetching ] );
+	}, [ status.status, setScanIsUnavailable, setStatus, setStatusIsFetching, recordEvent ] );
 };
 
 export default useStatusPolling;
