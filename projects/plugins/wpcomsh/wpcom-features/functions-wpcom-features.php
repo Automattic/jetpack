@@ -83,15 +83,20 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		$unformatted_purchases = \A8C\Billingdaddy\Container::get_purchases_api()->get_purchases_for_site( (int) $blog_id );
 		$product_cache         = Store_Product_List::get_from_cache();
 		$purchases             = array();
+		$product_catalog       = \A8C\Billingdaddy\Container::get_product_catalog_api();
 
 		foreach ( $unformatted_purchases as $unformatted_purchase ) {
 			if ( empty( $product_cache[ $unformatted_purchase->product_id ] ) ) {
 				// Skip the record if the product data is not in the cache.
 				continue;
 			}
-			$product_data = $product_cache[ $unformatted_purchase->product_id ];
-			$purchases[]  = (object) array(
+
+			$product_data         = $product_cache[ $unformatted_purchase->product_id ];
+			$billing_product_slug = $product_catalog->get_product_by_id( $product_data['billing_product_id'] )->get_slug();
+
+			$purchases[] = (object) array(
 				'product_slug'           => $product_data['product_slug'],
+				'billing_product_slug'   => $billing_product_slug,
 				'product_id'             => (string) $unformatted_purchase->product_id,
 				'product_type'           => $product_data['product_type'],
 				'subscribed_date'        => wpcom_datetime_to_iso8601( $unformatted_purchase->subscribed_date ),
