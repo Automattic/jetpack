@@ -33,9 +33,9 @@ class Waf_Initializer {
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
-		/**
-		 * On module deactivation, unset waf mode
-		 */
+	/**
+	 * On module deactivation, unset waf mode
+	 */
 	public static function on_deactivation() {
 		Waf_Runner::deactivate();
 	}
