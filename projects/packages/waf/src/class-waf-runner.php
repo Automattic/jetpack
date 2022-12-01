@@ -574,6 +574,7 @@ class Waf_Runner {
 		global $wp_filesystem;
 
 		self::initialize_filesystem();
+		self::define_ip_lists_enabled();
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
@@ -583,8 +584,7 @@ class Waf_Runner {
 		$allow_list = self::ip_option_to_array( get_option( self::IP_ALLOW_LIST_OPTION_NAME ) );
 		$block_list = self::ip_option_to_array( get_option( self::IP_BLOCK_LIST_OPTION_NAME ) );
 
-		$lists_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
-		if ( false === $lists_enabled ) {
+		if ( false === JETPACK_WAF_IP_LISTS_ENABLED ) {
 			// Making the lists empty effectively disabled the feature while still keeping the other WAF rules evaluation active.
 			$allow_list = array();
 			$block_list = array();
