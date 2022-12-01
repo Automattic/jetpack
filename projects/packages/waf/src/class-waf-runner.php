@@ -34,7 +34,7 @@ class Waf_Runner {
 	 * Run the WAF
 	 */
 	public static function initialize() {
-		if ( ! self::is_enabled() || ! self::rules_enabled() ) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 		self::define_mode();
@@ -48,7 +48,7 @@ class Waf_Runner {
 		if ( function_exists( 'add_action' ) ) {
 			self::add_hooks();
 		}
-		if ( ! self::did_run() ) {
+		if ( ! self::did_run() && self::rules_enabled() ) {
 			self::run();
 		}
 	}
@@ -511,18 +511,16 @@ class Waf_Runner {
 		}
 
 		// Add manual rules
-		if ( JETPACK_WAF_IP_LISTS_ENABLED ) {
-			$ip_allow_rules = self::ALLOW_IP_FILE;
-			$ip_block_rules = self::BLOCK_IP_FILE;
+		$ip_allow_rules = self::ALLOW_IP_FILE;
+		$ip_block_rules = self::BLOCK_IP_FILE;
 
-			$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
-				"if ( require('$ip_block_rules') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
+		$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
+			"if ( require('$ip_block_rules') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
 
-			$rules_divided_by_line = explode( "\n", $rules );
-			array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
+		$rules_divided_by_line = explode( "\n", $rules );
+		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
 
-			$rules = implode( "\n", $rules_divided_by_line );
-		}
+		$rules = implode( "\n", $rules_divided_by_line );
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
