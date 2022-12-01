@@ -1130,8 +1130,10 @@ function grunion_feedback_admin_notice() {
 }
 add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
 
-add_action( 'admin_enqueue_scripts', array( 'Grunion_Admin', 'maybe_enable_gdrive_export_button' ) );
-add_action( 'wp_ajax_grunion_export_to_gdrive', array( 'Grunion_Admin', 'export_to_gdrive' ) );
+if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
+	add_action( 'admin_enqueue_scripts', array( 'Grunion_Admin', 'maybe_enable_gdrive_export_button' ) );
+	add_action( 'wp_ajax_grunion_export_to_gdrive', array( 'Grunion_Admin', 'export_to_gdrive' ) );
+}
 
 /**
  * Class Grunion_Admin
@@ -1192,7 +1194,7 @@ class Grunion_Admin {
 			return;
 		}
 
-		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
 		if ( ! $user_connected ) {
 			return;
 		}
