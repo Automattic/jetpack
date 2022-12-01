@@ -118,6 +118,7 @@ export default function TracksControl( {
 
 	const uploadNewTrackFile = useCallback( newTrack => {
 		uploadTrackForGuid( newTrack, guid ).then( () => {
+			setAttributes( { tracks: [ ...tracks, newTrack ] } );
 			setIsUploadingNewTrack( false );
 		} );
 		setIsUploadingNewTrack( true );
