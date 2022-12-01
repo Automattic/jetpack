@@ -9,7 +9,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Site_Urls_Grabber as Url_Grabber;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
-// use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
+use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
 class Site_Urls implements Endpoint {
 
@@ -24,7 +24,7 @@ class Site_Urls implements Endpoint {
 
 	public function permissions() {
 		return array(
-			// new Current_User_Admin(),
+			new Current_User_Admin(),
 		);
 	}
 
