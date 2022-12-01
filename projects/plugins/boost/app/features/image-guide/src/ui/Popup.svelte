@@ -84,7 +84,7 @@
 	<div class="meta">
 		<div class="row">
 			<div class="label">Image File Dimensions</div>
-			{#if $fileSize.width > -1 && $fileSize.height > -1}
+			{#if $fileSize.width > 0 && $fileSize.height > 0}
 			<div class="value">{$fileSize.width} x {$fileSize.height}</div>
 			{:else}
 			<div class="value">
