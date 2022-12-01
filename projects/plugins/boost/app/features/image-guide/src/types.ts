@@ -1,4 +1,4 @@
-import type { MeasurableImageStore } from './MeasurableImageStore';
+import type { MeasurableImageStore } from './stores/MeasurableImageStore';
 import type { ComponentConstructorOptions } from 'svelte';
 
 export type MeasuredImage = {

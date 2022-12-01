@@ -1,9 +1,9 @@
 import { MeasurableImage } from './MeasurableImage';
 import { attachGuides } from './attach-guides';
 import { getMeasurableImages } from './find-image-elements';
+import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
-import { state } from './ui/StateStore';
-import type { MeasurableImageStore } from './MeasurableImageStore';
+import type { MeasurableImageStore } from './stores/MeasurableImageStore';
 
 function discardSmallImages( images: MeasurableImage[] ) {
 	const minSize = 65;
@@ -61,7 +61,7 @@ function debouncedStoreUpdate() {
 }
 
 function initialize() {
-	state.subscribe( async $state => {
+	guideState.subscribe( async $state => {
 		if ( $state === 'paused' ) {
 			return;
 		}

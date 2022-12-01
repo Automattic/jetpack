@@ -1,4 +1,4 @@
-import { MeasurableImageStore } from './MeasurableImageStore';
+import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
 import type { MeasurableImage } from './MeasurableImage';
 import type { ImageComponentConfig } from './types';

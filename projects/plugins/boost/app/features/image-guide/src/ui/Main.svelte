@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Bubble from './Bubble.svelte';
 	import Popup from './Popup.svelte';
-	import { state } from './StateStore';
+	import { guideState } from '../stores/GuideState';
 	import type { GuideSize } from '../types';
-	import type { MeasurableImageStore } from '../MeasurableImageStore';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import { onMount } from 'svelte';
 
 	export let stores: MeasurableImageStore[];
@@ -18,7 +18,7 @@
 	});
 
 	function onMouseLeave() {
-		if ($state !== 'always_on') {
+		if ($guideState !== 'always_on') {
 			show = false;
 		}
 	}
@@ -44,11 +44,11 @@
 	const sizeOnPage = stores[0].sizeOnPage;
 	$: size = getGuideSize($sizeOnPage.width, $sizeOnPage.height);
 
-	$: show = $state === 'always_on' ? 0 : false;
+	$: show = $guideState === 'always_on' ? 0 : false;
 	$: toggleBackdrop(show !== false);
 </script>
 
-{#if $state === 'active' || $state === 'always_on'}
+{#if $guideState === 'active' || $guideState === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each stores as store, index}

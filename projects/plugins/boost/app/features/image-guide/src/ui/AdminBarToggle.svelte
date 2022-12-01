@@ -1,17 +1,17 @@
 <script lang="ts">
 	import JetpackLogo from './JetpackLogo.svelte';
-	import { state, label } from './StateStore';
+	import { guideState, guideLabel } from '../stores/GuideState';
 
 	export let href: string;
 
 	function toggleUI() {
-		state.cycle();
+		guideState.cycle();
 	}
 </script>
 
-<a id="jetpack-boost-guide-bar" {href} class="ab-item {$state}" on:click|preventDefault={toggleUI}>
+<a id="jetpack-boost-guide-bar" {href} class="ab-item {$guideState}" on:click|preventDefault={toggleUI}>
 	<JetpackLogo />
-	<span>Image Guide: {$label}</span>
+	<span>Image Guide: {$guideLabel}</span>
 </a>
 
 <style lang="scss">

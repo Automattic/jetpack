@@ -1,5 +1,5 @@
 import { type Writable, writable } from 'svelte/store';
-import { MeasurableImage } from './MeasurableImage';
+import { MeasurableImage } from '../MeasurableImage';
 
 export class MeasurableImageStore {
 	readonly fileSize: Writable<ReturnType<MeasurableImage['getFileSize']>>;

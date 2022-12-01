@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { backOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
-	import type { MeasurableImageStore } from '../MeasurableImageStore';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import Spinner from './Spinner.svelte';
 
 	export let index: number;

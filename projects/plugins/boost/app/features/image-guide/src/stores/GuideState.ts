@@ -25,7 +25,7 @@ type CyclableStore = Writable< State > & {
 	cycle: () => void;
 };
 
-export const state: CyclableStore = {
+export const guideState: CyclableStore = {
 	subscribe,
 	set,
 	update,
@@ -40,6 +40,6 @@ export const state: CyclableStore = {
 	},
 };
 
-export const label = derived( state, $state => {
+export const guideLabel = derived( guideState, $state => {
 	return store[ $state ];
 } );
