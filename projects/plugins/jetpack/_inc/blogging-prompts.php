@@ -32,7 +32,7 @@ add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_me
  * @return void
  */
 function jetpack_setup_blogging_prompt_response( $post_id ) {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
 	$prompt_id = isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : false;
 
 	if ( ! jetpack_is_new_post_screen() || ! $prompt_id ) {
@@ -58,12 +58,11 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  * @return stdClass[] Array of blogging prompt objects.
  */
 function jetpack_get_daily_blogging_prompts( $time = 0 ) {
-	// Default to the current time in the site's timezone.
-	$timestamp = $time ? $time : current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+	$timestamp = $time ? $time : time();
 
 	// Include prompts from the previous day, just in case someone has an outdated prompt id.
-	$day_before    = date_i18n( 'Y-m-d', $timestamp - DAY_IN_SECONDS );
-	$locale        = jetpack_get_mag16_locale();
+	$day_before    = wp_date( 'Y-m-d', $timestamp - DAY_IN_SECONDS );
+	$locale        = get_locale();
 	$transient_key = 'jetpack_blogging_prompt_' . $day_before . '_' . $locale;
 	$daily_prompts = get_transient( $transient_key );
 
@@ -73,7 +72,7 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 	}
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = '/sites/' . $blog_id . '/blogging-prompts?from=' . $day_before . '&number=10&_locale=' . $locale;
+	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts?from=' . rawurldecode( $day_before ) . '&number=10&_locale=' . rawurldecode( $locale );
 	$args    = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
@@ -100,34 +99,16 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 		return null;
 	}
 
-	$body    = json_decode( wp_remote_retrieve_body( $response ) );
+	$body = json_decode( wp_remote_retrieve_body( $response ) );
+
+	if ( ! $body ) {
+		return null;
+	}
+
 	$prompts = $body->prompts;
 	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
 
 	return $prompts;
-}
-
-/**
- * Trim language code for to match one of the 16 languages translated for WP.com
- *
- * The blogging-prompts API currently only has translations for these languages, and
- * won't fall back to generic versions. e.g. fr_BE will return English, so we trim to
- * fr to get the French translations.
- *
- * @return string
- */
-function jetpack_get_mag16_locale() {
-	$locale = get_locale();
-
-	if ( ! in_array( strtolower( $locale ), array( 'zh_cn', 'zh_tw', 'pt_br' ), true ) ) {
-		// Trim the locale from the end of the language code, unless we specifically translate that version of the language.
-		return preg_replace( '/(_.*)$/i', '', $locale );
-	} elseif ( 'pt' === $locale ) {
-		// We have Portuguese (Brazil), but not Portuguese (Portugal) translations.
-		return 'pt_br';
-	}
-
-	return $locale;
 }
 
 /**
