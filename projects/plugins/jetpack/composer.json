@@ -52,7 +52,7 @@
 		"antecedent/patchwork": "2.1.21",
 		"automattic/jetpack-changelogger": "@dev",
 		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0 || ^1.1.0",
-		"yoast/phpunit-polyfills": "1.0.3"
+		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"scripts": {
 		"build-production": [
@@ -101,7 +101,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_6_a_6",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_7_a_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

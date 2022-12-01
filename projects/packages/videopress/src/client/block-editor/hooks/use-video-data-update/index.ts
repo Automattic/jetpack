@@ -8,6 +8,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -20,14 +21,17 @@ import {
 } from '../../../types';
 import extractVideoChapters from '../../../utils/extract-video-chapters';
 import generateChaptersFile from '../../../utils/generate-chapters-file';
-import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import { snakeToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
 	VideoId,
 } from '../../blocks/video/types';
 import useVideoData from '../use-video-data';
-import { UseSyncMediaProps, UseSyncMediaOptionsProps } from './types';
+import { VideoDataProps } from '../use-video-data/types';
+import { UseSyncMediaProps, UseSyncMediaOptionsProps, ArrangeTracksAttributesProps } from './types';
+
+const debug = debugFactory( 'videopress:video:use-sync-media' );
 
 /**
  * Hook to update the media data by hitting the VideoPress API.
@@ -79,6 +83,51 @@ const mapFieldsToAttributes = {
 };
 
 /**
+ * Re-arrange the tracks to match the block attribute format.
+ * Also, check if the tracks is out of sync with the media item.
+ *
+ * @param {VideoDataProps} videoData        - Video data, provided by server.
+ * @param {VideoBlockAttributes} attributes - Block attributes.
+ * @returns {VideoBlockAttributes}            Video block attributes.
+ */
+function arrangeTracksAttributes(
+	videoData: VideoDataProps,
+	attributes: VideoBlockAttributes
+): ArrangeTracksAttributesProps {
+	if ( ! videoData?.tracks ) {
+		return [ [], false ];
+	}
+
+	const tracks = [];
+	let tracksOufOfSync = false;
+
+	Object.keys( videoData.tracks ).forEach( kind => {
+		for ( const srcLang in videoData.tracks[ kind ] ) {
+			const track = videoData.tracks[ kind ][ srcLang ];
+			const trackExistsInBlock = attributes.tracks.find( t => {
+				return (
+					t.kind === kind && t.srcLang === srcLang && t.src === track.src && t.label === track.label
+				);
+			} );
+
+			if ( ! trackExistsInBlock ) {
+				debug( 'Track %o is out of sync. Set tracks attr', track.src );
+				tracksOufOfSync = true;
+			}
+
+			tracks.push( {
+				src: track.src,
+				kind,
+				srcLang,
+				label: track.label,
+			} );
+		}
+	} );
+
+	return [ tracks, tracksOufOfSync ];
+}
+
+/**
  * React hook to keep the data in-sync
  * between the media item and the block attributes.
  *
@@ -101,7 +150,7 @@ export function useSyncMedia(
 
 	const [ initialState, setState ] = useState( {} );
 
-	const updateInitialState = useCallback( data => {
+	const updateInitialState = useCallback( ( data: VideoDataProps ) => {
 		setState( current => ( { ...current, ...data } ) );
 	}, [] );
 
@@ -119,46 +168,61 @@ export function useSyncMedia(
 			return;
 		}
 
-		// Build an object with video data to use for the initial state.
-		const initialVideoData = videoFieldsToUpdate.reduce( ( acc, key ) => {
-			if ( typeof videoData[ key ] === 'undefined' ) {
-				return acc;
-			}
+		const attributesToUpdate: VideoBlockAttributes = {};
 
-			acc[ key ] = videoData[ key ];
-			return acc;
-		}, {} );
+		// Build an object with video data to use for the initial state.
+		const initialVideoData = videoFieldsToUpdate.reduce(
+			( acc, key ) => {
+				if ( typeof videoData[ key ] === 'undefined' ) {
+					return acc;
+				}
+
+				let videoDataValue = videoData[ key ];
+
+				// Cast privacy_setting to number to match the block attribute type.
+				if ( 'privacy_setting' === key ) {
+					videoDataValue = Number( videoDataValue );
+				}
+
+				acc[ key ] = videoDataValue;
+				const attrName = snakeToCamel( key );
+
+				if ( videoDataValue !== attributes[ attrName ] ) {
+					debug(
+						'%o is out of sync. Updating %o attr from %o to %o ',
+						key,
+						attrName,
+						attributes[ attrName ],
+						videoDataValue
+					);
+					attributesToUpdate[ attrName ] = videoDataValue;
+				}
+				return acc;
+			},
+			{
+				tracks: [],
+			}
+		);
+
+		updateInitialState( initialVideoData );
 
 		if ( ! Object.keys( initialVideoData ).length ) {
 			return;
 		}
 
-		// Let's set the internal initial state...
-		setState( initialVideoData );
+		const [ tracks, tracksOufOfSync ] = arrangeTracksAttributes( videoData, attributes );
 
-		// ...and udpate the block attributes with fresh data.
-		const initialAttributesValues = mapObjectKeysToCamel( initialVideoData, true );
-
-		// Update block track attribute
-		const tracks = [];
-
-		if ( videoData?.tracks ) {
-			Object.keys( videoData.tracks ).forEach( kind => {
-				for ( const srcLang in videoData.tracks[ kind ] ) {
-					const track = videoData.tracks[ kind ][ srcLang ];
-					tracks.push( {
-						src: track.src,
-						kind,
-						srcLang,
-						label: track.label,
-					} );
-				}
-			} );
+		// Sync video tracks if needed.
+		if ( tracksOufOfSync ) {
+			attributesToUpdate.tracks = tracks;
 		}
 
-		initialAttributesValues.tracks = tracks;
+		if ( ! Object.keys( attributesToUpdate ).length ) {
+			return;
+		}
 
-		setAttributes( initialAttributesValues );
+		debug( 'attributesToUpdate: ', attributesToUpdate );
+		setAttributes( attributesToUpdate );
 	}, [ videoData, isRequestingVideoData ] );
 
 	const updateMediaHandler = useMediaDataUpdate( id );
@@ -174,6 +238,8 @@ export function useSyncMedia(
 			return;
 		}
 
+		debug( 'Saving post action detected' );
+
 		if ( ! attributes?.id ) {
 			return;
 		}
@@ -185,8 +251,11 @@ export function useSyncMedia(
 		const dataToUpdate: WPComV2VideopressPostMetaEndpointBodyProps = videoFieldsToUpdate.reduce(
 			( acc, key ) => {
 				const attrName = mapFieldsToAttributes[ key ] || key;
+				const stateValue = initialState[ key ];
+				const attrValue = attributes[ attrName ];
 
 				if ( initialState[ key ] !== attributes[ attrName ] ) {
+					debug( 'Syncing %o: %o => %o: %o', key, stateValue, attrName, attrValue );
 					acc[ key ] = attributes[ attrName ];
 				}
 				return acc;
@@ -196,7 +265,7 @@ export function useSyncMedia(
 
 		// When nothing to update, bail out early.
 		if ( ! Object.keys( dataToUpdate ).length ) {
-			return;
+			return debug( 'No data to update. Bail early' );
 		}
 
 		// Sync the block attributes data with the video data
@@ -213,25 +282,38 @@ export function useSyncMedia(
 				dataToUpdate?.description?.length &&
 				chapters?.length
 			) {
+				debug( 'Auto-generated chapter detected. Processing...' );
 				const track: UploadTrackDataProps = {
-					label: __( 'English', 'jetpack-videopress-pkg' ),
+					label: __( 'English (auto-generated)', 'jetpack-videopress-pkg' ),
 					srcLang: 'en',
 					kind: 'chapters',
 					tmpFile: generateChaptersFile( dataToUpdate.description ),
 				};
 
+				debug( 'Auto-generated track: %o', track );
+
 				uploadTrackForGuid( track, guid ).then( ( src: string ) => {
+					const autoGeneratedTrackIndex = attributes.tracks.findIndex(
+						t => t.kind === 'chapters' && t.srcLang === 'en'
+					);
+
+					const uploadedTrack = {
+						...track,
+						src,
+					};
+
+					const tracks = [ ...attributes.tracks ];
+
+					if ( autoGeneratedTrackIndex > -1 ) {
+						debug( 'Updating %o auto-generated track', uploadedTrack.src );
+						tracks[ autoGeneratedTrackIndex ] = uploadedTrack;
+					} else {
+						debug( 'Adding auto-generated %o track', uploadedTrack.src );
+						tracks.push( uploadedTrack );
+					}
+
 					// Update block track attribute
-					setAttributes( {
-						tracks: [
-							{
-								label: track.label,
-								srcLang: track.srcLang,
-								kind: track.kind,
-								src,
-							},
-						],
-					} );
+					setAttributes( { tracks } );
 
 					const videoPressUrl = getVideoPressUrl( guid, attributes );
 					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
@@ -247,6 +329,7 @@ export function useSyncMedia(
 		updateMediaHandler,
 		updateInitialState,
 		attributes,
+		initialState,
 		invalidateResolution,
 		videoFieldsToUpdate,
 	] );
