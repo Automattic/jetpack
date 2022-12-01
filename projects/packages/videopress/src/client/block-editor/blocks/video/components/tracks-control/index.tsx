@@ -116,8 +116,15 @@ export default function TracksControl( {
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
-	const uploadNewTrackFile = useCallback( newTrack => {
-		uploadTrackForGuid( newTrack, guid ).then( () => {
+	const uploadNewTrackFile = useCallback( newUploadedTrack => {
+		uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
+			const newTrack = {
+				...newUploadedTrack,
+				src,
+			};
+			delete newTrack.tmpFile;
+
+			setAttributes( { tracks: [ ...tracks, newTrack ] } );
 			setIsUploadingNewTrack( false );
 		} );
 		setIsUploadingNewTrack( true );
