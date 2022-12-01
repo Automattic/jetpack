@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: hide the "Manage Connection" modal on "Escape" press.
