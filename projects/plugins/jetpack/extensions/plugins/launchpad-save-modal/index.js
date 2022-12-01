@@ -19,6 +19,7 @@ export const settings = {
 		const prevIsSaving = usePrevious( isSaving );
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ , siteSlug ] = currentSite.siteUrlOption.split( '//' );
+		const isInsideSiteEditor = window.location.href.includes( 'site-editor' );
 
 		useEffect( () => {
 			if ( prevIsSaving === true && isSaving === false ) {
@@ -29,6 +30,7 @@ export const settings = {
 		const showModal =
 			currentSite.launchpadScreenOption === 'full' &&
 			currentSite.siteIntentOption === 'link-in-bio' &&
+			isInsideSiteEditor &&
 			isModalOpen;
 
 		return (
