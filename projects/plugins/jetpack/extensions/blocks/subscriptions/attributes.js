@@ -9,6 +9,10 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	includeSocialFollowers: {
+		type: 'boolean',
+		default: true,
+	},
 	buttonOnNewLine: {
 		type: 'boolean',
 		default: false,
