@@ -46,7 +46,7 @@
 	<div class="preview">
 		<div class="description">
 			<div class="title">
-				<a href={$imageURL} target="_blank">{imageName}</a>
+				<a href={$imageURL} target="_blank noreferrer">{imageName}</a>
 			</div>
 			{#if ratio >= 1.3}
 				<div class="explanation">
