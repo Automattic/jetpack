@@ -8,9 +8,8 @@
 	export let store: MeasurableImageStore;
 	export let size: GuideSize;
 
-
-	function maybeDecimals(num: number) {
-		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
+	function maybeDecimals( num: number ) {
+		return num % 1 === 0 ? num : parseFloat( num.toFixed( 2 ) );
 	}
 
 	/**
@@ -20,7 +19,7 @@
 	 *
 	 * Note that in Main.svelte only the properties of this component
 	 * change to avoid creating mulitple components.
-	*/
+	 */
 	$: isLoading = store.loading;
 	$: oversizedRatio = store.oversizedRatio;
 	$: fileSize = store.fileSize;
@@ -28,15 +27,15 @@
 	$: potentialSavings = store.potentialSavings;
 	$: expectedSize = store.expectedSize;
 	$: imageURL = store.url;
-	$: imageName = $imageURL.split('/').pop();
+	$: imageName = $imageURL.split( '/' ).pop();
 
 	// Get the image origin
-	$: origin = new URL(window.location.href).origin;
-	$: imageOrigin = new URL($imageURL).origin;
+	$: origin = new URL( window.location.href ).origin;
+	$: imageOrigin = new URL( $imageURL ).origin;
 
 	$: previewWidth = size === 'normal' ? 100 : 50;
-	$: previewHeight = Math.floor(previewWidth / ($fileSize.width / $fileSize.height));
-	$: ratio = maybeDecimals($oversizedRatio);
+	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
+	$: ratio = maybeDecimals( $oversizedRatio );
 </script>
 
 <div class="details" in:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -47,7 +46,7 @@
 	<div class="preview">
 		<div class="description">
 			<div class="title">
-				<a href="{$imageURL}" target="_blank">{imageName}</a>
+				<a href={$imageURL} target="_blank">{imageName}</a>
 			</div>
 			{#if ratio >= 1.3}
 				<div class="explanation">
@@ -59,11 +58,11 @@
 				</div>
 			{:else if ratio > 1 && ratio < 1.3}
 				<div class="explanation">
-					Images may not always be perfectly sized on all screen sizes, so this is probably ok
-					The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
+					Images may not always be perfectly sized on all screen sizes, so this is probably ok The
+					image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
 				</div>
 			{:else}
-				{@const stretchedBy = maybeDecimals(1 / $oversizedRatio)}
+				{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
 				<div class="explanation">
 					<!-- Calculate how many times the image is smaller -->
 					The image loaded is stretched by {stretchedBy}x to fit the available space.
@@ -85,15 +84,15 @@
 		<div class="row">
 			<div class="label">Image File Dimensions</div>
 			{#if $fileSize.width > 0 && $fileSize.height > 0}
-			<div class="value">{$fileSize.width} x {$fileSize.height}</div>
+				<div class="value">{$fileSize.width} x {$fileSize.height}</div>
 			{:else}
-			<div class="value">
-				{#if $isLoading}
-					Loading...
-				{:else}
-					<em>Unknown</em>
-				{/if}
-			</div>
+				<div class="value">
+					{#if $isLoading}
+						Loading...
+					{:else}
+						<em>Unknown</em>
+					{/if}
+				</div>
 			{/if}
 		</div>
 
@@ -111,13 +110,11 @@
 			<div class="label">Image Size</div>
 			<div class="value">
 				{#if $fileSize.weight > 0}
-					{Math.round($fileSize.weight)} KB
-				{:else}
-					{#if $isLoading}
+					{Math.round( $fileSize.weight )} KB
+				{:else if $isLoading}
 					Loading...
-					{:else}
-						<em>Unknown</em>
-					{/if}
+				{:else}
+					<em>Unknown</em>
 				{/if}
 			</div>
 		</div>
@@ -127,12 +124,10 @@
 			<div class="value">
 				{#if $potentialSavings > 0}
 					<strong>{$potentialSavings} KB</strong>
+				{:else if $isLoading}
+					Loading...
 				{:else}
-					{#if $isLoading}
-						Loading...
-					{:else}
-						<em>--</em>
-					{/if}
+					<em>--</em>
 				{/if}
 			</div>
 		</div>
@@ -146,11 +141,11 @@
 
 <style lang="scss">
 	a {
-		color: #069E08 !important;
+		color: #069e08 !important;
 		font-weight: 600 !important;
 	}
 
-	:global(.jetpack-boost-guide.relative) {
+	:global( .jetpack-boost-guide.relative ) {
 		position: relative;
 	}
 
@@ -163,7 +158,7 @@
 		width: 100%;
 		img {
 			border-radius: 3px;
-			box-shadow: 0 0 2px 1px hsl(0deg 0% 95%);
+			box-shadow: 0 0 2px 1px hsl( 0deg 0% 95% );
 		}
 	}
 
@@ -176,8 +171,8 @@
 		color: #3c434a;
 		padding: 25px;
 		font-family: sans-serif;
-		background-color: rgb(255, 255, 255);
-		background: linear-gradient(159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53%);
+		background-color: rgb( 255, 255, 255 );
+		background: linear-gradient( 159.87deg, #f6f6f4 7.24%, #f7f4ea 64.73%, #ddedd5 116.53% );
 		margin-bottom: 10px;
 
 		width: fit-content;
@@ -206,7 +201,7 @@
 		gap: 10px;
 		justify-content: space-between;
 		margin-bottom: 5px;
-		border-bottom: 1px dotted hsl(0deg 0% 85%);
+		border-bottom: 1px dotted hsl( 0deg 0% 85% );
 		font-size: 14px;
 		&:last-child {
 			border-bottom: none;
@@ -218,11 +213,11 @@
 		bottom: -25px;
 		right: -50px;
 		opacity: 0.04;
-		transform: rotate(15deg);
+		transform: rotate( 15deg );
 		pointer-events: none;
 	}
 
-	:global(.guide.small) {
+	:global( .guide.small ) {
 		.preview {
 			gap: 8px;
 		}
