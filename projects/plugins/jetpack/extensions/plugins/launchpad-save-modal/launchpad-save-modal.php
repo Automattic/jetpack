@@ -8,6 +8,23 @@
 // Feature name.
 const FEATURE_NAME = 'launchpad-save-modal';
 
+wp_enqueue_script(
+	'launchpad-save-modal',
+	plugins_url( 'index.js', __FILE__ ),
+	array(),
+	JETPACK__VERSION,
+	true
+);
+
+wp_localize_script(
+	'launchpad-save-modal',
+	'currentSite',
+	array(
+		'launchpadScreenOption' => get_option( 'launchpad_screen' ),
+		'siteUrlOption'         => get_option( 'siteurl' ),
+	)
+);
+
 // Populate the available extensions with launchpad-save-modal.
 add_filter(
 	'jetpack_set_available_extensions',

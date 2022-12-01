@@ -1,3 +1,5 @@
+/* global currentSite */
+
 import { Modal, Button } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -16,7 +18,7 @@ export const settings = {
 		);
 		const prevIsSaving = usePrevious( isSaving );
 		const [ showModal, setShowModal ] = useState( false );
-		const siteSlug = window.location.hostname;
+		const [ , siteSlug ] = currentSite.siteUrlOption.split( '//' );
 
 		useEffect( () => {
 			if ( prevIsSaving === true && isSaving === false ) {
@@ -25,6 +27,7 @@ export const settings = {
 		}, [ isSaving, prevIsSaving ] );
 
 		return (
+			currentSite.launchpadScreenOption === 'full' &&
 			showModal && (
 				<Modal
 					isDismissible={ true }
@@ -45,8 +48,7 @@ export const settings = {
 						</div>
 						<div className="launchpad__save-modal-buttons">
 							<Button size="normal" variant="secondary" onClick={ () => setShowModal( false ) }>
-								{ ' ' }
-								Back to Edit{ ' ' }
+								{ __( 'Back to Edit', 'jetpack' ) }
 							</Button>
 							<Button
 								size="normal"
@@ -55,8 +57,7 @@ export const settings = {
 									window.top.location.href = `https://www.wordpress.com/setup/link-in-bio/launchpad?siteSlug=${ siteSlug }`;
 								} }
 							>
-								{ ' ' }
-								Launch Site{ ' ' }
+								{ __( 'Launch Site', 'jetpack' ) }
 							</Button>
 						</div>
 					</div>
