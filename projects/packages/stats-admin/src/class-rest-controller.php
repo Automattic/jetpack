@@ -41,8 +41,10 @@ class REST_Controller {
 	}
 
 	/**
-
-	 * Registers the REST routes for Stats.
+	 * Registers the REST routes for Calypso Stats.
+	 *
+	 * The Calypso Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
+	 * The current Site ID is added as part of the route, so that the front end doesn't have to handle the differences.
 	 *
 	 * @access public
 	 * @static
