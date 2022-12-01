@@ -1,8 +1,15 @@
 <?php
+/**
+ * Create a new request for site urls.
+ *
+ * Handler for GET '/site-urls'.
+ */
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
+use Automattic\Jetpack_Boost\Lib\Site_Urls_Grabber as Url_Grabber;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
+// use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
 class Site_Urls implements Endpoint {
 
@@ -12,24 +19,12 @@ class Site_Urls implements Endpoint {
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		global $wpdb;
-
-		$results = $wpdb->get_results( "SELECT ID, post_modified FROM {$wpdb->posts} WHERE post_status = 'publish' ORDER BY post_modified DESC LIMIT 0, 1000" );
-
-		$urls = array();
-		foreach ( $results as $result ) {
-			$urls[] = array(
-				'url'      => get_permalink( $result->ID ),
-				'modified' => $result->post_modified,
-			);
-		}
-
-		return rest_ensure_response( $urls );
+		return rest_ensure_response( Url_Grabber::grab() );
 	}
 
 	public function permissions() {
 		return array(
-			// @TODO - implement.
+			// new Current_User_Admin(),
 		);
 	}
 
