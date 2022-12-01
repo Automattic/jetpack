@@ -1171,12 +1171,12 @@ class Grunion_Admin {
 		$user_id           = (int) get_current_user_id();
 		$spreadsheet_title = sprintf( '%s - %s', __( 'Responses', 'jetpack' ), gmdate( 'Y-m-d H:i' ) );
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
-		$sheet_response = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
 		wp_send_json(
 			array(
-				'success' => ! is_wp_error( $sheet_response ),
-				'data'    => $sheet_response,
+				'success' => ! is_wp_error( $sheet ),
+				'data'    => $sheet,
 			)
 		);
 	}
@@ -1222,8 +1222,7 @@ class Grunion_Admin {
 		$user_id = (int) get_current_user_id();
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
-		$connection       = Jetpack_Google_Drive_Helper::validate_connection( $user_id );
-		$needs_connection = is_wp_error( $connection ) || empty( $connection['valid'] );
+		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
 		// hint user to connect at 'https://wordpress.com/marketing/connections'
 
 		$nonce_name = 'feedback_export_nonce';
@@ -1232,7 +1231,7 @@ class Grunion_Admin {
 			'data-nonce-name' => $nonce_name,
 		);
 
-		if ( $needs_connection ) {
+		if ( ! $has_valid_connection ) {
 			$attributes['disabled'] = 'disabled';
 		}
 

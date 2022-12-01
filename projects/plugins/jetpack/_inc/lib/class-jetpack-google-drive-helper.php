@@ -18,7 +18,7 @@ class Jetpack_Google_Drive_Helper {
 	 * @param int $user_id The user ID.
 	 * @return array       Array with single 'valid' (bool) entry.
 	 */
-	public static function validate_connection( $user_id ) {
+	public static function has_valid_connection( $user_id ) {
 		$site_id = self::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
@@ -30,9 +30,7 @@ class Jetpack_Google_Drive_Helper {
 			$user_id = (int) get_current_user_id();
 			$token   = WPCOM_Google_Sheets_helper::get_google_drive_token_for_user_id( $user_id );
 
-			return array(
-				'valid' => ! is_wp_error( $token ) && ! $token->is_expired(),
-			);
+			return ! is_wp_error( $token ) && ! $token->is_expired();
 		}
 
 		$request_path  = sprintf( '/sites/%d/google-drive/connection', $site_id );
@@ -56,7 +54,9 @@ class Jetpack_Google_Drive_Helper {
 				array( 'status' => $response_code )
 			);
 		}
-		return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+		$result = json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
+
+		return ! empty( $result ) && ! empty( $result['valid'] );
 	}
 
 	/**
