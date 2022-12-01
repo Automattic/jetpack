@@ -23,8 +23,10 @@ const ActionPopover = ( {
 	children,
 	step = null,
 	totalSteps = null,
-	actionButtonText = null,
-	actionButtonDisabled = false,
+	buttonContent = null,
+	buttonDisabled = false,
+	buttonHref = null,
+	buttonExternalLink = false,
 	offset = 32,
 	onClose,
 	onClick,
@@ -32,7 +34,7 @@ const ActionPopover = ( {
 }: ActionPopoverProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	if ( ! title || ! children || ! actionButtonText ) {
+	if ( ! title || ! children || ! buttonContent ) {
 		return null;
 	}
 
@@ -80,10 +82,12 @@ const ActionPopover = ( {
 					<Button
 						variant="primary"
 						className={ styles[ 'action-button' ] }
-						disabled={ actionButtonDisabled }
+						disabled={ buttonDisabled }
 						onClick={ onClick }
+						isExternalLink={ buttonExternalLink }
+						href={ buttonHref }
 					>
-						{ actionButtonText }
+						{ buttonContent }
 					</Button>
 				</div>
 			</div>

@@ -12,7 +12,9 @@ export type ActionPopoverProps = Popover.Props & {
 	children: React.ReactNode;
 	step?: number;
 	totalSteps?: number;
-	actionButtonText?: string;
-	actionButtonDisabled?: boolean;
+	buttonContent?: React.ReactNode;
+	buttonDisabled?: boolean;
+	buttonHref?: string;
+	buttonExternalLink?: boolean;
 	onClick?(): void;
 };
