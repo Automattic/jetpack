@@ -5,7 +5,7 @@ import {
 	isPrivateSite,
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, PanelBody, PanelRow } from '@wordpress/components';
+import { PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
@@ -61,10 +61,6 @@ export const settings = {
 
 		const hasPromotedPosts = isUserAdmin && isContentAllowed && isWPCOMSite && ! isPrivateSite();
 
-		const goToTarget = () => {
-			window.location.href = targetLink;
-		};
-
 		function PromotePostPanelBodyContent() {
 			return (
 				<>
@@ -77,9 +73,9 @@ export const settings = {
 						</p>
 					</PanelRow>
 					<div className="qr-post-button">
-						<Button isSecondary onClick={ goToTarget }>
+						<a class="is-secondary components-button" href={ targetLink }>
 							{ __( 'Promote Post', 'jetpack' ) }
-						</Button>
+						</a>
 					</div>
 				</>
 			);
