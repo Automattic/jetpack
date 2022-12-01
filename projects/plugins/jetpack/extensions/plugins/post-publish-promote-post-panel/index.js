@@ -1,4 +1,10 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import {
+	// getSiteFragment,
+	isAtomicSite,
+	isPrivateSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
@@ -7,12 +13,6 @@ import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
 import { PromotePostButton } from './components/promote-post.js';
 import './editor.scss';
-// import {
-// 	getSiteFragment,
-// 	isAtomicSite,
-// 	isPrivateSite,
-// 	isSimpleSite,
-// } from '@automattic/jetpack-shared-extension-utils';
 
 export const name = 'post-publish-promote-post-panel';
 
@@ -23,6 +23,7 @@ export const settings = {
 			title: __( 'Promote this post', 'jetpack' ),
 			className: 'post-publish-promote-post-panel',
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+			initialOpen: true,
 		};
 
 		const isPostPublished = useSelect( select => {
@@ -61,14 +62,10 @@ export const settings = {
 		// console.log( 'getCurrentPost', currentPost );
 		// // console.log( 'woSite', woSite );
 		// // console.log( 'test', test );
-		// console.log( 'isAtomicSite', isAtomicSite() );
-		// console.log( 'isSimpleSite', isSimpleSite() );
-		// console.log( 'isPrivateSite', isPrivateSite() );
-		// // console.log( 'isWPCOM', isWPCOMSite );
-		//
-		// const test = getSiteFragment();
-		// const isWPCOMSite = isSimpleSite() || isAtomicSite();
-		// console.log( 'test', test );
+
+		const isWPCOMSite = isSimpleSite() || isAtomicSite();
+
+		const hasPromotedPosts = isWPCOMSite && ! isPrivateSite();
 
 		function PromotePostPanelBodyContent() {
 			return (
@@ -88,11 +85,13 @@ export const settings = {
 
 		return (
 			<>
-				<PluginPostPublishPanel { ...panelBodyProps }>
-					<PromotePostPanelBodyContent />
-				</PluginPostPublishPanel>
+				{ hasPromotedPosts && (
+					<PluginPostPublishPanel { ...panelBodyProps }>
+						<PromotePostPanelBodyContent />
+					</PluginPostPublishPanel>
+				) }
 
-				{ isPostPublished && (
+				{ isPostPublished && hasPromotedPosts && (
 					<JetpackPluginSidebar>
 						<PanelBody { ...panelBodyProps }>
 							<PromotePostPanelBodyContent />
