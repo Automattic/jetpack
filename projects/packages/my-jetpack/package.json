@@ -43,7 +43,7 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.20.2",
+		"@babel/core": "7.20.5",
 		"@babel/preset-env": "7.20.2",
 		"@storybook/addons": "6.5.13",
 		"@storybook/client-api": "6.5.13",
