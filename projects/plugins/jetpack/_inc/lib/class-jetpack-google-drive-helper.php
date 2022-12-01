@@ -27,7 +27,12 @@ class Jetpack_Google_Drive_Helper {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// check for gdrive helper class, call synchronously on .com
 			require_lib( 'google-sheets-helper' );
-			return wp_json_encode( WPCOM_Google_Sheets_Helper::get_validate_connection_response( (int) $user_id ) );
+			$user_id = (int) get_current_user_id();
+			$token   = WPCOM_Google_Sheets_helper::get_google_drive_token_for_user_id( $user_id );
+
+			return array(
+				'valid' => ! is_wp_error( $token ) && ! $token->is_expired(),
+			);
 		}
 
 		$request_path  = sprintf( '/sites/%d/google-drive/connection', $site_id );
@@ -71,7 +76,24 @@ class Jetpack_Google_Drive_Helper {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// check for gdrive helper class, call synchronously on .com
 			require_lib( 'google-sheets-helper' );
-			return wp_json_encode( WPCOM_Google_Sheets_Helper::get_create_spreadsheet_response( $user_id, $title, $rows ) );
+			$helper = WPCOM_Google_Sheets_helper::create_for_user( $user_id );
+
+			if ( is_wp_error( $helper ) ) {
+				return $helper;
+			}
+
+			$spreadsheet = $helper->create_spreadsheet( $title, $rows );
+
+			if ( is_wp_error( $spreadsheet ) ) {
+				return $spreadsheet;
+			}
+
+			return array(
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- as is on google client
+				'sheet_link' => $spreadsheet->spreadsheetUrl,
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- as is on google client
+				'sheet_id'   => $spreadsheet->spreadsheetId,
+			);
 		}
 
 		$request_path  = sprintf( '/sites/%d/google-drive/sheets', $site_id );
@@ -86,8 +108,8 @@ class Jetpack_Google_Drive_Helper {
 				),
 			),
 			array(
-				'parent_post_slug' => $title,
-				'rows'             => $rows,
+				'title' => $title,
+				'rows'  => $rows,
 			)
 		);
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
