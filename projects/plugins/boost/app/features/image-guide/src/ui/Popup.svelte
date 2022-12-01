@@ -8,6 +8,11 @@
 	export let store: MeasurableImageStore;
 	export let size: GuideSize;
 
+
+	function maybeDecimals(num: number) {
+		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
+	}
+
 	/**
 	 * This is assigning a lot of reactive variables
 	 * to avoid re-rendering the component
@@ -28,10 +33,6 @@
 	// Get the image origin
 	$: origin = new URL(window.location.href).origin;
 	$: imageOrigin = new URL($imageURL).origin;
-
-	function maybeDecimals(num: number) {
-		return num % 1 === 0 ? num : parseFloat(num.toFixed(2));
-	}
 
 	$: previewWidth = size === 'normal' ? 100 : 50;
 	$: previewHeight = Math.floor(previewWidth / ($fileSize.width / $fileSize.height));
