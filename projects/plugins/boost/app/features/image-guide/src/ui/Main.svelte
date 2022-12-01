@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { guideState } from '../stores/GuideState';
 	import Bubble from './Bubble.svelte';
 	import Popup from './Popup.svelte';
-	import { guideState } from '../stores/GuideState';
-	import type { GuideSize } from '../types';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
+	import type { GuideSize } from '../types';
 
 	export let stores: MeasurableImageStore[];
 	let show: number | false;

@@ -2,8 +2,8 @@
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
-	import type { GuideSize } from '../types';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
+	import type { GuideSize } from '../types';
 
 	export let store: MeasurableImageStore;
 	export let size: GuideSize;
