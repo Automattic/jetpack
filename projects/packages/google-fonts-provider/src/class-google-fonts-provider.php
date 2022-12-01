@@ -157,7 +157,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 		/**
 		 * Filters the Google Fonts API URL.
 		 *
-		 * @since 0.3.6
+		 * @since 0.4.0
 		 *
 		 * @param string $url The Google Fonts API URL.
 		 */
