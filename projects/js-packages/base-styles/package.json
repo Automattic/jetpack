@@ -20,7 +20,7 @@
 		"build-production-js": "echo 'Not implemented.'"
 	},
 	"devDependencies": {
-		"@wordpress/base-styles": "4.12.0"
+		"@wordpress/base-styles": "4.13.0"
 	},
 	"engines": {
 		"node": "^16.13.2",

@@ -15,10 +15,10 @@
 	"author": "Automattic",
 	"scripts": {},
 	"dependencies": {
-		"@wordpress/compose": "5.19.0",
-		"@wordpress/i18n": "4.21.0",
-		"@wordpress/plugins": "4.19.0",
-		"@wordpress/url": "3.22.0",
+		"@wordpress/compose": "5.20.0",
+		"@wordpress/i18n": "4.22.0",
+		"@wordpress/plugins": "4.20.0",
+		"@wordpress/url": "3.23.0",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
