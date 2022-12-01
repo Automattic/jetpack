@@ -10,7 +10,7 @@
 		"wikimedia/at-ease": "^1.2 || ^2.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
+		"yoast/phpunit-polyfills": "1.0.4",
 		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0"
 	},
 	"autoload": {

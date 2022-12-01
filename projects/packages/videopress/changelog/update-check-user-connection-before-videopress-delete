@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Disable delete_posts capability for VideoPress attachments if user is disconnected.

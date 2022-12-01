@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.26.0 - 2022-11-30
+### Added
+- RNA: Add ActionPopover component [#27656]
+
+## 0.25.2 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
 ## 0.25.1 - 2022-11-22
 ### Changed
 - Updated package dependencies. [#27043]

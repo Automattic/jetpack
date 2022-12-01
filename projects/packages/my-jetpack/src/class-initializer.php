@@ -30,10 +30,10 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '2.4.1';
+	const PACKAGE_VERSION = '2.5.2-alpha';
 
 	/**
-	 * Initialize My Jetapack
+	 * Initialize My Jetpack
 	 *
 	 * @return void
 	 */
@@ -237,11 +237,6 @@ class Initializer {
 		$should = true;
 
 		if ( is_multisite() ) {
-			$should = false;
-		}
-
-		// Do not initialize My Jetpack if site is not connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			$should = false;
 		}
 

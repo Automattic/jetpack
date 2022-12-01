@@ -165,6 +165,12 @@ const Admin = () => {
 			) : (
 				<>
 					<AdminSectionHero>
+						<Container horizontalSpacing={ 0 }>
+							<Col>
+								<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
+							</Col>
+						</Container>
+
 						<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 							{ hasConnectionError && (
 								<Col>
@@ -177,6 +183,7 @@ const Admin = () => {
 									<NeedUserConnectionGlobalNotice />
 								</Col>
 							) }
+
 							<Col sm={ 4 } md={ 4 } lg={ 8 }>
 								<Text variant="headline-small" mb={ 3 }>
 									{ __( 'High quality, ad-free video', 'jetpack-videopress-pkg' ) }
