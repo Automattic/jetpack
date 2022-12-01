@@ -22,6 +22,7 @@ wp_localize_script(
 	array(
 		'launchpadScreenOption' => get_option( 'launchpad_screen' ),
 		'siteUrlOption'         => get_option( 'siteurl' ),
+		'siteIntentOption'      => get_option( 'site_intent' ),
 	)
 );
 

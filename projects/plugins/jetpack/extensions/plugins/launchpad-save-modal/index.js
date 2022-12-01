@@ -17,22 +17,26 @@ export const settings = {
 			[]
 		);
 		const prevIsSaving = usePrevious( isSaving );
-		const [ showModal, setShowModal ] = useState( false );
+		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ , siteSlug ] = currentSite.siteUrlOption.split( '//' );
 
 		useEffect( () => {
 			if ( prevIsSaving === true && isSaving === false ) {
-				setShowModal( true );
+				setIsModalOpen( true );
 			}
 		}, [ isSaving, prevIsSaving ] );
 
-		return (
+		const showModal =
 			currentSite.launchpadScreenOption === 'full' &&
+			currentSite.siteIntentOption === 'link-in-bio' &&
+			isModalOpen;
+
+		return (
 			showModal && (
 				<Modal
 					isDismissible={ true }
 					className="launchpad__save-modal"
-					onRequestClose={ () => setShowModal( false ) }
+					onRequestClose={ () => setIsModalOpen( false ) }
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
@@ -47,7 +51,7 @@ export const settings = {
 							</p>
 						</div>
 						<div className="launchpad__save-modal-buttons">
-							<Button size="normal" variant="secondary" onClick={ () => setShowModal( false ) }>
+							<Button size="normal" variant="secondary" onClick={ () => setIsModalOpen( false ) }>
 								{ __( 'Back to Edit', 'jetpack' ) }
 							</Button>
 							<Button
