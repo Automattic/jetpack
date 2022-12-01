@@ -116,9 +116,19 @@ export default function TracksControl( {
 	const [ isUploadingNewTrack, setIsUploadingNewTrack ] = useState( false );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
-	const uploadNewTrackFile = useCallback( newTrack => {
-		uploadTrackForGuid( newTrack, guid ).then( () => {
+	const videoPressUrl = getVideoPressUrl( guid, attributes );
+
+	const uploadNewTrackFile = useCallback( newUploadedTrack => {
+		uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
+			const newTrack = {
+				...newUploadedTrack,
+				src,
+			};
+			delete newTrack.tmpFile;
+
+			setAttributes( { tracks: [ ...tracks, newTrack ] } );
 			setIsUploadingNewTrack( false );
+			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 		} );
 		setIsUploadingNewTrack( true );
 	}, [] );
@@ -126,7 +136,6 @@ export default function TracksControl( {
 	const onUpdateTrackListHandler = useCallback(
 		( updatedTracks: TrackProps[] ) => {
 			setAttributes( { tracks: updatedTracks } );
-			const videoPressUrl = getVideoPressUrl( guid, attributes );
 			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 		},
 		[ tracks ]

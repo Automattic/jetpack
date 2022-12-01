@@ -6,6 +6,7 @@ import {
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
 import ConnectedPricingTable from '../pricing-table';
 
@@ -18,6 +19,11 @@ import ConnectedPricingTable from '../pricing-table';
  * @returns {React.Component}              Interstitial react component.
  */
 const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
+	// Track view for Protect WAF page.
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_interstitial',
+	} );
+
 	return (
 		<JetpackAdminPage moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) } header={ <Logo /> }>
 			<AdminSectionHero>

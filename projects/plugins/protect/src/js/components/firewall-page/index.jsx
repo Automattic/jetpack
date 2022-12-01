@@ -37,6 +37,7 @@ const FirewallPage = () => {
 		toggleManualRules,
 		updateConfig,
 	} = useWafData();
+	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen, setWafUpgradeIsSeen, setNotice } = useDispatch( STORE_ID );
 
@@ -47,6 +48,14 @@ const FirewallPage = () => {
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
 	} );
 	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
+
+	// Track view for Protect WAF page.
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_waf',
+		pageViewEventProperties: {
+			has_plan: hasRequiredPlan,
+		},
+	} );
 
 	const successNoticeDuration = 5000;
 
@@ -193,8 +202,6 @@ const FirewallPage = () => {
 
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_waf_page_get_scan_link_click', run );
-
-	const { hasRequiredPlan } = useProtectData();
 
 	const handleClosePopoverClick = useCallback( () => {
 		setWafUpgradeIsSeen( true );

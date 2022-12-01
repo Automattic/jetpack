@@ -91,55 +91,13 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
 	}, [ tracks ] );
 
-	const trackSeeAllBackupsClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_see_all_backups_click', { site: domain } );
-	}, [ tracks, domain ] );
-
 	const trackSeeSiteActivityClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_see_site_activity_click', { site: domain } );
 	}, [ tracks, domain ] );
 
 	return (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
 			<Col lg={ 6 } md={ 4 }>
-				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
-				<p className="jp-realtime-note">
-					{ createInterpolateElement(
-						__(
-							'No need to run a manual backup before you make changes to your site. <ExternalLink>Learn more</ExternalLink>',
-							'jetpack-backup-pkg'
-						),
-						{
-							ExternalLink: (
-								<ExternalLink
-									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-									onClick={ trackLearnMoreClick }
-								/>
-							),
-						}
-					) }
-				</p>
-
-				<h2>{ __( 'Where are backups stored?', 'jetpack-backup-pkg' ) }</h2>
-				<p>
-					{ __(
-						'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
-						'jetpack-backup-pkg'
-					) }
-				</p>
-				{ hasBackupPlan && connectionStatus.isUserConnected && (
-					<p>
-						<ExternalLink
-							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-							onClick={ trackSeeAllBackupsClick }
-						>
-							{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-						</ExternalLink>
-					</p>
-				) }
-			</Col>
-			<Col lg={ 1 } md={ 1 } sm={ 0 } />
-			<Col lg={ 5 } md={ 3 } sm={ 4 }>
 				<h2>{ __( "Your site's heartbeat", 'jetpack-backup-pkg' ) }</h2>
 				<p>
 					{ __(
@@ -157,6 +115,24 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 						</ExternalLink>
 					</p>
 				) }
+			</Col>
+			<Col lg={ 1 } md={ 1 } sm={ 0 } />
+			<Col lg={ 5 } md={ 3 } sm={ 4 }>
+				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
+				<p>
+					{ __(
+						'No need to run a manual backup before you make changes to your site.',
+						'jetpack-backup-pkg'
+					) }
+				</p>
+				<p>
+					<ExternalLink
+						href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+						onClick={ trackLearnMoreClick }
+					>
+						{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+					</ExternalLink>
+				</p>
 			</Col>
 			<ReviewMessage connectionLoaded={ connectionLoaded } />
 		</Container>
