@@ -92,18 +92,26 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function define_automatic_rules_enabled() {
-		if ( ! defined( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED' ) ) {
-			// for backwards compatibility, if the automatic rules option does not exist and the
-			// module is active, consider automatic rules enabled
-			$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
-			if ( ! $option_exists && self::is_enabled() ) {
-				$is_enabled = true;
-			} else {
-				$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-			}
-
-			define( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED', $is_enabled );
+		if ( defined( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED' ) ) {
+			return;
 		}
+
+		// default to true when outside of the WP environment
+		if ( ! defined( 'ABSPATH' ) ) {
+			define( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED', true );
+			return;
+		}
+
+		// for backwards compatibility, if the automatic rules option does not exist and the
+		// module is active, consider automatic rules enabled
+		$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
+		if ( ! $option_exists && self::is_enabled() ) {
+			$is_enabled = true;
+		} else {
+			$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+		}
+
+		define( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED', $is_enabled );
 	}
 
 	/**
@@ -112,10 +120,18 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function define_ip_lists_enabled() {
-		if ( ! defined( 'JETPACK_WAF_IP_LISTS_ENABLED' ) ) {
-			$is_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
-			define( 'JETPACK_WAF_IP_LISTS_ENABLED', $is_enabled );
+		if ( defined( 'JETPACK_WAF_IP_LISTS_ENABLED' ) ) {
+			return;
 		}
+
+		// default to true when outside of the WP environment
+		if ( ! defined( 'ABSPATH' ) ) {
+			define( 'JETPACK_WAF_IP_LISTS_ENABLED', true );
+			return;
+		}
+
+		$is_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
+		define( 'JETPACK_WAF_IP_LISTS_ENABLED', $is_enabled );
 	}
 
 	/**
