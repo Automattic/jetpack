@@ -34,6 +34,10 @@ dev:
         ports:
           - '${PORT_MAILDEV:-1080}:80'
           - '${PORT_SMTP:-25}:25'
+        environment:
+          # It runs in its own container, it may as well use the standard ports instead of 1080 and 1025 so we don't have to reconfigure everything trying to send mail to it.
+          MAILDEV_WEB_PORT: 80
+          MAILDEV_SMTP_PORT: 25
 
       ## SFTP server running at localhost:1022
       sftp:

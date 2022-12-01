@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: handle properly when adding or replacing new video track
