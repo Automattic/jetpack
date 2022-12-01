@@ -155,7 +155,7 @@ export function useSyncMedia(
 	}, [] );
 
 	/*
-	 * Media data => Block attribues (update)
+	 * Media data => Block attributes (update)
 	 *
 	 * Populate block attributes with the media data,
 	 * provided by the VideoPress API (useVideoData hook),
