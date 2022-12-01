@@ -1,6 +1,6 @@
 <script lang="ts">
-	import JetpackLogo from './JetpackLogo.svelte';
 	import { guideState, guideLabel } from '../stores/GuideState';
+	import JetpackLogo from './JetpackLogo.svelte';
 
 	export let href: string;
 

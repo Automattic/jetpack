@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
-  	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
-	import { GuideSize } from '../types';
 	import JetpackLogo from './JetpackLogo.svelte';
+	import type { GuideSize } from '../types';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 
 	export let store: MeasurableImageStore;
 	export let size: GuideSize;

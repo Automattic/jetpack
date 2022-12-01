@@ -1,6 +1,6 @@
 <script lang="ts">
-	import JetpackLogo from './JetpackLogo.svelte';
 	import { fade } from 'svelte/transition';
+	import JetpackLogo from './JetpackLogo.svelte';
 </script>
 
 <div class="spinner" out:fade={{ duration: 300 }}>

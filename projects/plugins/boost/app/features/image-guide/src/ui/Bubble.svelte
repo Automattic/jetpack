@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { backOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
-	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import Spinner from './Spinner.svelte';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 
 	export let index: number;
 	export let store: MeasurableImageStore;
 
 	let severity: string;
-	let oversizedRatio = store.oversizedRatio;
+	const oversizedRatio = store.oversizedRatio;
 	const isLoading = store.loading;
 
 	$: severity = $oversizedRatio > 4 ? 'high' : $oversizedRatio > 2.5 ? 'medium' : 'normal';
