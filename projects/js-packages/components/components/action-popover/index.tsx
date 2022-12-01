@@ -48,8 +48,15 @@ const ActionPopover = ( {
 	};
 
 	const showSteps = Number.isFinite( step ) && Number.isFinite( totalSteps );
-	/* translators: 1 Current step, 2 Total steps */
-	const stepsText = showSteps ? sprintf( __( '%1$d of %2$d', 'jetpack' ), step, totalSteps ) : null;
+	let stepsText = null;
+	if ( showSteps ) {
+		stepsText = sprintf(
+			/* translators: 1 Current step, 2 Total steps */
+			__( '%1$d of %2$d', 'jetpack' ),
+			step,
+			totalSteps
+		);
+	}
 
 	return (
 		<Popover { ...popoverProps }>
