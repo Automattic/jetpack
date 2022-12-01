@@ -6,7 +6,11 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Fragment, useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
-import useMediaRestrictions from '../../hooks/use-media-restrictions';
+import useMediaRestrictions, {
+	getAllowedMediaTypes,
+	FILE_SIZE_ERROR,
+	FILE_TYPE_ERROR,
+} from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import styles from './styles.module.scss';
 
@@ -47,8 +51,6 @@ const getMediaDetails = media => {
 const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
 const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
 const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
-const FILE_TYPE_ERROR_CODE = 1;
-const FILE_SIZE_ERROR_CODE = 2;
 
 /**
  * Wrapper that handles media-related functionality.
@@ -60,9 +62,8 @@ export default function MediaSection() {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
 
-	const { maxImageSize, allowedMediaTypes, getValidationError } = useMediaRestrictions(
-		enabledConnections
-	);
+	const { maxImageSize, getValidationError } = useMediaRestrictions( enabledConnections );
+	const allowedMediaTypes = getAllowedMediaTypes();
 
 	const mediaObject = useSelect(
 		select => select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } ),
@@ -161,12 +162,12 @@ export default function MediaSection() {
 						onDismiss={ onDismissClick }
 						status="warning"
 					>
-						{ validationError === FILE_TYPE_ERROR_CODE && (
+						{ validationError === FILE_TYPE_ERROR && (
 							<p>
 								{ __( 'The selected media type is not accepted by these platforms.', 'jetpack' ) }
 							</p>
 						) }
-						{ validationError === FILE_SIZE_ERROR_CODE && (
+						{ validationError === FILE_SIZE_ERROR && (
 							<p>{ __( 'The selected media size is too big for these platforms.', 'jetpack' ) }</p>
 						) }
 					</Notice>

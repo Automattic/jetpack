@@ -1,4 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
+
+export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
+export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
 
 /**
  * These restrictions were updated on: November 18, 2022
@@ -26,6 +29,18 @@ const RESTRICTIONS = {
 };
 
 /**
+ * Returns the currently allowed media types
+ *
+ * @returns {Array} Array of allowed types
+ */
+export function getAllowedMediaTypes() {
+	const typeArrays = Object.keys( RESTRICTIONS ).map(
+		service => RESTRICTIONS[ service ].allowedImageTypes
+	);
+	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
+}
+
+/**
  * Hooks to deal with the media restrictions
  *
  * @param {object} enabledConnections - Currently enabled connections.
@@ -35,13 +50,6 @@ export default function useMediaRestrictions( enabledConnections ) {
 	const maxImageSize = Math.min(
 		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].maxImageSize )
 	);
-
-	const allowedMediaTypes = useMemo( () => {
-		const typeArrays = Object.keys( RESTRICTIONS ).map(
-			service => RESTRICTIONS[ service ].allowedImageTypes
-		);
-		return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
-	}, [] );
 
 	/**
 	 * This function is used to check if the provided image is valid based on it's size and type.
@@ -54,22 +62,21 @@ export default function useMediaRestrictions( enabledConnections ) {
 		( sizeInBytes, mime ) => {
 			const sizeInMb = sizeInBytes / Math.pow( 1000, 2 );
 
-			if ( ! allowedMediaTypes.includes( mime.toLowerCase() ) ) {
-				return 1;
+			if ( ! getAllowedMediaTypes().includes( mime.toLowerCase() ) ) {
+				return FILE_TYPE_ERROR;
 			}
 
 			if ( sizeInMb >= maxImageSize ) {
-				return 2;
+				return FILE_SIZE_ERROR;
 			}
 
 			return null;
 		},
-		[ maxImageSize, allowedMediaTypes ]
+		[ maxImageSize ]
 	);
 
 	return {
 		maxImageSize,
-		allowedMediaTypes,
 		getValidationError,
 	};
 }
