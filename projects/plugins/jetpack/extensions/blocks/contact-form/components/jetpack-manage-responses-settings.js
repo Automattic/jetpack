@@ -1,8 +1,11 @@
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { get } from 'lodash';
+import React from 'react';
 import InspectorHint from '../../../shared/components/inspector-hint';
 
-const RESPONSES_PATH = '/wp-admin/edit.php?post_type=feedback';
+const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 
 const JetpackManageResponsesSettings = ( {
 	formTitle = '',
@@ -21,6 +24,7 @@ const JetpackManageResponsesSettings = ( {
 				style={ { marginBottom: isChildBlock ? '12px' : '24px' } }
 			>
 				{ __( 'View Form Responses', 'jetpack' ) }
+				<span className="screen-reader-text">{ __( '(opens in a new tab)', 'jetpack' ) }</span>
 			</Button>
 			{ ! isChildBlock && (
 				<TextControl
