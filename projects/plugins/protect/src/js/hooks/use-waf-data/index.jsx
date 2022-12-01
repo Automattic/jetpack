@@ -20,11 +20,14 @@ const useWafData = () => {
 	 * Fetches the firewall data and updates it in application state.
 	 */
 	const refreshWaf = useCallback( () => {
-		return API.fetchWaf().then( response => {
-			setWafIsEnabled( response?.isEnabled );
-			setWafConfig( response?.config );
-		} );
-	}, [ setWafConfig, setWafIsEnabled ] );
+		setWafIsUpdating( true );
+		return API.fetchWaf()
+			.then( response => {
+				setWafIsEnabled( response?.isEnabled );
+				setWafConfig( response?.config );
+			} )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ setWafConfig, setWafIsEnabled, setWafIsUpdating ] );
 
 	/**
 	 * Toggle WAF
@@ -81,8 +84,7 @@ const useWafData = () => {
 	 */
 	useEffect( () => {
 		if ( waf.config === undefined && ! waf.isFetching ) {
-			setWafIsUpdating( true );
-			refreshWaf().then( setWafIsUpdating( false ) );
+			refreshWaf();
 		}
 	}, [ waf.config, waf.isFetching, setWafIsUpdating, refreshWaf ] );
 
