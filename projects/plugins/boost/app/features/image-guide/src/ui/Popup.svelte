@@ -145,17 +145,6 @@
 </div>
 
 <style lang="scss">
-	:root {
-		--shadow-color: 97deg 21% 44%;
-		--shadow: 0px 0px 0px hsl(var(--shadow-color) / 0.35),
-			0px 0px 0.5px -0.3px hsl(var(--shadow-color) / 0.34),
-			0px 0px 2px -0.4px hsl(var(--shadow-color) / 0.27),
-			0px 0px 0px -1.9px hsl(var(--shadow-color) / 0.27),
-			0px 0px 0px -2.6px hsl(var(--shadow-color) / 0.25),
-			0px 0px 0px -3.2px hsl(var(--shadow-color) / 0.19),
-			0.1px 0px 0.1px -3.8px hsl(var(--shadow-color) / 0.14);
-	}
-
 	a {
 		color: #069E08 !important;
 		font-weight: 600 !important;
