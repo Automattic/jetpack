@@ -18,6 +18,10 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 			flex-grow: 1;
 			width: 100%;
 
+			.tiled-gallery__item img {
+				aspect-ratio: 1/1;
+			}
+
 			@for $cols from 1 through $tiled-gallery-max-column-count {
 				&.columns-#{$cols} {
 					.tiled-gallery__col {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blocks: tiled galleries not displaying correct aspect ratio for square/circle options.
