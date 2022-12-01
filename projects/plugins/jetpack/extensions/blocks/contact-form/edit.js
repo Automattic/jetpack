@@ -224,7 +224,12 @@ export function JetpackContactFormEdit( {
 						closeLabel={ __( 'Cancel', 'jetpack' ) }
 						onRequestClose={ () => setIsPatternsModalOpen( false ) }
 					>
-						<BlockPatternSetup blockName={ 'jetpack/contact-form' } clientId={ clientId } />
+						<BlockPatternSetup
+							filterPatternsFn={ pattern => {
+								return pattern.content.indexOf( 'jetpack/contact-form' ) !== -1;
+							} }
+							clientId={ clientId }
+						/>
 					</Modal>
 				) }
 			</div>
