@@ -108,11 +108,11 @@
 					'				<div class="upsell_banner">' +
 					'					<div class="banner__info">' +
 					'						<div class="banner__title">' +
-					'							Keep setting up your site' +
+					`							${ jetpackAdminMenu.launchpadNoticeTitle }` +
 					'						</div>' +
 					'					</div>' +
 					'				<div class="banner__action">' +
-					'					<button type="button" class="button">Next Steps</button>' +
+					`					<button type="button" class="button">${ jetpackAdminMenu.launchpadNoticeButtonText }</button>` +
 					'				</div>' +
 					'			</div>' +
 					'		</div>' +
