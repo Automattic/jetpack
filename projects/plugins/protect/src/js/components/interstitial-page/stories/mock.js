@@ -664,4 +664,17 @@ export const jetpackProtectInitialState = {
 		postActivationUrl: 'http://localhost/wp-admin/admin.php?page=jetpack-protect',
 		class: 'Automattic\\Jetpack\\My_Jetpack\\Products\\Protect',
 	},
+	hasRequiredPlan: true,
+	waf: {
+		isSeen: true,
+		isEnabled: true,
+		isLoading: false,
+		config: {
+			bootstrapPath: 'var/www/html/wp-content/jetpack-waf/bootstrap.php',
+			jetpackWafIpAllowList: '12.12.12.1',
+			jetpackWafIpBlockList: '12.12.12.2',
+			jetpackWafIpList: '1',
+			jetpackWafShareData: '1',
+		},
+	},
 };
