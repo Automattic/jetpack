@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix syntax in wordards-ccpa.js causing it to be included in all merge commits

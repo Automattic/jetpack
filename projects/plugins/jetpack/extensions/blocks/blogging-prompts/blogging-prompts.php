@@ -43,11 +43,14 @@ function inject_blogging_prompts() {
 
 	// And only for blogging sites or those explicitly responding to the prompt.
 	if ( should_load_blogging_prompts() ) {
-		$daily_prompts = wp_json_encode( jetpack_get_daily_blogging_prompts() );
+		$daily_prompts = jetpack_get_daily_blogging_prompts();
 
-		// See p7H4VZ-2cf-p2 for why prompt data is escaped this way.
 		if ( $daily_prompts ) {
-			wp_add_inline_script( 'jetpack-blocks-editor', 'var Jetpack_BloggingPrompts = JSON.parse( decodeURIComponent( "' . rawurlencode( $daily_prompts ) . '" ) );', 'before' );
+			wp_add_inline_script(
+				'jetpack-blocks-editor',
+				'var Jetpack_BloggingPrompts = ' . wp_json_encode( $daily_prompts, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
 		}
 	}
 }
@@ -60,7 +63,7 @@ function inject_blogging_prompts() {
 function should_load_blogging_prompts() {
 	return jetpack_has_write_intent() ||
 			jetpack_has_posts_page() ||
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
 			( isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) );
 }
 
