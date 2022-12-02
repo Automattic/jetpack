@@ -15,7 +15,8 @@
 	$: {
 		// If the user has Cloud CSS, assume they already got started.
 		if ( $config.site.getStarted ) {
-			navigate( '/getting-started' );
+			// Use a timeout, because it's not ok to navigate during page setup. Svelte-navigator doesn't like that.
+			setTimeout( () => navigate( '/getting-started' ), 1 );
 		}
 	}
 </script>
