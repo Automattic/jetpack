@@ -12,14 +12,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "7275ea50ff5331b82d9726e13d616bc4b4f27785"
+                "reference": "72fed2574397e08e77ab517fef1118444d56d50a"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "composer-plugin",
             "extra": {
@@ -200,7 +200,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "db7485e80ebcad717977462edf149ea62e134b3b"
+                "reference": "f5b5e04e8bab59d4bfb71c42d56d68a3003cebd0"
             },
             "require": {
                 "php": ">=5.6",
@@ -210,7 +210,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "bin": [
                 "bin/changelogger"

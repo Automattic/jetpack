@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes issue where video meta could not be saved on a WP.com simple site.
