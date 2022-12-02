@@ -10,10 +10,12 @@ import {
 	PricingTableItem,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
+import { STORE_ID } from '../../state/store';
 
 /**
  * Product Detail component.
@@ -28,6 +30,26 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 		skipUserConnection: true,
 	} );
 
+	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
+
+	const onClickHandler = useCallback( () => {
+		return handleRegisterSite().then( () => {
+			refreshPlan();
+			refreshStatus( true );
+		} );
+	}, [ handleRegisterSite, refreshPlan, refreshStatus ] );
+
+	// Track free and paid click events
+	const { recordEventHandler } = useAnalyticsTracks();
+	const getScan = recordEventHandler(
+		'jetpack_protect_pricing_table_get_scan_link_click',
+		onScanAdd
+	);
+	const getProtectFree = recordEventHandler(
+		'jetpack_protect_connected_product_activated',
+		onClickHandler
+	);
+
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
 	const { pricingForUi } = jetpackScan;
@@ -38,17 +60,6 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 	const offPrice = introductoryOffer?.costPerInterval
 		? Math.ceil( ( introductoryOffer.costPerInterval / 12 ) * 100 ) / 100
 		: null;
-
-	// Track free and paid click events
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler(
-		'jetpack_protect_pricing_table_get_scan_link_click',
-		onScanAdd
-	);
-	const getProtectFree = recordEventHandler(
-		'jetpack_protect_connected_product_activated',
-		handleRegisterSite
-	);
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
