@@ -26,12 +26,14 @@ export default function useVideos() {
 	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
+	const filter = useSelect( select => select( STORE_ID ).getVideosFilter() );
 
 	return {
 		items,
 		uploading,
 		isUploading,
 		search,
+		filter,
 		uploadedVideoCount,
 		isFetching,
 		isFetchingUploadedVideoCount,
