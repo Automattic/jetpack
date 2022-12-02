@@ -97,7 +97,9 @@ function imageLikeURL( value: string ): boolean {
 	// Intentionally not using an allow-list because images may
 	// be served from weird URLs like /images/1234?size=large
 	if ( value.startsWith( '/' ) ) {
-		return value.endsWith( '.svg' );
+		// Remove query string parameters
+		const path = value.split( '?' )[ 0 ];
+		return ! path.endsWith( '.svg' );
 	}
 
 	try {
