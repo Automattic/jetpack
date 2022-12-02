@@ -28,9 +28,9 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.20.2",
-		"@wordpress/browserslist-config": "5.4.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "4.4.0",
+		"@babel/core": "7.20.5",
+		"@wordpress/browserslist-config": "5.5.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "4.5.0",
 		"core-js": "3.23.5",
 		"sass": "1.54.4",
 		"sass-loader": "12.4.0",
