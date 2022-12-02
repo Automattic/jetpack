@@ -17,6 +17,12 @@ import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import styles from './style.module.scss';
 
+type FilterObject = {
+	uploader?: { [ id: string | number ]: boolean };
+	privacy?: { [ value: string | number ]: boolean };
+	rating?: { [ value: string ]: boolean };
+};
+
 export const FilterButton = ( props: {
 	isActive: boolean;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
@@ -68,8 +74,16 @@ export const FilterSection = ( props: {
 		checked: boolean
 	) => void;
 	className?: string;
+	filter?: FilterObject;
 } ): JSX.Element => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+
+	const filterIsChecked = (
+		filterName: 'uploader' | 'privacy' | 'rating',
+		value: number | string
+	) => {
+		return props?.filter?.[ filterName ]?.[ value ] === true;
+	};
 
 	return (
 		<div className={ classnames( styles[ 'filters-section' ], props.className ) }>
@@ -84,6 +98,7 @@ export const FilterSection = ( props: {
 							label={ uploader.name }
 							for={ `uploader-${ uploader.id }` }
 							onChange={ checked => props.onChange?.( 'uploader', uploader.id, checked ) }
+							checked={ filterIsChecked( 'uploader', uploader.id ) }
 						/>
 					) ) }
 				</Col>
@@ -96,11 +111,13 @@ export const FilterSection = ( props: {
 						for="filter-public"
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( 'privacy', 0, checked ) }
+						checked={ filterIsChecked( 'privacy', 0 ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-private"
 						label={ __( 'Private', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( 'privacy', 1, checked ) }
+						checked={ filterIsChecked( 'privacy', 1 ) }
 					/>
 				</Col>
 
@@ -112,16 +129,19 @@ export const FilterSection = ( props: {
 						for="filter-g"
 						label={ __( 'G', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( 'rating', 'G', checked ) }
+						checked={ filterIsChecked( 'rating', 'G' ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-pg-13"
 						label={ __( 'PG-13', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( 'rating', 'PG-13', checked ) }
+						checked={ filterIsChecked( 'rating', 'PG-13' ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-r"
 						label={ __( 'R', 'jetpack-videopress-pkg' ) }
 						onChange={ checked => props.onChange?.( 'rating', 'R-17', checked ) }
+						checked={ filterIsChecked( 'rating', 'R-17' ) }
 					/>
 				</Col>
 			</Container>
@@ -130,7 +150,9 @@ export const FilterSection = ( props: {
 };
 
 export const ConnectFilterSection = props => {
-	const { setFilter } = useVideos();
+	const { setFilter, filter } = useVideos();
 	const { items: users } = useUsers();
-	return <FilterSection { ...props } onChange={ setFilter } uploaders={ users } />;
+	return (
+		<FilterSection { ...props } onChange={ setFilter } uploaders={ users } filter={ filter } />
+	);
 };
