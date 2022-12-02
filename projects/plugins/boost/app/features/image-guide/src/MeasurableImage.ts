@@ -54,6 +54,12 @@ export class MeasurableImage {
 		return Math.round( fileSize.weight - fileSize.weight / oversizedRatio );
 	}
 
+	/**
+	 * To get the expected size of the image,
+	 * the image size on page has to be multiplied by the device pixel ratio.
+	 *
+	 * @param  sizeOnPage The size of the image on the page.
+	 */
 	public getExpectedSize( sizeOnPage: Dimensions ) {
 		const dpr = window.devicePixelRatio || 1;
 		return {
