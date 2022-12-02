@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
@@ -12,13 +13,14 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	$: {
-		// If the user has Cloud CSS, assume they already got started.
+	onMount( () => {
 		if ( $config.site.getStarted ) {
 			// Use a timeout, because it's not ok to navigate during page setup. Svelte-navigator doesn't like that.
-			setTimeout( () => navigate( '/getting-started' ), 1 );
+			setTimeout( () => {
+				navigate( '/getting-started' );
+			}, 0 );
 		}
-	}
+	} );
 </script>
 
 <div id="jb-settings" class="jb-settings jb-settings--main">
