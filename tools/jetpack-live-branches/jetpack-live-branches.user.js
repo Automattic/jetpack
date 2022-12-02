@@ -176,9 +176,9 @@
 						${ getOptionsList(
 							[
 								{
-									label: 'Jetpack',
+									label: 'Jetpack (latest stable)',
 									name: 'nojetpack',
-									checked: true,
+									checked: false,
 									invert: true,
 								},
 								{
