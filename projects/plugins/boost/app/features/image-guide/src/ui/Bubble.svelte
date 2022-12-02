@@ -1,49 +1,69 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
-	import { fly } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
+	import Spinner from './Spinner.svelte';
+	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 
-	export let oversizedBy: number;
 	export let index: number;
+	export let store: MeasurableImageStore;
 
-	const severity = oversizedBy > 8 ? 'high' : oversizedBy > 4 ? 'medium' : 'normal';
+	let severity: string;
+	const oversizedRatio = store.oversizedRatio;
+	const isLoading = store.loading;
 
-	let mounted = false;
-	onMount( () => ( mounted = true ) );
-	const scaleConfig = {
+	$: severity = $oversizedRatio > 4 ? 'high' : $oversizedRatio > 2.5 ? 'medium' : 'normal';
+	const scaleTransition = {
 		delay: 150 + 50 * index,
 		duration: 250,
 		y: 2,
 		easing: backOut,
 	};
-
-	$: oversizedLabel =
-		oversizedBy < 9 ? oversizedBy.toFixed( 1 ) : `${ Math.floor( oversizedBy ) }+`;
 </script>
 
-<div class="bubble {severity}" on:mouseenter transition:fly={scaleConfig}>
-	<span class="label">{oversizedLabel}</span>
+<div class="interaction-area {severity}" on:mouseenter transition:fly={scaleTransition}>
+	<div class="bubble">
+		{#if false === $isLoading}
+			<div class="bubble-inner">
+				<div class="label" in:fade={{ delay: 200, duration: 300 }}>
+					{#if $oversizedRatio > 9}
+						{Math.floor( $oversizedRatio )}x
+					{:else if $oversizedRatio > 1}
+						{$oversizedRatio.toFixed( 1 )}x
+					{:else}
+						<span style="font-size: 0.75em;">&lt;</span> 1x
+					{/if}
+				</div>
+			</div>
+		{:else}
+			<div class="bubble-inner">
+				<Spinner />
+			</div>
+		{/if}
+	</div>
 </div>
 
 <style lang="scss">
-	.bubble {
+	/**
+	* This makes it easier to interact with the bable,
+	* by setting the interactive area larger than the bubble itself.
+	*/
+	.interaction-area {
 		padding: 15px;
 		// Offset .guide
 		margin-left: -15px;
 		margin-top: -15px;
 		margin-bottom: -15px;
 	}
-	.label {
+
+	.bubble {
 		background-color: #069e08;
 		color: white;
 
-		font-weight: 700;
+		font-weight: 600;
 		font-family: sans-serif;
 		font-size: 0.8em;
 
-		display: flex;
-		justify-content: center;
-		align-items: center;
+		position: relative;
 
 		width: 32px;
 		height: 32px;
@@ -52,6 +72,7 @@
 
 		text-shadow: 0 0 1px rgba( 0, 0, 0, 0.25 );
 		cursor: default;
+		transition: background-color 300ms ease;
 
 		.high & {
 			background-color: #e52e00;
@@ -62,30 +83,43 @@
 		}
 	}
 
+	.bubble-inner {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: auto;
+	}
+
 	:global( .guide.small ) {
-		.bubble {
+		.interaction-area {
 			padding: 15px;
 		}
 
-		.label {
+		.bubble {
 			width: 28px;
 			height: 28px;
+			font-size: 10px;
 		}
-
-		font-size: 9px;
 	}
 
 	:global( .guide.micro ) {
-		.bubble {
+		.interaction-area {
 			padding: 10px;
 			// Offset .guide
 			margin-left: -10px;
 			margin-top: -10px;
 		}
-		.label {
-			font-size: 0px;
+		.bubble {
 			width: 14px;
 			height: 14px;
+			font-size: 0px;
 		}
 	}
 </style>

@@ -1,5 +1,7 @@
+import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
-import type { MeasuredImage, ImageComponentConfig } from './types';
+import type { MeasurableImage } from './MeasurableImage';
+import type { ImageGuideConfig } from './types';
 
 /**
  * This function looks for the closest parent that is
@@ -41,7 +43,7 @@ function closestStableParent( node: HTMLElement ): HTMLElement | null {
  *
  */
 let wrapperID = 0;
-function findContainer( image: MeasuredImage ): HTMLElement | undefined {
+function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 	const node = image.node;
 
 	/**
@@ -49,7 +51,7 @@ function findContainer( image: MeasuredImage ): HTMLElement | undefined {
 	 * the same node can be used to insert the guide component,
 	 */
 	if (
-		image.type === 'background' &&
+		! ( image.node instanceof HTMLImageElement ) &&
 		[ 'static', 'relative' ].includes( getComputedStyle( node ).position )
 	) {
 		return node;
@@ -107,17 +109,8 @@ function findContainer( image: MeasuredImage ): HTMLElement | undefined {
  *
  * @param  measuredImages
  */
-export function attachGuides( measuredImages: MeasuredImage[] ) {
+export function attachGuides( measuredImages: MeasurableImage[] ) {
 	const componentConfiguration = measuredImages.reduce( ( acc, image ) => {
-		if (
-			( image.fileSize.weight < 10 && image.fileSize.weight >= 0 ) ||
-			( image.fileSize.width < 250 && image.fileSize.height < 100 )
-		) {
-			// eslint-disable-next-line no-console
-			console.info( `Skipping ${ image.url } because it's too small` );
-			return acc;
-		}
-
 		if ( ! image.node.parentNode ) {
 			// eslint-disable-next-line no-console
 			console.error( `Image has no parent`, image.node );
@@ -135,27 +128,31 @@ export function attachGuides( measuredImages: MeasuredImage[] ) {
 		// Don't create new entry for Svelte component configuration.
 		// Use the index in the array as a unique identifier.
 		const id = parseInt( container.dataset.jetpackBoostGuideId || '' );
-		const images = acc[ id ]?.props.images || [];
-		images.push( image );
+		const stores = acc[ id ]?.props.stores || [];
+		const store = new MeasurableImageStore( image );
+		stores.push( store );
 
 		// If there's only one image, assume a new Svelte component needs to be created.
-		if ( images.length === 1 ) {
+		if ( stores.length === 1 ) {
 			acc[ id ] = {
 				target: container,
 				// This triggers the nice fade-in animation as soon as the component is attached.
 				intro: true,
 				props: {
-					images,
+					stores,
 				},
 			};
 		}
 
 		return acc;
-	}, {} as Record< number, ImageComponentConfig > );
+	}, {} as Record< number, ImageGuideConfig > );
 
 	// Take the component configuration and create the Svelte components.
-	return Object.values( componentConfiguration ).map( data => {
-		const instance = new Main( data );
-		return instance;
-	} );
+	return Object.values( componentConfiguration )
+		.map( config => {
+			// eslint-disable-next-line no-new
+			new Main( config );
+			return config.props.stores;
+		} )
+		.flat();
 }
