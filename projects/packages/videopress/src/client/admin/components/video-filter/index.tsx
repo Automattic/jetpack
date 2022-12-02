@@ -16,12 +16,7 @@ import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import styles from './style.module.scss';
-
-type FilterObject = {
-	uploader?: { [ id: string | number ]: boolean };
-	privacy?: { [ value: string | number ]: boolean };
-	rating?: { [ value: string ]: boolean };
-};
+import { FilterObject } from './types';
 
 export const FilterButton = ( props: {
 	isActive: boolean;
