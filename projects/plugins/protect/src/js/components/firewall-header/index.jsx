@@ -130,4 +130,6 @@ const ConnectedFirewallHeader = () => {
 	);
 };
 
+export { FirewallHeader };
+
 export default ConnectedFirewallHeader;
