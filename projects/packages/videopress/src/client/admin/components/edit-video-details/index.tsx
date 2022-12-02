@@ -11,13 +11,17 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRightSmall } from '@wordpress/icons';
+import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useHistory, Prompt } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import { usePermission } from '../../hooks/use-permission';
+import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -41,11 +45,11 @@ const Header = ( {
 	onSaveChanges: () => void;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const navigate = useNavigate();
+	const history = useHistory();
 
 	return (
 		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
-			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
+			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
 				<Logo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>
@@ -63,6 +67,19 @@ const Header = ( {
 					</Button>
 				</div>
 			</div>
+		</div>
+	);
+};
+
+const GoBackLink = () => {
+	const history = useHistory();
+
+	return (
+		<div className={ styles[ 'back-link' ] }>
+			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+				<Icon icon={ arrowLeft } className={ styles.icon } />
+				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
+			</Link>
 		</div>
 	);
 };
@@ -141,15 +158,19 @@ const EditVideoDetails = () => {
 		title,
 		description,
 		caption,
+		// Playback Token
+		isFetchingPlaybackToken,
 		// Page State/Actions
-		saveDisabled,
+		hasChanges,
 		updating,
+		updated,
 		isFetching,
 		handleSaveChanges,
 		// Metadata
 		setTitle,
 		setDescription,
 		setCaption,
+		processing,
 		// Poster Image
 		useVideoAsThumbnail,
 		selectedTime,
@@ -158,16 +179,49 @@ const EditVideoDetails = () => {
 		handleOpenSelectFrame,
 		handleVideoFrameSelected,
 		frameSelectorIsOpen,
+		selectPosterImageFromLibrary,
+		posterImageSource,
+		libraryAttachment,
 	} = useEditDetails();
 
-	const thumbnail = useVideoAsThumbnail ? (
-		<VideoPlayer src={ url } currentTime={ selectedTime } />
-	) : (
-		posterImage
+	const { canPerformAction } = usePermission();
+
+	const unsavedChangesMessage = __(
+		'There are unsaved changes. Are you sure you want to exit?',
+		'jetpack-videopress-pkg'
 	);
+
+	useUnloadPrevent( {
+		shouldPrevent: hasChanges && ! updated && canPerformAction,
+		message: unsavedChangesMessage,
+	} );
+
+	const history = useHistory();
+
+	useEffect( () => {
+		if ( updated === true ) {
+			history.push( '/' );
+		}
+	}, [ updated ] );
+
+	if ( ! canPerformAction ) {
+		history.push( '/' );
+	}
+
+	let thumbnail: string | JSX.Element = posterImage;
+
+	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+	} else if ( posterImageSource === 'upload' ) {
+		thumbnail = libraryAttachment.url;
+	}
+
+	const isFetchingData = isFetching || isFetchingPlaybackToken;
 
 	return (
 		<>
+			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
+
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
@@ -181,11 +235,14 @@ const EditVideoDetails = () => {
 			<AdminPage
 				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 				header={
-					<Header
-						onSaveChanges={ handleSaveChanges }
-						saveDisabled={ saveDisabled }
-						saveLoading={ updating }
-					/>
+					<>
+						<GoBackLink />
+						<Header
+							onSaveChanges={ handleSaveChanges }
+							saveDisabled={ ! hasChanges }
+							saveLoading={ updating }
+						/>
+					</>
 				}
 			>
 				<AdminSection>
@@ -198,21 +255,23 @@ const EditVideoDetails = () => {
 								onChangeDescription={ setDescription }
 								caption={ caption ?? '' }
 								onChangeCaption={ setCaption }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ isFetching ? <Placeholder height={ 200 } /> : thumbnail }
+								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
 								duration={ duration }
 								editable
+								processing={ processing }
 								onSelectFromVideo={ handleOpenSelectFrame }
+								onUploadImage={ selectPosterImageFromLibrary }
 							/>
 							<VideoDetails
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
-								loading={ isFetching }
+								loading={ isFetchingData }
 							/>
 						</Col>
 					</Container>

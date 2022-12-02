@@ -4,31 +4,41 @@
 
 	Automatically folds away with "...and x more" when the list exceeds showLimit.
 -->
-<script>
+<script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { sprintf, __ } from '@wordpress/i18n';
 
 	/**
-	 * @member {Array} entries List of objects to pass to each copy of the slot.
+	 * Svelte doesn't support TypeScript generics,
+	 * so this is a workaround found in:
+	 * https://github.com/sveltejs/language-tools/issues/273
 	 */
-	export let entries = [];
+	type T = $$Generic;
+	interface $$Slots {
+		default: {
+			entry: T;
+		};
+	}
+
+	export let entries: T[] = [];
 
 	/**
-	 * @member {number} showLimit The maximum number of items to show before folding extras away.
+	 * The maximum number of items to show before folding extras away.
 	 */
 	export let showLimit = 2;
 
 	let expanded = false;
-
 	function toggle() {
 		expanded = ! expanded;
 	}
+
+	$: listItems = expanded ? entries : entries.slice( 0, showLimit );
 </script>
 
 <ul>
-	{#each expanded ? entries : entries.slice( 0, showLimit ) as props}
+	{#each listItems as item}
 		<li transition:slide|local>
-			<slot entry={props} />
+			<slot entry={item} />
 		</li>
 	{/each}
 

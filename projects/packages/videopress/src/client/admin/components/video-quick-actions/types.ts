@@ -17,9 +17,17 @@ export interface ActionItemProps extends React.ButtonHTMLAttributes< HTMLButtonE
 
 export interface PopoverWithAnchorProps {
 	/**
+	 * Whether the popover should be rendered or not
+	 */
+	showPopover?: boolean;
+	/**
+	 * Whether the anchor is focused
+	 */
+	isAnchorFocused?: boolean;
+	/**
 	 * Ref that anchors the popover
 	 */
-	anchorRef: HTMLElement | null;
+	anchor: HTMLElement | null;
 	/**
 	 * Popover content
 	 */
@@ -42,6 +50,7 @@ export interface VideoQuickActionsProps {
 
 	privacySetting?: privacySetting;
 	isUpdatingPrivacy?: boolean;
+	isUpdatingPoster?: boolean;
 
 	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
@@ -67,6 +76,8 @@ export interface ConnectVideoQuickActionsProps {
 export type ThumbnailActionsDropdownProps = {
 	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
 	description: string;
+	isUpdatingPoster?: boolean;
+	disabled?: boolean;
 };
 
 export type PrivacyActionsDropdownProps = {
@@ -74,4 +85,5 @@ export type PrivacyActionsDropdownProps = {
 	privacySetting?: privacySetting;
 	isUpdatingPrivacy?: boolean;
 	description: string;
+	disabled?: boolean;
 };

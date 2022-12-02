@@ -4,20 +4,20 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-autoloader": "2.11.x-dev",
-		"automattic/jetpack-composer-plugin": "1.1.x-dev",
-		"automattic/jetpack-config": "1.11.x-dev",
-		"automattic/jetpack-connection": "1.45.x-dev",
-		"automattic/jetpack-identity-crisis": "0.8.x-dev",
-		"automattic/jetpack-my-jetpack": "2.2.x-dev",
-		"automattic/jetpack-sync": "1.39.x-dev",
-		"automattic/jetpack-plugins-installer": "0.2.x-dev",
-		"automattic/jetpack-videopress": "0.5.x-dev"
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-videopress": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "3.2.x-dev",
+		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.0"
 	},
 	"autoload": {
@@ -56,6 +56,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ0_2_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ1_2_0_alpha"
 	}
 }

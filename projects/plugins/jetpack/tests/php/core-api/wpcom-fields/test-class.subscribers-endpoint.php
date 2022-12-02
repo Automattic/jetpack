@@ -2,7 +2,7 @@
 
 require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {
-	require_jetpack_file( 'modules/subscriptions.php' );
+	require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 }
 
 /**
@@ -37,7 +37,7 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 		wp_set_current_user( self::$editor_user_id );
 		self::set_subscribers_count( 100 );
 
-		$request  = wp_rest_request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
+		$request  = new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -47,7 +47,7 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 	public function test_get_subscriber_count_without_edit_permission() {
 		wp_set_current_user( self::$subscriber_user_id );
 
-		$request  = wp_rest_request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
+		$request  = new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 

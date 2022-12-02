@@ -4,15 +4,15 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.45",
-		"automattic/jetpack-assets": "^1.17",
-		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-status": "^1.14",
-		"automattic/jetpack-config": "^1.11",
-		"automattic/jetpack-my-jetpack": "^2.2"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^3.2",
+		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.0.3",
 		"automattic/wordbless": "0.4.0"
 	},
@@ -70,7 +70,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.26.x-dev"
+			"dev-trunk": "0.31.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

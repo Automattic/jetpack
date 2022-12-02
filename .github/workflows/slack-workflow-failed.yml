@@ -9,7 +9,7 @@ on:
       - Tests
       - Gardening
       - PR is up-to-date
-    branches: [ 'trunk', '*/branch-*' ]
+    branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 
 jobs:
   notify:
@@ -18,76 +18,80 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event != 'issues' && github.event.workflow_run.event != 'issue_comment' }}
 
     steps:
+      - uses: actions/checkout@v3
       - name: Generate message
         id: message
         run: |
-          echo -n "::set-output name=message::"
-          jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | $e.workflow_run as $run | {
-            icon_emoji: ":github-rejected:",
-            text: "*\( $e.workflow.name ) failed on \( $run.head_branch )*\n<\( $run.html_url )|Run #\( $run.id )>",
-            blocks: [
-              {
-                type: "section",
-                text: {
-                  type: "mrkdwn",
-                  text: "*\( $e.workflow.name ) failed on \( $run.head_branch )*"
-                }
-              },
-              {
-                type: "context",
-                elements: [
-                  {
-                    type: "plain_text",
-                    text: "Commit: \( $run.head_commit.id[0:8] ) \( $run.head_commit.message | sub( "\n.*"; ""; "m" ) )",
-                    emoji: false
-                  },
-                  {
-                    type: "plain_text",
-                    text: "Author: \( $run.head_commit.author.name )",
-                    emoji: false
-                  },
-                  {
-                    type: "plain_text",
-                    text: "Duration: \( ( $run.updated_at | fromdateiso8601 ) - ( $run.run_started_at | fromdateiso8601 ) | strftime( "%H:%M:%S" ) )"
+          source .github/files/gh-funcs.sh
+
+          gh_set_output message "$(
+            jq -nc --slurpfile event "$GITHUB_EVENT_PATH" '$event[0] as $e | $e.workflow_run as $run | {
+              icon_emoji: ":github-rejected:",
+              text: "*\( $e.workflow.name ) failed on \( $run.head_branch )*\n<\( $run.html_url )|Run #\( $run.id )>",
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*\( $e.workflow.name ) failed on \( $run.head_branch )*"
                   }
-                ]
-              },
-              {
-                type: "actions",
-                elements: [
-                  {
-                    type: "button",
-                    text: {
+                },
+                {
+                  type: "context",
+                  elements: [
+                    {
                       type: "plain_text",
-                      text: "Run #\( $run.id )"
+                      text: "Commit: \( $run.head_commit.id[0:8] ) \( $run.head_commit.message | sub( "\n.*"; ""; "m" ) )",
+                      emoji: false
                     },
-                    url: $run.html_url
-                  },
-                  {
-                    type: "button",
-                    text: {
+                    {
                       type: "plain_text",
-                      text: "Commit"
+                      text: "Author: \( $run.head_commit.author.name )",
+                      emoji: false
                     },
-                    url: "\( $run.head_repository.html_url )/commit/\( $run.head_commit.id )"
-                  },
-                  (
-                    $run.head_commit.message | sub( "\n.*"; ""; "m" ) | match( " \\(#([0-9]+)\\)$" ).captures[0].string | {
+                    {
+                      type: "plain_text",
+                      text: "Duration: \( ( $run.updated_at | fromdateiso8601 ) - ( $run.run_started_at | fromdateiso8601 ) | strftime( "%H:%M:%S" ) )"
+                    }
+                  ]
+                },
+                {
+                  type: "actions",
+                  elements: [
+                    {
                       type: "button",
                       text: {
                         type: "plain_text",
-                        text: "PR #\(.)"
+                        text: "Run #\( $run.id )"
                       },
-                      url: "\( $run.head_repository.html_url )/pull/\(.)"
-                    }
-                  )
-                ]
-              }
-            ]
-          }'
+                      url: $run.html_url
+                    },
+                    {
+                      type: "button",
+                      text: {
+                        type: "plain_text",
+                        text: "Commit"
+                      },
+                      url: "\( $run.head_repository.html_url )/commit/\( $run.head_commit.id )"
+                    },
+                    (
+                      $run.head_commit.message | sub( "\n.*"; ""; "m" ) | match( " \\(#([0-9]+)\\)$" ).captures[0].string | {
+                        type: "button",
+                        text: {
+                          type: "plain_text",
+                          text: "PR #\(.)"
+                        },
+                        url: "\( $run.head_repository.html_url )/pull/\(.)"
+                      }
+                    )
+                  ]
+                }
+              ]
+            }'
+          )"
 
       - name: Send message to alerts channel
-        uses: slackapi/slack-github-action@v1.19.0
+        uses: slackapi/slack-github-action@v1.23.0
         if: github.event.workflow_run.head_branch == 'trunk'
         with:
           channel-id: ${{ secrets.SLACK_JP_ALERTS_CHANNEL }}
@@ -96,8 +100,8 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v1.19.0
-        if: contains( github.event.workflow_run.head_branch, '/branch-' )
+        uses: slackapi/slack-github-action@v1.23.0
+        if: contains( github.event.workflow_run.head_branch, '/branch-' ) || github.event.workflow_run.head_branch == 'prerelease'
         with:
           channel-id: ${{ secrets.SLACK_RELEASES_CHANNEL }}
           payload: ${{ steps.message.outputs.message }}

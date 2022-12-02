@@ -104,6 +104,8 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint(
 			'posts_per_page'                          => '(int) Number of posts to show on blog pages',
 			'posts_per_rss'                           => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
+			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
+			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
 		),
 
 		'response_format' => array(

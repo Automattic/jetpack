@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Import Device-Detection directly from the monorepo, instead of attempting to load it via Jetpack.

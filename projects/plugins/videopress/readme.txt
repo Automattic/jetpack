@@ -1,68 +1,99 @@
-=== Jetpack VideoPress ===
-Contributors: automattic,
-Tags: jetpack, stuff
-Requires at least: 5.9
-Requires PHP: 5.6
-Tested up to: 6.0
-Stable tag: 0.1.0-alpha
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+=== Jetpack VideoPress  ===
+Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani
+Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
-Jetpack VideoPress plugin
+Requires at least: 6.0
+Tested up to: 6.1
+Stable tag: 1.0.0
+Requires PHP: 5.6
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+The finest video hosting for WordPress. Stunning-quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
 
 == Description ==
 
-High quality, ad-free video.
+### The Finest Video Hosting for WordPress
+
+With an immersive design, VideoPress is ideal for videographers, creators, filmmakers, educators, and bloggers seeking to upload high-quality videos with ease.
+
+Built for WordPress
+
+Take advantage of full integration with the best video hosting plugin created specifically for WordPress. Bring your ideas to the screen and save time by managing your videos in the same interface as your website. You can drag and drop videos directly into WordPress, and manage them in the media library.
+
+
+Stay in control of your audience
+
+Tired of video companies sending your customers to their app to view videos? Or worse, showing inappropriate ads to your site visitors? Our customizable video player for WordPress keeps people on your site so the spotlight is all yours. With VideoPress, you can avoid intrusive ads or imposing player branding.
+
+High-quality, lightning-fast video hosting
+
+Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution. 
+
 
 == Installation ==
 
-Installation instructions go here.
+### Installation
+
+1. To begin, click on the Plugins link in the left hand sidebar, then click Add New.
+2. Search for VideoPress. The latest version will be in the search results. Click the Install Now button.
+3. Next, click the Activate button. After activating, you will be prompted to set up VideoPress.
+
+
+
+ == WITH 💚 BY JETPACK  ==
+
+This is just the start!
+
+We are working hard to bring more features and improvements to VideoPress. Let us know your thoughts and ideas.
+
+
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+### Is Jetpack VideoPress free?
+Jetpack VideoPress is free to try. You get free video hosting for WordPress for one video with a file size of up to 1 GB.
 
-An answer to that question.
+To get unlimited videos with a total storage of up to 1 TB, upgrade to the paid plan.
+
+
+### Is Jetpack VideoPress included in a Jetpack plan?
+Jetpack’s video player for WordPress is included in the Jetpack Complete plan. It is not currently included in any other plan.
+
+### Is there a storage limit?
+The free plan has a limit of 1 video and 1 GB.
+
+The paid plan has a storage limit of 1 TB.
+
+###Is there a file size limit?
+The file size limit is 5 GB. However, on slower networks, there is a chance the network will time out before being able to upload larger videos to a WordPress site.
+
 
 == Screenshots ==
-
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Add and manage your videos from your VideoPress library.
+2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
+### 1.1.0-beta - 2022-11-22
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+#### Added
+- Added VideoPress feedback link to the VideoPress block.
+- Added Download, Details, Privacy, Rating and Dimensions panel to block.
+- Added rating control to the block's admin page details panel.
+- Added file drop support also after first video on admin page.
+- Added thumbnail selection from video frame on quick action and in edit details view for the admin page.
 
-== Arbitrary section ==
+#### Changed
 
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+- Updated Color Panel on block.
+- Allowed keyboard navigation on video quick actions.
+- Renamed "Match video title" setting for "Dynamic color" in block settings panel.
 
-== A brief Markdown Example ==
+#### Fixed
 
-Ordered list:
+- Fixed recognition of Jetpack Complete plan.
+- Fixed issue when setting video privacy.
+- Introduced a static list of video extensions allowed on VideoPress.
+- Mitigated video re-rendering flicker.
+- Fixed an issue with private VideoPress videos timing out when script loading is delayed.
+- Added Site Settings section for controlling site-wide privacy for videos.
 
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](https://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-"Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`

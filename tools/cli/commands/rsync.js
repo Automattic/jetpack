@@ -92,14 +92,17 @@ async function promptToManageConfig() {
 		type: 'list',
 		name: 'manageConfig',
 		message: 'Manage saved destination paths.',
-		choices: [ 'list', 'clear all', 'remove' ],
+		choices: [ 'list', 'add', 'remove' ],
 	} );
 	if ( configManage.manageConfig === 'list' ) {
 		console.log( "Here's what you have saved:" );
 		console.log( rsyncConfigStore.all );
 	}
-	if ( configManage.manageConfig === 'clear' ) {
-		await promptClearAll();
+	if ( configManage.manageConfig === 'add' ) {
+		const aliasDest = await promptNewDest();
+		if ( aliasDest ) {
+			await promptForSetAlias( aliasDest );
+		}
 	}
 	if ( configManage.manageConfig === 'remove' ) {
 		const configKeys = Object.keys( rsyncConfigStore.all );
@@ -283,7 +286,21 @@ async function promptForSetAlias( pluginDestPath ) {
 		message: 'Enter an alias for easier reference? (Press enter to skip.)',
 	} );
 	const alias = aliasSetPrompt.alias || pluginDestPath;
-	setRsyncDest( pluginDestPath, alias );
+	if ( rsyncConfigStore.has( escapeKey( alias ) ) ) {
+		const alreadyFound = await inquirer.prompt( {
+			name: 'overwrite',
+			type: 'confirm',
+			message: `This alias already exists for dest: ${ rsyncConfigStore.get(
+				escapeKey( alias )
+			) }. Overwrite it?`,
+		} );
+		if ( ! alreadyFound.overwrite ) {
+			console.log( 'Okay!' );
+			return;
+		}
+	}
+	await setRsyncDest( pluginDestPath, alias );
+	console.log( `Alias '${ alias }' saved for ${ pluginDestPath }` );
 }
 
 /**
@@ -303,23 +320,33 @@ async function maybePromptForDest( argv ) {
 	}
 	const savedDests = Object.keys( rsyncConfigStore.all );
 	savedDests.unshift( 'Create new' );
-	let response = await inquirer.prompt( {
+	const response = await inquirer.prompt( {
 		name: 'dest',
 		type: 'list',
 		message: 'Choose destination:',
 		choices: savedDests,
 	} );
 	if ( 'Create new' === response.dest ) {
-		response = await inquirer.prompt( {
-			name: 'dest',
-			type: 'input',
-			message: 'Input destination path to the /plugins dir: ',
-		} );
-		argv.dest = response.dest;
+		argv.dest = await promptNewDest();
 	} else {
 		argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
 	}
 	return argv;
+}
+
+/**
+ * Prompts for the destination.
+ *
+ * @returns {Promise<*|string>} - Destination path
+ */
+async function promptNewDest() {
+	const response = await inquirer.prompt( {
+		name: 'dest',
+		type: 'input',
+		message: "Input destination host:path to the plugin's dir or the /plugins or /mu-plugins dir: ",
+		validate: v => ( v === '' ? 'Please enter a host:path' : true ),
+	} );
+	return response.dest;
 }
 
 /**
@@ -385,7 +412,7 @@ export function rsyncDefine( yargs ) {
 					type: 'string',
 				} )
 				.option( 'config', {
-					describe: 'Remove or list saved destinations in the config.',
+					describe: 'List, add, or remove saved destinations in the config.',
 					type: 'boolean',
 				} );
 		},

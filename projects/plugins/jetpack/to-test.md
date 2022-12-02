@@ -1,40 +1,52 @@
-## Jetpack 11.4
+## Jetpack 11.6
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Jetpack Recommendations Assistant
+### Jetpack Form Block
 
-There have been updates for the Jetpack Recommendations Assistant. In particular, there is a recommendation for agency managed sites [#26302], and mobile app store links are now shown based on device type [#26093].
+The Form Block received several updates and bug fixes in this version. To test, try the following:
 
-**To test the agency specific recommendation, try:**
+- Make sure the testing site has Jetpack connected to your account.
+- Create a post and add a Form block to it. 
+- Test much of the existing functionality as well as any new Form block features:
+  - Try the new "Explore Forms Patterns" button when adding the block.
+  - Try updating placeholder text.
+  - The page shown to visitors after submitting a form has had the design slightly modified for better readability across various themes. Check to make sure that the post-submission design looks good on your test site.
+  - After submitting forms, check out wp-admin -> Feedback and check out the new layout to make sure things look good.
 
-- With the Jetpack Beta Tester [plugin](https://jetpack.com/download-jetpack-beta/) activated, and the 11.4-beta branch active, on the main dashboard page `/wp-admin/admin.php?page=jetpack#/dashboard` there is an option in the footer to "Reset Options (dev only)" which can be used to reset the recommendation steps if they have already been completed.
-- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- Select "This is a personal site".
-- Then select "Continue", it should skip straight to the Downtime Monitoring recommendation.
-- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- This time, select the "I build or manage this site for a client" option.
-- Select "Continue" and this time you should get the new agencies recommendation.
-- On the agency screen, test that the "Learn More" and "Get Jetpack for Agencies" links work.
-- Click "Not now" on the agency screen recommendation and you should be directed to the next recommendation. Continue selecting "Not now" until you reach the summary page.
-- Click the "Sign Up" external link next to the Jetpack for Agencies recommendation and make sure it opens (no need to fill out): https://cloud.jetpack.com/agency/signup
-- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type` and select both "I build or manage this site for a client" and "This is an e-commerce site" and click on Continue.
-- You should see the Agencies recommendation first, select "Not now".
-- Next you should see the WooCommerce recommendation.
-- That is all for testing these updated recommendations.
+### SEO
 
-**And to test the mobile app links:**
+There have been some new changes to SEO options available in the editor. One allows you to set a post or page as "noindex", instructing search engines to not show the page in search results. To test:
 
-- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/summary`
-- On a desktop or laptop computer, a QR code for the Jetpack mobile app will be displayed next to the `jetpack.com/mobile` URL.
-- When visiting the same recommendations page on a mobile device, the respective app store button should be shown for well known devices and mobile operating systems.
-- If you don't have a mobile device to test with, you might try using Chrome to simulate the user agent:
-  - Open the Chrome Dev Tools
-  - Click the vertical menu option > More tools > Network conditions
-  - In the Network conditions tab, uncheck the "Use browser default" for the user agent, and select an iOS or Android one for testing.
-  - When refreshing the recommendations page you should see the expected mobile app store button.
+- Make sure SEO and Sitemaps features are turned on in: /wp-admin/admin.php?page=jetpack#/traffic
+- Create a new test post or page and publish it without using the new "Hide page from search engines" checkbox feature.
+- Examine the published post source on the frontend and make sure there is not any `<meta name='robots' content='noindex'` or similar.
+	- If there is, double check your "Search engine visibility" in Reading settings: /wp-admin/options-reading.php
+- Now edit the same post and check the "Hide page from search engines" checkbox and save the post.
+- Refresh the post on the frontend to examine that it has a `<meta name="robots" content="noindex" />` tag.
+- Using a plugin like "WP Crontrol" or wp-cli commands, run the `jp_sitemap_cron_hook` event so that the Jetpack sitemap is generated.
+- Examine your Jetpack sitemap at `yourdomain/sitemap.xml` for the now non-indexed post, it should be absent from the freshly generated sitemap.
+- Setting the Jetpack SEO options should work equally well from both the Jetpack sidebar menu and the pre-publish panel (sidebar shown when publishing a new post).
+
+We also have a new meta field in the SEO module that allows a custom value for the HTML `<title>` tag to be specified at the post/page level.
+
+- Before beginning the test, make sure the SEO module is enabled by navigating to "Jetpack > Settings" and searching for "SEO". Turn this module on by clicking on the toggle:
+- Open an individual post on the front end of the site and take note of the page title displaying in the HTML/browser tab. This should be the default HTML title.
+- In the post editor, click on the Jetpack icon in the upper right-hand corner, this will show Jetpack-specific settings in the post editor sidebar.
+- Expand the "Jetpack SEO" menu item and in the "SEO title" field, set a custom title and then choose "Update" to update the post.
+- Refresh the post on the frontend of the site and confirm that the `<title>` tag and browser tab now display your custom title.
+
+Other notes for the new meta field that you can check out:
+
+- If you have the Jetpack social connections module enabled, you should also see the og:title meta tag updated to contain your custom title string.
+- There were some small modifications to how the custom SEO description is fetched, please check that adding custom SEO descriptions still work as expected for posts and pages.
+- Change a post status to "Draft", then in the editor click "Publish". The pre-publish sidebar should contain the "Jetpack SEO" menu item.
+
+### And More!
+
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.6/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**

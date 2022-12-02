@@ -2,13 +2,13 @@
 
 $arrow-color: var( --jp-gray );
 
+// Fix arrow color
+.components-popover:not(.is-without-arrow)::before {
+	border-color: $arrow-color;
+}
+
 // Namespace to avoid overriding global styles
 .icon-tooltip-helper {
-	// Fix arrow color
-	.components-popover:not(.is-without-arrow)::before {
-		border-color: $arrow-color;
-	}
-
 	/*
 	* Fix arrow placement - section start
 	*/
@@ -43,7 +43,7 @@ $arrow-color: var( --jp-gray );
 	}
 
 	.components-popover:not(.is-without-arrow)[data-y-axis=top]::before {
-		bottom: 2px;
+		bottom: 3px;
 	}
 
 	.components-popover:not(.is-without-arrow)[data-y-axis=top]::after {

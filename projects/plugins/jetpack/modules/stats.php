@@ -1,13 +1,13 @@
 <?php
 /**
- * Module Name: Site Stats
+ * Module Name: Jetpack Stats
  * Module Description: Collect valuable traffic stats and insights.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
  * Requires Connection: Yes
  * Auto Activate: Yes
- * Module Tags: Site Stats, Recommended
+ * Module Tags: Jetpack Stats, Site Stats, Recommended
  * Feature: Engagement
  * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  *
@@ -22,6 +22,7 @@ use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
+use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
 use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
@@ -29,7 +30,6 @@ if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 }
 
 define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
-defined( 'STATS_VERSION' ) || define( 'STATS_VERSION', '9' );
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
@@ -89,11 +89,11 @@ function stats_enqueue_dashboard_head() {
 /**
  * Checks if filter is set and dnt is enabled.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @return bool
  */
 function jetpack_is_dnt_enabled() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::jetpack_is_dnt_enabled' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::jetpack_is_dnt_enabled' );
 	return Stats::jetpack_is_dnt_enabled();
 }
 
@@ -120,7 +120,7 @@ function stats_ignore_db_version( $version ) {
 /**
  * Maps view_stats cap to read cap as needed.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $caps Caps.
@@ -129,19 +129,19 @@ function stats_ignore_db_version( $version ) {
  * @return array Possibly mapped capabilities for meta capability.
  */
 function stats_map_meta_caps( $caps, $cap, $user_id ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::map_meta_caps' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::map_meta_caps' );
 	return Stats::map_meta_caps( $caps, $cap, $user_id );
 }
 
 /**
  * Stats Template Redirect.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @access public
  * @return void
  */
 function stats_template_redirect() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Main::template_redirect' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::template_redirect' );
 	Stats::template_redirect();
 
 }
@@ -149,24 +149,24 @@ function stats_template_redirect() {
 /**
  * Stats Build View Data.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @access public
  * @return array.
  */
 function stats_build_view_data() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::build_view_data' );
 	return Stats_Tracking_Pixel::build_view_data();
 }
 
 /**
  * Stats Footer.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  * @access public
  * @return void
  */
 function stats_footer() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
 	Stats_Tracking_Pixel::add_to_footer();
 
 }
@@ -174,58 +174,58 @@ function stats_footer() {
 /**
  * Render the stats footer
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @param array $data Array of data for the JS stats tracker.
  */
 function stats_render_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
 	Stats_Tracking_Pixel::render_footer( $data );
 }
 
 /**
  * Render the stats footer for AMP output.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @param array $data Array of data for the AMP pixel tracker.
  */
 function stats_render_amp_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
 	Stats_Tracking_Pixel::render_amp_footer( $data );
 }
 
 /**
  * Stats Get Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @return array.
  */
 function stats_get_options() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::get_options' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_options' );
 	return Stats_Options::get_options();
 }
 
 /**
  * Get Stats Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $option Option.
  * @return mixed|null.
  */
 function stats_get_option( $option ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::get_option' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::get_option' );
 	return Stats_Options::get_option( $option );
 }
 
 /**
  * Stats Set Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $option Option.
@@ -233,35 +233,35 @@ function stats_get_option( $option ) {
  * @return bool.
  */
 function stats_set_option( $option, $value ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::set_option' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_option' );
 	return Stats_Options::set_option( $option, $value );
 }
 
 /**
  * Stats Set Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $options Options.
  * @return bool
  */
 function stats_set_options( $options ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::set_options' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::set_options' );
 	return Stats_Options::set_options( $options );
 }
 
 /**
  * Stats Upgrade Options.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @param mixed $options Options.
  * @return array|bool
  */
 function stats_upgrade_options( $options ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Stats\Options::upgrade_options' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Options::upgrade_options' );
 	return Stats_Options::upgrade_options( $options );
 }
 
@@ -285,8 +285,15 @@ function stats_admin_menu() {
 		}
 	}
 
-	$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
-	add_action( "load-$hook", 'stats_reports_load' );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! Stats_Options::get_option( 'enable_calypso_stats' ) ) {
+		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
+		add_action( "load-$hook", 'stats_reports_load' );
+	} else {
+		$stats_dashboard = new StatsDashboard();
+		$hook            = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
+		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+	}
 }
 
 /**
@@ -386,7 +393,9 @@ function stats_js_load_page_via_ajax() {
 /* <![CDATA[ */
 if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
 	jQuery( function( $ ) {
-		$.get( document.location.href + '&noheader', function( responseText ) {
+		const loadStatsUrl = new URL( document.location.href );
+		loadStatsUrl.searchParams.append( 'noheader', 1 );
+		$.get( loadStatsUrl.toString(), function( responseText ) {
 			$( '#stats-loading-wrap' ).replaceWith( responseText );
 			$( '#jp-stats-wrap' )[0].dispatchEvent( new Event( 'stats-loaded' ) );
 		} );
@@ -463,8 +472,8 @@ function stats_reports_page( $main_chart_only = false ) {
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
 		<p style="font-size: 11pt; margin: 0;"><a href="<?php echo esc_url( $stats_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
-		<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
-		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
+		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
+		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
 	</div>
 		<?php
@@ -771,7 +780,7 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$img_src    = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale' ) );
 	$img_src_2x = esc_attr( stats_get_image_chart_src( 'admin-bar-hours-scale-2x' ) );
 	$alt        = esc_attr( __( 'Stats', 'jetpack' ) );
-	$title      = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
+	$title      = esc_attr( __( 'Views over 48 hours. Click for more Jetpack Stats.', 'jetpack' ) );
 
 	$menu = array(
 		'id'    => 'stats',
@@ -801,13 +810,13 @@ function stats_update_blog() {
 /**
  * Stats Get Blog.
  *
- * @deprecated $$next-version$$
+ * @deprecated 11.5
  *
  * @access public
  * @return string
  */
 function stats_get_blog() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+	_deprecated_function( __METHOD__, 'jetpack-11.5' );
 	return Stats_XMLRPC::init()->get_blog();
 }
 
@@ -1368,11 +1377,13 @@ function jetpack_stats_api_path( $resource = '' ) {
  *
  * @link: https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
  * @access public
+ * @deprecated 11.5 Use WPCOM_Stats available methodsinstead.
  * @param array  $args (default: array())  The args that are passed to the endpoint.
  * @param string $resource (default: '') Optional sub-endpoint following /stats/.
  * @return array|WP_Error.
  */
 function stats_get_from_restapi( $args = array(), $resource = '' ) {
+	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Please checkout the methods available in Automattic\Jetpack\Stats\WPCOM_Stats' );
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
@@ -1499,11 +1510,29 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 /**
  * Add the Jetpack plugin version to the stats tracking data.
  *
- * @param  param array $kvs The stats array in key values.
+ * @param  array $kvs The stats array in key values.
  * @return array
  */
 function filter_stats_array_add_jp_version( $kvs ) {
 	$kvs['j'] = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
 
 	return $kvs;
+}
+
+/**
+ * Convert stats array to object after sanity checking the array is valid.
+ *
+ * @param  array $stats_array The stats array.
+ * @return WP_Error|Object|null
+ */
+function convert_stats_array_to_object( $stats_array ) {
+
+	if ( is_wp_error( $stats_array ) ) {
+		return $stats_array;
+	}
+	$encoded_array = wp_json_encode( $stats_array );
+	if ( ! $encoded_array ) {
+		return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
+	}
+	return json_decode( $encoded_array );
 }

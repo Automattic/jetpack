@@ -5,23 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.1.0 - 2022-07-06
+## 1.1.0-beta - 2022-11-22
+
 ### Added
-- Add activation and deactivation hooks. [#24250]
-- E2E tests boilerplate. [#24723]
-- Enable beta plugin support. [#23836]
-- Initial release. [#23434]
+- Added VideoPress feedback link to the VideoPress block.
+- Added Download, Details, Privacy, Rating and Dimensions panel to block.
+- Added rating control to the block's admin page details panel.
+- Added file drop support also after first video on admin page.
+- Added thumbnail selection from video frame on quick action and in edit details view for the admin page.
 
 ### Changed
-- Changed the method used to disconnect. [#24299]
-- Configure Sync with the minimal amount of data. [#23759]
-- Janitorial: require a more recent version of WordPress now that WP 6.0 is coming out. [#24083]
-- Remove use of `pnpx` in preparation for pnpm 7.0. [#24210]
-- Renaming master to trunk. [#24661]
-- Renaming `master` references to `trunk`. [#24712]
-- Reorder JS imports for `import/order` eslint rule. [#24601]
-- Updated package dependencies.
+
+- Updated Color Panel on block.
+- Allowed keyboard navigation on video quick actions.
+- Renamed "Match video title" setting for "Dynamic color" in block settings panel.
 
 ### Fixed
-- Jetpack CLI: correctly replace project description and release-branch-prefix. [#23911]
-- Updated .gitattributes file so it is able to build properly by the CI build jobs. [#23591]
+
+- Fixed recognition of Jetpack Complete plan.
+- Fixed issue when setting video privacy.
+- Introduced a static list of video extensions allowed on VideoPress.
+- Mitigated video re-rendering flicker.
+- Fixed an issue with private VideoPress videos timing out when script loading is delayed.
+- Added Site Settings section for controlling site-wide privacy for videos.
+
+## 1.0.0 - 2022-10-25
+
+### Added
+- Initial release.
+

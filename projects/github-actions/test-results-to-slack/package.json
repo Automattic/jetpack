@@ -1,6 +1,6 @@
 {
 	"name": "test-results-to-slack",
-	"version": "0.1.0-alpha",
+	"version": "0.2.0-alpha",
 	"description": "GitHub Action to send Slack notifications with test results",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -14,15 +14,15 @@
 	],
 	"main": "src/index.js",
 	"dependencies": {
-		"@actions/core": "1.9.1",
-		"@actions/github": "5.0.3",
+		"@actions/core": "1.10.0",
+		"@actions/github": "5.1.1",
 		"@slack/web-api": "6.7.2",
 		"glob": "8.0.3",
 		"minimatch": "5.1.0"
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.28.5",
-		"jest": "28.1.3",
+		"jest": "29.3.1",
 		"nock": "13.2.9"
 	},
 	"scripts": {

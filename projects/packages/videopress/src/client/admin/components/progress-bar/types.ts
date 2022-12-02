@@ -8,4 +8,9 @@ export type ProgressBarProps = {
 	 * The current progress percentage, from 0 to 1.
 	 */
 	progress: number;
+
+	/**
+	 * The progress bar height.
+	 */
+	size?: 'normal' | 'small';
 };

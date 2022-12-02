@@ -16,6 +16,7 @@ use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 
 class Admin {
 
@@ -65,6 +66,9 @@ class Admin {
 			array( $this, 'render_settings' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+
+		// Set up Super Cache info system if WP Super Cache available.
+		Super_Cache_Info::init();
 
 		// Admin Notices
 		Regenerate_Admin_Notice::init();

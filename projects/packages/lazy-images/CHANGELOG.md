@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.28] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27043]
+
+## [2.1.27] - 2022-11-14
+### Changed
+- Updated package dependencies. [#27289]
+
+## [2.1.26] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [2.1.25] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
 ## [2.1.24] - 2022-10-05
 ### Changed
 - Updated package dependencies. [#26568]
@@ -261,6 +277,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.28]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.27...v2.1.28
+[2.1.27]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.26...v2.1.27
+[2.1.26]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.25...v2.1.26
+[2.1.25]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.24...v2.1.25
 [2.1.24]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.23...v2.1.24
 [2.1.23]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.22...v2.1.23
 [2.1.22]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.21...v2.1.22
