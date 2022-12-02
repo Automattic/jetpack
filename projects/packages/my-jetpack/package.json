@@ -1,7 +1,11 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
+<<<<<<< HEAD
 	"version": "2.5.0",
+=======
+	"version": "2.5.0.1",
+>>>>>>> 755dead958 (Release My Jetpack 2.5.0.1)
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
